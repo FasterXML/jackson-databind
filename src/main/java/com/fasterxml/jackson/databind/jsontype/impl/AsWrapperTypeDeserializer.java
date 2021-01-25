@@ -87,11 +87,11 @@ public class AsWrapperTypeDeserializer
         JsonToken t = p.currentToken();
         if (t == JsonToken.START_OBJECT) {
             // should always get field name, but just in case...
-            if (p.nextToken() != JsonToken.FIELD_NAME) {
-                ctxt.reportWrongTokenException(baseType(), JsonToken.FIELD_NAME,
+            if (p.nextToken() != JsonToken.PROPERTY_NAME) {
+                ctxt.reportWrongTokenException(baseType(), JsonToken.PROPERTY_NAME,
                         "need JSON String that contains type id (for subtype of "+baseTypeName()+")");
             }
-        } else if (t != JsonToken.FIELD_NAME) {
+        } else if (t != JsonToken.PROPERTY_NAME) {
             ctxt.reportWrongTokenException(baseType(), JsonToken.START_OBJECT,
                     "need JSON Object to contain As.WRAPPER_OBJECT type information for class "+baseTypeName());
         }
@@ -104,7 +104,7 @@ public class AsWrapperTypeDeserializer
             // but what if there's nowhere to add it in? Error? Or skip? For now, skip.
             TokenBuffer tb = TokenBuffer.forInputBuffering(p, ctxt);
             tb.writeStartObject(); // recreate START_OBJECT
-            tb.writeFieldName(_typePropertyName);
+            tb.writeName(_typePropertyName);
             tb.writeString(typeId);
             // 02-Jul-2016, tatu: Depending on for JsonParserSequence is initialized it may
             //   try to access current token; ensure there isn't one

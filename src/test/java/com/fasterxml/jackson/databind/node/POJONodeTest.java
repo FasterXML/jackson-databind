@@ -25,7 +25,7 @@ public class POJONodeTest extends NodeTestBase
         {
             String attrStr = (String) provider.getAttribute("myAttr");
             gen.writeStartObject();
-            gen.writeStringField("aStr", "The value is: " + (attrStr == null ? "NULL" : attrStr));
+            gen.writeStringProperty("aStr", "The value is: " + (attrStr == null ? "NULL" : attrStr));
             gen.writeEndObject();
         }
     }

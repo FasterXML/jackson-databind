@@ -16,9 +16,9 @@ public class NullifyingDeserializer
     public NullifyingDeserializer() { super(Object.class); }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Deserializer API
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -29,9 +29,9 @@ public class NullifyingDeserializer
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
-        // 29-Jan-2016, tatu: Simple skipping for all other tokens, but FIELD_NAME bit
+        // 29-Jan-2016, tatu: Simple skipping for all other tokens, but PROPERTY_NAME bit
         //    special unfortunately
-        if (p.hasToken(JsonToken.FIELD_NAME)) {
+        if (p.hasToken(JsonToken.PROPERTY_NAME)) {
             while (true) {
                 JsonToken t = p.nextToken();
                 if ((t == null) || (t == JsonToken.END_OBJECT)) {
@@ -54,7 +54,7 @@ public class NullifyingDeserializer
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_START_ARRAY:
         case JsonTokenId.ID_START_OBJECT:
-        case JsonTokenId.ID_FIELD_NAME:
+        case JsonTokenId.ID_PROPERTY_NAME:
             return typeDeserializer.deserializeTypedFromAny(p, ctxt);
         default:
             return null;

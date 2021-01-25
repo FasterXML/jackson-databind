@@ -136,7 +136,7 @@ public class TestTypeModifiers extends BaseMapTest
         {
             jgen.writeStartObject();
             if (_keySerializer == null) {
-                jgen.writeFieldName((String) value.getKey());
+                jgen.writeName((String) value.getKey());
             } else {
                 _keySerializer.serialize(value.getKey(), jgen, provider);
             }
@@ -154,7 +154,7 @@ public class TestTypeModifiers extends BaseMapTest
         public MapMarker<?,?> deserialize(JsonParser p, DeserializationContext ctxt)
         {
             if (p.currentToken() != JsonToken.START_OBJECT) throw new StreamReadException(p, "Wrong token: "+p.currentToken());
-            if (p.nextToken() != JsonToken.FIELD_NAME) throw new StreamReadException(p, "Wrong token: "+p.currentToken());
+            if (p.nextToken() != JsonToken.PROPERTY_NAME) throw new StreamReadException(p, "Wrong token: "+p.currentToken());
             String key = p.currentName();
             if (p.nextToken() != JsonToken.VALUE_NUMBER_INT) throw new StreamReadException(p, "Wrong token: "+p.currentToken());
             int value = p.getIntValue();

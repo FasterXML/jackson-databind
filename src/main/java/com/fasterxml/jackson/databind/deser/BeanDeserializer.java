@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.deser;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.sym.FieldNameMatcher;
+import com.fasterxml.jackson.core.sym.PropertyNameMatcher;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.deser.impl.*;
@@ -26,7 +26,7 @@ public class BeanDeserializer
     protected transient Exception _nullFromCreator;
 
     // @since 3.0
-    protected FieldNameMatcher _fieldMatcher;
+    protected PropertyNameMatcher _fieldMatcher;
 
     // @since 3.0
     protected SettableBeanProperty[] _fieldsByIndex;
@@ -92,8 +92,8 @@ public class BeanDeserializer
             UnwrappedPropertyHandler unwrapHandler, BeanPropertyMap renamedProperties,
             boolean ignoreAllUnknown) {
         super(src, unwrapHandler, renamedProperties, ignoreAllUnknown);
-        _fieldMatcher = _beanProperties.getFieldMatcher();
-        _fieldsByIndex = _beanProperties.getFieldMatcherProperties();
+        _fieldMatcher = _beanProperties.getNameMatcher();
+        _fieldsByIndex = _beanProperties.getNameMatcherProperties();
     }
 
     protected BeanDeserializer(BeanDeserializer src, ObjectIdReader oir) {
@@ -111,8 +111,8 @@ public class BeanDeserializer
 
     protected BeanDeserializer(BeanDeserializer src, BeanPropertyMap props) {
         super(src, props);
-        _fieldMatcher = _beanProperties.getFieldMatcher();
-        _fieldsByIndex = _beanProperties.getFieldMatcherProperties();
+        _fieldMatcher = _beanProperties.getNameMatcher();
+        _fieldsByIndex = _beanProperties.getNameMatcherProperties();
     }
 
     /*
@@ -182,8 +182,8 @@ public class BeanDeserializer
     @Override
     protected void initFieldMatcher(DeserializationContext ctxt) {
         _beanProperties.initMatcher(ctxt.getParserFactory());
-        _fieldMatcher = _beanProperties.getFieldMatcher();
-        _fieldsByIndex = _beanProperties.getFieldMatcherProperties();
+        _fieldMatcher = _beanProperties.getNameMatcher();
+        _fieldsByIndex = _beanProperties.getNameMatcherProperties();
     }
 
     /*
@@ -236,7 +236,7 @@ public class BeanDeserializer
             case START_ARRAY:
                 // these only work if there's a (delegating) creator, or UNWRAP_SINGLE_ARRAY
                 return _deserializeFromArray(p, ctxt);
-            case FIELD_NAME:
+            case PROPERTY_NAME:
             case END_OBJECT: // added to resolve [JACKSON-319], possible related issues
                 if (_vanillaProcessing) {
                     return _vanillaDeserialize(p, ctxt, t);
@@ -278,7 +278,7 @@ public class BeanDeserializer
             if (propName == null) {
                 return bean;
             }
-        } else if (p.hasTokenId(JsonTokenId.ID_FIELD_NAME)) {
+        } else if (p.hasTokenId(JsonTokenId.ID_PROPERTY_NAME)) {
             propName = p.currentName();
         } else {
             return bean;
@@ -301,8 +301,8 @@ public class BeanDeserializer
             }
             ix = p.nextFieldName(_fieldMatcher);
         }
-        if (ix != FieldNameMatcher.MATCH_END_OBJECT) {
-            if (ix == FieldNameMatcher.MATCH_UNKNOWN_NAME) {
+        if (ix != PropertyNameMatcher.MATCH_END_OBJECT) {
+            if (ix == PropertyNameMatcher.MATCH_UNKNOWN_NAME) {
                 return _vanillaDeserializeWithUnknown(p, ctxt, bean,
                         p.currentName());
             }
@@ -376,8 +376,8 @@ public class BeanDeserializer
             }
             ix = p.nextFieldName(_fieldMatcher);
         }
-        if (ix != FieldNameMatcher.MATCH_END_OBJECT) {
-            if (ix == FieldNameMatcher.MATCH_UNKNOWN_NAME) {
+        if (ix != PropertyNameMatcher.MATCH_END_OBJECT) {
+            if (ix == PropertyNameMatcher.MATCH_UNKNOWN_NAME) {
                 return _vanillaDeserializeWithUnknown(p, ctxt, bean,
                         p.currentName());
             }
@@ -398,7 +398,7 @@ public class BeanDeserializer
         // [databind#631]: Assign current value, to be accessible by custom serializers
         p.assignCurrentValue(bean);
 
-        if (t != JsonToken.FIELD_NAME) {
+        if (t != JsonToken.PROPERTY_NAME) {
             return bean;
         }
         int ix = p.currentFieldName(_fieldMatcher);
@@ -425,8 +425,8 @@ public class BeanDeserializer
             }
             ix = p.nextFieldName(_fieldMatcher);
         }
-        if (ix != FieldNameMatcher.MATCH_END_OBJECT) {
-            if (ix == FieldNameMatcher.MATCH_UNKNOWN_NAME) {
+        if (ix != PropertyNameMatcher.MATCH_END_OBJECT) {
+            if (ix == PropertyNameMatcher.MATCH_UNKNOWN_NAME) {
                 return _vanillaDeserializeWithUnknown(p, ctxt, bean,
                         p.currentName());
             }
@@ -452,10 +452,10 @@ public class BeanDeserializer
                 }
                 continue;
             }
-            if (ix == FieldNameMatcher.MATCH_END_OBJECT) {
+            if (ix == PropertyNameMatcher.MATCH_END_OBJECT) {
                 return bean;
             }
-            if (ix != FieldNameMatcher.MATCH_UNKNOWN_NAME) {
+            if (ix != PropertyNameMatcher.MATCH_UNKNOWN_NAME) {
                 return _handleUnexpectedWithin(p, ctxt, bean);
             }
             p.nextToken();
@@ -477,7 +477,7 @@ public class BeanDeserializer
          *   but let's only do that if and when that becomes necessary.
          */
         if ((_objectIdReader != null) && _objectIdReader.maySerializeAsObject()) {
-            if (p.hasTokenId(JsonTokenId.ID_FIELD_NAME)
+            if (p.hasTokenId(JsonTokenId.ID_PROPERTY_NAME)
                     && _objectIdReader.isValidReferencePropertyName(p.currentName(), p)) {
                 return deserializeFromObjectId(p, ctxt);
             }
@@ -515,7 +515,7 @@ public class BeanDeserializer
         if (_injectables != null) {
             injectValues(ctxt, bean);
         }
-        if (!p.hasTokenId(JsonTokenId.ID_FIELD_NAME)) {
+        if (!p.hasTokenId(JsonTokenId.ID_PROPERTY_NAME)) {
             // should we check what exactly it is... ?
             return bean;
         }
@@ -535,10 +535,10 @@ public class BeanDeserializer
                 }
                 continue;
             }
-            if (ix == FieldNameMatcher.MATCH_END_OBJECT) {
+            if (ix == PropertyNameMatcher.MATCH_END_OBJECT) {
                 return bean;
             }
-            if (ix != FieldNameMatcher.MATCH_UNKNOWN_NAME) {
+            if (ix != PropertyNameMatcher.MATCH_UNKNOWN_NAME) {
                 return _handleUnexpectedWithin(p, ctxt, bean);
             }
             p.nextToken();
@@ -565,7 +565,7 @@ public class BeanDeserializer
 
         JsonToken t = p.currentToken();
         List<BeanReferring> referrings = null;
-        for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
+        for (; t == JsonToken.PROPERTY_NAME; t = p.nextToken()) {
             String propName = p.currentName();
             p.nextToken(); // to point to value
             final SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
@@ -590,7 +590,7 @@ public class BeanDeserializer
                 }
                 value = _deserializeWithErrorWrapping(p, ctxt, creatorProp);
                 if (buffer.assignParameter(creatorProp, value)) {
-                    p.nextToken(); // to move to following FIELD_NAME/END_OBJECT
+                    p.nextToken(); // to move to following PROPERTY_NAME/END_OBJECT
                     Object bean;
                     try {
                         bean = creator.build(ctxt, buffer);
@@ -653,7 +653,7 @@ public class BeanDeserializer
             if (unknown == null) {
                 unknown = TokenBuffer.forInputBuffering(p, ctxt);
             }
-            unknown.writeFieldName(propName);
+            unknown.writeName(propName);
             unknown.copyCurrentStructure(p);
         }
 
@@ -803,8 +803,8 @@ public class BeanDeserializer
                 }
                 continue;
             }
-            if (ix != FieldNameMatcher.MATCH_END_OBJECT) {
-                if (ix != FieldNameMatcher.MATCH_UNKNOWN_NAME) {
+            if (ix != PropertyNameMatcher.MATCH_END_OBJECT) {
+                if (ix != PropertyNameMatcher.MATCH_UNKNOWN_NAME) {
                     return _handleUnexpectedWithin(p, ctxt, bean);
                 }
                 p.nextToken();
@@ -862,10 +862,10 @@ public class BeanDeserializer
                 }
                 continue;
             }
-            if (ix == FieldNameMatcher.MATCH_END_OBJECT) {
+            if (ix == PropertyNameMatcher.MATCH_END_OBJECT) {
                 break;
             }
-            if (ix == FieldNameMatcher.MATCH_ODD_TOKEN) {
+            if (ix == PropertyNameMatcher.MATCH_ODD_TOKEN) {
                 return _handleUnexpectedWithin(p, ctxt, bean);
             }
             final String propName = p.currentName();
@@ -881,13 +881,13 @@ public class BeanDeserializer
             // how about any setter? We'll get copies but...
             if (_anySetter == null) {
                 // but... others should be passed to unwrapped property deserializers
-                tokens.writeFieldName(propName);
+                tokens.writeName(propName);
                 tokens.copyCurrentStructure(p);
                 continue;
             }
             // Need to copy to a separate buffer first
             TokenBuffer b2 = TokenBuffer.asCopyOfValue(p);
-            tokens.writeFieldName(propName);
+            tokens.writeName(propName);
             tokens.append(b2);
             try {
                 _anySetter.deserializeAndSet(b2.asParserOnFirstToken(), ctxt, bean, propName);
@@ -927,10 +927,10 @@ public class BeanDeserializer
                 }
                 continue;
             }
-            if (ix == FieldNameMatcher.MATCH_END_OBJECT) {
+            if (ix == PropertyNameMatcher.MATCH_END_OBJECT) {
                 break;
             }
-            if (ix == FieldNameMatcher.MATCH_ODD_TOKEN) {
+            if (ix == PropertyNameMatcher.MATCH_ODD_TOKEN) {
                 return _handleUnexpectedWithin(p, ctxt, bean);
             }
             final String propName = p.currentName();
@@ -945,12 +945,12 @@ public class BeanDeserializer
             // how about any setter? We'll get copies but...
             if (_anySetter == null) {
                 // but... others should be passed to unwrapped property deserializers
-                tokens.writeFieldName(propName);
+                tokens.writeName(propName);
                 tokens.copyCurrentStructure(p);
             } else {
                 // Need to copy to a separate buffer first
                 TokenBuffer b2 = TokenBuffer.asCopyOfValue(p);
-                tokens.writeFieldName(propName);
+                tokens.writeName(propName);
                 tokens.append(b2);
                 try {
                     _anySetter.deserializeAndSet(b2.asParserOnFirstToken(), ctxt, bean, propName);
@@ -979,7 +979,7 @@ public class BeanDeserializer
         tokens.writeStartObject();
 
         JsonToken t = p.currentToken();
-        for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
+        for (; t == JsonToken.PROPERTY_NAME; t = p.nextToken()) {
             String propName = p.currentName();
             p.nextToken(); // to point to value
             // creator property?
@@ -992,7 +992,7 @@ public class BeanDeserializer
                 // Last creator property to set?
                 if (buffer.assignParameter(creatorProp,
                         _deserializeWithErrorWrapping(p, ctxt, creatorProp))) {
-                    t = p.nextToken(); // to move to following FIELD_NAME/END_OBJECT
+                    t = p.nextToken(); // to move to following PROPERTY_NAME/END_OBJECT
                     Object bean;
                     try {
                         bean = creator.build(ctxt, buffer);
@@ -1002,7 +1002,7 @@ public class BeanDeserializer
                     // [databind#631]: Assign current value, to be accessible by custom serializers
                     p.assignCurrentValue(bean);
                     // if so, need to copy all remaining tokens into buffer
-                    while (t == JsonToken.FIELD_NAME) {
+                    while (t == JsonToken.PROPERTY_NAME) {
                         // NOTE: do NOT skip name as it needs to be copied; `copyCurrentStructure` does that
                         tokens.copyCurrentStructure(p);
                         t = p.nextToken();
@@ -1044,12 +1044,12 @@ public class BeanDeserializer
             // how about any setter? We'll get copies but...
             if (_anySetter == null) {
                 // but... others should be passed to unwrapped property deserializers
-                tokens.writeFieldName(propName);
+                tokens.writeName(propName);
                 tokens.copyCurrentStructure(p);
             } else {
                 // Need to copy to a separate buffer first
                 TokenBuffer b2 = TokenBuffer.asCopyOfValue(p);
-                tokens.writeFieldName(propName);
+                tokens.writeName(propName);
                 tokens.append(b2);
                 try {
                     buffer.bufferAnyProperty(_anySetter, propName,
@@ -1123,10 +1123,10 @@ public class BeanDeserializer
                 }
                 continue;
             }
-            if (ix == FieldNameMatcher.MATCH_END_OBJECT) {
+            if (ix == PropertyNameMatcher.MATCH_END_OBJECT) {
                 break;
             }
-            if (ix != FieldNameMatcher.MATCH_UNKNOWN_NAME) {
+            if (ix != PropertyNameMatcher.MATCH_UNKNOWN_NAME) {
                 return _handleUnexpectedWithin(p, ctxt, bean);
             }
             // ignorable things should be ignored
@@ -1167,7 +1167,7 @@ public class BeanDeserializer
         TokenBuffer tokens = TokenBuffer.forInputBuffering(p, ctxt);
         tokens.writeStartObject();
 
-        for (JsonToken t = p.currentToken(); t == JsonToken.FIELD_NAME; t = p.nextToken()) {
+        for (JsonToken t = p.currentToken(); t == JsonToken.PROPERTY_NAME; t = p.nextToken()) {
             String propName = p.currentName();
             p.nextToken(); // to point to value
             // creator property?
@@ -1185,7 +1185,7 @@ public class BeanDeserializer
                 } else {
                     // Last creator property to set?
                     if (buffer.assignParameter(creatorProp, _deserializeWithErrorWrapping(p, ctxt, creatorProp))) {
-                        t = p.nextToken(); // to move to following FIELD_NAME/END_OBJECT
+                        t = p.nextToken(); // to move to following PROPERTY_NAME/END_OBJECT
                         Object bean;
                         try {
                             bean = creator.build(ctxt, buffer);
@@ -1193,7 +1193,7 @@ public class BeanDeserializer
                             throw wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
                         }
                         // if so, need to copy all remaining tokens into buffer
-                        while (t == JsonToken.FIELD_NAME) {
+                        while (t == JsonToken.PROPERTY_NAME) {
                             p.nextToken(); // to skip name
                             tokens.copyCurrentStructure(p);
                             t = p.nextToken();
@@ -1257,7 +1257,7 @@ public class BeanDeserializer
     }
 
     /**
-     * Method called if an unexpected token (other then <code>FIELD_NAME</code>)
+     * Method called if an unexpected token (other then {@code JsonToken.PROPERTY_NAME})
      * is found after POJO has been instantiated and partially bound.
      *
      * @since 3.0

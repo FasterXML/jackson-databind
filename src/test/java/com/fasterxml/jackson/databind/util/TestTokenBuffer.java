@@ -179,9 +179,9 @@ public class TestTokenBuffer extends BaseMapTest
     {
         TokenBuffer buf = TokenBuffer.forGeneration();
         buf.writeStartObject();
-        buf.writeFieldName("b");
+        buf.writeName("b");
         buf.writeStartObject();
-        buf.writeFieldName("c");
+        buf.writeName("c");
         //This assertion succeeds as expected
         assertEquals("b", buf.getOutputContext().getParent().currentName());
         buf.writeString("cval");
@@ -276,14 +276,14 @@ public class TestTokenBuffer extends BaseMapTest
         // Then one with simple contents
         buf = TokenBuffer.forGeneration();
         buf.writeStartObject();
-        buf.writeNumberField("num", 1.25);
+        buf.writeNumberProperty("num", 1.25);
         buf.writeEndObject();
 
         p = buf.asParser(ObjectReadContext.empty());
         assertNull(p.currentToken());
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertNull(p.currentName());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("num", p.currentName());
         // and override should also work:
 //        p.overrideCurrentName("bah");
@@ -332,11 +332,11 @@ public class TestTokenBuffer extends BaseMapTest
     {
         TokenBuffer buf1 = TokenBuffer.forGeneration();
         buf1.writeStartObject();
-        buf1.writeFieldName("a");
+        buf1.writeName("a");
         buf1.writeBoolean(true);
         
         TokenBuffer buf2 = TokenBuffer.forGeneration();
-        buf2.writeFieldName("b");
+        buf2.writeName("b");
         buf2.writeNumber(13);
         buf2.writeEndObject();
         
@@ -345,10 +345,10 @@ public class TestTokenBuffer extends BaseMapTest
         // and verify that we got it all...
         JsonParser p = buf1.asParser(ObjectReadContext.empty());
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("a", p.currentName());
         assertToken(JsonToken.VALUE_TRUE, p.nextToken());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("b", p.currentName());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(13, p.getIntValue());
@@ -411,24 +411,24 @@ public class TestTokenBuffer extends BaseMapTest
         gen.writeStartObject();
         _verifyOutputContext(buf, gen);
         
-        buf.writeFieldName("a");
-        gen.writeFieldName("a");
+        buf.writeName("a");
+        gen.writeName("a");
         _verifyOutputContext(buf, gen);
 
         buf.writeNumber(1);
         gen.writeNumber(1);
         _verifyOutputContext(buf, gen);
 
-        buf.writeFieldName("b");
-        gen.writeFieldName("b");
+        buf.writeName("b");
+        gen.writeName("b");
         _verifyOutputContext(buf, gen);
 
         buf.writeStartObject();
         gen.writeStartObject();
         _verifyOutputContext(buf, gen);
         
-        buf.writeFieldName("c");
-        gen.writeFieldName("c");
+        buf.writeName("c");
+        gen.writeName("c");
         _verifyOutputContext(buf, gen);
 
         buf.writeNumber(2);
@@ -493,13 +493,13 @@ public class TestTokenBuffer extends BaseMapTest
         // {"a":{},"b":{"c":"cval"}}
         
         buf.writeStartObject();
-        buf.writeFieldName("a");
+        buf.writeName("a");
         buf.writeStartObject();
         buf.writeEndObject();
 
-        buf.writeFieldName("b");
+        buf.writeName("b");
         buf.writeStartObject();
-        buf.writeFieldName("c");
+        buf.writeName("c");
         //This assertion fails (because of 'a')
         assertEquals("b", buf.getOutputContext().getParent().currentName());
         buf.writeString("cval");
@@ -531,11 +531,11 @@ public class TestTokenBuffer extends BaseMapTest
 
         buf = TokenBuffer.forGeneration();
         buf.writeStartObject();
-        buf.writeFieldName(new SerializedString("foo"));
+        buf.writeName(new SerializedString("foo"));
         buf.writeNull();
-        buf.writeFieldName("bar");
+        buf.writeName("bar");
         buf.writeNumber(BigInteger.valueOf(123));
-        buf.writeFieldName("dec");
+        buf.writeName("dec");
         buf.writeNumber(BigDecimal.valueOf(5).movePointLeft(2));
         assertEquals(aposToQuotes("{'foo':null,'bar':123,'dec':0.05}"), MAPPER.writeValueAsString(buf));
         buf.close();

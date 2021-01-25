@@ -118,7 +118,7 @@ public class UnwrappingBeanPropertyWriter
 
         // note: must verify we are using unwrapping serializer; if not, will write field name
         if (!ser.isUnwrappingSerializer()) {
-            gen.writeFieldName(_name);
+            gen.writeName(_name);
         }
 
         if (_typeSerializer == null) {

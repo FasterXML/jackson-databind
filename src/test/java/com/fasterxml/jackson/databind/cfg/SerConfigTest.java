@@ -51,7 +51,7 @@ public class SerConfigTest extends BaseMapTest
     public void testFormatFeatures() throws Exception
     {
         final JsonWriteFeature DUSABLED_BY_DEFAULT = JsonWriteFeature.ESCAPE_NON_ASCII;
-        final JsonWriteFeature ENABLED_BY_DEFAULT = JsonWriteFeature.QUOTE_FIELD_NAMES;
+        final JsonWriteFeature ENABLED_BY_DEFAULT = JsonWriteFeature.QUOTE_PROPERTY_NAMES;
 
         SerializationConfig config = MAPPER.serializationConfig();
         // feature that is NOT enabled by default

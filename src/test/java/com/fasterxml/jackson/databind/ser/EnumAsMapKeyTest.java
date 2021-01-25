@@ -67,7 +67,7 @@ public class EnumAsMapKeyTest extends BaseMapTest
             @Override
             public void serialize(Foo661 value, JsonGenerator g, SerializerProvider provider) 
             {
-                g.writeFieldName("X-"+value.name());
+                g.writeName("X-"+value.name());
             }
         }
     }

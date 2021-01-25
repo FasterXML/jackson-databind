@@ -17,7 +17,7 @@ public class JsonParserSequenceTest extends BaseMapTest
         // Create parser from TokenBuffer containing an incomplete JSON object
         TokenBuffer buf1 = TokenBuffer.forGeneration();
         buf1.writeStartObject();
-        buf1.writeFieldName("foo");
+        buf1.writeName("foo");
         buf1.writeStartObject();
         JsonParser parser1 = buf1.asParser(ObjectReadContext.empty());
 
@@ -30,7 +30,7 @@ public class JsonParserSequenceTest extends BaseMapTest
         // Create sequence of both parsers and verify tokens
         JsonParser parserSequence = JsonParserSequence.createFlattened(false, parser1, parser2);
         assertToken(JsonToken.START_OBJECT, parserSequence.nextToken());
-        assertToken(JsonToken.FIELD_NAME, parserSequence.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, parserSequence.nextToken());
         assertToken(JsonToken.START_OBJECT, parserSequence.nextToken());
 
         // Skip children of current token. JsonParserSequence's overridden version should switch to the next parser

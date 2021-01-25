@@ -753,7 +753,7 @@ public abstract class SerializerProvider
      * Method called to get the serializer to use for serializing
      * non-null Map keys. Separation from regular
      * {@link #findValueSerializer} method is because actual write
-     * method must be different (@link JsonGenerator#writeFieldName};
+     * method must be different (@link JsonGenerator#writeName};
      * but also since behavior for some key types may differ.
      *<p>
      * Note that the serializer itself can be called with instances
@@ -1085,11 +1085,11 @@ public abstract class SerializerProvider
      * value. Value may be null. Serializer is done using the usual
      * null) using standard serializer locating functionality.
      */
-    public final void defaultSerializeField(String fieldName, Object value, JsonGenerator gen)
+    public final void defaultSerializeField(String propertyName, Object value, JsonGenerator g)
         throws JacksonException
     {
-        gen.writeFieldName(fieldName);
-        writeValue(gen, value);
+        g.writeName(propertyName);
+        writeValue(g, value);
     }
 
     /**
@@ -1135,9 +1135,9 @@ public abstract class SerializerProvider
         throws JacksonException
     {
         if (isEnabled(SerializationFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS)) {
-            gen.writeFieldName(String.valueOf(timestamp));
+            gen.writeName(String.valueOf(timestamp));
         } else {
-            gen.writeFieldName(_dateFormat().format(new Date(timestamp)));
+            gen.writeName(_dateFormat().format(new Date(timestamp)));
         }
     }
 
@@ -1149,9 +1149,9 @@ public abstract class SerializerProvider
     public void defaultSerializeDateKey(Date date, JsonGenerator gen) throws JacksonException
     {
         if (isEnabled(SerializationFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS)) {
-            gen.writeFieldName(String.valueOf(date.getTime()));
+            gen.writeName(String.valueOf(date.getTime()));
         } else {
-            gen.writeFieldName(_dateFormat().format(date));
+            gen.writeName(_dateFormat().format(date));
         }
     }
 

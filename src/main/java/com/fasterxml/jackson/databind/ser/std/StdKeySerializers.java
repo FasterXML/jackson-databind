@@ -145,7 +145,7 @@ public abstract class StdKeySerializers
                 provider.defaultSerializeDateKey(((Calendar) value).getTimeInMillis(), g);
                 break;
             case TYPE_CLASS:
-                g.writeFieldName(((Class<?>)value).getName());
+                g.writeName(((Class<?>)value).getName());
                 break;
             case TYPE_ENUM:
                 {
@@ -162,22 +162,22 @@ public abstract class StdKeySerializers
                             key = e.name();
                         }
                     }
-                    g.writeFieldName(key);
+                    g.writeName(key);
                 }
                 break;
             case TYPE_INTEGER:
             case TYPE_LONG:
-                g.writeFieldId(((Number) value).longValue());
+                g.writePropertyId(((Number) value).longValue());
                 break;
             case TYPE_BYTE_ARRAY:
                 {
                     String encoded = provider.getConfig().getBase64Variant().encode((byte[]) value);
-                    g.writeFieldName(encoded);
+                    g.writeName(encoded);
                 }
                 break;
             case TYPE_TO_STRING:
             default:
-                g.writeFieldName(value.toString());
+                g.writeName(value.toString());
             }
         }
     }
@@ -252,7 +252,7 @@ public abstract class StdKeySerializers
         public void serialize(Object value, JsonGenerator g, SerializerProvider provider)
             throws JacksonException
         {
-            g.writeFieldName((String) value);
+            g.writeName((String) value);
         }
     }
 
@@ -279,16 +279,16 @@ public abstract class StdKeySerializers
             throws JacksonException
         {
             if (serializers.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)) {
-                g.writeFieldName(value.toString());
+                g.writeName(value.toString());
                 return;
             }
             Enum<?> en = (Enum<?>) value;
             // 14-Sep-2019, tatu: [databind#2129] Use this specific feature
             if (serializers.isEnabled(SerializationFeature.WRITE_ENUM_KEYS_USING_INDEX)) {
-                g.writeFieldName(String.valueOf(en.ordinal()));
+                g.writeName(String.valueOf(en.ordinal()));
                 return;
             }
-            g.writeFieldName(_values.serializedValueFor(en));
+            g.writeName(_values.serializedValueFor(en));
         }
     }
 }

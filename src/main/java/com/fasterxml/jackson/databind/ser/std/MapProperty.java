@@ -97,8 +97,8 @@ public class MapProperty extends PropertyWriter
     public void serializeAsOmittedField(Object map, JsonGenerator gen,
             SerializerProvider provider)
     {
-        if (!gen.canOmitFields()) {
-            gen.writeOmittedField(getName());
+        if (!gen.canOmitProperties()) {
+            gen.writeOmittedProperty(getName());
         }
     }
 

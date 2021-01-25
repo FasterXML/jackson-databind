@@ -1,7 +1,8 @@
 package com.fasterxml.jackson.databind.deser.std;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.sym.FieldNameMatcher;
+import com.fasterxml.jackson.core.sym.PropertyNameMatcher;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.BeanDeserializer;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
@@ -109,8 +110,8 @@ public class ThrowableDeserializer
                 pending[pendingIx++] = prop.deserialize(p, ctxt);
                 continue;
             }
-            if (ix != FieldNameMatcher.MATCH_UNKNOWN_NAME) {
-                if (ix == FieldNameMatcher.MATCH_END_OBJECT) {
+            if (ix != PropertyNameMatcher.MATCH_UNKNOWN_NAME) {
+                if (ix == PropertyNameMatcher.MATCH_END_OBJECT) {
                     break;
                 }
                 return _handleUnexpectedWithin(p, ctxt, throwable);

@@ -32,7 +32,7 @@ public class CustomMapKeys2454Test extends BaseMapTest
         @Override
         public void serialize(Key2454 value, JsonGenerator gen,
                 SerializerProvider serializers) {
-            gen.writeFieldName("id="+value.id);
+            gen.writeName("id="+value.id);
         }
     }
 

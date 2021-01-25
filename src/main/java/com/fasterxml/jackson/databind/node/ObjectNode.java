@@ -318,7 +318,7 @@ public class ObjectNode
             if (trimEmptyArray && value.isArray() && value.isEmpty(provider)) {
             	continue;
             }
-            g.writeFieldName(en.getKey());
+            g.writeName(en.getKey());
             value.serialize(g, provider);
         }
         g.writeEndObject();
@@ -345,7 +345,7 @@ public class ObjectNode
                 continue;
             }
             
-            g.writeFieldName(en.getKey());
+            g.writeName(en.getKey());
             value.serialize(g, ctxt);
         }
         typeSer.writeTypeSuffix(g, ctxt, typeIdDef);

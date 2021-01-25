@@ -96,7 +96,7 @@ public class TestCustomEnumKeyDeserializer extends BaseMapTest
     static class TestEnumKeySerializer extends JsonSerializer<TestEnum> {
         @Override
         public void serialize(TestEnum test, JsonGenerator g, SerializerProvider serializerProvider) {
-            g.writeFieldName(test.code());
+            g.writeName(test.code());
         }
 
         @Override

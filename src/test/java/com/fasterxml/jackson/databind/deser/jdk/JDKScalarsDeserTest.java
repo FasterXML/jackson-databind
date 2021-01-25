@@ -475,7 +475,7 @@ public class JDKScalarsDeserTest
             unwrappingR.readValue("[{\"v\":[" + value + "," + value + "]}]");
             fail("Did not throw exception while reading a value from a multi value array with UNWRAP_SINGLE_VALUE_ARRAY feature enabled");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Unexpected token (VALUE_NUMBER_FLOAT)");
+            verifyException(e, "Unexpected token (`JsonToken.VALUE_NUMBER_FLOAT`)");
         }
         
         result = unwrappingR.readValue("{\"v\":[null]}");

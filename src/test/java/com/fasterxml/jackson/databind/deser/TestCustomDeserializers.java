@@ -66,10 +66,10 @@ public class TestCustomDeserializers
             JsonToken t = p.currentToken();
             if (t == JsonToken.START_OBJECT) {
                 t = p.nextToken();
-            } else if (t != JsonToken.FIELD_NAME) {
+            } else if (t != JsonToken.PROPERTY_NAME) {
                 throw new Error();
             }
-            while(t == JsonToken.FIELD_NAME) {
+            while(t == JsonToken.PROPERTY_NAME) {
                 final String fieldName = p.currentName();
                 t = p.nextToken();
                 if (t != JsonToken.VALUE_NUMBER_INT) {
@@ -125,7 +125,7 @@ public class TestCustomDeserializers
     static class CustomKeySerializer extends JsonSerializer<CustomKey> {
         @Override
         public void serialize(CustomKey value, JsonGenerator g, SerializerProvider provider) {
-            g.writeFieldName(String.valueOf(value.getId()));
+            g.writeName(String.valueOf(value.getId()));
         }
     }
 

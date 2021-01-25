@@ -53,7 +53,7 @@ public class TestTreeTraversingParser
         assertNull(p.currentName());
         assertEquals("Expected START_OBJECT", JsonToken.START_OBJECT.asString(), p.getText());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("a", p.currentName());
         assertEquals("a", p.getText());
 
@@ -62,7 +62,7 @@ public class TestTreeTraversingParser
         assertEquals(123, p.getIntValue());
         assertEquals("123", p.getText());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("list", p.currentName());
         assertEquals("list", p.getText());
 
@@ -138,7 +138,7 @@ public class TestTreeTraversingParser
         JsonNode tree = MAPPER.readTree(JSON);
         JsonParser p = tree.traverse(ObjectReadContext.empty());
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
 
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertToken(JsonToken.START_ARRAY, p.nextToken());
@@ -284,7 +284,7 @@ public class TestTreeTraversingParser
         }
         try (final JsonParser p = MAPPER.readTree("{ \"value\" : "+tooBig+" }").traverse(ObjectReadContext.empty())) {
             assertToken(JsonToken.START_OBJECT, p.nextToken());
-            assertToken(JsonToken.FIELD_NAME, p.nextToken());
+            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
             assertEquals(NumberType.LONG, p.getNumberType());
             try {
@@ -325,7 +325,7 @@ public class TestTreeTraversingParser
         }
         try (final JsonParser p = MAPPER.readTree("{ \"value\" : "+tooBig+" }").traverse(ObjectReadContext.empty())) {
             assertToken(JsonToken.START_OBJECT, p.nextToken());
-            assertToken(JsonToken.FIELD_NAME, p.nextToken());
+            assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
             assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
             assertEquals(NumberType.BIG_INTEGER, p.getNumberType());
             try {
@@ -355,7 +355,7 @@ public class TestTreeTraversingParser
         for (long okValue : okValues) {
             try (final JsonParser p = MAPPER.readTree("{ \"value\" : "+okValue+" }").traverse(ObjectReadContext.empty())) {
                 assertToken(JsonToken.START_OBJECT, p.nextToken());
-                assertToken(JsonToken.FIELD_NAME, p.nextToken());
+                assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
                 assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
                 assertEquals(NumberType.LONG, p.getNumberType());
                 assertEquals(okValue, p.getLongValue());

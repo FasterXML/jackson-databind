@@ -26,7 +26,7 @@ public class MapKeySerializationTest extends BaseMapTest
     {
         @Override
         public void serialize(String value, JsonGenerator gen, SerializerProvider provider) {
-            gen.writeFieldName("Karl");
+            gen.writeName("Karl");
         }
     }
 
@@ -89,7 +89,7 @@ public class MapKeySerializationTest extends BaseMapTest
         @Override
         public void serialize(ABC value, JsonGenerator gen,
                 SerializerProvider provider) {
-            gen.writeFieldName("xxx"+value);
+            gen.writeName("xxx"+value);
         }
     }
 
@@ -99,7 +99,7 @@ public class MapKeySerializationTest extends BaseMapTest
         public NullKeySerializer(String s) { _null = s; }
         @Override
         public void serialize(Object value, JsonGenerator gen, SerializerProvider provider) {
-            gen.writeFieldName(_null);
+            gen.writeName(_null);
         }
     }
 
@@ -117,7 +117,7 @@ public class MapKeySerializationTest extends BaseMapTest
     {
         @Override
         public void serialize(Object value, JsonGenerator g, SerializerProvider provider) {
-            g.writeFieldName("DEFAULT:"+value);
+            g.writeName("DEFAULT:"+value);
         }
     }
 

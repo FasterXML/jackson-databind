@@ -279,12 +279,12 @@ public abstract class DefaultDeserializationContext
         String expSimpleName = expRootName.getSimpleName();
         if (p.currentToken() != JsonToken.START_OBJECT) {
             reportWrongTokenException(rootType, JsonToken.START_OBJECT,
-                    "Current token not START_OBJECT (needed to unwrap root name %s), but %s",
+                    "Current token not `JsonToken.START_OBJECT` (needed to unwrap root name %s), but %s",
                     ClassUtil.name(expSimpleName), p.currentToken());
         }
-        if (p.nextToken() != JsonToken.FIELD_NAME) {
-            reportWrongTokenException(rootType, JsonToken.FIELD_NAME,
-                    "Current token not FIELD_NAME (to contain expected root name %s), but %s",
+        if (p.nextToken() != JsonToken.PROPERTY_NAME) {
+            reportWrongTokenException(rootType, JsonToken.PROPERTY_NAME,
+                    "Current token not `JsonToken.PROPERTY_NAME` (to contain expected root name %s), but %s",
                     ClassUtil.name(expSimpleName), p.currentToken());
         }
         String actualName = p.currentName();
@@ -304,7 +304,7 @@ ClassUtil.name(actualName), ClassUtil.name(expSimpleName), ClassUtil.getTypeDesc
         // and last, verify that we now get matching END_OBJECT
         if (p.nextToken() != JsonToken.END_OBJECT) {
             reportWrongTokenException(rootType, JsonToken.END_OBJECT,
-"Current token not END_OBJECT (to match wrapper object with root name %s), but %s",
+"Current token not `JsonToken.END_OBJECT` (to match wrapper object with root name %s), but %s",
 ClassUtil.name(expSimpleName), p.currentToken());
         }
         return result;

@@ -141,7 +141,7 @@ public abstract class VirtualBeanPropertyWriter
 
         if (value == null) {
             if (_nullSerializer != null) {
-                gen.writeFieldName(_name);
+                gen.writeName(_name);
                 _nullSerializer.serialize(null, gen, prov);
             }
             return;
@@ -170,7 +170,7 @@ public abstract class VirtualBeanPropertyWriter
                 return;
             }
         }
-        gen.writeFieldName(_name);
+        gen.writeName(_name);
         if (_typeSerializer == null) {
             ser.serialize(value, gen, prov);
         } else {

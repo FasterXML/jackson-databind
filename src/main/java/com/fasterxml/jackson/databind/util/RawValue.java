@@ -83,7 +83,7 @@ public class RawValue
     {
         if (_value instanceof JsonSerializable) {
             // No SerializerProvider passed, must go via generator, callback
-            gen.writeObject(_value);
+            gen.writePOJO(_value);
         } else {
             _serialize(gen);
         }

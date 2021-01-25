@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.deser;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.sym.FieldNameMatcher;
+import com.fasterxml.jackson.core.sym.PropertyNameMatcher;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.deser.impl.*;
@@ -34,11 +34,11 @@ public class BuilderBasedDeserializer
     protected final JavaType _targetType;
 
     // @since 3.0
-    protected FieldNameMatcher _fieldMatcher;
+    protected PropertyNameMatcher _propertyNameMatcher;
 
     // @since 3.0
-    protected SettableBeanProperty[] _fieldsByIndex;
-    
+    protected SettableBeanProperty[] _propertiesByIndex;
+
     /**
      * State marker we need in order to avoid infinite recursion for some cases
      * (not very clean, alas, but has to do for now)
@@ -97,8 +97,8 @@ public class BuilderBasedDeserializer
         super(src, ignoreAllUnknown);
         _buildMethod = src._buildMethod;
         _targetType = src._targetType;
-        _fieldMatcher = src._fieldMatcher;
-        _fieldsByIndex = src._fieldsByIndex;
+        _propertyNameMatcher = src._propertyNameMatcher;
+        _propertiesByIndex = src._propertiesByIndex;
     }
 
     protected BuilderBasedDeserializer(BuilderBasedDeserializer src,
@@ -107,16 +107,16 @@ public class BuilderBasedDeserializer
         super(src, unwrapHandler, renamedProperties, ignoreAllUnknown);
         _buildMethod = src._buildMethod;
         _targetType = src._targetType;
-        _fieldMatcher = _beanProperties.getFieldMatcher();
-        _fieldsByIndex = _beanProperties.getFieldMatcherProperties();
+        _propertyNameMatcher = _beanProperties.getNameMatcher();
+        _propertiesByIndex = _beanProperties.getNameMatcherProperties();
     }
 
     public BuilderBasedDeserializer(BuilderBasedDeserializer src, ObjectIdReader oir) {
         super(src, oir);
         _buildMethod = src._buildMethod;
         _targetType = src._targetType;
-        _fieldMatcher = src._fieldMatcher;
-        _fieldsByIndex = src._fieldsByIndex;
+        _propertyNameMatcher = src._propertyNameMatcher;
+        _propertiesByIndex = src._propertiesByIndex;
     }
 
     public BuilderBasedDeserializer(BuilderBasedDeserializer src, Set<String> ignorableProps) {
@@ -127,23 +127,23 @@ public class BuilderBasedDeserializer
         super(src, ignorableProps, includableProps);
         _buildMethod = src._buildMethod;
         _targetType = src._targetType;
-        _fieldMatcher = src._fieldMatcher;
-        _fieldsByIndex = src._fieldsByIndex;
+        _propertyNameMatcher = src._propertyNameMatcher;
+        _propertiesByIndex = src._propertiesByIndex;
     }
 
     public BuilderBasedDeserializer(BuilderBasedDeserializer src, BeanPropertyMap props) {
         super(src, props);
         _buildMethod = src._buildMethod;
         _targetType = src._targetType;
-        _fieldMatcher = _beanProperties.getFieldMatcher();
-        _fieldsByIndex = _beanProperties.getFieldMatcherProperties();
+        _propertyNameMatcher = _beanProperties.getNameMatcher();
+        _propertiesByIndex = _beanProperties.getNameMatcherProperties();
     }
 
     @Override
     protected void initFieldMatcher(DeserializationContext ctxt) {
         _beanProperties.initMatcher(ctxt.getParserFactory());
-        _fieldMatcher = _beanProperties.getFieldMatcher();
-        _fieldsByIndex = _beanProperties.getFieldMatcherProperties();
+        _propertyNameMatcher = _beanProperties.getNameMatcher();
+        _propertiesByIndex = _beanProperties.getNameMatcherProperties();
     }
 
     @Override
@@ -260,7 +260,7 @@ public class BuilderBasedDeserializer
             // these only work if there's a (delegating) creator, or UNWRAP_SINGLE_ARRAY
             // [databind#2608]: Do NOT call `finishBuild()` as method implements it
             return _deserializeFromArray(p, ctxt);
-        case JsonTokenId.ID_FIELD_NAME:
+        case JsonTokenId.ID_PROPERTY_NAME:
         case JsonTokenId.ID_END_OBJECT:
             return finishBuild(ctxt, deserializeFromObject(p, ctxt));
         default:
@@ -308,10 +308,10 @@ public class BuilderBasedDeserializer
     {
         Object builder = _valueInstantiator.createUsingDefault(ctxt);
         while (true) {
-            int ix = p.nextFieldName(_fieldMatcher);
+            int ix = p.nextFieldName(_propertyNameMatcher);
             if (ix >= 0) {
                 p.nextToken();
-                SettableBeanProperty prop = _fieldsByIndex[ix];
+                SettableBeanProperty prop = _propertiesByIndex[ix];
                 try {
                     builder = prop.deserializeSetAndReturn(p, ctxt, builder);
                 } catch (Exception e) {
@@ -319,10 +319,10 @@ public class BuilderBasedDeserializer
                 }
                 continue;
             }
-            if (ix == FieldNameMatcher.MATCH_END_OBJECT) {
+            if (ix == PropertyNameMatcher.MATCH_END_OBJECT) {
                 return builder;
             }
-            if (ix == FieldNameMatcher.MATCH_UNKNOWN_NAME) {
+            if (ix == PropertyNameMatcher.MATCH_UNKNOWN_NAME) {
                 p.nextToken();
                 handleUnknownVanilla(p, ctxt, builder, p.currentName());
                 continue;
@@ -358,20 +358,20 @@ public class BuilderBasedDeserializer
                 return deserializeWithView(p, ctxt, bean, view);
             }
         }
-        for (int ix = p.currentFieldName(_fieldMatcher); ; ix = p.nextFieldName(_fieldMatcher)) {
+        for (int ix = p.currentFieldName(_propertyNameMatcher); ; ix = p.nextFieldName(_propertyNameMatcher)) {
             if (ix >= 0) { // normal case
                 p.nextToken();
                 try {
-                    bean = _fieldsByIndex[ix].deserializeSetAndReturn(p, ctxt, bean);
+                    bean = _propertiesByIndex[ix].deserializeSetAndReturn(p, ctxt, bean);
                 } catch (Exception e) {
                     throw wrapAndThrow(e, bean, p.currentName(), ctxt);
                 }
                 continue;
             }
-            if (ix == FieldNameMatcher.MATCH_END_OBJECT) {
+            if (ix == PropertyNameMatcher.MATCH_END_OBJECT) {
                 return bean;
             }
-            if (ix != FieldNameMatcher.MATCH_UNKNOWN_NAME) {
+            if (ix != PropertyNameMatcher.MATCH_UNKNOWN_NAME) {
                 return _handleUnexpectedWithin(p, ctxt, bean);
             }
             p.nextToken();
@@ -402,7 +402,7 @@ public class BuilderBasedDeserializer
         TokenBuffer unknown = null;
 
         JsonToken t = p.currentToken();
-        for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
+        for (; t == JsonToken.PROPERTY_NAME; t = p.nextToken()) {
             String propName = p.currentName();
             p.nextToken(); // to point to value
             // creator property?
@@ -438,9 +438,9 @@ public class BuilderBasedDeserializer
                 continue;
             }
             // regular property? needs buffering
-            int ix = _fieldMatcher.matchName(propName);
+            int ix = _propertyNameMatcher.matchName(propName);
             if (ix >= 0) {
-                SettableBeanProperty prop = _fieldsByIndex[ix];
+                SettableBeanProperty prop = _propertiesByIndex[ix];
                 // !!! 21-Nov-2017, tatu: Regular deserializer handles references here...
                 buffer.bufferProperty(prop, prop.deserialize(p, ctxt));
                 continue;
@@ -460,7 +460,7 @@ public class BuilderBasedDeserializer
             if (unknown == null) {
                 unknown = TokenBuffer.forInputBuffering(p, ctxt);
             }
-            unknown.writeFieldName(propName);
+            unknown.writeName(propName);
             unknown.copyCurrentStructure(p);
         }
 
@@ -506,11 +506,11 @@ public class BuilderBasedDeserializer
             }
         }
         int ix = p.isExpectedStartObjectToken() ?
-                p.nextFieldName(_fieldMatcher) : p.currentFieldName(_fieldMatcher);
-        for (; ; ix = p.nextFieldName(_fieldMatcher)) {
+                p.nextFieldName(_propertyNameMatcher) : p.currentFieldName(_propertyNameMatcher);
+        for (; ; ix = p.nextFieldName(_propertyNameMatcher)) {
             if (ix >= 0) {
                 p.nextToken();
-                SettableBeanProperty prop = _fieldsByIndex[ix];
+                SettableBeanProperty prop = _propertiesByIndex[ix];
                 try {
                     builder = prop.deserializeSetAndReturn(p, ctxt, builder);
                 } catch (Exception e) {
@@ -518,10 +518,10 @@ public class BuilderBasedDeserializer
                 }
                 continue;
             }
-            if (ix == FieldNameMatcher.MATCH_END_OBJECT) {
+            if (ix == PropertyNameMatcher.MATCH_END_OBJECT) {
                 return builder;
             }
-            if (ix != FieldNameMatcher.MATCH_UNKNOWN_NAME) {
+            if (ix != PropertyNameMatcher.MATCH_UNKNOWN_NAME) {
                 return _handleUnexpectedWithin(p, ctxt, builder);
             }
             p.nextToken();
@@ -580,10 +580,10 @@ public class BuilderBasedDeserializer
             Object bean, Class<?> activeView)
         throws JacksonException
     {
-        for (int ix = p.currentFieldName(_fieldMatcher); ; ix = p.nextFieldName(_fieldMatcher)) {
+        for (int ix = p.currentFieldName(_propertyNameMatcher); ; ix = p.nextFieldName(_propertyNameMatcher)) {
             if (ix >= 0) {
                 p.nextToken();
-                SettableBeanProperty prop = _fieldsByIndex[ix];
+                SettableBeanProperty prop = _propertiesByIndex[ix];
                 if (!prop.visibleInView(activeView)) {
                     p.skipChildren();
                     continue;
@@ -595,8 +595,8 @@ public class BuilderBasedDeserializer
                 }
                 continue;
             }
-            if (ix != FieldNameMatcher.MATCH_END_OBJECT) {
-                if (ix != FieldNameMatcher.MATCH_UNKNOWN_NAME) {
+            if (ix != PropertyNameMatcher.MATCH_END_OBJECT) {
+                if (ix != PropertyNameMatcher.MATCH_UNKNOWN_NAME) {
                     return _handleUnexpectedWithin(p, ctxt, bean);
                 }
                 p.nextToken();
@@ -636,10 +636,10 @@ public class BuilderBasedDeserializer
         }
 
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
-        for (int ix = p.currentFieldName(_fieldMatcher); ; ix = p.nextFieldName(_fieldMatcher)) {
+        for (int ix = p.currentFieldName(_propertyNameMatcher); ; ix = p.nextFieldName(_propertyNameMatcher)) {
             if (ix >= 0) { // common case
                 p.nextToken();
-                SettableBeanProperty prop = _fieldsByIndex[ix];
+                SettableBeanProperty prop = _propertiesByIndex[ix];
                 if ((activeView != null) && !prop.visibleInView(activeView)) {
                     p.skipChildren();
                     continue;
@@ -651,10 +651,10 @@ public class BuilderBasedDeserializer
                 }
                 continue;
             }
-            if (ix == FieldNameMatcher.MATCH_END_OBJECT) {
+            if (ix == PropertyNameMatcher.MATCH_END_OBJECT) {
                 break;
             }
-            if (ix == FieldNameMatcher.MATCH_ODD_TOKEN) {
+            if (ix == PropertyNameMatcher.MATCH_ODD_TOKEN) {
                 return _handleUnexpectedWithin(p, ctxt, bean);
             }
             final String propName = p.currentName();
@@ -665,7 +665,7 @@ public class BuilderBasedDeserializer
                 continue;
             }
             // but... others should be passed to unwrapped property deserializers
-            tokens.writeFieldName(propName);
+            tokens.writeName(propName);
             tokens.copyCurrentStructure(p);
             // how about any setter? We'll get copies but...
             if (_anySetter != null) {
@@ -686,10 +686,10 @@ public class BuilderBasedDeserializer
         throws JacksonException
     {
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
-        for (int ix = p.currentFieldName(_fieldMatcher); ; ix = p.nextFieldName(_fieldMatcher)) {
+        for (int ix = p.currentFieldName(_propertyNameMatcher); ; ix = p.nextFieldName(_propertyNameMatcher)) {
             if (ix >= 0) { // common case
                 p.nextToken();
-                SettableBeanProperty prop = _fieldsByIndex[ix];
+                SettableBeanProperty prop = _propertiesByIndex[ix];
                 if ((activeView != null) && !prop.visibleInView(activeView)) {
                     p.skipChildren();
                     continue;
@@ -701,10 +701,10 @@ public class BuilderBasedDeserializer
                 }
                 continue;
             }
-            if (ix == FieldNameMatcher.MATCH_END_OBJECT) {
+            if (ix == PropertyNameMatcher.MATCH_END_OBJECT) {
                 break;
             }
-            if (ix == FieldNameMatcher.MATCH_ODD_TOKEN) {
+            if (ix == PropertyNameMatcher.MATCH_ODD_TOKEN) {
                 return _handleUnexpectedWithin(p, ctxt, builder);
             }
             final String propName = p.currentName();
@@ -714,7 +714,7 @@ public class BuilderBasedDeserializer
                 continue;
             }
             // but... others should be passed to unwrapped property deserializers
-            tokens.writeFieldName(propName);
+            tokens.writeName(propName);
             tokens.copyCurrentStructure(p);
             // how about any setter? We'll get copies but...
             if (_anySetter != null) {
@@ -737,7 +737,7 @@ public class BuilderBasedDeserializer
         tokens.writeStartObject();
 
         JsonToken t = p.currentToken();
-        for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
+        for (; t == JsonToken.PROPERTY_NAME; t = p.nextToken()) {
             String propName = p.currentName();
             p.nextToken(); // to point to value
             // creator property?
@@ -764,9 +764,9 @@ public class BuilderBasedDeserializer
                 continue;
             }
             // regular property? needs buffering
-            int ix = _fieldMatcher.matchName(propName);
+            int ix = _propertyNameMatcher.matchName(propName);
             if (ix >= 0) {
-                SettableBeanProperty prop = _fieldsByIndex[ix];
+                SettableBeanProperty prop = _propertiesByIndex[ix];
                 buffer.bufferProperty(prop, prop.deserialize(p, ctxt));
                 continue;
             }
@@ -774,7 +774,7 @@ public class BuilderBasedDeserializer
                 handleIgnoredProperty(p, ctxt, handledType(), propName);
                 continue;
             }
-            tokens.writeFieldName(propName);
+            tokens.writeName(propName);
             tokens.copyCurrentStructure(p);
             // "any property"?
             if (_anySetter != null) {
@@ -816,9 +816,9 @@ public class BuilderBasedDeserializer
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
         final ExternalTypeHandler ext = _externalTypeIdHandler.start();
 
-        for (int ix = p.currentFieldName(_fieldMatcher); ; ix = p.nextFieldName(_fieldMatcher)) {
+        for (int ix = p.currentFieldName(_propertyNameMatcher); ; ix = p.nextFieldName(_propertyNameMatcher)) {
             if (ix >= 0) { // normal case
-                SettableBeanProperty prop = _fieldsByIndex[ix];
+                SettableBeanProperty prop = _propertiesByIndex[ix];
                 JsonToken t = p.nextToken();
                 // May have property AND be used as external type id:
                 if (t.isScalarValue()) {
@@ -835,10 +835,10 @@ public class BuilderBasedDeserializer
                 }
                 continue;
             }
-            if (ix == FieldNameMatcher.MATCH_END_OBJECT) {
+            if (ix == PropertyNameMatcher.MATCH_END_OBJECT) {
                 break;
             }
-            if (ix != FieldNameMatcher.MATCH_UNKNOWN_NAME) {
+            if (ix != PropertyNameMatcher.MATCH_UNKNOWN_NAME) {
                 return _handleUnexpectedWithin(p, ctxt, bean);
             }
             // ignorable things should be ignored

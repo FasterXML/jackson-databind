@@ -223,7 +223,7 @@ public class EnumMapDeserializer
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_START_OBJECT:
         case JsonTokenId.ID_END_OBJECT:
-        case JsonTokenId.ID_FIELD_NAME:
+        case JsonTokenId.ID_PROPERTY_NAME:
             return deserialize(p, ctxt, constructMap(ctxt));
         case JsonTokenId.ID_STRING:
             // (empty) String may be ok however; or single-String-arg ctor
@@ -252,11 +252,11 @@ public class EnumMapDeserializer
             keyStr = p.nextFieldName();
         } else {
             JsonToken t = p.currentToken();
-            if (t != JsonToken.FIELD_NAME) {
+            if (t != JsonToken.PROPERTY_NAME) {
                 if (t == JsonToken.END_OBJECT) {
                     return result;
                 }
-                ctxt.reportWrongTokenException(this, JsonToken.FIELD_NAME, null);
+                ctxt.reportWrongTokenException(this, JsonToken.PROPERTY_NAME, null);
             }
             keyStr = p.currentName();
         }
@@ -331,7 +331,7 @@ public class EnumMapDeserializer
         String keyName;
         if (p.isExpectedStartObjectToken()) {
             keyName = p.nextFieldName();
-        } else if (p.hasToken(JsonToken.FIELD_NAME)) {
+        } else if (p.hasToken(JsonToken.PROPERTY_NAME)) {
             keyName = p.currentName();
         } else {
             keyName = null;
@@ -344,7 +344,7 @@ public class EnumMapDeserializer
             if (prop != null) {
                 // Last property to set?
                 if (buffer.assignParameter(prop, prop.deserialize(p, ctxt))) {
-                    p.nextToken(); // from value to END_OBJECT or FIELD_NAME
+                    p.nextToken(); // from value to END_OBJECT or PROPERTY_NAME
                     EnumMap<?,?> result;
                     try {
                         result = (EnumMap<?,?>)creator.build(ctxt, buffer);

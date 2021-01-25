@@ -234,14 +234,14 @@ public abstract class BaseTest
         }
         assertToken(JsonToken.START_OBJECT, p.currentToken()); // main object
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // 'Image'
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // 'Image'
         if (verifyContents) {
             verifyFieldName(p, "Image");
         }
 
         assertToken(JsonToken.START_OBJECT, p.nextToken()); // 'image' object
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // 'Width'
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // 'Width'
         if (verifyContents) {
             verifyFieldName(p, "Width");
         }
@@ -251,7 +251,7 @@ public abstract class BaseTest
             verifyIntValue(p, SAMPLE_SPEC_VALUE_WIDTH);
         }
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // 'Height'
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // 'Height'
         if (verifyContents) {
             verifyFieldName(p, "Height");
         }
@@ -260,19 +260,19 @@ public abstract class BaseTest
         if (verifyContents) {
             verifyIntValue(p, SAMPLE_SPEC_VALUE_HEIGHT);
         }
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // 'Title'
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // 'Title'
         if (verifyContents) {
             verifyFieldName(p, "Title");
         }
         assertToken(JsonToken.VALUE_STRING, p.nextToken());
         assertEquals(SAMPLE_SPEC_VALUE_TITLE, getAndVerifyText(p));
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // 'Thumbnail'
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // 'Thumbnail'
         if (verifyContents) {
             verifyFieldName(p, "Thumbnail");
         }
 
         assertToken(JsonToken.START_OBJECT, p.nextToken()); // 'thumbnail' object
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // 'Url'
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // 'Url'
         if (verifyContents) {
             verifyFieldName(p, "Url");
         }
@@ -280,7 +280,7 @@ public abstract class BaseTest
         if (verifyContents) {
             assertEquals(SAMPLE_SPEC_VALUE_TN_URL, getAndVerifyText(p));
         }
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // 'Height'
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // 'Height'
         if (verifyContents) {
             verifyFieldName(p, "Height");
         }
@@ -288,7 +288,7 @@ public abstract class BaseTest
         if (verifyContents) {
             verifyIntValue(p, SAMPLE_SPEC_VALUE_TN_HEIGHT);
         }
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // 'Width'
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // 'Width'
         if (verifyContents) {
             verifyFieldName(p, "Width");
         }
@@ -299,7 +299,7 @@ public abstract class BaseTest
         }
 
         assertToken(JsonToken.END_OBJECT, p.nextToken()); // 'thumbnail' object
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // 'IDs'
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // 'IDs'
         assertToken(JsonToken.START_ARRAY, p.nextToken()); // 'ids' array
         verifyIntToken(p.nextToken(), requireNumbers); // ids[0]
         if (verifyContents) {

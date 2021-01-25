@@ -85,14 +85,13 @@ public class AnyGetterTest extends BaseMapTest
         }
 
         @Override
-        public void serialize(Object value, JsonGenerator jgen,
-                SerializerProvider provider)
+        public void serialize(Object value, JsonGenerator g, SerializerProvider ctxt)
         {
             StringBuilder sb = new StringBuilder();
             for (Map.Entry<?,?> entry : ((Map<?,?>) value).entrySet()) {
                 sb.append('[').append(entry.getKey()).append('/').append(entry.getValue()).append(']');
             }
-            jgen.writeStringField("stuff", sb.toString());
+            g.writeStringProperty("stuff", sb.toString());
         }
     }
 

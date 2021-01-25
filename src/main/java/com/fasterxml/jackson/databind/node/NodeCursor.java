@@ -210,7 +210,7 @@ abstract class NodeCursor
                 _needEntry = false;
                 _current = _contents.next();
                 _currentName = (_current == null) ? null : _current.getKey();
-                return JsonToken.FIELD_NAME;
+                return JsonToken.PROPERTY_NAME;
             }
             _needEntry = true;
             return _current.getValue().asToken();

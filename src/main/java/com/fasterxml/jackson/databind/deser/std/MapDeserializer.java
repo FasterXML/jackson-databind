@@ -426,7 +426,7 @@ public class MapDeserializer
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_START_OBJECT:
         case JsonTokenId.ID_END_OBJECT:
-        case JsonTokenId.ID_FIELD_NAME:
+        case JsonTokenId.ID_PROPERTY_NAME:
             final Map<Object,Object> result = (Map<Object,Object>) _valueInstantiator.createUsingDefault(ctxt);
             if (_standardStringKey) {
                 _readAndBindStringKeyMap(p, ctxt, result);
@@ -454,9 +454,9 @@ public class MapDeserializer
         // [databind#631]: Assign current value, to be accessible by custom deserializers
         p.assignCurrentValue(result);
         
-        // Ok: must point to START_OBJECT or FIELD_NAME
+        // Ok: must point to START_OBJECT or PROPERTY_NAME
         JsonToken t = p.currentToken();
-        if (t != JsonToken.START_OBJECT && t != JsonToken.FIELD_NAME) {
+        if (t != JsonToken.START_OBJECT && t != JsonToken.PROPERTY_NAME) {
             return (Map<Object,Object>) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }
         // 21-Apr-2017, tatu: Need separate methods to do proper merging
@@ -513,11 +513,11 @@ public class MapDeserializer
             keyStr = p.nextFieldName();
         } else {
             JsonToken t = p.currentToken();
-            if (t != JsonToken.FIELD_NAME) {
+            if (t != JsonToken.PROPERTY_NAME) {
                 if (t == JsonToken.END_OBJECT) {
                     return;
                 }
-                ctxt.reportWrongTokenException(this, JsonToken.FIELD_NAME, null);
+                ctxt.reportWrongTokenException(this, JsonToken.PROPERTY_NAME, null);
             }
             keyStr = p.currentName();
         }
@@ -580,8 +580,8 @@ public class MapDeserializer
             if (t == JsonToken.END_OBJECT) {
                 return;
             }
-            if (t != JsonToken.FIELD_NAME) {
-                ctxt.reportWrongTokenException(this, JsonToken.FIELD_NAME, null);
+            if (t != JsonToken.PROPERTY_NAME) {
+                ctxt.reportWrongTokenException(this, JsonToken.PROPERTY_NAME, null);
             }
             key = p.currentName();
         }
@@ -633,7 +633,7 @@ public class MapDeserializer
         String key;
         if (p.isExpectedStartObjectToken()) {
             key = p.nextFieldName();
-        } else if (p.hasToken(JsonToken.FIELD_NAME)) {
+        } else if (p.hasToken(JsonToken.PROPERTY_NAME)) {
             key = p.currentName();
         } else {
             key = null;
@@ -650,7 +650,7 @@ public class MapDeserializer
             if (prop != null) {
                 // Last property to set?
                 if (buffer.assignParameter(prop, prop.deserialize(p, ctxt))) {
-                    p.nextToken(); // from value to END_OBJECT or FIELD_NAME
+                    p.nextToken(); // from value to END_OBJECT or PROPERTY_NAME
                     Map<Object,Object> result;
                     try {
                         result = (Map<Object,Object>)creator.build(ctxt, buffer);
@@ -717,8 +717,8 @@ public class MapDeserializer
             if (t == JsonToken.END_OBJECT) {
                 return;
             }
-            if (t != JsonToken.FIELD_NAME) {
-                ctxt.reportWrongTokenException(this, JsonToken.FIELD_NAME, null);
+            if (t != JsonToken.PROPERTY_NAME) {
+                ctxt.reportWrongTokenException(this, JsonToken.PROPERTY_NAME, null);
             }
             keyStr = p.currentName();
         }
@@ -784,8 +784,8 @@ public class MapDeserializer
             if (t == JsonToken.END_OBJECT) {
                 return;
             }
-            if (t != JsonToken.FIELD_NAME) {
-                ctxt.reportWrongTokenException(this, JsonToken.FIELD_NAME, null);
+            if (t != JsonToken.PROPERTY_NAME) {
+                ctxt.reportWrongTokenException(this, JsonToken.PROPERTY_NAME, null);
             }
             key = p.currentName();
         }

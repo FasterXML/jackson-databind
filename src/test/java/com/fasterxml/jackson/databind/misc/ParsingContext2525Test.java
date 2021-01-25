@@ -139,7 +139,7 @@ public class ParsingContext2525Test extends BaseMapTest
         assertSame(JsonPointer.empty(), p.getParsingContext().pathAsPointer());
         assertTrue(p.getParsingContext().inObject());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
         assertEquals("/answer", p.getParsingContext().pathAsPointer().toString());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(42, p.getIntValue());
@@ -163,13 +163,13 @@ public class ParsingContext2525Test extends BaseMapTest
         assertSame(JsonPointer.empty(), p.getParsingContext().pathAsPointer());
         assertTrue(p.getParsingContext().inObject());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // a
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // a
         assertEquals("/a", p.getParsingContext().pathAsPointer().toString());
 
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals("/a", p.getParsingContext().pathAsPointer().toString());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // array
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // array
         assertEquals("/array", p.getParsingContext().pathAsPointer().toString());
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertEquals("/array", p.getParsingContext().pathAsPointer().toString());
@@ -187,7 +187,7 @@ public class ParsingContext2525Test extends BaseMapTest
         assertEquals("/array/3", p.getParsingContext().pathAsPointer().toString());
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertEquals("/array/4", p.getParsingContext().pathAsPointer().toString());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // obInArray
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // obInArray
         assertEquals("/array/4/obInArray", p.getParsingContext().pathAsPointer().toString());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken()); // 4
         assertEquals("/array/4/obInArray", p.getParsingContext().pathAsPointer().toString());
@@ -196,11 +196,11 @@ public class ParsingContext2525Test extends BaseMapTest
         assertToken(JsonToken.END_ARRAY, p.nextToken()); // /array
         assertEquals("/array", p.getParsingContext().pathAsPointer().toString());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // ob
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // ob
         assertEquals("/ob", p.getParsingContext().pathAsPointer().toString());
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertEquals("/ob", p.getParsingContext().pathAsPointer().toString());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // first
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // first
         assertEquals("/ob/first", p.getParsingContext().pathAsPointer().toString());
         assertToken(JsonToken.START_ARRAY, p.nextToken());
         assertEquals("/ob/first", p.getParsingContext().pathAsPointer().toString());
@@ -210,11 +210,11 @@ public class ParsingContext2525Test extends BaseMapTest
         assertEquals("/ob/first/1", p.getParsingContext().pathAsPointer().toString());
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         assertEquals("/ob/first", p.getParsingContext().pathAsPointer().toString());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // second
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // second
         assertEquals("/ob/second", p.getParsingContext().pathAsPointer().toString());
         assertToken(JsonToken.START_OBJECT, p.nextToken());
         assertEquals("/ob/second", p.getParsingContext().pathAsPointer().toString());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // sub
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // sub
         assertEquals("/ob/second/sub", p.getParsingContext().pathAsPointer().toString());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken()); // 37
         assertEquals("/ob/second/sub", p.getParsingContext().pathAsPointer().toString());
@@ -223,7 +223,7 @@ public class ParsingContext2525Test extends BaseMapTest
         assertToken(JsonToken.END_OBJECT, p.nextToken()); // /ob
         assertEquals("/ob", p.getParsingContext().pathAsPointer().toString());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // b
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // b
         assertEquals("/b", p.getParsingContext().pathAsPointer().toString());
         assertToken(JsonToken.VALUE_TRUE, p.nextToken());
         assertEquals("/b", p.getParsingContext().pathAsPointer().toString());

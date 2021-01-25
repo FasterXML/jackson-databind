@@ -93,10 +93,10 @@ public class JsonNodeDeserializer
             if (p.isExpectedStartObjectToken()) {
                 return deserializeObject(p, ctxt, ctxt.getNodeFactory());
             }
-            if (p.hasToken(JsonToken.FIELD_NAME)) {
+            if (p.hasToken(JsonToken.PROPERTY_NAME)) {
                 return deserializeObjectAtName(p, ctxt, ctxt.getNodeFactory());
             }
-            // 23-Sep-2015, tatu: Ugh. We may also be given END_OBJECT (similar to FIELD_NAME),
+            // 23-Sep-2015, tatu: Ugh. We may also be given END_OBJECT (similar to PROPERTY_NAME),
             //    if caller has advanced to the first token of Object, but for empty Object
             if (p.hasToken(JsonToken.END_OBJECT)) {
                 return ctxt.getNodeFactory().objectNode();
@@ -111,7 +111,7 @@ public class JsonNodeDeserializer
         public ObjectNode deserialize(JsonParser p, DeserializationContext ctxt,
                 ObjectNode node) throws JacksonException
         {
-            if (p.isExpectedStartObjectToken() || p.hasToken(JsonToken.FIELD_NAME)) {
+            if (p.isExpectedStartObjectToken() || p.hasToken(JsonToken.PROPERTY_NAME)) {
                 return (ObjectNode) updateObject(p, ctxt, (ObjectNode) node);
             }
             return (ObjectNode) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
@@ -347,7 +347,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
 
     /**
      * Alternate deserialization method used when parser already points to first
-     * FIELD_NAME and not START_OBJECT.
+     * PROPERTY_NAME and not START_OBJECT.
      */
     protected final ObjectNode deserializeObjectAtName(JsonParser p, DeserializationContext ctxt,
             final JsonNodeFactory nodeFactory) throws JacksonException
@@ -405,7 +405,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
         if (p.isExpectedStartObjectToken()) {
             key = p.nextFieldName();
         } else {
-            if (!p.hasToken(JsonToken.FIELD_NAME)) {
+            if (!p.hasToken(JsonToken.PROPERTY_NAME)) {
                 return deserialize(p, ctxt);
             }
             key = p.currentName();
@@ -595,7 +595,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_END_OBJECT: // for empty JSON Objects we may point to this?
             return nodeFactory.objectNode();
-        case JsonTokenId.ID_FIELD_NAME:
+        case JsonTokenId.ID_PROPERTY_NAME:
             return deserializeObjectAtName(p, ctxt, nodeFactory);
         case JsonTokenId.ID_EMBEDDED_OBJECT:
             return _fromEmbedded(p, ctxt, nodeFactory);

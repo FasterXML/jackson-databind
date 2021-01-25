@@ -231,7 +231,7 @@ handledType().getName()));
                 if (t == JsonToken.START_OBJECT) {
                     t = p.nextToken();
                 }
-                if ((t == JsonToken.FIELD_NAME) && _objectIdReader.maySerializeAsObject()
+                if ((t == JsonToken.PROPERTY_NAME) && _objectIdReader.maySerializeAsObject()
                         && _objectIdReader.isValidReferencePropertyName(p.currentName(), p)) {
                     return _deserializeFromObjectId(p, ctxt);
                 }

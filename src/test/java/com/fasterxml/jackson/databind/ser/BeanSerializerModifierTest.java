@@ -242,7 +242,7 @@ public class BeanSerializerModifierTest extends BaseMapTest
                 JavaType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
             return new StdSerializer<Object>(Object.class) {
                 @Override public void serialize(Object value, JsonGenerator g, SerializerProvider provider) {
-                    g.writeFieldName("foo");
+                    g.writeName("foo");
                 }
             };
         }

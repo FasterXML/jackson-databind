@@ -192,7 +192,7 @@ public class TreeTraversingParser
         }
         // need to separate handling a bit...
         switch (_currToken) {
-        case FIELD_NAME:
+        case PROPERTY_NAME:
             return _nodeCursor.currentName();
         case VALUE_STRING:
             return currentNode().textValue();

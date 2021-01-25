@@ -106,24 +106,24 @@ public class SimpleBeanPropertyFilter
      */
     
     @Override
-    public void serializeAsField(Object pojo, JsonGenerator jgen,
+    public void serializeAsField(Object pojo, JsonGenerator g,
             SerializerProvider provider, PropertyWriter writer)
         throws Exception
     {
         if (include(writer)) {
-            writer.serializeAsField(pojo, jgen, provider);
-        } else if (!jgen.canOmitFields()) { // since 2.3
-            writer.serializeAsOmittedField(pojo, jgen, provider);
+            writer.serializeAsField(pojo, g, provider);
+        } else if (!g.canOmitProperties()) {
+            writer.serializeAsOmittedField(pojo, g, provider);
         }
     }
 
     @Override
-    public void serializeAsElement(Object elementValue, JsonGenerator jgen, SerializerProvider provider,
+    public void serializeAsElement(Object elementValue, JsonGenerator g, SerializerProvider provider,
             PropertyWriter writer)
         throws Exception
     {
         if (includeElement(elementValue)) {
-            writer.serializeAsElement(elementValue, jgen, provider);
+            writer.serializeAsElement(elementValue, g, provider);
         }
     }
 

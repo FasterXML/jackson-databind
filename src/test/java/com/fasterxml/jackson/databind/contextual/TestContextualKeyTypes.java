@@ -33,12 +33,12 @@ public class TestContextualKeyTypes extends BaseMapTest
         }
 
         @Override
-        public void serialize(String value, JsonGenerator jgen, SerializerProvider provider)
+        public void serialize(String value, JsonGenerator g, SerializerProvider provider)
         {
             if (_prefix != null) {
                 value = _prefix + value;
             }
-            jgen.writeFieldName(value);
+            g.writeName(value);
         }
 
         @Override

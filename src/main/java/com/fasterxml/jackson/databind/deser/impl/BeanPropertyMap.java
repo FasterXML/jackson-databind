@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.deser.impl;
 import java.util.*;
 
 import com.fasterxml.jackson.core.TokenStreamFactory;
-import com.fasterxml.jackson.core.sym.FieldNameMatcher;
+import com.fasterxml.jackson.core.sym.PropertyNameMatcher;
 import com.fasterxml.jackson.core.util.InternCache;
 import com.fasterxml.jackson.core.util.Named;
 
@@ -30,9 +30,9 @@ public class BeanPropertyMap
     implements Iterable<SettableBeanProperty>
 {
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -54,12 +54,12 @@ public class BeanPropertyMap
     private final boolean _caseInsensitive;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Lookup index information constructed
-    /**********************************************************
+    /**********************************************************************
      */
 
-    private transient FieldNameMatcher _fieldMatcher;
+    private transient PropertyNameMatcher _nameMatcher;
     
     /**
      * Lazily instantiated array of properties mapped from lookup index, in which
@@ -69,9 +69,9 @@ public class BeanPropertyMap
     private transient SettableBeanProperty[] _propsWithAliases;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Construction
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -120,9 +120,9 @@ public class BeanPropertyMap
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* "Mutant factory" methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -292,9 +292,9 @@ public class BeanPropertyMap
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory method(s) for helpers
-    /**********************************************************
+    /**********************************************************************
      */
 
     public BeanPropertyMap initMatcher(TokenStreamFactory tsf)
@@ -323,20 +323,20 @@ public class BeanPropertyMap
         }
         // `true` -> yes, they are intern()ed alright
         if (_caseInsensitive) {
-            _fieldMatcher = tsf.constructCIFieldNameMatcher(names, true, _locale);
+            _nameMatcher = tsf.constructCIFieldNameMatcher(names, true, _locale);
         } else {
-            _fieldMatcher = tsf.constructFieldNameMatcher(names, true);
+            _nameMatcher = tsf.constructFieldNameMatcher(names, true);
         }
         return this;
     }
 
-    public FieldNameMatcher getFieldMatcher() { return _fieldMatcher; }
-    public SettableBeanProperty[] getFieldMatcherProperties() { return _propsWithAliases; }
+    public PropertyNameMatcher getNameMatcher() { return _nameMatcher; }
+    public SettableBeanProperty[] getNameMatcherProperties() { return _propsWithAliases; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, simple accessors
-    /**********************************************************
+    /**********************************************************************
      */
 
     public int size() { return _propsInOrder.length; }
@@ -368,9 +368,9 @@ public class BeanPropertyMap
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, property definition lookup
-    /**********************************************************
+    /**********************************************************************
      */
 
     public SettableBeanProperty findDefinition(int index)
@@ -401,9 +401,9 @@ public class BeanPropertyMap
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Std method overrides
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override

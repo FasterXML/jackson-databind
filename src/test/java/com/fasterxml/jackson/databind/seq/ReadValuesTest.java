@@ -229,7 +229,7 @@ public class ReadValuesTest extends BaseMapTest
         final String JSON = "{\"leaf\":[{\"a\":3},{\"a\":27}]}";
         JsonParser jp = MAPPER.createParser(JSON);
         assertToken(JsonToken.START_OBJECT, jp.nextToken());
-        assertToken(JsonToken.FIELD_NAME, jp.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, jp.nextToken());
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         // can either advance to first START_OBJECT, or clear current token;
         // explicitly passed JsonParser MUST point to the first token of

@@ -1737,7 +1737,7 @@ trailingToken, ClassUtil.nameOf(targetType)
     public DatabindException wrongTokenException(JsonParser p, JavaType targetType,
             JsonToken expToken, String extra)
     {
-        String msg = String.format("Unexpected token (%s), expected %s",
+        String msg = String.format("Unexpected token (`JsonToken.%s`), expected `JsonToken.%s`",
                 p.currentToken(), expToken);
         msg = _colonConcat(msg, extra);
         return MismatchedInputException.from(p, targetType, msg);
@@ -1747,7 +1747,7 @@ trailingToken, ClassUtil.nameOf(targetType)
             JsonToken expToken, String extra)
     {
         JsonToken t = (p == null) ? null : p.currentToken();
-        String msg = String.format("Unexpected token (%s), expected %s", t, expToken);
+        String msg = String.format("Unexpected token (`JsonToken.%s`), expected `JsonToken.%s`", t, expToken);
         msg = _colonConcat(msg, extra);
         return MismatchedInputException.from(p, targetType, msg);
     }
@@ -1910,7 +1910,7 @@ trailingToken, ClassUtil.nameOf(targetType)
             // Likely Object values
             case START_OBJECT:
             case END_OBJECT:
-            case FIELD_NAME:
+            case PROPERTY_NAME:
                 return "Object value";
 
             // Likely Array values

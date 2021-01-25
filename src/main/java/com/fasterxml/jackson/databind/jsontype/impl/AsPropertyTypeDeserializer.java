@@ -73,11 +73,11 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             }
         }
 
-        // but first, sanity check to ensure we have START_OBJECT or FIELD_NAME
+        // but first, sanity check to ensure we have START_OBJECT or PROPERTY_NAME
         JsonToken t = p.currentToken();
         if (t == JsonToken.START_OBJECT) {
             t = p.nextToken();
-        } else if (/*t == JsonToken.START_ARRAY ||*/ t != JsonToken.FIELD_NAME) {
+        } else if (/*t == JsonToken.START_ARRAY ||*/ t != JsonToken.PROPERTY_NAME) {
             /* This is most likely due to the fact that not all Java types are
              * serialized as JSON Objects; so if "as-property" inclusion is requested,
              * serialization of things like Lists must be instead handled as if
@@ -91,7 +91,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         TokenBuffer tb = null;
         final boolean ignoreCase = ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
 
-        for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
+        for (; t == JsonToken.PROPERTY_NAME; t = p.nextToken()) {
             final String name = p.currentName();
             p.nextToken(); // to point to the value
             if (name.equals(_typePropertyName)
@@ -101,7 +101,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             if (tb == null) {
                 tb = new TokenBuffer(p, ctxt);
             }
-            tb.writeFieldName(name);
+            tb.writeName(name);
             tb.copyCurrentStructure(p);
         }
         return _deserializeTypedUsingDefaultImpl(p, ctxt, tb);
@@ -116,7 +116,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             if (tb == null) {
                 tb = TokenBuffer.forInputBuffering(p, ctxt);
             }
-            tb.writeFieldName(p.currentName());
+            tb.writeName(p.currentName());
             tb.writeString(typeId);
         }
         if (tb != null) { // need to put back skipped properties?

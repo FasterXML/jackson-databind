@@ -41,7 +41,7 @@ public class TestJsonSerialize2
         @Override
         public void serialize(SimpleKey key, JsonGenerator g, SerializerProvider provider)
         {
-            g.writeFieldName("key "+key.key);
+            g.writeName("key "+key.key);
         }
     }
 

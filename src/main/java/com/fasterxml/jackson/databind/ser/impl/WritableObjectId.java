@@ -55,27 +55,27 @@ public final class WritableObjectId
     /**
      * Method called to output Object Id as specified.
      */
-    public void writeAsField(JsonGenerator gen, SerializerProvider provider,
+    public void writeAsField(JsonGenerator g, SerializerProvider provider,
             ObjectIdWriter w) throws JacksonException
     {
         idWritten = true;
 
         // 03-Aug-2013, tatu: Prefer Native Object Ids if available
-        if (gen.canWriteObjectId()) {
+        if (g.canWriteObjectId()) {
             // Need to assume String(ified) ids, for now... could add 'long' variant?
             // 05-Feb-2019, tatu: But in special case of `null` we should not coerce -- whether
             //   we should even call is an open question, but for now do pass to let generator
             //   decide what to do, if anything.
             String idStr = (id == null) ? null : String.valueOf(id);
-            gen.writeObjectId(idStr);
+            g.writeObjectId(idStr);
             return;
         }
 
         SerializableString name = w.propertyName;
         if (name != null) {
             // 05-Feb-2019, tatu: How about `null` id? For now, write
-            gen.writeFieldName(name);
-            w.serializer.serialize(id, gen, provider);
+            g.writeName(name);
+            w.serializer.serialize(id, g, provider);
         }
     }
 }

@@ -173,18 +173,18 @@ public class MapEntryDeserializer
     public Map.Entry<Object,Object> deserialize(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
-        // Ok: must point to START_OBJECT, FIELD_NAME or END_OBJECT
+        // Ok: must point to START_OBJECT, PROPERTY_NAME or END_OBJECT
         JsonToken t = p.currentToken();
         if (t == JsonToken.START_OBJECT) {
             t = p.nextToken();
-        } else if (t != JsonToken.FIELD_NAME && t != JsonToken.END_OBJECT) {
+        } else if (t != JsonToken.PROPERTY_NAME && t != JsonToken.END_OBJECT) {
             // Empty array, or single-value wrapped in array?
             if (t == JsonToken.START_ARRAY) {
                 return _deserializeFromArray(p, ctxt);
             }
             return (Map.Entry<Object,Object>) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }
-        if (t != JsonToken.FIELD_NAME) {
+        if (t != JsonToken.PROPERTY_NAME) {
             if (t == JsonToken.END_OBJECT) {
                 return ctxt.reportInputMismatch(this,
                         "Cannot deserialize a Map.Entry out of empty JSON Object");
@@ -217,7 +217,7 @@ public class MapEntryDeserializer
         // Close, but also verify that we reached the END_OBJECT
         t = p.nextToken();
         if (t != JsonToken.END_OBJECT) {
-            if (t == JsonToken.FIELD_NAME) { // most likely
+            if (t == JsonToken.PROPERTY_NAME) { // most likely
                 ctxt.reportInputMismatch(this,
                         "Problem binding JSON into Map.Entry: more than one entry in JSON (second field: '%s')",
                         p.currentName());

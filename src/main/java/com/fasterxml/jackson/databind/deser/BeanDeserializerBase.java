@@ -1197,7 +1197,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
                 if (t == JsonToken.START_OBJECT) {
                     t = p.nextToken();
                 }
-                if ((t == JsonToken.FIELD_NAME) && _objectIdReader.maySerializeAsObject()
+                if ((t == JsonToken.PROPERTY_NAME) && _objectIdReader.maySerializeAsObject()
                         && _objectIdReader.isValidReferencePropertyName(p.currentName(), p)) {
                     return deserializeFromObjectId(p, ctxt);
                 }
@@ -1262,7 +1262,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
             //   Smile format; [dataformat-smile#19], possibly related.
             // 01-Sep-2016, tatu: For non-JSON, might want to consider `writeEmbeddedObject`
             //   but that won't work for default impl (JSON and most dataformats)
-            buf.writeObject(rawId);
+            buf.writePOJO(rawId);
         }
         JsonParser bufParser = buf.asParserOnFirstToken();
         return idDeser.deserialize(bufParser, ctxt);

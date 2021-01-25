@@ -53,7 +53,7 @@ public class TestConversions extends BaseMapTest
         @Override
         public void serialize(Issue467Bean value, JsonGenerator g,
                 SerializerProvider provider) {
-            g.writeObject(new Issue467TmpBean(value.i));
+            g.writePOJO(new Issue467TmpBean(value.i));
         }
     }    
 
@@ -243,7 +243,7 @@ public class TestConversions extends BaseMapTest
     public void testEmbeddedByteArray() throws Exception
     {
         TokenBuffer buf = TokenBuffer.forGeneration();
-        buf.writeObject(new byte[3]);
+        buf.writePOJO(new byte[3]);
         JsonNode node = MAPPER.readTree(buf.asParser(ObjectReadContext.empty()));
         buf.close();
         assertTrue(node.isBinary());

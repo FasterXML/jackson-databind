@@ -28,7 +28,7 @@ public class PolyMapWriter827Test extends BaseMapTest
         public CustomKeySerializer() { super(CustomKey.class); }
         @Override
         public void serialize(CustomKey key, JsonGenerator g, SerializerProvider serializerProvider) {
-            g.writeFieldName(key.a + "," + key.b);
+            g.writeName(key.a + "," + key.b);
         }
     }
 

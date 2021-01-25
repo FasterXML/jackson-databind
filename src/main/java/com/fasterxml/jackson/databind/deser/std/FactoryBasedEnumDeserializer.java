@@ -129,7 +129,7 @@ ClassUtil.getTypeDescription(targetType), _factory, p.currentToken());
 
             // 30-Mar-2020, tatu: Single-arg delegating creators may go through
             //    here; although not 100% sure why they do not take the first branch
-            if (curr == JsonToken.VALUE_STRING || curr == JsonToken.FIELD_NAME) {
+            if (curr == JsonToken.VALUE_STRING || curr == JsonToken.PROPERTY_NAME) {
                 value = p.getText();
             } else if (curr == JsonToken.VALUE_NUMBER_INT) {
                 value = p.getNumberValue();
@@ -175,7 +175,7 @@ ClassUtil.getTypeDescription(targetType), _factory, p.currentToken());
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, null);
     
         JsonToken t = p.currentToken();
-        for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
+        for (; t == JsonToken.PROPERTY_NAME; t = p.nextToken()) {
             String propName = p.currentName();
             p.nextToken(); // to point to value
     

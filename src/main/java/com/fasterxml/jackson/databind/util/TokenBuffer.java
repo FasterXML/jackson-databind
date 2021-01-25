@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.base.ParserMinimalBase;
 import com.fasterxml.jackson.core.exc.InputCoercionException;
 import com.fasterxml.jackson.core.exc.StreamWriteException;
 import com.fasterxml.jackson.core.io.NumberOutput;
-import com.fasterxml.jackson.core.sym.FieldNameMatcher;
+import com.fasterxml.jackson.core.sym.PropertyNameMatcher;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.fasterxml.jackson.core.util.JacksonFeatureSet;
 import com.fasterxml.jackson.core.util.SimpleTokenWriteContext;
@@ -428,14 +428,14 @@ public class TokenBuffer
             case END_ARRAY:
                 gen.writeEndArray();
                 break;
-            case FIELD_NAME:
+            case PROPERTY_NAME:
             {
                 // 13-Dec-2010, tatu: Maybe we should start using different type tokens to reduce casting?
                 Object ob = segment.get(ptr);
                 if (ob instanceof SerializableString) {
-                    gen.writeFieldName((SerializableString) ob);
+                    gen.writeName((SerializableString) ob);
                 } else {
-                    gen.writeFieldName((String) ob);
+                    gen.writeName((String) ob);
                 }
             }
                 break;
@@ -503,7 +503,7 @@ public class TokenBuffer
                     if (value instanceof RawValue) {
                         ((RawValue) value).serialize(gen);
                     } else if (value instanceof JsonSerializable) {
-                        gen.writeObject(value);
+                        gen.writePOJO(value);
                     } else {
                         gen.writeEmbeddedObject(value);
                     }
@@ -520,18 +520,18 @@ public class TokenBuffer
      */
     public TokenBuffer deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
-        if (!p.hasToken(JsonToken.FIELD_NAME)) {
+        if (!p.hasToken(JsonToken.PROPERTY_NAME)) {
             copyCurrentStructure(p);
             return this;
         }
         // 28-Oct-2014, tatu: As per [databind#592], need to support a special case of starting from
-        //    FIELD_NAME, which is taken to mean that we are missing START_OBJECT, but need
+        //    PROPERTY_NAME, which is taken to mean that we are missing START_OBJECT, but need
         //    to assume one did exist.
         JsonToken t;
         writeStartObject();
         do {
             copyCurrentStructure(p);
-        } while ((t = p.nextToken()) == JsonToken.FIELD_NAME);
+        } while ((t = p.nextToken()) == JsonToken.PROPERTY_NAME);
         if (t != JsonToken.END_OBJECT) {
             ctxt.reportWrongTokenException(TokenBuffer.class, JsonToken.END_OBJECT,
                     "Expected END_OBJECT after copying contents of a JsonParser into TokenBuffer, got "+t);
@@ -572,7 +572,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                     _appendNativeIds(sb);
                 }
                 sb.append(t.toString());
-                if (t == JsonToken.FIELD_NAME) {
+                if (t == JsonToken.PROPERTY_NAME) {
                     sb.append('(');
                     sb.append(jp.currentName());
                     sb.append(')');
@@ -755,23 +755,23 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     }
 
     @Override
-    public final void writeFieldName(String name) {
-        _tokenWriteContext.writeFieldName(name);
+    public final void writeName(String name) {
+        _tokenWriteContext.writeName(name);
         _appendFieldName(name);
     }
 
     @Override
-    public void writeFieldName(SerializableString name) {
-        _tokenWriteContext.writeFieldName(name.getValue());
+    public void writeName(SerializableString name) {
+        _tokenWriteContext.writeName(name.getValue());
         _appendFieldName(name);
     }
 
     @Override
-    public void writeFieldId(long id) {
+    public void writePropertyId(long id) {
         // 15-Aug-2019, tatu: could and probably should be improved to support
         //    buffering but...
         final String name = Long.toString(id);
-        _tokenWriteContext.writeFieldName(name);
+        _tokenWriteContext.writeName(name);
         _appendFieldName(name);
     }
 
@@ -940,7 +940,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
      */
 
     @Override
-    public void writeObject(Object value)
+    public void writePOJO(Object value)
     {
         if (value == null) {
             writeNull();
@@ -982,7 +982,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         //   lot on whether this during read (no need to retain probably) or
         //   write (probably important)
         byte[] copy = Arrays.copyOfRange(data, offset, offset + len);
-        writeObject(copy);
+        writePOJO(copy);
     }
 
     /**
@@ -1054,8 +1054,8 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         case END_ARRAY:
             writeEndArray();
             break;
-        case FIELD_NAME:
-            writeFieldName(p.currentName());
+        case PROPERTY_NAME:
+            writeName(p.currentName());
             break;
         case VALUE_STRING:
             if (p.hasTextCharacters()) {
@@ -1106,7 +1106,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             writeNull();
             break;
         case VALUE_EMBEDDED_OBJECT:
-            writeObject(p.getEmbeddedObject());
+            writePOJO(p.getEmbeddedObject());
             break;
         default:
             throw new RuntimeException("Internal error: unexpected token: "+p.currentToken());
@@ -1119,11 +1119,11 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         JsonToken t = p.currentToken();
 
         // Let's handle field-name separately first
-        if (t == JsonToken.FIELD_NAME) {
+        if (t == JsonToken.PROPERTY_NAME) {
             if (_mayHaveNativeIds) {
                 _checkNativeIds(p);
             }
-            writeFieldName(p.currentName());
+            writeName(p.currentName());
             t = p.nextToken();
             // fall-through to copy the associated value
         } else if (t == null) {
@@ -1166,11 +1166,11 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
 
         while ((t = p.nextToken()) != null) {
             switch (t) {
-            case FIELD_NAME:
+            case PROPERTY_NAME:
                 if (_mayHaveNativeIds) {
                     _checkNativeIds(p);
                 }
-                writeFieldName(p.currentName());
+                writeName(p.currentName());
                 break;
 
             case START_ARRAY:
@@ -1254,7 +1254,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             writeNull();
             break;
         case VALUE_EMBEDDED_OBJECT:
-            writeObject(p.getEmbeddedObject());
+            writePOJO(p.getEmbeddedObject());
             break;
         default:
             throw new RuntimeException("Internal error: unexpected token: "+t);
@@ -1330,9 +1330,9 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         // NOTE: do NOT clear _objectId / _typeId
         Segment next;
         if (_hasNativeId) {
-            next =  _last.append(_appendAt, JsonToken.FIELD_NAME, value, _objectId, _typeId);
+            next =  _last.append(_appendAt, JsonToken.PROPERTY_NAME, value, _objectId, _typeId);
         } else {
-            next = _last.append(_appendAt, JsonToken.FIELD_NAME, value);
+            next = _last.append(_appendAt, JsonToken.PROPERTY_NAME, value);
         }
         if (next == null) {
             ++_appendAt;
@@ -1549,7 +1549,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             }
             _currToken = _segment.type(_segmentPtr);
             // Field name? Need to update context
-            if (_currToken == JsonToken.FIELD_NAME) {
+            if (_currToken == JsonToken.PROPERTY_NAME) {
                 Object ob = _currentObject();
                 String name = (ob instanceof String) ? ((String) ob) : ob.toString();
                 _parsingContext.setCurrentName(name);
@@ -1576,29 +1576,29 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             }
 
             int ptr = _segmentPtr+1;
-            if ((ptr < Segment.TOKENS_PER_SEGMENT) && (_segment.type(ptr) == JsonToken.FIELD_NAME)) {
+            if ((ptr < Segment.TOKENS_PER_SEGMENT) && (_segment.type(ptr) == JsonToken.PROPERTY_NAME)) {
                 _segmentPtr = ptr;
-                _currToken = JsonToken.FIELD_NAME;
+                _currToken = JsonToken.PROPERTY_NAME;
                 Object ob = _segment.get(ptr); // inlined _currentObject();
                 String name = (ob instanceof String) ? ((String) ob) : ob.toString();
                 _parsingContext.setCurrentName(name);
                 return name;
             }
-            return (nextToken() == JsonToken.FIELD_NAME) ? currentName() : null;
+            return (nextToken() == JsonToken.PROPERTY_NAME) ? currentName() : null;
         }
 
         // NOTE: since we know there's no native matching just use simpler way:
         @Override // since 3.0
-        public int nextFieldName(FieldNameMatcher matcher) {
+        public int nextFieldName(PropertyNameMatcher matcher) {
             String str = nextFieldName();
             if (str != null) {
                 // 15-Nov-2017, tatu: Can not assume name given is intern()ed
                 return matcher.matchName(str);
             }
             if (hasToken(JsonToken.END_OBJECT)) {
-                return FieldNameMatcher.MATCH_END_OBJECT;
+                return PropertyNameMatcher.MATCH_END_OBJECT;
             }
-            return FieldNameMatcher.MATCH_ODD_TOKEN;
+            return PropertyNameMatcher.MATCH_ODD_TOKEN;
         }
 
         @Override
@@ -1643,7 +1643,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         {
             // common cases first:
             if (_currToken == JsonToken.VALUE_STRING
-                    || _currToken == JsonToken.FIELD_NAME) {
+                    || _currToken == JsonToken.PROPERTY_NAME) {
                 Object ob = _currentObject();
                 if (ob instanceof String) {
                     return (String) ob;

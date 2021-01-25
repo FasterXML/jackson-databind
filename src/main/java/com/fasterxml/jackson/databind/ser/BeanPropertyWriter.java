@@ -623,7 +623,7 @@ public class BeanPropertyWriter
         // Null handling is bit different, check that first
         if (value == null) {
             if (_nullSerializer != null) {
-                gen.writeFieldName(_name);
+                gen.writeName(_name);
                 _nullSerializer.serialize(null, gen, prov);
             }
             return;
@@ -655,7 +655,7 @@ public class BeanPropertyWriter
                 return;
             }
         }
-        gen.writeFieldName(_name);
+        gen.writeName(_name);
         if (_typeSerializer == null) {
             ser.serialize(value, gen, prov);
         } else {
@@ -673,8 +673,8 @@ public class BeanPropertyWriter
             SerializerProvider prov)
         throws Exception
     {
-        if (!gen.canOmitFields()) {
-            gen.writeOmittedField(_name.getValue());
+        if (!gen.canOmitProperties()) {
+            gen.writeOmittedProperty(_name.getValue());
         }
     }
 
@@ -844,7 +844,7 @@ public class BeanPropertyWriter
                     //   start passing info either. So check generator to see...
                     //   (note: not considering ROOT context as possibility, does not seem legal)
                     if (!gen.getOutputContext().inArray()) {
-                        gen.writeFieldName(_name);
+                        gen.writeName(_name);
                     }
                     _nullSerializer.serialize(null, gen, prov);
                 }

@@ -218,8 +218,8 @@ public class UntypedObjectDeserializer
     {
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_START_OBJECT:
-        case JsonTokenId.ID_FIELD_NAME:
-            // 28-Oct-2015, tatu: [databind#989] We may also be given END_OBJECT (similar to FIELD_NAME),
+        case JsonTokenId.ID_PROPERTY_NAME:
+            // 28-Oct-2015, tatu: [databind#989] We may also be given END_OBJECT (similar to PROPERTY_NAME),
             //    if caller has advanced to the first token of Object, but for empty Object
         case JsonTokenId.ID_END_OBJECT:
             if (_mapDeserializer != null) {
@@ -287,7 +287,7 @@ public class UntypedObjectDeserializer
         // First: does it look like we had type id wrapping of some kind?
         case JsonTokenId.ID_START_ARRAY:
         case JsonTokenId.ID_START_OBJECT:
-        case JsonTokenId.ID_FIELD_NAME:
+        case JsonTokenId.ID_PROPERTY_NAME:
             // Output can be as JSON Object, Array or scalar: no way to know at this point:
             return typeDeserializer.deserializeTypedFromAny(p, ctxt);
 
@@ -344,8 +344,8 @@ public class UntypedObjectDeserializer
 
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_START_OBJECT:
-        case JsonTokenId.ID_FIELD_NAME:
-            // We may also be given END_OBJECT (similar to FIELD_NAME),
+        case JsonTokenId.ID_PROPERTY_NAME:
+            // We may also be given END_OBJECT (similar to PROPERTY_NAME),
             // if caller has advanced to the first token of Object, but for empty Object
         case JsonTokenId.ID_END_OBJECT:
             if (_mapDeserializer != null) {
@@ -476,7 +476,7 @@ public class UntypedObjectDeserializer
         
         if (t == JsonToken.START_OBJECT) {
             key1 = p.nextFieldName();
-        } else if (t == JsonToken.FIELD_NAME) {
+        } else if (t == JsonToken.PROPERTY_NAME) {
             key1 = p.currentName();
         } else {
             if (t != JsonToken.END_OBJECT) {
@@ -605,7 +605,7 @@ public class UntypedObjectDeserializer
         if (t == JsonToken.END_OBJECT) {
             return m;
         }
-        // NOTE: we are guaranteed to point to FIELD_NAME
+        // NOTE: we are guaranteed to point to PROPERTY_NAME
         String key = p.currentName();
         do {
             p.nextToken();
@@ -684,7 +684,7 @@ public class UntypedObjectDeserializer
                         return new LinkedHashMap<String,Object>(2);
                     }
                 }
-            case JsonTokenId.ID_FIELD_NAME:
+            case JsonTokenId.ID_PROPERTY_NAME:
                 return mapObject(p, ctxt);
             case JsonTokenId.ID_START_ARRAY:
                 {
@@ -723,7 +723,7 @@ public class UntypedObjectDeserializer
                 return Boolean.FALSE;
 
             case JsonTokenId.ID_END_OBJECT:
-                // 28-Oct-2015, tatu: [databind#989] We may also be given END_OBJECT (similar to FIELD_NAME),
+                // 28-Oct-2015, tatu: [databind#989] We may also be given END_OBJECT (similar to PROPERTY_NAME),
                 //    if caller has advanced to the first token of Object, but for empty Object
                 return new LinkedHashMap<String,Object>(2);
 
@@ -742,7 +742,7 @@ public class UntypedObjectDeserializer
             switch (p.currentTokenId()) {
             case JsonTokenId.ID_START_ARRAY:
             case JsonTokenId.ID_START_OBJECT:
-            case JsonTokenId.ID_FIELD_NAME:
+            case JsonTokenId.ID_PROPERTY_NAME:
                 return typeDeserializer.deserializeTypedFromAny(p, ctxt);
 
             case JsonTokenId.ID_STRING:
@@ -789,15 +789,15 @@ public class UntypedObjectDeserializer
                 return intoValue;
             case JsonTokenId.ID_START_OBJECT:
                 {
-                    JsonToken t = p.nextToken(); // to get to FIELD_NAME or END_OBJECT
+                    JsonToken t = p.nextToken(); // to get to PROPERTY_NAME or END_OBJECT
                     if (t == JsonToken.END_OBJECT) {
                         return intoValue;
                     }
                 }
-            case JsonTokenId.ID_FIELD_NAME:
+            case JsonTokenId.ID_PROPERTY_NAME:
                 if (intoValue instanceof Map<?,?>) {
                     Map<Object,Object> m = (Map<Object,Object>) intoValue;
-                    // NOTE: we are guaranteed to point to FIELD_NAME
+                    // NOTE: we are guaranteed to point to PROPERTY_NAME
                     String key = p.currentName();
                     do {
                         p.nextToken();
@@ -818,7 +818,7 @@ public class UntypedObjectDeserializer
                 break;
             case JsonTokenId.ID_START_ARRAY:
                 {
-                    JsonToken t = p.nextToken(); // to get to FIELD_NAME or END_OBJECT
+                    JsonToken t = p.nextToken(); // to get to PROPERTY_NAME or END_OBJECT
                     if (t == JsonToken.END_ARRAY) {
                         return intoValue;
                     }
@@ -899,7 +899,7 @@ public class UntypedObjectDeserializer
          */
         protected Object mapObject(JsonParser p, DeserializationContext ctxt) throws JacksonException
         {
-            // will point to FIELD_NAME at this point, guaranteed
+            // will point to PROPERTY_NAME at this point, guaranteed
             String key1 = p.getText();
             p.nextToken();
             Object value1 = deserialize(p, ctxt);

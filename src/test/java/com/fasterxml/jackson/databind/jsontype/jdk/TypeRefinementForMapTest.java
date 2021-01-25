@@ -88,8 +88,8 @@ public class TypeRefinementForMapTest extends BaseMapTest
     static class CompoundKeySerializer extends StdSerializer<CompoundKey> {
         public CompoundKeySerializer() { super(CompoundKey.class); }
         @Override
-        public void serialize(CompoundKey compoundKey, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) {
-            jsonGenerator.writeFieldName(compoundKey.getPart0() + '|' + compoundKey.getPart1());
+        public void serialize(CompoundKey compoundKey, JsonGenerator g, SerializerProvider serializerProvider) {
+            g.writeName(compoundKey.getPart0() + '|' + compoundKey.getPart1());
         }
     }
 
@@ -99,7 +99,7 @@ public class TypeRefinementForMapTest extends BaseMapTest
     /*******************************************************
      */
 
-    public void testMapRefinement() throws Exception
+    public void testMapRefinement()
     {
         String ID1 = "3a6383d4-8123-4c43-8b8d-7cedf3e59404";
         String ID2 = "81c3d978-90c4-4b00-8da1-1c39ffcab02c";
@@ -118,7 +118,7 @@ public class TypeRefinementForMapTest extends BaseMapTest
     }
 
     // for [databind#1384]
-    public void testMapKeyRefinement1384() throws Exception
+    public void testMapKeyRefinement1384()
     {
         final String TEST_INSTANCE_SERIALIZED =
                 "{\"mapProperty\":[\"java.util.HashMap\",{\"Compound|Key\":\"Value\"}]}";

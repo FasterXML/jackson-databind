@@ -357,14 +357,14 @@ filter.getClass().getName(), t.getClass().getName(), ClassUtil.exceptionMessage(
             if (wrap) {
                 gen.writeStartObject();
                 PropertyName pname = findRootName(value.getClass());
-                gen.writeFieldName(pname.simpleAsEncoded(_config));
+                gen.writeName(pname.simpleAsEncoded(_config));
             }
         } else if (rootName.isEmpty()) {
             wrap = false;
         } else {
             wrap = true;
             gen.writeStartObject();
-            gen.writeFieldName(rootName.getSimpleName());
+            gen.writeName(rootName.getSimpleName());
         }
         valueSer.serializeWithType(value, gen, this, typeSer);
         if (wrap) {
@@ -377,7 +377,7 @@ filter.getClass().getName(), t.getClass().getName(), ClassUtil.exceptionMessage(
         throws JacksonException
     {
         gen.writeStartObject();
-        gen.writeFieldName(rootName.simpleAsEncoded(_config));
+        gen.writeName(rootName.simpleAsEncoded(_config));
         ser.serialize(value, gen, this);
         gen.writeEndObject();
     }

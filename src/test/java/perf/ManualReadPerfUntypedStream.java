@@ -22,8 +22,8 @@ public class ManualReadPerfUntypedStream extends ObjectReaderTestBase
 
         boolean doIntern = true;
         JsonFactory f = JsonFactory.builder()
-                .configure(JsonFactory.Feature.CANONICALIZE_FIELD_NAMES, doIntern)
-                .configure(JsonFactory.Feature.INTERN_FIELD_NAMES, doIntern)
+                .configure(JsonFactory.Feature.CANONICALIZE_PROPERTY_NAMES, doIntern)
+                .configure(JsonFactory.Feature.INTERN_PROPERTY_NAMES, doIntern)
                 .build();
         JsonMapper m = new JsonMapper(f);
         Object input1 = m.readValue(data, Object.class);

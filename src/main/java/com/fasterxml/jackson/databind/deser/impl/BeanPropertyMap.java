@@ -323,9 +323,9 @@ public class BeanPropertyMap
         }
         // `true` -> yes, they are intern()ed alright
         if (_caseInsensitive) {
-            _nameMatcher = tsf.constructCIFieldNameMatcher(names, true, _locale);
+            _nameMatcher = tsf.constructCINameMatcher(names, true, _locale);
         } else {
-            _nameMatcher = tsf.constructFieldNameMatcher(names, true);
+            _nameMatcher = tsf.constructNameMatcher(names, true);
         }
         return this;
     }

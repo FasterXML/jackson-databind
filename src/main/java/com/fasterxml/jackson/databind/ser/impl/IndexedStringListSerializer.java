@@ -82,7 +82,7 @@ public final class IndexedStringListSerializer
     {
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
                 typeSer.typeId(value, JsonToken.START_ARRAY));
-        g.setCurrentValue(value);
+        g.assignCurrentValue(value);
         serializeContents(value, g, ctxt, value.size());
         typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }

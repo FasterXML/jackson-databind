@@ -130,7 +130,7 @@ public class UnwrappingBeanSerializer
         }
         // Because we do not write start-object need to call this explicitly:
         // (although... is that a problem, overwriting it now?)
-        gen.setCurrentValue(bean); // [databind#631]
+        gen.assignCurrentValue(bean); // [databind#631]
         if (_propertyFilterId != null) {
             _serializeFieldsFiltered(bean, gen, provider, _propertyFilterId);
             return;
@@ -156,7 +156,7 @@ public class UnwrappingBeanSerializer
             return;
         }
         // Because we do not write start-object need to call this explicitly:
-        gen.setCurrentValue(bean);
+        gen.assignCurrentValue(bean);
         if (_propertyFilterId != null) {
             _serializeFieldsFiltered(bean, gen, provider, _propertyFilterId);
             return;

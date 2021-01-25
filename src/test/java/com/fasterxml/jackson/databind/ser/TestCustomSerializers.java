@@ -122,7 +122,7 @@ public class TestCustomSerializers extends BaseMapTest
         @Override
         public void serialize(Object value, JsonGenerator gen,
                 SerializerProvider provider) {
-            Object parent = gen.getCurrentValue();
+            Object parent = gen.currentValue();
             String desc = (parent == null) ? "NULL" : parent.getClass().getSimpleName();
             gen.writeString(desc+"/"+value);
         }
@@ -159,7 +159,7 @@ public class TestCustomSerializers extends BaseMapTest
         public void serializeAsField(Object pojo, JsonGenerator jgen, SerializerProvider provider, PropertyWriter writer) throws Exception {
             // Ensure that "current value" remains pojo
             final TokenStreamContext ctx = jgen.getOutputContext();
-            final Object curr = ctx.getCurrentValue();
+            final Object curr = ctx.currentValue();
 
             if (!(curr instanceof Item2475)) {
                 throw new Error("Field '"+writer.getName()+"', context not that of `Item2475` instance");

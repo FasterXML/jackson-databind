@@ -562,7 +562,7 @@ public class MapSerializer
         throws JacksonException
     {
         // [databind#631]: Assign current value, to be accessible by custom serializers
-        gen.setCurrentValue(value);
+        gen.assignCurrentValue(value);
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen, ctxt,
                 typeSer.typeId(value, JsonToken.START_OBJECT));
         serializeWithoutTypeInfo(value, gen, ctxt);

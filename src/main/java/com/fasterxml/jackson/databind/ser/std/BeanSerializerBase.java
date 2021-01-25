@@ -640,55 +640,55 @@ public abstract class BeanSerializerBase
         typeSer.writeTypeSuffix(gen, ctxt, typeIdDef);
     }
 
-    protected final void _serializeWithObjectId(Object bean, JsonGenerator gen,
+    protected final void _serializeWithObjectId(Object bean, JsonGenerator g,
             SerializerProvider provider, boolean startEndObject)
         throws JacksonException
     {
-        gen.setCurrentValue(bean);
+        g.assignCurrentValue(bean);
         final ObjectIdWriter w = _objectIdWriter;
         WritableObjectId objectId = provider.findObjectId(bean, w.generator);
         // If possible, write as id already
-        if (objectId.writeAsId(gen, provider, w)) {
+        if (objectId.writeAsId(g, provider, w)) {
             return;
         }
         // If not, need to inject the id:
         Object id = objectId.generateId(bean);
         if (w.alwaysAsId) {
-            w.serializer.serialize(id, gen, provider);
+            w.serializer.serialize(id, g, provider);
             return;
         }
         if (startEndObject) {
-            gen.writeStartObject(bean);
+            g.writeStartObject(bean);
         }
-        objectId.writeAsField(gen, provider, w);
+        objectId.writeAsField(g, provider, w);
         if (_propertyFilterId != null) {
-            _serializeFieldsFiltered(bean, gen, provider, _propertyFilterId);
+            _serializeFieldsFiltered(bean, g, provider, _propertyFilterId);
         } else {
-            _serializeFields(bean, gen, provider);
+            _serializeFields(bean, g, provider);
         }
         if (startEndObject) {
-            gen.writeEndObject();
+            g.writeEndObject();
         }
     }
     
-    protected final void _serializeWithObjectId(Object bean, JsonGenerator gen, SerializerProvider provider,
+    protected final void _serializeWithObjectId(Object bean, JsonGenerator g, SerializerProvider provider,
             TypeSerializer typeSer)
         throws JacksonException
     {
-        gen.setCurrentValue(bean);
+        g.assignCurrentValue(bean);
         final ObjectIdWriter w = _objectIdWriter;
         WritableObjectId objectId = provider.findObjectId(bean, w.generator);
         // If possible, write as id already
-        if (objectId.writeAsId(gen, provider, w)) {
+        if (objectId.writeAsId(g, provider, w)) {
             return;
         }
         // If not, need to inject the id:
         Object id = objectId.generateId(bean);
         if (w.alwaysAsId) {
-            w.serializer.serialize(id, gen, provider);
+            w.serializer.serialize(id, g, provider);
             return;
         }
-        _serializeObjectId(bean, gen, provider, typeSer, objectId);
+        _serializeObjectId(bean, g, provider, typeSer, objectId);
     }
 
     protected  void _serializeObjectId(Object bean,

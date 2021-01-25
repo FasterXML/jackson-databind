@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * troubleshooting.
  */
 public class DatabindException
-    extends JsonProcessingException
+    extends JacksonException
 {
     private static final long serialVersionUID = 3L;
 
@@ -217,7 +217,8 @@ public class DatabindException
 
     protected DatabindException(Closeable processor, String msg, JsonLocation loc)
     {
-        super(msg, loc);
+        super(msg, loc, null);
+        _processor = processor;
         _location = loc;
     }
 

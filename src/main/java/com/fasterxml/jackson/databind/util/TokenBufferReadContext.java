@@ -32,7 +32,7 @@ public class TokenBufferReadContext extends TokenStreamContext
         super(base);
         _parent = base.getParent();
         _currentName = base.currentName();
-        _currentValue = base.getCurrentValue();
+        _currentValue = base.currentValue();
         if (base instanceof JsonReadContext) {
             JsonReadContext rc = (JsonReadContext) base;
             _startLocation = rc.getStartLocation(srcRef);
@@ -45,7 +45,7 @@ public class TokenBufferReadContext extends TokenStreamContext
         super(base);
         _parent = base.getParent();
         _currentName = base.currentName();
-        _currentValue = base.getCurrentValue();
+        _currentValue = base.currentValue();
         _startLocation = startLoc;
     }
 
@@ -66,12 +66,12 @@ public class TokenBufferReadContext extends TokenStreamContext
     }
 
     @Override
-    public Object getCurrentValue() {
+    public Object currentValue() {
         return _currentValue;
     }
 
     @Override
-    public void setCurrentValue(Object v) {
+    public void assignCurrentValue(Object v) {
         _currentValue = v;
     }
 

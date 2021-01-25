@@ -151,7 +151,7 @@ public class BeanAsArraySerializer
             _serializeWithObjectId(bean, gen, ctxt, typeSer);
             return;
         }
-        gen.setCurrentValue(bean);
+        gen.assignCurrentValue(bean);
         WritableTypeId typeIdDef = _typeIdDef(typeSer, bean, JsonToken.START_ARRAY);
         typeSer.writeTypePrefix(gen, ctxt, typeIdDef);
         final boolean filtered = (_filteredProps != null && ctxt.getActiveView() != null);

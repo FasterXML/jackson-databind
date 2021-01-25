@@ -851,7 +851,7 @@ public class ObjectWriter
             try {
                 toClose.close();
             } catch (IOException e) {
-                throw WrappedIOException.construct(e);
+                throw WrappedIOException.construct(e, g);
             }
         } else {
             _prefetch.serialize(g, value, _serializerProvider());

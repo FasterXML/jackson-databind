@@ -264,7 +264,7 @@ public class SequenceWriter
             try {
                 tmpToClose.close();
             } catch (IOException e) {
-                throw WrappedIOException.construct(e);
+                throw WrappedIOException.construct(e, _generator);
             }
         } finally {
             if (toClose != null) { // only if there was other throwable

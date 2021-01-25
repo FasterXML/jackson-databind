@@ -379,7 +379,7 @@ public final class ClassUtil
         throwIfJacksonE(fail);
         throwIfRTE(fail);
         if (fail instanceof IOException) {
-            throw WrappedIOException.construct((IOException) fail);
+            throw WrappedIOException.construct((IOException) fail, g);
         }
         throw new RuntimeException(fail);
     }
@@ -413,7 +413,7 @@ public final class ClassUtil
         throwIfJacksonE(fail);
         throwIfRTE(fail);
         if (fail instanceof IOException) {
-            throw WrappedIOException.construct((IOException) fail);
+            throw WrappedIOException.construct((IOException) fail, g);
         }
         throw new RuntimeException(fail);
     }

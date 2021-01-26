@@ -198,7 +198,7 @@ public class MapKeySerializationTest extends BaseMapTest
         JsonNode tree = mapper.convertValue(outerMap, JsonNode.class);
 
         JsonNode innerNode = tree.get("inner");
-        String key = innerNode.fieldNames().next();
+        String key = innerNode.propertyNames().next();
         assertEquals("xxxA", key);
     }
 

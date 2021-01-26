@@ -185,7 +185,7 @@ public abstract class JsonNode
     public abstract JsonNode path(int index);
 
     @Override
-    public Iterator<String> fieldNames() {
+    public Iterator<String> propertyNames() {
         return ClassUtil.emptyIterator();
     }
 

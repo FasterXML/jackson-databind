@@ -106,7 +106,7 @@ public class ObjectNode
     }
 
     @Override
-    public Iterator<String> fieldNames() {
+    public Iterator<String> propertyNames() {
         return _children.keySet().iterator();
     }
 

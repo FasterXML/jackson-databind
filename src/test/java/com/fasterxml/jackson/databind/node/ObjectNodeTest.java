@@ -140,7 +140,7 @@ public class ObjectNodeTest
         
         assertFalse(n.elements().hasNext());
         assertFalse(n.fields().hasNext());
-        assertFalse(n.fieldNames().hasNext());
+        assertFalse(n.propertyNames().hasNext());
         assertNull(n.get("a"));
         assertTrue(n.path("a").isMissingNode());
 
@@ -150,7 +150,7 @@ public class ObjectNodeTest
         assertEquals(1, n.size());
         assertTrue(n.elements().hasNext());
         assertTrue(n.fields().hasNext());
-        assertTrue(n.fieldNames().hasNext());
+        assertTrue(n.propertyNames().hasNext());
         assertSame(text, n.get("a"));
         assertSame(text, n.path("a"));
         assertNull(n.get("b"));

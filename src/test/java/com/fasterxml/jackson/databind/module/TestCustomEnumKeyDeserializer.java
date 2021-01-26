@@ -198,7 +198,7 @@ public class TestCustomEnumKeyDeserializer extends BaseMapTest
         ObjectNode ob = (ObjectNode) tree;
 
         JsonNode inner = ob.get("replacements");
-        String firstFieldName = inner.fieldNames().next();
+        String firstFieldName = inner.propertyNames().next();
         assertEquals("green", firstFieldName);
     }
 

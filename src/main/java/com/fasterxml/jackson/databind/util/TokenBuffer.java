@@ -14,7 +14,7 @@ import com.fasterxml.jackson.core.io.NumberOutput;
 import com.fasterxml.jackson.core.sym.PropertyNameMatcher;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.fasterxml.jackson.core.util.JacksonFeatureSet;
-import com.fasterxml.jackson.core.util.SimpleTokenWriteContext;
+import com.fasterxml.jackson.core.util.SimpleStreamWriteContext;
 import com.fasterxml.jackson.databind.*;
 
 /**
@@ -117,7 +117,7 @@ public class TokenBuffer
     /**********************************************************************
      */
 
-    protected SimpleTokenWriteContext _tokenWriteContext;
+    protected SimpleStreamWriteContext _tokenWriteContext;
     
     // 05-Oct-2017, tatu: need to consider if this needs to  be properly linked...
     //   especially for "convertValue()" use case
@@ -139,7 +139,7 @@ public class TokenBuffer
     public TokenBuffer(boolean hasNativeIds)
     {
         _streamWriteFeatures = DEFAULT_STREAM_WRITE_FEATURES;
-        _tokenWriteContext = SimpleTokenWriteContext.createRootContext(null);
+        _tokenWriteContext = SimpleStreamWriteContext.createRootContext(null);
         // at first we have just one segment
         _first = _last = new Segment();
         _appendAt = 0;
@@ -156,7 +156,7 @@ public class TokenBuffer
     {
         _objectWriteContext = writeContext;
         _streamWriteFeatures = DEFAULT_STREAM_WRITE_FEATURES;
-        _tokenWriteContext = SimpleTokenWriteContext.createRootContext(null);
+        _tokenWriteContext = SimpleStreamWriteContext.createRootContext(null);
         // at first we have just one segment
         _first = _last = new Segment();
         _appendAt = 0;
@@ -170,7 +170,7 @@ public class TokenBuffer
     {
         _parentContext = p.streamReadContext();
         _streamWriteFeatures = DEFAULT_STREAM_WRITE_FEATURES;
-        _tokenWriteContext = SimpleTokenWriteContext.createRootContext(null);
+        _tokenWriteContext = SimpleStreamWriteContext.createRootContext(null);
         // at first we have just one segment
         _first = _last = new Segment();
         _appendAt = 0;
@@ -1377,7 +1377,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
 
         // but then we need to update context. One twist: do allow unbalanced content;
         // for that need to check that we will retain "root context"
-        SimpleTokenWriteContext c = _tokenWriteContext.getParent();
+        SimpleStreamWriteContext c = _tokenWriteContext.getParent();
         if (c != null) {
             _tokenWriteContext = c;
         }

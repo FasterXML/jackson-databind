@@ -510,7 +510,7 @@ public class MapDeserializer
 
         String keyStr;
         if (p.isExpectedStartObjectToken()) {
-            keyStr = p.nextFieldName();
+            keyStr = p.nextName();
         } else {
             JsonToken t = p.currentToken();
             if (t != JsonToken.PROPERTY_NAME) {
@@ -522,7 +522,7 @@ public class MapDeserializer
             keyStr = p.currentName();
         }
         
-        for (; keyStr != null; keyStr = p.nextFieldName()) {
+        for (; keyStr != null; keyStr = p.nextName()) {
             Object key = keyDes.deserializeKey(keyStr, ctxt);
             // And then the value...
             JsonToken t = p.nextToken();
@@ -574,7 +574,7 @@ public class MapDeserializer
         
         String key;
         if (p.isExpectedStartObjectToken()) {
-            key = p.nextFieldName();
+            key = p.nextName();
         } else {
             JsonToken t = p.currentToken();
             if (t == JsonToken.END_OBJECT) {
@@ -586,7 +586,7 @@ public class MapDeserializer
             key = p.currentName();
         }
 
-        for (; key != null; key = p.nextFieldName()) {
+        for (; key != null; key = p.nextName()) {
             JsonToken t = p.nextToken();
             if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(key)) {
                 p.skipChildren();
@@ -632,14 +632,14 @@ public class MapDeserializer
 
         String key;
         if (p.isExpectedStartObjectToken()) {
-            key = p.nextFieldName();
+            key = p.nextName();
         } else if (p.hasToken(JsonToken.PROPERTY_NAME)) {
             key = p.currentName();
         } else {
             key = null;
         }
         
-        for (; key != null; key = p.nextFieldName()) {
+        for (; key != null; key = p.nextName()) {
             JsonToken t = p.nextToken(); // to get to value
             if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(key)) {
                 p.skipChildren(); // and skip it (in case of array/object)
@@ -711,7 +711,7 @@ public class MapDeserializer
 
         String keyStr;
         if (p.isExpectedStartObjectToken()) {
-            keyStr = p.nextFieldName();
+            keyStr = p.nextName();
         } else {
             JsonToken t = p.currentToken();
             if (t == JsonToken.END_OBJECT) {
@@ -723,7 +723,7 @@ public class MapDeserializer
             keyStr = p.currentName();
         }
         
-        for (; keyStr != null; keyStr = p.nextFieldName()) {
+        for (; keyStr != null; keyStr = p.nextName()) {
             Object key = keyDes.deserializeKey(keyStr, ctxt);
             // And then the value...
             JsonToken t = p.nextToken();
@@ -778,7 +778,7 @@ public class MapDeserializer
 
         String key;
         if (p.isExpectedStartObjectToken()) {
-            key = p.nextFieldName();
+            key = p.nextName();
         } else {
             JsonToken t = p.currentToken();
             if (t == JsonToken.END_OBJECT) {
@@ -790,7 +790,7 @@ public class MapDeserializer
             key = p.currentName();
         }
 
-        for (; key != null; key = p.nextFieldName()) {
+        for (; key != null; key = p.nextName()) {
             JsonToken t = p.nextToken();
             if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(key)) {
                 p.skipChildren();

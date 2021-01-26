@@ -143,7 +143,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
             _seqContext = null;
             _state = STATE_CLOSED;
         } else {
-            TokenStreamContext sctxt = p.getParsingContext();
+            TokenStreamContext sctxt = p.streamReadContext();
             if (managedParser && p.isExpectedStartArrayToken()) {
                 // If pointing to START_ARRAY, context should be that ARRAY
                 p.clearCurrentToken();
@@ -343,7 +343,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
      * @return Location of the input stream of the underlying parser
      */
     public JsonLocation getCurrentLocation() {
-        return _parser.getCurrentLocation();
+        return _parser.currentLocation();
     }
 
     /*
@@ -356,14 +356,14 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
     {
         final JsonParser p = _parser;
         // First, a quick check to see if we might have been lucky and no re-sync needed
-        if (p.getParsingContext() == _seqContext) {
+        if (p.streamReadContext() == _seqContext) {
             return;
         }
 
         while (true) {
             JsonToken t = p.nextToken();
             if ((t == JsonToken.END_ARRAY) || (t == JsonToken.END_OBJECT)) {
-                if (p.getParsingContext() == _seqContext) {
+                if (p.streamReadContext() == _seqContext) {
                     p.clearCurrentToken();
                     return;
                 }

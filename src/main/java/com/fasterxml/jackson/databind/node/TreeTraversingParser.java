@@ -70,7 +70,7 @@ public class TreeTraversingParser
     }
 
     @Override
-    public JacksonFeatureSet<StreamReadCapability> getReadCapabilities() {
+    public JacksonFeatureSet<StreamReadCapability> streamReadCapabilities() {
         // Defaults are fine
         return DEFAULT_READ_CAPABILITIES;
     }
@@ -161,7 +161,7 @@ public class TreeTraversingParser
     }
 
     @Override
-    public TokenStreamContext getParsingContext() {
+    public TokenStreamContext streamReadContext() {
         return _nodeCursor;
     }
 
@@ -174,7 +174,7 @@ public class TreeTraversingParser
     }
 
     @Override
-    public JsonLocation getCurrentLocation() {
+    public JsonLocation currentLocation() {
         return JsonLocation.NA;
     }
 

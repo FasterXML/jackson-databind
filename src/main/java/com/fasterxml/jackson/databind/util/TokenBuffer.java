@@ -168,7 +168,7 @@ public class TokenBuffer
 
     public TokenBuffer(JsonParser p, DeserializationContext ctxt)
     {
-        _parentContext = p.getParsingContext();
+        _parentContext = p.streamReadContext();
         _streamWriteFeatures = DEFAULT_STREAM_WRITE_FEATURES;
         _tokenWriteContext = SimpleTokenWriteContext.createRootContext(null);
         // at first we have just one segment
@@ -606,7 +606,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
      */
 
     @Override
-    public TokenStreamContext getOutputContext() { return _tokenWriteContext; }
+    public TokenStreamContext streamWriteContext() { return _tokenWriteContext; }
 
     @Override
     public Object currentValue() {
@@ -619,7 +619,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     }
 
     @Override
-    public ObjectWriteContext getObjectWriteContext() { return _objectWriteContext; }
+    public ObjectWriteContext objectWriteContext() { return _objectWriteContext; }
 
     /*
     /**********************************************************************
@@ -668,7 +668,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     //    then we'll need to pass this from parser contents if which were
     //    buffered.
     @Override
-    public JacksonFeatureSet<StreamWriteCapability> getWriteCapabilities() {
+    public JacksonFeatureSet<StreamWriteCapability> streamWriteCapabilities() {
         return BOGUS_WRITE_CAPABILITIES;
     }
 
@@ -1484,7 +1484,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         //    then we'll need to pass this from parser contents if which were
         //    buffered.
         @Override
-        public JacksonFeatureSet<StreamReadCapability> getReadCapabilities() {
+        public JacksonFeatureSet<StreamReadCapability> streamReadCapabilities() {
             return DEFAULT_READ_CAPABILITIES;
         }
 
@@ -1568,7 +1568,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         }
 
         @Override
-        public String nextFieldName()
+        public String nextName()
         {
             // inlined common case from nextToken()
             if (_closed || (_segment == null)) {
@@ -1589,8 +1589,8 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
 
         // NOTE: since we know there's no native matching just use simpler way:
         @Override // since 3.0
-        public int nextFieldName(PropertyNameMatcher matcher) {
-            String str = nextFieldName();
+        public int nextNameMatch(PropertyNameMatcher matcher) {
+            String str = nextName();
             if (str != null) {
                 // 15-Nov-2017, tatu: Can not assume name given is intern()ed
                 return matcher.matchName(str);
@@ -1610,15 +1610,15 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         /******************************************************************
          */
 
-        @Override public TokenStreamContext getParsingContext() { return _parsingContext; }
+        @Override public TokenStreamContext streamReadContext() { return _parsingContext; }
         @Override public void assignCurrentValue(Object v) { _parsingContext.assignCurrentValue(v); }
         @Override public Object currentValue() { return _parsingContext.currentValue(); }
         
         @Override
-        public JsonLocation getTokenLocation() { return getCurrentLocation(); }
+        public JsonLocation getTokenLocation() { return currentLocation(); }
 
         @Override
-        public JsonLocation getCurrentLocation() {
+        public JsonLocation currentLocation() {
             return (_location == null) ? JsonLocation.NA : _location;
         }
 

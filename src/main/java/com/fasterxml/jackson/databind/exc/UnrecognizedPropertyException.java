@@ -48,7 +48,7 @@ public class UnrecognizedPropertyException
         String msg = String.format("Unrecognized property \"%s\" (class %s), not marked as ignorable",
                 propertyName, ref.getName());
         UnrecognizedPropertyException e = new UnrecognizedPropertyException(p, msg,
-                p.getCurrentLocation(), ref, propertyName, propertyIds);
+                p.currentLocation(), ref, propertyName, propertyIds);
         // but let's also ensure path includes this last (missing) segment
         e.prependPath(fromObjectOrClass, propertyName);
         return e;

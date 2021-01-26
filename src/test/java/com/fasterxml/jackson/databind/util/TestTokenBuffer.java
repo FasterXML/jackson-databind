@@ -34,7 +34,7 @@ public class TestTokenBuffer extends BaseMapTest
 
         buf = TokenBuffer.forGeneration();
         assertEquals(MAPPER.version(), buf.version());
-        assertNotNull(buf.getOutputContext());
+        assertNotNull(buf.streamWriteContext());
         assertFalse(buf.isClosed());
 
         assertFalse(buf.isEnabled(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN));
@@ -183,7 +183,7 @@ public class TestTokenBuffer extends BaseMapTest
         buf.writeStartObject();
         buf.writeName("c");
         //This assertion succeeds as expected
-        assertEquals("b", buf.getOutputContext().getParent().currentName());
+        assertEquals("b", buf.streamWriteContext().getParent().currentName());
         buf.writeString("cval");
         buf.writeEndObject();
         buf.writeEndObject();
@@ -195,19 +195,19 @@ public class TestTokenBuffer extends BaseMapTest
         TokenBuffer buf = TokenBuffer.forGeneration();
 
         // First, empty array
-        assertTrue(buf.getOutputContext().inRoot());
+        assertTrue(buf.streamWriteContext().inRoot());
         buf.writeStartArray();
-        assertTrue(buf.getOutputContext().inArray());
+        assertTrue(buf.streamWriteContext().inArray());
         buf.writeEndArray();
-        assertTrue(buf.getOutputContext().inRoot());
+        assertTrue(buf.streamWriteContext().inRoot());
 
         JsonParser p = buf.asParser(ObjectReadContext.empty());
         assertNull(p.currentToken());
-        assertTrue(p.getParsingContext().inRoot());
+        assertTrue(p.streamReadContext().inRoot());
         assertToken(JsonToken.START_ARRAY, p.nextToken());
-        assertTrue(p.getParsingContext().inArray());
+        assertTrue(p.streamReadContext().inArray());
         assertToken(JsonToken.END_ARRAY, p.nextToken());
-        assertTrue(p.getParsingContext().inRoot());
+        assertTrue(p.streamReadContext().inRoot());
         assertNull(p.nextToken());
         p.close();
         buf.close();
@@ -256,19 +256,19 @@ public class TestTokenBuffer extends BaseMapTest
         TokenBuffer buf = TokenBuffer.forGeneration();
 
         // First, empty JSON Object
-        assertTrue(buf.getOutputContext().inRoot());
+        assertTrue(buf.streamWriteContext().inRoot());
         buf.writeStartObject();
-        assertTrue(buf.getOutputContext().inObject());
+        assertTrue(buf.streamWriteContext().inObject());
         buf.writeEndObject();
-        assertTrue(buf.getOutputContext().inRoot());
+        assertTrue(buf.streamWriteContext().inRoot());
 
         JsonParser p = buf.asParser(ObjectReadContext.empty());
         assertNull(p.currentToken());
-        assertTrue(p.getParsingContext().inRoot());
+        assertTrue(p.streamReadContext().inRoot());
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertTrue(p.getParsingContext().inObject());
+        assertTrue(p.streamReadContext().inObject());
         assertToken(JsonToken.END_OBJECT, p.nextToken());
-        assertTrue(p.getParsingContext().inRoot());
+        assertTrue(p.streamReadContext().inRoot());
         assertNull(p.nextToken());
         p.close();
         buf.close();
@@ -453,7 +453,7 @@ public class TestTokenBuffer extends BaseMapTest
 
     private void _verifyOutputContext(JsonGenerator gen1, JsonGenerator gen2)
     {
-        _verifyOutputContext(gen1.getOutputContext(), gen2.getOutputContext());
+        _verifyOutputContext(gen1.streamWriteContext(), gen2.streamWriteContext());
     }
 
     private void _verifyOutputContext(TokenStreamContext ctxt1, TokenStreamContext ctxt2)
@@ -501,7 +501,7 @@ public class TestTokenBuffer extends BaseMapTest
         buf.writeStartObject();
         buf.writeName("c");
         //This assertion fails (because of 'a')
-        assertEquals("b", buf.getOutputContext().getParent().currentName());
+        assertEquals("b", buf.streamWriteContext().getParent().currentName());
         buf.writeString("cval");
         buf.writeEndObject();
         buf.writeEndObject();

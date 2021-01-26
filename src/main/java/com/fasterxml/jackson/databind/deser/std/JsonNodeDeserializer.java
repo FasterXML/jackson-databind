@@ -259,7 +259,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
         // 13-Dec-2017, tatu: Unrolling is a mysterious optimization. Looks like doing TWO
         //    operations per loop yields non-trivial +5% improvement. Yet doing more does not.
         //    So we'll go with 2...
-        String key = p.nextFieldName();
+        String key = p.nextName();
         while (key != null) {
             JsonNode value;
             JsonToken t = p.nextToken();
@@ -299,7 +299,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
                 }
             }
 
-            if ((key = p.nextFieldName()) == null) {
+            if ((key = p.nextName()) == null) {
                 break;
             }
             t = p.nextToken();
@@ -340,7 +340,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             }
 
             // for next round
-            key = p.nextFieldName();
+            key = p.nextName();
         }
         return node;
     }
@@ -354,7 +354,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     {
         final ObjectNode node = nodeFactory.objectNode();
         String key = p.currentName();
-        for (; key != null; key = p.nextFieldName()) {
+        for (; key != null; key = p.nextName()) {
             JsonNode value;
             JsonToken t = p.nextToken();
             if (t == null) { // can this ever occur?
@@ -403,7 +403,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     {
         String key;
         if (p.isExpectedStartObjectToken()) {
-            key = p.nextFieldName();
+            key = p.nextName();
         } else {
             if (!p.hasToken(JsonToken.PROPERTY_NAME)) {
                 return deserialize(p, ctxt);
@@ -411,7 +411,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             key = p.currentName();
         }
         final JsonNodeFactory nodeFactory = ctxt.getNodeFactory();
-        for (; key != null; key = p.nextFieldName()) {
+        for (; key != null; key = p.nextName()) {
             // If not, fall through to regular handling
             JsonToken t = p.nextToken();
 

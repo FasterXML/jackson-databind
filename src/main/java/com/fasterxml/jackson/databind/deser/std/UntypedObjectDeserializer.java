@@ -475,7 +475,7 @@ public class UntypedObjectDeserializer
         JsonToken t = p.currentToken();
         
         if (t == JsonToken.START_OBJECT) {
-            key1 = p.nextFieldName();
+            key1 = p.nextName();
         } else if (t == JsonToken.PROPERTY_NAME) {
             key1 = p.currentName();
         } else {
@@ -493,7 +493,7 @@ public class UntypedObjectDeserializer
         //   that we'd need new method(s) in JsonDeserializer. So not quite yet.
         p.nextToken();
         Object value1 = deserialize(p, ctxt);
-        String key2 = p.nextFieldName();
+        String key2 = p.nextName();
         if (key2 == null) { // has to be END_OBJECT, then
             // single entry; but we want modifiable
             LinkedHashMap<String, Object> result = new LinkedHashMap<>(2);
@@ -503,7 +503,7 @@ public class UntypedObjectDeserializer
         p.nextToken();
         Object value2 = deserialize(p, ctxt);
 
-        String key = p.nextFieldName();
+        String key = p.nextName();
         if (key == null) {
             LinkedHashMap<String, Object> result = new LinkedHashMap<>(4);
             result.put(key1, value1);
@@ -527,9 +527,9 @@ public class UntypedObjectDeserializer
             final Object oldValue = result.put(key, newValue);
             if (oldValue != null) {
                 return _mapObjectWithDups(p, ctxt, result, key, oldValue, newValue,
-                        p.nextFieldName());
+                        p.nextName());
             }
-        } while ((key = p.nextFieldName()) != null);
+        } while ((key = p.nextName()) != null);
         return result;
     }
 
@@ -551,7 +551,7 @@ public class UntypedObjectDeserializer
             if ((oldValue != null) && squashDups) {
                 _squashDups(result, key, oldValue, newValue);
             }
-            nextKey = p.nextFieldName();
+            nextKey = p.nextName();
         }
 
         return result;
@@ -621,7 +621,7 @@ public class UntypedObjectDeserializer
             if (newV != old) {
                 m.put(key, newV);
             }
-        } while ((key = p.nextFieldName()) != null);
+        } while ((key = p.nextName()) != null);
         return m;
     }
 
@@ -812,7 +812,7 @@ public class UntypedObjectDeserializer
                         if (newV != old) {
                             m.put(key, newV);
                         }
-                    } while ((key = p.nextFieldName()) != null);
+                    } while ((key = p.nextName()) != null);
                     return intoValue;
                 }
                 break;
@@ -904,7 +904,7 @@ public class UntypedObjectDeserializer
             p.nextToken();
             Object value1 = deserialize(p, ctxt);
 
-            String key2 = p.nextFieldName();
+            String key2 = p.nextName();
             if (key2 == null) { // single entry; but we want modifiable
                 LinkedHashMap<String, Object> result = new LinkedHashMap<String, Object>(2);
                 result.put(key1, value1);
@@ -913,7 +913,7 @@ public class UntypedObjectDeserializer
             p.nextToken();
             Object value2 = deserialize(p, ctxt);
 
-            String key = p.nextFieldName();
+            String key = p.nextName();
             if (key == null) {
                 LinkedHashMap<String, Object> result = new LinkedHashMap<String, Object>(4);
                 result.put(key1, value1);
@@ -937,9 +937,9 @@ public class UntypedObjectDeserializer
                 final Object oldValue = result.put(key, newValue);
                 if (oldValue != null) {
                     return _mapObjectWithDups(p, ctxt, result, key, oldValue, newValue,
-                            p.nextFieldName());
+                            p.nextName());
                 }
-            } while ((key = p.nextFieldName()) != null);
+            } while ((key = p.nextName()) != null);
             return result;
         }
 
@@ -962,7 +962,7 @@ public class UntypedObjectDeserializer
                 if ((oldValue != null) && squashDups) {
                     _squashDups(result, key, oldValue, newValue);
                 }
-                nextKey = p.nextFieldName();
+                nextKey = p.nextName();
             }
 
             return result;

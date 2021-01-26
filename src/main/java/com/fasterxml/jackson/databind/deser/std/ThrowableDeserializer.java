@@ -92,8 +92,8 @@ public class ThrowableDeserializer
         Object[] pending = null;
         int pendingIx = 0;
 
-        int ix = p.currentFieldName(_fieldMatcher);
-        for (; ; ix = p.nextFieldName(_fieldMatcher)) {
+        int ix = p.currentNameMatch(_fieldMatcher);
+        for (; ; ix = p.nextNameMatch(_fieldMatcher)) {
             if (ix >= 0) {
                 p.nextToken();
                 SettableBeanProperty prop = _fieldsByIndex[ix];

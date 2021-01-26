@@ -170,7 +170,7 @@ public class TestBeanDeserializer extends BaseMapTest
             // this is need on some cases, this populate _propertyBasedCreator
             defaultDeserializer.resolve(ctxt);
 
-            p.nextFieldName(); // read subBean
+            p.nextName(); // read subBean
             p.nextToken(); // read start object
 
             Issue1912SubBean subBean = (Issue1912SubBean) defaultDeserializer.findProperty("subBean").deserialize(p, ctxt);
@@ -184,7 +184,7 @@ public class TestBeanDeserializer extends BaseMapTest
         @Override
         public Issue1912SubBean deserialize(JsonParser p, DeserializationContext ctxt)
         {
-            p.nextFieldName(); // read "a"
+            p.nextName(); // read "a"
             Issue1912SubBean object = new Issue1912SubBean(p.nextTextValue() + "_custom");
             p.nextToken();
             return object;

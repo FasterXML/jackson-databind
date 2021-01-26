@@ -843,7 +843,7 @@ public class BeanPropertyWriter
                     //   'POJO-as-array'). And since Afterburner calls method can not easily
                     //   start passing info either. So check generator to see...
                     //   (note: not considering ROOT context as possibility, does not seem legal)
-                    if (!gen.getOutputContext().inArray()) {
+                    if (!gen.streamWriteContext().inArray()) {
                         gen.writeName(_name);
                     }
                     _nullSerializer.serialize(null, gen, prov);

@@ -262,19 +262,19 @@ public class ArrayNodeTest
         ArrayNode n = new ArrayNode(JsonNodeFactory.instance);
         n.add(123);
         TreeTraversingParser p = new TreeTraversingParser(n, null);
-        assertNull(p.getObjectReadContext());
-        assertNotNull(p.getParsingContext());
-        assertTrue(p.getParsingContext().inRoot());
+        assertNull(p.objectReadContext());
+        assertNotNull(p.streamReadContext());
+        assertTrue(p.streamReadContext().inRoot());
         assertNotNull(p.getTokenLocation());
-        assertNotNull(p.getCurrentLocation());
+        assertNotNull(p.currentLocation());
         assertNull(p.getEmbeddedObject());
         assertNull(p.currentNode());
 
         //assertNull(p.getNumberType());
 
         assertToken(JsonToken.START_ARRAY, p.nextToken());
-        assertNotNull(p.getParsingContext());
-        assertTrue(p.getParsingContext().inArray());
+        assertNotNull(p.streamReadContext());
+        assertTrue(p.streamReadContext().inArray());
         p.skipChildren();
         assertToken(JsonToken.END_ARRAY, p.currentToken());
         p.close();

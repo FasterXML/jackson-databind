@@ -274,7 +274,7 @@ public class BeanDeserializer
 
         // 23-Mar-2010, tatu: In some cases, we start with full JSON object too...
         if (p.isExpectedStartObjectToken()) {
-            propName = p.nextFieldName();
+            propName = p.nextName();
             if (propName == null) {
                 return bean;
             }
@@ -299,7 +299,7 @@ public class BeanDeserializer
             } catch (Exception e) {
                 throw wrapAndThrow(e, bean, prop.getName(), ctxt);
             }
-            ix = p.nextFieldName(_fieldMatcher);
+            ix = p.nextNameMatch(_fieldMatcher);
         }
         if (ix != PropertyNameMatcher.MATCH_END_OBJECT) {
             if (ix == PropertyNameMatcher.MATCH_UNKNOWN_NAME) {
@@ -329,7 +329,7 @@ public class BeanDeserializer
         // [databind#631]: Assign current value, to be accessible by custom serializers
         p.assignCurrentValue(bean);
 
-        int ix = p.nextFieldName(_fieldMatcher);
+        int ix = p.nextNameMatch(_fieldMatcher);
         while (ix >= 0) {
             p.nextToken();
             SettableBeanProperty prop = _fieldsByIndex[ix];
@@ -339,7 +339,7 @@ public class BeanDeserializer
                 wrapAndThrow(e, bean, prop.getName(), ctxt);
             }
             // Elem #2
-            ix = p.nextFieldName(_fieldMatcher);
+            ix = p.nextNameMatch(_fieldMatcher);
             if (ix < 0) {
                 break;
             }
@@ -351,7 +351,7 @@ public class BeanDeserializer
                 wrapAndThrow(e, bean, prop.getName(), ctxt);
             }
             // Elem #3
-            ix = p.nextFieldName(_fieldMatcher);
+            ix = p.nextNameMatch(_fieldMatcher);
             if (ix < 0) {
                 break;
             }
@@ -363,7 +363,7 @@ public class BeanDeserializer
                 wrapAndThrow(e, bean, prop.getName(), ctxt);
             }
             // Elem #4
-            ix = p.nextFieldName(_fieldMatcher);
+            ix = p.nextNameMatch(_fieldMatcher);
             if (ix < 0) {
                 break;
             }
@@ -374,7 +374,7 @@ public class BeanDeserializer
             } catch (Exception e) {
                 wrapAndThrow(e, bean, prop.getName(), ctxt);
             }
-            ix = p.nextFieldName(_fieldMatcher);
+            ix = p.nextNameMatch(_fieldMatcher);
         }
         if (ix != PropertyNameMatcher.MATCH_END_OBJECT) {
             if (ix == PropertyNameMatcher.MATCH_UNKNOWN_NAME) {
@@ -401,7 +401,7 @@ public class BeanDeserializer
         if (t != JsonToken.PROPERTY_NAME) {
             return bean;
         }
-        int ix = p.currentFieldName(_fieldMatcher);
+        int ix = p.currentNameMatch(_fieldMatcher);
         while (ix >= 0) { // minor unrolling here (by-2), less likely on critical path
             SettableBeanProperty prop = _fieldsByIndex[ix];
             p.nextToken();
@@ -412,7 +412,7 @@ public class BeanDeserializer
             }
 
             // Elem #2
-            ix = p.nextFieldName(_fieldMatcher);
+            ix = p.nextNameMatch(_fieldMatcher);
             if (ix < 0) {
                 break;
             }
@@ -423,7 +423,7 @@ public class BeanDeserializer
             } catch (Exception e) {
                 throw wrapAndThrow(e, bean, p.currentName(), ctxt);
             }
-            ix = p.nextFieldName(_fieldMatcher);
+            ix = p.nextNameMatch(_fieldMatcher);
         }
         if (ix != PropertyNameMatcher.MATCH_END_OBJECT) {
             if (ix == PropertyNameMatcher.MATCH_UNKNOWN_NAME) {
@@ -442,7 +442,7 @@ public class BeanDeserializer
         handleUnknownVanilla(p, ctxt, bean, propName);
 
         while (true) {
-            int ix = p.nextFieldName(_fieldMatcher);
+            int ix = p.nextNameMatch(_fieldMatcher);
             if (ix >= 0) { // normal case
                 p.nextToken();
                 try {
@@ -525,7 +525,7 @@ public class BeanDeserializer
                 return deserializeWithView(p, ctxt, bean, view);
             }
         }
-        for (int ix = p.currentFieldName(_fieldMatcher); ; ix = p.nextFieldName(_fieldMatcher)) {
+        for (int ix = p.currentNameMatch(_fieldMatcher); ; ix = p.nextNameMatch(_fieldMatcher)) {
             if (ix >= 0) { // normal case
                 p.nextToken();
                 try {
@@ -788,7 +788,7 @@ public class BeanDeserializer
             Object bean, Class<?> activeView)
         throws JacksonException
     {
-        for (int ix = p.currentFieldName(_fieldMatcher); ; ix = p.nextFieldName(_fieldMatcher)) {
+        for (int ix = p.currentNameMatch(_fieldMatcher); ; ix = p.nextNameMatch(_fieldMatcher)) {
             if (ix >= 0) {
                 p.nextToken();
                 SettableBeanProperty prop = _fieldsByIndex[ix];
@@ -847,7 +847,7 @@ public class BeanDeserializer
         }
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
 
-        for (int ix = p.currentFieldName(_fieldMatcher); ; ix = p.nextFieldName(_fieldMatcher)) {
+        for (int ix = p.currentNameMatch(_fieldMatcher); ; ix = p.nextNameMatch(_fieldMatcher)) {
             if (ix >= 0) { // common case
                 p.nextToken();
                 SettableBeanProperty prop = _fieldsByIndex[ix];
@@ -912,7 +912,7 @@ public class BeanDeserializer
         TokenBuffer tokens = TokenBuffer.forInputBuffering(p, ctxt);
         tokens.writeStartObject();
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
-        for (int ix = p.currentFieldName(_fieldMatcher); ; ix = p.nextFieldName(_fieldMatcher)) {
+        for (int ix = p.currentNameMatch(_fieldMatcher); ; ix = p.nextNameMatch(_fieldMatcher)) {
             if (ix >= 0) { // common case
                 p.nextToken();
                 SettableBeanProperty prop = _fieldsByIndex[ix];
@@ -1104,7 +1104,7 @@ public class BeanDeserializer
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
         final ExternalTypeHandler ext = _externalTypeIdHandler.start();
 
-        for (int ix = p.currentFieldName(_fieldMatcher); ; ix = p.nextFieldName(_fieldMatcher)) {
+        for (int ix = p.currentNameMatch(_fieldMatcher); ; ix = p.nextNameMatch(_fieldMatcher)) {
             if (ix >= 0) { // normal case
                 SettableBeanProperty prop = _fieldsByIndex[ix];
                 JsonToken t = p.nextToken();

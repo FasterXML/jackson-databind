@@ -308,7 +308,7 @@ public class BuilderBasedDeserializer
     {
         Object builder = _valueInstantiator.createUsingDefault(ctxt);
         while (true) {
-            int ix = p.nextFieldName(_propertyNameMatcher);
+            int ix = p.nextNameMatch(_propertyNameMatcher);
             if (ix >= 0) {
                 p.nextToken();
                 SettableBeanProperty prop = _propertiesByIndex[ix];
@@ -358,7 +358,7 @@ public class BuilderBasedDeserializer
                 return deserializeWithView(p, ctxt, bean, view);
             }
         }
-        for (int ix = p.currentFieldName(_propertyNameMatcher); ; ix = p.nextFieldName(_propertyNameMatcher)) {
+        for (int ix = p.currentNameMatch(_propertyNameMatcher); ; ix = p.nextNameMatch(_propertyNameMatcher)) {
             if (ix >= 0) { // normal case
                 p.nextToken();
                 try {
@@ -506,8 +506,8 @@ public class BuilderBasedDeserializer
             }
         }
         int ix = p.isExpectedStartObjectToken() ?
-                p.nextFieldName(_propertyNameMatcher) : p.currentFieldName(_propertyNameMatcher);
-        for (; ; ix = p.nextFieldName(_propertyNameMatcher)) {
+                p.nextNameMatch(_propertyNameMatcher) : p.currentNameMatch(_propertyNameMatcher);
+        for (; ; ix = p.nextNameMatch(_propertyNameMatcher)) {
             if (ix >= 0) {
                 p.nextToken();
                 SettableBeanProperty prop = _propertiesByIndex[ix];
@@ -580,7 +580,7 @@ public class BuilderBasedDeserializer
             Object bean, Class<?> activeView)
         throws JacksonException
     {
-        for (int ix = p.currentFieldName(_propertyNameMatcher); ; ix = p.nextFieldName(_propertyNameMatcher)) {
+        for (int ix = p.currentNameMatch(_propertyNameMatcher); ; ix = p.nextNameMatch(_propertyNameMatcher)) {
             if (ix >= 0) {
                 p.nextToken();
                 SettableBeanProperty prop = _propertiesByIndex[ix];
@@ -636,7 +636,7 @@ public class BuilderBasedDeserializer
         }
 
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
-        for (int ix = p.currentFieldName(_propertyNameMatcher); ; ix = p.nextFieldName(_propertyNameMatcher)) {
+        for (int ix = p.currentNameMatch(_propertyNameMatcher); ; ix = p.nextNameMatch(_propertyNameMatcher)) {
             if (ix >= 0) { // common case
                 p.nextToken();
                 SettableBeanProperty prop = _propertiesByIndex[ix];
@@ -686,7 +686,7 @@ public class BuilderBasedDeserializer
         throws JacksonException
     {
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
-        for (int ix = p.currentFieldName(_propertyNameMatcher); ; ix = p.nextFieldName(_propertyNameMatcher)) {
+        for (int ix = p.currentNameMatch(_propertyNameMatcher); ; ix = p.nextNameMatch(_propertyNameMatcher)) {
             if (ix >= 0) { // common case
                 p.nextToken();
                 SettableBeanProperty prop = _propertiesByIndex[ix];
@@ -816,7 +816,7 @@ public class BuilderBasedDeserializer
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
         final ExternalTypeHandler ext = _externalTypeIdHandler.start();
 
-        for (int ix = p.currentFieldName(_propertyNameMatcher); ; ix = p.nextFieldName(_propertyNameMatcher)) {
+        for (int ix = p.currentNameMatch(_propertyNameMatcher); ; ix = p.nextNameMatch(_propertyNameMatcher)) {
             if (ix >= 0) { // normal case
                 SettableBeanProperty prop = _propertiesByIndex[ix];
                 JsonToken t = p.nextToken();

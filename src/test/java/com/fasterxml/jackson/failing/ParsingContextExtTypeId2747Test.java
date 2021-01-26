@@ -43,7 +43,7 @@ public class ParsingContextExtTypeId2747Test extends BaseMapTest
    static String getCurrentLocationAsString(JsonParser p)
    {
        // This suffices to give actual path
-       return p.getParsingContext().pathAsPointer().toString();
+       return p.streamReadContext().pathAsPointer().toString();
    }   
 
    // [databind#2747]

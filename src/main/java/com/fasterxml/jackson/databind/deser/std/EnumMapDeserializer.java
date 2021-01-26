@@ -249,7 +249,7 @@ public class EnumMapDeserializer
 
         String keyStr;
         if (p.isExpectedStartObjectToken()) {
-            keyStr = p.nextFieldName();
+            keyStr = p.nextName();
         } else {
             JsonToken t = p.currentToken();
             if (t != JsonToken.PROPERTY_NAME) {
@@ -261,7 +261,7 @@ public class EnumMapDeserializer
             keyStr = p.currentName();
         }
 
-        for (; keyStr != null; keyStr = p.nextFieldName()) {
+        for (; keyStr != null; keyStr = p.nextName()) {
             // but we need to let key deserializer handle it separately, nonetheless
             Enum<?> key = (Enum<?>) _keyDeserializer.deserializeKey(keyStr, ctxt);
             JsonToken t = p.nextToken();
@@ -330,14 +330,14 @@ public class EnumMapDeserializer
 
         String keyName;
         if (p.isExpectedStartObjectToken()) {
-            keyName = p.nextFieldName();
+            keyName = p.nextName();
         } else if (p.hasToken(JsonToken.PROPERTY_NAME)) {
             keyName = p.currentName();
         } else {
             keyName = null;
         }
 
-        for (; keyName != null; keyName = p.nextFieldName()) {
+        for (; keyName != null; keyName = p.nextName()) {
             JsonToken t = p.nextToken(); // to get to value
             // creator property?
             SettableBeanProperty prop = creator.findCreatorProperty(keyName);

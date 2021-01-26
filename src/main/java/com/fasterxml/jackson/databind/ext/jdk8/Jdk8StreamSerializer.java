@@ -77,7 +77,7 @@ public class Jdk8StreamSerializer extends StdSerializer<Stream<?>>
         } catch (Exception e) {
             // For most regular serializers we won't both handling but streams are typically
             // root values so 
-            wrapAndThrow(ctxt, e, stream, g.getOutputContext().getCurrentIndex());
+            wrapAndThrow(ctxt, e, stream, g.streamWriteContext().getCurrentIndex());
         }
     }
 }

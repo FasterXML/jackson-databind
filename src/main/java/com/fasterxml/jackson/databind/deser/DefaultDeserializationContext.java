@@ -47,13 +47,13 @@ public abstract class DefaultDeserializationContext
 
     public DefaultDeserializationContext assignParser(JsonParser p) {
         _parser = p;
-        _readCapabilities = p.getReadCapabilities();
+        _readCapabilities = p.streamReadCapabilities();
         return this;
     }
 
     public JsonParser assignAndReturnParser(JsonParser p) {
         _parser = p;
-        _readCapabilities = p.getReadCapabilities();
+        _readCapabilities = p.streamReadCapabilities();
         return p;
     }
 

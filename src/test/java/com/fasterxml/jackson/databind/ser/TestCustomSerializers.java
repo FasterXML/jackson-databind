@@ -158,7 +158,7 @@ public class TestCustomSerializers extends BaseMapTest
         @Override
         public void serializeAsField(Object pojo, JsonGenerator jgen, SerializerProvider provider, PropertyWriter writer) throws Exception {
             // Ensure that "current value" remains pojo
-            final TokenStreamContext ctx = jgen.getOutputContext();
+            final TokenStreamContext ctx = jgen.streamWriteContext();
             final Object curr = ctx.currentValue();
 
             if (!(curr instanceof Item2475)) {

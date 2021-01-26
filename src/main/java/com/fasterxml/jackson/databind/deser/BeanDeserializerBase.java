@@ -31,25 +31,25 @@ public abstract class BeanDeserializerBase
     protected final static PropertyName TEMP_PROPERTY_NAME = new PropertyName("#temporary-name");
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Information regarding type being deserialized
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
      * Declared type of the bean this deserializer handles.
      */
-    final protected JavaType _beanType;
+    protected final JavaType _beanType;
 
     /**
      * Requested shape from bean class annotations.
      */
-    final protected JsonFormat.Shape _serializationShape;
+    protected final JsonFormat.Shape _serializationShape;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration for creating value instance
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -98,16 +98,16 @@ public abstract class BeanDeserializerBase
     protected boolean _vanillaProcessing;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Property information, setters
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
      * Mapping of property names to properties, built when all properties
      * to use have been successfully resolved.
      */
-    final protected BeanPropertyMap _beanProperties;
+    protected final BeanPropertyMap _beanProperties;
 
     /**
      * List of {@link ValueInjector}s, if any injectable values are
@@ -115,7 +115,7 @@ public abstract class BeanDeserializerBase
      * This includes injectors used for injecting values via setters
      * and fields, but not ones passed through constructor parameters.
      */
-    final protected ValueInjector[] _injectables;
+    protected final ValueInjector[] _injectables;
 
     /**
      * Fallback setter used for handling any properties that are not
@@ -129,35 +129,35 @@ public abstract class BeanDeserializerBase
      * track of recognized but ignorable properties: these will
      * be skipped without errors or warnings.
      */
-    final protected Set<String> _ignorableProps;
+    protected final Set<String> _ignorableProps;
 
     /**
      * Keep track of the the properties that needs to be specifically included.
      */
-    final protected Set<String> _includableProps;
+    protected final Set<String> _includableProps;
 
     /**
      * Flag that can be set to ignore and skip unknown properties.
      * If set, will not throw an exception for unknown properties.
      */
-    final protected boolean _ignoreAllUnknown;
+    protected final boolean _ignoreAllUnknown;
 
     /**
      * Flag that indicates that some aspect of deserialization depends
      * on active view used (if any)
      */
-    final protected boolean _needViewProcesing;
+    protected final boolean _needViewProcesing;
 
     /**
      * We may also have one or more back reference fields (usually
      * zero or one).
      */
-    final protected Map<String, SettableBeanProperty> _backRefs;
+    protected final Map<String, SettableBeanProperty> _backRefs;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Related handlers
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -188,9 +188,9 @@ public abstract class BeanDeserializerBase
     protected final ObjectIdReader _objectIdReader;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle, construction, initialization
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -436,12 +436,12 @@ public abstract class BeanDeserializerBase
     protected abstract BeanDeserializerBase asArrayDeserializer();
 
     // @since 3.0
-    protected abstract void initFieldMatcher(DeserializationContext ctxt);
+    protected abstract void initNameMatcher(DeserializationContext ctxt);
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Validation, post-processing
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -767,7 +767,7 @@ ClassUtil.nameOf(handledType()), ClassUtil.name(propName)));
                 }
             }
         }
-        contextual.initFieldMatcher(ctxt);
+        contextual.initNameMatcher(ctxt);
         if (shape == null) {
             shape = _serializationShape;
         }
@@ -966,9 +966,9 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public accessors; null/empty value providers
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -989,9 +989,9 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public accessors; other
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -1159,9 +1159,9 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Partial deserializer implementation
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -1511,9 +1511,9 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Overridable helper methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected void injectValues(DeserializationContext ctxt, Object bean)
@@ -1690,9 +1690,9 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods for error reporting
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

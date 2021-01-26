@@ -633,9 +633,9 @@ public abstract class BeanSerializerBase
         WritableTypeId typeIdDef = _typeIdDef(typeSer, bean, JsonToken.START_OBJECT);
         typeSer.writeTypePrefix(gen, ctxt, typeIdDef);
         if (_propertyFilterId != null) {
-            _serializeFieldsFiltered(bean, gen, ctxt, _propertyFilterId);
+            _serializePropertiesFiltered(bean, gen, ctxt, _propertyFilterId);
         } else {
-            _serializeFields(bean, gen, ctxt);
+            _serializeProperties(bean, gen, ctxt);
         }
         typeSer.writeTypeSuffix(gen, ctxt, typeIdDef);
     }
@@ -648,7 +648,7 @@ public abstract class BeanSerializerBase
         final ObjectIdWriter w = _objectIdWriter;
         WritableObjectId objectId = provider.findObjectId(bean, w.generator);
         // If possible, write as id already
-        if (objectId.writeAsId(g, provider, w)) {
+        if (objectId.writeAsReference(g, provider, w)) {
             return;
         }
         // If not, need to inject the id:
@@ -660,11 +660,11 @@ public abstract class BeanSerializerBase
         if (startEndObject) {
             g.writeStartObject(bean);
         }
-        objectId.writeAsField(g, provider, w);
+        objectId.writeAsDeclaration(g, provider, w);
         if (_propertyFilterId != null) {
-            _serializeFieldsFiltered(bean, g, provider, _propertyFilterId);
+            _serializePropertiesFiltered(bean, g, provider, _propertyFilterId);
         } else {
-            _serializeFields(bean, g, provider);
+            _serializeProperties(bean, g, provider);
         }
         if (startEndObject) {
             g.writeEndObject();
@@ -679,7 +679,7 @@ public abstract class BeanSerializerBase
         final ObjectIdWriter w = _objectIdWriter;
         WritableObjectId objectId = provider.findObjectId(bean, w.generator);
         // If possible, write as id already
-        if (objectId.writeAsId(g, provider, w)) {
+        if (objectId.writeAsReference(g, provider, w)) {
             return;
         }
         // If not, need to inject the id:
@@ -700,11 +700,11 @@ public abstract class BeanSerializerBase
         WritableTypeId typeIdDef = _typeIdDef(typeSer, bean, JsonToken.START_OBJECT);
 
         typeSer.writeTypePrefix(g, ctxt, typeIdDef);
-        objectId.writeAsField(g, ctxt, w);
+        objectId.writeAsDeclaration(g, ctxt, w);
         if (_propertyFilterId != null) {
-            _serializeFieldsFiltered(bean, g, ctxt, _propertyFilterId);
+            _serializePropertiesFiltered(bean, g, ctxt, _propertyFilterId);
         } else {
-            _serializeFields(bean, g, ctxt);
+            _serializeProperties(bean, g, ctxt);
         }
         typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
@@ -735,7 +735,7 @@ public abstract class BeanSerializerBase
      *
      * @since 3.0
      */
-    protected void _serializeFieldsNoView(Object bean, JsonGenerator gen,
+    protected void _serializePropertiesNoView(Object bean, JsonGenerator gen,
             SerializerProvider provider, BeanPropertyWriter[] props)
         throws JacksonException
     {
@@ -747,13 +747,13 @@ public abstract class BeanSerializerBase
             if (left > 3) {
                 do {
                     prop = props[i];
-                    prop.serializeAsField(bean, gen, provider);
+                    prop.serializeAsProperty(bean, gen, provider);
                     prop = props[i+1];
-                    prop.serializeAsField(bean, gen, provider);
+                    prop.serializeAsProperty(bean, gen, provider);
                     prop = props[i+2];
-                    prop.serializeAsField(bean, gen, provider);
+                    prop.serializeAsProperty(bean, gen, provider);
                     prop = props[i+3];
-                    prop.serializeAsField(bean, gen, provider);
+                    prop.serializeAsProperty(bean, gen, provider);
                     left -= 4;
                     i += 4;
                 } while (left > 3);
@@ -761,13 +761,13 @@ public abstract class BeanSerializerBase
             switch (left) {
             case 3:
                 prop = props[i++];
-                prop.serializeAsField(bean, gen, provider);
+                prop.serializeAsProperty(bean, gen, provider);
             case 2:
                 prop = props[i++];
-                prop.serializeAsField(bean, gen, provider);
+                prop.serializeAsProperty(bean, gen, provider);
             case 1:
                 prop = props[i++];
-                prop.serializeAsField(bean, gen, provider);
+                prop.serializeAsProperty(bean, gen, provider);
             }
             if (_anyGetterWriter != null) {
                 prop = null;
@@ -790,7 +790,7 @@ public abstract class BeanSerializerBase
      *
      * @since 3.0
      */
-    protected void _serializeFieldsMaybeView(Object bean, JsonGenerator gen,
+    protected void _serializePropertiesMaybeView(Object bean, JsonGenerator g,
             SerializerProvider provider, BeanPropertyWriter[] props)
         throws JacksonException
     {
@@ -803,19 +803,19 @@ public abstract class BeanSerializerBase
                 do {
                     prop = props[i];
                     if (prop != null) {
-                        prop.serializeAsField(bean, gen, provider);
+                        prop.serializeAsProperty(bean, g, provider);
                     }
                     prop = props[i+1];
                     if (prop != null) {
-                        prop.serializeAsField(bean, gen, provider);
+                        prop.serializeAsProperty(bean, g, provider);
                     }
                     prop = props[i+2];
                     if (prop != null) {
-                        prop.serializeAsField(bean, gen, provider);
+                        prop.serializeAsProperty(bean, g, provider);
                     }
                     prop = props[i+3];
                     if (prop != null) {
-                        prop.serializeAsField(bean, gen, provider);
+                        prop.serializeAsProperty(bean, g, provider);
                     }
                     left -= 4;
                     i += 4;
@@ -825,29 +825,29 @@ public abstract class BeanSerializerBase
             case 3:
                 prop = props[i++];
                 if (prop != null) {
-                    prop.serializeAsField(bean, gen, provider);
+                    prop.serializeAsProperty(bean, g, provider);
                 }
             case 2:
                 prop = props[i++];
                 if (prop != null) {
-                    prop.serializeAsField(bean, gen, provider);
+                    prop.serializeAsProperty(bean, g, provider);
                 }
             case 1:
                 prop = props[i++];
                 if (prop != null) {
-                    prop.serializeAsField(bean, gen, provider);
+                    prop.serializeAsProperty(bean, g, provider);
                 }
             }
             if (_anyGetterWriter != null) {
                 prop = null;
-                _anyGetterWriter.getAndSerialize(bean, gen, provider);
+                _anyGetterWriter.getAndSerialize(bean, g, provider);
             }
         } catch (Exception e) {
             String name = (prop == null) ? "[anySetter]" : prop.getName();
             wrapAndThrow(provider, e, bean, name);
         } catch (StackOverflowError e) {
             final String name = (prop == null) ? "[anySetter]" : prop.getName();
-            throw DatabindException.from(gen, "Infinite recursion (StackOverflowError)", e)
+            throw DatabindException.from(g, "Infinite recursion (StackOverflowError)", e)
                 .prependPath(bean, name);
         }
     }
@@ -865,7 +865,7 @@ public abstract class BeanSerializerBase
      * {@link PropertyFilter} that needs to be called to determine
      * which properties are to be serialized (and possibly how)
      */
-    protected void _serializeFieldsFiltered(Object bean, JsonGenerator gen,
+    protected void _serializePropertiesFiltered(Object bean, JsonGenerator g,
             SerializerProvider provider, Object filterId)
         throws JacksonException
     {
@@ -875,13 +875,13 @@ public abstract class BeanSerializerBase
             props = _filteredProps;
             // better also allow missing filter actually.. Falls down
             if (filter == null) {
-                _serializeFieldsMaybeView(bean, gen, provider, props);
+                _serializePropertiesMaybeView(bean, g, provider, props);
                 return;
             }
         } else {
             props = _props;
             if (filter == null) {
-                _serializeFieldsNoView(bean, gen, provider, props);
+                _serializePropertiesNoView(bean, g, provider, props);
                 return;
             }
         }
@@ -891,11 +891,11 @@ public abstract class BeanSerializerBase
             for (final int len = props.length; i < len; ++i) {
                 BeanPropertyWriter prop = props[i];
                 if (prop != null) { // can have nulls in filtered list
-                    filter.serializeAsField(bean, gen, provider, prop);
+                    filter.serializeAsProperty(bean, g, provider, prop);
                 }
             }
             if (_anyGetterWriter != null) {
-                _anyGetterWriter.getAndFilter(bean, gen, provider, filter);
+                _anyGetterWriter.getAndFilter(bean, g, provider, filter);
             }
         } catch (Exception e) {
             String name = (i == props.length) ? "[anySetter]" : props[i].getName();
@@ -903,19 +903,19 @@ public abstract class BeanSerializerBase
         } catch (StackOverflowError e) {
             // Minimize call depth since we are close to fail:
             final String name = (i == props.length) ? "[anySetter]" : props[i].getName();
-            throw DatabindException.from(gen, "Infinite recursion (StackOverflowError)", e)
+            throw DatabindException.from(g, "Infinite recursion (StackOverflowError)", e)
                 .prependPath(bean, name);
         }
     }
 
-    protected void _serializeFields(Object bean, JsonGenerator gen, SerializerProvider provider)
+    protected void _serializeProperties(Object bean, JsonGenerator g, SerializerProvider provider)
         throws JacksonException
     {
         // NOTE: only called from places where FilterId (JsonView) already checked.
         if (_filteredProps != null && provider.getActiveView() != null) {
-            _serializeFieldsMaybeView(bean, gen, provider, _filteredProps);
+            _serializePropertiesMaybeView(bean, g, provider, _filteredProps);
         } else {
-            _serializeFieldsNoView(bean, gen, provider, _props);
+            _serializePropertiesNoView(bean, g, provider, _props);
         }
     }
 

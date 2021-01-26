@@ -7,8 +7,12 @@ import com.fasterxml.jackson.core.*;
 
 /**
  * Iterator exposed by {@link ObjectMapper} when binding sequence of
- * objects. Extension is done to allow more convenient access
- * (in Jackson 2.x exception handling required it, too, but not in 3.x)
+ * objects. Extension is done to allow more convenient access to some
+ * aspects of databinding, such as current location (see {@link #currentLocation()}.
+ *<p>
+ * NOTE: in Jackson 2.x exception handling required use of this class in many case
+ * (due to Jackson 2.x API exposing checked exceptions) but this is no longer
+ * necessary with Jackson 3.x.
  */
 public class MappingIterator<T> implements Iterator<T>, Closeable
 {
@@ -321,17 +325,17 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
     /**
      * Accessor for getting underlying parser this iterator uses.
      */
-    public JsonParser getParser() {
+    public JsonParser parser() {
         return _parser;
     }
 
     /**
      * Accessor for accessing {@link FormatSchema} that the underlying parser
-     * (as per {@link #getParser}) is using, if any; only parser of schema-aware
+     * (as per {@link #parser}) is using, if any; only parser of schema-aware
      * formats use schemas.
      */
-    public FormatSchema getParserSchema() {
-    	return _parser.getSchema();
+    public FormatSchema parserSchema() {
+        return _parser.getSchema();
     }
 
     /**
@@ -342,7 +346,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
      * 
      * @return Location of the input stream of the underlying parser
      */
-    public JsonLocation getCurrentLocation() {
+    public JsonLocation currentLocation() {
         return _parser.currentLocation();
     }
 

@@ -11,10 +11,6 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor
  * using {@link com.fasterxml.jackson.annotation.JsonFilter})
  * for filtering bean properties to serialize.
  *<p>
- * Note that this is the replacement for <code>BeanPropertyFilter</code>,
- * which is replaced because it was too closely bound to Bean properties
- * and would not work with {@link java.util.Map}s or "any getters".
- *<p>
  * Note that since this is an interface, it is
  * strongly recommended that custom implementations extend
  * {@link com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter},
@@ -33,17 +29,17 @@ public interface PropertyFilter
      * Typical implementation is something like:
      *<pre>
      * if (include(writer)) {
-     *      writer.serializeAsField(pojo, gen, prov);
+     *      writer.serializeAsProperty(pojo, gen, prov);
      * }
      *</pre>
      * 
      * @param pojo Object that contains property value to serialize
-     * @param gen Generator use for serializing value
-     * @param prov Provider that can be used for accessing dynamic aspects of serialization
+     * @param g Generator use for serializing value
+     * @param ctxt Provider that can be used for accessing dynamic aspects of serialization
      *    processing
      * @param writer Object called to do actual serialization of the field, if not filtered out
      */
-    public void serializeAsField(Object pojo, JsonGenerator gen, SerializerProvider prov,
+    public void serializeAsProperty(Object pojo, JsonGenerator g, SerializerProvider ctxt,
             PropertyWriter writer)
         throws Exception;
 
@@ -62,12 +58,12 @@ public interface PropertyFilter
      *</pre>
      * 
      * @param elementValue Element value being serializerd
-     * @param gen Generator use for serializing value
-     * @param prov Provider that can be used for accessing dynamic aspects of serialization
+     * @param g Generator use for serializing value
+     * @param ctxt Provider that can be used for accessing dynamic aspects of serialization
      *    processing
      * @param writer Object called to do actual serialization of the field, if not filtered out
      */
-    public void serializeAsElement(Object elementValue, JsonGenerator gen, SerializerProvider prov,
+    public void serializeAsElement(Object elementValue, JsonGenerator g, SerializerProvider ctxt,
             PropertyWriter writer)
         throws Exception;
 
@@ -84,11 +80,10 @@ public interface PropertyFilter
      *</pre>
      * 
      * @param writer Bean property serializer to use to create schema value
-     * @param objectVisitor JsonObjectFormatVisitor which should be aware of 
+     * @param v JsonObjectFormatVisitor which should be aware of 
      * the property's existence
-     * @param provider Provider that can be used for accessing dynamic aspects of serialization
-     * 	processing
+     * @param ctxt Serialization context
      */
-    public void depositSchemaProperty(PropertyWriter writer, JsonObjectFormatVisitor objectVisitor,
-            SerializerProvider provider);
+    public void depositSchemaProperty(PropertyWriter writer, JsonObjectFormatVisitor v,
+            SerializerProvider ctxt);
 }

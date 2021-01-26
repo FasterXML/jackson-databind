@@ -152,19 +152,19 @@ public class BeanSerializer
         }
         if (_propertyFilterId != null) {
             gen.writeStartObject(bean);
-            _serializeFieldsFiltered(bean, gen, provider, _propertyFilterId);
+            _serializePropertiesFiltered(bean, gen, provider, _propertyFilterId);
             gen.writeEndObject();
             return;
         }
         BeanPropertyWriter[] fProps = _filteredProps;
         if ((fProps != null) && (provider.getActiveView() != null)) {
             gen.writeStartObject(bean);
-            _serializeFieldsMaybeView(bean, gen, provider, fProps);
+            _serializePropertiesMaybeView(bean, gen, provider, fProps);
             gen.writeEndObject();
             return;
         }
         gen.writeStartObject(bean);
-        _serializeFieldsNoView(bean, gen, provider, _props);
+        _serializePropertiesNoView(bean, gen, provider, _props);
         gen.writeEndObject();
     }
 }

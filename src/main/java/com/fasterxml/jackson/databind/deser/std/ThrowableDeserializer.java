@@ -92,11 +92,11 @@ public class ThrowableDeserializer
         Object[] pending = null;
         int pendingIx = 0;
 
-        int ix = p.currentNameMatch(_fieldMatcher);
-        for (; ; ix = p.nextNameMatch(_fieldMatcher)) {
+        int ix = p.currentNameMatch(_propNameMatcher);
+        for (; ; ix = p.nextNameMatch(_propNameMatcher)) {
             if (ix >= 0) {
                 p.nextToken();
-                SettableBeanProperty prop = _fieldsByIndex[ix];
+                SettableBeanProperty prop = _propsByIndex[ix];
                 if (throwable != null) {
                     prop.deserializeAndSet(p, ctxt, throwable);
                     continue;

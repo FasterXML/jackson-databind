@@ -257,11 +257,11 @@ public class CollectionDeserTest
             assertEquals(2, e.getPath().size());
             // Bean has no index, but has name:
             assertEquals(-1, e.getPath().get(0).getIndex());
-            assertEquals("keys", e.getPath().get(0).getFieldName());
+            assertEquals("keys", e.getPath().get(0).getPropertyName());
 
             // and for List, reverse:
             assertEquals(1, e.getPath().get(1).getIndex());
-            assertNull(e.getPath().get(1).getFieldName());
+            assertNull(e.getPath().get(1).getPropertyName());
         }
     }
 

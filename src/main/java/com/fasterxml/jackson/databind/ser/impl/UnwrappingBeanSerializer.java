@@ -132,15 +132,15 @@ public class UnwrappingBeanSerializer
         // (although... is that a problem, overwriting it now?)
         gen.assignCurrentValue(bean); // [databind#631]
         if (_propertyFilterId != null) {
-            _serializeFieldsFiltered(bean, gen, provider, _propertyFilterId);
+            _serializePropertiesFiltered(bean, gen, provider, _propertyFilterId);
             return;
         }
         BeanPropertyWriter[] fProps = _filteredProps;
         if ((fProps != null) && (provider.getActiveView() != null)) {
-            _serializeFieldsMaybeView(bean, gen, provider, fProps);
+            _serializePropertiesMaybeView(bean, gen, provider, fProps);
             return;
         }
-        _serializeFieldsNoView(bean, gen, provider, _props);
+        _serializePropertiesNoView(bean, gen, provider, _props);
     }
 
     @Override
@@ -158,15 +158,15 @@ public class UnwrappingBeanSerializer
         // Because we do not write start-object need to call this explicitly:
         gen.assignCurrentValue(bean);
         if (_propertyFilterId != null) {
-            _serializeFieldsFiltered(bean, gen, provider, _propertyFilterId);
+            _serializePropertiesFiltered(bean, gen, provider, _propertyFilterId);
             return;
         }
         BeanPropertyWriter[] fProps = _filteredProps;
         if ((fProps != null) && (provider.getActiveView() != null)) {
-            _serializeFieldsMaybeView(bean, gen, provider, fProps);
+            _serializePropertiesMaybeView(bean, gen, provider, fProps);
             return;
         }
-        _serializeFieldsNoView(bean, gen, provider, _props);
+        _serializePropertiesNoView(bean, gen, provider, _props);
     }
 
     /*

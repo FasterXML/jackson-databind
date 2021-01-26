@@ -230,7 +230,7 @@ public class MapSerializer
     }
 
     @Override
-    public MapSerializer _withValueTypeSerializer(TypeSerializer vts) {
+    protected MapSerializer _withValueTypeSerializer(TypeSerializer vts) {
         if (_valueTypeSerializer == vts) {
             return this;
         }
@@ -238,7 +238,7 @@ public class MapSerializer
         return new MapSerializer(this, vts, _suppressableValue, _suppressNulls);
     }
 
-    public MapSerializer withResolved(BeanProperty property,
+    protected MapSerializer withResolved(BeanProperty property,
              JsonSerializer<?> keySerializer, JsonSerializer<?> valueSerializer,
              Set<String> ignored, Set<String> included, boolean sortKeys)
     {
@@ -262,6 +262,8 @@ public class MapSerializer
     /**
      * Mutant factory for constructing an instance with different inclusion strategy
      * for content (Map values).
+     *<p>
+     * NOTE: only {@code public} because it is called by {@code BasicSerializerFactory}.
      */
     public MapSerializer withContentInclusion(Object suppressableValue, boolean suppressNulls) {
         if ((suppressableValue == _suppressableValue) && (suppressNulls == _suppressNulls)) {
@@ -579,7 +581,7 @@ public class MapSerializer
      * General-purpose serialization for contents without writing object type. Will suppress, filter and
      * use custom serializers.
      *<p>
-     * Public since it also is called by {@code AnyGetterWriter}.
+     * NOTE: Public only since it also is called by {@code AnyGetterWriter}.
      */
     public void serializeWithoutTypeInfo(Map<?, ?> value, JsonGenerator gen, SerializerProvider ctxt)
         throws JacksonException
@@ -590,13 +592,13 @@ public class MapSerializer
             }
             PropertyFilter pf;
             if ((_filterId != null) && (pf = findPropertyFilter(ctxt, _filterId, value)) != null) {
-                serializeFilteredFields(value, gen, ctxt, pf, _suppressableValue);
+                serializeFilteredEntries(value, gen, ctxt, pf, _suppressableValue);
             } else if ((_suppressableValue != null) || _suppressNulls) {
                 serializeOptionalFields(value, gen, ctxt, _suppressableValue);
             } else if (_valueSerializer != null) {
-                serializeFieldsUsing(value, gen, ctxt, _valueSerializer);
+                serializeEntriesUsing(value, gen, ctxt, _valueSerializer);
             } else {
-                serializeFields(value, gen, ctxt);
+                serializeEntries(value, gen, ctxt);
             }
         }
     }
@@ -612,12 +614,12 @@ public class MapSerializer
      * the value serialization, but 
      * we do know that no value suppression is needed (which simplifies processing a bit)
      */
-    public void serializeFields(Map<?,?> value, JsonGenerator gen, SerializerProvider provider)
+    protected void serializeEntries(Map<?,?> value, JsonGenerator gen, SerializerProvider provider)
         throws JacksonException
     {
         // If value type needs polymorphic type handling, some more work needed:
         if (_valueTypeSerializer != null) {
-            serializeTypedFields(value, gen, provider, null);
+            serializeTypedEntries(value, gen, provider, null);
             return;
         }
         final JsonSerializer<Object> keySerializer = _keySerializer;
@@ -656,13 +658,13 @@ public class MapSerializer
     /**
      * Serialization method called when exclusion filtering needs to be applied.
      */
-    public void serializeOptionalFields(Map<?,?> value, JsonGenerator gen, SerializerProvider provider,
+    protected void serializeOptionalFields(Map<?,?> value, JsonGenerator gen, SerializerProvider provider,
             Object suppressableValue)
         throws JacksonException
     {
         // If value type needs polymorphic type handling, some more work needed:
         if (_valueTypeSerializer != null) {
-            serializeTypedFields(value, gen, provider, suppressableValue);
+            serializeTypedEntries(value, gen, provider, suppressableValue);
             return;
         }
         final boolean checkEmpty = (MARKER_FOR_EMPTY == suppressableValue);
@@ -719,7 +721,7 @@ public class MapSerializer
      * so that value serializer is passed and does not need to be fetched from
      * provider.
      */
-    public void serializeFieldsUsing(Map<?,?> value, JsonGenerator gen, SerializerProvider provider,
+    protected void serializeEntriesUsing(Map<?,?> value, JsonGenerator gen, SerializerProvider provider,
             JsonSerializer<Object> ser)
         throws JacksonException
     {
@@ -758,7 +760,7 @@ public class MapSerializer
      * Helper method used when we have a JSON Filter to use for potentially
      * filtering out Map entries.
      */
-    public void serializeFilteredFields(Map<?,?> value, JsonGenerator gen, SerializerProvider provider,
+    protected void serializeFilteredEntries(Map<?,?> value, JsonGenerator gen, SerializerProvider provider,
             PropertyFilter filter,
             Object suppressableValue)
         throws JacksonException
@@ -808,14 +810,14 @@ public class MapSerializer
             // and with that, ask filter to handle it
             prop.reset(keyElem, valueElem, keySerializer, valueSer);
             try {
-                filter.serializeAsField(value, gen, provider, prop);
+                filter.serializeAsProperty(value, gen, provider, prop);
             } catch (Exception e) {
                 wrapAndThrow(provider, e, value, String.valueOf(keyElem));
             }
         }
     }
 
-    public void serializeTypedFields(Map<?,?> value, JsonGenerator gen, SerializerProvider provider,
+    protected void serializeTypedEntries(Map<?,?> value, JsonGenerator gen, SerializerProvider provider,
             Object suppressableValue)
         throws JacksonException
     {
@@ -870,6 +872,8 @@ public class MapSerializer
     /**
      * Helper method used when we have a JSON Filter to use AND contents are
      * "any properties" of a POJO.
+     *<p>
+     * NOTE: {@code public} only because it is called by {@code AnyGetterWriter}
      *
      * @param bean Enclosing POJO that has any-getter used to obtain "any properties"
      */
@@ -923,7 +927,7 @@ public class MapSerializer
             // and with that, ask filter to handle it
             prop.reset(keyElem, valueElem, keySerializer, valueSer);
             try {
-                filter.serializeAsField(bean, gen, provider, prop);
+                filter.serializeAsProperty(bean, gen, provider, prop);
             } catch (Exception e) {
                 wrapAndThrow(provider, e, value, String.valueOf(keyElem));
             }

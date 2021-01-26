@@ -86,7 +86,7 @@ public class ReadValuesTest extends BaseMapTest
 
         MappingIterator<Bean> it = _iterator(MAPPER.readerFor(Bean.class),
                 JSON, srcType);
-        assertNotNull(it.getCurrentLocation());
+        assertNotNull(it.currentLocation());
         assertTrue(it.hasNext());
         Bean b = it.next();
         assertEquals(3, b.a);
@@ -116,7 +116,7 @@ public class ReadValuesTest extends BaseMapTest
 
         MappingIterator<Bean> it = MAPPER.readerFor(Bean.class).readValues(JSON);
 
-        assertNotNull(it.getCurrentLocation());
+        assertNotNull(it.currentLocation());
         assertTrue(it.hasNext());
         Bean b = it.next();
         assertEquals(6, b.a);
@@ -144,13 +144,13 @@ public class ReadValuesTest extends BaseMapTest
         final String JSON = "{\"a\":3}{\"a\":27}  ";
         Iterator<Map<?,?>> it = MAPPER.readerFor(Map.class).readValues(JSON);
 
-        assertNotNull(((MappingIterator<?>) it).getCurrentLocation());
+        assertNotNull(((MappingIterator<?>) it).currentLocation());
         assertTrue(it.hasNext());
         Map<?,?> map = it.next();
         assertEquals(1, map.size());
         assertEquals(Integer.valueOf(3), map.get("a"));
         assertTrue(it.hasNext());
-        assertNotNull(((MappingIterator<?>) it).getCurrentLocation());
+        assertNotNull(((MappingIterator<?>) it).currentLocation());
         map = it.next();
         assertEquals(1, map.size());
         assertEquals(Integer.valueOf(27), map.get("a"));

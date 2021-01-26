@@ -757,13 +757,13 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     @Override
     public final void writeName(String name) {
         _tokenWriteContext.writeName(name);
-        _appendFieldName(name);
+        _appendName(name);
     }
 
     @Override
     public void writeName(SerializableString name) {
         _tokenWriteContext.writeName(name.getValue());
-        _appendFieldName(name);
+        _appendName(name);
     }
 
     @Override
@@ -772,7 +772,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         //    buffering but...
         final String name = Long.toString(id);
         _tokenWriteContext.writeName(name);
-        _appendFieldName(name);
+        _appendName(name);
     }
 
     /*
@@ -1118,7 +1118,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     {
         JsonToken t = p.currentToken();
 
-        // Let's handle field-name separately first
+        // Let's handle property name separately first
         if (t == JsonToken.PROPERTY_NAME) {
             if (_mayHaveNativeIds) {
                 _checkNativeIds(p);
@@ -1320,12 +1320,10 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     }
 
     /*
-     * Specialized method used for appending a field name, appending either
+     * Specialized method used for appending an Object property name, appending either
      * {@link String} or {@link SerializableString}.
-     *
-     * @since 2.10
      */
-    protected final void _appendFieldName(Object value)
+    protected final void _appendName(Object value)
     {
         // NOTE: do NOT clear _objectId / _typeId
         Segment next;
@@ -1548,7 +1546,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 }
             }
             _currToken = _segment.type(_segmentPtr);
-            // Field name? Need to update context
+            // Property name? Need to update context
             if (_currToken == JsonToken.PROPERTY_NAME) {
                 Object ob = _currentObject();
                 String name = (ob instanceof String) ? ((String) ob) : ob.toString();
@@ -2003,7 +2001,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
      * Individual segment of TokenBuffer that can store up to 16 tokens
      * (limited by 4 bits per token type marker requirement).
      * Current implementation uses fixed length array; could alternatively
-     * use 16 distinct fields and switch statement (slightly more efficient
+     * use 16 distinct elements and switch statement (slightly more efficient
      * storage, slightly slower access)
      */
     protected final static class Segment 

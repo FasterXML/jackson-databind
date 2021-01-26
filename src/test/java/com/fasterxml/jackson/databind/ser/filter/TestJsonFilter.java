@@ -42,7 +42,7 @@ public class TestJsonFilter extends BaseMapTest
 
     static class CheckSiblingContextFilter extends SimpleBeanPropertyFilter {
         @Override
-        public void serializeAsField(Object bean, JsonGenerator jgen, SerializerProvider prov, PropertyWriter writer) throws Exception {
+        public void serializeAsProperty(Object bean, JsonGenerator jgen, SerializerProvider prov, PropertyWriter writer) throws Exception {
             TokenStreamContext sc = jgen.streamWriteContext();
 
             if (writer.getName() != null && writer.getName().equals("c")) {
@@ -50,7 +50,7 @@ public class TestJsonFilter extends BaseMapTest
                 // in the CheckSiblingContextBean, you'll see that the sc.getParent() correctly returns 'b'
                 assertEquals("b", sc.getParent().currentName());
             }
-            writer.serializeAsField(bean, jgen, prov);
+            writer.serializeAsProperty(bean, jgen, prov);
         }
     }
 

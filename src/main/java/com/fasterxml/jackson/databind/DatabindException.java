@@ -49,12 +49,12 @@ public class DatabindException
         protected transient Object _from;
 
         /**
-         * Name of field (for beans) or key (for Maps) that is part
+         * Name of property (for POJO) or key (for Maps) that is part
          * of the reference. May be null for Collection types (which
          * generally have {@link #_index} defined), or when resolving
          * Map classes without (yet) having an instance to operate on.
          */
-        protected String _fieldName;
+        protected String _propertyName;
 
         /**
          * Index within a {@link Collection} instance that contained
@@ -79,12 +79,12 @@ public class DatabindException
 
         public Reference(Object from) { _from = from; }
 
-        public Reference(Object from, String fieldName) {
+        public Reference(Object from, String propertyName) {
             _from = from;
-            if (fieldName == null) {
-                throw new NullPointerException("Cannot pass null fieldName");
+            if (propertyName == null) {
+                throw new NullPointerException("Cannot pass null 'propertyName'");
             }
-            _fieldName = fieldName;
+            _propertyName = propertyName;
         }
 
         public Reference(Object from, int index) {
@@ -93,7 +93,7 @@ public class DatabindException
         }
 
         // Setters to let Jackson deserialize instances, but not to be called from outside
-        void setFieldName(String n) { _fieldName = n; }
+        void setPropertyName(String n) { _propertyName = n; }
         void setIndex(int ix) { _index = ix; }
         void setDescription(String d) { _desc = d; }
 
@@ -107,7 +107,7 @@ public class DatabindException
          */
         public Object from() { return _from; }
 
-        public String getFieldName() { return _fieldName; }
+        public String getPropertyName() { return _propertyName; }
         public int getIndex() { return _index; }
 
         public String getDescription()
@@ -134,9 +134,9 @@ public class DatabindException
                     }
                 }
                 sb.append('[');
-                if (_fieldName != null) {
+                if (_propertyName != null) {
                     sb.append('"');
-                    sb.append(_fieldName);
+                    sb.append(_propertyName);
                     sb.append('"');
                 } else if (_index >= 0) {
                     sb.append(_index);
@@ -293,8 +293,8 @@ public class DatabindException
      * non-indexed object, such as a Map or POJO/bean.
      */
     public static DatabindException wrapWithPath(Throwable src, Object refFrom,
-            String refFieldName) {
-        return wrapWithPath(src, new Reference(refFrom, refFieldName));
+            String refPropertyName) {
+        return wrapWithPath(src, new Reference(refFrom, refPropertyName));
     }
 
     /**
@@ -351,8 +351,8 @@ public class DatabindException
      * Method called to prepend a reference information in front of
      * current path
      */
-    public DatabindException prependPath(Object referrer, String fieldName) {
-        return prependPath(new Reference(referrer, fieldName));
+    public DatabindException prependPath(Object referrer, String propertyName) {
+        return prependPath(new Reference(referrer, propertyName));
     }
 
     /**

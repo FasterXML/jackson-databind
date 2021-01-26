@@ -82,7 +82,7 @@ public class UnwrappingBeanPropertyWriter
     }
 
     @Override
-    public void serializeAsField(Object bean, JsonGenerator gen, SerializerProvider prov)
+    public void serializeAsProperty(Object bean, JsonGenerator gen, SerializerProvider prov)
         throws Exception
     {
         final Object value = get(bean);

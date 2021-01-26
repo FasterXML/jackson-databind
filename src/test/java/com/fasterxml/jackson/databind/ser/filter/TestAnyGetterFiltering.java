@@ -70,11 +70,11 @@ public class TestAnyGetterFiltering extends BaseMapTest
 
     static class CustomFilter extends SimpleBeanPropertyFilter {
          @Override
-         public void serializeAsField(Object pojo, JsonGenerator gen, SerializerProvider provider,
+         public void serializeAsProperty(Object pojo, JsonGenerator gen, SerializerProvider provider,
                  PropertyWriter writer) throws Exception
          {
              if (pojo instanceof OuterObject) {
-                 writer.serializeAsField(pojo, gen, provider);
+                 writer.serializeAsProperty(pojo, gen, provider);
               }
          }
     }

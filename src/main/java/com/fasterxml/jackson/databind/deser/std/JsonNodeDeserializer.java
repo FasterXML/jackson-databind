@@ -44,9 +44,9 @@ public class JsonNodeDeserializer
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Actual deserializer implementations
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -73,9 +73,9 @@ public class JsonNodeDeserializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Specific instances for more accurate types
-    /**********************************************************
+    /**********************************************************************
      */
 
     final static class ObjectDeserializer
@@ -186,33 +186,33 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     @Override
     public boolean isCachable() { return true; }
 
-    @Override // since 2.9
+    @Override
     public Boolean supportsUpdate(DeserializationConfig config) {
         return _supportsUpdates;
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Overridable methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
-     * Method called when there is a duplicate value for a field.
+     * Method called when there is a duplicate value for an Object property.
      * By default we don't care, and the last value is used.
      * Can be overridden to provide alternate handling, such as throwing
      * an exception, or choosing different strategy for combining values
      * or choosing which one to keep.
      *
-     * @param fieldName Name of the field for which duplicate value was found
+     * @param propName Name of the property for which duplicate value was found
      * @param objectNode Object node that contains values
      * @param oldValue Value that existed for the object node before newValue
      *   was added
      * @param newValue Newly added value just added to the object node
      */
-    protected void _handleDuplicateField(JsonParser p, DeserializationContext ctxt,
+    protected void _handleDuplicateProperty(JsonParser p, DeserializationContext ctxt,
             JsonNodeFactory nodeFactory,
-            String fieldName, ObjectNode objectNode,
+            String propName, ObjectNode objectNode,
             JsonNode oldValue, JsonNode newValue)
         throws JacksonException
     {
@@ -220,10 +220,10 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
         if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY)) {
             // 11-Sep-2019, tatu: Can not pass "property name" because we may be
             //    missing enclosing JSON content context...
-// ctxt.reportPropertyInputMismatch(JsonNode.class, fieldName,
+// ctxt.reportPropertyInputMismatch(JsonNode.class, propName,
             ctxt.reportInputMismatch(JsonNode.class,
-"Duplicate field '%s' for `ObjectNode`: not allowed when `DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY` enabled",
-                    fieldName);
+"Duplicate property \"%s\" for `ObjectNode`: not allowed when `DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY` enabled",
+                    propName);
         }
         // [databind#2732]: Special case for XML; automatically coerce into `ArrayNode`
         if (ctxt.isEnabled(StreamReadCapability.DUPLICATE_PROPERTIES)) {
@@ -231,20 +231,20 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             // only added in JDK 8, to efficiently check for add. So...
             if (oldValue.isArray()) { // already was array, to append
                 ((ArrayNode) oldValue).add(newValue);
-                objectNode.replace(fieldName, oldValue);
+                objectNode.replace(propName, oldValue);
             } else { // was not array, convert
                 ArrayNode arr = nodeFactory.arrayNode();
                 arr.add(oldValue);
                 arr.add(newValue);
-                objectNode.replace(fieldName, arr);
+                objectNode.replace(propName, arr);
             }
         }
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -252,7 +252,8 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
      * node to modify.
      */
     protected final ObjectNode deserializeObject(JsonParser p, DeserializationContext ctxt,
-            final JsonNodeFactory nodeFactory) throws JacksonException
+            final JsonNodeFactory nodeFactory)
+        throws JacksonException
     {
         final ObjectNode node = nodeFactory.objectNode();
 
@@ -294,7 +295,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             {
                 JsonNode old = node.replace(key, value);
                 if (old != null) {
-                    _handleDuplicateField(p, ctxt, nodeFactory,
+                    _handleDuplicateProperty(p, ctxt, nodeFactory,
                             key, node, old, value);
                 }
             }
@@ -334,7 +335,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             {
                 JsonNode old = node.replace(key, value);
                 if (old != null) {
-                    _handleDuplicateField(p, ctxt, nodeFactory,
+                    _handleDuplicateProperty(p, ctxt, nodeFactory,
                             key, node, old, value);
                 }
             }
@@ -387,7 +388,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             }
             JsonNode old = node.replace(key, value);
             if (old != null) {
-                _handleDuplicateField(p, ctxt, nodeFactory,
+                _handleDuplicateProperty(p, ctxt, nodeFactory,
                         key, node, old, value);
             }
         }
@@ -466,7 +467,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
                 value = deserializeAny(p, ctxt, nodeFactory);
             }
             if (old != null) {
-                _handleDuplicateField(p, ctxt, nodeFactory,
+                _handleDuplicateProperty(p, ctxt, nodeFactory,
                         key, node, old, value);
             }
             node.set(key, value);

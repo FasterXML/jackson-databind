@@ -53,7 +53,7 @@ public class TestCreatorNullPrimitives extends BaseMapTest
         } catch (MismatchedInputException e) {
             verifyException(e, "Cannot map `null` into type `int`");
             assertEquals(1, e.getPath().size());
-            assertEquals("y", e.getPath().get(0).getFieldName());
+            assertEquals("y", e.getPath().get(0).getPropertyName());
         }
     }
 
@@ -67,8 +67,8 @@ public class TestCreatorNullPrimitives extends BaseMapTest
         } catch (MismatchedInputException e) {
             verifyException(e, "Cannot map `null` into type `int`");
             assertEquals(2, e.getPath().size());
-            assertEquals("y", e.getPath().get(1).getFieldName());
-            assertEquals("entity", e.getPath().get(0).getFieldName());
+            assertEquals("y", e.getPath().get(1).getPropertyName());
+            assertEquals("entity", e.getPath().get(0).getPropertyName());
         }
     }
 }

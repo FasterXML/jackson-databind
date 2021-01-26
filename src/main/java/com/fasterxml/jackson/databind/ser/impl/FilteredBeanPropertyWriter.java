@@ -62,14 +62,14 @@ public abstract class FilteredBeanPropertyWriter
         }
         
         @Override
-        public void serializeAsField(Object bean, JsonGenerator gen, SerializerProvider prov)
+        public void serializeAsProperty(Object bean, JsonGenerator gen, SerializerProvider prov)
             throws Exception
         {
             Class<?> activeView = prov.getActiveView();
             if (activeView == null || _view.isAssignableFrom(activeView)) {
-                _delegate.serializeAsField(bean, gen, prov);
+                _delegate.serializeAsProperty(bean, gen, prov);
             } else {
-                _delegate.serializeAsOmittedField(bean, gen, prov);
+                _delegate.serializeAsOmittedProperty(bean, gen, prov);
             }
         }
 
@@ -81,7 +81,7 @@ public abstract class FilteredBeanPropertyWriter
             if (activeView == null || _view.isAssignableFrom(activeView)) {
                 _delegate.serializeAsElement(bean, gen, prov);
             } else {
-                _delegate.serializeAsPlaceholder(bean, gen, prov);
+                _delegate.serializeAsOmittedElement(bean, gen, prov);
             }
         }
 
@@ -128,14 +128,14 @@ public abstract class FilteredBeanPropertyWriter
         }
         
         @Override
-        public void serializeAsField(Object bean, JsonGenerator gen, SerializerProvider prov)
+        public void serializeAsProperty(Object bean, JsonGenerator gen, SerializerProvider prov)
             throws Exception
         {
             if (_inView(prov.getActiveView())) {
-                _delegate.serializeAsField(bean, gen, prov);
+                _delegate.serializeAsProperty(bean, gen, prov);
                 return;
             }
-            _delegate.serializeAsOmittedField(bean, gen, prov);
+            _delegate.serializeAsOmittedProperty(bean, gen, prov);
         }
 
         @Override
@@ -146,7 +146,7 @@ public abstract class FilteredBeanPropertyWriter
                 _delegate.serializeAsElement(bean, gen, prov);
                 return;
             }
-            _delegate.serializeAsPlaceholder(bean, gen, prov);
+            _delegate.serializeAsOmittedElement(bean, gen, prov);
         }
 
         @Override

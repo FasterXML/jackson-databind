@@ -1067,25 +1067,10 @@ public abstract class SerializerProvider
      */
 
     /**
-     * Convenience method that will serialize given value (which can be
-     * null) using standard serializer locating functionality. It can
-     * be called for all values including field and Map values, but usually
-     * field values are best handled calling
-     * {@link #defaultSerializeField} instead.
-     *
-     * @deprecated Use {@link #writeValue(JsonGenerator, Object)} instead
+     * Convenience method that will serialize given property with specified
+     * value, using the default serializer for runtime type of {@code value}.
      */
-    @Deprecated // since 3.0
-    public final void defaultSerializeValue(Object value, JsonGenerator gen) {
-        writeValue(gen, value);
-    }
-
-    /**
-     * Convenience method that will serialize given field with specified
-     * value. Value may be null. Serializer is done using the usual
-     * null) using standard serializer locating functionality.
-     */
-    public final void defaultSerializeField(String propertyName, Object value, JsonGenerator g)
+    public final void defaultSerializeProperty(String propertyName, Object value, JsonGenerator g)
         throws JacksonException
     {
         g.writeName(propertyName);
@@ -1099,13 +1084,13 @@ public abstract class SerializerProvider
      * Note: date here means "full" date, that is, date AND time, as per
      * Java convention (and not date-only values like in SQL)
      */
-    public final void defaultSerializeDateValue(long timestamp, JsonGenerator gen)
+    public final void defaultSerializeDateValue(long timestamp, JsonGenerator g)
         throws JacksonException
     {
         if (isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)) {
-            gen.writeNumber(timestamp);
+            g.writeNumber(timestamp);
         } else {
-            gen.writeString(_dateFormat().format(new Date(timestamp)));
+            g.writeString(_dateFormat().format(new Date(timestamp)));
         }
     }
 
@@ -1116,13 +1101,13 @@ public abstract class SerializerProvider
      * Note: date here means "full" date, that is, date AND time, as per
      * Java convention (and not date-only values like in SQL)
      */
-    public final void defaultSerializeDateValue(Date date, JsonGenerator gen)
+    public final void defaultSerializeDateValue(Date date, JsonGenerator g)
         throws JacksonException
     {
         if (isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)) {
-            gen.writeNumber(date.getTime());
+            g.writeNumber(date.getTime());
         } else {
-            gen.writeString(_dateFormat().format(date));
+            g.writeString(_dateFormat().format(date));
         }
     }
 
@@ -1131,13 +1116,13 @@ public abstract class SerializerProvider
      * based on {@link SerializationFeature#WRITE_DATE_KEYS_AS_TIMESTAMPS}
      * value (and if using textual representation, configured date format)
      */
-    public void defaultSerializeDateKey(long timestamp, JsonGenerator gen)
+    public void defaultSerializeDateKey(long timestamp, JsonGenerator g)
         throws JacksonException
     {
         if (isEnabled(SerializationFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS)) {
-            gen.writeName(String.valueOf(timestamp));
+            g.writeName(String.valueOf(timestamp));
         } else {
-            gen.writeName(_dateFormat().format(new Date(timestamp)));
+            g.writeName(_dateFormat().format(new Date(timestamp)));
         }
     }
 
@@ -1146,28 +1131,28 @@ public abstract class SerializerProvider
      * based on {@link SerializationFeature#WRITE_DATE_KEYS_AS_TIMESTAMPS}
      * value (and if using textual representation, configured date format)
      */
-    public void defaultSerializeDateKey(Date date, JsonGenerator gen) throws JacksonException
+    public void defaultSerializeDateKey(Date date, JsonGenerator g) throws JacksonException
     {
         if (isEnabled(SerializationFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS)) {
-            gen.writeName(String.valueOf(date.getTime()));
+            g.writeName(String.valueOf(date.getTime()));
         } else {
-            gen.writeName(_dateFormat().format(date));
+            g.writeName(_dateFormat().format(date));
         }
     }
 
     /**
-     * Method to call when serializing a `null` value (POJO property, Map entry value,
+     * Method to call when serializing a {@code null} value (POJO property, Map entry value,
      * Collection/array element) using configured standard mechanism. Note that this
      * does NOT consider filtering any more as value is expected.
      *
      * @since 3.0 (in 2.x was called <code>defaultSerializeNull</code>)
      */
-    public final void defaultSerializeNullValue(JsonGenerator gen) throws JacksonException
+    public final void defaultSerializeNullValue(JsonGenerator g) throws JacksonException
     {
         if (_stdNullValueSerializer) { // minor perf optimization
-            gen.writeNull();
+            g.writeNull();
         } else {
-            _nullValueSerializer.serialize(null, gen, this);
+            _nullValueSerializer.serialize(null, g, this);
         }
     }
 

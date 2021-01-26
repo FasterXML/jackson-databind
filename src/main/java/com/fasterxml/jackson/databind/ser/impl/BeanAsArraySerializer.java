@@ -191,7 +191,7 @@ public class BeanAsArraySerializer
 
     /*
     /**********************************************************************
-    /* Field serialization methods
+    /* Property serialization methods
     /**********************************************************************
      */
 

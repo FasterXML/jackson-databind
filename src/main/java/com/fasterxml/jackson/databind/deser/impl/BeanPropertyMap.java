@@ -183,7 +183,7 @@ public class BeanPropertyMap
         // 26-Feb-2017, tatu: Probably SHOULD handle renaming wrt Aliases?
         // NOTE: do NOT try reassigning indexes of properties; number doesn't change
 
-        // !!! 18-Nov-2017, tatu: Should try recreating FieldNameMatcher here but...
+        // !!! 18-Nov-2017, tatu: Should try recreating PropertyNameMatcher here but...
         return new BeanPropertyMap(newProps, _aliasDefs, _locale, _caseInsensitive, false)
                 .initMatcher(ctxt.getParserFactory());
     }

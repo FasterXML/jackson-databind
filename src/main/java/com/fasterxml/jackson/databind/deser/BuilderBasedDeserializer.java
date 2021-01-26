@@ -67,10 +67,10 @@ public class BuilderBasedDeserializer
      * @since 2.12
      */
     public BuilderBasedDeserializer(BeanDeserializerBuilder builder,
-                                    BeanDescription beanDesc, JavaType targetType,
-                                    BeanPropertyMap properties, Map<String, SettableBeanProperty> backRefs,
-                                    Set<String> ignorableProps, boolean ignoreAllUnknown, Set<String> includableProps,
-                                    boolean hasViews)
+            BeanDescription beanDesc, JavaType targetType,
+            BeanPropertyMap properties, Map<String, SettableBeanProperty> backRefs,
+            Set<String> ignorableProps, boolean ignoreAllUnknown, Set<String> includableProps,
+            boolean hasViews)
     {
         super(builder, beanDesc, properties, backRefs,
                 ignorableProps, ignoreAllUnknown, includableProps, hasViews);
@@ -140,7 +140,7 @@ public class BuilderBasedDeserializer
     }
 
     @Override
-    protected void initFieldMatcher(DeserializationContext ctxt) {
+    protected void initNameMatcher(DeserializationContext ctxt) {
         _beanProperties.initMatcher(ctxt.getParserFactory());
         _propertyNameMatcher = _beanProperties.getNameMatcher();
         _propertiesByIndex = _beanProperties.getNameMatcherProperties();

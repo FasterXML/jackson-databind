@@ -62,7 +62,7 @@ public class TestMapFiltering extends BaseMapTest
         }
         
         @Override
-        public void serializeAsField(Object bean, JsonGenerator g,
+        public void serializeAsProperty(Object bean, JsonGenerator g,
                 SerializerProvider provider, PropertyWriter writer)
             throws Exception
         {
@@ -84,7 +84,7 @@ public class TestMapFiltering extends BaseMapTest
             Integer old = (Integer) prop.getValue();
             prop.setValue(Integer.valueOf(offset + old.intValue()));
 
-            writer.serializeAsField(bean, g, provider);
+            writer.serializeAsProperty(bean, g, provider);
         }
 
         @Override

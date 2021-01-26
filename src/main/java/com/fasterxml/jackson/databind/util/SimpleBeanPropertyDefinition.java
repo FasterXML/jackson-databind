@@ -30,19 +30,10 @@ public class SimpleBeanPropertyDefinition
      */
     protected final AnnotatedMember _member;
 
-    /**
-     * @since 2.5
-     */
     protected final PropertyMetadata _metadata;
 
-    /**
-     * @since 2.5
-     */
     protected final PropertyName _fullName;
 
-    /**
-     * @since 2.5
-     */
     protected final JsonInclude.Value _inclusion;
 
     /*

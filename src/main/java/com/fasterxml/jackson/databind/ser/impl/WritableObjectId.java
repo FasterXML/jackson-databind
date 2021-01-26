@@ -23,19 +23,23 @@ public final class WritableObjectId
      */
     protected boolean idWritten = false;
 
-    public WritableObjectId(ObjectIdGenerator<?> generator) {
-        this.generator = generator;
+    public WritableObjectId(ObjectIdGenerator<?> g) {
+        this.generator = g;
     }
 
-    public boolean writeAsId(JsonGenerator gen, SerializerProvider provider, ObjectIdWriter w)
+    /**
+     * Method to call to write a reference to object that this id refers. Usually this
+     * is done after an earlier call to {@link #writeAsDeclaration}.
+     */
+    public boolean writeAsReference(JsonGenerator g, SerializerProvider ctxt, ObjectIdWriter w)
         throws JacksonException
     {
         if ((id != null) && (idWritten || w.alwaysAsId)) {
             // 03-Aug-2013, tatu: Prefer Native Object Ids if available
-            if (gen.canWriteObjectId()) {
-                gen.writeObjectRef(String.valueOf(id));
+            if (g.canWriteObjectId()) {
+                g.writeObjectRef(String.valueOf(id));
             } else {
-                w.serializer.serialize(id, gen, provider);
+                w.serializer.serialize(id, g, ctxt);
             }
             return true;
         }
@@ -53,10 +57,12 @@ public final class WritableObjectId
     }
 
     /**
-     * Method called to output Object Id as specified.
+     * Method called to output Object Id declaration, either using native Object Id write
+     * method {@link JsonGenerator#writeObjectId(Object)} (if allowed), or, if not,
+     * just writing it as an Object property with specified property name and id value.
      */
-    public void writeAsField(JsonGenerator g, SerializerProvider provider,
-            ObjectIdWriter w) throws JacksonException
+    public void writeAsDeclaration(JsonGenerator g, SerializerProvider ctxt, ObjectIdWriter w)
+        throws JacksonException
     {
         idWritten = true;
 
@@ -75,7 +81,7 @@ public final class WritableObjectId
         if (name != null) {
             // 05-Feb-2019, tatu: How about `null` id? For now, write
             g.writeName(name);
-            w.serializer.serialize(id, g, provider);
+            w.serializer.serialize(id, g, ctxt);
         }
     }
 }

@@ -167,7 +167,7 @@ public class UnrolledBeanSerializer
         BeanPropertyWriter[] fProps = _filteredProps;        
         if ((fProps != null) && (provider.getActiveView() != null)) {
             gen.writeStartObject(bean);
-            _serializeFieldsMaybeView(bean, gen, provider, fProps);
+            _serializePropertiesMaybeView(bean, gen, provider, fProps);
             gen.writeEndObject();
             return;
         }
@@ -185,23 +185,23 @@ public class UnrolledBeanSerializer
             default:
             //case 6:
                 prop = _prop1;
-                prop.serializeAsField(bean, gen, provider);
+                prop.serializeAsProperty(bean, gen, provider);
                 // fall through
             case 5:
                 prop = _prop2;
-                prop.serializeAsField(bean, gen, provider);
+                prop.serializeAsProperty(bean, gen, provider);
             case 4:
                 prop = _prop3;
-                prop.serializeAsField(bean, gen, provider);
+                prop.serializeAsProperty(bean, gen, provider);
             case 3:
                 prop = _prop4;
-                prop.serializeAsField(bean, gen, provider);
+                prop.serializeAsProperty(bean, gen, provider);
             case 2:
                 prop = _prop5;
-                prop.serializeAsField(bean, gen, provider);
+                prop.serializeAsProperty(bean, gen, provider);
             case 1:
                 prop = _prop6;
-                prop.serializeAsField(bean, gen, provider);
+                prop.serializeAsProperty(bean, gen, provider);
             case 0:
             }
             prop = null;

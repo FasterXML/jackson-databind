@@ -729,7 +729,7 @@ public class JDKScalarsDeserTest
 
     private void verifyPath(MismatchedInputException e, String propName) {
         assertEquals(1, e.getPath().size());
-        assertEquals(propName, e.getPath().get(0).getFieldName());
+        assertEquals(propName, e.getPath().get(0).getPropertyName());
     }
 
     public void testNullForPrimitiveArrays() throws IOException

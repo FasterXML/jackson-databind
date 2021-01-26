@@ -156,7 +156,7 @@ public class TestCustomSerializers extends BaseMapTest
     // [databind#2475]
     static class MyFilter2475 extends SimpleBeanPropertyFilter {
         @Override
-        public void serializeAsField(Object pojo, JsonGenerator jgen, SerializerProvider provider, PropertyWriter writer) throws Exception {
+        public void serializeAsProperty(Object pojo, JsonGenerator jgen, SerializerProvider provider, PropertyWriter writer) throws Exception {
             // Ensure that "current value" remains pojo
             final TokenStreamContext ctx = jgen.streamWriteContext();
             final Object curr = ctx.currentValue();
@@ -164,7 +164,7 @@ public class TestCustomSerializers extends BaseMapTest
             if (!(curr instanceof Item2475)) {
                 throw new Error("Field '"+writer.getName()+"', context not that of `Item2475` instance");
             }
-            super.serializeAsField(pojo, jgen, provider, writer);
+            super.serializeAsProperty(pojo, jgen, provider, writer);
         }
     }
 

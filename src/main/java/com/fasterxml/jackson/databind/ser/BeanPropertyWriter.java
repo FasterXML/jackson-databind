@@ -548,9 +548,6 @@ public class BeanPropertyWriter
         return _nullSerializer != null;
     }
 
-    /**
-     * @since 2.6
-     */
     public TypeSerializer getTypeSerializer() {
         return _typeSerializer;
     }
@@ -562,8 +559,6 @@ public class BeanPropertyWriter
      * name).
      * <p>
      * Default implementation simply returns false.
-     * 
-     * @since 2.3
      */
     public boolean isUnwrapping() {
         return false;
@@ -612,8 +607,7 @@ public class BeanPropertyWriter
      * serializer.
      */
     @Override
-    public void serializeAsField(Object bean, JsonGenerator gen,
-            SerializerProvider prov)
+    public void serializeAsProperty(Object bean, JsonGenerator g, SerializerProvider ctxt)
         throws Exception
     {
         // inlined 'get()'
@@ -623,8 +617,8 @@ public class BeanPropertyWriter
         // Null handling is bit different, check that first
         if (value == null) {
             if (_nullSerializer != null) {
-                gen.writeName(_name);
-                _nullSerializer.serialize(null, gen, prov);
+                g.writeName(_name);
+                _nullSerializer.serialize(null, g, ctxt);
             }
             return;
         }
@@ -635,13 +629,13 @@ public class BeanPropertyWriter
             PropertySerializerMap m = _dynamicSerializers;
             ser = m.serializerFor(cls);
             if (ser == null) {
-                ser = _findAndAddDynamic(m, cls, prov);
+                ser = _findAndAddDynamic(m, cls, ctxt);
             }
         }
         // and then see if we must suppress certain values (default, empty)
         if (_suppressableValue != null) {
             if (MARKER_FOR_EMPTY == _suppressableValue) {
-                if (ser.isEmpty(prov, value)) {
+                if (ser.isEmpty(ctxt, value)) {
                     return;
                 }
             } else if (_suppressableValue.equals(value)) {
@@ -651,15 +645,15 @@ public class BeanPropertyWriter
         // For non-nulls: simple check for direct cycles
         if (value == bean) {
             // four choices: exception; handled by call; pass-through or write null
-            if (_handleSelfReference(bean, gen, prov, ser)) {
+            if (_handleSelfReference(bean, g, ctxt, ser)) {
                 return;
             }
         }
-        gen.writeName(_name);
+        g.writeName(_name);
         if (_typeSerializer == null) {
-            ser.serialize(value, gen, prov);
+            ser.serialize(value, g, ctxt);
         } else {
-            ser.serializeWithType(value, gen, prov, _typeSerializer);
+            ser.serializeWithType(value, g, ctxt, _typeSerializer);
         }
     }
 
@@ -669,23 +663,21 @@ public class BeanPropertyWriter
      * omission.
      */
     @Override
-    public void serializeAsOmittedField(Object bean, JsonGenerator gen,
-            SerializerProvider prov)
+    public void serializeAsOmittedProperty(Object bean, JsonGenerator g, SerializerProvider ctxt)
         throws Exception
     {
-        if (!gen.canOmitProperties()) {
-            gen.writeOmittedProperty(_name.getValue());
+        if (!g.canOmitProperties()) {
+            g.writeOmittedProperty(_name.getValue());
         }
     }
 
     /**
-     * Alternative to {@link #serializeAsField} that is used when a POJO is
-     * serialized as JSON Array; the difference is that no field names are
-     * written.
+     * Alternative to {@link #serializeAsProperty} that is used when a POJO is
+     * serialized as JSON Array (usually when "Shape" is forced as 'Array'):
+     * the difference is that no property names are written.
      */
     @Override
-    public void serializeAsElement(Object bean, JsonGenerator gen,
-            SerializerProvider prov)
+    public void serializeAsElement(Object bean, JsonGenerator g, SerializerProvider ctxt)
         throws Exception
     {
         // inlined 'get()'
@@ -693,9 +685,9 @@ public class BeanPropertyWriter
                 : _accessorMethod.invoke(bean, (Object[]) null);
         if (value == null) { // nulls need specialized handling
             if (_nullSerializer != null) {
-                _nullSerializer.serialize(null, gen, prov);
+                _nullSerializer.serialize(null, g, ctxt);
             } else { // can NOT suppress entries in tabular output
-                gen.writeNull();
+                g.writeNull();
             }
             return;
         }
@@ -706,33 +698,33 @@ public class BeanPropertyWriter
             PropertySerializerMap map = _dynamicSerializers;
             ser = map.serializerFor(cls);
             if (ser == null) {
-                ser = _findAndAddDynamic(map, cls, prov);
+                ser = _findAndAddDynamic(map, cls, ctxt);
             }
         }
         // and then see if we must suppress certain values (default, empty)
         if (_suppressableValue != null) {
             if (MARKER_FOR_EMPTY == _suppressableValue) {
-                if (ser.isEmpty(prov, value)) { // can NOT suppress entries in
+                if (ser.isEmpty(ctxt, value)) { // can NOT suppress entries in
                                                 // tabular output
-                    serializeAsPlaceholder(bean, gen, prov);
+                    serializeAsOmittedElement(bean, g, ctxt);
                     return;
                 }
             } else if (_suppressableValue.equals(value)) {
                 // can NOT suppress entries in tabular output
-                serializeAsPlaceholder(bean, gen, prov);
+                serializeAsOmittedElement(bean, g, ctxt);
                 return;
             }
         }
         // For non-nulls: simple check for direct cycles
         if (value == bean) {
-            if (_handleSelfReference(bean, gen, prov, ser)) {
+            if (_handleSelfReference(bean, g, ctxt, ser)) {
                 return;
             }
         }
         if (_typeSerializer == null) {
-            ser.serialize(value, gen, prov);
+            ser.serialize(value, g, ctxt);
         } else {
-            ser.serializeWithType(value, gen, prov, _typeSerializer);
+            ser.serializeWithType(value, g, ctxt, _typeSerializer);
         }
     }
 
@@ -743,14 +735,14 @@ public class BeanPropertyWriter
      * or empty String, depending on datatype.
      */
     @Override
-    public void serializeAsPlaceholder(Object bean, JsonGenerator gen,
+    public void serializeAsOmittedElement(Object bean, JsonGenerator g,
             SerializerProvider prov)
         throws Exception
     {
         if (_nullSerializer != null) {
-            _nullSerializer.serialize(null, gen, prov);
+            _nullSerializer.serialize(null, g, prov);
         } else {
-            gen.writeNull();
+            g.writeNull();
         }
     }
 
@@ -803,7 +795,7 @@ public class BeanPropertyWriter
      * describes, from given bean instance.
      * <p>
      * Note: method is final as it should not need to be overridden -- rather,
-     * calling method(s) ({@link #serializeAsField}) should be overridden to
+     * calling method(s) ({@link #serializeAsProperty}) should be overridden to
      * change the behavior
      */
     public final Object get(Object bean) throws Exception {
@@ -825,28 +817,28 @@ public class BeanPropertyWriter
      *         (caller is to handle it) or {@link DatabindException} if there
      *         is no way handle it
      */
-    protected boolean _handleSelfReference(Object bean, JsonGenerator gen,
-            SerializerProvider prov, JsonSerializer<?> ser)
+    protected boolean _handleSelfReference(Object bean, JsonGenerator g,
+            SerializerProvider ctxt, JsonSerializer<?> ser)
         throws JacksonException
     {
         if (!ser.usesObjectId()) {
-            if (prov.isEnabled(SerializationFeature.FAIL_ON_SELF_REFERENCES)) {
+            if (ctxt.isEnabled(SerializationFeature.FAIL_ON_SELF_REFERENCES)) {
                 // 05-Feb-2013, tatu: Usually a problem, but NOT if we are handling
                 // object id; this may be the case for BeanSerializers at least.
                 if (ser instanceof BeanSerializerBase) {
-                    prov.reportBadDefinition(getType(), "Direct self-reference leading to cycle");
+                    ctxt.reportBadDefinition(getType(), "Direct self-reference leading to cycle");
                 }
-            } else if (prov.isEnabled(SerializationFeature.WRITE_SELF_REFERENCES_AS_NULL)) {
+            } else if (ctxt.isEnabled(SerializationFeature.WRITE_SELF_REFERENCES_AS_NULL)) {
                 if (_nullSerializer != null) {
                     // 23-Oct-2019, tatu: Tricky part -- caller does not specify if it's
                     //   "as property" (in JSON Object) or "as element" (JSON array, via
                     //   'POJO-as-array'). And since Afterburner calls method can not easily
                     //   start passing info either. So check generator to see...
                     //   (note: not considering ROOT context as possibility, does not seem legal)
-                    if (!gen.streamWriteContext().inArray()) {
-                        gen.writeName(_name);
+                    if (!g.streamWriteContext().inArray()) {
+                        g.writeName(_name);
                     }
-                    _nullSerializer.serialize(null, gen, prov);
+                    _nullSerializer.serialize(null, g, ctxt);
                 }
                 return true;
             }

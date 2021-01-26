@@ -28,9 +28,9 @@ public class BeanAsArrayDeserializer
     protected final SettableBeanProperty[] _orderedProperties;
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle, construction, initialization
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -86,12 +86,12 @@ public class BeanAsArrayDeserializer
     }
 
     @Override
-    protected void initFieldMatcher(DeserializationContext ctxt) { }
+    protected void initNameMatcher(DeserializationContext ctxt) { }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* JsonDeserializer implementation
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override
@@ -296,7 +296,6 @@ public class BeanAsArrayDeserializer
         return bean;
     }
 
-    // needed since 2.1
     @Override
     public Object deserializeFromObject(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
@@ -305,9 +304,9 @@ public class BeanAsArrayDeserializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods, non-standard creation
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -457,9 +456,9 @@ public class BeanAsArrayDeserializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods, error reporting
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected Object _deserializeFromNonArray(JsonParser p, DeserializationContext ctxt)

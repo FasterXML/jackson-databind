@@ -31,9 +31,9 @@ public class BeanAsArrayBuilderDeserializer
     protected final JavaType _targetType;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle, construction, initialization
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -93,24 +93,24 @@ public class BeanAsArrayBuilderDeserializer
     }
 
     @Override
-    protected void initFieldMatcher(DeserializationContext ctxt) { }
+    protected void initNameMatcher(DeserializationContext ctxt) { }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Overrides
-    /**********************************************************
+    /**********************************************************************
      */
     
-    @Override // since 2.9
+    @Override
     public Boolean supportsUpdate(DeserializationConfig config) {
         // 26-Oct-2016, tatu: No, we can't merge Builder-based POJOs as of now
         return Boolean.FALSE;
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* JsonDeserializer implementation
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected final Object finishBuild(DeserializationContext ctxt, Object builder)
@@ -180,7 +180,6 @@ public class BeanAsArrayBuilderDeserializer
         return _delegate.deserialize(p, ctxt, value);
     }
 
-    // needed since 2.1
     @Override
     public Object deserializeFromObject(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
@@ -189,9 +188,9 @@ public class BeanAsArrayBuilderDeserializer
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods, non-standard creation
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -337,9 +336,9 @@ public class BeanAsArrayBuilderDeserializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods, error reporting
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected Object _deserializeFromNonArray(JsonParser p, DeserializationContext ctxt)

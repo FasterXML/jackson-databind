@@ -971,13 +971,13 @@ public class UntypedObjectDeserializer
         // NOTE: copied from above (alas, no easy way to share/reuse)
         // @since 2.12 (wrt [databind#2733]
         protected Object _mapObjectWithDups(JsonParser p, DeserializationContext ctxt,
-                final Map<String, Object> result, String key,
+                final Map<String, Object> result, String initialKey,
                 Object oldValue, Object newValue, String nextKey) throws IOException
         {
             final boolean squashDups = ctxt.isEnabled(StreamReadCapability.DUPLICATE_PROPERTIES);
 
             if (squashDups) {
-                _squashDups(result, key, oldValue, newValue);
+                _squashDups(result, initialKey, oldValue, newValue);
             }
 
             while (nextKey != null) {
@@ -1008,6 +1008,5 @@ public class UntypedObjectDeserializer
                 result.put(key, l);
             }
         }
-
     }
 }

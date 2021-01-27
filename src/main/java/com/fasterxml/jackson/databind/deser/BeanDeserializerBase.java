@@ -62,12 +62,18 @@ public abstract class BeanDeserializerBase
     /**
      * Deserializer that is used iff delegate-based creator is
      * to be used for deserializing from JSON Object.
+     *<p>
+     * NOTE: cannot be {@code final} because we need to get it during
+     * {@code resolve()} method (and not contextualization).
      */
     protected JsonDeserializer<Object> _delegateDeserializer;
 
     /**
      * Deserializer that is used iff array-delegate-based creator
      * is to be used for deserializing from JSON Object.
+     *<p>
+     * NOTE: cannot be {@code final} because we need to get it during
+     * {@code resolve()} method (and not contextualization).
      */
     protected JsonDeserializer<Object> _arrayDelegateDeserializer;
 
@@ -207,7 +213,11 @@ public abstract class BeanDeserializerBase
     {
         super(beanDesc.getType());
         _beanType = beanDesc.getType();
+
         _valueInstantiator = builder.getValueInstantiator();
+        _delegateDeserializer = null;
+        _arrayDelegateDeserializer = null;
+        _propertyBasedCreator = null;
         
         _beanProperties = properties;
         _backRefs = backRefs;
@@ -259,6 +269,7 @@ public abstract class BeanDeserializerBase
         
         _valueInstantiator = src._valueInstantiator;
         _delegateDeserializer = src._delegateDeserializer;
+        _arrayDelegateDeserializer = src._arrayDelegateDeserializer;
         _propertyBasedCreator = src._propertyBasedCreator;
         
         _beanProperties = src._beanProperties;
@@ -292,6 +303,7 @@ public abstract class BeanDeserializerBase
         
         _valueInstantiator = src._valueInstantiator;
         _delegateDeserializer = src._delegateDeserializer;
+        _arrayDelegateDeserializer = src._arrayDelegateDeserializer;
         _propertyBasedCreator = src._propertyBasedCreator;
 
         _backRefs = src._backRefs;
@@ -320,6 +332,7 @@ public abstract class BeanDeserializerBase
         
         _valueInstantiator = src._valueInstantiator;
         _delegateDeserializer = src._delegateDeserializer;
+        _arrayDelegateDeserializer = src._arrayDelegateDeserializer;
         _propertyBasedCreator = src._propertyBasedCreator;
         
         _backRefs = src._backRefs;
@@ -361,6 +374,7 @@ public abstract class BeanDeserializerBase
         
         _valueInstantiator = src._valueInstantiator;
         _delegateDeserializer = src._delegateDeserializer;
+        _arrayDelegateDeserializer = src._arrayDelegateDeserializer;
         _propertyBasedCreator = src._propertyBasedCreator;
 
         _backRefs = src._backRefs;
@@ -390,6 +404,7 @@ public abstract class BeanDeserializerBase
 
         _valueInstantiator = src._valueInstantiator;
         _delegateDeserializer = src._delegateDeserializer;
+        _arrayDelegateDeserializer = src._arrayDelegateDeserializer;
         _propertyBasedCreator = src._propertyBasedCreator;
 
         _beanProperties = beanProps;

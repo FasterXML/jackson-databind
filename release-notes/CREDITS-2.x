@@ -1189,6 +1189,11 @@ Lucian H (symposion@github)
     with `@JsonIdentityInfo`, `PropertyGenerator`
   (2.11.4)
 
+Gian Merlino (gianm@github)
+  * Reported #3022: Property ignorals cause `BeanDeserializer `to forget how to read
+   from arrays (not copying `_arrayDelegateDeserializer`)
+  (2.11.5 / 2.12.2)
+
 Marc Carter (drekbour@github)
   * Contributed #43 implementation: Add option to resolve type from multiple existing properties,
    `@JsonTypeInfo(use=DEDUCTION)`
@@ -1293,5 +1298,3 @@ SunYiJun (xiaosunzhu@github)
   * Reported, suggested fix for #2979: Conflicting in POJOPropertiesCollector when
     having namingStrategy
    (2.12.1)
-
---- END ---

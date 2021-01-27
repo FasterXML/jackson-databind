@@ -690,7 +690,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     public boolean isClosed() { return _closed; }
 
     @Override
-    public Object streamWriteTarget() { return null; }
+    public Object streamWriteOutputTarget() { return null; }
 
     @Override
     public int streamWriteOutputBuffered() { return -1; }
@@ -1487,7 +1487,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         }
 
         @Override
-        public TokenBuffer streamReadSource() {
+        public TokenBuffer streamReadInputSource() {
             return _source;
         }
 

@@ -76,7 +76,7 @@ public class TreeTraversingParser
     }
 
     @Override
-    public JsonNode streamReadSource() {
+    public JsonNode streamReadInputSource() {
         return _source;
     }
 

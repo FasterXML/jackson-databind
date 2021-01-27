@@ -613,8 +613,11 @@ public class MapSerializer
      * General-purpose serialization for contents, where we do not necessarily know
      * the value serialization, but 
      * we do know that no value suppression is needed (which simplifies processing a bit)
+     *<p>
+     * NOTE: {@code public} only because it is called by code from {@code Guava}
+     *  {@code TableSerializer}
      */
-    protected void serializeEntries(Map<?,?> value, JsonGenerator gen, SerializerProvider provider)
+    public void serializeEntries(Map<?,?> value, JsonGenerator gen, SerializerProvider provider)
         throws JacksonException
     {
         // If value type needs polymorphic type handling, some more work needed:

@@ -318,7 +318,7 @@ public class TokenBuffer
     {
         Parser p = new Parser(readCtxt, this,
                 _first, _hasNativeTypeIds, _hasNativeObjectIds, _parentContext);
-        p.setLocation(src.getTokenLocation());
+        p.setLocation(src.currentTokenLocation());
         return p;
     }
     /*
@@ -690,10 +690,10 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     public boolean isClosed() { return _closed; }
 
     @Override
-    public Object getOutputTarget() { return null; }
+    public Object streamWriteTarget() { return null; }
 
     @Override
-    public int getOutputBuffered() { return -1; }
+    public int streamWriteOutputBuffered() { return -1; }
 
     /*
     /**********************************************************************
@@ -1487,7 +1487,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         }
 
         @Override
-        public TokenBuffer getInputSource() {
+        public TokenBuffer streamReadSource() {
             return _source;
         }
 
@@ -1613,7 +1613,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         @Override public Object currentValue() { return _parsingContext.currentValue(); }
         
         @Override
-        public JsonLocation getTokenLocation() { return currentLocation(); }
+        public JsonLocation currentTokenLocation() { return currentLocation(); }
 
         @Override
         public JsonLocation currentLocation() {

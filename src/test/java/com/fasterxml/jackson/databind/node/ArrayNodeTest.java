@@ -265,7 +265,7 @@ public class ArrayNodeTest
         assertNull(p.objectReadContext());
         assertNotNull(p.streamReadContext());
         assertTrue(p.streamReadContext().inRoot());
-        assertNotNull(p.getTokenLocation());
+        assertNotNull(p.currentTokenLocation());
         assertNotNull(p.currentLocation());
         assertNull(p.getEmbeddedObject());
         assertNull(p.currentNode());

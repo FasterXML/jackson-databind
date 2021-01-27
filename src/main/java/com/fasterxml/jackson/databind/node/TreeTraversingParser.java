@@ -76,7 +76,7 @@ public class TreeTraversingParser
     }
 
     @Override
-    public JsonNode getInputSource() {
+    public JsonNode streamReadSource() {
         return _source;
     }
 
@@ -169,7 +169,7 @@ public class TreeTraversingParser
     @Override public Object currentValue() { return _nodeCursor.currentValue(); }
 
     @Override
-    public JsonLocation getTokenLocation() {
+    public JsonLocation currentTokenLocation() {
         return JsonLocation.NA;
     }
 

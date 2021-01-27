@@ -8,6 +8,12 @@ Project: jackson-databind
 
 #2828: Add `DatabindException` as intermediate subtype of `JsonMappingException`
 
+2.12.2 (not yet released)
+
+#3022: Property ignorals cause `BeanDeserializer `to forget how to read
+  from arrays (not copying `_arrayDelegateDeserializer`)
+ (reported by Gian M)
+
 2.12.1 (08-Jan-2021)
 
 #2962: Auto-detection of constructor-based creator method skipped if there is

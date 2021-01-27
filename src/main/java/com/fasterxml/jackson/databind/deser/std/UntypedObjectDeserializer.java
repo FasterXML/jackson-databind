@@ -985,7 +985,7 @@ public class UntypedObjectDeserializer
                 newValue = deserialize(p, ctxt);
                 oldValue = result.put(nextKey, newValue);
                 if ((oldValue != null) && squashDups) {
-                    _squashDups(result, key, oldValue, newValue);
+                    _squashDups(result, nextKey, oldValue, newValue);
                 }
                 nextKey = p.nextFieldName();
             }

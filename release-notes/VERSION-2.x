@@ -13,6 +13,9 @@ Project: jackson-databind
 #3022: Property ignorals cause `BeanDeserializer `to forget how to read
   from arrays (not copying `_arrayDelegateDeserializer`)
  (reported by Gian M)
+#3025: UntypedObjectDeserializer` mixes multiple unwrapped
+  collections (related to #2733)
+ (fix contributed by Migwel@github)
 
 2.12.1 (08-Jan-2021)
 

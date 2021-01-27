@@ -1294,7 +1294,11 @@ Faron Dutton (fdutton@github)
    (2.12.1)
 
 SunYiJun (xiaosunzhu@github)
-
   * Reported, suggested fix for #2979: Conflicting in POJOPropertiesCollector when
     having namingStrategy
    (2.12.1)
+
+Miguel G (Migwel@github)
+  * Reported, contributed fix for #3025: UntypedObjectDeserializer` mixes multiple unwrapped
+    collections (related to #2733)
+   (2.12.2)

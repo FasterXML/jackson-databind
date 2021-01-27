@@ -122,7 +122,7 @@ public abstract class Module
          * Return value is chosen to force casting, to make caller aware that
          * this is a fallback accessor, used only when everything else fails:
          * type is, however, guaranteed to be {@link MapperBuilder} (and more
-         * specifally format-specific subtype that mapper constructed, in case
+         * specifically format-specific subtype that mapper constructed, in case
          * format-specific access is needed).
          */
         public Object getOwner();

@@ -605,7 +605,8 @@ public class MapSerializer
 
     /*
     /**********************************************************************
-    /* Secondary serialization methods
+    /* Secondary serialization methods: note -- most public due to legacy
+    /* reasons (access from different packages)
     /**********************************************************************
      */
 
@@ -660,8 +661,11 @@ public class MapSerializer
 
     /**
      * Serialization method called when exclusion filtering needs to be applied.
+     *<p>
+     * NOTE: {@code public} because other similar methods are (no current known
+     * external usage).
      */
-    protected void serializeOptionalFields(Map<?,?> value, JsonGenerator gen, SerializerProvider provider,
+    public void serializeOptionalFields(Map<?,?> value, JsonGenerator gen, SerializerProvider provider,
             Object suppressableValue)
         throws JacksonException
     {
@@ -723,8 +727,11 @@ public class MapSerializer
      * Method called to serialize fields, when the value type is statically known,
      * so that value serializer is passed and does not need to be fetched from
      * provider.
+     *<p>
+     * NOTE: {@code public} because other similar methods are (no current known
+     * external usage).
      */
-    protected void serializeEntriesUsing(Map<?,?> value, JsonGenerator gen, SerializerProvider provider,
+    public void serializeEntriesUsing(Map<?,?> value, JsonGenerator gen, SerializerProvider provider,
             JsonSerializer<Object> ser)
         throws JacksonException
     {
@@ -762,8 +769,11 @@ public class MapSerializer
     /**
      * Helper method used when we have a JSON Filter to use for potentially
      * filtering out Map entries.
+     *<p>
+     * NOTE: {@code public} because other similar methods are (no current known
+     * external usage).
      */
-    protected void serializeFilteredEntries(Map<?,?> value, JsonGenerator gen, SerializerProvider provider,
+    public void serializeFilteredEntries(Map<?,?> value, JsonGenerator gen, SerializerProvider provider,
             PropertyFilter filter,
             Object suppressableValue)
         throws JacksonException
@@ -820,7 +830,12 @@ public class MapSerializer
         }
     }
 
-    protected void serializeTypedEntries(Map<?,?> value, JsonGenerator gen, SerializerProvider provider,
+    /**
+     *<p>
+     * NOTE: {@code public} because other similar methods are (no current known
+     * external usage).
+     */
+    public void serializeTypedEntries(Map<?,?> value, JsonGenerator gen, SerializerProvider provider,
             Object suppressableValue)
         throws JacksonException
     {

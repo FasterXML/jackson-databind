@@ -1168,3 +1168,9 @@ Lucian H (symposion@github)
   * Reported, suggested fix for #2944: `@JsonCreator` on constructor not compatible
     with `@JsonIdentityInfo`, `PropertyGenerator`
   (2.11.4)
+
+Gian Merlino (gianm@github)
+#3022: Property ignorals cause `BeanDeserializer `to forget how to read
+   from arrays (not copying `_arrayDelegateDeserializer`)
+  (2.11.5 / 2.12.2)
+ 

@@ -4,6 +4,12 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+(not yet released)
+
+#3022: Property ignorals cause `BeanDeserializer `to forget how to read
+  from arrays (not copying `_arrayDelegateDeserializer`)
+ (reported by Gian M)
+
 2.11.4 (12-Dec-2020)
 
 #2894: Fix type resolution for static methods (regression in 2.11.3 due to #2821 fix)

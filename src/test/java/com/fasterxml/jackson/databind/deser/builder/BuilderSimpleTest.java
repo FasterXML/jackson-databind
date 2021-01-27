@@ -299,8 +299,8 @@ public class BuilderSimpleTest extends BaseMapTest
     @JsonDeserialize(builder = ValidatingValue.Builder.class)
     static class ValidatingValue
     {
-        private final String first;
-        private final String second;
+        final String first;
+        final String second;
 
         ValidatingValue(String first, String second) {
             this.first = first;
@@ -309,6 +309,8 @@ public class BuilderSimpleTest extends BaseMapTest
 
         static class ValidationException extends RuntimeException
         {
+            private static final long serialVersionUID = 1L;
+
             ValidationException(String message) {
                 super(message);
             }

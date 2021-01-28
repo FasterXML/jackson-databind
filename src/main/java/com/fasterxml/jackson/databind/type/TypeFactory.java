@@ -1135,8 +1135,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
     }
 
     /**
-     * @since 2.5 -- but will probably deprecated in 2.7 or 2.8 (not needed with 2.7)
-     *
+     * @since 2.5
      * @deprecated since 2.9 Use {@link #constructParametricType(Class,JavaType...)} instead
      */
     @Deprecated
@@ -1147,8 +1146,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
     }
 
     /**
-     * @since 2.5 -- but will probably deprecated in 2.7 or 2.8 (not needed with 2.7)
-     *
+     * @since 2.5
      * @deprecated since 2.9 Use {@link #constructParametricType(Class,Class...)} instead
      */
     @Deprecated

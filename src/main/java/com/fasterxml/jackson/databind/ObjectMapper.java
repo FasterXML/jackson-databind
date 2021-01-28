@@ -2350,13 +2350,6 @@ public class ObjectMapper
 
     @Override
     public JsonFactory getFactory() { return _jsonFactory; }
-    
-    /**
-     * @deprecated Since 2.1: Use {@link #getFactory} instead
-     */
-    @Deprecated
-    @Override
-    public JsonFactory getJsonFactory() { return getFactory(); }
 
     /**
      * Method for configuring the default {@link DateFormat} to use when serializing time
@@ -2737,7 +2730,7 @@ public class ObjectMapper
     /**
      * Convenience method, equivalent to:
      *<pre>
-     *  getJsonFactory().isEnabled(f);
+     *  getFactory().isEnabled(f);
      *</pre>
      */
     public boolean isEnabled(JsonFactory.Feature f) {

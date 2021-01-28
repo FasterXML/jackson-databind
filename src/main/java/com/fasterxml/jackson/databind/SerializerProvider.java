@@ -77,13 +77,13 @@ public abstract class SerializerProvider
     /**
      * Serialization configuration to use for serialization processing.
      */
-    final protected SerializationConfig _config;
+    protected final SerializationConfig _config;
 
     /**
      * View used for currently active serialization, if any.
      * Only set for non-blueprint instances.
      */
-    final protected Class<?> _serializationView;
+    protected final Class<?> _serializationView;
     
     /*
     /**********************************************************
@@ -95,7 +95,7 @@ public abstract class SerializerProvider
      * Factory used for constructing actual serializer instances.
      * Only set for non-blueprint instances.
      */
-    final protected SerializerFactory _serializerFactory;
+    protected final SerializerFactory _serializerFactory;
 
     /*
     /**********************************************************
@@ -106,7 +106,7 @@ public abstract class SerializerProvider
     /**
      * Cache for doing type-to-value-serializer lookups.
      */
-    final protected SerializerCache _serializerCache;
+    protected final SerializerCache _serializerCache;
 
     /**
      * Lazily-constructed holder for per-call attributes.
@@ -346,12 +346,6 @@ public abstract class SerializerProvider
 
     @Override
     public final Class<?> getActiveView() { return _serializationView; }
-    
-    /**
-     * @deprecated Since 2.2, use {@link #getActiveView} instead.
-     */
-    @Deprecated
-    public final Class<?> getSerializationView() { return _serializationView; }
 
     @Override
     public final boolean canOverrideAccessModifiers() {

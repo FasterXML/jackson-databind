@@ -19,15 +19,10 @@ import com.fasterxml.jackson.databind.*;
  * ones; but not significantly less efficient for larger), highly efficient
  * for linear iteration and appending. Implemented as segmented/chunked
  * linked list of tokens; only modifications are via appends.
- *<p>
- * Note that before version 2.0, this class was located in the "core"
- * bundle, not data-binding; but since it was only used by data binding,
- * was moved here to reduce size of core package
  */
 public class TokenBuffer
-/* Won't use JsonGeneratorBase, to minimize overhead for validity
- * checking
- */
+// Won't use JsonGeneratorBase, to minimize overhead for validity
+// checking
     extends JsonGenerator
 {
     protected final static int DEFAULT_GENERATOR_FEATURES = JsonGenerator.Feature.collectDefaults();
@@ -595,6 +590,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         return _generatorFeatures;
     }
 
+    // Note: cannot be removed until deprecated method removed from base class
     @Override
     @Deprecated
     public JsonGenerator setFeatureMask(int mask) {

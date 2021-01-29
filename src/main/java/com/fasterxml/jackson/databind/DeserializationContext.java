@@ -387,7 +387,7 @@ public abstract class DeserializationContext
 
     /*
     /**********************************************************************
-    /* Public API, config setting accessors
+    /* Public API, config feature accessors
     /**********************************************************************
      */
 
@@ -426,16 +426,6 @@ public abstract class DeserializationContext
     }
 
     /**
-     * Method for accessing the currently active parser.
-     * May be different from the outermost parser
-     * when content is buffered.
-     *<p>
-     * Use of this method is discouraged: if code has direct access
-     * to the active parser, that should be used instead.
-     */
-    public final JsonParser getParser() { return _parser; }
-
-    /**
      * Accessor for checking whether input format has specified capability
      * or not.
      *
@@ -445,6 +435,22 @@ public abstract class DeserializationContext
         return _readCapabilities.isEnabled(cap);
     }
 
+    /*
+    /**********************************************************************
+    /* Public API, accessor for helper objects
+    /**********************************************************************
+     */
+
+    /**
+     * Method for accessing the currently active parser.
+     * May be different from the outermost parser
+     * when content is buffered.
+     *<p>
+     * Use of this method is discouraged: if code has direct access
+     * to the active parser, that should be used instead.
+     */
+    public final JsonParser getParser() { return _parser; }
+    
     public final Object findInjectableValue(Object valueId,
             BeanProperty forProperty, Object beanInstance)
     {
@@ -543,7 +549,7 @@ public abstract class DeserializationContext
 
     /*
     /**********************************************************************
-    /* Public API, CoercionConfig access (2.12+)
+    /* Public API, CoercionConfig access
     /**********************************************************************
      */
 

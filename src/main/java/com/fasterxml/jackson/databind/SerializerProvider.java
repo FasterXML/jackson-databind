@@ -13,7 +13,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.tree.ArrayTreeNode;
 import com.fasterxml.jackson.core.tree.ObjectTreeNode;
-
+import com.fasterxml.jackson.core.util.JacksonFeatureSet;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.cfg.GeneratorSettings;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
@@ -87,6 +87,13 @@ public abstract class SerializerProvider
      * @since 3.0
      */
     protected transient JsonGenerator _generator;
+
+    /**
+     * Capabilities of the output format.
+     *
+     * @since 3.0
+     */
+    protected JacksonFeatureSet<StreamWriteCapability> _writeCapabilities;
 
     /**
      * View used for currently active serialization, if any.
@@ -415,7 +422,7 @@ public abstract class SerializerProvider
 
     /*
     /**********************************************************************
-    /* Access to general configuration
+    /* Access to other on/off features
     /**********************************************************************
      */
 
@@ -438,6 +445,22 @@ public abstract class SerializerProvider
     public final boolean hasSerializationFeatures(int featureMask) {
         return _config.hasSerializationFeatures(featureMask);
     }
+
+    /**
+     * Accessor for checking whether input format has specified capability
+     * or not.
+     *
+     * @return True if input format has specified capability; false if not
+     */
+    public final boolean isEnabled(StreamWriteCapability cap) {
+        return _writeCapabilities.isEnabled(cap);
+    }
+
+    /*
+    /**********************************************************************
+    /* Access to other helper objects
+    /**********************************************************************
+     */
     
     /**
      * Convenience method for accessing provider to find serialization filters used,

@@ -220,7 +220,7 @@ filter.getClass().getName(), t.getClass().getName(), ClassUtil.exceptionMessage(
      */
     public void serializeValue(JsonGenerator gen, Object value) throws JacksonException
     {
-        _generator = gen;
+        _assignGenerator(gen);
         if (value == null) {
             _serializeNull(gen);
             return;
@@ -254,7 +254,7 @@ filter.getClass().getName(), t.getClass().getName(), ClassUtil.exceptionMessage(
      */
     public void serializeValue(JsonGenerator gen, Object value, JavaType rootType) throws JacksonException
     {
-        _generator = gen;
+        _assignGenerator(gen);
         if (value == null) {
             _serializeNull(gen);
             return;
@@ -291,7 +291,7 @@ filter.getClass().getName(), t.getClass().getName(), ClassUtil.exceptionMessage(
     public void serializeValue(JsonGenerator gen, Object value, JavaType rootType,
             JsonSerializer<Object> ser) throws JacksonException
     {
-        _generator = gen;
+        _assignGenerator(gen);
         if (value == null) {
             _serializeNull(gen);
             return;
@@ -328,7 +328,7 @@ filter.getClass().getName(), t.getClass().getName(), ClassUtil.exceptionMessage(
             JsonSerializer<Object> valueSer, TypeSerializer typeSer)
         throws JacksonException
     {
-        _generator = gen;
+        _assignGenerator(gen);
         if (value == null) {
             _serializeNull(gen);
             return;
@@ -420,6 +420,17 @@ filter.getClass().getName(), t.getClass().getName(), ClassUtil.exceptionMessage(
         // type information it needs is accessible via "untyped" serializer)
         visitor.setProvider(this);
         findRootValueSerializer(javaType).acceptJsonFormatVisitor(visitor, javaType);
+    }
+
+    /*
+    /**********************************************************************
+    /* Other helper methods
+    /**********************************************************************
+     */
+
+    private void _assignGenerator(JsonGenerator g) {
+        _generator = g;
+        _writeCapabilities = g.streamWriteCapabilities();
     }
 
     /*

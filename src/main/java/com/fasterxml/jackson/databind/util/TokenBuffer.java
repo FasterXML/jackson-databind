@@ -654,14 +654,6 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     /* JsonGenerator implementation: capability introspection
     /**********************************************************************
      */
-    
-    /**
-     * Since we can efficiently store <code>byte[]</code>, yes.
-     */
-    @Override
-    public boolean canWriteBinaryNatively() {
-        return true;
-    }
 
     // 20-May-2020, tatu: This may or may not be enough -- ideally access is
     //    via `DeserializationContext`, not parser, but if latter is needed

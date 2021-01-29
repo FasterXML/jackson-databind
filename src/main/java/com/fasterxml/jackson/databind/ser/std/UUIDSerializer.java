@@ -4,13 +4,14 @@ import java.util.Objects;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.StreamWriteCapability;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonValueFormat;
-import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
  * Specialized {@link JsonSerializer} to output {@link java.util.UUID}s.
@@ -73,11 +74,11 @@ public class UUIDSerializer
     }
 
     @Override
-    public void serialize(UUID value, JsonGenerator gen, SerializerProvider provider)
+    public void serialize(UUID value, JsonGenerator gen, SerializerProvider ctxt)
         throws JacksonException
     {
         // First: perhaps we could serialize it as raw binary data?
-        if (_writeAsBinary(gen)) {
+        if (_writeAsBinary(ctxt)) {
             gen.writeBinary(_asBytes(value));
             return;
         }
@@ -104,7 +105,7 @@ public class UUIDSerializer
         gen.writeString(ch, 0, 36);
     }
 
-    protected boolean _writeAsBinary(JsonGenerator g)
+    protected boolean _writeAsBinary(SerializerProvider ctxt)
     {
         if (_asBinary != null) {
             return _asBinary;
@@ -113,9 +114,10 @@ public class UUIDSerializer
         //   technically retain binary data, we do not want to do use binary
         //   with it, as that results in UUIDs getting converted to Base64 for
         //   most conversions.
-        return !(g instanceof TokenBuffer) && g.canWriteBinaryNatively();
+        // 28-Jan-2021, tatu: [databind#3028] Use capability detection instead
+//        return !(g instanceof TokenBuffer) && g.canWriteBinaryNatively();
+        return ctxt.isEnabled(StreamWriteCapability.CAN_WRITE_BINARY_NATIVELY);
     }
-
 
     // Need to add bit of extra info, format
     @Override

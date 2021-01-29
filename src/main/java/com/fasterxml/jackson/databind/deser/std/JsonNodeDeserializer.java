@@ -485,6 +485,9 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
 
         while (true) {
             JsonToken t = p.nextToken();
+            if (t == null) {
+                t = JsonToken.NOT_AVAILABLE;
+            }
             switch (t.id()) {
             case JsonTokenId.ID_START_OBJECT:
                 node.add(deserializeObject(p, ctxt, nodeFactory));
@@ -515,6 +518,9 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             }
 
             t = p.nextToken();
+            if (t == null) {
+                t = JsonToken.NOT_AVAILABLE;
+            }
             switch (t.id()) {
             case JsonTokenId.ID_START_OBJECT:
                 node.add(deserializeObject(p, ctxt, nodeFactory));
@@ -556,6 +562,9 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
         final JsonNodeFactory nodeFactory = ctxt.getNodeFactory();
         while (true) {
             JsonToken t = p.nextToken();
+            if (t == null) {
+                t = JsonToken.NOT_AVAILABLE;
+            }
             switch (t.id()) {
             case JsonTokenId.ID_START_OBJECT:
                 node.add(deserializeObject(p, ctxt, nodeFactory));

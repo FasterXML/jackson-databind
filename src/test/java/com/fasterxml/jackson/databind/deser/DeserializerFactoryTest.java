@@ -94,8 +94,7 @@ public class DeserializerFactoryTest extends BaseMapTest
 
     private boolean _verifyDeserExistence(Class<?> rawType) {
         DeserializationContext ctxt = MAPPER.deserializationContext();
-        DeserializerFactory factory = ctxt.getFactory();
 
-        return factory.hasExplicitDeserializerFor(ctxt, rawType);
+        return ctxt.hasExplicitDeserializerFor(rawType);
     }
 }

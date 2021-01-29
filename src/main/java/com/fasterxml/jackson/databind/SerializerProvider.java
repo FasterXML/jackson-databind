@@ -66,20 +66,20 @@ public abstract class SerializerProvider
     /**
      * Serialization configuration to use for serialization processing.
      */
-    final protected SerializationConfig _config;
+    protected final SerializationConfig _config;
 
     /**
      * Configuration to be used by streaming generator when it is constructed.
      *
      * @since 3.0
      */
-    final protected GeneratorSettings _generatorConfig;
+    protected final GeneratorSettings _generatorConfig;
 
     /**
      * Low-level {@link TokenStreamFactory} that may be used for constructing
      * embedded generators.
      */
-    final protected TokenStreamFactory _streamFactory;
+    protected final TokenStreamFactory _streamFactory;
 
     /**
      * Token stream generator actively used; only set for per-call instances
@@ -91,7 +91,7 @@ public abstract class SerializerProvider
     /**
      * View used for currently active serialization, if any.
      */
-    final protected Class<?> _activeView;
+    protected final Class<?> _activeView;
 
     /*
     /**********************************************************************
@@ -103,18 +103,18 @@ public abstract class SerializerProvider
      * Factory used for constructing actual serializer instances.
      * Only set for non-blueprint instances.
      */
-    final protected SerializerFactory _serializerFactory;
+    protected final SerializerFactory _serializerFactory;
     
     /**
      * Serializer used to output a null value. Default implementation
      * writes nulls using {@link JsonGenerator#writeNull}.
      */
-    final protected JsonSerializer<Object> _nullValueSerializer;
+    protected final JsonSerializer<Object> _nullValueSerializer;
 
     /**
      * Flag set to indicate that we are using vanilla null value serialization
      */
-    final protected boolean _stdNullValueSerializer;
+    protected final boolean _stdNullValueSerializer;
     
     /*
     /**********************************************************************
@@ -125,13 +125,13 @@ public abstract class SerializerProvider
     /**
      * Cache for doing type-to-value-serializer lookups.
      */
-    final protected SerializerCache _serializerCache;
+    protected final SerializerCache _serializerCache;
     
     /**
      * For fast lookups, we will have a local non-shared read-only
      * map that contains serializers previously fetched.
      */
-    final protected ReadOnlyClassToSerializerMap _knownSerializers;
+    protected final ReadOnlyClassToSerializerMap _knownSerializers;
 
     /**
      * Lazily acquired and instantiated formatter object: initialized

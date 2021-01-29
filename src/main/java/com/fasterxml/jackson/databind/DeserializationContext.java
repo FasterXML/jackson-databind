@@ -392,13 +392,6 @@ public abstract class DeserializationContext
      */
 
     /**
-     * Method for getting current {@link DeserializerFactory}.
-     */
-    public DeserializerFactory getFactory() {
-        return _factory;
-    }
-
-    /**
      * Convenience method for checking whether specified on/off
      * feature is enabled
      */

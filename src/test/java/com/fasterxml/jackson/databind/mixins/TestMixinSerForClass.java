@@ -6,6 +6,7 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 public class TestMixinSerForClass
     extends BaseMapTest
@@ -61,24 +62,36 @@ public class TestMixinSerForClass
         static final String FILTER_NAME = "PortletRenderExecutionEventFilter";
     }
 
+    // [databind#3035]
+    static class Bean3035 {
+        public int getA() { return 42; }
+    }
+
+    static class Rename3035Mixin extends Bean3035 {
+        @JsonProperty("b")
+        @Override
+        public int getA() { return super.getA(); }
+    }
+
     /*
-    /**********************************************************
-    /( Unit tests
-    /**********************************************************
+    /**********************************************************************
+    /* Test methods
+    /**********************************************************************
      */
 
+    private final ObjectMapper MAPPER = newJsonMapper();
+    
     public void testClassMixInsTopLevel() throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper();
         Map<String,Object> result;
 
         // first: with no mix-ins:
-        result = writeAndMap(mapper, new LeafClass("abc"));
+        result = writeAndMap(MAPPER, new LeafClass("abc"));
         assertEquals(1, result.size());
         assertEquals("abc", result.get("a"));
 
         // then with top-level override
-        mapper = jsonMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addMixIn(LeafClass.class, MixIn.class)
                 .build();
         result = writeAndMap(mapper, new LeafClass("abc"));
@@ -97,23 +110,44 @@ public class TestMixinSerForClass
 
     public void testClassMixInsMidLevel() throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper();
         Map<String,Object> result;
         LeafClass bean = new LeafClass("xyz");
         bean._c = "c2";
 
         // with no mix-ins first...
-        result = writeAndMap(mapper, bean);
+        result = writeAndMap(MAPPER, bean);
         assertEquals(2, result.size());
         assertEquals("xyz", result.get("a"));
         assertEquals("c2", result.get("c"));
 
         // then with working mid-level override, which effectively suppresses 'a'
-        mapper = jsonMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addMixIn(BaseClass.class, MixInAutoDetect.class)
                 .build();
         result = writeAndMap(mapper, bean);
         assertEquals(1, result.size());
         assertEquals("c2", result.get("c"));
+    }
+
+    // [databind#3035]: ability to remove mix-ins:
+    public void testClassMixInRemoval() throws Exception
+    {
+        // First, no mix-in
+        assertEquals(a2q("{'a':42}"), MAPPER.writeValueAsString(new Bean3035()));
+
+        // then with mix-in
+        assertEquals(a2q("{'b':42}"),
+                JsonMapper.builder()
+                    .addMixIn(Bean3035.class, Rename3035Mixin.class)
+                    .build()
+                    .writeValueAsString(new Bean3035()));
+
+        // and then with a convoluted example to verify removal can work:
+        assertEquals(a2q("{'a':42}"),
+                JsonMapper.builder()
+                    .addMixIn(Bean3035.class, Rename3035Mixin.class)
+                    .removeMixIn(Bean3035.class)
+                    .build()
+                    .writeValueAsString(new Bean3035()));
     }
 }

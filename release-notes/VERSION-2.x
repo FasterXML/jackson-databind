@@ -6,6 +6,11 @@ Project: jackson-databind
 
 (3.0.x and later changes not included here)
 
+2.13.0 (not yet released)
+
+#2828: Add `DatabindException` as intermediate subtype of `JsonMappingException`
+#3035: Add `removeMixIn()` method in `MapperBuilder`
+
 2.12.2 (not yet released)
 
 #3022: Property ignorals cause `BeanDeserializer `to forget how to read

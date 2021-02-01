@@ -1331,7 +1331,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     /*
     /**********************************************************************
-    /* Adding Mix-ins
+    /* Configuring Mix-ins
     /**********************************************************************
      */
 
@@ -1354,7 +1354,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _mixInHandler = mixInHandler().withOverrides(r);
         return _this();
     }
-    
+
     /**
      * Method to use for defining mix-in annotations to use for augmenting
      * annotations that processable (serializable / deserializable)
@@ -1381,10 +1381,35 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * source class per target, so if there was a previous mix-in defined target it will
      * be cleared. This also means that you can remove mix-in definition by specifying
      * {@code mixinSource} of {@code null}
+     * (although preferred mechanism is {@link #removeMixIn})
+     *
+     * @param target Target class on which to add annotations
+     * @param mixinSource Class that has annotations to add
+     *
+     * @return This builder instance to allow call chaining
      */
     public B addMixIn(Class<?> target, Class<?> mixinSource)
     {
         mixInHandler().addLocalDefinition(target, mixinSource);
+        return _this();
+    }
+
+    /**
+     * Method that allows making sure that specified {@code target} class
+     * does not have associated mix-in annotations: basically can be used
+     * to undo an earlier call to {@link #addMixIn}.
+     *<p>
+     * NOTE: removing mix-ins for given class does not try to remove possible
+     * mix-ins for any of its super classes and super interfaces; only direct
+     * mix-in addition, if any, is removed.
+     *
+     * @param target Target class for which no mix-ins should remain after call
+     *
+     * @return This builder instance to allow call chaining
+     */
+    public B removeMixIn(Class<?> target)
+    {
+        mixInHandler().addLocalDefinition(target, null);
         return _this();
     }
 

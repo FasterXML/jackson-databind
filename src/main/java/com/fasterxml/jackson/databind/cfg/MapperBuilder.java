@@ -238,6 +238,9 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     /**********************************************************************
      */
 
+    // NOTE: can not add this in 2.x (since Modules get immediately registered)
+//    public B removeAllModules()
+
     public B addModule(com.fasterxml.jackson.databind.Module module)
     {
         _mapper.registerModule(module);
@@ -599,7 +602,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     /*
     /**********************************************************************
-    /* Adding Mix-ins
+    /* Configuring Mix-ins
     /**********************************************************************
      */
 
@@ -616,10 +619,37 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * source class per target, so if there was a previous mix-in defined target it will
      * be cleared. This also means that you can remove mix-in definition by specifying
      * {@code mixinSource} of {@code null}
+     * (although preferred mechanism is {@link #removeMixIn})
+     *
+     * @param target Target class on which to add annotations
+     * @param mixinSource Class that has annotations to add
+     *
+     * @return This builder instance to allow call chaining
      */
     public B addMixIn(Class<?> target, Class<?> mixinSource)
     {
         _mapper.addMixIn(target, mixinSource);
+        return _this();
+    }
+
+    /**
+     * Method that allows making sure that specified {@code target} class
+     * does not have associated mix-in annotations: basically can be used
+     * to undo an earlier call to {@link #addMixIn}.
+     *<p>
+     * NOTE: removing mix-ins for given class does not try to remove possible
+     * mix-ins for any of its super classes and super interfaces; only direct
+     * mix-in addition, if any, is removed.
+     *
+     * @param target Target class for which no mix-ins should remain after call
+     *
+     * @return This builder instance to allow call chaining
+     *
+     * @since 2.13
+     */
+    public B removeMixIn(Class<?> target)
+    {
+        _mapper.addMixIn(target, null);
         return _this();
     }
 

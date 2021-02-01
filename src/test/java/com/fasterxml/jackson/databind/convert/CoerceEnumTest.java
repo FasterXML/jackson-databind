@@ -202,11 +202,14 @@ public class CoerceEnumTest extends BaseMapTest
         assertEquals(ENUM_DEFAULT, b);
 
         // But also make fail again with 2-level settings
-        mapper = newJsonMapper();
-        mapper.coercionConfigDefaults().setCoercion(shape, CoercionAction.AsNull)
-            .setAcceptBlankAsEmpty(allowEmpty);
-        mapper.coercionConfigFor(LogicalType.Enum).setCoercion(shape,
-                CoercionAction.Fail);
+        mapper = jsonMapperBuilder()
+                .withCoercionConfigDefaults(h -> {
+                    h.setCoercion(shape, CoercionAction.AsNull)
+                        .setAcceptBlankAsEmpty(allowEmpty);
+                })
+                .withCoercionConfig(LogicalType.Enum,
+                        h -> h.setCoercion(shape, CoercionAction.Fail))
+                .build();
         _verifyFromEmptyFail(mapper, json);
     }
 
@@ -232,10 +235,15 @@ public class CoerceEnumTest extends BaseMapTest
         assertEquals(ENUM_DEFAULT, b);
 
         // But also make fail again with 2-level settings, with physical having precedence
-        mapper = newJsonMapper();
-        mapper.coercionConfigFor(LogicalType.Enum).setCoercion(shape, CoercionAction.AsEmpty)
-            .setAcceptBlankAsEmpty(allowEmpty);
-        mapper.coercionConfigFor(EnumCoerce.class).setCoercion(shape, CoercionAction.Fail);
+        mapper = jsonMapperBuilder()
+                .withCoercionConfig(LogicalType.Enum,
+                        h -> h.setCoercion(shape, CoercionAction.AsEmpty)
+                            .setAcceptBlankAsEmpty(allowEmpty)
+                )
+                .withCoercionConfig(EnumCoerce.class,
+                        h -> h.setCoercion(shape, CoercionAction.Fail)
+                )
+                .build();
         _verifyFromEmptyFail(mapper, json);
     }
 
@@ -248,28 +256,34 @@ public class CoerceEnumTest extends BaseMapTest
     private ObjectMapper _globMapper(CoercionInputShape shape, CoercionAction act,
             Boolean allowEmpty)
     {
-        ObjectMapper mapper = newJsonMapper();
-        mapper.coercionConfigDefaults().setCoercion(shape, act)
-            .setAcceptBlankAsEmpty(allowEmpty);
-        return mapper;
+        return jsonMapperBuilder()
+                .withCoercionConfigDefaults(h -> {
+                    h.setCoercion(shape, act)
+                        .setAcceptBlankAsEmpty(allowEmpty);
+                })
+                .build();
     }
 
     private ObjectMapper _logMapper(LogicalType type, CoercionInputShape shape, CoercionAction act,
             Boolean allowEmpty)
     {
-        ObjectMapper mapper = newJsonMapper();
-        mapper.coercionConfigFor(type).setCoercion(shape, act)
-            .setAcceptBlankAsEmpty(allowEmpty);
-        return mapper;
+        return jsonMapperBuilder()
+                .withCoercionConfig(type,
+                        h -> h.setCoercion(shape, act)
+                            .setAcceptBlankAsEmpty(allowEmpty)
+                )
+                .build();
     }
 
     private ObjectMapper _physMapper(Class<?> type, CoercionInputShape shape, CoercionAction act,
             Boolean allowEmpty)
     {
-        ObjectMapper mapper = newJsonMapper();
-        mapper.coercionConfigFor(type).setCoercion(shape, act)
-            .setAcceptBlankAsEmpty(allowEmpty);
-        return mapper;
+        return jsonMapperBuilder()
+                .withCoercionConfig(type,
+                        h -> h.setCoercion(shape, act)
+                            .setAcceptBlankAsEmpty(allowEmpty)
+                )
+                .build();
     }
 
     /*

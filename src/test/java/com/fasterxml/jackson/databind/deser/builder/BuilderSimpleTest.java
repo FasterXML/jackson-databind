@@ -331,9 +331,10 @@ public class BuilderSimpleTest extends BaseMapTest
         }
 
         // but with config overrides should pass
-        ObjectMapper ignorantMapper = new ObjectMapper();
-        ignorantMapper.configOverride(SimpleBuilderXY.class)
-                .setIgnorals(JsonIgnoreProperties.Value.forIgnoreUnknown(true));
+        ObjectMapper ignorantMapper = jsonMapperBuilder()
+                .withConfigOverride(SimpleBuilderXY.class,
+                        override -> override.setIgnorals(JsonIgnoreProperties.Value.forIgnoreUnknown(true)))
+                .build();
         o = ignorantMapper.readValue(json, ValueClassXY.class);
         assertNotNull(o);
         assertSame(ValueClassXY.class, o.getClass());

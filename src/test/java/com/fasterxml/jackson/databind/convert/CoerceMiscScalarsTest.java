@@ -26,40 +26,32 @@ public class CoerceMiscScalarsTest extends BaseMapTest
 {
     private final ObjectMapper DEFAULT_MAPPER = sharedMapper();
 
-    private final ObjectMapper MAPPER_EMPTY_TO_EMPTY;
-    {
-        MAPPER_EMPTY_TO_EMPTY = newJsonMapper();
-        MAPPER_EMPTY_TO_EMPTY.coercionConfigDefaults()
-            .setCoercion(CoercionInputShape.EmptyString, CoercionAction.AsEmpty);
-    }
+    private final ObjectMapper MAPPER_EMPTY_TO_EMPTY = jsonMapperBuilder()
+            .withCoercionConfigDefaults(cfg ->
+                cfg.setCoercion(CoercionInputShape.EmptyString, CoercionAction.AsEmpty))
+            .build();
 
-    private final ObjectMapper MAPPER_EMPTY_TO_TRY_CONVERT;
-    {
-        MAPPER_EMPTY_TO_TRY_CONVERT = newJsonMapper();
-        MAPPER_EMPTY_TO_TRY_CONVERT.coercionConfigDefaults()
-            .setCoercion(CoercionInputShape.EmptyString, CoercionAction.TryConvert);
-    }
-    
-    private final ObjectMapper MAPPER_EMPTY_TO_NULL;
-    {
-        MAPPER_EMPTY_TO_NULL = newJsonMapper();
-        MAPPER_EMPTY_TO_NULL.coercionConfigDefaults()
-            .setCoercion(CoercionInputShape.EmptyString, CoercionAction.AsNull);
-    }
+    private final ObjectMapper MAPPER_EMPTY_TO_TRY_CONVERT = jsonMapperBuilder()
+            .withCoercionConfigDefaults(cfg ->
+                cfg.setCoercion(CoercionInputShape.EmptyString, CoercionAction.TryConvert))
+            .build();
 
-    private final ObjectMapper MAPPER_EMPTY_TO_FAIL;
-    {
-        MAPPER_EMPTY_TO_FAIL = newJsonMapper();
-        MAPPER_EMPTY_TO_FAIL.coercionConfigDefaults()
-            .setCoercion(CoercionInputShape.EmptyString, CoercionAction.Fail);
-    }
+    private final ObjectMapper MAPPER_EMPTY_TO_NULL = jsonMapperBuilder()
+            .withCoercionConfigDefaults(cfg ->
+                cfg.setCoercion(CoercionInputShape.EmptyString, CoercionAction.AsNull))
+            .build();
+
+    private final ObjectMapper MAPPER_EMPTY_TO_FAIL = jsonMapperBuilder()
+            .withCoercionConfigDefaults(cfg ->
+                cfg.setCoercion(CoercionInputShape.EmptyString, CoercionAction.Fail))
+            .build();
 
     private final String JSON_EMPTY = quote("");
 
     /*
-    /********************************************************
+    /**********************************************************************
     /* Test methods, defaults (legacy)
-    /********************************************************
+    /**********************************************************************
      */
 
     public void testScalarDefaultsFromEmpty() throws Exception
@@ -87,9 +79,9 @@ public class CoerceMiscScalarsTest extends BaseMapTest
     }
 
     /*
-    /********************************************************
+    /**********************************************************************
     /* Test methods, successful coercions from empty String
-    /********************************************************
+    /**********************************************************************
      */
 
     public void testScalarEmptyToNull() throws Exception
@@ -154,9 +146,9 @@ public class CoerceMiscScalarsTest extends BaseMapTest
     }
 
     /*
-    /********************************************************
+    /**********************************************************************
     /* Test methods, failed coercions from empty String
-    /********************************************************
+    /**********************************************************************
      */
 
     public void testScalarsFailFromEmpty() throws Exception
@@ -199,9 +191,10 @@ public class CoerceMiscScalarsTest extends BaseMapTest
         _verifyScalarToFail(MAPPER_EMPTY_TO_FAIL, UUID.class);
 
         // and allow failure with specifically configured per-class override, too
-        ObjectMapper failMapper = newJsonMapper();
-        failMapper.coercionConfigFor(UUID.class)
-            .setCoercion(CoercionInputShape.EmptyString, CoercionAction.Fail);
+        ObjectMapper failMapper = jsonMapperBuilder()
+                .withCoercionConfig(UUID.class, cfg ->
+                cfg.setCoercion(CoercionInputShape.EmptyString, CoercionAction.Fail))
+            .build();
         _verifyScalarToFail(failMapper, UUID.class);
     }
 
@@ -247,9 +240,9 @@ public class CoerceMiscScalarsTest extends BaseMapTest
     }
 
     /*
-    /********************************************************
+    /**********************************************************************
     /* Second-level test helper methods
-    /********************************************************
+    /**********************************************************************
      */
 
     private void _testScalarEmptyToNull(ObjectMapper mapper, Class<?> target) throws Exception

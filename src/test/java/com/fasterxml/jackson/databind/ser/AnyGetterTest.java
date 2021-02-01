@@ -304,11 +304,11 @@ public class AnyGetterTest extends BaseMapTest
     // [databind#2592]
     public void testAnyGetterConfigIncludeNonEmpty() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configOverride(Map.class).setInclude(JsonInclude.Value.construct(
-                JsonInclude.Include.USE_DEFAULTS,
-                JsonInclude.Include.NON_EMPTY
-        ));
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .withConfigOverride(Map.class, incl -> incl.setInclude(
+                    JsonInclude.Value.construct(JsonInclude.Include.USE_DEFAULTS,
+                    JsonInclude.Include.NON_EMPTY)))
+                .build();
         Bean2592NoAnnotations input = new Bean2592NoAnnotations();
         input.add("non-empty", "property");
         input.add("empty", "");

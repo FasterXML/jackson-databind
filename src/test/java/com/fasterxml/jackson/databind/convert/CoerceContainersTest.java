@@ -14,10 +14,10 @@ public class CoerceContainersTest extends BaseMapTest
 
     private final ObjectMapper VANILLA_MAPPER = sharedMapper();
 
-    private final ObjectMapper COERCING_MAPPER = newJsonMapper();
-    {
-        COERCING_MAPPER.coercionConfigDefaults().setCoercion(CoercionInputShape.EmptyString, CoercionAction.AsEmpty);
-    }
+    private final ObjectMapper COERCING_MAPPER = jsonMapperBuilder()
+            .withCoercionConfigDefaults(cfg -> 
+                cfg.setCoercion(CoercionInputShape.EmptyString, CoercionAction.AsEmpty))
+            .build();
 
     /*
     /********************************************************

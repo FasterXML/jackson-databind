@@ -73,9 +73,11 @@ public class UUIDSerializationTest extends BaseMapTest
                 MAPPER.writeValueAsString(new UUIDWrapperVanilla(nullUUID)));
         
         // but can also override by type
-        ObjectMapper m = newJsonMapper();
-        m.configOverride(UUID.class)
-            .setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.BINARY));
+        final ObjectMapper m = jsonMapperBuilder()
+                .withConfigOverride(UUID.class,
+                        cfg -> cfg.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.BINARY))
+                )
+                .build();
         assertEquals("{\"uuid\":\"AAAAAAAAAAAAAAAAAAAAAA==\"}",
                 m.writeValueAsString(new UUIDWrapperVanilla(nullUUID)));
     }

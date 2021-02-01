@@ -52,29 +52,25 @@ public class CoerceToBooleanTest extends BaseMapTest
             .disable(MapperFeature.ALLOW_COERCION_OF_SCALARS)
             .build();
 
-    private final ObjectMapper MAPPER_INT_TO_EMPTY; {
-        MAPPER_INT_TO_EMPTY = newJsonMapper();
-        MAPPER_INT_TO_EMPTY.coercionConfigFor(LogicalType.Boolean)
-            .setCoercion(CoercionInputShape.Integer, CoercionAction.AsEmpty);
-    }
+    private final ObjectMapper MAPPER_INT_TO_EMPTY = jsonMapperBuilder()
+            .withCoercionConfig(LogicalType.Boolean, cfg ->
+                cfg.setCoercion(CoercionInputShape.Integer, CoercionAction.AsEmpty))
+            .build();
 
-    private final ObjectMapper MAPPER_INT_TRY_CONVERT; {
-        MAPPER_INT_TRY_CONVERT = newJsonMapper();
-        MAPPER_INT_TRY_CONVERT.coercionConfigFor(LogicalType.Boolean)
-            .setCoercion(CoercionInputShape.Integer, CoercionAction.TryConvert);
-    }
+    private final ObjectMapper MAPPER_INT_TRY_CONVERT = jsonMapperBuilder()
+            .withCoercionConfig(LogicalType.Boolean, cfg ->
+                cfg.setCoercion(CoercionInputShape.Integer, CoercionAction.TryConvert))
+            .build();
 
-    private final ObjectMapper MAPPER_INT_TO_NULL; {
-        MAPPER_INT_TO_NULL = newJsonMapper();
-        MAPPER_INT_TO_NULL.coercionConfigFor(LogicalType.Boolean)
-            .setCoercion(CoercionInputShape.Integer, CoercionAction.AsNull);
-    }
+    private final ObjectMapper MAPPER_INT_TO_NULL = jsonMapperBuilder()
+            .withCoercionConfig(LogicalType.Boolean, cfg ->
+                cfg.setCoercion(CoercionInputShape.Integer, CoercionAction.AsNull))
+            .build();
 
-    private final ObjectMapper MAPPER_TO_FAIL; {
-        MAPPER_TO_FAIL = newJsonMapper();
-        MAPPER_TO_FAIL.coercionConfigFor(LogicalType.Boolean)
-            .setCoercion(CoercionInputShape.Integer, CoercionAction.Fail);
-    }
+    private final ObjectMapper MAPPER_TO_FAIL = jsonMapperBuilder()
+            .withCoercionConfig(LogicalType.Boolean, cfg ->
+                cfg.setCoercion(CoercionInputShape.Integer, CoercionAction.Fail))
+            .build();
 
     private final static String DOC_WITH_0 = aposToQuotes("{'value':0}");
     private final static String DOC_WITH_1 = aposToQuotes("{'value':1}");
@@ -170,7 +166,6 @@ public class CoerceToBooleanTest extends BaseMapTest
             verifyException(e, " to `");
             verifyException(e, "` value");
 
-            assertNotNull(e.getProcessor());
             assertSame(p, e.getProcessor());
 
             assertToken(JsonToken.VALUE_STRING, p.currentToken());

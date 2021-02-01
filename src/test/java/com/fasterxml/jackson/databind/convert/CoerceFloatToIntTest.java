@@ -18,29 +18,25 @@ public class CoerceFloatToIntTest extends BaseMapTest
     private final ObjectReader READER_LEGACY_FAIL = DEFAULT_MAPPER.reader()
             .without(DeserializationFeature.ACCEPT_FLOAT_AS_INT);
 
-    private final ObjectMapper MAPPER_TO_EMPTY; {
-        MAPPER_TO_EMPTY = newJsonMapper();
-        MAPPER_TO_EMPTY.coercionConfigFor(LogicalType.Integer)
-            .setCoercion(CoercionInputShape.Float, CoercionAction.AsEmpty);
-    }
+    private final ObjectMapper MAPPER_TO_EMPTY = jsonMapperBuilder()
+            .withCoercionConfig(LogicalType.Integer, cfg ->
+            cfg.setCoercion(CoercionInputShape.Float, CoercionAction.AsEmpty))
+        .build();
 
-    private final ObjectMapper MAPPER_TRY_CONVERT; {
-        MAPPER_TRY_CONVERT = newJsonMapper();
-        MAPPER_TRY_CONVERT.coercionConfigFor(LogicalType.Integer)
-            .setCoercion(CoercionInputShape.Float, CoercionAction.TryConvert);
-    }
+    private final ObjectMapper MAPPER_TRY_CONVERT = jsonMapperBuilder()
+            .withCoercionConfig(LogicalType.Integer, cfg ->
+            cfg.setCoercion(CoercionInputShape.Float, CoercionAction.TryConvert))
+        .build();
 
-    private final ObjectMapper MAPPER_TO_NULL; {
-        MAPPER_TO_NULL = newJsonMapper();
-        MAPPER_TO_NULL.coercionConfigFor(LogicalType.Integer)
-            .setCoercion(CoercionInputShape.Float, CoercionAction.AsNull);
-    }
+    private final ObjectMapper MAPPER_TO_NULL = jsonMapperBuilder()
+            .withCoercionConfig(LogicalType.Integer, cfg ->
+            cfg.setCoercion(CoercionInputShape.Float, CoercionAction.AsNull))
+        .build();
 
-    private final ObjectMapper MAPPER_TO_FAIL; {
-        MAPPER_TO_FAIL = newJsonMapper();
-        MAPPER_TO_FAIL.coercionConfigFor(LogicalType.Integer)
-            .setCoercion(CoercionInputShape.Float, CoercionAction.Fail);
-    }
+    private final ObjectMapper MAPPER_TO_FAIL = jsonMapperBuilder()
+            .withCoercionConfig(LogicalType.Integer, cfg ->
+            cfg.setCoercion(CoercionInputShape.Float, CoercionAction.Fail))
+        .build();
 
     /*
     /********************************************************

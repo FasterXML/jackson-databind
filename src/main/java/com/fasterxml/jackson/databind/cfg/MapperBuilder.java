@@ -924,6 +924,44 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     /*
     /**********************************************************************
+    /* Changing settings, config overrides
+    /**********************************************************************
+     */
+
+    /**
+     * Method for changing config overrides for specific type, through
+     * callback to specific handler.
+     *
+     * @param forType Type to change config overrides for
+     * @param handler Function to call with {@link MutableConfigOverride}
+     *
+     * @since 2.13
+     */
+    public B withConfigOverride(Class<?> forType,
+            Consumer<MutableConfigOverride> handler)
+    {
+        handler.accept(_mapper.configOverride(forType));
+        return _this();
+    }
+
+    // Not possible to support these in 2.x, yet (added in 3.0); would require
+    // access to "ConfigOverrides" that `ObjectMapper` holds
+
+// public B withAllConfigOverrides(Consumer<ConfigOverrides> handler)
+// public B changeDefaultVisibility(UnaryOperator<VisibilityChecker> handler)
+// public B changeDefaultPropertyInclusion(UnaryOperator<JsonInclude.Value> handler)
+// public B changeDefaultNullHandling(UnaryOperator<JsonSetter.Value> handler)
+// public B defaultMergeable(Boolean b)
+// public B defaultLeniency(Boolean b)
+
+    /*
+    /**********************************************************************
+    /* Changing settings, coercion config
+    /**********************************************************************
+     */
+    
+    /*
+    /**********************************************************************
     /* Module registration, discovery, access
     /**********************************************************************
      */

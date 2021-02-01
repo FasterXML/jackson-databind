@@ -12,6 +12,8 @@ Project: jackson-databind
 #3025: UntypedObjectDeserializer` mixes multiple unwrapped
   collections (related to #2733)
  (fix contributed by Migwel@github)
+#3038: Two cases of incorrect error reporting about DeserializationFeature
+ (reported by Jelle V)
 
 2.12.1 (08-Jan-2021)
 

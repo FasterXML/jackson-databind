@@ -1302,3 +1302,7 @@ Miguel G (Migwel@github)
   * Reported, contributed fix for #3025: UntypedObjectDeserializer` mixes multiple unwrapped
     collections (related to #2733)
    (2.12.2)
+
+Jelle Voost (jellevoost@github)
+  * Reported #3038: Two cases of incorrect error reporting about DeserializationFeature
+   (2.12.2)

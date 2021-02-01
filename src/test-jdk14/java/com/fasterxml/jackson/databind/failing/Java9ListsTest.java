@@ -23,8 +23,9 @@ public class Java9ListsTest extends BaseMapTest
 
          final List<String> list = Collections.unmodifiableList(Collections.singletonList("a"));
          final String actualJson = MAPPER.writeValueAsString(list);
-// System.out.println("Test/1: json="+actualJson);
+System.out.println("Test/1: json="+actualJson);
          final List<?> output = MAPPER.readValue(actualJson, List.class);
+System.out.println("Test/1 out: "+output.getClass().getName());
          assertEquals(1, output.size());
     }
 
@@ -39,16 +40,18 @@ System.err.println(" final? "+type.isFinal());
          }
          */
          final String actualJson = MAPPER.writeValueAsString(list);
-//System.out.println("Test/2: json="+actualJson);
+System.out.println("Test/2: json="+actualJson);
          final List<?>  output = MAPPER.readValue(actualJson, List.class);
+System.out.println("Test/2 out: "+output.getClass().getName());
          assertEquals(1, output.size());
     }
 
     public void testJava9ListWrapped() throws Exception {
          final List<String> list = Collections.unmodifiableList(List.of("a"));
          final String actualJson = MAPPER.writeValueAsString(list);
-// System.out.println("Test/3: json="+actualJson);
+System.out.println("Test/3: json="+actualJson);
          final List<?>  output = MAPPER.readValue(actualJson, List.class);
+System.out.println("Test/3 out: "+output.getClass().getName());
          assertEquals(1, output.size());
     }
 }

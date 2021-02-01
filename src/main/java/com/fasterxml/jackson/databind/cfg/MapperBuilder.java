@@ -5,7 +5,6 @@ import java.security.PrivilegedAction;
 import java.text.DateFormat;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.UnaryOperator;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -25,6 +24,7 @@ import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.ser.*;
+import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
@@ -271,7 +271,45 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     /* Changing settings, coercion config
     /**********************************************************************
      */
-    
+
+    /**
+     * Method for changing coercion config for specific logical types, through
+     * callback to specific handler.
+     *
+     * @since 2.13
+     */
+    public B withCoercionConfig(LogicalType forType,
+            Consumer<MutableCoercionConfig> handler) {
+        handler.accept(_mapper.coercionConfigFor(forType));
+        return _this();
+    }
+
+    /**
+     * Method for changing coercion config for specific physical type, through
+     * callback to specific handler.
+     *
+     * @since 2.13
+     */
+    public B withCoercionConfig(Class<?> forType,
+            Consumer<MutableCoercionConfig> handler) {
+        handler.accept(_mapper.coercionConfigFor(forType));
+        return _this();
+    }
+
+    /**
+     * Method for changing target-type-independent coercion configuration defaults.
+     *
+     * @since 2.13
+     */
+    public B withCoercionConfigDefaults(Consumer<MutableCoercionConfig> handler) {
+        handler.accept(_mapper.coercionConfigDefaults());
+        return _this();
+    }
+
+    // Not possible to support these in 2.x, yet (added in 3.0); would require
+    // access to "ConfigOverrides" that `ObjectMapper` holds
+// public B withAllCoercionConfigs(Consumer<CoercionConfigs> handler)
+
     /*
     /**********************************************************************
     /* Module registration, discovery, access

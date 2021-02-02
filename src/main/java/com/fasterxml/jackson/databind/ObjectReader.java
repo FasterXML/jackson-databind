@@ -1973,7 +1973,20 @@ public class ObjectReader
         } catch (IOException e) { // should not occur, no real i/o...
             throw JsonMappingException.fromUnexpectedIOE(e);
         }
-    }    
+    }
+
+    // @since 2.13
+    public <T> T treeToValue(TreeNode n, JavaType valueType) throws JsonProcessingException
+    {
+        _assertNotNull("n", n);
+        try {
+            return readValue(treeAsTokens(n), valueType);
+        } catch (JsonProcessingException e) {
+            throw e;
+        } catch (IOException e) { // should not occur, no real i/o...
+            throw JsonMappingException.fromUnexpectedIOE(e);
+        }
+    }
 
     @Override
     public void writeValue(JsonGenerator gen, Object value) throws IOException {

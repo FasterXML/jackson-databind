@@ -447,8 +447,13 @@ public class ObjectReaderTest extends BaseMapTest
         ObjectReader r = MAPPER.readerFor(String.class);
         List<?> list = r.treeToValue(n, List.class);
         assertEquals(1, list.size());
+
+        // since 2.13:
+        String[] arr = r.treeToValue(n, MAPPER.constructType(String[].class));
+        assertEquals(1, arr.length);
+        assertEquals("xyz", arr[0]);
     }
-    
+
     public void testCodecUnsupportedWrites() throws Exception
     {
         ObjectReader r = MAPPER.readerFor(String.class);

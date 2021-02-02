@@ -10,6 +10,8 @@ Project: jackson-databind
 
 #2828: Add `DatabindException` as intermediate subtype of `JsonMappingException`
 #3001: Add mechanism for setting default `ContextAttributes` for `ObjectMapper`
+#3002: Add `DeserializationContext.readTreeAsValue()` methods for more convenient
+  conversions for deserializers to use
 #3035: Add `removeMixIn()` method in `MapperBuilder`
 #3036: Backport `MapperBuilder` lambda-taking methods: `withConfigOverride()`,
   `withCoercionConfig()`, `withCoercionConfigDefaults()`

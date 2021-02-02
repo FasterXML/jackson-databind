@@ -35,6 +35,7 @@ import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.TreeTraversingParser;
 import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.*;
@@ -331,7 +332,8 @@ public abstract class DeserializationContext
 
     @SuppressWarnings("unchecked")
     @Override
-    public JsonNode readTree(JsonParser p) throws JacksonException {
+    public JsonNode readTree(JsonParser p) throws JacksonException
+    {
         // NOTE: inlined version of `_bindAsTree()` from `ObjectReader`
         JsonToken t = p.currentToken();
         if (t == null) {
@@ -991,6 +993,10 @@ public abstract class DeserializationContext
      * for reading one-off values for the composite type, taking into account
      * annotations that the property (passed to this method -- usually property that
      * has custom serializer that called this method) has.
+     *
+     * @param p Parser that points to the first token of the value to read
+     * @param prop Logical property of a POJO being type
+     * @return Value of type {@code type} that was read
      */
     public <T> T readPropertyValue(JsonParser p, BeanProperty prop, Class<T> type)
         throws JacksonException
@@ -998,6 +1004,11 @@ public abstract class DeserializationContext
         return readPropertyValue(p, prop, getTypeFactory().constructType(type));
     }
 
+    /**
+     * Same as {@link #readPropertyValue(JsonParser, BeanProperty, Class)} but with
+     * fully resolved {@link JavaType} as target: needs to be used for generic types,
+     * for example.
+     */
     @SuppressWarnings("unchecked")
     public <T> T readPropertyValue(JsonParser p, BeanProperty prop, JavaType type)
         throws JacksonException
@@ -1009,6 +1020,67 @@ public abstract class DeserializationContext
                     ClassUtil.getTypeDescription(type), ClassUtil.nameOf(prop)));
         }
         return (T) deser.deserialize(p, this);
+    }
+
+    /**
+     * Helper method similar to {@link ObjectReader#treeToValue(TreeNode, Class)}
+     * which will read contents of given tree ({@link JsonNode})
+     * and bind them into specified target type. This is often used in two-phase
+     * deserialization in which content is first read as a tree, then manipulated
+     * (adding and/or removing properties of Object values, for example),
+     * and finally converted into actual target type using default deserialization
+     * logic for the type.
+     *<p>
+     * NOTE: deserializer implementations should be careful not to try to recursively
+     * deserialize into target type deserializer has registered itself to handle.
+     *
+     * @param n Tree value to convert, if not {@code null}: if {@code null}, will simply
+     *     return {@code null}
+     * @param targetType Type to deserialize contents of {@code n} into (if {@code n} not {@code null})
+     *
+     * @return Either {@code null} (if {@code n} was {@code null} or a value of
+     *     type {@code type} that was read from non-{@code null} {@code n} argument
+     */
+    public <T> T readTreeAsValue(JsonNode n, Class<T> targetType)
+        throws JacksonException
+    {
+        if (n == null) {
+            return null;
+        }
+        try (TreeTraversingParser p = _treeAsTokens(n)) {
+            return readValue(p, targetType);
+        }
+    }
+
+    /**
+     * Same as {@link #readTreeAsValue(JsonNode, Class)} but will fully resolved
+     * {@link JavaType} as {@code targetType}
+     *<p>
+     * NOTE: deserializer implementations should be careful not to try to recursively
+     * deserialize into target type deserializer has registered itself to handle.
+     *
+     * @param n Tree value to convert
+     * @param targetType Type to deserialize contents of {@code n} into
+     *
+     * @return Value of type {@code type} that was read
+     */
+    public <T> T readTreeAsValue(JsonNode n, JavaType targetType)
+        throws JacksonException
+    {
+        if (n == null) {
+            return null;
+        }
+        try (TreeTraversingParser p = _treeAsTokens(n)) {
+            return readValue(p, targetType);
+        }
+    }
+
+    private TreeTraversingParser _treeAsTokens(JsonNode n)
+    {
+        TreeTraversingParser p = new TreeTraversingParser(n, this);
+        // important: must initialize...
+        p.nextToken();
+        return p;
     }
 
     /*

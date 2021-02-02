@@ -307,13 +307,41 @@ public class TestCustomDeserializers
         }
     }
 
+    @JsonDeserialize(using = NamedPointDeserializer.class)
+    static class NamedPoint
+    {
+        public Point point;
+        public String name;
+
+        public NamedPoint(String name, Point point) {
+            this.point = point;
+            this.name = name;
+        }
+    }
+
+    static class NamedPointDeserializer extends StdDeserializer<NamedPoint>
+    {
+        public NamedPointDeserializer() {
+            super(NamedPoint.class);
+        }
+
+        @Override
+        public NamedPoint deserialize(JsonParser p, DeserializationContext ctxt)
+        {
+            JsonNode tree = ctxt.readTree(p);
+            String name = tree.path("name").asText(null);
+            Point point = ctxt.readTreeAsValue(tree.get("point"), Point.class);
+            return new NamedPoint(name, point);
+        }
+    }
+
     /*
-    /**********************************************************
-    /* Unit tests
-    /**********************************************************
+    /**********************************************************************
+    /* Test methods
+    /**********************************************************************
      */
 
-    final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
     
     public void testCustomBeanDeserializer() throws Exception
     {
@@ -483,7 +511,7 @@ public class TestCustomDeserializers
     }
 
     // [databind#2452]
-    public void testCustomSerializerWithReadTree() throws Exception
+    public void testCustomDeserializerWithReadTree() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new SimpleModule()
@@ -496,5 +524,27 @@ public class TestCustomDeserializers
         JsonNode n = (JsonNode) w.getObject();
         assertEquals(3, n.size());
         assertEquals(123, n.get(2).intValue());
+    }
+
+    // [databind#3002]
+    public void testCustomDeserializerWithReadTreeAsValue() throws Exception
+    {
+        final String json = a2q("{'point':{'x':13, 'y':-4}, 'name':'Foozibald' }");
+        NamedPoint result = MAPPER.readValue(json, NamedPoint.class);
+        assertNotNull(result);
+        assertEquals("Foozibald", result.name);
+        assertEquals(new Point(13, -4), result.point);
+
+        // and with JavaType variant too
+        result = MAPPER.readValue(json, MAPPER.constructType(NamedPoint.class));
+        assertNotNull(result);
+        assertEquals("Foozibald", result.name);
+        assertEquals(new Point(13, -4), result.point);
+
+        // also, try some edge conditions
+        result = MAPPER.readValue(a2q("{'name':4})"), NamedPoint.class);
+        assertNotNull(result);
+        assertEquals("4", result.name);
+        assertNull(result.point);
     }
 }

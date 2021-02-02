@@ -1664,6 +1664,12 @@ public class ObjectReader
         return readValue(treeAsTokens(n), valueType);
     }
 
+    public <T> T treeToValue(TreeNode n, JavaType valueType) throws JacksonException
+    {
+        _assertNotNull("n", n);
+        return readValue(treeAsTokens(n), valueType);
+    }
+
     /*
     /**********************************************************************
     /* Helper methods, data-binding

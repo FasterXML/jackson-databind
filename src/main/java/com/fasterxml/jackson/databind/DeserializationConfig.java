@@ -93,10 +93,11 @@ public final class DeserializationConfig
             int deserFeatures, int streamReadFeatures, int formatReadFeatures,
             ConfigOverrides configOverrides, CoercionConfigs coercionConfigs,
             TypeFactory tf, ClassIntrospector classIntr, MixInHandler mixins, SubtypeResolver str,
-            RootNameLookup rootNames,
+            ContextAttributes defaultAttrs, RootNameLookup rootNames,
             AbstractTypeResolver[] atrs, ConstructorDetector ctorDetector)
     {
-        super(b, mapperFeatures, tf, classIntr, mixins, str, configOverrides, rootNames);
+        super(b, mapperFeatures, tf, classIntr, mixins, str, configOverrides,
+                defaultAttrs, rootNames);
         _deserFeatures = deserFeatures;
         _streamReadFeatures = streamReadFeatures;
         _formatReadFeatures = formatReadFeatures;

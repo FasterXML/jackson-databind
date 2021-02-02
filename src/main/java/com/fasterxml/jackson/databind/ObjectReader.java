@@ -656,6 +656,17 @@ public class ObjectReader
         return _with(_config.with(defaultBase64));
     }
 
+    /**
+     * Mutant factory for overriding set of (default) attributes for
+     * {@link ObjectReader} to use.
+     *<p>
+     * Note that this will replace defaults passed by {@link ObjectMapper}.
+     *
+     * @param attrs Default {@link ContextAttributes} to use with a reader
+     *
+     * @return {@link ObjectReader} instance with specified default attributes (which
+     *    is usually a newly constructed reader instance with otherwise identical settings)
+     */
     public ObjectReader with(ContextAttributes attrs) {
         return _with(_config.with(attrs));
     }

@@ -111,6 +111,14 @@ public abstract class MapperBuilderState
 
     /*
     /**********************************************************************
+    /* Handlers, other
+    /**********************************************************************
+     */
+
+    protected final ContextAttributes _defaultAttributes;
+
+    /*
+    /**********************************************************************
     /* Construction
     /**********************************************************************
      */
@@ -157,6 +165,9 @@ public abstract class MapperBuilderState
         _problemHandlers = src._problemHandlers;
         _abstractTypeResolvers = src._abstractTypeResolvers;
         _ctorDetector = src._ctorDetector;
+
+        // Other handlers
+        _defaultAttributes = Snapshottable.takeSnapshot(src._defaultAttributes);
 
         // Modules
         if (src._modules == null) {

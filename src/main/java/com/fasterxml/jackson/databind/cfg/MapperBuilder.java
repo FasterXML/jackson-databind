@@ -184,6 +184,17 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     /*
     /**********************************************************************
+    /* Handlers/factories, other:
+    /**********************************************************************
+     */
+
+    /**
+     * Explicitly configured default {@link ContextAttributes}, if any.
+     */
+    protected ContextAttributes _defaultAttributes;
+
+    /*
+    /**********************************************************************
     /* Feature flags: ser, deser
     /**********************************************************************
      */
@@ -286,6 +297,8 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _problemHandlers = null;
         _ctorDetector = null;
         _abstractTypeResolvers = NO_ABSTRACT_TYPE_RESOLVERS;
+
+        _defaultAttributes = null;
     }
 
     /**
@@ -329,6 +342,9 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _problemHandlers = state._problemHandlers;
         _abstractTypeResolvers = state._abstractTypeResolvers;
         _ctorDetector = state._ctorDetector;
+
+        // Factories/handlers, other
+        _defaultAttributes = Snapshottable.takeSnapshot(state._defaultAttributes);
 
         // Modules
         if (state._modules == null) {
@@ -431,7 +447,8 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return new SerializationConfig(this,
                 _mapperFeatures, _serFeatures, _streamWriteFeatures, _formatWriteFeatures,
                 configOverrides,
-                tf, classIntr, mixins, str, rootNames,
+                tf, classIntr, mixins, str,
+                defaultAttributes(), rootNames,
                 filterProvider);
     }
 
@@ -443,7 +460,8 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return new DeserializationConfig(this,
                 _mapperFeatures, _deserFeatures, _streamReadFeatures, _formatReadFeatures,
                 configOverrides, coercionConfigs,
-                tf, classIntr, mixins, str, rootNames,
+                tf, classIntr, mixins, str,
+                defaultAttributes(), rootNames,
                 _abstractTypeResolvers, _ctorDetector);
     }
 
@@ -488,6 +506,27 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return _baseSettings.getAnnotationIntrospector();
     }
 
+    /**
+     * Overridable method for changing default {@link ContextAttributes} instance to use
+     * if not explicitly specified during build process.
+     */
+    public ContextAttributes defaultAttributes() {
+        // 01-Feb-2020, tatu: Looks different from pattern used with other
+        //    defaults; seems better not to change state of builder?
+        if (_defaultAttributes == null) {
+            return ContextAttributes.getEmpty();
+        }
+        return _defaultAttributes;
+    }
+
+    /**
+     * Overridable method for changing default {@link ContextAttributes} instance to use
+     * if not explicitly specified during build process.
+     */
+    protected ContextAttributes _defaultDefaultAttributes() {
+        return ContextAttributes.getEmpty();
+    }
+    
     /*
     /**********************************************************************
     /* Accessors, introspection
@@ -1087,6 +1126,23 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return _this();
     }
 
+    /**
+     * Method for replacing default {@link ContextAttributes} that the mapper
+     * uses: usually one initialized with a set of default shared attributes, but
+     * potentially also with a custom implementation.
+     *<p>
+     * NOTE: instance specified will need to be thread-safe for usage, similar to the
+     * default ({@link ContextAttributes.Impl}).
+     *
+     * @param attrs Default instance to use, if not {@code null}, or {@code null} for "use empty default set".
+     *
+     * @return This Builder instance to allow call chaining
+     */
+    public B defaultAttributes(ContextAttributes attrs) {
+        _defaultAttributes = attrs;
+        return _this();
+    }
+
     /*
     /**********************************************************************
     /* Changing introspection helpers
@@ -1159,8 +1215,6 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * @param s Strategy instance to use; if null, use the default implementation
      *
      * @return Builder instance itself to allow chaining
-     *
-     * @since 2.12
      */
     public B accessorNaming(AccessorNamingStrategy.Provider s) {
         if (s == null) {

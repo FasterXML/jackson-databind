@@ -112,7 +112,8 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      */
     protected MapperConfigBase(MapperBuilder<?,?> b, int mapperFeatures,
             TypeFactory tf, ClassIntrospector classIntr, MixInHandler mixins, SubtypeResolver str,
-            ConfigOverrides configOverrides, RootNameLookup rootNames)
+            ConfigOverrides configOverrides, ContextAttributes defaultAttrs,
+            RootNameLookup rootNames)
     {
         super(b.baseSettings(), mapperFeatures);
 
@@ -125,8 +126,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _rootNames = rootNames;
         _rootName = null;
         _view = null;
-        // default to "no attributes"
-        _attributes = ContextAttributes.getEmpty();
+        _attributes = defaultAttrs;
         _configOverrides = configOverrides;
     }
 

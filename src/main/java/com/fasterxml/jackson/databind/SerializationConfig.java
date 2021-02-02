@@ -83,10 +83,11 @@ public final class SerializationConfig
             int mapperFeatures, int serFeatures, int streamWriteFeatures, int formatWriteFeatures,
             ConfigOverrides configOverrides,
             TypeFactory tf, ClassIntrospector classIntr, MixInHandler mixins, SubtypeResolver str,
-            RootNameLookup rootNames,
+            ContextAttributes defaultAttrs, RootNameLookup rootNames,
             FilterProvider filterProvider)
     {
-        super(b, mapperFeatures, tf, classIntr, mixins, str, configOverrides, rootNames);
+        super(b, mapperFeatures, tf, classIntr, mixins, str, configOverrides,
+                defaultAttrs, rootNames);
         _serFeatures = serFeatures;
         _filterProvider = filterProvider;
         _streamWriteFeatures = streamWriteFeatures;

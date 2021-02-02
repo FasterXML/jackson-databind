@@ -472,6 +472,17 @@ public class ObjectWriter
         return _new(_generatorSettings.with(escapes), _prefetch);
     }
 
+    /**
+     * Mutant factory for overriding set of (default) attributes for
+     * {@link ObjectWriter} to use.
+     *<p>
+     * Note that this will replace defaults passed by {@link ObjectMapper}.
+     *
+     * @param attrs Default {@link ContextAttributes} to use with a writer
+     *
+     * @return {@link ObjectWriter} instance with specified default attributes (which
+     *    is usually a newly constructed writer instance with otherwise identical settings)
+     */
     public ObjectWriter with(ContextAttributes attrs) {
         return _new(this, _config.with(attrs));
     }

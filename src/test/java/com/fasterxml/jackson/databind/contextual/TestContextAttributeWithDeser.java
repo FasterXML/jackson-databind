@@ -5,6 +5,7 @@ import java.io.IOException;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 
 public class TestContextAttributeWithDeser extends BaseMapTest
@@ -91,5 +92,30 @@ public class TestContextAttributeWithDeser extends BaseMapTest
         assertEquals(2, pojos2.length);
         assertEquals("x/2", pojos2[0].value);
         assertEquals("y/3", pojos2[1].value);
+    }
+
+    // [databind#3001]
+    public void testDefaultsViaMapper() throws Exception
+    {
+        final String INPUT = aposToQuotes("{'value':'x'}");
+        ContextAttributes attrs = ContextAttributes.getEmpty()
+                .withSharedAttribute(KEY, Integer.valueOf(72));
+        ObjectMapper mapper = jsonMapperBuilder()
+                .defaultAttributes(attrs)
+                .build();
+        TestPOJO pojo = mapper.readerFor(TestPOJO.class)
+                .readValue(INPUT);
+        assertEquals("x/72", pojo.value);
+
+        // as above, should not carry on state
+        TestPOJO pojo2 = mapper.readerFor(TestPOJO.class)
+                .readValue(INPUT);
+        assertEquals("x/72", pojo2.value);
+
+        // And should be overridable too
+        TestPOJO pojo3 = mapper.readerFor(TestPOJO.class)
+                .withAttribute(KEY, Integer.valueOf(19))
+                .readValue(INPUT);
+        assertEquals("x/19", pojo3.value);
     }
 }

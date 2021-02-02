@@ -2426,6 +2426,20 @@ public class ObjectMapper
         return this;
     }
 
+    /**
+     *<p>
+     * NOTE: preferred way to set the defaults is to use {@code Builder} style
+     * construction, see {@link com.fasterxml.jackson.databind.json.JsonMapper#builder}
+     * (and {@link MapperBuilder#defaultAttributes}).
+     *
+     * @since 2.13
+     */
+    public ObjectMapper setDefaultAttributes(ContextAttributes attrs) {
+        _deserializationConfig = _deserializationConfig.with(attrs);
+        _serializationConfig = _serializationConfig.with(attrs);
+        return this;
+    }
+
     /*
     /**********************************************************
     /* Configuration, simple features: MapperFeature
@@ -2760,8 +2774,7 @@ public class ObjectMapper
     /*
     /**********************************************************
     /* Public API (from ObjectCodec): deserialization
-    /* (mapping from JSON to Java types);
-    /* main methods
+    /* (mapping from JSON to Java types); main methods
     /**********************************************************
      */
 

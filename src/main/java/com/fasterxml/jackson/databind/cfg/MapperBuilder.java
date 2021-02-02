@@ -419,6 +419,23 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return _this();
     }
 
+    /**
+     * Method for replacing default {@link ContextAttributes} that the mapper
+     * uses: usually one initialized with a set of default shared attributes, but
+     * potentially also with a custom implementation.
+     *<p>
+     * NOTE: instance specified will need to be thread-safe for usage, similar to the
+     * default ({@link ContextAttributes.Impl}).
+     *
+     * @param attrs Default instance to use: may not be {@code null}.
+     *
+     * @return This Builder instance to allow call chaining
+     */
+    public B defaultAttributes(ContextAttributes attrs) {
+        _mapper.setDefaultAttributes(attrs);
+        return _this();
+    }
+
     /*
     /**********************************************************************
     /* Changing introspection helpers

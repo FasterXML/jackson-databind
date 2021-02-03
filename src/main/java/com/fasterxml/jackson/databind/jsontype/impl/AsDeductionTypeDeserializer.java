@@ -106,7 +106,8 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
 
         List<BitSet> candidates = new LinkedList<>(subtypeFingerprints.keySet());
 
-        // Record processed tokens as we must rewind once after deducing the deserializer to use
+        // Keep track of processed tokens as we must rewind once after deducing
+        // the deserializer to use
         @SuppressWarnings("resource")
         TokenBuffer tb = new TokenBuffer(p, ctxt);
         boolean ignoreCase = ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);

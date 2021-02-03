@@ -41,11 +41,11 @@ public class UtilCollectionsTypesTest extends BaseMapTest
      */
 
     public void testSingletonList() throws Exception {
-        _verifyCollection(Collections.singletonList(Arrays.asList("TheOne")));
+        _verifyCollection(Collections.singletonList("TheOne"));
     }
 
     public void testSingletonSet() throws Exception {
-        _verifyCollection(Collections.singleton(Arrays.asList("TheOne")));
+        _verifyCollection(Collections.singleton("TheOne"));
     }
 
     public void testSingletonMap() throws Exception {

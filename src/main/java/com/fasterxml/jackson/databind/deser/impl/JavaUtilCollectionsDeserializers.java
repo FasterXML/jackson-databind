@@ -34,118 +34,117 @@ public abstract class JavaUtilCollectionsDeserializers
     public final static int TYPE_AS_LIST = 11;
 
     private final static String PREFIX_JAVA_UTIL_COLLECTIONS = "java.util.Collections$";
-
-    // 10-Jan-2018, tatu: There are a few "well-known" special containers in JDK too:
-
-    private final static Class<?> CLASS_AS_ARRAYS_LIST = Arrays.asList(null, null).getClass();
-
-    private final static Class<?> CLASS_SINGLETON_SET;
-    private final static Class<?> CLASS_SINGLETON_LIST;
-    private final static Class<?> CLASS_SINGLETON_MAP;
-
-    private final static Class<?> CLASS_UNMODIFIABLE_SET;
-    private final static Class<?> CLASS_UNMODIFIABLE_LIST;
-
-    // 02-Mar-2019, tatu: for [databind#2265], need to consider possible alternate type...
-    //    which we essentially coerce into the other one
-    private final static Class<?> CLASS_UNMODIFIABLE_LIST_ALIAS;
-    private final static Class<?> CLASS_UNMODIFIABLE_MAP;
-
-    static {
-        Set<?> set = Collections.singleton(Boolean.TRUE);
-        CLASS_SINGLETON_SET = set.getClass();
-        CLASS_UNMODIFIABLE_SET = Collections.unmodifiableSet(set).getClass();
-
-        List<?> list = Collections.singletonList(Boolean.TRUE);
-        CLASS_SINGLETON_LIST = list.getClass();
-        CLASS_UNMODIFIABLE_LIST = Collections.unmodifiableList(list).getClass();
-        // for [databind#2265]
-        CLASS_UNMODIFIABLE_LIST_ALIAS = Collections.unmodifiableList(new LinkedList<Object>()).getClass();
-        
-        Map<?,?> map = Collections.singletonMap("a", "b");
-        CLASS_SINGLETON_MAP = map.getClass();
-        CLASS_UNMODIFIABLE_MAP = Collections.unmodifiableMap(map).getClass();
-    }
+    private final static String PREFIX_JAVA_UTIL_ARRAYS = "java.util.Arrays$";
 
     public static JsonDeserializer<?> findForCollection(DeserializationContext ctxt,
             JavaType type)
         throws JsonMappingException
     {
-        JavaUtilCollectionsConverter conv;
-        
-        // 10-Jan-2017, tatu: Some types from `java.util.Collections`/`java.util.Arrays` need bit of help...
-        if (type.hasRawClass(CLASS_AS_ARRAYS_LIST)) {
-            conv = converter(TYPE_AS_LIST, type, List.class);
-        } else if (type.hasRawClass(CLASS_SINGLETON_LIST)) {
-            conv = converter(TYPE_SINGLETON_LIST, type, List.class);
-        } else if (type.hasRawClass(CLASS_SINGLETON_SET)) {
-            conv = converter(TYPE_SINGLETON_SET, type, Set.class);
-        // [databind#2265]: we may have another impl type for unmodifiable Lists, check both
-        } else if (type.hasRawClass(CLASS_UNMODIFIABLE_LIST) || type.hasRawClass(CLASS_UNMODIFIABLE_LIST_ALIAS)) {
-            conv = converter(TYPE_UNMODIFIABLE_LIST, type, List.class);
-        } else if (type.hasRawClass(CLASS_UNMODIFIABLE_SET)) {
-            conv = converter(TYPE_UNMODIFIABLE_SET, type, Set.class);
-        } else {
-            final String utilName = _findUtilSyncTypeName(type.getRawClass());
+        final String clsName = type.getRawClass().getName();
+
+        // 10-Jan-2017, tatu: Some types from `java.util.Collections`/`java.util.Arrays`
+        //    need a bit of help...
+        String localName = _findUtilCollectionsTypeName(clsName);
+        if (localName == null) {
+            localName = _findUtilArrayTypeName(clsName);
+            if (localName != null) {
+                if (localName.endsWith("List")) {
+                    return new StdDelegatingDeserializer<Object>(
+                            converter(TYPE_AS_LIST, type, List.class));
+                }
+            }
+            return null;
+        }
+
+        JavaUtilCollectionsConverter conv = null;
+        String name;
+
+        if ((name = _findUnmodifiableTypeName(localName)) != null) {
+            if (name.endsWith("Set")) {
+                conv = converter(TYPE_UNMODIFIABLE_SET, type, Set.class);
+            } else if (name.endsWith("List")) {
+                conv = converter(TYPE_UNMODIFIABLE_LIST, type, List.class);
+            }
+        } else if ((name = _findSingletonTypeName(localName)) != null) {
+            if (name.endsWith("Set")) {
+                conv = converter(TYPE_SINGLETON_SET, type, Set.class);
+            } else if (name.endsWith("List")) {
+                conv = converter(TYPE_SINGLETON_LIST, type, List.class);
+            }
+        } else if ((name = _findSyncTypeName(localName)) != null) {
             // [databind#3009]: synchronized, too
-            if (utilName.endsWith("Set")) {
+            if (name.endsWith("Set")) {
                 conv = converter(TYPE_SYNC_SET, type, Set.class);
-            } else if (utilName.endsWith("List")) {
+            } else if (name.endsWith("List")) {
                 conv = converter(TYPE_SYNC_LIST, type, List.class);
-            } else if (utilName.endsWith("Collection")) {
+            } else if (name.endsWith("Collection")) {
                 conv = converter(TYPE_SYNC_COLLECTION, type, Collection.class);
-            } else {
-                return null;
             }
         }
-        return new StdDelegatingDeserializer<Object>(conv);
+
+        return (conv == null) ? null : new StdDelegatingDeserializer<Object>(conv);
     }
 
     public static JsonDeserializer<?> findForMap(DeserializationContext ctxt,
             JavaType type)
         throws JsonMappingException
     {
-        JavaUtilCollectionsConverter conv;
+        final String clsName = type.getRawClass().getName();
+        final String localName = _findUtilCollectionsTypeName(clsName);
+        if (localName == null) {
+            return null;
+        }
 
-        // 10-Jan-2017, tatu: Some types from `java.util.Collections`/`java.util.Arrays` need bit of help...
-        if (type.hasRawClass(CLASS_SINGLETON_MAP)) {
-            conv = converter(TYPE_SINGLETON_MAP, type, Map.class);
-        } else if (type.hasRawClass(CLASS_UNMODIFIABLE_MAP)) {
-            conv = converter(TYPE_UNMODIFIABLE_MAP, type, Map.class);
-        } else {
-            final String utilName = _findUtilSyncTypeName(type.getRawClass());
+        JavaUtilCollectionsConverter conv = null;
+        String name;
+
+        if ((name = _findUnmodifiableTypeName(localName)) != null) {
+            if (name.endsWith("Map")) {
+                conv = converter(TYPE_UNMODIFIABLE_MAP, type, Map.class);
+            }
+        } else if ((name = _findSingletonTypeName(localName)) != null) {
+            if (name.endsWith("Map")) {
+                conv = converter(TYPE_SINGLETON_MAP, type, Map.class);
+            }
+        } else if ((name = _findSyncTypeName(localName)) != null) {
             // [databind#3009]: synchronized, too
-            if (utilName.endsWith("Map")) {
+            if (name.endsWith("Map")) {
                 conv = converter(TYPE_SYNC_MAP, type, Map.class);
-            } else {
-                return null;
             }
         }
-        return new StdDelegatingDeserializer<Object>(conv);
+        return (conv == null) ? null : new StdDelegatingDeserializer<Object>(conv);
     }
-    
+
     static JavaUtilCollectionsConverter converter(int kind,
             JavaType concreteType, Class<?> rawSuper)
     {
         return new JavaUtilCollectionsConverter(kind, concreteType.findSuperType(rawSuper));
     }
 
-    private static String _findUtilSyncTypeName(Class<?> raw) {
-        String clsName = _findUtilCollectionsTypeName(raw);
-        if (clsName != null) {
-            if (clsName.startsWith("Synchronized")) {
-                return clsName.substring(12);
-            }
+    private static String _findUtilArrayTypeName(String clsName) {
+        if (clsName.startsWith(PREFIX_JAVA_UTIL_ARRAYS)) {
+            return clsName.substring(PREFIX_JAVA_UTIL_ARRAYS.length());
         }
-        return "";
+        return null;
     }
 
-    private static String _findUtilCollectionsTypeName(Class<?> raw) {
-        final String clsName = raw.getName();
+    private static String _findUtilCollectionsTypeName(String clsName) {
         if (clsName.startsWith(PREFIX_JAVA_UTIL_COLLECTIONS)) {
             return clsName.substring(PREFIX_JAVA_UTIL_COLLECTIONS.length());
         }
-        return "";
+        return null;
+    }
+
+    private static String _findSingletonTypeName(String localName) {
+        return localName.startsWith("Singleton") ? localName.substring(9): null;
+    }
+
+    private static String _findSyncTypeName(String localName) {
+        return localName.startsWith("Synchronized") ? localName.substring(12): null;
+    }
+
+    private static String _findUnmodifiableTypeName(String localName) {
+        return localName.startsWith("Unmodifiable") ? localName.substring(12): null;
     }
     
     /**

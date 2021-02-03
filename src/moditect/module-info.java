@@ -40,7 +40,7 @@ module com.fasterxml.jackson.databind {
     exports com.fasterxml.jackson.databind.util;
 
     // [databind#2485]: prevent warning for "unused" with self-use
-    uses com.fasterxml.jackson.databind.Module;
+    uses com.fasterxml.jackson.databind.JacksonModule;
 
     provides com.fasterxml.jackson.databind.ObjectMapper with
         com.fasterxml.jackson.databind.json.JsonMapper;

@@ -12,6 +12,7 @@ Project: jackson-databind
 #3001: Add mechanism for setting default `ContextAttributes` for `ObjectMapper`
 #3002: Add `DeserializationContext.readTreeAsValue()` methods for more convenient
   conversions for deserializers to use
+#3011: Clean up support of typed "unmodifiable", "singleton" Maps/Sets/Collections
 #3035: Add `removeMixIn()` method in `MapperBuilder`
 #3036: Backport `MapperBuilder` lambda-taking methods: `withConfigOverride()`,
   `withCoercionConfig()`, `withCoercionConfigDefaults()`

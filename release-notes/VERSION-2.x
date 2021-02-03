@@ -9,6 +9,8 @@ Project: jackson-databind
 2.13.0 (not yet released)
 
 #2828: Add `DatabindException` as intermediate subtype of `JsonMappingException`
+#2900: Jackson does not support deserializing new Java 9 unmodifiable collections
+ (reported by Daniel H)
 #3001: Add mechanism for setting default `ContextAttributes` for `ObjectMapper`
 #3002: Add `DeserializationContext.readTreeAsValue()` methods for more convenient
   conversions for deserializers to use

@@ -1166,6 +1166,8 @@ Joshua Shannon (retrodaredevil@github)
 Daniel Hrabovcak (TheSpiritXIII@github)
   * Reported #2796: `TypeFactory.constructType()` does not take `TypeBindings` correctly
   (2.11.2)
+  * Reported #2900: Jackson does not support deserializing new Java 9 unmodifiable collections
+  (2.13.0)
 
 Lari Hotari (lhotari@github)
   * Reported #2821: Json serialization fails or a specific case that contains generics and

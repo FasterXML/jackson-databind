@@ -33,79 +33,97 @@ public abstract class JavaUtilCollectionsDeserializers
 
     private final static String PREFIX_JAVA_UTIL_COLLECTIONS = "java.util.Collections$";
     private final static String PREFIX_JAVA_UTIL_ARRAYS = "java.util.Arrays$";
+    // for Java 11+ List.of(), Map.of() stuff
+    private final static String PREFIX_JAVA_UTIL_IMMUTABLE_COLL = "java.util.ImmutableCollections$";
 
     public static JsonDeserializer<?> findForCollection(DeserializationContext ctxt,
             JavaType type)
     {
         final String clsName = type.getRawClass().getName();
+        if (!clsName.startsWith("java.util.")) {
+            return null;
+        }
 
         // 10-Jan-2017, tatu: Some types from `java.util.Collections`/`java.util.Arrays`
         //    need a bit of help...
         String localName = _findUtilCollectionsTypeName(clsName);
-        if (localName == null) {
-            localName = _findUtilArrayTypeName(clsName);
-            if (localName != null) {
-                if (localName.endsWith("List")) {
-                    return new StdConvertingDeserializer<Object>(
-                            converter(TYPE_AS_LIST, type, List.class));
+        if (localName != null) {
+            JavaUtilCollectionsConverter conv = null;
+            String name;
+    
+            if ((name = _findUnmodifiableTypeName(localName)) != null) {
+                if (name.endsWith("Set")) {
+                    conv = converter(TYPE_UNMODIFIABLE_SET, type, Set.class);
+                } else if (name.endsWith("List")) {
+                    conv = converter(TYPE_UNMODIFIABLE_LIST, type, List.class);
                 }
+            } else if ((name = _findSingletonTypeName(localName)) != null) {
+                if (name.endsWith("Set")) {
+                    conv = converter(TYPE_SINGLETON_SET, type, Set.class);
+                } else if (name.endsWith("List")) {
+                    conv = converter(TYPE_SINGLETON_LIST, type, List.class);
+                }
+            } else if ((name = _findSyncTypeName(localName)) != null) {
+                // [databind#3009]: synchronized, too
+                if (name.endsWith("Set")) {
+                    conv = converter(TYPE_SYNC_SET, type, Set.class);
+                } else if (name.endsWith("List")) {
+                    conv = converter(TYPE_SYNC_LIST, type, List.class);
+                } else if (name.endsWith("Collection")) {
+                    conv = converter(TYPE_SYNC_COLLECTION, type, Collection.class);
+                }
+            }
+    
+            return (conv == null) ? null : new StdConvertingDeserializer<Object>(conv);
+        }
+        if ((localName = _findUtilArrayTypeName(clsName)) != null) {
+            // Typically ends with "List" but let's just look for it
+            if (localName.contains("List")) {
+                return new StdConvertingDeserializer<Object>(
+                        converter(TYPE_UNMODIFIABLE_LIST, type, List.class));
             }
             return null;
         }
 
-        JavaUtilCollectionsConverter conv = null;
-        String name;
-
-        if ((name = _findUnmodifiableTypeName(localName)) != null) {
-            if (name.endsWith("Set")) {
-                conv = converter(TYPE_UNMODIFIABLE_SET, type, Set.class);
-            } else if (name.endsWith("List")) {
-                conv = converter(TYPE_UNMODIFIABLE_LIST, type, List.class);
+        if ((localName = _findUtilCollectionsImmutableTypeName(clsName)) != null) {
+            // NOTE: names are "List12" and "ListN" but... let's just look for "List"
+            if (localName.contains("List")) {
+                return new StdConvertingDeserializer<Object>(
+                        converter(TYPE_AS_LIST, type, List.class));
             }
-        } else if ((name = _findSingletonTypeName(localName)) != null) {
-            if (name.endsWith("Set")) {
-                conv = converter(TYPE_SINGLETON_SET, type, Set.class);
-            } else if (name.endsWith("List")) {
-                conv = converter(TYPE_SINGLETON_LIST, type, List.class);
-            }
-        } else if ((name = _findSyncTypeName(localName)) != null) {
-            // [databind#3009]: synchronized, too
-            if (name.endsWith("Set")) {
-                conv = converter(TYPE_SYNC_SET, type, Set.class);
-            } else if (name.endsWith("List")) {
-                conv = converter(TYPE_SYNC_LIST, type, List.class);
-            } else if (name.endsWith("Collection")) {
-                conv = converter(TYPE_SYNC_COLLECTION, type, Collection.class);
-            }
+            return null;
         }
 
-        return (conv == null) ? null : new StdConvertingDeserializer<Object>(conv);
+        return null;
     }
 
     public static JsonDeserializer<?> findForMap(DeserializationContext ctxt,
             JavaType type)
     {
         final String clsName = type.getRawClass().getName();
-        final String localName = _findUtilCollectionsTypeName(clsName);
-        if (localName == null) {
-            return null;
-        }
-
+        String localName;
         JavaUtilCollectionsConverter conv = null;
-        String name;
 
-        if ((name = _findUnmodifiableTypeName(localName)) != null) {
-            if (name.endsWith("Map")) {
+        if ((localName = _findUtilCollectionsTypeName(clsName)) != null) {
+            String name;
+        
+            if ((name = _findUnmodifiableTypeName(localName)) != null) {
+                if (name.contains("Map")) {
+                    conv = converter(TYPE_UNMODIFIABLE_MAP, type, Map.class);
+                }
+            } else if ((name = _findSingletonTypeName(localName)) != null) {
+                if (name.contains("Map")) {
+                    conv = converter(TYPE_SINGLETON_MAP, type, Map.class);
+                }
+            } else if ((name = _findSyncTypeName(localName)) != null) {
+                // [databind#3009]: synchronized, too
+                if (name.contains("Map")) {
+                    conv = converter(TYPE_SYNC_MAP, type, Map.class);
+                }
+            }
+        } else if ((localName = _findUtilCollectionsImmutableTypeName(clsName)) != null) {
+            if (localName.contains("Map")) {
                 conv = converter(TYPE_UNMODIFIABLE_MAP, type, Map.class);
-            }
-        } else if ((name = _findSingletonTypeName(localName)) != null) {
-            if (name.endsWith("Map")) {
-                conv = converter(TYPE_SINGLETON_MAP, type, Map.class);
-            }
-        } else if ((name = _findSyncTypeName(localName)) != null) {
-            // [databind#3009]: synchronized, too
-            if (name.endsWith("Map")) {
-                conv = converter(TYPE_SYNC_MAP, type, Map.class);
             }
         }
         return (conv == null) ? null : new StdConvertingDeserializer<Object>(conv);
@@ -127,6 +145,13 @@ public abstract class JavaUtilCollectionsDeserializers
     private static String _findUtilCollectionsTypeName(String clsName) {
         if (clsName.startsWith(PREFIX_JAVA_UTIL_COLLECTIONS)) {
             return clsName.substring(PREFIX_JAVA_UTIL_COLLECTIONS.length());
+        }
+        return null;
+    }
+
+    private static String _findUtilCollectionsImmutableTypeName(String clsName) {
+        if (clsName.startsWith(PREFIX_JAVA_UTIL_IMMUTABLE_COLL)) {
+            return clsName.substring(PREFIX_JAVA_UTIL_IMMUTABLE_COLL.length());
         }
         return null;
     }

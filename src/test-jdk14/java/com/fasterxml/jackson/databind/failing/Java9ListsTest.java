@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.failing;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DefaultTyping;
@@ -15,43 +16,78 @@ public class Java9ListsTest extends BaseMapTest
     private final ObjectMapper MAPPER = JsonMapper.builder()
             .activateDefaultTypingAsProperty(
                     NoCheckSubTypeValidator.instance,
-                    DefaultTyping.NON_FINAL,
+                    DefaultTyping.EVERYTHING,
                  "@class"
             ).build();
 
-    public void testUnmodifiableList() throws Exception {
-
+    public void testUnmodifiableList() throws Exception
+    {
          final List<String> list = Collections.unmodifiableList(Collections.singletonList("a"));
          final String actualJson = MAPPER.writeValueAsString(list);
-System.out.println("Test/1: json="+actualJson);
          final List<?> output = MAPPER.readValue(actualJson, List.class);
-System.out.println("Test/1 out: "+output.getClass().getName());
          assertEquals(1, output.size());
     }
 
-    public void testJava9UmodifiableList() throws Exception {
-         final List<String> list = List.of("a");
-/*
-         {
+    public void testJava9ListOf() throws Exception
+    {
+         List<String> list = List.of("a");
+/*         {
              Class<?> cls = list.getClass();
-             JavaType type = MAPPER.constructType(cls);
+             com.fasterxml.jackson.databind.JavaType type = MAPPER.constructType(cls);
 System.err.println("LIST type: "+type);
 System.err.println(" final? "+type.isFinal());
          }
          */
-         final String actualJson = MAPPER.writeValueAsString(list);
-System.out.println("Test/2: json="+actualJson);
-         final List<?>  output = MAPPER.readValue(actualJson, List.class);
-System.out.println("Test/2 out: "+output.getClass().getName());
+         String actualJson = MAPPER.writeValueAsString(list);
+         List<?>  output = MAPPER.readValue(actualJson, List.class);
          assertEquals(1, output.size());
+
+         // and couple of alternatives:
+         list = List.of("a", "b");
+         actualJson = MAPPER.writeValueAsString(list);
+         output = MAPPER.readValue(actualJson, List.class);
+         assertEquals(2, output.size());
+
+         list = List.of("a", "b", "c");
+         actualJson = MAPPER.writeValueAsString(list);
+         output = MAPPER.readValue(actualJson, List.class);
+         assertEquals(3, output.size());
+         
+         list = List.of();
+         actualJson = MAPPER.writeValueAsString(list);
+         output = MAPPER.readValue(actualJson, List.class);
+         assertEquals(0, output.size());
     }
 
-    public void testJava9ListWrapped() throws Exception {
+    public void testJava9MapOf() throws Exception
+    {
+        Map<String,String> map = Map.of("key", "value");
+        String actualJson = MAPPER.writeValueAsString(map);
+        Map<?,?>  output = MAPPER.readValue(actualJson, Map.class);
+        assertEquals(1, output.size());
+
+        // and alternatives
+        map = Map.of("key", "value", "foo", "bar");
+        actualJson = MAPPER.writeValueAsString(map);
+        output = MAPPER.readValue(actualJson, Map.class);
+        assertEquals(2, output.size());
+
+        map = Map.of("key", "value", "foo", "bar", "last", "one");
+        actualJson = MAPPER.writeValueAsString(map);
+        output = MAPPER.readValue(actualJson, Map.class);
+        assertEquals(3, output.size());
+
+        map = Map.of();
+        actualJson = MAPPER.writeValueAsString(map);
+        output = MAPPER.readValue(actualJson, Map.class);
+        assertEquals(0, output.size());
+}
+
+    public void testJava9ListWrapped() throws Exception
+    {
          final List<String> list = Collections.unmodifiableList(List.of("a"));
          final String actualJson = MAPPER.writeValueAsString(list);
-System.out.println("Test/3: json="+actualJson);
          final List<?>  output = MAPPER.readValue(actualJson, List.class);
-System.out.println("Test/3 out: "+output.getClass().getName());
          assertEquals(1, output.size());
     }
 }

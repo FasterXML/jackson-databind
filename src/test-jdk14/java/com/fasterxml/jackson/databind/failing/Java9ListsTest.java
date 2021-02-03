@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.failing;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -46,11 +47,40 @@ System.err.println(" final? "+type.isFinal());
          output = MAPPER.readValue(actualJson, List.class);
          assertEquals(2, output.size());
 
+         list = List.of("a", "b", "c");
+         actualJson = MAPPER.writeValueAsString(list);
+         output = MAPPER.readValue(actualJson, List.class);
+         assertEquals(3, output.size());
+         
          list = List.of();
          actualJson = MAPPER.writeValueAsString(list);
          output = MAPPER.readValue(actualJson, List.class);
          assertEquals(0, output.size());
     }
+
+    public void testJava9MapOf() throws Exception
+    {
+        Map<String,String> map = Map.of("key", "value");
+        String actualJson = MAPPER.writeValueAsString(map);
+        Map<?,?>  output = MAPPER.readValue(actualJson, Map.class);
+        assertEquals(1, output.size());
+
+        // and alternatives
+        map = Map.of("key", "value", "foo", "bar");
+        actualJson = MAPPER.writeValueAsString(map);
+        output = MAPPER.readValue(actualJson, Map.class);
+        assertEquals(2, output.size());
+
+        map = Map.of("key", "value", "foo", "bar", "last", "one");
+        actualJson = MAPPER.writeValueAsString(map);
+        output = MAPPER.readValue(actualJson, Map.class);
+        assertEquals(3, output.size());
+
+        map = Map.of();
+        actualJson = MAPPER.writeValueAsString(map);
+        output = MAPPER.readValue(actualJson, Map.class);
+        assertEquals(0, output.size());
+}
 
     public void testJava9ListWrapped() throws Exception
     {

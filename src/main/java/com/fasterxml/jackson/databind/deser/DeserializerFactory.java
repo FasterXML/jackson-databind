@@ -127,7 +127,7 @@ public abstract class DeserializerFactory
      * Method that can be used to check if databind module has explicitly declared deserializer
      * for given (likely JDK) type, explicit meaning that there is specific deserializer for
      * given type as opposed to auto-generated "Bean" deserializer. Factory itself will check
-     * for known JDK-provided types, but registered {@link com.fasterxml.jackson.databind.Module}s
+     * for known JDK-provided types, but registered {@link com.fasterxml.jackson.databind.JacksonModule}s
      * are also called to see if they might provide explicit deserializer.
      *<p> 
      * Main use for this method is with Safe Default Typing (and generally Safe Polymorphic

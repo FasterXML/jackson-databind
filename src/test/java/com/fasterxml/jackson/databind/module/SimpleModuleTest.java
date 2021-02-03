@@ -298,7 +298,7 @@ public class SimpleModuleTest extends BaseMapTest
                 .addModule(mod2)
                 .build();
 
-        List<com.fasterxml.jackson.databind.Module> mods = new ArrayList<>(mapper.getRegisteredModules());
+        List<JacksonModule> mods = new ArrayList<>(mapper.getRegisteredModules());
         assertEquals(2, mods.size());
         // Should retain ordering even if not mandated
         assertEquals("test1", mods.get(0).getModuleName());
@@ -331,7 +331,7 @@ public class SimpleModuleTest extends BaseMapTest
 
     public void testAccessToMapper() throws Exception
     {
-        com.fasterxml.jackson.databind.Module module = new com.fasterxml.jackson.databind.Module()
+        final JacksonModule module = new JacksonModule()
         {
             @Override
             public String getModuleName() { return "x"; }

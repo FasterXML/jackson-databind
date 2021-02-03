@@ -101,7 +101,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     /**
      * Modules registered for addition, indexed by registration id.
      */
-    protected Map<Object, com.fasterxml.jackson.databind.Module> _modules;
+    protected Map<Object, JacksonModule> _modules;
 
     /*
     /**********************************************************************
@@ -351,8 +351,8 @@ public abstract class MapperBuilder<M extends ObjectMapper,
             _modules = null;
         } else {
             _modules = new LinkedHashMap<>();
-            for (Object mod : state._modules) {
-                addModule((com.fasterxml.jackson.databind.Module) mod);
+            for (JacksonModule mod : state._modules) {
+                addModule(mod);
             }
         }
     }
@@ -979,11 +979,11 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     /**
      * Method will add given module to be registered when mapper is built, possibly
      * replacing an earlier instance of the module (as specified by its
-     * {@link Module#getRegistrationId()}).
+     * {@link JacksonModule#getRegistrationId()}).
      * Actual registration occurs in addition order (considering last add to count,
      * in case of re-registration for same id) when {@link #build()} is called.
      */
-    public B addModule(com.fasterxml.jackson.databind.Module module)
+    public B addModule(JacksonModule module)
     {
         _verifyModuleMetadata(module);
         final Object moduleId = module.getRegistrationId();
@@ -998,7 +998,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
         // 10-Sep-2019, tatu: [databind#2432] Module dependencies; need to add first
         //   but unlike main module, do NOT replace module if already added
-        for (com.fasterxml.jackson.databind.Module dep : module.getDependencies()) {
+        for (JacksonModule dep : module.getDependencies()) {
             _verifyModuleMetadata(dep);
             _modules.putIfAbsent(dep.getRegistrationId(), dep);
         }
@@ -1006,7 +1006,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return _this();
     }
 
-    private void _verifyModuleMetadata(com.fasterxml.jackson.databind.Module module)
+    private void _verifyModuleMetadata(JacksonModule module)
     {
         if (module.getModuleName() == null) {
             throw new IllegalArgumentException("Module ("+module.getClass().getName()+") without defined name");
@@ -1016,17 +1016,17 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         }
     }
 
-    public B addModules(com.fasterxml.jackson.databind.Module... modules)
+    public B addModules(JacksonModule... modules)
     {
-        for (com.fasterxml.jackson.databind.Module module : modules) {
+        for (JacksonModule module : modules) {
             addModule(module);
         }
         return _this();
     }
 
-    public B addModules(Iterable<? extends com.fasterxml.jackson.databind.Module> modules)
+    public B addModules(Iterable<? extends JacksonModule> modules)
     {
-        for (com.fasterxml.jackson.databind.Module module : modules) {
+        for (JacksonModule module : modules) {
             addModule(module);
         }
         return _this();
@@ -1039,7 +1039,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * Note that method does not do any caching, so calls should be considered
      * potentially expensive.
      */
-    public static List<com.fasterxml.jackson.databind.Module> findModules() {
+    public static List<JacksonModule> findModules() {
         return findModules(null);
     }
 
@@ -1050,11 +1050,11 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * Note that method does not do any caching, so calls should be considered
      * potentially expensive.
      */
-    public static List<com.fasterxml.jackson.databind.Module> findModules(ClassLoader classLoader)
+    public static List<JacksonModule> findModules(ClassLoader classLoader)
     {
-        ArrayList<com.fasterxml.jackson.databind.Module> modules = new ArrayList<>();
-        ServiceLoader<com.fasterxml.jackson.databind.Module> loader = secureGetServiceLoader(com.fasterxml.jackson.databind.Module.class, classLoader);
-        for (com.fasterxml.jackson.databind.Module module : loader) {
+        ArrayList<JacksonModule> modules = new ArrayList<>();
+        ServiceLoader<JacksonModule> loader = secureGetServiceLoader(JacksonModule.class, classLoader);
+        for (JacksonModule module : loader) {
             modules.add(module);
         }
         return modules;
@@ -1093,7 +1093,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * "Accessor" method that will expose set of registered modules, in addition
      * order, to given handler.
      */
-    public B withModules(Consumer<com.fasterxml.jackson.databind.Module> handler) {
+    public B withModules(Consumer<JacksonModule> handler) {
         if (_modules != null) {
             _modules.values().forEach(handler);
         }

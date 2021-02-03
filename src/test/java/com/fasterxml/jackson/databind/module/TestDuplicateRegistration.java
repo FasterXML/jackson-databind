@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.*;
 
 public class TestDuplicateRegistration extends BaseMapTest
 {
-    static class MyModule extends com.fasterxml.jackson.databind.Module {
+    static class MyModule extends JacksonModule {
         private final AtomicInteger counter;
         private final Object id;
 

@@ -64,7 +64,7 @@ public abstract class MapperBuilderState
     /**
      * Modules registered in registration order, if any; `null` if none.
      */
-    protected final com.fasterxml.jackson.databind.Module[] _modules;
+    protected final JacksonModule[] _modules;
 
     /*
     /**********************************************************************
@@ -177,12 +177,12 @@ public abstract class MapperBuilderState
         }
     }
 
-    private static com.fasterxml.jackson.databind.Module[] _toArray(Collection<?> coll)
+    private static JacksonModule[] _toArray(Collection<?> coll)
     {
         if (coll == null || coll.isEmpty()) {
             return null;
         }
-        return coll.toArray(new com.fasterxml.jackson.databind.Module[0]);
+        return coll.toArray(new JacksonModule[0]);
     }
 
     /*
@@ -191,7 +191,7 @@ public abstract class MapperBuilderState
     /**********************************************************************
      */
 
-    public Collection<com.fasterxml.jackson.databind.Module> modules() {
+    public Collection<JacksonModule> modules() {
         if (_modules == null) {
             return Collections.emptyList();
         }

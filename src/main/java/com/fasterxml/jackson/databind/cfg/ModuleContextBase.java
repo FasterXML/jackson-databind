@@ -6,7 +6,7 @@ import java.util.function.UnaryOperator;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.Module.SetupContext;
+import com.fasterxml.jackson.databind.JacksonModule.SetupContext;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.type.TypeModifier;
 
 public class ModuleContextBase
-    implements SetupContext
+    implements JacksonModule.SetupContext
 {
     // // // Immutable objects we need to access information
 

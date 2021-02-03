@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import com.fasterxml.jackson.databind.util.UniqueId;
 
 /**
- * Vanilla {@link Module} implementation that allows registration
+ * Vanilla {@link JacksonModule} implementation that allows registration
  * of serializers and deserializers, bean serializer
  * and deserializer modifiers, registration of subtypes and mix-ins
  * as well as some other commonly
@@ -34,7 +34,7 @@ import com.fasterxml.jackson.databind.util.UniqueId;
  * signatures (with {@link JavaType}).
  */
 public class SimpleModule
-    extends com.fasterxml.jackson.databind.Module
+    extends JacksonModule
     implements java.io.Serializable
 {
     private static final long serialVersionUID = 3L;

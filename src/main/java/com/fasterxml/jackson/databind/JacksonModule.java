@@ -19,8 +19,11 @@ import java.util.Collections;
  * Simple interface for extensions that can be registered with {@link ObjectMapper}
  * to provide a well-defined set of extensions to default functionality; such as
  * support for new data types.
+ *<p>
+ * NOTE: was named just {@code Module} in Jackson 2.x but renamed due to naming
+ * conflict with Java 9+ {@code java.lang.Module}
  */
-public abstract class Module
+public abstract class JacksonModule
     implements Versioned
 {
     /*
@@ -44,7 +47,7 @@ public abstract class Module
     public abstract Version version();
 
     /**
-     * Method that returns an id that may be used to determine if two {@link Module}
+     * Method that returns an id that may be used to determine if two {@link JacksonModule}
      * instances are considered to be of same type, for purpose of preventing
      * multiple registrations of "same" module,
      *<p>
@@ -62,7 +65,7 @@ public abstract class Module
      * Modules returned will be registered before this module is registered,
      * in iteration order.
      */
-    public Iterable<? extends Module> getDependencies() {
+    public Iterable<? extends JacksonModule> getDependencies() {
         return Collections.emptyList();
     }
 

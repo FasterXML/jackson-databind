@@ -55,7 +55,7 @@ public class NullValueViaCreatorTest extends BaseMapTest
         }
     }
 
-    protected static class TestModule extends com.fasterxml.jackson.databind.Module
+    protected static class TestModule extends com.fasterxml.jackson.databind.JacksonModule
     {
         @Override
         public String getModuleName() {

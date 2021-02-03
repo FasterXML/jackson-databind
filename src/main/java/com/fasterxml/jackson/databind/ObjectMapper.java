@@ -51,7 +51,7 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  * Former starts with default configuration (same as one that no-arguments constructor
  * created mapper has), and latter starts with configuration of the mapper it is called
  * on.
- * In both cases, after configuration (including addition of {@link Module}s) is complete,
+ * In both cases, after configuration (including addition of {@link JacksonModule}s) is complete,
  * instance is created by calling {@link MapperBuilder#build()} method.
  *<p>
  * Mapper (and {@link ObjectReader}s, {@link ObjectWriter}s it constructs) will
@@ -553,12 +553,12 @@ public class ObjectMapper
      */
 
     /**
-     * Method that may be used to find out {@link Module}s that were registered
+     * Method that may be used to find out {@link JacksonModule}s that were registered
      * when creating this mapper (if any).
      *
      * @since 3.0
      */
-    public Collection<com.fasterxml.jackson.databind.Module> getRegisteredModules() {
+    public Collection<JacksonModule> getRegisteredModules() {
         return _savedBuilderState.modules();
     }
 

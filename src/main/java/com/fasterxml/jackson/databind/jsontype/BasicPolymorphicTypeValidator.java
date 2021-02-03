@@ -294,7 +294,7 @@ public class BasicPolymorphicTypeValidator
          * Method for appending matcher that will allow all subtypes for which a
          * {@link com.fasterxml.jackson.databind.JsonDeserializer})
          * is explicitly provided by either {@code jackson-databind} itself or one of registered
-         * {@link com.fasterxml.jackson.databind.Module}s.
+         * {@link com.fasterxml.jackson.databind.JacksonModule}s.
          * Determination is implementation by calling
          * {@link com.fasterxml.jackson.databind.deser.DeserializerFactory#hasExplicitDeserializerFor}.
          *<p>

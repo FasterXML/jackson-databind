@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.cfg;
 import com.fasterxml.jackson.core.TokenStreamFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationConfig;
-import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
+import com.fasterxml.jackson.databind.ser.SerializationContextExt;
 import com.fasterxml.jackson.databind.ser.SerializerCache;
 import com.fasterxml.jackson.databind.ser.SerializerFactory;
 
@@ -84,7 +84,7 @@ public abstract class SerializationContexts
      * Factory method for constructing context object for individual {@code writeValue()}
      * calls.
      */
-    public abstract DefaultSerializerProvider createContext(SerializationConfig config,
+    public abstract SerializationContextExt createContext(SerializationConfig config,
             GeneratorSettings genSettings);
 
     /*
@@ -155,9 +155,9 @@ public abstract class SerializationContexts
         }
 
         @Override
-        public DefaultSerializerProvider createContext(SerializationConfig config,
+        public SerializationContextExt createContext(SerializationConfig config,
                 GeneratorSettings genSettings) {
-            return new DefaultSerializerProvider.Impl(_streamFactory,
+            return new SerializationContextExt.Impl(_streamFactory,
                     config, genSettings, _serializerFactory, _cache);
         }
     }

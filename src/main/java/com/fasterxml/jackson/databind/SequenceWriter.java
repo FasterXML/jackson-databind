@@ -7,7 +7,7 @@ import java.util.Collection;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.exc.WrappedIOException;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
+import com.fasterxml.jackson.databind.ser.SerializationContextExt;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 import com.fasterxml.jackson.databind.ser.impl.TypeWrappedSerializer;
 
@@ -36,7 +36,7 @@ public class SequenceWriter
     /**********************************************************************
      */
 
-    protected final DefaultSerializerProvider _provider;
+    protected final SerializationContextExt _provider;
     protected final SerializationConfig _config;
     protected final JsonGenerator _generator;
 
@@ -74,7 +74,7 @@ public class SequenceWriter
     /**********************************************************************
      */
 
-    public SequenceWriter(DefaultSerializerProvider prov, JsonGenerator gen,
+    public SequenceWriter(SerializationContextExt prov, JsonGenerator gen,
             boolean closeGenerator, ObjectWriter.Prefetch prefetch)
     {
         _provider = prov;

@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.deser;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.impl.DefaultDeserializationContext;
 
 // Tests for [databind#2539] for checking whether given (raw) type has explicit
 // deserializer associated
@@ -12,7 +11,7 @@ public class DeserializerFactoryTest extends BaseMapTest
     // NOTE: need custom ObjectMapper subtype to create Deserializer
     @SuppressWarnings("serial")
     static class AccessibleMapper extends ObjectMapper {
-        public DefaultDeserializationContext deserializationContext() {
+        public DeserializationContextExt deserializationContext() {
             return _deserializationContext();
         }
     }

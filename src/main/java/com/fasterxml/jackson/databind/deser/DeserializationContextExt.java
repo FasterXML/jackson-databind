@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.deser.impl;
+package com.fasterxml.jackson.databind.deser;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -14,9 +14,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.TokenStreamFactory;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
-import com.fasterxml.jackson.databind.deser.DeserializerCache;
-import com.fasterxml.jackson.databind.deser.DeserializerFactory;
-import com.fasterxml.jackson.databind.deser.UnresolvedForwardReference;
+import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId.Referring;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -27,7 +25,7 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * to call, as well as implements certain parts that base class
  * has left abstract.
  */
-public abstract class DefaultDeserializationContext
+public abstract class DeserializationContextExt
     extends DeserializationContext
 {
     protected transient LinkedHashMap<ObjectIdGenerator.IdKey, ReadableObjectId> _objectIds;
@@ -39,7 +37,7 @@ public abstract class DefaultDeserializationContext
      * cache: cache may be null (in which case default implementation
      * will be used), factory cannot be null
      */
-    protected DefaultDeserializationContext(TokenStreamFactory tsf,
+    protected DeserializationContextExt(TokenStreamFactory tsf,
             DeserializerFactory deserializerFactory, DeserializerCache cache,
             DeserializationConfig config, FormatSchema schema,
             InjectableValues values) {
@@ -47,7 +45,7 @@ public abstract class DefaultDeserializationContext
                 config, schema, values);
     }
 
-    public DefaultDeserializationContext assignParser(JsonParser p) {
+    public DeserializationContextExt assignParser(JsonParser p) {
         _parser = p;
         _readCapabilities = p.streamReadCapabilities();
         return this;
@@ -321,7 +319,7 @@ ClassUtil.name(expSimpleName), p.currentToken());
     /**
      * Actual full concrete implementation
      */
-    public final static class Impl extends DefaultDeserializationContext
+    public final static class Impl extends DeserializationContextExt
     {
         public Impl(TokenStreamFactory tsf,
                 DeserializerFactory deserializerFactory, DeserializerCache cache,

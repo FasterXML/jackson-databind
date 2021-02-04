@@ -52,7 +52,7 @@ public class ObjectWriter
      *<p>
      * Note: while serializers are only exposed {@link SerializerProvider},
      * mappers and readers need to access additional API defined by
-     * {@link DefaultSerializerProvider}
+     * {@link SerializationContextExt}
      */
     protected final SerializationContexts _serializationContexts;
 
@@ -210,7 +210,7 @@ public class ObjectWriter
      * method (and its various overrides), and initializes it as necessary.
      */
     @SuppressWarnings("resource")
-    protected final SequenceWriter _newSequenceWriter(DefaultSerializerProvider ctxt,
+    protected final SequenceWriter _newSequenceWriter(SerializationContextExt ctxt,
             boolean wrapInArray, JsonGenerator gen, boolean managedInput)
         throws JacksonException
     {
@@ -617,7 +617,7 @@ public class ObjectWriter
         throws JacksonException
     {
         _assertNotNull("target", target);
-        DefaultSerializerProvider ctxt = _serializerProvider();
+        SerializationContextExt ctxt = _serializerProvider();
         return _newSequenceWriter(ctxt, false,
                 _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), true);
     }
@@ -655,7 +655,7 @@ public class ObjectWriter
      */
     public SequenceWriter writeValues(Writer target) throws JacksonException {
         _assertNotNull("target", target);
-        DefaultSerializerProvider ctxt = _serializerProvider();
+        SerializationContextExt ctxt = _serializerProvider();
         return _newSequenceWriter(ctxt, false,
                 _generatorFactory.createGenerator(ctxt, target), true);
     }
@@ -673,14 +673,14 @@ public class ObjectWriter
      */
     public SequenceWriter writeValues(OutputStream target) throws JacksonException {
         _assertNotNull("target", target);
-        DefaultSerializerProvider ctxt = _serializerProvider();
+        SerializationContextExt ctxt = _serializerProvider();
         return _newSequenceWriter(ctxt, false,
                 _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), true);
     }
 
     public SequenceWriter writeValues(DataOutput target) throws JacksonException {
         _assertNotNull("target", target);
-        DefaultSerializerProvider ctxt = _serializerProvider();
+        SerializationContextExt ctxt = _serializerProvider();
         return _newSequenceWriter(ctxt, false,
                 _generatorFactory.createGenerator(ctxt, target), true);
     }
@@ -702,7 +702,7 @@ public class ObjectWriter
         throws JacksonException
     {
         _assertNotNull("target", target);
-        DefaultSerializerProvider ctxt = _serializerProvider();
+        SerializationContextExt ctxt = _serializerProvider();
         return _newSequenceWriter(ctxt, true,
                 _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), true);
     }
@@ -743,7 +743,7 @@ public class ObjectWriter
      */
     public SequenceWriter writeValuesAsArray(Writer target) throws JacksonException {
         _assertNotNull("target", target);
-        DefaultSerializerProvider ctxt = _serializerProvider();
+        SerializationContextExt ctxt = _serializerProvider();
         return _newSequenceWriter(ctxt, true,
                 _generatorFactory.createGenerator(ctxt, target), true);
     }
@@ -763,14 +763,14 @@ public class ObjectWriter
      */
     public SequenceWriter writeValuesAsArray(OutputStream target) throws JacksonException {
         _assertNotNull("target", target);
-        DefaultSerializerProvider ctxt = _serializerProvider();
+        SerializationContextExt ctxt = _serializerProvider();
         return _newSequenceWriter(ctxt, true,
                 _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), true);
     }
 
     public SequenceWriter writeValuesAsArray(DataOutput target) throws JacksonException {
         _assertNotNull("target", target);
-        DefaultSerializerProvider ctxt = _serializerProvider();
+        SerializationContextExt ctxt = _serializerProvider();
         return _newSequenceWriter(ctxt, true,
                 _generatorFactory.createGenerator(ctxt, target), true);
     }
@@ -886,7 +886,7 @@ public class ObjectWriter
         throws JacksonException
     {
         _assertNotNull("target", target);
-        DefaultSerializerProvider ctxt = _serializerProvider();
+        SerializationContextExt ctxt = _serializerProvider();
         _configAndWriteValue(ctxt,
                 _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), value);
     }
@@ -905,7 +905,7 @@ public class ObjectWriter
     public void writeValue(OutputStream target, Object value) throws JacksonException
     {
         _assertNotNull("target", target);
-        DefaultSerializerProvider ctxt = _serializerProvider();
+        SerializationContextExt ctxt = _serializerProvider();
         _configAndWriteValue(ctxt,
                 _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), value);
     }
@@ -923,7 +923,7 @@ public class ObjectWriter
     public void writeValue(Writer target, Object value) throws JacksonException
     {
         _assertNotNull("target", target);
-        DefaultSerializerProvider ctxt = _serializerProvider();
+        SerializationContextExt ctxt = _serializerProvider();
         _configAndWriteValue(ctxt,
                 _generatorFactory.createGenerator(ctxt, target), value);
     }
@@ -931,7 +931,7 @@ public class ObjectWriter
     public void writeValue(DataOutput target, Object value) throws JacksonException
     {
         _assertNotNull("target", target);
-        DefaultSerializerProvider ctxt = _serializerProvider();
+        SerializationContextExt ctxt = _serializerProvider();
         _configAndWriteValue(ctxt,
                 _generatorFactory.createGenerator(ctxt, target), value);
     }
@@ -946,7 +946,7 @@ public class ObjectWriter
     {        
         // alas, we have to pull the recycler directly here...
         SegmentedStringWriter sw = new SegmentedStringWriter(_generatorFactory._getBufferRecycler());
-        DefaultSerializerProvider ctxt = _serializerProvider();
+        SerializationContextExt ctxt = _serializerProvider();
         _configAndWriteValue(ctxt,
                 _generatorFactory.createGenerator(ctxt, sw), value);
         return sw.getAndClear();
@@ -962,7 +962,7 @@ public class ObjectWriter
     public byte[] writeValueAsBytes(Object value) throws JacksonException
     {
         ByteArrayBuilder bb = new ByteArrayBuilder(_generatorFactory._getBufferRecycler());
-        DefaultSerializerProvider ctxt = _serializerProvider();
+        SerializationContextExt ctxt = _serializerProvider();
         _configAndWriteValue(ctxt,
                 _generatorFactory.createGenerator(ctxt, bb, JsonEncoding.UTF8), value);
         byte[] result = bb.toByteArray();
@@ -974,7 +974,7 @@ public class ObjectWriter
      * Method called to configure the generator as necessary and then
      * call write functionality
      */
-    protected final void _configAndWriteValue(DefaultSerializerProvider ctxt,
+    protected final void _configAndWriteValue(SerializationContextExt ctxt,
             JsonGenerator gen, Object value) throws JacksonException
     {
         if (_config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE) && (value instanceof Closeable)) {
@@ -1050,7 +1050,7 @@ public class ObjectWriter
      * Overridable helper method used for constructing
      * {@link SerializerProvider} to use for serialization.
      */
-    protected final DefaultSerializerProvider _serializerProvider() {
+    protected final SerializationContextExt _serializerProvider() {
         return _serializationContexts.createContext(_config, _generatorSettings);
     }
 
@@ -1140,13 +1140,13 @@ public class ObjectWriter
             // But one more trick: `java.lang.Object` has no serialized, but may
             // have `TypeSerializer` to use
             if (newType.isJavaLangObject()) {
-                DefaultSerializerProvider ctxt = parent._serializerProvider();
+                SerializationContextExt ctxt = parent._serializerProvider();
                 TypeSerializer typeSer = ctxt.findTypeSerializer(newType);
                 return new Prefetch(null, null, typeSer);
             }
 
             if (parent.isEnabled(SerializationFeature.EAGER_SERIALIZER_FETCH)) {
-                DefaultSerializerProvider ctxt = parent._serializerProvider();
+                SerializationContextExt ctxt = parent._serializerProvider();
                 // 17-Dec-2014, tatu: Need to be bit careful here; TypeSerializers are NOT cached,
                 //   so although it'd seem like a good idea to look for those first, and avoid
                 //   serializer for polymorphic types, it is actually more efficient to do the
@@ -1179,7 +1179,7 @@ public class ObjectWriter
             return (valueSerializer != null) || (typeSerializer != null);
         }
 
-        public void serialize(JsonGenerator gen, Object value, DefaultSerializerProvider ctxt)
+        public void serialize(JsonGenerator gen, Object value, SerializationContextExt ctxt)
             throws JacksonException
         {
             if (typeSerializer != null) {

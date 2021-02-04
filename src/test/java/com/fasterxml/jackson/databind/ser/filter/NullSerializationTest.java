@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.cfg.GeneratorSettings;
 import com.fasterxml.jackson.databind.cfg.SerializationContexts;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
+import com.fasterxml.jackson.databind.ser.SerializationContextExt;
 import com.fasterxml.jackson.databind.ser.SerializerCache;
 import com.fasterxml.jackson.databind.ser.SerializerFactory;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
@@ -51,14 +51,14 @@ public class NullSerializationTest
         }
 
         @Override
-        public DefaultSerializerProvider createContext(SerializationConfig config,
+        public SerializationContextExt createContext(SerializationConfig config,
                 GeneratorSettings genSettings) {
             return new MyNullSerializerProvider(_streamFactory, _cache,
                     config, genSettings, _serializerFactory);
         }
     }
 
-    static class MyNullSerializerProvider extends DefaultSerializerProvider
+    static class MyNullSerializerProvider extends SerializationContextExt
     {
         public MyNullSerializerProvider(TokenStreamFactory streamFactory,
                 SerializerCache cache, SerializationConfig config,

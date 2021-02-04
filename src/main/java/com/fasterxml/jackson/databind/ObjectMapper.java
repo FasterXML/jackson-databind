@@ -21,7 +21,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.*;
 
 import com.fasterxml.jackson.databind.cfg.*;
-import com.fasterxml.jackson.databind.deser.impl.DefaultDeserializationContext;
+import com.fasterxml.jackson.databind.deser.DeserializationContextExt;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
@@ -191,7 +191,7 @@ public class ObjectMapper
      *<p>
      * Note: while serializers are only exposed {@link SerializerProvider},
      * mappers and readers need to access additional API defined by
-     * {@link DefaultSerializerProvider}
+     * {@link SerializationContextExt}
      */
     protected final SerializationContexts _serializationContexts;
 
@@ -579,7 +579,7 @@ public class ObjectMapper
      */
     public JsonParser createParser(File src) throws JacksonException {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = _deserializationContext();
+        DeserializationContextExt ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, src));
     }
 
@@ -593,7 +593,7 @@ public class ObjectMapper
      */
     public JsonParser createParser(URL src) throws JacksonException {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = _deserializationContext();
+        DeserializationContextExt ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, src));
     }
 
@@ -607,7 +607,7 @@ public class ObjectMapper
      */
     public JsonParser createParser(InputStream in) throws JacksonException {
         _assertNotNull("in", in);
-        DefaultDeserializationContext ctxt = _deserializationContext();
+        DeserializationContextExt ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, in));
     }
 
@@ -621,7 +621,7 @@ public class ObjectMapper
      */
     public JsonParser createParser(Reader r) throws JacksonException {
         _assertNotNull("r", r);
-        DefaultDeserializationContext ctxt = _deserializationContext();
+        DeserializationContextExt ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, r));
     }
 
@@ -635,7 +635,7 @@ public class ObjectMapper
      */
     public JsonParser createParser(byte[] content) throws JacksonException {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = _deserializationContext();
+        DeserializationContextExt ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, content));
     }
 
@@ -649,7 +649,7 @@ public class ObjectMapper
      */
     public JsonParser createParser(byte[] content, int offset, int len) throws JacksonException {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = _deserializationContext();
+        DeserializationContextExt ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, content, offset, len));
     }
 
@@ -663,7 +663,7 @@ public class ObjectMapper
      */
     public JsonParser createParser(String content) throws JacksonException {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = _deserializationContext();
+        DeserializationContextExt ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, content));
     }
 
@@ -677,7 +677,7 @@ public class ObjectMapper
      */
     public JsonParser createParser(char[] content) throws JacksonException {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = _deserializationContext();
+        DeserializationContextExt ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, content));
     }
 
@@ -691,7 +691,7 @@ public class ObjectMapper
      */
     public JsonParser createParser(char[] content, int offset, int len) throws JacksonException {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = _deserializationContext();
+        DeserializationContextExt ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, content, offset, len));
     }
 
@@ -705,7 +705,7 @@ public class ObjectMapper
      */
     public JsonParser createParser(DataInput content) throws JacksonException {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = _deserializationContext();
+        DeserializationContextExt ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, content));
     }
 
@@ -718,7 +718,7 @@ public class ObjectMapper
      * @since 3.0
      */
     public JsonParser createNonBlockingByteArrayParser() throws JacksonException {
-        DefaultDeserializationContext ctxt = _deserializationContext();
+        DeserializationContextExt ctxt = _deserializationContext();
         return ctxt.assignAndReturnParser(_streamFactory.createNonBlockingByteArrayParser(ctxt));
     }
 
@@ -1096,7 +1096,7 @@ public class ObjectMapper
     public JsonNode readTree(InputStream in) throws JacksonException
     {
         _assertNotNull("in", in);
-        DefaultDeserializationContext ctxt = _deserializationContext();
+        DeserializationContextExt ctxt = _deserializationContext();
         return _readTreeAndClose(ctxt, _streamFactory.createParser(ctxt, in));
     }
 
@@ -1106,7 +1106,7 @@ public class ObjectMapper
      */
     public JsonNode readTree(Reader r) throws JacksonException {
         _assertNotNull("r", r);
-        DefaultDeserializationContext ctxt = _deserializationContext();
+        DeserializationContextExt ctxt = _deserializationContext();
         return _readTreeAndClose(ctxt, _streamFactory.createParser(ctxt, r));
     }
 
@@ -1116,7 +1116,7 @@ public class ObjectMapper
      */
     public JsonNode readTree(String content) throws JacksonException {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = _deserializationContext();
+        DeserializationContextExt ctxt = _deserializationContext();
         return _readTreeAndClose(ctxt, _streamFactory.createParser(ctxt, content));
     }
 
@@ -1126,7 +1126,7 @@ public class ObjectMapper
      */
     public JsonNode readTree(byte[] content) throws JacksonException {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = _deserializationContext();
+        DeserializationContextExt ctxt = _deserializationContext();
         return _readTreeAndClose(ctxt, _streamFactory.createParser(ctxt, content));
     }
 
@@ -1136,7 +1136,7 @@ public class ObjectMapper
      */
     public JsonNode readTree(byte[] content, int offset, int len) throws JacksonException {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = _deserializationContext();
+        DeserializationContextExt ctxt = _deserializationContext();
         return _readTreeAndClose(ctxt, _streamFactory.createParser(ctxt, content, offset, len));
     }
 
@@ -1147,7 +1147,7 @@ public class ObjectMapper
     public JsonNode readTree(File file) throws JacksonException
     {
         _assertNotNull("file", file);
-        DefaultDeserializationContext ctxt = _deserializationContext();
+        DeserializationContextExt ctxt = _deserializationContext();
         return _readTreeAndClose(ctxt, _streamFactory.createParser(ctxt, file));
     }
 
@@ -1163,7 +1163,7 @@ public class ObjectMapper
      */
     public JsonNode readTree(URL src) throws JacksonException {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = _deserializationContext();
+        DeserializationContextExt ctxt = _deserializationContext();
         return _readTreeAndClose(ctxt, _streamFactory.createParser(ctxt, src));
     }
 
@@ -1283,7 +1283,7 @@ public class ObjectMapper
         //   do it here too
         SerializationConfig config = serializationConfig()
             .without(SerializationFeature.WRAP_ROOT_VALUE);
-        DefaultSerializerProvider prov = _serializerProvider(config);
+        SerializationContextExt prov = _serializerProvider(config);
         TokenBuffer buf = TokenBuffer.forValueConversion(prov);
         // Would like to let buffer decide, but it won't have deser config to check so...
         if (isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
@@ -1319,7 +1319,7 @@ public class ObjectMapper
     public <T> T readValue(File src, Class<T> valueType) throws JacksonException
     {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = _deserializationContext();
+        DeserializationContextExt ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt, _streamFactory.createParser(ctxt, src),
                 _typeFactory.constructType(valueType));
     } 
@@ -1340,7 +1340,7 @@ public class ObjectMapper
     public <T> T readValue(File src, TypeReference<T> valueTypeRef) throws JacksonException
     {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = _deserializationContext();
+        DeserializationContextExt ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt, _streamFactory.createParser(ctxt, src),
                 _typeFactory.constructType(valueTypeRef));
     } 
@@ -1361,7 +1361,7 @@ public class ObjectMapper
     public <T> T readValue(File src, JavaType valueType) throws JacksonException
     {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = _deserializationContext();
+        DeserializationContextExt ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt, _streamFactory.createParser(ctxt, src), valueType);
     }
 
@@ -1387,7 +1387,7 @@ public class ObjectMapper
     public <T> T readValue(URL src, Class<T> valueType) throws JacksonException
     {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = _deserializationContext();
+        DeserializationContextExt ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt,
                 _streamFactory.createParser(ctxt, src), _typeFactory.constructType(valueType));
     } 
@@ -1399,7 +1399,7 @@ public class ObjectMapper
     public <T> T readValue(URL src, TypeReference<T> valueTypeRef) throws JacksonException
     {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = _deserializationContext();
+        DeserializationContextExt ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt,
                 _streamFactory.createParser(ctxt, src), _typeFactory.constructType(valueTypeRef));
     } 
@@ -1411,7 +1411,7 @@ public class ObjectMapper
     public <T> T readValue(URL src, JavaType valueType) throws JacksonException
     {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = _deserializationContext();
+        DeserializationContextExt ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt,
                 _streamFactory.createParser(ctxt, src), valueType);
     } 
@@ -1433,7 +1433,7 @@ public class ObjectMapper
         throws JacksonException
     {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = _deserializationContext();
+        DeserializationContextExt ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt,
                 _streamFactory.createParser(ctxt, content), _typeFactory.constructType(valueType));
     } 
@@ -1454,7 +1454,7 @@ public class ObjectMapper
     public <T> T readValue(String content, TypeReference<T> valueTypeRef) throws JacksonException
     {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = _deserializationContext();
+        DeserializationContextExt ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt,
                 _streamFactory.createParser(ctxt, content), _typeFactory.constructType(valueTypeRef));
     } 
@@ -1475,7 +1475,7 @@ public class ObjectMapper
     public <T> T readValue(String content, JavaType valueType) throws JacksonException
     {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = _deserializationContext();
+        DeserializationContextExt ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt,
                 _streamFactory.createParser(ctxt, content), valueType);
     }
@@ -1484,7 +1484,7 @@ public class ObjectMapper
     public <T> T readValue(Reader src, Class<T> valueType) throws JacksonException
     {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = _deserializationContext();
+        DeserializationContextExt ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt,
                 _streamFactory.createParser(ctxt, src), _typeFactory.constructType(valueType));
     }
@@ -1493,7 +1493,7 @@ public class ObjectMapper
     public <T> T readValue(Reader src, TypeReference<T> valueTypeRef) throws JacksonException
     {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = _deserializationContext();
+        DeserializationContextExt ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt,
                 _streamFactory.createParser(ctxt, src), _typeFactory.constructType(valueTypeRef));
     }
@@ -1502,7 +1502,7 @@ public class ObjectMapper
     public <T> T readValue(Reader src, JavaType valueType) throws JacksonException
     {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = _deserializationContext();
+        DeserializationContextExt ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt,
                 _streamFactory.createParser(ctxt, src), valueType);
     }
@@ -1511,7 +1511,7 @@ public class ObjectMapper
     public <T> T readValue(InputStream src, Class<T> valueType) throws JacksonException
     {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = _deserializationContext();
+        DeserializationContextExt ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt,
                 _streamFactory.createParser(ctxt, src), _typeFactory.constructType(valueType));
     }
@@ -1520,7 +1520,7 @@ public class ObjectMapper
     public <T> T readValue(InputStream src, TypeReference<T> valueTypeRef) throws JacksonException
     {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = _deserializationContext();
+        DeserializationContextExt ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt,
                 _streamFactory.createParser(ctxt, src), _typeFactory.constructType(valueTypeRef));
     }
@@ -1529,7 +1529,7 @@ public class ObjectMapper
     public <T> T readValue(InputStream src, JavaType valueType) throws JacksonException
     {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = _deserializationContext();
+        DeserializationContextExt ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt,
                 _streamFactory.createParser(ctxt, src), valueType);
     }
@@ -1538,7 +1538,7 @@ public class ObjectMapper
     public <T> T readValue(byte[] content, Class<T> valueType) throws JacksonException
     {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = _deserializationContext();
+        DeserializationContextExt ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt,
                 _streamFactory.createParser(ctxt, content), _typeFactory.constructType(valueType));
     }
@@ -1548,7 +1548,7 @@ public class ObjectMapper
         throws JacksonException
     {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = _deserializationContext();
+        DeserializationContextExt ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt,
                 _streamFactory.createParser(ctxt, content, offset, len), _typeFactory.constructType(valueType));
     }
@@ -1557,7 +1557,7 @@ public class ObjectMapper
     public <T> T readValue(byte[] content, TypeReference<T> valueTypeRef) throws JacksonException
     {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = _deserializationContext();
+        DeserializationContextExt ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt,
                 _streamFactory.createParser(ctxt, content), _typeFactory.constructType(valueTypeRef));
     }
@@ -1567,7 +1567,7 @@ public class ObjectMapper
         throws JacksonException
     {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = _deserializationContext();
+        DeserializationContextExt ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt,
                 _streamFactory.createParser(ctxt, content, offset, len),
                 _typeFactory.constructType(valueTypeRef));
@@ -1577,7 +1577,7 @@ public class ObjectMapper
     public <T> T readValue(byte[] content, JavaType valueType) throws JacksonException
     {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = _deserializationContext();
+        DeserializationContextExt ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt,
                 _streamFactory.createParser(ctxt, content), valueType);
     }
@@ -1587,7 +1587,7 @@ public class ObjectMapper
                     throws JacksonException
     {
         _assertNotNull("content", content);
-        DefaultDeserializationContext ctxt = _deserializationContext();
+        DeserializationContextExt ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt,
                 _streamFactory.createParser(ctxt, content, offset, len), valueType);
     } 
@@ -1596,7 +1596,7 @@ public class ObjectMapper
     public <T> T readValue(DataInput src, Class<T> valueType) throws JacksonException
     {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = _deserializationContext();
+        DeserializationContextExt ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt,
                 _streamFactory.createParser(ctxt, src), _typeFactory.constructType(valueType));
     }
@@ -1605,7 +1605,7 @@ public class ObjectMapper
     public <T> T readValue(DataInput src, JavaType valueType) throws JacksonException
     {
         _assertNotNull("src", src);
-        DefaultDeserializationContext ctxt = _deserializationContext();
+        DeserializationContextExt ctxt = _deserializationContext();
         return (T) _readMapAndClose(ctxt,
                 _streamFactory.createParser(ctxt, src), valueType);
     }
@@ -1623,7 +1623,7 @@ public class ObjectMapper
     public void writeValue(File file, Object value) throws JacksonException
     {
         _assertNotNull("file", file);
-        DefaultSerializerProvider prov = _serializerProvider();
+        SerializationContextExt prov = _serializerProvider();
         _configAndWriteValue(prov,
                 _streamFactory.createGenerator(prov, file, JsonEncoding.UTF8), value);
     }
@@ -1642,7 +1642,7 @@ public class ObjectMapper
     public void writeValue(OutputStream out, Object value) throws JacksonException
     {
         _assertNotNull("out", out);
-        DefaultSerializerProvider prov = _serializerProvider();
+        SerializationContextExt prov = _serializerProvider();
         _configAndWriteValue(prov,
                 _streamFactory.createGenerator(prov, out, JsonEncoding.UTF8), value);
     }
@@ -1650,7 +1650,7 @@ public class ObjectMapper
     public void writeValue(DataOutput out, Object value) throws JacksonException
     {
         _assertNotNull("out", out);
-        DefaultSerializerProvider prov = _serializerProvider();
+        SerializationContextExt prov = _serializerProvider();
         _configAndWriteValue(prov,
                 _streamFactory.createGenerator(prov, out), value);
     }
@@ -1668,7 +1668,7 @@ public class ObjectMapper
     public void writeValue(Writer w, Object value) throws JacksonException
     {
         _assertNotNull("w", w);
-        DefaultSerializerProvider prov = _serializerProvider();
+        SerializationContextExt prov = _serializerProvider();
         _configAndWriteValue(prov, _streamFactory.createGenerator(prov, w), value);
     }
 
@@ -1683,7 +1683,7 @@ public class ObjectMapper
     {
         // alas, we have to pull the recycler directly here...
         SegmentedStringWriter sw = new SegmentedStringWriter(_streamFactory._getBufferRecycler());
-        DefaultSerializerProvider prov = _serializerProvider();
+        SerializationContextExt prov = _serializerProvider();
         _configAndWriteValue(prov, _streamFactory.createGenerator(prov, sw), value);
         return sw.getAndClear();
     }
@@ -1698,7 +1698,7 @@ public class ObjectMapper
     @SuppressWarnings("resource")
     public byte[] writeValueAsBytes(Object value) throws JacksonException
     {
-        DefaultSerializerProvider prov = _serializerProvider();
+        SerializationContextExt prov = _serializerProvider();
         ByteArrayBuilder bb = new ByteArrayBuilder(_streamFactory._getBufferRecycler());
         _configAndWriteValue(prov,
                 _streamFactory.createGenerator(prov, bb, JsonEncoding.UTF8), value);
@@ -1711,7 +1711,7 @@ public class ObjectMapper
      * Method called to configure the generator as necessary and then
      * call write functionality
      */
-    protected final void _configAndWriteValue(DefaultSerializerProvider prov,
+    protected final void _configAndWriteValue(SerializationContextExt prov,
             JsonGenerator g, Object value)
         throws JacksonException
     {
@@ -1732,7 +1732,7 @@ public class ObjectMapper
      * Helper method used when value to serialize is {@link Closeable} and its <code>close()</code>
      * method is to be called right after serialization has been called
      */
-    private final void _configAndWriteCloseable(DefaultSerializerProvider prov,
+    private final void _configAndWriteCloseable(SerializationContextExt prov,
             JsonGenerator g, Object value)
         throws JacksonException
     {
@@ -2195,7 +2195,7 @@ public class ObjectMapper
         // first: disable wrapping when writing
         SerializationConfig config = serializationConfig()
                 .without(SerializationFeature.WRAP_ROOT_VALUE);
-        DefaultSerializerProvider prov = _serializerProvider(config);
+        SerializationContextExt prov = _serializerProvider(config);
         TokenBuffer buf = TokenBuffer.forValueConversion(prov);
         // Would like to let buffer decide, but it won't have deser config to check so...
         if (isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
@@ -2205,7 +2205,7 @@ public class ObjectMapper
         prov.serializeValue(buf, fromValue);
 
         // then matching read, inlined 'readValue' with minor mods:
-        DefaultDeserializationContext readCtxt = _deserializationContext();
+        DeserializationContextExt readCtxt = _deserializationContext();
         final JsonParser p = buf.asParser(readCtxt);
         readCtxt.assignParser(p);
         Object result;
@@ -2266,7 +2266,7 @@ public class ObjectMapper
         }
         SerializationConfig config = serializationConfig()
                 .without(SerializationFeature.WRAP_ROOT_VALUE);
-        DefaultSerializerProvider prov = _serializerProvider(config);
+        SerializationContextExt prov = _serializerProvider(config);
         TokenBuffer buf = TokenBuffer.forValueConversion(prov);
         // Would like to let buffer decide, but it won't have deser config to check so...
         if (isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
@@ -2335,14 +2335,14 @@ public class ObjectMapper
      * Overridable helper method used for constructing
      * {@link SerializerProvider} to use for serialization.
      */
-    protected DefaultSerializerProvider _serializerProvider(SerializationConfig config) {
+    protected SerializationContextExt _serializerProvider(SerializationConfig config) {
         // 03-Oct-2017, tatu: Should be ok to pass "empty" generator settings...
         return _serializationContexts.createContext(config,
                 GeneratorSettings.empty());
     }
 
     // NOTE: only public to allow for testing
-    public DefaultSerializerProvider _serializerProvider() {
+    public SerializationContextExt _serializerProvider() {
         // 03-Oct-2017, tatu: Should be ok to pass "empty" generator settings...
         return _serializationContexts.createContext(serializationConfig(),
                 GeneratorSettings.empty());
@@ -2357,7 +2357,7 @@ public class ObjectMapper
     /**
      * Actual implementation of value reading+binding operation.
      */
-    protected Object _readValue(DefaultDeserializationContext ctxt, JsonParser p,
+    protected Object _readValue(DeserializationContextExt ctxt, JsonParser p,
             JavaType valueType)
         throws JacksonException
     {
@@ -2383,7 +2383,7 @@ public class ObjectMapper
         return result;
     }
 
-    protected Object _readMapAndClose(DefaultDeserializationContext ctxt,
+    protected Object _readMapAndClose(DeserializationContextExt ctxt,
             JsonParser p0, JavaType valueType)
         throws JacksonException
     {
@@ -2411,7 +2411,7 @@ public class ObjectMapper
     /**
      * Similar to {@link #_readMapAndClose} but specialized for <code>JsonNode</code> reading.
      */
-    protected JsonNode _readTreeAndClose(DefaultDeserializationContext ctxt,
+    protected JsonNode _readTreeAndClose(DeserializationContextExt ctxt,
             JsonParser p0) throws JacksonException
     {
         try (JsonParser p = ctxt.assignAndReturnParser(p0)) {
@@ -2451,19 +2451,19 @@ public class ObjectMapper
      * for deserializing a single root value.
      * Can be overridden if a custom context is needed.
      */
-    protected DefaultDeserializationContext _deserializationContext(JsonParser p) {
+    protected DeserializationContextExt _deserializationContext(JsonParser p) {
         return _deserializationContexts.createContext(deserializationConfig(),
                 /* FormatSchema */ null, _injectableValues)
                 .assignParser(p);
     }
 
     // NOTE: only public to allow for testing
-    public DefaultDeserializationContext _deserializationContext() {
+    public DeserializationContextExt _deserializationContext() {
         return _deserializationContexts.createContext(deserializationConfig(),
                 /* FormatSchema */ null, _injectableValues);
     }
 
-    protected DefaultDeserializationContext _deserializationContext(DeserializationConfig config,
+    protected DeserializationContextExt _deserializationContext(DeserializationConfig config,
             JsonParser p) {
         return _deserializationContexts.createContext(config,
                 /* FormatSchema */ null, _injectableValues)

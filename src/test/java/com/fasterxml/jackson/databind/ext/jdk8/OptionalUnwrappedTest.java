@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.ser.BeanSerializerFactory;
-import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
+import com.fasterxml.jackson.databind.ser.SerializationContextExt;
 import com.fasterxml.jackson.databind.ser.SerializerCache;
 
 public class OptionalUnwrappedTest extends BaseMapTest
@@ -71,7 +71,7 @@ public class OptionalUnwrappedTest extends BaseMapTest
 
         final AtomicReference<String> propertyName = new AtomicReference<>();
         mapper.acceptJsonFormatVisitor(OptionalParent.class, new JsonFormatVisitorWrapper.Base(
-                new DefaultSerializerProvider.Impl(new JsonFactory(),
+                new SerializationContextExt.Impl(new JsonFactory(),
                         mapper.serializationConfig(), null,
                         BeanSerializerFactory.instance, new SerializerCache())) {
             @Override

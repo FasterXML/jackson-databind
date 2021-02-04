@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * implementations must sub-class this class: {@link ObjectMapper}
  * requires this type, not basic provider type.
  */
-public class DefaultSerializerProvider
+public class SerializationContextExt
     extends SerializerProvider
 {
     /*
@@ -49,7 +49,7 @@ public class DefaultSerializerProvider
     /**********************************************************************
      */
 
-    protected DefaultSerializerProvider(TokenStreamFactory streamFactory,
+    protected SerializationContextExt(TokenStreamFactory streamFactory,
             SerializationConfig config, GeneratorSettings genSettings,
             SerializerFactory f, SerializerCache cache) {
         super(streamFactory, config, genSettings, f, cache);
@@ -441,10 +441,10 @@ filter.getClass().getName(), t.getClass().getName(), ClassUtil.exceptionMessage(
 
     /**
      * Concrete implementation defined separately so it can be declared `final`.
-     * Alternate implements should instead just extend {@link DefaultSerializerProvider}
+     * Alternate implements should instead just extend {@link SerializationContextExt}
      */
     public final static class Impl
-        extends DefaultSerializerProvider
+        extends SerializationContextExt
     {
         public Impl(TokenStreamFactory streamFactory,
                 SerializationConfig config, GeneratorSettings genSettings,

@@ -16,7 +16,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
 import com.fasterxml.jackson.databind.ser.impl.PropertyBasedObjectIdGenerator;
-import com.fasterxml.jackson.databind.ser.impl.WritableObjectId;
 import com.fasterxml.jackson.databind.ser.jdk.EnumSerializer;
 import com.fasterxml.jackson.databind.ser.jdk.MapEntrySerializer;
 import com.fasterxml.jackson.databind.ser.std.StdContainerSerializer;

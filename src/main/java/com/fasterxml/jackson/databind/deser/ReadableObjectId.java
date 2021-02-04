@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.deser.impl;
+package com.fasterxml.jackson.databind.deser;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -10,7 +10,6 @@ import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.deser.UnresolvedForwardReference;
 
 /**
  * Simple value container for containing information about single Object Id

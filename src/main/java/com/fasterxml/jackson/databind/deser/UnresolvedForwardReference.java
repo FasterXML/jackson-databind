@@ -8,7 +8,6 @@ import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.DatabindException;
-import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId;
 
 /**
  * Exception thrown during deserialization when there are object id that can't

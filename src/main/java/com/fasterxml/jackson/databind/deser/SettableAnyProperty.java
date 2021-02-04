@@ -4,7 +4,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId.Referring;
+import com.fasterxml.jackson.databind.deser.ReadableObjectId.Referring;
 import com.fasterxml.jackson.databind.introspect.AnnotatedField;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;

@@ -14,8 +14,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.TokenStreamFactory;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
-import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId;
-import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId.Referring;
+import com.fasterxml.jackson.databind.deser.ReadableObjectId.Referring;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 

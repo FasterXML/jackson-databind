@@ -17,12 +17,12 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
  * interface, cannot be checked for direct class equivalence.
  */
 @JacksonStdImpl
-public class SerializableSerializer
+public class JsonSerializableSerializer
     extends StdSerializer<JsonSerializable>
 {
-    public final static SerializableSerializer instance = new SerializableSerializer();
+    public final static JsonSerializableSerializer instance = new JsonSerializableSerializer();
 
-    protected SerializableSerializer() { super(JsonSerializable.class); }
+    protected JsonSerializableSerializer() { super(JsonSerializable.class); }
 
     @Override
     public boolean isEmpty(SerializerProvider serializers, JsonSerializable value) {

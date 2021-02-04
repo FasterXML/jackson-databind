@@ -29,7 +29,7 @@ import com.fasterxml.jackson.databind.ext.jdk8.Jdk8StreamSerializer;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.jackson.JsonValueSerializer;
-import com.fasterxml.jackson.databind.ser.jackson.SerializableSerializer;
+import com.fasterxml.jackson.databind.ser.jackson.JsonSerializableSerializer;
 import com.fasterxml.jackson.databind.ser.jdk.*;
 import com.fasterxml.jackson.databind.ser.std.*;
 import com.fasterxml.jackson.databind.type.*;
@@ -314,7 +314,7 @@ public abstract class BasicSerializerFactory
         Class<?> raw = type.getRawClass();
         // First: JsonSerializable?
         if (JsonSerializable.class.isAssignableFrom(raw)) {
-            return SerializableSerializer.instance;
+            return JsonSerializableSerializer.instance;
         }
         // Second: @JsonValue for any type
         AnnotatedMember valueAccessor = beanDesc.findJsonValueAccessor();

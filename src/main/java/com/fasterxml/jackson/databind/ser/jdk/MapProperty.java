@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.ser.jackson;
+package com.fasterxml.jackson.databind.ser.jdk;
 
 import java.lang.annotation.Annotation;
 

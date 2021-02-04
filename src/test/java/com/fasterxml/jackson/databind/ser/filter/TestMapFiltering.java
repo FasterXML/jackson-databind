@@ -12,7 +12,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.ser.*;
-import com.fasterxml.jackson.databind.ser.jackson.MapProperty;
+import com.fasterxml.jackson.databind.ser.jdk.MapProperty;
 import com.fasterxml.jackson.databind.ser.std.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.std.SimpleFilterProvider;
 

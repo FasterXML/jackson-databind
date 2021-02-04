@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.deser.jdk.JDKFromStringDeserializer;
+import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
 public class ManualReadPerfWithUUID extends ObjectReaderTestBase
@@ -18,7 +18,7 @@ public class ManualReadPerfWithUUID extends ObjectReaderTestBase
     @Override
     protected int targetSizeMegs() { return 8; }
 
-    static class SlowDeser extends JDKFromStringDeserializer<UUID>
+    static class SlowDeser extends FromStringDeserializer<UUID>
     {
         public SlowDeser() { super(UUID.class); }
 

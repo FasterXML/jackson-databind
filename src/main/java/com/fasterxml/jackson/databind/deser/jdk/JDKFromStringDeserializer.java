@@ -23,7 +23,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.VersionUtil;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.std.StdFromStringDeserializer;
+import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -60,9 +60,23 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  *  </li>
  * </ul>
  */
-public abstract class JDKFromStringDeserializer<T>
-    extends StdFromStringDeserializer<T>
+public class JDKFromStringDeserializer
+    extends FromStringDeserializer<Object>
 {
+    public final static int STD_FILE = 1;
+    public final static int STD_URL = 2;
+    public final static int STD_URI = 3;
+    public final static int STD_PATH = 4;
+    public final static int STD_CLASS = 5;
+    public final static int STD_JAVA_TYPE = 6;
+    public final static int STD_CURRENCY = 7;
+    public final static int STD_PATTERN = 8;
+    public final static int STD_LOCALE = 9;
+    public final static int STD_CHARSET = 10;
+    public final static int STD_TIME_ZONE = 11;
+    public final static int STD_INET_ADDRESS = 12;
+    public final static int STD_INET_SOCKET_ADDRESS = 13;
+
     public static Class<?>[] types() {
         return new Class<?>[] {
             File.class,
@@ -84,55 +98,58 @@ public abstract class JDKFromStringDeserializer<T>
         };
     }
 
+    protected final int _kind;
+
     /*
     /**********************************************************************
     /* Life-cycle
     /**********************************************************************
      */
 
-    protected JDKFromStringDeserializer(Class<?> vc) {
-        super(vc);
+    protected JDKFromStringDeserializer(Class<?> valueType, int kind) {
+        super(valueType);
+        _kind = kind;
     }
 
     /**
      * Factory method for trying to find a deserializer for one of supported
      * types that have simple from-String serialization.
      */
-    public static JDKFromStringDeserializer<?> findDeserializer(Class<?> rawType)
+    public static JDKFromStringDeserializer findDeserializer(Class<?> rawType)
     {
         int kind = 0;
         if (rawType == File.class) {
-            kind = Std.STD_FILE;
+            kind = STD_FILE;
         } else if (rawType == URL.class) {
-            kind = Std.STD_URL;
+            kind = STD_URL;
         } else if (rawType == URI.class) {
-            kind = Std.STD_URI;
+            kind = STD_URI;
         } else if (rawType == Path.class) {
-            kind = Std.STD_PATH;
+            kind = STD_PATH;
         } else if (rawType == Class.class) {
-            kind = Std.STD_CLASS;
+            kind = STD_CLASS;
         } else if (rawType == JavaType.class) {
-            kind = Std.STD_JAVA_TYPE;
+            kind = STD_JAVA_TYPE;
         } else if (rawType == Currency.class) {
-            kind = Std.STD_CURRENCY;
+            kind = STD_CURRENCY;
         } else if (rawType == Pattern.class) {
-            kind = Std.STD_PATTERN;
+            kind = STD_PATTERN;
         } else if (rawType == Locale.class) {
-            kind = Std.STD_LOCALE;
+            kind = STD_LOCALE;
         } else if (rawType == Charset.class) {
-            kind = Std.STD_CHARSET;
+            kind = STD_CHARSET;
         } else if (rawType == TimeZone.class) {
-            kind = Std.STD_TIME_ZONE;
+            kind = STD_TIME_ZONE;
         } else if (rawType == InetAddress.class) {
-            kind = Std.STD_INET_ADDRESS;
+            kind = STD_INET_ADDRESS;
         } else if (rawType == InetSocketAddress.class) {
-            kind = Std.STD_INET_SOCKET_ADDRESS;
+            kind = STD_INET_SOCKET_ADDRESS;
         } else if (rawType == StringBuilder.class) {
             return new StringBuilderDeserializer();
         } else {
             return null;
         }
-        return new Std(rawType, kind);
+        return new JDKFromStringDeserializer(rawType, kind);
     }
 
     /*
@@ -141,154 +158,123 @@ public abstract class JDKFromStringDeserializer<T>
     /**********************************************************************
      */
 
-    /**
-     * "Chameleon" deserializer that works on simple types that are deserialized
-     * from a simple String.
-     */
-    public static class Std extends JDKFromStringDeserializer<Object>
+    // NOTE: public (unlike base class) to give JDKKeyDeserializer access
+    @Override
+    public Object _deserialize(String value, DeserializationContext ctxt)
+        throws JacksonException,
+            MalformedURLException, UnknownHostException
     {
-        public final static int STD_FILE = 1;
-        public final static int STD_URL = 2;
-        public final static int STD_URI = 3;
-        public final static int STD_PATH = 4;
-        public final static int STD_CLASS = 5;
-        public final static int STD_JAVA_TYPE = 6;
-        public final static int STD_CURRENCY = 7;
-        public final static int STD_PATTERN = 8;
-        public final static int STD_LOCALE = 9;
-        public final static int STD_CHARSET = 10;
-        public final static int STD_TIME_ZONE = 11;
-        public final static int STD_INET_ADDRESS = 12;
-        public final static int STD_INET_SOCKET_ADDRESS = 13;
-// No longer implemented here since 2.12
-//        public final static int STD_STRING_BUILDER = 14;
-
-        protected final int _kind;
-
-        protected Std(Class<?> valueType, int kind) {
-            super(valueType);
-            _kind = kind;
-        }
-
-        @Override
-        protected Object _deserialize(String value, DeserializationContext ctxt)
-            throws JacksonException,
-                MalformedURLException, UnknownHostException
-        {
-            switch (_kind) {
-            case STD_FILE:
-                return new File(value);
-            case STD_URL:
-                return new URL(value);
-            case STD_URI:
-                return URI.create(value);
-            case STD_PATH:
-                // 06-Sep-2018, tatu: Offlined due to additions in [databind#2120]
-                return NioPathHelper.deserialize(ctxt, value);
-            case STD_CLASS:
-                try {
-                    return ctxt.findClass(value);
-                } catch (Exception e) {
-                    return ctxt.handleInstantiationProblem(_valueClass, value,
-                            ClassUtil.getRootCause(e));
-                }
-            case STD_JAVA_TYPE:
-                return ctxt.getTypeFactory().constructFromCanonical(value);
-            case STD_CURRENCY:
-                // will throw IAE if unknown:
-                return Currency.getInstance(value);
-            case STD_PATTERN:
-                // will throw IAE (or its subclass) if malformed
-                return Pattern.compile(value);
-            case STD_LOCALE:
-                {
-                    int ix = _firstHyphenOrUnderscore(value);
-                    if (ix < 0) { // single argument
-                        return new Locale(value);
-                    }
-                    String first = value.substring(0, ix);
-                    value = value.substring(ix+1);
-                    ix = _firstHyphenOrUnderscore(value);
-                    if (ix < 0) { // two pieces
-                        return new Locale(first, value);
-                    }
-                    String second = value.substring(0, ix);
-                    return new Locale(first, second, value.substring(ix+1));
-                }
-            case STD_CHARSET:
-                return Charset.forName(value);
-            case STD_TIME_ZONE:
-                return TimeZone.getTimeZone(value);
-            case STD_INET_ADDRESS:
-                return InetAddress.getByName(value);
-            case STD_INET_SOCKET_ADDRESS:
-                if (value.startsWith("[")) {
-                    // bracketed IPv6 (with port number)
-
-                    int i = value.lastIndexOf(']');
-                    if (i == -1) {
-                        throw new InvalidFormatException(ctxt.getParser(),
-                                "Bracketed IPv6 address must contain closing bracket",
-                                value, InetSocketAddress.class);
-                    }
-
-                    int j = value.indexOf(':', i);
-                    int port = j > -1 ? Integer.parseInt(value.substring(j + 1)) : 0;
-                    return new InetSocketAddress(value.substring(0, i + 1), port);
-                }
-                int ix = value.indexOf(':');
-                if (ix >= 0 && value.indexOf(':', ix + 1) < 0) {
-                    // host:port
-                    int port = Integer.parseInt(value.substring(ix+1));
-                    return new InetSocketAddress(value.substring(0, ix), port);
-                }
-                // host or unbracketed IPv6, without port number
-                return new InetSocketAddress(value, 0);
+        switch (_kind) {
+        case STD_FILE:
+            return new File(value);
+        case STD_URL:
+            return new URL(value);
+        case STD_URI:
+            return URI.create(value);
+        case STD_PATH:
+            // 06-Sep-2018, tatu: Offlined due to additions in [databind#2120]
+            return NioPathHelper.deserialize(ctxt, value);
+        case STD_CLASS:
+            try {
+                return ctxt.findClass(value);
+            } catch (Exception e) {
+                return ctxt.handleInstantiationProblem(_valueClass, value,
+                        ClassUtil.getRootCause(e));
             }
-            VersionUtil.throwInternal();
-            return null;
-        }
-
-        @Override // since 2.12
-        public Object getEmptyValue(DeserializationContext ctxt)
-        {
-            switch (_kind) {
-            case STD_URI:
-                // As per [databind#398], URI requires special handling
-                return URI.create("");
-            case STD_LOCALE:
-                // As per [databind#1123], Locale too
-                return Locale.ROOT;
-            }
-            return super.getEmptyValue(ctxt);
-        }
-
-        @Override
-        protected Object _deserializeFromEmptyStringDefault(DeserializationContext ctxt) throws JacksonException {
-            // 09-Jun-2020, tatu: For backwards compatibility deserialize "as-empty"
-            //    as URI and Locale did that in 2.11 (and StringBuilder probably ought to).
-            //   But doing this here instead of super-class lets UUID return "as-null" instead
-            return getEmptyValue(ctxt);
-        }
-
-        protected int _firstHyphenOrUnderscore(String str)
-        {
-            for (int i = 0, end = str.length(); i < end; ++i) {
-                char c = str.charAt(i);
-                if (c == '_' || c == '-') {
-                    return i;
+        case STD_JAVA_TYPE:
+            return ctxt.getTypeFactory().constructFromCanonical(value);
+        case STD_CURRENCY:
+            // will throw IAE if unknown:
+            return Currency.getInstance(value);
+        case STD_PATTERN:
+            // will throw IAE (or its subclass) if malformed
+            return Pattern.compile(value);
+        case STD_LOCALE:
+            {
+                int ix = _firstHyphenOrUnderscore(value);
+                if (ix < 0) { // single argument
+                    return new Locale(value);
                 }
+                String first = value.substring(0, ix);
+                value = value.substring(ix+1);
+                ix = _firstHyphenOrUnderscore(value);
+                if (ix < 0) { // two pieces
+                    return new Locale(first, value);
+                }
+                String second = value.substring(0, ix);
+                return new Locale(first, second, value.substring(ix+1));
             }
-            return -1;
+        case STD_CHARSET:
+            return Charset.forName(value);
+        case STD_TIME_ZONE:
+            return TimeZone.getTimeZone(value);
+        case STD_INET_ADDRESS:
+            return InetAddress.getByName(value);
+        case STD_INET_SOCKET_ADDRESS:
+            if (value.startsWith("[")) {
+                // bracketed IPv6 (with port number)
+
+                int i = value.lastIndexOf(']');
+                if (i == -1) {
+                    throw new InvalidFormatException(ctxt.getParser(),
+                            "Bracketed IPv6 address must contain closing bracket",
+                            value, InetSocketAddress.class);
+                }
+
+                int j = value.indexOf(':', i);
+                int port = j > -1 ? Integer.parseInt(value.substring(j + 1)) : 0;
+                return new InetSocketAddress(value.substring(0, i + 1), port);
+            }
+            int ix = value.indexOf(':');
+            if (ix >= 0 && value.indexOf(':', ix + 1) < 0) {
+                // host:port
+                int port = Integer.parseInt(value.substring(ix+1));
+                return new InetSocketAddress(value.substring(0, ix), port);
+            }
+            // host or unbracketed IPv6, without port number
+            return new InetSocketAddress(value, 0);
         }
+        VersionUtil.throwInternal();
+        return null;
     }
 
-    // @since 2.12 to simplify logic a bit: should not use coercions when reading
-    //   String Values
-    static class StringBuilderDeserializer extends JDKFromStringDeserializer<Object>
+    @Override // since 2.12
+    public Object getEmptyValue(DeserializationContext ctxt)
+    {
+        switch (_kind) {
+        case STD_URI:
+            // As per [databind#398], URI requires special handling
+            return URI.create("");
+        case STD_LOCALE:
+            // As per [databind#1123], Locale too
+            return Locale.ROOT;
+        }
+        return super.getEmptyValue(ctxt);
+    }
+
+    @Override
+    protected Object _deserializeFromEmptyStringDefault(DeserializationContext ctxt) throws JacksonException {
+        // 09-Jun-2020, tatu: For backwards compatibility deserialize "as-empty"
+        //    as URI and Locale did that in 2.11 (and StringBuilder probably ought to).
+        //   But doing this here instead of super-class lets UUID return "as-null" instead
+        return getEmptyValue(ctxt);
+    }
+
+    protected int _firstHyphenOrUnderscore(String str)
+    {
+        for (int i = 0, end = str.length(); i < end; ++i) {
+            char c = str.charAt(i);
+            if (c == '_' || c == '-') {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    static class StringBuilderDeserializer extends JDKFromStringDeserializer
     {
         public StringBuilderDeserializer() {
-            super(StringBuilder.class);
+            super(StringBuilder.class, -1);
         }
 
         @Override
@@ -312,8 +298,7 @@ public abstract class JDKFromStringDeserializer<T>
         }
 
         @Override
-        protected Object _deserialize(String value, DeserializationContext ctxt)
-            throws JacksonException
+        public Object _deserialize(String value, DeserializationContext ctxt)
         {
             return new StringBuilder(value);
         }

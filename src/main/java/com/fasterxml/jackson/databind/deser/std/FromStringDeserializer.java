@@ -18,10 +18,8 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 /**
  * Base class for building simple scalar value deserializers that accept
  * String values.
- *<p>
- * NOTE: in Jackson 2.x was named just {@code FromStringDeserializer}
  */
-public abstract class StdFromStringDeserializer<T> extends StdScalarDeserializer<T>
+public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
 {
     /*
     /**********************************************************************
@@ -29,11 +27,11 @@ public abstract class StdFromStringDeserializer<T> extends StdScalarDeserializer
     /**********************************************************************
      */
 
-    protected StdFromStringDeserializer(Class<?> vc) {
+    protected FromStringDeserializer(Class<?> vc) {
         super(vc);
     }
 
-    protected StdFromStringDeserializer(JavaType type) {
+    protected FromStringDeserializer(JavaType type) {
         super(type);
     }
 

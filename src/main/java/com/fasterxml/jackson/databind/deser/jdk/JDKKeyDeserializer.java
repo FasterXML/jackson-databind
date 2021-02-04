@@ -54,13 +54,13 @@ public class JDKKeyDeserializer extends KeyDeserializer
     /**
      * Some types that are deserialized using a helper deserializer.
      */
-    protected final JDKFromStringDeserializer<?> _deser;
+    protected final JDKFromStringDeserializer _deser;
     
     protected JDKKeyDeserializer(int kind, Class<?> cls) {
         this(kind, cls, null);
     }
 
-    protected JDKKeyDeserializer(int kind, Class<?> cls, JDKFromStringDeserializer<?> deser) {
+    protected JDKKeyDeserializer(int kind, Class<?> cls, JDKFromStringDeserializer deser) {
         _kind = kind;
         _keyClass = cls;
         _deser = deser;
@@ -107,10 +107,10 @@ public class JDKKeyDeserializer extends KeyDeserializer
         } else if (raw == Class.class) {
             kind = TYPE_CLASS;
         } else if (raw == Locale.class) {
-            JDKFromStringDeserializer<?> deser = JDKFromStringDeserializer.findDeserializer(Locale.class);
+            JDKFromStringDeserializer deser = JDKFromStringDeserializer.findDeserializer(Locale.class);
             return new JDKKeyDeserializer(TYPE_LOCALE, raw, deser);
         } else if (raw == Currency.class) {
-            JDKFromStringDeserializer<?> deser = JDKFromStringDeserializer.findDeserializer(Currency.class);
+            JDKFromStringDeserializer deser = JDKFromStringDeserializer.findDeserializer(Currency.class);
             return new JDKKeyDeserializer(TYPE_CURRENCY, raw, deser);
         } else if (raw == byte[].class) {
             kind = TYPE_BYTE_ARRAY;

@@ -7,9 +7,10 @@ import com.fasterxml.jackson.core.Base64Variants;
 import com.fasterxml.jackson.core.JacksonException;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
-public class UUIDDeserializer extends JDKFromStringDeserializer<UUID>
+public class UUIDDeserializer extends FromStringDeserializer<UUID>
 {
     final static int[] HEX_DIGITS = new int[127];
     static {

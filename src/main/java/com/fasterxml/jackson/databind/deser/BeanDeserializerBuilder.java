@@ -1,14 +1,13 @@
-package com.fasterxml.jackson.databind.deser.bean;
+package com.fasterxml.jackson.databind.deser;
 
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import com.fasterxml.jackson.databind.deser.AbstractDeserializer;
-import com.fasterxml.jackson.databind.deser.SettableAnyProperty;
-import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
-import com.fasterxml.jackson.databind.deser.ValueInstantiator;
+import com.fasterxml.jackson.databind.deser.bean.BeanDeserializer;
+import com.fasterxml.jackson.databind.deser.bean.BeanPropertyMap;
+import com.fasterxml.jackson.databind.deser.bean.BuilderBasedDeserializer;
 import com.fasterxml.jackson.databind.deser.impl.ObjectIdReader;
 import com.fasterxml.jackson.databind.deser.impl.ObjectIdValueProperty;
 import com.fasterxml.jackson.databind.deser.impl.ValueInjector;

@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
 import com.fasterxml.jackson.databind.deser.bean.BeanDeserializer;
-import com.fasterxml.jackson.databind.deser.bean.BeanDeserializerBuilder;
 import com.fasterxml.jackson.databind.deser.impl.*;
 import com.fasterxml.jackson.databind.deser.jdk.ThrowableDeserializer;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;

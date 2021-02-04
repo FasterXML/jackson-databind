@@ -393,7 +393,7 @@ public abstract class JsonDeserializer<T>
      *<p>
      * Default implementation returns null, as support cannot be implemented
      * generically. Some standard deserializers (most notably
-     * {@link com.fasterxml.jackson.databind.deser.BeanDeserializer})
+     * {@link com.fasterxml.jackson.databind.deser.bean.BeanDeserializer})
      * do implement this feature, and may return reader instance, depending on exact
      * configuration of instance (which is based on type, and referring property).
      * 

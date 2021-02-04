@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.deser.ValueInstantiators;
-import com.fasterxml.jackson.databind.deser.impl.PropertyValueBuffer;
+import com.fasterxml.jackson.databind.deser.bean.PropertyValueBuffer;
 import com.fasterxml.jackson.databind.deser.std.StdValueInstantiator;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 

@@ -12,14 +12,14 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;
+import com.fasterxml.jackson.databind.deser.jdk.JDKFromStringDeserializer;
 
 /**
  * Base for deserializers that allows parsing DOM Documents from JSON Strings.
  * Nominal type can be either {@link org.w3c.dom.Node} or
  * {@link org.w3c.dom.Document}.
  */
-public abstract class DOMDeserializer<T> extends FromStringDeserializer<T>
+public abstract class DOMDeserializer<T> extends JDKFromStringDeserializer<T>
 {
     private final static DocumentBuilderFactory DEFAULT_PARSER_FACTORY;
     static {

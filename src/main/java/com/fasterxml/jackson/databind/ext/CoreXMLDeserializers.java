@@ -8,7 +8,7 @@ import javax.xml.namespace.QName;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;
+import com.fasterxml.jackson.databind.deser.jdk.JDKFromStringDeserializer;
 
 /**
  * Container deserializers that handle "core" XML types: ones included in standard
@@ -70,7 +70,7 @@ public class CoreXMLDeserializers
      * Combined into a single class to eliminate bunch of one-off implementation
      * classes, to reduce resulting jar size (mostly).
      */
-    public static class Std extends FromStringDeserializer<Object>
+    public static class Std extends JDKFromStringDeserializer<Object>
     {
         protected final int _kind;
 

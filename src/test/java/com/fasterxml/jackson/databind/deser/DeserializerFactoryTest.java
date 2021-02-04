@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.impl.DefaultDeserializationContext;
 
 // Tests for [databind#2539] for checking whether given (raw) type has explicit
 // deserializer associated

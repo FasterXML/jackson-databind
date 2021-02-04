@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.std.CalendarSerializer;
+import com.fasterxml.jackson.databind.ser.jdk.JavaUtilCalendarSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 public class XMLGregorianCalendarSerializer
@@ -24,7 +24,7 @@ public class XMLGregorianCalendarSerializer
     final JsonSerializer<Object> _delegate;
     
     public XMLGregorianCalendarSerializer() {
-        this(CalendarSerializer.instance);
+        this(JavaUtilCalendarSerializer.instance);
     }
 
     @SuppressWarnings("unchecked")

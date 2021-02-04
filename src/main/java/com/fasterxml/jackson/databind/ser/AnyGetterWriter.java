@@ -5,7 +5,7 @@ import java.util.Map;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
-import com.fasterxml.jackson.databind.ser.std.MapSerializer;
+import com.fasterxml.jackson.databind.ser.jdk.MapSerializer;
 
 /**
  * Class similar to {@link BeanPropertyWriter}, but that will be used

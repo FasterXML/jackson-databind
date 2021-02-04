@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 import com.fasterxml.jackson.databind.deser.*;
+import com.fasterxml.jackson.databind.deser.bean.BeanDeserializerBase;
 import com.fasterxml.jackson.databind.deser.impl.NullsAsEmptyProvider;
 import com.fasterxml.jackson.databind.deser.impl.NullsConstantProvider;
 import com.fasterxml.jackson.databind.deser.impl.NullsFailProvider;

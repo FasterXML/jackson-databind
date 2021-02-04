@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.ser.impl.FilteredBeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
 import com.fasterxml.jackson.databind.ser.impl.PropertyBasedObjectIdGenerator;
 import com.fasterxml.jackson.databind.ser.impl.UnsupportedTypeSerializer;
-import com.fasterxml.jackson.databind.ser.std.MapSerializer;
+import com.fasterxml.jackson.databind.ser.jdk.MapSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdDelegatingSerializer;
 import com.fasterxml.jackson.databind.type.ReferenceType;
 import com.fasterxml.jackson.databind.util.BeanUtil;

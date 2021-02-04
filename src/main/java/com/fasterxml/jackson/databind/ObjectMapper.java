@@ -21,7 +21,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.*;
 
 import com.fasterxml.jackson.databind.cfg.*;
-import com.fasterxml.jackson.databind.deser.*;
+import com.fasterxml.jackson.databind.deser.impl.DefaultDeserializationContext;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;

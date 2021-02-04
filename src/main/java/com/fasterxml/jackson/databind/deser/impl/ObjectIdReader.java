@@ -55,7 +55,7 @@ public class ObjectIdReader
     }
 
     /**
-     * Factory method called by {@link com.fasterxml.jackson.databind.ser.std.BeanSerializerBase}
+     * Factory method called by {@link com.fasterxml.jackson.databind.ser.bean.BeanSerializerBase}
      * with the initial information based on standard settings for the type
      * for which serializer is being built.
      */

@@ -5,6 +5,9 @@ import java.util.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
+import com.fasterxml.jackson.databind.deser.bean.BeanPropertyMap;
+import com.fasterxml.jackson.databind.deser.bean.PropertyBasedCreator;
+import com.fasterxml.jackson.databind.deser.bean.PropertyValueBuffer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 

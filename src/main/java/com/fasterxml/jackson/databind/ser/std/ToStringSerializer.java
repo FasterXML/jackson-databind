@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 
 /**
  * Simple general purpose serializer, useful for any
- * type for which {@link Object#toString} returns the desired JSONvalue.
+ * type for which {@link Object#toString} returns the desired String serialization value.
  *<p>
  * NOTE: this is NOT meant to be used as a base class for custom serializers;
  * instead, consider base type {@link ToStringSerializerBase} if you need similar

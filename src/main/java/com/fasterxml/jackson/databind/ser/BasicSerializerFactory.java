@@ -28,7 +28,9 @@ import com.fasterxml.jackson.databind.ext.jdk8.Jdk8OptionalSerializer;
 import com.fasterxml.jackson.databind.ext.jdk8.Jdk8StreamSerializer;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.impl.*;
+import com.fasterxml.jackson.databind.ser.jackson.JsonValueSerializer;
+import com.fasterxml.jackson.databind.ser.jackson.SerializableSerializer;
+import com.fasterxml.jackson.databind.ser.jdk.*;
 import com.fasterxml.jackson.databind.ser.std.*;
 import com.fasterxml.jackson.databind.type.*;
 import com.fasterxml.jackson.databind.util.*;
@@ -86,8 +88,8 @@ public abstract class BasicSerializerFactory
 
         // Other discrete non-container types:
         // First, Date/Time zoo:
-        concrete.put(Calendar.class.getName(), CalendarSerializer.instance);
-        concrete.put(java.util.Date.class.getName(), DateSerializer.instance);
+        concrete.put(Calendar.class.getName(), JavaUtilCalendarSerializer.instance);
+        concrete.put(java.util.Date.class.getName(), JavaUtilDateSerializer.instance);
 
         _concrete = concrete;
     }
@@ -200,7 +202,7 @@ public abstract class BasicSerializerFactory
             if (ser == null) {
                 // If no explicit serializer, see if type is JDK one for which there is
                 // explicit deserializer: if so, can avoid further annotation lookups:
-                ser = StdKeySerializers.getStdKeySerializer(config, keyType.getRawClass(), false);
+                ser = JDKKeySerializers.getStdKeySerializer(config, keyType.getRawClass(), false);
                 if (ser == null) {
                     // Check `@JsonKey` and `@JsonValue`, in this order
                     AnnotatedMember acc = beanDesc.findJsonKeyAccessor();
@@ -217,7 +219,7 @@ public abstract class BasicSerializerFactory
                         // value type that `JsonType`-annotated accessor returns (or contains, in case of field)
                         ser = new JsonValueSerializer(keyType, acc.getType(), false, null, delegate, acc);
                     } else {
-                        ser = StdKeySerializers.getFallbackKeySerializer(config, keyType.getRawClass());
+                        ser = JDKKeySerializers.getFallbackKeySerializer(config, keyType.getRawClass());
                     }
                 }
             }
@@ -284,7 +286,7 @@ public abstract class BasicSerializerFactory
             boolean staticTyping)
     {
         final Class<?> raw = type.getRawClass();
-        JsonSerializer<?> ser = StdJdkSerializers.find(raw);
+        JsonSerializer<?> ser = JDKMiscSerializers.find(raw);
         if (ser == null) {
             final String clsName = raw.getName();
             ser = _concrete.get(clsName);
@@ -343,7 +345,7 @@ public abstract class BasicSerializerFactory
             boolean staticTyping)
     {
         if (type.isTypeOrSubTypeOf(Calendar.class)) {
-            return CalendarSerializer.instance;
+            return JavaUtilCalendarSerializer.instance;
         }
         if (type.isTypeOrSubTypeOf(Date.class)) {
             // 06-Nov-2020, tatu: Strange precedence challenge; need to consider
@@ -354,7 +356,7 @@ public abstract class BasicSerializerFactory
                     return ser;
                 }
             }
-            return DateSerializer.instance;
+            return JavaUtilDateSerializer.instance;
         }
         // 19-Sep-2017, tatu: Jackson 3.x adds Java 8 types.
         // NOTE: while seemingly more of an add-on type, we must handle here because
@@ -420,7 +422,7 @@ public abstract class BasicSerializerFactory
         // NOTE: not concrete, can not just add directly via StdJdkSerializers. Also, requires
         // bit of trickery wrt class name for polymorphic...
         if (Path.class.isAssignableFrom(raw)) {
-            return StringLikeSerializer.find(Path.class);
+            return JDKStringLikeSerializer.find(Path.class);
         }
         // Then check for optional/external serializers 
         return OptionalHandlerFactory.instance.findSerializer(ctxt.getConfig(), type);
@@ -690,12 +692,12 @@ public abstract class BasicSerializerFactory
         return RandomAccess.class.isAssignableFrom(cls);
     }
 
-    public  ContainerSerializer<?> buildIndexedListSerializer(JavaType elemType,
+    public  StdContainerSerializer<?> buildIndexedListSerializer(JavaType elemType,
             boolean staticTyping, TypeSerializer vts, JsonSerializer<Object> valueSerializer) {
         return new IndexedListSerializer(elemType, staticTyping, vts, valueSerializer);
     }
 
-    public ContainerSerializer<?> buildCollectionSerializer(JavaType elemType,
+    public StdContainerSerializer<?> buildCollectionSerializer(JavaType elemType,
             boolean staticTyping, TypeSerializer vts, JsonSerializer<Object> valueSerializer) {
         return new CollectionSerializer(elemType, staticTyping, vts, valueSerializer);
     }
@@ -966,7 +968,7 @@ public abstract class BasicSerializerFactory
                      ser = StringArraySerializer.instance;
                  } else {
                      // other standard types?
-                     ser = StdArraySerializers.findStandardImpl(raw);
+                     ser = JDKArraySerializers.findStandardImpl(raw);
                  }
              }
              if (ser == null) {

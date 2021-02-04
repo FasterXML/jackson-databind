@@ -3,9 +3,9 @@ package com.fasterxml.jackson.databind.cfg;
 import com.fasterxml.jackson.core.FormatSchema;
 import com.fasterxml.jackson.core.TokenStreamFactory;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
 import com.fasterxml.jackson.databind.deser.DeserializerCache;
 import com.fasterxml.jackson.databind.deser.DeserializerFactory;
+import com.fasterxml.jackson.databind.deser.impl.DefaultDeserializationContext;
 
 /**
  * Factory/builder class that replaces Jackson 2.x concept of "blueprint" instance

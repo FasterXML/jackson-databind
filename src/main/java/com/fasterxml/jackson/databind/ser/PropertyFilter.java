@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor
  *<p>
  * Note that since this is an interface, it is
  * strongly recommended that custom implementations extend
- * {@link com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter},
+ * {@link com.fasterxml.jackson.databind.ser.std.SimpleBeanPropertyFilter},
  * to avoid backwards compatibility issues in case interface needs to change.
  */
 public interface PropertyFilter

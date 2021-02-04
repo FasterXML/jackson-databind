@@ -9,10 +9,10 @@ import com.fasterxml.jackson.core.Version;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
-import com.fasterxml.jackson.databind.deser.std.StringDeserializer;
-import com.fasterxml.jackson.databind.deser.std.UntypedObjectDeserializer;
+import com.fasterxml.jackson.databind.deser.jdk.StringDeserializer;
+import com.fasterxml.jackson.databind.deser.jdk.UntypedObjectDeserializer;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
-import com.fasterxml.jackson.databind.ser.std.StringSerializer;
+import com.fasterxml.jackson.databind.ser.jdk.StringSerializer;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 
 // started with [databind#1025] in mind

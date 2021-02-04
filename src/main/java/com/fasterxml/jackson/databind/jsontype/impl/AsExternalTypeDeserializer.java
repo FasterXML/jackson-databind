@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 /**
  * Type deserializer used with {@link As#EXTERNAL_PROPERTY} inclusion mechanism.
  * Actual implementation may look bit strange since it depends on comprehensive
- * pre-processing done by {@link com.fasterxml.jackson.databind.deser.BeanDeserializer}
+ * pre-processing done by {@link com.fasterxml.jackson.databind.deser.bean.BeanDeserializer}
  * to basically transform external type id into structure that looks more like
  * "wrapper-array" style inclusion. This intermediate form is chosen to allow
  * supporting all possible JSON structures.

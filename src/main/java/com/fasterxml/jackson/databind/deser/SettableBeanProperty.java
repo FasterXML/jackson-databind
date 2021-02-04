@@ -5,6 +5,7 @@ import java.lang.annotation.Annotation;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.bean.BeanDeserializer;
 import com.fasterxml.jackson.databind.deser.impl.FailingDeserializer;
 import com.fasterxml.jackson.databind.deser.impl.NullsConstantProvider;
 import com.fasterxml.jackson.databind.introspect.*;
@@ -396,7 +397,7 @@ public abstract class SettableBeanProperty
     /**********************************************************************
      */
 
-    protected Class<?> getDeclaringClass() {
+    public Class<?> getDeclaringClass() {
         return getMember().getDeclaringClass();
     }
 
@@ -684,7 +685,7 @@ public abstract class SettableBeanProperty
          */
 
         @Override
-        protected Class<?> getDeclaringClass() { return delegate.getDeclaringClass(); }
+        public Class<?> getDeclaringClass() { return delegate.getDeclaringClass(); }
 
         @Override
         public String getManagedReferenceName() { return delegate.getManagedReferenceName(); }

@@ -14,11 +14,11 @@ import com.fasterxml.jackson.databind.cfg.ConfigOverride;
 import com.fasterxml.jackson.databind.cfg.ConstructorDetector;
 import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
-import com.fasterxml.jackson.databind.deser.impl.CreatorCandidate;
-import com.fasterxml.jackson.databind.deser.impl.CreatorCollector;
-import com.fasterxml.jackson.databind.deser.impl.JDKValueInstantiators;
-import com.fasterxml.jackson.databind.deser.impl.JavaUtilCollectionsDeserializers;
-import com.fasterxml.jackson.databind.deser.std.*;
+import com.fasterxml.jackson.databind.deser.bean.CreatorCandidate;
+import com.fasterxml.jackson.databind.deser.bean.CreatorCollector;
+import com.fasterxml.jackson.databind.deser.jackson.JsonNodeDeserializer;
+import com.fasterxml.jackson.databind.deser.jackson.TokenBufferDeserializer;
+import com.fasterxml.jackson.databind.deser.jdk.*;
 import com.fasterxml.jackson.databind.ext.OptionalHandlerFactory;
 import com.fasterxml.jackson.databind.ext.jdk8.Jdk8OptionalDeserializer;
 import com.fasterxml.jackson.databind.ext.jdk8.OptionalDoubleDeserializer;
@@ -1791,7 +1791,7 @@ factory.toString()));
                 if (type.isEnumType()) {
                     deser = _createEnumKeyDeserializer(ctxt, type);
                 } else {
-                    deser = StdKeyDeserializers.findStringBasedKeyDeserializer(ctxt, type);
+                    deser = JDKKeyDeserializers.findStringBasedKeyDeserializer(ctxt, type);
                 }
             }
         }
@@ -1821,11 +1821,11 @@ factory.toString()));
             // 24-Sep-2015, bim: if no key deser, look for enum deserializer first, then a plain deser.
             JsonDeserializer<?> custom = _findCustomEnumDeserializer(enumClass, config, beanDesc);
             if (custom != null) {
-                return StdKeyDeserializers.constructDelegatingKeyDeserializer(config, type, custom);
+                return JDKKeyDeserializers.constructDelegatingKeyDeserializer(config, type, custom);
             }
             JsonDeserializer<?> valueDesForKey = findDeserializerFromAnnotation(ctxt, beanDesc.getClassInfo());
             if (valueDesForKey != null) {
-                return StdKeyDeserializers.constructDelegatingKeyDeserializer(config, type, valueDesForKey);
+                return JDKKeyDeserializers.constructDelegatingKeyDeserializer(config, type, valueDesForKey);
             }
         }
         EnumResolver enumRes = constructEnumResolver(ctxt, enumClass, beanDesc.findJsonValueAccessor());
@@ -1849,7 +1849,7 @@ factory.toString()));
                             ClassUtil.checkAndFixAccess(factory.getMember(),
                                     ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
                         }
-                        return StdKeyDeserializers.constructEnumKeyDeserializer(enumRes, factory);
+                        return JDKKeyDeserializers.constructEnumKeyDeserializer(enumRes, factory);
                     }
                 }
                 throw new IllegalArgumentException("Unsuitable method ("+factory+") decorated with @JsonCreator (for Enum type "
@@ -1857,7 +1857,7 @@ factory.toString()));
             }
         }
         // Also, need to consider @JsonValue, if one found
-        return StdKeyDeserializers.constructEnumKeyDeserializer(enumRes);
+        return JDKKeyDeserializers.constructEnumKeyDeserializer(enumRes);
     }
 
     /*
@@ -1911,7 +1911,7 @@ factory.toString()));
             if (Number.class.isAssignableFrom(valueType)) {
                 return NumberDeserializers.find(valueType) != null;
             }
-            if (StdJdkDeserializers.hasDeserializerFor(valueType)
+            if (JDKMiscDeserializers.hasDeserializerFor(valueType)
                     || (valueType == CLASS_STRING)
                     // note: number wrappers dealt with above
                     || (valueType == Boolean.class)
@@ -1920,7 +1920,7 @@ factory.toString()));
                     ) {
                 return true;
             }
-            if (DateDeserializers.hasDeserializerFor(valueType)) {
+            if (JDKDateDeserializers.hasDeserializerFor(valueType)) {
                 return true;
             }
         } else if (clsName.startsWith("com.fasterxml.")) {
@@ -1991,7 +1991,7 @@ factory.toString()));
             // Primitives/wrappers, other Numbers:
             JsonDeserializer<?> deser = NumberDeserializers.find(rawType);
             if (deser == null) {
-                deser = DateDeserializers.find(rawType, clsName);
+                deser = JDKDateDeserializers.find(rawType, clsName);
             }
             if (deser != null) {
                 return deser;
@@ -2005,7 +2005,7 @@ factory.toString()));
         if (deser != null) {
             return deser;
         }
-        return StdJdkDeserializers.find(rawType, clsName);
+        return JDKMiscDeserializers.find(rawType, clsName);
     }
 
     private JavaType _findRemappedType(DeserializationConfig config, Class<?> rawType)

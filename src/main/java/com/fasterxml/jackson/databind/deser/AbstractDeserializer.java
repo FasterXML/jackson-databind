@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.ObjectIdResolver;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.bean.BeanDeserializerBuilder;
 import com.fasterxml.jackson.databind.deser.impl.ObjectIdReader;
 import com.fasterxml.jackson.databind.deser.impl.PropertyBasedObjectIdGenerator;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId;
@@ -43,9 +44,9 @@ public class AbstractDeserializer
     protected final boolean _acceptDouble;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -158,9 +159,9 @@ handledType().getName()));
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public accessors
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -206,11 +207,11 @@ handledType().getName()));
     public SettableBeanProperty findBackReference(String logicalName) {
         return (_backRefProperties == null) ? null : _backRefProperties.get(logicalName);
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Deserializer implementation
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -258,9 +259,9 @@ handledType().getName()));
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected Object _deserializeIfNatural(JsonParser p, DeserializationContext ctxt)

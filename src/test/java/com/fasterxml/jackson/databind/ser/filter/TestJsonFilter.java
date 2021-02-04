@@ -5,11 +5,13 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.TokenStreamContext;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.PropertyWriter;
-import com.fasterxml.jackson.databind.ser.impl.*;
+import com.fasterxml.jackson.databind.ser.std.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.std.SimpleFilterProvider;
 
 /**
  * Tests for verifying that bean property filtering using JsonFilter

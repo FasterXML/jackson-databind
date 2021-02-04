@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 
 /**
  * Base class for serializers that will output contents as JSON
@@ -19,7 +18,7 @@ import com.fasterxml.jackson.databind.ser.ContainerSerializer;
  * and array types.
  */
 public abstract class AsArraySerializerBase<T>
-    extends ContainerSerializer<T>
+    extends StdContainerSerializer<T>
 {
     protected final JavaType _elementType;
 

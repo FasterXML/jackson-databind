@@ -1,7 +1,8 @@
 package com.fasterxml.jackson.databind.cfg;
 
 import com.fasterxml.jackson.databind.deser.*;
-import com.fasterxml.jackson.databind.deser.std.StdKeyDeserializers;
+import com.fasterxml.jackson.databind.deser.bean.BeanDeserializer;
+import com.fasterxml.jackson.databind.deser.jdk.JDKKeyDeserializers;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.ArrayIterator;
 
@@ -22,7 +23,7 @@ public class DeserializerFactoryConfig
      * of key deserializers.
      */
     protected final static KeyDeserializers[] DEFAULT_KEY_DESERIALIZERS = new KeyDeserializers[] {
-        new StdKeyDeserializers()
+        new JDKKeyDeserializers()
     };
     
     /**

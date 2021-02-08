@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.util.UniqueId;
  * to do so they MUST call {@code super.setupModule(context);}
  * to ensure that registration works as expected.
  *<p>
- * WARNING: when registering {@link JsonSerializer}s and {@link ValueDeserializer}s,
+ * WARNING: when registering {@link ValueSerializer}s and {@link ValueDeserializer}s,
  * only type erased {@code Class} is compared: this means that usually you should
  * NOT use this implementation for registering structured types such as
  * {@link java.util.Collection}s or {@link java.util.Map}s: this because parametric
@@ -59,8 +59,8 @@ public class SimpleModule
     protected SimpleSerializers _keySerializers = null;
     protected SimpleKeyDeserializers _keyDeserializers = null;
 
-    protected JsonSerializer<?> _defaultNullKeySerializer = null;
-    protected JsonSerializer<?> _defaultNullValueSerializer = null;
+    protected ValueSerializer<?> _defaultNullKeySerializer = null;
+    protected ValueSerializer<?> _defaultNullValueSerializer = null;
     
     /**
      * Lazily-constructed resolver used for storing mappings from
@@ -211,12 +211,12 @@ public class SimpleModule
         return this;
     }
 
-    public SimpleModule setDefaultNullKeySerializer(JsonSerializer<?> ser) {
+    public SimpleModule setDefaultNullKeySerializer(ValueSerializer<?> ser) {
         _defaultNullKeySerializer = ser;
         return this;
     }
 
-    public SimpleModule setDefaultNullValueSerializer(JsonSerializer<?> ser) {
+    public SimpleModule setDefaultNullValueSerializer(ValueSerializer<?> ser) {
         _defaultNullValueSerializer = ser;
         return this;
     }
@@ -260,13 +260,13 @@ public class SimpleModule
 
     /**
      * Method for adding serializer to handle type that the serializer claims to handle
-     * (see {@link JsonSerializer#handledType()}).
+     * (see {@link ValueSerializer#handledType()}).
      *<p>
      * WARNING! Type matching only uses type-erased {@code Class} and should NOT
      * be used when registering serializers for generic types like
      * {@link java.util.Collection} and {@link java.util.Map}.
      */
-    public SimpleModule addSerializer(JsonSerializer<?> ser)
+    public SimpleModule addSerializer(ValueSerializer<?> ser)
     {
         _checkNotNull(ser, "serializer");
         if (_serializers == null) {
@@ -283,7 +283,7 @@ public class SimpleModule
      * be used when registering serializers for generic types like
      * {@link java.util.Collection} and {@link java.util.Map}.
      */
-    public <T> SimpleModule addSerializer(Class<? extends T> type, JsonSerializer<T> ser)
+    public <T> SimpleModule addSerializer(Class<? extends T> type, ValueSerializer<T> ser)
     {
         _checkNotNull(type, "type to register serializer for");
         _checkNotNull(ser, "serializer");
@@ -294,7 +294,7 @@ public class SimpleModule
         return this;
     }
 
-    public <T> SimpleModule addKeySerializer(Class<? extends T> type, JsonSerializer<T> ser)
+    public <T> SimpleModule addKeySerializer(Class<? extends T> type, ValueSerializer<T> ser)
     {
         _checkNotNull(type, "type to register key serializer for");
         _checkNotNull(ser, "key serializer");

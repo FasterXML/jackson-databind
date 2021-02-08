@@ -73,7 +73,7 @@ public class EnumSerializer
      * choice here, however.
      */
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider ctxt,
+    public ValueSerializer<?> createContextual(SerializerProvider ctxt,
             BeanProperty property)
     {
         JsonFormat.Value format = findFormatOverrides(ctxt,

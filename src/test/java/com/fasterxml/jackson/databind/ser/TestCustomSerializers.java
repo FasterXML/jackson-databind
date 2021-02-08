@@ -211,10 +211,10 @@ public class TestCustomSerializers extends BaseMapTest
     public void testCustomLists() throws Exception
     {
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
-        JsonSerializer<?> ser = new CollectionSerializer(null, false, null, null);
-        final JsonSerializer<Object> collectionSerializer = (JsonSerializer<Object>) ser;
+        ValueSerializer<?> ser = new CollectionSerializer(null, false, null, null);
+        final ValueSerializer<Object> collectionSerializer = (ValueSerializer<Object>) ser;
 
-        module.addSerializer(Collection.class, new JsonSerializer<Collection>() {
+        module.addSerializer(Collection.class, new ValueSerializer<Collection>() {
             @Override
             public void serialize(Collection value, JsonGenerator gen, SerializerProvider provider)
             {

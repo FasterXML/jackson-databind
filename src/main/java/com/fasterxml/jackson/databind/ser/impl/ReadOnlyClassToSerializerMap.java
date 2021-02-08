@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ValueSerializer;
 import com.fasterxml.jackson.databind.ser.SerializerCache;
 import com.fasterxml.jackson.databind.util.SimpleLookupCache;
 import com.fasterxml.jackson.databind.util.TypeKey;
@@ -27,7 +27,7 @@ public final class ReadOnlyClassToSerializerMap
     private final int _mask;
 
     protected ReadOnlyClassToSerializerMap(SerializerCache shared,
-            SimpleLookupCache<TypeKey, JsonSerializer<Object>> src)
+            SimpleLookupCache<TypeKey, ValueSerializer<Object>> src)
     {
         _sharedCache = shared;
         _size = findSize(src.size());
@@ -55,7 +55,7 @@ public final class ReadOnlyClassToSerializerMap
      * Factory method for constructing an instance.
      */
     public static ReadOnlyClassToSerializerMap from(SerializerCache shared,
-            SimpleLookupCache<TypeKey, JsonSerializer<Object>> src) {
+            SimpleLookupCache<TypeKey, ValueSerializer<Object>> src) {
         return new ReadOnlyClassToSerializerMap(shared, src);
     }
 
@@ -67,7 +67,7 @@ public final class ReadOnlyClassToSerializerMap
 
     public int size() { return _size; }
     
-    public JsonSerializer<Object> typedValueSerializer(JavaType type)
+    public ValueSerializer<Object> typedValueSerializer(JavaType type)
     {
         Bucket bucket = _buckets[TypeKey.typedHash(type) & _mask];
         if (bucket != null) {
@@ -83,7 +83,7 @@ public final class ReadOnlyClassToSerializerMap
         return _sharedCache.typedValueSerializer(type);
     }
 
-    public JsonSerializer<Object> typedValueSerializer(Class<?> rawType)
+    public ValueSerializer<Object> typedValueSerializer(Class<?> rawType)
     {
         Bucket bucket = _buckets[TypeKey.typedHash(rawType) & _mask];
         if (bucket != null) {
@@ -99,7 +99,7 @@ public final class ReadOnlyClassToSerializerMap
         return _sharedCache.typedValueSerializer(rawType);
     }
 
-    public JsonSerializer<Object> untypedValueSerializer(JavaType type)
+    public ValueSerializer<Object> untypedValueSerializer(JavaType type)
     {
         Bucket bucket = _buckets[TypeKey.untypedHash(type) & _mask];
         if (bucket != null) {
@@ -115,7 +115,7 @@ public final class ReadOnlyClassToSerializerMap
         return _sharedCache.untypedValueSerializer(type);
     }
 
-    public JsonSerializer<Object> untypedValueSerializer(Class<?> rawType)
+    public ValueSerializer<Object> untypedValueSerializer(Class<?> rawType)
     {
         Bucket bucket = _buckets[TypeKey.untypedHash(rawType) & _mask];
         if (bucket != null) {
@@ -139,7 +139,7 @@ public final class ReadOnlyClassToSerializerMap
 
     private final static class Bucket
     {
-        public final JsonSerializer<Object> value;
+        public final ValueSerializer<Object> value;
         public final Bucket next;
 
         protected final Class<?> _class;
@@ -147,7 +147,7 @@ public final class ReadOnlyClassToSerializerMap
 
         protected final boolean _isTyped;
         
-        public Bucket(Bucket next, TypeKey key, JsonSerializer<Object> value)
+        public Bucket(Bucket next, TypeKey key, ValueSerializer<Object> value)
         {
             this.next = next;
             this.value = value;

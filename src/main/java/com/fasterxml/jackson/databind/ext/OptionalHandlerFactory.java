@@ -77,7 +77,7 @@ public class OptionalHandlerFactory
     /**********************************************************************
      */
 
-    public JsonSerializer<?> findSerializer(SerializationConfig config, JavaType type)
+    public ValueSerializer<?> findSerializer(SerializationConfig config, JavaType type)
     {
         final Class<?> rawType = type.getRawClass();
         if (_IsXOfY(rawType, CLASS_DOM_NODE)) {
@@ -88,11 +88,11 @@ public class OptionalHandlerFactory
         Object sqlHandler = _sqlSerializers.get(className);
 
         if (sqlHandler != null) {
-            if (sqlHandler instanceof JsonSerializer<?>) {
-                return (JsonSerializer<?>) sqlHandler;
+            if (sqlHandler instanceof ValueSerializer<?>) {
+                return (ValueSerializer<?>) sqlHandler;
             }
             // must be class name otherwise
-            return (JsonSerializer<?>) instantiate((String) sqlHandler, type);
+            return (ValueSerializer<?>) instantiate((String) sqlHandler, type);
         }
         if (className.startsWith(PACKAGE_PREFIX_JAVAX_XML) || hasSuperClassStartingWith(rawType, PACKAGE_PREFIX_JAVAX_XML)) {
             if (Duration.class.isAssignableFrom(rawType) || QName.class.isAssignableFrom(rawType)) {

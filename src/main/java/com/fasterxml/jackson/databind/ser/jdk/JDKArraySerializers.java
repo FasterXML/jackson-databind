@@ -21,8 +21,8 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
  */
 public class JDKArraySerializers
 {
-    protected final static HashMap<String, JsonSerializer<?>> _arraySerializers =
-        new HashMap<String, JsonSerializer<?>>();
+    protected final static HashMap<String, ValueSerializer<?>> _arraySerializers =
+        new HashMap<String, ValueSerializer<?>>();
     static {
         // Arrays of various types (including common object types)
         _arraySerializers.put(boolean[].class.getName(), new JDKArraySerializers.BooleanArraySerializer());
@@ -41,7 +41,7 @@ public class JDKArraySerializers
      * Accessor for checking to see if there is a standard serializer for
      * given primitive value type.
      */
-    public static JsonSerializer<?> findStandardImpl(Class<?> cls) {
+    public static ValueSerializer<?> findStandardImpl(Class<?> cls) {
         return _arraySerializers.get(cls.getName());
     }
     
@@ -98,7 +98,7 @@ public class JDKArraySerializers
         }
         
         @Override
-        public JsonSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
+        public ValueSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
             return new BooleanArraySerializer(this, prop, unwrapSingle);
         }
         
@@ -117,7 +117,7 @@ public class JDKArraySerializers
         }
 
         @Override
-        public JsonSerializer<?> getContentSerializer() {
+        public ValueSerializer<?> getContentSerializer() {
             // 14-Jan-2012, tatu: We could refer to an actual serializer if absolutely necessary
             return null;
         }
@@ -175,7 +175,7 @@ public class JDKArraySerializers
         }
 
         @Override
-        public JsonSerializer<?> _withResolved(BeanProperty prop,Boolean unwrapSingle) {
+        public ValueSerializer<?> _withResolved(BeanProperty prop,Boolean unwrapSingle) {
             return new ShortArraySerializer(this, prop, unwrapSingle);
         }
 
@@ -185,7 +185,7 @@ public class JDKArraySerializers
         }
 
         @Override
-        public JsonSerializer<?> getContentSerializer() {
+        public ValueSerializer<?> getContentSerializer() {
             // 14-Jan-2012, tatu: We could refer to an actual serializer if absolutely necessary
             return null;
         }
@@ -310,7 +310,7 @@ public class JDKArraySerializers
         }
         
         @Override
-        public JsonSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
+        public ValueSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
             return new IntArraySerializer(this, prop, unwrapSingle);
         }
         
@@ -329,7 +329,7 @@ public class JDKArraySerializers
         }
 
         @Override
-        public JsonSerializer<?> getContentSerializer() {
+        public ValueSerializer<?> getContentSerializer() {
             // 14-Jan-2012, tatu: We could refer to an actual serializer if absolutely necessary
             return null;
         }
@@ -386,7 +386,7 @@ public class JDKArraySerializers
         }
 
         @Override
-        public JsonSerializer<?> _withResolved(BeanProperty prop,Boolean unwrapSingle) {
+        public ValueSerializer<?> _withResolved(BeanProperty prop,Boolean unwrapSingle) {
             return new LongArraySerializer(this, prop, unwrapSingle);
         }
 
@@ -396,7 +396,7 @@ public class JDKArraySerializers
         }
 
         @Override
-        public JsonSerializer<?> getContentSerializer() {
+        public ValueSerializer<?> getContentSerializer() {
             // 14-Jan-2012, tatu: We could refer to an actual serializer if absolutely necessary
             return null;
         }
@@ -455,7 +455,7 @@ public class JDKArraySerializers
         }
 
         @Override
-        public JsonSerializer<?> _withResolved(BeanProperty prop,Boolean unwrapSingle) {
+        public ValueSerializer<?> _withResolved(BeanProperty prop,Boolean unwrapSingle) {
             return new FloatArraySerializer(this, prop, unwrapSingle);
         }
 
@@ -465,7 +465,7 @@ public class JDKArraySerializers
         }
 
         @Override
-        public JsonSerializer<?> getContentSerializer() {
+        public ValueSerializer<?> getContentSerializer() {
             // 14-Jan-2012, tatu: We could refer to an actual serializer if absolutely necessary
             return null;
         }
@@ -527,7 +527,7 @@ public class JDKArraySerializers
         }
 
         @Override
-        public JsonSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
+        public ValueSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
             return new DoubleArraySerializer(this, prop, unwrapSingle);
         }
 
@@ -546,7 +546,7 @@ public class JDKArraySerializers
         }
 
         @Override
-        public JsonSerializer<?> getContentSerializer() {
+        public ValueSerializer<?> getContentSerializer() {
             // 14-Jan-2012, tatu: We could refer to an actual serializer if absolutely necessary
             return null;
         }

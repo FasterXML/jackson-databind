@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.type.*;
  * Abstract class that defines API for objects that can be registered
  * (via {@code ObjectMapper} configuration process,
  * using {@link com.fasterxml.jackson.databind.cfg.MapperBuilder})
- * to participate in constructing {@link JsonSerializer} instances
+ * to participate in constructing {@link ValueSerializer} instances
  * (including but not limited to {@link BeanSerializer}s).
  * This is typically done by modules that want alter some aspects of
  * the typical serialization process.
@@ -31,7 +31,7 @@ import com.fasterxml.jackson.databind.type.*;
  *     factory creates default {@link BeanSerializer} instance and passes
  *     it to modifiers using {@link #modifySerializer} (or type-specic alternative
  *     {@code modifyXxxSerializer()} method), for possible
- *     modification or replacement (by any {@link com.fasterxml.jackson.databind.JsonSerializer}
+ *     modification or replacement (by any {@link com.fasterxml.jackson.databind.ValueSerializer}
  *     instance)
  * </ol>
  *<p>
@@ -97,8 +97,8 @@ public abstract class ValueSerializerModifier
      * do not go through any of more specific <code>modifyXxxSerializer</code>
      * methods; mostly for JDK types like {@link java.util.Iterator} and such.
      */
-    public JsonSerializer<?> modifySerializer(SerializationConfig config,
-            BeanDescription beanDesc, JsonSerializer<?> serializer) {
+    public ValueSerializer<?> modifySerializer(SerializationConfig config,
+            BeanDescription beanDesc, ValueSerializer<?> serializer) {
         return serializer;
     }
 
@@ -123,33 +123,33 @@ public abstract class ValueSerializerModifier
      * @return Serializer to use; either <code>serializer</code> that was passed
      *   in, or an instance method constructed.
      */
-    public JsonSerializer<?> modifyArraySerializer(SerializationConfig config,
-            ArrayType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
+    public ValueSerializer<?> modifyArraySerializer(SerializationConfig config,
+            ArrayType valueType, BeanDescription beanDesc, ValueSerializer<?> serializer) {
         return serializer;
     }
 
-    public JsonSerializer<?> modifyCollectionSerializer(SerializationConfig config,
-            CollectionType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
+    public ValueSerializer<?> modifyCollectionSerializer(SerializationConfig config,
+            CollectionType valueType, BeanDescription beanDesc, ValueSerializer<?> serializer) {
         return serializer;
     }
 
-    public JsonSerializer<?> modifyCollectionLikeSerializer(SerializationConfig config,
-            CollectionLikeType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
+    public ValueSerializer<?> modifyCollectionLikeSerializer(SerializationConfig config,
+            CollectionLikeType valueType, BeanDescription beanDesc, ValueSerializer<?> serializer) {
         return serializer;
     }
 
-    public JsonSerializer<?> modifyMapSerializer(SerializationConfig config,
-            MapType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
+    public ValueSerializer<?> modifyMapSerializer(SerializationConfig config,
+            MapType valueType, BeanDescription beanDesc, ValueSerializer<?> serializer) {
         return serializer;
     }
 
-    public JsonSerializer<?> modifyMapLikeSerializer(SerializationConfig config,
-            MapLikeType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
+    public ValueSerializer<?> modifyMapLikeSerializer(SerializationConfig config,
+            MapLikeType valueType, BeanDescription beanDesc, ValueSerializer<?> serializer) {
         return serializer;
     }
 
-    public JsonSerializer<?> modifyEnumSerializer(SerializationConfig config,
-            JavaType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
+    public ValueSerializer<?> modifyEnumSerializer(SerializationConfig config,
+            JavaType valueType, BeanDescription beanDesc, ValueSerializer<?> serializer) {
         return serializer;
     }
 
@@ -168,8 +168,8 @@ public abstract class ValueSerializerModifier
      * @return Serializer to use; either <code>serializer</code> that was passed
      *   in, or an instance method constructed.
      */
-    public JsonSerializer<?> modifyKeySerializer(SerializationConfig config,
-            JavaType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
+    public ValueSerializer<?> modifyKeySerializer(SerializationConfig config,
+            JavaType valueType, BeanDescription beanDesc, ValueSerializer<?> serializer) {
         return serializer;
     }
 }

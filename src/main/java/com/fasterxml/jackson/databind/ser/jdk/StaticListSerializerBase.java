@@ -39,7 +39,7 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
         _unwrapSingle = unwrapSingle;
     }
 
-    public abstract JsonSerializer<?> _withResolved(BeanProperty prop,
+    public abstract ValueSerializer<?> _withResolved(BeanProperty prop,
             Boolean unwrapSingle);
 
     /*
@@ -50,10 +50,10 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
 
     @SuppressWarnings("unchecked")
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider serializers,
+    public ValueSerializer<?> createContextual(SerializerProvider serializers,
             BeanProperty property)
     {
-        JsonSerializer<?> ser = null;
+        ValueSerializer<?> ser = null;
         
         if (property != null) {
             final AnnotationIntrospector intr = serializers.getAnnotationIntrospector();
@@ -83,7 +83,7 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
         // otherwise...
         // note: will never have TypeSerializer, because Strings are "natural" type
         return new CollectionSerializer(serializers.constructType(String.class),
-                true, /*TypeSerializer*/ null, (JsonSerializer<Object>) ser);
+                true, /*TypeSerializer*/ null, (ValueSerializer<Object>) ser);
     }
 
     @Override

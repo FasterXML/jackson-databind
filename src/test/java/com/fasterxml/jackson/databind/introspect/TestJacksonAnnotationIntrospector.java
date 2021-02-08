@@ -89,7 +89,7 @@ public class TestJacksonAnnotationIntrospector
         }
     }
 
-    public static class QNameSerializer extends JsonSerializer<QName> {
+    public static class QNameSerializer extends ValueSerializer<QName> {
 
         @Override
         public void serialize(QName value, JsonGenerator g, SerializerProvider provider)

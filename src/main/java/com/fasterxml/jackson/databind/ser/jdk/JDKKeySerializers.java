@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.util.EnumValues;
 
 public abstract class JDKKeySerializers
 {
-    protected final static JsonSerializer<Object> DEFAULT_STRING_SERIALIZER = new StringKeySerializer();
+    protected final static ValueSerializer<Object> DEFAULT_STRING_SERIALIZER = new StringKeySerializer();
 
     /**
      * @param config Serialization configuration in use, may be needed in choosing
@@ -22,7 +22,7 @@ public abstract class JDKKeySerializers
      * @param useDefault If no match is found, should we return fallback deserializer
      *    (true), or null (false)?
      */
-    public static JsonSerializer<Object> getStdKeySerializer(SerializationConfig config,
+    public static ValueSerializer<Object> getStdKeySerializer(SerializationConfig config,
             Class<?> rawKeyType, boolean useDefault)
     {
         // 24-Sep-2015, tatu: Important -- should ONLY consider types for which `@JsonValue`
@@ -79,7 +79,7 @@ public abstract class JDKKeySerializers
      * "default" key serializer.
      */
     @SuppressWarnings("unchecked")
-    public static JsonSerializer<Object> getFallbackKeySerializer(SerializationConfig config,
+    public static ValueSerializer<Object> getFallbackKeySerializer(SerializationConfig config,
             Class<?> rawKeyType)
     {
         if (rawKeyType != null) {
@@ -209,7 +209,7 @@ public abstract class JDKKeySerializers
         {
             Class<?> cls = value.getClass();
             PropertySerializerMap m = _dynamicSerializers;
-            JsonSerializer<Object> ser = m.serializerFor(cls);
+            ValueSerializer<Object> ser = m.serializerFor(cls);
             if (ser == null) {
                 ser = _findAndAddDynamic(m, cls, provider);
             }
@@ -221,13 +221,13 @@ public abstract class JDKKeySerializers
             visitStringFormat(visitor, typeHint);
         }
 
-        protected JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
+        protected ValueSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
                 Class<?> type, SerializerProvider provider)
         {
             // 27-Jun-2017, tatu: [databind#1679] Need to avoid StackOverflowError...
             if (type == Object.class) {
                 // basically just need to call `toString()`, easiest way:
-                JsonSerializer<Object> ser = new Default(Default.TYPE_TO_STRING, type);
+                ValueSerializer<Object> ser = new Default(Default.TYPE_TO_STRING, type);
                 _dynamicSerializers = map.newWith(type, ser);
                 return ser;
             }

@@ -367,7 +367,7 @@ public enum SerializationFeature implements ConfigFeature
 
     /**
      * Feature that determines whether {@link ObjectWriter} should
-     * try to eagerly fetch necessary {@link JsonSerializer} when
+     * try to eagerly fetch necessary {@link ValueSerializer} when
      * possible. This improves performance in cases where similarly
      * configured {@link ObjectWriter} instance is used multiple
      * times; and should not significantly affect single-use cases.

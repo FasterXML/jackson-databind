@@ -683,8 +683,8 @@ public class JacksonAnnotationIntrospector
         JsonSerialize ann = _findAnnotation(a, JsonSerialize.class);
         if (ann != null) {
             @SuppressWarnings("rawtypes")
-            Class<? extends JsonSerializer> serClass = ann.using();
-            if (serClass != JsonSerializer.None.class) {
+            Class<? extends ValueSerializer> serClass = ann.using();
+            if (serClass != ValueSerializer.None.class) {
                 return serClass;
             }
         }
@@ -708,8 +708,8 @@ public class JacksonAnnotationIntrospector
         JsonSerialize ann = _findAnnotation(a, JsonSerialize.class);
         if (ann != null) {
             @SuppressWarnings("rawtypes")
-            Class<? extends JsonSerializer> serClass = ann.keyUsing();
-            if (serClass != JsonSerializer.None.class) {
+            Class<? extends ValueSerializer> serClass = ann.keyUsing();
+            if (serClass != ValueSerializer.None.class) {
                 return serClass;
             }
         }
@@ -722,8 +722,8 @@ public class JacksonAnnotationIntrospector
         JsonSerialize ann = _findAnnotation(a, JsonSerialize.class);
         if (ann != null) {
             @SuppressWarnings("rawtypes")
-            Class<? extends JsonSerializer> serClass = ann.contentUsing();
-            if (serClass != JsonSerializer.None.class) {
+            Class<? extends ValueSerializer> serClass = ann.contentUsing();
+            if (serClass != ValueSerializer.None.class) {
                 return serClass;
             }
         }
@@ -736,8 +736,8 @@ public class JacksonAnnotationIntrospector
         JsonSerialize ann = _findAnnotation(a, JsonSerialize.class);
         if (ann != null) {
             @SuppressWarnings("rawtypes")
-            Class<? extends JsonSerializer> serClass = ann.nullsUsing();
-            if (serClass != JsonSerializer.None.class) {
+            Class<? extends ValueSerializer> serClass = ann.nullsUsing();
+            if (serClass != ValueSerializer.None.class) {
                 return serClass;
             }
         }

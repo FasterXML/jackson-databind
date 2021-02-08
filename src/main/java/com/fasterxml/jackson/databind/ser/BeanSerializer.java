@@ -90,7 +90,7 @@ public class BeanSerializer
     }
 
     @Override
-    public JsonSerializer<Object> unwrappingSerializer(NameTransformer unwrapper) {
+    public ValueSerializer<Object> unwrappingSerializer(NameTransformer unwrapper) {
         return new UnwrappingBeanSerializer(this, unwrapper);
     }
 
@@ -133,7 +133,7 @@ public class BeanSerializer
 
     /*
     /**********************************************************************
-    /* JsonSerializer implementation that differs between impls
+    /* ValueSerializer implementation that differs between impls
     /**********************************************************************
      */
 

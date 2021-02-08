@@ -113,7 +113,7 @@ public class TestContextualSerialization extends BaseMapTest
      * Annotation-based contextual serializer that simply prepends piece of text.
      */
     static class AnnotatedContextualSerializer
-        extends JsonSerializer<String>
+        extends ValueSerializer<String>
     {
         protected final String _prefix;
         
@@ -129,7 +129,7 @@ public class TestContextualSerialization extends BaseMapTest
         }
 
         @Override
-        public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
+        public ValueSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
         {
             String prefix = "UNKNOWN";
             Prefix ann = null;
@@ -147,7 +147,7 @@ public class TestContextualSerialization extends BaseMapTest
     }
 
     static class ContextualAndResolvable
-        extends JsonSerializer<String>
+        extends ValueSerializer<String>
     {
         protected int isContextual;
         protected int isResolved;
@@ -167,7 +167,7 @@ public class TestContextualSerialization extends BaseMapTest
         }
 
         @Override
-        public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
+        public ValueSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
         {
             return new ContextualAndResolvable(isResolved, isContextual+1);
         }
@@ -179,7 +179,7 @@ public class TestContextualSerialization extends BaseMapTest
     }
 
     static class AccumulatingContextual
-        extends JsonSerializer<String>
+        extends ValueSerializer<String>
     {
         protected String desc;
 
@@ -196,7 +196,7 @@ public class TestContextualSerialization extends BaseMapTest
         }
 
         @Override
-        public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
+        public ValueSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
         {
             if (property == null) {
                 return new AccumulatingContextual(desc+"/ROOT");

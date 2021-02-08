@@ -137,7 +137,7 @@ public class NewSchemaTest extends BaseMapTest
                         return;
                     }
                     BeanPropertyWriter bpw = (BeanPropertyWriter) prop;
-                    JsonSerializer<?> ser = bpw.getSerializer();
+                    ValueSerializer<?> ser = bpw.getSerializer();
                     final SerializerProvider prov = getProvider();
                     if (ser == null) {
                         if (prov == null) {
@@ -298,7 +298,7 @@ public class NewSchemaTest extends BaseMapTest
                     @Override
                     public void optionalProperty(BeanProperty prop) {
                         sb.append("[optProp ").append(prop.getName()).append("(");
-                        JsonSerializer<Object> ser = null;
+                        ValueSerializer<Object> ser = null;
                         if (prop instanceof BeanPropertyWriter) {
                             BeanPropertyWriter bpw = (BeanPropertyWriter) prop;
                             ser = bpw.getSerializer();

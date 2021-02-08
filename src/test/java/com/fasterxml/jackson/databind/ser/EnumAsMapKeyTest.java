@@ -63,7 +63,7 @@ public class EnumAsMapKeyTest extends BaseMapTest
 
     enum Foo661 {
         FOO;
-        public static class Serializer extends JsonSerializer<Foo661> {
+        public static class Serializer extends ValueSerializer<Foo661> {
             @Override
             public void serialize(Foo661 value, JsonGenerator g, SerializerProvider provider) 
             {

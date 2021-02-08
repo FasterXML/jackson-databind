@@ -122,7 +122,7 @@ public class TestCustomDeserializers
         }
     }
      
-    static class CustomKeySerializer extends JsonSerializer<CustomKey> {
+    static class CustomKeySerializer extends ValueSerializer<CustomKey> {
         @Override
         public void serialize(CustomKey value, JsonGenerator g, SerializerProvider provider) {
             g.writeName(String.valueOf(value.getId()));

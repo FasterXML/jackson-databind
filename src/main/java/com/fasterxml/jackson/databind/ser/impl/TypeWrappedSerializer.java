@@ -11,17 +11,17 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  * serializer.
  */
 public final class TypeWrappedSerializer
-    extends JsonSerializer<Object>
+    extends ValueSerializer<Object>
 {
     final protected TypeSerializer _typeSerializer;
-    final protected JsonSerializer<Object> _serializer;
+    final protected ValueSerializer<Object> _serializer;
 
     @SuppressWarnings("unchecked")
-    public TypeWrappedSerializer(TypeSerializer typeSer, JsonSerializer<?> ser)
+    public TypeWrappedSerializer(TypeSerializer typeSer, ValueSerializer<?> ser)
     {
         super();
         _typeSerializer = typeSer;
-        _serializer = (JsonSerializer<Object>) ser;
+        _serializer = (ValueSerializer<Object>) ser;
     }
 
     @Override
@@ -48,10 +48,10 @@ public final class TypeWrappedSerializer
      */
 
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider provider, BeanProperty property)
+    public ValueSerializer<?> createContextual(SerializerProvider provider, BeanProperty property)
     {
         // 13-Mar-2017, tatu: Should we call `TypeSerializer.forProperty()`?
-        JsonSerializer<?> ser = _serializer;
+        ValueSerializer<?> ser = _serializer;
         if (ser != null) {
             ser = provider.handleSecondaryContextualization(ser, property);
         }
@@ -67,7 +67,7 @@ public final class TypeWrappedSerializer
     /**********************************************************************
      */
 
-    public JsonSerializer<Object> valueSerializer() {
+    public ValueSerializer<Object> valueSerializer() {
         return _serializer;
     }
 

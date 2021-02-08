@@ -53,7 +53,7 @@ public class TestCustomEnumKeyDeserializer extends BaseMapTest
         }
     }
 
-    static class TestEnumSerializer extends JsonSerializer<TestEnum> {
+    static class TestEnumSerializer extends ValueSerializer<TestEnum> {
         @Override
         public void serialize(TestEnum languageCode, JsonGenerator g, SerializerProvider serializerProvider) {
             g.writeString(languageCode.code());
@@ -93,7 +93,7 @@ public class TestCustomEnumKeyDeserializer extends BaseMapTest
         }
     }
 
-    static class TestEnumKeySerializer extends JsonSerializer<TestEnum> {
+    static class TestEnumKeySerializer extends ValueSerializer<TestEnum> {
         @Override
         public void serialize(TestEnum test, JsonGenerator g, SerializerProvider serializerProvider) {
             g.writeName(test.code());

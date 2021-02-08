@@ -70,7 +70,7 @@ public class UnwrappingBeanSerializer
      */
 
     @Override
-    public JsonSerializer<Object> unwrappingSerializer(NameTransformer transformer) {
+    public ValueSerializer<Object> unwrappingSerializer(NameTransformer transformer) {
         // !!! 23-Jan-2012, tatu: Should we chain transformers?
         return new UnwrappingBeanSerializer(this, transformer);
     }
@@ -112,7 +112,7 @@ public class UnwrappingBeanSerializer
     
     /*
     /**********************************************************
-    /* JsonSerializer implementation that differs between impls
+    /* ValueSerializer implementation that differs between impls
     /**********************************************************
      */
 

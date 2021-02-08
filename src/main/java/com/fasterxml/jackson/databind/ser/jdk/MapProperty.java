@@ -28,7 +28,7 @@ public class MapProperty extends PropertyWriter
 
     protected Object _key, _value;
 
-    protected JsonSerializer<Object> _keySerializer, _valueSerializer;
+    protected ValueSerializer<Object> _keySerializer, _valueSerializer;
 
     public MapProperty(TypeSerializer typeSer, BeanProperty prop)
     {
@@ -42,7 +42,7 @@ public class MapProperty extends PropertyWriter
      * property to filter.
      */
     public void reset(Object key, Object value,
-            JsonSerializer<Object> keySer, JsonSerializer<Object> valueSer)
+            ValueSerializer<Object> keySer, ValueSerializer<Object> valueSer)
     {
         _key = key;
         _value = value;

@@ -177,13 +177,13 @@ public class ModuleContextBase
     }
 
     @Override
-    public SetupContext overrideDefaultNullKeySerializer(JsonSerializer<?> ser) {
+    public SetupContext overrideDefaultNullKeySerializer(ValueSerializer<?> ser) {
         _set(_serializerFactory().withNullKeySerializer(ser));
         return this;
     }
     
     @Override
-    public SetupContext overrideDefaultNullValueSerializer(JsonSerializer<?> ser) {
+    public SetupContext overrideDefaultNullValueSerializer(ValueSerializer<?> ser) {
         _set(_serializerFactory().withNullValueSerializer(ser));
         return this;
     }

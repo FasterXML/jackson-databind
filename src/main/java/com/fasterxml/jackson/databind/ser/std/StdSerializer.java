@@ -28,7 +28,7 @@ import com.fasterxml.jackson.databind.util.Converter;
  * base class to use).
  */
 public abstract class StdSerializer<T>
-    extends JsonSerializer<T>
+    extends ValueSerializer<T>
     implements JsonFormatVisitable
 {
     /**
@@ -195,7 +195,7 @@ public abstract class StdSerializer<T>
     }
 
     protected void visitArrayFormat(JsonFormatVisitorWrapper visitor, JavaType typeHint,
-            JsonSerializer<?> itemSerializer, JavaType itemType)
+            ValueSerializer<?> itemSerializer, JavaType itemType)
     {
         JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
         if (_neitherNull(v2, itemSerializer)) {
@@ -291,8 +291,8 @@ public abstract class StdSerializer<T>
      * @param existingSerializer (optional) configured content
      *    serializer if one already exists.
      */
-    protected JsonSerializer<?> findContextualConvertingSerializer(SerializerProvider provider,
-            BeanProperty prop, JsonSerializer<?> existingSerializer)
+    protected ValueSerializer<?> findContextualConvertingSerializer(SerializerProvider provider,
+            BeanProperty prop, ValueSerializer<?> existingSerializer)
     {
         // 08-Dec-2016, tatu: to fix [databind#357], need to prevent recursive calls for
         //     same property
@@ -311,7 +311,7 @@ public abstract class StdSerializer<T>
         if (_neitherNull(intr, prop)) {
             conversions.put(prop, Boolean.TRUE);
             try {
-                JsonSerializer<?> ser = _findConvertingContentSerializer(provider, intr,
+                ValueSerializer<?> ser = _findConvertingContentSerializer(provider, intr,
                         prop, existingSerializer);
                 if (ser != null) {
                     return provider.handleSecondaryContextualization(ser, prop);
@@ -323,8 +323,8 @@ public abstract class StdSerializer<T>
         return existingSerializer;
     }
 
-    private JsonSerializer<?> _findConvertingContentSerializer(SerializerProvider provider,
-            AnnotationIntrospector intr, BeanProperty prop, JsonSerializer<?> existingSerializer)
+    private ValueSerializer<?> _findConvertingContentSerializer(SerializerProvider provider,
+            AnnotationIntrospector intr, BeanProperty prop, ValueSerializer<?> existingSerializer)
     {
         AnnotatedMember m = prop.getMember();
         if (m != null) {
@@ -406,7 +406,7 @@ public abstract class StdSerializer<T>
     /**
      * Convenience method for finding out possibly configured content value serializer.
      */
-    protected JsonSerializer<?> findAnnotatedContentSerializer(SerializerProvider serializers,
+    protected ValueSerializer<?> findAnnotatedContentSerializer(SerializerProvider serializers,
             BeanProperty property)
     {
         if (property != null) {
@@ -433,7 +433,7 @@ public abstract class StdSerializer<T>
      * a module or calling application. Determination is done using
      * {@link JacksonStdImpl} annotation on serializer class.
      */
-    protected boolean isDefaultSerializer(JsonSerializer<?> serializer) {
+    protected boolean isDefaultSerializer(ValueSerializer<?> serializer) {
         return ClassUtil.isJacksonStdImpl(serializer);
     }
 

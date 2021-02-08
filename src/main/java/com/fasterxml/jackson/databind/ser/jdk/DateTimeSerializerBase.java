@@ -55,7 +55,7 @@ public abstract class DateTimeSerializerBase<T>
     public abstract DateTimeSerializerBase<T> withFormat(Boolean timestamp, DateFormat customFormat);
 
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider serializers,
+    public ValueSerializer<?> createContextual(SerializerProvider serializers,
             BeanProperty property)
     {
         // Note! Should not skip if `property` null since that'd skip check

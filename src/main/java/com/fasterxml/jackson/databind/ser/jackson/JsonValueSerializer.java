@@ -68,7 +68,7 @@ public class JsonValueSerializer
      */
     public JsonValueSerializer(JavaType nominalType,
             JavaType valueType, boolean staticTyping,
-            TypeSerializer vts, JsonSerializer<?> ser,
+            TypeSerializer vts, ValueSerializer<?> ser,
             AnnotatedMember accessor)
     {
         super(nominalType, null, vts, ser);
@@ -79,7 +79,7 @@ public class JsonValueSerializer
     }
 
     protected JsonValueSerializer(JsonValueSerializer src, BeanProperty property,
-            TypeSerializer vts, JsonSerializer<?> ser, boolean forceTypeInfo)
+            TypeSerializer vts, ValueSerializer<?> ser, boolean forceTypeInfo)
     {
         super(src, property, vts, ser);
         _valueType = src._valueType;
@@ -89,7 +89,7 @@ public class JsonValueSerializer
     }
 
     public JsonValueSerializer withResolved(BeanProperty property,
-            TypeSerializer vts, JsonSerializer<?> ser, boolean forceTypeInfo)
+            TypeSerializer vts, ValueSerializer<?> ser, boolean forceTypeInfo)
     {
         if ((_property == property)
                 && (_valueTypeSerializer == vts) && (_valueSerializer == ser)
@@ -113,7 +113,7 @@ public class JsonValueSerializer
         if (referenced == null) {
             return true;
         }
-        JsonSerializer<Object> ser = _valueSerializer;
+        ValueSerializer<Object> ser = _valueSerializer;
         if (ser == null) {
             ser = _findAndAddDynamic(ctxt, referenced.getClass());
         }
@@ -131,14 +131,14 @@ public class JsonValueSerializer
      * statically figure out what the result type must be.
      */
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider ctxt,
+    public ValueSerializer<?> createContextual(SerializerProvider ctxt,
             BeanProperty property)
     {
         TypeSerializer vts = _valueTypeSerializer;
         if (vts != null) {
             vts = vts.forProperty(ctxt, property);
         }
-        JsonSerializer<?> ser = _valueSerializer;
+        ValueSerializer<?> ser = _valueSerializer;
         if (ser == null) {
             // Can only assign serializer statically if the declared type is final:
             // if not, we don't really know the actual type until we get the instance.
@@ -193,7 +193,7 @@ public class JsonValueSerializer
             ctxt.defaultSerializeNullValue(gen);
             return;
         }
-        JsonSerializer<Object> ser = _valueSerializer;
+        ValueSerializer<Object> ser = _valueSerializer;
         if (ser == null) {
             Class<?> cc = value.getClass();
             if (_valueType.hasGenericTypes()) {
@@ -227,7 +227,7 @@ public class JsonValueSerializer
             ctxt.defaultSerializeNullValue(gen);
             return;
         }
-        JsonSerializer<Object> ser = _valueSerializer;
+        ValueSerializer<Object> ser = _valueSerializer;
         if (ser == null) {
             Class<?> cc = value.getClass();
             if (_valueType.hasGenericTypes()) {
@@ -282,7 +282,7 @@ public class JsonValueSerializer
                 return;
             }
         }
-        JsonSerializer<Object> ser = _valueSerializer;
+        ValueSerializer<Object> ser = _valueSerializer;
         if (ser == null) {
             ser = visitor.getProvider().findPrimaryPropertySerializer(type, _property);
             if (ser == null) { // can this ever occur?
@@ -327,7 +327,7 @@ public class JsonValueSerializer
         return true;
     }
 
-    protected boolean isNaturalTypeWithStdHandling(Class<?> rawType, JsonSerializer<?> ser)
+    protected boolean isNaturalTypeWithStdHandling(Class<?> rawType, ValueSerializer<?> ser)
     {
         // First: do we have a natural type being handled?
         if (rawType.isPrimitive()) {

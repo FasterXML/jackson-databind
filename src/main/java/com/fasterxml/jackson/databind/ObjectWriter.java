@@ -1107,7 +1107,7 @@ public class ObjectWriter
          * This allows avoiding further serializer lookups and increases
          * performance a bit on cases where readers are reused.
          */
-        private final JsonSerializer<Object> valueSerializer;
+        private final ValueSerializer<Object> valueSerializer;
 
         /**
          * When dealing with polymorphic types, we cannot pre-fetch
@@ -1116,7 +1116,7 @@ public class ObjectWriter
         private final TypeSerializer typeSerializer;
         
         private Prefetch(JavaType rootT,
-                JsonSerializer<Object> ser, TypeSerializer typeSer)
+                ValueSerializer<Object> ser, TypeSerializer typeSer)
         {
             rootType = rootT;
             valueSerializer = ser;
@@ -1152,7 +1152,7 @@ public class ObjectWriter
                 //   serializer for polymorphic types, it is actually more efficient to do the
                 //   reverse here.
                 try {
-                    JsonSerializer<Object> ser = ctxt.findTypedValueSerializer(newType, true);
+                    ValueSerializer<Object> ser = ctxt.findTypedValueSerializer(newType, true);
                     // Important: for polymorphic types, "unwrap"...
                     if (ser instanceof TypeWrappedSerializer) {
                         return new Prefetch(newType, null,
@@ -1167,7 +1167,7 @@ public class ObjectWriter
             return new Prefetch(newType, null, typeSerializer);
         }
 
-        public final JsonSerializer<Object> getValueSerializer() {
+        public final ValueSerializer<Object> getValueSerializer() {
             return valueSerializer;
         }
 

@@ -40,12 +40,12 @@ public class MapEntrySerializer
     /**
      * Key serializer to use, if it can be statically determined
      */
-    protected JsonSerializer<Object> _keySerializer;
+    protected ValueSerializer<Object> _keySerializer;
 
     /**
      * Value serializer to use, if it can be statically determined
      */
-    protected JsonSerializer<Object> _valueSerializer;
+    protected ValueSerializer<Object> _valueSerializer;
 
     /**
      * Type identifier serializer used for values, if any.
@@ -97,7 +97,7 @@ public class MapEntrySerializer
     @SuppressWarnings("unchecked")
     protected MapEntrySerializer(MapEntrySerializer src, BeanProperty property,
             TypeSerializer vts,
-            JsonSerializer<?> keySer, JsonSerializer<?> valueSer,
+            ValueSerializer<?> keySer, ValueSerializer<?> valueSer,
             Object suppressableValue, boolean suppressNulls)
     {
         super(src, property);
@@ -106,8 +106,8 @@ public class MapEntrySerializer
         _valueType = src._valueType;
         _valueTypeIsStatic = src._valueTypeIsStatic;
         _valueTypeSerializer = src._valueTypeSerializer;
-        _keySerializer = (JsonSerializer<Object>) keySer;
-        _valueSerializer = (JsonSerializer<Object>) valueSer;
+        _keySerializer = (ValueSerializer<Object>) keySer;
+        _valueSerializer = (ValueSerializer<Object>) valueSer;
         _suppressableValue = suppressableValue;
         _suppressNulls = suppressNulls;
     }
@@ -119,7 +119,7 @@ public class MapEntrySerializer
     }
 
     public MapEntrySerializer withResolved(BeanProperty property,
-            JsonSerializer<?> keySerializer, JsonSerializer<?> valueSerializer,
+            ValueSerializer<?> keySerializer, ValueSerializer<?> valueSerializer,
             Object suppressableValue, boolean suppressNulls) {
         return new MapEntrySerializer(this, property, _valueTypeSerializer,
                 keySerializer, valueSerializer, suppressableValue, suppressNulls);
@@ -136,11 +136,11 @@ public class MapEntrySerializer
     }
 
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider provider,
+    public ValueSerializer<?> createContextual(SerializerProvider provider,
             BeanProperty property)
     {
-        JsonSerializer<?> ser = null;
-        JsonSerializer<?> keySer = null;
+        ValueSerializer<?> ser = null;
+        ValueSerializer<?> keySer = null;
         final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
         final AnnotatedMember propertyAcc = (property == null) ? null : property.getMember();
 
@@ -239,7 +239,7 @@ public class MapEntrySerializer
     }
 
     @Override
-    public JsonSerializer<?> getContentSerializer() {
+    public ValueSerializer<?> getContentSerializer() {
         return _valueSerializer;
     }
 
@@ -258,7 +258,7 @@ public class MapEntrySerializer
         if (_suppressableValue == null) {
             return false;
         }
-        JsonSerializer<Object> valueSer = _valueSerializer;
+        ValueSerializer<Object> valueSer = _valueSerializer;
         if (valueSer == null) {
             // Let's not worry about generic types here, actually;
             // unlikely to make any difference, but does add significant overhead
@@ -309,7 +309,7 @@ public class MapEntrySerializer
         final TypeSerializer vts = _valueTypeSerializer;
         final Object keyElem = value.getKey();
 
-        JsonSerializer<Object> keySerializer;
+        ValueSerializer<Object> keySerializer;
         if (keyElem == null) {
             keySerializer = ctxt.findNullKeySerializer(_keyType, _property);
         } else {
@@ -317,7 +317,7 @@ public class MapEntrySerializer
         }
         // or by value; nulls often suppressed
         final Object valueElem = value.getValue();
-        JsonSerializer<Object> valueSer;
+        ValueSerializer<Object> valueSer;
         // And then value
         if (valueElem == null) {
             if (_suppressNulls) {

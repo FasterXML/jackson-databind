@@ -2,7 +2,7 @@ package com.fasterxml.jackson.databind.cfg;
 
 import java.util.Objects;
 
-import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ValueSerializer;
 import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.ser.impl.FailingSerializer;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
@@ -17,7 +17,7 @@ public final class SerializerFactoryConfig
 {
     private static final long serialVersionUID = 3L;
 
-    public final static JsonSerializer<Object> DEFAULT_NULL_KEY_SERIALIZER =
+    public final static ValueSerializer<Object> DEFAULT_NULL_KEY_SERIALIZER =
             new FailingSerializer("Null key for a Map not allowed in JSON (use a converting NullKeySerializer?)");
 
     /**
@@ -49,13 +49,13 @@ public final class SerializerFactoryConfig
     /**
      * Serializer used to output a null value, unless explicitly redefined for property.
      */
-    protected final JsonSerializer<Object> _nullValueSerializer;
+    protected final ValueSerializer<Object> _nullValueSerializer;
 
     /**
      * Serializer used to (try to) output a null key, due to an entry of
      * {@link java.util.Map} having null key.
      */
-    protected final JsonSerializer<Object> _nullKeySerializer;
+    protected final ValueSerializer<Object> _nullKeySerializer;
     
     public SerializerFactoryConfig() {
         this(null, null, null,
@@ -66,8 +66,8 @@ public final class SerializerFactoryConfig
     protected SerializerFactoryConfig(Serializers[] allAdditionalSerializers,
             Serializers[] allAdditionalKeySerializers,
             ValueSerializerModifier[] modifiers,
-            JsonSerializer<Object> nullKeySer,
-            JsonSerializer<Object> nullValueSer)
+            ValueSerializer<Object> nullKeySer,
+            ValueSerializer<Object> nullValueSer)
     {
         _additionalSerializers = (allAdditionalSerializers == null) ?
                 NO_SERIALIZERS : allAdditionalSerializers;
@@ -103,17 +103,17 @@ public final class SerializerFactoryConfig
     }
 
     @SuppressWarnings("unchecked")
-    public SerializerFactoryConfig withNullValueSerializer(JsonSerializer<?> nvs) {
-        Objects.requireNonNull(nvs, "Cannot pass null JsonSerializer");
+    public SerializerFactoryConfig withNullValueSerializer(ValueSerializer<?> nvs) {
+        Objects.requireNonNull(nvs, "Cannot pass null ValueSerializer");
         return new SerializerFactoryConfig(_additionalSerializers, _additionalKeySerializers, _modifiers,
-                _nullKeySerializer, (JsonSerializer<Object>) nvs);
+                _nullKeySerializer, (ValueSerializer<Object>) nvs);
     }
 
     @SuppressWarnings("unchecked")
-    public SerializerFactoryConfig withNullKeySerializer(JsonSerializer<?> nks) {
-        Objects.requireNonNull(nks, "Cannot pass null JsonSerializer");
+    public SerializerFactoryConfig withNullKeySerializer(ValueSerializer<?> nks) {
+        Objects.requireNonNull(nks, "Cannot pass null ValueSerializer");
         return new SerializerFactoryConfig(_additionalSerializers, _additionalKeySerializers, _modifiers,
-                (JsonSerializer<Object>) nks, _nullValueSerializer);
+                (ValueSerializer<Object>) nks, _nullValueSerializer);
     }
 
     public boolean hasSerializers() { return _additionalSerializers.length > 0; }
@@ -124,6 +124,6 @@ public final class SerializerFactoryConfig
     public Iterable<Serializers> keySerializers() { return new ArrayIterator<Serializers>(_additionalKeySerializers); }
     public Iterable<ValueSerializerModifier> serializerModifiers() { return new ArrayIterator<ValueSerializerModifier>(_modifiers); }
 
-    public JsonSerializer<Object> getNullKeySerializer() { return _nullKeySerializer; }
-    public JsonSerializer<Object> getNullValueSerializer() { return _nullValueSerializer; }
+    public ValueSerializer<Object> getNullKeySerializer() { return _nullKeySerializer; }
+    public ValueSerializer<Object> getNullValueSerializer() { return _nullValueSerializer; }
 }

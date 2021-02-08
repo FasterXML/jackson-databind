@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.util.Converter;
 
 /**
  * Helper class used for handling details of creating handler instances (things
- * like {@link JsonSerializer}s, {@link ValueDeserializer}s, various type
+ * like {@link ValueSerializer}s, {@link ValueDeserializer}s, various type
  * handlers) of specific types. Actual handler type has been resolved at this
  * point, so instantiator is strictly responsible for providing a configured
  * instance by constructing and configuring a new instance, or possibly by
@@ -74,7 +74,7 @@ public abstract class HandlerInstantiator
      * 
      * @return Serializer instance to use
      */
-    public abstract JsonSerializer<?> serializerInstance(SerializationConfig config,
+    public abstract ValueSerializer<?> serializerInstance(SerializationConfig config,
             Annotated annotated, Class<?> serClass);
 
     /**

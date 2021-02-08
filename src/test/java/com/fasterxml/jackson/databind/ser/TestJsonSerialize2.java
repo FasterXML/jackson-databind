@@ -37,7 +37,7 @@ public class TestJsonSerialize2
         public ActualValue(String str) { super(str); }
     }
 
-    static class SimpleKeySerializer extends JsonSerializer<SimpleKey> {
+    static class SimpleKeySerializer extends ValueSerializer<SimpleKey> {
         @Override
         public void serialize(SimpleKey key, JsonGenerator g, SerializerProvider provider)
         {
@@ -45,7 +45,7 @@ public class TestJsonSerialize2
         }
     }
 
-    static class SimpleValueSerializer extends JsonSerializer<SimpleValue> {
+    static class SimpleValueSerializer extends ValueSerializer<SimpleValue> {
         @Override
         public void serialize(SimpleValue value, JsonGenerator g, SerializerProvider provider)
         {

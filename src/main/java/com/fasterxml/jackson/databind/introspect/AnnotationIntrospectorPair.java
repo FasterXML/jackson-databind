@@ -302,41 +302,41 @@ public class AnnotationIntrospectorPair
     @Override
     public Object findSerializer(MapperConfig<?> config, Annotated am) {
         Object r = _primary.findSerializer(config, am);
-        if (_isExplicitClassOrOb(r, JsonSerializer.None.class)) {
+        if (_isExplicitClassOrOb(r, ValueSerializer.None.class)) {
             return r;
         }
         return _explicitClassOrOb(_secondary.findSerializer(config, am),
-                JsonSerializer.None.class);
+                ValueSerializer.None.class);
     }
     
     @Override
     public Object findKeySerializer(MapperConfig<?> config, Annotated a) {
         Object r = _primary.findKeySerializer(config, a);
-        if (_isExplicitClassOrOb(r, JsonSerializer.None.class)) {
+        if (_isExplicitClassOrOb(r, ValueSerializer.None.class)) {
             return r;
         }
         return _explicitClassOrOb(_secondary.findKeySerializer(config, a),
-                JsonSerializer.None.class);
+                ValueSerializer.None.class);
     }
 
     @Override
     public Object findContentSerializer(MapperConfig<?> config, Annotated a) {
         Object r = _primary.findContentSerializer(config, a);
-        if (_isExplicitClassOrOb(r, JsonSerializer.None.class)) {
+        if (_isExplicitClassOrOb(r, ValueSerializer.None.class)) {
             return r;
         }
         return _explicitClassOrOb(_secondary.findContentSerializer(config, a),
-                JsonSerializer.None.class);
+                ValueSerializer.None.class);
     }
     
     @Override
     public Object findNullSerializer(MapperConfig<?> config, Annotated a) {
         Object r = _primary.findNullSerializer(config, a);
-        if (_isExplicitClassOrOb(r, JsonSerializer.None.class)) {
+        if (_isExplicitClassOrOb(r, ValueSerializer.None.class)) {
             return r;
         }
         return _explicitClassOrOb(_secondary.findNullSerializer(config, a),
-                JsonSerializer.None.class);
+                ValueSerializer.None.class);
     }
 
     @Override

@@ -28,7 +28,7 @@ public class CustomMapKeys2454Test extends BaseMapTest
         }
     }
 
-    static class Key2454Serializer extends JsonSerializer<Key2454> {
+    static class Key2454Serializer extends ValueSerializer<Key2454> {
         @Override
         public void serialize(Key2454 value, JsonGenerator gen,
                 SerializerProvider serializers) {

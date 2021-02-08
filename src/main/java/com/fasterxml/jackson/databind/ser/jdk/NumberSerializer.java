@@ -46,7 +46,7 @@ public class NumberSerializer
     }
 
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider prov,
+    public ValueSerializer<?> createContextual(SerializerProvider prov,
             BeanProperty property)
     {
         JsonFormat.Value format = findFormatOverrides(prov, property, handledType());
@@ -107,7 +107,7 @@ public class NumberSerializer
     /**
      * @since 2.10
      */
-    public static JsonSerializer<?> bigDecimalAsStringSerializer() {
+    public static ValueSerializer<?> bigDecimalAsStringSerializer() {
         return BigDecimalAsStringSerializer.BD_INSTANCE;
     }
     

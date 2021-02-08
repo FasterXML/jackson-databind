@@ -19,7 +19,7 @@ public class IteratorSerializer
     }
 
     public IteratorSerializer(IteratorSerializer src,
-            TypeSerializer vts, JsonSerializer<?> valueSerializer,
+            TypeSerializer vts, ValueSerializer<?> valueSerializer,
             Boolean unwrapSingle, BeanProperty property) {
         super(src, vts, valueSerializer, unwrapSingle, property);
     }
@@ -31,7 +31,7 @@ public class IteratorSerializer
 
     @Override
     public IteratorSerializer withResolved(BeanProperty property,
-            TypeSerializer vts, JsonSerializer<?> elementSerializer,
+            TypeSerializer vts, ValueSerializer<?> elementSerializer,
             Boolean unwrapSingle) {
         return new IteratorSerializer(this, vts, elementSerializer, unwrapSingle, property);
     }
@@ -82,7 +82,7 @@ public class IteratorSerializer
         if (!value.hasNext()) {
             return;
         }
-        JsonSerializer<Object> serializer = _elementSerializer;
+        ValueSerializer<Object> serializer = _elementSerializer;
         if (serializer == null) {
             _serializeDynamicContents(value, g, provider);
             return;
@@ -112,7 +112,7 @@ public class IteratorSerializer
                 continue;
             }
             Class<?> cc = elem.getClass();
-            JsonSerializer<Object> serializer = _dynamicValueSerializers.serializerFor(cc);
+            ValueSerializer<Object> serializer = _dynamicValueSerializers.serializerFor(cc);
             if (serializer == null) {
                 if (_elementType.hasGenericTypes()) {
                     serializer = _findAndAddDynamic(ctxt,

@@ -92,7 +92,7 @@ public class BeanAsArraySerializer
     }
     
     @Override
-    public JsonSerializer<Object> unwrappingSerializer(NameTransformer transformer) {
+    public ValueSerializer<Object> unwrappingSerializer(NameTransformer transformer) {
         // If this gets called, we will just need delegate to the default
         // serializer, to "undo" as-array serialization
         return _defaultSerializer.unwrappingSerializer(transformer);
@@ -135,7 +135,7 @@ public class BeanAsArraySerializer
 
     /*
     /**********************************************************************
-    /* JsonSerializer implementation that differs between impls
+    /* ValueSerializer implementation that differs between impls
     /**********************************************************************
      */
 

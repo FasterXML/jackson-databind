@@ -40,7 +40,7 @@ public final class SerializerCache
      * NOTE: keys are of various types (see below for key types), in addition to
      * basic {@link JavaType} used for "untyped" serializers.
      */
-    private final SimpleLookupCache<TypeKey, JsonSerializer<Object>> _sharedMap;
+    private final SimpleLookupCache<TypeKey, ValueSerializer<Object>> _sharedMap;
 
     /**
      * Most recent read-only instance, created from _sharedMap, if any.
@@ -56,11 +56,11 @@ public final class SerializerCache
      */
     public SerializerCache(int maxCached) {
         int initial = Math.min(64, maxCached>>2);
-        _sharedMap = new SimpleLookupCache<TypeKey, JsonSerializer<Object>>(initial, maxCached);
+        _sharedMap = new SimpleLookupCache<TypeKey, ValueSerializer<Object>>(initial, maxCached);
         _readOnlyMap = new AtomicReference<ReadOnlyClassToSerializerMap>();
     }
 
-    protected SerializerCache(SimpleLookupCache<TypeKey, JsonSerializer<Object>> shared) {
+    protected SerializerCache(SimpleLookupCache<TypeKey, ValueSerializer<Object>> shared) {
         _sharedMap = shared;
         _readOnlyMap = new AtomicReference<ReadOnlyClassToSerializerMap>();
     }
@@ -114,22 +114,22 @@ public final class SerializerCache
      * Method that checks if the shared (and hence, synchronized) lookup Map might have
      * untyped serializer for given type.
      */
-    public JsonSerializer<Object> untypedValueSerializer(Class<?> type)
+    public ValueSerializer<Object> untypedValueSerializer(Class<?> type)
     {
         return _sharedMap.get(new TypeKey(type, false));
     }
 
-    public JsonSerializer<Object> untypedValueSerializer(JavaType type)
+    public ValueSerializer<Object> untypedValueSerializer(JavaType type)
     {
         return _sharedMap.get(new TypeKey(type, false));
     }
 
-    public JsonSerializer<Object> typedValueSerializer(JavaType type)
+    public ValueSerializer<Object> typedValueSerializer(JavaType type)
     {
         return _sharedMap.get(new TypeKey(type, true));
     }
 
-    public JsonSerializer<Object> typedValueSerializer(Class<?> cls)
+    public ValueSerializer<Object> typedValueSerializer(Class<?> cls)
     {
         return _sharedMap.get(new TypeKey(cls, true));
     }
@@ -145,7 +145,7 @@ public final class SerializerCache
      * a serializer. If so, we will update the shared lookup map so that it
      * can be resolved via it next time.
      */
-    public void addTypedSerializer(JavaType type, JsonSerializer<Object> ser)
+    public void addTypedSerializer(JavaType type, ValueSerializer<Object> ser)
     {
         if (_sharedMap.put(new TypeKey(type, true), ser) == null) {
             // let's invalidate the read-only copy, too, to get it updated
@@ -153,7 +153,7 @@ public final class SerializerCache
         }
     }
 
-    public void addTypedSerializer(Class<?> cls, JsonSerializer<Object> ser)
+    public void addTypedSerializer(Class<?> cls, ValueSerializer<Object> ser)
     {
         if (_sharedMap.put(new TypeKey(cls, true), ser) == null) {
             // let's invalidate the read-only copy, too, to get it updated
@@ -161,7 +161,7 @@ public final class SerializerCache
         }
     }
 
-    public void addAndResolveNonTypedSerializer(Class<?> type, JsonSerializer<Object> ser,
+    public void addAndResolveNonTypedSerializer(Class<?> type, ValueSerializer<Object> ser,
             SerializerProvider provider)
     {
         synchronized (this) {
@@ -177,7 +177,7 @@ public final class SerializerCache
         }
     }
 
-    public void addAndResolveNonTypedSerializer(JavaType type, JsonSerializer<Object> ser,
+    public void addAndResolveNonTypedSerializer(JavaType type, ValueSerializer<Object> ser,
             SerializerProvider provider)
     {
         synchronized (this) {
@@ -198,7 +198,7 @@ public final class SerializerCache
      * fully resolved type, in one fell swoop.
      */
     public void addAndResolveNonTypedSerializer(Class<?> rawType, JavaType fullType,
-            JsonSerializer<Object> ser,
+            ValueSerializer<Object> ser,
             SerializerProvider provider)
     {
         synchronized (this) {

@@ -133,13 +133,13 @@ public class BeanPropertyWriter
      * Serializer to use for writing out the value: null if it cannot be known
      * statically; non-null if it can.
      */
-    protected JsonSerializer<Object> _serializer;
+    protected ValueSerializer<Object> _serializer;
 
     /**
      * Serializer used for writing out null values, if any: if null, null values
      * are to be suppressed.
      */
-    protected JsonSerializer<Object> _nullSerializer;
+    protected ValueSerializer<Object> _nullSerializer;
 
     /**
      * If property being serialized needs type information to be included this
@@ -201,7 +201,7 @@ public class BeanPropertyWriter
     public BeanPropertyWriter(BeanPropertyDefinition propDef,
             AnnotatedMember member, Annotations contextAnnotations,
             JavaType declaredType,
-            JsonSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
+            ValueSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
             boolean suppressNulls, Object suppressableValue,
             Class<?>[] includeInViews)
     {
@@ -213,7 +213,7 @@ public class BeanPropertyWriter
         _wrapperName = propDef.getWrapperName();
 
         _declaredType = declaredType;
-        _serializer = (JsonSerializer<Object>) ser;
+        _serializer = (ValueSerializer<Object>) ser;
         _dynamicSerializers = (ser == null) ? PropertySerializerMap
                 .emptyForProperties() : null;
         _typeSerializer = typeSer;
@@ -360,7 +360,7 @@ public class BeanPropertyWriter
     /**
      * Method called to assign value serializer for property
      */
-    public void assignSerializer(JsonSerializer<Object> ser) {
+    public void assignSerializer(ValueSerializer<Object> ser) {
         // may need to disable check in future?
         if ((_serializer != null) && (_serializer != ser)) {
             throw new IllegalStateException(String.format(
@@ -373,7 +373,7 @@ public class BeanPropertyWriter
     /**
      * Method called to assign null value serializer for property
      */
-    public void assignNullSerializer(JsonSerializer<Object> nullSer) {
+    public void assignNullSerializer(ValueSerializer<Object> nullSer) {
         // may need to disable check in future?
         if ((_nullSerializer != null) && (_nullSerializer != nullSer)) {
             throw new IllegalStateException(String.format(
@@ -583,7 +583,7 @@ public class BeanPropertyWriter
     }
 
     // Needed by BeanSerializer#getSchema
-    public JsonSerializer<Object> getSerializer() {
+    public ValueSerializer<Object> getSerializer() {
         return _serializer;
     }
 
@@ -623,7 +623,7 @@ public class BeanPropertyWriter
             return;
         }
         // then find serializer to use
-        JsonSerializer<Object> ser = _serializer;
+        ValueSerializer<Object> ser = _serializer;
         if (ser == null) {
             Class<?> cls = value.getClass();
             PropertySerializerMap m = _dynamicSerializers;
@@ -692,7 +692,7 @@ public class BeanPropertyWriter
             return;
         }
         // otherwise find serializer to use
-        JsonSerializer<Object> ser = _serializer;
+        ValueSerializer<Object> ser = _serializer;
         if (ser == null) {
             Class<?> cls = value.getClass();
             PropertySerializerMap map = _dynamicSerializers;
@@ -772,7 +772,7 @@ public class BeanPropertyWriter
     /**********************************************************************
      */
 
-    protected JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
+    protected ValueSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
             Class<?> rawType, SerializerProvider provider)
     {
         JavaType t;
@@ -818,7 +818,7 @@ public class BeanPropertyWriter
      *         is no way handle it
      */
     protected boolean _handleSelfReference(Object bean, JsonGenerator g,
-            SerializerProvider ctxt, JsonSerializer<?> ser)
+            SerializerProvider ctxt, ValueSerializer<?> ser)
         throws JacksonException
     {
         if (!ser.usesObjectId()) {

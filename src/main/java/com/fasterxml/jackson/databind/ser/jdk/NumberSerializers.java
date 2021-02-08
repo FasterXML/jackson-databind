@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 public class NumberSerializers {
     protected NumberSerializers() { }
 
-    public static void addAll(Map<String, JsonSerializer<?>> allDeserializers) {
+    public static void addAll(Map<String, ValueSerializer<?>> allDeserializers) {
         allDeserializers.put(Integer.class.getName(), new IntegerSerializer(Integer.class));
         allDeserializers.put(Integer.TYPE.getName(), new IntegerSerializer(Integer.TYPE));
         allDeserializers.put(Long.class.getName(), new LongSerializer(Long.class));
@@ -84,7 +84,7 @@ public class NumberSerializers {
         }
 
         @Override
-        public JsonSerializer<?> createContextual(SerializerProvider prov,
+        public ValueSerializer<?> createContextual(SerializerProvider prov,
                 BeanProperty property)
         {
             JsonFormat.Value format = findFormatOverrides(prov, property, handledType());

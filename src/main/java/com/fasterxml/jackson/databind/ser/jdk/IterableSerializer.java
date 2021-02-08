@@ -20,7 +20,7 @@ public class IterableSerializer
     }
 
     public IterableSerializer(IterableSerializer src,
-            TypeSerializer vts, JsonSerializer<?> valueSerializer,
+            TypeSerializer vts, ValueSerializer<?> valueSerializer,
             Boolean unwrapSingle, BeanProperty property) {
         super(src, vts, valueSerializer, unwrapSingle, property);
     }
@@ -32,7 +32,7 @@ public class IterableSerializer
 
     @Override
     public IterableSerializer withResolved(BeanProperty property,
-            TypeSerializer vts, JsonSerializer<?> elementSerializer,
+            TypeSerializer vts, ValueSerializer<?> elementSerializer,
             Boolean unwrapSingle) {
         return new IterableSerializer(this, vts, elementSerializer, unwrapSingle, property);
     }
@@ -94,7 +94,7 @@ public class IterableSerializer
                     ctxt.defaultSerializeNullValue(g);
                     continue;
                 }
-                JsonSerializer<Object> serializer = _elementSerializer;
+                ValueSerializer<Object> serializer = _elementSerializer;
                 if (serializer == null) {
                     Class<?> cc = elem.getClass();
                     serializer = _dynamicValueSerializers.serializerFor(cc);

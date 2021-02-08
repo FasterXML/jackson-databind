@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
 
 /**
  * Abstract class that defines API used by {@link ObjectMapper} (and
- * other chained {@link JsonSerializer}s too) to serialize Objects of
+ * other chained {@link ValueSerializer}s too) to serialize Objects of
  * arbitrary types into JSON, using provided {@link JsonGenerator}.
  * Note that although API is defined here, custom serializer implementations
  * should almost always be based on {@link com.fasterxml.jackson.databind.ser.std.StdSerializer} 
@@ -48,8 +48,10 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * serializer to use.
  * This also means that custom serializers cannot be directly used to change
  * the output to produce when serializing null values.
+ *<p>
+ * NOTE: In Jackson 2.x was named {@code JsonSerializer}
  */
-public abstract class JsonSerializer<T>
+public abstract class ValueSerializer<T>
     implements JsonFormatVisitable
 {
     /*
@@ -98,7 +100,7 @@ public abstract class JsonSerializer<T>
      * @return Serializer to use for serializing values of specified property;
      *   may be this instance or a new instance.
      */
-    public JsonSerializer<?> createContextual(SerializerProvider prov,
+    public ValueSerializer<?> createContextual(SerializerProvider prov,
             BeanProperty property) {
         // default implementation returns instance unmodified
         return this;
@@ -124,7 +126,7 @@ public abstract class JsonSerializer<T>
      * @param unwrapper Name transformation to use to convert between names
      *   of unwrapper properties
      */
-    public JsonSerializer<T> unwrappingSerializer(NameTransformer unwrapper) {
+    public ValueSerializer<T> unwrappingSerializer(NameTransformer unwrapper) {
         return this;
     }
 
@@ -135,7 +137,7 @@ public abstract class JsonSerializer<T>
      * throw {@link UnsupportedOperationException} (if operation does not
      * make sense or is not allowed); or return this serializer as is.
      */
-    public JsonSerializer<T> replaceDelegatee(JsonSerializer<?> delegatee) {
+    public ValueSerializer<T> replaceDelegatee(ValueSerializer<?> delegatee) {
         throw new UnsupportedOperationException();
     }
 
@@ -147,7 +149,7 @@ public abstract class JsonSerializer<T>
      * Default implementation simply returns <code>this</code>; sub-classes that do support
      * filtering will need to create and return new instance if filter changes.
      */
-    public JsonSerializer<?> withFilterId(Object filterId) {
+    public ValueSerializer<?> withFilterId(Object filterId) {
         return this;
     }
 
@@ -161,7 +163,7 @@ public abstract class JsonSerializer<T>
      *<ul>
      * <li>Return {@code this} instance as is: this means that none of overrides has any effect
      *  </li>
-     * <li>Return an alternate {@link JsonSerializer}, suitable for use with specified format
+     * <li>Return an alternate {@link ValueSerializer}, suitable for use with specified format
      *  </li>
      * <li>Return {@code null} to indicate that this serializer instance is not suitable for
      *    handling format variation, but does not know how to construct new serializer: caller
@@ -180,7 +182,7 @@ public abstract class JsonSerializer<T>
      *
      * @since 3.0
      */
-    public JsonSerializer<?> withFormatOverrides(SerializationConfig config,
+    public ValueSerializer<?> withFormatOverrides(SerializationConfig config,
             JsonFormat.Value formatOverrides)
     {
         // First: if no override, safe to use as is:
@@ -291,7 +293,7 @@ public abstract class JsonSerializer<T>
      * @return Serializer this serializer delegates calls to, if null;
      *   null otherwise.
      */
-    public JsonSerializer<?> getDelegatee() {
+    public ValueSerializer<?> getDelegatee() {
         return null;
     }
 
@@ -353,5 +355,5 @@ public abstract class JsonSerializer<T>
      * annotation {@link com.fasterxml.jackson.databind.annotation.JsonSerialize}.
      */
     public abstract static class None
-        extends JsonSerializer<Object> { }
+        extends ValueSerializer<Object> { }
 }

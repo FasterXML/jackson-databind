@@ -35,7 +35,7 @@ public class StringArraySerializer
      * Value serializer to use, if it's not the standard one
      * (if it is we can optimize serialization a lot)
      */
-    protected final JsonSerializer<Object> _elementSerializer;
+    protected final ValueSerializer<Object> _elementSerializer;
 
     /*
     /**********************************************************************
@@ -50,13 +50,13 @@ public class StringArraySerializer
 
     @SuppressWarnings("unchecked")
     public StringArraySerializer(StringArraySerializer src,
-            BeanProperty prop, JsonSerializer<?> ser, Boolean unwrapSingle) {
+            BeanProperty prop, ValueSerializer<?> ser, Boolean unwrapSingle) {
         super(src, prop, unwrapSingle);
-        _elementSerializer = (JsonSerializer<Object>) ser;
+        _elementSerializer = (ValueSerializer<Object>) ser;
     }
 
     @Override
-    public JsonSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
+    public ValueSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
         return new StringArraySerializer(this, prop, _elementSerializer, unwrapSingle);
     }
 
@@ -76,13 +76,13 @@ public class StringArraySerializer
      */
     
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider provider,
+    public ValueSerializer<?> createContextual(SerializerProvider provider,
             BeanProperty property)
     {
         // 29-Sep-2012, tatu: Actually, we need to do much more contextual
         //    checking here since we finally know for sure the property,
         //    and it may have overrides
-        JsonSerializer<?> ser = null;
+        ValueSerializer<?> ser = null;
 
         // First: if we have a property, may have property-annotation overrides
         if (property != null) {
@@ -128,7 +128,7 @@ public class StringArraySerializer
     }
 
     @Override
-    public JsonSerializer<?> getContentSerializer() {
+    public ValueSerializer<?> getContentSerializer() {
         return _elementSerializer;
     }
     
@@ -188,7 +188,7 @@ public class StringArraySerializer
         }
     }
 
-    private void serializeContentsSlow(String[] value, JsonGenerator gen, SerializerProvider provider, JsonSerializer<Object> ser)
+    private void serializeContentsSlow(String[] value, JsonGenerator gen, SerializerProvider provider, ValueSerializer<Object> ser)
         throws JacksonException
     {
         for (int i = 0, len = value.length; i < len; ++i) {

@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
 
 /**
  * Builder class used for aggregating deserialization information about
- * a POJO, in order to build a {@link JsonSerializer} for serializing
+ * a POJO, in order to build a {@link ValueSerializer} for serializing
  * instances.
  * Main reason for using separate builder class is that this makes it easier
  * to make actual serializer class fully immutable.
@@ -177,7 +177,7 @@ public class BeanSerializerBuilder
      * all accumulated information. Will construct a serializer if we
      * have enough information, or return null if not.
      */
-    public JsonSerializer<?> build()
+    public ValueSerializer<?> build()
     {
         // [databind#2789]: There can be a case wherein `_typeId` is used, but
         // nothing else. Rare but has happened; so force access early.
@@ -215,7 +215,7 @@ public class BeanSerializerBuilder
 _properties.size(), _filteredProperties.length));
             }
         }
-        JsonSerializer<?> ser = UnrolledBeanSerializer.tryConstruct(
+        ValueSerializer<?> ser = UnrolledBeanSerializer.tryConstruct(
                     _beanDesc.getType(), this,
                     properties, _filteredProperties);
         if (ser != null) {

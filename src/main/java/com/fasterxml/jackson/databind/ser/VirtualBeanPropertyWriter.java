@@ -49,7 +49,7 @@ public abstract class VirtualBeanPropertyWriter
      */
     protected VirtualBeanPropertyWriter(BeanPropertyDefinition propDef,
             Annotations contextAnnotations, JavaType declaredType,
-            JsonSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
+            ValueSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
             JsonInclude.Value inclusion, Class<?>[] includeInViews)
     {
         super(propDef, propDef.getPrimaryMember(), contextAnnotations, declaredType,
@@ -147,7 +147,7 @@ public abstract class VirtualBeanPropertyWriter
             }
             return;
         }
-        JsonSerializer<Object> ser = _serializer;
+        ValueSerializer<Object> ser = _serializer;
         if (ser == null) {
             Class<?> cls = value.getClass();
             PropertySerializerMap m = _dynamicSerializers;
@@ -197,7 +197,7 @@ public abstract class VirtualBeanPropertyWriter
             }
             return;
         }
-        JsonSerializer<Object> ser = _serializer;
+        ValueSerializer<Object> ser = _serializer;
         if (ser == null) {
             Class<?> cls = value.getClass();
             PropertySerializerMap map = _dynamicSerializers;

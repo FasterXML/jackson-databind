@@ -67,7 +67,7 @@ public class NullSerializationTest
         }
 
         @Override
-        public JsonSerializer<Object> findNullValueSerializer(BeanProperty property)
+        public ValueSerializer<Object> findNullValueSerializer(BeanProperty property)
         {
             if ("name".equals(property.getName())) {
                 return new NullSerializer();

@@ -58,7 +58,7 @@ public class JDKStringLikeSerializer
         _type = type;
     }
 
-    public static final JsonSerializer<?> find(Class<?> raw)
+    public static final ValueSerializer<?> find(Class<?> raw)
     {
         Integer I = _types.get(raw);
         if (I == null) {

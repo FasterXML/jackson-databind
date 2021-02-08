@@ -88,7 +88,7 @@ public class TestHandlerInstantiation extends BaseMapTest
         }
     }
     
-    static class MyBeanSerializer extends JsonSerializer<MyBean>
+    static class MyBeanSerializer extends ValueSerializer<MyBean>
     {
         public String _prefix = "";
 
@@ -191,7 +191,7 @@ public class TestHandlerInstantiation extends BaseMapTest
         }
         
         @Override
-        public JsonSerializer<?> serializerInstance(SerializationConfig config,
+        public ValueSerializer<?> serializerInstance(SerializationConfig config,
                 Annotated annotated, Class<?> serClass)
         {
             if (serClass == MyBeanSerializer.class) {

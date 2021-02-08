@@ -331,13 +331,13 @@ public class IntrospectorPairTest extends BaseMapTest
 
     public void testFindSerializer() throws Exception
     {
-        final JsonSerializer<?> serString = new StringSerializer();
-        final JsonSerializer<?> serToString = ToStringSerializer.instance;
+        final ValueSerializer<?> serString = new StringSerializer();
+        final ValueSerializer<?> serToString = ToStringSerializer.instance;
 
         AnnotationIntrospector intr1 = new IntrospectorWithHandlers(null, serString);
         AnnotationIntrospector intr2 = new IntrospectorWithHandlers(null, serToString);
         AnnotationIntrospector nop = AnnotationIntrospector.nopInstance();
-        AnnotationIntrospector nop2 = new IntrospectorWithHandlers(null, JsonSerializer.None.class);
+        AnnotationIntrospector nop2 = new IntrospectorWithHandlers(null, ValueSerializer.None.class);
 
         assertSame(serString,
                 new AnnotationIntrospectorPair(intr1, intr2).findSerializer(null, null));

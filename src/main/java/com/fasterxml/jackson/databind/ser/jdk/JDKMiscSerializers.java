@@ -23,9 +23,9 @@ public class JDKMiscSerializers
     /**
      * Method called by {@link BasicSerializerFactory} to find one of serializers provided here.
      */
-    public static final JsonSerializer<?> find(Class<?> raw)
+    public static final ValueSerializer<?> find(Class<?> raw)
     {
-        JsonSerializer<?> ser = JDKStringLikeSerializer.find(raw);
+        ValueSerializer<?> ser = JDKStringLikeSerializer.find(raw);
         if (ser != null) {
             return ser;
         }

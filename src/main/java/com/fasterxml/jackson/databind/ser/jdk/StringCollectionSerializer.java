@@ -41,7 +41,7 @@ public class StringCollectionSerializer
     }        
 
     @Override
-    public JsonSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
+    public ValueSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
         return new StringCollectionSerializer(this, unwrapSingle);
     }
 

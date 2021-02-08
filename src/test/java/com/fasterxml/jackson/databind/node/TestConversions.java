@@ -49,7 +49,7 @@ public class TestConversions extends BaseMapTest
     static class Issue467Tree  {
     }
     
-    static class Issue467Serializer extends JsonSerializer<Issue467Bean> {
+    static class Issue467Serializer extends ValueSerializer<Issue467Bean> {
         @Override
         public void serialize(Issue467Bean value, JsonGenerator g,
                 SerializerProvider provider) {
@@ -57,7 +57,7 @@ public class TestConversions extends BaseMapTest
         }
     }    
 
-    static class Issue467TreeSerializer extends JsonSerializer<Issue467Tree> {
+    static class Issue467TreeSerializer extends ValueSerializer<Issue467Tree> {
         @Override
         public void serialize(Issue467Tree value, JsonGenerator g,
                 SerializerProvider provider) {

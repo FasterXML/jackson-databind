@@ -35,7 +35,7 @@ public final class BooleanSerializer
     }
 
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider serializers,
+    public ValueSerializer<?> createContextual(SerializerProvider serializers,
             BeanProperty property)
     {
         JsonFormat.Value format = findFormatOverrides(serializers,
@@ -86,7 +86,7 @@ public final class BooleanSerializer
         }
 
         @Override
-        public JsonSerializer<?> createContextual(SerializerProvider serializers,
+        public ValueSerializer<?> createContextual(SerializerProvider serializers,
                 BeanProperty property)
         {
             JsonFormat.Value format = findFormatOverrides(serializers,

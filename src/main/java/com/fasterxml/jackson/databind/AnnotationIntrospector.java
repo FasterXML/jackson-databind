@@ -650,8 +650,8 @@ public abstract class AnnotationIntrospector
 
     /**
      * Method for getting a serializer definition on specified method
-     * or field. Type of definition is either instance (of type {@link JsonSerializer})
-     * or Class (of {@code Class<JsonSerializer>} implementation subtype);
+     * or field. Type of definition is either instance (of type {@link ValueSerializer})
+     * or Class (of {@code Class<ValueSerializer>} implementation subtype);
      * if value of different type is returned, a runtime exception may be thrown by caller.
      */
     public Object findSerializer(MapperConfig<?> config, Annotated am) {
@@ -660,8 +660,8 @@ public abstract class AnnotationIntrospector
 
     /**
      * Method for getting a serializer definition for keys of associated {@code java.util.Map} property.
-     * Type of definition is either instance (of type {@link JsonSerializer})
-     * or Class (of type  {@code Class<JsonSerializer>});
+     * Type of definition is either instance (of type {@link ValueSerializer})
+     * or Class (of type  {@code Class<ValueSerializer>});
      * if value of different type is returned, a runtime exception may be thrown by caller.
      */
     public Object findKeySerializer(MapperConfig<?> config, Annotated am) {
@@ -671,8 +671,8 @@ public abstract class AnnotationIntrospector
     /**
      * Method for getting a serializer definition for content (values) of
      * associated <code>Collection</code>, <code>array</code> or {@code Map} property.
-     * Type of definition is either instance (of type {@link JsonSerializer})
-     * or Class (of type  {@code Class<JsonSerializer>});
+     * Type of definition is either instance (of type {@link ValueSerializer})
+     * or Class (of type  {@code Class<ValueSerializer>});
      * if value of different
      * type is returned, a runtime exception may be thrown by caller.
      */

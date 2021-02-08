@@ -18,13 +18,13 @@ public class AtomicReferenceSerializer
      */
 
     public AtomicReferenceSerializer(ReferenceType fullType, boolean staticTyping,
-            TypeSerializer vts, JsonSerializer<Object> ser)
+            TypeSerializer vts, ValueSerializer<Object> ser)
     {
         super(fullType, staticTyping, vts, ser);
     }
 
     protected AtomicReferenceSerializer(AtomicReferenceSerializer base, BeanProperty property,
-            TypeSerializer vts, JsonSerializer<?> valueSer,
+            TypeSerializer vts, ValueSerializer<?> valueSer,
             NameTransformer unwrapper,
             Object suppressableValue, boolean suppressNulls)
     {
@@ -34,7 +34,7 @@ public class AtomicReferenceSerializer
 
     @Override
     protected ReferenceTypeSerializer<AtomicReference<?>> withResolved(BeanProperty prop,
-            TypeSerializer vts, JsonSerializer<?> valueSer,
+            TypeSerializer vts, ValueSerializer<?> valueSer,
             NameTransformer unwrapper)
     {
         return new AtomicReferenceSerializer(this, prop, vts, valueSer, unwrapper,

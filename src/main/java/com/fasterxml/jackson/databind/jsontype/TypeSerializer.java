@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * Interface for serializing type information regarding instances of specified
  * base type (super class), so that exact subtype can be properly deserialized
  * later on. These instances are to be called by regular
- * {@link com.fasterxml.jackson.databind.JsonSerializer}s using proper contextual
+ * {@link com.fasterxml.jackson.databind.ValueSerializer}s using proper contextual
  * calls, to add type information using mechanism type serializer was
  * configured with.
  */

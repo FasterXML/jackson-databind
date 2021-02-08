@@ -2,7 +2,7 @@ package com.fasterxml.jackson.databind.ser.impl;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 
-import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ValueSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
@@ -52,12 +52,12 @@ public abstract class FilteredBeanPropertyWriter
         }
         
         @Override
-        public void assignSerializer(JsonSerializer<Object> ser) {
+        public void assignSerializer(ValueSerializer<Object> ser) {
             _delegate.assignSerializer(ser);
         }
 
         @Override
-        public void assignNullSerializer(JsonSerializer<Object> nullSer) {
+        public void assignNullSerializer(ValueSerializer<Object> nullSer) {
             _delegate.assignNullSerializer(nullSer);
         }
         
@@ -118,12 +118,12 @@ public abstract class FilteredBeanPropertyWriter
         }
         
         @Override
-        public void assignSerializer(JsonSerializer<Object> ser) {
+        public void assignSerializer(ValueSerializer<Object> ser) {
             _delegate.assignSerializer(ser);
         }
 
         @Override
-        public void assignNullSerializer(JsonSerializer<Object> nullSer) {
+        public void assignNullSerializer(ValueSerializer<Object> nullSer) {
             _delegate.assignNullSerializer(nullSer);
         }
         

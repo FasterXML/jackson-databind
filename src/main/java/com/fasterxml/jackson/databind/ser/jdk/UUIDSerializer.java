@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonValueFormat;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 
 /**
- * Specialized {@link JsonSerializer} to output {@link java.util.UUID}s.
+ * Specialized {@link ValueSerializer} to output {@link java.util.UUID}s.
  * Beyond optimized access and writing of textual representation (which
  * is the default handling in most cases), it will alternatively
  * allow serialization using raw binary output (as 16-byte block)
@@ -52,7 +52,7 @@ public class UUIDSerializer
     }
 
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider serializers,
+    public ValueSerializer<?> createContextual(SerializerProvider serializers,
             BeanProperty property)
     {
         JsonFormat.Value format = findFormatOverrides(serializers,

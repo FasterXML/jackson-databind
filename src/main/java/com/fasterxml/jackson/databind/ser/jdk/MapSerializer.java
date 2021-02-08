@@ -67,12 +67,12 @@ public class MapSerializer
     /**
      * Key serializer to use, if it can be statically determined
      */
-    protected JsonSerializer<Object> _keySerializer;
+    protected ValueSerializer<Object> _keySerializer;
 
     /**
      * Value serializer to use, if it can be statically determined
      */
-    protected JsonSerializer<Object> _valueSerializer;
+    protected ValueSerializer<Object> _valueSerializer;
 
     /**
      * Type identifier serializer used for values, if any.
@@ -147,7 +147,7 @@ public class MapSerializer
     protected MapSerializer(Set<String> ignoredEntries, Set<String> includedEntries,
             JavaType keyType, JavaType valueType, boolean valueTypeIsStatic,
             TypeSerializer vts,
-            JsonSerializer<?> keySerializer, JsonSerializer<?> valueSerializer)
+            ValueSerializer<?> keySerializer, ValueSerializer<?> valueSerializer)
     {
         super(Map.class);
         _ignoredEntries = ((ignoredEntries == null) || ignoredEntries.isEmpty())
@@ -157,8 +157,8 @@ public class MapSerializer
         _valueType = valueType;
         _valueTypeIsStatic = valueTypeIsStatic;
         _valueTypeSerializer = vts;
-        _keySerializer = (JsonSerializer<Object>) keySerializer;
-        _valueSerializer = (JsonSerializer<Object>) valueSerializer;
+        _keySerializer = (ValueSerializer<Object>) keySerializer;
+        _valueSerializer = (ValueSerializer<Object>) valueSerializer;
         _filterId = null;
         _sortKeys = false;
         _suppressableValue = null;
@@ -169,7 +169,7 @@ public class MapSerializer
 
     @SuppressWarnings("unchecked")
     protected MapSerializer(MapSerializer src, BeanProperty property,
-            JsonSerializer<?> keySerializer, JsonSerializer<?> valueSerializer,
+            ValueSerializer<?> keySerializer, ValueSerializer<?> valueSerializer,
             Set<String> ignoredEntries, Set<String> includedEntries)
     {
         super(src, property);
@@ -180,8 +180,8 @@ public class MapSerializer
         _valueType = src._valueType;
         _valueTypeIsStatic = src._valueTypeIsStatic;
         _valueTypeSerializer = src._valueTypeSerializer;
-        _keySerializer = (JsonSerializer<Object>) keySerializer;
-        _valueSerializer = (JsonSerializer<Object>) valueSerializer;
+        _keySerializer = (ValueSerializer<Object>) keySerializer;
+        _valueSerializer = (ValueSerializer<Object>) valueSerializer;
         _filterId = src._filterId;
         _sortKeys = src._sortKeys;
         _suppressableValue = src._suppressableValue;
@@ -239,7 +239,7 @@ public class MapSerializer
     }
 
     protected MapSerializer withResolved(BeanProperty property,
-             JsonSerializer<?> keySerializer, JsonSerializer<?> valueSerializer,
+             ValueSerializer<?> keySerializer, ValueSerializer<?> valueSerializer,
              Set<String> ignored, Set<String> included, boolean sortKeys)
     {
         _ensureOverride("withResolved");
@@ -276,7 +276,7 @@ public class MapSerializer
     // @since 3.0 (different argument order in 2.x)
     public static MapSerializer construct(JavaType mapType,
             boolean staticValueType, TypeSerializer vts,
-            JsonSerializer<Object> keySerializer, JsonSerializer<Object> valueSerializer,
+            ValueSerializer<Object> keySerializer, ValueSerializer<Object> valueSerializer,
             Object filterId,
             Set<String> ignoredEntries, Set<String> includedEntries)
     {
@@ -322,11 +322,11 @@ public class MapSerializer
      */
 
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider ctxt,
+    public ValueSerializer<?> createContextual(SerializerProvider ctxt,
             BeanProperty property)
     {
-        JsonSerializer<?> ser = null;
-        JsonSerializer<?> keySer = null;
+        ValueSerializer<?> ser = null;
+        ValueSerializer<?> keySer = null;
         final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         final SerializationConfig config = ctxt.getConfig();
         final AnnotatedMember propertyAcc = (property == null) ? null : property.getMember();
@@ -463,7 +463,7 @@ public class MapSerializer
     }
 
     @Override
-    public JsonSerializer<?> getContentSerializer() {
+    public ValueSerializer<?> getContentSerializer() {
         return _valueSerializer;
     }
 
@@ -480,7 +480,7 @@ public class MapSerializer
         if ((supp == null) && !_suppressNulls) {
             return false;
         }
-        JsonSerializer<Object> valueSer = _valueSerializer;
+        ValueSerializer<Object> valueSer = _valueSerializer;
         final boolean checkEmpty = (MARKER_FOR_EMPTY == supp);
         if (valueSer != null) {
             for (Object elemValue : value.values()) {
@@ -539,13 +539,13 @@ public class MapSerializer
      * dynamic types, it is possible that serializer is only resolved
      * during actual serialization.
      */
-    public JsonSerializer<?> getKeySerializer() {
+    public ValueSerializer<?> getKeySerializer() {
         return _keySerializer;
     }
 
     /*
     /**********************************************************************
-    /* JsonSerializer implementation
+    /* ValueSerializer implementation
     /**********************************************************************
      */
 
@@ -626,7 +626,7 @@ public class MapSerializer
             serializeTypedEntries(value, gen, provider, null);
             return;
         }
-        final JsonSerializer<Object> keySerializer = _keySerializer;
+        final ValueSerializer<Object> keySerializer = _keySerializer;
         Object keyElem = null;
 
         try {
@@ -648,7 +648,7 @@ public class MapSerializer
                     provider.defaultSerializeNullValue(gen);
                     continue;
                 }
-                JsonSerializer<Object> serializer = _valueSerializer;
+                ValueSerializer<Object> serializer = _valueSerializer;
                 if (serializer == null) {
                     serializer = _findSerializer(provider, valueElem);
                 }
@@ -679,7 +679,7 @@ public class MapSerializer
         for (Map.Entry<?,?> entry : value.entrySet()) {
             // First find key serializer
             final Object keyElem = entry.getKey();
-            JsonSerializer<Object> keySerializer;
+            ValueSerializer<Object> keySerializer;
             if (keyElem == null) {
                 keySerializer = provider.findNullKeySerializer(_keyType, _property);
             } else {
@@ -691,7 +691,7 @@ public class MapSerializer
 
             // Then value serializer
             final Object valueElem = entry.getValue();
-            JsonSerializer<Object> valueSer;
+            ValueSerializer<Object> valueSer;
             if (valueElem == null) {
                 if (_suppressNulls) { // all suppressions include null-suppression
                     continue;
@@ -732,10 +732,10 @@ public class MapSerializer
      * external usage).
      */
     public void serializeEntriesUsing(Map<?,?> value, JsonGenerator gen, SerializerProvider provider,
-            JsonSerializer<Object> ser)
+            ValueSerializer<Object> ser)
         throws JacksonException
     {
-        final JsonSerializer<Object> keySerializer = _keySerializer;
+        final ValueSerializer<Object> keySerializer = _keySerializer;
         final TypeSerializer typeSer = _valueTypeSerializer;
 
         for (Map.Entry<?,?> entry : value.entrySet()) {
@@ -788,7 +788,7 @@ public class MapSerializer
                 continue;
             }
 
-            JsonSerializer<Object> keySerializer;
+            ValueSerializer<Object> keySerializer;
             if (keyElem == null) {
                 keySerializer = provider.findNullKeySerializer(_keyType, _property);
             } else {
@@ -797,7 +797,7 @@ public class MapSerializer
             // or by value; nulls often suppressed
             final Object valueElem = entry.getValue();
 
-            JsonSerializer<Object> valueSer;
+            ValueSerializer<Object> valueSer;
             // And then value
             if (valueElem == null) {
                 if (_suppressNulls) {
@@ -843,7 +843,7 @@ public class MapSerializer
 
         for (Map.Entry<?,?> entry : value.entrySet()) {
             Object keyElem = entry.getKey();
-            JsonSerializer<Object> keySerializer;
+            ValueSerializer<Object> keySerializer;
             if (keyElem == null) {
                 keySerializer = provider.findNullKeySerializer(_keyType, _property);
             } else {
@@ -856,7 +856,7 @@ public class MapSerializer
             final Object valueElem = entry.getValue();
     
             // And then value
-            JsonSerializer<Object> valueSer;
+            ValueSerializer<Object> valueSer;
             if (valueElem == null) {
                 if (_suppressNulls) { // all suppression include null suppression
                     continue;
@@ -910,7 +910,7 @@ public class MapSerializer
                 continue;
             }
 
-            JsonSerializer<Object> keySerializer;
+            ValueSerializer<Object> keySerializer;
             if (keyElem == null) {
                 keySerializer = provider.findNullKeySerializer(_keyType, _property);
             } else {
@@ -919,7 +919,7 @@ public class MapSerializer
             // or by value; nulls often suppressed
             final Object valueElem = entry.getValue();
 
-            JsonSerializer<Object> valueSer;
+            ValueSerializer<Object> valueSer;
             // And then value
             if (valueElem == null) {
                 if (_suppressNulls) {
@@ -964,7 +964,7 @@ public class MapSerializer
         JsonMapFormatVisitor v2 = visitor.expectMapFormat(typeHint);        
         if (v2 != null) {
             v2.keyFormat(_keySerializer, _keyType);
-            JsonSerializer<?> valueSer = _valueSerializer;
+            ValueSerializer<?> valueSer = _valueSerializer;
             if (valueSer == null) {
                 valueSer = _findAndAddDynamic(visitor.getProvider(), _valueType);
             }
@@ -1020,8 +1020,8 @@ public class MapSerializer
     protected void _writeNullKeyedEntry(JsonGenerator g, SerializerProvider ctxt,
             Object value) throws JacksonException
     {
-        JsonSerializer<Object> keySerializer = ctxt.findNullKeySerializer(_keyType, _property);
-        JsonSerializer<Object> valueSer;
+        ValueSerializer<Object> keySerializer = ctxt.findNullKeySerializer(_keyType, _property);
+        ValueSerializer<Object> valueSer;
         if (value == null) {
             if (_suppressNulls) {
                 return;
@@ -1050,11 +1050,11 @@ public class MapSerializer
         }
     }
 
-    private final JsonSerializer<Object> _findSerializer(SerializerProvider ctxt,
+    private final ValueSerializer<Object> _findSerializer(SerializerProvider ctxt,
             Object value)
     {
         final Class<?> cc = value.getClass();
-        JsonSerializer<Object> valueSer = _dynamicValueSerializers.serializerFor(cc);
+        ValueSerializer<Object> valueSer = _dynamicValueSerializers.serializerFor(cc);
         if (valueSer != null) {
             return valueSer;
         }

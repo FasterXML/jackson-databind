@@ -101,7 +101,7 @@ public abstract class StdContainerSerializer<T>
      * caller has to instead use {@link #getContentType()} and
      * {@link com.fasterxml.jackson.databind.SerializerProvider#findContentValueSerializer}.
      */
-    public abstract JsonSerializer<?> getContentSerializer();
+    public abstract ValueSerializer<?> getContentSerializer();
 
     /*
     /**********************************************************************
@@ -143,7 +143,7 @@ public abstract class StdContainerSerializer<T>
     /**
      * @since 3.0
      */
-    protected JsonSerializer<Object> _findAndAddDynamic(SerializerProvider ctxt, Class<?> type)
+    protected ValueSerializer<Object> _findAndAddDynamic(SerializerProvider ctxt, Class<?> type)
     {
         PropertySerializerMap map = _dynamicValueSerializers;
         PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type, ctxt, _property);
@@ -157,7 +157,7 @@ public abstract class StdContainerSerializer<T>
     /**
      * @since 3.0
      */
-    protected JsonSerializer<Object> _findAndAddDynamic(SerializerProvider ctxt, JavaType type)
+    protected ValueSerializer<Object> _findAndAddDynamic(SerializerProvider ctxt, JavaType type)
     {
         PropertySerializerMap map = _dynamicValueSerializers;
         PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type, ctxt, _property);

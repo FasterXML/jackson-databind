@@ -34,7 +34,7 @@ public class StdDelegatingSerializer
     /**
      * Underlying serializer for type <code>T</code>.
      */
-    protected final JsonSerializer<Object> _delegateSerializer;
+    protected final ValueSerializer<Object> _delegateSerializer;
 
     /**
      * If delegate serializer needs to be accessed dynamically (non-final
@@ -76,13 +76,13 @@ public class StdDelegatingSerializer
      */
     @SuppressWarnings("unchecked")
     public StdDelegatingSerializer(Converter<Object,?> converter,
-            JavaType delegateType, JsonSerializer<?> delegateSerializer,
+            JavaType delegateType, ValueSerializer<?> delegateSerializer,
             BeanProperty prop)
     {
         super(delegateType);
         _converter = converter;
         _delegateType = delegateType;
-        _delegateSerializer = (JsonSerializer<Object>) delegateSerializer;
+        _delegateSerializer = (ValueSerializer<Object>) delegateSerializer;
         _property = prop;
     }
     
@@ -91,7 +91,7 @@ public class StdDelegatingSerializer
      * overridden when sub-classing.
      */
     protected StdDelegatingSerializer withDelegate(Converter<Object,?> converter,
-            JavaType delegateType, JsonSerializer<?> delegateSerializer,
+            JavaType delegateType, ValueSerializer<?> delegateSerializer,
             BeanProperty prop)
     {
         ClassUtil.verifyMustOverride(StdDelegatingSerializer.class, this, "withDelegate");
@@ -113,9 +113,9 @@ public class StdDelegatingSerializer
     }
 
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider ctxt, BeanProperty property)
+    public ValueSerializer<?> createContextual(SerializerProvider ctxt, BeanProperty property)
     {
-        JsonSerializer<?> delSer = _delegateSerializer;
+        ValueSerializer<?> delSer = _delegateSerializer;
         JavaType delegateType = _delegateType;
 
         if (delSer == null) {
@@ -150,7 +150,7 @@ public class StdDelegatingSerializer
     }
 
     @Override
-    public JsonSerializer<?> getDelegatee() {
+    public ValueSerializer<?> getDelegatee() {
         return _delegateSerializer;
     }
 
@@ -171,7 +171,7 @@ public class StdDelegatingSerializer
             return;
         }
         // 02-Apr-2015, tatu: As per [databind#731] may need to do dynamic lookup
-        JsonSerializer<Object> ser = _delegateSerializer;
+        ValueSerializer<Object> ser = _delegateSerializer;
         if (ser == null) {
             ser = _findSerializer(delegateValue, ctxt);
         }
@@ -186,7 +186,7 @@ public class StdDelegatingSerializer
         // 03-Oct-2012, tatu: This is actually unlikely to work ok... but for now,
         //    let's give it a chance?
         Object delegateValue = convertValue(value);
-        JsonSerializer<Object> ser = _delegateSerializer;
+        ValueSerializer<Object> ser = _delegateSerializer;
         if (ser == null) {
             ser = _findSerializer(value, ctxt);
         }
@@ -200,7 +200,7 @@ public class StdDelegatingSerializer
         if (delegateValue == null) {
             return true;
         }
-        JsonSerializer<Object> ser = _delegateSerializer;
+        ValueSerializer<Object> ser = _delegateSerializer;
         if (ser == null) {
             ser = _findSerializer(value, ctxt);
         }
@@ -252,7 +252,7 @@ public class StdDelegatingSerializer
      * {@link java.lang.Object}, and where serializer needs to be located dynamically
      * based on actual value type.
      */
-    protected JsonSerializer<Object> _findSerializer(Object value, SerializerProvider ctxt)
+    protected ValueSerializer<Object> _findSerializer(Object value, SerializerProvider ctxt)
     {
         // 17-Apr-2018, tatu: Basically inline `_findAndAddDynamic(...)`
         // 17-Apr-2018, tatu: difficult to know if these are primary or secondary serializers...

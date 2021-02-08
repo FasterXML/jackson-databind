@@ -25,7 +25,7 @@ public class MapSerializationTest extends BaseMapTest
         }
     }
 
-    static class PseudoMapSerializer extends JsonSerializer<Map<String,String>>
+    static class PseudoMapSerializer extends ValueSerializer<Map<String,String>>
     {
         @Override
         public void serialize(Map<String,String> value,

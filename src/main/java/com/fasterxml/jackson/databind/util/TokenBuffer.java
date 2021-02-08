@@ -380,7 +380,7 @@ public class TokenBuffer
      * using given {@link JsonGenerator}.
      *<p>
      * Note: this method would be enough to implement
-     * <code>JsonSerializer</code>  for <code>TokenBuffer</code> type;
+     * <code>ValueSerializer</code>  for <code>TokenBuffer</code> type;
      * but we cannot have upwards
      * references (from core to mapper package); and as such we also
      * cannot take second argument.

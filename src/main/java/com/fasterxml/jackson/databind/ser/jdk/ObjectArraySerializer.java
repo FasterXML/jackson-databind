@@ -41,7 +41,7 @@ public class ObjectArraySerializer
     /**
      * Value serializer to use, if it can be statically determined.
      */
-    protected JsonSerializer<Object> _elementSerializer;
+    protected ValueSerializer<Object> _elementSerializer;
 
     /*
     /**********************************************************************
@@ -50,7 +50,7 @@ public class ObjectArraySerializer
      */
 
     public ObjectArraySerializer(JavaType elemType, boolean staticTyping,
-            TypeSerializer vts, JsonSerializer<Object> elementSerializer)
+            TypeSerializer vts, ValueSerializer<Object> elementSerializer)
     {
         super(Object[].class);
         _elementType = elemType;
@@ -70,18 +70,18 @@ public class ObjectArraySerializer
 
     @SuppressWarnings("unchecked")
     public ObjectArraySerializer(ObjectArraySerializer src,
-            BeanProperty property, TypeSerializer vts, JsonSerializer<?> elementSerializer,
+            BeanProperty property, TypeSerializer vts, ValueSerializer<?> elementSerializer,
             Boolean unwrapSingle)
     {
         super(src,  property, unwrapSingle);
         _elementType = src._elementType;
         _valueTypeSerializer = vts;
         _staticTyping = src._staticTyping;
-        _elementSerializer = (JsonSerializer<Object>) elementSerializer;
+        _elementSerializer = (ValueSerializer<Object>) elementSerializer;
     }
 
     @Override
-    public JsonSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
+    public ValueSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
         return new ObjectArraySerializer(this, prop,
                 _valueTypeSerializer, _elementSerializer, unwrapSingle);
     }
@@ -92,7 +92,7 @@ public class ObjectArraySerializer
     }
 
     public ObjectArraySerializer withResolved(BeanProperty prop,
-            TypeSerializer vts, JsonSerializer<?> ser, Boolean unwrapSingle) {
+            TypeSerializer vts, ValueSerializer<?> ser, Boolean unwrapSingle) {
         if ((_property == prop) && (ser == _elementSerializer)
                 && (_valueTypeSerializer == vts) && (Objects.equals(_unwrapSingle, unwrapSingle))) {
             return this;
@@ -107,14 +107,14 @@ public class ObjectArraySerializer
      */
 
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider ctxt,
+    public ValueSerializer<?> createContextual(SerializerProvider ctxt,
             BeanProperty property)
     {
         TypeSerializer vts = _valueTypeSerializer;
         if (vts != null) { // need to contextualize
             vts = vts.forProperty(ctxt, property);
         }
-        JsonSerializer<?> ser = null;
+        ValueSerializer<?> ser = null;
         Boolean unwrapSingle = null;
 
         // First: if we have a property, may have property-annotation overrides
@@ -159,7 +159,7 @@ public class ObjectArraySerializer
     }
 
     @Override
-    public JsonSerializer<?> getContentSerializer() {
+    public ValueSerializer<?> getContentSerializer() {
         return _elementSerializer;
     }
 
@@ -223,7 +223,7 @@ public class ObjectArraySerializer
                     continue;
                 }
                 Class<?> cc = elem.getClass();
-                JsonSerializer<Object> serializer = _dynamicValueSerializers.serializerFor(cc);
+                ValueSerializer<Object> serializer = _dynamicValueSerializers.serializerFor(cc);
                 if (serializer == null) {
                     if (_elementType.hasGenericTypes()) {
                         serializer = _findAndAddDynamic(ctxt,
@@ -240,7 +240,7 @@ public class ObjectArraySerializer
     }
 
     public void serializeContentsUsing(Object[] value, JsonGenerator g, SerializerProvider provider,
-            JsonSerializer<Object> ser) throws JacksonException
+            ValueSerializer<Object> ser) throws JacksonException
     {
         final int len = value.length;
         final TypeSerializer typeSer = _valueTypeSerializer;
@@ -280,7 +280,7 @@ public class ObjectArraySerializer
                     continue;
                 }
                 Class<?> cc = elem.getClass();
-                JsonSerializer<Object> serializer = _dynamicValueSerializers.serializerFor(cc);
+                ValueSerializer<Object> serializer = _dynamicValueSerializers.serializerFor(cc);
                 if (serializer == null) {
                     serializer = _findAndAddDynamic(ctxt, cc);
                 }
@@ -297,7 +297,7 @@ public class ObjectArraySerializer
         JsonArrayFormatVisitor arrayVisitor = visitor.expectArrayFormat(typeHint);
         if (arrayVisitor != null) {
             JavaType contentType = _elementType;
-            JsonSerializer<?> valueSer = _elementSerializer;
+            ValueSerializer<?> valueSer = _elementSerializer;
             if (valueSer == null) {
                 valueSer = visitor.getProvider().findContentValueSerializer(contentType, _property);
             }

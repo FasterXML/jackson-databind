@@ -23,7 +23,7 @@ public class TestContextualKeyTypes extends BaseMapTest
      */
 
     static class ContextualKeySerializer
-        extends JsonSerializer<String>
+        extends ValueSerializer<String>
     {
         protected final String _prefix;
     
@@ -42,7 +42,7 @@ public class TestContextualKeyTypes extends BaseMapTest
         }
 
         @Override
-        public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
+        public ValueSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
         {
             return new ContextualKeySerializer(_prefix+":");
         }

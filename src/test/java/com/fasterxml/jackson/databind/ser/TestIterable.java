@@ -90,7 +90,7 @@ public class TestIterable extends BaseMapTest
         public List<A> list = Arrays.asList(new A());
     }
 
-    static class ASerializer extends JsonSerializer<A> {
+    static class ASerializer extends ValueSerializer<A> {
         @Override
         public void serialize(A a, JsonGenerator g, SerializerProvider provider)
         {

@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ValueSerializer;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -32,12 +32,12 @@ public class CollectionSerializer
      */
 
     public CollectionSerializer(JavaType elemType, boolean staticTyping, TypeSerializer vts,
-            JsonSerializer<Object> valueSerializer) {
+            ValueSerializer<Object> valueSerializer) {
         super(Collection.class, elemType, staticTyping, vts, valueSerializer);
     }
 
     protected CollectionSerializer(CollectionSerializer src,
-            TypeSerializer vts, JsonSerializer<?> valueSerializer,
+            TypeSerializer vts, ValueSerializer<?> valueSerializer,
             Boolean unwrapSingle, BeanProperty property) {
         super(src, vts, valueSerializer, unwrapSingle, property);
     }
@@ -49,7 +49,7 @@ public class CollectionSerializer
 
     @Override
     public CollectionSerializer withResolved(BeanProperty property,
-            TypeSerializer vts, JsonSerializer<?> elementSerializer,
+            TypeSerializer vts, ValueSerializer<?> elementSerializer,
             Boolean unwrapSingle) {
         return new CollectionSerializer(this, vts, elementSerializer, unwrapSingle, property);
     }
@@ -117,7 +117,7 @@ public class CollectionSerializer
                     ctxt.defaultSerializeNullValue(g);
                 } else {
                     Class<?> cc = elem.getClass();
-                    JsonSerializer<Object> serializer = serializers.serializerFor(cc);
+                    ValueSerializer<Object> serializer = serializers.serializerFor(cc);
                     if (serializer == null) {
                         if (_elementType.hasGenericTypes()) {
                             serializer = _findAndAddDynamic(ctxt, ctxt.constructSpecializedType(_elementType, cc));
@@ -140,7 +140,7 @@ public class CollectionSerializer
     }
 
     public void serializeContentsUsing(Collection<?> value, JsonGenerator g, SerializerProvider provider,
-            JsonSerializer<Object> ser)
+            ValueSerializer<Object> ser)
         throws JacksonException
     {
         Iterator<?> it = value.iterator();

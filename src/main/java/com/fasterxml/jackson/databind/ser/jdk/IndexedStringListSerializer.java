@@ -39,7 +39,7 @@ public final class IndexedStringListSerializer
     }
 
     @Override
-    public JsonSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
+    public ValueSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
         return new IndexedStringListSerializer(this, unwrapSingle);
     }
     

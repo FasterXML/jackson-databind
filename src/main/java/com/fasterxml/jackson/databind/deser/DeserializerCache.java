@@ -544,7 +544,8 @@ public final class DeserializerCache
             return null;
         }
         if (!(src instanceof Class)) {
-            throw new IllegalStateException("AnnotationIntrospector."+methodName+"() returned value of type "+src.getClass().getName()+": expected type JsonSerializer or Class<JsonSerializer> instead");
+            throw new IllegalStateException("AnnotationIntrospector."+methodName+"() returned value of type "
++src.getClass().getName()+": expected type `ValueSerializer` or `Class<ValueSerializer>` instead");
         }
         Class<?> cls = (Class<?>) src;
         if (cls == noneClass || ClassUtil.isBogusClass(cls)) {

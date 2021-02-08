@@ -34,12 +34,12 @@ public class SimpleSerializers
      * Class-based mappings that are used both for exact and
      * sub-class matches.
      */
-    protected HashMap<ClassKey,JsonSerializer<?>> _classMappings = null;
+    protected HashMap<ClassKey,ValueSerializer<?>> _classMappings = null;
 
     /**
      * Interface-based matches.
      */
-    protected HashMap<ClassKey,JsonSerializer<?>> _interfaceMappings = null;
+    protected HashMap<ClassKey,ValueSerializer<?>> _interfaceMappings = null;
 
     /**
      * Flag to help find "generic" enum serializer, if one has been registered.
@@ -54,12 +54,12 @@ public class SimpleSerializers
     
     public SimpleSerializers() { }
 
-    public SimpleSerializers(List<JsonSerializer<?>> sers) {
+    public SimpleSerializers(List<ValueSerializer<?>> sers) {
         addSerializers(sers);
     }
     
     /**
-     * Method for adding given serializer for type that {@link JsonSerializer#handledType}
+     * Method for adding given serializer for type that {@link ValueSerializer#handledType}
      * specifies (which MUST return a non-null class; and can NOT be {@link Object}, as a
      * sanity check).
      * For serializers that do not declare handled type, use the variant that takes
@@ -67,27 +67,27 @@ public class SimpleSerializers
      * 
      * @param ser
      */
-    public SimpleSerializers addSerializer(JsonSerializer<?> ser)
+    public SimpleSerializers addSerializer(ValueSerializer<?> ser)
     {
         // Interface to match?
         Class<?> cls = ser.handledType();
         if (cls == null || cls == Object.class) {
-            throw new IllegalArgumentException("JsonSerializer of type "+ser.getClass().getName()
-                    +" does not define valid handledType() -- must either register with method that takes type argument "
+            throw new IllegalArgumentException("`ValueSerializer` of type `"+ser.getClass().getName()
+                    +"` does not define valid handledType() -- must either register with method that takes type argument "
                     +" or make serializer extend 'com.fasterxml.jackson.databind.ser.std.StdSerializer'"); 
         }
         _addSerializer(cls, ser);
         return this;
     }
 
-    public <T> SimpleSerializers addSerializer(Class<? extends T> type, JsonSerializer<T> ser)
+    public <T> SimpleSerializers addSerializer(Class<? extends T> type, ValueSerializer<T> ser)
     {
         _addSerializer(type, ser);
         return this;
     }
 
-    public SimpleSerializers addSerializers(List<JsonSerializer<?>> sers) {
-        for (JsonSerializer<?> ser : sers) {
+    public SimpleSerializers addSerializers(List<ValueSerializer<?>> sers) {
+        for (ValueSerializer<?> ser : sers) {
             addSerializer(ser);
         }
         return this;
@@ -100,12 +100,12 @@ public class SimpleSerializers
      */
     
     @Override
-    public JsonSerializer<?> findSerializer(SerializationConfig config,
+    public ValueSerializer<?> findSerializer(SerializationConfig config,
             JavaType type, BeanDescription beanDesc, JsonFormat.Value formatOverrides)
     {
         Class<?> cls = type.getRawClass();
         ClassKey key = new ClassKey(cls);
-        JsonSerializer<?> ser = null;
+        ValueSerializer<?> ser = null;
         
         // First: direct match?
         if (cls.isInterface()) {
@@ -161,39 +161,39 @@ public class SimpleSerializers
     }
 
     @Override
-    public JsonSerializer<?> findArraySerializer(SerializationConfig config,
+    public ValueSerializer<?> findArraySerializer(SerializationConfig config,
             ArrayType type, BeanDescription beanDesc, JsonFormat.Value formatOverrides,
-            TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer) {
+            TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer) {
         return findSerializer(config, type, beanDesc, formatOverrides);
     }
 
     @Override
-    public JsonSerializer<?> findCollectionSerializer(SerializationConfig config,
+    public ValueSerializer<?> findCollectionSerializer(SerializationConfig config,
             CollectionType type, BeanDescription beanDesc, JsonFormat.Value formatOverrides,
-            TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer) {
+            TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer) {
         return findSerializer(config, type, beanDesc, formatOverrides);
     }
 
     @Override
-    public JsonSerializer<?> findCollectionLikeSerializer(SerializationConfig config,
+    public ValueSerializer<?> findCollectionLikeSerializer(SerializationConfig config,
             CollectionLikeType type, BeanDescription beanDesc, JsonFormat.Value formatOverrides,
-            TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer) {
+            TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer) {
         return findSerializer(config, type, beanDesc, formatOverrides);
     }
         
     @Override
-    public JsonSerializer<?> findMapSerializer(SerializationConfig config,
+    public ValueSerializer<?> findMapSerializer(SerializationConfig config,
             MapType type, BeanDescription beanDesc, JsonFormat.Value formatOverrides,
-            JsonSerializer<Object> keySerializer,
-            TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer) {
+            ValueSerializer<Object> keySerializer,
+            TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer) {
         return findSerializer(config, type, beanDesc, formatOverrides);
     }
 
     @Override
-    public JsonSerializer<?> findMapLikeSerializer(SerializationConfig config,
+    public ValueSerializer<?> findMapLikeSerializer(SerializationConfig config,
             MapLikeType type, BeanDescription beanDesc, JsonFormat.Value formatOverrides,
-            JsonSerializer<Object> keySerializer,
-            TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer) {
+            ValueSerializer<Object> keySerializer,
+            TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer) {
         return findSerializer(config, type, beanDesc, formatOverrides);
     }
     
@@ -203,11 +203,11 @@ public class SimpleSerializers
     /**********************************************************************
      */
     
-    protected JsonSerializer<?> _findInterfaceMapping(Class<?> cls, ClassKey key)
+    protected ValueSerializer<?> _findInterfaceMapping(Class<?> cls, ClassKey key)
     {
         for (Class<?> iface : cls.getInterfaces()) {
             key.reset(iface);
-            JsonSerializer<?> ser = _interfaceMappings.get(key);
+            ValueSerializer<?> ser = _interfaceMappings.get(key);
             if (ser != null) {
                 return ser;
             }
@@ -219,18 +219,18 @@ public class SimpleSerializers
         return null;
     }
 
-    protected void _addSerializer(Class<?> cls, JsonSerializer<?> ser)
+    protected void _addSerializer(Class<?> cls, ValueSerializer<?> ser)
     {
         ClassKey key = new ClassKey(cls);
         // Interface or class type?
         if (cls.isInterface()) {
             if (_interfaceMappings == null) {
-                _interfaceMappings = new HashMap<ClassKey,JsonSerializer<?>>();
+                _interfaceMappings = new HashMap<ClassKey,ValueSerializer<?>>();
             }
             _interfaceMappings.put(key, ser);
         } else { // nope, class:
             if (_classMappings == null) {
-                _classMappings = new HashMap<ClassKey,JsonSerializer<?>>();
+                _classMappings = new HashMap<ClassKey,ValueSerializer<?>>();
             }
             _classMappings.put(key, ser);
             if (cls == Enum.class) {

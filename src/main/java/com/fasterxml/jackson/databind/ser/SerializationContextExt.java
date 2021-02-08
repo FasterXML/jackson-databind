@@ -61,41 +61,41 @@ public class SerializationContextExt
      */
     
     @Override
-    public JsonSerializer<Object> serializerInstance(Annotated annotated, Object serDef)
+    public ValueSerializer<Object> serializerInstance(Annotated annotated, Object serDef)
     {
         if (serDef == null) {
             return null;
         }
-        JsonSerializer<?> ser;
+        ValueSerializer<?> ser;
         
-        if (serDef instanceof JsonSerializer) {
-            ser = (JsonSerializer<?>) serDef;
+        if (serDef instanceof ValueSerializer) {
+            ser = (ValueSerializer<?>) serDef;
         } else {
             // Alas, there's no way to force return type of "either class
             // X or Y" -- need to throw an exception after the fact
             if (!(serDef instanceof Class)) {
                 reportBadDefinition(annotated.getType(),
                         "AnnotationIntrospector returned serializer definition of type "
-                        +serDef.getClass().getName()+"; expected type JsonSerializer or Class<JsonSerializer> instead");
+                        +serDef.getClass().getName()+"; expected type `ValueSerializer` or `Class<ValueSerializer>` instead");
             }
             Class<?> serClass = (Class<?>)serDef;
             // there are some known "no class" markers to consider too:
-            if (serClass == JsonSerializer.None.class || ClassUtil.isBogusClass(serClass)) {
+            if (serClass == ValueSerializer.None.class || ClassUtil.isBogusClass(serClass)) {
                 return null;
             }
-            if (!JsonSerializer.class.isAssignableFrom(serClass)) {
+            if (!ValueSerializer.class.isAssignableFrom(serClass)) {
                 reportBadDefinition(annotated.getType(),
-                        "AnnotationIntrospector returned Class "
-                        +serClass.getName()+"; expected Class<JsonSerializer>");
+                        "AnnotationIntrospector returned Class `"
+                        +serClass.getName()+"`; expected `Class<ValueSerializer>`");
             }
             HandlerInstantiator hi = _config.getHandlerInstantiator();
             ser = (hi == null) ? null : hi.serializerInstance(_config, annotated, serClass);
             if (ser == null) {
-                ser = (JsonSerializer<?>) ClassUtil.createInstance(serClass,
+                ser = (ValueSerializer<?>) ClassUtil.createInstance(serClass,
                         _config.canOverrideAccessModifiers());
             }
         }
-        return (JsonSerializer<Object>) _handleResolvable(ser);
+        return (ValueSerializer<Object>) _handleResolvable(ser);
     }
 
     @Override
@@ -226,7 +226,7 @@ filter.getClass().getName(), t.getClass().getName(), ClassUtil.exceptionMessage(
         }
         final Class<?> cls = value.getClass();
         // true, since we do want to cache root-level typed serializers (ditto for null property)
-        final JsonSerializer<Object> ser = findTypedValueSerializer(cls, true);
+        final ValueSerializer<Object> ser = findTypedValueSerializer(cls, true);
         PropertyName rootName = _config.getFullRootName();
         if (rootName == null) { // not explicitly specified
             if (_config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE)) {
@@ -263,7 +263,7 @@ filter.getClass().getName(), t.getClass().getName(), ClassUtil.exceptionMessage(
             _reportIncompatibleRootType(value, rootType);
         }
         // root value, not reached via property:
-        JsonSerializer<Object> ser = findTypedValueSerializer(rootType, true);
+        ValueSerializer<Object> ser = findTypedValueSerializer(rootType, true);
         PropertyName rootName = _config.getFullRootName();
         if (rootName == null) { // not explicitly specified
             if (_config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE)) {
@@ -281,14 +281,14 @@ filter.getClass().getName(), t.getClass().getName(), ClassUtil.exceptionMessage(
      * The method to be called by {@link ObjectWriter}
      * for serializing given value (assumed to be of specified root type,
      * instead of runtime type of value), when it may know specific
-     * {@link JsonSerializer} to use.
+     * {@link ValueSerializer} to use.
      * 
      * @param rootType Type to use for locating serializer to use, instead of actual
      *    runtime type, if no serializer is passed
      * @param ser Root Serializer to use, if not null
      */
     public void serializeValue(JsonGenerator gen, Object value, JavaType rootType,
-            JsonSerializer<Object> ser) throws JacksonException
+            ValueSerializer<Object> ser) throws JacksonException
     {
         _assignGenerator(gen);
         if (value == null) {
@@ -324,7 +324,7 @@ filter.getClass().getName(), t.getClass().getName(), ClassUtil.exceptionMessage(
      * is already known, but the actual serializer may or may not be.
      */
     public void serializePolymorphic(JsonGenerator gen, Object value, JavaType rootType,
-            JsonSerializer<Object> valueSer, TypeSerializer typeSer)
+            ValueSerializer<Object> valueSer, TypeSerializer typeSer)
         throws JacksonException
     {
         _assignGenerator(gen);
@@ -372,7 +372,7 @@ filter.getClass().getName(), t.getClass().getName(), ClassUtil.exceptionMessage(
     }
 
     private final void _serialize(JsonGenerator gen, Object value,
-            JsonSerializer<Object> ser, PropertyName rootName)
+            ValueSerializer<Object> ser, PropertyName rootName)
         throws JacksonException
     {
         gen.writeStartObject();
@@ -382,7 +382,7 @@ filter.getClass().getName(), t.getClass().getName(), ClassUtil.exceptionMessage(
     }
 
     private final void _serialize(JsonGenerator gen, Object value,
-            JsonSerializer<Object> ser)
+            ValueSerializer<Object> ser)
         throws JacksonException
     {
         ser.serialize(value, gen, this);
@@ -393,7 +393,7 @@ filter.getClass().getName(), t.getClass().getName(), ClassUtil.exceptionMessage(
      */
     protected void _serializeNull(JsonGenerator gen) throws JacksonException
     {
-        JsonSerializer<Object> ser = getDefaultNullValueSerializer();
+        ValueSerializer<Object> ser = getDefaultNullValueSerializer();
         ser.serialize(null, gen, this);
     }
 

@@ -30,7 +30,7 @@ public class TestEmptyClass
         }
     }
     
-    static class NonZeroSerializer extends JsonSerializer<NonZero>
+    static class NonZeroSerializer extends ValueSerializer<NonZero>
     {
         @Override
         public void serialize(NonZero value, JsonGenerator jgen, SerializerProvider provider)

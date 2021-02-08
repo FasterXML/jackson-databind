@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.jsonFormatVisitors;
 import com.fasterxml.jackson.databind.JavaType;
 
 /**
- * Interface {@link com.fasterxml.jackson.databind.JsonSerializer} implements
+ * Interface {@link com.fasterxml.jackson.databind.ValueSerializer} implements
  * to allow for visiting type hierarchy.
  */
 public interface JsonFormatVisitable

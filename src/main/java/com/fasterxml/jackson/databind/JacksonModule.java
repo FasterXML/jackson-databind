@@ -248,7 +248,7 @@ public abstract class JacksonModule
          * @param ser Serializer called to write output for JSON Object key of which value
          *   on Java side is `null`
          */
-        public SetupContext overrideDefaultNullKeySerializer(JsonSerializer<?> ser);
+        public SetupContext overrideDefaultNullKeySerializer(ValueSerializer<?> ser);
 
         /**
          * Method that module can use to override handler called to write Java `null` as
@@ -257,7 +257,7 @@ public abstract class JacksonModule
          * @param ser Serializer called to write output for Java `null` as value (as distinct from
          *    key_
          */
-        public SetupContext overrideDefaultNullValueSerializer(JsonSerializer<?> ser);
+        public SetupContext overrideDefaultNullValueSerializer(ValueSerializer<?> ser);
 
         /*
         /******************************************************************

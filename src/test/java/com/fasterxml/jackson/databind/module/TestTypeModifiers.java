@@ -27,10 +27,10 @@ public class TestTypeModifiers extends BaseMapTest
         {
             context.addSerializers(new Serializers.Base() {
                 @Override
-                public JsonSerializer<?> findMapLikeSerializer(SerializationConfig config,
+                public ValueSerializer<?> findMapLikeSerializer(SerializationConfig config,
                         MapLikeType type, BeanDescription beanDesc, JsonFormat.Value format,
-                        JsonSerializer<Object> keySerializer,
-                        TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer)
+                        ValueSerializer<Object> keySerializer,
+                        TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer)
                 {
                     if (MapMarker.class.isAssignableFrom(type.getRawClass())) {
                         return new MyMapSerializer(keySerializer, elementValueSerializer);
@@ -39,9 +39,9 @@ public class TestTypeModifiers extends BaseMapTest
                 }
 
                 @Override
-                public JsonSerializer<?> findCollectionLikeSerializer(SerializationConfig config,
+                public ValueSerializer<?> findCollectionLikeSerializer(SerializationConfig config,
                         CollectionLikeType type, BeanDescription beanDesc, JsonFormat.Value format,
-                        TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer)
+                        TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer)
                 {
                     if (CollectionMarker.class.isAssignableFrom(type.getRawClass())) {
                         return new MyCollectionSerializer();
@@ -122,10 +122,10 @@ public class TestTypeModifiers extends BaseMapTest
 
     static class MyMapSerializer extends StdSerializer<MapMarker<?,?>>
     {
-        protected final JsonSerializer<Object> _keySerializer;
-        protected final JsonSerializer<Object> _valueSerializer;
+        protected final ValueSerializer<Object> _keySerializer;
+        protected final ValueSerializer<Object> _valueSerializer;
 
-        public MyMapSerializer(JsonSerializer<Object> keySer, JsonSerializer<Object> valueSer) {
+        public MyMapSerializer(ValueSerializer<Object> keySer, ValueSerializer<Object> valueSer) {
             super(MapMarker.class);
             _keySerializer = keySer;
             _valueSerializer = valueSer;

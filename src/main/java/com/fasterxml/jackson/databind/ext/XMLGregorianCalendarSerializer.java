@@ -9,7 +9,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ValueSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -21,20 +21,20 @@ public class XMLGregorianCalendarSerializer
 {
     final static XMLGregorianCalendarSerializer instance = new XMLGregorianCalendarSerializer();
 
-    final JsonSerializer<Object> _delegate;
+    final ValueSerializer<Object> _delegate;
     
     public XMLGregorianCalendarSerializer() {
         this(JavaUtilCalendarSerializer.instance);
     }
 
     @SuppressWarnings("unchecked")
-    protected XMLGregorianCalendarSerializer(JsonSerializer<?> del) {
+    protected XMLGregorianCalendarSerializer(ValueSerializer<?> del) {
         super(XMLGregorianCalendar.class);
-        _delegate = (JsonSerializer<Object>) del;
+        _delegate = (ValueSerializer<Object>) del;
     }
 
     @Override
-    public JsonSerializer<?> getDelegatee() {
+    public ValueSerializer<?> getDelegatee() {
         return _delegate;
     }
 
@@ -63,9 +63,9 @@ public class XMLGregorianCalendarSerializer
     }
 
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
+    public ValueSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
     {
-        JsonSerializer<?> ser = prov.handlePrimaryContextualization(_delegate, property);
+        ValueSerializer<?> ser = prov.handlePrimaryContextualization(_delegate, property);
         if (ser != _delegate) {
             return new XMLGregorianCalendarSerializer(ser);
         }

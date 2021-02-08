@@ -65,11 +65,11 @@ public class TestWithGenerics extends BaseMapTest
         public String someValue = UUID.randomUUID().toString();
     }
     
-    static class CustomJsonSerializer extends JsonSerializer<Object>
+    static class CustomValueSerializer extends ValueSerializer<Object>
     {
-        private final JsonSerializer<Object> beanSerializer;
+        private final ValueSerializer<Object> beanSerializer;
     
-        public CustomJsonSerializer( JsonSerializer<Object> beanSerializer ) { this.beanSerializer = beanSerializer; }
+        public CustomValueSerializer( ValueSerializer<Object> beanSerializer ) { this.beanSerializer = beanSerializer; }
     
         @Override
         public void serialize( Object value, JsonGenerator g, SerializerProvider provider )

@@ -21,7 +21,7 @@ public class Jdk8StreamSerializer extends StdSerializer<Stream<?>>
     /**
      * element specific serializer, if any
      */
-    private transient final JsonSerializer<Object> elemSerializer;
+    private transient final ValueSerializer<Object> elemSerializer;
 
     /**
      * Constructor
@@ -40,14 +40,14 @@ public class Jdk8StreamSerializer extends StdSerializer<Stream<?>>
      * @param elemType       Stream elements type (matching T)
      * @param elemSerializer Custom serializer to use for element type
      */
-    public Jdk8StreamSerializer(JavaType streamType, JavaType elemType, JsonSerializer<Object> elemSerializer) {
+    public Jdk8StreamSerializer(JavaType streamType, JavaType elemType, ValueSerializer<Object> elemSerializer) {
         super(streamType);
         this.elemType = elemType;
         this.elemSerializer = elemSerializer;
     }
 
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider provider, BeanProperty property)
+    public ValueSerializer<?> createContextual(SerializerProvider provider, BeanProperty property)
     {
         if (!elemType.hasRawClass(Object.class)
                 && (provider.isEnabled(MapperFeature.USE_STATIC_TYPING) || elemType.isFinal())) {

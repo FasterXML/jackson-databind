@@ -84,22 +84,22 @@ public class ValueSerializerModifierTest extends BaseMapTest
 
     static class ReplacingModifier extends ValueSerializerModifier
     {
-        private final JsonSerializer<?> _serializer;
+        private final ValueSerializer<?> _serializer;
         
-        public ReplacingModifier(JsonSerializer<?> s) { _serializer = s; }
+        public ReplacingModifier(ValueSerializer<?> s) { _serializer = s; }
         
         @Override
-        public JsonSerializer<?> modifySerializer(SerializationConfig config, BeanDescription beanDesc,
-                JsonSerializer<?> serializer) {
+        public ValueSerializer<?> modifySerializer(SerializationConfig config, BeanDescription beanDesc,
+                ValueSerializer<?> serializer) {
             return _serializer;
         }
     }
 
     static class BuilderModifier extends ValueSerializerModifier
     {
-        private final JsonSerializer<?> _serializer;
+        private final ValueSerializer<?> _serializer;
         
-        public BuilderModifier(JsonSerializer<?> ser) {
+        public BuilderModifier(ValueSerializer<?> ser) {
             _serializer = ser;
         }
         
@@ -112,16 +112,16 @@ public class ValueSerializerModifierTest extends BaseMapTest
 
     static class BogusSerializerBuilder extends BeanSerializerBuilder
     {
-        private final JsonSerializer<?> _serializer;
+        private final ValueSerializer<?> _serializer;
         
         public BogusSerializerBuilder(BeanSerializerBuilder src,
-                JsonSerializer<?> ser) {
+                ValueSerializer<?> ser) {
             super(src);
             _serializer = ser;
         }
 
         @Override
-        public JsonSerializer<?> build() {
+        public ValueSerializer<?> build() {
             return _serializer;
         }
     }
@@ -181,8 +181,8 @@ public class ValueSerializerModifierTest extends BaseMapTest
         }
         
         @Override
-        public JsonSerializer<?> modifySerializer(SerializationConfig config,
-                BeanDescription beanDesc, JsonSerializer<?> serializer) {
+        public ValueSerializer<?> modifySerializer(SerializationConfig config,
+                BeanDescription beanDesc, ValueSerializer<?> serializer) {
             return new BogusBeanSerializer(42);
         }
     }
@@ -190,8 +190,8 @@ public class ValueSerializerModifierTest extends BaseMapTest
     
     static class ArraySerializerModifier extends ValueSerializerModifier {
         @Override
-        public JsonSerializer<?> modifyArraySerializer(SerializationConfig config,
-                ArrayType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
+        public ValueSerializer<?> modifyArraySerializer(SerializationConfig config,
+                ArrayType valueType, BeanDescription beanDesc, ValueSerializer<?> serializer) {
             return new StdSerializer<Object>(Object.class) {
                 @Override public void serialize(Object value, JsonGenerator g, SerializerProvider provider) {
                     g.writeNumber(123);
@@ -202,8 +202,8 @@ public class ValueSerializerModifierTest extends BaseMapTest
 
     static class CollectionSerializerModifier extends ValueSerializerModifier {
         @Override
-        public JsonSerializer<?> modifyCollectionSerializer(SerializationConfig config,
-                CollectionType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
+        public ValueSerializer<?> modifyCollectionSerializer(SerializationConfig config,
+                CollectionType valueType, BeanDescription beanDesc, ValueSerializer<?> serializer) {
             return new StdSerializer<Object>(Object.class) {
                 @Override public void serialize(Object value, JsonGenerator g, SerializerProvider provider) {
                     g.writeNumber(123);
@@ -214,8 +214,8 @@ public class ValueSerializerModifierTest extends BaseMapTest
 
     static class MapSerializerModifier extends ValueSerializerModifier {
         @Override
-        public JsonSerializer<?> modifyMapSerializer(SerializationConfig config,
-                MapType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
+        public ValueSerializer<?> modifyMapSerializer(SerializationConfig config,
+                MapType valueType, BeanDescription beanDesc, ValueSerializer<?> serializer) {
             return new StdSerializer<Object>(Object.class) {
                 @Override public void serialize(Object value, JsonGenerator g, SerializerProvider provider) {
                     g.writeNumber(123);
@@ -226,8 +226,8 @@ public class ValueSerializerModifierTest extends BaseMapTest
 
     static class EnumSerializerModifier extends ValueSerializerModifier {
         @Override
-        public JsonSerializer<?> modifyEnumSerializer(SerializationConfig config,
-                JavaType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
+        public ValueSerializer<?> modifyEnumSerializer(SerializationConfig config,
+                JavaType valueType, BeanDescription beanDesc, ValueSerializer<?> serializer) {
             return new StdSerializer<Object>(Object.class) {
                 @Override public void serialize(Object value, JsonGenerator g, SerializerProvider provider) {
                     g.writeNumber(123);
@@ -238,8 +238,8 @@ public class ValueSerializerModifierTest extends BaseMapTest
 
     static class KeySerializerModifier extends ValueSerializerModifier {
         @Override
-        public JsonSerializer<?> modifyKeySerializer(SerializationConfig config,
-                JavaType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
+        public ValueSerializer<?> modifyKeySerializer(SerializationConfig config,
+                JavaType valueType, BeanDescription beanDesc, ValueSerializer<?> serializer) {
             return new StdSerializer<Object>(Object.class) {
                 @Override public void serialize(Object value, JsonGenerator g, SerializerProvider provider) {
                     g.writeName("foo");

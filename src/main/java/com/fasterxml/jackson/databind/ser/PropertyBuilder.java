@@ -86,7 +86,7 @@ public class PropertyBuilder
      *    of container type)
      */
     protected BeanPropertyWriter buildWriter(SerializerProvider ctxt,
-            BeanPropertyDefinition propDef, JavaType declaredType, JsonSerializer<?> ser,
+            BeanPropertyDefinition propDef, JavaType declaredType, ValueSerializer<?> ser,
             TypeSerializer typeSer, TypeSerializer contentTypeSer,
             AnnotatedMember am, boolean defaultUseStaticTyping)
     {
@@ -247,7 +247,7 @@ public class PropertyBuilder
     protected BeanPropertyWriter _constructPropertyWriter(BeanPropertyDefinition propDef,
             AnnotatedMember member, Annotations contextAnnotations,
             JavaType declaredType,
-            JsonSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
+            ValueSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
             boolean suppressNulls, Object suppressableValue,
             Class<?>[] includeInViews)
     {

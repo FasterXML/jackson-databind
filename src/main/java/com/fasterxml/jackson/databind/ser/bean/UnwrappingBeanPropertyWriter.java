@@ -8,7 +8,7 @@ import com.fasterxml.jackson.core.io.SerializedString;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ValueSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
@@ -92,7 +92,7 @@ public class UnwrappingBeanPropertyWriter
             // can't really unwrap them...
             return;
         }
-        JsonSerializer<Object> ser = _serializer;
+        ValueSerializer<Object> ser = _serializer;
         if (ser == null) {
             Class<?> cls = value.getClass();
             PropertySerializerMap map = _dynamicSerializers;
@@ -131,7 +131,7 @@ public class UnwrappingBeanPropertyWriter
 
     // need to override as we must get unwrapping instance...
     @Override
-    public void assignSerializer(JsonSerializer<Object> ser)
+    public void assignSerializer(ValueSerializer<Object> ser)
     {
         if (ser != null) {
             NameTransformer t = _nameTransformer;
@@ -156,7 +156,7 @@ public class UnwrappingBeanPropertyWriter
     public void depositSchemaProperty(final JsonObjectFormatVisitor visitor,
             SerializerProvider provider)
     {
-        JsonSerializer<Object> ser = provider
+        ValueSerializer<Object> ser = provider
                 .findPrimaryPropertySerializer(getType(), this)
                 .unwrappingSerializer(_nameTransformer);
 
@@ -200,10 +200,10 @@ public class UnwrappingBeanPropertyWriter
     
     // need to override as we must get unwrapping instance...
     @Override
-    protected JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
+    protected ValueSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
             Class<?> type, SerializerProvider provider)
     {
-        JsonSerializer<Object> serializer;
+        ValueSerializer<Object> serializer;
         if (_nonTrivialBaseType != null) {
             JavaType subtype = provider.constructSpecializedType(_nonTrivialBaseType, type);
             serializer = provider.findPrimaryPropertySerializer(subtype, this);

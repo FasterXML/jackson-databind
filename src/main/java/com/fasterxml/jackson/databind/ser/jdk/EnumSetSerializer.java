@@ -15,7 +15,7 @@ public class EnumSetSerializer
     }
 
     public EnumSetSerializer(EnumSetSerializer src,
-            TypeSerializer vts, JsonSerializer<?> valueSerializer,
+            TypeSerializer vts, ValueSerializer<?> valueSerializer,
             Boolean unwrapSingle, BeanProperty property) {
         super(src, vts, valueSerializer, unwrapSingle, property);
     }
@@ -28,7 +28,7 @@ public class EnumSetSerializer
 
     @Override
     public EnumSetSerializer withResolved(BeanProperty property,
-            TypeSerializer vts, JsonSerializer<?> elementSerializer,
+            TypeSerializer vts, ValueSerializer<?> elementSerializer,
             Boolean unwrapSingle) {
         return new EnumSetSerializer(this, vts, elementSerializer, unwrapSingle, property);
     }
@@ -66,7 +66,7 @@ public class EnumSetSerializer
             SerializerProvider ctxt)
         throws JacksonException
     {
-        JsonSerializer<Object> enumSer = _elementSerializer;
+        ValueSerializer<Object> enumSer = _elementSerializer;
         // Need to dynamically find instance serializer; unfortunately that seems
         // to be the only way to figure out type (no accessors to the enum class that set knows)
         for (Enum<?> en : value) {

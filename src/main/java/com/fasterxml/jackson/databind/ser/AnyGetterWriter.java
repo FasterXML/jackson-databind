@@ -21,17 +21,17 @@ public class AnyGetterWriter
      */
     protected final AnnotatedMember _accessor;
 
-    protected JsonSerializer<Object> _serializer;
+    protected ValueSerializer<Object> _serializer;
 
     protected MapSerializer _mapSerializer;
 
     @SuppressWarnings("unchecked")
     public AnyGetterWriter(BeanProperty property,
-            AnnotatedMember accessor, JsonSerializer<?> serializer)
+            AnnotatedMember accessor, ValueSerializer<?> serializer)
     {
         _accessor = accessor;
         _property = property;
-        _serializer = (JsonSerializer<Object>) serializer;
+        _serializer = (ValueSerializer<Object>) serializer;
         if (serializer instanceof MapSerializer) {
             _mapSerializer = (MapSerializer) serializer;
         }
@@ -47,8 +47,8 @@ public class AnyGetterWriter
     public void resolve(SerializerProvider provider)
     {
         // 05-Sep-2013, tatu: I _think_ this can be considered a primary property...
-        JsonSerializer<?> ser = provider.handlePrimaryContextualization(_serializer, _property);
-        _serializer = (JsonSerializer<Object>) ser;
+        ValueSerializer<?> ser = provider.handlePrimaryContextualization(_serializer, _property);
+        _serializer = (ValueSerializer<Object>) ser;
         if (ser instanceof MapSerializer) {
             _mapSerializer = (MapSerializer) ser;
         }

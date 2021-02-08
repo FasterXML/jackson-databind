@@ -28,7 +28,7 @@ public class TestExceptionsDuringWriting
     }
 
     static class SerializerWithErrors
-        extends JsonSerializer<Bean>
+        extends ValueSerializer<Bean>
     {
         @Override
         public void serialize(Bean value, JsonGenerator jgen, SerializerProvider provider)

@@ -18,13 +18,13 @@ public class Jdk8OptionalSerializer
      */
 
     public Jdk8OptionalSerializer(ReferenceType fullType, boolean staticTyping,
-            TypeSerializer vts, JsonSerializer<Object> ser)
+            TypeSerializer vts, ValueSerializer<Object> ser)
     {
         super(fullType, staticTyping, vts, ser);
     }
 
     protected Jdk8OptionalSerializer(Jdk8OptionalSerializer base, BeanProperty property,
-            TypeSerializer vts, JsonSerializer<?> valueSer, NameTransformer unwrapper,
+            TypeSerializer vts, ValueSerializer<?> valueSer, NameTransformer unwrapper,
             Object suppressableValue, boolean suppressNulls)
     {
         super(base, property, vts, valueSer, unwrapper,
@@ -33,7 +33,7 @@ public class Jdk8OptionalSerializer
 
     @Override
     protected ReferenceTypeSerializer<Optional<?>> withResolved(BeanProperty prop,
-            TypeSerializer vts, JsonSerializer<?> valueSer,
+            TypeSerializer vts, ValueSerializer<?> valueSer,
             NameTransformer unwrapper)
     {
         return new Jdk8OptionalSerializer(this, prop, vts, valueSer, unwrapper,

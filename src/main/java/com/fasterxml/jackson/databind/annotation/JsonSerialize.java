@@ -41,7 +41,7 @@ public @interface JsonSerialize
      * serializing property access via a getter method.
      */
     @SuppressWarnings("rawtypes") // to work around JDK8 bug wrt Class-valued annotation properties
-    public Class<? extends JsonSerializer> using() default JsonSerializer.None.class;
+    public Class<? extends ValueSerializer> using() default ValueSerializer.None.class;
 
     /**
      * Serializer class to use for serializing contents (elements
@@ -50,8 +50,8 @@ public @interface JsonSerialize
      * and not value classes themselves (as they are typically generic)
      */
     @SuppressWarnings("rawtypes") // to work around JDK8 bug wrt Class-valued annotation properties
-    public Class<? extends JsonSerializer> contentUsing()
-        default JsonSerializer.None.class;
+    public Class<? extends ValueSerializer> contentUsing()
+        default ValueSerializer.None.class;
 
     /**
      * Serializer class to use for serializing Map keys
@@ -60,8 +60,8 @@ public @interface JsonSerialize
      * and not value classes themselves.
      */
     @SuppressWarnings("rawtypes") // to work around JDK8 bug wrt Class-valued annotation properties
-    public Class<? extends JsonSerializer> keyUsing()
-        default JsonSerializer.None.class;
+    public Class<? extends ValueSerializer> keyUsing()
+        default ValueSerializer.None.class;
 
     /**
      * Serializer class to use for serializing nulls for properties that
@@ -71,8 +71,8 @@ public @interface JsonSerialize
      * no effect currently (it is possible this could be improved in future).
      */
     @SuppressWarnings("rawtypes") // to work around JDK8 bug wrt Class-valued annotation properties
-    public Class<? extends JsonSerializer> nullsUsing()
-        default JsonSerializer.None.class;
+    public Class<? extends ValueSerializer> nullsUsing()
+        default ValueSerializer.None.class;
 
     // // // Annotations for type handling, explicit declaration
     // // // (type used for choosing deserializer, if not explicitly

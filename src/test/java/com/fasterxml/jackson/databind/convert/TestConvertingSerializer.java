@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 
-import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ValueSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.util.StdConverter;
@@ -132,7 +132,7 @@ public class TestConvertingSerializer
         }
     }
 
-    static class TargetSerializer extends JsonSerializer<Target>
+    static class TargetSerializer extends ValueSerializer<Target>
     {
         @Override
         public void serialize(Target a, JsonGenerator g, SerializerProvider provider) {

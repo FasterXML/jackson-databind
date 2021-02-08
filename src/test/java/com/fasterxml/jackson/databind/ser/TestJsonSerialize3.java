@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 public class TestJsonSerialize3 extends BaseMapTest
 {
     // [JACKSON-829]
-    static class FooToBarSerializer extends JsonSerializer<String> {
+    static class FooToBarSerializer extends ValueSerializer<String> {
         @Override
         public void serialize(String value, JsonGenerator g, SerializerProvider provider)
         {

@@ -34,7 +34,7 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Class that defines API used by {@link ObjectMapper} and
- * {@link JsonSerializer}s to obtain serializers capable of serializing
+ * {@link ValueSerializer}s to obtain serializers capable of serializing
  * instances of specific types; as well as the default implementation
  * of the functionality.
  *<p>
@@ -54,7 +54,7 @@ public abstract class SerializerProvider
      * NOTE: starting with 2.6, this instance is NOT used for any other types, and
      * separate instances are constructed for "empty" Beans.
      */
-    protected final static JsonSerializer<Object> DEFAULT_UNKNOWN_SERIALIZER = new UnknownSerializer();
+    protected final static ValueSerializer<Object> DEFAULT_UNKNOWN_SERIALIZER = new UnknownSerializer();
 
     /*
     /**********************************************************************
@@ -115,7 +115,7 @@ public abstract class SerializerProvider
      * Serializer used to output a null value. Default implementation
      * writes nulls using {@link JsonGenerator#writeNull}.
      */
-    protected final JsonSerializer<Object> _nullValueSerializer;
+    protected final ValueSerializer<Object> _nullValueSerializer;
 
     /**
      * Flag set to indicate that we are using vanilla null value serialization
@@ -182,7 +182,7 @@ public abstract class SerializerProvider
 
         // Default null key, value serializers configured via SerializerFactory
         {
-            JsonSerializer<Object> ser = f.getDefaultNullValueSerializer();
+            ValueSerializer<Object> ser = f.getDefaultNullValueSerializer();
             if (ser == null) {
                 _stdNullValueSerializer = true;
                 ser = NullSerializer.instance;
@@ -508,11 +508,11 @@ public abstract class SerializerProvider
      *   runtime type, but can also be static declared type, depending on configuration
      * @param cache Whether resulting value serializer should be cached or not
      */
-    public JsonSerializer<Object> findTypedValueSerializer(Class<?> rawType,
+    public ValueSerializer<Object> findTypedValueSerializer(Class<?> rawType,
             boolean cache)
     {
         // First: do we have it cached?
-        JsonSerializer<Object> ser = _knownSerializers.typedValueSerializer(rawType);
+        ValueSerializer<Object> ser = _knownSerializers.typedValueSerializer(rawType);
         if (ser != null) {
             return ser;
         }
@@ -542,10 +542,10 @@ public abstract class SerializerProvider
      *    type serializer to use for adding polymorphic type (if any)
      * @param cache Whether resulting value serializer should be cached or not
      */
-    public JsonSerializer<Object> findTypedValueSerializer(JavaType valueType, boolean cache)
+    public ValueSerializer<Object> findTypedValueSerializer(JavaType valueType, boolean cache)
     {
 
-        JsonSerializer<Object> ser = _knownSerializers.typedValueSerializer(valueType);
+        ValueSerializer<Object> ser = _knownSerializers.typedValueSerializer(valueType);
         if (ser != null) {
             return ser;
         }
@@ -570,9 +570,9 @@ public abstract class SerializerProvider
      *
      * @since 3.0
      */
-    public JsonSerializer<Object> findRootValueSerializer(Class<?> rawType)
+    public ValueSerializer<Object> findRootValueSerializer(Class<?> rawType)
     {
-        JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(rawType);
+        ValueSerializer<Object> ser = _knownSerializers.untypedValueSerializer(rawType);
         if (ser == null) {
             JavaType fullType = _config.constructType(rawType);
             ser = _serializerCache.untypedValueSerializer(fullType);
@@ -592,9 +592,9 @@ public abstract class SerializerProvider
      *
      * @since 3.0
      */
-    public JsonSerializer<Object> findRootValueSerializer(JavaType valueType)
+    public ValueSerializer<Object> findRootValueSerializer(JavaType valueType)
     {
-        JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(valueType);
+        ValueSerializer<Object> ser = _knownSerializers.untypedValueSerializer(valueType);
         if (ser == null) {
             ser = _createAndCacheUntypedSerializer(valueType);
         }
@@ -616,20 +616,20 @@ public abstract class SerializerProvider
      * @param property Property that is being handled; will never be null, and its
      *    type has to match <code>valueType</code> parameter.
      */
-    public JsonSerializer<Object> findPrimaryPropertySerializer(JavaType valueType,
+    public ValueSerializer<Object> findPrimaryPropertySerializer(JavaType valueType,
             BeanProperty property)
     {
-        JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(valueType);
+        ValueSerializer<Object> ser = _knownSerializers.untypedValueSerializer(valueType);
         if (ser == null) {
             ser = _createAndCachePropertySerializer(valueType, property);
         }
         return handlePrimaryContextualization(ser, property);
     }
 
-    public JsonSerializer<Object> findPrimaryPropertySerializer(Class<?> rawType,
+    public ValueSerializer<Object> findPrimaryPropertySerializer(Class<?> rawType,
             BeanProperty property)
     {
-        JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(rawType);
+        ValueSerializer<Object> ser = _knownSerializers.untypedValueSerializer(rawType);
         if (ser == null) {
             JavaType fullType = _config.constructType(rawType);
             ser = _serializerCache.untypedValueSerializer(fullType);
@@ -652,10 +652,10 @@ public abstract class SerializerProvider
      * @param property (optional) Property that refers to values via primary type (so type
      *    DOES NOT necessarily match {@code valueType})
      */
-    public JsonSerializer<Object> findContentValueSerializer(JavaType valueType,
+    public ValueSerializer<Object> findContentValueSerializer(JavaType valueType,
             BeanProperty property)
     {
-        JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(valueType);
+        ValueSerializer<Object> ser = _knownSerializers.untypedValueSerializer(valueType);
         if (ser == null) {
             ser = _createAndCachePropertySerializer(valueType, property);
         }
@@ -665,10 +665,10 @@ public abstract class SerializerProvider
     /**
      * See {@link #findContentValueSerializer(JavaType, BeanProperty)}.
      */
-    public JsonSerializer<Object> findContentValueSerializer(Class<?> rawType,
+    public ValueSerializer<Object> findContentValueSerializer(Class<?> rawType,
             BeanProperty property)
     {
-        JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(rawType);
+        ValueSerializer<Object> ser = _knownSerializers.untypedValueSerializer(rawType);
         if (ser == null) {
             JavaType fullType = _config.constructType(rawType);
             ser = _serializerCache.untypedValueSerializer(fullType);
@@ -690,9 +690,9 @@ public abstract class SerializerProvider
      * to be handled at a later point, but caller wants to be able to do that
      * as needed; sometimes to avoid infinite loops
      */
-    public JsonSerializer<Object> findValueSerializer(Class<?> rawType)
+    public ValueSerializer<Object> findValueSerializer(Class<?> rawType)
     {
-        JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(rawType);
+        ValueSerializer<Object> ser = _knownSerializers.untypedValueSerializer(rawType);
         if (ser == null) {
             JavaType fullType = _config.constructType(rawType);
             ser = _serializerCache.untypedValueSerializer(fullType);
@@ -708,10 +708,10 @@ public abstract class SerializerProvider
      * to be handled at a later point, but caller wants to be able to do that
      * as needed; sometimes to avoid infinite loops
      */
-    public JsonSerializer<Object> findValueSerializer(JavaType valueType)
+    public ValueSerializer<Object> findValueSerializer(JavaType valueType)
     {
         // (see comments from above method)
-        JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(valueType);
+        ValueSerializer<Object> ser = _knownSerializers.untypedValueSerializer(valueType);
         if (ser == null) {
             ser = _createAndCacheUntypedSerializer(valueType);
         }
@@ -781,22 +781,22 @@ public abstract class SerializerProvider
      * Note that the serializer itself can be called with instances
      * of any Java object, but not nulls.
      */
-    public JsonSerializer<Object> findKeySerializer(JavaType keyType, BeanProperty property)
+    public ValueSerializer<Object> findKeySerializer(JavaType keyType, BeanProperty property)
     {
         // 16-Mar-2018, tatu: Used to have "default key serializer" in 2.x; dropped to let/make
         //    custom code use Module interface or similar to provide key serializers
-        JsonSerializer<Object> ser = _serializerFactory.createKeySerializer(this, keyType);
+        ValueSerializer<Object> ser = _serializerFactory.createKeySerializer(this, keyType);
         // _handleContextualResolvable(ser, property):
         ser.resolve(this);
         return handleSecondaryContextualization(ser, property);
     }
 
-    public JsonSerializer<Object> findKeySerializer(Class<?> rawKeyType, BeanProperty property)
+    public ValueSerializer<Object> findKeySerializer(Class<?> rawKeyType, BeanProperty property)
     {
         return findKeySerializer(_config.constructType(rawKeyType), property);
     }
 
-    public JsonSerializer<Object> getDefaultNullValueSerializer() {
+    public ValueSerializer<Object> getDefaultNullValueSerializer() {
         return _nullValueSerializer;
     }
 
@@ -806,7 +806,7 @@ public abstract class SerializerProvider
      * since nulls in Java have no type and thus runtime type cannot be
      * determined.
      */
-    public JsonSerializer<Object> findNullKeySerializer(JavaType serializationType,
+    public ValueSerializer<Object> findNullKeySerializer(JavaType serializationType,
             BeanProperty property)
     {
         // rarely needed (that is, not on critical perf path), delegate to factory
@@ -828,7 +828,7 @@ public abstract class SerializerProvider
      * of certain type or name. This gives method full granularity to basically
      * override null handling for any specific property or class of properties.
      */
-    public JsonSerializer<Object> findNullValueSerializer(BeanProperty property)
+    public ValueSerializer<Object> findNullValueSerializer(BeanProperty property)
     {
         return _nullValueSerializer;
     }
@@ -845,7 +845,7 @@ public abstract class SerializerProvider
      *
      * @param unknownType Type for which no serializer is found
      */
-    public JsonSerializer<Object> getUnknownTypeSerializer(Class<?> unknownType) {
+    public ValueSerializer<Object> getUnknownTypeSerializer(Class<?> unknownType) {
         // 23-Apr-2015, tatu: Only return shared instance if nominal type is Object.class
         if (unknownType == Object.class) {
             return DEFAULT_UNKNOWN_SERIALIZER;
@@ -859,7 +859,7 @@ public abstract class SerializerProvider
      * something returned by {@link #getUnknownTypeSerializer}, that is, something
      * for which no regular serializer was found or constructed.
      */
-    public boolean isUnknownTypeSerializer(JsonSerializer<?> ser) {
+    public boolean isUnknownTypeSerializer(ValueSerializer<?> ser) {
         if ((ser == DEFAULT_UNKNOWN_SERIALIZER) || (ser == null)) {
             return true;
         }
@@ -883,12 +883,12 @@ public abstract class SerializerProvider
      * Method that will try to construct a value serializer; and if
      * one is successfully created, cache it for reuse.
      */
-    protected JsonSerializer<Object> _createAndCacheUntypedSerializer(Class<?> rawType,
+    protected ValueSerializer<Object> _createAndCacheUntypedSerializer(Class<?> rawType,
             JavaType fullType)
     {
         // Important: must introspect all annotations, not just class
         BeanDescription beanDesc = introspectBeanDescription(fullType);
-        JsonSerializer<Object> ser;
+        ValueSerializer<Object> ser;
         try {
             ser = _serializerFactory.createSerializer(this, fullType, beanDesc, null);
         } catch (IllegalArgumentException iae) {
@@ -901,11 +901,11 @@ public abstract class SerializerProvider
         return ser;
     }
 
-    protected JsonSerializer<Object> _createAndCacheUntypedSerializer(JavaType type)
+    protected ValueSerializer<Object> _createAndCacheUntypedSerializer(JavaType type)
     {
         // Important: must introspect all annotations, not just class
         BeanDescription beanDesc = introspectBeanDescription(type);
-        JsonSerializer<Object> ser;
+        ValueSerializer<Object> ser;
         try {
             ser = _serializerFactory.createSerializer(this, type, beanDesc, null);
         } catch (IllegalArgumentException iae) {
@@ -921,11 +921,11 @@ public abstract class SerializerProvider
      * Alternative to {@link #_createAndCacheUntypedSerializer(Class, JavaType)}, used
      * when serializer is requested for given property.
      */
-    protected JsonSerializer<Object> _createAndCachePropertySerializer(Class<?> rawType,
+    protected ValueSerializer<Object> _createAndCachePropertySerializer(Class<?> rawType,
             JavaType fullType, BeanProperty prop)
     {
         BeanDescription beanDesc = introspectBeanDescription(fullType);
-        JsonSerializer<Object> ser;
+        ValueSerializer<Object> ser;
         try {
             ser = _serializerFactory.createSerializer(this, fullType, beanDesc, null);
         } catch (IllegalArgumentException iae) {
@@ -943,11 +943,11 @@ public abstract class SerializerProvider
      * Alternative to {@link #_createAndCacheUntypedSerializer(JavaType)}, used
      * when serializer is requested for given property.
      */
-    protected JsonSerializer<Object> _createAndCachePropertySerializer(JavaType type,
+    protected ValueSerializer<Object> _createAndCachePropertySerializer(JavaType type,
             BeanProperty prop)
     {
         BeanDescription beanDesc = introspectBeanDescription(type);
-        JsonSerializer<Object> ser;
+        ValueSerializer<Object> ser;
         try {
             ser = _serializerFactory.createSerializer(this, type, beanDesc, null);
         } catch (IllegalArgumentException iae) {
@@ -962,13 +962,13 @@ public abstract class SerializerProvider
     }
 
     @SuppressWarnings("unchecked")
-    private JsonSerializer<Object> _checkShapeShifting(JavaType type, BeanDescription beanDesc,
-            BeanProperty prop, JsonSerializer<?> ser)
+    private ValueSerializer<Object> _checkShapeShifting(JavaType type, BeanDescription beanDesc,
+            BeanProperty prop, ValueSerializer<?> ser)
     {
         JsonFormat.Value overrides = prop.findFormatOverrides(_config);
         if (overrides != null) {
             // First: it may be completely fine to use serializer, despite some overrides
-            JsonSerializer<?> ser2 = ser.withFormatOverrides(_config, overrides);
+            ValueSerializer<?> ser2 = ser.withFormatOverrides(_config, overrides);
             if (ser2 != null) {
                 ser = ser2;
             } else {
@@ -976,14 +976,14 @@ public abstract class SerializerProvider
                 ser = _serializerFactory.createSerializer(this, type, beanDesc, overrides);
             }
         }
-        return (JsonSerializer<Object>) ser;
+        return (ValueSerializer<Object>) ser;
     }
 
     @SuppressWarnings("unchecked")
-    protected JsonSerializer<Object> _handleResolvable(JsonSerializer<?> ser)
+    protected ValueSerializer<Object> _handleResolvable(ValueSerializer<?> ser)
     {
         ser.resolve(this);
-        return (JsonSerializer<Object>) ser;
+        return (ValueSerializer<Object>) ser;
     }
 
     /*
@@ -997,12 +997,12 @@ public abstract class SerializerProvider
      * either given a {@link Class} to instantiate (with default constructor),
      * or an uninitialized serializer instance.
      * Either way, serializer will be properly resolved
-     * (via {@link com.fasterxml.jackson.databind.JsonSerializer#resolve}).
+     * (via {@link com.fasterxml.jackson.databind.ValueSerializer#resolve}).
      * 
      * @param annotated Annotated entity that contained definition
      * @param serDef Serializer definition: either an instance or class
      */
-    public abstract JsonSerializer<Object> serializerInstance(Annotated annotated,
+    public abstract ValueSerializer<Object> serializerInstance(Annotated annotated,
             Object serDef);
 
     /**
@@ -1032,18 +1032,18 @@ public abstract class SerializerProvider
      * Method called for primary property serializers (ones
      * directly created to serialize values of a POJO property),
      * to handle details of contextualization, calling
-     * {@link JsonSerializer#createContextual(SerializerProvider, BeanProperty)} with given property context.
+     * {@link ValueSerializer#createContextual(SerializerProvider, BeanProperty)} with given property context.
      * 
      * @param property Property for which the given primary serializer is used; never null.
      */
     @SuppressWarnings("unchecked")
-    public JsonSerializer<Object> handlePrimaryContextualization(JsonSerializer<?> ser,
+    public ValueSerializer<Object> handlePrimaryContextualization(ValueSerializer<?> ser,
             BeanProperty property)
     {
         if (ser != null) {
             ser = ser.createContextual(this, property);
         }
-        return (JsonSerializer<Object>) ser;
+        return (ValueSerializer<Object>) ser;
     }
 
     /**
@@ -1052,7 +1052,7 @@ public abstract class SerializerProvider
      * but instead created as a dependant serializer -- such as value serializers
      * for structured types, or serializers for root values)
      * to handle details of contextualization, calling
-     * {@link JsonSerializer#createContextual(SerializerProvider, BeanProperty)} with given property context.
+     * {@link ValueSerializer#createContextual(SerializerProvider, BeanProperty)} with given property context.
      * Given that these serializers are not directly related to given property
      * (or, in case of root value property, to any property), annotations
      * accessible may or may not be relevant.
@@ -1061,25 +1061,25 @@ public abstract class SerializerProvider
      *    when deserializing root values
      */
     @SuppressWarnings("unchecked")
-    public JsonSerializer<Object> handleSecondaryContextualization(JsonSerializer<?> ser,
+    public ValueSerializer<Object> handleSecondaryContextualization(ValueSerializer<?> ser,
             BeanProperty property)
     {
         if (ser != null) {
             ser = ser.createContextual(this, property);
         }
-        return (JsonSerializer<Object>) ser;
+        return (ValueSerializer<Object>) ser;
     }
 
     /**
      * @since 3.0
      */
     @SuppressWarnings("unchecked")
-    public JsonSerializer<Object> handleRootContextualization(JsonSerializer<?> ser)
+    public ValueSerializer<Object> handleRootContextualization(ValueSerializer<?> ser)
     {
         if (ser != null) {
             ser = ser.createContextual(this, null);
         }
-        return (JsonSerializer<Object>) ser;
+        return (ValueSerializer<Object>) ser;
     }
 
     /*

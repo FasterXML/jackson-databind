@@ -21,13 +21,13 @@ public final class IndexedListSerializer
     extends AsArraySerializerBase<Object>
 {
     public IndexedListSerializer(JavaType elemType, boolean staticTyping, TypeSerializer vts,
-            JsonSerializer<Object> valueSerializer)
+            ValueSerializer<Object> valueSerializer)
     {
         super(List.class, elemType, staticTyping, vts, valueSerializer);
     }
 
     public IndexedListSerializer(IndexedListSerializer src,
-            TypeSerializer vts, JsonSerializer<?> valueSerializer,
+            TypeSerializer vts, ValueSerializer<?> valueSerializer,
             Boolean unwrapSingle, BeanProperty property) {
         super(src, vts, valueSerializer, unwrapSingle, property);
     }
@@ -40,7 +40,7 @@ public final class IndexedListSerializer
 
     @Override
     public IndexedListSerializer withResolved(BeanProperty property,
-            TypeSerializer vts, JsonSerializer<?> elementSerializer,
+            TypeSerializer vts, ValueSerializer<?> elementSerializer,
             Boolean unwrapSingle) {
         return new IndexedListSerializer(this, vts, elementSerializer, unwrapSingle, property);
     }
@@ -105,7 +105,7 @@ public final class IndexedListSerializer
                     ctxt.defaultSerializeNullValue(g);
                 } else {
                     Class<?> cc = elem.getClass();
-                    JsonSerializer<Object> serializer = _dynamicValueSerializers.serializerFor(cc);
+                    ValueSerializer<Object> serializer = _dynamicValueSerializers.serializerFor(cc);
                     if (serializer == null) {
                         // To fix [JACKSON-508]
                         if (_elementType.hasGenericTypes()) {
@@ -124,7 +124,7 @@ public final class IndexedListSerializer
     }
     
     public void serializeContentsUsing(List<?> value, JsonGenerator jgen, SerializerProvider provider,
-            JsonSerializer<Object> ser)
+            ValueSerializer<Object> ser)
         throws JacksonException
     {
         final int len = value.size();
@@ -166,7 +166,7 @@ public final class IndexedListSerializer
                     ctxt.defaultSerializeNullValue(g);
                 } else {
                     Class<?> cc = elem.getClass();
-                    JsonSerializer<Object> serializer = serializers.serializerFor(cc);
+                    ValueSerializer<Object> serializer = serializers.serializerFor(cc);
                     if (serializer == null) {
                         if (_elementType.hasGenericTypes()) {
                             serializer = _findAndAddDynamic(ctxt,

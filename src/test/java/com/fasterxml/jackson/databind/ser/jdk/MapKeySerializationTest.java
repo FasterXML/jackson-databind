@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 public class MapKeySerializationTest extends BaseMapTest
 {
-    static class KarlSerializer extends JsonSerializer<String>
+    static class KarlSerializer extends ValueSerializer<String>
     {
         @Override
         public void serialize(String value, JsonGenerator gen, SerializerProvider provider) {
@@ -85,7 +85,7 @@ public class MapKeySerializationTest extends BaseMapTest
         }
     }
 
-    static class ABCKeySerializer extends JsonSerializer<ABC> {
+    static class ABCKeySerializer extends ValueSerializer<ABC> {
         @Override
         public void serialize(ABC value, JsonGenerator gen,
                 SerializerProvider provider) {
@@ -93,7 +93,7 @@ public class MapKeySerializationTest extends BaseMapTest
         }
     }
 
-    static class NullKeySerializer extends JsonSerializer<Object>
+    static class NullKeySerializer extends ValueSerializer<Object>
     {
         private String _null;
         public NullKeySerializer(String s) { _null = s; }
@@ -103,7 +103,7 @@ public class MapKeySerializationTest extends BaseMapTest
         }
     }
 
-    static class NullValueSerializer extends JsonSerializer<Object>
+    static class NullValueSerializer extends ValueSerializer<Object>
     {
         private String _null;
         public NullValueSerializer(String s) { _null = s; }
@@ -113,7 +113,7 @@ public class MapKeySerializationTest extends BaseMapTest
         }
     }
 
-    static class DefaultKeySerializer extends JsonSerializer<Object>
+    static class DefaultKeySerializer extends ValueSerializer<Object>
     {
         @Override
         public void serialize(Object value, JsonGenerator g, SerializerProvider provider) {

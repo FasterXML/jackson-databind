@@ -43,11 +43,11 @@ public abstract class ArraySerializerBase<T>
         _unwrapSingle = unwrapSingle;
     }
 
-    public abstract JsonSerializer<?> _withResolved(BeanProperty prop,
+    public abstract ValueSerializer<?> _withResolved(BeanProperty prop,
             Boolean unwrapSingle);
 
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider serializers,
+    public ValueSerializer<?> createContextual(SerializerProvider serializers,
             BeanProperty property)
     {
         Boolean unwrapSingle = null;

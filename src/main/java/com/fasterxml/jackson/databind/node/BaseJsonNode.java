@@ -2,7 +2,7 @@ package com.fasterxml.jackson.databind.node;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.JsonSerializable;
+import com.fasterxml.jackson.databind.JacksonSerializable;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  * Abstract base class common to all standard {@link JsonNode}
  * implementations.
  * The main addition here is that we declare that sub-classes must
- * implement {@link JsonSerializable}.
+ * implement {@link JacksonSerializable}.
  * This simplifies object mapping aspects a bit, as no external serializers are needed.
  *<p>
  * Note that support for {@link java.io.Serializable} is added here and so all subtypes
@@ -113,7 +113,7 @@ public abstract class BaseJsonNode
 
     /*
     /**********************************************************
-    /* JsonSerializable
+    /* JacksonSerializable
     /**********************************************************
      */
 

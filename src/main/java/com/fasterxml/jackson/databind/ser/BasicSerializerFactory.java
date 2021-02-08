@@ -29,7 +29,7 @@ import com.fasterxml.jackson.databind.ext.jdk8.Jdk8StreamSerializer;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.jackson.JsonValueSerializer;
-import com.fasterxml.jackson.databind.ser.jackson.JsonSerializableSerializer;
+import com.fasterxml.jackson.databind.ser.jackson.JacksonSerializableSerializer;
 import com.fasterxml.jackson.databind.ser.jdk.*;
 import com.fasterxml.jackson.databind.ser.std.*;
 import com.fasterxml.jackson.databind.type.*;
@@ -296,12 +296,12 @@ public abstract class BasicSerializerFactory
 
     /**
      * Method called to see if one of primary per-class annotations
-     * (or related, like implementing of {@link JsonSerializable})
+     * (or related, like implementing of {@link JacksonSerializable})
      * determines the serializer to use.
      *<p>
      * Currently handles things like:
      *<ul>
-     * <li>If type implements {@link JsonSerializable}, use that
+     * <li>If type implements {@link JacksonSerializable}, use that
      *  </li>
      * <li>If type has {@link com.fasterxml.jackson.annotation.JsonValue} annotation (or equivalent), build serializer
      *    based on that property
@@ -312,9 +312,9 @@ public abstract class BasicSerializerFactory
             JavaType type, BeanDescription beanDesc)
     {
         Class<?> raw = type.getRawClass();
-        // First: JsonSerializable?
-        if (JsonSerializable.class.isAssignableFrom(raw)) {
-            return JsonSerializableSerializer.instance;
+        // First: serializable by Jackson-specific interface?
+        if (JacksonSerializable.class.isAssignableFrom(raw)) {
+            return JacksonSerializableSerializer.instance;
         }
         // Second: @JsonValue for any type
         AnnotatedMember valueAccessor = beanDesc.findJsonValueAccessor();

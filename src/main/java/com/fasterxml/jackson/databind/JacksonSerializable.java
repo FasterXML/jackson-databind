@@ -13,11 +13,13 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  * so -- if class is a bean, it can be serialized without
  * implementing this interface.
  *<p>
- * Note that while it is possible to just directly implement {@link JsonSerializable},
+ * Note that while it is possible to just directly implement {@link JacksonSerializable},
  * actual implementations are strongly recommended to instead extend
- * {@link JsonSerializable.Base}.
+ * {@link JacksonSerializable.Base}.
+ *<p>
+ * NOTE: in Jackson 2.x this type was named {@code JsonSerializable}
  */
-public interface JsonSerializable
+public interface JacksonSerializable
 {
     /**
      * Serialization method called when no additional type information is
@@ -47,9 +49,9 @@ public interface JsonSerializable
      * Base class with minimal implementation, as well as couple of extension methods
      * that core Jackson databinding makes use of.
      * Use of this base class is strongly recommended over directly implementing
-     * {@link JsonSerializable}.
+     * {@link JacksonSerializable}.
      */
-    public abstract static class Base implements JsonSerializable
+    public abstract static class Base implements JacksonSerializable
     {
         /**
          * Method that may be called on instance to determine if it is considered

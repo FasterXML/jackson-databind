@@ -45,5 +45,6 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #3028: Change `UUIDSerializer` to use `StreamWriteCapability` check instead of
   `JsonGenerator.canWriteBinaryNatively()`
 #3037: Rename `Module` as `JacksonModule` in 3.0 (to avoid overlap with `java.lang.Module`)
+#3046: Rename `JsonSerializable` as `JacksonSerializable` in 3.0
 - Remove `MappingJsonFactory`
 - Add context parameter for `TypeSerializer` contextualization (`forProperty()`)

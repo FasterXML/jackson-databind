@@ -502,7 +502,7 @@ public class TokenBuffer
                     //    first
                     if (value instanceof RawValue) {
                         ((RawValue) value).serialize(gen);
-                    } else if (value instanceof JsonSerializable) {
+                    } else if (value instanceof JacksonSerializable) {
                         gen.writePOJO(value);
                     } else {
                         gen.writeEmbeddedObject(value);

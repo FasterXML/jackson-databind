@@ -63,7 +63,7 @@ public class ArrayNode
 
     /*
     /**********************************************************
-    /* Overrides for JsonSerializable.Base
+    /* Overrides for JacksonSerializable.Base
     /**********************************************************
      */
 
@@ -169,7 +169,7 @@ public class ArrayNode
         final int size = c.size();
         f.writeStartArray(this, size);
         for (int i = 0; i < size; ++i) { // we'll typically have array list
-            // For now, assuming it's either BaseJsonNode, JsonSerializable
+            // For now, assuming it's either BaseJsonNode, JacksonSerializable
             JsonNode n = c.get(i);
             ((BaseJsonNode) n).serialize(f, provider);
         }

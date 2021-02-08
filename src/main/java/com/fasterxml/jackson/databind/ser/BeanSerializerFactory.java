@@ -204,7 +204,7 @@ public class BeanSerializerFactory
                     }
                 }
             }
-            // 25-Jun-2015, tatu: Then JsonSerializable, @JsonValue etc. NOTE! Prior to 2.6,
+            // 25-Jun-2015, tatu: Then JacksonSerializable, @JsonValue etc. NOTE! Prior to 2.6,
             //    this call was BEFORE custom serializer lookup, which was wrong.
             if (ser == null) {
                 ser = findSerializerByAnnotations(ctxt, type, beanDesc);
@@ -213,7 +213,7 @@ public class BeanSerializerFactory
         
         if (ser == null) {
             // Otherwise, we will check "primary types"; both marker types that
-            // indicate specific handling (JsonSerializable), or main types that have
+            // indicate specific handling (JacksonSerializable), or main types that have
             // precedence over container types
             ser = findSerializerByLookup(type, config, beanDesc, formatOverrides, staticTyping);
             if (ser == null) {

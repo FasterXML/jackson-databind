@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.util;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.JsonSerializable;
+import com.fasterxml.jackson.databind.JacksonSerializable;
 
 public class RawValueTest extends BaseMapTest
 {
@@ -17,7 +17,7 @@ public class RawValueTest extends BaseMapTest
         assertFalse(raw1.equals(raw2));
         assertFalse(raw1.equals(null));
 
-        assertFalse(new RawValue((JsonSerializable) null).equals(raw1));
+        assertFalse(new RawValue((JacksonSerializable) null).equals(raw1));
 
         assertNotNull(raw1.toString());
     }

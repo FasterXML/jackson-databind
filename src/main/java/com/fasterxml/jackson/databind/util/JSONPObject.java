@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  * @see com.fasterxml.jackson.databind.util.JSONWrappedObject
  */
 public class JSONPObject
-    implements JsonSerializable
+    implements JacksonSerializable
 {
     /**
      * JSONP function name to use for serialization
@@ -46,9 +46,9 @@ public class JSONPObject
     }
     
     /*
-    /**********************************************************
-    /* JsonSerializable(WithType) implementation
-    /**********************************************************
+    /**********************************************************************
+    /* JacksonSerializable implementation
+    /**********************************************************************
      */
 
     @Override
@@ -94,9 +94,9 @@ public class JSONPObject
     }
 
     /*
-    /**************************************************************
+    /**********************************************************************
     /* Accessors
-    /**************************************************************
+    /**********************************************************************
      */
     
     public String getFunction() { return _function; }

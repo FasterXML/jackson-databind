@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  * 
  * @see com.fasterxml.jackson.databind.util.JSONPObject
  */
-public class JSONWrappedObject implements JsonSerializable
+public class JSONWrappedObject implements JacksonSerializable
 {
     /**
      * Literal String to output before serialized value.
@@ -59,7 +59,7 @@ public class JSONWrappedObject implements JsonSerializable
     
     /*
     /**********************************************************************
-    /* JsonSerializable implementation
+    /* JacksonSerializable implementation
     /**********************************************************************
      */
 

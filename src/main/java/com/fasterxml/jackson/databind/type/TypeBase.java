@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
 public abstract class TypeBase
     extends JavaType
-    implements JsonSerializable
+    implements JacksonSerializable
 {
     private static final long serialVersionUID = 1;
 
@@ -148,7 +148,7 @@ public abstract class TypeBase
     
     /*
     /**********************************************************
-    /* JsonSerializable base implementation
+    /* JacksonSerializable base implementation
     /**********************************************************
      */
 

@@ -59,7 +59,7 @@ public class EnumSerializationTest
         @JsonValue public String toString();
     }
 
-    protected static enum SerializableEnum implements JsonSerializable
+    protected static enum SerializableEnum implements JacksonSerializable
     {
         A, B, C;
 

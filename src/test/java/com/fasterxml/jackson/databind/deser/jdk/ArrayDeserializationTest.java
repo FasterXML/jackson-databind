@@ -57,7 +57,7 @@ public class ArrayDeserializationTest
      * constructor.
      */
     public final static class Bean2
-        implements JsonSerializable // so we can output as simple String
+        implements JacksonSerializable // so we can output as simple String
     {
         final String _desc;
 

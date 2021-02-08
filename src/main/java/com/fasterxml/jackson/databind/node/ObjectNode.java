@@ -57,7 +57,7 @@ public class ObjectNode
 
     /*
     /**********************************************************
-    /* Overrides for JsonSerializable.Base
+    /* Overrides for JacksonSerializable.Base
     /**********************************************************
      */
 
@@ -307,7 +307,7 @@ public class ObjectNode
         for (Map.Entry<String, JsonNode> en : _children.entrySet()) {
             /* 17-Feb-2009, tatu: Can we trust that all nodes will always
              *   extend BaseJsonNode? Or if not, at least implement
-             *   JsonSerializable? Let's start with former, change if
+             *   JacksonSerializable? Let's start with former, change if
              *   we must.
              */
             BaseJsonNode value = (BaseJsonNode) en.getValue();

@@ -2,7 +2,7 @@ package com.fasterxml.jackson.databind.node;
 
 import com.fasterxml.jackson.core.*;
 
-import com.fasterxml.jackson.databind.JsonSerializable;
+import com.fasterxml.jackson.databind.JacksonSerializable;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
 /**
@@ -109,8 +109,8 @@ public class POJONode
     {
         if (_value == null) {
             ctxt.defaultSerializeNullValue(gen);
-        } else if (_value instanceof JsonSerializable) {
-            ((JsonSerializable) _value).serialize(gen, ctxt);
+        } else if (_value instanceof JacksonSerializable) {
+            ((JacksonSerializable) _value).serialize(gen, ctxt);
         } else {
             // 25-May-2018, tatu: [databind#1991] do not call via generator but through context;
             //    this to preserve contextual information

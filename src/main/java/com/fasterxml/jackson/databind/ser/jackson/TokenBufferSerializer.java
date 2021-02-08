@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
 /**
  * We also want to directly support serialization of {@link TokenBuffer};
  * and since it is part of core package, it cannot implement
- * {@link com.fasterxml.jackson.databind.JsonSerializable}
+ * {@link com.fasterxml.jackson.databind.JacksonSerializable}
  * (which is only included in the mapper package)
  */
 @JacksonStdImpl

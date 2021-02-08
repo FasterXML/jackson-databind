@@ -81,7 +81,7 @@ public class TestConversions extends BaseMapTest
     }
 
     // [databind#433]
-    static class CustomSerializedPojo implements JsonSerializable
+    static class CustomSerializedPojo implements JacksonSerializable
     {
         private final ObjectNode node = JsonNodeFactory.instance.objectNode();
 

@@ -36,7 +36,7 @@ public final class StringArrayDeserializer
     /**
      * Value serializer to use, if not the standard one (which is inlined)
      */
-    protected JsonDeserializer<String> _elementDeserializer;
+    protected ValueDeserializer<String> _elementDeserializer;
 
     /**
      * Handler we need for dealing with nulls.
@@ -65,10 +65,10 @@ public final class StringArrayDeserializer
     }
 
     @SuppressWarnings("unchecked")
-    protected StringArrayDeserializer(JsonDeserializer<?> deser,
+    protected StringArrayDeserializer(ValueDeserializer<?> deser,
             NullValueProvider nuller, Boolean unwrapSingle) {
         super(String[].class);
-        _elementDeserializer = (JsonDeserializer<String>) deser;
+        _elementDeserializer = (ValueDeserializer<String>) deser;
         _nullProvider = nuller;
         _unwrapSingle = unwrapSingle;
         _skipNullValues = NullsConstantProvider.isSkipper(nuller);
@@ -100,9 +100,9 @@ public final class StringArrayDeserializer
      * of String values, or if we have to use separate value deserializer.
      */
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
     {
-        JsonDeserializer<?> deser = _elementDeserializer;
+        ValueDeserializer<?> deser = _elementDeserializer;
         // May have a content converter
         deser = findConvertingContentDeserializer(ctxt, property, deser);
         JavaType type = ctxt.constructType(String.class);
@@ -192,7 +192,7 @@ public final class StringArrayDeserializer
             chunk = buffer.resetAndStart(old, ix);
         }
         
-        final JsonDeserializer<String> deser = _elementDeserializer;
+        final ValueDeserializer<String> deser = _elementDeserializer;
 
         try {
             while (true) {

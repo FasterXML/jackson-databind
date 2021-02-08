@@ -19,13 +19,13 @@ public class ArrayBlockingQueueDeserializer
     extends CollectionDeserializer
 {
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
      public ArrayBlockingQueueDeserializer(JavaType containerType,
-            JsonDeserializer<Object> valueDeser, TypeDeserializer valueTypeDeser,
+            ValueDeserializer<Object> valueDeser, TypeDeserializer valueTypeDeser,
             ValueInstantiator valueInstantiator)
     {
         super(containerType, valueDeser, valueTypeDeser, valueInstantiator);
@@ -35,9 +35,9 @@ public class ArrayBlockingQueueDeserializer
      * Constructor used when creating contextualized instances.
      */
      protected ArrayBlockingQueueDeserializer(JavaType containerType,
-            JsonDeserializer<Object> valueDeser, TypeDeserializer valueTypeDeser,
+            ValueDeserializer<Object> valueDeser, TypeDeserializer valueTypeDeser,
             ValueInstantiator valueInstantiator,
-            JsonDeserializer<Object> delegateDeser,
+            ValueDeserializer<Object> delegateDeser,
             NullValueProvider nuller, Boolean unwrapSingle)
     {
         super(containerType, valueDeser, valueTypeDeser, valueInstantiator, delegateDeser,
@@ -57,20 +57,20 @@ public class ArrayBlockingQueueDeserializer
      */
     @Override
     @SuppressWarnings("unchecked")
-    protected ArrayBlockingQueueDeserializer withResolved(JsonDeserializer<?> dd,
-            JsonDeserializer<?> vd, TypeDeserializer vtd,
+    protected ArrayBlockingQueueDeserializer withResolved(ValueDeserializer<?> dd,
+            ValueDeserializer<?> vd, TypeDeserializer vtd,
             NullValueProvider nuller, Boolean unwrapSingle)
     {
         return new ArrayBlockingQueueDeserializer(_containerType,
-                (JsonDeserializer<Object>) vd, vtd,
-                _valueInstantiator, (JsonDeserializer<Object>) dd,
+                (ValueDeserializer<Object>) vd, vtd,
+                _valueInstantiator, (ValueDeserializer<Object>) dd,
                 nuller, unwrapSingle);
     }
 
     /*
-    /**********************************************************
-    /* JsonDeserializer API
-    /**********************************************************
+    /**********************************************************************
+    /* ValueDeserializer API
+    /**********************************************************************
      */
 
     @Override

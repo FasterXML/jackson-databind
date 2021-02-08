@@ -41,7 +41,7 @@ public class ThrowableDeserializer
     }
 
     @Override
-    public JsonDeserializer<Object> unwrappingDeserializer(DeserializationContext ctxt,
+    public ValueDeserializer<Object> unwrappingDeserializer(DeserializationContext ctxt,
             NameTransformer transformer)
     {
         if (getClass() != ThrowableDeserializer.class) {

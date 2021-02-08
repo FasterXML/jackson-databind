@@ -27,7 +27,7 @@ import com.fasterxml.jackson.databind.util.FullyNamed;
  * and deserializers, but rather only passed when context
  * is known and
  * {@link JsonSerializer#createContextual} and
- * {@link JsonDeserializer#createContextual} are called.
+ * {@link ValueDeserializer#createContextual} are called.
  * References may (need to) be retained by serializers and deserializers,
  * especially when further resolving dependent handlers like value
  * serializers/deserializers or structured types.

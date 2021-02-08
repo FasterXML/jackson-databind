@@ -26,7 +26,7 @@ public class EnumSetDeserializer
 {
     protected final JavaType _enumType;
 
-    protected JsonDeserializer<Enum<?>> _enumDeserializer;
+    protected ValueDeserializer<Enum<?>> _enumDeserializer;
 
     /**
      * Handler we need for dealing with nulls.
@@ -53,7 +53,7 @@ public class EnumSetDeserializer
      */
 
     @SuppressWarnings("unchecked" )
-    public EnumSetDeserializer(JavaType enumType, JsonDeserializer<?> deser)
+    public EnumSetDeserializer(JavaType enumType, ValueDeserializer<?> deser)
     {
         super(EnumSet.class);
         _enumType = enumType;
@@ -61,7 +61,7 @@ public class EnumSetDeserializer
         if (!enumType.isEnumType()) {
             throw new IllegalArgumentException("Type "+enumType+" not Java Enum type");
         }
-        _enumDeserializer = (JsonDeserializer<Enum<?>>) deser;
+        _enumDeserializer = (ValueDeserializer<Enum<?>>) deser;
         _unwrapSingle = null;
         _nullProvider = null;
         _skipNullValues = false;
@@ -69,16 +69,16 @@ public class EnumSetDeserializer
 
     @SuppressWarnings("unchecked" )
     protected EnumSetDeserializer(EnumSetDeserializer base,
-            JsonDeserializer<?> deser, NullValueProvider nuller, Boolean unwrapSingle) {
+            ValueDeserializer<?> deser, NullValueProvider nuller, Boolean unwrapSingle) {
         super(base);
         _enumType = base._enumType;
-        _enumDeserializer = (JsonDeserializer<Enum<?>>) deser;
+        _enumDeserializer = (ValueDeserializer<Enum<?>>) deser;
         _nullProvider = nuller;
         _skipNullValues = NullsConstantProvider.isSkipper(nuller);
         _unwrapSingle = unwrapSingle;
     }
 
-    public EnumSetDeserializer withDeserializer(JsonDeserializer<?> deser) {
+    public EnumSetDeserializer withDeserializer(ValueDeserializer<?> deser) {
         if (_enumDeserializer == deser) {
             return this;
         }
@@ -86,14 +86,14 @@ public class EnumSetDeserializer
     }
 
     @Deprecated // since 2.10.1
-    public EnumSetDeserializer withResolved(JsonDeserializer<?> deser, Boolean unwrapSingle) {
+    public EnumSetDeserializer withResolved(ValueDeserializer<?> deser, Boolean unwrapSingle) {
         return withResolved(deser, _nullProvider, unwrapSingle);
     }
 
     /**
      * @since 2.10.1
      */
-    public EnumSetDeserializer withResolved(JsonDeserializer<?> deser, NullValueProvider nuller,
+    public EnumSetDeserializer withResolved(ValueDeserializer<?> deser, NullValueProvider nuller,
             Boolean unwrapSingle) {
         if ((Objects.equals(_unwrapSingle, unwrapSingle)) && (_enumDeserializer == deser) && (_nullProvider == deser)) {
             return this;
@@ -147,7 +147,7 @@ public class EnumSetDeserializer
      */
 
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property)
     {
         // 07-May-2020, tatu: Is the argument `EnumSet.class` correct here?
@@ -155,7 +155,7 @@ public class EnumSetDeserializer
         //    (as it's individual value of element type, not Container)...
         final Boolean unwrapSingle = findFormatFeature(ctxt, property, EnumSet.class,
                 JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
-        JsonDeserializer<?> deser = _enumDeserializer;
+        ValueDeserializer<?> deser = _enumDeserializer;
         if (deser == null) {
             deser = ctxt.findContextualValueDeserializer(_enumType, property);
         } else { // if directly assigned, probably not yet contextual, so:
@@ -166,7 +166,7 @@ public class EnumSetDeserializer
 
     /*
     /**********************************************************************
-    /* JsonDeserializer API
+    /* ValueDeserializer API
     /**********************************************************************
      */
 

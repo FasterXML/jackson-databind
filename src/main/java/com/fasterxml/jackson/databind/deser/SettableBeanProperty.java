@@ -31,7 +31,7 @@ public abstract class SettableBeanProperty
      * To avoid nasty NPEs, let's use a placeholder for _valueDeserializer,
      * if real deserializer is not (yet) available.
      */
-    protected static final JsonDeserializer<Object> MISSING_VALUE_DESERIALIZER = new FailingDeserializer(
+    protected static final ValueDeserializer<Object> MISSING_VALUE_DESERIALIZER = new FailingDeserializer(
             "No _valueDeserializer assigned");
 
     /**
@@ -57,7 +57,7 @@ public abstract class SettableBeanProperty
     /**
      * Deserializer used for handling property value.
      */
-    protected final JsonDeserializer<Object> _valueDeserializer;
+    protected final ValueDeserializer<Object> _valueDeserializer;
 
     /**
      * If value will contain type information (to support
@@ -160,7 +160,7 @@ public abstract class SettableBeanProperty
      * Constructor only used by {@link com.fasterxml.jackson.databind.deser.impl.ObjectIdValueProperty}.
      */
     protected SettableBeanProperty(PropertyName propName, JavaType type, 
-            PropertyMetadata metadata, JsonDeserializer<Object> valueDeser)
+            PropertyMetadata metadata, ValueDeserializer<Object> valueDeser)
     {
         super(metadata);
         // as with above ctor, intern()ing probably fine
@@ -202,7 +202,7 @@ public abstract class SettableBeanProperty
      */
     @SuppressWarnings("unchecked")
     protected SettableBeanProperty(SettableBeanProperty src,
-            JsonDeserializer<?> deser, NullValueProvider nuller)
+            ValueDeserializer<?> deser, NullValueProvider nuller)
     {
         super(src);
         _propName = src._propName;
@@ -216,7 +216,7 @@ public abstract class SettableBeanProperty
         if (deser == null) {
             _valueDeserializer = MISSING_VALUE_DESERIALIZER;
         } else {
-            _valueDeserializer = (JsonDeserializer<Object>) deser;
+            _valueDeserializer = (ValueDeserializer<Object>) deser;
         }
         _viewMatcher = src._viewMatcher;
         // 29-Jan-2017, tatu: Bit messy, but for now has to do...
@@ -276,7 +276,7 @@ public abstract class SettableBeanProperty
      * @return Newly constructed instance, if value deserializer differs from the
      *   one used for this instance; or 'this' if not.
      */
-    public abstract SettableBeanProperty withValueDeserializer(JsonDeserializer<?> deser);
+    public abstract SettableBeanProperty withValueDeserializer(ValueDeserializer<?> deser);
 
     /**
      * Fluent factory method for constructing and returning a new instance
@@ -411,8 +411,8 @@ public abstract class SettableBeanProperty
 
     public boolean hasValueTypeDeserializer() { return (_valueTypeDeserializer != null); }
 
-    public JsonDeserializer<Object> getValueDeserializer() {
-        JsonDeserializer<Object> deser = _valueDeserializer;
+    public ValueDeserializer<Object> getValueDeserializer() {
+        ValueDeserializer<Object> deser = _valueDeserializer;
         if (deser == MISSING_VALUE_DESERIALIZER) {
             return null;
         }
@@ -654,7 +654,7 @@ public abstract class SettableBeanProperty
         }
         
         @Override
-        public SettableBeanProperty withValueDeserializer(JsonDeserializer<?> deser) {
+        public SettableBeanProperty withValueDeserializer(ValueDeserializer<?> deser) {
             return _with(delegate.withValueDeserializer(deser));
         }
 
@@ -700,7 +700,7 @@ public abstract class SettableBeanProperty
         public boolean hasValueTypeDeserializer() { return delegate.hasValueTypeDeserializer(); }
         
         @Override
-        public JsonDeserializer<Object> getValueDeserializer() { return delegate.getValueDeserializer(); }
+        public ValueDeserializer<Object> getValueDeserializer() { return delegate.getValueDeserializer(); }
 
         @Override
         public TypeDeserializer getValueTypeDeserializer() { return delegate.getValueTypeDeserializer(); }

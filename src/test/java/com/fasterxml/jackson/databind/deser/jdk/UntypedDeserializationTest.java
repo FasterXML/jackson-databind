@@ -66,12 +66,12 @@ public class UntypedDeserializationTest
         }
 
         @Override
-        public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
+        public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
                 BeanProperty property)
         {
             // For now, we just need to access "untyped" deserializer; not use it.
             
-            /*JsonDeserializer<Object> ob = */
+            /*ValueDeserializer<Object> ob = */
             ctxt.findContextualValueDeserializer(ctxt.constructType(Object.class), property);
             return this;
         }

@@ -40,7 +40,7 @@ public class UnknownPropertyDeserTest
     {
         @Override
         public boolean handleUnknownProperty(DeserializationContext ctxt,
-                JsonParser jp, JsonDeserializer<?> deserializer,
+                JsonParser jp, ValueDeserializer<?> deserializer,
                 Object bean, String propertyName)
         {
             // very simple, just to verify that we do see correct token type
@@ -270,7 +270,7 @@ public class UnknownPropertyDeserTest
                 .addHandler(new DeserializationProblemHandler() {
                     @Override
                     public boolean handleUnknownProperty(DeserializationContext ctxt, JsonParser p,
-                            JsonDeserializer<?> deserializer, Object beanOrClass, String propertyName) {
+                            ValueDeserializer<?> deserializer, Object beanOrClass, String propertyName) {
                         p.skipChildren();
                         return true;
                     }

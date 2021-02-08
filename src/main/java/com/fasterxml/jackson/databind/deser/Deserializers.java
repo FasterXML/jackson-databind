@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.type.*;
 /**
  * Interface that defines API for simple extensions that can provide additional deserializers
  * for various types. Access is by a single callback method; instance is to either return
- * a configured {@link JsonDeserializer} for specified type, or null to indicate that it
+ * a configured {@link ValueDeserializer} for specified type, or null to indicate that it
  * does not support handling of the type. In latter case, further calls can be made
  * for other providers; in former case returned deserializer is used for handling of
  * instances of specified type.
@@ -29,7 +29,7 @@ public interface Deserializers
      * 
      * @return Deserializer to use for the type; or null if this provider does not know how to construct it
      */
-    public JsonDeserializer<?> findEnumDeserializer(Class<?> type,
+    public ValueDeserializer<?> findEnumDeserializer(Class<?> type,
             DeserializationConfig config, BeanDescription beanDesc);
 
     /**
@@ -41,7 +41,7 @@ public interface Deserializers
      * 
      * @return Deserializer to use for the type; or null if this provider does not know how to construct it
      */
-    public JsonDeserializer<?> findTreeNodeDeserializer(Class<? extends JsonNode> nodeType,
+    public ValueDeserializer<?> findTreeNodeDeserializer(Class<? extends JsonNode> nodeType,
             DeserializationConfig config, BeanDescription beanDesc);
 
     /**
@@ -55,7 +55,7 @@ public interface Deserializers
      * 
      * @return Deserializer to use for the type; or null if this provider does not know how to construct it
      */
-    public JsonDeserializer<?> findBeanDeserializer(JavaType type,
+    public ValueDeserializer<?> findBeanDeserializer(JavaType type,
             DeserializationConfig config, BeanDescription beanDesc);
     
     // // // Then container types
@@ -74,9 +74,9 @@ public interface Deserializers
      * 
      * @return Deserializer to use for the type; or null if this provider does not know how to construct it
      */
-    public JsonDeserializer<?> findReferenceDeserializer(ReferenceType refType,
+    public ValueDeserializer<?> findReferenceDeserializer(ReferenceType refType,
             DeserializationConfig config, BeanDescription beanDesc,
-            TypeDeserializer contentTypeDeserializer, JsonDeserializer<?> contentDeserializer);
+            TypeDeserializer contentTypeDeserializer, ValueDeserializer<?> contentDeserializer);
 
     /**
      * Method called to locate deserializer for specified array type.
@@ -99,9 +99,9 @@ public interface Deserializers
      * 
      * @return Deserializer to use for the type; or null if this provider does not know how to construct it
      */
-    public JsonDeserializer<?> findArrayDeserializer(ArrayType type,
+    public ValueDeserializer<?> findArrayDeserializer(ArrayType type,
             DeserializationConfig config, BeanDescription beanDesc,
-            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer);
+            TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer);
 
     /**
      * Method called to locate deserializer for specified {@link java.util.Collection} (List, Set etc) type.
@@ -124,9 +124,9 @@ public interface Deserializers
      * 
      * @return Deserializer to use for the type; or null if this provider does not know how to construct it
      */
-    public JsonDeserializer<?> findCollectionDeserializer(CollectionType type,
+    public ValueDeserializer<?> findCollectionDeserializer(CollectionType type,
             DeserializationConfig config, BeanDescription beanDesc,
-            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer);
+            TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer);
 
     /**
      * Method called to locate deserializer for specified
@@ -151,9 +151,9 @@ public interface Deserializers
      * 
      * @return Deserializer to use for the type; or null if this provider does not know how to construct it
      */
-    public JsonDeserializer<?> findCollectionLikeDeserializer(CollectionLikeType type,
+    public ValueDeserializer<?> findCollectionLikeDeserializer(CollectionLikeType type,
             DeserializationConfig config, BeanDescription beanDesc,
-            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer);
+            TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer);
 
     /**
      * Method called to locate deserializer for specified {@link java.util.Map} type.
@@ -183,10 +183,10 @@ public interface Deserializers
      * 
      * @return Deserializer to use for the type; or null if this provider does not know how to construct it
      */
-    public JsonDeserializer<?> findMapDeserializer(MapType type,
+    public ValueDeserializer<?> findMapDeserializer(MapType type,
             DeserializationConfig config, BeanDescription beanDesc,
             KeyDeserializer keyDeserializer,
-            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer);
+            TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer);
 
     /**
      * Method called to locate deserializer for specified
@@ -218,10 +218,10 @@ public interface Deserializers
      * 
      * @return Deserializer to use for the type; or null if this provider does not know how to construct it
      */
-    public JsonDeserializer<?> findMapLikeDeserializer(MapLikeType type,
+    public ValueDeserializer<?> findMapLikeDeserializer(MapLikeType type,
             DeserializationConfig config, BeanDescription beanDesc,
             KeyDeserializer keyDeserializer,
-            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer);
+            TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer);
 
     /**
      * Method that may be called to check whether this deserializer provider would provide
@@ -257,72 +257,72 @@ public interface Deserializers
         implements Deserializers
     {
         @Override
-        public JsonDeserializer<?> findEnumDeserializer(Class<?> type,
+        public ValueDeserializer<?> findEnumDeserializer(Class<?> type,
                 DeserializationConfig config, BeanDescription beanDesc)
         {
             return null;
         }
         
         @Override
-        public JsonDeserializer<?> findTreeNodeDeserializer(Class<? extends JsonNode> nodeType,
+        public ValueDeserializer<?> findTreeNodeDeserializer(Class<? extends JsonNode> nodeType,
                 DeserializationConfig config, BeanDescription beanDesc)
         {
             return null;
         }
 
         @Override
-        public JsonDeserializer<?> findReferenceDeserializer(ReferenceType refType,
+        public ValueDeserializer<?> findReferenceDeserializer(ReferenceType refType,
                 DeserializationConfig config, BeanDescription beanDesc,
-                TypeDeserializer contentTypeDeserializer, JsonDeserializer<?> contentDeserializer)
+                TypeDeserializer contentTypeDeserializer, ValueDeserializer<?> contentDeserializer)
         {
             return null;
         }
         
         @Override
-        public JsonDeserializer<?> findBeanDeserializer(JavaType type,
+        public ValueDeserializer<?> findBeanDeserializer(JavaType type,
                 DeserializationConfig config, BeanDescription beanDesc)
         {
             return null;
         }
         
         @Override
-        public JsonDeserializer<?> findArrayDeserializer(ArrayType type,
+        public ValueDeserializer<?> findArrayDeserializer(ArrayType type,
                 DeserializationConfig config, BeanDescription beanDesc,
-                TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
+                TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer)
         {
             return null;
         }
 
         @Override
-        public JsonDeserializer<?> findCollectionDeserializer(CollectionType type,
+        public ValueDeserializer<?> findCollectionDeserializer(CollectionType type,
                 DeserializationConfig config, BeanDescription beanDesc,
-                TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
+                TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer)
         {
             return null;
         }
 
         @Override
-        public JsonDeserializer<?> findCollectionLikeDeserializer(CollectionLikeType type,
+        public ValueDeserializer<?> findCollectionLikeDeserializer(CollectionLikeType type,
                 DeserializationConfig config, BeanDescription beanDesc,
-                TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
+                TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer)
         {
             return null;
         }
 
         @Override
-        public JsonDeserializer<?> findMapDeserializer(MapType type,
+        public ValueDeserializer<?> findMapDeserializer(MapType type,
                 DeserializationConfig config, BeanDescription beanDesc,
                 KeyDeserializer keyDeserializer,
-                TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
+                TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer)
         {
             return null;
         }
 
         @Override
-        public JsonDeserializer<?> findMapLikeDeserializer(MapLikeType type,
+        public ValueDeserializer<?> findMapLikeDeserializer(MapLikeType type,
                 DeserializationConfig config, BeanDescription beanDesc,
                 KeyDeserializer keyDeserializer,
-                TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
+                TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer)
         {
             return null;
         }

@@ -41,7 +41,7 @@ public final class SetterlessProperty
         _getter = method.getAnnotated();
     }
 
-    protected SetterlessProperty(SetterlessProperty src, JsonDeserializer<?> deser,
+    protected SetterlessProperty(SetterlessProperty src, ValueDeserializer<?> deser,
             NullValueProvider nva) {
         super(src, deser, nva);
         _annotated = src._annotated;
@@ -60,7 +60,7 @@ public final class SetterlessProperty
     }
 
     @Override
-    public SettableBeanProperty withValueDeserializer(JsonDeserializer<?> deser) {
+    public SettableBeanProperty withValueDeserializer(ValueDeserializer<?> deser) {
         if (_valueDeserializer == deser) {
             return this;
         }

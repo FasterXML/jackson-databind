@@ -18,17 +18,17 @@ import com.fasterxml.jackson.databind.type.LogicalType;
  * root values.
  */
 public final class TypeWrappedDeserializer
-    extends JsonDeserializer<Object>
+    extends ValueDeserializer<Object>
 {
     final protected TypeDeserializer _typeDeserializer;
-    final protected JsonDeserializer<Object> _deserializer;
+    final protected ValueDeserializer<Object> _deserializer;
 
     @SuppressWarnings("unchecked")
-    public TypeWrappedDeserializer(TypeDeserializer typeDeser, JsonDeserializer<?> deser)
+    public TypeWrappedDeserializer(TypeDeserializer typeDeser, ValueDeserializer<?> deser)
     {
         super();
         _typeDeserializer = typeDeser;
-        _deserializer = (JsonDeserializer<Object>) deser;
+        _deserializer = (ValueDeserializer<Object>) deser;
     }
 
     @Override // since 2.12
@@ -47,7 +47,7 @@ public final class TypeWrappedDeserializer
     }
     
     @Override
-    public JsonDeserializer<?> getDelegatee() {
+    public ValueDeserializer<?> getDelegatee() {
         return _deserializer.getDelegatee();
     }
 

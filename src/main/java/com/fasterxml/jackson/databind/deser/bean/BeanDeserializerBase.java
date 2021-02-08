@@ -67,7 +67,7 @@ public abstract class BeanDeserializerBase
      * NOTE: cannot be {@code final} because we need to get it during
      * {@code resolve()} method (and not contextualization).
      */
-    protected JsonDeserializer<Object> _delegateDeserializer;
+    protected ValueDeserializer<Object> _delegateDeserializer;
 
     /**
      * Deserializer that is used iff array-delegate-based creator
@@ -76,7 +76,7 @@ public abstract class BeanDeserializerBase
      * NOTE: cannot be {@code final} because we need to get it during
      * {@code resolve()} method (and not contextualization).
      */
-    protected JsonDeserializer<Object> _arrayDelegateDeserializer;
+    protected ValueDeserializer<Object> _arrayDelegateDeserializer;
 
     /**
      * If the bean needs to be instantiated using constructor
@@ -174,7 +174,7 @@ public abstract class BeanDeserializerBase
      * that is, when the actual type is not statically known.
      * For other types this remains null.
      */
-    protected transient HashMap<ClassKey, JsonDeserializer<Object>> _subDeserializers;
+    protected transient HashMap<ClassKey, ValueDeserializer<Object>> _subDeserializers;
 
     /**
      * If one of properties has "unwrapped" value, we need separate
@@ -441,7 +441,7 @@ public abstract class BeanDeserializerBase
     }
 
     @Override
-    public abstract JsonDeserializer<Object> unwrappingDeserializer(DeserializationContext ctxt,
+    public abstract ValueDeserializer<Object> unwrappingDeserializer(DeserializationContext ctxt,
             NameTransformer unwrapper);
 
     /**
@@ -505,7 +505,7 @@ public abstract class BeanDeserializerBase
                 continue;
             }
             // [databind#125]: allow use of converters
-            JsonDeserializer<?> deser = _findConvertingDeserializer(ctxt, prop);
+            ValueDeserializer<?> deser = _findConvertingDeserializer(ctxt, prop);
             if (deser == null) {
                 deser = ctxt.findNonContextualValueDeserializer(prop.getType());
             }
@@ -518,7 +518,7 @@ public abstract class BeanDeserializerBase
         // Second loop: contextualize, find other pieces
         for (SettableBeanProperty origProp : _beanProperties) {
             SettableBeanProperty prop = origProp;
-            JsonDeserializer<?> deser = prop.getValueDeserializer();
+            ValueDeserializer<?> deser = prop.getValueDeserializer();
             deser = ctxt.handlePrimaryContextualization(deser, prop, prop.getType());
             prop = prop.withValueDeserializer(deser);
             // Need to link managed references with matching back references
@@ -531,8 +531,8 @@ public abstract class BeanDeserializerBase
             // Support unwrapped values (via @JsonUnwrapped)
             NameTransformer xform = _findPropertyUnwrapper(ctxt, prop);
             if (xform != null) {
-                JsonDeserializer<Object> orig = prop.getValueDeserializer();
-                JsonDeserializer<Object> unwrapping = orig.unwrappingDeserializer(ctxt, xform);
+                ValueDeserializer<Object> orig = prop.getValueDeserializer();
+                ValueDeserializer<Object> unwrapping = orig.unwrappingDeserializer(ctxt, xform);
 
                 if ((unwrapping != orig) && (unwrapping != null)) {
                     prop = prop.withValueDeserializer(unwrapping);
@@ -654,7 +654,7 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
     }
 
     @SuppressWarnings("unchecked")
-    private JsonDeserializer<Object> _findDelegateDeserializer(DeserializationContext ctxt,
+    private ValueDeserializer<Object> _findDelegateDeserializer(DeserializationContext ctxt,
             JavaType delegateType, AnnotatedWithParams delegateCreator)
     {
         // Need to create a temporary property to allow contextual deserializers:
@@ -667,11 +667,11 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
         }
         // 04-May-2018, tatu: [databind#2021] check if there's custom deserializer attached
         //    to type (resolved from parameter)
-        JsonDeserializer<Object> dd = delegateType.getValueHandler();
+        ValueDeserializer<Object> dd = delegateType.getValueHandler();
         if (dd == null) {
             dd = findDeserializer(ctxt, delegateType, property);
         } else {
-            dd = (JsonDeserializer<Object>) ctxt.handleSecondaryContextualization(dd, property, delegateType);
+            dd = (ValueDeserializer<Object>) ctxt.handleSecondaryContextualization(dd, property, delegateType);
         }
         if (td != null) {
             td = td.forProperty(property);
@@ -688,7 +688,7 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
      * NOTE: returned deserializer is NOT yet contextualized, caller needs to take
      * care to do that.
      */
-    protected JsonDeserializer<Object> _findConvertingDeserializer(DeserializationContext ctxt,
+    protected ValueDeserializer<Object> _findConvertingDeserializer(DeserializationContext ctxt,
             SettableBeanProperty prop)
     {
         final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
@@ -698,8 +698,8 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
                 Converter<Object,Object> conv = ctxt.converterInstance(prop.getMember(), convDef);
                 JavaType delegateType = conv.getInputType(ctxt.getTypeFactory());
                 // 25-Mar-2017, tatu: should not yet contextualize
-//                JsonDeserializer<?> deser = ctxt.findContextualValueDeserializer(delegateType, prop);
-                JsonDeserializer<?> deser = ctxt.findNonContextualValueDeserializer(delegateType);
+//                ValueDeserializer<?> deser = ctxt.findContextualValueDeserializer(delegateType, prop);
+                ValueDeserializer<?> deser = ctxt.findNonContextualValueDeserializer(delegateType);
                 return new StdConvertingDeserializer<Object>(conv, delegateType, deser);
             }
         }
@@ -714,7 +714,7 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
      * point, since it may come from either Class definition or property.
      */
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property)
     {
         ObjectIdReader oir = _objectIdReader;
@@ -751,7 +751,7 @@ ClassUtil.nameOf(handledType()), ClassUtil.name(propName)));
                     idProp = null;
                     idGen = ctxt.objectIdGeneratorInstance(accessor, objectIdInfo);
                 }
-                JsonDeserializer<?> deser = ctxt.findRootValueDeserializer(idType);
+                ValueDeserializer<?> deser = ctxt.findRootValueDeserializer(idType);
                 oir = ObjectIdReader.construct(idType, objectIdInfo.getPropertyName(),
                 		idGen, deser, idProp, resolver);
             }
@@ -844,7 +844,7 @@ ClassUtil.nameOf(handledType()), ClassUtil.name(propName)));
         if (refName == null) {
             return prop;
         }
-        JsonDeserializer<?> valueDeser = prop.getValueDeserializer();
+        ValueDeserializer<?> valueDeser = prop.getValueDeserializer();
         SettableBeanProperty backProp = valueDeser.findBackReference(refName);
         if (backProp == null) {
             ctxt.reportBadDefinition(_beanType, String.format(
@@ -872,7 +872,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
             SettableBeanProperty prop)
     {
         ObjectIdInfo objectIdInfo = prop.getObjectIdInfo();
-        JsonDeserializer<Object> valueDeser = prop.getValueDeserializer();
+        ValueDeserializer<Object> valueDeser = prop.getValueDeserializer();
         ObjectIdReader objectIdReader = (valueDeser == null) ? null : valueDeser.getObjectIdReader(ctxt);
         if (objectIdInfo == null && objectIdReader == null) {
             return prop;
@@ -915,7 +915,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         /* Should we encounter a property that has non-static inner-class
          * as value, we need to add some more magic to find the "hidden" constructor...
          */
-        JsonDeserializer<Object> deser = prop.getValueDeserializer();
+        ValueDeserializer<Object> deser = prop.getValueDeserializer();
         // ideally wouldn't rely on it being BeanDeserializerBase; but for now it'll have to do
         if (deser instanceof BeanDeserializerBase) {
             BeanDeserializerBase bd = (BeanDeserializerBase) deser;
@@ -949,7 +949,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         PropertyMetadata.MergeInfo merge = propMetadata.getMergeInfo();
         // First mergeability
         if (merge != null) {
-            JsonDeserializer<?> valueDeser = prop.getValueDeserializer();
+            ValueDeserializer<?> valueDeser = prop.getValueDeserializer();
             Boolean mayMerge = valueDeser.supportsUpdate(ctxt.getConfig());
     
             if (mayMerge == null) {
@@ -1233,7 +1233,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
     {
         // One more challenge: type of id may not be type of property we are expecting
         // later on; specifically, numeric ids vs Strings.
-        JsonDeserializer<Object> idDeser = _objectIdReader.getDeserializer();
+        ValueDeserializer<Object> idDeser = _objectIdReader.getDeserializer();
         final Object id;
 
         // Ok, this is bit ridiculous; let's see if conversion is needed:
@@ -1263,7 +1263,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      */
     @SuppressWarnings("resource") // TokenBuffers don't need close, nor parser thereof
     protected Object _convertObjectId(JsonParser p, DeserializationContext ctxt,
-            Object rawId, JsonDeserializer<Object> idDeser) throws JacksonException
+            Object rawId, ValueDeserializer<Object> idDeser) throws JacksonException
     {
         TokenBuffer buf = TokenBuffer.forInputBuffering(p, ctxt);
         if (rawId instanceof String) {
@@ -1318,7 +1318,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
     protected Object deserializeFromObjectUsingNonDefault(JsonParser p,
             DeserializationContext ctxt) throws JacksonException
     {
-        final JsonDeserializer<Object> delegateDeser = _delegateDeserializer();
+        final ValueDeserializer<Object> delegateDeser = _delegateDeserializer();
         if (delegateDeser != null) {
             final Object bean = _valueInstantiator.createUsingDelegate(ctxt,
                     delegateDeser.deserialize(p, ctxt));
@@ -1352,7 +1352,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         if (_objectIdReader != null) {
             return deserializeFromObjectId(p, ctxt);
         }
-        final JsonDeserializer<Object> delegateDeser = _delegateDeserializer();
+        final ValueDeserializer<Object> delegateDeser = _delegateDeserializer();
         NumberType nt = p.getNumberType();
         if (nt == NumberType.INT) {
             if (delegateDeser != null) {
@@ -1407,7 +1407,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         }
         // Bit complicated if we have delegating creator; may need to use it,
         // or might not...
-        JsonDeserializer<Object> delegateDeser = _delegateDeserializer();
+        ValueDeserializer<Object> delegateDeser = _delegateDeserializer();
         if (delegateDeser != null) {
             if (!_valueInstantiator.canCreateFromString()) {
                 Object bean = _valueInstantiator.createUsingDelegate(ctxt,
@@ -1430,7 +1430,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         NumberType t = p.getNumberType();
         // no separate methods for taking float...
         if ((t == NumberType.DOUBLE) || (t == NumberType.FLOAT)) {
-            JsonDeserializer<Object> delegateDeser = _delegateDeserializer();
+            ValueDeserializer<Object> delegateDeser = _delegateDeserializer();
             if (delegateDeser != null) {
                 if (!_valueInstantiator.canCreateFromDouble()) {
                     Object bean = _valueInstantiator.createUsingDelegate(ctxt,
@@ -1445,7 +1445,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         }
 
         if (t == NumberType.BIG_DECIMAL) {
-            JsonDeserializer<Object> delegateDeser = _delegateDeserializer();
+            ValueDeserializer<Object> delegateDeser = _delegateDeserializer();
             if (delegateDeser != null) {
                 if (!_valueInstantiator.canCreateFromBigDecimal()) {
                     Object bean = _valueInstantiator.createUsingDelegate(ctxt, delegateDeser.deserialize(p, ctxt));
@@ -1469,7 +1469,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      */
     public Object deserializeFromBoolean(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
-        JsonDeserializer<Object> delegateDeser = _delegateDeserializer();
+        ValueDeserializer<Object> delegateDeser = _delegateDeserializer();
         if (delegateDeser != null) {
             if (!_valueInstantiator.canCreateFromBoolean()) {
                 Object bean = _valueInstantiator.createUsingDelegate(ctxt,
@@ -1493,7 +1493,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
             return deserializeFromObjectId(p, ctxt);
         }
         // 26-Jul-2017, tatu: as per [databind#1711] need to support delegating case too
-        JsonDeserializer<Object> delegateDeser = _delegateDeserializer();
+        ValueDeserializer<Object> delegateDeser = _delegateDeserializer();
         if (delegateDeser != null) {
             if (!_valueInstantiator.canCreateFromString()) {
                 Object bean = _valueInstantiator.createUsingDelegate(ctxt,
@@ -1518,8 +1518,8 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         return value;
     }
 
-    protected final JsonDeserializer<Object> _delegateDeserializer() {
-        JsonDeserializer<Object> deser = _delegateDeserializer;
+    protected final ValueDeserializer<Object> _delegateDeserializer() {
+        ValueDeserializer<Object> deser = _delegateDeserializer;
         if (deser == null) {
             deser = _arrayDelegateDeserializer;
         }
@@ -1641,7 +1641,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         throws JacksonException
     {  
         // First things first: maybe there is a more specific deserializer available?
-        JsonDeserializer<Object> subDeser = _findSubclassDeserializer(ctxt, bean, unknownTokens);
+        ValueDeserializer<Object> subDeser = _findSubclassDeserializer(ctxt, bean, unknownTokens);
         if (subDeser != null) {
             if (unknownTokens != null) {
                 // need to add END_OBJECT marker first
@@ -1671,11 +1671,11 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      * Helper method called to (try to) locate deserializer for given sub-type of
      * type that this deserializer handles.
      */
-    protected JsonDeserializer<Object> _findSubclassDeserializer(DeserializationContext ctxt,
+    protected ValueDeserializer<Object> _findSubclassDeserializer(DeserializationContext ctxt,
             Object bean, TokenBuffer unknownTokens)
         throws JacksonException
     {  
-        JsonDeserializer<Object> subDeser;
+        ValueDeserializer<Object> subDeser;
 
         // First: maybe we have already created sub-type deserializer?
         synchronized (this) {
@@ -1697,7 +1697,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         if (subDeser != null) {
             synchronized (this) {
                 if (_subDeserializers == null) {
-                    _subDeserializers = new HashMap<ClassKey,JsonDeserializer<Object>>();;
+                    _subDeserializers = new HashMap<ClassKey,ValueDeserializer<Object>>();;
                 }
                 _subDeserializers.put(new ClassKey(bean.getClass()), subDeser);
             }            

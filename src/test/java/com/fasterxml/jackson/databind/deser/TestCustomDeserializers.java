@@ -57,7 +57,7 @@ public class TestCustomDeserializers
         }
     }
 
-    static class CustomBeanDeserializer extends JsonDeserializer<CustomBean>
+    static class CustomBeanDeserializer extends ValueDeserializer<CustomBean>
     {
         @Override
         public CustomBean deserialize(JsonParser p, DeserializationContext ctxt)
@@ -176,7 +176,7 @@ public class TestCustomDeserializers
             return new Bean375Outer((Bean375Inner) ob);
         }
         @Override
-        public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
+        public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
         {
             return new Bean375OuterDeserializer(property);
         }
@@ -205,7 +205,7 @@ public class TestCustomDeserializers
         }
 
         @Override
-        public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
+        public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
         {
             if (property != null) {
                 Negative n = property.getAnnotation(Negative.class);
@@ -262,10 +262,10 @@ public class TestCustomDeserializers
             super.setupModule(context);
             context.addDeserializerModifier(new ValueDeserializerModifier() {
                 @Override
-                public JsonDeserializer<?> modifyDeserializer(DeserializationConfig config,
-                        BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
+                public ValueDeserializer<?> modifyDeserializer(DeserializationConfig config,
+                        BeanDescription beanDesc, ValueDeserializer<?> deserializer) {
                     if (deserializer.handledType() == String.class) {
-                        JsonDeserializer<?> d = new MyStringDeserializer(deserializer);
+                        ValueDeserializer<?> d = new MyStringDeserializer(deserializer);
                         // just for test coverage purposes...
                         if (d.getDelegatee() != deserializer) {
                             throw new Error("Cannot access delegatee!");
@@ -280,12 +280,12 @@ public class TestCustomDeserializers
 
     static class MyStringDeserializer extends DelegatingDeserializer
     {
-        public MyStringDeserializer(JsonDeserializer<?> newDel) {
+        public MyStringDeserializer(ValueDeserializer<?> newDel) {
             super(newDel);
         }
 
         @Override
-        protected JsonDeserializer<?> newDelegatingInstance(JsonDeserializer<?> newDel) {
+        protected ValueDeserializer<?> newDelegatingInstance(ValueDeserializer<?> newDel) {
             return new MyStringDeserializer(newDel);
         }
 
@@ -496,8 +496,8 @@ public class TestCustomDeserializers
                 .addModule(new SimpleModule()
                         .setDeserializerModifier(new ValueDeserializerModifier() {
                             @Override
-                            public JsonDeserializer<?> modifyDeserializer(DeserializationConfig config,
-                                    BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
+                            public ValueDeserializer<?> modifyDeserializer(DeserializationConfig config,
+                                    BeanDescription beanDesc, ValueDeserializer<?> deserializer) {
                                 if (deserializer instanceof DummyDeserializer<?>) {
                                     return new DummyDeserializer<String>("FOOBAR", String.class);
                                 }

@@ -33,7 +33,7 @@ public class TestContextualWithAnnDeserializer extends BaseMapTest
     }
     
     static class AnnotatedContextualDeserializer
-        extends JsonDeserializer<StringValue>
+        extends ValueDeserializer<StringValue>
     {
         protected final String _fieldName;
         
@@ -49,7 +49,7 @@ public class TestContextualWithAnnDeserializer extends BaseMapTest
         }
 
         @Override
-        public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
+        public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
                 BeanProperty property)
         {
             Name ann = property.getAnnotation(Name.class);

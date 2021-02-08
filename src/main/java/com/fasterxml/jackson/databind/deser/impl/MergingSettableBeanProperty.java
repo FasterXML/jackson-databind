@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 /**
  * {@link SettableBeanProperty} implementation that will try to access value of
  * the property first, and if non-null value found, pass that for update
- * (using {@link com.fasterxml.jackson.databind.JsonDeserializer#deserialize(com.fasterxml.jackson.core.JsonParser, com.fasterxml.jackson.databind.DeserializationContext, Object)})
+ * (using {@link com.fasterxml.jackson.databind.ValueDeserializer#deserialize(com.fasterxml.jackson.core.JsonParser, com.fasterxml.jackson.databind.DeserializationContext, Object)})
  * instead of constructing a new value. This is necessary to support "merging" properties.
  *<p>
  * Note that there are many similarities to {@link SetterlessProperty}, which predates

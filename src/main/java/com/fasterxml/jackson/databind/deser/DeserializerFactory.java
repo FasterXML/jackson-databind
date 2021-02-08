@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.type.*;
 /**
  * Abstract class that defines API used by {@link DeserializationContext}
  * to construct actual
- * {@link JsonDeserializer} instances (which are then cached by
+ * {@link ValueDeserializer} instances (which are then cached by
  * context and/or dedicated cache).
  *<p>
  * Since there are multiple broad categories of deserializers, there are 
@@ -66,28 +66,28 @@ public abstract class DeserializerFactory
      *
      * @param type Type to be deserialized
      */
-    public abstract JsonDeserializer<Object> createBeanDeserializer(DeserializationContext ctxt,
+    public abstract ValueDeserializer<Object> createBeanDeserializer(DeserializationContext ctxt,
             JavaType type, BeanDescription beanDesc);
 
     /**
      * Method called to create a deserializer that will use specified Builder
      * class for building value instances.
      */
-    public abstract JsonDeserializer<Object> createBuilderBasedDeserializer(
+    public abstract ValueDeserializer<Object> createBuilderBasedDeserializer(
     		DeserializationContext ctxt, JavaType type, BeanDescription beanDesc,
     		Class<?> builderClass);
 
-    public abstract JsonDeserializer<?> createEnumDeserializer(DeserializationContext ctxt,
+    public abstract ValueDeserializer<?> createEnumDeserializer(DeserializationContext ctxt,
             JavaType type, BeanDescription beanDesc);
 
-    public abstract JsonDeserializer<?> createReferenceDeserializer(DeserializationContext ctxt,
+    public abstract ValueDeserializer<?> createReferenceDeserializer(DeserializationContext ctxt,
             ReferenceType type, BeanDescription beanDesc);
 
     /**
      * Method called to create and return a deserializer that can construct
      * JsonNode(s) from JSON content.
      */
-    public abstract JsonDeserializer<?> createTreeDeserializer(DeserializationConfig config,
+    public abstract ValueDeserializer<?> createTreeDeserializer(DeserializationConfig config,
             JavaType type, BeanDescription beanDesc);
 
     /**
@@ -97,19 +97,19 @@ public abstract class DeserializerFactory
      *
      * @param type Type to be deserialized
      */
-    public abstract JsonDeserializer<?> createArrayDeserializer(DeserializationContext ctxt,
+    public abstract ValueDeserializer<?> createArrayDeserializer(DeserializationContext ctxt,
             ArrayType type, BeanDescription beanDesc);
 
-    public abstract JsonDeserializer<?> createCollectionDeserializer(DeserializationContext ctxt,
+    public abstract ValueDeserializer<?> createCollectionDeserializer(DeserializationContext ctxt,
             CollectionType type, BeanDescription beanDesc);
 
-    public abstract JsonDeserializer<?> createCollectionLikeDeserializer(DeserializationContext ctxt,
+    public abstract ValueDeserializer<?> createCollectionLikeDeserializer(DeserializationContext ctxt,
             CollectionLikeType type, BeanDescription beanDesc);
 
-    public abstract JsonDeserializer<?> createMapDeserializer(DeserializationContext ctxt,
+    public abstract ValueDeserializer<?> createMapDeserializer(DeserializationContext ctxt,
             MapType type, BeanDescription beanDesc);
 
-    public abstract JsonDeserializer<?> createMapLikeDeserializer(DeserializationContext ctxt,
+    public abstract ValueDeserializer<?> createMapLikeDeserializer(DeserializationContext ctxt,
             MapLikeType type, BeanDescription beanDesc);
 
     /**

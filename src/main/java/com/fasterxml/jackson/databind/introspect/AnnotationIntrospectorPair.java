@@ -587,11 +587,11 @@ public class AnnotationIntrospectorPair
     @Override
     public Object findDeserializer(MapperConfig<?> config, Annotated a) {
         Object r = _primary.findDeserializer(config, a);
-        if (_isExplicitClassOrOb(r, JsonDeserializer.None.class)) {
+        if (_isExplicitClassOrOb(r, ValueDeserializer.None.class)) {
             return r;
         }
         return _explicitClassOrOb(_secondary.findDeserializer(config, a),
-                JsonDeserializer.None.class);
+                ValueDeserializer.None.class);
     }
 
     @Override
@@ -607,11 +607,11 @@ public class AnnotationIntrospectorPair
     @Override
     public Object findContentDeserializer(MapperConfig<?> config, Annotated am) {
         Object r = _primary.findContentDeserializer(config, am);
-        if (_isExplicitClassOrOb(r, JsonDeserializer.None.class)) {
+        if (_isExplicitClassOrOb(r, ValueDeserializer.None.class)) {
             return r;
         }
         return _explicitClassOrOb(_secondary.findContentDeserializer(config, am),
-                JsonDeserializer.None.class);
+                ValueDeserializer.None.class);
                 
     }
 

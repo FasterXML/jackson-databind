@@ -65,7 +65,7 @@ public class EnumDeserializer
      * 
      * @return Deserializer based on given factory method
      */
-    public static JsonDeserializer<?> deserializerForCreator(DeserializationConfig config,
+    public static ValueDeserializer<?> deserializerForCreator(DeserializationConfig config,
             Class<?> enumClass, AnnotatedMethod factory,
             ValueInstantiator valueInstantiator, SettableBeanProperty[] creatorProps)
     {
@@ -84,7 +84,7 @@ public class EnumDeserializer
      * 
      * @return Deserializer based on given no-args factory method
      */
-    public static JsonDeserializer<?> deserializerForNoArgsCreator(DeserializationConfig config,
+    public static ValueDeserializer<?> deserializerForNoArgsCreator(DeserializationConfig config,
             Class<?> enumClass, AnnotatedMethod factory)
     {
         if (config.canOverrideAccessModifiers()) {
@@ -102,7 +102,7 @@ public class EnumDeserializer
     }
     
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property)
     {
         Boolean caseInsensitive = findFormatFeature(ctxt, property, handledType(),
@@ -114,9 +114,9 @@ public class EnumDeserializer
     }
 
     /*
-    /**********************************************************
-    /* Default JsonDeserializer implementation
-    /**********************************************************
+    /**********************************************************************
+    /* Default ValueDeserializer implementation
+    /**********************************************************************
      */
 
     /**
@@ -222,9 +222,9 @@ public class EnumDeserializer
             */
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal helper methods
-    /**********************************************************
+    /**********************************************************************
      */
     
     private final Object _deserializeAltString(JsonParser p, DeserializationContext ctxt,

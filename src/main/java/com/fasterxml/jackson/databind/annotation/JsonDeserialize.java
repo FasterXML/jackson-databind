@@ -5,7 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.ValueDeserializer;
 import com.fasterxml.jackson.databind.KeyDeserializer;
 import com.fasterxml.jackson.databind.util.Converter;
 
@@ -52,8 +52,8 @@ public @interface JsonDeserialize
      * deserializing property access via a setter method.
      */
     @SuppressWarnings("rawtypes") // to work around JDK8 bug wrt Class-valued annotation properties
-    public Class<? extends JsonDeserializer> using()
-        default JsonDeserializer.None.class;
+    public Class<? extends ValueDeserializer> using()
+        default ValueDeserializer.None.class;
 
     /**
      * Deserializer class to use for deserializing contents (elements
@@ -62,8 +62,8 @@ public @interface JsonDeserialize
      * and not value classes themselves.
      */
     @SuppressWarnings("rawtypes") // to work around JDK8 bug wrt Class-valued annotation properties
-    public Class<? extends JsonDeserializer> contentUsing()
-        default JsonDeserializer.None.class;
+    public Class<? extends ValueDeserializer> contentUsing()
+        default ValueDeserializer.None.class;
 
     /**
      * Deserializer class to use for deserializing Map keys

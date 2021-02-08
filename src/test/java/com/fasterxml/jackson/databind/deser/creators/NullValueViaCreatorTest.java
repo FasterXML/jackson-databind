@@ -25,7 +25,7 @@ public class NullValueViaCreatorTest extends BaseMapTest
 
     protected static final NullContained NULL_CONTAINED = new NullContained();
 
-    protected static class ContainedDeserializer extends JsonDeserializer<Contained<?>> {
+    protected static class ContainedDeserializer extends ValueDeserializer<Contained<?>> {
         @Override
         public Contained<?> deserialize(JsonParser jp, DeserializationContext ctxt) {
             return null;
@@ -39,7 +39,7 @@ public class NullValueViaCreatorTest extends BaseMapTest
 
     protected static class ContainerDeserializerResolver extends Deserializers.Base {
         @Override
-        public JsonDeserializer<?> findBeanDeserializer(JavaType type,
+        public ValueDeserializer<?> findBeanDeserializer(JavaType type,
                 DeserializationConfig config, BeanDescription beanDesc)
         {
             if (!Contained.class.isAssignableFrom(type.getRawClass())) {

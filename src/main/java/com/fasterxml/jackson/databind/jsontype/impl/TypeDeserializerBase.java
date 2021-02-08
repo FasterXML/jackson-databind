@@ -50,9 +50,9 @@ public abstract class TypeDeserializerBase
      * For efficient operation we will lazily build mappings from type ids
      * to actual deserializers, once needed.
      */
-    protected final Map<String,JsonDeserializer<Object>> _deserializers;
+    protected final Map<String,ValueDeserializer<Object>> _deserializers;
 
-    protected JsonDeserializer<Object> _defaultImplDeserializer;
+    protected ValueDeserializer<Object> _defaultImplDeserializer;
 
     /*
     /**********************************************************
@@ -71,7 +71,7 @@ public abstract class TypeDeserializerBase
         _typePropertyName = ClassUtil.nonNullString(typePropertyName);
         _typeIdVisible = typeIdVisible;
         // defaults are fine, although shouldn't need much concurrency
-        _deserializers = new ConcurrentHashMap<String, JsonDeserializer<Object>>(16, 0.75f, 2);
+        _deserializers = new ConcurrentHashMap<String, ValueDeserializer<Object>>(16, 0.75f, 2);
         _defaultImpl = defaultImpl;
         _property = null;
     }
@@ -142,10 +142,10 @@ public abstract class TypeDeserializerBase
     /**********************************************************
      */
 
-    protected final JsonDeserializer<Object> _findDeserializer(DeserializationContext ctxt,
+    protected final ValueDeserializer<Object> _findDeserializer(DeserializationContext ctxt,
             String typeId)
     {
-        JsonDeserializer<Object> deser = _deserializers.get(typeId);
+        ValueDeserializer<Object> deser = _deserializers.get(typeId);
         if (deser == null) {
             /* As per [databind#305], need to provide contextual info. But for
              * backwards compatibility, let's start by only supporting this
@@ -203,7 +203,7 @@ public abstract class TypeDeserializerBase
         return deser;
     }
 
-    protected final JsonDeserializer<Object> _findDefaultImplDeserializer(DeserializationContext ctxt)
+    protected final ValueDeserializer<Object> _findDefaultImplDeserializer(DeserializationContext ctxt)
     {
         // 06-Feb-2013, tatu: As per [databind#148], consider default implementation value of
         //   {@link java.lang.Void} to mean "serialize as null"; as well as DeserializationFeature
@@ -235,7 +235,7 @@ public abstract class TypeDeserializerBase
     protected Object _deserializeWithNativeTypeId(JsonParser p, DeserializationContext ctxt, Object typeId)
         throws JacksonException
     {
-        JsonDeserializer<Object> deser;
+        ValueDeserializer<Object> deser;
         if (typeId == null) {
             // 04-May-2014, tatu: Should error be obligatory, or should there be another method
             //   for "try to deserialize with native type id"?
@@ -258,7 +258,7 @@ public abstract class TypeDeserializerBase
      * Default implementation simply throws a {@link com.fasterxml.jackson.databind.DatabindException} to
      * indicate the problem; sub-classes may choose
      *
-     * @return If it is possible to resolve type id into a {@link JsonDeserializer}
+     * @return If it is possible to resolve type id into a {@link ValueDeserializer}
      *   should return that deserializer; otherwise throw an exception to indicate
      *   the problem.
      */

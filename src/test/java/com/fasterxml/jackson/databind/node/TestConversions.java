@@ -141,7 +141,7 @@ public class TestConversions extends BaseMapTest
     }
     
     // Deserializer to trigger the problem described in [JACKSON-554]
-    public static class LeafDeserializer extends JsonDeserializer<Leaf>
+    public static class LeafDeserializer extends ValueDeserializer<Leaf>
     {
         @Override
         public Leaf deserialize(JsonParser jp, DeserializationContext ctxt)

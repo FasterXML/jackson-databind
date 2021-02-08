@@ -42,7 +42,7 @@ public class ObjectArrayDeserializer
     /**
      * Element deserializer
      */
-    protected JsonDeserializer<Object> _elementDeserializer;
+    protected ValueDeserializer<Object> _elementDeserializer;
 
     /**
      * If element instances have polymorphic type information, this
@@ -56,13 +56,13 @@ public class ObjectArrayDeserializer
     protected final Object[] _emptyValue;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     public ObjectArrayDeserializer(JavaType arrayType0,
-            JsonDeserializer<Object> elemDeser, TypeDeserializer elemTypeDeser)
+            ValueDeserializer<Object> elemDeser, TypeDeserializer elemTypeDeser)
     {
         super(arrayType0, null, null);
         ArrayType arrayType = (ArrayType) arrayType0;
@@ -74,7 +74,7 @@ public class ObjectArrayDeserializer
     }
 
     protected ObjectArrayDeserializer(ObjectArrayDeserializer base,
-            JsonDeserializer<Object> elemDeser, TypeDeserializer elemTypeDeser,
+            ValueDeserializer<Object> elemDeser, TypeDeserializer elemTypeDeser,
             NullValueProvider nuller, Boolean unwrapSingle)
     {
         super(base, nuller, unwrapSingle);
@@ -90,7 +90,7 @@ public class ObjectArrayDeserializer
      * Overridable fluent-factory method used to create contextual instances
      */
     public ObjectArrayDeserializer withDeserializer(TypeDeserializer elemTypeDeser,
-            JsonDeserializer<?> elemDeser)
+            ValueDeserializer<?> elemDeser)
     {
         return withResolved(elemTypeDeser, elemDeser,
                 _nullProvider, _unwrapSingle);
@@ -98,7 +98,7 @@ public class ObjectArrayDeserializer
 
     @SuppressWarnings("unchecked")
     public ObjectArrayDeserializer withResolved(TypeDeserializer elemTypeDeser,
-            JsonDeserializer<?> elemDeser, NullValueProvider nuller, Boolean unwrapSingle)
+            ValueDeserializer<?> elemDeser, NullValueProvider nuller, Boolean unwrapSingle)
     {
         if ((Objects.equals(unwrapSingle, _unwrapSingle)) && (nuller == _nullProvider)
                 && (elemDeser == _elementDeserializer)
@@ -106,7 +106,7 @@ public class ObjectArrayDeserializer
             return this;
         }
         return new ObjectArrayDeserializer(this,
-                (JsonDeserializer<Object>) elemDeser, elemTypeDeser,
+                (ValueDeserializer<Object>) elemDeser, elemTypeDeser,
                 nuller, unwrapSingle);
     }
 
@@ -123,10 +123,10 @@ public class ObjectArrayDeserializer
     }
 
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property)
     {
-        JsonDeserializer<?> valueDeser = _elementDeserializer;
+        ValueDeserializer<?> valueDeser = _elementDeserializer;
         // 07-May-2020, tatu: Is the argument `containerType.getRawClass()` right here?
         //    In a way seems like it should rather refer to value class... ?
         //    (as it's individual value of element type, not Container)...
@@ -149,17 +149,17 @@ public class ObjectArrayDeserializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* ContainerDeserializerBase API
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
-    public JsonDeserializer<Object> getContentDeserializer() {
+    public ValueDeserializer<Object> getContentDeserializer() {
         return _elementDeserializer;
     }
 
-    @Override // since 2.9
+    @Override
     public AccessPattern getEmptyAccessPattern() {
         // immutable, shareable so:
         return AccessPattern.CONSTANT;
@@ -174,9 +174,9 @@ public class ObjectArrayDeserializer
     }
 
     /*
-    /**********************************************************
-    /* JsonDeserializer API
-    /**********************************************************
+    /**********************************************************************
+    /* ValueDeserializer API
+    /**********************************************************************
      */
     
     @Override
@@ -297,9 +297,9 @@ public class ObjectArrayDeserializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods
-    /**********************************************************
+    /**********************************************************************
      */
     
     protected Byte[] deserializeFromBase64(JsonParser p, DeserializationContext ctxt)

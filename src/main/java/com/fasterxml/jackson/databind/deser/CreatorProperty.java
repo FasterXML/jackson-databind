@@ -114,7 +114,7 @@ public class CreatorProperty
         _ignorable = src._ignorable;
     }
 
-    protected CreatorProperty(CreatorProperty src, JsonDeserializer<?> deser,
+    protected CreatorProperty(CreatorProperty src, ValueDeserializer<?> deser,
             NullValueProvider nva) {
         super(src, deser, nva);
         _annotated = src._annotated;
@@ -140,7 +140,7 @@ public class CreatorProperty
     }
 
     @Override
-    public SettableBeanProperty withValueDeserializer(JsonDeserializer<?> deser) {
+    public SettableBeanProperty withValueDeserializer(ValueDeserializer<?> deser) {
         if (_valueDeserializer == deser) {
             return this;
         }

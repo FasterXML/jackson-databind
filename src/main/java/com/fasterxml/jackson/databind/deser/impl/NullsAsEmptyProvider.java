@@ -14,9 +14,9 @@ public class NullsAsEmptyProvider
 {
     private static final long serialVersionUID = 1L;
 
-    protected final JsonDeserializer<?> _deserializer;
+    protected final ValueDeserializer<?> _deserializer;
 
-    public NullsAsEmptyProvider(JsonDeserializer<?> deser) {
+    public NullsAsEmptyProvider(ValueDeserializer<?> deser) {
         _deserializer = deser;
     }
 

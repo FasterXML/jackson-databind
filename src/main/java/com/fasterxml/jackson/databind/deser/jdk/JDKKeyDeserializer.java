@@ -317,9 +317,9 @@ public class JDKKeyDeserializer extends KeyDeserializer
     {
         final protected Class<?> _keyClass;
 
-        protected final JsonDeserializer<?> _delegate;
+        protected final ValueDeserializer<?> _delegate;
         
-        protected DelegatingKD(Class<?> cls, JsonDeserializer<?> deser) {
+        protected DelegatingKD(Class<?> cls, ValueDeserializer<?> deser) {
             _keyClass = cls;
             _delegate = deser;
         }

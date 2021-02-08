@@ -47,7 +47,7 @@ public class NumberDeserializers
         }
     }
 
-    public static JsonDeserializer<?> find(Class<?> rawType) {
+    public static ValueDeserializer<?> find(Class<?> rawType) {
         if (rawType.isPrimitive()) {
             if (rawType == Integer.TYPE) {
                 return IntegerDeserializer.primitiveInstance;

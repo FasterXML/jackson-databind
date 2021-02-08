@@ -39,7 +39,7 @@ public class NoTypeInfo1654Test extends BaseMapTest
         }
     }
 
-    static class Value1654Deserializer extends JsonDeserializer<Value1654> {
+    static class Value1654Deserializer extends ValueDeserializer<Value1654> {
         @Override
         public Value1654 deserialize(JsonParser p, DeserializationContext ctxt) {
             p.skipChildren();

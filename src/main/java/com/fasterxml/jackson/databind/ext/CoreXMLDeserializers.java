@@ -31,7 +31,7 @@ public class CoreXMLDeserializers
         }
     }
 
-    public static JsonDeserializer<?> findBeanDeserializer(DeserializationConfig config,
+    public static ValueDeserializer<?> findBeanDeserializer(DeserializationConfig config,
             JavaType type)
     {
         Class<?> raw = type.getRawClass();

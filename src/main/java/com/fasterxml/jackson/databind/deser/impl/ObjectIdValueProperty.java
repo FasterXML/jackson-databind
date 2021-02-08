@@ -29,7 +29,7 @@ public final class ObjectIdValueProperty
         _objectIdReader = objectIdReader;
     }
 
-    protected ObjectIdValueProperty(ObjectIdValueProperty src, JsonDeserializer<?> deser,
+    protected ObjectIdValueProperty(ObjectIdValueProperty src, ValueDeserializer<?> deser,
             NullValueProvider nva)
     {
         super(src, deser, nva);
@@ -47,7 +47,7 @@ public final class ObjectIdValueProperty
     }
 
     @Override
-    public SettableBeanProperty withValueDeserializer(JsonDeserializer<?> deser) {
+    public SettableBeanProperty withValueDeserializer(ValueDeserializer<?> deser) {
         if (_valueDeserializer == deser) {
             return this;
         }

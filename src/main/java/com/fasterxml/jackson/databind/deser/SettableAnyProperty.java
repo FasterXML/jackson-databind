@@ -39,7 +39,7 @@ public class SettableAnyProperty
     
     protected final JavaType _type;
 
-    protected JsonDeserializer<Object> _valueDeserializer;
+    protected ValueDeserializer<Object> _valueDeserializer;
 
     protected final TypeDeserializer _valueTypeDeserializer;
     protected final KeyDeserializer _keyDeserializer;
@@ -52,7 +52,7 @@ public class SettableAnyProperty
 
     public SettableAnyProperty(BeanProperty property, AnnotatedMember setter, JavaType type,
             KeyDeserializer keyDeser,
-            JsonDeserializer<Object> valueDeser, TypeDeserializer typeDeser)
+            ValueDeserializer<Object> valueDeser, TypeDeserializer typeDeser)
     {
         _property = property;
         _setter = setter;
@@ -63,7 +63,7 @@ public class SettableAnyProperty
         _setterIsField = setter instanceof AnnotatedField;
     }
 
-    public SettableAnyProperty withValueDeserializer(JsonDeserializer<Object> deser) {
+    public SettableAnyProperty withValueDeserializer(ValueDeserializer<Object> deser) {
         return new SettableAnyProperty(_property, _setter, _type,
                 _keyDeserializer, deser, _valueTypeDeserializer);
     }

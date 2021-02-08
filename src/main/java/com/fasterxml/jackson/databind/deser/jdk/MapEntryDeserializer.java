@@ -35,7 +35,7 @@ public class MapEntryDeserializer
     /**
      * Value deserializer.
      */
-    protected final JsonDeserializer<Object> _valueDeserializer;
+    protected final ValueDeserializer<Object> _valueDeserializer;
 
     /**
      * If value instances have polymorphic type information, this
@@ -44,13 +44,13 @@ public class MapEntryDeserializer
     protected final TypeDeserializer _valueTypeDeserializer;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     public MapEntryDeserializer(JavaType type,
-            KeyDeserializer keyDeser, JsonDeserializer<Object> valueDeser,
+            KeyDeserializer keyDeser, ValueDeserializer<Object> valueDeser,
             TypeDeserializer valueTypeDeser)
     {
         super(type);
@@ -75,7 +75,7 @@ public class MapEntryDeserializer
     }
 
     protected MapEntryDeserializer(MapEntryDeserializer src,
-            KeyDeserializer keyDeser, JsonDeserializer<Object> valueDeser,
+            KeyDeserializer keyDeser, ValueDeserializer<Object> valueDeser,
             TypeDeserializer valueTypeDeser)
     {
         super(src);
@@ -90,7 +90,7 @@ public class MapEntryDeserializer
      */
     @SuppressWarnings("unchecked")
     protected MapEntryDeserializer withResolved(KeyDeserializer keyDeser,
-            TypeDeserializer valueTypeDeser, JsonDeserializer<?> valueDeser)
+            TypeDeserializer valueTypeDeser, ValueDeserializer<?> valueDeser)
     {
         
         if ((_keyDeserializer == keyDeser) && (_valueDeserializer == valueDeser)
@@ -98,7 +98,7 @@ public class MapEntryDeserializer
             return this;
         }
         return new MapEntryDeserializer(this,
-                keyDeser, (JsonDeserializer<Object>) valueDeser, valueTypeDeser);
+                keyDeser, (ValueDeserializer<Object>) valueDeser, valueTypeDeser);
     }
 
     @Override // since 2.12
@@ -108,9 +108,9 @@ public class MapEntryDeserializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Validation, post-processing (ResolvableDeserializer)
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -118,7 +118,7 @@ public class MapEntryDeserializer
      * when it is known for which property deserializer is needed for.
      */
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property)
     {
         KeyDeserializer kd = _keyDeserializer;
@@ -129,7 +129,7 @@ public class MapEntryDeserializer
                 kd = ((ContextualKeyDeserializer) kd).createContextual(ctxt, property);
             }
         }
-        JsonDeserializer<?> vd = _valueDeserializer;
+        ValueDeserializer<?> vd = _valueDeserializer;
         vd = findConvertingContentDeserializer(ctxt, property, vd);
         JavaType contentType = _containerType.containedType(1);
         if (vd == null) {
@@ -145,9 +145,9 @@ public class MapEntryDeserializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* ContainerDeserializerBase API
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -156,7 +156,7 @@ public class MapEntryDeserializer
     }
 
     @Override
-    public JsonDeserializer<Object> getContentDeserializer() {
+    public ValueDeserializer<Object> getContentDeserializer() {
         return _valueDeserializer;
     }
 
@@ -164,9 +164,9 @@ public class MapEntryDeserializer
 //    public ValueInstantiator getValueInstantiator() { }
 
     /*
-    /**********************************************************
-    /* JsonDeserializer API
-    /**********************************************************
+    /**********************************************************************
+    /* ValueDeserializer API
+    /**********************************************************************
      */
 
     @SuppressWarnings("unchecked")
@@ -194,7 +194,7 @@ public class MapEntryDeserializer
         }
 
         final KeyDeserializer keyDes = _keyDeserializer;
-        final JsonDeserializer<Object> valueDes = _valueDeserializer;
+        final ValueDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
 
         final String keyStr = p.currentName();

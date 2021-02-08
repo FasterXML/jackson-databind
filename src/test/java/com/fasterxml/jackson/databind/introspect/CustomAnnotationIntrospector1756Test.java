@@ -33,7 +33,7 @@ public class CustomAnnotationIntrospector1756Test extends BaseMapTest
     /**
      * Custom String deserializer.
      */
-    private static class CustomStringDeserializer extends JsonDeserializer<String> {
+    private static class CustomStringDeserializer extends ValueDeserializer<String> {
 
       @Override
       public String deserialize(JsonParser p, DeserializationContext ctxt) {

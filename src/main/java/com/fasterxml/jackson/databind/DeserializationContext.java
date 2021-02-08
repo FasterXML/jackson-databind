@@ -45,7 +45,7 @@ import com.fasterxml.jackson.databind.util.*;
  * objects (scrap arrays, containers).
  * Constructed by {@link ObjectMapper} (and {@link ObjectReader} based on
  * configuration,
- * used mostly by {@link JsonDeserializer}s to access contextual information.
+ * used mostly by {@link ValueDeserializer}s to access contextual information.
  */
 public abstract class DeserializationContext
     extends DatabindContext
@@ -71,7 +71,7 @@ public abstract class DeserializationContext
     final protected DeserializerFactory _factory;
 
     /**
-     * Object that handle details of {@link JsonDeserializer} caching.
+     * Object that handle details of {@link ValueDeserializer} caching.
      */
     final protected DeserializerCache _cache;
 
@@ -143,7 +143,7 @@ public abstract class DeserializationContext
     protected transient ContextAttributes _attributes;
 
     /**
-     * Type of {@link JsonDeserializer} on which {@link JsonDeserializer#createContextual}
+     * Type of {@link ValueDeserializer} on which {@link ValueDeserializer#createContextual}
      * is being called currently.
      */
     protected LinkedNode<JavaType> _currentType;
@@ -268,13 +268,13 @@ public abstract class DeserializationContext
 
     /**
      * Accessor to {@link JavaType} of currently contextualized
-     * {@link JsonDeserializer}, if any.
-     * This is sometimes useful for generic {@link JsonDeserializer}s that
+     * {@link ValueDeserializer}, if any.
+     * This is sometimes useful for generic {@link ValueDeserializer}s that
      * do not get passed (or do not retain) type information when being
      * constructed: happens for example for deserializers constructed
      * from annotations.
      *
-     * @return Type of {@link JsonDeserializer} being contextualized,
+     * @return Type of {@link ValueDeserializer} being contextualized,
      *   if process is on-going; null if not.
      */
     public JavaType getContextualType() {
@@ -344,7 +344,7 @@ public abstract class DeserializationContext
         if (t == JsonToken.VALUE_NULL) {
             return getNodeFactory().nullNode();
         }
-        JsonDeserializer<Object> deser = findRootValueDeserializer(ObjectReader.JSON_NODE_TYPE);
+        ValueDeserializer<Object> deser = findRootValueDeserializer(ObjectReader.JSON_NODE_TYPE);
         return (JsonNode) deser.deserialize(p, this);
     }
 
@@ -378,10 +378,10 @@ public abstract class DeserializationContext
 
     @SuppressWarnings("unchecked")
     public <T> T readValue(JsonParser p, JavaType type) throws JacksonException {
-        JsonDeserializer<Object> deser = findRootValueDeserializer(type);
+        ValueDeserializer<Object> deser = findRootValueDeserializer(type);
         if (deser == null) {
             reportBadDefinition(type,
-                    "Could not find JsonDeserializer for type "+type);
+                    "Could not find `ValueDeserializer` for type "+ClassUtil.getTypeDescription(type));
         }
         return (T) deser.deserialize(p, this);
     }
@@ -602,12 +602,12 @@ public abstract class DeserializationContext
      * version if necessary, for value reached via specified property.
      */
     @SuppressWarnings("unchecked")
-    public final JsonDeserializer<Object> findContextualValueDeserializer(JavaType type,
+    public final ValueDeserializer<Object> findContextualValueDeserializer(JavaType type,
             BeanProperty prop)
     {
-        JsonDeserializer<Object> deser = _cache.findValueDeserializer(this, _factory, type);
+        ValueDeserializer<Object> deser = _cache.findValueDeserializer(this, _factory, type);
         if (deser != null) {
-            deser = (JsonDeserializer<Object>) handleSecondaryContextualization(deser, prop, type);
+            deser = (ValueDeserializer<Object>) handleSecondaryContextualization(deser, prop, type);
         }
         return deser;
     }
@@ -617,13 +617,13 @@ public abstract class DeserializationContext
      * performing any contextualization (unlike {@link #findContextualValueDeserializer})
      * or checking for need to create a {@link TypeDeserializer} (unlike
      * {@link #findRootValueDeserializer(JavaType)}.
-     * This method is usually called from within {@link JsonDeserializer#resolve},
+     * This method is usually called from within {@link ValueDeserializer#resolve},
      * and expectation is that caller then calls either
-     * {@link #handlePrimaryContextualization(JsonDeserializer, BeanProperty, JavaType)} or
-     * {@link #handleSecondaryContextualization(JsonDeserializer, BeanProperty, JavaType)} at a
+     * {@link #handlePrimaryContextualization(ValueDeserializer, BeanProperty, JavaType)} or
+     * {@link #handleSecondaryContextualization(ValueDeserializer, BeanProperty, JavaType)} at a
      * later point, as necessary.
      */
-    public final JsonDeserializer<Object> findNonContextualValueDeserializer(JavaType type)
+    public final ValueDeserializer<Object> findNonContextualValueDeserializer(JavaType type)
     {
         return _cache.findValueDeserializer(this, _factory, type);
     }
@@ -632,14 +632,14 @@ public abstract class DeserializationContext
      * Method for finding a deserializer for root-level value.
      */
     @SuppressWarnings("unchecked")
-    public final JsonDeserializer<Object> findRootValueDeserializer(JavaType type)
+    public final ValueDeserializer<Object> findRootValueDeserializer(JavaType type)
     {
-        JsonDeserializer<Object> deser = _cache.findValueDeserializer(this,
+        ValueDeserializer<Object> deser = _cache.findValueDeserializer(this,
                 _factory, type);
         if (deser == null) { // can this occur?
             return null;
         }
-        deser = (JsonDeserializer<Object>) handleSecondaryContextualization(deser, null, type);
+        deser = (ValueDeserializer<Object>) handleSecondaryContextualization(deser, null, type);
         TypeDeserializer typeDeser = findTypeDeserializer(type);
         if (typeDeser != null) {
             // important: contextualize to indicate this is for root value
@@ -847,7 +847,7 @@ public abstract class DeserializationContext
     /**********************************************************************
      */
 
-    public abstract JsonDeserializer<Object> deserializerInstance(Annotated annotated,
+    public abstract ValueDeserializer<Object> deserializerInstance(Annotated annotated,
             Object deserDef);
 
     public abstract KeyDeserializer keyDeserializerInstance(Annotated annotated,
@@ -864,11 +864,11 @@ public abstract class DeserializationContext
      * Method called for primary property deserializers (ones
      * directly created to deserialize values of a POJO property),
      * to handle details of calling
-     * {@link JsonDeserializer#createContextual} with given property context.
+     * {@link ValueDeserializer#createContextual} with given property context.
      *
      * @param prop Property for which the given primary deserializer is used; never null.
      */
-    public JsonDeserializer<?> handlePrimaryContextualization(JsonDeserializer<?> deser,
+    public ValueDeserializer<?> handlePrimaryContextualization(ValueDeserializer<?> deser,
             BeanProperty prop, JavaType type)
     {
         if (deser != null) {
@@ -888,7 +888,7 @@ public abstract class DeserializationContext
      * but instead created as a component -- such as value deserializers
      * for structured types, or deserializers for root values)
      * to handle details of resolving
-     * {@link JsonDeserializer#createContextual} with given property context.
+     * {@link ValueDeserializer#createContextual} with given property context.
      * Given that these deserializers are not directly related to given property
      * (or, in case of root value property, to any property), annotations
      * accessible may or may not be relevant.
@@ -896,7 +896,7 @@ public abstract class DeserializationContext
      * @param prop Property for which deserializer is used, if any; null
      *    when deserializing root values
      */
-    public JsonDeserializer<?> handleSecondaryContextualization(JsonDeserializer<?> deser,
+    public ValueDeserializer<?> handleSecondaryContextualization(ValueDeserializer<?> deser,
             BeanProperty prop, JavaType type)
     {
         if (deser != null) {
@@ -974,7 +974,7 @@ public abstract class DeserializationContext
      * @throws JacksonException If there are problems either reading content (underlying parser
      *    problem) or finding expected scalar value
      */
-    public String extractScalarFromObject(JsonParser p, JsonDeserializer<?> deser,
+    public String extractScalarFromObject(JsonParser p, ValueDeserializer<?> deser,
             Class<?> scalarType)
         throws JacksonException
     {
@@ -1012,10 +1012,10 @@ public abstract class DeserializationContext
     public <T> T readPropertyValue(JsonParser p, BeanProperty prop, JavaType type)
         throws JacksonException
     {
-        JsonDeserializer<Object> deser = findContextualValueDeserializer(type, prop);
+        ValueDeserializer<Object> deser = findContextualValueDeserializer(type, prop);
         if (deser == null) {
             return reportBadDefinition(type, String.format(
-                    "Could not find JsonDeserializer for type %s (via property %s)",
+                    "Could not find `ValueDeserializer` for type %s (via property %s)",
                     ClassUtil.getTypeDescription(type), ClassUtil.nameOf(prop)));
         }
         return (T) deser.deserialize(p, this);
@@ -1097,7 +1097,7 @@ public abstract class DeserializationContext
      * @return True if there was a configured problem handler that was able to handle the
      *   problem
      */
-    public boolean handleUnknownProperty(JsonParser p, JsonDeserializer<?> deser,
+    public boolean handleUnknownProperty(JsonParser p, ValueDeserializer<?> deser,
             Object instanceOrClass, String propName)
         throws JacksonException
     {
@@ -1552,7 +1552,7 @@ public abstract class DeserializationContext
      * this method will simply return null; otherwise {@link InvalidDefinitionException}
      * will be thrown.
      */
-    public void handleBadMerge(JsonDeserializer<?> deser) throws DatabindException
+    public void handleBadMerge(ValueDeserializer<?> deser) throws DatabindException
     {
         if (!isEnabled(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE)) {
             JavaType type = constructType(deser.handledType());
@@ -1587,7 +1587,7 @@ public abstract class DeserializationContext
      * recovery is attempted (via {@link DeserializationProblemHandler}, as
      * problem is considered to be difficult to recover from, in general.
      */
-    public void reportWrongTokenException(JsonDeserializer<?> deser,
+    public void reportWrongTokenException(ValueDeserializer<?> deser,
             JsonToken expToken, String msg, Object... msgArgs)
         throws DatabindException
     {
@@ -1639,7 +1639,7 @@ public abstract class DeserializationContext
      * Helper method used to indicate a problem with input in cases where more
      * specific <code>reportXxx()</code> method was not available.
      */
-    public <T> T reportInputMismatch(JsonDeserializer<?> src,
+    public <T> T reportInputMismatch(ValueDeserializer<?> src,
             String msg, Object... msgArgs)
         throws DatabindException
     {
@@ -1723,7 +1723,7 @@ public abstract class DeserializationContext
      * Helper method used to indicate a problem with input in cases where specific
      * input coercion was not allowed.
      */
-    public <T> T reportBadCoercion(JsonDeserializer<?> src,
+    public <T> T reportBadCoercion(ValueDeserializer<?> src,
             Class<?> targetType, Object inputValue,
             String msg, Object... msgArgs)
         throws DatabindException

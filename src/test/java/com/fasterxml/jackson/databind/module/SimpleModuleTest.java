@@ -43,7 +43,7 @@ public class SimpleModuleTest extends BaseMapTest
         }
     }
 
-    static class CustomBeanDeserializer extends JsonDeserializer<CustomBean>
+    static class CustomBeanDeserializer extends ValueDeserializer<CustomBean>
     {
         @Override
         public CustomBean deserialize(JsonParser p, DeserializationContext ctxt)
@@ -70,7 +70,7 @@ public class SimpleModuleTest extends BaseMapTest
         }
     }
 
-    static class SimpleEnumDeserializer extends JsonDeserializer<SimpleEnum>
+    static class SimpleEnumDeserializer extends ValueDeserializer<SimpleEnum>
     {
         @Override
         public SimpleEnum deserialize(JsonParser p, DeserializationContext ctxt)
@@ -265,7 +265,7 @@ public class SimpleModuleTest extends BaseMapTest
         mod1.addSerializer(SimpleEnum.class, new SimpleEnumSerializer());
         mod1.addDeserializer(CustomBean.class, new CustomBeanDeserializer());
 
-        Map<Class<?>,JsonDeserializer<?>> desers = new HashMap<>();
+        Map<Class<?>,ValueDeserializer<?>> desers = new HashMap<>();
         desers.put(SimpleEnum.class, new SimpleEnumDeserializer());
         mod2.setDeserializers(new SimpleDeserializers(desers));
         mod2.addSerializer(CustomBean.class, new CustomBeanSerializer());

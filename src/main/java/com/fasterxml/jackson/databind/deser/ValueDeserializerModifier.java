@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.type.ReferenceType;
  * Abstract class that defines API for objects that can be registered
  * (via {@code ObjectMapper} configuration process,
  * using {@link com.fasterxml.jackson.databind.cfg.MapperBuilder})
- * to participate in constructing {@link JsonDeserializer} instances
+ * to participate in constructing {@link ValueDeserializer} instances
  * (including but not limited to {@link BeanDeserializer}s).
  * This is typically done by modules that want alter some aspects of
  * the typical serialization process.
@@ -88,8 +88,8 @@ public abstract class ValueDeserializerModifier
      * be of any more specific (reference, enum, array, collection(-like), map(-like),
      * node type)
      */
-    public JsonDeserializer<?> modifyDeserializer(DeserializationConfig config,
-            BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
+    public ValueDeserializer<?> modifyDeserializer(DeserializationConfig config,
+            BeanDescription beanDesc, ValueDeserializer<?> deserializer) {
         return deserializer;
     }
 
@@ -103,8 +103,8 @@ public abstract class ValueDeserializerModifier
      * Method called by {@link BeanDeserializerFactory} after constructing default
      * enum type deserializer instance.
      */
-    public JsonDeserializer<?> modifyEnumDeserializer(DeserializationConfig config,
-            JavaType type, BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
+    public ValueDeserializer<?> modifyEnumDeserializer(DeserializationConfig config,
+            JavaType type, BeanDescription beanDesc, ValueDeserializer<?> deserializer) {
         return deserializer;
     }
 
@@ -112,8 +112,8 @@ public abstract class ValueDeserializerModifier
      * Method called by {@link BeanDeserializerFactory} after constructing default
      * {@link ReferenceType} deserializer instance.
      */
-    public JsonDeserializer<?> modifyReferenceDeserializer(DeserializationConfig config,
-            ReferenceType type, BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
+    public ValueDeserializer<?> modifyReferenceDeserializer(DeserializationConfig config,
+            ReferenceType type, BeanDescription beanDesc, ValueDeserializer<?> deserializer) {
         return deserializer;
     }
 
@@ -132,8 +132,8 @@ public abstract class ValueDeserializerModifier
      * @return Deserializer to use; either <code>deserializer</code> that was passed
      *   in, or an instance method constructed.
      */
-    public JsonDeserializer<?> modifyArrayDeserializer(DeserializationConfig config,
-            ArrayType valueType, BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
+    public ValueDeserializer<?> modifyArrayDeserializer(DeserializationConfig config,
+            ArrayType valueType, BeanDescription beanDesc, ValueDeserializer<?> deserializer) {
         return deserializer;
     }
 
@@ -141,8 +141,8 @@ public abstract class ValueDeserializerModifier
      * Method called by {@link BeanDeserializerFactory} after constructing default
      * {@link CollectionType} deserializer instance.
      */
-    public JsonDeserializer<?> modifyCollectionDeserializer(DeserializationConfig config,
-            CollectionType type, BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
+    public ValueDeserializer<?> modifyCollectionDeserializer(DeserializationConfig config,
+            CollectionType type, BeanDescription beanDesc, ValueDeserializer<?> deserializer) {
         return deserializer;
     }
 
@@ -150,8 +150,8 @@ public abstract class ValueDeserializerModifier
      * Method called by {@link BeanDeserializerFactory} after constructing default
      * {@link CollectionLikeType} deserializer instance.
      */
-    public JsonDeserializer<?> modifyCollectionLikeDeserializer(DeserializationConfig config,
-            CollectionLikeType type, BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
+    public ValueDeserializer<?> modifyCollectionLikeDeserializer(DeserializationConfig config,
+            CollectionLikeType type, BeanDescription beanDesc, ValueDeserializer<?> deserializer) {
         return deserializer;
     }
 
@@ -159,8 +159,8 @@ public abstract class ValueDeserializerModifier
      * Method called by {@link BeanDeserializerFactory} after constructing default
      * {@link MapType} deserializer instance.
      */
-    public JsonDeserializer<?> modifyMapDeserializer(DeserializationConfig config,
-            MapType type, BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
+    public ValueDeserializer<?> modifyMapDeserializer(DeserializationConfig config,
+            MapType type, BeanDescription beanDesc, ValueDeserializer<?> deserializer) {
         return deserializer;
     }
 
@@ -168,8 +168,8 @@ public abstract class ValueDeserializerModifier
      * Method called by {@link BeanDeserializerFactory} after constructing default
      * {@link MapLikeType} deserializer instance.
      */
-    public JsonDeserializer<?> modifyMapLikeDeserializer(DeserializationConfig config,
-            MapLikeType type, BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
+    public ValueDeserializer<?> modifyMapLikeDeserializer(DeserializationConfig config,
+            MapLikeType type, BeanDescription beanDesc, ValueDeserializer<?> deserializer) {
         return deserializer;
     }
 

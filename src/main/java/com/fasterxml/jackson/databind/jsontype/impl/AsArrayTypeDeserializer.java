@@ -89,7 +89,7 @@ public class AsArrayTypeDeserializer
         }
         boolean hadStartArray = p.isExpectedStartArrayToken();
         String typeId = _locateTypeId(p, ctxt);
-        JsonDeserializer<Object> deser = _findDeserializer(ctxt, typeId);
+        ValueDeserializer<Object> deser = _findDeserializer(ctxt, typeId);
         // Minor complication: we may need to merge type id in?
         if (_typeIdVisible
                 // 06-Oct-2014, tatu: To fix [databind#408], must distinguish between

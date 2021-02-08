@@ -1082,8 +1082,8 @@ public class JacksonAnnotationIntrospector
         JsonDeserialize ann = _findAnnotation(a, JsonDeserialize.class);
         if (ann != null) {
             @SuppressWarnings("rawtypes")
-            Class<? extends JsonDeserializer> deserClass = ann.using();
-            if (deserClass != JsonDeserializer.None.class) {
+            Class<? extends ValueDeserializer> deserClass = ann.using();
+            if (deserClass != ValueDeserializer.None.class) {
                 return deserClass;
             }
         }
@@ -1109,8 +1109,8 @@ public class JacksonAnnotationIntrospector
         JsonDeserialize ann = _findAnnotation(a, JsonDeserialize.class);
         if (ann != null) {
             @SuppressWarnings("rawtypes")
-            Class<? extends JsonDeserializer> deserClass = ann.contentUsing();
-            if (deserClass != JsonDeserializer.None.class) {
+            Class<? extends ValueDeserializer> deserClass = ann.contentUsing();
+            if (deserClass != ValueDeserializer.None.class) {
                 return deserClass;
             }
         }

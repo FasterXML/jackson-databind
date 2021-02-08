@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.AccessPattern;
 
 /**
- * Base class that simplifies implementations of {@link JsonDeserializer}s
+ * Base class that simplifies implementations of {@link ValueDeserializer}s
  * that mostly delegate functionality to another deserializer implementation
  * (possibly forming a chain of deserializers delegating functionality
  * in some cases)
@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.util.AccessPattern;
 public abstract class DelegatingDeserializer
     extends StdDeserializer<Object>
 {
-    protected final JsonDeserializer<?> _delegatee;
+    protected final ValueDeserializer<?> _delegatee;
     
     /*
     /**********************************************************************
@@ -28,7 +28,7 @@ public abstract class DelegatingDeserializer
     /**********************************************************************
      */
 
-    public DelegatingDeserializer(JsonDeserializer<?> d)
+    public DelegatingDeserializer(ValueDeserializer<?> d)
     {
         super(d.handledType());
         _delegatee = d;
@@ -40,7 +40,7 @@ public abstract class DelegatingDeserializer
     /**********************************************************************
      */
     
-    protected abstract JsonDeserializer<?> newDelegatingInstance(JsonDeserializer<?> newDelegatee);
+    protected abstract ValueDeserializer<?> newDelegatingInstance(ValueDeserializer<?> newDelegatee);
     
     /*
     /**********************************************************************
@@ -56,11 +56,11 @@ public abstract class DelegatingDeserializer
     }
 
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property)
     {
         JavaType vt = ctxt.constructType(_delegatee.handledType());
-        JsonDeserializer<?> del = ctxt.handleSecondaryContextualization(_delegatee,
+        ValueDeserializer<?> del = ctxt.handleSecondaryContextualization(_delegatee,
                 property, vt);
         if (del == _delegatee) {
             return this;
@@ -75,7 +75,7 @@ public abstract class DelegatingDeserializer
     }
 
     @Override
-    public JsonDeserializer<?> replaceDelegatee(JsonDeserializer<?> delegatee)
+    public ValueDeserializer<?> replaceDelegatee(ValueDeserializer<?> delegatee)
     {
         if (delegatee == _delegatee) {
             return this;
@@ -102,7 +102,7 @@ public abstract class DelegatingDeserializer
             Object intoValue)
         throws JacksonException
     {
-        return ((JsonDeserializer<Object>)_delegatee).deserialize(p, ctxt, intoValue);
+        return ((ValueDeserializer<Object>)_delegatee).deserialize(p, ctxt, intoValue);
     }
 
     @Override
@@ -120,7 +120,7 @@ public abstract class DelegatingDeserializer
      */
 
     @Override
-    public JsonDeserializer<?> getDelegatee() {
+    public ValueDeserializer<?> getDelegatee() {
         return _delegatee;
     }
 

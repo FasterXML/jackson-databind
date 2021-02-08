@@ -38,7 +38,7 @@ public class JDKKeyDeserializers
     }
     
     public static KeyDeserializer constructDelegatingKeyDeserializer(DeserializationConfig config,
-            JavaType type, JsonDeserializer<?> deser)
+            JavaType type, ValueDeserializer<?> deser)
     {
         return new JDKKeyDeserializer.DelegatingKD(type.getRawClass(), deser);
     }

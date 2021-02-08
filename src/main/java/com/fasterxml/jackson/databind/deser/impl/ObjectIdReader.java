@@ -32,7 +32,7 @@ public class ObjectIdReader
     /**
      * Deserializer used for deserializing id values.
      */
-    protected final JsonDeserializer<Object> _deserializer;
+    protected final ValueDeserializer<Object> _deserializer;
 
     public final SettableBeanProperty idProperty;
     
@@ -44,13 +44,13 @@ public class ObjectIdReader
     
     @SuppressWarnings("unchecked")
     protected ObjectIdReader(JavaType t, PropertyName propName, ObjectIdGenerator<?> gen,
-            JsonDeserializer<?> deser, SettableBeanProperty idProp, ObjectIdResolver resolver)
+            ValueDeserializer<?> deser, SettableBeanProperty idProp, ObjectIdResolver resolver)
     {
         _idType = t;
         propertyName = propName;
         generator = gen;
         this.resolver = resolver;
-        _deserializer = (JsonDeserializer<Object>) deser;
+        _deserializer = (ValueDeserializer<Object>) deser;
         idProperty = idProp;
     }
 
@@ -60,7 +60,7 @@ public class ObjectIdReader
      * for which serializer is being built.
      */
     public static ObjectIdReader construct(JavaType idType, PropertyName propName,
-            ObjectIdGenerator<?> generator, JsonDeserializer<?> deser,
+            ObjectIdGenerator<?> generator, ValueDeserializer<?> deser,
             SettableBeanProperty idProp, ObjectIdResolver resolver)
     {
         return new ObjectIdReader(idType, propName, generator, deser, idProp, resolver);
@@ -72,7 +72,7 @@ public class ObjectIdReader
     /**********************************************************
      */
 
-    public JsonDeserializer<Object> getDeserializer() {
+    public ValueDeserializer<Object> getDeserializer() {
         return _deserializer;
     }
 

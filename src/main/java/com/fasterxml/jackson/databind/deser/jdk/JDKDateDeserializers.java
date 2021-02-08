@@ -16,7 +16,7 @@ public class JDKDateDeserializers
         _utilClasses.add("java.util.Date");
     }
 
-    public static JsonDeserializer<?> find(Class<?> rawType, String clsName)
+    public static ValueDeserializer<?> find(Class<?> rawType, String clsName)
     {
         if (_utilClasses.contains(clsName)) {
             // Start with the most common type

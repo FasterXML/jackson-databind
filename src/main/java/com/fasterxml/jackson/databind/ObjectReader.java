@@ -106,7 +106,7 @@ public class ObjectReader
      * This allows avoiding further deserializer lookups and increases
      * performance a bit on cases where readers are reused.
      */
-    protected final JsonDeserializer<Object> _rootDeserializer;
+    protected final ValueDeserializer<Object> _rootDeserializer;
     
     /**
      * Instance to update with data binding; if any. If null,
@@ -139,7 +139,7 @@ public class ObjectReader
      * Root-level cached deserializers.
      * Passed by {@link ObjectMapper}, shared with it.
      */
-    final protected ConcurrentHashMap<JavaType, JsonDeserializer<Object>> _rootDeserializers;
+    final protected ConcurrentHashMap<JavaType, ValueDeserializer<Object>> _rootDeserializers;
 
     /*
     /**********************************************************************
@@ -180,7 +180,7 @@ public class ObjectReader
      * Copy constructor used for building variations.
      */
     protected ObjectReader(ObjectReader base, DeserializationConfig config,
-            JavaType valueType, JsonDeserializer<Object> rootDeser, Object valueToUpdate,
+            JavaType valueType, ValueDeserializer<Object> rootDeser, Object valueToUpdate,
             FormatSchema schema, InjectableValues injectableValues)
     {
         _config = config;
@@ -260,7 +260,7 @@ public class ObjectReader
      * Factory method called by various "withXxx()" methods
      */
     protected ObjectReader _new(ObjectReader base, DeserializationConfig config,
-            JavaType valueType, JsonDeserializer<Object> rootDeser, Object valueToUpdate,
+            JavaType valueType, ValueDeserializer<Object> rootDeser, Object valueToUpdate,
             FormatSchema schema, InjectableValues injectableValues) {
         return new ObjectReader(base, config, valueType, rootDeser,  valueToUpdate,
                  schema,  injectableValues);
@@ -271,7 +271,7 @@ public class ObjectReader
      * either default, or custom subtype.
      */
     protected <T> MappingIterator<T> _newIterator(JsonParser p, DeserializationContext ctxt,
-            JsonDeserializer<?> deser, boolean parserManaged)
+            ValueDeserializer<?> deser, boolean parserManaged)
     {
         return new MappingIterator<T>(_valueType, p, ctxt,
                 deser, parserManaged, _valueToUpdate);
@@ -570,7 +570,7 @@ public class ObjectReader
         if (valueType != null && valueType.equals(_valueType)) {
             return this;
         }
-        JsonDeserializer<Object> rootDeser = _prefetchRootDeserializer(valueType);
+        ValueDeserializer<Object> rootDeser = _prefetchRootDeserializer(valueType);
         return _new(this, _config, valueType, rootDeser,
                 _valueToUpdate, _schema, _injectableValues);
     }    
@@ -1885,7 +1885,7 @@ public class ObjectReader
     /**
      * Method called to locate deserializer for the passed root-level value.
      */
-    protected JsonDeserializer<Object> _findRootDeserializer(DeserializationContext ctxt)
+    protected ValueDeserializer<Object> _findRootDeserializer(DeserializationContext ctxt)
         throws DatabindException
     {
         if (_rootDeserializer != null) {
@@ -1899,7 +1899,7 @@ public class ObjectReader
                     "No value type configured for ObjectReader");
         }
         // First: have we already seen it?
-        JsonDeserializer<Object> deser = _rootDeserializers.get(t);
+        ValueDeserializer<Object> deser = _rootDeserializers.get(t);
         if (deser != null) {
             return deser;
         }
@@ -1912,10 +1912,10 @@ public class ObjectReader
         return deser;
     }
 
-    protected JsonDeserializer<Object> _findTreeDeserializer(DeserializationContext ctxt)
+    protected ValueDeserializer<Object> _findTreeDeserializer(DeserializationContext ctxt)
         throws DatabindException
     {
-        JsonDeserializer<Object> deser = _rootDeserializers.get(JSON_NODE_TYPE);
+        ValueDeserializer<Object> deser = _rootDeserializers.get(JSON_NODE_TYPE);
         if (deser == null) {
             // Nope: need to ask provider to resolve it
             deser = ctxt.findRootValueDeserializer(JSON_NODE_TYPE);
@@ -1933,13 +1933,13 @@ public class ObjectReader
      * by configuration. Method also is NOT to throw an exception if
      * access fails.
      */
-    protected JsonDeserializer<Object> _prefetchRootDeserializer(JavaType valueType)
+    protected ValueDeserializer<Object> _prefetchRootDeserializer(JavaType valueType)
     {
         if ((valueType == null) || !_config.isEnabled(DeserializationFeature.EAGER_DESERIALIZER_FETCH)) {
             return null;
         }
         // already cached?
-        JsonDeserializer<Object> deser = _rootDeserializers.get(valueType);
+        ValueDeserializer<Object> deser = _rootDeserializers.get(valueType);
         if (deser == null) {
             try {
                 // If not, need to resolve; for which we need a temporary context as well:

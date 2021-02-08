@@ -106,7 +106,7 @@ public class TestBeanConversions
         public static final NullBean NULL_INSTANCE = new NullBean();
     }
     
-    static class NullBeanDeserializer extends JsonDeserializer<NullBean> {
+    static class NullBeanDeserializer extends ValueDeserializer<NullBean> {
         @Override
         public NullBean getNullValue(final DeserializationContext context) {
             return NullBean.NULL_INSTANCE;

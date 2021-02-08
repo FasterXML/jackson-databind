@@ -96,7 +96,7 @@ public class AsWrapperTypeDeserializer
                     "need JSON Object to contain As.WRAPPER_OBJECT type information for class "+baseTypeName());
         }
         final String typeId = p.getText();
-        JsonDeserializer<Object> deser = _findDeserializer(ctxt, typeId);
+        ValueDeserializer<Object> deser = _findDeserializer(ctxt, typeId);
         p.nextToken();
 
         // Minor complication: we may need to merge type id in?

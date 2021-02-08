@@ -51,7 +51,7 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * Special handling includes:
  * <ul>
  * <li>Null values ({@link JsonToken#VALUE_NULL}) are handled by returning value
- *   returned by {@link JsonDeserializer#getNullValue(DeserializationContext)}: default
+ *   returned by {@link ValueDeserializer#getNullValue(DeserializationContext)}: default
  *   implementation simply returns Java `null` but this may be overridden.
  *  </li>
  * <li>Empty String (after trimming) will result in {@link #_deserializeFromEmptyString}

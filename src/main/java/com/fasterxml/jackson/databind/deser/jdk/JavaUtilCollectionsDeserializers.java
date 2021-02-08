@@ -36,7 +36,7 @@ public abstract class JavaUtilCollectionsDeserializers
     // for Java 11+ List.of(), Map.of() stuff
     private final static String PREFIX_JAVA_UTIL_IMMUTABLE_COLL = "java.util.ImmutableCollections$";
 
-    public static JsonDeserializer<?> findForCollection(DeserializationContext ctxt,
+    public static ValueDeserializer<?> findForCollection(DeserializationContext ctxt,
             JavaType type)
     {
         final String clsName = type.getRawClass().getName();
@@ -97,7 +97,7 @@ public abstract class JavaUtilCollectionsDeserializers
         return null;
     }
 
-    public static JsonDeserializer<?> findForMap(DeserializationContext ctxt,
+    public static ValueDeserializer<?> findForMap(DeserializationContext ctxt,
             JavaType type)
     {
         final String clsName = type.getRawClass().getName();

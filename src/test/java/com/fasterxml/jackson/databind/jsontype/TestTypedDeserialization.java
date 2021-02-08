@@ -80,7 +80,7 @@ public class TestTypedDeserialization
         }
     }
 
-    static class NullAnimalDeserializer extends JsonDeserializer<NullAnimal> {
+    static class NullAnimalDeserializer extends ValueDeserializer<NullAnimal> {
         @Override
         public NullAnimal getNullValue(final DeserializationContext context) {
             return NullAnimal.NULL_INSTANCE;

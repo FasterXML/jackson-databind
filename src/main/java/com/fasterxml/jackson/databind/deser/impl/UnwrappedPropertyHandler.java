@@ -5,7 +5,7 @@ import java.util.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.InternCache;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.ValueDeserializer;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
@@ -39,10 +39,10 @@ public class UnwrappedPropertyHandler
             String newName = transformer.transform(prop.getName());
             newName = InternCache.instance.intern(newName);
             prop = prop.withSimpleName(newName);
-            JsonDeserializer<?> deser = prop.getValueDeserializer();
+            ValueDeserializer<?> deser = prop.getValueDeserializer();
             if (deser != null) {
                 @SuppressWarnings("unchecked")
-                JsonDeserializer<Object> newDeser = (JsonDeserializer<Object>)
+                ValueDeserializer<Object> newDeser = (ValueDeserializer<Object>)
                     deser.unwrappingDeserializer(ctxt, transformer);
                 if (newDeser != deser) {
                     prop = prop.withValueDeserializer(newDeser);

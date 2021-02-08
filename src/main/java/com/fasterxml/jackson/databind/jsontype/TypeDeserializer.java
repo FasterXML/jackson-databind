@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.ValueDeserializer;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 
 /**
@@ -84,7 +84,7 @@ public abstract class TypeDeserializer
      * deserialization of "typed" object, when value itself
      * is serialized as JSON Object (regardless of Java type).
      * Method needs to figure out intended
-     * polymorphic type, locate {@link JsonDeserializer} to use, and
+     * polymorphic type, locate {@link ValueDeserializer} to use, and
      * call it with JSON data to deserializer (which does not contain
      * type information).
      */
@@ -96,7 +96,7 @@ public abstract class TypeDeserializer
      * deserialization of "typed" object, when value itself
      * is serialized as JSON Array (regardless of Java type).
      * Method needs to figure out intended
-     * polymorphic type, locate {@link JsonDeserializer} to use, and
+     * polymorphic type, locate {@link ValueDeserializer} to use, and
      * call it with JSON data to deserializer (which does not contain
      * type information).
      */
@@ -108,7 +108,7 @@ public abstract class TypeDeserializer
      * is serialized as a scalar JSON value (something other
      * than Array or Object), regardless of Java type.
      * Method needs to figure out intended
-     * polymorphic type, locate {@link JsonDeserializer} to use, and
+     * polymorphic type, locate {@link ValueDeserializer} to use, and
      * call it with JSON data to deserializer (which does not contain
      * type information).
      */

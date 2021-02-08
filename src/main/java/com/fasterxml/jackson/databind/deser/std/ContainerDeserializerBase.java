@@ -82,7 +82,7 @@ public abstract class ContainerDeserializerBase<T>
 
     @Override
     public SettableBeanProperty findBackReference(String refName) {
-        JsonDeserializer<Object> valueDeser = getContentDeserializer();
+        ValueDeserializer<Object> valueDeser = getContentDeserializer();
         if (valueDeser == null) {
             throw new IllegalArgumentException(String.format(
                     "Cannot handle managed/back reference '%s': type: container deserializer of type %s returned null for 'getContentDeserializer()'",
@@ -111,7 +111,7 @@ public abstract class ContainerDeserializerBase<T>
     /**
      * Accesor for deserializer use for deserializing content values.
      */
-    public abstract JsonDeserializer<Object> getContentDeserializer();
+    public abstract ValueDeserializer<Object> getContentDeserializer();
 
     @Override
     public AccessPattern getEmptyAccessPattern() {

@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.util.UniqueId;
  * to do so they MUST call {@code super.setupModule(context);}
  * to ensure that registration works as expected.
  *<p>
- * WARNING: when registering {@link JsonSerializer}s and {@link JsonDeserializer}s,
+ * WARNING: when registering {@link JsonSerializer}s and {@link ValueDeserializer}s,
  * only type erased {@code Class} is compared: this means that usually you should
  * NOT use this implementation for registering structured types such as
  * {@link java.util.Collection}s or {@link java.util.Map}s: this because parametric
@@ -318,7 +318,7 @@ public class SimpleModule
      * be used when registering serializers for generic types like
      * {@link java.util.Collection} and {@link java.util.Map}.
      */
-    public <T> SimpleModule addDeserializer(Class<T> type, JsonDeserializer<? extends T> deser)
+    public <T> SimpleModule addDeserializer(Class<T> type, ValueDeserializer<? extends T> deser)
     {
         _checkNotNull(type, "type to register deserializer for");
         _checkNotNull(deser, "deserializer");

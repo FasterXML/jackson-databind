@@ -26,7 +26,7 @@ class FactoryBasedEnumDeserializer
     protected final JavaType _inputType;
     protected final boolean _hasArgs;
     protected final AnnotatedMethod _factory;
-    protected final JsonDeserializer<?> _deser;
+    protected final ValueDeserializer<?> _deser;
     protected final ValueInstantiator _valueInstantiator;
     protected final SettableBeanProperty[] _creatorProps;
 
@@ -63,7 +63,7 @@ class FactoryBasedEnumDeserializer
     }
 
     protected FactoryBasedEnumDeserializer(FactoryBasedEnumDeserializer base,
-            JsonDeserializer<?> deser) {
+            ValueDeserializer<?> deser) {
         super(base._valueClass);
         _inputType = base._inputType;
         _factory = base._factory;
@@ -75,7 +75,7 @@ class FactoryBasedEnumDeserializer
     }
 
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property)
     {
         if ((_deser == null) && (_inputType != null) && (_creatorProps == null)) {

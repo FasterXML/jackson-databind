@@ -62,7 +62,7 @@ public abstract class PrimitiveArrayDeserializers<T>
         _nuller = nuller;
     }
     
-    public static JsonDeserializer<?> forType(Class<?> rawType)
+    public static ValueDeserializer<?> forType(Class<?> rawType)
     {
         // Start with more common types...
         if (rawType == Integer.TYPE) {
@@ -94,7 +94,7 @@ public abstract class PrimitiveArrayDeserializers<T>
     }
 
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property)
     {
         Boolean unwrapSingle = findFormatFeature(ctxt, property, _valueClass,

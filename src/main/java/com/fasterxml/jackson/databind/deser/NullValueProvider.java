@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.util.AccessPattern;
 /**
  * Helper interface implemented by classes that are to be used as
  * null providers during deserialization. Most importantly implemented by
- * {@link com.fasterxml.jackson.databind.JsonDeserializer} (as a mix-in
+ * {@link com.fasterxml.jackson.databind.ValueDeserializer} (as a mix-in
  * interface), but also by converters used to support more configurable
  * null replacement.
  */

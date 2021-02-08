@@ -246,8 +246,8 @@ public class ObjectMapper
      * no type information is needed for base type), or type-wrapped
      * deserializers (if it is needed)
      */
-    protected final ConcurrentHashMap<JavaType, JsonDeserializer<Object>> _rootDeserializers
-        = new ConcurrentHashMap<JavaType, JsonDeserializer<Object>>(64, 0.6f, 2);
+    protected final ConcurrentHashMap<JavaType, ValueDeserializer<Object>> _rootDeserializers
+        = new ConcurrentHashMap<JavaType, ValueDeserializer<Object>>(64, 0.6f, 2);
 
     /*
     /**********************************************************************
@@ -1031,7 +1031,7 @@ public class ObjectMapper
     {
         _assertNotNull("p", p);
         DeserializationContext ctxt = _deserializationContext(p);
-        JsonDeserializer<?> deser = _findRootDeserializer(ctxt, valueType);
+        ValueDeserializer<?> deser = _findRootDeserializer(ctxt, valueType);
         // false -> do NOT close JsonParser (since caller passed it)
         return new MappingIterator<T>(valueType, p, ctxt, deser,
                 false, null);
@@ -2216,7 +2216,7 @@ public class ObjectMapper
         } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
             result = null;
         } else { // pointing to event other than null
-            JsonDeserializer<Object> deser = _findRootDeserializer(readCtxt, toValueType);
+            ValueDeserializer<Object> deser = _findRootDeserializer(readCtxt, toValueType);
             // note: no handling of unwrapping
             result = deser.deserialize(p, readCtxt);
         }
@@ -2368,7 +2368,7 @@ public class ObjectMapper
         JsonToken t = _initForReading(p, valueType);
 
         if (t == JsonToken.VALUE_NULL) {
-            // Ask JsonDeserializer what 'null value' to use:
+            // Ask deserializer what 'null value' to use:
             result = _findRootDeserializer(ctxt, valueType).getNullValue(ctxt);
         } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
             result = null;
@@ -2392,7 +2392,7 @@ public class ObjectMapper
             Object result;
             JsonToken t = _initForReading(p, valueType);
             if (t == JsonToken.VALUE_NULL) {
-                // Ask JsonDeserializer what 'null value' to use:
+                // Ask deserializer what 'null value' to use:
                 result = _findRootDeserializer(ctxt, valueType).getNullValue(ctxt);
             } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
                 result = null;
@@ -2570,12 +2570,12 @@ public class ObjectMapper
     /**
      * Method called to locate deserializer for the passed root-level value.
      */
-    protected JsonDeserializer<Object> _findRootDeserializer(DeserializationContext ctxt,
+    protected ValueDeserializer<Object> _findRootDeserializer(DeserializationContext ctxt,
             JavaType valueType)
         throws JacksonException
     {
         // First: have we already seen it?
-        JsonDeserializer<Object> deser = _rootDeserializers.get(valueType);
+        ValueDeserializer<Object> deser = _rootDeserializers.get(valueType);
         if (deser != null) {
             return deser;
         }

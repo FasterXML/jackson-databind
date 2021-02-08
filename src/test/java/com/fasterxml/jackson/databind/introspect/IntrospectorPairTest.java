@@ -357,13 +357,13 @@ public class IntrospectorPairTest extends BaseMapTest
 
     public void testFindDeserializer() throws Exception
     {
-        final JsonDeserializer<?> deserString = StringDeserializer.instance;
-        final JsonDeserializer<?> deserObject = UntypedObjectDeserializer.Vanilla.std;
+        final ValueDeserializer<?> deserString = StringDeserializer.instance;
+        final ValueDeserializer<?> deserObject = UntypedObjectDeserializer.Vanilla.std;
 
         AnnotationIntrospector intr1 = new IntrospectorWithHandlers(deserString, null);
         AnnotationIntrospector intr2 = new IntrospectorWithHandlers(deserObject, null);
         AnnotationIntrospector nop = AnnotationIntrospector.nopInstance();
-        AnnotationIntrospector nop2 = new IntrospectorWithHandlers(JsonDeserializer.None.class, null);
+        AnnotationIntrospector nop2 = new IntrospectorWithHandlers(ValueDeserializer.None.class, null);
 
         assertSame(deserString,
                 new AnnotationIntrospectorPair(intr1, intr2).findDeserializer(null, null));

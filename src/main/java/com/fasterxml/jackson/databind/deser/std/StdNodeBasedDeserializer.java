@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 public abstract class StdNodeBasedDeserializer<T>
     extends StdDeserializer<T>
 {
-    protected JsonDeserializer<Object> _treeDeserializer;
+    protected ValueDeserializer<Object> _treeDeserializer;
 
     /*
     /**********************************************************************
@@ -33,7 +33,7 @@ public abstract class StdNodeBasedDeserializer<T>
 
     /**
      * "Copy-constructor" used when creating a modified copies, most often
-     * if sub-class overrides {@link com.fasterxml.jackson.databind.JsonDeserializer#createContextual}.
+     * if sub-class overrides {@link com.fasterxml.jackson.databind.ValueDeserializer#createContextual}.
      */
     protected StdNodeBasedDeserializer(StdNodeBasedDeserializer<?> src) {
         super(src);
@@ -56,7 +56,7 @@ public abstract class StdNodeBasedDeserializer<T>
 
     /*
     /**********************************************************************
-    /* JsonDeserializer impl
+    /* ValueDeserializer impl
     /**********************************************************************
      */
     

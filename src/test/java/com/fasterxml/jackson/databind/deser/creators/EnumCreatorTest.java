@@ -104,7 +104,7 @@ public class EnumCreatorTest extends BaseMapTest
     static class DelegatingDeserializers extends Deserializers.Base
     {
         @Override
-        public JsonDeserializer<?> findEnumDeserializer(final Class<?> type, final DeserializationConfig config, final BeanDescription beanDesc)
+        public ValueDeserializer<?> findEnumDeserializer(final Class<?> type, final DeserializationConfig config, final BeanDescription beanDesc)
         {
             final Collection<AnnotatedMethod> factoryMethods = beanDesc.getFactoryMethods();
             if (factoryMethods != null) {

@@ -35,13 +35,13 @@ public class UntypedObjectDeserializer
     /**********************************************************
      */
 
-    protected JsonDeserializer<Object> _mapDeserializer;
+    protected ValueDeserializer<Object> _mapDeserializer;
 
-    protected JsonDeserializer<Object> _listDeserializer;
+    protected ValueDeserializer<Object> _listDeserializer;
 
-    protected JsonDeserializer<Object> _stringDeserializer;
+    protected ValueDeserializer<Object> _stringDeserializer;
 
-    protected JsonDeserializer<Object> _numberDeserializer;
+    protected ValueDeserializer<Object> _numberDeserializer;
 
     /**
      * If {@link java.util.List} has been mapped to non-default implementation,
@@ -68,14 +68,14 @@ public class UntypedObjectDeserializer
 
     @SuppressWarnings("unchecked")
     public UntypedObjectDeserializer(UntypedObjectDeserializer base,
-            JsonDeserializer<?> mapDeser, JsonDeserializer<?> listDeser,
-            JsonDeserializer<?> stringDeser, JsonDeserializer<?> numberDeser)
+            ValueDeserializer<?> mapDeser, ValueDeserializer<?> listDeser,
+            ValueDeserializer<?> stringDeser, ValueDeserializer<?> numberDeser)
     {
         super(Object.class);
-        _mapDeserializer = (JsonDeserializer<Object>) mapDeser;
-        _listDeserializer = (JsonDeserializer<Object>) listDeser;
-        _stringDeserializer = (JsonDeserializer<Object>) stringDeser;
-        _numberDeserializer = (JsonDeserializer<Object>) numberDeser;
+        _mapDeserializer = (ValueDeserializer<Object>) mapDeser;
+        _listDeserializer = (ValueDeserializer<Object>) listDeser;
+        _stringDeserializer = (ValueDeserializer<Object>) stringDeser;
+        _numberDeserializer = (ValueDeserializer<Object>) numberDeser;
         _listType = base._listType;
         _mapType = base._mapType;
         _nonMerging = base._nonMerging;
@@ -141,20 +141,20 @@ public class UntypedObjectDeserializer
         // and then do bogus contextualization, in case custom ones need to resolve dependencies of
         // their own
         JavaType unknown = TypeFactory.unknownType();
-        _mapDeserializer = (JsonDeserializer<Object>) ctxt.handleSecondaryContextualization(_mapDeserializer, null, unknown);
-        _listDeserializer = (JsonDeserializer<Object>) ctxt.handleSecondaryContextualization(_listDeserializer, null, unknown);
-        _stringDeserializer = (JsonDeserializer<Object>) ctxt.handleSecondaryContextualization(_stringDeserializer, null, unknown);
-        _numberDeserializer = (JsonDeserializer<Object>) ctxt.handleSecondaryContextualization(_numberDeserializer, null, unknown);
+        _mapDeserializer = (ValueDeserializer<Object>) ctxt.handleSecondaryContextualization(_mapDeserializer, null, unknown);
+        _listDeserializer = (ValueDeserializer<Object>) ctxt.handleSecondaryContextualization(_listDeserializer, null, unknown);
+        _stringDeserializer = (ValueDeserializer<Object>) ctxt.handleSecondaryContextualization(_stringDeserializer, null, unknown);
+        _numberDeserializer = (ValueDeserializer<Object>) ctxt.handleSecondaryContextualization(_numberDeserializer, null, unknown);
     }
 
-    protected JsonDeserializer<Object> _findCustomDeser(DeserializationContext ctxt, JavaType type)
+    protected ValueDeserializer<Object> _findCustomDeser(DeserializationContext ctxt, JavaType type)
     {
         // Since we are calling from `resolve`, we should NOT try to contextualize yet;
         // contextualization will only occur at a later point
         return ctxt.findNonContextualValueDeserializer(type);
     }
 
-    protected JsonDeserializer<Object> _clearIfStdImpl(JsonDeserializer<Object> deser) {
+    protected ValueDeserializer<Object> _clearIfStdImpl(ValueDeserializer<Object> deser) {
         return ClassUtil.isJacksonStdImpl(deser) ? null : deser;
     }
 
@@ -163,7 +163,7 @@ public class UntypedObjectDeserializer
      * occurred; if so, can slip in a more streamlined version.
      */
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property)
     {
         // 14-Jun-2017, tatu: [databind#1625]: may want to block merging, for root value
@@ -490,8 +490,6 @@ public class UntypedObjectDeserializer
             return new LinkedHashMap<>(2);
         }
         // minor optimization; let's handle 1 and 2 entry cases separately
-        // 24-Mar-2015, tatu: Ideally, could use one of 'nextXxx()' methods, but for
-        //   that we'd need new method(s) in JsonDeserializer. So not quite yet.
         p.nextToken();
         Object value1 = deserialize(p, ctxt);
         String key2 = p.nextName();

@@ -11,7 +11,7 @@ public class Jdk8OptionalDeserializer
     extends ReferenceTypeDeserializer<Optional<?>>
 {
     public Jdk8OptionalDeserializer(JavaType fullType, ValueInstantiator inst,
-            TypeDeserializer typeDeser, JsonDeserializer<?> deser)
+            TypeDeserializer typeDeser, ValueDeserializer<?> deser)
     {
         super(fullType, inst, typeDeser, deser);
     }
@@ -23,7 +23,7 @@ public class Jdk8OptionalDeserializer
      */
 
     @Override
-    public Jdk8OptionalDeserializer withResolved(TypeDeserializer typeDeser, JsonDeserializer<?> valueDeser) {
+    public Jdk8OptionalDeserializer withResolved(TypeDeserializer typeDeser, ValueDeserializer<?> valueDeser) {
         return new Jdk8OptionalDeserializer(_fullType, _valueInstantiator,
                 typeDeser, valueDeser);
     }

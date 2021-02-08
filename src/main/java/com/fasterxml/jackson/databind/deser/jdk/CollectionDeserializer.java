@@ -34,7 +34,7 @@ public class CollectionDeserializer
     /**
      * Value deserializer.
      */
-    protected final JsonDeserializer<Object> _valueDeserializer;
+    protected final ValueDeserializer<Object> _valueDeserializer;
 
     /**
      * If element instances have polymorphic type information, this
@@ -50,7 +50,7 @@ public class CollectionDeserializer
      * Deserializer that is used iff delegate-based creator is
      * to be used for deserializing from JSON Object.
      */
-    protected final JsonDeserializer<Object> _delegateDeserializer;
+    protected final ValueDeserializer<Object> _delegateDeserializer;
 
     // NOTE: no PropertyBasedCreator, as JSON Arrays have no properties
 
@@ -65,7 +65,7 @@ public class CollectionDeserializer
      * which property is using this deserializer.
      */
     public CollectionDeserializer(JavaType collectionType,
-            JsonDeserializer<Object> valueDeser,
+            ValueDeserializer<Object> valueDeser,
             TypeDeserializer valueTypeDeser, ValueInstantiator valueInstantiator)
     {
         this(collectionType, valueDeser, valueTypeDeser, valueInstantiator, null, null, null);
@@ -75,8 +75,8 @@ public class CollectionDeserializer
      * Constructor used when creating contextualized instances.
      */
     protected CollectionDeserializer(JavaType collectionType,
-            JsonDeserializer<Object> valueDeser, TypeDeserializer valueTypeDeser,
-            ValueInstantiator valueInstantiator, JsonDeserializer<Object> delegateDeser,
+            ValueDeserializer<Object> valueDeser, TypeDeserializer valueTypeDeser,
+            ValueInstantiator valueInstantiator, ValueDeserializer<Object> delegateDeser,
             NullValueProvider nuller, Boolean unwrapSingle)
     {
         super(collectionType, nuller, unwrapSingle);
@@ -103,13 +103,13 @@ public class CollectionDeserializer
      * Fluent-factory method call to construct contextual instance.
      */
     @SuppressWarnings("unchecked")
-    protected CollectionDeserializer withResolved(JsonDeserializer<?> dd,
-            JsonDeserializer<?> vd, TypeDeserializer vtd,
+    protected CollectionDeserializer withResolved(ValueDeserializer<?> dd,
+            ValueDeserializer<?> vd, TypeDeserializer vtd,
             NullValueProvider nuller, Boolean unwrapSingle)
     {
         return new CollectionDeserializer(_containerType,
-                (JsonDeserializer<Object>) vd, vtd,
-                _valueInstantiator, (JsonDeserializer<Object>) dd,
+                (ValueDeserializer<Object>) vd, vtd,
+                _valueInstantiator, (ValueDeserializer<Object>) dd,
                 nuller, unwrapSingle);
     }
 
@@ -144,7 +144,7 @@ public class CollectionDeserializer
             BeanProperty property)
     {
         // May need to resolve types for delegate-based creators:
-        JsonDeserializer<Object> delegateDeser = null;
+        ValueDeserializer<Object> delegateDeser = null;
         if (_valueInstantiator != null) {
             if (_valueInstantiator.canCreateUsingDelegate()) {
                 JavaType delegateType = _valueInstantiator.getDelegateType(ctxt.getConfig());
@@ -172,7 +172,7 @@ _containerType,
         Boolean unwrapSingle = findFormatFeature(ctxt, property, Collection.class,
                 JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
         // also, often value deserializer is resolved here:
-        JsonDeserializer<?> valueDeser = _valueDeserializer;
+        ValueDeserializer<?> valueDeser = _valueDeserializer;
         
         // May have a content converter
         valueDeser = findConvertingContentDeserializer(ctxt, property, valueDeser);
@@ -207,7 +207,7 @@ _containerType,
      */
 
     @Override
-    public JsonDeserializer<Object> getContentDeserializer() {
+    public ValueDeserializer<Object> getContentDeserializer() {
         return _valueDeserializer;
     }
 
@@ -218,7 +218,7 @@ _containerType,
 
     /*
     /**********************************************************
-    /* JsonDeserializer API
+    /* ValueDeserializer impl
     /**********************************************************
      */
 
@@ -318,7 +318,7 @@ _containerType,
         // [databind#631]: Assign current value, to be accessible by custom serializers
         p.assignCurrentValue(result);
 
-        JsonDeserializer<Object> valueDes = _valueDeserializer;
+        ValueDeserializer<Object> valueDes = _valueDeserializer;
         // Let's offline handling of values with Object Ids (simplifies code here)
         if (valueDes.getObjectIdReader(ctxt) != null) {
             return _deserializeWithObjectId(p, ctxt, result);
@@ -373,7 +373,7 @@ _containerType,
         if (!canWrap) {
             return (Collection<Object>) ctxt.handleUnexpectedToken(_containerType, p);
         }
-        JsonDeserializer<Object> valueDes = _valueDeserializer;
+        ValueDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
         JsonToken t = p.currentToken();
 
@@ -414,7 +414,7 @@ _containerType,
         // [databind#631]: Assign current value, to be accessible by custom serializers
         p.assignCurrentValue(result);
 
-        final JsonDeserializer<Object> valueDes = _valueDeserializer;
+        final ValueDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
         CollectionReferringAccumulator referringAccumulator =
                 new CollectionReferringAccumulator(_containerType.getContentType().getRawClass(), result);

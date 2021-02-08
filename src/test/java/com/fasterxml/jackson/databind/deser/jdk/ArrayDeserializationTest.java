@@ -94,7 +94,7 @@ public class ArrayDeserializationTest
         public Object[] wrapped;
     }
 
-    static class CustomNonDeserArrayDeserializer extends JsonDeserializer<NonDeserializable[]>
+    static class CustomNonDeserArrayDeserializer extends ValueDeserializer<NonDeserializable[]>
     {
         @Override
         public NonDeserializable[] deserialize(JsonParser p, DeserializationContext ctxt)

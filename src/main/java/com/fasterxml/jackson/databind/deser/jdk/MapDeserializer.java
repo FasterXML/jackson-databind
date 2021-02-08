@@ -17,7 +17,6 @@ import com.fasterxml.jackson.databind.deser.std.ContainerDeserializerBase;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.LogicalType;
-import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.IgnorePropertiesUtil;
 
 /**
@@ -54,7 +53,7 @@ public class MapDeserializer
     /**
      * Value deserializer.
      */
-    protected final JsonDeserializer<Object> _valueDeserializer;
+    protected final ValueDeserializer<Object> _valueDeserializer;
 
     /**
      * If value instances have polymorphic type information, this
@@ -70,7 +69,7 @@ public class MapDeserializer
      * Deserializer that is used iff delegate-based creator is
      * to be used for deserializing from JSON Object.
      */
-    protected JsonDeserializer<Object> _delegateDeserializer;
+    protected ValueDeserializer<Object> _delegateDeserializer;
 
     /**
      * If the Map is to be instantiated using non-default constructor
@@ -99,13 +98,13 @@ public class MapDeserializer
     protected IgnorePropertiesUtil.Checker _inclusionChecker;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     public MapDeserializer(JavaType mapType, ValueInstantiator valueInstantiator,
-            KeyDeserializer keyDeser, JsonDeserializer<Object> valueDeser,
+            KeyDeserializer keyDeser, ValueDeserializer<Object> valueDeser,
             TypeDeserializer valueTypeDeser)
     {
         super(mapType, null, null);
@@ -143,7 +142,7 @@ public class MapDeserializer
     }
 
     protected MapDeserializer(MapDeserializer src,
-            KeyDeserializer keyDeser, JsonDeserializer<Object> valueDeser,
+            KeyDeserializer keyDeser, ValueDeserializer<Object> valueDeser,
             TypeDeserializer valueTypeDeser,
             NullValueProvider nuller,
             Set<String> ignorable)
@@ -155,7 +154,7 @@ public class MapDeserializer
      * @since 2.12
      */
     protected MapDeserializer(MapDeserializer src,
-            KeyDeserializer keyDeser, JsonDeserializer<Object> valueDeser,
+            KeyDeserializer keyDeser, ValueDeserializer<Object> valueDeser,
             TypeDeserializer valueTypeDeser,
             NullValueProvider nuller,
             Set<String> ignorable,
@@ -181,7 +180,7 @@ public class MapDeserializer
      * different settings. When sub-classing, MUST be overridden.
      */
     protected MapDeserializer withResolved(KeyDeserializer keyDeser,
-            TypeDeserializer valueTypeDeser, JsonDeserializer<?> valueDeser,
+            TypeDeserializer valueTypeDeser, ValueDeserializer<?> valueDeser,
             NullValueProvider nuller,
             Set<String> ignorable)
     {
@@ -193,7 +192,7 @@ public class MapDeserializer
      */
     @SuppressWarnings("unchecked")
     protected MapDeserializer withResolved(KeyDeserializer keyDeser,
-            TypeDeserializer valueTypeDeser, JsonDeserializer<?> valueDeser,
+            TypeDeserializer valueTypeDeser, ValueDeserializer<?> valueDeser,
             NullValueProvider nuller,
             Set<String> ignorable, Set<String> includable)
     {
@@ -203,7 +202,7 @@ public class MapDeserializer
             return this;
         }
         return new MapDeserializer(this,
-                keyDeser, (JsonDeserializer<Object>) valueDeser, valueTypeDeser,
+                keyDeser, (ValueDeserializer<Object>) valueDeser, valueTypeDeser,
                 nuller, ignorable, includable);
     }
 
@@ -225,16 +224,6 @@ public class MapDeserializer
                 && isDefaultKeyDeserializer(keyDeser));
     }
 
-    /**
-     * @deprecated in 2.12, remove from 3.0
-     */
-    @Deprecated
-    public void setIgnorableProperties(String[] ignorable) {
-        _ignorableProperties = (ignorable == null || ignorable.length == 0) ?
-            null : ArrayBuilders.arrayToSet(ignorable);
-        _inclusionChecker = IgnorePropertiesUtil.buildCheckerIfNeeded(_ignorableProperties, _includableProperties);
-    }
-
     public void setIgnorableProperties(Set<String> ignorable) {
         _ignorableProperties = (ignorable == null || ignorable.size() == 0) ?
                 null : ignorable;
@@ -247,9 +236,9 @@ public class MapDeserializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Validation, post-processing (ResolvableDeserializer)
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -291,7 +280,7 @@ public class MapDeserializer
      * when it is known for which property deserializer is needed for.
      */
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property)
     {
         KeyDeserializer keyDeser = _keyDeserializer;
@@ -303,7 +292,7 @@ public class MapDeserializer
             }
         }
         
-        JsonDeserializer<?> valueDeser = _valueDeserializer;
+        ValueDeserializer<?> valueDeser = _valueDeserializer;
         // [databind#125]: May have a content converter
         if (property != null) {
             valueDeser = findConvertingContentDeserializer(ctxt, property, valueDeser);
@@ -359,13 +348,13 @@ public class MapDeserializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* ContainerDeserializerBase API
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
-    public JsonDeserializer<Object> getContentDeserializer() {
+    public ValueDeserializer<Object> getContentDeserializer() {
         return _valueDeserializer;
     }
 
@@ -375,9 +364,9 @@ public class MapDeserializer
     }
 
     /*
-    /**********************************************************
-    /* JsonDeserializer API
-    /**********************************************************
+    /**********************************************************************
+    /* ValueDeserializer API
+    /**********************************************************************
      */
 
     /**
@@ -479,9 +468,9 @@ public class MapDeserializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Other public accessors
-    /**********************************************************
+    /**********************************************************************
      */
 
     @SuppressWarnings("unchecked")
@@ -490,16 +479,16 @@ public class MapDeserializer
     @Override public JavaType getValueType() { return _containerType; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods, non-merging deserialization
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected final void _readAndBind(JsonParser p, DeserializationContext ctxt,
             Map<Object,Object> result) throws JacksonException
     {
         final KeyDeserializer keyDes = _keyDeserializer;
-        final JsonDeserializer<Object> valueDes = _valueDeserializer;
+        final ValueDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
         
         MapReferringAccumulator referringAccumulator = null;
@@ -565,7 +554,7 @@ public class MapDeserializer
     protected final void _readAndBindStringKeyMap(JsonParser p, DeserializationContext ctxt,
             Map<Object,Object> result) throws JacksonException
     {
-        final JsonDeserializer<Object> valueDes = _valueDeserializer;
+        final ValueDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
         MapReferringAccumulator referringAccumulator = null;
         boolean useObjectId = (valueDes.getObjectIdReader(ctxt) != null);
@@ -628,7 +617,7 @@ public class MapDeserializer
         // null -> no ObjectIdReader for Maps (yet?)
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, null);
 
-        final JsonDeserializer<Object> valueDes = _valueDeserializer;
+        final ValueDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
 
         String key;
@@ -695,16 +684,16 @@ public class MapDeserializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods, non-merging deserialization
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected final void _readAndUpdate(JsonParser p, DeserializationContext ctxt,
             Map<Object,Object> result) throws JacksonException
     {
         final KeyDeserializer keyDes = _keyDeserializer;
-        final JsonDeserializer<Object> valueDes = _valueDeserializer;
+        final ValueDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
 
         // Note: assumption is that Object Id handling can't really work with merging
@@ -771,7 +760,7 @@ public class MapDeserializer
     protected final void _readAndUpdateStringKeyMap(JsonParser p, DeserializationContext ctxt,
             Map<Object,Object> result) throws JacksonException
     {
-        final JsonDeserializer<Object> valueDes = _valueDeserializer;
+        final ValueDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
 
         // Note: assumption is that Object Id handling can't really work with merging
@@ -829,9 +818,9 @@ public class MapDeserializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods, other
-    /**********************************************************
+    /**********************************************************************
      */
 
     private void handleUnresolvedReference(DeserializationContext ctxt,

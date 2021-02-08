@@ -64,7 +64,7 @@ public abstract class DeserializationProblemHandler
      *  depending on configuration.
      */
     public boolean handleUnknownProperty(DeserializationContext ctxt, JsonParser p,
-            JsonDeserializer<?> deserializer, Object beanOrClass, String propertyName)
+            ValueDeserializer<?> deserializer, Object beanOrClass, String propertyName)
         throws JacksonException
     {
         return false;

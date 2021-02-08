@@ -176,39 +176,41 @@ public abstract class DeserializationContextExt
     
     @SuppressWarnings("unchecked")
     @Override
-    public JsonDeserializer<Object> deserializerInstance(Annotated ann, Object deserDef)
+    public ValueDeserializer<Object> deserializerInstance(Annotated ann, Object deserDef)
     {
         if (deserDef == null) {
             return null;
         }
-        JsonDeserializer<?> deser;
+        ValueDeserializer<?> deser;
         
-        if (deserDef instanceof JsonDeserializer) {
-            deser = (JsonDeserializer<?>) deserDef;
+        if (deserDef instanceof ValueDeserializer) {
+            deser = (ValueDeserializer<?>) deserDef;
         } else {
             // Alas, there's no way to force return type of "either class
             // X or Y" -- need to throw an exception after the fact
             if (!(deserDef instanceof Class)) {
-                throw new IllegalStateException("AnnotationIntrospector returned deserializer definition of type "+deserDef.getClass().getName()+"; expected type JsonDeserializer or Class<JsonDeserializer> instead");
+                throw new IllegalStateException("AnnotationIntrospector returned deserializer definition of type "
+                        +deserDef.getClass().getName()
+                        +"; expected type `ValueDeserializer` or `Class<ValueDeserializer>` instead");
             }
             Class<?> deserClass = (Class<?>)deserDef;
             // there are some known "no class" markers to consider too:
-            if (deserClass == JsonDeserializer.None.class || ClassUtil.isBogusClass(deserClass)) {
+            if (deserClass == ValueDeserializer.None.class || ClassUtil.isBogusClass(deserClass)) {
                 return null;
             }
-            if (!JsonDeserializer.class.isAssignableFrom(deserClass)) {
-                throw new IllegalStateException("AnnotationIntrospector returned Class "+deserClass.getName()+"; expected Class<JsonDeserializer>");
+            if (!ValueDeserializer.class.isAssignableFrom(deserClass)) {
+                throw new IllegalStateException("AnnotationIntrospector returned `Class<"+deserClass.getName()+">`; expected `Class<ValueDeserializer>`");
             }
             HandlerInstantiator hi = _config.getHandlerInstantiator();
             deser = (hi == null) ? null : hi.deserializerInstance(_config, ann, deserClass);
             if (deser == null) {
-                deser = (JsonDeserializer<?>) ClassUtil.createInstance(deserClass,
+                deser = (ValueDeserializer<?>) ClassUtil.createInstance(deserClass,
                         _config.canOverrideAccessModifiers());
             }
         }
         // First: need to resolve
         deser.resolve(this);
-        return (JsonDeserializer<Object>) deser;
+        return (ValueDeserializer<Object>) deser;
     }
 
     @Override
@@ -256,7 +258,7 @@ public abstract class DeserializationContextExt
      */
 
     public Object readRootValue(JsonParser p, JavaType valueType,
-            JsonDeserializer<Object> deser, Object valueToUpdate)
+            ValueDeserializer<Object> deser, Object valueToUpdate)
         throws JacksonException
     {
         if (_config.useRootWrapping()) {
@@ -269,7 +271,7 @@ public abstract class DeserializationContextExt
     }
 
     protected Object _unwrapAndDeserialize(JsonParser p,
-            JavaType rootType, JsonDeserializer<Object> deser,
+            JavaType rootType, ValueDeserializer<Object> deser,
             Object valueToUpdate)
         throws JacksonException
     {

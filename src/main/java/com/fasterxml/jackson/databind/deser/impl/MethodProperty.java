@@ -42,7 +42,7 @@ public final class MethodProperty
         _skipNulls = NullsConstantProvider.isSkipper(_nullProvider);
     }
 
-    protected MethodProperty(MethodProperty src, JsonDeserializer<?> deser,
+    protected MethodProperty(MethodProperty src, ValueDeserializer<?> deser,
             NullValueProvider nva) {
         super(src, deser, nva);
         _annotated = src._annotated;
@@ -73,7 +73,7 @@ public final class MethodProperty
     }
     
     @Override
-    public SettableBeanProperty withValueDeserializer(JsonDeserializer<?> deser) {
+    public SettableBeanProperty withValueDeserializer(ValueDeserializer<?> deser) {
         if (_valueDeserializer == deser) {
             return this;
         }

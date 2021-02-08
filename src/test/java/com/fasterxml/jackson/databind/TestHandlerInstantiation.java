@@ -62,7 +62,7 @@ public class TestHandlerInstantiation extends BaseMapTest
     /**********************************************************************
      */
     
-    static class MyBeanDeserializer extends JsonDeserializer<MyBean>
+    static class MyBeanDeserializer extends ValueDeserializer<MyBean>
     {
         public String _prefix = "";
 
@@ -169,7 +169,7 @@ public class TestHandlerInstantiation extends BaseMapTest
         }
         
         @Override
-        public JsonDeserializer<?> deserializerInstance(DeserializationConfig config,
+        public ValueDeserializer<?> deserializerInstance(DeserializationConfig config,
                 Annotated annotated,
                 Class<?> deserClass)
         {

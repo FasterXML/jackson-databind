@@ -43,7 +43,7 @@ public class StdConvertingDeserializer<T>
     /**
      * Underlying serializer for type <code>T</code>.
      */
-    protected final JsonDeserializer<Object> _delegateDeserializer;
+    protected final ValueDeserializer<Object> _delegateDeserializer;
 
     /*
     /**********************************************************************
@@ -62,12 +62,12 @@ public class StdConvertingDeserializer<T>
 
     @SuppressWarnings("unchecked")
     public StdConvertingDeserializer(Converter<Object,T> converter,
-            JavaType delegateType, JsonDeserializer<?> delegateDeserializer)
+            JavaType delegateType, ValueDeserializer<?> delegateDeserializer)
     {
         super(delegateType);
         _converter = converter;
         _delegateType = delegateType;
-        _delegateDeserializer = (JsonDeserializer<Object>) delegateDeserializer;
+        _delegateDeserializer = (ValueDeserializer<Object>) delegateDeserializer;
     }
 
     protected StdConvertingDeserializer(StdConvertingDeserializer<T> src)
@@ -83,7 +83,7 @@ public class StdConvertingDeserializer<T>
      * overridden when sub-classing.
      */
     protected StdConvertingDeserializer<T> withDelegate(Converter<Object,T> converter,
-            JavaType delegateType, JsonDeserializer<?> delegateDeserializer)
+            JavaType delegateType, ValueDeserializer<?> delegateDeserializer)
     {
         ClassUtil.verifyMustOverride(StdConvertingDeserializer.class, this, "withDelegate");
         return new StdConvertingDeserializer<T>(converter, delegateType, delegateDeserializer);
@@ -106,11 +106,11 @@ public class StdConvertingDeserializer<T>
     }
 
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
     {
         // First: if already got deserializer to delegate to, contextualize it:
         if (_delegateDeserializer != null) {
-            JsonDeserializer<?> deser = ctxt.handleSecondaryContextualization(_delegateDeserializer,
+            ValueDeserializer<?> deser = ctxt.handleSecondaryContextualization(_delegateDeserializer,
                     property, _delegateType);
             if (deser != _delegateDeserializer) {
                 return withDelegate(_converter, _delegateType, deser);
@@ -130,7 +130,7 @@ public class StdConvertingDeserializer<T>
      */
 
     @Override
-    public JsonDeserializer<?> getDelegatee() {
+    public ValueDeserializer<?> getDelegatee() {
         return _delegateDeserializer;
     }
 

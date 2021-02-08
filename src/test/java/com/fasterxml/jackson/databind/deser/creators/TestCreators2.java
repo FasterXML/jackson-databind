@@ -29,7 +29,7 @@ public class TestCreators2 extends BaseMapTest
         }
     }
 
-    static class BytesDeserializer extends JsonDeserializer<byte[]>
+    static class BytesDeserializer extends ValueDeserializer<byte[]>
     {
         @Override
         public byte[] deserialize(JsonParser p, DeserializationContext ctxt)

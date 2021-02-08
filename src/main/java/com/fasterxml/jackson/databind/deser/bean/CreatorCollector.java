@@ -251,7 +251,7 @@ public class CreatorCollector
             // First: custom deserializer(s):
             Object deserDef = intr.findDeserializer(config, delegate);
             if (deserDef != null) {
-                JsonDeserializer<Object> deser = ctxt.deserializerInstance(delegate, deserDef);
+                ValueDeserializer<Object> deser = ctxt.deserializerInstance(delegate, deserDef);
                 baseType = baseType.withValueHandler(deser);
             } else {
                 // Second: type refinement(s), if no explicit deserializer was located

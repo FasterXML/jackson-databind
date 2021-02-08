@@ -31,10 +31,10 @@ public class JDKMiscDeserializers
         }
     }
 
-    public static JsonDeserializer<?> find(Class<?> rawType, String clsName)
+    public static ValueDeserializer<?> find(Class<?> rawType, String clsName)
     {
         if (_classNames.contains(clsName)) {
-            JsonDeserializer<?> d = JDKFromStringDeserializer.findDeserializer(rawType);
+            ValueDeserializer<?> d = JDKFromStringDeserializer.findDeserializer(rawType);
             if (d != null) {
                 return d;
             }

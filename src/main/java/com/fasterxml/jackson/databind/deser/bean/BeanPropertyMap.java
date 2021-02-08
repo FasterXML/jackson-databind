@@ -8,7 +8,7 @@ import com.fasterxml.jackson.core.util.InternCache;
 import com.fasterxml.jackson.core.util.Named;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.ValueDeserializer;
 import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
@@ -195,10 +195,10 @@ public class BeanPropertyMap
             String newName = xf.transform(prop.getName());
             newName = InternCache.instance.intern(newName);
             prop = prop.withSimpleName(newName);
-            JsonDeserializer<?> deser = prop.getValueDeserializer();
+            ValueDeserializer<?> deser = prop.getValueDeserializer();
             if (deser != null) {
                 @SuppressWarnings("unchecked")
-                JsonDeserializer<Object> newDeser = (JsonDeserializer<Object>)
+                ValueDeserializer<Object> newDeser = (ValueDeserializer<Object>)
                     deser.unwrappingDeserializer(ctxt, xf);
                 if (newDeser != deser) {
                     prop = prop.withValueDeserializer(newDeser);

@@ -55,7 +55,7 @@ public class BeanAsArrayBuilderDeserializer
     }
     
     @Override
-    public JsonDeserializer<Object> unwrappingDeserializer(DeserializationContext ctxt,
+    public ValueDeserializer<Object> unwrappingDeserializer(DeserializationContext ctxt,
             NameTransformer unwrapper)
     {
         // We can't do much about this; could either replace _delegate with unwrapping instance,
@@ -110,7 +110,7 @@ public class BeanAsArrayBuilderDeserializer
 
     /*
     /**********************************************************************
-    /* JsonDeserializer implementation
+    /* ValueDeserializer implementation
     /**********************************************************************
      */
 

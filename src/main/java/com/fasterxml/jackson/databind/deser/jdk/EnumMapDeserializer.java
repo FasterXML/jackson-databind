@@ -25,7 +25,7 @@ public class EnumMapDeserializer
 
     protected KeyDeserializer _keyDeserializer;
 
-    protected JsonDeserializer<Object> _valueDeserializer;
+    protected ValueDeserializer<Object> _valueDeserializer;
 
     /**
      * If value instances have polymorphic type information, this
@@ -41,7 +41,7 @@ public class EnumMapDeserializer
      * Deserializer that is used iff delegate-based creator is
      * to be used for deserializing from JSON Object.
      */
-    protected JsonDeserializer<Object> _delegateDeserializer;
+    protected ValueDeserializer<Object> _delegateDeserializer;
 
     /**
      * If the Map is to be instantiated using non-default constructor
@@ -58,25 +58,25 @@ public class EnumMapDeserializer
      */
 
     public EnumMapDeserializer(JavaType mapType, ValueInstantiator valueInst,
-            KeyDeserializer keyDeser, JsonDeserializer<?> valueDeser, TypeDeserializer vtd,
+            KeyDeserializer keyDeser, ValueDeserializer<?> valueDeser, TypeDeserializer vtd,
             NullValueProvider nuller)
     {
         super(mapType, nuller, null);
         _enumClass = mapType.getKeyType().getRawClass();
         _keyDeserializer = keyDeser;
-        _valueDeserializer = (JsonDeserializer<Object>) valueDeser;
+        _valueDeserializer = (ValueDeserializer<Object>) valueDeser;
         _valueTypeDeserializer = vtd;
         _valueInstantiator = valueInst;
     }
 
     protected EnumMapDeserializer(EnumMapDeserializer base,
-            KeyDeserializer keyDeser, JsonDeserializer<?> valueDeser, TypeDeserializer vtd,
+            KeyDeserializer keyDeser, ValueDeserializer<?> valueDeser, TypeDeserializer vtd,
             NullValueProvider nuller)
     {
         super(base, nuller, base._unwrapSingle);
         _enumClass = base._enumClass;
         _keyDeserializer = keyDeser;
-        _valueDeserializer = (JsonDeserializer<Object>) valueDeser;
+        _valueDeserializer = (ValueDeserializer<Object>) valueDeser;
         _valueTypeDeserializer = vtd;
 
         _valueInstantiator = base._valueInstantiator;
@@ -85,7 +85,7 @@ public class EnumMapDeserializer
     }
 
     public EnumMapDeserializer withResolved(KeyDeserializer keyDeserializer,
-            JsonDeserializer<?> valueDeserializer, TypeDeserializer valueTypeDeser,
+            ValueDeserializer<?> valueDeserializer, TypeDeserializer valueTypeDeser,
             NullValueProvider nuller)
     {
         if ((keyDeserializer == _keyDeserializer) && (nuller == _nullProvider)
@@ -142,7 +142,7 @@ public class EnumMapDeserializer
      * when it is known for which property deserializer is needed for.
      */
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
     {
         // note: instead of finding key deserializer, with enums we actually
         // work with regular deserializers (less code duplication; but not
@@ -151,7 +151,7 @@ public class EnumMapDeserializer
         if (keyDeser == null) {
             keyDeser = ctxt.findKeyDeserializer(_containerType.getKeyType(), property);
         }
-        JsonDeserializer<?> valueDeser = _valueDeserializer;
+        ValueDeserializer<?> valueDeser = _valueDeserializer;
         final JavaType vt = _containerType.getContentType();
         if (valueDeser == null) {
             valueDeser = ctxt.findContextualValueDeserializer(vt, property);
@@ -189,7 +189,7 @@ public class EnumMapDeserializer
      */
 
     @Override
-    public JsonDeserializer<Object> getContentDeserializer() {
+    public ValueDeserializer<Object> getContentDeserializer() {
         return _valueDeserializer;
     }
 
@@ -245,7 +245,7 @@ public class EnumMapDeserializer
         // [databind#631]: Assign current value, to be accessible by custom deserializers
         p.assignCurrentValue(result);
 
-        final JsonDeserializer<Object> valueDes = _valueDeserializer;
+        final ValueDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
 
         String keyStr;

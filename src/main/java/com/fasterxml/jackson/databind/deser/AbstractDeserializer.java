@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * pass such resolver will result in an error.
  */
 public class AbstractDeserializer
-    extends JsonDeserializer<Object>
+    extends ValueDeserializer<Object>
 {
     protected final JavaType _baseType;
 
@@ -102,7 +102,7 @@ public class AbstractDeserializer
     }
 
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property)
     {
         final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
@@ -142,7 +142,7 @@ handledType().getName()));
                         idType = ctxt.getTypeFactory().findTypeParameters(type, ObjectIdGenerator.class)[0];
                         idGen = ctxt.objectIdGeneratorInstance(accessor, objectIdInfo);
                     }
-                    JsonDeserializer<?> deser = ctxt.findRootValueDeserializer(idType);
+                    ValueDeserializer<?> deser = ctxt.findRootValueDeserializer(idType);
                     ObjectIdReader oir = ObjectIdReader.construct(idType, objectIdInfo.getPropertyName(),
                              idGen, deser, idProp, resolver);
                     return new AbstractDeserializer(this, oir, null);

@@ -32,7 +32,7 @@ public class TestTreeWithType extends BaseMapTest
         }
     }
 
-    public class SavedCookieDeserializer extends JsonDeserializer<SavedCookie> {
+    public class SavedCookieDeserializer extends ValueDeserializer<SavedCookie> {
         @Override
         public SavedCookie deserialize(JsonParser jsonParser, DeserializationContext ctxt)
         {

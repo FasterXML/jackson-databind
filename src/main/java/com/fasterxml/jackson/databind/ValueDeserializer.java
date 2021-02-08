@@ -12,9 +12,11 @@ import com.fasterxml.jackson.databind.util.AccessPattern;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
 /**
- * Abstract class that defines API used by {@link ObjectMapper} (and
- * other chained {@link JsonDeserializer}s too) to deserialize Objects of
- * arbitrary types from JSON, using provided {@link JsonParser}.
+ * Abstract class that defines API used by {@link ObjectMapper} and {@link ObjectReader}
+ * to deserialize Objects of arbitrary types from JSON, using
+ * provided {@link JsonParser} (within current read context of {@link DeserializationContext}.
+ * Deserializers use delegation so that calls typically end up as a stack of calls
+ * through deserializer hierarchy based on POJO properties.
  *<p>
  * Custom deserializers should usually not directly extend this class,
  * but instead extend {@link com.fasterxml.jackson.databind.deser.std.StdDeserializer}
@@ -36,8 +38,10 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * deserializer for handling that particular property.
  *<br>
  * Resolution of deserializers occurs before contextualization.
+ *<p>
+ * NOTE: In Jackson 2.x was named {@code JsonDeserializer}
  */
-public abstract class JsonDeserializer<T>
+public abstract class ValueDeserializer<T>
     implements NullValueProvider
 {
     /*
@@ -78,7 +82,7 @@ public abstract class JsonDeserializer<T>
      * @return Deserializer to use for deserializing values of specified property;
      *   may be this instance or a new instance.
      */
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property) {
         // default implementation returns instance unmodified
         return this;
@@ -218,7 +222,7 @@ public abstract class JsonDeserializer<T>
      * Default implementation just returns 'this'
      * indicating that no unwrapped variant exists
      */
-    public JsonDeserializer<T> unwrappingDeserializer(DeserializationContext ctxt,
+    public ValueDeserializer<T> unwrappingDeserializer(DeserializationContext ctxt,
             NameTransformer unwrapper) {
         return this;
     }
@@ -230,7 +234,7 @@ public abstract class JsonDeserializer<T>
      * throw {@link UnsupportedOperationException} (if operation does not
      * make sense or is not allowed); or return this deserializer as is.
      */
-    public JsonDeserializer<?> replaceDelegatee(JsonDeserializer<?> delegatee) {
+    public ValueDeserializer<?> replaceDelegatee(ValueDeserializer<?> delegatee) {
         throw new UnsupportedOperationException();
     }
 
@@ -272,7 +276,7 @@ public abstract class JsonDeserializer<T>
      * was created).
      *<p>
      * Note that cached instances are still contextualized on per-property basis
-     * (but note that {@link JsonDeserializer#resolve(DeserializationContext)}d
+     * (but note that {@link ValueDeserializer#resolve(DeserializationContext)}d
      * just once!)
      * This means that in most cases it is safe to
      * cache instances; however, it only makes sense to cache instances
@@ -291,7 +295,7 @@ public abstract class JsonDeserializer<T>
      * @return Deserializer this deserializer delegates calls to, if null;
      *   null otherwise.
      */
-    public JsonDeserializer<?> getDelegatee() {
+    public ValueDeserializer<?> getDelegatee() {
         return null;
     }
 
@@ -447,7 +451,7 @@ public abstract class JsonDeserializer<T>
      * Specifically, this class is to be used as the marker for
      * annotation {@link com.fasterxml.jackson.databind.annotation.JsonDeserialize}
      */
-    public abstract static class None extends JsonDeserializer<Object> {
+    public abstract static class None extends ValueDeserializer<Object> {
         private None() { } // not to be instantiated
     }
 }

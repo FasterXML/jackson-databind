@@ -105,7 +105,7 @@ public class OptionalHandlerFactory
         return null;
     }
 
-    public JsonDeserializer<?> findDeserializer(DeserializationConfig config, JavaType type)
+    public ValueDeserializer<?> findDeserializer(DeserializationConfig config, JavaType type)
     {
         final Class<?> rawType = type.getRawClass();
         if (_IsXOfY(rawType, CLASS_DOM_NODE)) {
@@ -117,7 +117,7 @@ public class OptionalHandlerFactory
         String className = rawType.getName();
         final String deserName = _sqlDeserializers.get(className);
         if (deserName != null) {
-            return (JsonDeserializer<?>) instantiate(deserName, type);
+            return (ValueDeserializer<?>) instantiate(deserName, type);
         }
         if (className.startsWith(PACKAGE_PREFIX_JAVAX_XML)
                 || hasSuperClassStartingWith(rawType, PACKAGE_PREFIX_JAVAX_XML)) {

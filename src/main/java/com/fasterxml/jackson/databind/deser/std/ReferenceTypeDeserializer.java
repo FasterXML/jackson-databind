@@ -28,7 +28,7 @@ public abstract class ReferenceTypeDeserializer<T>
     protected final ValueInstantiator _valueInstantiator;
 
     protected final TypeDeserializer _valueTypeDeserializer;
-    protected final JsonDeserializer<Object> _valueDeserializer;
+    protected final ValueDeserializer<Object> _valueDeserializer;
 
     /*
     /**********************************************************************
@@ -38,19 +38,19 @@ public abstract class ReferenceTypeDeserializer<T>
 
     @SuppressWarnings("unchecked")
     public ReferenceTypeDeserializer(JavaType fullType, ValueInstantiator vi,
-            TypeDeserializer typeDeser, JsonDeserializer<?> deser)
+            TypeDeserializer typeDeser, ValueDeserializer<?> deser)
     {
         super(fullType);
         _valueInstantiator = vi;
         _fullType = fullType;
-        _valueDeserializer = (JsonDeserializer<Object>) deser;
+        _valueDeserializer = (ValueDeserializer<Object>) deser;
         _valueTypeDeserializer = typeDeser;
     }
 
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
     {
-        JsonDeserializer<?> deser = _valueDeserializer;
+        ValueDeserializer<?> deser = _valueDeserializer;
         if (deser == null) {
             deser = ctxt.findContextualValueDeserializer(_fullType.getReferencedType(), property);
         } else { // otherwise directly assigned, probably not contextual yet:
@@ -101,7 +101,7 @@ public abstract class ReferenceTypeDeserializer<T>
      * need NOT check if a new instance is needed.
      */
     protected abstract ReferenceTypeDeserializer<T> withResolved(TypeDeserializer typeDeser,
-            JsonDeserializer<?> valueDeser);
+            ValueDeserializer<?> valueDeser);
 
     @Override
     public abstract T getNullValue(DeserializationContext ctxt);

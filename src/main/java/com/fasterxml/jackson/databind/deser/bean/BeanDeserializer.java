@@ -111,7 +111,7 @@ public class BeanDeserializer
      */
 
     @Override
-    public JsonDeserializer<Object> unwrappingDeserializer(DeserializationContext ctxt,
+    public ValueDeserializer<Object> unwrappingDeserializer(DeserializationContext ctxt,
             NameTransformer transformer)
     {
         // bit kludgy but we don't want to accidentally change type; sub-classes
@@ -177,7 +177,7 @@ public class BeanDeserializer
 
     /*
     /**********************************************************************
-    /* JsonDeserializer implementation
+    /* ValueDeserializer implementation
     /**********************************************************************
      */
 
@@ -730,7 +730,7 @@ public class BeanDeserializer
     protected Object _deserializeFromArray(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
         // note: cannot call `_delegateDeserializer()` since order reversed here:
-        JsonDeserializer<Object> delegateDeser = _arrayDelegateDeserializer;
+        ValueDeserializer<Object> delegateDeser = _arrayDelegateDeserializer;
         // fallback to non-array delegate
         if ((delegateDeser != null) || ((delegateDeser = _delegateDeserializer) != null)) {
             Object bean = _valueInstantiator.createUsingArrayDelegate(ctxt,

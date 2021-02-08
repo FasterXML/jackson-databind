@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 
 public class NullHandlingTest extends BaseMapTest
 {
-    static class FunnyNullDeserializer extends JsonDeserializer<String>
+    static class FunnyNullDeserializer extends ValueDeserializer<String>
     {
         @Override
         public String deserialize(JsonParser jp, DeserializationContext ctxt) {

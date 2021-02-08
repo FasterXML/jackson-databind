@@ -203,7 +203,7 @@ public class PropertyValueBuffer
             }
 
             // Fourth: default value
-            JsonDeserializer<Object> deser = prop.getValueDeserializer();
+            ValueDeserializer<Object> deser = prop.getValueDeserializer();
             return deser.getNullValue(_context);
         } catch (DatabindException e) {
             // [databind#2101]: Include property name, if we have it

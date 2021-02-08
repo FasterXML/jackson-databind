@@ -31,7 +31,7 @@ public final class StringCollectionDeserializer
      * Value deserializer to use, if NOT the standard one
      * (if it is, will be null).
      */
-    protected final JsonDeserializer<String> _valueDeserializer;
+    protected final ValueDeserializer<String> _valueDeserializer;
 
     // // Instance construction settings:
     
@@ -44,36 +44,36 @@ public final class StringCollectionDeserializer
      * Deserializer that is used iff delegate-based creator is
      * to be used for deserializing from JSON Object.
      */
-    protected final JsonDeserializer<Object> _delegateDeserializer;
+    protected final ValueDeserializer<Object> _delegateDeserializer;
 
     // NOTE: no PropertyBasedCreator, as JSON Arrays have no properties
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
     
     public StringCollectionDeserializer(JavaType collectionType,
-            JsonDeserializer<?> valueDeser, ValueInstantiator valueInstantiator)
+            ValueDeserializer<?> valueDeser, ValueInstantiator valueInstantiator)
     {
         this(collectionType, valueInstantiator, null, valueDeser, valueDeser, null);
     }
 
     @SuppressWarnings("unchecked")
     protected StringCollectionDeserializer(JavaType collectionType,
-            ValueInstantiator valueInstantiator, JsonDeserializer<?> delegateDeser,
-            JsonDeserializer<?> valueDeser,
+            ValueInstantiator valueInstantiator, ValueDeserializer<?> delegateDeser,
+            ValueDeserializer<?> valueDeser,
             NullValueProvider nuller, Boolean unwrapSingle)
     {
         super(collectionType, nuller, unwrapSingle);
-        _valueDeserializer = (JsonDeserializer<String>) valueDeser;
+        _valueDeserializer = (ValueDeserializer<String>) valueDeser;
         _valueInstantiator = valueInstantiator;
-        _delegateDeserializer = (JsonDeserializer<Object>) delegateDeser;
+        _delegateDeserializer = (ValueDeserializer<Object>) delegateDeser;
     }
 
-    protected StringCollectionDeserializer withResolved(JsonDeserializer<?> delegateDeser,
-            JsonDeserializer<?> valueDeser,
+    protected StringCollectionDeserializer withResolved(ValueDeserializer<?> delegateDeser,
+            ValueDeserializer<?> valueDeser,
             NullValueProvider nuller, Boolean unwrapSingle)
     {
         if ((Objects.equals(_unwrapSingle, unwrapSingle)) && (_nullProvider == nuller)
@@ -84,29 +84,30 @@ public final class StringCollectionDeserializer
                 delegateDeser, valueDeser, nuller, unwrapSingle);
     }
 
-    @Override // since 2.5
+    @Override
     public boolean isCachable() {
         // 26-Mar-2015, tatu: Important: prevent caching if custom deserializers via annotations
         //    are involved
         return (_valueDeserializer == null) && (_delegateDeserializer == null);
     }
 
-    @Override // since 2.12
+    @Override
     public LogicalType logicalType() {
         return LogicalType.Collection;
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Validation, post-processing
-    /**********************************************************
+    /**********************************************************************
      */
+
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property)
     {
         // May need to resolve types for delegate-based creators:
-        JsonDeserializer<Object> delegate = null;
+        ValueDeserializer<Object> delegate = null;
         if (_valueInstantiator != null) {
             // [databind#2324]: check both array-delegating and delegating
             AnnotatedWithParams delegateCreator = _valueInstantiator.getArrayDelegateCreator();
@@ -118,7 +119,7 @@ public final class StringCollectionDeserializer
                 delegate = findDeserializer(ctxt, delegateType, property);
             }
         }
-        JsonDeserializer<?> valueDeser = _valueDeserializer;
+        ValueDeserializer<?> valueDeser = _valueDeserializer;
         final JavaType valueType = _containerType.getContentType();
         if (valueDeser == null) {
             // [databind#125]: May have a content converter
@@ -140,18 +141,18 @@ public final class StringCollectionDeserializer
         }
         return withResolved(delegate, valueDeser, nuller, unwrapSingle);
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* ContainerDeserializerBase API
-    /**********************************************************
+    /**********************************************************************
      */
 
     @SuppressWarnings("unchecked")
     @Override
-    public JsonDeserializer<Object> getContentDeserializer() {
-        JsonDeserializer<?> deser = _valueDeserializer;
-        return (JsonDeserializer<Object>) deser;
+    public ValueDeserializer<Object> getContentDeserializer() {
+        ValueDeserializer<?> deser = _valueDeserializer;
+        return (ValueDeserializer<Object>) deser;
     }
 
     @Override
@@ -160,9 +161,9 @@ public final class StringCollectionDeserializer
     }
 
     /*
-    /**********************************************************
-    /* JsonDeserializer API
-    /**********************************************************
+    /**********************************************************************
+    /* ValueDeserializer impl
+    /**********************************************************************
      */
     
     @SuppressWarnings("unchecked")
@@ -220,7 +221,7 @@ public final class StringCollectionDeserializer
     }
     
     private Collection<String> deserializeUsingCustom(JsonParser p, DeserializationContext ctxt,
-            Collection<String> result, final JsonDeserializer<String> deser) throws JacksonException
+            Collection<String> result, final ValueDeserializer<String> deser) throws JacksonException
     {
         try {
             while (true) {
@@ -282,7 +283,7 @@ public final class StringCollectionDeserializer
             return (Collection<String>) ctxt.handleUnexpectedToken(_containerType, p);
         }
         // Strings are one of "native" (intrinsic) types, so there's never type deserializer involved
-        JsonDeserializer<String> valueDes = _valueDeserializer;
+        ValueDeserializer<String> valueDes = _valueDeserializer;
         JsonToken t = p.currentToken();
 
         String value;

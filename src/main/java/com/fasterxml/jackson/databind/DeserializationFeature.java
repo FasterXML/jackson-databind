@@ -438,7 +438,7 @@ public enum DeserializationFeature implements ConfigFeature
 
     /**
      * Feature that determines whether {@link ObjectReader} should
-     * try to eagerly fetch necessary {@link JsonDeserializer} when
+     * try to eagerly fetch necessary {@link ValueDeserializer} when
      * possible. This improves performance in cases where similarly
      * configured {@link ObjectReader} instance is used multiple
      * times; and should not significantly affect single-use cases.

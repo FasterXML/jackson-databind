@@ -34,7 +34,7 @@ import com.fasterxml.jackson.databind.util.Converter;
  * as (re)parsing from String.
  */
 public abstract class StdDeserializer<T>
-    extends JsonDeserializer<T>
+    extends ValueDeserializer<T>
     implements ValueInstantiator.Gettable
 {
     /**
@@ -67,7 +67,7 @@ public abstract class StdDeserializer<T>
 
     /**
      * Copy-constructor for sub-classes to use, most often when creating
-     * new instances via {@link com.fasterxml.jackson.databind.JsonDeserializer#createContextual}.
+     * new instances via {@link com.fasterxml.jackson.databind.ValueDeserializer#createContextual}.
      */
     protected StdDeserializer(StdDeserializer<?> src) {
         _valueClass = src._valueClass;
@@ -126,7 +126,7 @@ public abstract class StdDeserializer<T>
      * a module or calling application. Determination is done using
      * {@link JacksonStdImpl} annotation on deserializer class.
      */
-    protected boolean isDefaultDeserializer(JsonDeserializer<?> deserializer) {
+    protected boolean isDefaultDeserializer(ValueDeserializer<?> deserializer) {
         return ClassUtil.isJacksonStdImpl(deserializer);
     }
 
@@ -1508,7 +1508,7 @@ inputDesc, _coercedTypeDesc());
      * @param property Actual property object (field, method, constuctor parameter) used
      *     for passing deserialized values; provided so deserializer can be contextualized if necessary
      */
-    protected JsonDeserializer<Object> findDeserializer(DeserializationContext ctxt,
+    protected ValueDeserializer<Object> findDeserializer(DeserializationContext ctxt,
             JavaType type, BeanProperty property)
     {
         return ctxt.findContextualValueDeserializer(type, property);
@@ -1563,8 +1563,8 @@ inputDesc, _coercedTypeDesc());
      * @param existingDeserializer (optional) configured content
      *    serializer if one already exists.
      */
-    protected JsonDeserializer<?> findConvertingContentDeserializer(DeserializationContext ctxt,
-            BeanProperty prop, JsonDeserializer<?> existingDeserializer)
+    protected ValueDeserializer<?> findConvertingContentDeserializer(DeserializationContext ctxt,
+            BeanProperty prop, ValueDeserializer<?> existingDeserializer)
     {
         final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         if (_neitherNull(intr, prop)) {
@@ -1647,7 +1647,7 @@ inputDesc, _coercedTypeDesc());
      * will return given value deserializer (which is a null value provider itself).
      */
     protected NullValueProvider findContentNullProvider(DeserializationContext ctxt,
-            BeanProperty prop, JsonDeserializer<?> valueDeser)
+            BeanProperty prop, ValueDeserializer<?> valueDeser)
     {
         final Nulls nulls = findContentNullStyle(ctxt, prop);
         if (nulls == Nulls.SKIP) {
@@ -1683,7 +1683,7 @@ inputDesc, _coercedTypeDesc());
     }
 
     protected final NullValueProvider _findNullProvider(DeserializationContext ctxt,
-            BeanProperty prop, Nulls nulls, JsonDeserializer<?> valueDeser)
+            BeanProperty prop, Nulls nulls, ValueDeserializer<?> valueDeser)
     {
         if (nulls == Nulls.FAIL) {
             if (prop == null) {

@@ -23,7 +23,7 @@ public class TestAnnotationUsing
      */
 
     /**
-     * Class for testing {@link JsonDeserializer} annotation
+     * Class for testing {@link ValueDeserializer} annotation
      * for class itself.
      */
     @JsonDeserialize(using=ValueDeserializer.class)
@@ -39,7 +39,7 @@ public class TestAnnotationUsing
     }
 
     /**
-     * Class for testing {@link JsonDeserializer} annotation
+     * Class for testing {@link ValueDeserializer} annotation
      * for a method
      */
     final static class MethodBean {

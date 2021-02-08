@@ -32,7 +32,7 @@ public class JsonNodeDeserializer
     /**
      * Factory method for accessing deserializer for specific node type
      */
-    public static JsonDeserializer<? extends JsonNode> getDeserializer(Class<?> nodeClass)
+    public static ValueDeserializer<? extends JsonNode> getDeserializer(Class<?> nodeClass)
     {
         if (nodeClass == ObjectNode.class) {
             return ObjectDeserializer.getInstance();

@@ -81,7 +81,7 @@ public class JDKNumberDeserTest extends BaseMapTest
     /**********************************************************************
      */
     
-    static class MyBeanDeserializer extends JsonDeserializer<MyBeanValue>
+    static class MyBeanDeserializer extends ValueDeserializer<MyBeanValue>
     {
         @Override
         public MyBeanValue deserialize(JsonParser jp, DeserializationContext ctxt)

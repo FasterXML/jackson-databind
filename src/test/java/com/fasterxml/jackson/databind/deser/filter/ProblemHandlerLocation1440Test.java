@@ -40,7 +40,7 @@ public class ProblemHandlerLocation1440Test extends BaseMapTest
         
         @Override
         public boolean handleUnknownProperty(final DeserializationContext ctxt, final JsonParser p,
-                JsonDeserializer<?> deserializer, Object beanOrClass, String propertyName)
+                ValueDeserializer<?> deserializer, Object beanOrClass, String propertyName)
         {
             final TokenStreamContext parsingContext = p.streamReadContext();
             final List<String> pathList = new ArrayList<>();

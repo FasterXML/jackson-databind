@@ -27,7 +27,7 @@ public class TestConcurrency extends BaseMapTest
      * resolved) deserializers are not allowed to be used.
      */
     static class TestBeanDeserializer
-        extends JsonDeserializer<Bean>
+        extends ValueDeserializer<Bean>
     {
         protected volatile boolean resolved = false;
         

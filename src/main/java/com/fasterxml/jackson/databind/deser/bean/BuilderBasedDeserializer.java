@@ -151,7 +151,7 @@ public class BuilderBasedDeserializer
     }
 
     @Override
-    public JsonDeserializer<Object> unwrappingDeserializer(DeserializationContext ctxt,
+    public ValueDeserializer<Object> unwrappingDeserializer(DeserializationContext ctxt,
             NameTransformer transformer)
     {
         // main thing really is to just enforce ignoring of unknown properties; since
@@ -202,7 +202,7 @@ public class BuilderBasedDeserializer
 
     /*
     /**********************************************************************
-    /* JsonDeserializer implementation
+    /* ValueDeserializer implementation
     /**********************************************************************
      */
 
@@ -211,12 +211,6 @@ public class BuilderBasedDeserializer
         // 26-Oct-2016, tatu: No, we can't merge Builder-based POJOs as of now
         return Boolean.FALSE;
     }
-    
-    /*
-    /**********************************************************************
-    /* JsonDeserializer implementation
-    /**********************************************************************
-     */
 
     protected Object finishBuild(DeserializationContext ctxt, Object builder)
             throws JacksonException
@@ -537,7 +531,7 @@ public class BuilderBasedDeserializer
     protected Object _deserializeFromArray(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
         // note: cannot call `_delegateDeserializer()` since order reversed here:
-        JsonDeserializer<Object> delegateDeser = _arrayDelegateDeserializer;
+        ValueDeserializer<Object> delegateDeser = _arrayDelegateDeserializer;
         // fallback to non-array delegate
         if ((delegateDeser != null) || ((delegateDeser = _delegateDeserializer) != null)) {
             Object builder = _valueInstantiator.createUsingArrayDelegate(ctxt,

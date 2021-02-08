@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.util.IgnorePropertiesUtil;
 
 /**
  * Builder class used for aggregating deserialization information about
- * a property-based POJO, in order to build a {@link JsonDeserializer}
+ * a property-based POJO, in order to build a {@link ValueDeserializer}
  * for deserializing POJO instances.
  */
 public class BeanDeserializerBuilder
@@ -42,7 +42,7 @@ public class BeanDeserializerBuilder
     /**
      * Introspected information about POJO for deserializer to handle
      */
-    final protected BeanDescription _beanDesc;
+    protected final BeanDescription _beanDesc;
 
     /*
     /**********************************************************************
@@ -53,7 +53,7 @@ public class BeanDeserializerBuilder
     /**
      * Properties to deserialize collected so far.
      */
-    final protected Map<String, SettableBeanProperty> _properties
+    protected final Map<String, SettableBeanProperty> _properties
         = new LinkedHashMap<String, SettableBeanProperty>();
 
     /**
@@ -363,7 +363,7 @@ public class BeanDeserializerBuilder
      * Method for constructing a {@link BeanDeserializer}, given all
      * information collected.
      */
-    public JsonDeserializer<?> build()
+    public ValueDeserializer<?> build()
     {
         Collection<SettableBeanProperty> props = _properties.values();
         _fixAccess(props);
@@ -392,7 +392,7 @@ public class BeanDeserializerBuilder
      * Method for constructing a specialized deserializer that uses
      * additional external Builder object during data binding.
      */
-    public JsonDeserializer<?> buildBuilderBased(JavaType valueType, String expBuildMethodName)
+    public ValueDeserializer<?> buildBuilderBased(JavaType valueType, String expBuildMethodName)
     {
         // First: validation; must have build method that returns compatible type
         if (_buildMethod == null) {
@@ -435,7 +435,7 @@ public class BeanDeserializerBuilder
     /**
      * Extension point for overriding the actual creation of the builder deserializer.
      */
-    protected JsonDeserializer<?> createBuilderBasedDeserializer(JavaType valueType,
+    protected ValueDeserializer<?> createBuilderBasedDeserializer(JavaType valueType,
             BeanPropertyMap propertyMap, boolean anyViews) {
         return new BuilderBasedDeserializer(this,
                 _beanDesc, valueType, propertyMap, _backRefProperties, _ignorableProps, _ignoreAllUnknown,

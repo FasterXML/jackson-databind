@@ -11,7 +11,7 @@ public class AtomicReferenceDeserializer
     extends ReferenceTypeDeserializer<AtomicReference<Object>>
 {
     public AtomicReferenceDeserializer(JavaType fullType, ValueInstantiator inst,
-            TypeDeserializer typeDeser, JsonDeserializer<?> deser)
+            TypeDeserializer typeDeser, ValueDeserializer<?> deser)
     {
         super(fullType, inst, typeDeser, deser);
     }
@@ -23,7 +23,7 @@ public class AtomicReferenceDeserializer
      */
 
     @Override
-    public AtomicReferenceDeserializer withResolved(TypeDeserializer typeDeser, JsonDeserializer<?> valueDeser) {
+    public AtomicReferenceDeserializer withResolved(TypeDeserializer typeDeser, ValueDeserializer<?> valueDeser) {
         return new AtomicReferenceDeserializer(_fullType, _valueInstantiator,
                 typeDeser, valueDeser);
     }

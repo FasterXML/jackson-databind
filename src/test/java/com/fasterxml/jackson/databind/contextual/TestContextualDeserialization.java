@@ -87,7 +87,7 @@ public class TestContextualDeserialization extends BaseMapTest
     }
     
     static class MyContextualDeserializer
-        extends JsonDeserializer<StringValue>
+        extends ValueDeserializer<StringValue>
     {
         protected final String _fieldName;
         
@@ -103,7 +103,7 @@ public class TestContextualDeserialization extends BaseMapTest
         }
 
         @Override
-        public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
+        public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
                 BeanProperty property)
         {
             String name = (property == null) ? "NULL" : property.getName();
@@ -115,7 +115,7 @@ public class TestContextualDeserialization extends BaseMapTest
      * Alternative that uses annotation for choosing name to use
      */
     static class AnnotatedContextualDeserializer
-        extends JsonDeserializer<StringValue>
+        extends ValueDeserializer<StringValue>
     {
         protected final String _fieldName;
         
@@ -131,7 +131,7 @@ public class TestContextualDeserialization extends BaseMapTest
         }
     
         @Override
-        public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
+        public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
                 BeanProperty property)
         {
             Name ann = property.getAnnotation(Name.class);
@@ -155,7 +155,7 @@ public class TestContextualDeserialization extends BaseMapTest
         }
 
         @Override
-        public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) {
+        public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) {
             return new GenericStringDeserializer(String.valueOf(ctxt.getContextualType().getRawClass().getSimpleName()));
         }
 

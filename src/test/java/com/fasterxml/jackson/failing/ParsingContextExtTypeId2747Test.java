@@ -30,7 +30,7 @@ public class ParsingContextExtTypeId2747Test extends BaseMapTest
         Location(String v) { value = v; }
    }
    
-   static class LocationDeserializer extends JsonDeserializer<Location>
+   static class LocationDeserializer extends ValueDeserializer<Location>
    {
         @Override
         public Location deserialize(JsonParser p, DeserializationContext ctxt)

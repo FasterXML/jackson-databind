@@ -1135,7 +1135,7 @@ paramIndex, candidate);
         SettableBeanProperty prop = CreatorProperty.construct(name, type, property.getWrapperName(),
                 typeDeser, beanDesc.getClassAnnotations(), param, index, injectable,
                 metadata);
-        JsonDeserializer<?> deser = findDeserializerFromAnnotation(ctxt, param);
+        ValueDeserializer<?> deser = findDeserializerFromAnnotation(ctxt, param);
         if (deser == null) {
             deser = type.getValueHandler();
         }
@@ -1268,14 +1268,14 @@ paramIndex, candidate);
      */
 
     @Override
-    public JsonDeserializer<?> createArrayDeserializer(DeserializationContext ctxt,
+    public ValueDeserializer<?> createArrayDeserializer(DeserializationContext ctxt,
             ArrayType type, final BeanDescription beanDesc)
     {
         final DeserializationConfig config = ctxt.getConfig();
         JavaType elemType = type.getContentType();
         
         // Very first thing: is deserializer hard-coded for elements?
-        JsonDeserializer<Object> contentDeser = elemType.getValueHandler();
+        ValueDeserializer<Object> contentDeser = elemType.getValueHandler();
         // Then optional type info: if type has been resolved, we may already know type deserializer:
         TypeDeserializer elemTypeDeser = elemType.getTypeHandler();
         // but if not, may still be possible to find:
@@ -1283,7 +1283,7 @@ paramIndex, candidate);
             elemTypeDeser = ctxt.findTypeDeserializer(elemType);
         }
         // 23-Nov-2010, tatu: Custom array deserializer?
-        JsonDeserializer<?>  deser = _findCustomArrayDeserializer(type,
+        ValueDeserializer<?>  deser = _findCustomArrayDeserializer(type,
                 config, beanDesc, elemTypeDeser, contentDeser);
         if (deser == null) {
             if (contentDeser == null) {
@@ -1313,12 +1313,12 @@ paramIndex, candidate);
      */
 
     @Override
-    public JsonDeserializer<?> createCollectionDeserializer(DeserializationContext ctxt,
+    public ValueDeserializer<?> createCollectionDeserializer(DeserializationContext ctxt,
             CollectionType type, BeanDescription beanDesc)
     {
         JavaType contentType = type.getContentType();
         // Very first thing: is deserializer hard-coded for elements?
-        JsonDeserializer<Object> contentDeser = contentType.getValueHandler();
+        ValueDeserializer<Object> contentDeser = contentType.getValueHandler();
         final DeserializationConfig config = ctxt.getConfig();
 
         // Then optional type info: if type has been resolved, we may already know type deserializer:
@@ -1328,7 +1328,7 @@ paramIndex, candidate);
             contentTypeDeser = ctxt.findTypeDeserializer(contentType);
         }
         // 23-Nov-2010, tatu: Custom deserializer?
-        JsonDeserializer<?> deser = _findCustomCollectionDeserializer(type,
+        ValueDeserializer<?> deser = _findCustomCollectionDeserializer(type,
                 config, beanDesc, contentTypeDeser, contentDeser);
         if (deser == null) {
             Class<?> collectionClass = type.getRawClass();
@@ -1413,12 +1413,12 @@ paramIndex, candidate);
 
     // Copied almost verbatim from "createCollectionDeserializer" -- should try to share more code
     @Override
-    public JsonDeserializer<?> createCollectionLikeDeserializer(DeserializationContext ctxt,
+    public ValueDeserializer<?> createCollectionLikeDeserializer(DeserializationContext ctxt,
             CollectionLikeType type, final BeanDescription beanDesc)
     {
         JavaType contentType = type.getContentType();
         // Very first thing: is deserializer hard-coded for elements?
-        JsonDeserializer<Object> contentDeser = contentType.getValueHandler();
+        ValueDeserializer<Object> contentDeser = contentType.getValueHandler();
         final DeserializationConfig config = ctxt.getConfig();
 
         // Then optional type info (1.5): if type has been resolved, we may already know type deserializer:
@@ -1427,7 +1427,7 @@ paramIndex, candidate);
         if (contentTypeDeser == null) {
             contentTypeDeser = ctxt.findTypeDeserializer(contentType);
         }
-        JsonDeserializer<?> deser = _findCustomCollectionLikeDeserializer(type, config, beanDesc,
+        ValueDeserializer<?> deser = _findCustomCollectionLikeDeserializer(type, config, beanDesc,
                 contentTypeDeser, contentDeser);
         if (deser != null) {
             // and then new with 2.2: ability to post-process it too (Issue#120)
@@ -1447,7 +1447,7 @@ paramIndex, candidate);
      */
 
     @Override
-    public JsonDeserializer<?> createMapDeserializer(DeserializationContext ctxt,
+    public ValueDeserializer<?> createMapDeserializer(DeserializationContext ctxt,
             MapType type, BeanDescription beanDesc)
     {
         final DeserializationConfig config = ctxt.getConfig();
@@ -1456,7 +1456,7 @@ paramIndex, candidate);
         
         // First: is there annotation-specified deserializer for values?
         @SuppressWarnings("unchecked")
-        JsonDeserializer<Object> contentDeser = (JsonDeserializer<Object>) contentType.getValueHandler();
+        ValueDeserializer<Object> contentDeser = (ValueDeserializer<Object>) contentType.getValueHandler();
 
         // Ok: need a key deserializer (null indicates 'default' here)
         KeyDeserializer keyDes = (KeyDeserializer) keyType.getValueHandler();
@@ -1468,7 +1468,7 @@ paramIndex, candidate);
         }
 
         // 23-Nov-2010, tatu: Custom deserializer?
-        JsonDeserializer<?> deser = _findCustomMapDeserializer(type, config, beanDesc,
+        ValueDeserializer<?> deser = _findCustomMapDeserializer(type, config, beanDesc,
                 keyDes, contentTypeDeser, contentDeser);
 
         if (deser == null) {
@@ -1570,7 +1570,7 @@ paramIndex, candidate);
 
     // Copied almost verbatim from "createMapDeserializer" -- should try to share more code
     @Override
-    public JsonDeserializer<?> createMapLikeDeserializer(DeserializationContext ctxt,
+    public ValueDeserializer<?> createMapLikeDeserializer(DeserializationContext ctxt,
             MapLikeType type, final BeanDescription beanDesc)
     {
         JavaType keyType = type.getKeyType();
@@ -1579,7 +1579,7 @@ paramIndex, candidate);
         
         // First: is there annotation-specified deserializer for values?
         @SuppressWarnings("unchecked")
-        JsonDeserializer<Object> contentDeser = (JsonDeserializer<Object>) contentType.getValueHandler();
+        ValueDeserializer<Object> contentDeser = (ValueDeserializer<Object>) contentType.getValueHandler();
         
         // Ok: need a key deserializer (null indicates 'default' here)
         KeyDeserializer keyDes = (KeyDeserializer) keyType.getValueHandler();
@@ -1594,7 +1594,7 @@ paramIndex, candidate);
         if (contentTypeDeser == null) {
             contentTypeDeser = ctxt.findTypeDeserializer(contentType);
         }
-        JsonDeserializer<?> deser = _findCustomMapLikeDeserializer(type, config,
+        ValueDeserializer<?> deser = _findCustomMapLikeDeserializer(type, config,
                 beanDesc, keyDes, contentTypeDeser, contentDeser);
         if (deser != null) {
             // and then new with 2.2: ability to post-process it too (Issue#120)
@@ -1617,13 +1617,13 @@ paramIndex, candidate);
      * Factory method for constructing serializers of {@link Enum} types.
      */
     @Override
-    public JsonDeserializer<?> createEnumDeserializer(DeserializationContext ctxt,
+    public ValueDeserializer<?> createEnumDeserializer(DeserializationContext ctxt,
             JavaType type, BeanDescription beanDesc)
     {
         final DeserializationConfig config = ctxt.getConfig();
         final Class<?> enumClass = type.getRawClass();
         // 23-Nov-2010, tatu: Custom deserializer?
-        JsonDeserializer<?> deser = _findCustomEnumDeserializer(enumClass, config, beanDesc);
+        ValueDeserializer<?> deser = _findCustomEnumDeserializer(enumClass, config, beanDesc);
 
         if (deser == null) {
             // 12-Feb-2020, tatu: while we can't really create real deserializer for `Enum.class`,
@@ -1675,13 +1675,13 @@ factory.toString()));
     }
 
     @Override
-    public JsonDeserializer<?> createTreeDeserializer(DeserializationConfig config,
+    public ValueDeserializer<?> createTreeDeserializer(DeserializationConfig config,
             JavaType nodeType, BeanDescription beanDesc)
     {
         @SuppressWarnings("unchecked")
         Class<? extends JsonNode> nodeClass = (Class<? extends JsonNode>) nodeType.getRawClass();
         // 23-Nov-2010, tatu: Custom deserializer?
-        JsonDeserializer<?> custom = _findCustomTreeNodeDeserializer(nodeClass, config,
+        ValueDeserializer<?> custom = _findCustomTreeNodeDeserializer(nodeClass, config,
                 beanDesc);
         if (custom != null) {
             return custom;
@@ -1690,19 +1690,19 @@ factory.toString()));
     }
 
     @Override
-    public JsonDeserializer<?> createReferenceDeserializer(DeserializationContext ctxt,
+    public ValueDeserializer<?> createReferenceDeserializer(DeserializationContext ctxt,
             ReferenceType type, BeanDescription beanDesc)
     {
         JavaType contentType = type.getContentType();
         // Very first thing: is deserializer hard-coded for elements?
-        JsonDeserializer<Object> contentDeser = contentType.getValueHandler();
+        ValueDeserializer<Object> contentDeser = contentType.getValueHandler();
         final DeserializationConfig config = ctxt.getConfig();
         // Then optional type info: if type has been resolved, we may already know type deserializer:
         TypeDeserializer contentTypeDeser = contentType.getTypeHandler();
         if (contentTypeDeser == null) { // or if not, may be able to find:
             contentTypeDeser = ctxt.findTypeDeserializer(contentType);
         }
-        JsonDeserializer<?> deser = _findCustomReferenceDeserializer(type, config, beanDesc,
+        ValueDeserializer<?> deser = _findCustomReferenceDeserializer(type, config, beanDesc,
                 contentTypeDeser, contentDeser);
 
         if (deser == null) {
@@ -1751,7 +1751,7 @@ factory.toString()));
     /**
      * Overridable method called after checking all other types.
      */
-    protected JsonDeserializer<?> findOptionalStdDeserializer(DeserializationContext ctxt,
+    protected ValueDeserializer<?> findOptionalStdDeserializer(DeserializationContext ctxt,
             JavaType type, BeanDescription beanDesc)
     {
         return OptionalHandlerFactory.instance.findDeserializer(ctxt.getConfig(), type);
@@ -1819,11 +1819,11 @@ factory.toString()));
             return des;
         } else {
             // 24-Sep-2015, bim: if no key deser, look for enum deserializer first, then a plain deser.
-            JsonDeserializer<?> custom = _findCustomEnumDeserializer(enumClass, config, beanDesc);
+            ValueDeserializer<?> custom = _findCustomEnumDeserializer(enumClass, config, beanDesc);
             if (custom != null) {
                 return JDKKeyDeserializers.constructDelegatingKeyDeserializer(config, type, custom);
             }
-            JsonDeserializer<?> valueDesForKey = findDeserializerFromAnnotation(ctxt, beanDesc.getClassInfo());
+            ValueDeserializer<?> valueDesForKey = findDeserializerFromAnnotation(ctxt, beanDesc.getClassInfo());
             if (valueDesForKey != null) {
                 return JDKKeyDeserializers.constructDelegatingKeyDeserializer(config, type, valueDesForKey);
             }
@@ -1943,7 +1943,7 @@ factory.toString()));
      * platform types: JDK-provided types, and small number of public Jackson
      * API types.
      */
-    public JsonDeserializer<?> findDefaultDeserializer(DeserializationContext ctxt,
+    public ValueDeserializer<?> findDefaultDeserializer(DeserializationContext ctxt,
             JavaType type, BeanDescription beanDesc)
     {
         Class<?> rawType = type.getRawClass();
@@ -1982,14 +1982,14 @@ factory.toString()));
             if (vts == null) {
                 vts = ctxt.findTypeDeserializer(vt);
             }
-            JsonDeserializer<Object> valueDeser = vt.getValueHandler();
+            ValueDeserializer<Object> valueDeser = vt.getValueHandler();
             KeyDeserializer keyDes = (KeyDeserializer) kt.getValueHandler();
             return new MapEntryDeserializer(type, keyDes, valueDeser, vts);
         }
         String clsName = rawType.getName();
         if (rawType.isPrimitive() || clsName.startsWith("java.")) {
             // Primitives/wrappers, other Numbers:
-            JsonDeserializer<?> deser = NumberDeserializers.find(rawType);
+            ValueDeserializer<?> deser = NumberDeserializers.find(rawType);
             if (deser == null) {
                 deser = JDKDateDeserializers.find(rawType, clsName);
             }
@@ -2001,7 +2001,7 @@ factory.toString()));
         if (rawType == TokenBuffer.class) {
             return new TokenBufferDeserializer();
         }
-        JsonDeserializer<?> deser = findOptionalStdDeserializer(ctxt, type, beanDesc);
+        ValueDeserializer<?> deser = findOptionalStdDeserializer(ctxt, type, beanDesc);
         if (deser != null) {
             return deser;
         }
@@ -2020,11 +2020,11 @@ factory.toString()));
     /**********************************************************************
      */
 
-    protected JsonDeserializer<?> _findCustomTreeNodeDeserializer(Class<? extends JsonNode> type,
+    protected ValueDeserializer<?> _findCustomTreeNodeDeserializer(Class<? extends JsonNode> type,
             DeserializationConfig config, BeanDescription beanDesc)
     {
         for (Deserializers d  : _factoryConfig.deserializers()) {
-            JsonDeserializer<?> deser = d.findTreeNodeDeserializer(type, config, beanDesc);
+            ValueDeserializer<?> deser = d.findTreeNodeDeserializer(type, config, beanDesc);
             if (deser != null) {
                 return deser;
             }
@@ -2032,12 +2032,12 @@ factory.toString()));
         return null;
     }
 
-    protected JsonDeserializer<?> _findCustomReferenceDeserializer(ReferenceType type,
+    protected ValueDeserializer<?> _findCustomReferenceDeserializer(ReferenceType type,
             DeserializationConfig config, BeanDescription beanDesc,
-            TypeDeserializer contentTypeDeserializer, JsonDeserializer<?> contentDeserializer)
+            TypeDeserializer contentTypeDeserializer, ValueDeserializer<?> contentDeserializer)
     {
         for (Deserializers d  : _factoryConfig.deserializers()) {
-            JsonDeserializer<?> deser = d.findReferenceDeserializer(type, config, beanDesc,
+            ValueDeserializer<?> deser = d.findReferenceDeserializer(type, config, beanDesc,
                     contentTypeDeserializer, contentDeserializer);
             if (deser != null) {
                 return deser;
@@ -2047,24 +2047,24 @@ factory.toString()));
     }
 
     @SuppressWarnings("unchecked")
-    protected JsonDeserializer<Object> _findCustomBeanDeserializer(JavaType type,
+    protected ValueDeserializer<Object> _findCustomBeanDeserializer(JavaType type,
             DeserializationConfig config, BeanDescription beanDesc)
     {
         for (Deserializers d  : _factoryConfig.deserializers()) {
-            JsonDeserializer<?> deser = d.findBeanDeserializer(type, config, beanDesc);
+            ValueDeserializer<?> deser = d.findBeanDeserializer(type, config, beanDesc);
             if (deser != null) {
-                return (JsonDeserializer<Object>) deser;
+                return (ValueDeserializer<Object>) deser;
             }
         }
         return null;
     }
 
-    protected JsonDeserializer<?> _findCustomArrayDeserializer(ArrayType type,
+    protected ValueDeserializer<?> _findCustomArrayDeserializer(ArrayType type,
             DeserializationConfig config, BeanDescription beanDesc,
-            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
+            TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer)
     {
         for (Deserializers d  : _factoryConfig.deserializers()) {
-            JsonDeserializer<?> deser = d.findArrayDeserializer(type, config,
+            ValueDeserializer<?> deser = d.findArrayDeserializer(type, config,
                     beanDesc, elementTypeDeserializer, elementDeserializer);
             if (deser != null) {
                 return deser;
@@ -2073,12 +2073,12 @@ factory.toString()));
         return null;
     }
     
-    protected JsonDeserializer<?> _findCustomCollectionDeserializer(CollectionType type,
+    protected ValueDeserializer<?> _findCustomCollectionDeserializer(CollectionType type,
             DeserializationConfig config, BeanDescription beanDesc,
-            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
+            TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer)
     {
         for (Deserializers d  : _factoryConfig.deserializers()) {
-            JsonDeserializer<?> deser = d.findCollectionDeserializer(type, config, beanDesc,
+            ValueDeserializer<?> deser = d.findCollectionDeserializer(type, config, beanDesc,
                     elementTypeDeserializer, elementDeserializer);
             if (deser != null) {
                 return deser;
@@ -2087,12 +2087,12 @@ factory.toString()));
         return null;
     }
     
-    protected JsonDeserializer<?> _findCustomCollectionLikeDeserializer(CollectionLikeType type,
+    protected ValueDeserializer<?> _findCustomCollectionLikeDeserializer(CollectionLikeType type,
             DeserializationConfig config, BeanDescription beanDesc,
-            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
+            TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer)
     {
         for (Deserializers d  : _factoryConfig.deserializers()) {
-            JsonDeserializer<?> deser = d.findCollectionLikeDeserializer(type, config, beanDesc,
+            ValueDeserializer<?> deser = d.findCollectionLikeDeserializer(type, config, beanDesc,
                     elementTypeDeserializer, elementDeserializer);
             if (deser != null) {
                 return deser;
@@ -2101,11 +2101,11 @@ factory.toString()));
         return null;
     }
 
-    protected JsonDeserializer<?> _findCustomEnumDeserializer(Class<?> type,
+    protected ValueDeserializer<?> _findCustomEnumDeserializer(Class<?> type,
             DeserializationConfig config, BeanDescription beanDesc)
     {
         for (Deserializers d  : _factoryConfig.deserializers()) {
-            JsonDeserializer<?> deser = d.findEnumDeserializer(type, config, beanDesc);
+            ValueDeserializer<?> deser = d.findEnumDeserializer(type, config, beanDesc);
             if (deser != null) {
                 return deser;
             }
@@ -2113,13 +2113,13 @@ factory.toString()));
         return null;
     }
     
-    protected JsonDeserializer<?> _findCustomMapDeserializer(MapType type,
+    protected ValueDeserializer<?> _findCustomMapDeserializer(MapType type,
             DeserializationConfig config, BeanDescription beanDesc,
             KeyDeserializer keyDeserializer,
-            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
+            TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer)
     {
         for (Deserializers d  : _factoryConfig.deserializers()) {
-            JsonDeserializer<?> deser = d.findMapDeserializer(type, config, beanDesc,
+            ValueDeserializer<?> deser = d.findMapDeserializer(type, config, beanDesc,
                     keyDeserializer, elementTypeDeserializer, elementDeserializer);
             if (deser != null) {
                 return deser;
@@ -2128,13 +2128,13 @@ factory.toString()));
         return null;
     }
 
-    protected JsonDeserializer<?> _findCustomMapLikeDeserializer(MapLikeType type,
+    protected ValueDeserializer<?> _findCustomMapLikeDeserializer(MapLikeType type,
             DeserializationConfig config, BeanDescription beanDesc,
             KeyDeserializer keyDeserializer,
-            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
+            TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer)
     {
         for (Deserializers d  : _factoryConfig.deserializers()) {
-            JsonDeserializer<?> deser = d.findMapLikeDeserializer(type, config, beanDesc,
+            ValueDeserializer<?> deser = d.findMapLikeDeserializer(type, config, beanDesc,
                     keyDeserializer, elementTypeDeserializer, elementDeserializer);
             if (deser != null) {
                 return deser;
@@ -2157,7 +2157,7 @@ factory.toString()));
      * take care to call contextualization appropriately.
      * Returns null if no such annotation found.
      */
-    protected JsonDeserializer<Object> findDeserializerFromAnnotation(DeserializationContext ctxt,
+    protected ValueDeserializer<Object> findDeserializerFromAnnotation(DeserializationContext ctxt,
             Annotated ann)
     {
         AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
@@ -2188,7 +2188,7 @@ factory.toString()));
         return null;
     }
 
-    protected JsonDeserializer<Object> findContentDeserializerFromAnnotation(DeserializationContext ctxt,
+    protected ValueDeserializer<Object> findContentDeserializerFromAnnotation(DeserializationContext ctxt,
             Annotated ann)
     {
         AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
@@ -2232,7 +2232,7 @@ factory.toString()));
 
         if (type.hasContentType()) { // that is, is either container- or reference-type
             Object cdDef = intr.findContentDeserializer(ctxt.getConfig(), member);
-            JsonDeserializer<?> cd = ctxt.deserializerInstance(member, cdDef);
+            ValueDeserializer<?> cd = ctxt.deserializerInstance(member, cdDef);
             if (cd != null) {
                 type = type.withContentValueHandler(cd);
             }

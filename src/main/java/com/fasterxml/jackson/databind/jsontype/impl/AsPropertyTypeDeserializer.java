@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.ValueDeserializer;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
@@ -111,7 +111,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             TokenBuffer tb, String typeId)
         throws JacksonException
     {
-        JsonDeserializer<Object> deser = _findDeserializer(ctxt, typeId);
+        ValueDeserializer<Object> deser = _findDeserializer(ctxt, typeId);
         if (_typeIdVisible) { // need to merge id back in JSON input?
             if (tb == null) {
                 tb = TokenBuffer.forInputBuffering(p, ctxt);
@@ -160,7 +160,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         }
         // ... and here we will check for default implementation handling (either
         // genuine, or faked for "dont fail on bad type id")
-        JsonDeserializer<Object> deser = _findDefaultImplDeserializer(ctxt);
+        ValueDeserializer<Object> deser = _findDefaultImplDeserializer(ctxt);
         if (deser == null) {
             String msg = String.format("missing type id property '%s'",
                     _typePropertyName);

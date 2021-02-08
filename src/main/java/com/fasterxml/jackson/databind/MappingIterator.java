@@ -66,7 +66,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
     /**
      * Deserializer for individual element values.
      */
-    protected final JsonDeserializer<T> _deserializer;
+    protected final ValueDeserializer<T> _deserializer;
 
     /**
      * Underlying parser used for reading content to bind. Initialized
@@ -119,13 +119,13 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
      */
     @SuppressWarnings("unchecked")
     protected MappingIterator(JavaType type, JsonParser p, DeserializationContext ctxt,
-            JsonDeserializer<?> deser,
+            ValueDeserializer<?> deser,
             boolean managedParser, Object valueToUpdate)
     {
         _type = type;
         _parser = p;
         _context = ctxt;
-        _deserializer = (JsonDeserializer<T>) deser;
+        _deserializer = (ValueDeserializer<T>) deser;
         _closeParser = managedParser;
         if (valueToUpdate == null) {
             _updatedValue = null;

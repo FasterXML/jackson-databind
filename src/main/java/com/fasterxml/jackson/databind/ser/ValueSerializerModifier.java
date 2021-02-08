@@ -7,10 +7,13 @@ import com.fasterxml.jackson.databind.deser.DeserializerFactory;
 import com.fasterxml.jackson.databind.type.*;
 
 /**
- * Abstract class that defines API for objects that can be registered (for {@link BeanSerializerFactory}
- * to participate in constructing {@link BeanSerializer} instances.
- * This is typically done by modules that want alter some aspects of serialization
- * process; and is preferable to sub-classing of {@link BeanSerializerFactory}.
+ * Abstract class that defines API for objects that can be registered
+ * (via {@code ObjectMapper} configuration process,
+ * using {@link com.fasterxml.jackson.databind.cfg.MapperBuilder})
+ * to participate in constructing {@link JsonSerializer} instances
+ * (including but not limited to {@link BeanSerializer}s).
+ * This is typically done by modules that want alter some aspects of
+ * the typical serialization process.
  *<p>
  * Sequence in which callback methods are called is as follows:
  * <ol>
@@ -26,14 +29,18 @@ import com.fasterxml.jackson.databind.type.*;
  *     to be modified (including possibly replacing builder itself if necessary)
  *  <li>Once all bean information has been determined,
  *     factory creates default {@link BeanSerializer} instance and passes
- *     it to modifiers using {@link #modifySerializer}, for possible
- *     modification or replacement (by any {@link com.fasterxml.jackson.databind.JsonSerializer} instance)
+ *     it to modifiers using {@link #modifySerializer} (or type-specic alternative
+ *     {@code modifyXxxSerializer()} method), for possible
+ *     modification or replacement (by any {@link com.fasterxml.jackson.databind.JsonSerializer}
+ *     instance)
  * </ol>
  *<p>
  * Default method implementations are "no-op"s, meaning that methods are implemented
  * but have no effect.
+ *<p>
+ * NOTE: In Jackson 2.x was named {@code BeanSerializerModifier}
  */
-public abstract class BeanSerializerModifier
+public abstract class ValueSerializerModifier
 {
     /**
      * Method called by {@link BeanSerializerFactory} with tentative set
@@ -96,9 +103,9 @@ public abstract class BeanSerializerModifier
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Callback methods for other types
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

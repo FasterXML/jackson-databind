@@ -100,7 +100,7 @@ public class BeanDeserializerFactory
         if (deser != null) {
             // [databind#2392]
             if (_factoryConfig.hasDeserializerModifiers()) {
-                for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
+                for (ValueDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
                     deser = mod.modifyDeserializer(ctxt.getConfig(), beanDesc, deser);
                 }
             }
@@ -181,7 +181,7 @@ public class BeanDeserializerFactory
         // Also: better ensure these are post-processable?
         if (deser != null) {
             if (_factoryConfig.hasDeserializerModifiers()) {
-                for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
+                for (ValueDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
                     deser = mod.modifyDeserializer(ctxt.getConfig(), beanDesc, deser);
                 }
             }
@@ -275,7 +275,7 @@ public class BeanDeserializerFactory
         
         final DeserializationConfig config = ctxt.getConfig();
         if (_factoryConfig.hasDeserializerModifiers()) {
-            for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
+            for (ValueDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
                 builder = mod.updateBuilder(config, beanDesc, builder);
             }
         }
@@ -289,7 +289,7 @@ public class BeanDeserializerFactory
         // may have modifier(s) that wants to modify or replace serializer we just built
         // (note that `resolve()` and `createContextual()` called later on)
         if (_factoryConfig.hasDeserializerModifiers()) {
-            for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
+            for (ValueDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
                 deserializer = mod.modifyDeserializer(config, beanDesc, deserializer);
             }
         }
@@ -346,7 +346,7 @@ public class BeanDeserializerFactory
         builder.setPOJOBuilder(buildMethod, builderConfig);
         // this may give us more information...
         if (_factoryConfig.hasDeserializerModifiers()) {
-            for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
+            for (ValueDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
                 builder = mod.updateBuilder(config, builderDesc, builder);
             }
         }
@@ -355,7 +355,7 @@ public class BeanDeserializerFactory
 
         // [JACKSON-440]: may have modifier(s) that wants to modify or replace serializer we just built:
         if (_factoryConfig.hasDeserializerModifiers()) {
-            for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
+            for (ValueDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
                 deserializer = mod.modifyDeserializer(config, builderDesc, deserializer);
             }
         }
@@ -438,7 +438,7 @@ ClassUtil.name(propName)));
 
         // update builder now that all information is in?
         if (_factoryConfig.hasDeserializerModifiers()) {
-            for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
+            for (ValueDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
                 builder = mod.updateBuilder(config, beanDesc, builder);
             }
         }
@@ -453,7 +453,7 @@ ClassUtil.name(propName)));
 
         // may have modifier(s) that wants to modify or replace serializer we just built:
         if (_factoryConfig.hasDeserializerModifiers()) {
-            for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
+            for (ValueDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
                 deserializer = mod.modifyDeserializer(config, beanDesc, deserializer);
             }
         }
@@ -550,7 +550,7 @@ ClassUtil.name(propName)));
                 beanDesc, builder, beanDesc.findProperties(), ignored, included);
         // After which we can let custom code change the set
         if (_factoryConfig.hasDeserializerModifiers()) {
-            for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
+            for (ValueDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
                 propDefs = mod.updateProperties(ctxt.getConfig(), beanDesc, propDefs);
             }
         }

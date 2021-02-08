@@ -26,7 +26,7 @@ public final class SerializerFactoryConfig
      */
     protected final static Serializers[] NO_SERIALIZERS = new Serializers[0];
 
-    protected final static BeanSerializerModifier[] NO_MODIFIERS = new BeanSerializerModifier[0];
+    protected final static ValueSerializerModifier[] NO_MODIFIERS = new ValueSerializerModifier[0];
     
     /**
      * List of providers for additional serializers, checked before considering default
@@ -44,7 +44,7 @@ public final class SerializerFactoryConfig
      * List of modifiers that can change the way {@link BeanSerializer} instances
      * are configured and constructed.
      */
-    protected final BeanSerializerModifier[] _modifiers;
+    protected final ValueSerializerModifier[] _modifiers;
 
     /**
      * Serializer used to output a null value, unless explicitly redefined for property.
@@ -65,7 +65,7 @@ public final class SerializerFactoryConfig
 
     protected SerializerFactoryConfig(Serializers[] allAdditionalSerializers,
             Serializers[] allAdditionalKeySerializers,
-            BeanSerializerModifier[] modifiers,
+            ValueSerializerModifier[] modifiers,
             JsonSerializer<Object> nullKeySer,
             JsonSerializer<Object> nullValueSer)
     {
@@ -94,10 +94,10 @@ public final class SerializerFactoryConfig
                 _nullKeySerializer, _nullValueSerializer);
     }
 
-    public SerializerFactoryConfig withSerializerModifier(BeanSerializerModifier modifier)
+    public SerializerFactoryConfig withSerializerModifier(ValueSerializerModifier modifier)
     {
-        Objects.requireNonNull(modifier, "Cannot pass null BeanSerializerModifier");
-        BeanSerializerModifier[] modifiers = ArrayBuilders.insertInListNoDup(_modifiers, modifier);
+        Objects.requireNonNull(modifier, "Cannot pass null ValueSerializerModifier");
+        ValueSerializerModifier[] modifiers = ArrayBuilders.insertInListNoDup(_modifiers, modifier);
         return new SerializerFactoryConfig(_additionalSerializers, _additionalKeySerializers, modifiers,
                 _nullKeySerializer, _nullValueSerializer);
     }
@@ -122,7 +122,7 @@ public final class SerializerFactoryConfig
 
     public Iterable<Serializers> serializers() { return new ArrayIterator<Serializers>(_additionalSerializers); }
     public Iterable<Serializers> keySerializers() { return new ArrayIterator<Serializers>(_additionalKeySerializers); }
-    public Iterable<BeanSerializerModifier> serializerModifiers() { return new ArrayIterator<BeanSerializerModifier>(_modifiers); }
+    public Iterable<ValueSerializerModifier> serializerModifiers() { return new ArrayIterator<ValueSerializerModifier>(_modifiers); }
 
     public JsonSerializer<Object> getNullKeySerializer() { return _nullKeySerializer; }
     public JsonSerializer<Object> getNullValueSerializer() { return _nullValueSerializer; }

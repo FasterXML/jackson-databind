@@ -156,7 +156,7 @@ public abstract class BasicSerializerFactory
      * serializer modifier.
      */
     @Override
-    public final SerializerFactory withSerializerModifier(BeanSerializerModifier modifier) {
+    public final SerializerFactory withSerializerModifier(ValueSerializerModifier modifier) {
         return withConfig(_factoryConfig.withSerializerModifier(modifier));
     }
 
@@ -227,7 +227,7 @@ public abstract class BasicSerializerFactory
 
         // [databind#120]: Allow post-processing
         if (_factoryConfig.hasSerializerModifiers()) {
-            for (BeanSerializerModifier mod : _factoryConfig.serializerModifiers()) {
+            for (ValueSerializerModifier mod : _factoryConfig.serializerModifiers()) {
                 ser = mod.modifyKeySerializer(config, keyType, beanDesc, ser);
             }
         }
@@ -561,7 +561,7 @@ public abstract class BasicSerializerFactory
             }
             if (ser != null) {
                 if (_factoryConfig.hasSerializerModifiers()) {
-                    for (BeanSerializerModifier mod : _factoryConfig.serializerModifiers()) {
+                    for (ValueSerializerModifier mod : _factoryConfig.serializerModifiers()) {
                         ser = mod.modifyMapLikeSerializer(config, mlType, beanDesc, ser);
                     }
                 }
@@ -591,7 +591,7 @@ public abstract class BasicSerializerFactory
             }
             if (ser != null) {
                 if (_factoryConfig.hasSerializerModifiers()) {
-                    for (BeanSerializerModifier mod : _factoryConfig.serializerModifiers()) {
+                    for (ValueSerializerModifier mod : _factoryConfig.serializerModifiers()) {
                         ser = mod.modifyCollectionLikeSerializer(config, clType, beanDesc, ser);
                     }
                 }
@@ -674,7 +674,7 @@ public abstract class BasicSerializerFactory
         }
         // [databind#120]: Allow post-processing
         if (_factoryConfig.hasSerializerModifiers()) {
-            for (BeanSerializerModifier mod : _factoryConfig.serializerModifiers()) {
+            for (ValueSerializerModifier mod : _factoryConfig.serializerModifiers()) {
                 ser = mod.modifyCollectionSerializer(config, type, beanDesc, ser);
             }
         }
@@ -766,7 +766,7 @@ public abstract class BasicSerializerFactory
         }
         // [databind#120]: Allow post-processing
         if (_factoryConfig.hasSerializerModifiers()) {
-            for (BeanSerializerModifier mod : _factoryConfig.serializerModifiers()) {
+            for (ValueSerializerModifier mod : _factoryConfig.serializerModifiers()) {
                 ser = mod.modifyMapSerializer(config, type, beanDesc, ser);
             }
         }
@@ -978,7 +978,7 @@ public abstract class BasicSerializerFactory
          }
          // [databind#120]: Allow post-processing
          if (_factoryConfig.hasSerializerModifiers()) {
-             for (BeanSerializerModifier mod : _factoryConfig.serializerModifiers()) {
+             for (ValueSerializerModifier mod : _factoryConfig.serializerModifiers()) {
                  ser = mod.modifyArraySerializer(config, type, beanDesc, ser);
              }
          }
@@ -1133,7 +1133,7 @@ public abstract class BasicSerializerFactory
         final SerializationConfig config = ctxt.getConfig();
         JsonSerializer<?> ser = EnumSerializer.construct(enumClass, config, beanDesc, effectiveFormat);
         if (_factoryConfig.hasSerializerModifiers()) {
-            for (BeanSerializerModifier mod : _factoryConfig.serializerModifiers()) {
+            for (ValueSerializerModifier mod : _factoryConfig.serializerModifiers()) {
                 ser = mod.modifyEnumSerializer(config, type, beanDesc, ser);
             }
         }

@@ -75,7 +75,7 @@ public abstract class SerializerFactory
      * Mutant factory method for creating a new factory instance with additional serializer modifier:
      * modifier will get inserted as the first one to be checked.
      */
-    public abstract SerializerFactory withSerializerModifier(BeanSerializerModifier modifier);
+    public abstract SerializerFactory withSerializerModifier(ValueSerializerModifier modifier);
 
     /**
      * @since 3.0

@@ -119,10 +119,10 @@ public abstract class BasicDeserializerFactory
     
     /**
      * Convenience method for creating a new factory instance with additional
-     * {@link BeanDeserializerModifier}.
+     * {@link ValueDeserializerModifier}.
      */
     @Override
-    public final DeserializerFactory withDeserializerModifier(BeanDeserializerModifier modifier) {
+    public final DeserializerFactory withDeserializerModifier(ValueDeserializerModifier modifier) {
         return withConfig(_factoryConfig.withDeserializerModifier(modifier));
     }
 
@@ -1299,7 +1299,7 @@ paramIndex, candidate);
         }
         // and then new with 2.2: ability to post-process it too (databind#120)
         if (_factoryConfig.hasDeserializerModifiers()) {
-            for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
+            for (ValueDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
                 deser = mod.modifyArrayDeserializer(config, type, beanDesc, deser);
             }
         }
@@ -1394,7 +1394,7 @@ paramIndex, candidate);
         }
         // allow post-processing it too
         if (_factoryConfig.hasDeserializerModifiers()) {
-            for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
+            for (ValueDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
                 deser = mod.modifyCollectionDeserializer(config, type, beanDesc, deser);
             }
         }
@@ -1432,7 +1432,7 @@ paramIndex, candidate);
         if (deser != null) {
             // and then new with 2.2: ability to post-process it too (Issue#120)
             if (_factoryConfig.hasDeserializerModifiers()) {
-                for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
+                for (ValueDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
                     deser = mod.modifyCollectionLikeDeserializer(config, type, beanDesc, deser);
                 }
             }
@@ -1551,7 +1551,7 @@ paramIndex, candidate);
             }
         }
         if (_factoryConfig.hasDeserializerModifiers()) {
-            for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
+            for (ValueDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
                 deser = mod.modifyMapDeserializer(config, type, beanDesc, deser);
             }
         }
@@ -1599,7 +1599,7 @@ paramIndex, candidate);
         if (deser != null) {
             // and then new with 2.2: ability to post-process it too (Issue#120)
             if (_factoryConfig.hasDeserializerModifiers()) {
-                for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
+                for (ValueDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
                     deser = mod.modifyMapLikeDeserializer(config, type, beanDesc, deser);
                 }
             }
@@ -1667,7 +1667,7 @@ factory.toString()));
 
         // and then post-process it too
         if (_factoryConfig.hasDeserializerModifiers()) {
-            for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
+            for (ValueDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
                 deser = mod.modifyEnumDeserializer(config, type, beanDesc, deser);
             }
         }
@@ -1734,7 +1734,7 @@ factory.toString()));
         if (deser != null) {
             // and then post-process
             if (_factoryConfig.hasDeserializerModifiers()) {
-                for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
+                for (ValueDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
                     deser = mod.modifyReferenceDeserializer(config, type, beanDesc, deser);
                 }
             }
@@ -1798,7 +1798,7 @@ factory.toString()));
         // and then post-processing
         if (deser != null) {
             if (_factoryConfig.hasDeserializerModifiers()) {
-                for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
+                for (ValueDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
                     deser = mod.modifyKeyDeserializer(config, type, deser);
                 }
             }

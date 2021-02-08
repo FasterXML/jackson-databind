@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
-public class BeanSerializerModifier1612Test extends BaseMapTest
+public class ValueSerializerModifier1612Test extends BaseMapTest
 {
     @JsonPropertyOrder({ "a", "b", "c" })
     static class Bean1612 {
@@ -23,7 +23,7 @@ public class BeanSerializerModifier1612Test extends BaseMapTest
         }
     }
 
-    static class Modifier1612 extends BeanSerializerModifier {
+    static class Modifier1612 extends ValueSerializerModifier {
         @Override
         public BeanSerializerBuilder updateBuilder(SerializationConfig config, BeanDescription beanDesc,
                 BeanSerializerBuilder builder) {

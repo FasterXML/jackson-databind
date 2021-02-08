@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.cfg.MapperBuilder;
 import com.fasterxml.jackson.databind.cfg.MutableConfigOverride;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
-import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
+import com.fasterxml.jackson.databind.ser.ValueSerializerModifier;
 import com.fasterxml.jackson.databind.ser.Serializers;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.type.TypeModifier;
@@ -199,7 +199,7 @@ public abstract class JacksonModule
          *
          * @param mod Modifier to register
          */
-        public SetupContext addDeserializerModifier(BeanDeserializerModifier mod);
+        public SetupContext addDeserializerModifier(ValueDeserializerModifier mod);
 
         /**
          * Method that module can use to register additional {@link com.fasterxml.jackson.databind.deser.ValueInstantiator}s,
@@ -239,7 +239,7 @@ public abstract class JacksonModule
          *
          * @param mod Modifier to register
          */
-        public SetupContext addSerializerModifier(BeanSerializerModifier mod);
+        public SetupContext addSerializerModifier(ValueSerializerModifier mod);
 
         /**
          * Method that module can use to override handler called to write JSON Object key

@@ -15,7 +15,7 @@ public class DeserializerFactoryConfig
     private static final long serialVersionUID = 3L;
 
     protected final static Deserializers[] NO_DESERIALIZERS = new Deserializers[0];
-    protected final static BeanDeserializerModifier[] NO_MODIFIERS = new BeanDeserializerModifier[0];
+    protected final static ValueDeserializerModifier[] NO_MODIFIERS = new ValueDeserializerModifier[0];
     protected final static ValueInstantiators[] NO_VALUE_INSTANTIATORS = new ValueInstantiators[0];
 
     /**
@@ -42,7 +42,7 @@ public class DeserializerFactoryConfig
      * List of modifiers that can change the way {@link BeanDeserializer} instances
      * are configured and constructed.
      */
-    protected final BeanDeserializerModifier[] _modifiers;
+    protected final ValueDeserializerModifier[] _modifiers;
 
     /**
      * List of objects that know how to create instances of POJO types;
@@ -67,7 +67,7 @@ public class DeserializerFactoryConfig
      */
     protected DeserializerFactoryConfig(Deserializers[] allAdditionalDeserializers,
             KeyDeserializers[] allAdditionalKeyDeserializers,
-            BeanDeserializerModifier[] modifiers,
+            ValueDeserializerModifier[] modifiers,
             ValueInstantiators[] vi)
     {
         _additionalDeserializers = (allAdditionalDeserializers == null) ?
@@ -116,12 +116,12 @@ public class DeserializerFactoryConfig
      * deserialiazer modifier. Added modifier has the highest priority (that is, it
      * gets called before any already registered modifier).
      */
-    public DeserializerFactoryConfig withDeserializerModifier(BeanDeserializerModifier modifier)
+    public DeserializerFactoryConfig withDeserializerModifier(ValueDeserializerModifier modifier)
     {
         if (modifier == null) {
             throw new IllegalArgumentException("Cannot pass null modifier");
         }
-        BeanDeserializerModifier[] all = ArrayBuilders.insertInListNoDup(_modifiers, modifier);
+        ValueDeserializerModifier[] all = ArrayBuilders.insertInListNoDup(_modifiers, modifier);
         return new DeserializerFactoryConfig(_additionalDeserializers, _additionalKeyDeserializers,
                 all, _valueInstantiators);
     }
@@ -162,8 +162,8 @@ public class DeserializerFactoryConfig
         return new ArrayIterator<KeyDeserializers>(_additionalKeyDeserializers);
     }
     
-    public Iterable<BeanDeserializerModifier> deserializerModifiers() {
-        return new ArrayIterator<BeanDeserializerModifier>(_modifiers);
+    public Iterable<ValueDeserializerModifier> deserializerModifiers() {
+        return new ArrayIterator<ValueDeserializerModifier>(_modifiers);
     }
 
     public Iterable<ValueInstantiators> valueInstantiators() {

@@ -260,7 +260,7 @@ public class TestCustomDeserializers
         public void setupModule(SetupContext context)
         {
             super.setupModule(context);
-            context.addDeserializerModifier(new BeanDeserializerModifier() {
+            context.addDeserializerModifier(new ValueDeserializerModifier() {
                 @Override
                 public JsonDeserializer<?> modifyDeserializer(DeserializationConfig config,
                         BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
@@ -494,7 +494,7 @@ public class TestCustomDeserializers
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new SimpleModule()
-                        .setDeserializerModifier(new BeanDeserializerModifier() {
+                        .setDeserializerModifier(new ValueDeserializerModifier() {
                             @Override
                             public JsonDeserializer<?> modifyDeserializer(DeserializationConfig config,
                                     BeanDescription beanDesc, JsonDeserializer<?> deserializer) {

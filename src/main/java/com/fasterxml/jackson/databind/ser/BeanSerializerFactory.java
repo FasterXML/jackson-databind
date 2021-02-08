@@ -232,7 +232,7 @@ public class BeanSerializerFactory
         }
         // can not be null any more (always get at least "unknown" serializer)
         if (_factoryConfig.hasSerializerModifiers()) {
-            for (BeanSerializerModifier mod : _factoryConfig.serializerModifiers()) {
+            for (ValueSerializerModifier mod : _factoryConfig.serializerModifiers()) {
                 ser = mod.modifySerializer(config, beanDesc, ser);
             }
         }
@@ -301,7 +301,7 @@ public class BeanSerializerFactory
 
         // allow modification bean properties to serialize
         if (_factoryConfig.hasSerializerModifiers()) {
-            for (BeanSerializerModifier mod : _factoryConfig.serializerModifiers()) {
+            for (ValueSerializerModifier mod : _factoryConfig.serializerModifiers()) {
                 props = mod.changeProperties(config, beanDesc, props);
             }
         }
@@ -311,7 +311,7 @@ public class BeanSerializerFactory
 
         // Need to allow reordering of properties to serialize
         if (_factoryConfig.hasSerializerModifiers()) {
-            for (BeanSerializerModifier mod : _factoryConfig.serializerModifiers()) {
+            for (ValueSerializerModifier mod : _factoryConfig.serializerModifiers()) {
                 props = mod.orderProperties(config, beanDesc, props);
             }
         }
@@ -352,7 +352,7 @@ public class BeanSerializerFactory
 
         // Finally: let interested parties mess with the result bit more...
         if (_factoryConfig.hasSerializerModifiers()) {
-            for (BeanSerializerModifier mod : _factoryConfig.serializerModifiers()) {
+            for (ValueSerializerModifier mod : _factoryConfig.serializerModifiers()) {
                 builder = mod.updateBuilder(config, beanDesc, builder);
             }
         }

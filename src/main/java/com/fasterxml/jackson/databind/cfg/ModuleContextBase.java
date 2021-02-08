@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.JacksonModule.SetupContext;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
-import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
+import com.fasterxml.jackson.databind.ser.ValueSerializerModifier;
 import com.fasterxml.jackson.databind.ser.SerializerFactory;
 import com.fasterxml.jackson.databind.ser.Serializers;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -141,7 +141,7 @@ public class ModuleContextBase
     }
 
     @Override
-    public SetupContext addDeserializerModifier(BeanDeserializerModifier modifier) {
+    public SetupContext addDeserializerModifier(ValueDeserializerModifier modifier) {
         _set(_deserializerFactory().withDeserializerModifier(modifier));
         return this;
     }
@@ -171,7 +171,7 @@ public class ModuleContextBase
     }
 
     @Override
-    public SetupContext addSerializerModifier(BeanSerializerModifier modifier) {
+    public SetupContext addSerializerModifier(ValueSerializerModifier modifier) {
         _set(_serializerFactory().withSerializerModifier(modifier));
         return this;
     }

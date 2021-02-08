@@ -162,9 +162,9 @@ public abstract class DeserializerFactory
     
     /**
      * Convenience method for creating a new factory instance with additional
-     * {@link BeanDeserializerModifier}.
+     * {@link ValueDeserializerModifier}.
      */
-    public abstract DeserializerFactory withDeserializerModifier(BeanDeserializerModifier modifier);
+    public abstract DeserializerFactory withDeserializerModifier(ValueDeserializerModifier modifier);
 
     /**
      * Convenience method for creating a new factory instance with additional

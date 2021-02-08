@@ -20,13 +20,13 @@ import com.fasterxml.jackson.databind.type.MapType;
  * construction of {@link BeanSerializer} instances.
  */
 @SuppressWarnings("serial")
-public class BeanSerializerModifierTest extends BaseMapTest
+public class ValueSerializerModifierTest extends BaseMapTest
 {
     static class SerializerModifierModule extends SimpleModule
     {
-        protected BeanSerializerModifier modifier;
+        protected ValueSerializerModifier modifier;
         
-        public SerializerModifierModule(BeanSerializerModifier modifier)
+        public SerializerModifierModule(ValueSerializerModifier modifier)
         {
             super("test", Version.unknownVersion());
             this.modifier = modifier;
@@ -48,7 +48,7 @@ public class BeanSerializerModifierTest extends BaseMapTest
         public String a = "a";
     }
 
-    static class RemovingModifier extends BeanSerializerModifier
+    static class RemovingModifier extends ValueSerializerModifier
     {
         private final String _removedProperty;
         
@@ -69,7 +69,7 @@ public class BeanSerializerModifierTest extends BaseMapTest
         }
     }
     
-    static class ReorderingModifier extends BeanSerializerModifier
+    static class ReorderingModifier extends ValueSerializerModifier
     {
         @Override
         public List<BeanPropertyWriter> orderProperties(SerializationConfig config, BeanDescription beanDesc, List<BeanPropertyWriter> beanProperties)
@@ -82,7 +82,7 @@ public class BeanSerializerModifierTest extends BaseMapTest
         }
     }
 
-    static class ReplacingModifier extends BeanSerializerModifier
+    static class ReplacingModifier extends ValueSerializerModifier
     {
         private final JsonSerializer<?> _serializer;
         
@@ -95,7 +95,7 @@ public class BeanSerializerModifierTest extends BaseMapTest
         }
     }
 
-    static class BuilderModifier extends BeanSerializerModifier
+    static class BuilderModifier extends ValueSerializerModifier
     {
         private final JsonSerializer<?> _serializer;
         
@@ -147,7 +147,7 @@ public class BeanSerializerModifierTest extends BaseMapTest
         public String name = "foo";
     }
 
-    static class EmptyBeanModifier extends BeanSerializerModifier
+    static class EmptyBeanModifier extends ValueSerializerModifier
     {
         @Override
         public List<BeanPropertyWriter> changeProperties(SerializationConfig config,
@@ -171,7 +171,7 @@ public class BeanSerializerModifierTest extends BaseMapTest
     }
 
     // [Issue#539]: use post-modifier
-    static class EmptyBeanModifier539 extends BeanSerializerModifier
+    static class EmptyBeanModifier539 extends ValueSerializerModifier
     {
         @Override
         public List<BeanPropertyWriter> changeProperties(SerializationConfig config,
@@ -188,7 +188,7 @@ public class BeanSerializerModifierTest extends BaseMapTest
     }
     // [databind#120], arrays, collections, maps
     
-    static class ArraySerializerModifier extends BeanSerializerModifier {
+    static class ArraySerializerModifier extends ValueSerializerModifier {
         @Override
         public JsonSerializer<?> modifyArraySerializer(SerializationConfig config,
                 ArrayType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
@@ -200,7 +200,7 @@ public class BeanSerializerModifierTest extends BaseMapTest
         }
     }
 
-    static class CollectionSerializerModifier extends BeanSerializerModifier {
+    static class CollectionSerializerModifier extends ValueSerializerModifier {
         @Override
         public JsonSerializer<?> modifyCollectionSerializer(SerializationConfig config,
                 CollectionType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
@@ -212,7 +212,7 @@ public class BeanSerializerModifierTest extends BaseMapTest
         }
     }
 
-    static class MapSerializerModifier extends BeanSerializerModifier {
+    static class MapSerializerModifier extends ValueSerializerModifier {
         @Override
         public JsonSerializer<?> modifyMapSerializer(SerializationConfig config,
                 MapType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
@@ -224,7 +224,7 @@ public class BeanSerializerModifierTest extends BaseMapTest
         }
     }
 
-    static class EnumSerializerModifier extends BeanSerializerModifier {
+    static class EnumSerializerModifier extends ValueSerializerModifier {
         @Override
         public JsonSerializer<?> modifyEnumSerializer(SerializationConfig config,
                 JavaType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
@@ -236,7 +236,7 @@ public class BeanSerializerModifierTest extends BaseMapTest
         }
     }
 
-    static class KeySerializerModifier extends BeanSerializerModifier {
+    static class KeySerializerModifier extends ValueSerializerModifier {
         @Override
         public JsonSerializer<?> modifyKeySerializer(SerializationConfig config,
                 JavaType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {

@@ -4,10 +4,10 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
+import com.fasterxml.jackson.databind.deser.ValueDeserializerModifier;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
-import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
+import com.fasterxml.jackson.databind.ser.ValueSerializerModifier;
 import com.fasterxml.jackson.databind.util.UniqueId;
 
 /**
@@ -76,9 +76,9 @@ public class SimpleModule
      */
     protected SimpleValueInstantiators _valueInstantiators = null;
 
-    protected BeanDeserializerModifier _deserializerModifier = null;
+    protected ValueDeserializerModifier _deserializerModifier = null;
 
-    protected BeanSerializerModifier _serializerModifier = null;
+    protected ValueSerializerModifier _serializerModifier = null;
 
     /**
      * Lazily-constructed map that contains mix-in definitions, indexed
@@ -237,12 +237,12 @@ public class SimpleModule
         return this;
     }
 
-    public SimpleModule setDeserializerModifier(BeanDeserializerModifier mod) {
+    public SimpleModule setDeserializerModifier(ValueDeserializerModifier mod) {
         _deserializerModifier = mod;
         return this;
     }
 
-    public SimpleModule setSerializerModifier(BeanSerializerModifier mod) {
+    public SimpleModule setSerializerModifier(ValueSerializerModifier mod) {
         _serializerModifier = mod;
         return this;
     }

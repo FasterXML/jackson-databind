@@ -9,7 +9,7 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerBuilder;
-import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
+import com.fasterxml.jackson.databind.deser.ValueDeserializerModifier;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
@@ -39,9 +39,9 @@ public class TestBeanDeserializer extends BaseMapTest
 
     static class ModuleImpl extends SimpleModule
     {
-        protected BeanDeserializerModifier modifier;
+        protected ValueDeserializerModifier modifier;
         
-        public ModuleImpl(BeanDeserializerModifier modifier)
+        public ModuleImpl(ValueDeserializerModifier modifier)
         {
             super("test", Version.unknownVersion());
             this.modifier = modifier;
@@ -57,7 +57,7 @@ public class TestBeanDeserializer extends BaseMapTest
         }
     }
 
-    static class RemovingModifier extends BeanDeserializerModifier
+    static class RemovingModifier extends ValueDeserializerModifier
     {
         private final String _removedProperty;
         
@@ -71,7 +71,7 @@ public class TestBeanDeserializer extends BaseMapTest
         }
     }
     
-    static class ReplacingModifier extends BeanDeserializerModifier
+    static class ReplacingModifier extends ValueDeserializerModifier
     {
         private final JsonDeserializer<?> _deserializer;
         
@@ -122,7 +122,7 @@ public class TestBeanDeserializer extends BaseMapTest
             return this;
         }        
     }
-    public class Issue476DeserializerModifier extends BeanDeserializerModifier {
+    public class Issue476DeserializerModifier extends ValueDeserializerModifier {
         @Override
         public JsonDeserializer<?> modifyDeserializer(DeserializationConfig config,
                 BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
@@ -196,7 +196,7 @@ public class TestBeanDeserializer extends BaseMapTest
         }
     }
 
-    public static class Issue1912UseAddOrReplacePropertyDeserializerModifier extends BeanDeserializerModifier
+    public static class Issue1912UseAddOrReplacePropertyDeserializerModifier extends ValueDeserializerModifier
     {
         @Override
         public JsonDeserializer<?> modifyDeserializer(DeserializationConfig config, BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
@@ -236,7 +236,7 @@ public class TestBeanDeserializer extends BaseMapTest
 
     enum EnumABC { A, B, C; }
     
-    static class ArrayDeserializerModifier extends BeanDeserializerModifier {
+    static class ArrayDeserializerModifier extends ValueDeserializerModifier {
         @Override
         public JsonDeserializer<?> modifyArrayDeserializer(DeserializationConfig config, ArrayType valueType,
                 BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
@@ -249,7 +249,7 @@ public class TestBeanDeserializer extends BaseMapTest
         }
     }
 
-    static class CollectionDeserializerModifier extends BeanDeserializerModifier {
+    static class CollectionDeserializerModifier extends ValueDeserializerModifier {
         @Override
         public JsonDeserializer<?> modifyCollectionDeserializer(DeserializationConfig config, CollectionType valueType,
                 BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
@@ -264,7 +264,7 @@ public class TestBeanDeserializer extends BaseMapTest
         }
     }
 
-    static class MapDeserializerModifier extends BeanDeserializerModifier {
+    static class MapDeserializerModifier extends ValueDeserializerModifier {
         @Override
         public JsonDeserializer<?> modifyMapDeserializer(DeserializationConfig config, MapType valueType,
                 BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
@@ -279,7 +279,7 @@ public class TestBeanDeserializer extends BaseMapTest
         }
     }
 
-    static class EnumDeserializerModifier extends BeanDeserializerModifier {
+    static class EnumDeserializerModifier extends ValueDeserializerModifier {
         @Override
         public JsonDeserializer<?> modifyEnumDeserializer(DeserializationConfig config, JavaType valueType,
                 BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
@@ -292,7 +292,7 @@ public class TestBeanDeserializer extends BaseMapTest
         }
     }
 
-    static class KeyDeserializerModifier extends BeanDeserializerModifier {
+    static class KeyDeserializerModifier extends ValueDeserializerModifier {
         @Override
         public KeyDeserializer modifyKeyDeserializer(DeserializationConfig config, JavaType valueType,
                 KeyDeserializer kd) {
@@ -442,7 +442,7 @@ public class TestBeanDeserializer extends BaseMapTest
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new SimpleModule("test")
-                        .setDeserializerModifier(new BeanDeserializerModifier() {
+                        .setDeserializerModifier(new ValueDeserializerModifier() {
                         @Override
                         public JsonDeserializer<?> modifyDeserializer(DeserializationConfig config,
                                 BeanDescription beanDesc, JsonDeserializer<?> deser) {

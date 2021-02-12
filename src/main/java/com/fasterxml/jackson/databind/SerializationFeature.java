@@ -280,6 +280,18 @@ public enum SerializationFeature implements ConfigFeature
     WRITE_ENUMS_USING_INDEX(false),
 
     /**
+     * Feature that determines standard serialization mechanism used for
+     * Enum values: if enabled, return value of <code>Enum.name().toLowerCase()</code>
+     * is used; if disabled, return value of <code>Enum.name()</code> is used.
+     *<p>
+     * Note: this feature should usually have same value
+     * as {@link DeserializationFeature#ACCEPT_CASE_INSENSITIVE_ENUMS}.
+     *<p>
+     * Feature is disabled by default.
+     */
+    WRITE_ENUMS_LOWERCASED(false),
+
+    /**
      * Feature that determines whether {link Enum}s
      * used as {@link java.util.Map} keys are serialized
      * as using {@link Enum#ordinal()} or not.

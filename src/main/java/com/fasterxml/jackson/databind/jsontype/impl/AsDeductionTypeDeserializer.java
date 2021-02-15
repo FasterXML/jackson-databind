@@ -9,18 +9,21 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
-import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
  * A {@link TypeDeserializer} capable of deducing polymorphic types based on the fields available. Deduction
  * is limited to the <i>names</i> of child fields (not their values or, consequently, any nested descendants).
  * Exceptions will be thrown if not enough unique information is present to select a single subtype.
+ * <p>
+ * The current deduction process <b>does not</b> support pojo-hierarchies such that the
+ * absence of child fields infers a parent type. That is, every deducible subtype
+ * MUST have some unique fields and the input data MUST contain said unique fields
+ * to provide a <i>positive match</i>.
  */
 public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
 {
@@ -127,13 +130,17 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
             }
         }
 
-        throw new InvalidTypeIdException(p,
-                String.format("Cannot deduce unique subtype of %s (%d candidates match)",
-                        ClassUtil.getTypeDescription(_baseType),
-                        candidates.size()),
-                _baseType
-                , "DEDUCED"
-        );
+        // We have zero or multiple candidates, deduction has failed
+        return _deserializeTypedUsingDefaultImpl(p, ctxt, tb);
+    }
+
+    @Override
+    protected JavaType _handleMissingTypeId(DeserializationContext ctxt, String extraDesc)
+      throws IOException
+    {
+        // Override AsProperty error text with something more suitable. We have however lost all
+        // call-specific context of the remaining candidates ...
+        return ctxt.handleMissingTypeId(_baseType, _idResolver, "Cannot deduce unique subtype");
     }
 
     // Keep only fingerprints containing this field

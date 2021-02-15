@@ -29,6 +29,9 @@ Project: jackson-databind
  (fix contributed by Migwel@github)
 #3038: Two cases of incorrect error reporting about DeserializationFeature
  (reported by Jelle V)
+#3056: MismatchedInputException: Cannot deserialize instance of
+  `com.fasterxml.jackson.databind.node.ObjectNode` out of VALUE_NULL token
+ (reported by Stexxen@github)
 
 2.12.1 (08-Jan-2021)
 

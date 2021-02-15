@@ -11,6 +11,9 @@ public class NodeMergeTest extends BaseMapTest
     final static ObjectMapper MAPPER = jsonMapperBuilder()
             // 26-Oct-2016, tatu: Make sure we'll report merge problems by default
             .disable(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE)
+            // 15-Feb-2021, tatu: slightly related to [databind#3056],
+            //   ensure that dup detection will not trip handling here
+            .enable(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY)
             .build()
     ;
 
@@ -70,8 +73,8 @@ public class NodeMergeTest extends BaseMapTest
         base.putNull("misc");
         assertSame(base,
                 MAPPER.readerForUpdating(base)
-                .readValue(aposToQuotes(
-                        "{'props':{'value':true, 'extra':25.5, 'array' : [ 3 ]}}")));
+                .readValue(a2q(
+"{'props':{'value':true, 'extra':25.5, 'array' : [ 3 ]}}")));
         assertEquals(2, base.size());
         ObjectNode resultProps = (ObjectNode) base.get("props");
         assertEquals(4, resultProps.size());
@@ -114,5 +117,50 @@ public class NodeMergeTest extends BaseMapTest
         assertTrue(n.isArray());
         assertEquals(0, n.size());
         assertEquals("foo", w.list.get(5).asText());
+    }
+
+    // [databind#3056]
+    public void testUpdateObjectNodeWithNull() throws Exception
+    {
+        JsonNode src = MAPPER.readTree(a2q("{'test':{}}"));
+        JsonNode update = MAPPER.readTree(a2q("{'test':null}"));
+
+        ObjectNode result = MAPPER.readerForUpdating(src)
+            .readValue(update, ObjectNode.class);
+
+        assertEquals(a2q("{'test':null}"), result.toString());
+    }
+
+    public void testUpdateObjectNodeWithNumber() throws Exception
+    {
+        JsonNode src = MAPPER.readTree(a2q("{'test':{}}"));
+        JsonNode update = MAPPER.readTree(a2q("{'test':123}"));
+
+        ObjectNode result = MAPPER.readerForUpdating(src)
+            .readValue(update, ObjectNode.class);
+
+        assertEquals(a2q("{'test':123}"), result.toString());
+    }
+
+    public void testUpdateArrayWithNull() throws Exception
+    {
+        JsonNode src = MAPPER.readTree(a2q("{'test':[]}"));
+        JsonNode update = MAPPER.readTree(a2q("{'test':null}"));
+
+        ObjectNode result = MAPPER.readerForUpdating(src)
+            .readValue(update, ObjectNode.class);
+
+        assertEquals(a2q("{'test':null}"), result.toString());
+    }
+
+    public void testUpdateArrayWithString() throws Exception
+    {
+        JsonNode src = MAPPER.readTree(a2q("{'test':[]}"));
+        JsonNode update = MAPPER.readTree(a2q("{'test':'n/a'}"));
+
+        ObjectNode result = MAPPER.readerForUpdating(src)
+            .readValue(update, ObjectNode.class);
+
+        assertEquals(a2q("{'test':'n/a'}"), result.toString());
     }
 }

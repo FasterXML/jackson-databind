@@ -389,18 +389,25 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             JsonNode old = node.get(key);
             if (old != null) {
                 if (old instanceof ObjectNode) {
-                    JsonNode newValue = updateObject(p, ctxt, (ObjectNode) old);
-                    if (newValue != old) {
-                        node.set(key, newValue);
+                    // [databind#3056]: merging only if had Object and
+                    // getting an Object
+                    if (t == JsonToken.START_OBJECT) {
+                        JsonNode newValue = updateObject(p, ctxt, (ObjectNode) old);
+                        if (newValue != old) {
+                            node.set(key, newValue);
+                        }
+                        continue;
                     }
-                    continue;
-                }
-                if (old instanceof ArrayNode) {
-                    JsonNode newValue = updateArray(p, ctxt, (ArrayNode) old);
-                    if (newValue != old) {
-                        node.set(key, newValue);
+                } else if (old instanceof ArrayNode) {
+                    // [databind#3056]: related to Object handling, ensure
+                    // Array values also match for mergeability
+                    if (t == JsonToken.START_ARRAY) {
+                        JsonNode newValue = updateArray(p, ctxt, (ArrayNode) old);
+                        if (newValue != old) {
+                            node.set(key, newValue);
+                        }
+                        continue;
                     }
-                    continue;
                 }
             }
             if (t == null) { // can this ever occur?
@@ -436,10 +443,15 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             default:
                 value = deserializeAny(p, ctxt, nodeFactory);
             }
+            // 15-Feb-2021, tatu: I don't think this should have been called
+            //   on update case (was until 2.12.2) and was simply result of
+            //   copy-paste.
+            /*
             if (old != null) {
                 _handleDuplicateField(p, ctxt, nodeFactory,
                         key, node, old, value);
             }
+            */
             node.set(key, value);
         }
         return node;
@@ -449,8 +461,9 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             final JsonNodeFactory nodeFactory) throws IOException
     {
         ArrayNode node = nodeFactory.arrayNode();
-        while (true) {
-            JsonToken t = p.nextToken();
+        JsonToken t;
+
+        while ((t = p.nextToken()) != null) {
             switch (t.id()) {
             case JsonTokenId.ID_START_OBJECT:
                 node.add(deserializeObject(p, ctxt, nodeFactory));
@@ -483,6 +496,8 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
                 break;
             }
         }
+        // should never really get here
+        return node;
     }
 
     /**

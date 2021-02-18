@@ -170,9 +170,8 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             msg = msg + ", problem: "+m2;
         }
         // 05-May-2016, tatu: Unlike most usage, this seems legit, so...
-        JsonMappingException e = ctxt.weirdStringException(text, _valueClass, msg);
-        e.initCause(cause);
-        throw e;
+        throw ctxt.weirdStringException(text, _valueClass, msg)
+            .withCause(cause);
     }
 
     /**

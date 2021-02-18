@@ -6,7 +6,9 @@ import java.io.Serializable;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
@@ -391,6 +393,14 @@ public class JsonMappingException
         }
         jme.prependPath(ref);
         return jme;
+    }
+
+    /**
+     * @since 2.13
+     */
+    public JsonMappingException withCause(Throwable cause) {
+        initCause(cause);
+        return this;
     }
 
     /*

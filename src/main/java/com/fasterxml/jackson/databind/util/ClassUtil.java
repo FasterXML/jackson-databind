@@ -453,9 +453,8 @@ public final class ClassUtil
         if (e0 instanceof JsonMappingException) {
             throw (JsonMappingException) e0;
         }
-        JsonMappingException e = JsonMappingException.from(ctxt, e0.getMessage());
-        e.initCause(e0);
-        throw e;
+        throw JsonMappingException.from(ctxt, e0.getMessage())
+            .withCause(e0);
     }
 
     /**

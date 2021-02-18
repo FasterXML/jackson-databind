@@ -229,6 +229,12 @@ public abstract class SerializerProvider
     }
 
     @Override
+    public boolean hasPrettyPrinter() {
+        return _generatorConfig.hasPrettyPrinter()
+                || isEnabled(SerializationFeature.INDENT_OUTPUT);
+    }
+
+    @Override
     public SerializableString getRootValueSeparator(SerializableString defaultSeparator) {
         return _generatorConfig.getRootValueSeparator(defaultSeparator);
     }

@@ -136,6 +136,10 @@ public final class GeneratorSettings
         return null;
     }
 
+    public boolean hasPrettyPrinter() {
+        return (prettyPrinter != null);
+    }
+
     public SerializableString getRootValueSeparator(SerializableString defaultSep) {
         if (rootValueSeparator == null) {
             return defaultSep;

@@ -31,6 +31,10 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
 
     protected final As _inclusion;
 
+    protected final String msgMissingId = _property == null ?
+      String.format("missing type id property '%s'", _typePropertyName) :
+      String.format("missing type id property '%s' (for POJO property '%s')", _typePropertyName, _property.getName());
+
     /**
      * @since 2.8
      */
@@ -91,7 +95,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
              * But this can also be due to some custom handling: so, if "defaultImpl"
              * is defined, it will be asked to handle this case.
              */
-            return _deserializeTypedUsingDefaultImpl(p, ctxt, null);
+            return _deserializeTypedUsingDefaultImpl(p, ctxt, null, msgMissingId);
         }
         // Ok, let's try to find the property. But first, need token buffer...
         TokenBuffer tb = null;
@@ -110,7 +114,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             tb.writeFieldName(name);
             tb.copyCurrentStructure(p);
         }
-        return _deserializeTypedUsingDefaultImpl(p, ctxt, tb);
+        return _deserializeTypedUsingDefaultImpl(p, ctxt, tb, msgMissingId);
     }
 
     protected Object _deserializeTypedForId(JsonParser p, DeserializationContext ctxt,
@@ -137,7 +141,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
 
     // off-lined to keep main method lean and mean...
     protected Object _deserializeTypedUsingDefaultImpl(JsonParser p,
-            DeserializationContext ctxt, TokenBuffer tb) throws IOException
+            DeserializationContext ctxt, TokenBuffer tb, String priorFailureMsg) throws IOException
     {
         // May have default implementation to use
         // 13-Oct-2020, tatu: As per [databind#2775], need to be careful to
@@ -165,13 +169,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         // genuine, or faked for "dont fail on bad type id")
         JsonDeserializer<Object> deser = _findDefaultImplDeserializer(ctxt);
         if (deser == null) {
-            String msg = String.format("missing type id property '%s'",
-                    _typePropertyName);
-            // even better, may know POJO property polymorphic value would be assigned to
-            if (_property != null) {
-                msg = String.format("%s (for POJO property '%s')", msg, _property.getName());
-            }
-            JavaType t = _handleMissingTypeId(ctxt, msg);
+            JavaType t = _handleMissingTypeId(ctxt, priorFailureMsg);
             if (t == null) {
                 // 09-Mar-2017, tatu: Is this the right thing to do?
                 return null;

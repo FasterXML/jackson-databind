@@ -1938,7 +1938,7 @@ trailingToken, ClassUtil.nameOf(targetType)
      */
     public JsonMappingException missingTypeIdException(JavaType baseType,
             String extraDesc) {
-        String msg = String.format("Missing type id when trying to resolve subtype of %s",
+        String msg = String.format("Could not resolve subtype of %s",
                 baseType);
         return InvalidTypeIdException.from(_parser, _colonConcat(msg, extraDesc), baseType, null);
     }

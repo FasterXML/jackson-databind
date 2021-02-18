@@ -22,28 +22,16 @@ public class TestPolymorphicDeduction extends BaseMapTest {
 
   @JsonTypeInfo(use = DEDUCTION)
   @JsonSubTypes( {@Type(LiveCat.class), @Type(DeadCat.class)})
-  static abstract class Cat {
-    public final String name;
-
-    protected Cat(String name) {
-      this.name = name;
-    }
+  public static class Cat {
+    public String name;
   }
 
   static class DeadCat extends Cat {
     public String causeOfDeath;
-
-    DeadCat(@JsonProperty("name") String name) {
-      super(name);
-    }
   }
 
   static class LiveCat extends Cat {
     public boolean angry;
-
-    LiveCat(@JsonProperty("name") String name) {
-      super(name);
-    }
   }
 
   static class Box {
@@ -155,10 +143,6 @@ public class TestPolymorphicDeduction extends BaseMapTest {
 
   static class AnotherLiveCat extends Cat {
     public boolean angry;
-
-    AnotherLiveCat(@JsonProperty("name") String name) {
-      super(name);
-    }
   }
 
   public void testAmbiguousClasses() throws Exception {
@@ -180,8 +164,38 @@ public class TestPolymorphicDeduction extends BaseMapTest {
       /*Cat cat =*/ sharedMapper().readValue(ambiguousCatJson, Cat.class);
       fail("Should not get here");
     } catch (InvalidTypeIdException e) {
-        verifyException(e, "Cannot deduce unique subtype of");
+        verifyException(e, "Cannot deduce unique subtype");
     }
+  }
+
+  public void testFailOnInvalidSubtype() throws Exception {
+    // Given:
+    JsonMapper mapper = JsonMapper.builder() // Don't use shared mapper!
+      .disable(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE)
+      .build();
+    // When:
+    Cat cat = mapper.readValue(ambiguousCatJson, Cat.class);
+    // Then:
+    assertNull(cat);
+  }
+
+  @JsonTypeInfo(use = DEDUCTION, defaultImpl = Cat.class)
+  abstract static class CatMixin {
+  }
+
+  public void testDefaultImpl() throws Exception {
+    // Given:
+    JsonMapper mapper = JsonMapper.builder() // Don't use shared mapper!
+      .addMixIn(Cat.class, CatMixin.class)
+      .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+      .build();
+    // When:
+    Cat cat = mapper.readValue(ambiguousCatJson, Cat.class);
+    // Then:
+    // Even though "age":2 implies this was a failed subtype, we are instructed to fallback to Cat regardless.
+    assertTrue(cat instanceof Cat);
+    assertSame(Cat.class, cat.getClass());
+    assertEquals("Felix", cat.name);
   }
 
   public void testSimpleSerialization() throws Exception {

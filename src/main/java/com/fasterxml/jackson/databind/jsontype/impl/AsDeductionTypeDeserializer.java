@@ -15,12 +15,14 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
- * A {@link TypeDeserializer} capable of deducing polymorphic types based on the fields available. Deduction
- * is limited to the <i>names</i> of child fields (not their values or, consequently, any nested descendants).
- * Exceptions will be thrown if not enough unique information is present to select a single subtype.
+ * A {@link TypeDeserializer} capable of deducing polymorphic types based on the
+ * fields available. Deduction is limited to the <i>names</i> of child properties
+ * (not their values or, consequently, any nested descendants).
+ * Exceptions will be thrown if not enough unique information is present
+ * to select a single subtype.
  * <p>
- * The current deduction process <b>does not</b> support pojo-hierarchies such that the
- * absence of child fields infers a parent type. That is, every deducible subtype
+ * The current deduction process <b>does not</b> support pojo-hierarchies such that
+ * the absence of child fields infers a parent type. That is, every deducible subtype
  * MUST have some unique fields and the input data MUST contain said unique fields
  * to provide a <i>positive match</i>.
  */
@@ -33,7 +35,9 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
     // Bitmap of available fields in each subtype (including its parents)
     private final Map<BitSet, String> subtypeFingerprints;
 
-    public AsDeductionTypeDeserializer(JavaType bt, TypeIdResolver idRes, JavaType defaultImpl, DeserializationConfig config, Collection<NamedType> subtypes) {
+    public AsDeductionTypeDeserializer(JavaType bt, TypeIdResolver idRes, JavaType defaultImpl,
+            DeserializationConfig config, Collection<NamedType> subtypes)
+    {
         super(bt, idRes, null, false, defaultImpl, null);
         fieldBitIndex = new HashMap<>();
         subtypeFingerprints = buildFingerprints(config, subtypes);

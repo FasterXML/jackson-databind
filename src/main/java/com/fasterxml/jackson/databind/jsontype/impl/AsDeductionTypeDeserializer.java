@@ -3,8 +3,6 @@ package com.fasterxml.jackson.databind.jsontype.impl;
 import java.io.IOException;
 import java.util.*;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
@@ -13,6 +11,7 @@ import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
@@ -91,7 +90,7 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
         JsonToken t = p.currentToken();
         if (t == JsonToken.START_OBJECT) {
             t = p.nextToken();
-        } else {
+        } else if (/*t == JsonToken.START_ARRAY ||*/ t != JsonToken.FIELD_NAME) {
             /* This is most likely due to the fact that not all Java types are
              * serialized as JSON Objects; so if "as-property" inclusion is requested,
              * serialization of things like Lists must be instead handled as if
@@ -99,7 +98,7 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
              * But this can also be due to some custom handling: so, if "defaultImpl"
              * is defined, it will be asked to handle this case.
              */
-            return _deserializeTypedUsingDefaultImpl(p, ctxt, null);
+            return _deserializeTypedUsingDefaultImpl(p, ctxt, null, "Unexpected input");
         }
 
         List<BitSet> candidates = new LinkedList<>(subtypeFingerprints.keySet());
@@ -126,16 +125,8 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
         }
 
         // We have zero or multiple candidates, deduction has failed
-        return _deserializeTypedUsingDefaultImpl(p, ctxt, tb);
-    }
-
-    @Override
-    protected JavaType _handleMissingTypeId(DeserializationContext ctxt, String extraDesc)
-      throws IOException
-    {
-        // Override AsProperty error text with something more suitable. We have however lost all
-        // call-specific context of the remaining candidates ...
-        return ctxt.handleMissingTypeId(_baseType, _idResolver, "Cannot deduce unique subtype");
+        String msgToReportIfDefaultImplFailsToo = String.format("Cannot deduce unique subtype of %s (%d candidates match)", ClassUtil.getTypeDescription(_baseType), candidates.size());
+        return _deserializeTypedUsingDefaultImpl(p, ctxt, tb, msgToReportIfDefaultImplFailsToo);
     }
 
     // Keep only fingerprints containing this field

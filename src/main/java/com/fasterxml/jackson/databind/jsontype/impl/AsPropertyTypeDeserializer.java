@@ -3,15 +3,12 @@ package com.fasterxml.jackson.databind.jsontype.impl;
 import java.io.IOException;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.util.JsonParserSequence;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.MapperFeature;
+
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
@@ -31,9 +28,10 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
 
     protected final As _inclusion;
 
-    protected final String msgMissingId = _property == null ?
-      String.format("missing type id property '%s'", _typePropertyName) :
-      String.format("missing type id property '%s' (for POJO property '%s')", _typePropertyName, _property.getName());
+    // @since 2.12.2 (see [databind#3055]
+    protected final String _msgForMissingId = (_property == null)
+            ? String.format("missing type id property '%s'", _typePropertyName)
+            : String.format("missing type id property '%s' (for POJO property '%s')", _typePropertyName, _property.getName());
 
     /**
      * @since 2.8
@@ -95,7 +93,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
              * But this can also be due to some custom handling: so, if "defaultImpl"
              * is defined, it will be asked to handle this case.
              */
-            return _deserializeTypedUsingDefaultImpl(p, ctxt, null, msgMissingId);
+            return _deserializeTypedUsingDefaultImpl(p, ctxt, null, _msgForMissingId);
         }
         // Ok, let's try to find the property. But first, need token buffer...
         TokenBuffer tb = null;
@@ -114,7 +112,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             tb.writeFieldName(name);
             tb.copyCurrentStructure(p);
         }
-        return _deserializeTypedUsingDefaultImpl(p, ctxt, tb, msgMissingId);
+        return _deserializeTypedUsingDefaultImpl(p, ctxt, tb, _msgForMissingId);
     }
 
     protected Object _deserializeTypedForId(JsonParser p, DeserializationContext ctxt,
@@ -139,9 +137,17 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         return deser.deserialize(p, ctxt);
     }
 
-    // off-lined to keep main method lean and mean...
+    @Deprecated // since 2.12.2 (remove from 2.14 or later)
     protected Object _deserializeTypedUsingDefaultImpl(JsonParser p,
-            DeserializationContext ctxt, TokenBuffer tb, String priorFailureMsg) throws IOException
+            DeserializationContext ctxt, TokenBuffer tb) throws IOException {
+        return _deserializeTypedUsingDefaultImpl(p, ctxt, tb, null);
+    }
+
+    // off-lined to keep main method lean and mean...
+    // @since 2.12.2 (last arg added)
+    protected Object _deserializeTypedUsingDefaultImpl(JsonParser p,
+            DeserializationContext ctxt, TokenBuffer tb, String priorFailureMsg)
+        throws IOException
     {
         // May have default implementation to use
         // 13-Oct-2020, tatu: As per [databind#2775], need to be careful to

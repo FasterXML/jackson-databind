@@ -1801,7 +1801,7 @@ factory.toString()));
         //    map to better type here
         try {
             return b.buildTypeDeserializer(config, baseType, subtypes);
-        } catch (IllegalArgumentException e0) {
+        } catch (IllegalArgumentException | IllegalStateException e0) {
             InvalidDefinitionException e = InvalidDefinitionException.from((JsonParser) null,
                     ClassUtil.exceptionMessage(e0), baseType);
             e.initCause(e0);
@@ -2015,7 +2015,7 @@ factory.toString()));
                 config, annotated, baseType);
         try {
             return b.buildTypeDeserializer(config, baseType, subtypes);
-        } catch (IllegalArgumentException e0) {
+        } catch (IllegalArgumentException | IllegalStateException e0) {
             InvalidDefinitionException e = InvalidDefinitionException.from((JsonParser) null,
                     ClassUtil.exceptionMessage(e0), baseType);
             e.initCause(e0);

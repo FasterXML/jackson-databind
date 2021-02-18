@@ -651,7 +651,7 @@ public abstract class DeserializationContext
 
     /*
     /**********************************************************************
-    /* Public API, value type deserializer access
+    /* Public API, (value) type deserializer access
     /**********************************************************************
      */
 
@@ -676,8 +676,14 @@ public abstract class DeserializationContext
     public TypeDeserializer findTypeDeserializer(JavaType baseType,
             AnnotatedClass classAnnotations)
     {
-        return _config.getTypeResolverProvider().findTypeDeserializer(this,
-                baseType, classAnnotations);
+        try {
+            return _config.getTypeResolverProvider().findTypeDeserializer(this,
+                    baseType, classAnnotations);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            throw InvalidDefinitionException.from(getParser(),
+                    ClassUtil.exceptionMessage(e), baseType)
+                .withCause(e);
+        }
     }
 
     /**
@@ -698,8 +704,14 @@ public abstract class DeserializationContext
     public TypeDeserializer findPropertyTypeDeserializer(JavaType baseType,
             AnnotatedMember accessor)
     {
-        return _config.getTypeResolverProvider().findPropertyTypeDeserializer(this,
-                accessor, baseType);
+        try {
+            return _config.getTypeResolverProvider().findPropertyTypeDeserializer(this,
+                    accessor, baseType);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            throw InvalidDefinitionException.from(getParser(),
+                    ClassUtil.exceptionMessage(e), baseType)
+                .withCause(e);
+        }
     }
 
     /**
@@ -718,8 +730,14 @@ public abstract class DeserializationContext
     public TypeDeserializer findPropertyContentTypeDeserializer(JavaType containerType,
             AnnotatedMember accessor)
     {
-        return _config.getTypeResolverProvider().findPropertyContentTypeDeserializer(this,
-                accessor, containerType);
+        try {
+            return _config.getTypeResolverProvider().findPropertyContentTypeDeserializer(this,
+                    accessor, containerType);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            throw InvalidDefinitionException.from(getParser(),
+                    ClassUtil.exceptionMessage(e), containerType)
+                .withCause(e);
+        }
     }
 
     /*

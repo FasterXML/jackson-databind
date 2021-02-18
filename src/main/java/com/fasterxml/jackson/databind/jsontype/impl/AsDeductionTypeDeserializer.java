@@ -2,8 +2,6 @@ package com.fasterxml.jackson.databind.jsontype.impl;
 
 import java.util.*;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -17,14 +15,14 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
- * A {@link TypeDeserializer} capable of deducing polymorphic types based
- * on the fields available. Deduction is limited to the <i>names</i> of
- * child properties (not their values or, consequently, any nested descendants).
- * Exceptions will be thrown if not enough unique information is present to select a
- * single subtype.
+ * A {@link TypeDeserializer} capable of deducing polymorphic types based on the
+ * fields available. Deduction is limited to the <i>names</i> of child properties
+ * (not their values or, consequently, any nested descendants).
+ * Exceptions will be thrown if not enough unique information is present
+ * to select a single subtype.
  * <p>
- * The current deduction process <b>does not</b> support pojo-hierarchies such that the
- * absence of child fields infers a parent type. That is, every deducible subtype
+ * The current deduction process <b>does not</b> support pojo-hierarchies such that
+ * the absence of child fields infers a parent type. That is, every deducible subtype
  * MUST have some unique fields and the input data MUST contain said unique fields
  * to provide a <i>positive match</i>.
  */

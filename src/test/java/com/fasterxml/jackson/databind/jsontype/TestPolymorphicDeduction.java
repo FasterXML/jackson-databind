@@ -3,17 +3,19 @@ package com.fasterxml.jackson.databind.jsontype;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+
 import static com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import static com.fasterxml.jackson.annotation.JsonTypeInfo.Id.DEDUCTION;
 
@@ -152,7 +154,7 @@ public class TestPolymorphicDeduction extends BaseMapTest {
               .build();
       /*Cat cat =*/ mapper.readValue(liveCatJson, Cat.class);
       fail("Should not get here");
-    } catch (IllegalStateException e) {
+    } catch (InvalidDefinitionException e) {
         verifyException(e, "Subtypes ");
         verifyException(e, "have the same signature");
         verifyException(e, "cannot be uniquely deduced");

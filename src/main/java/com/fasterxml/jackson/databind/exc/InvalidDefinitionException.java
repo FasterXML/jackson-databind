@@ -75,6 +75,12 @@ public class InvalidDefinitionException
         return new InvalidDefinitionException(g, msg, type);
     }
 
+    // @since 3.0
+    public InvalidDefinitionException withCause(Throwable cause) {
+        initCause(cause);
+        return this;
+    }
+
     /**
      * Accessor for type fully resolved type that had the problem; this should always
      * known and available, never <code>null</code>

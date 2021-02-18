@@ -7,12 +7,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.util.JsonParserSequence;
 
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ValueDeserializer;
-import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
@@ -30,7 +25,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
 {
     protected final As _inclusion;
 
-    protected final String msgMissingId = (_property == null)
+    protected final String _msgForMissingId = (_property == null)
             ? String.format("missing type id property '%s'", _typePropertyName)
             : String.format("missing type id property '%s' (for POJO property '%s')", _typePropertyName, _property.getName());
 
@@ -89,7 +84,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
              * But this can also be due to some custom handling: so, if "defaultImpl"
              * is defined, it will be asked to handle this case.
              */
-            return _deserializeTypedUsingDefaultImpl(p, ctxt, null, msgMissingId);
+            return _deserializeTypedUsingDefaultImpl(p, ctxt, null, _msgForMissingId);
         }
         // Ok, let's try to find the property. But first, need token buffer...
         TokenBuffer tb = null;
@@ -108,7 +103,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             tb.writeName(name);
             tb.copyCurrentStructure(p);
         }
-        return _deserializeTypedUsingDefaultImpl(p, ctxt, tb, msgMissingId);
+        return _deserializeTypedUsingDefaultImpl(p, ctxt, tb, _msgForMissingId);
     }
 
     protected Object _deserializeTypedForId(JsonParser p, DeserializationContext ctxt,
@@ -200,6 +195,6 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
     }    
     
     // These are fine from base class:
-    //public Object deserializeTypedFromArray(JsonParser jp, DeserializationContext ctxt)
-    //public Object deserializeTypedFromScalar(JsonParser jp, DeserializationContext ctxt)    
+    //public Object deserializeTypedFromArray(JsonParser p, DeserializationContext ctxt)
+    //public Object deserializeTypedFromScalar(JsonParser p, DeserializationContext ctxt)    
 }

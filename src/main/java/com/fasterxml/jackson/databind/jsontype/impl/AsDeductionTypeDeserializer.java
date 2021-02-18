@@ -9,7 +9,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -19,10 +18,15 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
  * A {@link TypeDeserializer} capable of deducing polymorphic types based
- * on the properties available Deduction is limited to the <i>names</i> of
- * direct child properties (not their values or, consequently, any nested descendants).
+ * on the fields available. Deduction is limited to the <i>names</i> of
+ * child properties (not their values or, consequently, any nested descendants).
  * Exceptions will be thrown if not enough unique information is present to select a
  * single subtype.
+ * <p>
+ * The current deduction process <b>does not</b> support pojo-hierarchies such that the
+ * absence of child fields infers a parent type. That is, every deducible subtype
+ * MUST have some unique fields and the input data MUST contain said unique fields
+ * to provide a <i>positive match</i>.
  */
 public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
 {
@@ -33,21 +37,18 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
 
     public AsDeductionTypeDeserializer(DeserializationContext ctxt,
             JavaType bt, TypeIdResolver idRes, JavaType defaultImpl,
-            Collection<NamedType> subtypes) {
-        super(bt, idRes, null, false, defaultImpl);
+            Collection<NamedType> subtypes)
+    {
+        super(bt, idRes, null, false, defaultImpl, null);
         propertyBitIndex = new HashMap<>();
         subtypeFingerprints = buildFingerprints(ctxt, subtypes);
     }
 
-    public AsDeductionTypeDeserializer(AsDeductionTypeDeserializer src, BeanProperty property) {
+    public AsDeductionTypeDeserializer(AsDeductionTypeDeserializer src, BeanProperty property)
+    {
         super(src, property);
         propertyBitIndex = src.propertyBitIndex;
         subtypeFingerprints = src.subtypeFingerprints;
-    }
-
-    @Override
-    public JsonTypeInfo.As getTypeInclusion() {
-        return null;
     }
 
     @Override
@@ -98,7 +99,7 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
         JsonToken t = p.currentToken();
         if (t == JsonToken.START_OBJECT) {
             t = p.nextToken();
-        } else {
+        } else if (/*t == JsonToken.START_ARRAY ||*/ t != JsonToken.PROPERTY_NAME) {
             /* This is most likely due to the fact that not all Java types are
              * serialized as JSON Objects; so if "as-property" inclusion is requested,
              * serialization of things like Lists must be instead handled as if
@@ -106,7 +107,7 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
              * But this can also be due to some custom handling: so, if "defaultImpl"
              * is defined, it will be asked to handle this case.
              */
-            return _deserializeTypedUsingDefaultImpl(p, ctxt, null);
+            return _deserializeTypedUsingDefaultImpl(p, ctxt, null, "Unexpected input");
         }
 
         List<BitSet> candidates = new LinkedList<>(subtypeFingerprints.keySet());
@@ -133,13 +134,9 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
             }
         }
 
-        throw new InvalidTypeIdException(p,
-                String.format("Cannot deduce unique subtype of %s (%d candidates match)",
-                        ClassUtil.getTypeDescription(_baseType),
-                        candidates.size()),
-                _baseType
-                , "DEDUCED"
-        );
+        // We have zero or multiple candidates, deduction has failed
+        String msgToReportIfDefaultImplFailsToo = String.format("Cannot deduce unique subtype of %s (%d candidates match)", ClassUtil.getTypeDescription(_baseType), candidates.size());
+        return _deserializeTypedUsingDefaultImpl(p, ctxt, tb, msgToReportIfDefaultImplFailsToo);
     }
 
     // Keep only fingerprints containing this property

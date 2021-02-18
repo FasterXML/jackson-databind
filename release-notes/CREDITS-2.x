@@ -1200,7 +1200,9 @@ Marc Carter (drekbour@github)
   * Contributed #43 implementation: Add option to resolve type from multiple existing properties,
    `@JsonTypeInfo(use=DEDUCTION)`
   (2.12.0)
- 
+  * Contributed #3055: Polymorphic subtype deduction ignores `defaultImpl` attribute
+  (2.12.2)
+
 Mike Gilbode (gilbode@github)
   * Reported #792: Deserialization Not Working Right with Generic Types and Builders
   (2.12.0)

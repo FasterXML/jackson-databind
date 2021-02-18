@@ -54,7 +54,7 @@ public class JsonTypeInfoCaseInsensitive1983Test extends BaseMapTest
             MAPPER.readValue(serialised, Filter.class);
             fail("Should not pass");
         } catch (InvalidTypeIdException e) {
-            verifyException(e, "Missing type id when trying to resolve subtype");
+            verifyException(e, "missing type id property");
         }
 
         ObjectMapper mapper = jsonMapperBuilder()

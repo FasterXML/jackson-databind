@@ -1233,17 +1233,15 @@ public abstract class SerializerProvider
     public <T> T reportBadDefinition(JavaType type, String msg, Throwable cause)
         throws DatabindException
     {
-        InvalidDefinitionException e = InvalidDefinitionException.from(getGenerator(), msg, type);
-        e.initCause(cause);
-        throw e;
+        throw InvalidDefinitionException.from(getGenerator(), msg, type)
+            .withCause(cause);
     }
 
     public <T> T reportBadDefinition(Class<?> raw, String msg, Throwable cause)
         throws DatabindException
     {
-        InvalidDefinitionException e = InvalidDefinitionException.from(getGenerator(), msg, constructType(raw));
-        e.initCause(cause);
-        throw e;
+        throw InvalidDefinitionException.from(getGenerator(), msg, constructType(raw))
+            .withCause(cause);
     }
 
     /**

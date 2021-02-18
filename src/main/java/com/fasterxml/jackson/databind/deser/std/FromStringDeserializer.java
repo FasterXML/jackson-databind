@@ -6,7 +6,7 @@ import java.net.UnknownHostException;
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DatabindException;
+
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
@@ -80,9 +80,8 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             msg = msg + ", problem: "+m2;
         }
         // 05-May-2016, tatu: Unlike most usage, this seems legit, so...
-        DatabindException e = ctxt.weirdStringException(text, _valueClass, msg);
-        e.initCause(cause);
-        throw e;
+        throw ctxt.weirdStringException(text, _valueClass, msg)
+            .withCause(cause);
     }
 
     /**

@@ -186,12 +186,12 @@ public class IntrospectorPairTest extends BaseMapTest
         }
 
         @Override
-        public Boolean hasAsValue(Annotated a) {
+        public Boolean hasAsValue(MapperConfig<?> config, Annotated a) {
             return (Boolean) values.get("hasAsValue");
         }
 
         @Override
-        public Boolean hasAnyGetter(Annotated ann) {
+        public Boolean hasAnyGetter(MapperConfig<?> config, Annotated ann) {
             return (Boolean) values.get("hasAnyGetter");
         }
 
@@ -383,20 +383,20 @@ public class IntrospectorPairTest extends BaseMapTest
         IntrospectorWithMap intr2 = new IntrospectorWithMap()
                 .add("hasAsValue", Boolean.FALSE);
         assertNull(new AnnotationIntrospectorPair(NO_ANNOTATIONS, NO_ANNOTATIONS)
-                .hasAsValue(null));
+                .hasAsValue(null, null));
         assertEquals(Boolean.TRUE, new AnnotationIntrospectorPair(intr1, NO_ANNOTATIONS)
-                .hasAsValue(null));
+                .hasAsValue(null, null));
         assertEquals(Boolean.TRUE, new AnnotationIntrospectorPair(NO_ANNOTATIONS, intr1)
-                .hasAsValue(null));
+                .hasAsValue(null, null));
         assertEquals(Boolean.FALSE, new AnnotationIntrospectorPair(intr2, NO_ANNOTATIONS)
-                .hasAsValue(null));
+                .hasAsValue(null, null));
         assertEquals(Boolean.FALSE, new AnnotationIntrospectorPair(NO_ANNOTATIONS, intr2)
-                .hasAsValue(null));
+                .hasAsValue(null, null));
 
         assertEquals(Boolean.TRUE, new AnnotationIntrospectorPair(intr1, intr2)
-                .hasAsValue(null));
+                .hasAsValue(null, null));
         assertEquals(Boolean.FALSE, new AnnotationIntrospectorPair(intr2, intr1)
-                .hasAsValue(null));
+                .hasAsValue(null, null));
     }
 
     /*

@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.core.Version;
 
 import com.fasterxml.jackson.databind.*;
@@ -539,6 +540,15 @@ public class AnnotationIntrospectorPair
             }
         }
         return n;
+    }
+
+    @Override
+    public Boolean hasAsKey(MapperConfig<?> config, Annotated a) {
+        Boolean b = _primary.hasAsKey(config, a);
+        if (b == null) {
+            b = _secondary.hasAsKey(config, a);
+        }
+        return b;
     }
 
     @Override

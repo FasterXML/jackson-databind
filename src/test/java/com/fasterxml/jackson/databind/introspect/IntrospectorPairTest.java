@@ -399,6 +399,52 @@ public class IntrospectorPairTest extends BaseMapTest
                 .hasAsValue(null, null));
     }
 
+    public void testHasAsKey() throws Exception
+    {
+        IntrospectorWithMap intr1 = new IntrospectorWithMap()
+                .add("hasAsKey", Boolean.TRUE);
+        IntrospectorWithMap intr2 = new IntrospectorWithMap()
+                .add("hasAsKey", Boolean.FALSE);
+        assertNull(new AnnotationIntrospectorPair(NO_ANNOTATIONS, NO_ANNOTATIONS)
+                .hasAsKey(null, null));
+        assertEquals(Boolean.TRUE, new AnnotationIntrospectorPair(intr1, NO_ANNOTATIONS)
+                .hasAsKey(null, null));
+        assertEquals(Boolean.TRUE, new AnnotationIntrospectorPair(NO_ANNOTATIONS, intr1)
+                .hasAsKey(null, null));
+        assertEquals(Boolean.FALSE, new AnnotationIntrospectorPair(intr2, NO_ANNOTATIONS)
+                .hasAsKey(null, null));
+        assertEquals(Boolean.FALSE, new AnnotationIntrospectorPair(NO_ANNOTATIONS, intr2)
+                .hasAsKey(null, null));
+
+        assertEquals(Boolean.TRUE, new AnnotationIntrospectorPair(intr1, intr2)
+                .hasAsKey(null, null));
+        assertEquals(Boolean.FALSE, new AnnotationIntrospectorPair(intr2, intr1)
+                .hasAsKey(null, null));
+    }
+
+    public void testHasAnyGetter() throws Exception
+    {
+        IntrospectorWithMap intr1 = new IntrospectorWithMap()
+                .add("hasAnyGetter", Boolean.TRUE);
+        IntrospectorWithMap intr2 = new IntrospectorWithMap()
+                .add("hasAnyGetter", Boolean.FALSE);
+        assertNull(new AnnotationIntrospectorPair(NO_ANNOTATIONS, NO_ANNOTATIONS)
+                .hasAnyGetter(null, null));
+        assertEquals(Boolean.TRUE, new AnnotationIntrospectorPair(intr1, NO_ANNOTATIONS)
+                .hasAnyGetter(null, null));
+        assertEquals(Boolean.TRUE, new AnnotationIntrospectorPair(NO_ANNOTATIONS, intr1)
+                .hasAnyGetter(null, null));
+        assertEquals(Boolean.FALSE, new AnnotationIntrospectorPair(intr2, NO_ANNOTATIONS)
+                .hasAnyGetter(null, null));
+        assertEquals(Boolean.FALSE, new AnnotationIntrospectorPair(NO_ANNOTATIONS, intr2)
+                .hasAnyGetter(null, null));
+
+        assertEquals(Boolean.TRUE, new AnnotationIntrospectorPair(intr1, intr2)
+                .hasAnyGetter(null, null));
+        assertEquals(Boolean.FALSE, new AnnotationIntrospectorPair(intr2, intr1)
+                .hasAnyGetter(null, null));
+    }
+
     /*
     /**********************************************************
     /* Test methods, deser

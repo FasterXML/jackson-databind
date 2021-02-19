@@ -390,7 +390,7 @@ public class ObjectReaderTest extends BaseMapTest
 
         ObjectReader reader = MAPPER.readerFor(POJO.class).at("/foo/bar/caller");
 
-        process(reader.readValue(source, POJO.class));
+        process((POJO) reader.readValue(source));
     }
 
     void process(POJO pojo) {

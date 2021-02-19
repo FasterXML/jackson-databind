@@ -1007,52 +1007,6 @@ public class ObjectReader
     }
 
     /**
-     * Convenience method that binds content read using given parser, using
-     * configuration of this reader, except that expected value type
-     * is specified with the call (instead of currently configured root type).
-     * Value return is either newly constructed, or root value that
-     * was specified with {@link #withValueToUpdate(Object)}.
-     */
-    public <T> T readValue(JsonParser p, Class<T> valueType) throws JacksonException {
-        _assertNotNull("p", p);
-        return forType(valueType).readValue(p);
-    }
-
-    /**
-     * Convenience method that binds content read using given parser, using
-     * configuration of this reader, except that expected value type
-     * is specified with the call (instead of currently configured root type).
-     * Value return is either newly constructed, or root value that
-     * was specified with {@link #withValueToUpdate(Object)}.
-     */
-    public <T> T readValue(JsonParser p, TypeReference<T> valueTypeRef) throws JacksonException {
-        _assertNotNull("p", p);
-        return forType(valueTypeRef).readValue(p);
-    }
-
-    /**
-     * Convenience method that binds content read using given parser, using
-     * configuration of this reader, except that expected value type
-     * is specified with the call (instead of currently configured root type).
-     * Value return is either newly constructed, or root value that
-     * was specified with {@link #withValueToUpdate(Object)}.
-     */
-    @SuppressWarnings("unchecked")
-    public <T> T readValue(JsonParser p, ResolvedType valueType) throws JacksonException {
-        _assertNotNull("p", p);
-        return (T) forType((JavaType)valueType).readValue(p);
-    }
-
-    /**
-     * Type-safe overloaded method, basically alias for {@link #readValue(JsonParser, ResolvedType)}.
-     */
-    @SuppressWarnings("unchecked")
-    public <T> T readValue(JsonParser p, JavaType valueType) throws JacksonException {
-        _assertNotNull("p", p);
-        return (T) forType(valueType).readValue(p);
-    }
-
-    /**
      * Convenience method that is equivalent to:
      *<pre>
      *   withType(valueType).readValues(p);
@@ -1162,21 +1116,6 @@ public class ObjectReader
     }
 
     /**
-     * Same as {@link #readValue(InputStream)} except that target value type
-     * overridden as {@code valueType}
-     *
-     * @param src Source to read content from
-     * @param valueType Target type to bind content to
-     *
-     * @since 2.11
-     */
-    @SuppressWarnings("unchecked")
-    public <T> T readValue(InputStream src, Class<T> valueType) throws JacksonException
-    {
-        return (T) forType(valueType).readValue(src);
-    }
-
-    /**
      * Method that binds content read from given input source,
      * using configuration of this reader.
      * Value return is either newly constructed, or root value that
@@ -1191,21 +1130,6 @@ public class ObjectReader
         DeserializationContextExt ctxt = _deserializationContext();
         return (T) _bindAndClose(ctxt,
                 _considerFilter(_parserFactory.createParser(ctxt, r), false));
-    }
-
-    /**
-     * Same as {@link #readValue(Reader)} except that target value type
-     * overridden as {@code valueType}
-     *
-     * @param src Source to read content from
-     * @param valueType Target type to bind content to
-     *
-     * @since 2.11
-     */
-    @SuppressWarnings("unchecked")
-    public <T> T readValue(Reader src, Class<T> valueType) throws JacksonException
-    {
-        return (T) forType(valueType).readValue(src);
     }
 
     /**
@@ -1226,19 +1150,6 @@ public class ObjectReader
     }
 
     /**
-     * Same as {@link #readValue(String)} except that target value type
-     * overridden as {@code valueType}
-     *
-     * @param src String that contains content to read
-     * @param valueType Target type to bind content to
-     */
-    @SuppressWarnings("unchecked")
-    public <T> T readValue(String src, Class<T> valueType) throws JacksonException
-    {
-        return (T) forType(valueType).readValue(src);
-    }
-
-    /**
      * Method that binds content read from given byte array,
      * using configuration of this reader.
      * Value return is either newly constructed, or root value that
@@ -1253,19 +1164,6 @@ public class ObjectReader
         DeserializationContextExt ctxt = _deserializationContext();
         return (T) _bindAndClose(ctxt,
                 _considerFilter(_parserFactory.createParser(ctxt, content), false));
-    }
-
-    /**
-     * Same as {@link #readValue(byte[])} except that target value type
-     * overridden as {@code valueType}
-     *
-     * @param content Byte array that contains encoded content to read
-     * @param valueType Target type to bind content to
-     */
-    @SuppressWarnings("unchecked")
-    public <T> T readValue(byte[] content, Class<T> valueType) throws JacksonException
-    {
-        return (T) forType(valueType).readValue(content);
     }
 
     /**
@@ -1288,21 +1186,6 @@ public class ObjectReader
     }
 
     /**
-     * Same as {@link #readValue(byte[],int,int)} except that target value type
-     * overridden as {@code valueType}
-     *
-     * @param buffer Byte array that contains encoded content to read
-     * @param offset Offset of the first content byte in {@code buffer}
-     * @param length Length of content in {@code buffer}, in bytes
-     * @param valueType Target type to bind content to
-     */
-    @SuppressWarnings("unchecked")
-    public <T> T readValue(byte[] buffer, int offset, int length, Class<T> valueType) throws JacksonException
-    {
-        return (T) forType(valueType).readValue(buffer, offset, length);
-    }
-
-    /**
      * Method that binds content read from given {@link File}
      * using configuration of this reader.
      * Value return is either newly constructed, or root value that
@@ -1317,19 +1200,6 @@ public class ObjectReader
         DeserializationContextExt ctxt = _deserializationContext();
         return (T) _bindAndClose(ctxt,
                 _considerFilter(_parserFactory.createParser(ctxt, f), false));
-    }
-
-    /**
-     * Same as {@link #readValue(File)} except that target value type
-     * overridden as {@code valueType}
-     *
-     * @param src File that contains content to read
-     * @param valueType Target type to bind content to
-     */
-    @SuppressWarnings("unchecked")
-    public <T> T readValue(File src, Class<T> valueType) throws JacksonException
-    {
-        return (T) forType(valueType).readValue(src);
     }
 
     /**
@@ -1355,19 +1225,6 @@ public class ObjectReader
     }
 
     /**
-     * Same as {@link #readValue(URL)} except that target value type
-     * overridden as {@code valueType}
-     *
-     * @param src URL pointing to resource that contains content to read
-     * @param valueType Target type to bind content to
-     */
-    @SuppressWarnings("unchecked")
-    public <T> T readValue(URL src, Class<T> valueType) throws JacksonException
-    {
-        return (T) forType(valueType).readValue(src);
-    }
-
-    /**
      * Convenience method for converting results from given JSON tree into given
      * value type. Basically short-cut for:
      *<pre>
@@ -1385,19 +1242,6 @@ public class ObjectReader
                 _considerFilter(treeAsTokens(node, ctxt), false));
     }
 
-    /**
-     * Same as {@link #readValue(JsonNode)} except that target value type
-     * overridden as {@code valueType}
-     *
-     * @param content Tree that contains content to convert
-     * @param valueType Target type to convert content to
-     */
-    @SuppressWarnings({ "unchecked" })
-    public <T> T readValue(JsonNode content, Class<T> valueType) throws JacksonException
-    {
-        return (T) forType(valueType).readValue(content);
-    }
-
     @SuppressWarnings("unchecked")
     public <T> T readValue(DataInput input) throws JacksonException
     {
@@ -1405,19 +1249,6 @@ public class ObjectReader
         DeserializationContextExt ctxt = _deserializationContext();
         return (T) _bindAndClose(ctxt,
                 _considerFilter(_parserFactory.createParser(ctxt, input), false));
-    }
-
-    /**
-     * Same as {@link #readValue(DataInput)} except that target value type
-     * overridden as {@code valueType}
-     *
-     * @param content DataInput that contains content to read
-     * @param valueType Target type to bind content to
-     */
-    @SuppressWarnings("unchecked")
-    public <T> T readValue(DataInput content, Class<T> valueType) throws JacksonException
-    {
-        return (T) forType(valueType).readValue(content);
     }
 
     /*
@@ -1661,13 +1492,13 @@ public class ObjectReader
     public <T> T treeToValue(TreeNode n, Class<T> valueType) throws JacksonException
     {
         _assertNotNull("n", n);
-        return readValue(treeAsTokens(n), valueType);
+        return forType(valueType).readValue(treeAsTokens(n));
     }
 
     public <T> T treeToValue(TreeNode n, JavaType valueType) throws JacksonException
     {
         _assertNotNull("n", n);
-        return readValue(treeAsTokens(n), valueType);
+        return forType(valueType).readValue(treeAsTokens(n));
     }
 
     /*

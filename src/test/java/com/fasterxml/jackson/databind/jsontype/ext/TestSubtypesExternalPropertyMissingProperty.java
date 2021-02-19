@@ -253,7 +253,7 @@ public class TestSubtypesExternalPropertyMissingProperty extends BaseMapTest
 
     private void checkReqBoxDatabindException(ObjectReader r, String json) throws Exception {
         try {
-            r.forType(ReqBox.class).readValue(json, ReqBox.class);
+            r.forType(ReqBox.class).readValue(json);
             fail("Should not pass");
         } catch (MismatchedInputException e) {
             verifyException(e, "Missing property 'fruit' for external type id 'type'");

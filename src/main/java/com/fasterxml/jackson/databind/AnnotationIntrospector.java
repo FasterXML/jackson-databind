@@ -1021,7 +1021,6 @@ public abstract class AnnotationIntrospector
      * @since 2.9
      */
     public Boolean hasAnyGetter(Annotated ann) {
-
         // 21-Nov-2016, tatu: Delegate in 2.9; remove redirect from later versions
         if (ann instanceof AnnotatedMethod) {
             if (hasAnyGetterAnnotation((AnnotatedMethod) ann)) {

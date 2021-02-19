@@ -5,15 +5,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JacksonInject;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonIncludeProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.core.Version;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -609,6 +604,15 @@ public class AnnotationIntrospectorPair
             }
         }
         return n;
+    }
+
+    @Override
+    public Boolean hasAsKey(MapperConfig<?> config, Annotated a) {
+        Boolean b = _primary.hasAsKey(config, a);
+        if (b == null) {
+            b = _secondary.hasAsKey(config, a);
+        }
+        return b;
     }
 
     @Override

@@ -32,6 +32,7 @@ Project: jackson-databind
 #3056: MismatchedInputException: Cannot deserialize instance of
   `com.fasterxml.jackson.databind.node.ObjectNode` out of VALUE_NULL token
  (reported by Stexxen@github)
+#3060: Missing override for `hasAsKey()` in `AnnotationIntrospectorPair`
 
 2.12.1 (08-Jan-2021)
 

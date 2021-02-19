@@ -199,6 +199,27 @@ public class IntrospectorPairTest extends BaseMapTest
 
         /*
         /******************************************************
+        /* Serialization introspection
+        /******************************************************
+         */
+
+        @Override
+        public Boolean hasAsKey(MapperConfig<?> config, Annotated a) {
+            return (Boolean) values.get("hasAsKey");
+        }
+
+        @Override
+        public Boolean hasAsValue(Annotated a) {
+            return (Boolean) values.get("hasAsValue");
+        }
+
+        @Override
+        public Boolean hasAnyGetter(Annotated ann) {
+            return (Boolean) values.get("hasAnyGetter");
+        }
+
+        /*
+        /******************************************************
         /* Deserialization introspection
         /******************************************************
          */
@@ -377,6 +398,35 @@ public class IntrospectorPairTest extends BaseMapTest
         assertNull(new AnnotationIntrospectorPair(nop, nop2).findSerializer(null));
         assertNull(new AnnotationIntrospectorPair(nop2, nop).findSerializer(null));
     }
+
+    public void testHasAsValue() throws Exception
+    {
+        IntrospectorWithMap intr1 = new IntrospectorWithMap()
+                .add("hasAsValue", Boolean.TRUE);
+        IntrospectorWithMap intr2 = new IntrospectorWithMap()
+                .add("hasAsValue", Boolean.FALSE);
+        assertNull(new AnnotationIntrospectorPair(NO_ANNOTATIONS, NO_ANNOTATIONS)
+                .hasAsValue(null));
+        assertEquals(Boolean.TRUE, new AnnotationIntrospectorPair(intr1, NO_ANNOTATIONS)
+                .hasAsValue(null));
+        assertEquals(Boolean.TRUE, new AnnotationIntrospectorPair(NO_ANNOTATIONS, intr1)
+                .hasAsValue(null));
+        assertEquals(Boolean.FALSE, new AnnotationIntrospectorPair(intr2, NO_ANNOTATIONS)
+                .hasAsValue(null));
+        assertEquals(Boolean.FALSE, new AnnotationIntrospectorPair(NO_ANNOTATIONS, intr2)
+                .hasAsValue(null));
+
+        assertEquals(Boolean.TRUE, new AnnotationIntrospectorPair(intr1, intr2)
+                .hasAsValue(null));
+        assertEquals(Boolean.FALSE, new AnnotationIntrospectorPair(intr2, intr1)
+                .hasAsValue(null));
+    }
+
+    /*
+    /**********************************************************
+    /* Test methods, deser
+    /**********************************************************
+     */
 
     public void testFindDeserializer() throws Exception
     {

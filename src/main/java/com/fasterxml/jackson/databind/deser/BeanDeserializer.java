@@ -1009,7 +1009,7 @@ public class BeanDeserializer
         JsonToken t = p.currentToken();
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
             String propName = p.currentName();
-            p.nextToken(); // to point to value
+            t = p.nextToken(); // to point to value
             // creator property?
             final SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
             // Object Id property?
@@ -1054,6 +1054,10 @@ public class BeanDeserializer
             // regular property? needs buffering
             SettableBeanProperty prop = _beanProperties.find(propName);
             if (prop != null) {
+                // [databind#3045]: may have property AND be used as external type id:
+                if (t.isScalarValue()) {
+                    ext.handleTypePropertyValue(p, ctxt, propName, null);
+                }
                 buffer.bufferProperty(prop, prop.deserialize(p, ctxt));
                 continue;
             }

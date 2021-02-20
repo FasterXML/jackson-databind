@@ -1089,8 +1089,14 @@ public class BeanDeserializer
             Object bean)
         throws JacksonException
     {
+        return _deserializeWithExternalTypeId(p, ctxt, bean, _externalTypeIdHandler.start());
+    }
+
+    protected Object _deserializeWithExternalTypeId(JsonParser p, DeserializationContext ctxt,
+            Object bean, ExternalTypeHandler ext)
+        throws JacksonException
+    {
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
-        final ExternalTypeHandler ext = _externalTypeIdHandler.start();
 
         for (int ix = p.currentNameMatch(_propNameMatcher); ; ix = p.nextNameMatch(_propNameMatcher)) {
             if (ix >= 0) { // normal case
@@ -1152,9 +1158,6 @@ public class BeanDeserializer
         final PropertyBasedCreator creator = _propertyBasedCreator;
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
 
-        TokenBuffer tokens = TokenBuffer.forInputBuffering(p, ctxt);
-        tokens.writeStartObject();
-
         for (JsonToken t = p.currentToken(); t == JsonToken.PROPERTY_NAME; t = p.nextToken()) {
             String propName = p.currentName();
             t = p.nextToken(); // to point to value
@@ -1180,12 +1183,6 @@ public class BeanDeserializer
                         } catch (Exception e) {
                             throw wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
                         }
-                        // if so, need to copy all remaining tokens into buffer
-                        while (t == JsonToken.PROPERTY_NAME) {
-                            p.nextToken(); // to skip name
-                            tokens.copyCurrentStructure(p);
-                            t = p.nextToken();
-                        }
                         if (bean.getClass() != _beanType.getRawClass()) {
                             // !!! 08-Jul-2011, tatu: Could theoretically support; but for now
                             //   it's too complicated, so bail out
@@ -1193,7 +1190,8 @@ public class BeanDeserializer
                                     "Cannot create polymorphic instances with external type ids (%s -> %s)",
                                     _beanType, bean.getClass()));
                         }
-                        return ext.complete(p, ctxt, bean);
+                        // 19-Feb-2021, tatu: [databind#3045] Better delegate
+                        return _deserializeWithExternalTypeId(p, ctxt, bean, ext);
                     }
                 }
                 continue;
@@ -1227,8 +1225,6 @@ public class BeanDeserializer
             // Unknown: let's call handler method
             handleUnknownProperty(p, ctxt, _valueClass, propName);
         }
-        tokens.writeEndObject();
-
         // We hit END_OBJECT; resolve the pieces:
         try {
             return ext.complete(p, ctxt, buffer, creator);

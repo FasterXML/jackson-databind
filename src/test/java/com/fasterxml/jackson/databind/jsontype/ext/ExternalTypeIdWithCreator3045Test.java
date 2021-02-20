@@ -97,31 +97,33 @@ public class ExternalTypeIdWithCreator3045Test
 
     public void testExternalIdWithAnySetter3045() throws Exception
     {
-       _testExternalIdWithAnySetter3045(a2q(
-               "{'type':'track','data':{'data-internal':'toto'},'time':345}"));
-       _testExternalIdWithAnySetter3045(a2q(
-               "{'data':{'data-internal':'toto'},'type':'track', 'time':345}"));
+        // First cases where the last Creator argument comes last:
+        _testExternalIdWithAnySetter3045(a2q(
+                "{'type':'track','data':{'data-internal':'toto'},'time':345}"));
+        _testExternalIdWithAnySetter3045(a2q(
+                "{'data':{'data-internal':'toto'},'type':'track', 'time':345}"));
 
-       /*
-       _testExternalIdWithAnySetter3045(a2q(
-               "{'data':{'data-internal':'toto'},'time':345, 'type':'track'}"));
-       _testExternalIdWithAnySetter3045(a2q(
-               "{'time':345, 'type':'track', 'data':{'data-internal':'toto'}}"));
-               */
-   }
+        // then a case where it comes in the middle
+        _testExternalIdWithAnySetter3045(a2q(
+                "{'data':{'data-internal':'toto'},'time':345, 'type':'track'}"));
 
-   private void _testExternalIdWithAnySetter3045(String input) throws Exception
-   {
-       MyJson3045 result = MAPPER.readValue(input, MyJson3045.class);
+        // and finally one where we'll start with it
+        _testExternalIdWithAnySetter3045(a2q(
+                "{'time':345, 'type':'track', 'data':{'data-internal':'toto'}}"));
+    }
 
-       assertEquals(345, result.time);
-       if (result.data == null) {
-           fail("Expected non-null data; result object = "+result);
-       }
-       assertEquals("track", result.type);
-       assertEquals(MyData.class, result.data.getClass());
-       MyData data = (MyData) result.data;
-       assertEquals(1, data.size());
-       assertEquals("toto", data.find("data-internal"));
-   }
+    private void _testExternalIdWithAnySetter3045(String input) throws Exception
+    {
+        MyJson3045 result = MAPPER.readValue(input, MyJson3045.class);
+
+        assertEquals(345, result.time);
+        if (result.data == null) {
+            fail("Expected non-null data; result object = "+result);
+        }
+        assertEquals("track", result.type);
+        assertEquals(MyData.class, result.data.getClass());
+        MyData data = (MyData) result.data;
+        assertEquals(1, data.size());
+        assertEquals("toto", data.find("data-internal"));
+    }
 }

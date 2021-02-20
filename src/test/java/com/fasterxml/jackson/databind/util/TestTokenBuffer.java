@@ -37,6 +37,7 @@ public class TestTokenBuffer extends BaseMapTest
         assertSame(MAPPER, buf.getCodec());
         assertNotNull(buf.getOutputContext());
         assertFalse(buf.isClosed());
+        assertTrue(buf.isEmpty());
 
         buf.setCodec(null);
         assertNull(buf.getCodec());
@@ -57,7 +58,8 @@ public class TestTokenBuffer extends BaseMapTest
     public void testSimpleWrites() throws IOException
     {
         TokenBuffer buf = new TokenBuffer(null, false); // no ObjectCodec
-        
+        assertTrue(buf.isEmpty());
+
         // First, with empty buffer
         JsonParser p = buf.asParser();
         assertNull(p.currentToken());
@@ -66,6 +68,7 @@ public class TestTokenBuffer extends BaseMapTest
 
         // Then with simple text
         buf.writeString("abc");
+        assertFalse(buf.isEmpty());
 
         p = buf.asParser();
         assertNull(p.currentToken());
@@ -657,6 +660,7 @@ public class TestTokenBuffer extends BaseMapTest
         TokenBuffer buf = new TokenBuffer(null, false);
         Object inputPojo = new Sub1730();
         buf.writeEmbeddedObject(inputPojo);
+        assertEquals(JsonToken.VALUE_EMBEDDED_OBJECT, buf.firstToken());
 
         // first: raw value won't be transformed in any way:
         JsonParser p = buf.asParser();
@@ -665,5 +669,20 @@ public class TestTokenBuffer extends BaseMapTest
         assertSame(inputPojo, out);
         p.close();
         buf.close();
+    }
+
+    public void testIsEmpty() throws Exception
+    {
+        // Let's check that segment boundary won't ruin it
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            assertTrue(buf.isEmpty());
+
+            for (int i = 0; i < 100; ++i) {
+                buf.writeNumber(i);
+                assertFalse(buf.isEmpty());
+            }
+
+            assertEquals(JsonToken.VALUE_NUMBER_INT, buf.firstToken());
+        }
     }
 }

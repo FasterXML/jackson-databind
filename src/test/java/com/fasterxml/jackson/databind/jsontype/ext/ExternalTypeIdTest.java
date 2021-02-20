@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
 // Tests for External type id, one that exists at same level as typed Object,
@@ -536,5 +537,41 @@ public class ExternalTypeIdTest extends BaseMapTest
         assertTrue(String.format("Expected %s = %s; got back %s = %s",
             w.value.getClass().getSimpleName(), w.value.toString(), w2.value.getClass().getSimpleName(), w2.value.toString()),
             w.value.equals(w2.value));
+    }
+
+    static class Box3008 {
+        public String type;
+        public Fruit3008 fruit;
+
+        public Box3008(@JsonProperty("type") String type,
+                @JsonTypeInfo(use = Id.NAME, include = As.EXTERNAL_PROPERTY, property = "type")
+                @JsonSubTypes({@JsonSubTypes.Type(value = Orange.class, name = "orange")})
+                @JsonProperty("fruit")
+                Fruit3008 fruit) {
+            this.type = type;
+            this.fruit = fruit;
+        }
+    }
+
+    // [databind#3008]: allow
+    interface Fruit3008 {}
+
+    static class Orange implements Fruit3008 {
+        public String name;
+        public String color;
+
+        public Orange(@JsonProperty("name") String name, @JsonProperty("name") String color) {
+            this.name = name;
+            this.color = color;
+        }
+    }
+
+    // for [databind#3008]
+    public void testIssue3008() throws Exception
+    {
+        ObjectReader r = MAPPER.readerFor(Box3008.class);
+        Box3008 deserOrangeBox = r.readValue("{\"type\":null,\"fruit\":null}}");
+        assertNull(deserOrangeBox.fruit);
+        assertNull(deserOrangeBox.type); // error: "expected null, but was:<null>"
     }
 }

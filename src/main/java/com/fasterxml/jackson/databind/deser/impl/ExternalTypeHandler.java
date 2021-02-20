@@ -172,7 +172,9 @@ public class ExternalTypeHandler
         ExtTypedProperty prop = _properties[index];
         boolean canDeserialize;
         if (prop.hasTypePropertyName(propName)) {
-            _typeIds[index] = p.getText();
+            // 19-Feb-2021, tatu: as per [databind#3005], don't use "getText()"
+            //    since that'll coerce null value into String "null"...
+            _typeIds[index] = p.getValueAsString();
             p.skipChildren();
             canDeserialize = (bean != null) && (_tokens[index] != null);
         } else {
@@ -270,7 +272,12 @@ public class ExternalTypeHandler
             final ExtTypedProperty extProp = _properties[i];
             if (typeId == null) {
                 // let's allow missing both type and property (may already have been set, too)
-                if (_tokens[i] == null) {
+                TokenBuffer tb = _tokens[i];
+                if ((tb == null)
+                        // 19-Feb-2021, tatu: Both missing value and explicit `null`
+                        //    should be accepted...
+                        || (tb.firstToken() == JsonToken.VALUE_NULL)
+                    ) {
                     continue;
                 }
                 // but not just one

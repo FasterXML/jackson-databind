@@ -6,6 +6,8 @@ Project: jackson-databind
 
 2.12.2 (not yet released)
 
+#3005: String property deserializes null as "null" for
+   `JsonTypeInfo.As.EXTERNAL_PROPERTY`
 #3022: Property ignorals cause `BeanDeserializer `to forget how to read
   from arrays (not copying `_arrayDelegateDeserializer`)
  (reported by Gian M)

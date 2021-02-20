@@ -172,7 +172,7 @@ public class ExternalTypeHandler
         ExtTypedProperty prop = _properties[index];
         boolean canDeserialize;
         if (prop.hasTypePropertyName(propName)) {
-            // 19-Feb-2021, tatu: as per [databind#3005], don't use "getText()"
+            // 19-Feb-2021, tatu: as per [databind#3008], don't use "getText()"
             //    since that'll coerce null value into String "null"...
             _typeIds[index] = p.getValueAsString();
             p.skipChildren();

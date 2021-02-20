@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 
 // [databind#2465]
+// NOTE: passes for Jackson 3.0, for reasons unknown
 public class JacksonInject2465Test extends BaseMapTest
 {
     // [databind#2465]

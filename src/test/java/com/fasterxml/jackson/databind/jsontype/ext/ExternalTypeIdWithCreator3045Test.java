@@ -95,17 +95,19 @@ public class ExternalTypeIdWithCreator3045Test
 
    public void testExternalIdWithAnySetter3045() throws Exception
    {
+       // First cases where the last Creator argument comes last:
        _testExternalIdWithAnySetter3045(a2q(
                "{'type':'track','data':{'data-internal':'toto'},'time':345}"));
        _testExternalIdWithAnySetter3045(a2q(
                "{'data':{'data-internal':'toto'},'type':'track', 'time':345}"));
 
-       /*
+       // then a case where it comes in the middle
        _testExternalIdWithAnySetter3045(a2q(
                "{'data':{'data-internal':'toto'},'time':345, 'type':'track'}"));
+
+       // and finally one where we'll start with it
        _testExternalIdWithAnySetter3045(a2q(
                "{'time':345, 'type':'track', 'data':{'data-internal':'toto'}}"));
-               */
    }
 
    private void _testExternalIdWithAnySetter3045(String input) throws Exception

@@ -947,9 +947,15 @@ public class BeanDeserializer
             Object bean)
         throws IOException
     {
-        final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
-        final ExternalTypeHandler ext = _externalTypeIdHandler.start();
+        return _deserializeWithExternalTypeId(p, ctxt, bean,
+                _externalTypeIdHandler.start());
+    }
 
+    protected Object _deserializeWithExternalTypeId(JsonParser p, DeserializationContext ctxt,
+            Object bean, ExternalTypeHandler ext)
+        throws IOException
+    {
+        final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
         for (JsonToken t = p.currentToken(); t == JsonToken.FIELD_NAME; t = p.nextToken()) {
             String propName = p.currentName();
             t = p.nextToken();
@@ -996,15 +1002,14 @@ public class BeanDeserializer
     }
 
     @SuppressWarnings("resource")
-    protected Object deserializeUsingPropertyBasedWithExternalTypeId(JsonParser p, DeserializationContext ctxt)
+    protected Object deserializeUsingPropertyBasedWithExternalTypeId(JsonParser p,
+            DeserializationContext ctxt)
         throws IOException
     {
         final ExternalTypeHandler ext = _externalTypeIdHandler.start();
         final PropertyBasedCreator creator = _propertyBasedCreator;
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
-
-        TokenBuffer tokens = new TokenBuffer(p, ctxt);
-        tokens.writeStartObject();
+        final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
 
         JsonToken t = p.currentToken();
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
@@ -1024,7 +1029,8 @@ public class BeanDeserializer
                     ;
                 } else {
                     // Last creator property to set?
-                    if (buffer.assignParameter(creatorProp, _deserializeWithErrorWrapping(p, ctxt, creatorProp))) {
+                    if (buffer.assignParameter(creatorProp,
+                            _deserializeWithErrorWrapping(p, ctxt, creatorProp))) {
                         t = p.nextToken(); // to move to following FIELD_NAME/END_OBJECT
                         Object bean;
                         try {
@@ -1033,12 +1039,6 @@ public class BeanDeserializer
                             wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
                             continue; // never gets here
                         }
-                        // if so, need to copy all remaining tokens into buffer
-                        while (t == JsonToken.FIELD_NAME) {
-                            p.nextToken(); // to skip name
-                            tokens.copyCurrentStructure(p);
-                            t = p.nextToken();
-                        }
                         if (bean.getClass() != _beanType.getRawClass()) {
                             // !!! 08-Jul-2011, tatu: Could theoretically support; but for now
                             //   it's too complicated, so bail out
@@ -1046,7 +1046,7 @@ public class BeanDeserializer
                                     "Cannot create polymorphic instances with external type ids (%s -> %s)",
                                     _beanType, bean.getClass()));
                         }
-                        return ext.complete(p, ctxt, bean);
+                        return _deserializeWithExternalTypeId(p, ctxt, bean, ext);
                     }
                 }
                 continue;
@@ -1058,7 +1058,12 @@ public class BeanDeserializer
                 if (t.isScalarValue()) {
                     ext.handleTypePropertyValue(p, ctxt, propName, null);
                 }
-                buffer.bufferProperty(prop, prop.deserialize(p, ctxt));
+                // 19-Feb-2021, tatu: Should probably consider view too?
+                if (activeView != null && !prop.visibleInView(activeView)) {
+                    p.skipChildren();
+                } else {
+                    buffer.bufferProperty(prop, prop.deserialize(p, ctxt));
+                }
                 continue;
             }
             // external type id (or property that depends on it)?
@@ -1079,7 +1084,6 @@ public class BeanDeserializer
             // Unknown: let's call handler method
             handleUnknownProperty(p, ctxt, _valueClass, propName);
         }
-        tokens.writeEndObject();
 
         // We hit END_OBJECT; resolve the pieces:
         try {

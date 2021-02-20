@@ -343,6 +343,17 @@ public class TokenBuffer
         return _first.type(0);
     }
 
+    /**
+     * Accessor for checking whether this buffer has one or more tokens
+     * or not.
+     *
+     * @return True if this buffer instance has no tokens
+     *
+     * @since 2.13
+     */
+    public boolean isEmpty() {
+        return (_appendAt == 0) && (_first == _last);
+    }
     /*
     /**********************************************************************
     /* Other custom methods not needed for implementing interfaces

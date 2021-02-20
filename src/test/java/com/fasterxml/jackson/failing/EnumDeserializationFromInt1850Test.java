@@ -21,16 +21,19 @@ public class EnumDeserializationFromInt1850Test extends BaseMapTest
         Example2(int x) { this.x = x; }
     }
 
-    public void testEnumFromInt1850() throws Exception
+    private final ObjectMapper MAPPER = newJsonMapper();
+    
+    public void testEnumFromInt1850Method() throws Exception
     {
-        final ObjectMapper mapper = newJsonMapper();
-
-        String json = mapper.writeValueAsString(Example1.A);
-        Example1 e1 = mapper.readValue(json, Example1.class);
+        String json = MAPPER.writeValueAsString(Example1.A);
+        Example1 e1 = MAPPER.readValue(json, Example1.class);
         assertEquals(Example1.A, e1);
+    }
 
-        json = mapper.writeValueAsString(Example2.A);
-        Example2 e2 = mapper.readValue(json, Example2.class);
+    public void testEnumFromInt1850Field() throws Exception
+    {
+        String json = MAPPER.writeValueAsString(Example2.A);
+        Example2 e2 = MAPPER.readValue(json, Example2.class);
         assertEquals(Example2.A, e2);
     }
 }

@@ -23,9 +23,9 @@ public class TestTokenBuffer extends BaseMapTest
     static class Sub1730 extends Base1730 { }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Basic TokenBuffer tests
-    /**********************************************************
+    /**********************************************************************
      */
 
     public void testBasicConfig() throws IOException
@@ -36,6 +36,7 @@ public class TestTokenBuffer extends BaseMapTest
         assertEquals(MAPPER.version(), buf.version());
         assertNotNull(buf.streamWriteContext());
         assertFalse(buf.isClosed());
+        assertTrue(buf.isEmpty());
 
         assertFalse(buf.isEnabled(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN));
         buf.configure(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN, true);
@@ -52,7 +53,8 @@ public class TestTokenBuffer extends BaseMapTest
     public void testSimpleWrites() throws IOException
     {
         TokenBuffer buf = TokenBuffer.forGeneration();
-        
+        assertTrue(buf.isEmpty());
+
         // First, with empty buffer
         JsonParser p = buf.asParser(ObjectReadContext.empty());
         assertNull(p.currentToken());
@@ -61,6 +63,7 @@ public class TestTokenBuffer extends BaseMapTest
 
         // Then with simple text
         buf.writeString("abc");
+        assertFalse(buf.isEmpty());
 
         p = buf.asParser(ObjectReadContext.empty());
         assertNull(p.currentToken());
@@ -655,6 +658,7 @@ public class TestTokenBuffer extends BaseMapTest
         TokenBuffer buf = TokenBuffer.forGeneration();
         Object inputPojo = new Sub1730();
         buf.writeEmbeddedObject(inputPojo);
+        assertEquals(JsonToken.VALUE_EMBEDDED_OBJECT, buf.firstToken());
 
         // first: raw value won't be transformed in any way:
         JsonParser p = buf.asParser(ObjectReadContext.empty());
@@ -663,5 +667,20 @@ public class TestTokenBuffer extends BaseMapTest
         assertSame(inputPojo, out);
         p.close();
         buf.close();
+    }
+
+    public void testIsEmpty() throws Exception
+    {
+        // Let's check that segment boundary won't ruin it
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            assertTrue(buf.isEmpty());
+
+            for (int i = 0; i < 100; ++i) {
+                buf.writeNumber(i);
+                assertFalse(buf.isEmpty());
+            }
+
+            assertEquals(JsonToken.VALUE_NUMBER_INT, buf.firstToken());
+        }
     }
 }

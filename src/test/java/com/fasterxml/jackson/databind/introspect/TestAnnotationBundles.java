@@ -12,8 +12,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyName;
 
-/* Tests mostly for [JACKSON-754]: ability to create "annotation bundles"
- */
+// Tests mostly for ability to create "annotation bundles"
 public class TestAnnotationBundles extends com.fasterxml.jackson.databind.BaseMapTest
 {
     @Retention(RetentionPolicy.RUNTIME)

@@ -19,6 +19,9 @@ Project: jackson-databind
 
 2.12.2 (not yet released)
 
+#754: EXTERNAL_PROPERTY does not work well with `@JsonCreator` and
+   `FAIL_ON_UNKNOWN_PROPERTIES`
+ (reported by Vassil D)
 #3008: String property deserializes null as "null" for
    `JsonTypeInfo.As.EXTERNAL_PROPERTY`
 #3022: Property ignorals cause `BeanDeserializer `to forget how to read

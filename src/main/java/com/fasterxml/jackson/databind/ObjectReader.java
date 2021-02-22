@@ -2,6 +2,8 @@ package com.fasterxml.jackson.databind;
 
 import java.io.*;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -777,6 +779,20 @@ public class ObjectReader
      * Factory method for constructing {@link JsonParser} that is properly
      * wired to allow callbacks for deserialization: basically
      * constructs a {@link ObjectReadContext} and then calls
+     * {@link TokenStreamFactory#createParser(ObjectReadContext,Path)}.
+     *
+     * @since 3.0
+     */
+    public JsonParser createParser(Path src) throws JacksonException {
+        _assertNotNull("src", src);
+        DeserializationContextExt ctxt = _deserializationContext();
+        return ctxt.assignAndReturnParser(_parserFactory.createParser(ctxt, src));
+    }
+
+    /**
+     * Factory method for constructing {@link JsonParser} that is properly
+     * wired to allow callbacks for deserialization: basically
+     * constructs a {@link ObjectReadContext} and then calls
      * {@link TokenStreamFactory#createParser(ObjectReadContext,java.net.URL)}.
      *
      * @since 3.0
@@ -1333,6 +1349,40 @@ public class ObjectReader
     }
 
     /**
+     * Method that binds content read from given {@link Path}
+     * using configuration of this reader.
+     * Value return is either newly constructed, or root value that
+     * was specified with {@link #withValueToUpdate(Object)}.
+     *
+     * @param p Path that contains content to read
+     *
+     * @since 3.0
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T readValue(Path p) throws JacksonException
+    {
+        _assertNotNull("p", p);
+        DeserializationContextExt ctxt = _deserializationContext();
+        return (T) _bindAndClose(ctxt,
+                _considerFilter(_parserFactory.createParser(ctxt, p), false));
+    }
+
+    /**
+     * Same as {@link #readValue(Path)} except that target value type
+     * overridden as {@code valueType}
+     *
+     * @param src Path that contains content to read
+     * @param valueType Target type to bind content to
+     *
+     * @since 3.0
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T readValue(Path src, Class<T> valueType) throws JacksonException
+    {
+        return (T) forType(valueType).readValue(src);
+    }
+
+    /**
      * Method that binds content read from given input source,
      * using configuration of this reader.
      * Value return is either newly constructed, or root value that
@@ -1627,6 +1677,19 @@ public class ObjectReader
 
     /**
      * Overloaded version of {@link #readValue(InputStream)}.
+     *
+     * @since 3.0
+     */
+    public <T> MappingIterator<T> readValues(Path src) throws JacksonException
+    {
+        _assertNotNull("src", src);
+        DeserializationContextExt ctxt = _deserializationContext();
+        return _bindAndReadValues(ctxt,
+                _considerFilter(_parserFactory.createParser(ctxt, src), true));
+    }
+
+    /**
+     * Overloaded version of {@link #readValue(InputStream)}.
      *<p>
      * NOTE: handling of {@link java.net.URL} is delegated to
      * {@link TokenStreamFactory#createParser(ObjectReadContext, java.net.URL)} and usually simply
@@ -1865,6 +1928,14 @@ public class ObjectReader
     protected InputStream _inputStream(File f) throws JacksonException {
         try {
             return new FileInputStream(f);
+        } catch (IOException e) {
+            throw WrappedIOException.construct(e);
+        }
+    }
+
+    protected InputStream _inputStream(Path p) throws JacksonException {
+        try {
+            return Files.newInputStream(p);
         } catch (IOException e) {
             throw WrappedIOException.construct(e);
         }

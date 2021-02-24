@@ -261,13 +261,15 @@ public class BeanDeserializerFactory
             valueInstantiator = findValueInstantiator(ctxt, beanDesc);
         } catch (NoClassDefFoundError error) {
             return new ErrorThrowingDeserializer(error);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e0) {
             // 05-Apr-2017, tatu: Although it might appear cleaner to require collector
             //   to throw proper exception, it doesn't actually have reference to this
             //   instance so...
-            throw InvalidDefinitionException.from(ctxt.getParser(),
-                    ClassUtil.exceptionMessage(e),
-                    beanDesc, null);
+            JsonMappingException e = InvalidDefinitionException.from(ctxt.getParser(),
+                    ClassUtil.exceptionMessage(e0),
+                   beanDesc, null);
+            e.initCause(e0);
+            throw e;
         }
         BeanDeserializerBuilder builder = constructBeanDeserializerBuilder(ctxt, beanDesc);
         builder.setValueInstantiator(valueInstantiator);

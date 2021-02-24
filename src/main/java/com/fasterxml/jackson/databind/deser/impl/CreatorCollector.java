@@ -303,6 +303,8 @@ public class CreatorCollector {
             }
 
             // one more thing: ok to override in sub-class
+            // 23-Feb-2021, tatu: Second check makes no sense to me, is probably
+            //   erroneous; remove from 2.13 (but leave in 2.12.x to minimize any risk)
             if (verify && (oldOne.getClass() == newOne.getClass())) {
                 // [databind#667]: avoid one particular class of bogus problems
                 Class<?> oldType = oldOne.getRawParameterType(0);
@@ -323,7 +325,7 @@ public class CreatorCollector {
                 }
                 // otherwise, which one to choose?
                 else if (newType.isAssignableFrom(oldType)) {
-                    // new type more generic, use old
+                    // new type less specific use old
                     return false;
                 } else if (oldType.isAssignableFrom(newType)) {
                     // new type more specific, use it

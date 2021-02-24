@@ -303,12 +303,12 @@ public class CreatorCollector {
             }
 
             // one more thing: ok to override in sub-class
-            // 23-Feb-2021, tatu: Second check makes no sense to me, is probably
-            //   erroneous; remove from 2.13 (but leave in 2.12.x to minimize any risk)
+            // 23-Feb-2021, tatu: Second check is for case of static factory vs constructor,
+            //    which is handled by caller, presumable. Removing it would fail one test
             if (verify && (oldOne.getClass() == newOne.getClass())) {
                 // [databind#667]: avoid one particular class of bogus problems
-                Class<?> oldType = oldOne.getRawParameterType(0);
-                Class<?> newType = newOne.getRawParameterType(0);
+                final Class<?> oldType = oldOne.getRawParameterType(0);
+                final Class<?> newType = newOne.getRawParameterType(0);
 
                 if (oldType == newType) {
                     // 13-Jul-2016, tatu: One more thing to check; since Enum classes

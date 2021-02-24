@@ -265,11 +265,10 @@ public class BeanDeserializerFactory
             // 05-Apr-2017, tatu: Although it might appear cleaner to require collector
             //   to throw proper exception, it doesn't actually have reference to this
             //   instance so...
-            JsonMappingException e = InvalidDefinitionException.from(ctxt.getParser(),
+            throw InvalidDefinitionException.from(ctxt.getParser(),
                     ClassUtil.exceptionMessage(e0),
-                   beanDesc, null);
-            e.initCause(e0);
-            throw e;
+                   beanDesc, null)
+                .withCause(e0);
         }
         BeanDeserializerBuilder builder = constructBeanDeserializerBuilder(ctxt, beanDesc);
         builder.setValueInstantiator(valueInstantiator);

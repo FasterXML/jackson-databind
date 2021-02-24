@@ -1302,6 +1302,11 @@ SunYiJun (xiaosunzhu@github)
     having namingStrategy
    (2.12.1)
 
+Vassil Dichev (vdichev@github)
+  * Reported #754: EXTERNAL_PROPERTY does not work well with `@JsonCreator` and
+    `FAIL_ON_UNKNOWN_PROPERTIES`
+   (2.12.2)
+
 Miguel G (Migwel@github)
   * Reported, contributed fix for #3025: UntypedObjectDeserializer` mixes multiple unwrapped
     collections (related to #2733)

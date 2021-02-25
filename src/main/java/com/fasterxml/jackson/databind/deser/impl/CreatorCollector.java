@@ -13,10 +13,10 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Container class for storing information on creators (based on annotations,
- * visibility), to be able to build actual instantiator later on.
+ * visibility), to be able to build actual {@code ValueInstantiator} later on.
  */
-public class CreatorCollector {
-    // Since 2.5
+public class CreatorCollector
+{
     protected final static int C_DEFAULT = 0;
     protected final static int C_STRING = 1;
     protected final static int C_INT = 2;
@@ -34,22 +34,24 @@ public class CreatorCollector {
             "from-big-decimal", "from-boolean", "delegate", "property-based", "array-delegate"
     };
 
-    // Type of bean being created
-    final protected BeanDescription _beanDesc;
+    /**
+     * Type of bean being created
+     */
+    protected final BeanDescription _beanDesc;
 
-    final protected boolean _canFixAccess;
+    protected final boolean _canFixAccess;
 
     /**
      * @since 2.7
      */
-    final protected boolean _forceAccess;
+    protected final boolean _forceAccess;
 
     /**
      * Set of creators we have collected so far
      * 
      * @since 2.5
      */
-    final protected AnnotatedWithParams[] _creators = new AnnotatedWithParams[11];
+    protected final AnnotatedWithParams[] _creators = new AnnotatedWithParams[11];
 
     /**
      * Bitmask of creators that were explicitly marked as creators; false for
@@ -304,7 +306,8 @@ public class CreatorCollector {
 
             // one more thing: ok to override in sub-class
             // 23-Feb-2021, tatu: Second check is for case of static factory vs constructor,
-            //    which is handled by caller, presumable. Removing it would fail one test
+            //    which is handled by caller, presumably.
+            //    Removing it would fail one test (in case interested).
             if (verify && (oldOne.getClass() == newOne.getClass())) {
                 // [databind#667]: avoid one particular class of bogus problems
                 final Class<?> oldType = oldOne.getRawParameterType(0);
@@ -330,6 +333,16 @@ public class CreatorCollector {
                 } else if (oldType.isAssignableFrom(newType)) {
                     // new type more specific, use it
                     ;
+                    // 23-Feb-2021, tatu: due to [databind#3062], backwards-compatibility,
+                    //   let's allow "primitive/Wrapper" case and tie-break in favor
+                    //   of PRIMITIVE argument (null would never map to scalar creators,
+                    //   and fundamentally all we need is a tie-breaker: up to caller to
+                    //   annotate if wants the wrapper one)
+                } else if (oldType.isPrimitive() != newType.isPrimitive()) {
+                    // Prefer primitive one
+                    if (oldType.isPrimitive()) {
+                        return false;
+                    }
                 } else {
                     // 02-May-2020, tatu: Should this only result in exception if both
                     //   explicit? Doing so could lead to arbitrary choice between

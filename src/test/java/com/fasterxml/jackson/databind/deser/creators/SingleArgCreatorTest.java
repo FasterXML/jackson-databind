@@ -1,6 +1,10 @@
 package com.fasterxml.jackson.databind.deser.creators;
 
+import java.util.Arrays;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
@@ -138,13 +142,25 @@ public class SingleArgCreatorTest extends BaseMapTest
         public XY getFoobar() { return _value; }
     }
 
+    // [databind#3062]
+    static class DecVector3062 {
+        List<Double> elems;
+
+        public DecVector3062() { super(); }
+        public DecVector3062(List<Double> e) { elems = e; }
+        public DecVector3062(double elem) { elems = Arrays.asList(elem); }
+        public DecVector3062(Double elem) { elems = Arrays.asList(elem); }
+
+        public List<Double> getElems() { return elems; }
+    }
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods
-    /**********************************************************
+    /**********************************************************************
      */
 
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     public void testNamedSingleArg() throws Exception
     {
@@ -205,5 +221,14 @@ public class SingleArgCreatorTest extends BaseMapTest
         assertNotNull(v);
         assertEquals(1, v.x);
         assertEquals(2, v.y);
+    }
+
+    // [databind#3062]
+    public void testMultipleDoubleCreators3062() throws Exception
+    {
+        DecVector3062 vector = new DecVector3062(Arrays.asList(1.0, 2.0, 3.0));
+        String result = MAPPER.writeValueAsString(vector);
+        DecVector3062 deser = MAPPER.readValue(result, DecVector3062.class);
+        assertEquals(vector.elems, deser.elems);        
     }
 }

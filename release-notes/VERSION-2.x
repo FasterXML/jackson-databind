@@ -43,6 +43,8 @@ Project: jackson-databind
   `com.fasterxml.jackson.databind.node.ObjectNode` out of VALUE_NULL token
  (reported by Stexxen@github)
 #3060: Missing override for `hasAsKey()` in `AnnotationIntrospectorPair`
+#3062: Creator lookup fails with `InvalidDefinitionException` for conflict
+  between single-double/single-Double arg constructor
 
 2.12.1 (08-Jan-2021)
 

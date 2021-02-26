@@ -577,8 +577,8 @@ public enum MapperFeature implements ConfigFeature
     private final long _mask;
 
     // @since 2.13
-    public static int collectLongDefaults() {
-        int flags = 0;
+    public static long collectLongDefaults() {
+        long flags = 0;
         for (MapperFeature value : MapperFeature.values()) {
             if (value.enabledByDefault()) {
                 flags |= value.getLongMask();

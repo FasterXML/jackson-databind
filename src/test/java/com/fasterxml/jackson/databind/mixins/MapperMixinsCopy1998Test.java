@@ -88,6 +88,7 @@ public class MapperMixinsCopy1998Test extends BaseMapTest
         }
     }
 
+    @SuppressWarnings("deprecation")
     public void testB_KO() throws Exception
     {
         final ObjectMapper DEFAULT = defaultMapper();

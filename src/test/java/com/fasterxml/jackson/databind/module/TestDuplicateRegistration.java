@@ -28,10 +28,11 @@ public class TestDuplicateRegistration extends BaseMapTest
         }
     }
 
+    @SuppressWarnings("deprecation")
     public void testDuplicateRegistration() throws Exception
     {
         // by default, duplicate registration should be prevented
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = newJsonMapper();
         assertTrue(mapper.isEnabled(MapperFeature.IGNORE_DUPLICATE_MODULE_REGISTRATIONS));
         MyModule module = new MyModule();
         mapper.registerModule(module);

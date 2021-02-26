@@ -4,12 +4,16 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 
 @SuppressWarnings("serial")
 public class CollectionDeserTest
@@ -65,7 +69,7 @@ public class CollectionDeserTest
         public List<Key> keys;
     }
 
-    // [Issue#828]
+    // [databind#828]
     @JsonDeserialize(using=SomeObjectDeserializer.class)
     static class SomeObject {}
 
@@ -76,6 +80,26 @@ public class CollectionDeserTest
         public SomeObject deserialize(JsonParser p, DeserializationContext ctxt)
                 throws IOException {
             throw new RuntimeException("I want to catch this exception");
+        }
+    }
+
+    // [databind#3068]: Exception wrapping (or not)
+    static class MyContainerModel {
+        @JsonProperty("processor-id")
+        public String id = "123";
+    }
+
+    static class MyJobModel {
+        public Map<String, MyContainerModel> containers = Collections.singletonMap("key",
+                new MyContainerModel());
+        public int maxChangeLogStreamPartitions = 13;
+    }
+
+    static class CustomException extends RuntimeException {
+        private static final long serialVersionUID = 1L;
+
+        public CustomException(String s) {
+            super(s);
         }
     }
 
@@ -269,24 +293,24 @@ public class CollectionDeserTest
     // for [databind#828]
     public void testWrapExceptions() throws Exception
     {
-        ObjectMapper mapper = jsonMapperBuilder()
-                .enable(DeserializationFeature.WRAP_EXCEPTIONS)
-                .build();
+        final ObjectReader wrappingReader = MAPPER
+                .readerFor(new TypeReference<List<SomeObject>>() {})
+                .with(DeserializationFeature.WRAP_EXCEPTIONS);
 
         try {
-            mapper.readValue("[{}]", new TypeReference<List<SomeObject>>() {});
+            wrappingReader.readValue("[{}]");
         } catch (DatabindException exc) {
             assertEquals("I want to catch this exception", exc.getOriginalMessage());
         } catch (RuntimeException exc) {
             fail("The RuntimeException should have been wrapped with a DatabindException.");
         }
 
-        ObjectMapper mapperNoWrap = jsonMapperBuilder()
-                .disable(DeserializationFeature.WRAP_EXCEPTIONS)
-                .build();
+        final ObjectReader noWrapReader = MAPPER
+                .readerFor(new TypeReference<List<SomeObject>>() {})
+                .without(DeserializationFeature.WRAP_EXCEPTIONS);
 
         try {
-            mapperNoWrap.readValue("[{}]", new TypeReference<List<SomeObject>>() {});
+            noWrapReader.readValue("[{}]");
         } catch (DatabindException exc) {
             fail("It should not have wrapped the RuntimeException.");
         } catch (RuntimeException exc) {
@@ -306,5 +330,49 @@ public class CollectionDeserTest
         SetAsAbstract set = MAPPER.readValue(JSON, SetAsAbstract.class);
         assertEquals(2, set.values.size());
         assertEquals(HashSet.class, set.values.getClass());
+    }
+
+    // for [databind#3068]
+    public void testWrapExceptions3068() throws Exception
+    {
+        final SimpleModule module = new SimpleModule("SimpleModule", Version.unknownVersion())
+                .addDeserializer(MyContainerModel.class,
+                        new JsonDeserializer<MyContainerModel>() {
+                    @Override
+                    public MyContainerModel deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+                        throw new CustomException("Custom message");
+                    }
+                });
+
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
+        final String json = mapper.writeValueAsString(new MyJobModel());
+
+        // First, verify NO wrapping:
+        try {
+            mapper.readerFor(MyJobModel.class)
+                .without(DeserializationFeature.WRAP_EXCEPTIONS)
+                .readValue(json);
+            fail("Should not pass");
+        } catch (CustomException e) {
+            verifyException(e, "Custom message");
+        } catch (JacksonException e) {
+            fail("Should not have wrapped exception, got: "+e);
+        }
+
+        // and then wrapping
+        try {
+            mapper.readerFor(MyJobModel.class)
+                .with(DeserializationFeature.WRAP_EXCEPTIONS)
+                .readValue(json);
+            fail("Should not pass");
+        } catch (JacksonException e) {
+            verifyException(e, "Custom message");
+            assertEquals(JsonMappingException.class, e.getClass());
+            Throwable rootC = e.getCause();
+            assertNotNull(rootC);
+            assertEquals(CustomException.class, rootC.getClass());
+        }
     }
 }

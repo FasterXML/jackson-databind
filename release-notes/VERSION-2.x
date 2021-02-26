@@ -43,6 +43,9 @@ Project: jackson-databind
 #3060: Missing override for `hasAsKey()` in `AnnotationIntrospectorPair`
 #3062: Creator lookup fails with `InvalidDefinitionException` for conflict
   between single-double/single-Double arg constructor
+#3068: `MapDeserializer` forcing `JsonMappingException` wrapping even if
+  WRAP_EXCEPTIONS set to false
+ (reported by perkss@github)
 
 2.12.1 (08-Jan-2021)
 

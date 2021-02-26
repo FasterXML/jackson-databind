@@ -5,10 +5,12 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.core.Base64Variant;
 import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AccessorNamingStrategy;
 import com.fasterxml.jackson.databind.introspect.Annotated;
@@ -55,9 +57,12 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
 
     /**
      * Set of shared mapper features enabled.
+     *<p>
+     * NOTE: changed from {@code int} (in Jackson 2.12 and prior} to {@code long}
+     * (2.13 and later)
      */
-    protected final int _mapperFeatures;
-    
+    protected final long _mapperFeatures;
+
     /**
      * Immutable container object for simple configuration settings.
      */
@@ -69,13 +74,13 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     /**********************************************************
      */
 
-    protected MapperConfig(BaseSettings base, int mapperFeatures)
+    protected MapperConfig(BaseSettings base, long mapperFeatures)
     {
         _base = base;
         _mapperFeatures = mapperFeatures;
     }
 
-    protected MapperConfig(MapperConfig<T> src, int mapperFeatures)
+    protected MapperConfig(MapperConfig<T> src, long mapperFeatures)
     {
         _base = src._base;
         _mapperFeatures = mapperFeatures;
@@ -92,7 +97,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
         _base = src._base;
         _mapperFeatures = src._mapperFeatures;
     }
-    
+
     /**
      * Method that calculates bit set (flags) of all features that
      * are enabled by default.
@@ -150,7 +155,10 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * mask are enabled.
      * 
      * @since 2.3
+     *
+     * @deprecated Since 2.13 -- no replacement
      */
+    @Deprecated
     public final boolean hasMapperFeatures(int featureMask) {
         return (_mapperFeatures & featureMask) == featureMask;
     }

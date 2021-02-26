@@ -101,16 +101,19 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     /**********************************************************************
      */
 
+    @SuppressWarnings("deprecation")
     public B enable(MapperFeature... features) {
         _mapper.enable(features);
         return _this();
     }
 
+    @SuppressWarnings("deprecation")
     public B disable(MapperFeature... features) {
         _mapper.disable(features);
         return _this();
     }
 
+    @SuppressWarnings("deprecation")
     public B configure(MapperFeature feature, boolean state) {
         _mapper.configure(feature, state);
         return _this();

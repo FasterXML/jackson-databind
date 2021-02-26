@@ -30,17 +30,17 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      */
     protected final static ConfigOverride EMPTY_OVERRIDE = ConfigOverride.empty();
 
-    private final static int DEFAULT_MAPPER_FEATURES = collectFeatureDefaults(MapperFeature.class);
+    private final static long DEFAULT_MAPPER_FEATURES = MapperFeature.collectLongDefaults();
 
     /**
      * @since 2.9
      */
-    private final static int AUTO_DETECT_MASK =
-            MapperFeature.AUTO_DETECT_FIELDS.getMask()
-            | MapperFeature.AUTO_DETECT_GETTERS.getMask()
-            | MapperFeature.AUTO_DETECT_IS_GETTERS.getMask()
-            | MapperFeature.AUTO_DETECT_SETTERS.getMask()
-            | MapperFeature.AUTO_DETECT_CREATORS.getMask()
+    private final static long AUTO_DETECT_MASK =
+            MapperFeature.AUTO_DETECT_FIELDS.getLongMask()
+            | MapperFeature.AUTO_DETECT_GETTERS.getLongMask()
+            | MapperFeature.AUTO_DETECT_IS_GETTERS.getLongMask()
+            | MapperFeature.AUTO_DETECT_SETTERS.getLongMask()
+            | MapperFeature.AUTO_DETECT_CREATORS.getLongMask()
             ;
 
     /*
@@ -184,7 +184,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _configOverrides = src._configOverrides;
     }
     
-    protected MapperConfigBase(MapperConfigBase<CFG,T> src, int mapperFeatures)
+    protected MapperConfigBase(MapperConfigBase<CFG,T> src, long mapperFeatures)
     {
         super(src, mapperFeatures);
         _mixIns = src._mixIns;
@@ -274,7 +274,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /**
      * @since 2.9 (in this case, demoted from sub-classes)
      */
-    protected abstract T _withMapperFeatures(int mapperFeatures);
+    protected abstract T _withMapperFeatures(long mapperFeatures);
 
     /*
     /**********************************************************
@@ -290,9 +290,9 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     @Override
     public final T with(MapperFeature... features)
     {
-        int newMapperFlags = _mapperFeatures;
+        long newMapperFlags = _mapperFeatures;
         for (MapperFeature f : features) {
-            newMapperFlags |= f.getMask();
+            newMapperFlags |= f.getLongMask();
         }
         if (newMapperFlags == _mapperFeatures) {
             return (T) this;
@@ -308,9 +308,9 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     @Override
     public final T without(MapperFeature... features)
     {
-        int newMapperFlags = _mapperFeatures;
+        long newMapperFlags = _mapperFeatures;
         for (MapperFeature f : features) {
-             newMapperFlags &= ~f.getMask();
+             newMapperFlags &= ~f.getLongMask();
         }
         if (newMapperFlags == _mapperFeatures) {
             return (T) this;
@@ -322,11 +322,11 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     @Override
     public final T with(MapperFeature feature, boolean state)
     {
-        int newMapperFlags;
+        long newMapperFlags;
         if (state) {
-            newMapperFlags = _mapperFeatures | feature.getMask();
+            newMapperFlags = _mapperFeatures | feature.getLongMask();
         } else {
-            newMapperFlags = _mapperFeatures & ~feature.getMask();
+            newMapperFlags = _mapperFeatures & ~feature.getLongMask();
         }
         if (newMapperFlags == _mapperFeatures) {
             return (T) this;

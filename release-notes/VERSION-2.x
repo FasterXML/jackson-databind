@@ -13,6 +13,7 @@ Project: jackson-databind
 #3002: Add `DeserializationContext.readTreeAsValue()` methods for more convenient
   conversions for deserializers to use
 #3011: Clean up support of typed "unmodifiable", "singleton" Maps/Sets/Collections
+#3033: Extend internal bitfield of `MapperFeature` to be `long`
 #3035: Add `removeMixIn()` method in `MapperBuilder`
 #3036: Backport `MapperBuilder` lambda-taking methods: `withConfigOverride()`,
   `withCoercionConfig()`, `withCoercionConfigDefaults()`

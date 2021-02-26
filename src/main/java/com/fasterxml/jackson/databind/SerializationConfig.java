@@ -176,7 +176,7 @@ public final class SerializationConfig
     }
 
     private SerializationConfig(SerializationConfig src,
-            int mapperFeatures, int serFeatures,
+            long mapperFeatures, int serFeatures,
             int generatorFeatures, int generatorFeatureMask,
             int formatFeatures, int formatFeaturesMask)
     {
@@ -289,13 +289,13 @@ public final class SerializationConfig
     /**********************************************************
      */
 
-    @Override // since 2.9
+    @Override
     protected final SerializationConfig _withBase(BaseSettings newBase) {
         return (_base == newBase) ? this : new SerializationConfig(this, newBase);
     }
 
-    @Override // since 2.9
-    protected final SerializationConfig _withMapperFeatures(int mapperFeatures) {
+    @Override
+    protected final SerializationConfig _withMapperFeatures(long mapperFeatures) {
         return new SerializationConfig(this, mapperFeatures, _serFeatures,
                         _generatorFeatures, _generatorFeaturesToChange,
                         _formatWriteFeatures, _formatWriteFeaturesToChange);

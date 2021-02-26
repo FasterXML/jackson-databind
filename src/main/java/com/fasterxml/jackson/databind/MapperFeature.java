@@ -574,19 +574,48 @@ public enum MapperFeature implements ConfigFeature
     ;
 
     private final boolean _defaultState;
-    private final int _mask;
-    
+    private final long _mask;
+
+    // @since 2.13
+    public static int collectLongDefaults() {
+        int flags = 0;
+        for (MapperFeature value : MapperFeature.values()) {
+            if (value.enabledByDefault()) {
+                flags |= value.getLongMask();
+            }
+        }
+        return flags;
+    }
+
     private MapperFeature(boolean defaultState) {
         _defaultState = defaultState;
-        _mask = (1 << ordinal());
+        _mask = (1L << ordinal());
     }
     
     @Override
     public boolean enabledByDefault() { return _defaultState; }
 
     @Override
-    public int getMask() { return _mask; }
+    @Deprecated // 2.13
+    public int getMask() {
+        // 25-Feb-2021, tatu: Not 100% sure what to do here; should not be
+        //     called any more
+        return (int) _mask;
+    }
+
+    // @since 2.13
+    public long getLongMask() {
+        return _mask;
+    }
 
     @Override
-    public boolean enabledIn(int flags) { return (flags & _mask) != 0; }
+    @Deprecated
+    public boolean enabledIn(int flags) {
+        return (flags & _mask) != 0;
+    }
+
+    // @since 2.13
+    public boolean enabledIn(long flags) {
+        return (flags & _mask) != 0;
+    }
 }

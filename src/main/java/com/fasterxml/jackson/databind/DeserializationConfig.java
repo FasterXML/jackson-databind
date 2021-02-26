@@ -174,7 +174,7 @@ public final class DeserializationConfig
      */
 
     private DeserializationConfig(DeserializationConfig src,
-            int mapperFeatures, int deserFeatures,
+            long mapperFeatures, int deserFeatures,
             int parserFeatures, int parserFeatureMask,
             int formatFeatures, int formatFeatureMask)
     {
@@ -331,16 +331,16 @@ public final class DeserializationConfig
     /**********************************************************
      */
 
-    @Override // since 2.9
+    @Override
     protected final DeserializationConfig _withBase(BaseSettings newBase) {
         return (_base == newBase) ? this : new DeserializationConfig(this, newBase);
     }
 
-    @Override // since 2.9
-    protected final DeserializationConfig _withMapperFeatures(int mapperFeatures) {
+    @Override
+    protected final DeserializationConfig _withMapperFeatures(long mapperFeatures) {
         return new DeserializationConfig(this, mapperFeatures, _deserFeatures,
-                        _parserFeatures, _parserFeaturesToChange,
-                        _formatReadFeatures, _formatReadFeaturesToChange);
+                _parserFeatures, _parserFeaturesToChange,
+                _formatReadFeatures, _formatReadFeaturesToChange);
     }
 
     /*

@@ -67,9 +67,9 @@ public abstract class ContainerDeserializerBase<T>
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Overrides
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -92,9 +92,9 @@ public abstract class ContainerDeserializerBase<T>
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended API
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -132,16 +132,17 @@ public abstract class ContainerDeserializerBase<T>
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Shared methods for sub-classes
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
-     * Helper method called by various Map(-like) deserializers.
+     * Helper method called by various Map(-like) deserializers when encountering
+     * a processing problem (whether from underlying parser, i/o, or something else).
      */
-    protected <BOGUS> BOGUS wrapAndThrow(Throwable t, Object ref, String key)
-        throws JacksonException
+    protected <BOGUS> BOGUS wrapAndThrow(DeserializationContext ctxt,
+            Throwable t, Object ref, String key) throws JacksonException
     {
         // to handle StackOverflow:
         while (t instanceof InvocationTargetException && t.getCause() != null) {
@@ -149,6 +150,10 @@ public abstract class ContainerDeserializerBase<T>
         }
         // Errors to be passed as is
         ClassUtil.throwIfError(t);
+        // 25-Feb-2021, tatu: as per [databind#3068] need to obey WRAP_EXCEPTIONS setting
+        if (!ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS)) {
+            ClassUtil.throwIfRTE(t);
+        }
         // for [databind#1141]
         throw DatabindException.wrapWithPath(t, ref,
                 ClassUtil.nonNull(key, "N/A"));

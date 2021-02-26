@@ -294,7 +294,7 @@ public class EnumMapDeserializer
                     value = valueDes.deserializeWithType(p, ctxt, typeDeser);
                 }
             } catch (Exception e) {
-                return wrapAndThrow(e, result, keyStr);
+                return wrapAndThrow(ctxt, e, result, keyStr);
             }
             result.put(key, value);
         }
@@ -350,7 +350,7 @@ public class EnumMapDeserializer
                     try {
                         result = (EnumMap<?,?>)creator.build(ctxt, buffer);
                     } catch (Exception e) {
-                        return wrapAndThrow(e, _containerType.getRawClass(), keyName);
+                        return wrapAndThrow(ctxt, e, _containerType.getRawClass(), keyName);
                     }
                     return deserialize(p, ctxt, result);
                 }
@@ -385,7 +385,7 @@ public class EnumMapDeserializer
                     value = _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
                 }
             } catch (Exception e) {
-                wrapAndThrow(e, _containerType.getRawClass(), keyName);
+                wrapAndThrow(ctxt, e, _containerType.getRawClass(), keyName);
                 return null;
             }
             buffer.bufferMapProperty(key, value);
@@ -395,7 +395,7 @@ public class EnumMapDeserializer
         try {
             return (EnumMap<?,?>)creator.build(ctxt, buffer);
         } catch (Exception e) {
-            wrapAndThrow(e, _containerType.getRawClass(), keyName);
+            wrapAndThrow(ctxt, e, _containerType.getRawClass(), keyName);
             return null;
         }
     }

@@ -212,7 +212,7 @@ public class MapEntryDeserializer
                 value = valueDes.deserializeWithType(p, ctxt, typeDeser);
             }
         } catch (Exception e) {
-            wrapAndThrow(e, Map.Entry.class, keyStr);
+            wrapAndThrow(ctxt, e, Map.Entry.class, keyStr);
         }
 
         // Close, but also verify that we reached the END_OBJECT

@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
 @SuppressWarnings("serial")
 public class CollectionDeserTest
@@ -84,7 +85,7 @@ public class CollectionDeserTest
     /**********************************************************
      */
 
-    private final static ObjectMapper MAPPER = new ObjectMapper();
+    private final static ObjectMapper MAPPER = newJsonMapper();
     
     public void testUntypedList() throws Exception
     {
@@ -234,7 +235,7 @@ public class CollectionDeserTest
         try {
             MAPPER.readValue(OBJECTS_JSON, Key[].class);
             fail("Should not pass");
-        } catch (JsonMappingException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "Cannot deserialize");
             List<JsonMappingException.Reference> refs = e.getPath();
             assertEquals(1, refs.size());
@@ -244,7 +245,7 @@ public class CollectionDeserTest
         try {
             MAPPER.readValue("[ \"xyz\", { } ]", String[].class);
             fail("Should not pass");
-        } catch (JsonMappingException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "Cannot deserialize");
             List<JsonMappingException.Reference> refs = e.getPath();
             assertEquals(1, refs.size());
@@ -254,7 +255,7 @@ public class CollectionDeserTest
         try {
             MAPPER.readValue("{\"keys\":"+OBJECTS_JSON+"}", KeyListBean.class);
             fail("Should not pass");
-        } catch (JsonMappingException e) {
+        } catch (MismatchedInputException e) {
             verifyException(e, "Cannot deserialize");
             List<JsonMappingException.Reference> refs = e.getPath();
             assertEquals(2, refs.size());
@@ -271,8 +272,9 @@ public class CollectionDeserTest
     // for [databind#828]
     public void testWrapExceptions() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(DeserializationFeature.WRAP_EXCEPTIONS);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(DeserializationFeature.WRAP_EXCEPTIONS)
+                .build();
 
         try {
             mapper.readValue("[{}]", new TypeReference<List<SomeObject>>() {});
@@ -282,8 +284,9 @@ public class CollectionDeserTest
             fail("The RuntimeException should have been wrapped with a JsonMappingException.");
         }
 
-        ObjectMapper mapperNoWrap = new ObjectMapper();
-        mapperNoWrap.disable(DeserializationFeature.WRAP_EXCEPTIONS);
+        ObjectMapper mapperNoWrap = jsonMapperBuilder()
+                .disable(DeserializationFeature.WRAP_EXCEPTIONS)
+                .build();
 
         try {
             mapperNoWrap.readValue("[{}]", new TypeReference<List<SomeObject>>() {});

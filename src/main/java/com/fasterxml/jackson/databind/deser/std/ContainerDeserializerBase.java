@@ -155,16 +155,33 @@ public abstract class ContainerDeserializerBase<T>
      */
 
     /**
-     * Helper method called by various Map(-like) deserializers.
+     * @deprecated Since 2.12.2 (since it does not get context for accessing config)
      */
+    @Deprecated
     protected <BOGUS> BOGUS wrapAndThrow(Throwable t, Object ref, String key) throws IOException
+    {
+        return wrapAndThrow(null, t, ref, key);
+    }
+
+    /**
+     * Helper method called by various Map(-like) deserializers when encountering
+     * a processing problem (whether from underlying parser, i/o, or something else).
+     *
+     * @since 2.12.2
+     */
+    protected <BOGUS> BOGUS wrapAndThrow(DeserializationContext ctxt,
+            Throwable t, Object ref, String key) throws IOException
     {
         // to handle StackOverflow:
         while (t instanceof InvocationTargetException && t.getCause() != null) {
             t = t.getCause();
         }
-        // Errors and "plain" IOExceptions to be passed as is
+        // Errors and "plain" IOExceptions to be passed as-is
         ClassUtil.throwIfError(t);
+        // 25-Feb-2021, tatu: as per [databind#3068] need to obey WRAP_EXCEPTIONS setting
+        if ((ctxt != null) && !ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS)) {
+            ClassUtil.throwIfRTE(t);
+        }
         // ... except for mapping exceptions
         if (t instanceof IOException && !(t instanceof JsonMappingException)) {
             throw (IOException) t;

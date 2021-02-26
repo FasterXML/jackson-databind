@@ -556,7 +556,7 @@ public class MapDeserializer
             } catch (UnresolvedForwardReference reference) {
                 handleUnresolvedReference(ctxt, referringAccumulator, key, reference);
             } catch (Exception e) {
-                wrapAndThrow(e, result, keyStr);
+                wrapAndThrow(ctxt, e, result, keyStr);
             }
         }
     }
@@ -618,7 +618,7 @@ public class MapDeserializer
             } catch (UnresolvedForwardReference reference) {
                 handleUnresolvedReference(ctxt, referringAccumulator, key, reference);
             } catch (Exception e) {
-                wrapAndThrow(e, result, key);
+                wrapAndThrow(ctxt, e, result, key);
             }
         }
         // 23-Mar-2015, tatu: TODO: verify we got END_OBJECT?
@@ -659,7 +659,7 @@ public class MapDeserializer
                     try {
                         result = (Map<Object,Object>)creator.build(ctxt, buffer);
                     } catch (Exception e) {
-                        return wrapAndThrow(e, _containerType.getRawClass(), key);
+                        return wrapAndThrow(ctxt, e, _containerType.getRawClass(), key);
                     }
                     _readAndBind(p, ctxt, result);
                     return result;
@@ -682,7 +682,7 @@ public class MapDeserializer
                     value = valueDes.deserializeWithType(p, ctxt, typeDeser);
                 }
             } catch (Exception e) {
-                wrapAndThrow(e, _containerType.getRawClass(), key);
+                wrapAndThrow(ctxt, e, _containerType.getRawClass(), key);
                 return null;
             }
             buffer.bufferMapProperty(actualKey, value);
@@ -692,7 +692,7 @@ public class MapDeserializer
         try {
             return (Map<Object,Object>)creator.build(ctxt, buffer);
         } catch (Exception e) {
-            wrapAndThrow(e, _containerType.getRawClass(), key);
+            wrapAndThrow(ctxt, e, _containerType.getRawClass(), key);
             return null;
         }
     }
@@ -764,7 +764,7 @@ public class MapDeserializer
                     result.put(key, value);
                 }
             } catch (Exception e) {
-                wrapAndThrow(e, result, keyStr);
+                wrapAndThrow(ctxt, e, result, keyStr);
             }
         }
     }
@@ -831,7 +831,7 @@ public class MapDeserializer
                     result.put(key, value);
                 }
             } catch (Exception e) {
-                wrapAndThrow(e, result, key);
+                wrapAndThrow(ctxt, e, result, key);
             }
         }
     }

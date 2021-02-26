@@ -398,7 +398,7 @@ public enum MapperFeature
     private final long _mask;
 
     public static long collectLongDefaults() {
-        int flags = 0;
+        long flags = 0;
         for (MapperFeature value : MapperFeature.values()) {
             if (value.enabledByDefault()) {
                 flags |= value.getLongMask();

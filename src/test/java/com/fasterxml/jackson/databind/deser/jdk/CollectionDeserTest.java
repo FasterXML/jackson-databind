@@ -83,7 +83,7 @@ public class CollectionDeserTest
     /**********************************************************
      */
 
-    private final static ObjectMapper MAPPER = new ObjectMapper();
+    private final static ObjectMapper MAPPER = newJsonMapper();
     
     public void testUntypedList() throws Exception
     {

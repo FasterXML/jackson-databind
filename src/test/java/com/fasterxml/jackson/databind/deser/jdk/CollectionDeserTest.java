@@ -85,7 +85,7 @@ public class CollectionDeserTest
     /**********************************************************
      */
 
-    private final static ObjectMapper MAPPER = new ObjectMapper();
+    private final static ObjectMapper MAPPER = newJsonMapper();
     
     public void testUntypedList() throws Exception
     {
@@ -269,8 +269,9 @@ public class CollectionDeserTest
     // for [databind#828]
     public void testWrapExceptions() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(DeserializationFeature.WRAP_EXCEPTIONS);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(DeserializationFeature.WRAP_EXCEPTIONS)
+                .build();
 
         try {
             mapper.readValue("[{}]", new TypeReference<List<SomeObject>>() {});
@@ -280,8 +281,9 @@ public class CollectionDeserTest
             fail("The RuntimeException should have been wrapped with a DatabindException.");
         }
 
-        ObjectMapper mapperNoWrap = new ObjectMapper();
-        mapperNoWrap.disable(DeserializationFeature.WRAP_EXCEPTIONS);
+        ObjectMapper mapperNoWrap = jsonMapperBuilder()
+                .disable(DeserializationFeature.WRAP_EXCEPTIONS)
+                .build();
 
         try {
             mapperNoWrap.readValue("[{}]", new TypeReference<List<SomeObject>>() {});

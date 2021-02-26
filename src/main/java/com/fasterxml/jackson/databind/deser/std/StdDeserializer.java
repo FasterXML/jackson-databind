@@ -1398,11 +1398,10 @@ inputDesc, _coercedTypeDesc());
      */
     protected Object _coerceIntegral(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
-        int feats = ctxt.getDeserializationFeatures();
-        if (DeserializationFeature.USE_BIG_INTEGER_FOR_INTS.enabledIn(feats)) {
+        if (ctxt.isEnabled(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS)) {
             return p.getBigIntegerValue();
         }
-        if (DeserializationFeature.USE_LONG_FOR_INTS.enabledIn(feats)) {
+        if (ctxt.isEnabled(DeserializationFeature.USE_LONG_FOR_INTS)) {
             return p.getLongValue();
         }
         return p.getNumberValue(); // should be optimal, whatever it is

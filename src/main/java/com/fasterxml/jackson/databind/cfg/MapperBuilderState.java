@@ -51,7 +51,8 @@ public abstract class MapperBuilderState
     /**********************************************************************
      */
 
-    protected final int _mapperFeatures, _serFeatures, _deserFeatures;
+    protected final long _mapperFeatures;
+    protected final int _serFeatures, _deserFeatures;
     protected final int _streamReadFeatures, _streamWriteFeatures;
     protected final int _formatReadFeatures, _formatWriteFeatures;
 

@@ -80,7 +80,7 @@ public final class SerializationConfig
      * @since 3.0
      */
     public SerializationConfig(MapperBuilder<?,?> b,
-            int mapperFeatures, int serFeatures, int streamWriteFeatures, int formatWriteFeatures,
+            long mapperFeatures, int serFeatures, int streamWriteFeatures, int formatWriteFeatures,
             ConfigOverrides configOverrides,
             TypeFactory tf, ClassIntrospector classIntr, MixInHandler mixins, SubtypeResolver str,
             ContextAttributes defaultAttrs, RootNameLookup rootNames,

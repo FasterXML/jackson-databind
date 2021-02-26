@@ -89,7 +89,7 @@ public final class DeserializationConfig
     /**
      * @since 3.0
      */
-    public DeserializationConfig(MapperBuilder<?,?> b, int mapperFeatures,
+    public DeserializationConfig(MapperBuilder<?,?> b, long mapperFeatures,
             int deserFeatures, int streamReadFeatures, int formatReadFeatures,
             ConfigOverrides configOverrides, CoercionConfigs coercionConfigs,
             TypeFactory tf, ClassIntrospector classIntr, MixInHandler mixins, SubtypeResolver str,

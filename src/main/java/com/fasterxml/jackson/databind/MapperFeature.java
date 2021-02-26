@@ -1,20 +1,14 @@
 package com.fasterxml.jackson.databind;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.cfg.ConfigFeature;
 
 /**
  * Enumeration that defines simple on/off features to set
  * for {@link ObjectMapper}, and accessible (but not changeable)
  * via {@link ObjectReader} and {@link ObjectWriter} (as well as
  * through various convenience methods through context objects).
- *<p>
- * Note that in addition to being only mutable via {@link ObjectMapper},
- * changes only take effect when done <b>before any serialization or
- * deserialization</b> calls -- that is, caller must follow
- * "configure-then-use" pattern.
  */
-public enum MapperFeature implements ConfigFeature
+public enum MapperFeature
 {
     /*
     /**********************************************************************
@@ -285,8 +279,6 @@ public enum MapperFeature implements ConfigFeature
      * entries are not considered Bean/POJO properties.
      *<p>
      * Feature is enabled by default.
-     *
-     * @since 2.12
      */
     SORT_CREATOR_PROPERTIES_FIRST(true),
 
@@ -403,19 +395,30 @@ public enum MapperFeature implements ConfigFeature
     ;
 
     private final boolean _defaultState;
-    private final int _mask;
-    
+    private final long _mask;
+
+    public static long collectLongDefaults() {
+        int flags = 0;
+        for (MapperFeature value : MapperFeature.values()) {
+            if (value.enabledByDefault()) {
+                flags |= value.getLongMask();
+            }
+        }
+        return flags;
+    }
+
     private MapperFeature(boolean defaultState) {
         _defaultState = defaultState;
-        _mask = (1 << ordinal());
+        _mask = (1L << ordinal());
     }
     
-    @Override
     public boolean enabledByDefault() { return _defaultState; }
 
-    @Override
-    public int getMask() { return _mask; }
+    public long getLongMask() {
+        return _mask;
+    }
 
-    @Override
-    public boolean enabledIn(int flags) { return (flags & _mask) != 0; }
+    public boolean enabledIn(long flags) {
+        return (flags & _mask) != 0;
+    }
 }

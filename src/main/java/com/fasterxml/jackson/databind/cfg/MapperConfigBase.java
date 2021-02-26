@@ -110,7 +110,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * Constructor used when creating a new instance (compared to
      * that of creating fluent copies)
      */
-    protected MapperConfigBase(MapperBuilder<?,?> b, int mapperFeatures,
+    protected MapperConfigBase(MapperBuilder<?,?> b, long mapperFeatures,
             TypeFactory tf, ClassIntrospector classIntr, MixInHandler mixins, SubtypeResolver str,
             ConfigOverrides configOverrides, ContextAttributes defaultAttrs,
             RootNameLookup rootNames)

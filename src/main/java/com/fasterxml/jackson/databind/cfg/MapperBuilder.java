@@ -41,7 +41,7 @@ import com.fasterxml.jackson.databind.util.StdDateFormat;
 public abstract class MapperBuilder<M extends ObjectMapper,
     B extends MapperBuilder<M,B>>
 {
-    protected final static int DEFAULT_MAPPER_FEATURES = ConfigFeature.collectFeatureDefaults(MapperFeature.class);
+    protected final static long DEFAULT_MAPPER_FEATURES = MapperFeature.collectLongDefaults();
     protected final static int DEFAULT_SER_FEATURES = ConfigFeature.collectFeatureDefaults(SerializationFeature.class);
     protected final static int DEFAULT_DESER_FEATURES = ConfigFeature.collectFeatureDefaults(DeserializationFeature.class);
 
@@ -202,7 +202,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     /**
      * Set of shared mapper features enabled.
      */
-    protected int _mapperFeatures;
+    protected long _mapperFeatures;
 
     /**
      * Set of {@link SerializationFeature}s enabled.
@@ -276,7 +276,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _mapperFeatures = DEFAULT_MAPPER_FEATURES;
         // Some overrides we may need based on format
         if (streamFactory.requiresPropertyOrdering()) {
-            _mapperFeatures |= MapperFeature.SORT_PROPERTIES_ALPHABETICALLY.getMask();
+            _mapperFeatures |= MapperFeature.SORT_PROPERTIES_ALPHABETICALLY.getLongMask();
         }
         _deserFeatures = DEFAULT_DESER_FEATURES;
         _serFeatures = DEFAULT_SER_FEATURES;
@@ -700,14 +700,14 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     public B enable(MapperFeature... features) {
         for (MapperFeature f : features) {
-            _mapperFeatures |= f.getMask();
+            _mapperFeatures |= f.getLongMask();
         }
         return _this();
     }
 
     public B disable(MapperFeature... features) {
         for (MapperFeature f : features) {
-            _mapperFeatures &= ~f.getMask();
+            _mapperFeatures &= ~f.getLongMask();
         }
         return _this();
     }
@@ -715,9 +715,9 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     public B configure(MapperFeature feature, boolean state)
     {
         if (state) {
-            _mapperFeatures |= feature.getMask();
+            _mapperFeatures |= feature.getLongMask();
         } else {
-            _mapperFeatures &= ~feature.getMask();
+            _mapperFeatures &= ~feature.getLongMask();
         }
         return _this();
     }

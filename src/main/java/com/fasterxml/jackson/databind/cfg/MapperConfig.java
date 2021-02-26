@@ -93,14 +93,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     }
 
     /**
-     * "Bulk" access method for checking that all features specified by
-     * mask are enabled.
-     */
-    public final boolean hasMapperFeatures(int featureMask) {
-        return (_mapperFeatures & featureMask) == featureMask;
-    }
-    
-    /**
      * Method for determining whether annotation processing is enabled or not
      * (default settings are typically that it is enabled; must explicitly disable).
      * 

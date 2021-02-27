@@ -804,9 +804,9 @@ public class ObjectMapper
      *
      * @since 3.0
      */
-    public JsonGenerator createGenerator(Path p, JsonEncoding enc) throws JacksonException {
-        _assertNotNull("p", p);
-        return _streamFactory.createGenerator(_serializerProvider(), p, enc);
+    public JsonGenerator createGenerator(Path path, JsonEncoding enc) throws JacksonException {
+        _assertNotNull("path", path);
+        return _streamFactory.createGenerator(_serializerProvider(), path, enc);
     }
 
     /**

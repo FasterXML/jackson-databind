@@ -32,7 +32,7 @@ public class ObjectWriterTest
         }
     }
 
-    final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
     static class PolyBase {
@@ -299,19 +299,10 @@ public class ObjectWriterTest
         }
     }
 
-    private static void test_method_failsIfArgumentIsNull(Runnable runnable) throws Exception
-    {
-        try {
-            runnable.run();
-            fail("IllegalArgumentException expected.");
-        } catch (IllegalArgumentException expected) {
-        }
-    }
-
     public void test_createGenerator_OutputStream() throws Exception
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        JsonGenerator jsonGenerator = new ObjectMapper().writer().createGenerator(outputStream);
+        JsonGenerator jsonGenerator = MAPPER.writer().createGenerator(outputStream);
 
         jsonGenerator.writeString("value");
         jsonGenerator.close();
@@ -325,7 +316,7 @@ public class ObjectWriterTest
     public void test_createGenerator_File() throws Exception
     {
         Path path = Files.createTempFile("", "");
-        JsonGenerator jsonGenerator = new ObjectMapper().writer().createGenerator(path.toFile(), JsonEncoding.UTF8);
+        JsonGenerator jsonGenerator = MAPPER.writer().createGenerator(path.toFile(), JsonEncoding.UTF8);
 
         jsonGenerator.writeString("value");
         jsonGenerator.close();
@@ -336,7 +327,7 @@ public class ObjectWriterTest
     public void test_createGenerator_Path() throws Exception
     {
         Path path = Files.createTempFile("", "");
-        JsonGenerator jsonGenerator = new ObjectMapper().writer().createGenerator(path, JsonEncoding.UTF8);
+        JsonGenerator jsonGenerator = MAPPER.writer().createGenerator(path, JsonEncoding.UTF8);
 
         jsonGenerator.writeString("value");
         jsonGenerator.close();
@@ -347,7 +338,7 @@ public class ObjectWriterTest
     public void test_createGenerator_Writer() throws Exception
     {
         Writer writer = new StringWriter();
-        JsonGenerator jsonGenerator = new ObjectMapper().writer().createGenerator(writer);
+        JsonGenerator jsonGenerator = MAPPER.writer().createGenerator(writer);
 
         jsonGenerator.writeString("value");
         jsonGenerator.close();
@@ -362,7 +353,7 @@ public class ObjectWriterTest
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         DataOutput dataOutput = new DataOutputStream(outputStream);
-        JsonGenerator jsonGenerator = new ObjectMapper().writer().createGenerator(dataOutput);
+        JsonGenerator jsonGenerator = MAPPER.writer().createGenerator(dataOutput);
 
         jsonGenerator.writeString("value");
         jsonGenerator.close();
@@ -375,7 +366,7 @@ public class ObjectWriterTest
 
     public void test_createGenerator_failsIfArgumentIsNull() throws Exception
     {
-        ObjectWriter objectWriter = new ObjectMapper().writer();
+        ObjectWriter objectWriter = MAPPER.writer();
         test_method_failsIfArgumentIsNull(() -> objectWriter.createGenerator((OutputStream) null));
         test_method_failsIfArgumentIsNull(() -> objectWriter.createGenerator((OutputStream) null, null));
         test_method_failsIfArgumentIsNull(() -> objectWriter.createGenerator((DataOutput) null));
@@ -387,7 +378,7 @@ public class ObjectWriterTest
     public void test_writeValue_OutputStream() throws Exception
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        new ObjectMapper().writer().writeValue(outputStream, "value");
+        MAPPER.writer().writeValue(outputStream, "value");
 
         assertEquals(new String(outputStream.toByteArray(), StandardCharsets.UTF_8), "\"value\"");
 
@@ -398,7 +389,7 @@ public class ObjectWriterTest
     public void test_writeValue_File() throws Exception
     {
         Path path = Files.createTempFile("", "");
-        new ObjectMapper().writer().writeValue(path.toFile(), "value");
+        MAPPER.writer().writeValue(path.toFile(), "value");
 
         assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "\"value\"");
     }
@@ -406,7 +397,7 @@ public class ObjectWriterTest
     public void test_writeValue_Path() throws Exception
     {
         Path path = Files.createTempFile("", "");
-        new ObjectMapper().writer().writeValue(path, "value");
+        MAPPER.writer().writeValue(path, "value");
 
         assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "\"value\"");
     }
@@ -414,7 +405,7 @@ public class ObjectWriterTest
     public void test_writeValue_Writer() throws Exception
     {
         Writer writer = new StringWriter();
-        new ObjectMapper().writer().writeValue(writer, "value");
+        MAPPER.writer().writeValue(writer, "value");
 
         assertEquals(writer.toString(), "\"value\"");
 
@@ -426,7 +417,7 @@ public class ObjectWriterTest
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         DataOutput dataOutput = new DataOutputStream(outputStream);
-        new ObjectMapper().writer().writeValue(dataOutput, "value");
+        MAPPER.writer().writeValue(dataOutput, "value");
 
         assertEquals(new String(outputStream.toByteArray(), StandardCharsets.UTF_8), "\"value\"");
 
@@ -437,8 +428,8 @@ public class ObjectWriterTest
     public void test_writeValue_JsonGenerator() throws Exception
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        JsonGenerator jsonGenerator = new ObjectMapper().createGenerator(outputStream);
-        new ObjectMapper().writer().writeValue(jsonGenerator, "value");
+        JsonGenerator jsonGenerator = MAPPER.createGenerator(outputStream);
+        MAPPER.writer().writeValue(jsonGenerator, "value");
 
         assertEquals(new String(outputStream.toByteArray(), StandardCharsets.UTF_8), "\"value\"");
 
@@ -448,7 +439,7 @@ public class ObjectWriterTest
 
     public void test_writeValue_failsIfArgumentIsNull() throws Exception
     {
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = MAPPER;
         test_method_failsIfArgumentIsNull(() -> objectMapper.writer().writeValue((OutputStream) null, null));
         test_method_failsIfArgumentIsNull(() -> objectMapper.writer().writeValue((DataOutput) null, null));
         test_method_failsIfArgumentIsNull(() -> objectMapper.writer().writeValue((Path) null, null));
@@ -460,7 +451,7 @@ public class ObjectWriterTest
     public void test_writeValues_OutputStream() throws Exception
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        SequenceWriter sequenceWriter = new ObjectMapper().writer().writeValues(outputStream);
+        SequenceWriter sequenceWriter = MAPPER.writer().writeValues(outputStream);
         sequenceWriter.write("value");
 
         assertEquals(new String(outputStream.toByteArray(), StandardCharsets.UTF_8), "\"value\"");
@@ -472,7 +463,7 @@ public class ObjectWriterTest
     public void test_writeValues_File() throws Exception
     {
         Path path = Files.createTempFile("", "");
-        SequenceWriter sequenceWriter = new ObjectMapper().writer().writeValues(path.toFile());
+        SequenceWriter sequenceWriter = MAPPER.writer().writeValues(path.toFile());
         sequenceWriter.write("value");
 
         assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "\"value\"");
@@ -481,7 +472,7 @@ public class ObjectWriterTest
     public void test_writeValues_Path() throws Exception
     {
         Path path = Files.createTempFile("", "");
-        SequenceWriter sequenceWriter = new ObjectMapper().writer().writeValues(path);
+        SequenceWriter sequenceWriter = MAPPER.writer().writeValues(path);
         sequenceWriter.write("value");
 
         assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "\"value\"");
@@ -490,7 +481,7 @@ public class ObjectWriterTest
     public void test_writeValues_Writer() throws Exception
     {
         Writer writer = new StringWriter();
-        SequenceWriter sequenceWriter = new ObjectMapper().writer().writeValues(writer);
+        SequenceWriter sequenceWriter = MAPPER.writer().writeValues(writer);
         sequenceWriter.write("value");
 
         assertEquals(writer.toString(), "\"value\"");
@@ -503,7 +494,7 @@ public class ObjectWriterTest
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         DataOutput dataOutput = new DataOutputStream(outputStream);
-        SequenceWriter sequenceWriter = new ObjectMapper().writer().writeValues(dataOutput);
+        SequenceWriter sequenceWriter = MAPPER.writer().writeValues(dataOutput);
         sequenceWriter.write("value");
 
         assertEquals(new String(outputStream.toByteArray(), StandardCharsets.UTF_8), "\"value\"");
@@ -515,8 +506,8 @@ public class ObjectWriterTest
     public void test_writeValues_JsonGenerator() throws Exception
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        JsonGenerator jsonGenerator = new ObjectMapper().createGenerator(outputStream);
-        SequenceWriter sequenceWriter = new ObjectMapper().writer().writeValues(jsonGenerator);
+        JsonGenerator jsonGenerator = MAPPER.createGenerator(outputStream);
+        SequenceWriter sequenceWriter = MAPPER.writer().writeValues(jsonGenerator);
         sequenceWriter.write("value");
 
         assertEquals(new String(outputStream.toByteArray(), StandardCharsets.UTF_8), "\"value\"");
@@ -527,7 +518,7 @@ public class ObjectWriterTest
 
     public void test_writeValues_failsIfArgumentIsNull() throws Exception
     {
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = MAPPER;
         test_method_failsIfArgumentIsNull(() -> objectMapper.writer().writeValues((OutputStream) null));
         test_method_failsIfArgumentIsNull(() -> objectMapper.writer().writeValues((DataOutput) null));
         test_method_failsIfArgumentIsNull(() -> objectMapper.writer().writeValues((Path) null));
@@ -539,7 +530,7 @@ public class ObjectWriterTest
     public void test_writeValuesAsArray_OutputStream() throws Exception
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        SequenceWriter sequenceWriter = new ObjectMapper().writer().writeValuesAsArray(outputStream);
+        SequenceWriter sequenceWriter = MAPPER.writer().writeValuesAsArray(outputStream);
         sequenceWriter.write("value");
         sequenceWriter.flush();
         sequenceWriter.close();
@@ -553,7 +544,7 @@ public class ObjectWriterTest
     public void test_writeValuesAsArray_File() throws Exception
     {
         Path path = Files.createTempFile("", "");
-        SequenceWriter sequenceWriter = new ObjectMapper().writer().writeValuesAsArray(path.toFile());
+        SequenceWriter sequenceWriter = MAPPER.writer().writeValuesAsArray(path.toFile());
         sequenceWriter.write("value");
         sequenceWriter.flush();
         sequenceWriter.close();
@@ -564,7 +555,7 @@ public class ObjectWriterTest
     public void test_writeValuesAsArray_Path() throws Exception
     {
         Path path = Files.createTempFile("", "");
-        SequenceWriter sequenceWriter = new ObjectMapper().writer().writeValuesAsArray(path);
+        SequenceWriter sequenceWriter = MAPPER.writer().writeValuesAsArray(path);
         sequenceWriter.write("value");
         sequenceWriter.flush();
         sequenceWriter.close();
@@ -575,7 +566,7 @@ public class ObjectWriterTest
     public void test_writeValuesAsArray_Writer() throws Exception
     {
         Writer writer = new StringWriter();
-        SequenceWriter sequenceWriter = new ObjectMapper().writer().writeValuesAsArray(writer);
+        SequenceWriter sequenceWriter = MAPPER.writer().writeValuesAsArray(writer);
         sequenceWriter.write("value");
         sequenceWriter.flush();
         sequenceWriter.close();
@@ -590,7 +581,7 @@ public class ObjectWriterTest
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         DataOutput dataOutput = new DataOutputStream(outputStream);
-        SequenceWriter sequenceWriter = new ObjectMapper().writer().writeValuesAsArray(dataOutput);
+        SequenceWriter sequenceWriter = MAPPER.writer().writeValuesAsArray(dataOutput);
         sequenceWriter.write("value");
         sequenceWriter.flush();
         sequenceWriter.close();
@@ -604,8 +595,8 @@ public class ObjectWriterTest
     public void test_writeValuesAsArray_JsonGenerator() throws Exception
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        JsonGenerator jsonGenerator = new ObjectMapper().createGenerator(outputStream);
-        SequenceWriter sequenceWriter = new ObjectMapper().writer().writeValuesAsArray(jsonGenerator);
+        JsonGenerator jsonGenerator = MAPPER.createGenerator(outputStream);
+        SequenceWriter sequenceWriter = MAPPER.writer().writeValuesAsArray(jsonGenerator);
         sequenceWriter.write("value");
         sequenceWriter.flush();
         sequenceWriter.close();
@@ -620,12 +611,23 @@ public class ObjectWriterTest
 
     public void test_writeValuesAsArray_failsIfArgumentIsNull() throws Exception
     {
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = MAPPER;
         test_method_failsIfArgumentIsNull(() -> objectMapper.writer().writeValuesAsArray((OutputStream) null));
         test_method_failsIfArgumentIsNull(() -> objectMapper.writer().writeValuesAsArray((DataOutput) null));
         test_method_failsIfArgumentIsNull(() -> objectMapper.writer().writeValuesAsArray((Path) null));
         test_method_failsIfArgumentIsNull(() -> objectMapper.writer().writeValuesAsArray((File) null));
         test_method_failsIfArgumentIsNull(() -> objectMapper.writer().writeValuesAsArray((Writer) null));
         test_method_failsIfArgumentIsNull(() -> objectMapper.writer().writeValuesAsArray((JsonGenerator) null));
+    }
+
+    private static void test_method_failsIfArgumentIsNull(Runnable runnable) throws Exception
+    {
+        try {
+            runnable.run();
+            fail("IllegalArgumentException expected.");
+        } catch (IllegalArgumentException expected) {
+            verifyException(expected, "Argument \"");
+            verifyException(expected, "\" is null");
+        }
     }
 }

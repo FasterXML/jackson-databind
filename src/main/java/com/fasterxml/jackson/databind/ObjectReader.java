@@ -1224,17 +1224,17 @@ public class ObjectReader
      * Value return is either newly constructed, or root value that
      * was specified with {@link #withValueToUpdate(Object)}.
      *
-     * @param p Path that contains content to read
+     * @param path Path that contains content to read
      *
      * @since 3.0
      */
     @SuppressWarnings("unchecked")
-    public <T> T readValue(Path p) throws JacksonException
+    public <T> T readValue(Path path) throws JacksonException
     {
-        _assertNotNull("p", p);
+        _assertNotNull("path", path);
         DeserializationContextExt ctxt = _deserializationContext();
         return (T) _bindAndClose(ctxt,
-                _considerFilter(_parserFactory.createParser(ctxt, p), false));
+                _considerFilter(_parserFactory.createParser(ctxt, path), false));
     }
 
     /**
@@ -1749,9 +1749,9 @@ public class ObjectReader
         }
     }
 
-    protected InputStream _inputStream(Path p) throws JacksonException {
+    protected InputStream _inputStream(Path path) throws JacksonException {
         try {
-            return Files.newInputStream(p);
+            return Files.newInputStream(path);
         } catch (IOException e) {
             throw WrappedIOException.construct(e);
         }

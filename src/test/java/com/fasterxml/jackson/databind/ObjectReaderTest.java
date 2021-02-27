@@ -23,8 +23,6 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 public class ObjectReaderTest extends BaseMapTest
 {
-    final JsonMapper MAPPER = JsonMapper.builder().build();
-
     static class POJO {
         public Map<String, Object> name;
     }
@@ -37,6 +35,8 @@ public class ObjectReaderTest extends BaseMapTest
             this.knownField = knownField;
         }
     }
+
+    private final JsonMapper MAPPER = newJsonMapper();
 
     /*
     /**********************************************************************
@@ -478,7 +478,7 @@ public class ObjectReaderTest extends BaseMapTest
     public void test_createParser_InputStream() throws Exception
     {
         InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
-        JsonParser jsonParser =  new ObjectMapper().reader().createParser(inputStream);
+        JsonParser jsonParser =  MAPPER.reader().createParser(inputStream);
 
         assertEquals(jsonParser.nextTextValue(), "value");
     }
@@ -487,7 +487,7 @@ public class ObjectReaderTest extends BaseMapTest
     {
         Path path = Files.createTempFile("", "");
         Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
-        JsonParser jsonParser = new ObjectMapper().reader().createParser(path.toFile());
+        JsonParser jsonParser = MAPPER.reader().createParser(path.toFile());
 
         assertEquals(jsonParser.nextTextValue(), "value");
     }
@@ -496,7 +496,7 @@ public class ObjectReaderTest extends BaseMapTest
     {
         Path path = Files.createTempFile("", "");
         Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
-        JsonParser jsonParser = new ObjectMapper().reader().createParser(path);
+        JsonParser jsonParser = MAPPER.reader().createParser(path);
 
         assertEquals(jsonParser.nextTextValue(), "value");
     }
@@ -505,7 +505,7 @@ public class ObjectReaderTest extends BaseMapTest
     {
         Path path = Files.createTempFile("", "");
         Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
-        JsonParser jsonParser = new ObjectMapper().reader().createParser(path.toUri().toURL());
+        JsonParser jsonParser = MAPPER.reader().createParser(path.toUri().toURL());
 
         assertEquals(jsonParser.nextTextValue(), "value");
     }
@@ -513,7 +513,7 @@ public class ObjectReaderTest extends BaseMapTest
     public void test_createParser_Reader() throws Exception
     {
         Reader reader = new StringReader("\"value\"");
-        JsonParser jsonParser = new ObjectMapper().reader().createParser(reader);
+        JsonParser jsonParser = MAPPER.reader().createParser(reader);
 
         assertEquals(jsonParser.nextTextValue(), "value");
     }
@@ -521,7 +521,7 @@ public class ObjectReaderTest extends BaseMapTest
     public void test_createParser_ByteArray() throws Exception
     {
         byte[] bytes = "\"value\"".getBytes(StandardCharsets.UTF_8);
-        JsonParser jsonParser = new ObjectMapper().reader().createParser(bytes);
+        JsonParser jsonParser = MAPPER.reader().createParser(bytes);
 
         assertEquals(jsonParser.nextTextValue(), "value");
     }
@@ -529,7 +529,7 @@ public class ObjectReaderTest extends BaseMapTest
     public void test_createParser_String() throws Exception
     {
         String string = "\"value\"";
-        JsonParser jsonParser = new ObjectMapper().reader().createParser(string);
+        JsonParser jsonParser = MAPPER.reader().createParser(string);
 
         assertEquals(jsonParser.nextTextValue(), "value");
     }
@@ -537,7 +537,7 @@ public class ObjectReaderTest extends BaseMapTest
     public void test_createParser_CharArray() throws Exception
     {
         char[] chars = "\"value\"".toCharArray();
-        JsonParser jsonParser = new ObjectMapper().reader().createParser(chars);
+        JsonParser jsonParser = MAPPER.reader().createParser(chars);
 
         assertEquals(jsonParser.nextTextValue(), "value");
     }
@@ -546,23 +546,14 @@ public class ObjectReaderTest extends BaseMapTest
     {
         InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
         DataInput dataInput = new DataInputStream(inputStream);
-        JsonParser jsonParser = new ObjectMapper().reader().createParser(dataInput);
+        JsonParser jsonParser = MAPPER.reader().createParser(dataInput);
 
         assertEquals(jsonParser.nextTextValue(), "value");
     }
 
-    private static void test_method_failsIfArgumentIsNull(Runnable runnable) throws Exception
-    {
-        try {
-            runnable.run();
-            fail("IllegalArgumentException expected.");
-        } catch (IllegalArgumentException expected) {
-        }
-    }
-
     public void test_createParser_failsIfArgumentIsNull() throws Exception
     {
-        ObjectReader objectReader = new ObjectMapper().reader();
+        ObjectReader objectReader = MAPPER.reader();
         test_method_failsIfArgumentIsNull(() -> objectReader.createParser((InputStream) null));
         test_method_failsIfArgumentIsNull(() -> objectReader.createParser((DataInput) null));
         test_method_failsIfArgumentIsNull(() -> objectReader.createParser((URL) null));
@@ -579,7 +570,7 @@ public class ObjectReaderTest extends BaseMapTest
     public void test_readTree_InputStream() throws Exception
     {
         InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
-        JsonNode jsonNode =  new ObjectMapper().reader().readTree(inputStream);
+        JsonNode jsonNode =  MAPPER.reader().readTree(inputStream);
 
         assertEquals(jsonNode.textValue(), "value");
     }
@@ -587,7 +578,7 @@ public class ObjectReaderTest extends BaseMapTest
     public void test_readTree_Reader() throws Exception
     {
         Reader reader = new StringReader("\"value\"");
-        JsonNode jsonNode = new ObjectMapper().reader().readTree(reader);
+        JsonNode jsonNode = MAPPER.reader().readTree(reader);
 
         assertEquals(jsonNode.textValue(), "value");
     }
@@ -596,12 +587,12 @@ public class ObjectReaderTest extends BaseMapTest
     {
         // with offset and length
         byte[] bytes = "\"value\"".getBytes(StandardCharsets.UTF_8);
-        JsonNode jsonNode1 = new ObjectMapper().reader().readTree(bytes);
+        JsonNode jsonNode1 = MAPPER.reader().readTree(bytes);
 
         assertEquals(jsonNode1.textValue(), "value");
 
         // without offset and length
-        JsonNode jsonNode2 = new ObjectMapper().reader().readTree(bytes, 0, bytes.length);
+        JsonNode jsonNode2 = MAPPER.reader().readTree(bytes, 0, bytes.length);
 
         assertEquals(jsonNode2.textValue(), "value");
     }
@@ -609,14 +600,14 @@ public class ObjectReaderTest extends BaseMapTest
     public void test_readTree_String() throws Exception
     {
         String string = "\"value\"";
-        JsonNode jsonNode = new ObjectMapper().reader().readTree(string);
+        JsonNode jsonNode = MAPPER.reader().readTree(string);
 
         assertEquals(jsonNode.textValue(), "value");
     }
 
     public void test_readTree_failsIfArgumentIsNull() throws Exception
     {
-        ObjectReader objectReader = new ObjectMapper().reader();
+        ObjectReader objectReader = MAPPER.reader();
         test_method_failsIfArgumentIsNull(() -> objectReader.readTree((InputStream) null));
         test_method_failsIfArgumentIsNull(() -> objectReader.readTree((Reader) null));
         test_method_failsIfArgumentIsNull(() -> objectReader.readTree((String) null));
@@ -627,7 +618,7 @@ public class ObjectReaderTest extends BaseMapTest
     public void test_readValue_InputStream() throws Exception
     {
         InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
-        String result = new ObjectMapper().readerFor(String.class).readValue(inputStream);
+        String result = MAPPER.readerFor(String.class).readValue(inputStream);
         assertEquals(result, "value");
     }
 
@@ -635,7 +626,7 @@ public class ObjectReaderTest extends BaseMapTest
     {
         Path path = Files.createTempFile("", "");
         Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
-        String result = new ObjectMapper().readerFor(String.class).readValue(path.toFile());
+        String result = MAPPER.readerFor(String.class).readValue(path.toFile());
         assertEquals(result, "value");
     }
 
@@ -643,7 +634,7 @@ public class ObjectReaderTest extends BaseMapTest
     {
         Path path = Files.createTempFile("", "");
         Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
-        String result = new ObjectMapper().readerFor(String.class).readValue(path);
+        String result = MAPPER.readerFor(String.class).readValue(path);
         assertEquals(result, "value");
     }
 
@@ -651,28 +642,28 @@ public class ObjectReaderTest extends BaseMapTest
     {
         Path path = Files.createTempFile("", "");
         Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
-        String result = new ObjectMapper().readerFor(String.class).readValue(path.toUri().toURL());
+        String result = MAPPER.readerFor(String.class).readValue(path.toUri().toURL());
         assertEquals(result, "value");
     }
 
     public void test_readValue_Reader() throws Exception
     {
         Reader reader = new StringReader("\"value\"");
-        String result = new ObjectMapper().readerFor(String.class).readValue(reader);
+        String result = MAPPER.readerFor(String.class).readValue(reader);
         assertEquals(result, "value");
     }
 
     public void test_readValue_ByteArray() throws Exception
     {
         byte[] bytes = "\"value\"".getBytes(StandardCharsets.UTF_8);
-        String result = new ObjectMapper().readerFor(String.class).readValue(bytes);
+        String result = MAPPER.readerFor(String.class).readValue(bytes);
         assertEquals(result, "value");
     }
 
     public void test_readValue_String() throws Exception
     {
         String string = "\"value\"";
-        String result = new ObjectMapper().readerFor(String.class).readValue(string);
+        String result = MAPPER.readerFor(String.class).readValue(string);
         assertEquals(result, "value");
     }
 
@@ -680,21 +671,21 @@ public class ObjectReaderTest extends BaseMapTest
     {
         InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
         DataInput dataInput = new DataInputStream(inputStream);
-        String result = new ObjectMapper().readerFor(String.class).readValue(dataInput);
+        String result = MAPPER.readerFor(String.class).readValue(dataInput);
         assertEquals(result, "value");
     }
 
     public void test_readValue_JsonParser() throws Exception
     {
         String string = "\"value\"";
-        JsonParser jsonParser = new ObjectMapper().reader().createParser(string);
-        String result = new ObjectMapper().readerFor(String.class).readValue(jsonParser);
+        JsonParser jsonParser = MAPPER.reader().createParser(string);
+        String result = MAPPER.readerFor(String.class).readValue(jsonParser);
         assertEquals(result, "value");
     }
 
     public void test_readValue_failsIfArgumentIsNull() throws Exception
     {
-        ObjectReader objectReader = new ObjectMapper().reader();
+        ObjectReader objectReader = MAPPER.reader();
         test_method_failsIfArgumentIsNull(() -> objectReader.readValue((InputStream) null));
         test_method_failsIfArgumentIsNull(() -> objectReader.readValue((DataInput) null));
         test_method_failsIfArgumentIsNull(() -> objectReader.readValue((URL) null));
@@ -710,7 +701,7 @@ public class ObjectReaderTest extends BaseMapTest
     public void test_readValues_InputStream() throws Exception
     {
         InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
-        MappingIterator result = new ObjectMapper().readerFor(String.class).readValues(inputStream);
+        MappingIterator<String> result = MAPPER.readerFor(String.class).readValues(inputStream);
         assertEquals(result.next(), "value");
         assertEquals(result.hasNext(), false);
     }
@@ -719,7 +710,7 @@ public class ObjectReaderTest extends BaseMapTest
     {
         Path path = Files.createTempFile("", "");
         Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
-        MappingIterator result = new ObjectMapper().readerFor(String.class).readValues(path.toFile());
+        MappingIterator<String> result = MAPPER.readerFor(String.class).readValues(path.toFile());
         assertEquals(result.next(), "value");
         assertEquals(result.hasNext(), false);
     }
@@ -728,7 +719,7 @@ public class ObjectReaderTest extends BaseMapTest
     {
         Path path = Files.createTempFile("", "");
         Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
-        MappingIterator result = new ObjectMapper().readerFor(String.class).readValues(path);
+        MappingIterator<String> result = MAPPER.readerFor(String.class).readValues(path);
         assertEquals(result.next(), "value");
         assertEquals(result.hasNext(), false);
     }
@@ -737,7 +728,7 @@ public class ObjectReaderTest extends BaseMapTest
     {
         Path path = Files.createTempFile("", "");
         Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
-        MappingIterator result = new ObjectMapper().readerFor(String.class).readValues(path.toUri().toURL());
+        MappingIterator<String> result = MAPPER.readerFor(String.class).readValues(path.toUri().toURL());
         assertEquals(result.next(), "value");
         assertEquals(result.hasNext(), false);
     }
@@ -745,7 +736,7 @@ public class ObjectReaderTest extends BaseMapTest
     public void test_readValues_Reader() throws Exception
     {
         Reader reader = new StringReader("\"value\"");
-        MappingIterator result = new ObjectMapper().readerFor(String.class).readValues(reader);
+        MappingIterator<String> result = MAPPER.readerFor(String.class).readValues(reader);
         assertEquals(result.next(), "value");
         assertEquals(result.hasNext(), false);
     }
@@ -753,7 +744,7 @@ public class ObjectReaderTest extends BaseMapTest
     public void test_readValues_ByteArray() throws Exception
     {
         byte[] bytes = "\"value\"".getBytes(StandardCharsets.UTF_8);
-        MappingIterator result = new ObjectMapper().readerFor(String.class).readValues(bytes);
+        MappingIterator<String> result = MAPPER.readerFor(String.class).readValues(bytes);
         assertEquals(result.next(), "value");
         assertEquals(result.hasNext(), false);
     }
@@ -761,7 +752,7 @@ public class ObjectReaderTest extends BaseMapTest
     public void test_readValues_String() throws Exception
     {
         String string = "\"value\"";
-        MappingIterator result = new ObjectMapper().readerFor(String.class).readValues(string);
+        MappingIterator<String> result = MAPPER.readerFor(String.class).readValues(string);
         assertEquals(result.next(), "value");
         assertEquals(result.hasNext(), false);
     }
@@ -770,7 +761,7 @@ public class ObjectReaderTest extends BaseMapTest
     {
         InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
         DataInput dataInput = new DataInputStream(inputStream);
-        MappingIterator result = new ObjectMapper().readerFor(String.class).readValues(dataInput);
+        MappingIterator<String> result = MAPPER.readerFor(String.class).readValues(dataInput);
         assertEquals(result.next(), "value");
         assertEquals(result.hasNext(), false);
     }
@@ -778,15 +769,15 @@ public class ObjectReaderTest extends BaseMapTest
     public void test_readValues_JsonParser() throws Exception
     {
         String string = "\"value\"";
-        JsonParser jsonParser = new ObjectMapper().reader().createParser(string);
-        MappingIterator result = new ObjectMapper().readerFor(String.class).readValues(jsonParser);
+        JsonParser jsonParser = MAPPER.reader().createParser(string);
+        MappingIterator<String> result = MAPPER.readerFor(String.class).readValues(jsonParser);
         assertEquals(result.next(), "value");
         assertEquals(result.hasNext(), false);
     }
 
     public void test_readValues_failsIfArgumentIsNull() throws Exception
     {
-        ObjectReader objectReader = new ObjectMapper().reader();
+        ObjectReader objectReader = MAPPER.reader();
         test_method_failsIfArgumentIsNull(() -> objectReader.readValues((InputStream) null));
         test_method_failsIfArgumentIsNull(() -> objectReader.readValues((DataInput) null));
         test_method_failsIfArgumentIsNull(() -> objectReader.readValues((URL) null));
@@ -797,5 +788,16 @@ public class ObjectReaderTest extends BaseMapTest
         test_method_failsIfArgumentIsNull(() -> objectReader.readValues((JsonParser) null));
         test_method_failsIfArgumentIsNull(() -> objectReader.readValues((byte[]) null));
         test_method_failsIfArgumentIsNull(() -> objectReader.readValues((byte[]) null, -1, -1));
+    }
+
+    private static void test_method_failsIfArgumentIsNull(Runnable runnable) throws Exception
+    {
+        try {
+            runnable.run();
+            fail("IllegalArgumentException expected.");
+        } catch (IllegalArgumentException expected) {
+            verifyException(expected, "Argument \"");
+            verifyException(expected, "\" is null");
+        }
     }
 }

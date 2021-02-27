@@ -1,6 +1,9 @@
 package com.fasterxml.jackson.databind;
 
-import java.io.StringWriter;
+import java.io.*;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -470,5 +473,329 @@ public class ObjectReaderTest extends BaseMapTest
         A2297 aObject = mapper.readValue("{\"unknownField\" : 1, \"knownField\": \"test\"}", A2297.class);
 
         assertEquals("test", aObject.knownField);
+    }
+
+    public void test_createParser_InputStream() throws Exception
+    {
+        InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
+        JsonParser jsonParser =  new ObjectMapper().reader().createParser(inputStream);
+
+        assertEquals(jsonParser.nextTextValue(), "value");
+    }
+
+    public void test_createParser_File() throws Exception
+    {
+        Path path = Files.createTempFile("", "");
+        Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
+        JsonParser jsonParser = new ObjectMapper().reader().createParser(path.toFile());
+
+        assertEquals(jsonParser.nextTextValue(), "value");
+    }
+
+    public void test_createParser_Path() throws Exception
+    {
+        Path path = Files.createTempFile("", "");
+        Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
+        JsonParser jsonParser = new ObjectMapper().reader().createParser(path);
+
+        assertEquals(jsonParser.nextTextValue(), "value");
+    }
+
+    public void test_createParser_Url() throws Exception
+    {
+        Path path = Files.createTempFile("", "");
+        Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
+        JsonParser jsonParser = new ObjectMapper().reader().createParser(path.toUri().toURL());
+
+        assertEquals(jsonParser.nextTextValue(), "value");
+    }
+
+    public void test_createParser_Reader() throws Exception
+    {
+        Reader reader = new StringReader("\"value\"");
+        JsonParser jsonParser = new ObjectMapper().reader().createParser(reader);
+
+        assertEquals(jsonParser.nextTextValue(), "value");
+    }
+
+    public void test_createParser_ByteArray() throws Exception
+    {
+        byte[] bytes = "\"value\"".getBytes(StandardCharsets.UTF_8);
+        JsonParser jsonParser = new ObjectMapper().reader().createParser(bytes);
+
+        assertEquals(jsonParser.nextTextValue(), "value");
+    }
+
+    public void test_createParser_String() throws Exception
+    {
+        String string = "\"value\"";
+        JsonParser jsonParser = new ObjectMapper().reader().createParser(string);
+
+        assertEquals(jsonParser.nextTextValue(), "value");
+    }
+
+    public void test_createParser_CharArray() throws Exception
+    {
+        char[] chars = "\"value\"".toCharArray();
+        JsonParser jsonParser = new ObjectMapper().reader().createParser(chars);
+
+        assertEquals(jsonParser.nextTextValue(), "value");
+    }
+
+    public void test_createParser_DataInput() throws Exception
+    {
+        InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
+        DataInput dataInput = new DataInputStream(inputStream);
+        JsonParser jsonParser = new ObjectMapper().reader().createParser(dataInput);
+
+        assertEquals(jsonParser.nextTextValue(), "value");
+    }
+
+    private static void test_method_failsIfArgumentIsNull(Runnable runnable) throws Exception
+    {
+        try {
+            runnable.run();
+            fail("IllegalArgumentException expected.");
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
+    public void test_createParser_failsIfArgumentIsNull() throws Exception
+    {
+        ObjectReader objectReader = new ObjectMapper().reader();
+        test_method_failsIfArgumentIsNull(() -> objectReader.createParser((InputStream) null));
+        test_method_failsIfArgumentIsNull(() -> objectReader.createParser((DataInput) null));
+        test_method_failsIfArgumentIsNull(() -> objectReader.createParser((URL) null));
+        test_method_failsIfArgumentIsNull(() -> objectReader.createParser((Path) null));
+        test_method_failsIfArgumentIsNull(() -> objectReader.createParser((File) null));
+        test_method_failsIfArgumentIsNull(() -> objectReader.createParser((Reader) null));
+        test_method_failsIfArgumentIsNull(() -> objectReader.createParser((String) null));
+        test_method_failsIfArgumentIsNull(() -> objectReader.createParser((byte[]) null));
+        test_method_failsIfArgumentIsNull(() -> objectReader.createParser((byte[]) null, -1, -1));
+        test_method_failsIfArgumentIsNull(() -> objectReader.createParser((char[]) null));
+        test_method_failsIfArgumentIsNull(() -> objectReader.createParser((char[]) null, -1, -1));
+    }
+
+    public void test_readTree_InputStream() throws Exception
+    {
+        InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
+        JsonNode jsonNode =  new ObjectMapper().reader().readTree(inputStream);
+
+        assertEquals(jsonNode.textValue(), "value");
+    }
+
+    public void test_readTree_Reader() throws Exception
+    {
+        Reader reader = new StringReader("\"value\"");
+        JsonNode jsonNode = new ObjectMapper().reader().readTree(reader);
+
+        assertEquals(jsonNode.textValue(), "value");
+    }
+
+    public void test_readTree_ByteArray() throws Exception
+    {
+        // with offset and length
+        byte[] bytes = "\"value\"".getBytes(StandardCharsets.UTF_8);
+        JsonNode jsonNode1 = new ObjectMapper().reader().readTree(bytes);
+
+        assertEquals(jsonNode1.textValue(), "value");
+
+        // without offset and length
+        JsonNode jsonNode2 = new ObjectMapper().reader().readTree(bytes, 0, bytes.length);
+
+        assertEquals(jsonNode2.textValue(), "value");
+    }
+
+    public void test_readTree_String() throws Exception
+    {
+        String string = "\"value\"";
+        JsonNode jsonNode = new ObjectMapper().reader().readTree(string);
+
+        assertEquals(jsonNode.textValue(), "value");
+    }
+
+    public void test_readTree_failsIfArgumentIsNull() throws Exception
+    {
+        ObjectReader objectReader = new ObjectMapper().reader();
+        test_method_failsIfArgumentIsNull(() -> objectReader.readTree((InputStream) null));
+        test_method_failsIfArgumentIsNull(() -> objectReader.readTree((Reader) null));
+        test_method_failsIfArgumentIsNull(() -> objectReader.readTree((String) null));
+        test_method_failsIfArgumentIsNull(() -> objectReader.readTree((byte[]) null));
+        test_method_failsIfArgumentIsNull(() -> objectReader.readTree((byte[]) null, -1, -1));
+    }
+
+    public void test_readValue_InputStream() throws Exception
+    {
+        InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
+        String result = new ObjectMapper().readerFor(String.class).readValue(inputStream);
+        assertEquals(result, "value");
+    }
+
+    public void test_readValue_File() throws Exception
+    {
+        Path path = Files.createTempFile("", "");
+        Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
+        String result = new ObjectMapper().readerFor(String.class).readValue(path.toFile());
+        assertEquals(result, "value");
+    }
+
+    public void test_readValue_Path() throws Exception
+    {
+        Path path = Files.createTempFile("", "");
+        Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
+        String result = new ObjectMapper().readerFor(String.class).readValue(path);
+        assertEquals(result, "value");
+    }
+
+    public void test_readValue_Url() throws Exception
+    {
+        Path path = Files.createTempFile("", "");
+        Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
+        String result = new ObjectMapper().readerFor(String.class).readValue(path.toUri().toURL());
+        assertEquals(result, "value");
+    }
+
+    public void test_readValue_Reader() throws Exception
+    {
+        Reader reader = new StringReader("\"value\"");
+        String result = new ObjectMapper().readerFor(String.class).readValue(reader);
+        assertEquals(result, "value");
+    }
+
+    public void test_readValue_ByteArray() throws Exception
+    {
+        byte[] bytes = "\"value\"".getBytes(StandardCharsets.UTF_8);
+        String result = new ObjectMapper().readerFor(String.class).readValue(bytes);
+        assertEquals(result, "value");
+    }
+
+    public void test_readValue_String() throws Exception
+    {
+        String string = "\"value\"";
+        String result = new ObjectMapper().readerFor(String.class).readValue(string);
+        assertEquals(result, "value");
+    }
+
+    public void test_readValue_DataInput() throws Exception
+    {
+        InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
+        DataInput dataInput = new DataInputStream(inputStream);
+        String result = new ObjectMapper().readerFor(String.class).readValue(dataInput);
+        assertEquals(result, "value");
+    }
+
+    public void test_readValue_JsonParser() throws Exception
+    {
+        String string = "\"value\"";
+        JsonParser jsonParser = new ObjectMapper().reader().createParser(string);
+        String result = new ObjectMapper().readerFor(String.class).readValue(jsonParser);
+        assertEquals(result, "value");
+    }
+
+    public void test_readValue_failsIfArgumentIsNull() throws Exception
+    {
+        ObjectReader objectReader = new ObjectMapper().reader();
+        test_method_failsIfArgumentIsNull(() -> objectReader.readValue((InputStream) null));
+        test_method_failsIfArgumentIsNull(() -> objectReader.readValue((DataInput) null));
+        test_method_failsIfArgumentIsNull(() -> objectReader.readValue((URL) null));
+        test_method_failsIfArgumentIsNull(() -> objectReader.readValue((Path) null));
+        test_method_failsIfArgumentIsNull(() -> objectReader.readValue((File) null));
+        test_method_failsIfArgumentIsNull(() -> objectReader.readValue((Reader) null));
+        test_method_failsIfArgumentIsNull(() -> objectReader.readValue((String) null));
+        test_method_failsIfArgumentIsNull(() -> objectReader.readValue((JsonParser) null));
+        test_method_failsIfArgumentIsNull(() -> objectReader.readValue((byte[]) null));
+        test_method_failsIfArgumentIsNull(() -> objectReader.readValue((byte[]) null, -1, -1));
+    }
+
+    public void test_readValues_InputStream() throws Exception
+    {
+        InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
+        MappingIterator result = new ObjectMapper().readerFor(String.class).readValues(inputStream);
+        assertEquals(result.next(), "value");
+        assertEquals(result.hasNext(), false);
+    }
+
+    public void test_readValues_File() throws Exception
+    {
+        Path path = Files.createTempFile("", "");
+        Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
+        MappingIterator result = new ObjectMapper().readerFor(String.class).readValues(path.toFile());
+        assertEquals(result.next(), "value");
+        assertEquals(result.hasNext(), false);
+    }
+
+    public void test_readValues_Path() throws Exception
+    {
+        Path path = Files.createTempFile("", "");
+        Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
+        MappingIterator result = new ObjectMapper().readerFor(String.class).readValues(path);
+        assertEquals(result.next(), "value");
+        assertEquals(result.hasNext(), false);
+    }
+
+    public void test_readValues_Url() throws Exception
+    {
+        Path path = Files.createTempFile("", "");
+        Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
+        MappingIterator result = new ObjectMapper().readerFor(String.class).readValues(path.toUri().toURL());
+        assertEquals(result.next(), "value");
+        assertEquals(result.hasNext(), false);
+    }
+
+    public void test_readValues_Reader() throws Exception
+    {
+        Reader reader = new StringReader("\"value\"");
+        MappingIterator result = new ObjectMapper().readerFor(String.class).readValues(reader);
+        assertEquals(result.next(), "value");
+        assertEquals(result.hasNext(), false);
+    }
+
+    public void test_readValues_ByteArray() throws Exception
+    {
+        byte[] bytes = "\"value\"".getBytes(StandardCharsets.UTF_8);
+        MappingIterator result = new ObjectMapper().readerFor(String.class).readValues(bytes);
+        assertEquals(result.next(), "value");
+        assertEquals(result.hasNext(), false);
+    }
+
+    public void test_readValues_String() throws Exception
+    {
+        String string = "\"value\"";
+        MappingIterator result = new ObjectMapper().readerFor(String.class).readValues(string);
+        assertEquals(result.next(), "value");
+        assertEquals(result.hasNext(), false);
+    }
+
+    public void test_readValues_DataInput() throws Exception
+    {
+        InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
+        DataInput dataInput = new DataInputStream(inputStream);
+        MappingIterator result = new ObjectMapper().readerFor(String.class).readValues(dataInput);
+        assertEquals(result.next(), "value");
+        assertEquals(result.hasNext(), false);
+    }
+
+    public void test_readValues_JsonParser() throws Exception
+    {
+        String string = "\"value\"";
+        JsonParser jsonParser = new ObjectMapper().reader().createParser(string);
+        MappingIterator result = new ObjectMapper().readerFor(String.class).readValues(jsonParser);
+        assertEquals(result.next(), "value");
+        assertEquals(result.hasNext(), false);
+    }
+
+    public void test_readValues_failsIfArgumentIsNull() throws Exception
+    {
+        ObjectReader objectReader = new ObjectMapper().reader();
+        test_method_failsIfArgumentIsNull(() -> objectReader.readValues((InputStream) null));
+        test_method_failsIfArgumentIsNull(() -> objectReader.readValues((DataInput) null));
+        test_method_failsIfArgumentIsNull(() -> objectReader.readValues((URL) null));
+        test_method_failsIfArgumentIsNull(() -> objectReader.readValues((Path) null));
+        test_method_failsIfArgumentIsNull(() -> objectReader.readValues((File) null));
+        test_method_failsIfArgumentIsNull(() -> objectReader.readValues((Reader) null));
+        test_method_failsIfArgumentIsNull(() -> objectReader.readValues((String) null));
+        test_method_failsIfArgumentIsNull(() -> objectReader.readValues((JsonParser) null));
+        test_method_failsIfArgumentIsNull(() -> objectReader.readValues((byte[]) null));
+        test_method_failsIfArgumentIsNull(() -> objectReader.readValues((byte[]) null, -1, -1));
     }
 }

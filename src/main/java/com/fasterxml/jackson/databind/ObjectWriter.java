@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind;
 
 import java.io.*;
+import java.nio.file.Path;
 import java.text.*;
 import java.util.Locale;
 import java.util.Map;
@@ -573,6 +574,19 @@ public class ObjectWriter
      * Factory method for constructing {@link JsonGenerator} that is properly
      * wired to allow callbacks for serialization: basically
      * constructs a {@link ObjectWriteContext} and then calls
+     * {@link TokenStreamFactory#createGenerator(ObjectWriteContext,Path,JsonEncoding)}.
+     *
+     * @since 3.0
+     */
+    public JsonGenerator createGenerator(Path target, JsonEncoding enc) {
+        _assertNotNull("target", target);
+        return _generatorFactory.createGenerator(_serializerProvider(), target, enc);
+    }
+
+    /**
+     * Factory method for constructing {@link JsonGenerator} that is properly
+     * wired to allow callbacks for serialization: basically
+     * constructs a {@link ObjectWriteContext} and then calls
      * {@link TokenStreamFactory#createGenerator(ObjectWriteContext,DataOutput)}.
      *
      * @since 3.0
@@ -614,6 +628,28 @@ public class ObjectWriter
      * @param target Target file to write value sequence to.
      */
     public SequenceWriter writeValues(File target)
+        throws JacksonException
+    {
+        _assertNotNull("target", target);
+        SerializationContextExt ctxt = _serializerProvider();
+        return _newSequenceWriter(ctxt, false,
+                _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), true);
+    }
+
+    /**
+     * Method for creating a {@link SequenceWriter} to write a sequence of root
+     * values using configuration of this {@link ObjectWriter}.
+     * Sequence is not surrounded by JSON array; some backend types may not
+     * support writing of such sequences as root level.
+     * Resulting writer needs to be {@link SequenceWriter#close()}d after all
+     * values have been written to ensure closing of underlying generator and
+     * output stream.
+     *
+     * @param target Target path to write value sequence to.
+     *
+     * @since 3.0
+     */
+    public SequenceWriter writeValues(Path target)
         throws JacksonException
     {
         _assertNotNull("target", target);
@@ -699,6 +735,30 @@ public class ObjectWriter
      * @param target File to write token stream to
      */
     public SequenceWriter writeValuesAsArray(File target)
+        throws JacksonException
+    {
+        _assertNotNull("target", target);
+        SerializationContextExt ctxt = _serializerProvider();
+        return _newSequenceWriter(ctxt, true,
+                _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), true);
+    }
+
+    /**
+     * Method for creating a {@link SequenceWriter} to write an array of
+     * root-level values, using configuration of this {@link ObjectWriter}.
+     * Resulting writer needs to be {@link SequenceWriter#close()}d after all
+     * values have been written to ensure closing of underlying generator and
+     * output stream.
+     *<p>
+     * Note that the type to use with {@link ObjectWriter#forType(Class)} needs to
+     * be type of individual values (elements) to write and NOT matching array
+     * or {@link java.util.Collection} type.
+     *
+     * @param target Path to write token stream to
+     *
+     * @since 3.0
+     */
+    public SequenceWriter writeValuesAsArray(Path target)
         throws JacksonException
     {
         _assertNotNull("target", target);
@@ -883,6 +943,21 @@ public class ObjectWriter
      * JSON output, written to File provided.
      */
     public void writeValue(File target, Object value)
+        throws JacksonException
+    {
+        _assertNotNull("target", target);
+        SerializationContextExt ctxt = _serializerProvider();
+        _configAndWriteValue(ctxt,
+                _generatorFactory.createGenerator(ctxt, target, JsonEncoding.UTF8), value);
+    }
+
+    /**
+     * Method that can be used to serialize any Java value as
+     * JSON output, written to Path provided.
+     *
+     * @since 3.0
+     */
+    public void writeValue(Path target, Object value)
         throws JacksonException
     {
         _assertNotNull("target", target);

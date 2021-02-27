@@ -302,7 +302,6 @@ public enum MapperFeature
      */
     ACCEPT_CASE_INSENSITIVE_PROPERTIES(false),
 
-
     /**
      * Feature that determines if Enum deserialization should be case sensitive or not.
      * If enabled, Enum deserialization will ignore case, that is, case of incoming String

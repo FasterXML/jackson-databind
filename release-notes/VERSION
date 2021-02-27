@@ -34,6 +34,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
   `SerializerProvider`
 #1994: Limit size of `SerializerCache`, auto-flush on exceeding
 #1995: Limit size of `DeserializerCache`, auto-flush on exceeding
+#2013: Allows use of `java.nio.file.Path` for `readValue()`, `writeValue()`
+ (requested by XakepSDK@github; contributed by Sven D)
 #2040: Remove `JsonSerializer.isEmpty()` from 3.0
 #2176: Add `JsonMapper.shared()` static method
 #2177: Change parent type of `JsonProcessingException` to be `RuntimeException`

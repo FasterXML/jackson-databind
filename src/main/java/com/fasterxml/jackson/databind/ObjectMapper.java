@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.net.URL;
+import java.nio.file.Path;
 import java.text.DateFormat;
 import java.util.Collection;
 import java.util.List;
@@ -587,6 +588,20 @@ public class ObjectMapper
      * Factory method for constructing {@link JsonParser} that is properly
      * wired to allow callbacks for deserialization: basically
      * constructs a {@link ObjectReadContext} and then calls
+     * {@link TokenStreamFactory#createParser(ObjectReadContext,Path)}.
+     *
+     * @since 3.0
+     */
+    public JsonParser createParser(Path src) throws JacksonException {
+        _assertNotNull("src", src);
+        DeserializationContextExt ctxt = _deserializationContext();
+        return ctxt.assignAndReturnParser(_streamFactory.createParser(ctxt, src));
+    }
+
+    /**
+     * Factory method for constructing {@link JsonParser} that is properly
+     * wired to allow callbacks for deserialization: basically
+     * constructs a {@link ObjectReadContext} and then calls
      * {@link TokenStreamFactory#createParser(ObjectReadContext,java.net.URL)}.
      *
      * @since 3.0
@@ -779,6 +794,19 @@ public class ObjectMapper
     public JsonGenerator createGenerator(File f, JsonEncoding enc) throws JacksonException {
         _assertNotNull("f", f);
         return _streamFactory.createGenerator(_serializerProvider(), f, enc);
+    }
+
+    /**
+     * Factory method for constructing {@link JsonGenerator} that is properly
+     * wired to allow callbacks for serialization: basically
+     * constructs a {@link ObjectWriteContext} and then calls
+     * {@link TokenStreamFactory#createGenerator(ObjectWriteContext,Path,JsonEncoding)}.
+     *
+     * @since 3.0
+     */
+    public JsonGenerator createGenerator(Path p, JsonEncoding enc) throws JacksonException {
+        _assertNotNull("p", p);
+        return _streamFactory.createGenerator(_serializerProvider(), p, enc);
     }
 
     /**
@@ -1153,6 +1181,19 @@ public class ObjectMapper
 
     /**
      * Same as {@link #readTree(InputStream)} except content read from
+     * passed-in {@link Path}.
+     *
+     * @since 3.0
+     */
+    public JsonNode readTree(Path path) throws JacksonException
+    {
+        _assertNotNull("path", path);
+        DeserializationContextExt ctxt = _deserializationContext();
+        return _readTreeAndClose(ctxt, _streamFactory.createParser(ctxt, path));
+    }
+
+    /**
+     * Same as {@link #readTree(InputStream)} except content read from
      * passed-in {@link URL}.
      *<p>
      * NOTE: handling of {@link java.net.URL} is delegated to
@@ -1359,6 +1400,74 @@ public class ObjectMapper
      */
     @SuppressWarnings("unchecked")
     public <T> T readValue(File src, JavaType valueType) throws JacksonException
+    {
+        _assertNotNull("src", src);
+        DeserializationContextExt ctxt = _deserializationContext();
+        return (T) _readMapAndClose(ctxt, _streamFactory.createParser(ctxt, src), valueType);
+    }
+
+    /**
+     * Method to deserialize JSON content from given path into given Java type.
+     *
+     * @throws WrappedIOException if a low-level I/O problem (unexpected end-of-input,
+     *   network error) occurs (passed through as-is without additional wrapping -- note
+     *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
+     *   does NOT result in wrapping of exception even if enabled)
+     * @throws StreamReadException if underlying input contains invalid content
+     *    of type {@link JsonParser} supports (JSON for default case)
+     * @throws DatabindException if the input JSON structure does not match structure
+     *   expected for result type (or has other mismatch issues)
+     *
+     * @since 3.0
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T readValue(Path src, Class<T> valueType) throws JacksonException
+    {
+        _assertNotNull("src", src);
+        DeserializationContextExt ctxt = _deserializationContext();
+        return (T) _readMapAndClose(ctxt, _streamFactory.createParser(ctxt, src),
+                _typeFactory.constructType(valueType));
+    }
+
+    /**
+     * Method to deserialize JSON content from given path into given Java type.
+     *
+     * @throws WrappedIOException if a low-level I/O problem (unexpected end-of-input,
+     *   network error) occurs (passed through as-is without additional wrapping -- note
+     *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
+     *   does NOT result in wrapping of exception even if enabled)
+     * @throws StreamReadException if underlying input contains invalid content
+     *    of type {@link JsonParser} supports (JSON for default case)
+     * @throws DatabindException if the input JSON structure does not match structure
+     *   expected for result type (or has other mismatch issues)
+     *
+     * @since 3.0
+     */
+    @SuppressWarnings({ "unchecked" })
+    public <T> T readValue(Path src, TypeReference<T> valueTypeRef) throws JacksonException
+    {
+        _assertNotNull("src", src);
+        DeserializationContextExt ctxt = _deserializationContext();
+        return (T) _readMapAndClose(ctxt, _streamFactory.createParser(ctxt, src),
+                _typeFactory.constructType(valueTypeRef));
+    }
+
+    /**
+     * Method to deserialize JSON content from given path into given Java type.
+     *
+     * @throws WrappedIOException if a low-level I/O problem (unexpected end-of-input,
+     *   network error) occurs (passed through as-is without additional wrapping -- note
+     *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
+     *   does NOT result in wrapping of exception even if enabled)
+     * @throws StreamReadException if underlying input contains invalid content
+     *    of type {@link JsonParser} supports (JSON for default case)
+     * @throws DatabindException if the input JSON structure does not match structure
+     *   expected for result type (or has other mismatch issues)
+     *
+     * @since 3.0
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T readValue(Path src, JavaType valueType) throws JacksonException
     {
         _assertNotNull("src", src);
         DeserializationContextExt ctxt = _deserializationContext();
@@ -1610,6 +1719,15 @@ public class ObjectMapper
                 _streamFactory.createParser(ctxt, src), valueType);
     }
 
+    @SuppressWarnings("unchecked")
+    public <T> T readValue(DataInput src, TypeReference<T> valueTypeRef) throws JacksonException
+    {
+        _assertNotNull("src", src);
+        DeserializationContextExt ctxt = _deserializationContext();
+        return (T) _readMapAndClose(ctxt,
+                _streamFactory.createParser(ctxt, src), _typeFactory.constructType(valueTypeRef));
+    }
+
     /*
     /**********************************************************************
     /* Public API: serialization (mapping from Java types to external format)
@@ -1626,6 +1744,20 @@ public class ObjectMapper
         SerializationContextExt prov = _serializerProvider();
         _configAndWriteValue(prov,
                 _streamFactory.createGenerator(prov, file, JsonEncoding.UTF8), value);
+    }
+
+    /**
+     * Method that can be used to serialize any Java value as
+     * JSON output, written to Path provided.
+     *
+     * @since 3.0
+     */
+    public void writeValue(Path path, Object value) throws JacksonException
+    {
+        _assertNotNull("path", path);
+        SerializationContextExt prov = _serializerProvider();
+        _configAndWriteValue(prov,
+                _streamFactory.createGenerator(prov, path, JsonEncoding.UTF8), value);
     }
 
     /**

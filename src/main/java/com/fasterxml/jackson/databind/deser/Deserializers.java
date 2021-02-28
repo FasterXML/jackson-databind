@@ -235,13 +235,29 @@ public interface Deserializers
             TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
         throws JsonMappingException;
 
-    // To be added in 3.0
-//    public boolean hasDeserializerFor(DeserializationConfig config, Class<?> valueType);
+    /**
+     * Method that may be called to check whether this deserializer provider would provide
+     * deserializer for values of given type, without attempting to construct (and possibly
+     * fail in some cases) actual deserializer. Mostly needed to support validation
+     * of polymorphic type ids.
+     *<p>
+     * Note: implementations should take care NOT to claim supporting types that they do
+     * not recognize as this could to incorrect assumption of safe support by caller.
+     *<p>
+     * Method added in Jackson 2.13 now that Java 8 default implementations are available
+     * for use with interface definitions.
+     *
+     * @since 2.13
+     */
+    public default boolean hasDeserializerFor(DeserializationConfig config,
+            Class<?> valueType) {
+        return false;
+    }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper classes
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -333,25 +349,5 @@ public interface Deserializers
         {
             return null;
         }
-
-        /**
-         * Method that may be called to check whether this deserializer provider would provide
-         * deserializer for values of given type, without attempting to construct (and possibly
-         * fail in some cases) actual deserializer. Mostly needed to support validation
-         * of polymorphic type ids.
-         *<p>
-         * Note: implementations should take care NOT to claim supporting types that they do
-         * not recognize as this could to incorrect assumption of safe support by caller.
-         *<p>
-         * Method added in this implementation since adding new methods for interfaces
-         * before Java 8 is not a good idea: will be added in Jackson 3.0 for `Deserializers`.
-         *
-         * @since 2.11
-         */
-        public boolean hasDeserializerFor(DeserializationConfig config,
-                Class<?> valueType) {
-            return false;
-        }
-//      public abstract boolean hasDeserializerFor(Class<?> valueType);
     }
 }

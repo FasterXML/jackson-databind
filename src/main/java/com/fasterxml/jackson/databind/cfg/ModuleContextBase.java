@@ -15,6 +15,10 @@ import com.fasterxml.jackson.databind.ser.Serializers;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.type.TypeModifier;
 
+/**
+ * Default implementation of {@link SetupContext} used by
+ * {@link ObjectMapper}.
+ */
 public class ModuleContextBase
     implements JacksonModule.SetupContext
 {

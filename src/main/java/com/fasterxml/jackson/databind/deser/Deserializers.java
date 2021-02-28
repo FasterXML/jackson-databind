@@ -231,9 +231,6 @@ public interface Deserializers
      *<p>
      * Note: implementations should take care NOT to claim supporting types that they do
      * not recognize as this could to incorrect assumption of safe support by caller.
-     *<p>
-     * Method added in this implementation since adding new methods for interfaces
-     * before Java 8 is not a good idea: will be added in Jackson 3.0 for `Deserializers`.
      *
      * @since 3.0
      */
@@ -241,9 +238,9 @@ public interface Deserializers
             Class<?> valueType);
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper classes
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -326,9 +323,5 @@ public interface Deserializers
         {
             return null;
         }
-
-        @Override
-        public abstract boolean hasDeserializerFor(DeserializationConfig config,
-                Class<?> valueType);
     }
 }

@@ -1291,26 +1291,29 @@ public class ObjectMapper
     }
 
     /**
-     * Reverse of {@link #treeToValue}; given a value (usually bean), will
-     * construct equivalent JSON Tree representation. Functionally similar
-     * to serializing value into JSON and parsing JSON as tree, but
-     * more efficient.
+     * Method that is reverse of {@link #treeToValue}: it
+     * will convert given Java value (usually bean) into its
+     * equivalent Tree mode {@link JsonNode} representation.
+     * Functionally similar to serializing value into token stream and parsing that
+     * stream back as tree model node,
+     * but more efficient as {@link TokenBuffer} is used to contain the intermediate
+     * representation instead of fully serialized contents.
      *<p>
      * NOTE: while results are usually identical to that of serialization followed
      * by deserialization, this is not always the case. In some cases serialization
      * into intermediate representation will retain encapsulation of things like
      * raw value ({@link com.fasterxml.jackson.databind.util.RawValue}) or basic
      * node identity ({@link JsonNode}). If so, result is a valid tree, but values
-     * are not re-constructed through actual JSON representation. So if transformation
-     * requires actual materialization of JSON (or other data format that this mapper
-     * produces), it will be necessary to do actual serialization.
+     * are not re-constructed through actual format representation. So if transformation
+     * requires actual materialization of encoded content,
+     * it will be necessary to do actual serialization.
      * 
      * @param <T> Actual node type; usually either basic {@link JsonNode} or
      *  {@link com.fasterxml.jackson.databind.node.ObjectNode}
-     * @param fromValue Bean value to convert
+     * @param fromValue Java value to convert
      *
-     * @return (non-null) Root node of the resulting JSON tree: in case of {@code null} value,
-     *    node for which {@link JsonNode#isNull()} returns {@code true}.
+     * @return (non-null) Root node of the resulting content tree: in case of
+     *   {@code null} value node for which {@link JsonNode#isNull()} returns {@code true}.
      */
     @SuppressWarnings({ "unchecked", "resource" })
     public <T extends JsonNode> T valueToTree(Object fromValue)

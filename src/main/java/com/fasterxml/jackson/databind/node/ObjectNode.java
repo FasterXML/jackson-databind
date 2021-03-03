@@ -56,9 +56,9 @@ public class ObjectNode
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Overrides for JacksonSerializable.Base
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -67,9 +67,9 @@ public class ObjectNode
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Implementation of core JsonNode API
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -201,9 +201,9 @@ public class ObjectNode
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, finding value nodes
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override
@@ -287,9 +287,9 @@ public class ObjectNode
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, serialization
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -352,9 +352,9 @@ public class ObjectNode
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended ObjectNode API, mutators
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -413,7 +413,7 @@ public class ObjectNode
 
     /**
      * Method for replacing value of specific property with passed
-     * value, and returning value (or null if none).
+     * value, and returning previous value (or null if none).
      *
      * @param fieldName Property of which value to replace
      * @param value Value to set property to, replacing old value if any
@@ -454,11 +454,11 @@ public class ObjectNode
         _children.keySet().removeAll(fieldNames);
         return this;
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended ObjectNode API, mutators, generic
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -526,9 +526,9 @@ public class ObjectNode
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended ObjectNode API, mutators, typed
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -540,7 +540,7 @@ public class ObjectNode
      * <b>newly created</b> <code>ArrayNode</code> instance.
      *
      * @return Newly constructed ArrayNode (NOT the old value,
-     *   which could be of any type)
+     *   which could be of any type, nor {@code this} node)
      */
     public ArrayNode putArray(String fieldName)
     {
@@ -558,7 +558,7 @@ public class ObjectNode
      * <b>newly created</b> <code>ObjectNode</code> instance.
      *
      * @return Newly constructed ObjectNode (NOT the old value,
-     *   which could be of any type)
+     *   which could be of any type, nor {@code this} node)
      */
     public ObjectNode putObject(String fieldName)
     {
@@ -577,8 +577,10 @@ public class ObjectNode
     public ObjectNode putRawValue(String fieldName, RawValue raw) {
         return _put(fieldName, rawValueNode(raw));
     }
-    
+
     /**
+     * Method for setting value of a field to specified String value.
+     * 
      * @return This node (to allow chaining)
      */
     public ObjectNode putNull(String fieldName)
@@ -760,11 +762,11 @@ public class ObjectNode
         return _put(fieldName, (v == null) ? nullNode()
                 : binaryNode(v));
     }
-    
+
     /*
-    /**********************************************************
-    /* Standard methods
-    /**********************************************************
+    /**********************************************************************
+    /* Standard method overrides
+    /**********************************************************************
      */
 
     @Override
@@ -788,9 +790,9 @@ public class ObjectNode
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods (overridable)
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected ObjectNode _put(String fieldName, JsonNode value)

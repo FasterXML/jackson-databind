@@ -1319,10 +1319,10 @@ public class ObjectMapper
     public <T extends JsonNode> T valueToTree(Object fromValue)
         throws JacksonException
     {
-        // [databind#2430]: `null` should become "null node":
-        if (fromValue == null) {
-            return (T) getNodeFactory().nullNode();
-        }
+        // 02-Mar-2021, tatu: [databind#2411] Rewrite "valueToTree()" impl; old
+        //   impl left for reference
+//        return _serializerProvider().valueToTree(fromValue);
+
         // 06-Oct-2017, tatu: `convertValue()` disables root value wrapping so
         //   do it here too
         SerializationConfig config = serializationConfig()

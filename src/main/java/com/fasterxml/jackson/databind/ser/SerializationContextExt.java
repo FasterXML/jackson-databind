@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.ser;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
+
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.TokenStreamFactory;
@@ -14,6 +15,8 @@ import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.TreeBuildingGenerator;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
@@ -130,6 +133,31 @@ public class SerializationContextExt
 filter.getClass().getName(), t.getClass().getName(), ClassUtil.exceptionMessage(t));
             reportBadDefinition(filter.getClass(), msg, t);
             return false; // never gets here
+        }
+    }
+
+    /*
+    /**********************************************************************
+    /* Abstract method impls, serialization-like methods
+    /**********************************************************************
+     */
+
+    @Override
+    @SuppressWarnings({ "unchecked" })
+    public <T extends JsonNode> T valueToTree(Object fromValue)
+        throws JacksonException
+    {
+        final JsonNodeFactory nodeF = _config.getNodeFactory();
+        if (fromValue == null) {
+            return (T) nodeF.nullNode();
+        }
+
+        try (TreeBuildingGenerator gen = TreeBuildingGenerator.forSerialization(this, nodeF)) {
+            // NOTE: inlined "writeValue(generator, value)" to streamline, force no root wrap:
+            final Class<?> rawType = fromValue.getClass();
+            final ValueSerializer<Object> ser = findTypedValueSerializer(rawType, true);
+            _serialize(gen, fromValue, ser);
+            return (T) gen.treeBuilt();
         }
     }
 

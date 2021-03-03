@@ -20,7 +20,7 @@ Project: jackson-databind
 #3036: Backport `MapperBuilder` lambda-taking methods: `withConfigOverride()`,
   `withCoercionConfig()`, `withCoercionConfigDefaults()`
 
-2.12.2 (not yet released)
+2.12.2 (03-Mar-2021)
 
 #754: EXTERNAL_PROPERTY does not work well with `@JsonCreator` and
    `FAIL_ON_UNKNOWN_PROPERTIES`

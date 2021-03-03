@@ -52,6 +52,8 @@ public class TreeBuildingGenerator
     /**********************************************************************
      */
 
+    protected RootContext _rootWriteContext;
+
     protected TreeWriteContext _tokenWriteContext;
 
     /*
@@ -65,7 +67,8 @@ public class TreeBuildingGenerator
         _objectWriteContext = owCtxt;
         _nodeFactory = nodeFactory;
         _streamWriteFeatures = DEFAULT_STREAM_WRITE_FEATURES;
-        _tokenWriteContext = new RootContext(nodeFactory);
+        _rootWriteContext = new RootContext(nodeFactory);
+        _tokenWriteContext = _rootWriteContext;
     }
 
     public static TreeBuildingGenerator forSerialization(SerializerProvider ctxt,
@@ -74,7 +77,7 @@ public class TreeBuildingGenerator
     }
 
     public JsonNode treeBuilt() {
-        return _nodeFactory.missingNode();
+        return _rootWriteContext._node;
     }
 
     /*
@@ -395,7 +398,16 @@ public class TreeBuildingGenerator
             writeNull();
             return;
         }
-        _tokenWriteContext.writePOJO(value);
+        // 02-Mar-2021, tatu: This is bit tricky; probably should be configurable,
+        //    but for now let's follow what `TokenBuffer` does and by default
+        //    fully serialize given Java value... unless it's one of a small
+        //    number of "well-known" types to preserve.
+        final Class<?> raw = value.getClass();
+        if (raw == byte[].class || (value instanceof RawValue)) {
+            _tokenWriteContext.writePOJO(value);
+            return;
+        }
+        _objectWriteContext.writeValue(this, value);
     }
 
     @Override
@@ -467,7 +479,9 @@ public class TreeBuildingGenerator
 
     @Override
     public void writeEmbeddedObject(Object object) {
-//        _appendValue(JsonToken.VALUE_EMBEDDED_OBJECT, object);
+        // 02-Mar-2021, tatu: Bit tricky, this one; should we try to
+        //   auto-detect types or something?
+        _tokenWriteContext.writePOJO(object);
     }
 
     /*

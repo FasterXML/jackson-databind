@@ -48,7 +48,7 @@ public class TestConversions extends BaseMapTest
     @JsonSerialize(using=Issue467TreeSerializer.class)
     static class Issue467Tree  {
     }
-    
+
     static class Issue467Serializer extends ValueSerializer<Issue467Bean> {
         @Override
         public void serialize(Issue467Bean value, JsonGenerator g,
@@ -144,9 +144,9 @@ public class TestConversions extends BaseMapTest
     public static class LeafDeserializer extends ValueDeserializer<Leaf>
     {
         @Override
-        public Leaf deserialize(JsonParser jp, DeserializationContext ctxt)
+        public Leaf deserialize(JsonParser p, DeserializationContext ctxt)
         {
-            JsonNode tree = (JsonNode) jp.readValueAsTree();
+            JsonNode tree = (JsonNode) p.readValueAsTree();
             Leaf leaf = new Leaf();
             leaf.value = tree.get("value").intValue();
             return leaf;
@@ -261,10 +261,14 @@ public class TestConversions extends BaseMapTest
         Map<String, Object> map = new HashMap<String, Object>();
         String PI_STR = "3.00000000";
         map.put("pi", new BigDecimal(PI_STR));
+
         JsonNode tree = mapper.valueToTree(map);
         assertNotNull(tree);
         assertEquals(1, tree.size());
         assertTrue(tree.has("pi"));
+
+        JsonNode tree2 = mapper.writer().valueToTree(map);
+        assertEquals(tree, tree2);
     }
 
     // [databind#433]
@@ -274,6 +278,10 @@ public class TestConversions extends BaseMapTest
         pojo.setFoo("bar");
         final JsonNode node = MAPPER.valueToTree(pojo);
         assertEquals(JsonNodeType.OBJECT, node.getNodeType());
+
+        final JsonNode node2 = MAPPER.writer().valueToTree(pojo);
+        assertEquals(JsonNodeType.OBJECT, node2.getNodeType());
+        assertEquals(node, node2);
     }
 
     // [databind#467]
@@ -290,6 +298,9 @@ public class TestConversions extends BaseMapTest
         JsonNode tree = MAPPER.valueToTree(input);
         assertTrue("Expected Object, got "+tree.getNodeType(), tree.isObject());
         assertEquals(EXP, MAPPER.writeValueAsString(tree));
+
+        JsonNode tree2 = MAPPER.writer().valueToTree(input);
+        assertEquals(EXP, MAPPER.writeValueAsString(tree2));
     }
 
     // [databind#467]
@@ -306,6 +317,9 @@ public class TestConversions extends BaseMapTest
         JsonNode tree = MAPPER.valueToTree(input);
         assertTrue("Expected Object, got "+tree.getNodeType(), tree.isBoolean());
         assertEquals(EXP, MAPPER.writeValueAsString(tree));
+
+        JsonNode tree2 = MAPPER.writer().valueToTree(tree);
+        assertEquals(EXP, MAPPER.writeValueAsString(tree2));
     }
 
     // [databind#1940]: losing of precision due to coercion
@@ -320,6 +334,9 @@ public class TestConversions extends BaseMapTest
     {
         // First: `null` value should become `NullNode`
         JsonNode n = MAPPER.valueToTree(null);
+        assertNotNull(n);
+        assertTrue(n.isNull());
+        n = MAPPER.writer().valueToTree(null);
         assertNotNull(n);
         assertTrue(n.isNull());
 

@@ -13,6 +13,8 @@ Alexander Koshman (akoshman@github)
 XakepSDK@github
  * Requested #2013: Allow use of `java.nio.file.Path` for `readValue()`, `writeValue()`
   [3.0.0]
+ * Requested #2411: `valueToTree()` during serialization (via `SerializerProvider()`)
+  [3.0.0]
 
 Sven Döring (sdoeringNew@github)
  * Contributed #2013: Allow use of `java.nio.file.Path` for `readValue()`, `writeValue()`

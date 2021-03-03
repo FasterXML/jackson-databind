@@ -29,7 +29,7 @@ import com.fasterxml.jackson.databind.util.StdConverter;
  * Tests for verifying various issues with custom serializers.
  */
 @SuppressWarnings("serial")
-public class TestCustomSerializers extends BaseMapTest
+public class CustomSerializersTest extends BaseMapTest
 {
     static class ElementSerializer extends StdSerializer<Element>
     {

@@ -40,6 +40,8 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #2176: Add `JsonMapper.shared()` static method
 #2177: Change parent type of `JsonProcessingException` to be `RuntimeException`
 #2405: Make `java.sql.Date` serializer default to same output as `java.util.Date`
+#2411: `valueToTree()` during serialization (via `SerializerProvider()`)
+ (requested by XakepSDK@github)
 #2539: Add `Deserializers.hasDeserializerFor()` (and something for `DeserializerFactory`)
   to allow detection of explicitly supported types
 #2713: Change wording of `UnrecognizedPropertyException` to refer to "property" not "field"

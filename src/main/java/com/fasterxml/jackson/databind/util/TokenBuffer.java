@@ -949,7 +949,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             writeNull();
             return;
         }
-        Class<?> raw = value.getClass();
+        final Class<?> raw = value.getClass();
         if (raw == byte[].class || (value instanceof RawValue)
                 || (_objectWriteContext == null)) {
             _appendValue(JsonToken.VALUE_EMBEDDED_OBJECT, value);

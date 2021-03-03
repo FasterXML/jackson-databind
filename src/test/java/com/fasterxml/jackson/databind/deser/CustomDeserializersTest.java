@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.util.StdConverter;
  * Test to check that customizations work as expected.
  */
 @SuppressWarnings("serial")
-public class TestCustomDeserializers
+public class CustomDeserializersTest
     extends BaseMapTest
 {
     static class DummyDeserializer<T>

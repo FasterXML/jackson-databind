@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.SegmentedStringWriter;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.*;
+
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.cfg.GeneratorSettings;
 import com.fasterxml.jackson.databind.cfg.SerializationContexts;
@@ -24,6 +25,7 @@ import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.ser.impl.TypeWrappedSerializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
+import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
  * Builder object that can be used for per-serialization configuration of
@@ -1083,6 +1085,45 @@ public class ObjectWriter
             return;
         }
         gen.close();
+    }
+
+    /*
+    /**********************************************************************
+    /* Serialization-like methods
+    /**********************************************************************
+     */
+
+    /**
+     * Method that
+     * will convert given Java value (usually bean) into its
+     * equivalent Tree model {@link JsonNode} representation.
+     * Functionally similar to serializing value into token stream and parsing that
+     * stream back as tree model node,
+     * but more efficient as {@link TokenBuffer} is used to contain the intermediate
+     * representation instead of fully serialized contents.
+     *<p>
+     * NOTE: while results are usually identical to that of serialization followed
+     * by deserialization, this is not always the case. In some cases serialization
+     * into intermediate representation will retain encapsulation of things like
+     * raw value ({@link com.fasterxml.jackson.databind.util.RawValue}) or basic
+     * node identity ({@link JsonNode}). If so, result is a valid tree, but values
+     * are not re-constructed through actual format representation. So if transformation
+     * requires actual materialization of encoded content,
+     * it will be necessary to do actual serialization.
+     * 
+     * @param <T> Actual node type; usually either basic {@link JsonNode} or
+     *  {@link com.fasterxml.jackson.databind.node.ObjectNode}
+     * @param fromValue Java value to convert
+     *
+     * @return (non-null) Root node of the resulting content tree: in case of
+     *   {@code null} value node for which {@link JsonNode#isNull()} returns {@code true}.
+     *
+     * @since 3.0
+     */
+    public <T extends JsonNode> T valueToTree(Object fromValue)
+        throws JacksonException
+    {
+        return _serializerProvider().valueToTree(fromValue);
     }
 
     /*

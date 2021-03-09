@@ -118,6 +118,23 @@ public class SequenceWriterTest extends BaseMapTest
                 strw.toString());
     }
 
+    public void testSimpleNonArrayNoSeparator() throws Exception
+    {
+        final String EXP = aposToQuotes("{'a':1}{'a':2}");
+
+        // Also, ok to specify no separator
+        StringWriter strw = new StringWriter();
+        try (SequenceWriter seq = WRITER.withRootValueSeparator("")
+                .writeValues(strw)) {
+            seq.write(new Bean(1))
+                .write(new Bean(2));
+        }
+        assertEquals(EXP, strw.toString());
+
+        // 08-Mar-2021, tatu: Note that attempting to set RVS to `null`
+        //   will not work in 2.x.
+    }
+
     public void testSimpleArray() throws Exception
     {
         StringWriter strw = new StringWriter();

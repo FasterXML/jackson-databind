@@ -40,8 +40,8 @@ public class ReadValuesTest extends BaseMapTest
         BYTE_ARRAY_OFFSET
         ;
     }
-    
-    private final ObjectMapper MAPPER = new ObjectMapper();
+
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     public void testRootBeans() throws Exception
     {

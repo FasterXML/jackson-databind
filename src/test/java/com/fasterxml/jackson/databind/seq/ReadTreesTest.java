@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.seq;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
 public class ReadTreesTest extends BaseMapTest
 {
@@ -76,7 +77,7 @@ public class ReadTreesTest extends BaseMapTest
             try {
                 v = it.nextValue();
                 fail("Should catch the problem");
-            } catch (JsonMappingException e) {
+            } catch (InvalidFormatException e) {
                 verifyException(e, "Cannot deserialize value");
             }
 

@@ -13,12 +13,12 @@ import com.fasterxml.jackson.databind.ser.SerializerCache;
 import com.fasterxml.jackson.databind.ser.SerializerFactory;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
-public class NullSerializationTest
+public class CustomNullSerializationTest
     extends BaseMapTest
 {
-    static class NullSerializer extends StdSerializer<Object>
+    static class NullAsFoobarSerializer extends StdSerializer<Object>
     {
-        public NullSerializer() { super(Object.class); }
+        public NullAsFoobarSerializer() { super(Object.class); }
         @Override
         public void serialize(Object value, JsonGenerator gen, SerializerProvider provider)
         {
@@ -70,7 +70,7 @@ public class NullSerializationTest
         public ValueSerializer<Object> findNullValueSerializer(BeanProperty property)
         {
             if ("name".equals(property.getName())) {
-                return new NullSerializer();
+                return new NullAsFoobarSerializer();
             }
             return super.findNullValueSerializer(property);
         }
@@ -78,7 +78,7 @@ public class NullSerializationTest
 
     static class BeanWithNullProps
     {
-        @JsonSerialize(nullsUsing=NullSerializer.class)
+        @JsonSerialize(nullsUsing=NullAsFoobarSerializer.class)
         public String a = null;
     }
 
@@ -100,11 +100,11 @@ public class NullSerializationTest
         assertEquals("null", MAPPER.writeValueAsString(null));
     }
 
-    public void testOverriddenDefaultNulls() throws Exception
+    public void testOverriddenDefaultValueNulls() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
                 .addModule(new SimpleModule()
-                        .setDefaultNullValueSerializer(new NullSerializer()))
+                        .setDefaultNullValueSerializer(new NullAsFoobarSerializer()))
                 .build();
         assertEquals("\"foobar\"", m.writeValueAsString(null));
     }
@@ -130,7 +130,7 @@ public class NullSerializationTest
         ObjectMapper m = jsonMapperBuilder()
                 .serializationContexts(new MyNullSerializerContexts())
                 .addModule(new SimpleModule()
-                        .setDefaultNullValueSerializer(new NullSerializer()))
+                        .setDefaultNullValueSerializer(new NullAsFoobarSerializer()))
                 .build();
         assertEquals("{\"a\":\"foobar\"}", m.writeValueAsString(root));
     }

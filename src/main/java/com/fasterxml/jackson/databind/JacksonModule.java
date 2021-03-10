@@ -254,8 +254,8 @@ public abstract class JacksonModule
          * Method that module can use to override handler called to write Java `null` as
          * a value (Property or Map value, Collection/array element).
          *
-         * @param ser Serializer called to write output for Java `null` as value (as distinct from
-         *    key_
+         * @param ser Serializer called to write output for Java `null` as value (as
+         *    distinct from key)
          */
         public SetupContext overrideDefaultNullValueSerializer(ValueSerializer<?> ser);
 

@@ -268,6 +268,9 @@ public abstract class AnnotationIntrospector
      * @param config Configuration settings in effect (for serialization or deserialization)
      * @param ann Annotated entity (Class, Accessor) to introspect
      *
+     * @return Property ignoral settings to use;
+     *   {@code JsonIgnoreProperties.Value.empty()} for defaults (should not return {@code null})
+     *
      * @since 2.12 (to replace {@code findPropertyIgnorals()})
      */
     public JsonIgnoreProperties.Value findPropertyIgnoralByName(MapperConfig<?> config, Annotated ann)
@@ -284,6 +287,9 @@ public abstract class AnnotationIntrospector
      *
      * @param config Configuration settings in effect (for serialization or deserialization)
      * @param ann Annotated entity (Class, Accessor) to introspect
+     *
+     * @return Property inclusion settings to use;
+     *   {@code JsonIncludeProperties.Value.all()} for defaults (should not return {@code null})
      *
      * @since 2.12
      */
@@ -362,8 +368,13 @@ public abstract class AnnotationIntrospector
     public Boolean findIgnoreUnknownProperties(AnnotatedClass ac) { return null; }
 
     /**
+     * @param ac Annotated class to introspect
+     *
      * @since 2.8
      * @deprecated 2.12, use {@link #findPropertyIgnoralByName} instead.
+     *
+     * @return Property ignoral settings to use;
+     *   {@code JsonIgnoreProperties.Value.empty()} for defaults (should not return {@code null})
      */
     @Deprecated // since 2.12
     public JsonIgnoreProperties.Value findPropertyIgnorals(Annotated ac) {
@@ -382,8 +393,14 @@ public abstract class AnnotationIntrospector
      * A baseline checker is given, and introspector is to either return it as is
      * (if no annotations are found), or build and return a derived instance (using
      * checker's build methods).
+     *
+     * @param ac Annotated class to introspect
+     * @param checker Default visibility settings in effect before any override
+     *
+     * @return Visibility settings after possible annotation-based overrides
      */
-    public VisibilityChecker<?> findAutoDetectVisibility(AnnotatedClass ac, VisibilityChecker<?> checker) {
+    public VisibilityChecker<?> findAutoDetectVisibility(AnnotatedClass ac,
+            VisibilityChecker<?> checker) {
         return checker;
     }
     
@@ -462,13 +479,17 @@ public abstract class AnnotationIntrospector
      * has to do it if/as necessary)
      * 
      * @param a Annotated entity (class, field/method) to check for annotations
+     *
+     * @return List of subtype definitions found if any; {@code null} if none
      */
     public List<NamedType> findSubtypes(Annotated a) { return null; }
 
     /**
      * Method for checking if specified type has explicit name.
-     * 
+     *
      * @param ac Class to check for type name annotations
+     *
+     * @return Explicit type name (aka Type Id) found, if any; {@code null} if none
      */
     public String findTypeName(AnnotatedClass ac) { return null; }
 
@@ -476,8 +497,13 @@ public abstract class AnnotationIntrospector
      * Method for checking whether given accessor claims to represent
      * type id: if so, its value may be used as an override,
      * instead of generated type id.
+     * 
+     * @param am Annotated accessor (field/method/constructor parameter) to check for annotations
+     *
+     * @return Boolean to indicate whether member is a type id or not, if annotation
+     *    found; {@code null} if no information found.
      */
-    public Boolean isTypeId(AnnotatedMember member) { return null; }
+    public Boolean isTypeId(AnnotatedMember am) { return null; }
 
     /*
     /**********************************************************
@@ -1295,6 +1321,10 @@ public abstract class AnnotationIntrospector
      * instantiator, or class of instantiator to create.
      *
      * @param ac Annotated class to introspect
+     *
+     * @return Either {@link ValueInstantiator} instance to use, or
+     *    {@link Class} of one to create; or {@code null} if no annotations
+     *    found to indicate custom value instantiator.
      */
     public Object findValueInstantiator(AnnotatedClass ac) {
         return null;
@@ -1312,6 +1342,8 @@ public abstract class AnnotationIntrospector
      * to be created for each deserialization call.
      *
      * @param ac Annotated class to introspect
+     *
+     * @return Builder class to use, if annotation found; {@code null} if not.
      * 
      * @since 2.0
      */
@@ -1321,6 +1353,8 @@ public abstract class AnnotationIntrospector
 
     /**
      * @param ac Annotated class to introspect
+     *
+     * @return Builder settings to use, if any found; {@code null} if not.
      *
      * @since 2.0
      */
@@ -1344,7 +1378,7 @@ public abstract class AnnotationIntrospector
      * 
      * @param ann Annotated entity to check
      *
-     * @return Name to use if found; null if not.
+     * @return Name to use if found; {@code null} if not.
      *
      * @since 2.1
      */
@@ -1360,8 +1394,8 @@ public abstract class AnnotationIntrospector
      * 
      * @param ann Annotated entity to check
      *
-     * @return True if such annotation is found (and is not disabled),
-     *   false otherwise
+     * @return {@code Boolean.TRUE} or {@code Boolean.FALSE} if explicit
+     *   "any setter" marker found; {@code null} otherwise.
      *
      * @since 2.9
      */
@@ -1375,6 +1409,9 @@ public abstract class AnnotationIntrospector
      * 
      * @param ann Annotated entity to check
      *
+     * @return Setter info value found, if any;
+     *   {@code JsonSetter.Value.empty()} if none (should not return {@code null})
+     *
      * @since 2.9
      */
     public JsonSetter.Value findSetterInfo(Annotated ann) {
@@ -1385,6 +1422,9 @@ public abstract class AnnotationIntrospector
      * Method for finding merge settings for property, if any.
      * 
      * @param ann Annotated entity to check
+     *
+     * @return {@code Boolean.TRUE} or {@code Boolean.FALSE} if explicit
+     *    merge enable/disable found; {@code null} otherwise.
      *
      * @since 2.9
      */
@@ -1404,6 +1444,8 @@ public abstract class AnnotationIntrospector
      *
      * @param config Configuration settings in effect (for serialization or deserialization)
      * @param ann Annotated accessor (usually constructor or static method) to check
+     *
+     * @return Creator mode found, if any; {@code null} if none
      *
      * @since 2.9
      */
@@ -1446,6 +1488,8 @@ public abstract class AnnotationIntrospector
      * creator with implicit but no explicit name for the argument).
      * 
      * @param ann Annotated entity to check
+     *
+     * @return Creator mode found, if any; {@code null} if none
      * 
      * @since 2.5
      * @deprecated Since 2.9 use {@link #findCreatorAnnotation} instead.
@@ -1486,6 +1530,7 @@ public abstract class AnnotationIntrospector
      *  return annotated.getAnnotation(annoClass);
      *</code>
      *
+     * @param <A> Annotation type being checked
      * @param ann Annotated entity to check for specified annotation
      * @param annoClass Type of annotation to find
      *

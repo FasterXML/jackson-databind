@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.io.InputSourceReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
@@ -18,12 +19,16 @@ public class TestJacksonTypes
     public void testJsonLocation() throws Exception
     {
         // note: source reference is untyped, only String guaranteed to work
-        JsonLocation loc = new JsonLocation("whatever",  -1, -1, 100, 13);
+        JsonLocation loc = new JsonLocation(InputSourceReference.rawSource("whatever"),
+                -1, -1, 100, 13);
         // Let's use serializer here; goal is round-tripping
-        String ser = MAPPER.writeValueAsString(loc);
+        String ser = MAPPER.writerWithDefaultPrettyPrinter()
+                .writeValueAsString(loc);
         JsonLocation result = MAPPER.readValue(ser, JsonLocation.class);
         assertNotNull(result);
-        assertEquals(loc.getSourceRef(), result.getSourceRef());
+        // 14-Mar-2021, tatu: Should NOT count on this being retained actually,
+        //   after 2.13 (will retain for now)...
+//        assertEquals(loc.getSourceRef(), result.getSourceRef());
         assertEquals(loc.getByteOffset(), result.getByteOffset());
         assertEquals(loc.getCharOffset(), result.getCharOffset());
         assertEquals(loc.getColumnNr(), result.getColumnNr());

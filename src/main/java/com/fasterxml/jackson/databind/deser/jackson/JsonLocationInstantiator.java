@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.deser.jackson;
 
 import com.fasterxml.jackson.core.JsonLocation;
+import com.fasterxml.jackson.core.io.InputSourceReference;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
@@ -30,6 +31,8 @@ public class JsonLocationInstantiator
         JavaType intType = config.constructType(Integer.TYPE);
         JavaType longType = config.constructType(Long.TYPE);
         return new SettableBeanProperty[] {
+                // 14-Mar-2021, tatu: with 2.13 and later, not really used,
+                //   but may be produced by older versions so leave as is.
                 creatorProp("sourceRef", config.constructType(Object.class), 0),
                 creatorProp("byteOffset", longType, 1),
                 creatorProp("charOffset", longType, 2),
@@ -45,7 +48,11 @@ public class JsonLocationInstantiator
 
     @Override
     public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) {
-        return new JsonLocation(args[0], _long(args[1]), _long(args[2]),
+        // 14-Mar-2021, tatu: Before 2.13 constructor directly took "raw" source ref;
+        //   with 2.13 changed to use `InputSourceReference`... left almost as is,
+        //   for compatibility.
+        final InputSourceReference srcRef = InputSourceReference.rawSource(args[0]);
+        return new JsonLocation(srcRef, _long(args[1]), _long(args[2]),
                 _int(args[3]), _int(args[4]));
     }
 

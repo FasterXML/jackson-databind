@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.io.InputSourceReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
@@ -13,12 +14,13 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
 public class TestJacksonTypes
     extends BaseMapTest
 {
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     public void testLocation() throws IOException
     {
         File f = new File("/tmp/test.json");
-        JsonLocation loc = new JsonLocation(f, -1, 100, 13);
+        JsonLocation loc = new JsonLocation(InputSourceReference.rawSource(f),
+                -1, 100, 13);
         Map<String,Object> result = writeAndMap(MAPPER, loc);
         assertEquals(5, result.size());
         assertEquals(f.getAbsolutePath(), result.get("sourceRef"));

@@ -5,6 +5,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.InputSourceReference;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
@@ -28,7 +29,6 @@ public class TestJacksonTypes
         assertEquals(Integer.valueOf(-1), result.get("byteOffset"));
         assertEquals(Integer.valueOf(100), result.get("lineNr"));
         assertEquals(Integer.valueOf(13), result.get("columnNr"));
-
     }
 
     /**

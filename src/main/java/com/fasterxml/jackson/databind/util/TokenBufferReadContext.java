@@ -100,7 +100,7 @@ public class TokenBufferReadContext extends JsonStreamContext
         if (origContext == null) {
             return new TokenBufferReadContext();
         }
-        return new TokenBufferReadContext(origContext, null);
+        return new TokenBufferReadContext(origContext, InputSourceReference.unknown());
     }
 
     public TokenBufferReadContext createChildArrayContext() {

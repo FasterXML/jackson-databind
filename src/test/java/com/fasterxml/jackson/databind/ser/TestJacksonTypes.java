@@ -4,6 +4,8 @@ import java.io.*;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.io.InputSourceReference;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
@@ -16,7 +18,8 @@ public class TestJacksonTypes
     public void testLocation() throws IOException
     {
         File f = new File("/tmp/test.json");
-        JsonLocation loc = new JsonLocation(f, -1, 100, 13);
+        JsonLocation loc = new JsonLocation(InputSourceReference.rawSource(f),
+                -1, 100, 13);
         ObjectMapper mapper = new ObjectMapper();
         Map<String,Object> result = writeAndMap(mapper, loc);
         assertEquals(5, result.size());
@@ -25,7 +28,6 @@ public class TestJacksonTypes
         assertEquals(Integer.valueOf(-1), result.get("byteOffset"));
         assertEquals(Integer.valueOf(100), result.get("lineNr"));
         assertEquals(Integer.valueOf(13), result.get("columnNr"));
-
     }
 
     /**
@@ -35,12 +37,12 @@ public class TestJacksonTypes
     public void testTokenBuffer() throws Exception
     {
         // First, copy events from known good source (StringReader)
-        JsonParser jp = createParserUsingReader(SAMPLE_DOC_JSON_SPEC);
+        JsonParser p = createParserUsingReader(SAMPLE_DOC_JSON_SPEC);
         TokenBuffer tb = new TokenBuffer(null, false);
-        while (jp.nextToken() != null) {
-            tb.copyCurrentEvent(jp);
+        while (p.nextToken() != null) {
+            tb.copyCurrentEvent(p);
         }
-        jp.close();
+        p.close();
         // Then serialize as String
         String str = serializeAsString(tb);
         tb.close();

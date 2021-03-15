@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.util;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.io.InputSourceReference;
 import com.fasterxml.jackson.core.json.JsonReadContext;
 
 /**
@@ -30,17 +31,28 @@ public class TokenBufferReadContext extends JsonStreamContext
 
     protected Object _currentValue;
 
-    protected TokenBufferReadContext(JsonStreamContext base, Object srcRef) {
+    /**
+     * @since 2.13
+     */
+    protected TokenBufferReadContext(JsonStreamContext base, InputSourceReference srcRef)
+    {
         super(base);
         _parent = base.getParent();
         _currentName = base.getCurrentName();
         _currentValue = base.getCurrentValue();
         if (base instanceof JsonReadContext) {
             JsonReadContext rc = (JsonReadContext) base;
-            _startLocation = rc.getStartLocation(srcRef);
+            _startLocation = rc.startLocation(srcRef);
         } else {
             _startLocation = JsonLocation.NA;
         }
+    }
+
+    @Deprecated // @since 2.13
+    protected TokenBufferReadContext(JsonStreamContext base, Object srcRef) {
+        this(base, (srcRef instanceof InputSourceReference) ?
+                (InputSourceReference) srcRef :
+                    InputSourceReference.rawSource(srcRef));
     }
 
     protected TokenBufferReadContext(JsonStreamContext base, JsonLocation startLoc) {

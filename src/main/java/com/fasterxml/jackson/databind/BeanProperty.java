@@ -154,7 +154,7 @@ public interface BeanProperty extends Named
      * @since 2.7
      */
     public JsonFormat.Value findPropertyFormat(MapperConfig<?> config, Class<?> baseType);
-    
+
     /**
      * Convenience method that is roughly equivalent to
      *<pre>
@@ -181,7 +181,7 @@ public interface BeanProperty extends Named
     /* Schema/introspection support
     /**********************************************************
      */
-    
+
     /**
      * Method that can be called to visit the type structure that this
      * property is part of.

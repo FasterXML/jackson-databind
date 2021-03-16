@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 
 /**
  * Serializer used for primitive boolean, as well as java.util.Boolean
@@ -38,12 +39,17 @@ public final class BooleanSerializer
     public ValueSerializer<?> createContextual(SerializerProvider serializers,
             BeanProperty property)
     {
-        JsonFormat.Value format = findFormatOverrides(serializers,
-                property, Boolean.class);
+        // 16-Mar-2021, tatu: As per [databind#3080], was passing wrapper type
+        //    always; should not have.
+        JsonFormat.Value format = findFormatOverrides(serializers, property,
+                handledType());
         if (format != null) {
             JsonFormat.Shape shape = format.getShape();
             if (shape.isNumeric()) {
                 return new AsNumber(_forPrimitive);
+            }
+            if (shape == JsonFormat.Shape.STRING) {
+                return new ToStringSerializer(_handledType);
             }
         }
         return this;

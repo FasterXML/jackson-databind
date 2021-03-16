@@ -127,7 +127,7 @@ public interface BeanProperty extends FullyNamed
      * @since 3.0
      */
     public JsonFormat.Value findFormatOverrides(MapperConfig<?> config);
-    
+
     /**
      * Convenience method that is roughly equivalent to
      *<pre>
@@ -150,7 +150,7 @@ public interface BeanProperty extends FullyNamed
     /* Schema/introspection support
     /**********************************************************************
      */
-    
+
     /**
      * Method that can be called to visit the type structure that this
      * property is part of.

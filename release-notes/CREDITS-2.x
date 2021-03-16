@@ -1315,3 +1315,8 @@ Miguel G (Migwel@github)
 Jelle Voost (jellevoost@github)
   * Reported #3038: Two cases of incorrect error reporting about DeserializationFeature
    (2.12.2)
+
+Asaf Romano (asaf-romano@github)
+  * Reported #3080: configOverrides(boolean.class) silently ignored, whereas .configOverride(Boolean.class)
+    works for both primitives and boxed boolean values
+   (2.13.0)

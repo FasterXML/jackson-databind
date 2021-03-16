@@ -47,12 +47,17 @@ public final class BooleanSerializer
     public JsonSerializer<?> createContextual(SerializerProvider serializers,
             BeanProperty property) throws JsonMappingException
     {
-        JsonFormat.Value format = findFormatOverrides(serializers,
-                property, Boolean.class);
+        // 16-Mar-2021, tatu: As per [databind#3080], was passing wrapper type
+        //    always; should not have.
+        JsonFormat.Value format = findFormatOverrides(serializers, property,
+                handledType());
         if (format != null) {
             JsonFormat.Shape shape = format.getShape();
             if (shape.isNumeric()) {
                 return new AsNumber(_forPrimitive);
+            }
+            if (shape == JsonFormat.Shape.STRING) {
+                return new ToStringSerializer(_handledType);
             }
         }
         return this;

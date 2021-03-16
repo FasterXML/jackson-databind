@@ -38,6 +38,14 @@ public class BooleanFormatTest extends BaseMapTest
         public BooleanWrapper(Boolean value) { b = value; }
     }
 
+    // [databind#3080]
+    protected static class PrimitiveBooleanWrapper {
+        public boolean b;
+
+        public PrimitiveBooleanWrapper() { }
+        public PrimitiveBooleanWrapper(boolean value) { b = value; }
+    }
+
     static class AltBoolean extends BooleanWrapper
     {
         public AltBoolean() { }
@@ -45,9 +53,9 @@ public class BooleanFormatTest extends BaseMapTest
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     private final static ObjectMapper MAPPER = newJsonMapper();
@@ -56,11 +64,39 @@ public class BooleanFormatTest extends BaseMapTest
     {
         assertEquals(aposToQuotes("{'b':true}"),
                 MAPPER.writeValueAsString(new BooleanWrapper(true)));
-        ObjectMapper m = newJsonMapper();
-        m.configOverride(Boolean.class)
-            .setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.NUMBER));
+        ObjectMapper m = jsonMapperBuilder()
+                .withConfigOverride(Boolean.class,
+                        cfg -> cfg.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.NUMBER)
+        )).build();
         assertEquals(aposToQuotes("{'b':1}"),
                 m.writeValueAsString(new BooleanWrapper(true)));
+
+        m = jsonMapperBuilder()
+                .withConfigOverride(Boolean.class,
+                        cfg -> cfg.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING)
+        )).build();
+        assertEquals(aposToQuotes("{'b':'true'}"),
+                m.writeValueAsString(new BooleanWrapper(true)));
+    }
+
+    // [databind#3080]
+    public void testPrimitiveShapeViaDefaults() throws Exception
+    {
+        assertEquals(aposToQuotes("{'b':true}"),
+                MAPPER.writeValueAsString(new PrimitiveBooleanWrapper(true)));
+        ObjectMapper m = jsonMapperBuilder()
+                .withConfigOverride(Boolean.TYPE, cfg ->
+                    cfg.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.NUMBER))
+        ).build();
+        assertEquals(aposToQuotes("{'b':1}"),
+                m.writeValueAsString(new PrimitiveBooleanWrapper(true)));
+
+        m = jsonMapperBuilder()
+                .withConfigOverride(Boolean.TYPE, cfg ->
+                    cfg.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING))
+        ).build();
+        assertEquals(aposToQuotes("{'b':'true'}"),
+                m.writeValueAsString(new PrimitiveBooleanWrapper(true)));
     }
 
     public void testShapeOnProperty() throws Exception

@@ -71,6 +71,33 @@ public class TestUnknownPropertyDeserialization
         public int a;
     }
 
+    @JsonIgnoreProperties(ignoreUnknown=true)
+    static class IgnoreUnknownAnySetter {
+
+        Map<String, Object> props = new HashMap<>();
+        
+        @JsonAnySetter
+        public void addProperty(String key, Object value) {
+            props.put(key, value);
+        }
+
+        @JsonAnyGetter
+        public Map<String, Object> getProperties() {
+            return props;
+        }
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown=true)
+    static class IgnoreUnknownUnwrapped {
+      
+      @JsonUnwrapped
+      UnwrappedChild child;
+      
+      static class UnwrappedChild {
+        public int a, b;
+      }
+    }
+
     @SuppressWarnings("serial")
     @JsonIgnoreProperties({"a", "d"})
     static class IgnoreMap extends HashMap<String,Object> { }
@@ -222,6 +249,21 @@ public class TestUnknownPropertyDeserialization
         IgnoreUnknown result = MAPPER.readValue
             ("{\"b\":3,\"c\":[1,2],\"x\":{ },\"a\":-3}", IgnoreUnknown.class);
         assertEquals(-3, result.a);
+    }
+
+    public void testAnySetterWithFailOnUnknownDisabled() throws Exception
+    {
+        IgnoreUnknownAnySetter value = MAPPER.readValue("{\"x\":\"y\", \"a\":\"b\"}",  IgnoreUnknownAnySetter.class);
+        assertNotNull(value);
+        assertEquals(2, value.props.size());
+    }
+
+    public void testUnwrappedWithFailOnUnknownDisabled() throws Exception
+    {
+      IgnoreUnknownUnwrapped value = MAPPER.readValue("{\"a\":1, \"b\":2}",  IgnoreUnknownUnwrapped.class);
+      assertNotNull(value);
+      assertEquals(1, value.child.a);
+      assertEquals(2, value.child.b);
     }
 
     /**

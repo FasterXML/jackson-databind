@@ -4,6 +4,20 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
+2.6.7.5 (not yet released)
+
+Backported all CVE fixes up to CVE-2021-20190
+
+#3004: Block some more DBCP-related potential gadget classes (CVE-2020-36179 / CVE-2020-36182)
+#3003: Block one more gadget type (org.docx4j.org.apache:xalan-interpretive, CVE-2020-36183)
+#2999: Block one more gadget type (org.glassfish.web/javax.servlet.jsp.jstl, CVE-2020-35728)
+#2998: Block 2 more gadget types (org.apache.tomcat/tomcat-dbcp, CVE-2020-36184 / CVE-2020-36185)
+#2997: Block 2 more gadget types (tomcat/naming-factory-dbcp, CVE-2020-36186 / CVE-2020-36187)
+#2996: Block 2 more gadget types (newrelic-agent, CVE-2020-36188 / CVE-2020-36189)
+#2986: Block 2 more gadget types (commons-dbcp2, CVE-2020-35490 / CVE-2020-35491)
+#2854: Block one more gadget type (javax.swing, CVE-2021-20190)
+#2798: Block one more gadget type (com.pastdev.httpcomponents, CVE-2020-24750)
+
 2.6.7.4 (25-Oct-2020)
 
 Backported all CVE fixes up to 2.9.10.6

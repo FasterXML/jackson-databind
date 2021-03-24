@@ -276,8 +276,17 @@ public class JsonNodeFactory
          * In short: zeroes are never stripped out of 0! We therefore _have_
          * to compare with BigDecimal.ZERO...
          */
-        return v.compareTo(BigDecimal.ZERO) == 0 ? DecimalNode.ZERO
-            : DecimalNode.valueOf(v.stripTrailingZeros());
+        // 24-Mar-2021, tatu: But isn't it more efficient to use "signum()"?
+        //   Especially as we now have a special case to consider
+        if (v.signum() == 0) {
+            return DecimalNode.ZERO;
+        }
+        // 24-Mar-2021, tatu: [dataformats-binary#264] barfs on a specific value...
+        //   Must skip normalization in that particular case
+        if (v.scale() == Integer.MIN_VALUE) {
+            return DecimalNode.valueOf(v);
+        }
+        return DecimalNode.valueOf(v.stripTrailingZeros());
     }
 
     /*

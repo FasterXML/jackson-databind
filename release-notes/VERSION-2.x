@@ -22,6 +22,8 @@ Project: jackson-databind
 #3080: configOverrides(boolean.class) silently ignored, whereas .configOverride(Boolean.class)
   works for both primitives and boxed boolean values
  (reported by Asaf R)
+- Fix to avoid problem with `BigDecimalNode`, scale of `Integer.MIN_VALUE` (see
+  [dataformats-binary#264] for details)
 
 2.12.2 (03-Mar-2021)
 

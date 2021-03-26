@@ -23,6 +23,10 @@ Project: jackson-databind
 - Fix to avoid problem with `BigDecimalNode`, scale of `Integer.MIN_VALUE` (see
   [dataformats-binary#264] for details)
 
+2.12.3 (not yet released)
+
+- Fix for [modules-java8#207]: prevent fail on secondary Java 8 date/time types
+
 2.12.2 (03-Mar-2021)
 
 #754: EXTERNAL_PROPERTY does not work well with `@JsonCreator` and

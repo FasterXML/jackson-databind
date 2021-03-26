@@ -108,13 +108,18 @@ public class BeanUtil
      * return appropriate failure message to give to caller.
      */
     public static String checkUnsupportedType(JavaType type) {
-        final Class<?> rawType = type.getRawClass();
+        final String className = type.getRawClass().getName();
         String typeName, moduleName;
 
-        if (isJava8TimeClass(rawType)) {
+        if (isJava8TimeClass(className)) {
+            // [modules-java8#207]: do NOT check/block helper types in sub-packages,
+            // but only main-level types (to avoid issues with module)
+            if (className.indexOf('.', 10) >= 0) {
+                return null;
+            }
             typeName =  "Java 8 date/time";
             moduleName = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310";
-        } else if (isJodaTimeClass(rawType)) {
+        } else if (isJodaTimeClass(className)) {
             typeName =  "Joda date/time";
             moduleName = "com.fasterxml.jackson.datatype:jackson-datatype-joda";
         } else {
@@ -125,10 +130,18 @@ public class BeanUtil
     }
 
     public static boolean isJava8TimeClass(Class<?> rawType) {
-        return rawType.getName().startsWith("java.time.");
+        return isJava8TimeClass(rawType.getName());
+    }
+
+    private static boolean isJava8TimeClass(String className) {
+        return className.startsWith("java.time.");
     }
 
     public static boolean isJodaTimeClass(Class<?> rawType) {
-        return rawType.getName().startsWith("org.joda.time.");
+        return isJodaTimeClass(rawType.getName());
+    }
+
+    private static boolean isJodaTimeClass(String className) {
+        return className.startsWith("org.joda.time.");
     }
 }

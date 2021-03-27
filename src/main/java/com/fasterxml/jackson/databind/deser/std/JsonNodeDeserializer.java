@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
-import java.util.ArrayDeque;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
@@ -275,12 +274,9 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             }
             switch (t.id()) {
             case JsonTokenId.ID_START_OBJECT:
-                // Need to avoid deep recursion, so:
-                value = deserializeContainerNonRecursive(p, ctxt, nodeFactory,
-                        nodeFactory.objectNode());
+                value = deserializeObject(p, ctxt, nodeFactory);
                 break;
             case JsonTokenId.ID_START_ARRAY:
-                // Ok to do one level of recursion:
                 value = deserializeArray(p, ctxt, nodeFactory);
                 break;
             case JsonTokenId.ID_EMBEDDED_OBJECT:
@@ -332,12 +328,9 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             }
             switch (t.id()) {
             case JsonTokenId.ID_START_OBJECT:
-                // Need to avoid deep recursion, so:
-                value = deserializeContainerNonRecursive(p, ctxt, nodeFactory,
-                        nodeFactory.objectNode());
+                value = deserializeObject(p, ctxt, nodeFactory);
                 break;
             case JsonTokenId.ID_START_ARRAY:
-                // Ok to do one level of recursion:
                 value = deserializeArray(p, ctxt, nodeFactory);
                 break;
             case JsonTokenId.ID_EMBEDDED_OBJECT:
@@ -473,14 +466,10 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
         while ((t = p.nextToken()) != null) {
             switch (t.id()) {
             case JsonTokenId.ID_START_OBJECT:
-                // Need to avoid deep recursion, so:
-                node.add(deserializeContainerNonRecursive(p, ctxt, nodeFactory,
-                        nodeFactory.objectNode()));
+                node.add(deserializeObject(p, ctxt, nodeFactory));
                 break;
             case JsonTokenId.ID_START_ARRAY:
-                // Need to avoid deep recursion, so:
-                node.add(deserializeContainerNonRecursive(p, ctxt, nodeFactory,
-                        nodeFactory.arrayNode()));
+                node.add(deserializeArray(p, ctxt, nodeFactory));
                 break;
             case JsonTokenId.ID_END_ARRAY:
                 return node;
@@ -596,120 +585,6 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
         default:
         }
         return (JsonNode) ctxt.handleUnexpectedToken(handledType(), p);
-    }
-
-    // Non-recursive alternative, used beyond certain nesting level
-    // @since 2.13.0
-    protected final ContainerNode<?> deserializeContainerNonRecursive(JsonParser p, DeserializationContext ctxt,
-            JsonNodeFactory nodeFactory, ContainerNode<?> root) throws IOException
-    {
-        ContainerNode<?> curr = root;
-        // Explicit stack of scopes to avoid recursive calls
-        final ArrayDeque<ContainerNode<?>> stack = new ArrayDeque<>();
-
-        outer_loop:
-        while (true) {
-            if (curr.isObject()) {
-                final ObjectNode currObject = (ObjectNode) curr;
-                String propName = p.nextFieldName();
-
-                for (; propName != null; propName = p.nextFieldName()) {
-                    JsonNode value;
-                    JsonToken t = p.nextToken();
-                    if (t == null) { // can this ever occur?
-                        t = JsonToken.NOT_AVAILABLE; // to trigger an exception
-                    }
-                    ContainerNode<?> newContainer = null;
-                    switch (t.id()) {
-                    case JsonTokenId.ID_START_OBJECT:
-                        value = newContainer = nodeFactory.objectNode();
-                        break;
-                    case JsonTokenId.ID_START_ARRAY:
-                        value = newContainer = nodeFactory.arrayNode();
-                        break;
-                    case JsonTokenId.ID_EMBEDDED_OBJECT:
-                        value = _fromEmbedded(p, ctxt, nodeFactory);
-                        break;
-                    case JsonTokenId.ID_STRING:
-                        value = nodeFactory.textNode(p.getText());
-                        break;
-                    case JsonTokenId.ID_NUMBER_INT:
-                        value = _fromInt(p, ctxt, nodeFactory);
-                        break;
-                    case JsonTokenId.ID_TRUE:
-                        value = nodeFactory.booleanNode(true);
-                        break;
-                    case JsonTokenId.ID_FALSE:
-                        value = nodeFactory.booleanNode(false);
-                        break;
-                    case JsonTokenId.ID_NULL:
-                        value = nodeFactory.nullNode();
-                        break;
-                    default:
-                        value = deserializeAny(p, ctxt, nodeFactory);
-                    }
-                    JsonNode old = currObject.replace(propName, value);
-                    if (old != null) {
-                        _handleDuplicateField(p, ctxt, nodeFactory,
-                                propName, currObject, old, value);
-                    }
-                    // But for Arrays/Objects, need to iterate over contents
-                    if (newContainer != null) {
-                        stack.push(curr);
-                        curr = newContainer;
-                        continue outer_loop;
-                    }
-                }
-                // reached not-property-name, should be END_OBJECT
-            } else {
-                final ArrayNode currArray = (ArrayNode) curr;
-                JsonToken t;
-
-                arrayLoop:
-                while ((t = p.nextToken()) != null) {
-                    switch (t.id()) {
-                    case JsonTokenId.ID_START_OBJECT:
-                        stack.push(curr);
-                        curr = nodeFactory.objectNode();
-                        currArray.add(curr);
-                        continue outer_loop;
-                    case JsonTokenId.ID_START_ARRAY:
-                        stack.push(curr);
-                        curr = nodeFactory.arrayNode();
-                        currArray.add(curr);
-                        continue outer_loop;
-                    case JsonTokenId.ID_END_ARRAY:
-                        break arrayLoop;
-                    case JsonTokenId.ID_EMBEDDED_OBJECT:
-                        currArray.add(_fromEmbedded(p, ctxt, nodeFactory));
-                        break;
-                    case JsonTokenId.ID_STRING:
-                        currArray.add(nodeFactory.textNode(p.getText()));
-                        break;
-                    case JsonTokenId.ID_NUMBER_INT:
-                        currArray.add(_fromInt(p, ctxt, nodeFactory));
-                        break;
-                    case JsonTokenId.ID_TRUE:
-                        currArray.add(nodeFactory.booleanNode(true));
-                        break;
-                    case JsonTokenId.ID_FALSE:
-                        currArray.add(nodeFactory.booleanNode(false));
-                        break;
-                    case JsonTokenId.ID_NULL:
-                        currArray.add(nodeFactory.nullNode());
-                        break;
-                    default:
-                        currArray.add(deserializeAny(p, ctxt, nodeFactory));
-                        break;
-                    }
-                }
-                // Reached end of array, so...
-            }
-            if (stack.isEmpty()) {
-                return root;
-            }
-            curr = stack.pop();
-        }
     }
 
     protected final JsonNode _fromInt(JsonParser p, DeserializationContext ctxt,

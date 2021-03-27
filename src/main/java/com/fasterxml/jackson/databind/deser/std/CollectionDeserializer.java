@@ -302,7 +302,7 @@ _containerType,
         // Start by verifying if we got empty/blank string since accessing
         // CoercionAction may be costlier than String value we'll almost certainly
         // need anyway
-        if (value.isEmpty()) { // ... in future may want to allow blank, too?
+        if (value.isEmpty()) {
             CoercionAction act = ctxt.findCoercionAction(logicalType(), rawTargetType,
                     CoercionInputShape.EmptyString);
             act = _checkCoercionFail(ctxt, act, rawTargetType, value,
@@ -314,6 +314,14 @@ _containerType,
                 return (Collection<Object>) _deserializeFromEmptyString(
                         p, ctxt, act, rawTargetType, "empty String (\"\")");
             }
+        }
+        // 26-Mar-2021, tatu: Some day is today; as per [dataformat-xml#460],
+        //    we do need to support blank String too...
+        else if (_isBlank(value)) {
+            final CoercionAction act = ctxt.findCoercionFromBlankString(logicalType(), rawTargetType,
+                    CoercionAction.Fail);
+            return (Collection<Object>) _deserializeFromEmptyString(
+                    p, ctxt, act, rawTargetType, "blank String (all whitespace)");
         }
         return handleNonArray(p, ctxt, createDefaultInstance(ctxt));
     }

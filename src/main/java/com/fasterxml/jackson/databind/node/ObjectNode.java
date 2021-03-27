@@ -373,8 +373,9 @@ public class ObjectNode
      *<p>
      * NOTE: co-variant return type since 2.10
      *
-     * @param value to set field to; if null, will be converted
-     *   to a {@link NullNode} first  (to remove field entry, call
+     * @param propertyName Name of property to set
+     * @param value Value to set property to; if null, will be converted
+     *   to a {@link NullNode} first  (to remove a property, call
      *   {@link #remove} instead)
      *
      * @return This node after adding/replacing property value (to allow chaining)
@@ -382,12 +383,12 @@ public class ObjectNode
      * @since 2.1
      */
     @SuppressWarnings("unchecked")
-    public <T extends JsonNode> T set(String fieldName, JsonNode value)
+    public <T extends JsonNode> T set(String propertyName, JsonNode value)
     {
         if (value == null) {
             value = nullNode();
         }
-        _children.put(fieldName, value);
+        _children.put(propertyName, value);
         return (T) this;
     }
 
@@ -496,31 +497,63 @@ public class ObjectNode
     /* Extended ObjectNode API, mutators, generic
     /**********************************************************
      */
-    
+
     /**
-     * Method that will set specified field, replacing old value, if any.
+     * Method that will set specified property, replacing old value, if any.
      *
-     * @param value to set field to; if null, will be converted
-     *   to a {@link NullNode} first  (to remove field entry, call
-     *   {@link #remove} instead)
+     * @param propertyName Name of property to set
+     * @param value Value to set to property; if null, will be converted
+     *   to a {@link NullNode} first  (to remove a property, call
+     *   {@link #remove} instead).
      *   
-     * @return Old value of the field, if any; null if there was no
+     * @return Old value of the property, if any; {@code null} if there was no
      *   old value.
      *   
      * @deprecated Since 2.4 use either {@link #set(String,JsonNode)} or {@link #replace(String,JsonNode)},
      */
     @Deprecated
-    public JsonNode put(String fieldName, JsonNode value)
+    public JsonNode put(String propertyName, JsonNode value)
     {
         if (value == null) { // let's not store 'raw' nulls but nodes
             value = nullNode();
         }
-        return _children.put(fieldName, value);
+        return _children.put(propertyName, value);
     }
 
     /**
-     * Method for removing field entry from this ObjectNode.
-     * Will return value of the field, if such field existed;
+     * Method that will set value of specified property if (and only if)
+     * it had no set value previously.
+     * Note that explicitly set {@code null} is a value.
+     * Functionally equivalent to:
+     *<code>
+     *  if (get(propertyName) == null) {
+     *      set(propertyName, value);
+     *      return null;
+     *  } else {
+     *      return get(propertyName);
+     *  }
+     *</code>
+     *
+     * @param propertyName Name of property to set
+     * @param value Value to set to property (if and only if it had no value previously);
+     *  if null, will be converted to a {@link NullNode} first.
+     *
+     * @return Old value of the field, if any (in which case value was not changed);
+     *     null if there was no old value (in which case value is now set)
+     *
+     * @since 2.13
+     */
+    public JsonNode putIfAbsent(String propertyName, JsonNode value)
+    {
+        if (value == null) { // let's not store 'raw' nulls but nodes
+            value = nullNode();
+        }
+        return _children.putIfAbsent(propertyName, value);
+    }
+
+    /**
+     * Method for removing a property from this {@code ObjectNode}.
+     * Will return previous value of the property, if such property existed;
      * null if not.
      * 
      * @return Value of specified field, if it existed; null if not

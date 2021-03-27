@@ -44,7 +44,7 @@ public class JsonNodeDeserializer
         // For others, generic one works fine
         return instance;
     }
-    
+
     /*
     /**********************************************************
     /* Actual deserializer implementations

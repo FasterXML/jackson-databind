@@ -124,7 +124,8 @@ public class ObjectNodeTest
         assertEquals(1, obNode.size());
         assertEquals(IntNode.valueOf(1), root.get("key"));
         assertNull(root.get("b"));
-    }    
+    }
+
     // for [databind#346]
     public void testEmptyNodeAsValue() throws Exception
     {
@@ -187,6 +188,24 @@ public class ObjectNodeTest
 
         n.removeAll();
         assertEquals(0, n.size());
+    }
+
+    public void testBasicsPutSet()
+    {
+        final JsonNodeFactory f = JsonNodeFactory.instance;
+        ObjectNode root = f.objectNode();
+        JsonNode old;
+        old = root.putIfAbsent("key", f.textNode("foobar"));
+        assertNull(old);
+        assertEquals(1, root.size());
+        old = root.putIfAbsent("key", f.numberNode(3));
+        assertEquals(1, root.size());
+        assertSame(old, root.get("key"));
+
+        // but can replace with straight set
+        old = root.replace("key", f.numberNode(72));
+        assertNotNull(old);
+        assertEquals("foobar", old.textValue());
     }
 
     public void testBigNumbers()

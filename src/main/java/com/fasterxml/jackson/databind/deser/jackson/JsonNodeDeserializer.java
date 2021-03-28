@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.deser.jackson;
 
+import java.util.Arrays;
+
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
@@ -12,6 +14,9 @@ import com.fasterxml.jackson.databind.util.RawValue;
 /**
  * Deserializer that can build instances of {@link JsonNode} from any
  * JSON content, using appropriate {@link JsonNode} type.
+ *<p>
+ * Rewritten in Jackson 2.13 to avoid recursion and allow handling of
+ * very deeply nested structures.
  */
 public class JsonNodeDeserializer
     extends BaseNodeDeserializer<JsonNode>
@@ -46,7 +51,7 @@ public class JsonNodeDeserializer
 
     /*
     /**********************************************************************
-    /* Actual deserializer implementations
+    /* Actual deserialization method implementations
     /**********************************************************************
      */
 
@@ -61,16 +66,26 @@ public class JsonNodeDeserializer
      * Overridden by typed sub-classes for more thorough checking
      */
     @Override
-    public JsonNode deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
+    public JsonNode deserialize(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
     {
+        final ContainerStack stack = new ContainerStack();
+        final JsonNodeFactory nodeF = ctxt.getNodeFactory();
         JsonToken t = p.currentToken();
         if (t == JsonToken.START_OBJECT) {
-            return deserializeObject(p, ctxt, ctxt.getNodeFactory());
+            return _deserializeContainerNoRecursion(p, ctxt, nodeF, stack, nodeF.objectNode());
         }
         if (t == JsonToken.START_ARRAY) {
-            return deserializeArray(p, ctxt, ctxt.getNodeFactory());
+            return _deserializeContainerNoRecursion(p, ctxt, nodeF, stack, nodeF.arrayNode());
         }
-        return deserializeAny(p, ctxt, ctxt.getNodeFactory());
+        switch (p.currentTokenId()) {
+        case JsonTokenId.ID_END_OBJECT:
+            return nodeF.objectNode();
+        case JsonTokenId.ID_PROPERTY_NAME:
+            return _deserializeObjectAtName(p, ctxt, nodeF, stack);
+        default:
+        }
+        return _deserializeAnyScalar(p, ctxt);
     }
 
     /*
@@ -79,6 +94,9 @@ public class JsonNodeDeserializer
     /**********************************************************************
      */
 
+    /**
+     * Implementation used when declared type is specifically {@link ObjectNode}.
+     */
     final static class ObjectDeserializer
         extends BaseNodeDeserializer<ObjectNode>
     {
@@ -91,16 +109,19 @@ public class JsonNodeDeserializer
         @Override
         public ObjectNode deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
         {
+            final JsonNodeFactory nodeF = ctxt.getNodeFactory();
             if (p.isExpectedStartObjectToken()) {
-                return deserializeObject(p, ctxt, ctxt.getNodeFactory());
+                final ObjectNode root = nodeF.objectNode();
+                _deserializeContainerNoRecursion(p, ctxt, nodeF, new ContainerStack(), root);
+                return root;
             }
             if (p.hasToken(JsonToken.PROPERTY_NAME)) {
-                return deserializeObjectAtName(p, ctxt, ctxt.getNodeFactory());
+                return _deserializeObjectAtName(p, ctxt, nodeF, new ContainerStack());
             }
             // 23-Sep-2015, tatu: Ugh. We may also be given END_OBJECT (similar to PROPERTY_NAME),
             //    if caller has advanced to the first token of Object, but for empty Object
             if (p.hasToken(JsonToken.END_OBJECT)) {
-                return ctxt.getNodeFactory().objectNode();
+                return nodeF.objectNode();
             }
             return (ObjectNode) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
          }
@@ -113,12 +134,16 @@ public class JsonNodeDeserializer
                 ObjectNode node) throws JacksonException
         {
             if (p.isExpectedStartObjectToken() || p.hasToken(JsonToken.PROPERTY_NAME)) {
-                return (ObjectNode) updateObject(p, ctxt, (ObjectNode) node);
+                return (ObjectNode) updateObject(p, ctxt, (ObjectNode) node,
+                        new ContainerStack());
             }
             return (ObjectNode) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }
     }
 
+    /**
+     * Implementation used when declared type is specifically {@link ArrayNode}.
+     */
     final static class ArrayDeserializer
         extends BaseNodeDeserializer<ArrayNode>
     {
@@ -133,7 +158,11 @@ public class JsonNodeDeserializer
             throws JacksonException
         {
             if (p.isExpectedStartArrayToken()) {
-                return deserializeArray(p, ctxt, ctxt.getNodeFactory());
+                final JsonNodeFactory nodeF = ctxt.getNodeFactory();
+                final ArrayNode arrayNode = nodeF.arrayNode();
+                _deserializeContainerNoRecursion(p, ctxt, nodeF,
+                        new ContainerStack(), arrayNode);
+                return arrayNode;
             }
             return (ArrayNode) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }
@@ -143,10 +172,12 @@ public class JsonNodeDeserializer
          */
         @Override
         public ArrayNode deserialize(JsonParser p, DeserializationContext ctxt,
-                ArrayNode node) throws JacksonException
+                ArrayNode arrayNode) throws JacksonException
         {
             if (p.isExpectedStartArrayToken()) {
-                return (ArrayNode) updateArray(p, ctxt, (ArrayNode) node);
+                _deserializeContainerNoRecursion(p, ctxt, ctxt.getNodeFactory(),
+                        new ContainerStack(), arrayNode);
+                return arrayNode;
             }
             return (ArrayNode) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }
@@ -154,8 +185,10 @@ public class JsonNodeDeserializer
 }
 
 /**
- * Base class for all actual {@link JsonNode} deserializer
- * implementations
+ * Base class for all actual {@link JsonNode} deserializer implementations.
+ *<p>
+ * Starting with Jackson 2.13 uses iteration instead of recursion: this allows
+ * handling of very deeply nested input structures.
  */
 abstract class BaseNodeDeserializer<T extends JsonNode>
     extends StdDeserializer<T>
@@ -194,7 +227,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
 
     /*
     /**********************************************************************
-    /* Overridable methods
+    /* Duplicate handling
     /**********************************************************************
      */
 
@@ -244,115 +277,17 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
 
     /*
     /**********************************************************************
-    /* Helper methods
+    /* Helper methods, deserialization
     /**********************************************************************
      */
-
-    /**
-     * Method called to deserialize Object node instance when there is no existing
-     * node to modify.
-     */
-    protected final ObjectNode deserializeObject(JsonParser p, DeserializationContext ctxt,
-            final JsonNodeFactory nodeFactory)
-        throws JacksonException
-    {
-        final ObjectNode node = nodeFactory.objectNode();
-
-        // 13-Dec-2017, tatu: Unrolling is a mysterious optimization. Looks like doing TWO
-        //    operations per loop yields non-trivial +5% improvement. Yet doing more does not.
-        //    So we'll go with 2...
-        String key = p.nextName();
-        while (key != null) {
-            JsonNode value;
-            JsonToken t = p.nextToken();
-            if (t == null) { // can this ever occur?
-                t = JsonToken.NOT_AVAILABLE; // can this ever occur?
-            }
-            switch (t.id()) {
-            case JsonTokenId.ID_START_OBJECT:
-                value = deserializeObject(p, ctxt, nodeFactory);
-                break;
-            case JsonTokenId.ID_START_ARRAY:
-                value = deserializeArray(p, ctxt, nodeFactory);
-                break;
-            case JsonTokenId.ID_STRING:
-                value = nodeFactory.textNode(p.getText());
-                break;
-            case JsonTokenId.ID_NUMBER_INT:
-                value = _fromInt(p, ctxt, nodeFactory);
-                break;
-            case JsonTokenId.ID_TRUE:
-                value = nodeFactory.booleanNode(true);
-                break;
-            case JsonTokenId.ID_FALSE:
-                value = nodeFactory.booleanNode(false);
-                break;
-            case JsonTokenId.ID_NULL:
-                value = nodeFactory.nullNode();
-                break;
-            default:
-                value = deserializeAny(p, ctxt, nodeFactory);
-            }
-            {
-                JsonNode old = node.replace(key, value);
-                if (old != null) {
-                    _handleDuplicateProperty(p, ctxt, nodeFactory,
-                            key, node, old, value);
-                }
-            }
-
-            if ((key = p.nextName()) == null) {
-                break;
-            }
-            t = p.nextToken();
-            if (t == null) { // can this ever occur?
-                t = JsonToken.NOT_AVAILABLE; // can this ever occur?
-            }
-            switch (t.id()) {
-            case JsonTokenId.ID_START_OBJECT:
-                value = deserializeObject(p, ctxt, nodeFactory);
-                break;
-            case JsonTokenId.ID_START_ARRAY:
-                value = deserializeArray(p, ctxt, nodeFactory);
-                break;
-            case JsonTokenId.ID_STRING:
-                value = nodeFactory.textNode(p.getText());
-                break;
-            case JsonTokenId.ID_NUMBER_INT:
-                value = _fromInt(p, ctxt, nodeFactory);
-                break;
-            case JsonTokenId.ID_TRUE:
-                value = nodeFactory.booleanNode(true);
-                break;
-            case JsonTokenId.ID_FALSE:
-                value = nodeFactory.booleanNode(false);
-                break;
-            case JsonTokenId.ID_NULL:
-                value = nodeFactory.nullNode();
-                break;
-            default:
-                value = deserializeAny(p, ctxt, nodeFactory);
-            }
-            {
-                JsonNode old = node.replace(key, value);
-                if (old != null) {
-                    _handleDuplicateProperty(p, ctxt, nodeFactory,
-                            key, node, old, value);
-                }
-            }
-
-            // for next round
-            key = p.nextName();
-        }
-        return node;
-    }
 
     /**
      * Alternate deserialization method used when parser already points to first
      * PROPERTY_NAME and not START_OBJECT.
      */
-    protected final ObjectNode deserializeObjectAtName(JsonParser p, DeserializationContext ctxt,
-            final JsonNodeFactory nodeFactory) throws JacksonException
+    protected final ObjectNode _deserializeObjectAtName(JsonParser p, DeserializationContext ctxt,
+            final JsonNodeFactory nodeFactory, final ContainerStack stack)
+        throws JacksonException
     {
         final ObjectNode node = nodeFactory.objectNode();
         String key = p.currentName();
@@ -364,28 +299,15 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             }
             switch (t.id()) {
             case JsonTokenId.ID_START_OBJECT:
-                value = deserializeObject(p, ctxt, nodeFactory);
+                value = _deserializeContainerNoRecursion(p, ctxt, nodeFactory,
+                        stack, nodeFactory.objectNode());
                 break;
             case JsonTokenId.ID_START_ARRAY:
-                value = deserializeArray(p, ctxt, nodeFactory);
-                break;
-            case JsonTokenId.ID_STRING:
-                value = nodeFactory.textNode(p.getText());
-                break;
-            case JsonTokenId.ID_NUMBER_INT:
-                value = _fromInt(p, ctxt, nodeFactory);
-                break;
-            case JsonTokenId.ID_TRUE:
-                value = nodeFactory.booleanNode(true);
-                break;
-            case JsonTokenId.ID_FALSE:
-                value = nodeFactory.booleanNode(false);
-                break;
-            case JsonTokenId.ID_NULL:
-                value = nodeFactory.nullNode();
+                value = _deserializeContainerNoRecursion(p, ctxt, nodeFactory,
+                        stack, nodeFactory.arrayNode());
                 break;
             default:
-                value = deserializeAny(p, ctxt, nodeFactory);
+                value = _deserializeAnyScalar(p, ctxt);
             }
             JsonNode old = node.replace(key, value);
             if (old != null) {
@@ -401,7 +323,8 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
      * if possible.
      */
     protected final JsonNode updateObject(JsonParser p, DeserializationContext ctxt,
-        final ObjectNode node) throws JacksonException
+            final ObjectNode node, final ContainerStack stack)
+        throws JacksonException
     {
         String key;
         if (p.isExpectedStartObjectToken()) {
@@ -424,7 +347,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
                     // [databind#3056]: merging only if had Object and
                     // getting an Object
                     if (t == JsonToken.START_OBJECT) {
-                        JsonNode newValue = updateObject(p, ctxt, (ObjectNode) old);
+                        JsonNode newValue = updateObject(p, ctxt, (ObjectNode) old, stack);
                         if (newValue != old) {
                             node.set(key, newValue);
                         }
@@ -434,10 +357,10 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
                     // [databind#3056]: related to Object handling, ensure
                     // Array values also match for mergeability
                     if (t == JsonToken.START_ARRAY) {
-                        JsonNode newValue = updateArray(p, ctxt, (ArrayNode) old);
-                        if (newValue != old) {
-                            node.set(key, newValue);
-                        }
+                        // 28-Mar-2021, tatu: We'll only append entries so not very different
+                        //    from "regular" deserializeArray...
+                        _deserializeContainerNoRecursion(p, ctxt, nodeFactory,
+                                stack, (ArrayNode) old);
                         continue;
                     }
                 }
@@ -448,13 +371,12 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             JsonNode value;
             switch (t.id()) {
             case JsonTokenId.ID_START_OBJECT:
-                value = deserializeObject(p, ctxt, nodeFactory);
+                value = _deserializeContainerNoRecursion(p, ctxt, nodeFactory,
+                        stack, nodeFactory.objectNode());
                 break;
             case JsonTokenId.ID_START_ARRAY:
-                value = deserializeArray(p, ctxt, nodeFactory);
-                break;
-            case JsonTokenId.ID_EMBEDDED_OBJECT:
-                value = _fromEmbedded(p, ctxt, nodeFactory);
+                value = _deserializeContainerNoRecursion(p, ctxt, nodeFactory,
+                        stack, nodeFactory.arrayNode());
                 break;
             case JsonTokenId.ID_STRING:
                 value = nodeFactory.textNode(p.getText());
@@ -472,7 +394,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
                 value = nodeFactory.nullNode();
                 break;
             default:
-                value = deserializeAny(p, ctxt, nodeFactory);
+                value = _deserializeRareScalar(p, ctxt);
             }
             // 15-Feb-2021, tatu: I don't think this should have been called
             //   on update case (was until 2.12.2) and was simply result of
@@ -488,166 +410,206 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
         return node;
     }
 
-    protected final ArrayNode deserializeArray(JsonParser p, DeserializationContext ctxt,
-            final JsonNodeFactory nodeFactory) throws JacksonException
+    // Non-recursive alternative
+    protected final ContainerNode<?> _deserializeContainerNoRecursion(JsonParser p, DeserializationContext ctxt,
+            JsonNodeFactory nodeFactory, ContainerStack stack, final ContainerNode<?> root)
+        throws JacksonException
     {
-        final ArrayNode node = nodeFactory.arrayNode();
-        // 13-Dec-2017, tatu: Unrolling is a mysterious optimization. Looks like doing TWO
-        //    operations per loop yields non-trivial +5% improvement. Yet doing more does not.
-        //    So we'll go with 2...
+        ContainerNode<?> curr = root;
+        final int intCoercionFeats = ctxt.getDeserializationFeatures() & F_MASK_INT_COERCIONS;
 
-        while (true) {
-            JsonToken t = p.nextToken();
-            int id = (t == null) ? JsonTokenId.ID_END_ARRAY : t.id();
-            switch (id) {
-            case JsonTokenId.ID_START_OBJECT:
-                node.add(deserializeObject(p, ctxt, nodeFactory));
-                break;
-            case JsonTokenId.ID_START_ARRAY:
-                node.add(deserializeArray(p, ctxt, nodeFactory));
-                break;
-            case JsonTokenId.ID_END_ARRAY:
-                return node;
-            case JsonTokenId.ID_STRING:
-                node.add(nodeFactory.textNode(p.getText()));
-                break;
-            case JsonTokenId.ID_NUMBER_INT:
-                node.add(_fromInt(p, ctxt, nodeFactory));
-                break;
-            case JsonTokenId.ID_TRUE:
-                node.add(nodeFactory.booleanNode(true));
-                break;
-            case JsonTokenId.ID_FALSE:
-                node.add(nodeFactory.booleanNode(false));
-                break;
-            case JsonTokenId.ID_NULL:
-                node.add(nodeFactory.nullNode());
-                break;
-            default:
-                node.add(deserializeAny(p, ctxt, nodeFactory));
-                break;
+        outer_loop:
+        do {
+            if (curr instanceof ObjectNode) {
+                ObjectNode currObject = (ObjectNode) curr;
+                String propName = p.nextName();
+
+                objectLoop:
+                for (; propName != null; propName = p.nextName()) {
+                    JsonNode value;
+                    JsonToken t = p.nextToken();
+                    if (t == null) { // unexpected end-of-input (or bad buffering?)
+                        t = JsonToken.NOT_AVAILABLE; // to trigger an exception
+                    }
+                    switch (t.id()) {
+                    case JsonTokenId.ID_START_OBJECT:
+                        {
+                            ObjectNode newOb = nodeFactory.objectNode();
+                            JsonNode old = currObject.replace(propName, newOb);
+                            if (old != null) {
+                                _handleDuplicateProperty(p, ctxt, nodeFactory,
+                                        propName, currObject, old, newOb);
+                            }
+                            stack.push(curr);
+                            curr = currObject = newOb;
+                            // We can actually take a short-cut with nested Objects...
+                            continue objectLoop;
+                        }
+                    case JsonTokenId.ID_START_ARRAY:
+                        {
+                            ArrayNode newOb = nodeFactory.arrayNode();
+                            JsonNode old = currObject.replace(propName, newOb);
+                            if (old != null) {
+                                _handleDuplicateProperty(p, ctxt, nodeFactory,
+                                        propName, currObject, old, newOb);
+                            }
+                            stack.push(curr);
+                            curr = newOb;
+                        }
+                        continue outer_loop;
+                    case JsonTokenId.ID_STRING:
+                        value = nodeFactory.textNode(p.getText());
+                        break;
+                    case JsonTokenId.ID_NUMBER_INT:
+                        value = _fromInt(p, intCoercionFeats, nodeFactory);
+                        break;
+                    case JsonTokenId.ID_NUMBER_FLOAT:
+                        value = _fromFloat(p, ctxt, nodeFactory);
+                        break;
+                    case JsonTokenId.ID_TRUE:
+                        value = nodeFactory.booleanNode(true);
+                        break;
+                    case JsonTokenId.ID_FALSE:
+                        value = nodeFactory.booleanNode(false);
+                        break;
+                    case JsonTokenId.ID_NULL:
+                        value = nodeFactory.nullNode();
+                        break;
+                    default:
+                        value = _deserializeRareScalar(p, ctxt);
+                    }
+                    JsonNode old = currObject.replace(propName, value);
+                    if (old != null) {
+                        _handleDuplicateProperty(p, ctxt, nodeFactory,
+                                propName, currObject, old, value);
+                    }
+                }
+                // reached not-property-name, should be END_OBJECT (verify?)
+            } else {
+                // Otherwise we must have an array
+                final ArrayNode currArray = (ArrayNode) curr;
+
+                arrayLoop:
+                while (true) {
+                    JsonToken t = p.nextToken();
+                    if (t == null) { // unexpected end-of-input (or bad buffering?)
+                        t = JsonToken.NOT_AVAILABLE; // to trigger an exception
+                    }
+                    switch (t.id()) {
+                    case JsonTokenId.ID_START_OBJECT:
+                        stack.push(curr);
+                        curr = nodeFactory.objectNode();
+                        currArray.add(curr);
+                        continue outer_loop;
+                    case JsonTokenId.ID_START_ARRAY:
+                        stack.push(curr);
+                        curr = nodeFactory.arrayNode();
+                        currArray.add(curr);
+                        continue outer_loop;
+                    case JsonTokenId.ID_END_ARRAY:
+                        break arrayLoop;
+                    case JsonTokenId.ID_STRING:
+                        currArray.add(nodeFactory.textNode(p.getText()));
+                        continue arrayLoop;
+                    case JsonTokenId.ID_NUMBER_INT:
+                        currArray.add(_fromInt(p, intCoercionFeats, nodeFactory));
+                        continue arrayLoop;
+                    case JsonTokenId.ID_NUMBER_FLOAT:
+                        currArray.add(_fromFloat(p, ctxt, nodeFactory));
+                        continue arrayLoop;
+                    case JsonTokenId.ID_TRUE:
+                        currArray.add(nodeFactory.booleanNode(true));
+                        continue arrayLoop;
+                    case JsonTokenId.ID_FALSE:
+                        currArray.add(nodeFactory.booleanNode(false));
+                        continue arrayLoop;
+                    case JsonTokenId.ID_NULL:
+                        currArray.add(nodeFactory.nullNode());
+                        continue arrayLoop;
+                    default:
+                        currArray.add(_deserializeRareScalar(p, ctxt));
+                        continue arrayLoop;
+                    }
+                }
+                // Reached end of array (or input), so...
             }
 
-            t = p.nextToken();
-            id = (t == null) ? JsonTokenId.ID_END_ARRAY : t.id();
-            switch (id) {
-            case JsonTokenId.ID_START_OBJECT:
-                node.add(deserializeObject(p, ctxt, nodeFactory));
-                break;
-            case JsonTokenId.ID_START_ARRAY:
-                node.add(deserializeArray(p, ctxt, nodeFactory));
-                break;
-            case JsonTokenId.ID_END_ARRAY:
-                return node;
-            case JsonTokenId.ID_STRING:
-                node.add(nodeFactory.textNode(p.getText()));
-                break;
-            case JsonTokenId.ID_NUMBER_INT:
-                node.add(_fromInt(p, ctxt, nodeFactory));
-                break;
-            case JsonTokenId.ID_TRUE:
-                node.add(nodeFactory.booleanNode(true));
-                break;
-            case JsonTokenId.ID_FALSE:
-                node.add(nodeFactory.booleanNode(false));
-                break;
-            case JsonTokenId.ID_NULL:
-                node.add(nodeFactory.nullNode());
-                break;
-            default:
-                node.add(deserializeAny(p, ctxt, nodeFactory));
-                break;
-            }
-        }
+            // Either way, Object or Array ended, return up nesting level:
+            curr = stack.popOrNull();
+        } while (curr != null);
+        return root;
     }
 
-    /**
-     * Alternate deserialization method that is to update existing {@link ObjectNode}
-     * if possible.
-     */
-    protected final JsonNode updateArray(JsonParser p, DeserializationContext ctxt,
-        final ArrayNode node) throws JacksonException
+    // Was called "deserializeAny()" in 2.12 and prior
+    protected final JsonNode _deserializeAnyScalar(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
     {
-        final JsonNodeFactory nodeFactory = ctxt.getNodeFactory();
-        while (true) {
-            JsonToken t = p.nextToken();
-            switch (t.id()) {
-            case JsonTokenId.ID_START_OBJECT:
-                node.add(deserializeObject(p, ctxt, nodeFactory));
-                break;
-            case JsonTokenId.ID_START_ARRAY:
-                node.add(deserializeArray(p, ctxt, nodeFactory));
-                break;
-            case JsonTokenId.ID_END_ARRAY:
-                return node;
-            case JsonTokenId.ID_EMBEDDED_OBJECT:
-                node.add(_fromEmbedded(p, ctxt, nodeFactory));
-                break;
-            case JsonTokenId.ID_STRING:
-                node.add(nodeFactory.textNode(p.getText()));
-                break;
-            case JsonTokenId.ID_NUMBER_INT:
-                node.add(_fromInt(p, ctxt, nodeFactory));
-                break;
-            case JsonTokenId.ID_TRUE:
-                node.add(nodeFactory.booleanNode(true));
-                break;
-            case JsonTokenId.ID_FALSE:
-                node.add(nodeFactory.booleanNode(false));
-                break;
-            case JsonTokenId.ID_NULL:
-                node.add(nodeFactory.nullNode());
-                break;
-            default:
-                node.add(deserializeAny(p, ctxt, nodeFactory));
-                break;
-            }
+        final JsonNodeFactory nodeF = ctxt.getNodeFactory();
+        switch (p.currentTokenId()) {
+        case JsonTokenId.ID_END_OBJECT:
+            return nodeF.objectNode();
+        case JsonTokenId.ID_STRING:
+            return nodeF.textNode(p.getText());
+        case JsonTokenId.ID_NUMBER_INT:
+            return _fromInt(p, ctxt, nodeF);
+        case JsonTokenId.ID_NUMBER_FLOAT:
+            return _fromFloat(p, ctxt, nodeF);
+        case JsonTokenId.ID_TRUE:
+            return nodeF.booleanNode(true);
+        case JsonTokenId.ID_FALSE:
+            return nodeF.booleanNode(false);
+        case JsonTokenId.ID_NULL:
+            return nodeF.nullNode();
+        case JsonTokenId.ID_EMBEDDED_OBJECT:
+            return _fromEmbedded(p, ctxt);
+
+        // Caller should check for anything else
+        default:
         }
+        return (JsonNode) ctxt.handleUnexpectedToken(handledType(), p);
     }
-    
-    protected final JsonNode deserializeAny(JsonParser p, DeserializationContext ctxt,
-            final JsonNodeFactory nodeFactory) throws JacksonException
+
+    protected final JsonNode _deserializeRareScalar(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
     {
+        // 28-Mar-2021, tatu: Only things that caller does not check
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_END_OBJECT: // for empty JSON Objects we may point to this?
-            return nodeFactory.objectNode();
-        case JsonTokenId.ID_PROPERTY_NAME:
-            return deserializeObjectAtName(p, ctxt, nodeFactory);
-        case JsonTokenId.ID_EMBEDDED_OBJECT:
-            return _fromEmbedded(p, ctxt, nodeFactory);
-        case JsonTokenId.ID_STRING:
-            return nodeFactory.textNode(p.getText());
-        case JsonTokenId.ID_NUMBER_INT:
-            return _fromInt(p, ctxt, nodeFactory);
+            return ctxt.getNodeFactory().objectNode();
         case JsonTokenId.ID_NUMBER_FLOAT:
-            return _fromFloat(p, ctxt, nodeFactory);
-        case JsonTokenId.ID_TRUE:
-            return nodeFactory.booleanNode(true);
-        case JsonTokenId.ID_FALSE:
-            return nodeFactory.booleanNode(false);
-        case JsonTokenId.ID_NULL:
-            return nodeFactory.nullNode();
+            return _fromFloat(p, ctxt, ctxt.getNodeFactory());
+        case JsonTokenId.ID_EMBEDDED_OBJECT:
+            return _fromEmbedded(p, ctxt);
 
-            /* Caller checks for these, should not get here ever
-        case JsonTokenId.ID_START_OBJECT:
-            return deserializeObject(p, ctxt, nodeFactory);
-        case JsonTokenId.ID_START_ARRAY:
-            return deserializeArray(p, ctxt, nodeFactory);
-            */
-
-            
-            // These states cannot be mapped; input stream is
-            // off by an event or two
-
-        //case END_OBJECT:
-        //case END_ARRAY:
+        // Caller should check for anything else
         default:
         }
         return (JsonNode) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 
+    protected final JsonNode _fromInt(JsonParser p, int coercionFeatures,
+            JsonNodeFactory nodeFactory)
+        throws JacksonException
+    {
+        if (coercionFeatures != 0) {
+            if (DeserializationFeature.USE_BIG_INTEGER_FOR_INTS.enabledIn(coercionFeatures)) {
+                return nodeFactory.numberNode(p.getBigIntegerValue());
+            }
+            return nodeFactory.numberNode(p.getLongValue());
+        }
+        final JsonParser.NumberType nt = p.getNumberType();
+        if (nt == JsonParser.NumberType.INT) {
+            return nodeFactory.numberNode(p.getIntValue());
+        }
+        if (nt == JsonParser.NumberType.LONG) {
+            return nodeFactory.numberNode(p.getLongValue());
+        }
+        return nodeFactory.numberNode(p.getBigIntegerValue());
+    }
+
     protected final JsonNode _fromInt(JsonParser p, DeserializationContext ctxt,
-            JsonNodeFactory nodeFactory) throws JacksonException
+            JsonNodeFactory nodeFactory)
+        throws JacksonException
     {
         JsonParser.NumberType nt;
         int feats = ctxt.getDeserializationFeatures();
@@ -672,7 +634,8 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     }
 
     protected final JsonNode _fromFloat(JsonParser p, DeserializationContext ctxt,
-            final JsonNodeFactory nodeFactory) throws JacksonException
+            final JsonNodeFactory nodeFactory)
+        throws JacksonException
     {
         JsonParser.NumberType nt = p.getNumberType();
         if (nt == JsonParser.NumberType.BIG_DECIMAL) {
@@ -692,26 +655,78 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
         return nodeFactory.numberNode(p.getDoubleValue());
     }
 
-    protected final JsonNode _fromEmbedded(JsonParser p, DeserializationContext ctxt,
-            JsonNodeFactory nodeFactory) throws JacksonException
+    protected final JsonNode _fromEmbedded(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
     {
-        Object ob = p.getEmbeddedObject();
+        final JsonNodeFactory nodeF = ctxt.getNodeFactory();
+        final Object ob = p.getEmbeddedObject();
+
         if (ob == null) { // should this occur?
-            return nodeFactory.nullNode();
+            return nodeF.nullNode();
         }
         Class<?> type = ob.getClass();
         if (type == byte[].class) { // most common special case
-            return nodeFactory.binaryNode((byte[]) ob);
+            return nodeF.binaryNode((byte[]) ob);
         }
         // [databind#743]: Don't forget RawValue
         if (ob instanceof RawValue) {
-            return nodeFactory.rawValueNode((RawValue) ob);
+            return nodeF.rawValueNode((RawValue) ob);
         }
         if (ob instanceof JsonNode) {
             // [databind#433]: but could also be a JsonNode hiding in there!
             return (JsonNode) ob;
         }
         // any other special handling needed?
-        return nodeFactory.pojoNode(ob);
+        return nodeF.pojoNode(ob);
+    }
+
+    /*
+    /**********************************************************************
+    /* Helper classes
+    /**********************************************************************
+     */
+
+    /**
+     * Optimized variant similar in functionality to (a subset of)
+     * {@link java.util.ArrayDeque}; used to hold enclosing Array/Object
+     * nodes during recursion-as-iteration.
+     */
+    @SuppressWarnings("rawtypes")
+    final static class ContainerStack
+    {
+        private ContainerNode[] _stack;
+        private int _top, _end;
+
+        public ContainerStack() { }
+
+        // Not used yet but useful for limits (fail at [some high depth])
+        public int size() { return _top; }
+
+        public void push(ContainerNode node)
+        {
+            if (_top < _end) {
+                _stack[_top++] = node;
+                return;
+            }
+            if (_stack == null) {
+                _end = 10;
+                _stack = new ContainerNode[_end];
+            } else {
+                // grow by 50%, for most part
+                _end += Math.min(4000, Math.max(20, _end>>1));
+                _stack = Arrays.copyOf(_stack, _end);
+            }
+            _stack[_top++] = node;
+        }
+
+        public ContainerNode popOrNull() {
+            if (_top == 0) {
+                return null;
+            }
+            // note: could clean up stack but due to usage pattern, should not make
+            // any difference -- all nodes joined during and after construction and
+            // after construction the whole stack is discarded
+            return _stack[--_top];
+        }
     }
 }

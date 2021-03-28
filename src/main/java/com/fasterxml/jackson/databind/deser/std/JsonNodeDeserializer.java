@@ -13,6 +13,9 @@ import com.fasterxml.jackson.databind.util.RawValue;
 /**
  * Deserializer that can build instances of {@link JsonNode} from any
  * JSON content, using appropriate {@link JsonNode} type.
+ *<p>
+ * Rewritten in Jackson 2.13 to avoid recursion and allow handling of
+ * very deeply nested structures.
  */
 @SuppressWarnings("serial")
 public class JsonNodeDeserializer
@@ -48,7 +51,7 @@ public class JsonNodeDeserializer
 
     /*
     /**********************************************************************
-    /* Actual deserializer implementations
+    /* Actual deserialization method implementations
     /**********************************************************************
      */
 
@@ -69,16 +72,16 @@ public class JsonNodeDeserializer
         final JsonNodeFactory nodeF = ctxt.getNodeFactory();
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_START_OBJECT:
-            return deserializeContainerNonRecursive(p, ctxt, nodeF, stack, nodeF.objectNode());
+            return _deserializeContainerNoRecursion(p, ctxt, nodeF, stack, nodeF.objectNode());
         case JsonTokenId.ID_END_OBJECT:
             return nodeF.objectNode();
         case JsonTokenId.ID_START_ARRAY:
-            return deserializeContainerNonRecursive(p, ctxt, nodeF, stack, nodeF.arrayNode());
+            return _deserializeContainerNoRecursion(p, ctxt, nodeF, stack, nodeF.arrayNode());
         case JsonTokenId.ID_FIELD_NAME:
-            return deserializeObjectAtName(p, ctxt, nodeF, stack);
+            return _deserializeObjectAtName(p, ctxt, nodeF, stack);
         default:
         }
-        return deserializeAnyScalar(p, ctxt);
+        return _deserializeAnyScalar(p, ctxt);
     }
 
     /*
@@ -87,6 +90,9 @@ public class JsonNodeDeserializer
     /**********************************************************************
      */
 
+    /**
+     * Implementation used when declared type is specifically {@link ObjectNode}.
+     */
     final static class ObjectDeserializer
         extends BaseNodeDeserializer<ObjectNode>
     {
@@ -104,11 +110,11 @@ public class JsonNodeDeserializer
             final JsonNodeFactory nodeF = ctxt.getNodeFactory();
             if (p.isExpectedStartObjectToken()) {
                 final ObjectNode root = nodeF.objectNode();
-                deserializeContainerNonRecursive(p, ctxt, nodeF, new ContainerStack(), root);
+                _deserializeContainerNoRecursion(p, ctxt, nodeF, new ContainerStack(), root);
                 return root;
             }
             if (p.hasToken(JsonToken.FIELD_NAME)) {
-                return deserializeObjectAtName(p, ctxt, nodeF, new ContainerStack());
+                return _deserializeObjectAtName(p, ctxt, nodeF, new ContainerStack());
             }
             // 23-Sep-2015, tatu: Ugh. We may also be given END_OBJECT (similar to FIELD_NAME),
             //    if caller has advanced to the first token of Object, but for empty Object
@@ -135,6 +141,9 @@ public class JsonNodeDeserializer
         }
     }
 
+    /**
+     * Implementation used when declared type is specifically {@link ArrayNode}.
+     */
     final static class ArrayDeserializer
         extends BaseNodeDeserializer<ArrayNode>
     {
@@ -152,7 +161,7 @@ public class JsonNodeDeserializer
             if (p.isExpectedStartArrayToken()) {
                 final JsonNodeFactory nodeF = ctxt.getNodeFactory();
                 final ArrayNode arrayNode = nodeF.arrayNode();
-                deserializeContainerNonRecursive(p, ctxt, nodeF,
+                _deserializeContainerNoRecursion(p, ctxt, nodeF,
                         new ContainerStack(), arrayNode);
                 return arrayNode;
             }
@@ -167,7 +176,7 @@ public class JsonNodeDeserializer
                 ArrayNode arrayNode) throws IOException
         {
             if (p.isExpectedStartArrayToken()) {
-                deserializeContainerNonRecursive(p, ctxt, ctxt.getNodeFactory(),
+                _deserializeContainerNoRecursion(p, ctxt, ctxt.getNodeFactory(),
                         new ContainerStack(), arrayNode);
                 return arrayNode;
             }
@@ -177,8 +186,10 @@ public class JsonNodeDeserializer
 }
 
 /**
- * Base class for all actual {@link JsonNode} deserializer
- * implementations
+ * Base class for all actual {@link JsonNode} deserializer implementations.
+ *<p>
+ * Starting with Jackson 2.13 uses iteration instead of recursion: this allows
+ * handling of very deeply nested input structures.
  */
 @SuppressWarnings("serial")
 abstract class BaseNodeDeserializer<T extends JsonNode>
@@ -275,10 +286,8 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     /**
      * Alternate deserialization method used when parser already points to first
      * FIELD_NAME and not START_OBJECT.
-     *
-     * @since 2.9
      */
-    protected final ObjectNode deserializeObjectAtName(JsonParser p, DeserializationContext ctxt,
+    protected final ObjectNode _deserializeObjectAtName(JsonParser p, DeserializationContext ctxt,
             final JsonNodeFactory nodeFactory, final ContainerStack stack) throws IOException
     {
         final ObjectNode node = nodeFactory.objectNode();
@@ -291,15 +300,15 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             }
             switch (t.id()) {
             case JsonTokenId.ID_START_OBJECT:
-                value = deserializeContainerNonRecursive(p, ctxt, nodeFactory,
+                value = _deserializeContainerNoRecursion(p, ctxt, nodeFactory,
                         stack, nodeFactory.objectNode());
                 break;
             case JsonTokenId.ID_START_ARRAY:
-                value = deserializeContainerNonRecursive(p, ctxt, nodeFactory,
+                value = _deserializeContainerNoRecursion(p, ctxt, nodeFactory,
                         stack, nodeFactory.arrayNode());
                 break;
             default:
-                value = deserializeAnyScalar(p, ctxt);
+                value = _deserializeAnyScalar(p, ctxt);
             }
             JsonNode old = node.replace(key, value);
             if (old != null) {
@@ -352,7 +361,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
                     if (t == JsonToken.START_ARRAY) {
                         // 28-Mar-2021, tatu: We'll only append entries so not very different
                         //    from "regular" deserializeArray...
-                        deserializeContainerNonRecursive(p, ctxt, nodeFactory,
+                        _deserializeContainerNoRecursion(p, ctxt, nodeFactory,
                                 stack, (ArrayNode) old);
                         continue;
                     }
@@ -364,11 +373,11 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             JsonNode value;
             switch (t.id()) {
             case JsonTokenId.ID_START_OBJECT:
-                value = deserializeContainerNonRecursive(p, ctxt, nodeFactory,
+                value = _deserializeContainerNoRecursion(p, ctxt, nodeFactory,
                         stack, nodeFactory.objectNode());
                 break;
             case JsonTokenId.ID_START_ARRAY:
-                value = deserializeContainerNonRecursive(p, ctxt, nodeFactory,
+                value = _deserializeContainerNoRecursion(p, ctxt, nodeFactory,
                         stack, nodeFactory.arrayNode());
                 break;
             case JsonTokenId.ID_STRING:
@@ -387,7 +396,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
                 value = nodeFactory.nullNode();
                 break;
             default:
-                value = deserializeRareScalar(p, ctxt);
+                value = _deserializeRareScalar(p, ctxt);
             }
             // 15-Feb-2021, tatu: I don't think this should have been called
             //   on update case (was until 2.12.2) and was simply result of
@@ -405,20 +414,20 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
 
     // Non-recursive alternative, used beyond certain nesting level
     // @since 2.13.0
-    protected final ContainerNode<?> deserializeContainerNonRecursive(JsonParser p, DeserializationContext ctxt,
-            JsonNodeFactory nodeFactory, ContainerStack stack, ContainerNode<?> root)
+    protected final ContainerNode<?> _deserializeContainerNoRecursion(JsonParser p, DeserializationContext ctxt,
+            JsonNodeFactory nodeFactory, ContainerStack stack, final ContainerNode<?> root)
         throws IOException
     {
         ContainerNode<?> curr = root;
         final int intCoercionFeats = ctxt.getDeserializationFeatures() & F_MASK_INT_COERCIONS;
 
         outer_loop:
-        while (true) {
-//            if (curr.isObject()) {
+        do {
             if (curr instanceof ObjectNode) {
-                final ObjectNode currObject = (ObjectNode) curr;
+                ObjectNode currObject = (ObjectNode) curr;
                 String propName = p.nextFieldName();
 
+                objectLoop:
                 for (; propName != null; propName = p.nextFieldName()) {
                     JsonNode value;
                     JsonToken t = p.nextToken();
@@ -435,9 +444,10 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
                                         propName, currObject, old, newOb);
                             }
                             stack.push(curr);
-                            curr = newOb;
+                            curr = currObject = newOb;
+                            // We can actually take a short-cut with nested Objects...
+                            continue objectLoop;
                         }
-                        continue outer_loop;
                     case JsonTokenId.ID_START_ARRAY:
                         {
                             ArrayNode newOb = nodeFactory.arrayNode();
@@ -469,7 +479,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
                         value = nodeFactory.nullNode();
                         break;
                     default:
-                        value = deserializeRareScalar(p, ctxt);
+                        value = _deserializeRareScalar(p, ctxt);
                     }
                     JsonNode old = currObject.replace(propName, value);
                     if (old != null) {
@@ -477,8 +487,9 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
                                 propName, currObject, old, value);
                     }
                 }
-                // reached not-property-name, should be END_OBJECT
+                // reached not-property-name, should be END_OBJECT (verify?)
             } else {
+                // Otherwise we must have an array
                 final ArrayNode currArray = (ArrayNode) curr;
 
                 arrayLoop:
@@ -519,22 +530,21 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
                         currArray.add(nodeFactory.nullNode());
                         continue arrayLoop;
                     default:
-                        currArray.add(deserializeRareScalar(p, ctxt));
+                        currArray.add(_deserializeRareScalar(p, ctxt));
                         continue arrayLoop;
                     }
                 }
                 // Reached end of array (or input), so...
             }
-            if (stack.isEmpty()) {
-                return root;
-            }
-            curr = stack.pop();
-        }
+
+            // Either way, Object or Array ended, return up nesting level:
+            curr = stack.popOrNull();
+        } while (curr != null);
+        return root;
     }
 
-
     // Was called "deserializeAny()" in 2.12 and prior
-    protected final JsonNode deserializeAnyScalar(JsonParser p, DeserializationContext ctxt)
+    protected final JsonNode _deserializeAnyScalar(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
         final JsonNodeFactory nodeF = ctxt.getNodeFactory();
@@ -562,7 +572,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
         return (JsonNode) ctxt.handleUnexpectedToken(handledType(), p);
     }
 
-    protected final JsonNode deserializeRareScalar(JsonParser p, DeserializationContext ctxt)
+    protected final JsonNode _deserializeRareScalar(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
         // 28-Mar-2021, tatu: Only things that caller does not check
@@ -686,29 +696,33 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     final static class ContainerStack
     {
         private ContainerNode[] _stack;
-        private int _top;
+        private int _top, _end;
 
         public ContainerStack() { }
-
-        public boolean isEmpty() { return _top == 0; }
 
         // Not used yet but useful for limits (fail at [some high depth])
         public int size() { return _top; }
 
-        public void push(ContainerNode node) {
+        public void push(ContainerNode node)
+        {
+            if (_top < _end) {
+                _stack[_top++] = node;
+                return;
+            }
             if (_stack == null) {
-                _stack = new ContainerNode[10];
-            } else if (_stack.length == _top) {
+                _end = 10;
+                _stack = new ContainerNode[_end];
+            } else {
                 // grow by 50%, for most part
-                final int newSize = _top + Math.min(512, Math.max(10, _top>>1));
-                _stack = Arrays.copyOf(_stack, newSize);
+                _end += Math.min(4000, Math.max(20, _end>>1));
+                _stack = Arrays.copyOf(_stack, _end);
             }
             _stack[_top++] = node;
         }
 
-        public ContainerNode pop() {
+        public ContainerNode popOrNull() {
             if (_top == 0) {
-                throw new IllegalStateException("ContainerStack empty");
+                return null;
             }
             // note: could clean up stack but due to usage pattern, should not make
             // any difference -- all nodes joined during and after construction and

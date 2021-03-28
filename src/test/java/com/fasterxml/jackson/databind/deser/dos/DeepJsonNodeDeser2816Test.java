@@ -1,32 +1,17 @@
-package com.fasterxml.jackson.failing;
-
-import java.util.List;
-import java.util.Map;
+package com.fasterxml.jackson.databind.deser.dos;
 
 import com.fasterxml.jackson.databind.*;
 
-// [databind#2816]
-public class DeepNestingDeser2816Test extends BaseMapTest
+// [databind#2816], wrt JsonNode
+public class DeepJsonNodeDeser2816Test extends BaseMapTest
 {
-    // 2000 passes for all; 3000 fails for untyped, 5000 for tree/object,
-    // 8000 for tree/array too
-    private final static int TOO_DEEP_NESTING = 8000;
+    // 28-Mar-2021, tatu: Used to fail at 5000 for tree/object,
+    // 8000 for tree/array, before work on iterative JsonNode deserializer
+    // ... currently gets a bit slow at 1M but passes
+//    private final static int TOO_DEEP_NESTING = 1_000_000;
+    private final static int TOO_DEEP_NESTING = 9999;
 
     private final ObjectMapper MAPPER = newJsonMapper();
-
-    public void testUntypedWithArray() throws Exception
-    {
-        final String doc = _nestedDoc(TOO_DEEP_NESTING, "[ ", "] ");
-        Object ob = MAPPER.readValue(doc, Object.class);
-        assertTrue(ob instanceof List<?>);
-    }
-
-    public void testUntypedWithObject() throws Exception
-    {
-        final String doc = "{"+_nestedDoc(TOO_DEEP_NESTING, "\"x\":{", "} ") + "}";
-        Object ob = MAPPER.readValue(doc, Object.class);
-        assertTrue(ob instanceof Map<?,?>);
-    }
 
     public void testTreeWithArray() throws Exception
     {

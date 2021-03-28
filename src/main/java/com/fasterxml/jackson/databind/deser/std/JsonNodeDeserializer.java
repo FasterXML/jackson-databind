@@ -425,14 +425,31 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
                     if (t == null) { // unexpected end-of-input (or bad buffering?)
                         t = JsonToken.NOT_AVAILABLE; // to trigger an exception
                     }
-                    ContainerNode<?> newContainer = null;
                     switch (t.id()) {
                     case JsonTokenId.ID_START_OBJECT:
-                        value = newContainer = nodeFactory.objectNode();
-                        break;
+                        {
+                            ObjectNode newOb = nodeFactory.objectNode();
+                            JsonNode old = currObject.replace(propName, newOb);
+                            if (old != null) {
+                                _handleDuplicateField(p, ctxt, nodeFactory,
+                                        propName, currObject, old, newOb);
+                            }
+                            stack.push(curr);
+                            curr = newOb;
+                        }
+                        continue outer_loop;
                     case JsonTokenId.ID_START_ARRAY:
-                        value = newContainer = nodeFactory.arrayNode();
-                        break;
+                        {
+                            ArrayNode newOb = nodeFactory.arrayNode();
+                            JsonNode old = currObject.replace(propName, newOb);
+                            if (old != null) {
+                                _handleDuplicateField(p, ctxt, nodeFactory,
+                                        propName, currObject, old, newOb);
+                            }
+                            stack.push(curr);
+                            curr = newOb;
+                        }
+                        continue outer_loop;
                     case JsonTokenId.ID_STRING:
                         value = nodeFactory.textNode(p.getText());
                         break;
@@ -458,12 +475,6 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
                     if (old != null) {
                         _handleDuplicateField(p, ctxt, nodeFactory,
                                 propName, currObject, old, value);
-                    }
-                    // But for Arrays/Objects, need to iterate over contents
-                    if (newContainer != null) {
-                        stack.push(curr);
-                        curr = newContainer;
-                        continue outer_loop;
                     }
                 }
                 // reached not-property-name, should be END_OBJECT

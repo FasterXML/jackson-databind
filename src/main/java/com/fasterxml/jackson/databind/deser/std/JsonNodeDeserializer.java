@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
-import java.util.ArrayDeque;
+import java.util.Arrays;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
@@ -76,9 +76,9 @@ public class JsonNodeDeserializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Specific instances for more accurate types
-    /**********************************************************
+    /**********************************************************************
      */
 
     final static class ObjectDeserializer
@@ -514,8 +514,6 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     /**
      * Alternate deserialization method that is to update existing {@link ObjectNode}
      * if possible.
-     *
-     * @since 2.9
      */
     protected final JsonNode updateArray(JsonParser p, DeserializationContext ctxt,
         final ArrayNode node) throws IOException
@@ -605,7 +603,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     {
         ContainerNode<?> curr = root;
         // Explicit stack of scopes to avoid recursive calls
-        final ArrayDeque<ContainerNode<?>> stack = new ArrayDeque<>();
+        final ContainerStack stack = new ContainerStack();
 
         outer_loop:
         while (true) {
@@ -779,5 +777,48 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
         }
         // any other special handling needed?
         return nodeFactory.pojoNode(ob);
+    }
+
+    /*
+    /**********************************************************************
+    /* Helper classes
+    /**********************************************************************
+     */
+
+    /**
+     * Optimized variant similar in functionality to (a subset of)
+     * {@link java.util.ArrayDeque}; used to hold enclosing Array/Object
+     * nodes during recursion-as-iteration.
+     */
+    @SuppressWarnings("rawtypes")
+    final static class ContainerStack
+    {
+        private ContainerNode[] _stack;
+        private int _top;
+
+        public ContainerStack() { }
+
+        public boolean isEmpty() { return _top == 0; }
+
+        public void push(ContainerNode node) {
+            if (_stack == null) {
+                _stack = new ContainerNode[10];
+            } else if (_stack.length == _top) {
+                // grow by 50%, for most part
+                final int newSize = _top + Math.min(512, Math.max(10, _top>>1));
+                _stack = Arrays.copyOf(_stack, newSize);
+            }
+            _stack[_top++] = node;
+        }
+
+        public ContainerNode pop() {
+            if (_top == 0) {
+                throw new IllegalStateException("ContainerStack empty");
+            }
+            // note: could clean up stack but due to usage pattern, should not make
+            // any difference -- all nodes joined during and after construction and
+            // after construction the whole stack is discarded
+            return _stack[--_top];
+        }
     }
 }

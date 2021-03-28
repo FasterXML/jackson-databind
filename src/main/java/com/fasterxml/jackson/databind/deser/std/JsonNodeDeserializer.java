@@ -410,6 +410,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
         throws IOException
     {
         ContainerNode<?> curr = root;
+        final int intCoercionFeats = ctxt.getDeserializationFeatures() & F_MASK_INT_COERCIONS;
 
         outer_loop:
         while (true) {
@@ -436,7 +437,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
                         value = nodeFactory.textNode(p.getText());
                         break;
                     case JsonTokenId.ID_NUMBER_INT:
-                        value = _fromInt(p, ctxt, nodeFactory);
+                        value = _fromInt(p, intCoercionFeats, nodeFactory);
                         break;
                     case JsonTokenId.ID_NUMBER_FLOAT:
                         value = _fromFloat(p, ctxt, nodeFactory);
@@ -492,7 +493,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
                         currArray.add(nodeFactory.textNode(p.getText()));
                         continue arrayLoop;
                     case JsonTokenId.ID_NUMBER_INT:
-                        currArray.add(_fromInt(p, ctxt, nodeFactory));
+                        currArray.add(_fromInt(p, intCoercionFeats, nodeFactory));
                         continue arrayLoop;
                     case JsonTokenId.ID_NUMBER_FLOAT:
                         currArray.add(_fromFloat(p, ctxt, nodeFactory));
@@ -566,6 +567,25 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
         default:
         }
         return (JsonNode) ctxt.handleUnexpectedToken(handledType(), p);
+    }
+
+    protected final JsonNode _fromInt(JsonParser p, int coercionFeatures,
+            JsonNodeFactory nodeFactory) throws IOException
+    {
+        if (coercionFeatures != 0) {
+            if (DeserializationFeature.USE_BIG_INTEGER_FOR_INTS.enabledIn(coercionFeatures)) {
+                return nodeFactory.numberNode(p.getBigIntegerValue());
+            }
+            return nodeFactory.numberNode(p.getLongValue());
+        }
+        final JsonParser.NumberType nt = p.getNumberType();
+        if (nt == JsonParser.NumberType.INT) {
+            return nodeFactory.numberNode(p.getIntValue());
+        }
+        if (nt == JsonParser.NumberType.LONG) {
+            return nodeFactory.numberNode(p.getLongValue());
+        }
+        return nodeFactory.numberNode(p.getBigIntegerValue());
     }
 
     protected final JsonNode _fromInt(JsonParser p, DeserializationContext ctxt,

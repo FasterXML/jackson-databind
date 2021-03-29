@@ -218,10 +218,9 @@ public class UntypedObjectDeserializer
      */
     @Override
     public boolean isCachable() {
-        /* 26-Mar-2015, tatu: With respect to [databind#735], there are concerns over
-         *   cachability. It seems like we SHOULD be safe here; but just in case there
-         *   are problems with false sharing, this may need to be revisited.
-         */
+        // 26-Mar-2015, tatu: With respect to [databind#735], there are concerns over
+        //   cachability. It seems like we SHOULD be safe here; but just in case there
+        //   are problems with false sharing, this may need to be revisited.
         return true;
     }
 
@@ -269,9 +268,8 @@ public class UntypedObjectDeserializer
             if (_numberDeserializer != null) {
                 return _numberDeserializer.deserialize(p, ctxt);
             }
-            /* Caller may want to get all integral values returned as {@link java.math.BigInteger},
-             * or {@link java.lang.Long} for consistency
-             */
+            // Caller may want to get all integral values returned as {@link java.math.BigInteger},
+            // or {@link java.lang.Long} for consistency
             if (ctxt.hasSomeOfFeatures(F_MASK_INT_COERCIONS)) {
                 return _coerceIntegral(p, ctxt);
             }
@@ -649,10 +647,9 @@ public class UntypedObjectDeserializer
     }
 
     /*
-    /**********************************************************
-    /* Separate "vanilla" implementation for common case of
-    /* no custom deserializer overrides
-    /**********************************************************
+    /**********************************************************************
+    /* Separate "vanilla" implementation for common case of no deser overrides
+    /**********************************************************************
      */
 
     /**
@@ -667,9 +664,7 @@ public class UntypedObjectDeserializer
 
         public final static Vanilla std = new Vanilla();
 
-        /**
-         * @since 2.9
-         */
+        // @since 2.9
         protected final boolean _nonMerging;
         
         public Vanilla() { this(false); }

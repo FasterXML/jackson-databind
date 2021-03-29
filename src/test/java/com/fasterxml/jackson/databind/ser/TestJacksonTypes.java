@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.io.InputSourceReference;
+import com.fasterxml.jackson.core.io.ContentReference;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
@@ -18,7 +18,7 @@ public class TestJacksonTypes
     public void testLocation() throws IOException
     {
         File f = new File("/tmp/test.json");
-        JsonLocation loc = new JsonLocation(InputSourceReference.rawSource(f),
+        JsonLocation loc = new JsonLocation(ContentReference.rawReference(f),
                 -1, 100, 13);
         ObjectMapper mapper = new ObjectMapper();
         Map<String,Object> result = writeAndMap(mapper, loc);

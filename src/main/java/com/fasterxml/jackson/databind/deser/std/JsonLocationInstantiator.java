@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.deser.std;
 
 import com.fasterxml.jackson.core.JsonLocation;
-import com.fasterxml.jackson.core.io.InputSourceReference;
+import com.fasterxml.jackson.core.io.ContentReference;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
@@ -53,7 +53,7 @@ public class JsonLocationInstantiator
         // 14-Mar-2021, tatu: Before 2.13 constructor directly took "raw" source ref;
         //   with 2.13 changed to use `InputSourceReference`... left almost as is,
         //   for compatibility.
-        final InputSourceReference srcRef = InputSourceReference.rawSource(args[0]);
+        final ContentReference srcRef = ContentReference.rawReference(args[0]);
         return new JsonLocation(srcRef, _long(args[1]), _long(args[2]),
                 _int(args[3]), _int(args[4]));
     }

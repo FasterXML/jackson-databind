@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.deser;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.io.InputSourceReference;
+import com.fasterxml.jackson.core.io.ContentReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
@@ -19,7 +19,7 @@ public class TestJacksonTypes
     public void testJsonLocation() throws Exception
     {
         // note: source reference is untyped, only String guaranteed to work
-        JsonLocation loc = new JsonLocation(InputSourceReference.rawSource("whatever"),
+        JsonLocation loc = new JsonLocation(ContentReference.rawReference("whatever"),
                 -1, -1, 100, 13);
         // Let's use serializer here; goal is round-tripping
         String ser = MAPPER.writerWithDefaultPrettyPrinter()

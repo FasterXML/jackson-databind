@@ -1313,3 +1313,7 @@ Miguel G (Migwel@github)
 Jelle Voost (jellevoost@github)
   * Reported #3038: Two cases of incorrect error reporting about DeserializationFeature
    (2.12.2)
+
+David Hoffman (dhofftgt@github)
+  * Contributed #3082: Dont track unknown props in buffer if `ignoreAllUnknown` is true
+   (2.12.2)

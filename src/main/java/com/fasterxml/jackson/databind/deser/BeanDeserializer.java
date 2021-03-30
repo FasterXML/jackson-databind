@@ -506,12 +506,15 @@ public class BeanDeserializer
                 }
                 continue;
             }
-            // Ok then, let's collect the whole field; name and value
-            if (unknown == null) {
-                unknown = new TokenBuffer(p, ctxt);
+
+            if(!_ignoreAllUnknown) {
+                // Ok then, let's collect the whole field; name and value
+                if (unknown == null) {
+                    unknown = new TokenBuffer(p, ctxt);
+                }
+                unknown.writeFieldName(propName);
+                unknown.copyCurrentStructure(p);
             }
-            unknown.writeFieldName(propName);
-            unknown.copyCurrentStructure(p);
         }
 
         // We hit END_OBJECT, so:

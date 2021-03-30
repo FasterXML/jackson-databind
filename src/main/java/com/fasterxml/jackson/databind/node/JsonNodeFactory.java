@@ -282,11 +282,15 @@ public class JsonNodeFactory
             return DecimalNode.ZERO;
         }
         // 24-Mar-2021, tatu: [dataformats-binary#264] barfs on a specific value...
-        //   Must skip normalization in that particular case
-        if (v.scale() == Integer.MIN_VALUE) {
-            return DecimalNode.valueOf(v);
+        //   Must skip normalization in that particular case. Alas, haven't found
+        //   another way to check it instead of getting "Overflow", catching
+        try {
+            v = v.stripTrailingZeros();
+        } catch (ArithmeticException e) {
+            // If we can't, we can't...
+            ;
         }
-        return DecimalNode.valueOf(v.stripTrailingZeros());
+        return DecimalNode.valueOf(v);
     }
 
     /*

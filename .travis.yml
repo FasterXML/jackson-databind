@@ -32,7 +32,7 @@ script: "[ ${TRAVIS_PULL_REQUEST} = 'false' ] && mvn -B source:jar deploy --sett
 branches:
   only:
     - master
-    - "2.12"
+    - "2.13"
 
 env:
   global:

@@ -638,12 +638,17 @@ public class BeanDeserializer
                 }
                 continue;
             }
-            // Ok then, let's collect the whole field; name and value
-            if (unknown == null) {
-                unknown = TokenBuffer.forInputBuffering(p, ctxt);
+            // 29-Mar-2021, tatu: [databind#3082] May skip collection if we know
+            //    they'd just get ignored (note: any-setter handled above; unwrapped
+            //    properties also separately handled)
+            if (!_ignoreAllUnknown) {
+                // Ok then, let's collect the whole field; name and value
+                if (unknown == null) {
+                    unknown = TokenBuffer.forInputBuffering(p, ctxt);
+                }
+                unknown.writeName(propName);
+                unknown.copyCurrentStructure(p);
             }
-            unknown.writeName(propName);
-            unknown.copyCurrentStructure(p);
         }
 
         // We hit END_OBJECT, so:

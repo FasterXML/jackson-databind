@@ -1320,3 +1320,7 @@ Asaf Romano (asaf-romano@github)
   * Reported #3080: configOverrides(boolean.class) silently ignored, whereas .configOverride(Boolean.class)
     works for both primitives and boxed boolean values
    (2.13.0)
+
+David Hoffman (dhofftgt@github)
+  * Contributed #3082: Dont track unknown props in buffer if `ignoreAllUnknown` is true
+   (2.13.0)

@@ -22,6 +22,8 @@ Project: jackson-databind
 #3080: configOverrides(boolean.class) silently ignored, whereas .configOverride(Boolean.class)
   works for both primitives and boxed boolean values
  (reported by Asaf R)
+#3082: Dont track unknown props in buffer if `ignoreAllUnknown` is true
+ (contributed by David H)
 - Fix to avoid problem with `BigDecimalNode`, scale of `Integer.MIN_VALUE` (see
   [dataformats-binary#264] for details)
 

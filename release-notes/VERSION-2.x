@@ -24,6 +24,7 @@ Project: jackson-databind
  (reported by Asaf R)
 #3082: Dont track unknown props in buffer if `ignoreAllUnknown` is true
  (contributed by David H)
+#3099: Optimize "AnnotatedConstructor.call()" case by passing explicit null
 - Fix to avoid problem with `BigDecimalNode`, scale of `Integer.MIN_VALUE` (see
   [dataformats-binary#264] for details)
 

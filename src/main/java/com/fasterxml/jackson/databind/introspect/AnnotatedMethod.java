@@ -72,6 +72,8 @@ public final class AnnotatedMethod
     
     @Override
     public final Object call() throws Exception {
+        // 31-Mar-2021, tatu: Note! This is faster than calling without arguments
+        //   because JDK in its wisdom would otherwise allocate `new Object[0]` to pass
         return _method.invoke(null);
     }
 

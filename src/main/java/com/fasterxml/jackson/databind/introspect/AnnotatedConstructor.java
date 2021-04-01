@@ -113,10 +113,12 @@ public final class AnnotatedConstructor
         }
         return types[index];
     }
-    
+
     @Override
     public final Object call() throws Exception {
-        return _constructor.newInstance();
+        // 31-Mar-2021, tatu: Note! This is faster than calling without arguments
+        //   because JDK in its wisdom would otherwise allocate `new Object[0]` to pass
+        return _constructor.newInstance((Object[]) null);
     }
 
     @Override

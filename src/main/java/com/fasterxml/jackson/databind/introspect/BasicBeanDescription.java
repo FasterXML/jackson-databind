@@ -356,7 +356,7 @@ anyField.getName()));
             ac.fixAccess(_config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
         }
         try {
-            return ac.getAnnotated().newInstance();
+            return ac.call();
         } catch (Exception e) {
             Throwable t = e;
             while (t.getCause() != null) {

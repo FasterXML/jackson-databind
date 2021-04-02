@@ -23,6 +23,7 @@ Project: jackson-databind
 #3082: Dont track unknown props in buffer if `ignoreAllUnknown` is true
  (contributed by David H)
 #3099: Optimize "AnnotatedConstructor.call()" case by passing explicit null
+#3101: Add AnnotationIntrospector.XmlExtensions interface for decoupling javax dependencies
 - Fix to avoid problem with `BigDecimalNode`, scale of `Integer.MIN_VALUE` (see
   [dataformats-binary#264] for details)
 

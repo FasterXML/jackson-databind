@@ -87,7 +87,66 @@ public abstract class AnnotationIntrospector
         public boolean isManagedReference() { return _type == Type.MANAGED_REFERENCE; }
         public boolean isBackReference() { return _type == Type.BACK_REFERENCE; }
     }
-    
+
+    /**
+     * Add-on extension used for XML-specific configuration, needed to decouple
+     * format module functionality from pluggable introspection functionality
+     * (especially JAXB-annotation related one).
+     *
+     * @since 2.13
+     */
+    public interface XmlExtensions
+    {
+        /**
+         * Method that can be called to figure out generic namespace
+         * property for an annotated object.
+         *
+         * @param config Configuration settings in effect
+         * @param ann Annotated entity to introspect
+         *
+         * @return Null if annotated thing does not define any
+         *   namespace information; non-null namespace (which may
+         *   be empty String) otherwise.
+         */
+        public String findNamespace(MapperConfig<?> config, Annotated ann);
+
+        /**
+         * Method used to check whether given annotated element
+         * (field, method, constructor parameter) has indicator that suggests
+         * it be output as an XML attribute or not (if not, then as element)
+         *
+         * @param config Configuration settings in effect
+         * @param ann Annotated entity to introspect
+         *
+         * @return Null if no indicator found; {@code True} or {@code False} otherwise
+         */
+        public Boolean isOutputAsAttribute(MapperConfig<?> config, Annotated ann);
+
+        /**
+         * Method used to check whether given annotated element
+         * (field, method, constructor parameter) has indicator that suggests
+         * it should be serialized as text, without element wrapper.
+         *
+         * @param config Configuration settings in effect
+         * @param ann Annotated entity to introspect
+         *
+         * @return Null if no indicator found; {@code True} or {@code False} otherwise
+         */
+        public Boolean isOutputAsText(MapperConfig<?> config, Annotated ann);
+
+        /**
+         * Method used to check whether given annotated element
+         * (field, method, constructor parameter) has indicator that suggests
+         * it should be wrapped in a CDATA tag.
+         *
+         * @param config Configuration settings in effect
+         * @param ann Annotated entity to introspect
+         *
+         * @return Null if no indicator found; {@code True} or {@code False} otherwise
+         */
+        public Boolean isOutputAsCData(MapperConfig<?> config, Annotated ann);
+    }
+
     /*
     /**********************************************************************
     /* Factory methods

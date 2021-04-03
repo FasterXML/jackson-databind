@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.introspect;
 
+import java.lang.annotation.*;
 import java.util.Arrays;
 import java.util.List;
 
@@ -7,6 +8,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.TestNamingStrategyCustom.PersonBean;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -107,6 +109,38 @@ public class TestNamingStrategyStd extends BaseMapTest
 
         protected FirstNameBean() { }
         public FirstNameBean(String n) { firstName = n; }
+    }
+
+    @Target({ElementType.FIELD, ElementType.PARAMETER, ElementType.TYPE})
+    @Retention(RetentionPolicy.RUNTIME)
+    @JacksonAnnotation
+    public @interface Name {
+        public String value();
+    }
+
+    @SuppressWarnings("serial")
+    static class ParamNameIntrospector extends JacksonAnnotationIntrospector
+    {
+        @Override
+        public String findImplicitPropertyName(MapperConfig<?> config, AnnotatedMember param) {
+            Name nameAnn = param.getAnnotation(Name.class);
+            if (nameAnn != null) {
+                return nameAnn.value();
+            }
+            return super.findImplicitPropertyName(config, param);
+        }
+    }
+
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    static class SnakeNameBean {
+        String _id, _fullName;
+
+        @JsonCreator
+        protected SnakeNameBean(@Name("id") String id,
+                @Name("fullName") String fn) {
+            _id = id;
+            _fullName = fn;
+        }
     }
 
     /*
@@ -428,5 +462,19 @@ public class TestNamingStrategyStd extends BaseMapTest
         ObjectMapper mapper = objectMapper();
         String json = mapper.writeValueAsString(new DefaultNaming());
         assertEquals(aposToQuotes("{'someValue':3}"), json);
+    }
+
+    // Try to reproduce [databind#3102] but with regular POJO. Oddly,
+    // does not actually fail.
+    public void testNamingViaConstructorParams() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .annotationIntrospector(new ParamNameIntrospector())
+                .build();
+        SnakeNameBean value = mapper.readValue(
+                a2q("{'id':'foobar', 'full_name' : 'Foo Bar'}"),
+                SnakeNameBean.class);
+        assertEquals("foobar", value._id);
+        assertEquals("Foo Bar", value._fullName);
     }
 }

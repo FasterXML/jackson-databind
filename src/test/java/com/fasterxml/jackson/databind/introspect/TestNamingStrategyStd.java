@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.introspect;
 
+import java.lang.annotation.*;
 import java.util.Arrays;
 import java.util.List;
 
@@ -8,6 +9,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.fasterxml.jackson.databind.introspect.TestNamingStrategyCustom.PersonBean;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
@@ -52,7 +54,7 @@ public class TestNamingStrategyStd extends BaseMapTest
             this._x = _x;
         }
     }
-    
+
     @JsonPropertyOrder({"results", "user", "__", "$_user"})
     static class OtherNonStandardNames
     {
@@ -60,7 +62,7 @@ public class TestNamingStrategyStd extends BaseMapTest
         public String _User;
         public String ___;
         public String $User;
-        
+
         public OtherNonStandardNames() {this(null, null, null, null);}
         public OtherNonStandardNames(String Results, String _User, String ___, String $User)
         {
@@ -82,11 +84,11 @@ public class TestNamingStrategyStd extends BaseMapTest
         public String firstName = "Bob";
         public String lastName = "Burger";
     }
-
+ 
     public static class ClassWithObjectNodeField {
         public String id;
         public ObjectNode json;
-    }    
+    }
 
     static class ExplicitBean {
         @JsonProperty("firstName")
@@ -107,6 +109,38 @@ public class TestNamingStrategyStd extends BaseMapTest
 
         protected FirstNameBean() { }
         public FirstNameBean(String n) { firstName = n; }
+    }
+
+    @Target({ElementType.FIELD, ElementType.PARAMETER, ElementType.TYPE})
+    @Retention(RetentionPolicy.RUNTIME)
+    @JacksonAnnotation
+    public @interface Name {
+        public String value();
+    }
+
+    @SuppressWarnings("serial")
+    static class ParamNameIntrospector extends JacksonAnnotationIntrospector
+    {
+        @Override
+        public String findImplicitPropertyName(AnnotatedMember param) {
+            Name nameAnn = param.getAnnotation(Name.class);
+            if (nameAnn != null) {
+                return nameAnn.value();
+            }
+            return super.findImplicitPropertyName(param);
+        }
+    }
+
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    static class SnakeNameBean {
+        String _id, _fullName;
+
+        @JsonCreator
+        protected SnakeNameBean(@Name("id") String id,
+                @Name("fullName") String fn) {
+            _id = id;
+            _fullName = fn;
+        }
     }
 
     /*
@@ -172,16 +206,12 @@ public class TestNamingStrategyStd extends BaseMapTest
                 {"xCoordinate", "x_coordinate" },
     });
 
-    private ObjectMapper _lcWithUndescoreMapper;
-    
-    @Override
-    public void setUp() throws Exception
-    {
-        super.setUp();
-        _lcWithUndescoreMapper = new ObjectMapper();
-        _lcWithUndescoreMapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
-    }
-    
+    private final ObjectMapper VANILLA_MAPPER = newJsonMapper();
+
+    private final ObjectMapper _lcWithUndescoreMapper = JsonMapper.builder()
+            .propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
+            .build();
+
     /*
     /**********************************************************
     /* Test methods for SNAKE_CASE
@@ -214,7 +244,7 @@ public class TestNamingStrategyStd extends BaseMapTest
         assertEquals("Sixpack", result.lastName);
         assertEquals(42, result.age);
     }
-    
+
     public void testLowerCaseAcronymsTranslations() throws Exception
     {
         // First serialize
@@ -247,7 +277,7 @@ public class TestNamingStrategyStd extends BaseMapTest
         // First serialize
         String json = _lcWithUndescoreMapper.writeValueAsString(new UnchangedNames("from_user", "_user", "from$user", "from7user", "_x"));
         assertEquals("{\"from_user\":\"from_user\",\"user\":\"_user\",\"from$user\":\"from$user\",\"from7user\":\"from7user\",\"x\":\"_x\"}", json);
-        
+
         // then deserialize
         UnchangedNames result = _lcWithUndescoreMapper.readValue(json, UnchangedNames.class);
         assertEquals("from_user", result.from_user);
@@ -311,7 +341,7 @@ public class TestNamingStrategyStd extends BaseMapTest
     /* Test methods for KEBAB_CASE
     /**********************************************************
      */
-    
+
     public void testKebabCaseStrategyStandAlone()
     {
         assertEquals("some-value",
@@ -325,7 +355,7 @@ public class TestNamingStrategyStd extends BaseMapTest
         assertEquals("some-url-stuff",
                 PropertyNamingStrategies.KEBAB_CASE.nameForField(null, null, "SomeURLStuff"));
     }
-    
+
     public void testSimpleKebabCase() throws Exception
     {
         final FirstNameBean input = new FirstNameBean("Bob");
@@ -338,6 +368,7 @@ public class TestNamingStrategyStd extends BaseMapTest
                 FirstNameBean.class);
         assertEquals("Billy", result.firstName);
     }
+
     /*
     /**********************************************************
     /* Test methods for LOWER_DOT_CASE
@@ -377,7 +408,7 @@ public class TestNamingStrategyStd extends BaseMapTest
     /* Test methods, other
     /**********************************************************
      */
-    
+
     /**
      * Test [databind#815], problems with ObjectNode, naming strategy
      */
@@ -429,8 +460,21 @@ public class TestNamingStrategyStd extends BaseMapTest
     // Also verify that "no naming strategy" should be ok
     public void testExplicitNoNaming() throws Exception
     {
-        ObjectMapper mapper = objectMapper();
-        String json = mapper.writeValueAsString(new DefaultNaming());
-        assertEquals(aposToQuotes("{'someValue':3}"), json);
+        assertEquals(a2q("{'someValue':3}"),
+                VANILLA_MAPPER.writeValueAsString(new DefaultNaming()));
+    }
+
+    // Try to reproduce [databind#3102] but with regular POJO. Oddly,
+    // does not actually fail.
+    public void testNamingViaConstructorParams() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .annotationIntrospector(new ParamNameIntrospector())
+                .build();
+        SnakeNameBean value = mapper.readValue(
+                a2q("{'id':'foobar', 'full_name' : 'Foo Bar'}"),
+                SnakeNameBean.class);
+        assertEquals("foobar", value._id);
+        assertEquals("Foo Bar", value._fullName);
     }
 }

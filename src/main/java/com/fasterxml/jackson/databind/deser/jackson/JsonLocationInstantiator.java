@@ -31,19 +31,22 @@ public class JsonLocationInstantiator
         JavaType intType = config.constructType(Integer.TYPE);
         JavaType longType = config.constructType(Long.TYPE);
         return new SettableBeanProperty[] {
-                // 14-Mar-2021, tatu: with 2.13 and later, not really used,
-                //   but may be produced by older versions so leave as is.
-                creatorProp("sourceRef", config.constructType(Object.class), 0),
-                creatorProp("byteOffset", longType, 1),
-                creatorProp("charOffset", longType, 2),
-                creatorProp("lineNr", intType, 3),
-                creatorProp("columnNr", intType, 4)
+                creatorProp("byteOffset", longType, 0, true),
+                creatorProp("charOffset", longType, 1, true),
+                creatorProp("lineNr", intType, 2, true),
+                creatorProp("columnNr", intType, 3, true),
+                // 04-Apr-2021, tatu: 2.13 took "sourceRef"; we'll still accept
+                //    it, if one given, but will ignore
+                creatorProp("sourceRef", config.constructType(Object.class), 4, false),
         };
     }
 
-    private static CreatorProperty creatorProp(String name, JavaType type, int index) {
+    private static CreatorProperty creatorProp(String name, JavaType type, int index,
+            boolean req)
+    {
         return CreatorProperty.construct(PropertyName.construct(name), type, null,
-                null, null, null, index, null, PropertyMetadata.STD_REQUIRED);
+                null, null, null, index, null,
+                req ? PropertyMetadata.STD_REQUIRED : PropertyMetadata.STD_OPTIONAL);
     }
 
     @Override
@@ -51,9 +54,9 @@ public class JsonLocationInstantiator
         // 14-Mar-2021, tatu: Before 2.13 constructor directly took "raw" source ref;
         //   with 2.13 changed to use `InputSourceReference`... left almost as is,
         //   for compatibility.
-        final ContentReference srcRef = ContentReference.rawReference(args[0]);
-        return new JsonLocation(srcRef, _long(args[1]), _long(args[2]),
-                _int(args[3]), _int(args[4]));
+        final ContentReference srcRef = ContentReference.unknown();
+        return new JsonLocation(srcRef, _long(args[0]), _long(args[1]),
+                _int(args[2]), _int(args[3]));
     }
 
     private final static long _long(Object o) {

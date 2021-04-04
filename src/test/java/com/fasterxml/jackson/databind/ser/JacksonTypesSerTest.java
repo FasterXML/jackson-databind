@@ -23,12 +23,13 @@ public class JacksonTypesSerTest
         JsonLocation loc = new JsonLocation(ContentReference.rawReference(f),
                 -1, 100, 13);
         Map<String,Object> result = writeAndMap(MAPPER, loc);
-        assertEquals(5, result.size());
-        assertEquals(f.getAbsolutePath(), result.get("sourceRef"));
+        // 04-Apr-2021, tatu: Jackson 2.x used to output "sourceRef"; no longer in 3.x
+//        assertEquals(f.getAbsolutePath(), result.get("sourceRef"));
         assertEquals(Integer.valueOf(-1), result.get("charOffset"));
         assertEquals(Integer.valueOf(-1), result.get("byteOffset"));
         assertEquals(Integer.valueOf(100), result.get("lineNr"));
         assertEquals(Integer.valueOf(13), result.get("columnNr"));
+        assertEquals(4, result.size());
     }
 
     /**

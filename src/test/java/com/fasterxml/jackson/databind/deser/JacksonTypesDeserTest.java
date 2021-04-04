@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
 /**
  * Unit tests for those Jackson types we want to ensure can be deserialized.
  */
-public class TestJacksonTypes
+public class JacksonTypesDeserTest
     extends com.fasterxml.jackson.databind.BaseMapTest
 {
     private final ObjectMapper MAPPER = sharedMapper();

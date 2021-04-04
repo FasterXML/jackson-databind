@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
 /**
  * Unit tests for those Jackson types we want to ensure can be serialized.
  */
-public class TestJacksonTypes
+public class JacksonTypesSerTest
     extends BaseMapTest
 {
     private final ObjectMapper MAPPER = newJsonMapper();

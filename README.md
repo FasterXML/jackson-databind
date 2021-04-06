@@ -337,7 +337,7 @@ Alternatively, you can also define "factory methods":
 ```java
 public class FactoryBean
 {
-    // fields etc omitted for brewity
+    // fields etc omitted for brevity
 
     @JsonCreator
     public static FactoryBean create(@JsonProperty("name") String name) {

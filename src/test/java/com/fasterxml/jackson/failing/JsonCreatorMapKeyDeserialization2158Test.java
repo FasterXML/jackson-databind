@@ -2,40 +2,24 @@ package com.fasterxml.jackson.failing;
 
 import static org.junit.Assert.assertThrows;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+
+import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+
 // For [databind#2158]: The default map key deserializer bypasses `@JsonCreator` methods in favour
 // of direct constructor invocation.
-public class JsonCreatorMapKeyDeserialization2158Test extends BaseMapTest {
-    private static final TypeReference<Map<DummyDto, Integer>> MAP_TYPE_REFERENCE =
-            new TypeReference<Map<DummyDto, Integer>>() {};
-
-    public void testDeserializeInvalidKey() {
-        ObjectMapper mapper = new ObjectMapper();
-        InvalidFormatException exception =
-                assertThrows(
-                        InvalidFormatException.class,
-                        () -> mapper.readValue("{ \"\": 0 }", MAP_TYPE_REFERENCE));
-        assertTrue(exception.getMessage().contains("Value must be nonempty"));
-    }
-
-    public void testNormalizeKey() {
-        ObjectMapper mapper = new ObjectMapper();
-        assertEquals(
-                Collections.singletonMap(DummyDto.fromValue("foo"), 0),
-                mapper.readValue("{ \"FOO\": 0 }", MAP_TYPE_REFERENCE));
-    }
-
+public class JsonCreatorMapKeyDeserialization2158Test extends BaseMapTest
+{
     private static final class DummyDto {
         @JsonValue
         private final String value;
@@ -67,5 +51,25 @@ public class JsonCreatorMapKeyDeserialization2158Test extends BaseMapTest {
         public String toString() {
             return String.format("DummyDto{value=%s}", value);
         }
+    }
+
+    private final ObjectMapper MAPPER = newJsonMapper();
+
+    private static final TypeReference<Map<DummyDto, Integer>> MAP_TYPE_REFERENCE =
+            new TypeReference<Map<DummyDto, Integer>>() {};
+
+    public void testDeserializeInvalidKey() throws Exception
+    {
+        InvalidFormatException exception =
+                assertThrows(
+                        InvalidFormatException.class,
+                        () -> MAPPER.readValue("{ \"\": 0 }", MAP_TYPE_REFERENCE));
+        assertTrue(exception.getMessage().contains("Value must be nonempty"));
+    }
+
+    public void testNormalizeKey() throws Exception {
+        assertEquals(
+                Collections.singletonMap(DummyDto.fromValue("foo"), 0),
+                MAPPER.readValue("{ \"FOO\": 0 }", MAP_TYPE_REFERENCE));
     }
 }

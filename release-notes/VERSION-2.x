@@ -6,6 +6,9 @@ Project: jackson-databind
 
 2.13.0 (not yet released)
 
+#2509: `AnnotatedMethod.getValue()/setValue()` doesn't have useful exception message
+ (reported by henryptung@github)
+ (fix contributed by Stephan S)
 #2828: Add `DatabindException` as intermediate subtype of `JsonMappingException`
 #2900: Jackson does not support deserializing new Java 9 unmodifiable collections
  (reported by Daniel H)

@@ -601,6 +601,9 @@ Frédéric Camblor (fcamblor@github)
 Stephan Schroevers (Stephan202@github)
   * Reported #1505: @JsonEnumDefaultValue should take precedence over FAIL_ON_NUMBERS_FOR_ENUMS
    (2.8.7)
+  * Contributed fix for #2509: `AnnotatedMethod.getValue()/setValue()` doesn't have useful
+    exception message
+   (2.13.0)
 
 Alex Panchenko (panchenko@github)
   * Reported #1543: JsonFormat.Shape.NUMBER_INT does not work when defined on enum type in 2.8

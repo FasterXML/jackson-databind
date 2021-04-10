@@ -288,6 +288,7 @@ public class ClassUtilTest extends BaseMapTest
         gen.close();
     }
 
+    @SuppressWarnings("serial")
     public void testExceptionMessage() {
         DatabindException jacksonException = new DatabindException("A message") {
             @Override
@@ -304,13 +305,7 @@ public class ClassUtilTest extends BaseMapTest
         }
     }
 
-    private static void throwsException() {
+    static void throwsException() {
         throw new IllegalArgumentException("A custom message");
     }
-
-    /*
-    /**********************************************************
-    /* Test methods, deprecated
-    /**********************************************************
-     */
 }

@@ -681,7 +681,7 @@ public final class ClassUtil
     /* Primitive type support
     /**********************************************************************
      */
-    
+
     /**
      * Helper method used to get default value for wrappers used for primitive types
      * (0 for Integer etc)

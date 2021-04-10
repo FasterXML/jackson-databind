@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
@@ -285,6 +286,26 @@ public class ClassUtilTest extends BaseMapTest
             assertTrue(gen.isClosed());
         }
         gen.close();
+    }
+
+    public void testExceptionMessage() {
+        DatabindException jacksonException = new DatabindException("A message") {
+            @Override
+            public String getOriginalMessage() {
+                return "The original message";
+            }
+        };
+        assertEquals("The original message", ClassUtil.exceptionMessage(jacksonException));
+
+        try {
+            ClassUtilTest.class.getDeclaredMethod("throwsException").invoke(null);
+        } catch (ReflectiveOperationException e) {
+            assertEquals("A custom message", ClassUtil.exceptionMessage(e));
+        }
+    }
+
+    private static void throwsException() {
+        throw new IllegalArgumentException("A custom message");
     }
 
     /*

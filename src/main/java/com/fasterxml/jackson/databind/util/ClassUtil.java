@@ -660,14 +660,18 @@ public final class ClassUtil
 
     /**
      * Helper method that returns {@link Throwable#getMessage()} for all other exceptions
-     * except for {@link JacksonException}, for which {@code getOriginalMessage()} is
-     * returned instead.
+     * except for (a) {@link JacksonException}, for which {@code getOriginalMessage()} is
+     * returned, and (b) {@link InvocationTargetException}, for which the cause's message
+     * is returned, if available.
      * Method is used to avoid accidentally including trailing location information twice
      * in message when wrapping exceptions.
      */
     public static String exceptionMessage(Throwable t) {
         if (t instanceof JacksonException) {
             return ((JacksonException) t).getOriginalMessage();
+        }
+        if (t instanceof InvocationTargetException && t.getCause() != null) {
+            return t.getCause().getMessage();
         }
         return t.getMessage();
     }

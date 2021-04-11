@@ -1137,7 +1137,7 @@ paramIndex, candidate);
                 metadata);
         ValueDeserializer<?> deser = findDeserializerFromAnnotation(ctxt, param);
         if (deser == null) {
-            deser = type.getValueHandler();
+            deser = (ValueDeserializer<?>) type.getValueHandler();
         }
         if (deser != null) {
             // As per [databind#462] need to ensure we contextualize deserializer before passing it on
@@ -1275,9 +1275,10 @@ paramIndex, candidate);
         JavaType elemType = type.getContentType();
         
         // Very first thing: is deserializer hard-coded for elements?
-        ValueDeserializer<Object> contentDeser = elemType.getValueHandler();
+        @SuppressWarnings("unchecked")
+        ValueDeserializer<Object> contentDeser = (ValueDeserializer<Object>) elemType.getValueHandler();
         // Then optional type info: if type has been resolved, we may already know type deserializer:
-        TypeDeserializer elemTypeDeser = elemType.getTypeHandler();
+        TypeDeserializer elemTypeDeser = (TypeDeserializer) elemType.getTypeHandler();
         // but if not, may still be possible to find:
         if (elemTypeDeser == null) {
             elemTypeDeser = ctxt.findTypeDeserializer(elemType);
@@ -1312,17 +1313,18 @@ paramIndex, candidate);
     /**********************************************************************
      */
 
+    @SuppressWarnings("unchecked")
     @Override
     public ValueDeserializer<?> createCollectionDeserializer(DeserializationContext ctxt,
             CollectionType type, BeanDescription beanDesc)
     {
         JavaType contentType = type.getContentType();
         // Very first thing: is deserializer hard-coded for elements?
-        ValueDeserializer<Object> contentDeser = contentType.getValueHandler();
+        ValueDeserializer<Object> contentDeser = (ValueDeserializer<Object>) contentType.getValueHandler();
         final DeserializationConfig config = ctxt.getConfig();
 
         // Then optional type info: if type has been resolved, we may already know type deserializer:
-        TypeDeserializer contentTypeDeser = contentType.getTypeHandler();
+        TypeDeserializer contentTypeDeser = (TypeDeserializer) contentType.getTypeHandler();
         // but if not, may still be possible to find:
         if (contentTypeDeser == null) {
             contentTypeDeser = ctxt.findTypeDeserializer(contentType);
@@ -1418,11 +1420,12 @@ paramIndex, candidate);
     {
         JavaType contentType = type.getContentType();
         // Very first thing: is deserializer hard-coded for elements?
-        ValueDeserializer<Object> contentDeser = contentType.getValueHandler();
+        @SuppressWarnings("unchecked")
+        ValueDeserializer<Object> contentDeser = (ValueDeserializer<Object>) contentType.getValueHandler();
         final DeserializationConfig config = ctxt.getConfig();
 
-        // Then optional type info (1.5): if type has been resolved, we may already know type deserializer:
-        TypeDeserializer contentTypeDeser = contentType.getTypeHandler();
+        // Then optional type info: if type has been resolved, we may already know type deserializer:
+        TypeDeserializer contentTypeDeser = (TypeDeserializer)contentType.getTypeHandler();
         // but if not, may still be possible to find:
         if (contentTypeDeser == null) {
             contentTypeDeser = ctxt.findTypeDeserializer(contentType);
@@ -1430,7 +1433,7 @@ paramIndex, candidate);
         ValueDeserializer<?> deser = _findCustomCollectionLikeDeserializer(type, config, beanDesc,
                 contentTypeDeser, contentDeser);
         if (deser != null) {
-            // and then new with 2.2: ability to post-process it too (Issue#120)
+            // ability to post-process it too (databind#120)
             if (_factoryConfig.hasDeserializerModifiers()) {
                 for (ValueDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
                     deser = mod.modifyCollectionLikeDeserializer(config, type, beanDesc, deser);
@@ -1461,7 +1464,7 @@ paramIndex, candidate);
         // Ok: need a key deserializer (null indicates 'default' here)
         KeyDeserializer keyDes = (KeyDeserializer) keyType.getValueHandler();
         // Then optional type info; either attached to type, or resolved separately:
-        TypeDeserializer contentTypeDeser = contentType.getTypeHandler();
+        TypeDeserializer contentTypeDeser = (TypeDeserializer) contentType.getTypeHandler();
         // but if not, may still be possible to find:
         if (contentTypeDeser == null) {
             contentTypeDeser = ctxt.findTypeDeserializer(contentType);
@@ -1588,8 +1591,8 @@ paramIndex, candidate);
             keyDes = p.findKeyDeserializer(config, keyType, property);
         }
         */
-        // Then optional type info (1.5); either attached to type, or resolve separately:
-        TypeDeserializer contentTypeDeser = contentType.getTypeHandler();
+        // Then optional type info; either attached to type, or resolve separately:
+        TypeDeserializer contentTypeDeser = (TypeDeserializer) contentType.getTypeHandler();
         // but if not, may still be possible to find:
         if (contentTypeDeser == null) {
             contentTypeDeser = ctxt.findTypeDeserializer(contentType);
@@ -1597,7 +1600,7 @@ paramIndex, candidate);
         ValueDeserializer<?> deser = _findCustomMapLikeDeserializer(type, config,
                 beanDesc, keyDes, contentTypeDeser, contentDeser);
         if (deser != null) {
-            // and then new with 2.2: ability to post-process it too (Issue#120)
+            // ability to post-process it too (Issue#120)
             if (_factoryConfig.hasDeserializerModifiers()) {
                 for (ValueDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
                     deser = mod.modifyMapLikeDeserializer(config, type, beanDesc, deser);
@@ -1695,10 +1698,11 @@ factory.toString()));
     {
         JavaType contentType = type.getContentType();
         // Very first thing: is deserializer hard-coded for elements?
-        ValueDeserializer<Object> contentDeser = contentType.getValueHandler();
+        @SuppressWarnings("unchecked")
+        ValueDeserializer<Object> contentDeser = (ValueDeserializer<Object>) contentType.getValueHandler();
         final DeserializationConfig config = ctxt.getConfig();
         // Then optional type info: if type has been resolved, we may already know type deserializer:
-        TypeDeserializer contentTypeDeser = contentType.getTypeHandler();
+        TypeDeserializer contentTypeDeser = (TypeDeserializer) contentType.getTypeHandler();
         if (contentTypeDeser == null) { // or if not, may be able to find:
             contentTypeDeser = ctxt.findTypeDeserializer(contentType);
         }
@@ -1982,7 +1986,8 @@ factory.toString()));
             if (vts == null) {
                 vts = ctxt.findTypeDeserializer(vt);
             }
-            ValueDeserializer<Object> valueDeser = vt.getValueHandler();
+            @SuppressWarnings("unchecked")
+            ValueDeserializer<Object> valueDeser = (ValueDeserializer<Object>) vt.getValueHandler();
             KeyDeserializer keyDes = (KeyDeserializer) kt.getValueHandler();
             return new MapEntryDeserializer(type, keyDes, valueDeser, vts);
         }

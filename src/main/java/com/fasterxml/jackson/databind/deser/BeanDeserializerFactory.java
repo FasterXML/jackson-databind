@@ -786,7 +786,7 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
         // and then possible direct deserializer override on accessor
         KeyDeserializer keyDeser = findKeyDeserializerFromAnnotation(ctxt, mutator);
         if (keyDeser == null) {
-            keyDeser = keyType.getValueHandler();
+            keyDeser = (KeyDeserializer) keyType.getValueHandler();
         }
         if (keyDeser == null) {
             keyDeser = ctxt.findKeyDeserializer(keyType, prop);
@@ -798,13 +798,13 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
         }
         ValueDeserializer<Object> deser = findContentDeserializerFromAnnotation(ctxt, mutator);
         if (deser == null) {
-            deser = valueType.getValueHandler();
+            deser = (ValueDeserializer<Object>) valueType.getValueHandler();
         }
         if (deser != null) {
             // As per [databind#462] need to ensure we contextualize deserializer before passing it on
             deser = (ValueDeserializer<Object>) ctxt.handlePrimaryContextualization(deser, prop, valueType);
         }
-        TypeDeserializer typeDeser = valueType.getTypeHandler();
+        TypeDeserializer typeDeser = (TypeDeserializer) valueType.getTypeHandler();
         return new SettableAnyProperty(prop, mutator, valueType,
                 keyDeser, deser, typeDeser);
     }
@@ -830,7 +830,7 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
         }
         JavaType type = resolveMemberAndTypeAnnotations(ctxt, mutator, propType0);
         // Does the Method specify the deserializer to use? If so, let's use it.
-        TypeDeserializer typeDeser = type.getTypeHandler();
+        TypeDeserializer typeDeser = (TypeDeserializer) type.getTypeHandler();
         SettableBeanProperty prop;
         if (mutator instanceof AnnotatedMethod) {
             prop = new MethodProperty(propDef, type, typeDeser,
@@ -842,7 +842,7 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
         }
         ValueDeserializer<?> deser = findDeserializerFromAnnotation(ctxt, mutator);
         if (deser == null) {
-            deser = type.getValueHandler();
+            deser = (ValueDeserializer<?>) type.getValueHandler();
         }
         if (deser != null) {
             deser = ctxt.handlePrimaryContextualization(deser, prop, type);
@@ -869,12 +869,12 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
     {
         final AnnotatedMethod getter = propDef.getGetter();
         JavaType type = resolveMemberAndTypeAnnotations(ctxt, getter, getter.getType());
-        TypeDeserializer typeDeser = type.getTypeHandler();
+        TypeDeserializer typeDeser = (TypeDeserializer) type.getTypeHandler();
         SettableBeanProperty prop = new SetterlessProperty(propDef, type, typeDeser,
                 beanDesc.getClassAnnotations(), getter);
         ValueDeserializer<?> deser = findDeserializerFromAnnotation(ctxt, getter);
         if (deser == null) {
-            deser = type.getValueHandler();
+            deser = (ValueDeserializer<?>) type.getValueHandler();
         }
         if (deser != null) {
             deser = ctxt.handlePrimaryContextualization(deser, prop, type);

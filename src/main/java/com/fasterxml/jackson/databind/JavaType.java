@@ -59,15 +59,23 @@ public abstract class JavaType
     protected final boolean _asStatic;
 
     /*
-    /**********************************************************
-    /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
+    /* Life-cycle: constructors, public mutant factory methods
+    /**********************************************************************
      */
 
     /**
+     * Main base constructor for sub-classes to use
+     *
      * @param raw "Raw" (type-erased) class for this type
      * @param additionalHash Additional hash code to use, in addition
      *   to hash code of the class name 
+     * @param valueHandler internal handler (serializer/deserializer)
+     *   to apply for this type
+     * @param typeHandler internal type handler (type serializer/deserializer)
+     *   to apply for this type
+     * @param asStatic Whether this type declaration will force specific type
+     *   as opposed to being a base type (usually for serialization typing)
      */
     protected JavaType(Class<?> raw, int additionalHash,
             Object valueHandler, Object typeHandler, boolean asStatic)
@@ -89,57 +97,6 @@ public abstract class JavaType
         _valueHandler = base._valueHandler;
         _typeHandler = base._typeHandler;
         _asStatic = base._asStatic;
-    }
-
-    /**
-     * "Copy method" that will construct a new instance that is identical to
-     * this instance, except that it will have specified type handler assigned.
-     * 
-     * @return Newly created type instance
-     */
-    public abstract JavaType withTypeHandler(Object h);
-
-    /**
-     * Mutant factory method that will construct a new instance that is identical to
-     * this instance, except that it will have specified content type (element type
-     * for arrays, value type for Maps and so forth) handler assigned.
-     * 
-     * @return Newly created type instance, with given 
-     */
-    public abstract JavaType withContentTypeHandler(Object h);
-
-    /**
-     * Mutant factory method that will construct a new instance that is identical to
-     * this instance, except that it will have specified value handler assigned.
-     * 
-     * @return Newly created type instance
-     */
-    public abstract JavaType withValueHandler(Object h);
-
-    /**
-     * Mutant factory method that will construct a new instance that is identical to
-     * this instance, except that it will have specified content value handler assigned.
-     * 
-     * @return Newly created type instance
-     */
-    public abstract JavaType withContentValueHandler(Object h);
-
-    /**
-     * Mutant factory method that will try to copy handlers that the specified
-     * source type instance had, if any; this must be done recursively where
-     * necessary (as content types may be structured).
-     */
-    public JavaType withHandlersFrom(JavaType src) {
-        JavaType type = this;
-        Object h = src.getTypeHandler();
-        if (h != _typeHandler) {
-            type = type.withTypeHandler(h);
-        }
-        h = src.getValueHandler();
-        if (h != _valueHandler) {
-            type = type.withValueHandler(h);
-        }
-        return type;
     }
 
     /**
@@ -167,11 +124,92 @@ public abstract class JavaType
      * for arrays, Collections and Maps).
      */
     public abstract JavaType withStaticTyping();
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
+    /* Internal factory methods for Jackson-databind (not for users)
+    /**********************************************************************
+     */
+
+    /**
+     * Internal method that <b>should not be used by any code outside of
+     * jackson-databind</b>: only used internally by databind.
+     * May be removed from Jackson 3.0.
+     *<p>
+     * This mutant factory method will construct a new instance that is identical to
+     * this instance, except that it will have specified type handler assigned.
+     *
+     * @param h Handler to pass to new instance created
+     * @return Newly created type instance with same type information, specified handler
+     */
+    public abstract JavaType withTypeHandler(Object h);
+
+    /**
+     * Internal method that <b>should not be used by any code outside of
+     * jackson-databind</b>: only used internally by databind.
+     * May be removed from Jackson 3.0.
+     *<p>
+     * This mutant factory method will construct a new instance that is identical to
+     * this instance, except that it will have specified content type (element type
+     * for arrays, value type for Maps and so forth) handler assigned.
+     *
+     * @param h Handler to pass to new instance created
+     * @return Newly created type instance with same type information, specified handler
+     */
+    public abstract JavaType withContentTypeHandler(Object h);
+
+    /**
+     * Internal method that <b>should not be used by any code outside of
+     * jackson-databind</b>: only used internally by databind.
+     * May be removed from Jackson 3.0.
+     *<p>
+     * This mutant factory method will construct a new instance that is identical to
+     * this instance, except that it will have specified value handler assigned.
+     * 
+     * @param h Handler to pass to new instance created
+     * @return Newly created type instance with same type information, specified handler
+     */
+    public abstract JavaType withValueHandler(Object h);
+
+    /**
+     * Internal method that <b>should not be used by any code outside of
+     * jackson-databind</b>: only used internally by databind.
+     * May be removed from Jackson 3.0.
+     *<p>
+     * Mutant factory method that will construct a new instance that is identical to
+     * this instance, except that it will have specified content value handler assigned.
+     *
+     * @param h Handler to pass to new instance created
+     * @return Newly created type instance with same type information, specified handler
+     */
+    public abstract JavaType withContentValueHandler(Object h);
+
+    /**
+     * Internal method that <b>should not be used by any code outside of
+     * jackson-databind</b>: only used internally by databind.
+     * May be removed from Jackson 3.0.
+     *<p>
+     * Mutant factory method that will try to copy handlers that the specified
+     * source type instance had, if any; this must be done recursively where
+     * necessary (as content types may be structured).
+     */
+    public JavaType withHandlersFrom(JavaType src) {
+        JavaType type = this;
+        Object h = src.getTypeHandler();
+        if (h != _typeHandler) {
+            type = type.withTypeHandler(h);
+        }
+        h = src.getValueHandler();
+        if (h != _valueHandler) {
+            type = type.withValueHandler(h);
+        }
+        return type;
+    }
+
+    /*
+    /**********************************************************************
     /* Type coercion fluent factory methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -184,9 +222,9 @@ public abstract class JavaType
             JavaType superClass, JavaType[] superInterfaces);
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Implementation of ResolvedType API
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -324,9 +362,9 @@ public abstract class JavaType
     public final boolean useStaticType() { return _asStatic; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, type parameter access; pass-through
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -348,9 +386,9 @@ public abstract class JavaType
     public abstract JavaType containedType(int index);
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended API beyond ResolvedType
-    /**********************************************************
+    /**********************************************************************
      */
     
     // NOTE: not defined in Resolved type
@@ -402,27 +440,46 @@ public abstract class JavaType
     public abstract JavaType[] findTypeParameters(Class<?> expType);
 
     /*
-    /**********************************************************
-    /* Semi-public API, accessing handlers
-    /**********************************************************
+    /**********************************************************************
+    /* Internal accessors API, accessing handlers
+    /**********************************************************************
      */
-    
-    /**
-     * Method for accessing value handler associated with this type, if any
-     */
-    @SuppressWarnings("unchecked")
-    public <T> T getValueHandler() { return (T) _valueHandler; }
 
     /**
-     * Method for accessing type handler associated with this type, if any
+     * Internal accessor that <b>should not be used by any code outside of
+     * jackson-databind</b>: only used internally by databind.
+     * May be removed from Jackson 3.0.
+     *
+     * @return Value handler associated with this type, if any.
      */
-    @SuppressWarnings("unchecked")
-    public <T> T getTypeHandler() { return (T) _typeHandler; }
+    public Object getValueHandler() { return _valueHandler; }
 
+    /**
+     * Internal accessor that <b>should not be used by any code outside of
+     * jackson-databind</b>: only used internally by databind.
+     * May be removed from Jackson 3.0.
+     *
+     * @return Type handler associated with this type, if any.
+     */
+    public Object getTypeHandler() { return _typeHandler; }
+
+    /**
+     * Internal accessor that <b>should not be used by any code outside of
+     * jackson-databind</b>: only used internally by databind.
+     * May be removed from Jackson 3.0.
+     *
+     * @return Content value handler associated with this type, if any.
+     */
     public Object getContentValueHandler() { return null; }
 
+    /**
+     * Internal accessor that <b>should not be used by any code outside of
+     * jackson-databind</b>: only used internally by databind.
+     * May be removed from Jackson 3.0.
+     *
+     * @return Content type handler associated with this type, if any.
+     */
     public Object getContentTypeHandler() { return null; }    
-
 
     public boolean hasValueHandler() { return _valueHandler != null; }
 
@@ -435,11 +492,11 @@ public abstract class JavaType
     public boolean hasHandlers() {
         return (_typeHandler != null) || (_valueHandler != null);
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Support for producing signatures
-    /**********************************************************
+    /**********************************************************************
      */
     
     //public abstract String toCanonical();
@@ -493,9 +550,9 @@ public abstract class JavaType
     public abstract StringBuilder getErasedSignature(StringBuilder sb);
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Standard methods; let's make them abstract to force override
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override

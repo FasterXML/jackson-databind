@@ -661,13 +661,13 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
         BeanProperty.Std property = new BeanProperty.Std(TEMP_PROPERTY_NAME,
                 delegateType, null, delegateCreator,
                 PropertyMetadata.STD_OPTIONAL);
-        TypeDeserializer td = delegateType.getTypeHandler();
+        TypeDeserializer td = (TypeDeserializer) delegateType.getTypeHandler();
         if (td == null) {
             td = ctxt.findTypeDeserializer(delegateType);
         }
         // 04-May-2018, tatu: [databind#2021] check if there's custom deserializer attached
         //    to type (resolved from parameter)
-        ValueDeserializer<Object> dd = delegateType.getValueHandler();
+        ValueDeserializer<Object> dd = (ValueDeserializer<Object>) delegateType.getValueHandler();
         if (dd == null) {
             dd = findDeserializer(ctxt, delegateType, property);
         } else {

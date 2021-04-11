@@ -996,12 +996,13 @@ public abstract class BasicSerializerFactory
             boolean staticTyping)
     {
         JavaType contentType = refType.getContentType(); 
-        TypeSerializer contentTypeSerializer = contentType.getTypeHandler();
+        TypeSerializer contentTypeSerializer = (TypeSerializer) contentType.getTypeHandler();
         final SerializationConfig config = ctxt.getConfig();
         if (contentTypeSerializer == null) {
             contentTypeSerializer = ctxt.findTypeSerializer(contentType);
         }
-        ValueSerializer<Object> contentSerializer = contentType.getValueHandler();
+        @SuppressWarnings("unchecked")
+        ValueSerializer<Object> contentSerializer = (ValueSerializer<Object>) contentType.getValueHandler();
         for (Serializers serializers : customSerializers()) {
             ValueSerializer<?> ser = serializers.findReferenceSerializer(config, refType, beanDesc, format,
                     contentTypeSerializer, contentSerializer);

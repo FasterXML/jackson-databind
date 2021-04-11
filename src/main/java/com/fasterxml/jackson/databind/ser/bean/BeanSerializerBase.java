@@ -323,7 +323,7 @@ public abstract class BeanSerializerBase
                 // 04-Feb-2010, tatu: We may have stashed type serializer for content types
                 //   too, earlier; if so, it's time to connect the dots here:
                 if (type.isContainerType()) {
-                    TypeSerializer typeSer = type.getContentType().getTypeHandler();
+                    TypeSerializer typeSer = (TypeSerializer) type.getContentType().getTypeHandler();
                     if (typeSer != null) {
                         // for now, can do this only for standard containers...
                         if (ser instanceof StdContainerSerializer<?>) {

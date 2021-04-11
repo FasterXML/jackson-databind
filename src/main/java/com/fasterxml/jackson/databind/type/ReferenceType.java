@@ -164,9 +164,11 @@ public class ReferenceType extends SimpleType
     {
         StringBuilder sb = new StringBuilder();
         sb.append(_class.getName());
-        sb.append('<');
-        sb.append(_referencedType.toCanonical());
-        sb.append('>');
+        if ((_referencedType != null) && _hasNTypeParameters(1)) {
+            sb.append('<');
+            sb.append(_referencedType.toCanonical());
+            sb.append('>');
+        }
         return sb.toString();
     }
 

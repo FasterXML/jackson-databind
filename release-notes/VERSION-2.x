@@ -32,6 +32,9 @@ Project: jackson-databind
 
 2.12.3 (not yet released)
 
+#3108: `TypeFactory` cannot convert `Collection` sub-type without type parameters
+  to canonical form and back
+ (reported by lbilger@github)
 - Fix for [modules-java8#207]: prevent fail on secondary Java 8 date/time types
 
 2.12.2 (03-Mar-2021)

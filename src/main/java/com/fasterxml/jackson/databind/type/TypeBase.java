@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.type;
 
 import java.io.IOException;
+import java.lang.reflect.TypeVariable;
 import java.util.*;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -254,5 +255,10 @@ public abstract class TypeBase
             return null;
         }
         return TypeFactory.unknownType();
+    }
+
+    protected boolean _hasNTypeParameters(int count) {
+        TypeVariable<?>[] params = _class.getTypeParameters();
+        return (params.length == count);
     }
 }

@@ -165,7 +165,10 @@ public class SimpleType // note: until 2.6 was final
         sb.append(_class.getName());
 
         final int count = _bindings.size();
-        if (count > 0) {
+
+        // 10-Apr-2021, tatu: [databind#3108] Ensure we have at least nominally
+        //   compatible type declaration (weak guarantee but better than nothing)
+        if ((count > 0) && _hasNTypeParameters(count)) {
             sb.append('<');
             for (int i = 0; i < count; ++i) {
                 JavaType t = containedType(i);

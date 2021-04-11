@@ -176,7 +176,9 @@ public class CollectionLikeType extends TypeBase
     protected String buildCanonicalName() {
         StringBuilder sb = new StringBuilder();
         sb.append(_class.getName());
-        if (_elementType != null) {
+        // 10-Apr-2021, tatu: [databind#3108] Ensure we have at least nominally
+        //   compatible type declaration (weak guarantee but better than nothing)
+        if ((_elementType != null) && _hasNTypeParameters(1)) {
             sb.append('<');
             sb.append(_elementType.toCanonical());
             sb.append('>');

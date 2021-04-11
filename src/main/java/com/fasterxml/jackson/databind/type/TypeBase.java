@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.type;
 
+import java.lang.reflect.TypeVariable;
 import java.util.*;
 
 import com.fasterxml.jackson.core.JacksonException;
@@ -225,5 +226,10 @@ public abstract class TypeBase
             }
         }
         return sb;
+    }
+
+    protected boolean _hasNTypeParameters(int count) {
+        TypeVariable<?>[] params = _class.getTypeParameters();
+        return (params.length == count);
     }
 }

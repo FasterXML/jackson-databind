@@ -155,7 +155,9 @@ public class MapLikeType extends TypeBase {
     protected String buildCanonicalName() {
         StringBuilder sb = new StringBuilder();
         sb.append(_class.getName());
-        if (_keyType != null) {
+        // 10-Apr-2021, tatu: [databind#3108] Ensure we have at least nominally
+        //   compatible type declaration (weak guarantee but better than nothing)
+        if ((_keyType != null) && _hasNTypeParameters(2)) {
             sb.append('<');
             sb.append(_keyType.toCanonical());
             sb.append(',');

@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.12.3 (not yet released)
+2.12.3 (12-Apr-2021)
 
 #3108: `TypeFactory` cannot convert `Collection` sub-type without type parameters
   to canonical form and back

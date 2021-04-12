@@ -1,6 +1,8 @@
-package com.fasterxml.jackson.databind;
+package com.fasterxml.jackson.databind.records;
 
 import com.fasterxml.jackson.annotation.*;
+
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.util.ClassUtil;

@@ -120,7 +120,7 @@ public class TestPropertyConflicts extends BaseMapTest
                 .annotationIntrospector(new InferingIntrospector())
                 .build();
         String json = mapper.writeValueAsString(new Infernal());
-        assertEquals(aposToQuotes("{'name':'Bob'}"), json);
+        assertEquals(a2q("{'name':'Bob'}"), json);
     }
     
     public void testInferredNameConflictsWithSetters() throws Exception
@@ -128,7 +128,7 @@ public class TestPropertyConflicts extends BaseMapTest
         ObjectMapper mapper = jsonMapperBuilder()
                 .annotationIntrospector(new InferingIntrospector())
                 .build();
-        Infernal inf = mapper.readValue(aposToQuotes("{'stuff':'Bob'}"), Infernal.class);
+        Infernal inf = mapper.readValue(a2q("{'stuff':'Bob'}"), Infernal.class);
         assertNotNull(inf);
     }
 

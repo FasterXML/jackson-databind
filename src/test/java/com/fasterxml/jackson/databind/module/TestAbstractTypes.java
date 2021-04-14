@@ -148,7 +148,7 @@ public class TestAbstractTypes extends BaseMapTest
         ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(mod)
                 .build();
-        Object result = mapper.readValue(quote("abc"), CharSequence.class);
+        Object result = mapper.readValue(q("abc"), CharSequence.class);
         assertEquals(MyString.class, result.getClass());
         assertEquals("abc", ((MyString) result).value);
 

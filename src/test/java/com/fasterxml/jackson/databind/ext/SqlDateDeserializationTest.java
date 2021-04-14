@@ -30,7 +30,7 @@ public class SqlDateDeserializationTest
 
         // then from default java.sql.Date String serialization:
         
-        java.sql.Date result = MAPPER.readValue(quote(value.toString()), java.sql.Date.class);
+        java.sql.Date result = MAPPER.readValue(q(value.toString()), java.sql.Date.class);
         Calendar c = gmtCalendar(result.getTime());
         assertEquals(1999, c.get(Calendar.YEAR));
         assertEquals(Calendar.APRIL, c.get(Calendar.MONTH));
@@ -40,7 +40,7 @@ public class SqlDateDeserializationTest
          *   formats as well
          */
         String expStr = "1981-07-13";
-        result = MAPPER.readValue(quote(expStr), java.sql.Date.class);
+        result = MAPPER.readValue(q(expStr), java.sql.Date.class);
         c.setTimeInMillis(result.getTime());
         assertEquals(1981, c.get(Calendar.YEAR));
         assertEquals(Calendar.JULY, c.get(Calendar.MONTH));
@@ -56,7 +56,7 @@ public class SqlDateDeserializationTest
 
     public void testDatesWithEmptyStrings() throws Exception
     {
-        assertNull(MAPPER.readValue(quote(""), java.sql.Date.class));
+        assertNull(MAPPER.readValue(q(""), java.sql.Date.class));
     }
 
     private static Calendar gmtCalendar(long time)

@@ -37,7 +37,7 @@ public class CreatorTest extends BaseMapTest
     public void testCreatorWithOptional() throws Exception
     {
         CreatorWithOptionalStrings bean = MAPPER.readValue(
-                aposToQuotes("{'a':'foo'}"), CreatorWithOptionalStrings.class);
+                a2q("{'a':'foo'}"), CreatorWithOptionalStrings.class);
         assertNotNull(bean);
         assertNotNull(bean.a);
         assertNotNull(bean.b);

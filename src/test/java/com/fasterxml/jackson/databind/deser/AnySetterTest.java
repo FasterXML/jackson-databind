@@ -269,7 +269,7 @@ public class AnySetterTest
     public void testAnySetterDisable() throws Exception
     {
         try {
-            MAPPER.readValue(aposToQuotes("{'value':3}"),
+            MAPPER.readValue(a2q("{'value':3}"),
                     MapImitatorDisabled.class);
             fail("Should not pass");
         } catch (UnrecognizedPropertyException e) {
@@ -362,7 +362,7 @@ public class AnySetterTest
 		assertNull(result.other);
     }
 
-    final static String UNWRAPPED_JSON_349 = aposToQuotes(
+    final static String UNWRAPPED_JSON_349 = a2q(
             "{ 'type' : 'IST',\n"
                     +" 'x' : 3,\n"
                     //+" 'name' : 'BLAH-New',\n"
@@ -404,7 +404,7 @@ public class AnySetterTest
         Map<Integer, Integer> integerGenericMap = new HashMap<Integer, Integer>();
         integerGenericMap.put(111, 6);
 
-        MyWrapper deserialized = mapper.readValue(aposToQuotes(
+        MyWrapper deserialized = mapper.readValue(a2q(
                 "{'myStringGeneric':{'staticallyMappedProperty':'Test','testStringKey':5},'myIntegerGeneric':{'staticallyMappedProperty':'Test2','111':6}}"
                 ), MyWrapper.class);
         MyGeneric<String> stringGeneric = deserialized.getMyStringGeneric();

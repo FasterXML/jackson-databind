@@ -238,7 +238,7 @@ public class JsonIncludeTest
     {
         NonDefaultBeanXYZ bean = new NonDefaultBeanXYZ(1, 2, 0);
         String json = MAPPER.writeValueAsString(bean);
-        assertEquals(aposToQuotes("{'x':1,'y':2}"), json);
+        assertEquals(a2q("{'x':1,'y':2}"), json);
     }
     
     public void testMixedMethod() throws IOException
@@ -313,10 +313,10 @@ public class JsonIncludeTest
         ObjectMapper mapper = jsonMapperBuilder()
                 .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_DEFAULT))
                 .build();
-        assertEquals(aposToQuotes("{}"),
+        assertEquals(a2q("{}"),
                 mapper.writeValueAsString(new Issue1351Bean(null, (double) 0)));
         // [databind#1417]
-        assertEquals(aposToQuotes("{}"),
+        assertEquals(a2q("{}"),
                 mapper.writeValueAsString(new Issue1351NonBean(0)));
     }
 
@@ -324,7 +324,7 @@ public class JsonIncludeTest
     public void testInclusionOfDate() throws Exception
     {
         final Date input = new Date(0L);
-        assertEquals(aposToQuotes("{'value':0}"), 
+        assertEquals(a2q("{'value':0}"), 
                 MAPPER.writeValueAsString(new NonEmptyDate(input)));
         assertEquals("{}", 
                 MAPPER.writeValueAsString(new NonDefaultDate(input)));
@@ -337,7 +337,7 @@ public class JsonIncludeTest
     {
         final Calendar input = new GregorianCalendar();
         input.setTimeInMillis(0L);
-        assertEquals(aposToQuotes("{'value':0}"), 
+        assertEquals(a2q("{'value':0}"), 
                 MAPPER.writeValueAsString(new NonEmptyCalendar(input)));
         assertEquals("{}", 
                 MAPPER.writeValueAsString(new NonDefaultCalendar(input)));

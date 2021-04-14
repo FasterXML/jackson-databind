@@ -243,9 +243,9 @@ public class CollectionSerializationTest
 
     public void testListSerializer() throws IOException
     {
-        assertEquals(quote("[ab, cd, ef]"),
+        assertEquals(q("[ab, cd, ef]"),
                 MAPPER.writeValueAsString(new PseudoList("ab", "cd", "ef")));
-        assertEquals(quote("[]"),
+        assertEquals(q("[]"),
                 MAPPER.writeValueAsString(new PseudoList()));
     }
 
@@ -272,7 +272,7 @@ public class CollectionSerializationTest
         // First: au naturel
         StaticListWrapper w = new StaticListWrapper("a", "b", "c");
         String json = MAPPER.writeValueAsString(w);
-        assertEquals(aposToQuotes("{'list':['a','b','c']}"), json);
+        assertEquals(a2q("{'list':['a','b','c']}"), json);
 
         // but then with default typing
         final ObjectMapper mapper = jsonMapperBuilder()
@@ -280,7 +280,7 @@ public class CollectionSerializationTest
                         DefaultTyping.NON_FINAL)
                 .build();
         json = mapper.writeValueAsString(w);
-        assertEquals(aposToQuotes(String.format("['%s',{'list':['%s',['a','b','c']]}]",
+        assertEquals(a2q(String.format("['%s',{'list':['%s',['a','b','c']]}]",
                 w.getClass().getName(), w.list.getClass().getName())), json);
     }
 }

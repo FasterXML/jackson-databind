@@ -323,10 +323,10 @@ public class ExternalTypeIdTest extends BaseMapTest
                 .registerSubtypes(ValueBean.class)
                 .build();
         ExternalBean b;
-        b = mapper.readValue(aposToQuotes("{'bean':null,'extType':'vbean'}"),
+        b = mapper.readValue(a2q("{'bean':null,'extType':'vbean'}"),
                 ExternalBean.class);
         assertNotNull(b);
-        b = mapper.readValue(aposToQuotes("{'extType':'vbean','bean':null}"),
+        b = mapper.readValue(a2q("{'extType':'vbean','bean':null}"),
                 ExternalBean.class);
         assertNotNull(b);
     }

@@ -202,13 +202,13 @@ public class TestBasicAnnotations
     public void testEnumsWhenDisabled() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
-        assertEquals(Alpha.B, m.readValue(quote("B"), Alpha.class));
+        assertEquals(Alpha.B, m.readValue(q("B"), Alpha.class));
 
         m = jsonMapperBuilder()
                 .disable(MapperFeature.USE_ANNOTATIONS)
                 .build();
         // should still use the basic name handling here
-        assertEquals(Alpha.B, m.readValue(quote("B"), Alpha.class));
+        assertEquals(Alpha.B, m.readValue(q("B"), Alpha.class));
     }
 
     public void testNoAccessOverrides() throws Exception

@@ -22,9 +22,9 @@ public class BeanNamingTest extends BaseMapTest
     public void testMultipleLeadingCapitalLetters() throws Exception
     {
         ObjectMapper mapper = objectMapper();
-        assertEquals(aposToQuotes("{'URL':'http://foo'}"),
+        assertEquals(a2q("{'URL':'http://foo'}"),
                 mapper.writeValueAsString(new URLBean()));
-        assertEquals(aposToQuotes("{'a':3}"),
+        assertEquals(a2q("{'a':3}"),
                 mapper.writeValueAsString(new ABean()));
     }
 }

@@ -191,7 +191,7 @@ public class JSOGDeserialize622Test extends BaseMapTest
     // Basic for [databind#622]
     public void testStructJSOGRef() throws Exception
     {
-        final String EXP_EXAMPLE_JSOG =  aposToQuotes(
+        final String EXP_EXAMPLE_JSOG =  a2q(
                 "{'@id':'1','foo':66,'next':{'"+REF_KEY+"':'1'}}");
 
         IdentifiableExampleJSOG result = MAPPER.readValue(EXP_EXAMPLE_JSOG,

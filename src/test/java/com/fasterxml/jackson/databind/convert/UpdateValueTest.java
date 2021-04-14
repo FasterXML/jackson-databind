@@ -6,8 +6,6 @@ import com.fasterxml.jackson.databind.*;
 
 /**
  * Tests for {@link ObjectMapper#updateValue}.
- *
- * @since 2.9
  */
 public class UpdateValueTest extends BaseMapTest
 {

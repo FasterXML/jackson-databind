@@ -36,7 +36,7 @@ public class EnumDeserialization2787Test extends BaseMapTest
         ObjectMapper mapper = jsonMapperBuilder()
                 .addMixIn(SomeEnum2787.class, SomeEnumMixin2787.class)
                 .build();
-        SomeEnum2787 result = mapper.readValue(quote("zero"), SomeEnum2787.class);
+        SomeEnum2787 result = mapper.readValue(q("zero"), SomeEnum2787.class);
         assertEquals(SomeEnum2787.none, result);
     }
 }

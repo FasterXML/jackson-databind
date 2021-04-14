@@ -380,14 +380,14 @@ public class TestCreators
     public void testStringFactory() throws Exception
     {
         String str = "abc";
-        StringFactoryBean bean = MAPPER.readValue(quote(str), StringFactoryBean.class);
+        StringFactoryBean bean = MAPPER.readValue(q(str), StringFactoryBean.class);
         assertEquals(str, bean.value);
     }
 
     public void testStringFactoryAlt() throws Exception
     {
         String str = "xyz";
-        FromStringBean bean = MAPPER.readValue(quote(str), FromStringBean.class);
+        FromStringBean bean = MAPPER.readValue(q(str), FromStringBean.class);
         assertEquals(str, bean.value);
     }
         
@@ -430,7 +430,7 @@ public class TestCreators
     {
         MultiBean bean = MAPPER.readValue("123", MultiBean.class);
         assertEquals(Integer.valueOf(123), bean.value);
-        bean = MAPPER.readValue(quote("abc"), MultiBean.class);
+        bean = MAPPER.readValue(q("abc"), MultiBean.class);
         assertEquals("abc", bean.value);
         bean = MAPPER.readValue("0.25", MultiBean.class);
         assertEquals(Double.valueOf(0.25), bean.value);

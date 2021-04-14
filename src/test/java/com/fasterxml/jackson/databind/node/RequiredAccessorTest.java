@@ -13,12 +13,12 @@ public class RequiredAccessorTest
     private final JsonNode TEST_OBJECT, TEST_ARRAY;
 
     public RequiredAccessorTest() throws Exception {
-        TEST_OBJECT = MAPPER.readTree(aposToQuotes(
+        TEST_OBJECT = MAPPER.readTree(a2q(
  "{ 'data' : { 'primary' : 15, 'vector' : [ 'yes', false ], 'nullable' : null  },\n"
 +"  'array' : [ true,   {\"messsage\":'hello', 'value' : 42, 'misc' : [1, 2] }, null, 0.25 ]\n"
 +"}"
         ));
-        TEST_ARRAY = MAPPER.readTree(aposToQuotes(
+        TEST_ARRAY = MAPPER.readTree(a2q(
  "[ true, { 'data' : { 'primary' : 15, 'vector' : [ 'yes', false ]  } }, 0.25, 'last' ]"
         ));
     }

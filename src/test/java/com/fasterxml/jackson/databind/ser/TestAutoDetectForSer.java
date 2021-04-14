@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.*;
  * Unit tests for checking extended auto-detect configuration,
  * in context of serialization
  */
-public class TestAutoDetect
+public class TestAutoDetectForSer
     extends BaseMapTest
 {
     static class FieldBean

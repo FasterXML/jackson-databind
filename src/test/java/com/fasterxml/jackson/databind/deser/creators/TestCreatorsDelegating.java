@@ -146,7 +146,7 @@ public class TestCreatorsDelegating extends BaseMapTest
         assertEquals(Boolean.TRUE, bb.value);
 
         // but also with value conversion from String
-        bb = MAPPER.readValue(quote("true"), BooleanBean.class);
+        bb = MAPPER.readValue(q("true"), BooleanBean.class);
         assertEquals(Boolean.TRUE, bb.value);
     }
 
@@ -156,7 +156,7 @@ public class TestCreatorsDelegating extends BaseMapTest
         assertEquals(Integer.valueOf(-13), bb.value);
 
         // but also with value conversion from String (unless blocked)
-        bb = MAPPER.readValue(quote("127"), IntegerBean.class);
+        bb = MAPPER.readValue(q("127"), IntegerBean.class);
         assertEquals(Integer.valueOf(127), bb.value);
     }
 
@@ -166,7 +166,7 @@ public class TestCreatorsDelegating extends BaseMapTest
         assertEquals(Long.valueOf(11L), bb.value);
 
         // but also with value conversion from String (unless blocked)
-        bb = MAPPER.readValue(quote("-99"), LongBean.class);
+        bb = MAPPER.readValue(q("-99"), LongBean.class);
         assertEquals(Long.valueOf(-99L), bb.value);
     }
 
@@ -253,11 +253,11 @@ public class TestCreatorsDelegating extends BaseMapTest
     public void testMultipleCreators2353() throws Exception
     {
         // first, test delegating
-        SuperToken2353 result = MAPPER.readValue(quote("Bob"), SuperToken2353.class);
+        SuperToken2353 result = MAPPER.readValue(q("Bob"), SuperToken2353.class);
         assertEquals("Bob", result.username);
 
         // and then properties-based
-        result = MAPPER.readValue(aposToQuotes("{'name':'Billy', 'time':123}"), SuperToken2353.class);
+        result = MAPPER.readValue(a2q("{'name':'Billy', 'time':123}"), SuperToken2353.class);
         assertEquals("Billy", result.username);
         assertEquals(123L, result.time);
     }

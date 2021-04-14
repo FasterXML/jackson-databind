@@ -509,7 +509,7 @@ public class GenericTypeSerializationTest extends BaseMapTest
         List<Base727> input = new ArrayList<Base727>();
         input.add(new Impl727(1, 2));
 
-        final String EXP = aposToQuotes("[{'a':1,'b':2}]");
+        final String EXP = a2q("[{'a':1,'b':2}]");
         // Without type enforcement, produces expected output:
         assertEquals(EXP, MAPPER.writeValueAsString(input));
         assertEquals(EXP, MAPPER.writer().writeValueAsString(input));

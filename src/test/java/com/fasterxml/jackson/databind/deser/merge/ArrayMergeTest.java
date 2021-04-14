@@ -39,7 +39,7 @@ public class ArrayMergeTest extends BaseMapTest
         final JavaType type = MAPPER.getTypeFactory().constructType(new TypeReference<MergedX<Object[]>>() {});
         MergedX<Object[]> result = MAPPER.readerFor(type)
                 .withValueToUpdate(input)
-                .readValue(aposToQuotes("{'value':['bar']}"));
+                .readValue(a2q("{'value':['bar']}"));
         assertSame(input, result);
         assertEquals(2, result.value.length);
         assertEquals("foo", result.value[0]);
@@ -49,7 +49,7 @@ public class ArrayMergeTest extends BaseMapTest
         result = MAPPER.readerFor(type)
                 .with(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
                 .withValueToUpdate(input)
-                .readValue(aposToQuotes("{'value':'zap'}"));
+                .readValue(a2q("{'value':'zap'}"));
         assertSame(input, result);
         assertEquals(3, result.value.length);
         assertEquals("foo", result.value[0]);
@@ -63,7 +63,7 @@ public class ArrayMergeTest extends BaseMapTest
         MergedX<String[]> result = MAPPER
                 .readerFor(new TypeReference<MergedX<String[]>>() {})
                 .withValueToUpdate(input)
-                .readValue(aposToQuotes("{'value':['bar']}"));
+                .readValue(a2q("{'value':['bar']}"));
         assertSame(input, result);
         assertEquals(2, result.value.length);
         assertEquals("foo", result.value[0]);
@@ -76,7 +76,7 @@ public class ArrayMergeTest extends BaseMapTest
         MergedX<boolean[]> result = MAPPER
                 .readerFor(new TypeReference<MergedX<boolean[]>>() {})
                 .withValueToUpdate(input)
-                .readValue(aposToQuotes("{'value':[true]}"));
+                .readValue(a2q("{'value':[true]}"));
         assertSame(input, result);
         assertEquals(3, result.value.length);
         Assert.assertArrayEquals(new boolean[] { true, false, true }, result.value);
@@ -88,7 +88,7 @@ public class ArrayMergeTest extends BaseMapTest
         MergedX<byte[]> result = MAPPER
                 .readerFor(new TypeReference<MergedX<byte[]>>() {})
                 .withValueToUpdate(input)
-                .readValue(aposToQuotes("{'value':[4, 6.0, null]}"));
+                .readValue(a2q("{'value':[4, 6.0, null]}"));
         assertSame(input, result);
         assertEquals(5, result.value.length);
         Assert.assertArrayEquals(new byte[] { 1, 2, 4, 6, 0 }, result.value);
@@ -100,7 +100,7 @@ public class ArrayMergeTest extends BaseMapTest
         MergedX<short[]> result = MAPPER
                 .readerFor(new TypeReference<MergedX<short[]>>() {})
                 .withValueToUpdate(input)
-                .readValue(aposToQuotes("{'value':[4, 6]}"));
+                .readValue(a2q("{'value':[4, 6]}"));
         assertSame(input, result);
         assertEquals(4, result.value.length);
         Assert.assertArrayEquals(new short[] { 1, 2, 4, 6 }, result.value);
@@ -112,7 +112,7 @@ public class ArrayMergeTest extends BaseMapTest
         MergedX<char[]> result = MAPPER
                 .readerFor(new TypeReference<MergedX<char[]>>() {})
                 .withValueToUpdate(input)
-                .readValue(aposToQuotes("{'value':['c']}"));
+                .readValue(a2q("{'value':['c']}"));
         assertSame(input, result);
         Assert.assertArrayEquals(new char[] { 'a', 'b', 'c' }, result.value);
 
@@ -121,7 +121,7 @@ public class ArrayMergeTest extends BaseMapTest
         result = MAPPER
                 .readerFor(new TypeReference<MergedX<char[]>>() {})
                 .withValueToUpdate(input)
-                .readValue(aposToQuotes("{'value':['c']}"));
+                .readValue(a2q("{'value':['c']}"));
         assertSame(input, result);
         Assert.assertArrayEquals(new char[] { 'c' }, result.value);
     }
@@ -132,7 +132,7 @@ public class ArrayMergeTest extends BaseMapTest
         MergedX<int[]> result = MAPPER
                 .readerFor(new TypeReference<MergedX<int[]>>() {})
                 .withValueToUpdate(input)
-                .readValue(aposToQuotes("{'value':[4, 6]}"));
+                .readValue(a2q("{'value':[4, 6]}"));
         assertSame(input, result);
         assertEquals(4, result.value.length);
         Assert.assertArrayEquals(new int[] { 1, 2, 4, 6 }, result.value);
@@ -142,7 +142,7 @@ public class ArrayMergeTest extends BaseMapTest
         result = MAPPER
                 .readerFor(new TypeReference<MergedX<int[]>>() {})
                 .withValueToUpdate(input)
-                .readValue(aposToQuotes("{'value':[ ]}"));
+                .readValue(a2q("{'value':[ ]}"));
         assertSame(input, result);
         Assert.assertArrayEquals(new int[] { 3, 4, 6 }, result.value);
     }
@@ -153,7 +153,7 @@ public class ArrayMergeTest extends BaseMapTest
         MergedX<long[]> result = MAPPER
                 .readerFor(new TypeReference<MergedX<long[]>>() {})
                 .withValueToUpdate(input)
-                .readValue(aposToQuotes("{'value':[4, 6]}"));
+                .readValue(a2q("{'value':[4, 6]}"));
         assertSame(input, result);
         assertEquals(4, result.value.length);
         Assert.assertArrayEquals(new long[] { 1, 2, 4, 6 }, result.value);

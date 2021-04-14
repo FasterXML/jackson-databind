@@ -46,7 +46,7 @@ public class ExternalTypeIdWithIgnoreUnknownTest extends BaseMapTest
     // [databind#2611]
     public void testDeserialization() throws Exception
     {
-        final String data = aposToQuotes("[{'type': 'test','data': {},'additional': {}}]");
+        final String data = a2q("[{'type': 'test','data': {},'additional': {}}]");
 
         List<Wrapper2611> result = MAPPER.readValue(data, new TypeReference<List<Wrapper2611>>() {});
 

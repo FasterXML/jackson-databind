@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 
 public class CoerceContainersTest extends BaseMapTest
 {
-    private final String JSON_EMPTY = quote("");
+    private final String JSON_EMPTY = q("");
 
     private final ObjectMapper VANILLA_MAPPER = sharedMapper();
 

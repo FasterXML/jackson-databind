@@ -92,7 +92,7 @@ public class IgnorePropertyOnDeserTest extends BaseMapTest
     // [databind#426]
     public void testIssue426() throws Exception
     {
-        final String JSON = aposToQuotes("{'userId': 9, 'firstName': 'Mike' }");
+        final String JSON = a2q("{'userId': 9, 'firstName': 'Mike' }");
         User result = MAPPER.readerFor(User.class).readValue(JSON);
         assertNotNull(result);
         assertEquals("Mike", result.firstName);
@@ -103,7 +103,7 @@ public class IgnorePropertyOnDeserTest extends BaseMapTest
     public void testIgnoreOnProperty1217() throws Exception
     {
         TestIgnoreObject result = MAPPER.readValue(
-                aposToQuotes("{'obj':{'x': 10, 'y': 20}, 'obj2':{'x': 10, 'y': 20}}"),
+                a2q("{'obj':{'x': 10, 'y': 20}, 'obj2':{'x': 10, 'y': 20}}"),
                 TestIgnoreObject.class);
         assertEquals(20, result.obj.y);
         assertEquals(10, result.obj2.x);
@@ -112,7 +112,7 @@ public class IgnorePropertyOnDeserTest extends BaseMapTest
         assertEquals(2, result.obj2.y);
 
         TestIgnoreObject result1 = MAPPER.readValue(
-                  aposToQuotes("{'obj':{'x': 20, 'y': 30}, 'obj2':{'x': 20, 'y': 40}}"),
+                  a2q("{'obj':{'x': 20, 'y': 30}, 'obj2':{'x': 20, 'y': 40}}"),
                   TestIgnoreObject.class);
         assertEquals(1, result1.obj.x);
         assertEquals(30, result1.obj.y);
@@ -127,7 +127,7 @@ public class IgnorePropertyOnDeserTest extends BaseMapTest
                 .withConfigOverride(Point.class,
                         o -> o.setIgnorals(JsonIgnoreProperties.Value.forIgnoredProperties("y")))
                 .build();
-        Point p = mapper.readValue(aposToQuotes("{'x':1,'y':2}"), Point.class);
+        Point p = mapper.readValue(a2q("{'x':1,'y':2}"), Point.class);
         // bind 'x', but ignore 'y'
         assertEquals(1, p.x);
         assertEquals(0, p.y);
@@ -141,8 +141,8 @@ public class IgnorePropertyOnDeserTest extends BaseMapTest
         config.setId(123);
         config.setName("jack");
         String json = mapper.writeValueAsString(config);
-        assertEquals(aposToQuotes("{'id':123}"), json);
-        Simple1595 des = mapper.readValue(aposToQuotes("{'id':123,'name':'jack'}"), Simple1595.class);
+        assertEquals(a2q("{'id':123}"), json);
+        Simple1595 des = mapper.readValue(a2q("{'id':123,'name':'jack'}"), Simple1595.class);
         assertEquals("jack", des.getName());
     }
 

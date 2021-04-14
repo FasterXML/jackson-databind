@@ -1,8 +1,10 @@
-package com.fasterxml.jackson.databind;
+package com.fasterxml.jackson.databind.records;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
+
+import com.fasterxml.jackson.databind.*;
 
 public class RecordCreatorsTest extends BaseMapTest
 {

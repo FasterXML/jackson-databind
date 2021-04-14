@@ -61,7 +61,7 @@ public class AnnotatedPolymorphicValidationTest
 
     public void testPolymorphicWithUnsafeBaseType() throws IOException
     {
-        final String JSON = aposToQuotes("{'value':10}");
+        final String JSON = a2q("{'value':10}");
         // by default, we should NOT be allowed to deserialize due to unsafe base type
         try {
             /*w =*/ MAPPER.readValue(JSON, WrappedPolymorphicUntyped.class);

@@ -247,7 +247,7 @@ public class TestPOJOAsArray extends BaseMapTest
     {
         // as POJO:
 //        CreatorWithIndex value = MAPPER.readValue(aposToQuotes("{'b':1,'a':2}"),
-        CreatorWithIndex value = MAPPER.readValue(aposToQuotes("[2,1]"),
+        CreatorWithIndex value = MAPPER.readValue(a2q("[2,1]"),
                 CreatorWithIndex.class);
         assertEquals(2, value._a);
         assertEquals(1, value._b);

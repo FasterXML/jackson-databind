@@ -101,13 +101,13 @@ public class ImplicitNameMatch792Test extends BaseMapTest
                 .annotationIntrospector(new ConstructorNameAI())
                 .build();
         String json = m.writeValueAsString(new Issue792Bean("a", "b"));
-        assertEquals(aposToQuotes("{'first':'a','other':3}"), json);
+        assertEquals(a2q("{'first':'a','other':3}"), json);
     }
 
     public void testImplicitWithSetterGetter() throws Exception
     {
         String json = MAPPER.writeValueAsString(new Bean2());
-        assertEquals(aposToQuotes("{'stuff':3}"), json);
+        assertEquals(a2q("{'stuff':3}"), json);
     }
 
     public void testReadWriteWithPrivateField() throws Exception
@@ -118,7 +118,7 @@ public class ImplicitNameMatch792Test extends BaseMapTest
 
     public void testWriteOnly() throws Exception
     {
-        PasswordBean bean = MAPPER.readValue(aposToQuotes("{'value':7,'password':'foo'}"),
+        PasswordBean bean = MAPPER.readValue(a2q("{'value':7,'password':'foo'}"),
                 PasswordBean.class);
         assertEquals("[password='foo',value=7]", bean.asString());
         String json = MAPPER.writeValueAsString(bean);

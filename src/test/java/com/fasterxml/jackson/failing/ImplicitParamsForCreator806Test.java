@@ -46,7 +46,7 @@ public class ImplicitParamsForCreator806Test extends BaseMapTest
                 .propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
                 .annotationIntrospector(new MyParamIntrospector())
                 .build();
-        XY value = mapper.readValue(aposToQuotes("{'param_name0':1,'param_name1':2}"), XY.class);
+        XY value = mapper.readValue(a2q("{'param_name0':1,'param_name1':2}"), XY.class);
         assertNotNull(value);
         assertEquals(1, value.x);
         assertEquals(2, value.y);

@@ -111,7 +111,7 @@ public class TestAutoDetect
     {
         // first, default settings, with which construction works ok
         ObjectMapper m = new ObjectMapper();
-        ProtectedBean bean = m.readValue(quote("abc"), ProtectedBean.class);
+        ProtectedBean bean = m.readValue(q("abc"), ProtectedBean.class);
         assertEquals("abc", bean.a);
 
         // then by increasing visibility requirement:
@@ -130,7 +130,7 @@ public class TestAutoDetect
     {
         // first, default settings, with which construction works ok
         ObjectMapper m = new ObjectMapper();
-        PrivateBeanAnnotated bean = m.readValue(quote("abc"), PrivateBeanAnnotated.class);
+        PrivateBeanAnnotated bean = m.readValue(q("abc"), PrivateBeanAnnotated.class);
         assertEquals("abc", bean.a);
 
         // but not so much without
@@ -145,7 +145,7 @@ public class TestAutoDetect
         m = jsonMapperBuilder()
                 .changeDefaultVisibility(vc -> vc.withScalarConstructorVisibility(JsonAutoDetect.Visibility.ANY))
                 .build();
-        bean = m.readValue(quote("xyz"), PrivateBeanAnnotated.class);
+        bean = m.readValue(q("xyz"), PrivateBeanAnnotated.class);
         assertEquals("xyz", bean.a);
     }
 
@@ -154,7 +154,7 @@ public class TestAutoDetect
     {
         // first, by default, both field/method should be visible
         final Feature1347SerBean input = new Feature1347SerBean();
-        assertEquals(aposToQuotes("{'field':2,'value':3}"),
+        assertEquals(a2q("{'field':2,'value':3}"),
                 MAPPER.writeValueAsString(input));
 
         ObjectMapper mapper = jsonMapperBuilder()
@@ -162,14 +162,14 @@ public class TestAutoDetect
                         o -> o.setVisibility(JsonAutoDetect.Value.construct(PropertyAccessor.GETTER,
                             Visibility.NONE)))
                 .build();
-        assertEquals(aposToQuotes("{'field':2}"),
+        assertEquals(a2q("{'field':2}"),
                 mapper.writeValueAsString(input));
     }
 
     // [databind#1347]
     public void testVisibilityConfigOverridesForDeser() throws Exception
     {
-        final String JSON = aposToQuotes("{'value':3}");
+        final String JSON = a2q("{'value':3}");
 
         // by default, should throw exception
         try {

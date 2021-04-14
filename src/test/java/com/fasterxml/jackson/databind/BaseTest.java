@@ -486,6 +486,7 @@ public abstract class BaseTest
         return '"'+str+'"';
     }
 
+    @Deprecated // use q
     public String quote(String str) {
         return q(str);
     }
@@ -494,6 +495,7 @@ public abstract class BaseTest
         return json.replace("'", "\"");
     }
 
+    @Deprecated // use a2q
     protected static String aposToQuotes(String json) {
         return a2q(json);
     }

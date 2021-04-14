@@ -30,8 +30,7 @@ public class CreatorFallback2438Test extends BaseMapTest
         // note: by default, duplicate-detection not enabled, so should not
         // throw exception. But should also NOT apply second value because
         // field/setter should NOT be used in case there is already creator property
-        Creator2438 value = MAPPER.readValue(aposToQuotes(
-                "{'value':1, 'value':2}"),
+        Creator2438 value = MAPPER.readValue(a2q( "{'value':1, 'value':2}"),
                 Creator2438.class);
         assertEquals(1, value.accessValue());
     }

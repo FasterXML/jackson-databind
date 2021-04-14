@@ -161,7 +161,7 @@ public class FormatFeatureAcceptSingleTest extends BaseMapTest
      */
 
     public void testSingleStringArrayRead() throws Exception {
-        String json = aposToQuotes(
+        String json = a2q(
                 "{ 'values': 'first' }");
         StringArrayWrapper result = MAPPER.readValue(json, StringArrayWrapper.class);
         assertNotNull(result.values);
@@ -181,7 +181,7 @@ public class FormatFeatureAcceptSingleTest extends BaseMapTest
     }
 
     public void testSingleIntArrayRead() throws Exception {
-        String json = aposToQuotes(
+        String json = a2q(
                 "{ 'values': 123 }");
         IntArrayWrapper result = MAPPER.readValue(json, IntArrayWrapper.class);
         assertNotNull(result.values);
@@ -190,7 +190,7 @@ public class FormatFeatureAcceptSingleTest extends BaseMapTest
     }
 
     public void testSingleLongArrayRead() throws Exception {
-        String json = aposToQuotes(
+        String json = a2q(
                 "{ 'values': -205 }");
         LongArrayWrapper result = MAPPER.readValue(json, LongArrayWrapper.class);
         assertNotNull(result.values);
@@ -199,7 +199,7 @@ public class FormatFeatureAcceptSingleTest extends BaseMapTest
     }
 
     public void testSingleBooleanArrayRead() throws Exception {
-        String json = aposToQuotes(
+        String json = a2q(
                 "{ 'values': true }");
         BooleanArrayWrapper result = MAPPER.readValue(json, BooleanArrayWrapper.class);
         assertNotNull(result.values);
@@ -208,7 +208,7 @@ public class FormatFeatureAcceptSingleTest extends BaseMapTest
     }
 
     public void testSingleDoubleArrayRead() throws Exception {
-        String json = aposToQuotes(
+        String json = a2q(
                 "{ 'values': -0.5 }");
         DoubleArrayWrapper result = MAPPER.readValue(json, DoubleArrayWrapper.class);
         assertNotNull(result.values);
@@ -217,7 +217,7 @@ public class FormatFeatureAcceptSingleTest extends BaseMapTest
     }
 
     public void testSingleFloatArrayRead() throws Exception {
-        String json = aposToQuotes(
+        String json = a2q(
                 "{ 'values': 0.25 }");
         FloatArrayWrapper result = MAPPER.readValue(json, FloatArrayWrapper.class);
         assertNotNull(result.values);
@@ -226,7 +226,7 @@ public class FormatFeatureAcceptSingleTest extends BaseMapTest
     }
     
     public void testSingleElementArrayRead() throws Exception {
-        String json = aposToQuotes(
+        String json = a2q(
                 "{ 'roles': { 'Name': 'User', 'ID': '333' } }");
         RolesInArray response = MAPPER.readValue(json, RolesInArray.class);
         assertNotNull(response.roles);
@@ -235,7 +235,7 @@ public class FormatFeatureAcceptSingleTest extends BaseMapTest
     }
 
     public void testSingleStringListRead() throws Exception {
-        String json = aposToQuotes(
+        String json = a2q(
                 "{ 'values': 'first' }");
         StringListWrapper result = MAPPER.readValue(json, StringListWrapper.class);
         assertNotNull(result.values);
@@ -244,7 +244,7 @@ public class FormatFeatureAcceptSingleTest extends BaseMapTest
     }
 
     public void testSingleStringListReadWithBuilder() throws Exception {
-        String json = aposToQuotes(
+        String json = a2q(
                 "{ 'values': 'first' }");
         StringListWrapperWithBuilder result =
                 MAPPER.readValue(json, StringListWrapperWithBuilder.class);
@@ -254,7 +254,7 @@ public class FormatFeatureAcceptSingleTest extends BaseMapTest
     }
 
     public void testSingleElementListRead() throws Exception {
-        String json = aposToQuotes(
+        String json = a2q(
                 "{ 'roles': { 'Name': 'User', 'ID': '333' } }");
         RolesInList response = MAPPER.readValue(json, RolesInList.class);
         assertNotNull(response.roles);
@@ -263,7 +263,7 @@ public class FormatFeatureAcceptSingleTest extends BaseMapTest
     }
 
     public void testSingleElementListReadWithBuilder() throws Exception {
-        String json = aposToQuotes(
+        String json = a2q(
                 "{ 'roles': { 'Name': 'User', 'ID': '333' } }");
         RolesInListWithBuilder response = MAPPER.readValue(json, RolesInListWithBuilder.class);
         assertNotNull(response.roles);
@@ -272,7 +272,7 @@ public class FormatFeatureAcceptSingleTest extends BaseMapTest
     }
 
     public void testSingleElementWithStringFactoryRead() throws Exception {
-        String json = aposToQuotes(
+        String json = a2q(
                 "{ 'values': '333' }");
         WrapperWithStringFactoryInList response = MAPPER.readValue(json, WrapperWithStringFactoryInList.class);
         assertNotNull(response.values);
@@ -281,7 +281,7 @@ public class FormatFeatureAcceptSingleTest extends BaseMapTest
     }
 
     public void testSingleEnumSetRead() throws Exception {
-        EnumSetWrapper result = MAPPER.readValue(aposToQuotes("{ 'values': 'B' }"),
+        EnumSetWrapper result = MAPPER.readValue(a2q("{ 'values': 'B' }"),
                 EnumSetWrapper.class);
         assertNotNull(result.values);
         assertEquals(1, result.values.size());

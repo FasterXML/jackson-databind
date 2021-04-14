@@ -17,8 +17,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 
 /**
  * Tests to exercise handler methods of {@link DeserializationProblemHandler}.
- *
- * @since 2.8
  */
 public class ProblemHandlerTest extends BaseMapTest
 {
@@ -261,7 +259,7 @@ public class ProblemHandlerTest extends BaseMapTest
         mapper = jsonMapperBuilder()
                 .addHandler(new WeirdStringHandler(null))
                 .build();
-        UUID result2 = mapper.readValue(quote("not a uuid!"), UUID.class);
+        UUID result2 = mapper.readValue(q("not a uuid!"), UUID.class);
         assertNull(result2);
     }
 

@@ -40,7 +40,7 @@ public class AccessorNamingForBuilderTest extends BaseMapTest
     // For [databind#2624]
     public void testAccessorCustomWithMethod() throws Exception
     {
-        final String json = aposToQuotes("{'x':28,'y':72}");
+        final String json = a2q("{'x':28,'y':72}");
         final ObjectMapper vanillaMapper = newJsonMapper();
         
         // First: without custom strategy, will fail:

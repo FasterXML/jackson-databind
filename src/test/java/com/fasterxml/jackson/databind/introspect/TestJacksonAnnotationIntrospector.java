@@ -172,7 +172,7 @@ public class TestJacksonAnnotationIntrospector
                 .annotationIntrospector(new LcEnumIntrospector())
                 .build();
         assertEquals("\"value1\"", mapper.writeValueAsString(EnumExample.VALUE1));
-        EnumExample result = mapper.readValue(quote("value1"), EnumExample.class);
+        EnumExample result = mapper.readValue(q("value1"), EnumExample.class);
         assertEquals(EnumExample.VALUE1, result);
     }
 }

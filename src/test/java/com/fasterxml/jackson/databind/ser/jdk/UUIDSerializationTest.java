@@ -40,7 +40,7 @@ public class UUIDSerializationTest extends BaseMapTest
         }) {
             UUID uuid = UUID.fromString(value);
             String json = MAPPER.writeValueAsString(uuid);
-            assertEquals(quote(uuid.toString()), json);
+            assertEquals(q(uuid.toString()), json);
 
             // Also, wrt [#362], should convert cleanly
             String str = MAPPER.convertValue(uuid, String.class);
@@ -56,7 +56,7 @@ public class UUIDSerializationTest extends BaseMapTest
             String value = TEMPL.replace('0', chars.charAt(i));
             UUID uuid = UUID.fromString(value);
             String json = MAPPER.writeValueAsString(uuid);
-            assertEquals(quote(uuid.toString()), json);
+            assertEquals(q(uuid.toString()), json);
         }
     }
 

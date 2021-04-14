@@ -341,7 +341,7 @@ public class DateDeserializationTZTest
     public void testDateUtil_Annotation() throws Exception
     {
         // Build the input JSON and expected value
-        String json = aposToQuotes("{'date':'/2005/05/25/'}");
+        String json = a2q("{'date':'/2005/05/25/'}");
         java.util.Date expected = judate(2005, 05, 25, 0, 0, 0, 0, LOCAL_TZ);
         
         
@@ -383,7 +383,7 @@ public class DateDeserializationTZTest
 
         // Build the JSON string. This is a mixed of ITALIAN and FRENCH (no ENGLISH because this 
         // would be the default).
-        String json = aposToQuotes("{ 'pattern': '*1 giu 2000 01:02:03*', 'pattern_FR': '*01 juin 2000 01:02:03*', 'pattern_GMT4': '*1 giu 2000 01:02:03*', 'pattern_FR_GMT4': '*1 juin 2000 01:02:03*'}");
+        String json = a2q("{ 'pattern': '*1 giu 2000 01:02:03*', 'pattern_FR': '*01 juin 2000 01:02:03*', 'pattern_GMT4': '*1 giu 2000 01:02:03*', 'pattern_FR_GMT4': '*1 juin 2000 01:02:03*'}");
         Annot_Pattern result = mapper.readValue(json, Annot_Pattern.class);
 
         assertNotNull(result);
@@ -401,7 +401,7 @@ public class DateDeserializationTZTest
     {
         // WITHOUT timezone
         {
-            String json = aposToQuotes("{ 'date': '2000-01-02T03:04:05.678' }");
+            String json = a2q("{ 'date': '2000-01-02T03:04:05.678' }");
             Annot_TimeZone result = MAPPER.readValue(json, Annot_TimeZone.class);
             
             assertNotNull(result);
@@ -412,7 +412,7 @@ public class DateDeserializationTZTest
         //   --> the annotation acts as the "default" timezone. The timezone specified
         //       in the JSON should be considered first.
         {
-            String json = aposToQuotes("{ 'date': '2000-01-02T03:04:05.678+01:00' }");
+            String json = a2q("{ 'date': '2000-01-02T03:04:05.678+01:00' }");
             Annot_TimeZone result = MAPPER.readValue(json, Annot_TimeZone.class);
             
             assertNotNull(result);

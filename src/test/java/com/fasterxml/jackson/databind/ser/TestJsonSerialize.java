@@ -235,7 +235,7 @@ public class TestJsonSerialize
                         .withVisibility(PropertyAccessor.IS_GETTER, Visibility.NONE)
                         .withVisibility(PropertyAccessor.SETTER, Visibility.NONE))
                 .build();
-        assertEquals(aposToQuotes("{'a':'x','something':true}"),
+        assertEquals(a2q("{'a':'x','something':true}"),
                 mapper.writeValueAsString(new Response()));
     }
 }

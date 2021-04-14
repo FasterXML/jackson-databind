@@ -90,6 +90,6 @@ public class MapperViaParserTest extends BaseMapTest
         ObjectMapper mapper = new ObjectMapper(JsonFactory.builder()
                 .enable(JsonWriteFeature.ESCAPE_NON_ASCII).build());
         final String json = mapper.writeValueAsString(String.valueOf((char) 258));
-        assertEquals(quote("\\u0102"), json);
+        assertEquals(q("\\u0102"), json);
     }
 }

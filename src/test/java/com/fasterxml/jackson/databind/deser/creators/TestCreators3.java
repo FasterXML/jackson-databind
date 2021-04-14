@@ -178,7 +178,7 @@ public class TestCreators3 extends BaseMapTest
         final ObjectMapper mapper = jsonMapperBuilder()
                 .annotationIntrospector(new MyParamIntrospector())
                 .build();
-        MultiCtor bean = mapper.readValue(aposToQuotes("{'a':'123','b':'foo'}"), MultiCtor.class);
+        MultiCtor bean = mapper.readValue(a2q("{'a':'123','b':'foo'}"), MultiCtor.class);
         assertNotNull(bean);
         assertEquals("123", bean._a);
         assertEquals("foo", bean._b);
@@ -186,7 +186,7 @@ public class TestCreators3 extends BaseMapTest
 
     // [databind#1853]
     public void testSerialization() throws Exception {
-        assertEquals(quote("testProduct"),
+        assertEquals(q("testProduct"),
                 MAPPER.writeValueAsString(new Product1853(false, "testProduct")));
     }
 
@@ -197,7 +197,7 @@ public class TestCreators3 extends BaseMapTest
 
     public void testDeserializationFromString() throws Exception {
         assertEquals("DELEG:testProduct",
-                MAPPER.readValue(quote("testProduct"), Product1853.class).getName());
+                MAPPER.readValue(q("testProduct"), Product1853.class).getName());
     }
 }
 

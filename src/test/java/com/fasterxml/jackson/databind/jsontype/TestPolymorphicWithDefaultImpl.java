@@ -207,7 +207,7 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
     // [databind#656]
     public void testDefaultImplWithObjectWrapper() throws Exception
     {
-        BaseFor656 value = MAPPER.readValue(aposToQuotes("{'foobar':{'a':3}}"), BaseFor656.class);
+        BaseFor656 value = MAPPER.readValue(a2q("{'foobar':{'a':3}}"), BaseFor656.class);
         assertNotNull(value);
         assertEquals(ImplFor656.class, value.getClass());
         assertEquals(3, ((ImplFor656) value).a);
@@ -217,7 +217,7 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
     {
         ObjectReader reader = MAPPER.readerFor(CallRecord.class).without(
                 DeserializationFeature.FAIL_ON_INVALID_SUBTYPE);
-        String json = aposToQuotes("{'version':0.0,'application':'123',"
+        String json = a2q("{'version':0.0,'application':'123',"
                 +"'item':{'type':'xevent','location':'location1'},"
                 +"'item2':{'type':'event','location':'location1'}}");
         // can't read item2 - which is valid
@@ -225,7 +225,7 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
         assertNull(r.item);
         assertNotNull(r.item2);
 
-        json = aposToQuotes("{'item':{'type':'xevent','location':'location1'}, 'version':0.0,'application':'123'}");
+        json = a2q("{'item':{'type':'xevent','location':'location1'}, 'version':0.0,'application':'123'}");
         CallRecord r3 = reader.readValue(json);
         assertNull(r3.item);
         assertEquals("123", r3.application);
@@ -236,7 +236,7 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
         ObjectMapper mapper = jsonMapperBuilder()
                 .configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false)
                 .build();
-        BaseWrapper w = mapper.readValue(aposToQuotes
+        BaseWrapper w = mapper.readValue(a2q
                 ("{'value':{'clazz':'com.foobar.Nothing'}}'"),
                 BaseWrapper.class);
         assertNotNull(w);

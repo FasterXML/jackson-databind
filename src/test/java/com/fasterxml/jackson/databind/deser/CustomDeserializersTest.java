@@ -462,7 +462,7 @@ public class CustomDeserializersTest
     // [#631]: "current value" access
     public void testCurrentValueAccess() throws Exception
     {
-        Issue631Bean bean = MAPPER.readValue(aposToQuotes("{'prop':'stuff'}"),
+        Issue631Bean bean = MAPPER.readValue(a2q("{'prop':'stuff'}"),
                 Issue631Bean.class);
         assertNotNull(bean);
         assertEquals("prop/Issue631Bean", bean.prop);
@@ -474,7 +474,7 @@ public class CustomDeserializersTest
                 .addModule(new SimpleModule()
                         .addDeserializer(String.class, new UCStringDeserializer()))
                 .build();
-        assertEquals("FOO", mapper.readValue(quote("foo"), String.class));
+        assertEquals("FOO", mapper.readValue(q("foo"), String.class));
         StringWrapper sw = mapper.readValue("{\"str\":\"foo\"}", StringWrapper.class);
         assertNotNull(sw);
         assertEquals("FOO", sw.str);
@@ -482,11 +482,11 @@ public class CustomDeserializersTest
 
     public void testDelegatingDeserializer() throws Exception
     {
-        ObjectMapper mapper = jsonMapperBuilder()
+       ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new DelegatingModuleImpl())
                 .build();
-        String str = mapper.readValue(quote("foo"), String.class);
-        assertEquals("MY:foo", str);
+        String str = mapper.readValue(q("foo"), String.class);
+       assertEquals("MY:foo", str);
     }
 
     // [databind#2392]
@@ -506,7 +506,7 @@ public class CustomDeserializersTest
                         })
                         .addDeserializer(String.class, new DummyDeserializer<String>("dummy", String.class))
                         ).build();
-        String str = mapper.readValue(quote("foo"), String.class);
+        String str = mapper.readValue(q("foo"), String.class);
         assertEquals("FOOBAR", str);
     }
 
@@ -518,7 +518,7 @@ public class CustomDeserializersTest
                         .addDeserializer(Object.class, new MyNodeDeserializer())
                         )
                 .build();
-        ObjectWrapper w = mapper.readValue(aposToQuotes("[ 1, { 'a' : 3}, 123 ] "),
+        ObjectWrapper w = mapper.readValue(a2q("[ 1, { 'a' : 3}, 123 ] "),
                 ObjectWrapper.class);
         assertEquals(ArrayNode.class, w.getObject().getClass());
         JsonNode n = (JsonNode) w.getObject();

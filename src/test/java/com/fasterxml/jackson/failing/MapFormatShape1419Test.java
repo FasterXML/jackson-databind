@@ -66,14 +66,14 @@ public class MapFormatShape1419Test extends BaseMapTest
     public void testSerializeAsPOJOViaProperty() throws Exception
     {
         String result = MAPPER.writeValueAsString(new Bean476Container(1,0,3));
-        assertEquals(aposToQuotes("{'a':{'extra':13,'empty':false},'c':{'empty':false,'value':3}}"),
+        assertEquals(a2q("{'a':{'extra':13,'empty':false},'c':{'empty':false,'value':3}}"),
                 result);
     }
 
     public void testSerializeNaturalViaOverride() throws Exception
     {
         String result = MAPPER.writeValueAsString(new Bean476Override(123));
-        assertEquals(aposToQuotes("{'stuff':{'value':123}}"),
+        assertEquals(a2q("{'stuff':{'value':123}}"),
                 result);
     }
 }

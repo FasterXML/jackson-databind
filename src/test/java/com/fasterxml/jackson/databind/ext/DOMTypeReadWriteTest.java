@@ -40,10 +40,10 @@ public class DOMTypeReadWriteTest extends com.fasterxml.jackson.databind.BaseMap
 
             if (i == 0) {
                 // First, as Document:
-                doc = MAPPER.readValue(quote(SIMPLE_XML), Document.class);
+                doc = MAPPER.readValue(q(SIMPLE_XML), Document.class);
             } else {
                 // and then as plain Node (no difference)
-                Node node = MAPPER.readValue(quote(SIMPLE_XML), Node.class);
+                Node node = MAPPER.readValue(q(SIMPLE_XML), Node.class);
                 doc = (Document) node;
             }
             Element root = doc.getDocumentElement();
@@ -66,7 +66,7 @@ public class DOMTypeReadWriteTest extends com.fasterxml.jackson.databind.BaseMap
     
     public void testDeserializeNS() throws Exception
     {
-        Document doc = MAPPER.readValue(quote(SIMPLE_XML_NS), Document.class);
+        Document doc = MAPPER.readValue(q(SIMPLE_XML_NS), Document.class);
         Element root = doc.getDocumentElement();
         assertNotNull(root);
         assertEquals("root", root.getTagName());

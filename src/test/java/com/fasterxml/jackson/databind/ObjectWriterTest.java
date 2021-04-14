@@ -114,9 +114,9 @@ public class ObjectWriterTest
         String json;
 
         json = writer.writeValueAsString(new ImplA(3));
-        assertEquals(aposToQuotes("{'type':'A','value':3}"), json);
+        assertEquals(a2q("{'type':'A','value':3}"), json);
         json = writer.writeValueAsString(new ImplB(-5));
-        assertEquals(aposToQuotes("{'type':'B','b':-5}"), json);
+        assertEquals(a2q("{'type':'B','b':-5}"), json);
     }
 
     public void testNoPrefetch() throws Exception

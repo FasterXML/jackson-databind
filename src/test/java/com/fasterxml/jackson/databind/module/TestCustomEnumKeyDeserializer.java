@@ -169,7 +169,7 @@ public class TestCustomEnumKeyDeserializer extends BaseMapTest
     // Test passing with the fix
     public void testWithEnumKeys() throws Exception {
         ObjectMapper plainObjectMapper = new ObjectMapper();
-        JsonNode tree = plainObjectMapper.readTree(aposToQuotes("{'red' : [ 'a', 'b']}"));
+        JsonNode tree = plainObjectMapper.readTree(a2q("{'red' : [ 'a', 'b']}"));
 
         ObjectMapper fancyObjectMapper = jsonMapperBuilder()
                 .addModule(new TestEnumModule())
@@ -265,13 +265,13 @@ public class TestCustomEnumKeyDeserializer extends BaseMapTest
                 .build();
 
         // First, enum value as is
-        KeyEnum key = mapper.readValue(quote(KeyEnum.replacements.name().toUpperCase()),
+        KeyEnum key = mapper.readValue(q(KeyEnum.replacements.name().toUpperCase()),
                 KeyEnum.class);
         assertSame(KeyEnum.replacements, key);
 
         // and then as key
         EnumMap<KeyEnum,String> map = mapper.readValue(
-                aposToQuotes("{'REPlaceMENTS':'foobar'}"),
+                a2q("{'REPlaceMENTS':'foobar'}"),
                 new TypeReference<EnumMap<KeyEnum,String>>() { });
         assertEquals(1, map.size());
         assertSame(KeyEnum.replacements, map.keySet().iterator().next());

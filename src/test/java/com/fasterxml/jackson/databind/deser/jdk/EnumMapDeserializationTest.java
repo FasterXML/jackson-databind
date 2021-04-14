@@ -127,7 +127,7 @@ public class EnumMapDeserializationTest extends BaseMapTest
 
     public void testCustomEnumMapWithDefaultCtor() throws Exception
     {
-        MySimpleEnumMap map = MAPPER.readValue(aposToQuotes("{'RULES':'waves'}"),
+        MySimpleEnumMap map = MAPPER.readValue(a2q("{'RULES':'waves'}"),
                 MySimpleEnumMap.class);   
         assertEquals(1, map.size());
         assertEquals("waves", map.get(TestEnum.RULES));
@@ -135,21 +135,21 @@ public class EnumMapDeserializationTest extends BaseMapTest
 
     public void testCustomEnumMapFromString() throws Exception
     {
-        FromStringEnumMap map = MAPPER.readValue(quote("kewl"), FromStringEnumMap.class);   
+        FromStringEnumMap map = MAPPER.readValue(q("kewl"), FromStringEnumMap.class);   
         assertEquals(1, map.size());
         assertEquals("kewl", map.get(TestEnum.JACKSON));
     }
 
     public void testCustomEnumMapWithDelegate() throws Exception
     {
-        FromDelegateEnumMap map = MAPPER.readValue(aposToQuotes("{'foo':'bar'}"), FromDelegateEnumMap.class);   
+        FromDelegateEnumMap map = MAPPER.readValue(a2q("{'foo':'bar'}"), FromDelegateEnumMap.class);   
         assertEquals(1, map.size());
         assertEquals("{foo=bar}", map.get(TestEnum.OK));
     }
 
     public void testCustomEnumMapFromProps() throws Exception
     {
-        FromPropertiesEnumMap map = MAPPER.readValue(aposToQuotes(
+        FromPropertiesEnumMap map = MAPPER.readValue(a2q(
                 "{'a':13,'RULES':'jackson','b':-731,'OK':'yes'}"),
                 FromPropertiesEnumMap.class);
 
@@ -248,11 +248,11 @@ public class EnumMapDeserializationTest extends BaseMapTest
         final Map<MyEnum2457, String> map = new LinkedHashMap<>();
         map.put(MyEnum2457.A, "1");
         map.put(MyEnum2457.B, "2");
-        assertEquals(aposToQuotes("{'A':'1','B':'2'}"),
+        assertEquals(a2q("{'A':'1','B':'2'}"),
                 mapper.writeValueAsString(map));
 
         // But should be able to override
-        assertEquals(aposToQuotes("{'"+MyEnum2457.A.toString()+"':'1','"+MyEnum2457.B.toString()+"':'2'}"),
+        assertEquals(a2q("{'"+MyEnum2457.A.toString()+"':'1','"+MyEnum2457.B.toString()+"':'2'}"),
                 mapper.writer()
                     .with(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
                     .writeValueAsString(map));

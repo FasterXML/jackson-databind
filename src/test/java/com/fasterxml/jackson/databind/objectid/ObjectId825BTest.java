@@ -149,7 +149,7 @@ public class ObjectId825BTest extends BaseMapTest
                         DefaultTyping.OBJECT_AND_NON_CONCRETE)
                 .build();
 
-        String INPUT = aposToQuotes(
+        String INPUT = a2q(
 "{\n"+
 "    '@class': '_PKG_CTC',\n"+
 "     'var': [{\n"+

@@ -27,6 +27,6 @@ public class DefaultTypingOverride1391Test extends BaseMapTest
                     "$type")
             .build();
         String json = mapper.writeValueAsString(new ListWrapper());
-        assertEquals(aposToQuotes("{'stuff':[]}"), json);
+        assertEquals(a2q("{'stuff':[]}"), json);
     }
 }

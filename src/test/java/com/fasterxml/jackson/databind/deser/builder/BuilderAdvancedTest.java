@@ -53,7 +53,7 @@ public class BuilderAdvancedTest extends BaseMapTest
                 .injectableValues(new InjectableValues.Std()
                         .addValue(String.class, "stuffValue"))
                 .build();
-        InjectableXY bean = mapper.readValue(aposToQuotes("{'y':3,'x':7}"),
+        InjectableXY bean = mapper.readValue(a2q("{'y':3,'x':7}"),
                 InjectableXY.class);
         assertEquals(8, bean._x);
         assertEquals(4, bean._y);

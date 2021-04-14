@@ -141,7 +141,7 @@ public class TestInjectables extends BaseMapTest
                                 .addValue("method_injected", methodInjected)
                                 .addValue("field_injected", fieldInjected))
                 .build();
-        Bean471 bean = mapper.readValue(aposToQuotes(
+        Bean471 bean = mapper.readValue(a2q(
 "{'x':13,'constructor_value':'constructor','method_value':'method','field_value':'field'}"),
                 Bean471.class);
 

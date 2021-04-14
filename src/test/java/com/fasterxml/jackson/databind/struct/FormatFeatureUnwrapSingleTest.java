@@ -129,16 +129,16 @@ public class FormatFeatureUnwrapSingleTest extends BaseMapTest
     public void testWithArrayTypes() throws Exception
     {
         // default: strings unwrapped, ints wrapped
-        assertEquals(aposToQuotes("{'strings':'a','ints':[1],'bools':[true]}"),
+        assertEquals(a2q("{'strings':'a','ints':[1],'bools':[true]}"),
                 MAPPER.writeValueAsString(new WrapWriteWithArrays()));
 
         // change global default to "yes, unwrap"; changes 'bools' only
-        assertEquals(aposToQuotes("{'strings':'a','ints':[1],'bools':true}"),
+        assertEquals(a2q("{'strings':'a','ints':[1],'bools':true}"),
                 MAPPER.writer().with(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
                 .writeValueAsString(new WrapWriteWithArrays()));
 
         // change global default to "no, don't, unwrap", same as first case
-        assertEquals(aposToQuotes("{'strings':'a','ints':[1],'bools':[true]}"),
+        assertEquals(a2q("{'strings':'a','ints':[1],'bools':[true]}"),
                 MAPPER.writer().without(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
                 .writeValueAsString(new WrapWriteWithArrays()));
 
@@ -148,23 +148,23 @@ public class FormatFeatureUnwrapSingleTest extends BaseMapTest
                         v -> v.setFormat(JsonFormat.Value.empty()
                                 .withFeature(JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)))
                 .build();
-        assertEquals(aposToQuotes("{'values':'a'}"),
+        assertEquals(a2q("{'values':'a'}"),
                 mapper.writeValueAsString(new StringArrayNotAnnoted("a")));
     }
 
     public void testWithCollectionTypes() throws Exception
     {
         // default: strings unwrapped, ints wrapped
-        assertEquals(aposToQuotes("{'strings':'a','ints':[1],'bools':[true],'enums':'B'}"),
+        assertEquals(a2q("{'strings':'a','ints':[1],'bools':[true],'enums':'B'}"),
                 MAPPER.writeValueAsString(new WrapWriteWithCollections()));
 
         // change global default to "yes, unwrap"; changes 'bools' only
-        assertEquals(aposToQuotes("{'strings':'a','ints':[1],'bools':true,'enums':'B'}"),
+        assertEquals(a2q("{'strings':'a','ints':[1],'bools':true,'enums':'B'}"),
                 MAPPER.writer().with(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
                 .writeValueAsString(new WrapWriteWithCollections()));
 
         // change global default to "no, don't, unwrap", same as first case
-        assertEquals(aposToQuotes("{'strings':'a','ints':[1],'bools':[true],'enums':'B'}"),
+        assertEquals(a2q("{'strings':'a','ints':[1],'bools':[true],'enums':'B'}"),
                 MAPPER.writer().without(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
                 .writeValueAsString(new WrapWriteWithCollections()));
     }

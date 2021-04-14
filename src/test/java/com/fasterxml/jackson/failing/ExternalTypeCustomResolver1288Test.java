@@ -422,7 +422,7 @@ public class ExternalTypeCustomResolver1288Test extends BaseMapTest
     public void testExternalWithCustomResolver() throws Exception
     {
         // given
-        final String asJson1 = aposToQuotes(
+        final String asJson1 = a2q(
 "{'form_of_payment':'INDIVIDUAL_CREDIT_CARD', 'payment_details':{'card_holder_first_name':'John',\n"
 +"'card_holder_last_name':'Doe',  'number':'XXXXXXXXXXXXXXXX', 'expiry_date':'MM/YY',\n"
 + "'csc':666,'address':'10 boulevard de Sebastopol','zip_code':'75001','city':'Paris',\n"
@@ -435,7 +435,7 @@ public class ExternalTypeCustomResolver1288Test extends BaseMapTest
     // [databind#1288]
     public void testExternalWithCustomResolverAndBuilder() throws Exception
     {
-        final String asJson2 = aposToQuotes(
+        final String asJson2 = a2q(
 "{'form_of_payment':'INSTRUMENTED_CREDIT_CARD',\n"
 +"'payment_details':{\n"
 +"'payment_instrument_id':'00000000-0000-0000-0000-000000000000',\n"

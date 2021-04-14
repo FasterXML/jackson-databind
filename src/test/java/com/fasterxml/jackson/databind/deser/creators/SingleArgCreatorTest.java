@@ -164,7 +164,7 @@ public class SingleArgCreatorTest extends BaseMapTest
 
     public void testNamedSingleArg() throws Exception
     {
-        SingleNamedStringBean bean = MAPPER.readValue(aposToQuotes("{'value':'foobar'}"),
+        SingleNamedStringBean bean = MAPPER.readValue(a2q("{'value':'foobar'}"),
                 SingleNamedStringBean.class);
         assertEquals("foobar", bean._ss);
     }
@@ -174,7 +174,7 @@ public class SingleArgCreatorTest extends BaseMapTest
         final ObjectMapper mapper = jsonMapperBuilder()
                 .annotationIntrospector(new MyParamIntrospector("value"))
                 .build();
-        StringyBean bean = mapper.readValue(quote("foobar"), StringyBean.class);
+        StringyBean bean = mapper.readValue(q("foobar"), StringyBean.class);
         assertEquals("foobar", bean.getValue());
     }    
 
@@ -191,7 +191,7 @@ public class SingleArgCreatorTest extends BaseMapTest
     // [databind#714]
     public void testSingleExplicitlyNamedButDelegating() throws Exception
     {
-        SingleNamedButStillDelegating bean = MAPPER.readValue(quote("xyz"),
+        SingleNamedButStillDelegating bean = MAPPER.readValue(q("xyz"),
                 SingleNamedButStillDelegating.class);
         assertEquals("xyz", bean.value);
     }
@@ -199,7 +199,7 @@ public class SingleArgCreatorTest extends BaseMapTest
     public void testExplicitFactory660a() throws Exception
     {
         // First, explicit override for factory
-        ExplicitFactoryBeanA bean = MAPPER.readValue(quote("abc"), ExplicitFactoryBeanA.class);
+        ExplicitFactoryBeanA bean = MAPPER.readValue(q("abc"), ExplicitFactoryBeanA.class);
         assertNotNull(bean);
         assertEquals("abc", bean.value());
     }
@@ -207,7 +207,7 @@ public class SingleArgCreatorTest extends BaseMapTest
     public void testExplicitFactory660b() throws Exception
     {
         // and then one for private constructor
-        ExplicitFactoryBeanB bean2 = MAPPER.readValue(quote("def"), ExplicitFactoryBeanB.class);
+        ExplicitFactoryBeanB bean2 = MAPPER.readValue(q("def"), ExplicitFactoryBeanB.class);
         assertNotNull(bean2);
         assertEquals("def", bean2.value());
     }
@@ -218,7 +218,7 @@ public class SingleArgCreatorTest extends BaseMapTest
         final ObjectMapper mapper = jsonMapperBuilder()
                 .annotationIntrospector(new MyParamIntrospector("value"))
                 .build();
-        SingleArgWithImplicit bean = mapper.readValue(aposToQuotes("{'x':1,'y':2}"),
+        SingleArgWithImplicit bean = mapper.readValue(a2q("{'x':1,'y':2}"),
                 SingleArgWithImplicit.class);
         XY v = bean.getFoobar();
         assertNotNull(v);

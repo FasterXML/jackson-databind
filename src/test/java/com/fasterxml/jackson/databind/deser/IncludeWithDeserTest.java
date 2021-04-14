@@ -112,7 +112,7 @@ public class IncludeWithDeserTest
     public void testSimpleInclude() throws Exception
     {
         OnlyYAndZ result = MAPPER.readValue(
-                aposToQuotes("{ 'x':1, '_x': 1, 'y':2, 'z':3 }"),
+                a2q("{ 'x':1, '_x': 1, 'y':2, 'z':3 }"),
                 OnlyYAndZ.class);
         assertEquals(0, result._x);
         assertEquals(4, result._y);
@@ -124,14 +124,14 @@ public class IncludeWithDeserTest
         ObjectReader r = MAPPER.readerFor(OnlyY.class);
 
         // First, fine to get "y" only:
-        OnlyY result = r.readValue(aposToQuotes("{'x':3, 'y': 4}"));
+        OnlyY result = r.readValue(a2q("{'x':3, 'y': 4}"));
         assertEquals(0, result.x);
         assertEquals(4, result.y);
 
         // but fail on ignored properties.
         r = r.with(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES);
         try {
-            r.readValue(aposToQuotes("{'x':3, 'y': 4, 'z': 5}"));
+            r.readValue(a2q("{'x':3, 'y': 4, 'z': 5}"));
             fail("Should fail");
         } catch (IgnoredPropertyException e) {
             verifyException(e, "Ignored field");
@@ -139,7 +139,7 @@ public class IncludeWithDeserTest
 
         // or fail on unrecognized properties
         try {
-            r.readValue(aposToQuotes("{'y': 3, 'z':2 }"));
+            r.readValue(a2q("{'y': 3, 'z':2 }"));
             fail("Should fail");
         } catch (UnrecognizedPropertyException e) {
             verifyException(e, "Unrecognized property \"z\"");
@@ -148,7 +148,7 @@ public class IncludeWithDeserTest
         // or success with the both settings disabled.
         r = r.without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         r = r.without(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES);
-        r.readValue(aposToQuotes("{'y': 3, 'z':2 }"));
+        r.readValue(a2q("{'y': 3, 'z':2 }"));
         assertEquals(4, result.y);
     }
 
@@ -156,7 +156,7 @@ public class IncludeWithDeserTest
     public void testMergeInclude() throws Exception
     {
         OnlyYWrapperForOnlyYAndZ onlyY = MAPPER.readValue(
-                aposToQuotes("{'onlyY': {'x': 2, 'y':3, 'z': 4}}"),
+                a2q("{'onlyY': {'x': 2, 'y':3, 'z': 4}}"),
                 OnlyYWrapperForOnlyYAndZ.class
         );
         assertEquals(0, onlyY.onlyY._x);
@@ -167,7 +167,7 @@ public class IncludeWithDeserTest
     public void testListInclude() throws Exception
     {
         IncludeForListValuesY result = MAPPER.readValue(
-                aposToQuotes("{'onlyYs':[{ 'x':1, 'y' : 2, 'z': 3 }]}"),
+                a2q("{'onlyYs':[{ 'x':1, 'y' : 2, 'z': 3 }]}"),
                 IncludeForListValuesY.class);
         assertEquals(0, result.onlyYs.get(0)._x);
         assertEquals(4, result.onlyYs.get(0)._y);
@@ -176,21 +176,21 @@ public class IncludeWithDeserTest
 
     public void testMapWrapper() throws Exception
     {
-        MapWrapper result = MAPPER.readValue(aposToQuotes("{'value': {'a': 2, 'b': 3}}"), MapWrapper.class);
+        MapWrapper result = MAPPER.readValue(a2q("{'value': {'a': 2, 'b': 3}}"), MapWrapper.class);
         assertEquals(2, result.value.get("a").intValue());
         assertFalse(result.value.containsKey("b"));
     }
 
     public void testMyMap() throws Exception
     {
-        MyMap result = MAPPER.readValue(aposToQuotes("{'a': 2, 'b': 3}"), MyMap.class);
+        MyMap result = MAPPER.readValue(a2q("{'a': 2, 'b': 3}"), MyMap.class);
         assertEquals("2", result.get("a"));
         assertFalse(result.containsKey("b"));
     }
 
     public void testForwardReferenceAnySetterComboWithInclude() throws Exception
     {
-        String json = aposToQuotes("{'@id':1, 'foo':2, 'foo2':2, 'bar':{'@id':2, 'foo':1}}");
+        String json = a2q("{'@id':1, 'foo':2, 'foo2':2, 'bar':{'@id':2, 'foo':1}}");
         AnySetterObjectId value = MAPPER.readValue(json, AnySetterObjectId.class);
         assertSame(value.values.get("bar"), value.values.get("foo"));
         assertNull(value.values.get("foo2"));

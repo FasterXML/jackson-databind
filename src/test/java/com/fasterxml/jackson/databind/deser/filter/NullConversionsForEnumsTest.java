@@ -36,7 +36,7 @@ public class NullConversionsForEnumsTest extends BaseMapTest
 
     public void testEnumSetAsEmpty() throws Exception
     {
-        NullValueAsEmpty<EnumSet<ABC>> result = MAPPER.readValue(aposToQuotes("{'value': null }"),
+        NullValueAsEmpty<EnumSet<ABC>> result = MAPPER.readValue(a2q("{'value': null }"),
                 new TypeReference<NullValueAsEmpty<EnumSet<ABC>>>() { });
         assertNotNull(result.value);
         assertEquals(0, result.value.size());
@@ -44,7 +44,7 @@ public class NullConversionsForEnumsTest extends BaseMapTest
 
     public void testEnumMapAsEmpty() throws Exception
     {
-        NullValueAsEmpty<EnumMap<ABC, String>> result = MAPPER.readValue(aposToQuotes("{'value': null }"),
+        NullValueAsEmpty<EnumMap<ABC, String>> result = MAPPER.readValue(a2q("{'value': null }"),
                 new TypeReference<NullValueAsEmpty<EnumMap<ABC, String>>>() { });
         assertNotNull(result.value);
         assertEquals(0, result.value.size());
@@ -60,7 +60,7 @@ public class NullConversionsForEnumsTest extends BaseMapTest
 
     public void testEnumMapNullsAsEmpty() throws Exception
     {
-        NullContentAsEmpty<EnumMap<ABC, String>> result = MAPPER.readValue(aposToQuotes("{'values': {'B':null} }"),
+        NullContentAsEmpty<EnumMap<ABC, String>> result = MAPPER.readValue(a2q("{'values': {'B':null} }"),
                 new TypeReference<NullContentAsEmpty<EnumMap<ABC, String>>>() { });
         assertNotNull(result.values);
         assertEquals(1, result.values.size());
@@ -76,7 +76,7 @@ public class NullConversionsForEnumsTest extends BaseMapTest
     
     public void testEnumSetSkipNulls() throws Exception
     {
-        NullContentSkip<EnumSet<ABC>> result = MAPPER.readValue(aposToQuotes("{'values': [ null ]}"),
+        NullContentSkip<EnumSet<ABC>> result = MAPPER.readValue(a2q("{'values': [ null ]}"),
                 new TypeReference<NullContentSkip<EnumSet<ABC>>>() { });
         assertNotNull(result.values);
         assertEquals(0, result.values.size());
@@ -84,7 +84,7 @@ public class NullConversionsForEnumsTest extends BaseMapTest
 
     public void testEnumMapSkipNulls() throws Exception
     {
-        NullContentSkip<EnumMap<ABC, String>> result = MAPPER.readValue(aposToQuotes("{'values': {'B':null} }"),
+        NullContentSkip<EnumMap<ABC, String>> result = MAPPER.readValue(a2q("{'values': {'B':null} }"),
                 new TypeReference<NullContentSkip<EnumMap<ABC, String>>>() { });
         assertNotNull(result.values);
         assertEquals(0, result.values.size());

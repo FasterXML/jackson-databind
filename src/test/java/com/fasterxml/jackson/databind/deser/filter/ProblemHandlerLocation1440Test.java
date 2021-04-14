@@ -114,7 +114,7 @@ public class ProblemHandlerLocation1440Test extends BaseMapTest
     public void testIncorrectContext() throws Exception
     {
         // need invalid to trigger problem:
-        final String invalidInput = aposToQuotes(
+        final String invalidInput = a2q(
 "{'actor': {'id': 'actor_id','type': 'actor_type',"
 +"'status': 'actor_status','context':'actor_context','invalid_1': 'actor_invalid_1'},"
 +"'verb': 'verb','object': {'id': 'object_id','type': 'object_type',"

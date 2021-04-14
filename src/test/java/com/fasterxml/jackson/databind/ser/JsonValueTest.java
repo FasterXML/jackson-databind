@@ -255,7 +255,7 @@ public class JsonValueTest
 
     public void testDisabling() throws Exception
     {
-        assertEquals(aposToQuotes("{'x':1,'y':2}"),
+        assertEquals(a2q("{'x':1,'y':2}"),
                 MAPPER.writeValueAsString(new DisabledJsonValue()));
     }
 
@@ -311,7 +311,7 @@ public class JsonValueTest
         final Bean838 INPUT = new Bean838();
 
         // by default, @JsonValue should be used
-        assertEquals(quote("value"), MAPPER.writeValueAsString(INPUT));
+        assertEquals(q("value"), MAPPER.writeValueAsString(INPUT));
 
         // but custom serializer should override it
         ObjectMapper mapper = jsonMapperBuilder()

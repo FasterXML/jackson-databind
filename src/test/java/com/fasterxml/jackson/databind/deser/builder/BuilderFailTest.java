@@ -78,7 +78,7 @@ public class BuilderFailTest extends BaseMapTest
 
     public void testExtraFields() throws Exception
     {
-        final String json = aposToQuotes("{'x':1,'y':2,'z':3}");
+        final String json = a2q("{'x':1,'y':2,'z':3}");
         try {
             MAPPER.readValue(json, ValueClassXY.class);
             fail("Missing expected UnrecognizedPropertyException exception");

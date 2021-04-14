@@ -160,7 +160,7 @@ public class CollectionDeserTest
     /// Test to verify that @JsonDeserialize.using works as expected
     public void testCustomDeserializer() throws IOException
     {
-        CustomList result = MAPPER.readValue(quote("abc"), CustomList.class);
+        CustomList result = MAPPER.readValue(q("abc"), CustomList.class);
         assertEquals(1, result.size());
         assertEquals("abc", result.get(0));
     }
@@ -179,14 +179,14 @@ public class CollectionDeserTest
         List<Integer> ints = mapper.readValue("4", List.class);
         assertEquals(1, ints.size());
         assertEquals(Integer.valueOf(4), ints.get(0));
-        List<String> strings = mapper.readValue(quote("abc"), new TypeReference<ArrayList<String>>() { });
+        List<String> strings = mapper.readValue(q("abc"), new TypeReference<ArrayList<String>>() { });
         assertEquals(1, strings.size());
         assertEquals("abc", strings.get(0));
         // and arrays:
         int[] intArray = mapper.readValue("-7", int[].class);
         assertEquals(1, intArray.length);
         assertEquals(-7, intArray[0]);
-        String[] stringArray = mapper.readValue(quote("xyz"), String[].class);
+        String[] stringArray = mapper.readValue(q("xyz"), String[].class);
         assertEquals(1, stringArray.length);
         assertEquals("xyz", stringArray[0]);
 
@@ -205,7 +205,7 @@ public class CollectionDeserTest
     public void testFromEmptyString() throws Exception
     {
         ObjectReader r = MAPPER.reader(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
-        List<?> result = r.forType(List.class).readValue(quote(""));
+        List<?> result = r.forType(List.class).readValue(q(""));
         assertNull(result);
     }
 

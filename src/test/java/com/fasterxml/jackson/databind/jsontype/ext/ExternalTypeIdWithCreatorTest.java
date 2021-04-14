@@ -89,13 +89,13 @@ public class ExternalTypeIdWithCreatorTest extends BaseMapTest
     {
         TypeReference<Message<FooPayload999>> type = new TypeReference<Message<FooPayload999>>() { };
 
-        Message<?> msg = MAPPER.readValue(aposToQuotes("{ 'type':'foo', 'payload': {} }"), type);
+        Message<?> msg = MAPPER.readValue(a2q("{ 'type':'foo', 'payload': {} }"), type);
         assertNotNull(msg);
         assertNotNull(msg.payload);
         assertEquals("foo", msg.type);
 
         // and then with different order
-        msg = MAPPER.readValue(aposToQuotes("{'payload': {}, 'type':'foo' }"), type);
+        msg = MAPPER.readValue(a2q("{'payload': {}, 'type':'foo' }"), type);
         assertNotNull(msg);
         assertNotNull(msg.payload);
         assertEquals("foo", msg.type);

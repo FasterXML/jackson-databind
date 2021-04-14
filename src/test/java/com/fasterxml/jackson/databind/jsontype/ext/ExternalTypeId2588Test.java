@@ -75,7 +75,7 @@ public class ExternalTypeId2588Test extends BaseMapTest
 
         // works?
         
-        pet = mapper.readValue(aposToQuotes(
+        pet = mapper.readValue(a2q(
 "{\n" + 
 "  'type': 'cat',\n" + 
 "  'animal': { },\n" + 
@@ -87,7 +87,7 @@ public class ExternalTypeId2588Test extends BaseMapTest
         assertNotNull(pet);
         
         // fails:
-        pet = mapper.readValue(aposToQuotes(
+        pet = mapper.readValue(a2q(
 "{\n" + 
 "  'animal\": { },\n" + 
 "  'ignoredObject': {\n" + 

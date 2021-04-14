@@ -529,7 +529,7 @@ public class TestTokenBuffer extends BaseMapTest
         buf.writeNumber((short) 4);
         buf.writeNumber(0.5);
         buf.writeEndArray();
-        assertEquals(aposToQuotes("[true,false,"+l+",4,0.5]"), MAPPER.writeValueAsString(buf));
+        assertEquals(a2q("[true,false,"+l+",4,0.5]"), MAPPER.writeValueAsString(buf));
         buf.close();
 
         buf = TokenBuffer.forGeneration();
@@ -540,7 +540,7 @@ public class TestTokenBuffer extends BaseMapTest
         buf.writeNumber(BigInteger.valueOf(123));
         buf.writeName("dec");
         buf.writeNumber(BigDecimal.valueOf(5).movePointLeft(2));
-        assertEquals(aposToQuotes("{'foo':null,'bar':123,'dec':0.05}"), MAPPER.writeValueAsString(buf));
+        assertEquals(a2q("{'foo':null,'bar':123,'dec':0.05}"), MAPPER.writeValueAsString(buf));
         buf.close();
     }
 

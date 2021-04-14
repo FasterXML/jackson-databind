@@ -126,10 +126,10 @@ public class TestIgnoredTypes extends BaseMapTest
 
         // serialize , first
         String json = mapper.writeValueAsString(new Wrapper());
-        assertEquals(aposToQuotes("{'value':3}"), json);
+        assertEquals(a2q("{'value':3}"), json);
 
         // then deserialize
-        Wrapper result = mapper.readValue(aposToQuotes("{'value':5,'wrapped':false}"),
+        Wrapper result = mapper.readValue(a2q("{'value':5,'wrapped':false}"),
                 Wrapper.class);
         assertEquals(5, result.value);
     }

@@ -75,7 +75,7 @@ public class MergeWithNullTest extends BaseMapTest
     {
         // By default `null` should simply overwrite value
         ConfigDefault config = MAPPER.readerForUpdating(new ConfigDefault(5, 7))
-                .readValue(aposToQuotes("{'loc':null}"));
+                .readValue(a2q("{'loc':null}"));
         assertNotNull(config);
         assertNull(config.loc);
 
@@ -88,7 +88,7 @@ public class MergeWithNullTest extends BaseMapTest
                         o -> o.setNullHandling(JsonSetter.Value.forValueNulls(Nulls.SKIP)))
                 .build();
         config = mapper.readerForUpdating(new ConfigDefault(137, -3))
-                .readValue(aposToQuotes("{'loc':null}"));
+                .readValue(a2q("{'loc':null}"));
         assertNotNull(config.loc);
         assertEquals(137, config.loc.a);
         assertEquals(-3, config.loc.b);
@@ -98,7 +98,7 @@ public class MergeWithNullTest extends BaseMapTest
                 .changeDefaultNullHandling(n -> n.withValueNulls(Nulls.SKIP))
                 .build();
         config = mapper.readerForUpdating(new ConfigDefault(12, 34))
-                .readValue(aposToQuotes("{'loc':null}"));
+                .readValue(a2q("{'loc':null}"));
         assertNotNull(config.loc);
         assertEquals(12, config.loc.a);
         assertEquals(34, config.loc.b);
@@ -107,7 +107,7 @@ public class MergeWithNullTest extends BaseMapTest
     public void testBeanMergingWithNullSkip() throws Exception
     {
         ConfigSkipNull config = MAPPER.readerForUpdating(new ConfigSkipNull(5, 7))
-                .readValue(aposToQuotes("{'loc':null}"));
+                .readValue(a2q("{'loc':null}"));
         assertNotNull(config);
         assertNotNull(config.loc);
         assertEquals(5, config.loc.a);
@@ -117,7 +117,7 @@ public class MergeWithNullTest extends BaseMapTest
     public void testBeanMergingWithNullSet() throws Exception
     {
         ConfigAllowNullOverwrite config = MAPPER.readerForUpdating(new ConfigAllowNullOverwrite(5, 7))
-                .readValue(aposToQuotes("{'loc':null}"));
+                .readValue(a2q("{'loc':null}"));
         assertNotNull(config);
         assertNull(config.loc);
     }
@@ -126,7 +126,7 @@ public class MergeWithNullTest extends BaseMapTest
     {
         NoSetterConfig input = new NoSetterConfig();
         NoSetterConfig result = MAPPER.readerForUpdating(input)
-                .readValue(aposToQuotes("{'value':null}"));
+                .readValue(a2q("{'value':null}"));
         assertNotNull(result.getValue());
         assertEquals(2, result.getValue().a);
         assertEquals(3, result.getValue().b);

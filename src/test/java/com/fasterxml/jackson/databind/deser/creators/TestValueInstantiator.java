@@ -483,7 +483,7 @@ public class TestValueInstantiator extends BaseMapTest
                     }
                 }))
                 .build();
-        MysteryBean result = mapper.readValue(quote("abc"), MysteryBean.class);
+        MysteryBean result = mapper.readValue(q("abc"), MysteryBean.class);
         assertNotNull(result);
         assertEquals("abc", result.value);
     }
@@ -579,7 +579,7 @@ public class TestValueInstantiator extends BaseMapTest
         ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new MyModule(PolymorphicBeanBase.class, new PolymorphicBeanInstantiator()))
                 .build();
-        String JSON = "{\"type\":"+quote(PolymorphicBean.class.getName())+",\"name\":\"Axel\"}";
+        String JSON = "{\"type\":"+q(PolymorphicBean.class.getName())+",\"name\":\"Axel\"}";
         PolymorphicBeanBase result = mapper.readValue(JSON, PolymorphicBeanBase.class);
         assertNotNull(result);
         assertSame(PolymorphicBean.class, result.getClass());

@@ -75,7 +75,7 @@ public class PolymorphicWithObjectId1551Test extends BaseMapTest
         }
 
         // and same for deser
-        final String JSON = aposToQuotes(
+        final String JSON = a2q(
 "[{'ownedVehicle':{'@class':'com.fasterxml.jackson.failing.PolymorphicWithObjectId1551Test$Car','vehicleId':'123',"
 +"'numberOfDoors':2}},{'ownedVehicle':'123'}]"
                 );

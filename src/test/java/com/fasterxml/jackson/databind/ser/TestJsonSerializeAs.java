@@ -109,13 +109,13 @@ public class TestJsonSerializeAs extends BaseMapTest
 
     // for [databind#1178]
     public void testSpecializedContentAs() throws IOException {
-        assertEquals(aposToQuotes("{'values':[{'a':1,'b':2}]}"),
+        assertEquals(a2q("{'values':[{'a':1,'b':2}]}"),
                 WRITER.writeValueAsString(new Bean1178Wrapper(1)));
     }
 
     // for [databind#1231] (and continuation of [databind#1178])
     public void testSpecializedAsIntermediate() throws IOException {
-        assertEquals(aposToQuotes("{'value':{'a':1,'b':2}}"),
+        assertEquals(a2q("{'value':{'a':1,'b':2}}"),
                 WRITER.writeValueAsString(new Bean1178Holder()));
     }
 }

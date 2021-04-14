@@ -82,7 +82,7 @@ public class BuilderWithViewTest extends BaseMapTest
 
     public void testSimpleViews() throws Exception
     {
-        final String json = aposToQuotes("{'x':5,'y':10}");
+        final String json = a2q("{'x':5,'y':10}");
         ValueClassXY resultX = MAPPER.readerFor(ValueClassXY.class)
                 .withView(ViewX.class)
                 .readValue(json);
@@ -98,7 +98,7 @@ public class BuilderWithViewTest extends BaseMapTest
 
     public void testCreatorViews() throws Exception
     {
-        final String json = aposToQuotes("{'x':5,'y':10,'bogus':false}");
+        final String json = a2q("{'x':5,'y':10,'bogus':false}");
         CreatorValueXY resultX = MAPPER.readerFor(CreatorValueXY.class)
                 .withView(ViewX.class)
                 .readValue(json);

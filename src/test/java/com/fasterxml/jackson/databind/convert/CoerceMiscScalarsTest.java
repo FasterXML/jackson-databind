@@ -46,7 +46,7 @@ public class CoerceMiscScalarsTest extends BaseMapTest
                 cfg.setCoercion(CoercionInputShape.EmptyString, CoercionAction.Fail))
             .build();
 
-    private final String JSON_EMPTY = quote("");
+    private final String JSON_EMPTY = q("");
 
     /*
     /**********************************************************************

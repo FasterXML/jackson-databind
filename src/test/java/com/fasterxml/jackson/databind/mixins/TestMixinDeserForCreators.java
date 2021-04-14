@@ -150,7 +150,7 @@ public class TestMixinDeserForCreators
             .addMixIn(Pair2020.class, MyPairMixIn8.class)
             .build();
 
-        String doc = aposToQuotes( "{'value0' : 456, 'value1' : 789}");
+        String doc = a2q( "{'value0' : 456, 'value1' : 789}");
         Pair2020 pair2 = mapper.readValue(doc, Pair2020.class);
         assertEquals(456, pair2.x);
         assertEquals(789, pair2.y);

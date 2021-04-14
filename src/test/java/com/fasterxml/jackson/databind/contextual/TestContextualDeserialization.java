@@ -285,7 +285,7 @@ public class TestContextualDeserialization extends BaseMapTest
 
     // for [databind#165]
     public void testContextualType() throws Exception {
-        GenericBean bean = new ObjectMapper().readValue(aposToQuotes("{'stuff':{'1':'b'}}"),
+        GenericBean bean = new ObjectMapper().readValue(a2q("{'stuff':{'1':'b'}}"),
                 GenericBean.class);
         assertNotNull(bean.stuff);
         assertEquals(1, bean.stuff.size());

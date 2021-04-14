@@ -107,7 +107,7 @@ public class BuilderErrorHandling extends BaseMapTest
     public void testUnknownProperty() throws Exception
     {
         // first, default failure
-        String json = aposToQuotes("{'x':1,'z':2,'y':4}");
+        String json = a2q("{'x':1,'z':2,'y':4}");
         try {
             MAPPER.readValue(json, ValueClassXY.class);
             fail("Should not pass");
@@ -138,7 +138,7 @@ public class BuilderErrorHandling extends BaseMapTest
 
     public void testSuccessfulValidatingBuilder() throws Exception
     {
-        ValidatingValue result = MAPPER.readValue(aposToQuotes("{'a':'1','b':'2'}"), ValidatingValue.class);
+        ValidatingValue result = MAPPER.readValue(a2q("{'a':'1','b':'2'}"), ValidatingValue.class);
         assertEquals("1", result.first);
         assertEquals("2", result.second);
     }
@@ -146,7 +146,7 @@ public class BuilderErrorHandling extends BaseMapTest
     public void testFailingValidatingBuilderWithExceptionWrapping() throws Exception
     {
         try {
-            MAPPER_WITH_WRAPPING.readValue(aposToQuotes("{'a':'1'}"), ValidatingValue.class);
+            MAPPER_WITH_WRAPPING.readValue(a2q("{'a':'1'}"), ValidatingValue.class);
             fail("Expected an exception");
         } catch (ValueInstantiationException e) {
             verifyException(e, "Missing second");
@@ -157,7 +157,7 @@ public class BuilderErrorHandling extends BaseMapTest
     public void testFailingValidatingBuilderWithExceptionWrappingFromTree() throws Exception
     {
         try {
-            JsonNode tree = MAPPER_WITH_WRAPPING.readTree(aposToQuotes("{'a':'1'}"));
+            JsonNode tree = MAPPER_WITH_WRAPPING.readTree(a2q("{'a':'1'}"));
             MAPPER_WITH_WRAPPING.treeToValue(tree, ValidatingValue.class);
             fail("Expected an exception");
         } catch (ValueInstantiationException e) {
@@ -170,7 +170,7 @@ public class BuilderErrorHandling extends BaseMapTest
     {
         try {
             MAPPER_NO_WRAPPING
-                    .readValue(aposToQuotes("{'a':'1'}"), ValidatingValue.class);
+                    .readValue(a2q("{'a':'1'}"), ValidatingValue.class);
             fail("Expected an exception");
         } catch (ValidatingValue.ValidationException e) {
             assertEquals("Missing second", e.getMessage());
@@ -180,7 +180,7 @@ public class BuilderErrorHandling extends BaseMapTest
     public void testFailingValidatingBuilderWithoutExceptionWrappingFromTree() throws Exception
     {
         try {
-            JsonNode tree = MAPPER_NO_WRAPPING.readTree(aposToQuotes("{'a':'1'}"));
+            JsonNode tree = MAPPER_NO_WRAPPING.readTree(a2q("{'a':'1'}"));
             MAPPER_NO_WRAPPING.treeToValue(tree, ValidatingValue.class);
             fail("Expected an exception");
         } catch (ValidatingValue.ValidationException e) {

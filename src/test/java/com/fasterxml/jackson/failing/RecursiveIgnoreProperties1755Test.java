@@ -35,7 +35,7 @@ public class RecursiveIgnoreProperties1755Test extends BaseMapTest
 
     public void testRecursiveIgnore1755() throws Exception
     {
-        final String JSON = aposToQuotes("{\n"
+        final String JSON = a2q("{\n"
                 +"'id': '1',\n"
                 +"'quantity': 5,\n"
                 +"'ignoreMe': 'yzx',\n"

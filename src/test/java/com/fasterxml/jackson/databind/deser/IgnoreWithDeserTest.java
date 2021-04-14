@@ -60,14 +60,14 @@ public class IgnoreWithDeserTest
         ObjectReader r = MAPPER.readerFor(NoYOrZ.class);
         
         // First, fine to get "x":
-        NoYOrZ result = r.readValue(aposToQuotes("{'x':3}"));
+        NoYOrZ result = r.readValue(a2q("{'x':3}"));
         assertEquals(3, result.x);
         assertEquals(1, result.y);
 
         // but not 'y'
         r = r.with(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES);
         try {
-            result = r.readValue(aposToQuotes("{'x':3, 'y':4}"));
+            result = r.readValue(a2q("{'x':3, 'y':4}"));
             fail("Should fail");
         } catch (IgnoredPropertyException e) {
             verifyException(e, "Ignored field");
@@ -75,7 +75,7 @@ public class IgnoreWithDeserTest
 
         // or 'z'
         try {
-            result = r.readValue(aposToQuotes("{'z':2 }"));
+            result = r.readValue(a2q("{'z':2 }"));
             fail("Should fail");
         } catch (IgnoredPropertyException e) {
             verifyException(e, "Ignored field");

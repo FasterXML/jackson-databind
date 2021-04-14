@@ -38,7 +38,7 @@ public class ExternalTypeIdWithUnwrapped2039Test extends BaseMapTest
     {
         final ObjectMapper mapper = newJsonMapper();
 
-        final String json = aposToQuotes("{\n"
+        final String json = a2q("{\n"
                 +"'text': 'this is A',\n"
                 +"'wrapped': 'yes',\n"
                 +"'subtype': 'SubA',\n"

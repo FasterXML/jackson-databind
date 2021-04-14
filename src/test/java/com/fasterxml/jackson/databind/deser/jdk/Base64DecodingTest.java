@@ -17,7 +17,7 @@ public class Base64DecodingTest extends BaseMapTest
     // for [databind#1425]
     public void testInvalidBase64() throws Exception
     {
-        byte[] b = MAPPER.readValue(quote(BASE64_HELLO), byte[].class);
+        byte[] b = MAPPER.readValue(q(BASE64_HELLO), byte[].class);
         assertEquals(HELLO_BYTES, b);
 
         _testInvalidBase64(MAPPER, BASE64_HELLO+"!");
@@ -28,7 +28,7 @@ public class Base64DecodingTest extends BaseMapTest
     {
         // First, use data-binding
         try {
-            MAPPER.readValue(quote(value), byte[].class);
+            MAPPER.readValue(q(value), byte[].class);
             fail("Should not pass");
         } catch (MismatchedInputException e) {
             // 16-Jan-2021, tatu: Message changed for 3.0 a bit

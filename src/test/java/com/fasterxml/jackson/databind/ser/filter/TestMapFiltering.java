@@ -168,7 +168,7 @@ public class TestMapFiltering extends BaseMapTest
         FilterProvider prov = new SimpleFilterProvider().addFilter("filterX",
                 SimpleBeanPropertyFilter.filterOutAllExcept("b"));
         String json = MAPPER.writer(prov).writeValueAsString(new MapBean());
-        assertEquals(aposToQuotes("{'values':{'b':5}}"), json);
+        assertEquals(a2q("{'values':{'b':5}}"), json);
     }
 
     public void testMapFilteringViaClass() throws Exception
@@ -179,7 +179,7 @@ public class TestMapFiltering extends BaseMapTest
         FilterProvider prov = new SimpleFilterProvider().addFilter("filterForMaps",
                 SimpleBeanPropertyFilter.filterOutAllExcept("b"));
         String json = MAPPER.writer(prov).writeValueAsString(bean);
-        assertEquals(aposToQuotes("{'b':3}"), json);
+        assertEquals(a2q("{'b':3}"), json);
     }
 
     // [databind#527]
@@ -189,7 +189,7 @@ public class TestMapFiltering extends BaseMapTest
             .add("a", "foo")
             .add("b", null)
             .add("c", "bar"));
-        assertEquals(aposToQuotes("{'stuff':{'a':'foo','c':'bar'}}"), json);
+        assertEquals(a2q("{'stuff':{'a':'foo','c':'bar'}}"), json);
     }
     
     // [databind#522]
@@ -199,11 +199,11 @@ public class TestMapFiltering extends BaseMapTest
                 new TestMapFilter());
         String json = MAPPER.writer(prov).writeValueAsString(new MapBean());
         // a=1 should become a=2
-        assertEquals(aposToQuotes("{'values':{'a':2}}"), json);
+        assertEquals(a2q("{'values':{'a':2}}"), json);
 
         // and then one without annotation as contrast
         json = MAPPER.writer(prov).writeValueAsString(new MapBeanNoOffset());
-        assertEquals(aposToQuotes("{'values':{'a':1}}"), json);
+        assertEquals(a2q("{'values':{'a':1}}"), json);
     }
 
     // [databind#527]
@@ -213,7 +213,7 @@ public class TestMapFiltering extends BaseMapTest
             .add("a", "foo")
             .add("b", null)
             .add("c", "bar"));
-        assertEquals(aposToQuotes("{'a':'foo','c':'bar'}"), json);
+        assertEquals(a2q("{'a':'foo','c':'bar'}"), json);
     }
 
     // [databind#527]
@@ -223,7 +223,7 @@ public class TestMapFiltering extends BaseMapTest
             .add("a", "foo")
             .add("b", "bar")
             .add("c", ""));
-        assertEquals(aposToQuotes("{'a':'foo','b':'bar'}"), json);
+        assertEquals(a2q("{'a':'foo','b':'bar'}"), json);
     }
 
     // Test to ensure absent content of AtomicReference handled properly
@@ -233,7 +233,7 @@ public class TestMapFiltering extends BaseMapTest
         String json = MAPPER.writeValueAsString(new NoAbsentStringMap()
             .add("a", "foo")
             .add("b", null));
-        assertEquals(aposToQuotes("{'a':'foo'}"), json);
+        assertEquals(a2q("{'a':'foo'}"), json);
     }
 
     // [databind#527]
@@ -244,13 +244,13 @@ public class TestMapFiltering extends BaseMapTest
         // First, non empty:
         json = MAPPER.writeValueAsString(new Wrapper497(new StringMap497()
             .add("a", "123")));
-        assertEquals(aposToQuotes("{'values':{'a':'123'}}"), json);
+        assertEquals(a2q("{'values':{'a':'123'}}"), json);
 
         // then empty
         json = MAPPER.writeValueAsString(new Wrapper497(new StringMap497()
             .add("a", "")
             .add("b", null)));
-        assertEquals(aposToQuotes("{}"), json);
+        assertEquals(a2q("{}"), json);
     }
 
     public void testMapViaGlobalNonEmpty() throws Exception
@@ -260,7 +260,7 @@ public class TestMapFiltering extends BaseMapTest
                 .changeDefaultPropertyInclusion(incl -> incl
                         .withContentInclusion(JsonInclude.Include.NON_EMPTY))
                 .build();
-        assertEquals(aposToQuotes("{'a':'b'}"), mapper.writeValueAsString(
+        assertEquals(a2q("{'a':'b'}"), mapper.writeValueAsString(
                 new StringMap497()
                     .add("x", "")
                     .add("a", "b")
@@ -275,7 +275,7 @@ public class TestMapFiltering extends BaseMapTest
                         o -> o.setInclude(JsonInclude.Value.empty()
                                 .withContentInclusion(JsonInclude.Include.NON_EMPTY)))
                 .build();
-        assertEquals(aposToQuotes("{'a':'b'}"), mapper.writeValueAsString(
+        assertEquals(a2q("{'a':'b'}"), mapper.writeValueAsString(
                 new StringMap497()
                     .add("foo", "")
                     .add("a", "b")

@@ -30,12 +30,12 @@ public class UnwrappedWithView1559Test extends BaseMapTest
                 .disable(MapperFeature.DEFAULT_VIEW_INCLUSION)
                 .build()
                 .writeValueAsString(new Health());
-        assertEquals(aposToQuotes("{}"), json);
+        assertEquals(a2q("{}"), json);
         // and just in case this, although won't matter wrt output
         json = jsonMapperBuilder()
                 .enable(MapperFeature.DEFAULT_VIEW_INCLUSION)
                 .build()
                 .writeValueAsString(new Health());
-        assertEquals(aposToQuotes("{}"), json);
+        assertEquals(a2q("{}"), json);
     }
 }

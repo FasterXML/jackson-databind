@@ -41,6 +41,6 @@ public class RequireSetterForGetter736Test extends BaseMapTest
         DataB dataB = new DataB();
 
         String json = mapper.writeValueAsString(dataB);
-        assertEquals(aposToQuotes("{'readwrite':2}"), json);
+        assertEquals(a2q("{'readwrite':2}"), json);
     }
 }

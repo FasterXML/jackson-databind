@@ -184,12 +184,11 @@ public class ArrayDeserializationTest
     // allow "" to mean 'null' for Arrays, List and Maps
     public void testFromEmptyString() throws Exception
     {
-        ObjectMapper m = jsonMapperBuilder()
-                .configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true)
-                .build();
-        assertNull(m.readValue(quote(""), Object[].class));
-        assertNull( m.readValue(quote(""), String[].class));
-        assertNull( m.readValue(quote(""), int[].class));
+        ObjectReader r = MAPPER.reader()
+                .with(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
+        assertNull(r.forType(Object[].class).readValue(q("")));
+        assertNull(r.forType(String[].class).readValue(q("")));
+        assertNull(r.forType(int[].class).readValue(q("")));
     }
 
     // allow "" to mean 'null' for Arrays, List and Maps
@@ -557,7 +556,7 @@ public class ArrayDeserializationTest
     public void testByteArrayTypeOverride890() throws Exception
     {
         HiddenBinaryBean890 result = MAPPER.readValue(
-                aposToQuotes("{'someBytes':'AQIDBA=='}"), HiddenBinaryBean890.class);
+                a2q("{'someBytes':'AQIDBA=='}"), HiddenBinaryBean890.class);
         assertNotNull(result);
         assertNotNull(result.someBytes);
         assertEquals(byte[].class, result.someBytes.getClass());

@@ -126,7 +126,7 @@ public class MapKeyAnnotationsTest extends BaseMapTest
         input.put(new Wat("3"), true);
 
         String json = MAPPER.writeValueAsString(input);
-        assertEquals(aposToQuotes("{'3':true}"), json);
+        assertEquals(a2q("{'3':true}"), json);
     }    
 
     // [databind#943]
@@ -136,7 +136,7 @@ public class MapKeyAnnotationsTest extends BaseMapTest
         stuff.put(AbcLC.B, Integer.valueOf(3));
         stuff.put(new UCString("foo"), Integer.valueOf(4));
         String json = MAPPER.writeValueAsString(stuff);
-        assertEquals(aposToQuotes("{'b':3,'FOO':4}"), json);
+        assertEquals(a2q("{'b':3,'FOO':4}"), json);
     }
 
     // [databind#2306]
@@ -144,7 +144,7 @@ public class MapKeyAnnotationsTest extends BaseMapTest
     {
         final Map<JsonValue2306Key, String> map = Collections.singletonMap(
                 new JsonValue2306Key("myId"), "value");
-        assertEquals(aposToQuotes("{'myId':'value'}"),
+        assertEquals(a2q("{'myId':'value'}"),
                 MAPPER.writeValueAsString(map));
     }
 

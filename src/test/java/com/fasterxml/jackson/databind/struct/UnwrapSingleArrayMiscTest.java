@@ -23,11 +23,11 @@ public class UnwrapSingleArrayMiscTest extends BaseMapTest
     public void testSimplePOJOUnwrapping() throws Exception
     {
         ObjectReader r = UNWRAPPING_MAPPER.readerFor(IntWrapper.class);
-        IntWrapper w = r.readValue(aposToQuotes("[{'i':42}]"));
+        IntWrapper w = r.readValue(a2q("[{'i':42}]"));
         assertEquals(42, w.i);
 
         try {
-            r.readValue(aposToQuotes("[{'i':42},{'i':16}]"));
+            r.readValue(a2q("[{'i':42},{'i':16}]"));
             fail("Did not throw exception while reading a value from a multi value array");
         } catch (MismatchedInputException e) {
             verifyException(e, "more than one value");
@@ -44,11 +44,11 @@ public class UnwrapSingleArrayMiscTest extends BaseMapTest
     public void testSimpleMapUnwrapping() throws Exception
     {
         ObjectReader r = UNWRAPPING_MAPPER.readerFor(Map.class);
-        Map<String,Object> m = r.readValue(aposToQuotes("[{'stuff':42}]"));
+        Map<String,Object> m = r.readValue(a2q("[{'stuff':42}]"));
         assertEquals(Collections.<String,Object>singletonMap("stuff", Integer.valueOf(42)), m);
 
         try {
-            r.readValue(aposToQuotes("[{'i':42},{'i':16}]"));
+            r.readValue(a2q("[{'i':42},{'i':16}]"));
             fail("Did not throw exception while reading a value from a multi value array");
         } catch (MismatchedInputException e) {
             verifyException(e, "more than one value");
@@ -58,13 +58,13 @@ public class UnwrapSingleArrayMiscTest extends BaseMapTest
     public void testEnumMapUnwrapping() throws Exception
     {
         ObjectReader r = UNWRAPPING_MAPPER.readerFor(new TypeReference<EnumMap<ABC,Integer>>() { });
-        EnumMap<ABC,Integer> m = r.readValue(aposToQuotes("[{'A':42}]"));
+        EnumMap<ABC,Integer> m = r.readValue(a2q("[{'A':42}]"));
         EnumMap<ABC,Integer> exp = new EnumMap<>(ABC.class);
         exp.put(ABC.A, Integer.valueOf(42));
         assertEquals(exp, m);
 
         try {
-            r.readValue(aposToQuotes("[{'A':42},{'B':13}]"));
+            r.readValue(a2q("[{'A':42},{'B':13}]"));
             fail("Did not throw exception while reading a value from a multi value array");
         } catch (MismatchedInputException e) {
             verifyException(e, "more than one value");

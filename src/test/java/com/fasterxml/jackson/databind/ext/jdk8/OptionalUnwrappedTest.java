@@ -52,7 +52,7 @@ public class OptionalUnwrappedTest extends BaseMapTest
     public void testUntypedWithOptionalsNotNulls() throws Exception
     {
 		final ObjectMapper mapper = newJsonMapper();
-		String jsonExp = aposToQuotes("{'XX.name':'Bob'}");
+		String jsonExp = a2q("{'XX.name':'Bob'}");
 		String jsonAct = mapper.writeValueAsString(new OptionalParent());
 		assertEquals(jsonExp, jsonAct);
 	}

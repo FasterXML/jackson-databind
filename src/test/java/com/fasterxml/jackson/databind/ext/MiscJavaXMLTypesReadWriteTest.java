@@ -25,7 +25,7 @@ public class MiscJavaXMLTypesReadWriteTest
     public void testQNameSer() throws Exception
     {
         QName qn = new QName("http://abc", "tag", "prefix");
-        assertEquals(quote(qn.toString()), MAPPER.writeValueAsString(qn));
+        assertEquals(q(qn.toString()), MAPPER.writeValueAsString(qn));
     }
 
     public void testDurationSer() throws Exception
@@ -33,7 +33,7 @@ public class MiscJavaXMLTypesReadWriteTest
         DatatypeFactory dtf = DatatypeFactory.newInstance();
         // arbitrary value
         Duration dur = dtf.newDurationDayTime(false, 15, 19, 58, 1);
-        assertEquals(quote(dur.toString()), MAPPER.writeValueAsString(dur));
+        assertEquals(q(dur.toString()), MAPPER.writeValueAsString(dur));
     }
 
     public void testXMLGregorianCalendarSerAndDeser() throws Exception
@@ -88,7 +88,7 @@ public class MiscJavaXMLTypesReadWriteTest
         String qstr = qn.toString();
         ObjectMapper mapper = new ObjectMapper();
         assertEquals("Should deserialize to equal QName (exp serialization: '"+qstr+"')",
-                     qn, mapper.readValue(quote(qstr), QName.class));
+                     qn, mapper.readValue(q(qstr), QName.class));
     }
 
     public void testCalendarDeser() throws Exception
@@ -98,7 +98,7 @@ public class MiscJavaXMLTypesReadWriteTest
             (1974, 10, 10, 18, 15, 17, 123, 0);
         String exp = cal.toXMLFormat();
         assertEquals("Should deserialize to equal XMLGregorianCalendar ('"+exp+"')", cal,
-                new ObjectMapper().readValue(quote(exp), XMLGregorianCalendar.class));
+                new ObjectMapper().readValue(q(exp), XMLGregorianCalendar.class));
     }
 
     public void testDurationDeser() throws Exception
@@ -108,6 +108,6 @@ public class MiscJavaXMLTypesReadWriteTest
         Duration dur = dtf.newDurationDayTime(true, 27, 5, 15, 59);
         String exp = dur.toString();
         assertEquals("Should deserialize to equal Duration ('"+exp+"')", dur,
-                new ObjectMapper().readValue(quote(exp), Duration.class));
+                new ObjectMapper().readValue(q(exp), Duration.class));
     }
 }

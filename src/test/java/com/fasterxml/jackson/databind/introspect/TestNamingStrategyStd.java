@@ -314,7 +314,7 @@ public class TestNamingStrategyStd extends BaseMapTest
                 .propertyNamingStrategy(PropertyNamingStrategies.UPPER_CAMEL_CASE)
                 .build()
                 .writeValueAsString(new Bean428());
-        if (!json.contains(quote("fooBar"))) {
+        if (!json.contains(q("fooBar"))) {
             fail("Should use name 'fooBar', does not: "+json);
         }
     }
@@ -331,7 +331,7 @@ public class TestNamingStrategyStd extends BaseMapTest
         final BoringBean input = new BoringBean();
         ObjectMapper m = objectMapper();
 
-        assertEquals(aposToQuotes("{'firstname':'Bob','lastname':'Burger'}"),
+        assertEquals(a2q("{'firstname':'Bob','lastname':'Burger'}"),
                 m.writeValueAsString(input));
     }
 
@@ -361,9 +361,9 @@ public class TestNamingStrategyStd extends BaseMapTest
         ObjectMapper m = jsonMapperBuilder()
                 .propertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE)
                 .build();
-        assertEquals(aposToQuotes("{'first-name':'Bob'}"), m.writeValueAsString(input));
+        assertEquals(a2q("{'first-name':'Bob'}"), m.writeValueAsString(input));
 
-        FirstNameBean result = m.readValue(aposToQuotes("{'first-name':'Billy'}"),
+        FirstNameBean result = m.readValue(a2q("{'first-name':'Billy'}"),
                 FirstNameBean.class);
         assertEquals("Billy", result.firstName);
     }
@@ -394,9 +394,9 @@ public class TestNamingStrategyStd extends BaseMapTest
             .build();
 
         final FirstNameBean input = new FirstNameBean("Bob");
-        assertEquals(aposToQuotes("{'first.name':'Bob'}"), m.writeValueAsString(input));
+        assertEquals(a2q("{'first.name':'Bob'}"), m.writeValueAsString(input));
 
-        FirstNameBean result = m.readValue(aposToQuotes("{'first.name':'Billy'}"),
+        FirstNameBean result = m.readValue(a2q("{'first.name':'Billy'}"),
                 FirstNameBean.class);
         assertEquals("Billy", result.firstName);
     }
@@ -433,7 +433,7 @@ public class TestNamingStrategyStd extends BaseMapTest
                 .propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
                 .build();
         // by default, renaming will not take place on explicitly named fields
-        assertEquals(aposToQuotes("{'firstName':'Peter','lastName':'Venkman','user_age':'35'}"),
+        assertEquals(a2q("{'firstName':'Peter','lastName':'Venkman','user_age':'35'}"),
                 m.writeValueAsString(new ExplicitBean()));
 
         m = jsonMapperBuilder()
@@ -442,12 +442,12 @@ public class TestNamingStrategyStd extends BaseMapTest
                 .enable(MapperFeature.ALLOW_EXPLICIT_PROPERTY_RENAMING)
                 .build();
         // w/ feature enabled, ALL property names should get re-written
-        assertEquals(aposToQuotes("{'first_name':'Peter','last_name':'Venkman','user_age':'35'}"),
+        assertEquals(a2q("{'first_name':'Peter','last_name':'Venkman','user_age':'35'}"),
                 m.writeValueAsString(new ExplicitBean()));
 
         // test deserialization as well
         ExplicitBean bean =
-                m.readValue(aposToQuotes("{'first_name':'Egon','last_name':'Spengler','user_age':'32'}"),
+                m.readValue(a2q("{'first_name':'Egon','last_name':'Spengler','user_age':'32'}"),
                         ExplicitBean.class);
 
         assertNotNull(bean);
@@ -461,7 +461,7 @@ public class TestNamingStrategyStd extends BaseMapTest
     {
         ObjectMapper mapper = objectMapper();
         String json = mapper.writeValueAsString(new DefaultNaming());
-        assertEquals(aposToQuotes("{'someValue':3}"), json);
+        assertEquals(a2q("{'someValue':3}"), json);
     }
 
     // Try to reproduce [databind#3102] but with regular POJO. Oddly,

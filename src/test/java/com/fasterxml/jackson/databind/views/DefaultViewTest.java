@@ -34,7 +34,7 @@ public class DefaultViewTest extends BaseMapTest
 
     public void testDeserialization() throws IOException
     {
-        final String JSON = aposToQuotes("{'a':1,'b':2}");
+        final String JSON = a2q("{'a':1,'b':2}");
 
         // first: no views:
         Defaulting result = MAPPER.readerFor(Defaulting.class)
@@ -58,13 +58,13 @@ public class DefaultViewTest extends BaseMapTest
 
     public void testSerialization() throws IOException
     {
-        assertEquals(aposToQuotes("{'a':3,'b':5}"),
+        assertEquals(a2q("{'a':3,'b':5}"),
                 MAPPER.writeValueAsString(new Defaulting()));
 
-        assertEquals(aposToQuotes("{'a':3}"),
+        assertEquals(a2q("{'a':3}"),
                 MAPPER.writerWithView(ViewA.class)
                     .writeValueAsString(new Defaulting()));
-        assertEquals(aposToQuotes("{'b':5}"),
+        assertEquals(a2q("{'b':5}"),
                 MAPPER.writerWithView(ViewB.class)
                     .writeValueAsString(new Defaulting()));
     }

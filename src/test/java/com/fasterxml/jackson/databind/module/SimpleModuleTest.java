@@ -202,7 +202,7 @@ public class SimpleModuleTest extends BaseMapTest
         ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(mod)
                 .build();
-        assertEquals(quote("abcde|5"), mapper.writeValueAsString(new CustomBean("abcde", 5)));
+        assertEquals(q("abcde|5"), mapper.writeValueAsString(new CustomBean("abcde", 5)));
     }
 
     public void testSimpleEnumSerializer() throws Exception
@@ -213,7 +213,7 @@ public class SimpleModuleTest extends BaseMapTest
         ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(mod)
                 .build();
-        assertEquals(quote("b"), mapper.writeValueAsString(SimpleEnum.B));
+        assertEquals(q("b"), mapper.writeValueAsString(SimpleEnum.B));
     }
 
     public void testSimpleInterfaceSerializer() throws Exception
@@ -225,8 +225,8 @@ public class SimpleModuleTest extends BaseMapTest
         ObjectMapper mapper = jsonMapperBuilder()
                 .addModules(mods)
                 .build();
-        assertEquals(quote("Base:1"), mapper.writeValueAsString(new Impl1()));
-        assertEquals(quote("Base:2"), mapper.writeValueAsString(new Impl2()));
+        assertEquals(q("Base:1"), mapper.writeValueAsString(new Impl1()));
+        assertEquals(q("Base:2"), mapper.writeValueAsString(new Impl2()));
     }
     
     /*
@@ -242,7 +242,7 @@ public class SimpleModuleTest extends BaseMapTest
         ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(mod)
                 .build();
-        CustomBean bean = mapper.readValue(quote("xyz|3"), CustomBean.class);
+        CustomBean bean = mapper.readValue(q("xyz|3"), CustomBean.class);
         assertEquals("xyz", bean.str);
         assertEquals(3, bean.num);
     }
@@ -254,7 +254,7 @@ public class SimpleModuleTest extends BaseMapTest
         ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(mod)
                 .build();
-        SimpleEnum result = mapper.readValue(quote("a"), SimpleEnum.class);
+        SimpleEnum result = mapper.readValue(q("a"), SimpleEnum.class);
         assertSame(SimpleEnum.A, result);
     }
 
@@ -274,8 +274,8 @@ public class SimpleModuleTest extends BaseMapTest
                 .addModule(mod1)
                 .addModule(mod2)
                 .build();
-        assertEquals(quote("b"), mapper.writeValueAsString(SimpleEnum.B));
-        SimpleEnum result = mapper.readValue(quote("a"), SimpleEnum.class);
+        assertEquals(q("b"), mapper.writeValueAsString(SimpleEnum.B));
+        SimpleEnum result = mapper.readValue(q("a"), SimpleEnum.class);
         assertSame(SimpleEnum.A, result);
 
         // also let's try it with different order of registration, just in case
@@ -283,8 +283,8 @@ public class SimpleModuleTest extends BaseMapTest
                 .addModule(mod2)
                 .addModule(mod1)
                 .build();
-        assertEquals(quote("b"), mapper.writeValueAsString(SimpleEnum.B));
-        result = mapper.readValue(quote("a"), SimpleEnum.class);
+        assertEquals(q("b"), mapper.writeValueAsString(SimpleEnum.B));
+        result = mapper.readValue(q("a"), SimpleEnum.class);
         assertSame(SimpleEnum.A, result);
     }
 

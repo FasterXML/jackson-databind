@@ -70,7 +70,7 @@ public class SerializationFeaturesTest
         char[] chars = new char[] { 'a','b','c' };
         ObjectMapper m = new ObjectMapper();
         // default: serialize as Strings
-        assertEquals(quote("abc"), m.writeValueAsString(chars));
+        assertEquals(q("abc"), m.writeValueAsString(chars));
         
         // new feature: serialize as JSON array:
         assertEquals("[\"a\",\"b\",\"c\"]",
@@ -130,7 +130,7 @@ public class SerializationFeaturesTest
         // Lists:
         ArrayList<String> strs = new ArrayList<String>();
         strs.add("xyz");
-        assertEquals(quote("xyz"), writer.writeValueAsString(strs));
+        assertEquals(q("xyz"), writer.writeValueAsString(strs));
         ArrayList<Integer> ints = new ArrayList<Integer>();
         ints.add(13);
         assertEquals("13", writer.writeValueAsString(ints));
@@ -167,6 +167,6 @@ public class SerializationFeaturesTest
         assertEquals("0.5", writer.writeValueAsString(new float[] { 0.5f }));
         assertEquals("[0.5,2.5]", writer.writeValueAsString(new float[] { 0.5f, 2.5f }));
         
-        assertEquals(quote("foo"), writer.writeValueAsString(new String[] { "foo" }));
+        assertEquals(q("foo"), writer.writeValueAsString(new String[] { "foo" }));
     }
 }

@@ -107,9 +107,9 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
         final Byte byteWrapperValue = mapper.readValue(asArray(Byte.valueOf(byteTest)), Byte.class);
         assertEquals(Byte.valueOf(byteTest), byteWrapperValue);
 
-        final char charValue = mapper.readValue(asArray(quote(String.valueOf(charTest))), Character.TYPE);
+        final char charValue = mapper.readValue(asArray(q(String.valueOf(charTest))), Character.TYPE);
         assertEquals(charTest, charValue);
-        final Character charWrapperValue = mapper.readValue(asArray(quote(String.valueOf(charTest))), Character.class);
+        final Character charWrapperValue = mapper.readValue(asArray(q(String.valueOf(charTest))), Character.class);
         assertEquals(Character.valueOf(charTest), charWrapperValue);
 
         final boolean booleanTrueValue = mapper.readValue(asArray(true), Boolean.TYPE);
@@ -230,8 +230,8 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
         _verifyMultiValueArrayFail("[82.81902,327.2323]", Float.TYPE);
         _verifyMultiValueArrayFail("[42.273,42.273]", Double.class);
         _verifyMultiValueArrayFail("[42.2723,42.273]", Double.TYPE);
-        _verifyMultiValueArrayFail(asArray(quote("c") + ","  + quote("d")), Character.class);
-        _verifyMultiValueArrayFail(asArray(quote("c") + ","  + quote("d")), Character.TYPE);
+        _verifyMultiValueArrayFail(asArray(q("c") + ","  + q("d")), Character.class);
+        _verifyMultiValueArrayFail(asArray(q("c") + ","  + q("d")), Character.TYPE);
         _verifyMultiValueArrayFail("[true,false]", Boolean.class);
         _verifyMultiValueArrayFail("[true,false]", Boolean.TYPE);
     }
@@ -343,23 +343,23 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
         Class<?> result = MAPPER
                     .readerFor(Class.class)
                     .with(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
-                    .readValue(quote(String.class.getName()));
+                    .readValue(q(String.class.getName()));
         assertEquals(String.class, result);
 
         try {
             MAPPER.readerFor(Class.class)
                 .without(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
-                .readValue("[" + quote(String.class.getName()) + "]");
+                .readValue("[" + q(String.class.getName()) + "]");
             fail("Did not throw exception when UNWRAP_SINGLE_VALUE_ARRAYS feature was disabled and attempted to read a Class array containing one element");
         } catch (MismatchedInputException e) {
             _verifyNoDeserFromArray(e);
         }
 
-        _verifyMultiValueArrayFail("[" + quote(Object.class.getName()) + "," + quote(Object.class.getName()) +"]",
+        _verifyMultiValueArrayFail("[" + q(Object.class.getName()) + "," + q(Object.class.getName()) +"]",
                 Class.class);
         result = MAPPER.readerFor(Class.class)
                 .with(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
-                .readValue("[" + quote(String.class.getName()) + "]");
+                .readValue("[" + q(String.class.getName()) + "]");
         assertEquals(String.class, result);
     }
 
@@ -385,15 +385,15 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
         UUID uuid = UUID.fromString(uuidStr);
         try {
             NO_UNWRAPPING_READER.forType(UUID.class)
-                .readValue("[" + quote(uuidStr) + "]");
+                .readValue("[" + q(uuidStr) + "]");
             fail("Exception was not thrown when UNWRAP_SINGLE_VALUE_ARRAYS is disabled and attempted to read a single value array as a single element");
         } catch (MismatchedInputException e) {
             _verifyNoDeserFromArray(e);
         }
         assertEquals(uuid,
                 reader.with(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
-                    .readValue("[" + quote(uuidStr) + "]"));
-        _verifyMultiValueArrayFail("[" + quote(uuidStr) + "," + quote(uuidStr) + "]", UUID.class);
+                    .readValue("[" + q(uuidStr) + "]"));
+        _verifyMultiValueArrayFail("[" + q(uuidStr) + "," + q(uuidStr) + "]", UUID.class);
     }
 
     /*

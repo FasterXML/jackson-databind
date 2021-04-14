@@ -209,14 +209,23 @@ public class ClassUtilTest extends BaseMapTest
         assertNull(ClassUtil.primitiveType(String.class));
     }
 
-    public void testFindEnumType()
+    public void testFindEnumTypeNonJdk()
     {
         assertEquals(TestEnum.class, ClassUtil.findEnumType(TestEnum.A));
         assertEquals(TestEnum.class, ClassUtil.findEnumType(TestEnum.B));
+    }
+
+    // Some trouble with JDK 16+
+    public void testFindEnumSetTypeJDK()
+    {
         // different codepaths for empty and non-empty EnumSets...
         assertEquals(TestEnum.class, ClassUtil.findEnumType(EnumSet.allOf(TestEnum.class)));
         assertEquals(TestEnum.class, ClassUtil.findEnumType(EnumSet.noneOf(TestEnum.class)));
+    }
 
+    // Some trouble with JDK 16+
+    public void testFindEnumMapTypeJDK()
+    {
         assertEquals(TestEnum.class, ClassUtil.findEnumType(new EnumMap<TestEnum,Integer>(TestEnum.class)));
     }
 

@@ -26,7 +26,7 @@ public class DateDeserializationTZ1153Test extends BaseMapTest
 
         String time = "2016-01-01T17:00:00.000Z";
         long correctTime = 1451667600000l;
-        Date dateAccordingToJackson = r.readValue(quote(time));
+        Date dateAccordingToJackson = r.readValue(q(time));
 
         assertEquals("ISO8601 decoding mismatch " + tz,
                 correctTime, dateAccordingToJackson.getTime());

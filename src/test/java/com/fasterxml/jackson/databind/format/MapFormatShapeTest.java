@@ -149,7 +149,7 @@ public class MapFormatShapeTest extends BaseMapTest
     public void testSerializeAsPOJOViaClass() throws Exception
     {
         String result = MAPPER.writeValueAsString(new Bean476Container(1,2,0));
-        assertEquals(aposToQuotes("{'a':{'extra':13,'empty':false},'b':{'value':2}}"),
+        assertEquals(a2q("{'a':{'extra':13,'empty':false},'b':{'value':2}}"),
                 result);
     }
 
@@ -169,7 +169,7 @@ public class MapFormatShapeTest extends BaseMapTest
         JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
         String json = mapper.writeValueAsString(input);
 
-        assertEquals(aposToQuotes("{'property':55,'map':{'12':45,'6':88}}"), json);
+        assertEquals(a2q("{'property':55,'map':{'12':45,'6':88}}"), json);
 
         Map1540Implementation result = MAPPER.readValue(json, Map1540Implementation.class);
         assertEquals(result.property, input.property);
@@ -179,7 +179,7 @@ public class MapFormatShapeTest extends BaseMapTest
     // [databind#1554]
     public void testDeserializeAsPOJOViaClass() throws Exception
     {
-        Map476AsPOJO result = MAPPER.readValue(aposToQuotes("{'extra':42}"),
+        Map476AsPOJO result = MAPPER.readValue(a2q("{'extra':42}"),
                 Map476AsPOJO.class);
         assertEquals(0, result.size());
         assertEquals(42, result.extra);

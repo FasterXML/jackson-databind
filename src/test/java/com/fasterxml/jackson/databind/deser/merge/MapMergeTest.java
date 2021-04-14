@@ -56,7 +56,7 @@ public class MapMergeTest extends BaseMapTest
 
     public void testShallowMapMerging() throws Exception
     {
-        final String JSON = aposToQuotes("{'values':{'c':'y','d':null}}");
+        final String JSON = a2q("{'values':{'c':'y','d':null}}");
         MergedMap v = MAPPER.readValue(JSON, MergedMap.class);
         assertEquals(3, v.values.size());
         assertEquals("y", v.values.get("c"));
@@ -72,7 +72,7 @@ public class MapMergeTest extends BaseMapTest
 
     public void testShallowNonStringMerging() throws Exception
     {
-        final String JSON = aposToQuotes("{'values':{'72':'b','666':null}}");
+        final String JSON = a2q("{'values':{'72':'b','666':null}}");
         MergedIntMap v = MAPPER.readValue(JSON , MergedIntMap.class);
         assertEquals(3, v.values.size());
         assertEquals("a", v.values.get(Integer.valueOf(13)));
@@ -100,7 +100,7 @@ public class MapMergeTest extends BaseMapTest
 
         // to be update
         MergedMap v = MAPPER.readerForUpdating(base)
-                .readValue(aposToQuotes("{'values':{'props':{'x':'xyz','y' : '...','extra':{ 'ab' : true}}}}"));
+                .readValue(a2q("{'values':{'props':{'x':'xyz','y' : '...','extra':{ 'ab' : true}}}}"));
         assertEquals(2, v.values.size());
         assertEquals("foobar", v.values.get("name"));
         assertNotNull(v.values.get("props"));
@@ -130,7 +130,7 @@ public class MapMergeTest extends BaseMapTest
 
         // to be update
         MergedMap v = MAPPER.readerForUpdating(base)
-                .readValue(aposToQuotes("{'values':{'props':{'names': [ 'bar' ] }}}"));
+                .readValue(a2q("{'values':{'props':{'names': [ 'bar' ] }}}"));
         assertEquals(2, v.values.size());
         assertEquals("foobar", v.values.get("name"));
         assertNotNull(v.values.get("props"));
@@ -157,7 +157,7 @@ public class MapMergeTest extends BaseMapTest
         input.put("list", new ArrayList<>(Arrays.asList("a")));
 
         Map<?,?> resultMap = MAPPER.readerForUpdating(input)
-                .readValue(aposToQuotes("{'list':['b']}"));
+                .readValue(a2q("{'list':['b']}"));
 
         List<?> resultList = (List<?>) resultMap.get("list");
         assertEquals(Arrays.asList("a", "b"), resultList);
@@ -174,7 +174,7 @@ public class MapMergeTest extends BaseMapTest
         input.put("list", new ArrayList<>(Arrays.asList("a")));
 
         Map<?,?> resultMap = mapper.readerForUpdating(input)
-                .readValue(aposToQuotes("{'list':['b']}"));
+                .readValue(a2q("{'list':['b']}"));
 
         List<?> resultList = (List<?>) resultMap.get("list");
 
@@ -193,7 +193,7 @@ public class MapMergeTest extends BaseMapTest
         input.put("list", new ArrayList<>(Arrays.asList("a")));
 
         Map<?,?> resultMap = mapper.readerForUpdating(input)
-                .readValue(aposToQuotes("{'list':['b']}"));
+                .readValue(a2q("{'list':['b']}"));
         List<?> resultList = (List<?>) resultMap.get("list");
         assertEquals(Arrays.asList("b"), resultList);
 
@@ -209,7 +209,7 @@ public class MapMergeTest extends BaseMapTest
         input.put("list", new ArrayList<>(Arrays.asList("x")));
 
         resultMap = mapper.readerForUpdating(input)
-                .readValue(aposToQuotes("{'list':['y']}"));
+                .readValue(a2q("{'list':['y']}"));
         resultList = (List<?>) resultMap.get("list");
         assertEquals(Arrays.asList("x", "y"), resultList);
     }

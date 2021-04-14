@@ -97,7 +97,7 @@ public class NullHandlingTest extends BaseMapTest
         String str = MAPPER.readValue("null", String.class);
         assertNull(str);
 
-        StringWrapper w = MAPPER.readValue(aposToQuotes("{'str': null}"),
+        StringWrapper w = MAPPER.readValue(a2q("{'str': null}"),
                 StringWrapper.class);
         assertNotNull(w);
         assertNull(w.str);

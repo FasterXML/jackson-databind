@@ -285,7 +285,7 @@ public class TestCreators2 extends BaseMapTest
     public void testIgnoredSingleArgCtor() throws Exception
     {
         try {
-            MAPPER.readValue(quote("abc"), IgnoredCtor.class);
+            MAPPER.readValue(q("abc"), IgnoredCtor.class);
             fail("Should have caught missing constructor problem");
         } catch (MismatchedInputException e) {
             verifyException(e, "no String-argument constructor/factory method");

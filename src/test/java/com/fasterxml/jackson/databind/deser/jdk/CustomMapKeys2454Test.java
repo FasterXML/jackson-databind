@@ -40,13 +40,13 @@ public class CustomMapKeys2454Test extends BaseMapTest
 
     public void testCustomSerializer() throws Exception
     {
-        assertEquals(aposToQuotes("{'id=a':'b'}"),
+        assertEquals(a2q("{'id=a':'b'}"),
                 MAPPER.writeValueAsString(Collections.singletonMap(new Key2454("a", true), "b")));
     }
 
     public void testCustomDeserializer() throws Exception
     {
-        Map<Key2454, String> result = MAPPER.readValue(aposToQuotes("{'a':'b'}"),
+        Map<Key2454, String> result = MAPPER.readValue(a2q("{'a':'b'}"),
                 new TypeReference<Map<Key2454, String>>() { });
         assertEquals(1, result.size());
         Key2454 key = result.keySet().iterator().next();

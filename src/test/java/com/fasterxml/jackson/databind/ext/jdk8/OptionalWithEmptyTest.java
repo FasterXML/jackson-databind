@@ -20,7 +20,7 @@ public class OptionalWithEmptyTest extends BaseMapTest
     }
 
     public void testOptionalFromEmpty() throws Exception {
-        Optional<?> value = MAPPER.readValue(quote(""), new TypeReference<Optional<Integer>>() {});
+        Optional<?> value = MAPPER.readValue(q(""), new TypeReference<Optional<Integer>>() {});
         assertEquals(false, value.isPresent());
     }
 
@@ -29,7 +29,7 @@ public class OptionalWithEmptyTest extends BaseMapTest
     {
         // and looks like a special, somewhat non-conforming case is what a user had
         // issues with
-        BooleanBean b = MAPPER.readValue(aposToQuotes("{'value':''}"), BooleanBean.class);
+        BooleanBean b = MAPPER.readValue(a2q("{'value':''}"), BooleanBean.class);
         assertNotNull(b.value);
 
         assertEquals(false, b.value.isPresent());

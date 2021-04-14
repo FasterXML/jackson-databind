@@ -105,7 +105,7 @@ public class MapSerializationTest extends BaseMapTest
         Map<String,Object> map = new LinkedHashMap<String,Object>();
         map.put("a", 1);
         String json = w.writeValueAsString(map);
-        assertEquals(aposToQuotes("{'a':1}"), json);
+        assertEquals(a2q("{'a':1}"), json);
     }
 
     public void testMapSerializer() throws IOException
@@ -160,7 +160,7 @@ public class MapSerializationTest extends BaseMapTest
         // 16-Oct-2016, tatu: By default, null keys are not accepted...
         try {
             /*String json =*/ sortingW.writeValueAsString(mapWithNullKey);
-            //assertEquals(aposToQuotes("{'':1,'b':2}"), json);
+            //assertEquals(a2q("{'':1,'b':2}"), json);
         } catch (DatabindException e) {
             verifyException(e, "Null key for a Map not allowed");
         }
@@ -171,7 +171,7 @@ public class MapSerializationTest extends BaseMapTest
     {
         MapOrderingBean input = new MapOrderingBean("c", "b", "a");
         String json = MAPPER.writeValueAsString(input);
-        assertEquals(aposToQuotes("{'map':{'a':3,'b':2,'c':1}}"), json);
+        assertEquals(a2q("{'map':{'a':3,'b':2,'c':1}}"), json);
     }        
 
     // [Databind#565]
@@ -179,11 +179,11 @@ public class MapSerializationTest extends BaseMapTest
     {
         StringIntMapEntry input = new StringIntMapEntry("answer", 42);
         String json = MAPPER.writeValueAsString(input);
-        assertEquals(aposToQuotes("{'answer':42}"), json);
+        assertEquals(a2q("{'answer':42}"), json);
 
         StringIntMapEntry[] array = new StringIntMapEntry[] { input };
         json = MAPPER.writeValueAsString(array);
-        assertEquals(aposToQuotes("[{'answer':42}]"), json);
+        assertEquals(a2q("[{'answer':42}]"), json);
 
         // and maybe with bit of extra typing?
         ObjectMapper mapper = jsonMapperBuilder()
@@ -191,7 +191,7 @@ public class MapSerializationTest extends BaseMapTest
                         DefaultTyping.NON_FINAL)
                 .build();
         json = mapper.writeValueAsString(input);
-        assertEquals(aposToQuotes("['"+StringIntMapEntry.class.getName()+"',{'answer':42}]"),
+        assertEquals(a2q("['"+StringIntMapEntry.class.getName()+"',{'answer':42}]"),
                 json);
     }
 
@@ -199,7 +199,7 @@ public class MapSerializationTest extends BaseMapTest
     {
         StringIntMapEntryWrapper input = new StringIntMapEntryWrapper("answer", 42);
         String json = MAPPER.writeValueAsString(input);
-        assertEquals(aposToQuotes("{'value':{'answer':42}}"), json);
+        assertEquals(a2q("{'value':{'answer':42}}"), json);
     }
 
     // [databind#691]
@@ -211,7 +211,7 @@ public class MapSerializationTest extends BaseMapTest
 
         String json = MAPPER.writeValueAsString(input);
 
-        assertEquals(aposToQuotes("{'@type':'mymap','id':'Test','NULL':null}"),
+        assertEquals(a2q("{'@type':'mymap','id':'Test','NULL':null}"),
                 json);
     }    
 
@@ -236,19 +236,19 @@ public class MapSerializationTest extends BaseMapTest
         input.put("x", "y");
         input.put("a", "b");
         String json = w.writeValueAsString(input);
-        assertEquals(aposToQuotes("{'a':'b','x':'y'}"), json);
+        assertEquals(a2q("{'a':'b','x':'y'}"), json);
 
         input = new ConcurrentHashMap<String,String>();
         input.put("x", "y");
         input.put("a", "b");
         json = w.writeValueAsString(input);
-        assertEquals(aposToQuotes("{'a':'b','x':'y'}"), json);
+        assertEquals(a2q("{'a':'b','x':'y'}"), json);
 
         // One more: while not technically concurrent map at all, exhibits same issue
         input = new Hashtable<String,String>();
         input.put("x", "y");
         input.put("a", "b");
         json = w.writeValueAsString(input);
-        assertEquals(aposToQuotes("{'a':'b','x':'y'}"), json);
+        assertEquals(a2q("{'a':'b','x':'y'}"), json);
     }
 }

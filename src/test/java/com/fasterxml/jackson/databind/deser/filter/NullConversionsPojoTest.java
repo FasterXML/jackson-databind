@@ -69,14 +69,14 @@ public class NullConversionsPojoTest extends BaseMapTest
     public void testFailOnNull() throws Exception
     {
         // first, ok if assigning non-null to not-nullable, null for nullable
-        NullFail result = MAPPER.readValue(aposToQuotes("{'noNulls':'foo', 'nullsOk':null}"),
+        NullFail result = MAPPER.readValue(a2q("{'noNulls':'foo', 'nullsOk':null}"),
                 NullFail.class);
         assertEquals("foo", result.noNulls);
         assertNull(result.nullsOk);
 
         // and then see that nulls are not ok for non-nullable
         try {
-            result = MAPPER.readValue(aposToQuotes("{'noNulls':null}"),
+            result = MAPPER.readValue(a2q("{'noNulls':null}"),
                     NullFail.class);
             fail("Should not pass");
         } catch (InvalidNullException e) {
@@ -85,7 +85,7 @@ public class NullConversionsPojoTest extends BaseMapTest
 
         // Ditto via constructor; first explicit
         try {
-            /* NullFailCtor r =*/ MAPPER.readValue(aposToQuotes("{'noNulls':null}"),
+            /* NullFailCtor r =*/ MAPPER.readValue(a2q("{'noNulls':null}"),
                     NullFailCtor.class);
             fail("Should not pass");
         } catch (InvalidNullException e) {
@@ -104,7 +104,7 @@ public class NullConversionsPojoTest extends BaseMapTest
     public void testFailOnNullWithDefaults() throws Exception
     {
         // also: config overrides by type should work
-        String json = aposToQuotes("{'name':null}");
+        String json = a2q("{'name':null}");
         NullsForString def = MAPPER.readValue(json, NullsForString.class);
         assertNull(def.getName());
 
@@ -122,18 +122,18 @@ public class NullConversionsPojoTest extends BaseMapTest
 
     public void testNullsToEmptyScalar() throws Exception
     {
-        NullAsEmpty result = MAPPER.readValue(aposToQuotes("{'nullAsEmpty':'foo', 'nullsOk':null}"),
+        NullAsEmpty result = MAPPER.readValue(a2q("{'nullAsEmpty':'foo', 'nullsOk':null}"),
                 NullAsEmpty.class);
         assertEquals("foo", result.nullAsEmpty);
         assertNull(result.nullsOk);
 
         // and then see that nulls are not ok for non-nullable
-        result = MAPPER.readValue(aposToQuotes("{'nullAsEmpty':null}"),
+        result = MAPPER.readValue(a2q("{'nullAsEmpty':null}"),
                 NullAsEmpty.class);
         assertEquals("", result.nullAsEmpty);
 
         // also: config overrides by type should work
-        String json = aposToQuotes("{'name':null}");
+        String json = a2q("{'name':null}");
         NullsForString def = MAPPER.readValue(json, NullsForString.class);
         assertNull(def.getName());
 
@@ -147,18 +147,18 @@ public class NullConversionsPojoTest extends BaseMapTest
 
     public void testNullsToEmptyViaCtor() throws Exception
     {
-        NullAsEmptyCtor result = MAPPER.readValue(aposToQuotes("{'nullAsEmpty':'foo', 'nullsOk':null}"),
+        NullAsEmptyCtor result = MAPPER.readValue(a2q("{'nullAsEmpty':'foo', 'nullsOk':null}"),
                 NullAsEmptyCtor.class);
         assertEquals("foo", result._nullAsEmpty);
         assertNull(result._nullsOk);
 
         // and then see that nulls are not ok for non-nullable
-        result = MAPPER.readValue(aposToQuotes("{'nullAsEmpty':null}"),
+        result = MAPPER.readValue(a2q("{'nullAsEmpty':null}"),
                 NullAsEmptyCtor.class);
         assertEquals("", result._nullAsEmpty);
 
         // and get coerced from "missing", as well
-        result = MAPPER.readValue(aposToQuotes("{}"), NullAsEmptyCtor.class);
+        result = MAPPER.readValue(a2q("{}"), NullAsEmptyCtor.class);
         assertEquals("", result._nullAsEmpty);
     }
 }

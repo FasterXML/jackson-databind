@@ -183,9 +183,9 @@ public class SerializationOrderTest
     //   order
     public void testCreatorVsExplicitOrdering() throws Exception
     {
-        assertEquals(aposToQuotes("{'a':1,'c':3,'b':2}"),
+        assertEquals(a2q("{'a':1,'c':3,'b':2}"),
                 MAPPER.writeValueAsString(new BeanFor2879(1, 2, 3)));
-        assertEquals(aposToQuotes("{'a':1,'c':3,'b':2}"),
+        assertEquals(a2q("{'a':1,'c':3,'b':2}"),
                 ALPHA_MAPPER.writeValueAsString(new BeanFor2879(1, 2, 3)));
     }
 
@@ -201,7 +201,7 @@ public class SerializationOrderTest
     {
         // since "default" order can actually vary with later JDKs, only verify
         // case of alphabetic-as-default
-        assertEquals(aposToQuotes("{'f':0,'u':0,'b':0,'a':0,'r':0}"),
+        assertEquals(a2q("{'f':0,'u':0,'b':0,'a':0,'r':0}"),
                 ALPHA_MAPPER.writeValueAsString(new OrderingByIndexBean()));
     }
 

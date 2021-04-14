@@ -16,8 +16,8 @@ public class CoercePojosTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    private final String JSON_EMPTY = quote("");
-    private final String JSON_BLANK = quote("    ");
+    private final String JSON_EMPTY = q("");
+    private final String JSON_BLANK = q("    ");
 
     /*
     /********************************************************

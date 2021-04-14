@@ -73,13 +73,13 @@ public class ConvertingAbstractSerializer795Test extends BaseMapTest
     private static final ObjectMapper JSON_MAPPER = newJsonMapper();
 
     public void testAbstractTypeDeserialization() throws Exception {
-        String test = aposToQuotes("{'customField': 'customString'}");
+        String test = a2q("{'customField': 'customString'}");
         AbstractCustomTypeUser cu = JSON_MAPPER.readValue(test, AbstractCustomTypeUser.class);
         assertNotNull(cu);
     }
 
     public void testNonAbstractDeserialization() throws Exception {
-        String test = aposToQuotes("{'customField': 'customString'}");
+        String test = a2q("{'customField': 'customString'}");
         NonAbstractCustomTypeUser cu = JSON_MAPPER.readValue(test, NonAbstractCustomTypeUser.class);
         assertNotNull(cu);
     }

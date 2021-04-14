@@ -71,7 +71,7 @@ public class SqlDateSerializationTest extends BaseMapTest
         java.sql.Time time = new java.sql.Time(0L);
         // not 100% sure what we should expect wrt timezone, but what serializes
         // does use is quite simple:
-        assertEquals(quote(time.toString()), MAPPER.writeValueAsString(time));
+        assertEquals(q(time.toString()), MAPPER.writeValueAsString(time));
     }
 
     public void testSqlTimestamp()

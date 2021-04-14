@@ -32,7 +32,7 @@ public class MapEntryFormat1419Test extends BaseMapTest
     {
         BeanWithMapEntryAsObject input = new BeanWithMapEntryAsObject("foo" ,"bar");
         String json = MAPPER.writeValueAsString(input);
-        assertEquals(aposToQuotes("{'entry':{'key':'foo','value':'bar'}}"), json);
+        assertEquals(a2q("{'entry':{'key':'foo','value':'bar'}}"), json);
         BeanWithMapEntryAsObject result = MAPPER.readValue(json, BeanWithMapEntryAsObject.class);
         assertEquals("foo", result.entry.getKey());
         assertEquals("bar", result.entry.getValue());

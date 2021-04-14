@@ -123,21 +123,21 @@ public class JDKNumberDeserTest extends BaseMapTest
     //    would be best; but due to legacy reasons becomes `null` at this point
     public void testEmptyAsNumber() throws Exception
     {
-        assertNull(MAPPER.readValue(quote(""), Byte.class));
-        assertNull(MAPPER.readValue(quote(""), Short.class));
-        assertNull(MAPPER.readValue(quote(""), Character.class));
-        assertNull(MAPPER.readValue(quote(""), Integer.class));
-        assertNull(MAPPER.readValue(quote(""), Long.class));
-        assertNull(MAPPER.readValue(quote(""), Float.class));
-        assertNull(MAPPER.readValue(quote(""), Double.class));
+        assertNull(MAPPER.readValue(q(""), Byte.class));
+        assertNull(MAPPER.readValue(q(""), Short.class));
+        assertNull(MAPPER.readValue(q(""), Character.class));
+        assertNull(MAPPER.readValue(q(""), Integer.class));
+        assertNull(MAPPER.readValue(q(""), Long.class));
+        assertNull(MAPPER.readValue(q(""), Float.class));
+        assertNull(MAPPER.readValue(q(""), Double.class));
 
-        assertNull(MAPPER.readValue(quote(""), BigInteger.class));
-        assertNull(MAPPER.readValue(quote(""), BigDecimal.class));
+        assertNull(MAPPER.readValue(q(""), BigInteger.class));
+        assertNull(MAPPER.readValue(q(""), BigDecimal.class));
     }
 
     public void testTextualNullAsNumber() throws Exception
     {
-        final String NULL_JSON = quote("null");
+        final String NULL_JSON = q("null");
         assertNull(MAPPER.readValue(NULL_JSON, Byte.class));
         assertNull(MAPPER.readValue(NULL_JSON, Short.class));
         // Character is bit special, can't do:

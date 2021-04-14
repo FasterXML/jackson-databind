@@ -88,21 +88,21 @@ public class PropertyAliasTest extends BaseMapTest
         AliasBean bean;
 
         // first, one indicated by field annotation, set via field
-        bean = MAPPER.readValue(aposToQuotes("{'Name':'Foobar','a':3,'xyz':37}"),
+        bean = MAPPER.readValue(a2q("{'Name':'Foobar','a':3,'xyz':37}"),
                 AliasBean.class);
         assertEquals("Foobar", bean.name);
         assertEquals(3, bean._a);
         assertEquals(37, bean._xyz);
 
         // then method-bound one
-        bean = MAPPER.readValue(aposToQuotes("{'name':'Foobar','a':3,'Xyz':37}"),
+        bean = MAPPER.readValue(a2q("{'name':'Foobar','a':3,'Xyz':37}"),
                 AliasBean.class);
         assertEquals("Foobar", bean.name);
         assertEquals(3, bean._a);
         assertEquals(37, bean._xyz);
         
         // and finally, constructor-backed one
-        bean = MAPPER.readValue(aposToQuotes("{'name':'Foobar','A':3,'xyz':37}"),
+        bean = MAPPER.readValue(a2q("{'name':'Foobar','A':3,'xyz':37}"),
                 AliasBean.class);
         assertEquals("Foobar", bean.name);
         assertEquals(3, bean._a);
@@ -111,7 +111,7 @@ public class PropertyAliasTest extends BaseMapTest
 
     public void testAliasWithPolymorphic() throws Exception
     {
-        PolyWrapperForAlias value = MAPPER.readValue(aposToQuotes(
+        PolyWrapperForAlias value = MAPPER.readValue(a2q(
                 "{'value': ['ab', {'nm' : 'Bob', 'A' : 17} ] }"
                 ), PolyWrapperForAlias.class);
         assertNotNull(value.value);
@@ -123,7 +123,7 @@ public class PropertyAliasTest extends BaseMapTest
     // [databind#2378]
     public void testAliasInFactoryMethod() throws Exception
     {
-        AliasBean2378 bean = MAPPER.readValue(aposToQuotes(
+        AliasBean2378 bean = MAPPER.readValue(a2q(
                 "{'partitionId' : 'a', 'userId' : '123'}"
                 ), AliasBean2378.class);
         assertEquals("a", bean.partitionId);

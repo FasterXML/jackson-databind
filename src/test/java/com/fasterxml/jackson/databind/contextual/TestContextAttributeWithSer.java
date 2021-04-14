@@ -49,7 +49,7 @@ public class TestContextAttributeWithSer extends BaseMapTest
     
     public void testSimplePerCall() throws Exception
     {
-        final String EXP = aposToQuotes("[{'value':'0:a'},{'value':'1:b'}]");
+        final String EXP = a2q("[{'value':'0:a'},{'value':'1:b'}]");
         ObjectWriter w = MAPPER.writer();
         final TestPOJO[] INPUT = new TestPOJO[] {
                 new TestPOJO("a"), new TestPOJO("b") };
@@ -61,7 +61,7 @@ public class TestContextAttributeWithSer extends BaseMapTest
 
     public void testSimpleDefaults() throws Exception
     {
-        final String EXP = aposToQuotes("{'value':'3:xyz'}");
+        final String EXP = a2q("{'value':'3:xyz'}");
         final TestPOJO INPUT = new TestPOJO("xyz");
         String json = MAPPER.writer().withAttribute(KEY, Integer.valueOf(3))
                 .writeValueAsString(INPUT);
@@ -75,7 +75,7 @@ public class TestContextAttributeWithSer extends BaseMapTest
     public void testHierarchic() throws Exception
     {
         final TestPOJO[] INPUT = new TestPOJO[] { new TestPOJO("a"), new TestPOJO("b") };
-        final String EXP = aposToQuotes("[{'value':'2:a'},{'value':'3:b'}]");
+        final String EXP = a2q("[{'value':'2:a'},{'value':'3:b'}]");
         ObjectWriter w = MAPPER.writer().withAttribute(KEY, Integer.valueOf(2));
         assertEquals(EXP, w.writeValueAsString(INPUT));
 

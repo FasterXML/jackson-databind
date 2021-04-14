@@ -111,6 +111,6 @@ public class CyclicTypesDeserTest
                 .without(SerializationFeature.FAIL_ON_SELF_REFERENCES);
         String json = w.writeValueAsString(self1);
         assertNotNull(json);
-        assertEquals(aposToQuotes("{'id':1,'parent':{'id':1}}"), json);
+        assertEquals(a2q("{'id':1,'parent':{'id':1}}"), json);
     }
 }

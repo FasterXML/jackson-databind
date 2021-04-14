@@ -29,13 +29,13 @@ public class ReadOnlyDeserFailOnUnknown2719Test extends BaseMapTest
         ObjectReader r = MAPPER.readerFor(UserWithReadOnly.class);
 
         // First, fine to get 'login'
-        UserWithReadOnly result = r.readValue(aposToQuotes("{'login':'foo'}"));
+        UserWithReadOnly result = r.readValue(a2q("{'login':'foo'}"));
         assertEquals("foo", result.login);
 
         // but not 'password'
         r = r.with(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES);
         try {
-            r.readValue(aposToQuotes("{'login':'foo', 'password':'bar'}"));
+            r.readValue(a2q("{'login':'foo', 'password':'bar'}"));
             fail("Should fail");
         } catch (MismatchedInputException e) {
             verifyException(e, "Ignored field");
@@ -44,7 +44,7 @@ public class ReadOnlyDeserFailOnUnknown2719Test extends BaseMapTest
         // or 'username'
         r = r.with(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES);
         try {
-            r.readValue(aposToQuotes("{'login':'foo', 'username':'bar'}"));
+            r.readValue(a2q("{'login':'foo', 'username':'bar'}"));
             fail("Should fail");
         } catch (MismatchedInputException e) {
             verifyException(e, "Ignored field");

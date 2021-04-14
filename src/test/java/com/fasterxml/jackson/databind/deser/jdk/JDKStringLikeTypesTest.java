@@ -82,24 +82,24 @@ public class JDKStringLikeTypesTest extends BaseMapTest
     public void testCharset() throws Exception
     {
         Charset UTF8 = Charset.forName("UTF-8");
-        assertSame(UTF8, MAPPER.readValue(quote("UTF-8"), Charset.class));
+        assertSame(UTF8, MAPPER.readValue(q("UTF-8"), Charset.class));
     }
     
     public void testClass() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
-        assertSame(String.class, mapper.readValue(quote("java.lang.String"), Class.class));
+        assertSame(String.class, mapper.readValue(q("java.lang.String"), Class.class));
 
         // then primitive types
-        assertSame(Boolean.TYPE, mapper.readValue(quote("boolean"), Class.class));
-        assertSame(Byte.TYPE, mapper.readValue(quote("byte"), Class.class));
-        assertSame(Short.TYPE, mapper.readValue(quote("short"), Class.class));
-        assertSame(Character.TYPE, mapper.readValue(quote("char"), Class.class));
-        assertSame(Integer.TYPE, mapper.readValue(quote("int"), Class.class));
-        assertSame(Long.TYPE, mapper.readValue(quote("long"), Class.class));
-        assertSame(Float.TYPE, mapper.readValue(quote("float"), Class.class));
-        assertSame(Double.TYPE, mapper.readValue(quote("double"), Class.class));
-        assertSame(Void.TYPE, mapper.readValue(quote("void"), Class.class));
+        assertSame(Boolean.TYPE, mapper.readValue(q("boolean"), Class.class));
+        assertSame(Byte.TYPE, mapper.readValue(q("byte"), Class.class));
+        assertSame(Short.TYPE, mapper.readValue(q("short"), Class.class));
+        assertSame(Character.TYPE, mapper.readValue(q("char"), Class.class));
+        assertSame(Integer.TYPE, mapper.readValue(q("int"), Class.class));
+        assertSame(Long.TYPE, mapper.readValue(q("long"), Class.class));
+        assertSame(Float.TYPE, mapper.readValue(q("float"), Class.class));
+        assertSame(Double.TYPE, mapper.readValue(q("double"), Class.class));
+        assertSame(Void.TYPE, mapper.readValue(q("void"), Class.class));
     }
 
     public void testClassWithParams() throws IOException
@@ -114,7 +114,7 @@ public class JDKStringLikeTypesTest extends BaseMapTest
     public void testCurrency() throws IOException
     {
         Currency usd = Currency.getInstance("USD");
-        assertEquals(usd, new ObjectMapper().readValue(quote("USD"), Currency.class));
+        assertEquals(usd, new ObjectMapper().readValue(q("USD"), Currency.class));
     }
 
     public void testFile() throws Exception
@@ -131,12 +131,12 @@ public class JDKStringLikeTypesTest extends BaseMapTest
 
     public void testLocale() throws IOException
     {
-        assertEquals(new Locale("en"), MAPPER.readValue(quote("en"), Locale.class));
-        assertEquals(new Locale("es", "ES"), MAPPER.readValue(quote("es_ES"), Locale.class));
+        assertEquals(new Locale("en"), MAPPER.readValue(q("en"), Locale.class));
+        assertEquals(new Locale("es", "ES"), MAPPER.readValue(q("es_ES"), Locale.class));
         assertEquals(new Locale("FI", "fi", "savo"),
-                MAPPER.readValue(quote("fi_FI_savo"), Locale.class));
+                MAPPER.readValue(q("fi_FI_savo"), Locale.class));
         assertEquals(new Locale("en", "US"),
-                MAPPER.readValue(quote("en-US"), Locale.class));
+                MAPPER.readValue(q("en-US"), Locale.class));
     }
 
     public void testCharSequence() throws IOException
@@ -148,36 +148,36 @@ public class JDKStringLikeTypesTest extends BaseMapTest
 
     public void testInetAddress() throws IOException
     {
-        InetAddress address = MAPPER.readValue(quote("127.0.0.1"), InetAddress.class);
+        InetAddress address = MAPPER.readValue(q("127.0.0.1"), InetAddress.class);
         assertEquals("127.0.0.1", address.getHostAddress());
 
         // should we try resolving host names? That requires connectivity... 
         final String HOST = "google.com";
-        address = MAPPER.readValue(quote(HOST), InetAddress.class);
+        address = MAPPER.readValue(q(HOST), InetAddress.class);
         assertEquals(HOST, address.getHostName());
     }
 
     public void testInetSocketAddress() throws IOException
     {
-        InetSocketAddress address = MAPPER.readValue(quote("127.0.0.1"), InetSocketAddress.class);
+        InetSocketAddress address = MAPPER.readValue(q("127.0.0.1"), InetSocketAddress.class);
         assertEquals("127.0.0.1", address.getAddress().getHostAddress());
 
         InetSocketAddress ip6 = MAPPER.readValue(
-                quote("2001:db8:85a3:8d3:1319:8a2e:370:7348"), InetSocketAddress.class);
+                q("2001:db8:85a3:8d3:1319:8a2e:370:7348"), InetSocketAddress.class);
         assertEquals("2001:db8:85a3:8d3:1319:8a2e:370:7348", ip6.getAddress().getHostAddress());
 
         InetSocketAddress ip6port = MAPPER.readValue(
-                quote("[2001:db8:85a3:8d3:1319:8a2e:370:7348]:443"), InetSocketAddress.class);
+                q("[2001:db8:85a3:8d3:1319:8a2e:370:7348]:443"), InetSocketAddress.class);
         assertEquals("2001:db8:85a3:8d3:1319:8a2e:370:7348", ip6port.getAddress().getHostAddress());
         assertEquals(443, ip6port.getPort());
 
         // should we try resolving host names? That requires connectivity...
         final String HOST = "www.google.com";
-        address = MAPPER.readValue(quote(HOST), InetSocketAddress.class);
+        address = MAPPER.readValue(q(HOST), InetSocketAddress.class);
         assertEquals(HOST, address.getHostName());
 
         final String HOST_AND_PORT = HOST+":80";
-        address = MAPPER.readValue(quote(HOST_AND_PORT), InetSocketAddress.class);
+        address = MAPPER.readValue(q(HOST_AND_PORT), InetSocketAddress.class);
         assertEquals(HOST, address.getHostName());
         assertEquals(80, address.getPort());
     }
@@ -216,7 +216,7 @@ public class JDKStringLikeTypesTest extends BaseMapTest
     public void testStackTraceElementWithCustom() throws Exception
     {
         // first, via bean that contains StackTraceElement
-        StackTraceBean bean = MAPPER.readValue(aposToQuotes("{'Location':'foobar'}"),
+        StackTraceBean bean = MAPPER.readValue(a2q("{'Location':'foobar'}"),
                 StackTraceBean.class);
         assertNotNull(bean);
         assertNotNull(bean.location);
@@ -234,7 +234,7 @@ public class JDKStringLikeTypesTest extends BaseMapTest
  
         // and finally, even as part of real exception
         
-        IOException ioe = mapper.readValue(aposToQuotes("{'stackTrace':[ 123, 456 ]}"),
+        IOException ioe = mapper.readValue(a2q("{'stackTrace':[ 123, 456 ]}"),
                 IOException.class);
         assertNotNull(ioe);
         StackTraceElement[] traces = ioe.getStackTrace();
@@ -246,7 +246,7 @@ public class JDKStringLikeTypesTest extends BaseMapTest
 
     public void testStringBuilder() throws Exception
     {
-        StringBuilder sb = MAPPER.readValue(quote("abc"), StringBuilder.class);
+        StringBuilder sb = MAPPER.readValue(q("abc"), StringBuilder.class);
         assertEquals("abc", sb.toString());
     }
 
@@ -258,7 +258,7 @@ public class JDKStringLikeTypesTest extends BaseMapTest
 
         // and finally: broken URI should give proper failure
         try {
-            URI result = reader.readValue(quote("a b"));
+            URI result = reader.readValue(q("a b"));
             fail("Should not accept malformed URI, instead got: "+result);
         } catch (InvalidFormatException e) {
             verifyException(e, "not a valid textual representation");
@@ -284,7 +284,7 @@ public class JDKStringLikeTypesTest extends BaseMapTest
 
         // and finally, invalid URL should be handled appropriately too
         try {
-            URL result = MAPPER.readValue(quote("a b"), URL.class);
+            URL result = MAPPER.readValue(q("a b"), URL.class);
             fail("Should not accept malformed URI, instead got: "+result);
         } catch (InvalidFormatException e) {
             verifyException(e, "not a valid textual representation");
@@ -308,7 +308,7 @@ public class JDKStringLikeTypesTest extends BaseMapTest
             UUID uuid = UUID.fromString(value);
             assertEquals(uuid,
                     r.without(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
-                        .readValue(quote(value)));
+                        .readValue(q(value)));
         }
         // then use templating; note that these are not exactly valid UUIDs
         // wrt spec (type bits etc), but JDK UUID should deal ok
@@ -318,26 +318,26 @@ public class JDKStringLikeTypesTest extends BaseMapTest
         for (int i = 0; i < chars.length(); ++i) {
             String value = TEMPL.replace('0', chars.charAt(i));
             assertEquals(UUID.fromString(value).toString(),
-                    r.readValue(quote(value)).toString());
+                    r.readValue(q(value)).toString());
         }
 
         // also: see if base64 encoding works as expected
         String base64 = Base64Variants.getDefaultVariant().encode(new byte[16]);
         assertEquals(UUID.fromString(NULL_UUID),
-                r.readValue(quote(base64)));
+                r.readValue(q(base64)));
     }
 
     public void testUUIDInvalid() throws Exception
     {
         // and finally, exception handling too [databind#1000], for invalid cases
         try {
-            MAPPER.readValue(quote("abcde"), UUID.class);
+            MAPPER.readValue(q("abcde"), UUID.class);
             fail("Should fail on invalid UUID string");
         } catch (InvalidFormatException e) {
             verifyException(e, "UUID has to be represented by standard");
         }
         try {
-            MAPPER.readValue(quote("76e6d183-5f68-4afa-b94a-922c1fdb83fx"), UUID.class);
+            MAPPER.readValue(q("76e6d183-5f68-4afa-b94a-922c1fdb83fx"), UUID.class);
             fail("Should fail on invalid UUID string");
         } catch (InvalidFormatException e) {
             verifyException(e, "non-hex character 'x'");

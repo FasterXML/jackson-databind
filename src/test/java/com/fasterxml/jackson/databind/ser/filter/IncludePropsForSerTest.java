@@ -170,11 +170,11 @@ public class IncludePropsForSerTest extends BaseMapTest
     public void testIncludeForListValues() throws Exception
     {
         // should apply to elements
-        assertEquals(aposToQuotes("{'coordinates':[{'x':1}]}"),
+        assertEquals(a2q("{'coordinates':[{'x':1}]}"),
                 MAPPER.writeValueAsString(new IncludeForListValuesXY()));
 
         // and combine values too
-        assertEquals(aposToQuotes("{'coordinates':[{'x':1}]}"),
+        assertEquals(a2q("{'coordinates':[{'x':1}]}"),
                 MAPPER.writeValueAsString(new IncludeForListValuesXYZ()));
     }
 

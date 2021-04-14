@@ -105,7 +105,7 @@ public class BuilderDeserializationTest2486
     //
     // I left some notes in BeanDeserializerBase as to behavior.
     public void testPOJOWithArrayCreatorFromObjectRepresentation() throws Exception {
-        final String json = aposToQuotes("{ 'index': 123 }");
+        final String json = a2q("{ 'index': 123 }");
         final MyPOJOWithArrayCreator deserialized = MAPPER.readValue(json, MyPOJOWithArrayCreator.class);
         assertEquals(123, deserialized.getIndex());
     }
@@ -117,7 +117,7 @@ public class BuilderDeserializationTest2486
     }
 
     public void testPOJOWithPrimitiveCreatorFromObjectRepresentation() throws Exception {
-        final String json = aposToQuotes("{ 'index': 123 }");
+        final String json = a2q("{ 'index': 123 }");
         final MyPOJOWithPrimitiveCreator deserialized = MAPPER.readValue(json, MyPOJOWithPrimitiveCreator.class);
         assertEquals(123, deserialized.getIndex());
     }
@@ -135,7 +135,7 @@ public class BuilderDeserializationTest2486
     // from an object shape in the presence of a @JsonCreator accepting an array
     // is not specific to the use of Builders as an intermediary.
     public void testPOJOBuilderWithArrayCreatorFromObjectRepresentation() throws Exception {
-        final String json = aposToQuotes("{ 'index': 123 }");
+        final String json = a2q("{ 'index': 123 }");
         final MyPOJOWithArrayCreator.Builder deserialized = MAPPER.readValue(json, MyPOJOWithArrayCreator.Builder.class);
         assertEquals(123, deserialized.index);
     }
@@ -147,7 +147,7 @@ public class BuilderDeserializationTest2486
     }
 
     public void testPOJOBuilderWithPrimitiveCreatorFromObjectRepresentation() throws Exception {
-        final String json = aposToQuotes("{ 'index': 123 }");
+        final String json = a2q("{ 'index': 123 }");
         final MyPOJOWithPrimitiveCreator.Builder deserialized = MAPPER.readValue(json, MyPOJOWithPrimitiveCreator.Builder.class);
         assertEquals(123, deserialized.index);
     }

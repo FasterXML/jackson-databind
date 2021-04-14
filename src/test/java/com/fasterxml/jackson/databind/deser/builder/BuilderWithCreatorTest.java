@@ -142,7 +142,7 @@ public class BuilderWithCreatorTest extends BaseMapTest
 
     public void testWithPropertiesCreator() throws Exception
     {
-        final String json = aposToQuotes("{'a':1,'c':3,'b':2}");
+        final String json = a2q("{'a':1,'c':3,'b':2}");
         PropertyCreatorValue value = MAPPER.readValue(json, PropertyCreatorValue.class);        
         assertEquals(1, value.a);
         assertEquals(2, value.b);

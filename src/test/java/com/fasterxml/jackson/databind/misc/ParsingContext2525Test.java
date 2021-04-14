@@ -17,7 +17,7 @@ public class ParsingContext2525Test extends BaseMapTest
     
     private final String MINIMAL_OBJECT_DOC = "{\"answer\" : 42 }";
 
-    private final String FULL_DOC = aposToQuotes("{'a':123,'array':[1,2,[3],5,{'obInArray':4}],"
+    private final String FULL_DOC = a2q("{'a':123,'array':[1,2,[3],5,{'obInArray':4}],"
             +"'ob':{'first':[false,true],'second':{'sub':37}},'b':true}");
 
     /*

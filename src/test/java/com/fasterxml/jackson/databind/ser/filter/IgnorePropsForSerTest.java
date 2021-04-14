@@ -154,11 +154,11 @@ public class IgnorePropsForSerTest
     public void testIgnoreForListValues() throws Exception
     {
         // should apply to elements
-        assertEquals(aposToQuotes("{'coordinates':[{'y':2}]}"),
+        assertEquals(a2q("{'coordinates':[{'y':2}]}"),
                 MAPPER.writeValueAsString(new IgnoreForListValuesXY()));
 
         // and combine values too
-        assertEquals(aposToQuotes("{'coordinates':[{'z':3}]}"),
+        assertEquals(a2q("{'coordinates':[{'z':3}]}"),
                 MAPPER.writeValueAsString(new IgnoreForListValuesXYZ()));
     }
 }

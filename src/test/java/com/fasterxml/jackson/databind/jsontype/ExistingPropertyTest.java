@@ -426,7 +426,7 @@ public class ExistingPropertyTest extends BaseMapTest
     // for [databind#1635]: simple usage
     public void testExistingEnumTypeId() throws Exception
     {
-        Bean1635 result = MAPPER.readValue(aposToQuotes("{'value':3, 'type':'A'}"),
+        Bean1635 result = MAPPER.readValue(a2q("{'value':3, 'type':'A'}"),
                 Bean1635.class);
         assertEquals(Bean1635A.class, result.getClass());
         Bean1635A bean = (Bean1635A) result;
@@ -438,7 +438,7 @@ public class ExistingPropertyTest extends BaseMapTest
     // type id
     public void testExistingEnumTypeIdViaDefault() throws Exception
     {
-        Bean1635 result = MAPPER.readValue(aposToQuotes("{'type':'C'}"),
+        Bean1635 result = MAPPER.readValue(a2q("{'type':'C'}"),
                 Bean1635.class);
         assertEquals(Bean1635Default.class, result.getClass());
         assertEquals(ABC.C, result.type);

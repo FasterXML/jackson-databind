@@ -250,19 +250,19 @@ public class TestCustomSerializers extends BaseMapTest
     // [databind#215]: Allow registering CharacterEscapes via ObjectWriter
     public void testCustomEscapes() throws Exception
     {
-        assertEquals(quote("foo\\u0062\\Ar"),
+        assertEquals(q("foo\\u0062\\Ar"),
                 MAPPER.writer(new CustomEscapes()).writeValueAsString("foobar"));
     }
     
     public void testNumberSubclass() throws Exception
     {
-        assertEquals(aposToQuotes("{'x':42}"),
+        assertEquals(a2q("{'x':42}"),
                 MAPPER.writeValueAsString(new LikeNumber(42)));
     }
 
     public void testWithCurrentValue() throws Exception
     {
-        assertEquals(aposToQuotes("{'prop':'Issue631Bean/42'}"),
+        assertEquals(a2q("{'prop':'Issue631Bean/42'}"),
                 MAPPER.writeValueAsString(new Issue631Bean(42)));
     }
 
@@ -270,7 +270,7 @@ public class TestCustomSerializers extends BaseMapTest
     {
         // First variant that uses per-property override
         StringListWrapper wr = new StringListWrapper("a", null, "b");
-        assertEquals(aposToQuotes("{'list':['A',null,'B']}"),
+        assertEquals(a2q("{'list':['A',null,'B']}"),
                 MAPPER.writeValueAsString(wr));
 
         // and then per-type registration
@@ -280,15 +280,15 @@ public class TestCustomSerializers extends BaseMapTest
         ObjectMapper mapper = new ObjectMapper()
                 .registerModule(module);
 
-        assertEquals(quote("FOOBAR"), mapper.writeValueAsString("foobar"));
-        assertEquals(aposToQuotes("['FOO',null]"),
+        assertEquals(q("FOOBAR"), mapper.writeValueAsString("foobar"));
+        assertEquals(a2q("['FOO',null]"),
                 mapper.writeValueAsString(new String[] { "foo", null }));
 
         List<String> list = Arrays.asList("foo", null);
-        assertEquals(aposToQuotes("['FOO',null]"), mapper.writeValueAsString(list));
+        assertEquals(a2q("['FOO',null]"), mapper.writeValueAsString(list));
 
         Set<String> set = new LinkedHashSet<String>(Arrays.asList("foo", null));
-        assertEquals(aposToQuotes("['FOO',null]"), mapper.writeValueAsString(set));
+        assertEquals(a2q("['FOO',null]"), mapper.writeValueAsString(set));
     }
 
     // [databind#2475]
@@ -298,10 +298,10 @@ public class TestCustomSerializers extends BaseMapTest
 
         // contents don't really matter that much as verification within filter but... let's
         // check anyway
-        assertEquals(aposToQuotes("{'id':'ID-1','set':[]}"),
+        assertEquals(a2q("{'id':'ID-1','set':[]}"),
                 writer.writeValueAsString(new Item2475(new ArrayList<String>(), "ID-1")));
 
-        assertEquals(aposToQuotes("{'id':'ID-2','set':[]}"),
+        assertEquals(a2q("{'id':'ID-2','set':[]}"),
                 writer.writeValueAsString(new Item2475(new HashSet<String>(), "ID-2")));
     }    
 

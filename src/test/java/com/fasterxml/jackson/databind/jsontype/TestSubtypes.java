@@ -403,7 +403,7 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
     public void testSubclassLimits() throws Exception
     {
         try {
-            MAPPER.readValue(aposToQuotes("{'value':['"
+            MAPPER.readValue(a2q("{'value':['"
                     +TheBomb.class.getName()+"',{'a':13}] }"), DateWrapper.class);
             fail("Should not pass");
         } catch (InvalidTypeIdException e) {
@@ -431,7 +431,7 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
 
     public void testIssue1125WithDefault() throws Exception
     {
-        Issue1125Wrapper result = MAPPER.readValue(aposToQuotes("{'value':{'a':3,'def':9,'b':5}}"),
+        Issue1125Wrapper result = MAPPER.readValue(a2q("{'value':{'a':3,'def':9,'b':5}}"),
         		Issue1125Wrapper.class);
         assertNotNull(result.value);
         assertEquals(Default1125.class, result.value.getClass());

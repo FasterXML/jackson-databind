@@ -50,7 +50,7 @@ public class TestContextAttributeWithDeser extends BaseMapTest
     
     public void testSimplePerCall() throws Exception
     {
-        final String INPUT = aposToQuotes("[{'value':'a'},{'value':'b'}]");
+        final String INPUT = a2q("[{'value':'a'},{'value':'b'}]");
         TestPOJO[] pojos = MAPPER.readerFor(TestPOJO[].class).readValue(INPUT);
         assertEquals(2, pojos.length);
         assertEquals("a/0", pojos[0].value);
@@ -65,7 +65,7 @@ public class TestContextAttributeWithDeser extends BaseMapTest
 
     public void testSimpleDefaults() throws Exception
     {
-        final String INPUT = aposToQuotes("{'value':'x'}");
+        final String INPUT = a2q("{'value':'x'}");
         TestPOJO pojo = MAPPER.readerFor(TestPOJO.class)
                 .withAttribute(KEY, Integer.valueOf(3))
                 .readValue(INPUT);
@@ -80,7 +80,7 @@ public class TestContextAttributeWithDeser extends BaseMapTest
 
     public void testHierarchic() throws Exception
     {
-        final String INPUT = aposToQuotes("[{'value':'x'},{'value':'y'}]");
+        final String INPUT = a2q("[{'value':'x'},{'value':'y'}]");
         ObjectReader r = MAPPER.readerFor(TestPOJO[].class).withAttribute(KEY, Integer.valueOf(2));
         TestPOJO[] pojos = r.readValue(INPUT);
         assertEquals(2, pojos.length);
@@ -97,7 +97,7 @@ public class TestContextAttributeWithDeser extends BaseMapTest
     // [databind#3001]
     public void testDefaultsViaMapper() throws Exception
     {
-        final String INPUT = aposToQuotes("{'value':'x'}");
+        final String INPUT = a2q("{'value':'x'}");
         ContextAttributes attrs = ContextAttributes.getEmpty()
                 .withSharedAttribute(KEY, Integer.valueOf(72));
         ObjectMapper mapper = jsonMapperBuilder()

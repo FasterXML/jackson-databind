@@ -35,7 +35,7 @@ public class RecursiveIgnorePropertiesTest extends BaseMapTest
 
     public void testRecursiveForDeser() throws Exception
     {
-        String st = aposToQuotes("{ 'name': 'admin',\n"
+        String st = a2q("{ 'name': 'admin',\n"
                 + "    'person_z': { 'name': 'wyatt' }"
                 + "}");
         Person result = MAPPER.readValue(st, Person.class);
@@ -46,7 +46,7 @@ public class RecursiveIgnorePropertiesTest extends BaseMapTest
 
     public void testRecursiveWithCollectionDeser() throws Exception
     {
-        String st = aposToQuotes("{ 'name': 'admin',\n"
+        String st = a2q("{ 'name': 'admin',\n"
                 + "    'person_z': [ { 'name': 'Foor' }, { 'name' : 'Bar' } ]"
                 + "}");
         Persons result = MAPPER.readValue(st, Persons.class);

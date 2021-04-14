@@ -211,7 +211,7 @@ public class UntypedDeserializationTest
 
     public void testSimpleVanillaScalars() throws IOException
     {
-        assertEquals("foo", MAPPER.readValue(quote("foo"), Object.class));
+        assertEquals("foo", MAPPER.readValue(q("foo"), Object.class));
 
         assertEquals(Boolean.TRUE, MAPPER.readValue(" true ", Object.class));
 
@@ -228,7 +228,7 @@ public class UntypedDeserializationTest
     public void testNestedUntypes() throws IOException
     {
         // 05-Apr-2014, tatu: Odd failures if using shared mapper; so work around:
-        Object root = MAPPER.readValue(aposToQuotes("{'a':3,'b':[1,2]}"),
+        Object root = MAPPER.readValue(a2q("{'a':3,'b':[1,2]}"),
                 Object.class);
         assertTrue(root instanceof Map<?,?>);
         Map<?,?> map = (Map<?,?>) root;
@@ -348,7 +348,7 @@ public class UntypedDeserializationTest
 
     public void testUntypedIntAsLong() throws Exception
     {
-        final String JSON = aposToQuotes("{'value':3}");
+        final String JSON = a2q("{'value':3}");
         WrappedUntyped1460 w = MAPPER.readerFor(WrappedUntyped1460.class)
                 .readValue(JSON);
         assertEquals(Integer.valueOf(3), w.value);
@@ -363,11 +363,11 @@ public class UntypedDeserializationTest
     // since all natural target types do implement `Serializable` so assignment works
     public void testSerializable() throws Exception
     {
-        final String JSON1 = aposToQuotes("{ 'value' : 123 }");
+        final String JSON1 = a2q("{ 'value' : 123 }");
         SerContainer cont = MAPPER.readValue(JSON1, SerContainer.class);
         assertEquals(Integer.valueOf(123), cont.value);
 
-        cont = MAPPER.readValue(aposToQuotes("{ 'value' : true }"), SerContainer.class);
+        cont = MAPPER.readValue(a2q("{ 'value' : true }"), SerContainer.class);
         assertEquals(Boolean.TRUE, cont.value);
 
         // But also via Map value, even key
@@ -392,7 +392,7 @@ public class UntypedDeserializationTest
         map.put("a", 42);
 
         ObjectReader r = MAPPER.readerFor(Object.class).withValueToUpdate(map);
-        Object result = r.readValue(aposToQuotes("{'b' : 57}"));
+        Object result = r.readValue(a2q("{'b' : 57}"));
         assertSame(map, result);
         assertEquals(2, map.size());
         assertEquals(Integer.valueOf(57), map.get("b"));
@@ -418,7 +418,7 @@ public class UntypedDeserializationTest
         map.put("a", 42);
 
         ObjectReader r = customMapper.readerFor(Object.class).withValueToUpdate(map);
-        Object result = r.readValue(aposToQuotes("{'b' : 'value', 'c' : 111222333444, 'enabled':true}"));
+        Object result = r.readValue(a2q("{'b' : 'value', 'c' : 111222333444, 'enabled':true}"));
         assertSame(map, result);
         assertEquals(4, map.size());
         assertEquals("VALUE", map.get("b"));
@@ -429,7 +429,7 @@ public class UntypedDeserializationTest
         List<Object> list = new ArrayList<>();
         list.add(1);
         r = customMapper.readerFor(Object.class).withValueToUpdate(list);
-        result = r.readValue(aposToQuotes("[ 2, 'foobar' ]"));
+        result = r.readValue(a2q("[ 2, 'foobar' ]"));
         assertSame(list, result);
         assertEquals(3, list.size());
         assertEquals("FOOBAR", list.get(2));
@@ -469,14 +469,14 @@ public class UntypedDeserializationTest
                         DeserializationFeature.USE_BIG_INTEGER_FOR_INTS);
         WrappedPolymorphicUntyped w;
 
-        w = rDefault.readValue(aposToQuotes("{'value':10}"));
+        w = rDefault.readValue(a2q("{'value':10}"));
         assertEquals(Integer.valueOf(10), w.value);
-        w = rAlt.readValue(aposToQuotes("{'value':10}"));
+        w = rAlt.readValue(a2q("{'value':10}"));
         assertEquals(BigInteger.TEN, w.value);
 
-        w = rDefault.readValue(aposToQuotes("{'value':5.0}"));
+        w = rDefault.readValue(a2q("{'value':5.0}"));
         assertEquals(Double.valueOf(5.0), w.value);
-        w = rAlt.readValue(aposToQuotes("{'value':5.0}"));
+        w = rAlt.readValue(a2q("{'value':5.0}"));
         assertEquals(new BigDecimal("5.0"), w.value);
 
         StringBuilder sb = new StringBuilder(100).append("[0");
@@ -506,19 +506,19 @@ public class UntypedDeserializationTest
             .registerModule(m);
         ObjectReader rDefault = customMapper.readerFor(WrappedPolymorphicUntyped.class);
 
-        WrappedPolymorphicUntyped w = rDefault.readValue(aposToQuotes("{'value':10}"));
+        WrappedPolymorphicUntyped w = rDefault.readValue(a2q("{'value':10}"));
         assertEquals(Integer.valueOf(10), w.value);
 
-        w = rDefault.readValue(aposToQuotes("{'value':9988776655}"));
+        w = rDefault.readValue(a2q("{'value':9988776655}"));
         assertEquals(Long.valueOf(9988776655L), w.value);
-        w = rDefault.readValue(aposToQuotes("{'value':0.75}"));
+        w = rDefault.readValue(a2q("{'value':0.75}"));
         assertEquals(Double.valueOf(0.75), w.value);
 
-        w = rDefault.readValue(aposToQuotes("{'value':'abc'}"));
+        w = rDefault.readValue(a2q("{'value':'abc'}"));
         assertEquals("ABC", w.value);
-        w = rDefault.readValue(aposToQuotes("{'value':false}"));
+        w = rDefault.readValue(a2q("{'value':false}"));
         assertEquals(Boolean.FALSE, w.value);
-        w = rDefault.readValue(aposToQuotes("{'value':null}"));
+        w = rDefault.readValue(a2q("{'value':null}"));
         assertNull(w.value);
 
         // but... actually how about real type id?

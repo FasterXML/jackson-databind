@@ -44,7 +44,7 @@ public class NodeMergeTest extends BaseMapTest
         base.put("first", "foo");
         assertSame(base,
                 MAPPER.readerForUpdating(base)
-                .readValue(aposToQuotes("{'second':'bar', 'third':5, 'fourth':true}")));
+                .readValue(a2q("{'second':'bar', 'third':5, 'fourth':true}")));
         assertEquals(4, base.size());
         assertEquals("bar", base.path("second").asText());
         assertEquals("foo", base.path("first").asText());
@@ -54,7 +54,7 @@ public class NodeMergeTest extends BaseMapTest
 
     public void testObjectNodeMerge() throws Exception
     {
-        ObjectNodeWrapper w = MAPPER.readValue(aposToQuotes("{'props':{'stuff':'xyz'}}"),
+        ObjectNodeWrapper w = MAPPER.readValue(a2q("{'props':{'stuff':'xyz'}}"),
                 ObjectNodeWrapper.class);
         assertEquals(2, w.props.size());
         assertEquals("enabled", w.props.path("default").asText());
@@ -93,7 +93,7 @@ public class NodeMergeTest extends BaseMapTest
         base.add("first");
         assertSame(base,
                 MAPPER.readerForUpdating(base)
-                .readValue(aposToQuotes("['second',false,null]")));
+                .readValue(a2q("['second',false,null]")));
         assertEquals(4, base.size());
         assertEquals("first", base.path(0).asText());
         assertEquals("second", base.path(1).asText());
@@ -103,7 +103,7 @@ public class NodeMergeTest extends BaseMapTest
 
     public void testArrayNodeMerge() throws Exception
     {
-        ArrayNodeWrapper w = MAPPER.readValue(aposToQuotes("{'list':[456,true,{},  [], 'foo']}"),
+        ArrayNodeWrapper w = MAPPER.readValue(a2q("{'list':[456,true,{},  [], 'foo']}"),
                 ArrayNodeWrapper.class);
         assertEquals(6, w.list.size());
         assertEquals(123, w.list.get(0).asInt());

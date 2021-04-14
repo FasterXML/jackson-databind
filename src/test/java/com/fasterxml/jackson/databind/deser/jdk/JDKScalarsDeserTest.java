@@ -202,7 +202,7 @@ public class JDKScalarsDeserTest
     public void testCharacterWrapper() throws Exception
     {
         // First: canonical value is 1-char string
-        assertEquals(Character.valueOf('a'), MAPPER.readValue(quote("a"), Character.class));
+        assertEquals(Character.valueOf('a'), MAPPER.readValue(q("a"), Character.class));
 
         // But can also pass in ascii code
         Character result = MAPPER.readValue(" "+((int) 'X'), Character.class);
@@ -210,7 +210,7 @@ public class JDKScalarsDeserTest
 
         // 22-Jun-2020, tatu: one special case turns out to be white space;
         //    need to avoid considering it "blank" value
-        assertEquals(Character.valueOf(' '), MAPPER.readValue(quote(" "), Character.class));
+        assertEquals(Character.valueOf(' '), MAPPER.readValue(q(" "), Character.class));
         
         final CharacterWrapperBean wrapper = MAPPER.readValue("{\"v\":null}", CharacterWrapperBean.class);
         assertNotNull(wrapper);
@@ -387,23 +387,23 @@ public class JDKScalarsDeserTest
 
         // default encoding is "MIME, no linefeeds", so:
         Assert.assertArrayEquals(INPUT, MAPPER.readValue(
-                quote("YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwWA=="),
+                q("YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwWA=="),
                 byte[].class));
         ObjectReader reader = MAPPER.readerFor(byte[].class);
         Assert.assertArrayEquals(INPUT, (byte[]) reader.with(Base64Variants.MIME_NO_LINEFEEDS).readValue(
-                quote("YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwWA=="
+                q("YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwWA=="
         )));
 
         // but others should be slightly different
         Assert.assertArrayEquals(INPUT, (byte[]) reader.with(Base64Variants.MIME).readValue(
-                quote("YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwYWJjZGVmZ2hpamtsbW5vcHFyc3R1\\ndnd4eXoxMjM0NTY3ODkwWA=="
+                q("YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwYWJjZGVmZ2hpamtsbW5vcHFyc3R1\\ndnd4eXoxMjM0NTY3ODkwWA=="
         )));
         Assert.assertArrayEquals(INPUT, (byte[]) reader.with(Base64Variants.MODIFIED_FOR_URL).readValue(
-                quote("YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwWA"
+                q("YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwWA"
         )));
         // PEM mandates 64 char lines:
         Assert.assertArrayEquals(INPUT, (byte[]) reader.with(Base64Variants.PEM).readValue(
-                quote("YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwYWJjZGVmZ2hpamts\\nbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwWA=="
+                q("YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwYWJjZGVmZ2hpamts\\nbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwWA=="
         )));
     }
 
@@ -605,7 +605,7 @@ public class JDKScalarsDeserTest
             /*PrimitiveCreatorBean bean =*/ MAPPER
                     .readerFor(PrimitiveCreatorBean.class)
                     .with(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
-                    .readValue(aposToQuotes("{'a': null}"));
+                    .readValue(a2q("{'a': null}"));
             fail("Expected failure for `int` and `null`");
         } catch (MismatchedInputException e) {
             verifyException(e, "Cannot map `null` into type `int`");
@@ -668,7 +668,7 @@ public class JDKScalarsDeserTest
     public void testVoidDeser() throws Exception
     {
         // First, `Void` as bean property
-        VoidBean bean = MAPPER.readValue(aposToQuotes("{'value' : 123 }"),
+        VoidBean bean = MAPPER.readValue(a2q("{'value' : 123 }"),
                 VoidBean.class);
         assertNull(bean.value);
 

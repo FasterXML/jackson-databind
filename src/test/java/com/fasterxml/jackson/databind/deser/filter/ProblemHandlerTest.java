@@ -267,7 +267,7 @@ public class ProblemHandlerTest extends BaseMapTest
         // also, write [databind#1629] try this
         mapper = new ObjectMapper()
                 .addHandler(new WeirdStringHandler(null));
-        UUID result2 = mapper.readValue(quote("not a uuid!"), UUID.class);
+        UUID result2 = mapper.readValue(q("not a uuid!"), UUID.class);
         assertNull(result2);
     }
 

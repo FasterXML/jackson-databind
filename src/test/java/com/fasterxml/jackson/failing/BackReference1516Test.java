@@ -71,7 +71,7 @@ public class BackReference1516Test extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    private final String PARENT_CHILD_JSON = aposToQuotes(
+    private final String PARENT_CHILD_JSON = a2q(
 "{ 'id': 'abc',\n"+
 "  'name': 'Bob',\n"+
 "  'child': { 'id': 'def', 'name':'Bert' }\n"+

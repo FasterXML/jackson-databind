@@ -72,8 +72,8 @@ public class CoerceToBooleanTest extends BaseMapTest
                 cfg.setCoercion(CoercionInputShape.Integer, CoercionAction.Fail))
             .build();
 
-    private final static String DOC_WITH_0 = aposToQuotes("{'value':0}");
-    private final static String DOC_WITH_1 = aposToQuotes("{'value':1}");
+    private final static String DOC_WITH_0 = a2q("{'value':0}");
+    private final static String DOC_WITH_1 = a2q("{'value':1}");
 
     /*
     /**********************************************************
@@ -88,7 +88,7 @@ public class CoerceToBooleanTest extends BaseMapTest
                 .readerFor(BooleanPrimitiveBean.class)
                 .with(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
         try {
-            reader.readValue(aposToQuotes("{'booleanValue':''}"));
+            reader.readValue(a2q("{'booleanValue':''}"));
             fail("Expected failure for boolean + empty String");
         } catch (MismatchedInputException e) {
             verifyException(e, "Cannot coerce `null` to `boolean`");
@@ -143,7 +143,7 @@ public class CoerceToBooleanTest extends BaseMapTest
     {
         // Test failure for root value: for both byte- and char-backed sources:
 
-        final String input = quote(unquotedValue);
+        final String input = q(unquotedValue);
         try (JsonParser p = nonCoercingMapper.createParser(new StringReader(input))) {
             _verifyStringCoerceFail(nonCoercingMapper, p, unquotedValue, type);
         }
@@ -248,7 +248,7 @@ public class CoerceToBooleanTest extends BaseMapTest
     // [databind#2635], [databind#2770]
     public void testIntToBooleanCoercionFailBytes() throws Exception
     {
-        _verifyBooleanCoerceFail(aposToQuotes("{'value':1}"), true, JsonToken.VALUE_NUMBER_INT, "1", BooleanPOJO.class);
+        _verifyBooleanCoerceFail(a2q("{'value':1}"), true, JsonToken.VALUE_NUMBER_INT, "1", BooleanPOJO.class);
 
         _verifyBooleanCoerceFail("1", true, JsonToken.VALUE_NUMBER_INT, "1", Boolean.TYPE);
         _verifyBooleanCoerceFail("1", true, JsonToken.VALUE_NUMBER_INT, "1", Boolean.class);
@@ -260,7 +260,7 @@ public class CoerceToBooleanTest extends BaseMapTest
     // [databind#2635], [databind#2770]
     public void testIntToBooleanCoercionFailChars() throws Exception
     {
-        _verifyBooleanCoerceFail(aposToQuotes("{'value':1}"), false, JsonToken.VALUE_NUMBER_INT, "1", BooleanPOJO.class);
+        _verifyBooleanCoerceFail(a2q("{'value':1}"), false, JsonToken.VALUE_NUMBER_INT, "1", BooleanPOJO.class);
 
         _verifyBooleanCoerceFail("1", false, JsonToken.VALUE_NUMBER_INT, "1", Boolean.TYPE);
         _verifyBooleanCoerceFail("1", false, JsonToken.VALUE_NUMBER_INT, "1", Boolean.class);
@@ -402,9 +402,9 @@ public class CoerceToBooleanTest extends BaseMapTest
 
         final String text = p.getText();
         if (!tokenValue.equals(text)) {
-            String textDesc = (text == null) ? "NULL" : quote(text);
+            String textDesc = (text == null) ? "NULL" : q(text);
             fail("Token text ("+textDesc+") via parser of type "+p.getClass().getName()
-                    +" not as expected ("+quote(tokenValue)+")");
+                    +" not as expected ("+q(tokenValue)+")");
         }
     }
 

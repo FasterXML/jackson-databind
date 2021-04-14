@@ -30,19 +30,19 @@ public class FailOnNullCreatorTest extends BaseMapTest
     {
         Person p;
         // First: fine if feature is not enabled
-        p = POINT_READER.readValue(aposToQuotes("{}"));
+        p = POINT_READER.readValue(a2q("{}"));
         assertEquals(null, p.name);
         assertEquals(Integer.valueOf(0), p.age);
 
         // Second: fine if feature is enabled but default value is not null
         ObjectReader r = POINT_READER.with(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES);
-        p = POINT_READER.readValue(aposToQuotes("{'name':'John', 'age': null}"));
+        p = POINT_READER.readValue(a2q("{'name':'John', 'age': null}"));
         assertEquals("John", p.name);
         assertEquals(Integer.valueOf(0), p.age);
 
         // Third: throws exception if property is missing
         try {
-            r.readValue(aposToQuotes("{}"));
+            r.readValue(a2q("{}"));
             fail("Should not pass third test");
         } catch (MismatchedInputException e) {
             verifyException(e, "Null value for creator property 'name'");
@@ -50,7 +50,7 @@ public class FailOnNullCreatorTest extends BaseMapTest
 
         // Fourth: throws exception if property is set to null explicitly
         try {
-            r.readValue(aposToQuotes("{'age': 5, 'name': null}"));
+            r.readValue(a2q("{'age': 5, 'name': null}"));
             fail("Should not pass fourth test");
         } catch (MismatchedInputException e) {
             verifyException(e, "Null value for creator property 'name'");

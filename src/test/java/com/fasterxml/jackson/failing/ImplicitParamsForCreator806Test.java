@@ -46,7 +46,7 @@ public class ImplicitParamsForCreator806Test extends BaseMapTest
     // Creators
     public void testImplicitNameWithNamingStrategy() throws Exception
     {
-        XY value = MAPPER.readValue(aposToQuotes("{'param_name0':1,'param_name1':2}"), XY.class);
+        XY value = MAPPER.readValue(a2q("{'param_name0':1,'param_name1':2}"), XY.class);
         assertNotNull(value);
         assertEquals(1, value.x);
         assertEquals(2, value.y);

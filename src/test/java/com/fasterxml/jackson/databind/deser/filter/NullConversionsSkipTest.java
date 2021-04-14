@@ -57,13 +57,13 @@ public class NullConversionsSkipTest extends BaseMapTest
     public void testSkipNullField() throws Exception
     {
         // first, ok if assigning non-null to not-nullable, null for nullable
-        NullSkipField result = MAPPER.readValue(aposToQuotes("{'noNulls':'foo', 'nullsOk':null}"),
+        NullSkipField result = MAPPER.readValue(a2q("{'noNulls':'foo', 'nullsOk':null}"),
                 NullSkipField.class);
         assertEquals("foo", result.noNulls);
         assertNull(result.nullsOk);
 
         // and then see that nulls are not ok for non-nullable
-        result = MAPPER.readValue(aposToQuotes("{'noNulls':null}"),
+        result = MAPPER.readValue(a2q("{'noNulls':null}"),
                 NullSkipField.class);
         assertEquals("b", result.noNulls);
         assertEquals("a", result.nullsOk);
@@ -71,12 +71,12 @@ public class NullConversionsSkipTest extends BaseMapTest
 
     public void testSkipNullMethod() throws Exception
     {
-        NullSkipMethod result = MAPPER.readValue(aposToQuotes("{'noNulls':'foo', 'nullsOk':null}"),
+        NullSkipMethod result = MAPPER.readValue(a2q("{'noNulls':'foo', 'nullsOk':null}"),
                 NullSkipMethod.class);
         assertEquals("foo", result._noNulls);
         assertNull(result._nullsOk);
 
-        result = MAPPER.readValue(aposToQuotes("{'noNulls':null}"),
+        result = MAPPER.readValue(a2q("{'noNulls':null}"),
                 NullSkipMethod.class);
         assertEquals("b", result._noNulls);
         assertEquals("a", result._nullsOk);
@@ -99,7 +99,7 @@ public class NullConversionsSkipTest extends BaseMapTest
     
     public void testSkipNullWithDefaults() throws Exception
     {
-        String json = aposToQuotes("{'value':null}");
+        String json = a2q("{'value':null}");
         StringValue result = MAPPER.readValue(json, StringValue.class);
         assertNull(result.value);
 

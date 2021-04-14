@@ -39,14 +39,14 @@ public class MapMerge1844Test extends BaseMapTest
         final ObjectMapper mapper = newJsonMapper();
         mapper.setDefaultMergeable(true);
 
-        final String f1 = aposToQuotes(
+        final String f1 = a2q(
 "{ 'key1' : {\n"
 +"  '1': 1, '2': 2, '3': 3\n"
 +"}, 'key2': {\n"
 +"  '1': 1, '2': 2, '3': 3\n"
 +"} }"
 );
-        final String f2 = aposToQuotes(
+        final String f2 = a2q(
 "{ 'key1' : {\n"
 +"  '1': 2, '2': 3, '4': 5\n"
 +"}, 'key2': {\n"

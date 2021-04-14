@@ -58,20 +58,20 @@ public class JsonIncludeOverrideTest
         ObjectMapper mapper = new ObjectMapper();
         // First, with defaults, both included:
         JsonIncludeOverrideTest.EmptyListMapBean empty = new JsonIncludeOverrideTest.EmptyListMapBean();
-        assertEquals(aposToQuotes("{'list':[],'map':{}}"),
+        assertEquals(a2q("{'list':[],'map':{}}"),
                 mapper.writeValueAsString(empty));
 
         // and then change inclusion criteria for either
         mapper = new ObjectMapper();
         mapper.configOverride(Map.class)
             .setInclude(JsonInclude.Value.construct(JsonInclude.Include.NON_EMPTY, null));
-        assertEquals(aposToQuotes("{'list':[]}"),
+        assertEquals(a2q("{'list':[]}"),
                 mapper.writeValueAsString(empty));
 
         mapper = new ObjectMapper();
         mapper.configOverride(List.class)
             .setInclude(JsonInclude.Value.construct(JsonInclude.Include.NON_EMPTY, null));
-        assertEquals(aposToQuotes("{'map':{}}"),
+        assertEquals(a2q("{'map':{}}"),
                 mapper.writeValueAsString(empty));
     }
 
@@ -80,7 +80,7 @@ public class JsonIncludeOverrideTest
         ObjectMapper mapper = new ObjectMapper();
         // First, with defaults, all but NON_NULL annotated included
         JsonIncludeOverrideTest.MixedTypeAlwaysBean nullValues = new JsonIncludeOverrideTest.MixedTypeAlwaysBean();
-        assertEquals(aposToQuotes("{'num':null,'plain':null}"),
+        assertEquals(a2q("{'num':null,'plain':null}"),
                 mapper.writeValueAsString(nullValues));
 
         // and then change inclusion as property criteria for either
@@ -112,14 +112,14 @@ public class JsonIncludeOverrideTest
         mapper.configOverride(String.class)
                 .setIncludeAsProperty(JsonInclude.Value
                         .construct(JsonInclude.Include.ALWAYS, null));
-        assertEquals(aposToQuotes("{'annotated':null,'plain':null}"),
+        assertEquals(a2q("{'annotated':null,'plain':null}"),
                 mapper.writeValueAsString(nullValues));
 
         mapper = new ObjectMapper();
         mapper.configOverride(Integer.class)
                 .setIncludeAsProperty(JsonInclude.Value
                         .construct(JsonInclude.Include.ALWAYS, null));
-        assertEquals(aposToQuotes("{'num':null,'annotated':null}"),
+        assertEquals(a2q("{'num':null,'annotated':null}"),
                 mapper.writeValueAsString(nullValues));
     }
 
@@ -131,7 +131,7 @@ public class JsonIncludeOverrideTest
         mapper.configOverride(JsonIncludeOverrideTest.MixedTypeNonNullBean.class)
                 .setInclude(JsonInclude.Value
                         .construct(JsonInclude.Include.ALWAYS, null));
-        assertEquals(aposToQuotes("{'num':null,'annotated':null,'plain':null}"),
+        assertEquals(a2q("{'num':null,'annotated':null,'plain':null}"),
                 mapper.writeValueAsString(nullValues));
 
         // and then change inclusion as property criteria for either
@@ -142,7 +142,7 @@ public class JsonIncludeOverrideTest
         mapper.configOverride(String.class)
                 .setIncludeAsProperty(JsonInclude.Value
                         .construct(JsonInclude.Include.NON_NULL, null));
-        assertEquals(aposToQuotes("{'num':null,'annotated':null}"),
+        assertEquals(a2q("{'num':null,'annotated':null}"),
                 mapper.writeValueAsString(nullValues));
 
         mapper = new ObjectMapper();
@@ -152,7 +152,7 @@ public class JsonIncludeOverrideTest
         mapper.configOverride(Integer.class)
                 .setIncludeAsProperty(JsonInclude.Value
                         .construct(JsonInclude.Include.NON_NULL, null));
-        assertEquals(aposToQuotes("{'annotated':null,'plain':null}"),
+        assertEquals(a2q("{'annotated':null,'plain':null}"),
                 mapper.writeValueAsString(nullValues));
     }
 

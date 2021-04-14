@@ -144,9 +144,9 @@ public class JDKAtomicTypesDeserTest
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_ABSENT);
-        assertEquals(aposToQuotes("{'value':true}"),
+        assertEquals(a2q("{'value':true}"),
                 mapper.writeValueAsString(new SimpleWrapper(Boolean.TRUE)));
-        assertEquals(aposToQuotes("{}"),
+        assertEquals(a2q("{}"),
                 mapper.writeValueAsString(new SimpleWrapper(null)));
     }
 
@@ -156,7 +156,7 @@ public class JDKAtomicTypesDeserTest
                 JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.ALWAYS);
         ObjectMapper mapper = new ObjectMapper();
         mapper.setDefaultPropertyInclusion(incl);
-        assertEquals(aposToQuotes("{'value':true}"),
+        assertEquals(a2q("{'value':true}"),
                 mapper.writeValueAsString(new SimpleWrapper(Boolean.TRUE)));
     }
 
@@ -166,7 +166,7 @@ public class JDKAtomicTypesDeserTest
                 JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.NON_NULL);
         ObjectMapper mapper = new ObjectMapper();
         mapper.setDefaultPropertyInclusion(incl);
-        assertEquals(aposToQuotes("{'value':true}"),
+        assertEquals(a2q("{'value':true}"),
                 mapper.writeValueAsString(new SimpleWrapper(Boolean.TRUE)));
     }
 
@@ -176,7 +176,7 @@ public class JDKAtomicTypesDeserTest
                 JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.NON_ABSENT);
         ObjectMapper mapper = new ObjectMapper();
         mapper.setDefaultPropertyInclusion(incl);
-        assertEquals(aposToQuotes("{'value':true}"),
+        assertEquals(a2q("{'value':true}"),
                 mapper.writeValueAsString(new SimpleWrapper(Boolean.TRUE)));
     }
 
@@ -186,7 +186,7 @@ public class JDKAtomicTypesDeserTest
                 JsonInclude.Value.construct(JsonInclude.Include.NON_ABSENT, JsonInclude.Include.NON_EMPTY);
         ObjectMapper mapper = new ObjectMapper();
         mapper.setDefaultPropertyInclusion(incl);
-        assertEquals(aposToQuotes("{'value':true}"),
+        assertEquals(a2q("{'value':true}"),
                 mapper.writeValueAsString(new SimpleWrapper(Boolean.TRUE)));
     }
 
@@ -210,12 +210,12 @@ public class JDKAtomicTypesDeserTest
         ObjectMapper mapper = MAPPER;
 
         // by default, include as null
-        assertEquals(aposToQuotes("{'value':null}"), mapper.writeValueAsString(input));
+        assertEquals(a2q("{'value':null}"), mapper.writeValueAsString(input));
 
         // ditto with "no nulls"
         mapper = new ObjectMapper().setSerializationInclusion(JsonInclude
                 .Include.NON_NULL);
-        assertEquals(aposToQuotes("{'value':null}"), mapper.writeValueAsString(input));
+        assertEquals(a2q("{'value':null}"), mapper.writeValueAsString(input));
 
         // but not with "non empty"
         mapper = new ObjectMapper().setSerializationInclusion(JsonInclude
@@ -241,7 +241,7 @@ public class JDKAtomicTypesDeserTest
     // [databind#882]: verify `@JsonDeserialize(contentAs=)` works with AtomicReference
     public void testDeserializeWithContentAs() throws Exception
     {
-        AtomicRefReadWrapper result = MAPPER.readValue(aposToQuotes("{'value':'abc'}"),
+        AtomicRefReadWrapper result = MAPPER.readValue(a2q("{'value':'abc'}"),
                 AtomicRefReadWrapper.class);
          Object v = result.value.get();
          assertNotNull(v);
@@ -252,14 +252,14 @@ public class JDKAtomicTypesDeserTest
     // [databind#932]: support unwrapping too
     public void testWithUnwrapping() throws Exception
     {
-         String jsonExp = aposToQuotes("{'XX.name':'Bob'}");
+         String jsonExp = a2q("{'XX.name':'Bob'}");
          String jsonAct = MAPPER.writeValueAsString(new UnwrappingRefParent());
          assertEquals(jsonExp, jsonAct);
     }
 
     public void testWithCustomDeserializer() throws Exception
     {
-        LCStringWrapper w = MAPPER.readValue(aposToQuotes("{'value':'FoobaR'}"),
+        LCStringWrapper w = MAPPER.readValue(a2q("{'value':'FoobaR'}"),
                 LCStringWrapper.class);
         assertEquals("foobar", w.value.get());
     }

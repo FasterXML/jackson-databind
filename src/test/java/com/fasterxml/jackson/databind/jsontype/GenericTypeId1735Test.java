@@ -41,7 +41,7 @@ public class GenericTypeId1735Test extends BaseMapTest
     public void testSimpleTypeCheck1735() throws Exception
     {
         try {
-            MAPPER.readValue(aposToQuotes(
+            MAPPER.readValue(a2q(
 "{'w':{'type':'"+NEF_CLASS+"'}}"),
                     Wrapper1735.class);
             fail("Should not pass");
@@ -55,7 +55,7 @@ public class GenericTypeId1735Test extends BaseMapTest
     public void testNestedTypeCheck1735() throws Exception
     {
         try {
-            MAPPER.readValue(aposToQuotes(
+            MAPPER.readValue(a2q(
 "{'w':{'type':'java.util.HashMap<java.lang.String,java.lang.String>'}}"),
                     Wrapper1735.class);
             fail("Should not pass");

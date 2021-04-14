@@ -59,7 +59,7 @@ public class ProblemHandlerUnknownTypeId2221Test extends BaseMapTest
 
     private final static String CLASS_GENERIC_CONTENT = GenericContent.class.getName();
     private final static String CLASS_DUMMY_CONTENT = DummyContent.class.getName();
-    private final static String JSON = aposToQuotes(
+    private final static String JSON = a2q(
 "{\n" +
 "          \"_class\":\""+CLASS_GENERIC_CONTENT+"\",\n" +
 "          \"innerObjects\":\n" +

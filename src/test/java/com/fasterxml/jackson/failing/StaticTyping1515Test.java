@@ -65,12 +65,12 @@ public class StaticTyping1515Test extends BaseMapTest
     public void testStaticTypingForProperties() throws Exception
     {
         String json = STAT_MAPPER.writeValueAsString(new Issue515Singles());
-        assertEquals(aposToQuotes("{'value':{'a':1},'aValue':{'a':1,'b':2},'dValue':{'a':3,'b':4}}"), json);
+        assertEquals(a2q("{'value':{'a':1},'aValue':{'a':1,'b':2},'dValue':{'a':3,'b':4}}"), json);
     }
 
     public void testStaticTypingForLists() throws Exception
     {
         String json = STAT_MAPPER.writeValueAsString(new Issue515Lists());
-        assertEquals(aposToQuotes("{'list':[{'a':1}],'aList':[{'a':1,'b':2}],'dList:[{'a':3,'b':4}]}"), json);
+        assertEquals(a2q("{'list':[{'a':1}],'aList':[{'a':1,'b':2}],'dList:[{'a':3,'b':4}]}"), json);
     }
 }

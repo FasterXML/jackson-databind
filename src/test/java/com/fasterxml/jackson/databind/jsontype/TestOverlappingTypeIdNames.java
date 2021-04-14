@@ -36,12 +36,12 @@ public class TestOverlappingTypeIdNames extends BaseMapTest
 
         // Ensure both type ids are acceptable
 
-        value = MAPPER.readValue(aposToQuotes("{'type':'a','x':7}"), Base312.class);
+        value = MAPPER.readValue(a2q("{'type':'a','x':7}"), Base312.class);
         assertNotNull(value);
         assertEquals(Impl312.class, value.getClass());
         assertEquals(7, ((Impl312) value).x);
         
-        value = MAPPER.readValue(aposToQuotes("{'type':'b','x':3}"), Base312.class);
+        value = MAPPER.readValue(a2q("{'type':'b','x':3}"), Base312.class);
         assertNotNull(value);
         assertEquals(Impl312.class, value.getClass());
         assertEquals(3, ((Impl312) value).x);
@@ -49,9 +49,9 @@ public class TestOverlappingTypeIdNames extends BaseMapTest
 
     public void testOverlappingNameSer() throws Exception
     {
-        assertEquals(aposToQuotes("{'type':'a','value':1}"),
+        assertEquals(a2q("{'type':'a','value':1}"),
                 MAPPER.writeValueAsString(new Impl312B1()));
-        assertEquals(aposToQuotes("{'type':'a','value':1}"),
+        assertEquals(a2q("{'type':'a','value':1}"),
                 MAPPER.writeValueAsString(new Impl312B2()));
     }
 }

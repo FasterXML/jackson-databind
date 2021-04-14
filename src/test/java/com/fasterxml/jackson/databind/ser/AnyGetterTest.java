@@ -230,7 +230,7 @@ public class AnyGetterTest extends BaseMapTest
     public void testAnyDisabling() throws Exception
     {
         String json = MAPPER.writeValueAsString(new NotEvenAnyBean());
-        assertEquals(aposToQuotes("{'value':42}"), json);
+        assertEquals(a2q("{'value':42}"), json);
     }
 
     // Trying to repro [databind#577]
@@ -238,7 +238,7 @@ public class AnyGetterTest extends BaseMapTest
     {
         MapAsAny input = new MapAsAny();
         input.add("bar", null);
-        assertEquals(aposToQuotes("{'bar':null}"),
+        assertEquals(a2q("{'bar':null}"),
                 MAPPER.writeValueAsString(input));
     }
 

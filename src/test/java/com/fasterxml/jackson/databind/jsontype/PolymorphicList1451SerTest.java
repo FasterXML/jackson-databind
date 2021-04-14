@@ -40,7 +40,7 @@ public class PolymorphicList1451SerTest extends BaseMapTest
 
         String result = writer.writeValueAsString(input);
 
-        assertEquals(aposToQuotes(
+        assertEquals(a2q(
 "[{'@class':'."+CLASS_NAME+"$A','a':'a1'},{'@class':'."+CLASS_NAME+"$B','a':'a2','b':'b'}]"
 ), result);
 

@@ -211,7 +211,7 @@ public class MapKeySerializationTest extends BaseMapTest
         Map<Class<?>,Integer> map = new LinkedHashMap<Class<?>,Integer>();
         map.put(String.class, 2);
         String json = MAPPER.writeValueAsString(map);
-        assertEquals(aposToQuotes("{'java.lang.String':2}"), json);
+        assertEquals(a2q("{'java.lang.String':2}"), json);
     }
 
     // [databind#838]
@@ -265,13 +265,13 @@ public class MapKeySerializationTest extends BaseMapTest
         MapWrapper<byte[], String> input = new MapWrapper<>(binary, "stuff");
         String expBase64 = Base64Variants.MIME.encode(binary);
         
-        assertEquals(aposToQuotes("{'map':{'"+expBase64+"':'stuff'}}"),
+        assertEquals(a2q("{'map':{'"+expBase64+"':'stuff'}}"),
                 MAPPER.writeValueAsString(input));
 
         // and then dynamically..
         Map<byte[],String> map = new LinkedHashMap<>();
         map.put(binary, "xyz");
-        assertEquals(aposToQuotes("{'"+expBase64+"':'xyz'}"),
+        assertEquals(a2q("{'"+expBase64+"':'xyz'}"),
                 MAPPER.writeValueAsString(map));
     }
 

@@ -255,7 +255,7 @@ public class EnumCreatorTest extends BaseMapTest
     public void testExceptionFromCreator() throws Exception
     {
         try {
-            /*TestEnum324 e =*/ MAPPER.readValue(quote("xyz"), TestEnum324.class);
+            /*TestEnum324 e =*/ MAPPER.readValue(q("xyz"), TestEnum324.class);
             fail("Should throw exception");
         } catch (ValueInstantiationException e) {
             verifyException(e, "foobar");

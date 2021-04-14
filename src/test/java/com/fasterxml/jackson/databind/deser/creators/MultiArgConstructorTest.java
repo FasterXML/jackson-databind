@@ -67,7 +67,7 @@ public class MultiArgConstructorTest extends BaseMapTest
     {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.setAnnotationIntrospector(new MyParamIntrospector());
-        MultiArgCtorBean bean = mapper.readValue(aposToQuotes("{'b':13, 'c':2, 'a':-99}"),
+        MultiArgCtorBean bean = mapper.readValue(a2q("{'b':13, 'c':2, 'a':-99}"),
                 MultiArgCtorBean.class);
         assertNotNull(bean);
         assertEquals(13, bean._b);
@@ -80,7 +80,7 @@ public class MultiArgConstructorTest extends BaseMapTest
     {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.setAnnotationIntrospector(new MyParamIntrospector());
-        MultiArgCtorBeanWithAnnotations bean = mapper.readValue(aposToQuotes("{'b2':7, 'c':222, 'a':-99}"),
+        MultiArgCtorBeanWithAnnotations bean = mapper.readValue(a2q("{'b2':7, 'c':222, 'a':-99}"),
                 MultiArgCtorBeanWithAnnotations.class);
         assertNotNull(bean);
         assertEquals(7, bean._b);
@@ -98,7 +98,7 @@ public class MultiArgConstructorTest extends BaseMapTest
                 JsonAutoDetect.Value.noOverrides()
                     .withCreatorVisibility(Visibility.NONE));
         try {
-            /*MultiArgCtorBean bean =*/ mapper.readValue(aposToQuotes("{'b':13,  'a':-99}"),
+            /*MultiArgCtorBean bean =*/ mapper.readValue(a2q("{'b':13,  'a':-99}"),
                 MultiArgCtorBean.class);
             fail("Should not have passed");
         } catch (InvalidDefinitionException e) {

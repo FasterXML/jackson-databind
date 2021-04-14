@@ -85,7 +85,7 @@ public class MultipleExternalIds291Test extends BaseMapTest
 
     public void _testMultipleValuesSingleExtId(String json) throws Exception
     {
-        json = aposToQuotes(json);
+        json = a2q(json);
 
         // First, with base class, no type id field separately
         {

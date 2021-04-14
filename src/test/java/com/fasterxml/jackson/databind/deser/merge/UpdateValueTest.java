@@ -54,7 +54,7 @@ public class UpdateValueTest extends BaseMapTest
         // but, changed our minds, no update
         r = r.withValueToUpdate(null);
         // should be safe to read regardless
-        Bean result = r.readValue(aposToQuotes("{'a':'x'}"));
+        Bean result = r.readValue(a2q("{'a':'x'}"));
         assertNotNull(result);
     }
 }

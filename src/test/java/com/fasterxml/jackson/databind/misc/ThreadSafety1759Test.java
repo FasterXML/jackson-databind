@@ -28,7 +28,7 @@ public class ThreadSafety1759Test extends BaseMapTest
         // IMPORTANT! Use different timestamp for every thread
         List<Callable<Throwable>> calls = new ArrayList<Callable<Throwable>>();
         for (int thread = 1; thread <= numThreads; ++thread) {
-            final String json = quote(String.format("2017-01-%02dT16:30:49Z", thread));
+            final String json = q(String.format("2017-01-%02dT16:30:49Z", thread));
             final long timestamp = mapper.readValue(json, Date.class).getTime();
 
             calls.add(createCallable(thread, mapper, json, timestamp, COUNT, counter));

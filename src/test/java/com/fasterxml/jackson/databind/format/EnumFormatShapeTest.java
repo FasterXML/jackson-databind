@@ -139,7 +139,7 @@ public class EnumFormatShapeTest
     }
 
     public void testEnumPropertyAsNumber() throws Exception {
-        assertEquals(String.format(aposToQuotes("{'color':%s}"), Color.GREEN.ordinal()),
+        assertEquals(String.format(a2q("{'color':%s}"), Color.GREEN.ordinal()),
                 MAPPER.writeValueAsString(new ColorWrapper(Color.GREEN)));
     }
 
@@ -149,7 +149,7 @@ public class EnumFormatShapeTest
                 .propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
                 .build();
         String json = mapper.writeValueAsString(Enum2365.B);
-        assertEquals(aposToQuotes("{'main_value':'B-x'}"), json);
+        assertEquals(a2q("{'main_value':'B-x'}"), json);
     }
 
     // [databind#2576]

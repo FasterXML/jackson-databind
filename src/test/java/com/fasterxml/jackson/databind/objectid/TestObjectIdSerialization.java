@@ -227,7 +227,7 @@ public class TestObjectIdSerialization extends BaseMapTest
     {
         final ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(new EmptyObject());
-        assertEquals(aposToQuotes("{'@id':1}"), json);
+        assertEquals(a2q("{'@id':1}"), json);
     }    
 
     public void testSerializeWithOpaqueStringId() throws Exception
@@ -249,7 +249,7 @@ public class TestObjectIdSerialization extends BaseMapTest
         assertEquals(34, output.next.value);
         assertSame(output.next.next, output);
 
-        String json2 = aposToQuotes("{'id':'foobar','value':3, 'next':{'id':'barf','value':5,'next':'foobar'}}");
+        String json2 = a2q("{'id':'foobar','value':3, 'next':{'id':'barf','value':5,'next':'foobar'}}");
         output = MAPPER.readValue(json2, StringIdentifiable.class);
         assertNotNull(output);
         assertEquals(3, output.value);
@@ -319,7 +319,7 @@ public class TestObjectIdSerialization extends BaseMapTest
     public void testNullStringPropertyId() throws Exception
     {
         IdentifiableStringId value = MAPPER.readValue
-                (aposToQuotes("{'value':3, 'next':null, 'id':null}"), IdentifiableStringId.class);
+                (a2q("{'value':3, 'next':null, 'id':null}"), IdentifiableStringId.class);
         assertNotNull(value);
         assertEquals(3, value.value);
     }    

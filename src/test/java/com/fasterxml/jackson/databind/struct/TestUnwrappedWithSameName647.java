@@ -22,7 +22,7 @@ public class TestUnwrappedWithSameName647 extends BaseMapTest
 
     public void testUnwrappedWithSamePropertyName() throws Exception {
         final String JSON = "{'mail': {'mail': 'the mail text'}}";
-        UnwrappedWithSamePropertyName result = MAPPER.readValue(aposToQuotes(JSON), UnwrappedWithSamePropertyName.class);
+        UnwrappedWithSamePropertyName result = MAPPER.readValue(a2q(JSON), UnwrappedWithSamePropertyName.class);
         assertNotNull(result.mail);
         assertNotNull(result.mail.mail);
         assertEquals("the mail text", result.mail.mail.mail);

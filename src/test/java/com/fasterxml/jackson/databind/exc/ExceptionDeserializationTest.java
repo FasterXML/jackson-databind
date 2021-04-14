@@ -165,7 +165,7 @@ public class ExceptionDeserializationTest
     // mostly to help with XML module (and perhaps CSV)
     public void testLineNumberAsString() throws IOException
     {
-        Exception exc = MAPPER.readValue(aposToQuotes(
+        Exception exc = MAPPER.readValue(a2q(
                 "{'message':'Test',\n'stackTrace': "
                 +"[ { 'lineNumber':'50' } ] }"
         ), IOException.class);
@@ -175,7 +175,7 @@ public class ExceptionDeserializationTest
     // [databind#1842]:
     public void testNullAsMessage() throws IOException
     {
-        Exception exc = MAPPER.readValue(aposToQuotes(
+        Exception exc = MAPPER.readValue(a2q(
                 "{'message':null, 'localizedMessage':null }"
         ), IOException.class);
         assertNotNull(exc);

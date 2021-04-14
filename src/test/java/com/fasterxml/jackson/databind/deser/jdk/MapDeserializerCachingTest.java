@@ -34,7 +34,7 @@ public class MapDeserializerCachingTest extends BaseMapTest
 
     public void testCachedSerialize() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        String json = aposToQuotes("{'data':{'1st':'onedata','2nd':'twodata'}}");
+        String json = a2q("{'data':{'1st':'onedata','2nd':'twodata'}}");
 
         // Do deserialization with non-annotated map property
         NonAnnotatedMapHolderClass ignored = mapper.readValue(json, NonAnnotatedMapHolderClass.class);

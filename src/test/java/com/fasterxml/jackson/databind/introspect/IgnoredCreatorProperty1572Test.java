@@ -60,7 +60,7 @@ public class IgnoredCreatorProperty1572Test extends BaseMapTest
     {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.setAnnotationIntrospector(new ImplicitNames());
-        String JSON = aposToQuotes("{'innerTest': {\n"
+        String JSON = a2q("{'innerTest': {\n"
                 +"'str':'str',\n"
                 +"'otherStr': 'otherStr'\n"
                 +"}}\n");

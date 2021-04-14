@@ -48,7 +48,7 @@ public class TestRootName extends BaseMapTest
         final ObjectMapper mapper = rootMapper();
         // First kind of fail, wrong name
         try {
-            mapper.readValue(aposToQuotes("{'notRudy':{'a':3}}"), Bean.class);
+            mapper.readValue(a2q("{'notRudy':{'a':3}}"), Bean.class);
             fail("Should not pass");
         } catch (MismatchedInputException e) {
             verifyException(e, "Root name ('notRudy') does not match expected ('rudy')");
@@ -56,7 +56,7 @@ public class TestRootName extends BaseMapTest
 
         // second: non-Object
         try {
-            mapper.readValue(aposToQuotes("[{'rudy':{'a':3}}]"), Bean.class);
+            mapper.readValue(a2q("[{'rudy':{'a':3}}]"), Bean.class);
             fail("Should not pass");
         } catch (MismatchedInputException e) {
             verifyException(e, "Unexpected token (START_ARRAY");
@@ -64,7 +64,7 @@ public class TestRootName extends BaseMapTest
 
         // Third: empty Object
         try {
-            mapper.readValue(aposToQuotes("{}]"), Bean.class);
+            mapper.readValue(a2q("{}]"), Bean.class);
             fail("Should not pass");
         } catch (MismatchedInputException e) {
             verifyException(e, "Current token not FIELD_NAME");
@@ -72,7 +72,7 @@ public class TestRootName extends BaseMapTest
 
         // Fourth, stuff after wrapped
         try {
-            mapper.readValue(aposToQuotes("{'rudy':{'a':3}, 'extra':3}"), Bean.class);
+            mapper.readValue(a2q("{'rudy':{'a':3}, 'extra':3}"), Bean.class);
             fail("Should not pass");
         } catch (MismatchedInputException e) {
             verifyException(e, "Unexpected token");
@@ -85,7 +85,7 @@ public class TestRootName extends BaseMapTest
         final ObjectReader reader = rootMapper().readerFor(Bean.class);
         // First kind of fail, wrong name
         try {
-            reader.readValue(aposToQuotes("{'notRudy':{'a':3}}"));
+            reader.readValue(a2q("{'notRudy':{'a':3}}"));
             fail("Should not pass");
         } catch (MismatchedInputException e) {
             verifyException(e, "Root name ('notRudy') does not match expected ('rudy')");
@@ -93,7 +93,7 @@ public class TestRootName extends BaseMapTest
 
         // second: non-Object
         try {
-            reader.readValue(aposToQuotes("[{'rudy':{'a':3}}]"));
+            reader.readValue(a2q("[{'rudy':{'a':3}}]"));
             fail("Should not pass");
         } catch (MismatchedInputException e) {
             verifyException(e, "Unexpected token (START_ARRAY");
@@ -101,7 +101,7 @@ public class TestRootName extends BaseMapTest
 
         // Third: empty Object
         try {
-            reader.readValue(aposToQuotes("{}]"));
+            reader.readValue(a2q("{}]"));
             fail("Should not pass");
         } catch (MismatchedInputException e) {
             verifyException(e, "Current token not FIELD_NAME");
@@ -109,7 +109,7 @@ public class TestRootName extends BaseMapTest
 
         // Fourth, stuff after wrapped
         try {
-            reader.readValue(aposToQuotes("{'rudy':{'a':3}, 'extra':3}"));
+            reader.readValue(a2q("{'rudy':{'a':3}, 'extra':3}"));
             fail("Should not pass");
         } catch (MismatchedInputException e) {
             verifyException(e, "Unexpected token");

@@ -62,7 +62,7 @@ public class NamingStrategyViaCreator556Test
             .annotationIntrospector(new MyParamIntrospector())
             .build();
 
-    private final static String CTOR_JSON = aposToQuotes("{ 'MyAge' : 42,  'MyName' : 'NotMyRealName' }");
+    private final static String CTOR_JSON = a2q("{ 'MyAge' : 42,  'MyName' : 'NotMyRealName' }");
     
     public void testRenameViaCtor() throws Exception
     {

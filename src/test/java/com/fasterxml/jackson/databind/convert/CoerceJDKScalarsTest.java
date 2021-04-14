@@ -129,23 +129,23 @@ public class CoerceJDKScalarsTest extends BaseMapTest
 
     public void testStringToNumbersCoercionOk() throws Exception
     {
-        _verifyCoerceSuccess(quote("123"), Byte.TYPE, Byte.valueOf((byte) 123));
-        _verifyCoerceSuccess(quote("123"), Byte.class, Byte.valueOf((byte) 123));
-        _verifyCoerceSuccess(quote("123"), Short.TYPE, Short.valueOf((short) 123));
-        _verifyCoerceSuccess(quote("123"), Short.class, Short.valueOf((short) 123));
-        _verifyCoerceSuccess(quote("123"), Integer.TYPE, Integer.valueOf(123));
-        _verifyCoerceSuccess(quote("123"), Integer.class, Integer.valueOf(123));
-        _verifyCoerceSuccess(quote("123"), Long.TYPE, Long.valueOf(123));
-        _verifyCoerceSuccess(quote("123"), Long.class, Long.valueOf(123));
-        _verifyCoerceSuccess(quote("123.5"), Float.TYPE, Float.valueOf(123.5f));
-        _verifyCoerceSuccess(quote("123.5"), Float.class, Float.valueOf(123.5f));
-        _verifyCoerceSuccess(quote("123.5"), Double.TYPE, Double.valueOf(123.5));
-        _verifyCoerceSuccess(quote("123.5"), Double.class, Double.valueOf(123.5));
+        _verifyCoerceSuccess(q("123"), Byte.TYPE, Byte.valueOf((byte) 123));
+        _verifyCoerceSuccess(q("123"), Byte.class, Byte.valueOf((byte) 123));
+        _verifyCoerceSuccess(q("123"), Short.TYPE, Short.valueOf((short) 123));
+        _verifyCoerceSuccess(q("123"), Short.class, Short.valueOf((short) 123));
+        _verifyCoerceSuccess(q("123"), Integer.TYPE, Integer.valueOf(123));
+        _verifyCoerceSuccess(q("123"), Integer.class, Integer.valueOf(123));
+        _verifyCoerceSuccess(q("123"), Long.TYPE, Long.valueOf(123));
+        _verifyCoerceSuccess(q("123"), Long.class, Long.valueOf(123));
+        _verifyCoerceSuccess(q("123.5"), Float.TYPE, Float.valueOf(123.5f));
+        _verifyCoerceSuccess(q("123.5"), Float.class, Float.valueOf(123.5f));
+        _verifyCoerceSuccess(q("123.5"), Double.TYPE, Double.valueOf(123.5));
+        _verifyCoerceSuccess(q("123.5"), Double.class, Double.valueOf(123.5));
 
-        _verifyCoerceSuccess(quote("123"), BigInteger.class, BigInteger.valueOf(123));
-        _verifyCoerceSuccess(quote("123.0"), BigDecimal.class, new BigDecimal("123.0"));
+        _verifyCoerceSuccess(q("123"), BigInteger.class, BigInteger.valueOf(123));
+        _verifyCoerceSuccess(q("123.0"), BigDecimal.class, new BigDecimal("123.0"));
 
-        AtomicBoolean ab = COERCING_MAPPER.readValue(quote("true"), AtomicBoolean.class);
+        AtomicBoolean ab = COERCING_MAPPER.readValue(q("true"), AtomicBoolean.class);
         assertNotNull(ab);
         assertTrue(ab.get());
     }
@@ -212,7 +212,7 @@ public class CoerceJDKScalarsTest extends BaseMapTest
     {
         // Test failure for root value: for both byte- and char-backed sources:
 
-        final String input = quote(unquotedValue);
+        final String input = q(unquotedValue);
         try (JsonParser p = NOT_COERCING_MAPPER.createParser(new StringReader(input))) {
             _verifyStringCoerceFail(p, unquotedValue, type);
         }

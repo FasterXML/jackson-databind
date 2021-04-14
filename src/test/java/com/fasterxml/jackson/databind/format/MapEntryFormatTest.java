@@ -109,32 +109,32 @@ public class MapEntryFormatTest extends BaseMapTest
 
     public void testInclusion() throws Exception
     {
-        assertEquals(aposToQuotes("{'entry':{'a':'b'}}"),
+        assertEquals(a2q("{'entry':{'a':'b'}}"),
                 MAPPER.writeValueAsString(new EmptyEntryWrapper("a", "b")));
-        assertEquals(aposToQuotes("{'entry':{'a':'b'}}"),
+        assertEquals(a2q("{'entry':{'a':'b'}}"),
                 MAPPER.writeValueAsString(new EntryWithDefaultWrapper("a", "b")));
-        assertEquals(aposToQuotes("{'entry':{'a':'b'}}"),
+        assertEquals(a2q("{'entry':{'a':'b'}}"),
                 MAPPER.writeValueAsString(new EntryWithNullWrapper("a", "b")));
 
-        assertEquals(aposToQuotes("{}"),
+        assertEquals(a2q("{}"),
                 MAPPER.writeValueAsString(new EmptyEntryWrapper("a", "")));
-        assertEquals(aposToQuotes("{}"),
+        assertEquals(a2q("{}"),
                 MAPPER.writeValueAsString(new EntryWithDefaultWrapper("a", "")));
-        assertEquals(aposToQuotes("{'entry':{'a':''}}"),
+        assertEquals(a2q("{'entry':{'a':''}}"),
                 MAPPER.writeValueAsString(new EntryWithNullWrapper("a", "")));
-        assertEquals(aposToQuotes("{}"),
+        assertEquals(a2q("{}"),
                 MAPPER.writeValueAsString(new EntryWithNullWrapper("a", null)));
     }
 
     public void testInclusionWithReference() throws Exception
     {
-        assertEquals(aposToQuotes("{'entry':{'a':'b'}}"),
+        assertEquals(a2q("{'entry':{'a':'b'}}"),
                 MAPPER.writeValueAsString(new EntryWithNonAbsentWrapper("a", "b")));
         // empty String not excluded since reference is not absent, just points to empty
         // (so would need 3rd level inclusion definition)
-        assertEquals(aposToQuotes("{'entry':{'a':''}}"),
+        assertEquals(a2q("{'entry':{'a':''}}"),
                 MAPPER.writeValueAsString(new EntryWithNonAbsentWrapper("a", "")));
-        assertEquals(aposToQuotes("{}"),
+        assertEquals(a2q("{}"),
                 MAPPER.writeValueAsString(new EntryWithNonAbsentWrapper("a", null)));
     }
 
@@ -148,7 +148,7 @@ public class MapEntryFormatTest extends BaseMapTest
     {
         BeanWithMapEntry input = new BeanWithMapEntry("foo" ,"bar");
         String json = MAPPER.writeValueAsString(input);
-        assertEquals(aposToQuotes("{'entry':{'foo':'bar'}}"), json);
+        assertEquals(a2q("{'entry':{'foo':'bar'}}"), json);
         BeanWithMapEntry result = MAPPER.readValue(json, BeanWithMapEntry.class);
         assertEquals("foo", result.entry.getKey());
         assertEquals("bar", result.entry.getValue());
@@ -158,7 +158,7 @@ public class MapEntryFormatTest extends BaseMapTest
     {
         MapEntryAsObject input = new MapEntryAsObject("foo" ,"bar");
         String json = MAPPER.writeValueAsString(input);
-        assertEquals(aposToQuotes("{'key':'foo','value':'bar'}"), json);
+        assertEquals(a2q("{'key':'foo','value':'bar'}"), json);
 
         // 16-Oct-2016, tatu: Happens to work by default because it's NOT basic
         //   `Map.Entry` but subtype.
@@ -175,7 +175,7 @@ public class MapEntryFormatTest extends BaseMapTest
         mapper.configOverride(Map.Entry.class)
             .setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.OBJECT));
         Map.Entry<String,String> input = new BeanWithMapEntry("foo", "bar").entry;
-        assertEquals(aposToQuotes("{'key':'foo','value':'bar'}"),
+        assertEquals(a2q("{'key':'foo','value':'bar'}"),
                 mapper.writeValueAsString(input));
     }
 }

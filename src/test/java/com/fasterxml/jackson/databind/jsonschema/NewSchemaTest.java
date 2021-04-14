@@ -283,7 +283,7 @@ public class NewSchemaTest extends BaseMapTest
     public void testJsonValueFormatHandling() throws Exception
     {
         // first: serialize using 'toString()', not name
-        final String EXP = quote("host-name");
+        final String EXP = q("host-name");
         assertEquals(EXP, MAPPER.writeValueAsString(JsonValueFormat.HOST_NAME));
 
         // and second, deserialize ok from that as well

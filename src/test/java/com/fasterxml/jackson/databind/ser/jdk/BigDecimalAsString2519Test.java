@@ -24,7 +24,7 @@ public class BigDecimalAsString2519Test extends BaseMapTest
         mapper.configOverride(BigDecimal.class)
             .setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING));
         String json = mapper.writeValueAsString(foo);
-        assertEquals(aposToQuotes("{'values':['2.34']}"), json);
+        assertEquals(a2q("{'values':['2.34']}"), json);
     }
 
     public void testBigDecimalAsString2519Untyped() throws Exception
@@ -35,6 +35,6 @@ public class BigDecimalAsString2519Test extends BaseMapTest
         mapper.configOverride(BigDecimal.class)
             .setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING));
         String json = mapper.writeValueAsString(foo);
-        assertEquals(aposToQuotes("{'values':['2.34']}"), json);
+        assertEquals(a2q("{'values':['2.34']}"), json);
     }
 }

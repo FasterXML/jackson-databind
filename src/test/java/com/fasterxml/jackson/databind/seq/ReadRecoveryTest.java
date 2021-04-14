@@ -24,7 +24,7 @@ public class ReadRecoveryTest extends BaseMapTest
 
     public void testRootBeans() throws Exception
     {
-        final String JSON = aposToQuotes("{'a':3} {'x':5}");
+        final String JSON = a2q("{'a':3} {'x':5}");
         MappingIterator<Bean> it = MAPPER.readerFor(Bean.class).readValues(JSON);
         // First one should be fine
         assertTrue(it.hasNextValue());
@@ -48,7 +48,7 @@ public class ReadRecoveryTest extends BaseMapTest
     // unknown structured value
     public void testSimpleRootRecovery() throws Exception
     {
-        final String JSON = aposToQuotes("{'a':3}{'a':27,'foo':[1,2],'b':{'x':3}}  {'a':1,'b':2} ");
+        final String JSON = a2q("{'a':3}{'a':27,'foo':[1,2],'b':{'x':3}}  {'a':1,'b':2} ");
 
         MappingIterator<Bean> it = MAPPER.readerFor(Bean.class).readValues(JSON);
         Bean bean = it.nextValue();
@@ -77,7 +77,7 @@ public class ReadRecoveryTest extends BaseMapTest
     // Similar to "raw" root-level Object sequence, but in array
     public void testSimpleArrayRecovery() throws Exception
     {
-        final String JSON = aposToQuotes("[{'a':3},{'a':27,'foo':[1,2],'b':{'x':3}}  ,{'a':1,'b':2}  ]");
+        final String JSON = a2q("[{'a':3},{'a':27,'foo':[1,2],'b':{'x':3}}  ,{'a':1,'b':2}  ]");
 
         MappingIterator<Bean> it = MAPPER.readerFor(Bean.class).readValues(JSON);
         Bean bean = it.nextValue();

@@ -53,7 +53,7 @@ public class JacksonTypesDeserTest
         TypeFactory tf = TypeFactory.defaultInstance();
         // first simple type:
         String json = MAPPER.writeValueAsString(tf.constructType(String.class));
-        assertEquals(quote(java.lang.String.class.getName()), json);
+        assertEquals(q(java.lang.String.class.getName()), json);
         // and back
         JavaType t = MAPPER.readValue(json, JavaType.class);
         assertNotNull(t);

@@ -61,7 +61,7 @@ public class JDKTypeSerializationTest
         String str = MAPPER.writeValueAsString(f);
         // escape backslashes (for portability with windows)
         String escapedAbsPath = f.getAbsolutePath().replaceAll("\\\\", "\\\\\\\\"); 
-        assertEquals(quote(escapedAbsPath), str);
+        assertEquals(q(escapedAbsPath), str);
     }
 
     public void testRegexps() throws IOException
@@ -77,32 +77,32 @@ public class JDKTypeSerializationTest
     public void testCurrency() throws IOException
     {
         Currency usd = Currency.getInstance("USD");
-        assertEquals(quote("USD"), MAPPER.writeValueAsString(usd));
+        assertEquals(q("USD"), MAPPER.writeValueAsString(usd));
     }
 
     public void testLocale() throws IOException
     {
-        assertEquals(quote("en"), MAPPER.writeValueAsString(new Locale("en")));
-        assertEquals(quote("es_ES"), MAPPER.writeValueAsString(new Locale("es", "ES")));
-        assertEquals(quote("fi_FI_savo"), MAPPER.writeValueAsString(new Locale("FI", "fi", "savo")));
+        assertEquals(q("en"), MAPPER.writeValueAsString(new Locale("en")));
+        assertEquals(q("es_ES"), MAPPER.writeValueAsString(new Locale("es", "ES")));
+        assertEquals(q("fi_FI_savo"), MAPPER.writeValueAsString(new Locale("FI", "fi", "savo")));
 
-        assertEquals(quote("en_US"), MAPPER.writeValueAsString(Locale.US));
+        assertEquals(q("en_US"), MAPPER.writeValueAsString(Locale.US));
 
         // [databind#1123]
-        assertEquals(quote(""), MAPPER.writeValueAsString(Locale.ROOT));
+        assertEquals(q(""), MAPPER.writeValueAsString(Locale.ROOT));
     }
 
     public void testInetAddress() throws IOException
     {
-        assertEquals(quote("127.0.0.1"), MAPPER.writeValueAsString(InetAddress.getByName("127.0.0.1")));
+        assertEquals(q("127.0.0.1"), MAPPER.writeValueAsString(InetAddress.getByName("127.0.0.1")));
         InetAddress input = InetAddress.getByName("google.com");
-        assertEquals(quote("google.com"), MAPPER.writeValueAsString(input));
+        assertEquals(q("google.com"), MAPPER.writeValueAsString(input));
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.configOverride(InetAddress.class)
             .setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.NUMBER));
         String json = mapper.writeValueAsString(input);
-        assertEquals(quote(input.getHostAddress()), json);
+        assertEquals(q(input.getHostAddress()), json);
 
         assertEquals(String.format("{\"value\":\"%s\"}", input.getHostAddress()),
                 mapper.writeValueAsString(new InetAddressBean(input)));
@@ -110,26 +110,26 @@ public class JDKTypeSerializationTest
 
     public void testInetSocketAddress() throws IOException
     {
-        assertEquals(quote("127.0.0.1:8080"),
+        assertEquals(q("127.0.0.1:8080"),
                 MAPPER.writeValueAsString(new InetSocketAddress("127.0.0.1", 8080)));
-        assertEquals(quote("google.com:6667"),
+        assertEquals(q("google.com:6667"),
                 MAPPER.writeValueAsString(new InetSocketAddress("google.com", 6667)));
-        assertEquals(quote("[2001:db8:85a3:8d3:1319:8a2e:370:7348]:443"),
+        assertEquals(q("[2001:db8:85a3:8d3:1319:8a2e:370:7348]:443"),
                 MAPPER.writeValueAsString(new InetSocketAddress("2001:db8:85a3:8d3:1319:8a2e:370:7348", 443)));
     }
 
     // [JACKSON-597]
     public void testClass() throws IOException
     {
-        assertEquals(quote("java.lang.String"), MAPPER.writeValueAsString(String.class));
-        assertEquals(quote("int"), MAPPER.writeValueAsString(Integer.TYPE));
-        assertEquals(quote("boolean"), MAPPER.writeValueAsString(Boolean.TYPE));
-        assertEquals(quote("void"), MAPPER.writeValueAsString(Void.TYPE));
+        assertEquals(q("java.lang.String"), MAPPER.writeValueAsString(String.class));
+        assertEquals(q("int"), MAPPER.writeValueAsString(Integer.TYPE));
+        assertEquals(q("boolean"), MAPPER.writeValueAsString(Boolean.TYPE));
+        assertEquals(q("void"), MAPPER.writeValueAsString(Void.TYPE));
     }
 
     public void testCharset() throws IOException
     {
-        assertEquals(quote("UTF-8"), MAPPER.writeValueAsString(Charset.forName("UTF-8")));
+        assertEquals(q("UTF-8"), MAPPER.writeValueAsString(Charset.forName("UTF-8")));
     }
 
     // [databind#239]: Support serialization of ByteBuffer
@@ -185,7 +185,7 @@ public class JDKTypeSerializationTest
     // [databind#2197]
     public void testVoidSerialization() throws Exception
     {
-        assertEquals(aposToQuotes("{'value':null}"),
+        assertEquals(a2q("{'value':null}"),
                 MAPPER.writeValueAsString(new VoidBean()));
     }
 

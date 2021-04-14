@@ -97,7 +97,7 @@ public class TestAnyGetterFiltering extends BaseMapTest
     // for [databind#1142]
     public void testAnyGetterIgnore() throws Exception
     {
-        assertEquals(aposToQuotes("{'a':'1','b':'3'}"),
+        assertEquals(a2q("{'a':'1','b':'3'}"),
                 MAPPER.writeValueAsString(new AnyBeanWithIgnores()));
     }
 

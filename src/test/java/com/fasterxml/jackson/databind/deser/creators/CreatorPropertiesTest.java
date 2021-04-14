@@ -69,7 +69,7 @@ public class CreatorPropertiesTest extends BaseMapTest
     // [databind#905]
     public void testCreatorPropertiesAnnotation() throws Exception
     {
-        Issue905Bean b = MAPPER.readValue(aposToQuotes("{'y':3,'x':2}"),
+        Issue905Bean b = MAPPER.readValue(a2q("{'y':3,'x':2}"),
                 Issue905Bean.class);
         assertEquals(2, b._x);
         assertEquals(3, b._y);
@@ -87,7 +87,7 @@ public class CreatorPropertiesTest extends BaseMapTest
     // [databind#1371]: MapperFeature.INFER_CREATOR_FROM_CONSTRUCTOR_PROPERTIES
     public void testConstructorPropertiesInference() throws Exception
     {
-        final String JSON = aposToQuotes("{'x':3,'y':5}");
+        final String JSON = a2q("{'x':3,'y':5}");
 
         // by default, should detect and use arguments-taking constructor as creator
         assertTrue(MAPPER.isEnabled(MapperFeature.INFER_CREATOR_FROM_CONSTRUCTOR_PROPERTIES));

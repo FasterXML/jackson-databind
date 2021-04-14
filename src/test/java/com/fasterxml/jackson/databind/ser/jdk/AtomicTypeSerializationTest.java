@@ -106,7 +106,7 @@ public class AtomicTypeSerializationTest
     {
         final String VALUE = "fooBAR";
         String json = MAPPER.writeValueAsString(new UCStringWrapper(VALUE));
-        assertEquals(json, aposToQuotes("{'value':'FOOBAR'}"));
+        assertEquals(json, a2q("{'value':'FOOBAR'}"));
     }
 
     public void testContextualAtomicReference() throws Exception
@@ -120,7 +120,7 @@ public class AtomicTypeSerializationTest
         input.date1 = new AtomicReference<>(new Date(0L));
         input.date2 = new AtomicReference<>(new Date(0L));
         final String json = mapper.writeValueAsString(input);
-        assertEquals(aposToQuotes(
+        assertEquals(a2q(
                 "{'date1':'1970+01+01','date2':'1970*01*01','date':'1970/01/01'}"),
                 json);
     }
@@ -146,7 +146,7 @@ public class AtomicTypeSerializationTest
     // [databind#2565]: problems with JsonUnwrapped, non-unwrappable type
     public void testWithUnwrappableUnwrapped() throws Exception
     {
-        assertEquals(aposToQuotes("{'maybeText':'value'}"),
+        assertEquals(a2q("{'maybeText':'value'}"),
                 MAPPER.writeValueAsString(new MyBean2565()));
     }
 }

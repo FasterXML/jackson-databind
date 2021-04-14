@@ -196,7 +196,7 @@ public class TestObjectId extends BaseMapTest
     }
 
     public void testWithFieldsInBaseClass1083() throws Exception {
-          final String json = aposToQuotes("{'schemas': [{\n"
+          final String json = a2q("{'schemas': [{\n"
               + "  'name': 'FoodMart'\n"
               + "}]}\n");
           MAPPER.readValue(json, JsonRoot.class);

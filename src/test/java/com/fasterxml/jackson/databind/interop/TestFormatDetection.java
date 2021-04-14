@@ -37,7 +37,7 @@ public class TestFormatDetection extends BaseMapTest
         ObjectReader detecting = READER.forType(POJO.class);
         detecting = detecting.withFormatDetection(detecting);
         MappingIterator<POJO> it = detecting.
-                readValues(utf8Bytes(aposToQuotes("{'x':1}\n{'x':2,'y':5}")));
+                readValues(utf8Bytes(a2q("{'x':1}\n{'x':2,'y':5}")));
 
         assertTrue(it.hasNextValue());
         POJO pojo = it.nextValue();
@@ -55,7 +55,7 @@ public class TestFormatDetection extends BaseMapTest
         ObjectReader r2 = READER.forType(JsonNode.class);
         r2 = r2.withFormatDetection(r2);
         MappingIterator<JsonNode> nodes = r2.
-                readValues(utf8Bytes(aposToQuotes("{'x':1}\n{'x':2,'y':5}")));
+                readValues(utf8Bytes(a2q("{'x':1}\n{'x':2,'y':5}")));
 
         assertTrue(nodes.hasNextValue());
         JsonNode n = nodes.nextValue();

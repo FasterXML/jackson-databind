@@ -79,6 +79,6 @@ public class AlwaysAsReferenceFirstTest extends BaseMapTest
     public void testIssue1607() throws Exception
     {
         String json = MAPPER.writeValueAsString(new ReallyAlwaysContainer());
-        assertEquals(aposToQuotes("{'alwaysClass':1,'alwaysProp':2}"), json);
+        assertEquals(a2q("{'alwaysClass':1,'alwaysProp':2}"), json);
     }
 }

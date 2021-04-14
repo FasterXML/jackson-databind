@@ -18,7 +18,7 @@ public class MapRelatedTypesDeserTest
 
     public void testMapEntrySimpleTypes() throws Exception
     {
-        List<Map.Entry<String,Long>> stuff = MAPPER.readValue(aposToQuotes("[{'a':15},{'b':42}]"),
+        List<Map.Entry<String,Long>> stuff = MAPPER.readValue(a2q("[{'a':15},{'b':42}]"),
                 new TypeReference<List<Map.Entry<String,Long>>>() { });
         assertNotNull(stuff);
         assertEquals(2, stuff.size());
@@ -29,7 +29,7 @@ public class MapRelatedTypesDeserTest
 
     public void testMapEntryWithStringBean() throws Exception
     {
-        List<Map.Entry<Integer,StringWrapper>> stuff = MAPPER.readValue(aposToQuotes("[{'28':'Foo'},{'13':'Bar'}]"),
+        List<Map.Entry<Integer,StringWrapper>> stuff = MAPPER.readValue(a2q("[{'28':'Foo'},{'13':'Bar'}]"),
                 new TypeReference<List<Map.Entry<Integer,StringWrapper>>>() { });
         assertNotNull(stuff);
         assertEquals(2, stuff.size());
@@ -43,7 +43,7 @@ public class MapRelatedTypesDeserTest
     public void testMapEntryFail() throws Exception
     {
         try {
-            /*List<Map.Entry<Integer,StringWrapper>> stuff =*/ MAPPER.readValue(aposToQuotes("[{'28':'Foo','13':'Bar'}]"),
+            /*List<Map.Entry<Integer,StringWrapper>> stuff =*/ MAPPER.readValue(a2q("[{'28':'Foo','13':'Bar'}]"),
                     new TypeReference<List<Map.Entry<Integer,StringWrapper>>>() { });
             fail("Should not have passed");
         } catch (Exception e) {
@@ -60,7 +60,7 @@ public class MapRelatedTypesDeserTest
     // [databind#810]
     public void testReadProperties() throws Exception
     {
-        Properties props = MAPPER.readValue(aposToQuotes("{'a':'foo', 'b':123, 'c':true}"),
+        Properties props = MAPPER.readValue(a2q("{'a':'foo', 'b':123, 'c':true}"),
                 Properties.class);
         assertEquals(3, props.size());
         assertEquals("foo", props.getProperty("a"));

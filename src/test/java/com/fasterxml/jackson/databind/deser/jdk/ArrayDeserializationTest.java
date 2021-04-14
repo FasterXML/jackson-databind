@@ -190,9 +190,9 @@ public class ArrayDeserializationTest
     {
         ObjectReader r = MAPPER.reader()
                 .with(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
-        assertNull(r.forType(Object[].class).readValue(quote("")));
-        assertNull(r.forType(String[].class).readValue(quote("")));
-        assertNull(r.forType(int[].class).readValue(quote("")));
+        assertNull(r.forType(Object[].class).readValue(q("")));
+        assertNull(r.forType(String[].class).readValue(q("")));
+        assertNull(r.forType(int[].class).readValue(q("")));
     }
 
     // [JACKSON-620]: allow "" to mean 'null' for Arrays, List and Maps
@@ -561,7 +561,7 @@ public class ArrayDeserializationTest
     public void testByteArrayTypeOverride890() throws Exception
     {
         HiddenBinaryBean890 result = MAPPER.readValue(
-                aposToQuotes("{'someBytes':'AQIDBA=='}"), HiddenBinaryBean890.class);
+                a2q("{'someBytes':'AQIDBA=='}"), HiddenBinaryBean890.class);
         assertNotNull(result);
         assertNotNull(result.someBytes);
         assertEquals(byte[].class, result.someBytes.getClass());

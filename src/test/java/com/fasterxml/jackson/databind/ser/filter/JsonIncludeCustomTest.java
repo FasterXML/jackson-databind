@@ -69,7 +69,7 @@ public class JsonIncludeCustomTest extends BaseMapTest
 
     public void testSimpleCustomFilter() throws Exception
     {
-        assertEquals(aposToQuotes("{'value':'x'}"), MAPPER.writeValueAsString(new FooBean("x")));
+        assertEquals(a2q("{'value':'x'}"), MAPPER.writeValueAsString(new FooBean("x")));
         assertEquals("{}", MAPPER.writeValueAsString(new FooBean("foo")));
     }
 
@@ -80,7 +80,7 @@ public class JsonIncludeCustomTest extends BaseMapTest
                 .add("b", "foo")
                 .add("c", "2");
         
-        assertEquals(aposToQuotes("{'stuff':{'a':'1','c':'2'}}"), MAPPER.writeValueAsString(input));
+        assertEquals(a2q("{'stuff':{'a':'1','c':'2'}}"), MAPPER.writeValueAsString(input));
     }
 
     /*

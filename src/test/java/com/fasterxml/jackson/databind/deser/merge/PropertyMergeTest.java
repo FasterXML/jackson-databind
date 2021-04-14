@@ -120,12 +120,12 @@ public class PropertyMergeTest extends BaseMapTest
 
     public void testBeanMergingViaProp() throws Exception
     {
-        Config config = MAPPER.readValue(aposToQuotes("{'loc':{'b':3}}"), Config.class);
+        Config config = MAPPER.readValue(a2q("{'loc':{'b':3}}"), Config.class);
         assertEquals(1, config.loc.a);
         assertEquals(3, config.loc.b);
 
         config = MAPPER.readerForUpdating(new Config(5, 7))
-                .readValue(aposToQuotes("{'loc':{'b':2}}"));
+                .readValue(a2q("{'loc':{'b':2}}"));
         assertEquals(5, config.loc.a);
         assertEquals(2, config.loc.b);
     }
@@ -133,14 +133,14 @@ public class PropertyMergeTest extends BaseMapTest
     public void testBeanMergingViaType() throws Exception
     {
         // by default, no merging
-        NonMergeConfig config = MAPPER.readValue(aposToQuotes("{'loc':{'a':3}}"), NonMergeConfig.class);
+        NonMergeConfig config = MAPPER.readValue(a2q("{'loc':{'a':3}}"), NonMergeConfig.class);
         assertEquals(3, config.loc.a);
         assertEquals(0, config.loc.b); // not passed, nor merge from original
 
         // but with type-overrides
         ObjectMapper mapper = newJsonMapper();
         mapper.configOverride(AB.class).setMergeable(true);
-        config = mapper.readValue(aposToQuotes("{'loc':{'a':3}}"), NonMergeConfig.class);
+        config = mapper.readValue(a2q("{'loc':{'a':3}}"), NonMergeConfig.class);
         assertEquals(3, config.loc.a);
         assertEquals(2, config.loc.b); // original, merged
     }
@@ -150,7 +150,7 @@ public class PropertyMergeTest extends BaseMapTest
         // but with type-overrides
         ObjectMapper mapper = newJsonMapper()
                 .setDefaultMergeable(true);
-        NonMergeConfig config = mapper.readValue(aposToQuotes("{'loc':{'a':3}}"), NonMergeConfig.class);
+        NonMergeConfig config = mapper.readValue(a2q("{'loc':{'a':3}}"), NonMergeConfig.class);
         assertEquals(3, config.loc.a);
         assertEquals(2, config.loc.b); // original, merged
 
@@ -159,7 +159,7 @@ public class PropertyMergeTest extends BaseMapTest
                 new byte[] { 1, 2, 3, 4, 5 });
         FiveMinuteUser user = mapper.readerFor(FiveMinuteUser.class)
                 .withValueToUpdate(user0)
-                .readValue(aposToQuotes("{'name':{'last':'Brown'}}"));
+                .readValue(a2q("{'name':{'last':'Brown'}}"));
         assertEquals("Bob", user.getName().getFirst());
         assertEquals("Brown", user.getName().getLast());
     }
@@ -167,7 +167,7 @@ public class PropertyMergeTest extends BaseMapTest
     // should even work with no setter
     public void testBeanMergingWithoutSetter() throws Exception
     {
-        NoSetterConfig config = MAPPER.readValue(aposToQuotes("{'value':{'b':99}}"),
+        NoSetterConfig config = MAPPER.readValue(a2q("{'value':{'b':99}}"),
                 NoSetterConfig.class);
         assertEquals(99, config._value.b);
         assertEquals(1, config._value.a);
@@ -185,7 +185,7 @@ public class PropertyMergeTest extends BaseMapTest
 
         ConstructorArgsPojo result = MAPPER.setDefaultMergeable(true)
                 .readerForUpdating(input)
-                .readValue(aposToQuotes("{'mergeableBean': {'foo': 'newFoo'}}"));
+                .readValue(a2q("{'mergeableBean': {'foo': 'newFoo'}}"));
 
         assertEquals("newFoo", result.mergeableBean.foo);
         assertEquals("bar", result.mergeableBean.bar);
@@ -241,7 +241,7 @@ public class PropertyMergeTest extends BaseMapTest
 
     public void testReferenceMerging() throws Exception
     {
-        MergedReference result = MAPPER.readValue(aposToQuotes("{'value':'override'}"),
+        MergedReference result = MAPPER.readValue(a2q("{'value':'override'}"),
                 MergedReference.class);
         assertEquals("override", result.value.get());
     }

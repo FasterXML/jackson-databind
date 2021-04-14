@@ -37,7 +37,7 @@ public class ProblemHandler1767Test extends BaseMapTest
     public void testPrimitivePropertyWithHandler() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.addHandler(new IntHandler());
-        TestBean result = mapper.readValue(aposToQuotes("{'a': 'not-a-number'}"), TestBean.class);
+        TestBean result = mapper.readValue(a2q("{'a': 'not-a-number'}"), TestBean.class);
         assertNotNull(result);
         assertEquals(1, result.a);
     }

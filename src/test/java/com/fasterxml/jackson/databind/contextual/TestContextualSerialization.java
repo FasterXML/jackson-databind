@@ -296,10 +296,10 @@ public class TestContextualSerialization extends BaseMapTest
         ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(module)
                 .build();
-        assertEquals(quote("contextual=1,resolved=1"), mapper.writeValueAsString("abc"));
+        assertEquals(q("contextual=1,resolved=1"), mapper.writeValueAsString("abc"));
 
         // also: should NOT be called again
-        assertEquals(quote("contextual=1,resolved=1"), mapper.writeValueAsString("foo"));
+        assertEquals(q("contextual=1,resolved=1"), mapper.writeValueAsString("foo"));
     }
 
     public void testContextualArrayElement() throws Exception
@@ -316,8 +316,8 @@ public class TestContextualSerialization extends BaseMapTest
                 .addModule(new SimpleModule("test", Version.unknownVersion())
                         .addSerializer(String.class, new AccumulatingContextual()))
                 .build();
-        assertEquals(quote("/ROOT/foo"), mapper.writeValueAsString("foo"));
-        assertEquals(quote("/ROOT/bar"), mapper.writeValueAsString("bar"));
-        assertEquals(quote("/ROOT/3"), mapper.writeValueAsString("3"));
+        assertEquals(q("/ROOT/foo"), mapper.writeValueAsString("foo"));
+        assertEquals(q("/ROOT/bar"), mapper.writeValueAsString("bar"));
+        assertEquals(q("/ROOT/3"), mapper.writeValueAsString("3"));
     }
 }

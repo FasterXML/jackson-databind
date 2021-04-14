@@ -203,7 +203,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
     // Should be ok NOT to have Object id, as well
     public void testMissingObjectId() throws Exception
     {
-        Identifiable result = MAPPER.readValue(aposToQuotes("{'value':28, 'next':{'value':29}}"),
+        Identifiable result = MAPPER.readValue(a2q("{'value':28, 'next':{'value':29}}"),
                 Identifiable.class);
         assertNotNull(result);
         assertEquals(28, result.value);
@@ -347,7 +347,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
     {
         IdWrapper w = MAPPER.readerFor(IdWrapper.class)
                 .without(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS)
-                .readValue(aposToQuotes("{'node':123}"));
+                .readValue(a2q("{'node':123}"));
         assertNotNull(w);
         assertNull(w.node);
     }
@@ -462,7 +462,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
         // Ok, so missing Object Id is ok, but so is null.
         
         Identifiable value = MAPPER.readValue
-                (aposToQuotes("{'value':3, 'next':null, 'id':null}"), Identifiable.class);
+                (a2q("{'value':3, 'next':null, 'id':null}"), Identifiable.class);
         assertNotNull(value);
         assertEquals(3, value.value);
     }

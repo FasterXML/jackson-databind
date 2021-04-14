@@ -416,14 +416,14 @@ public class TestDefaultForObject
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                         ObjectMapper.DefaultTyping.NON_FINAL)
                 .build();
-        assertEquals(aposToQuotes("{'name':'abc'}"),
+        assertEquals(a2q("{'name':'abc'}"),
                 mapper.writeValueAsString(new FinalStringBean("abc")));
 
         mapper = JsonMapper.builder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                         ObjectMapper.DefaultTyping.EVERYTHING)
                 .build();
-        assertEquals(aposToQuotes("['"+FinalStringBean.class.getName()+"',{'name':'abc'}]"),
+        assertEquals(a2q("['"+FinalStringBean.class.getName()+"',{'name':'abc'}]"),
                 mapper.writeValueAsString(new FinalStringBean("abc")));
     }
 

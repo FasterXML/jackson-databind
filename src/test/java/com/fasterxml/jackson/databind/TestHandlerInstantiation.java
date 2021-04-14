@@ -231,7 +231,7 @@ public class TestHandlerInstantiation extends BaseMapTest
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setHandlerInstantiator(new MyInstantiator("abc:"));
-        MyBean result = mapper.readValue(quote("123"), MyBean.class);
+        MyBean result = mapper.readValue(q("123"), MyBean.class);
         assertEquals("abc:123", result.value);
     }
 
@@ -248,7 +248,7 @@ public class TestHandlerInstantiation extends BaseMapTest
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setHandlerInstantiator(new MyInstantiator("xyz:"));
-        assertEquals(quote("xyz:456"), mapper.writeValueAsString(new MyBean("456")));
+        assertEquals(q("xyz:456"), mapper.writeValueAsString(new MyBean("456")));
     }
 
     public void testTypeIdResolver() throws Exception

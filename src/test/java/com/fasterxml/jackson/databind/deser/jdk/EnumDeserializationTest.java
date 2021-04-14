@@ -261,7 +261,7 @@ public class EnumDeserializationTest
     public void testComplexEnum() throws Exception
     {
         String json = MAPPER.writeValueAsString(TimeUnit.SECONDS);
-        assertEquals(quote("SECONDS"), json);
+        assertEquals(q("SECONDS"), json);
         TimeUnit result = MAPPER.readValue(json, TimeUnit.class);
         assertSame(TimeUnit.SECONDS, result);
     }
@@ -313,7 +313,7 @@ public class EnumDeserializationTest
 
         // and [databind#684]
         try {
-            value = r.readValue(quote("1"));
+            value = r.readValue(q("1"));
             fail("Expected an error");
         } catch (MismatchedInputException e) {
             verifyException(e, "Cannot deserialize");
@@ -335,9 +335,9 @@ public class EnumDeserializationTest
     public void testEnumsWithJsonValue() throws Exception
     {
         // first, enum as is
-        EnumWithJsonValue e = MAPPER.readValue(quote("foo"), EnumWithJsonValue.class);
+        EnumWithJsonValue e = MAPPER.readValue(q("foo"), EnumWithJsonValue.class);
         assertSame(EnumWithJsonValue.A, e);
-        e = MAPPER.readValue(quote("bar"), EnumWithJsonValue.class);
+        e = MAPPER.readValue(q("bar"), EnumWithJsonValue.class);
         assertSame(EnumWithJsonValue.B, e);
 
         // then in EnumSet
@@ -420,7 +420,7 @@ public class EnumDeserializationTest
        module.addDeserializer(Enum.class, new LcEnumDeserializer());
        mapper.registerModule(module);
        // not sure this is totally safe but...
-       assertEquals(TestEnum.JACKSON, mapper.readValue(quote("jackson"), TestEnum.class));
+       assertEquals(TestEnum.JACKSON, mapper.readValue(q("jackson"), TestEnum.class));
     }
 
     // [databind#381]
@@ -428,14 +428,14 @@ public class EnumDeserializationTest
         assertEquals(TestEnum.JACKSON,
                 MAPPER.readerFor(TestEnum.class)
                     .with(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
-                    .readValue("[" + quote("JACKSON") + "]"));
+                    .readValue("[" + q("JACKSON") + "]"));
     }
     
     public void testUnwrappedEnumException() throws Exception {
         final ObjectMapper mapper = newJsonMapper();
         mapper.disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
         try {
-            Object v = mapper.readValue("[" + quote("JACKSON") + "]",
+            Object v = mapper.readValue("[" + q("JACKSON") + "]",
                     TestEnum.class);
             fail("Exception was not thrown on deserializing a single array element of type enum; instead got: "+v);
         } catch (MismatchedInputException exp) {
@@ -451,8 +451,8 @@ public class EnumDeserializationTest
         TestEnum en = MAPPER.readValue("2", TestEnum.class);
         assertSame(TestEnum.values()[2], en);
 
-        // but also with quoted Strings
-        en = MAPPER.readValue(quote("1"), TestEnum.class);
+        // but also with qd Strings
+        en = MAPPER.readValue(q("1"), TestEnum.class);
         assertSame(TestEnum.values()[1], en);
 
         // [databind#1690]: unless prevented
@@ -461,7 +461,7 @@ public class EnumDeserializationTest
                     .configure(MapperFeature.ALLOW_COERCION_OF_SCALARS, false)
                     .build()
                     .readerFor(TestEnum.class)
-                    .readValue(quote("1"));
+                    .readValue(q("1"));
             fail("Should not pass");
         } catch (MismatchedInputException e) {
             verifyException(e, "Cannot deserialize value of type");
@@ -489,18 +489,18 @@ public class EnumDeserializationTest
     public void testDeserWithToString1161() throws Exception
     {
         Enum1161 result = MAPPER.readerFor(Enum1161.class)
-                .readValue(quote("A"));
+                .readValue(q("A"));
         assertSame(Enum1161.A, result);
 
         result = MAPPER.readerFor(Enum1161.class)
                 .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
-                .readValue(quote("a"));
+                .readValue(q("a"));
         assertSame(Enum1161.A, result);
 
         // and once again, going back to defaults
         result = MAPPER.readerFor(Enum1161.class)
                 .without(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
-                .readValue(quote("A"));
+                .readValue(q("A"));
         assertSame(Enum1161.A, result);
     }
     
@@ -570,7 +570,7 @@ public class EnumDeserializationTest
         // By default, wrap:
         try {
             MAPPER.readerFor(TestEnum2164.class)
-                .readValue(quote("B"));
+                .readValue(q("B"));
             fail("Should not pass");
         } catch (ValueInstantiationException e) {
             verifyException(e, "2164");
@@ -580,7 +580,7 @@ public class EnumDeserializationTest
         try {
             MAPPER.readerFor(TestEnum2164.class)
                 .without(DeserializationFeature.WRAP_EXCEPTIONS)
-                .readValue(quote("B"));
+                .readValue(q("B"));
             fail("Should not pass");
         } catch (DatabindException e) {
             fail("Wrong exception, should not wrap, got: "+e);
@@ -594,7 +594,7 @@ public class EnumDeserializationTest
     {
         Enum2309 value = MAPPER.readerFor(Enum2309.class)
                 .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
-                .readValue(quote("NON_NULL"));
+                .readValue(q("NON_NULL"));
         assertEquals(Enum2309.NON_NULL, value);
     }
 

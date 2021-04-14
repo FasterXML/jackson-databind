@@ -102,7 +102,7 @@ public class TypeRefinementForMapTest extends BaseMapTest
     {
         String ID1 = "3a6383d4-8123-4c43-8b8d-7cedf3e59404";
         String ID2 = "81c3d978-90c4-4b00-8da1-1c39ffcab02c";
-        String json = aposToQuotes(
+        String json = a2q(
 "{'id':'"+ID1+"','items':[{'id':'"+ID2+"','property':'value'}]}");
 
         ObjectMapper m = new ObjectMapper();

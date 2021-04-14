@@ -250,6 +250,6 @@ public class TestJsonSerialize
         .setVisibility(PropertyAccessor.IS_GETTER, Visibility.NONE)
         .setVisibility(PropertyAccessor.SETTER, Visibility.NONE);        
         final String JSON = m.writeValueAsString(new Response());
-        assertEquals(aposToQuotes("{'a':'x','something':true}"), JSON);
+        assertEquals(a2q("{'a':'x','something':true}"), JSON);
     }
 }

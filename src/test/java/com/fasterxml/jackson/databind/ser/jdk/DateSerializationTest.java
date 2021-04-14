@@ -209,7 +209,7 @@ public class DateSerializationTest
     {
         TimeZone input = TimeZone.getTimeZone("PST");
         String json = MAPPER.writeValueAsString(input);
-        assertEquals(quote("PST"), json);
+        assertEquals(q("PST"), json);
     }
 
     public void testTimeZoneInBean() throws IOException
@@ -222,7 +222,7 @@ public class DateSerializationTest
     {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'X'HH:mm:ss");
         TimeZone tz = TimeZone.getTimeZone("PST");
-        assertEquals(quote("1969-12-31X16:00:00"),
+        assertEquals(q("1969-12-31X16:00:00"),
                 MAPPER.writer(df)
                     .with(tz)
                     .writeValueAsString(new Date(0L)));
@@ -230,7 +230,7 @@ public class DateSerializationTest
         assertEquals("0", w.writeValueAsString(new Date(0L)));
 
         w = w.with(df).with(tz);
-        assertEquals(quote("1969-12-31X16:00:00"), w.writeValueAsString(new Date(0L)));
+        assertEquals(q("1969-12-31X16:00:00"), w.writeValueAsString(new Date(0L)));
         w = w.with((DateFormat) null);
         assertEquals("0", w.writeValueAsString(new Date(0L)));
     }
@@ -257,7 +257,7 @@ public class DateSerializationTest
         // first: test overriding writing as timestamp
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         json = mapper.writeValueAsString(new DateAsNumberBean(0L));
-        assertEquals(aposToQuotes("{'date':0}"), json);
+        assertEquals(a2q("{'date':0}"), json);
 
         // then reverse
         mapper.enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
@@ -297,11 +297,11 @@ public class DateSerializationTest
 
         // Also: should be able to dynamically change timezone:
         ObjectWriter w = mapper.writer().with(TimeZone.getTimeZone("EST"));
-        assertEquals(quote("1969-12-31/"+zoneOffset("1900")+" EST"), w.writeValueAsString(new Date(0)));
+        assertEquals(q("1969-12-31/"+zoneOffset("1900")+" EST"), w.writeValueAsString(new Date(0)));
 
         // wrt [databind#2643]
         w = mapper.writer().with(TimeZone.getTimeZone("Asia/Tehran"));
-        assertEquals(quote("1970-01-01/"+zoneOffset("0330")+" IRST"), w.writeValueAsString(new Date(0)));
+        assertEquals(q("1970-01-01/"+zoneOffset("0330")+" IRST"), w.writeValueAsString(new Date(0)));
     }
 
     /**
@@ -314,42 +314,42 @@ public class DateSerializationTest
         // No @JsonFormat => default to user config
         mapper.enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         String json = mapper.writeValueAsString(new DateAsDefaultBean(0L));
-        assertEquals(aposToQuotes("{'date':0}"), json);
+        assertEquals(a2q("{'date':0}"), json);
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         json = mapper.writeValueAsString(new DateAsDefaultBean(0L));
-        assertEquals(aposToQuotes("{'date':'1970-01-01T00:00:00.000+"+zoneOffset("0000")+"'}"), json);
+        assertEquals(a2q("{'date':'1970-01-01T00:00:00.000+"+zoneOffset("0000")+"'}"), json);
 
         // Empty @JsonFormat => default to user config
         mapper.enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         json = mapper.writeValueAsString(new DateAsDefaultBeanWithEmptyJsonFormat(0L));
-        assertEquals(aposToQuotes("{'date':0}"), json);
+        assertEquals(a2q("{'date':0}"), json);
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         json = mapper.writeValueAsString(new DateAsDefaultBeanWithEmptyJsonFormat(0L));
-        assertEquals(aposToQuotes("{'date':'1970-01-01T00:00:00.000+"+zoneOffset("0000")+"'}"), json);
+        assertEquals(a2q("{'date':'1970-01-01T00:00:00.000+"+zoneOffset("0000")+"'}"), json);
 
         // @JsonFormat with Shape.ANY and pattern => STRING shape, regardless of user config
         mapper.enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         json = mapper.writeValueAsString(new DateAsDefaultBeanWithPattern(0L));
-        assertEquals(aposToQuotes("{'date':'1970-01-01'}"), json);
+        assertEquals(a2q("{'date':'1970-01-01'}"), json);
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         json = mapper.writeValueAsString(new DateAsDefaultBeanWithPattern(0L));
-        assertEquals(aposToQuotes("{'date':'1970-01-01'}"), json);
+        assertEquals(a2q("{'date':'1970-01-01'}"), json);
 
         // @JsonFormat with Shape.ANY and locale => STRING shape, regardless of user config
         mapper.enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         json = mapper.writeValueAsString(new DateAsDefaultBeanWithLocale(0L));
-        assertEquals(aposToQuotes("{'date':'1970-01-01T00:00:00.000+"+zoneOffset("0000")+"'}"), json);
+        assertEquals(a2q("{'date':'1970-01-01T00:00:00.000+"+zoneOffset("0000")+"'}"), json);
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         json = mapper.writeValueAsString(new DateAsDefaultBeanWithLocale(0L));
-        assertEquals(aposToQuotes("{'date':'1970-01-01T00:00:00.000+"+zoneOffset("0000")+"'}"), json);
+        assertEquals(a2q("{'date':'1970-01-01T00:00:00.000+"+zoneOffset("0000")+"'}"), json);
 
         // @JsonFormat with Shape.ANY and timezone => STRING shape, regardless of user config
         mapper.enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         json = mapper.writeValueAsString(new DateAsDefaultBeanWithTimezone(0L));
-        assertEquals(aposToQuotes("{'date':'1970-01-01T01:00:00.000+"+zoneOffset("0100")+"'}"), json);
+        assertEquals(a2q("{'date':'1970-01-01T01:00:00.000+"+zoneOffset("0100")+"'}"), json);
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         json = mapper.writeValueAsString(new DateAsDefaultBeanWithTimezone(0L));
-        assertEquals(aposToQuotes("{'date':'1970-01-01T01:00:00.000+"+zoneOffset("0100")+"'}"), json);
+        assertEquals(a2q("{'date':'1970-01-01T01:00:00.000+"+zoneOffset("0100")+"'}"), json);
     }
 
     // [databind#1648]: contextual default format should be used
@@ -358,7 +358,7 @@ public class DateSerializationTest
         ObjectMapper mapper = new ObjectMapper();
         mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'X'HH:mm:ss"));
         String json = mapper.writeValueAsString(new DateAsDefaultBeanWithTimezone(0L));
-        assertEquals(aposToQuotes("{'date':'1970-01-01X01:00:00'}"), json);
+        assertEquals(a2q("{'date':'1970-01-01X01:00:00'}"), json);
     }
 
     private static Date judate(int year, int month, int day, int hour, int minutes, int seconds, int millis, String tz) {
@@ -378,11 +378,11 @@ public class DateSerializationTest
     }
 
     private void serialize(ObjectMapper mapper, Object date, String expected) throws IOException {
-        Assert.assertEquals(quote(expected), mapper.writeValueAsString(date));
+        Assert.assertEquals(q(expected), mapper.writeValueAsString(date));
     }
 
     private void serialize(ObjectWriter w, Object date, String expected) throws IOException {
-        Assert.assertEquals(quote(expected), w.writeValueAsString(date));
+        Assert.assertEquals(q(expected), w.writeValueAsString(date));
     }
 
     private String zoneOffset(String raw) {

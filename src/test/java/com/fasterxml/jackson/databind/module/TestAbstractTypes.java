@@ -144,7 +144,7 @@ public class TestAbstractTypes extends BaseMapTest
         // let's ensure we get hierarchic mapping
         mod.addAbstractTypeMapping(CharSequence.class, MyString.class);
         mapper.registerModule(mod);
-        Object result = mapper.readValue(quote("abc"), CharSequence.class);
+        Object result = mapper.readValue(q("abc"), CharSequence.class);
         assertEquals(MyString.class, result.getClass());
         assertEquals("abc", ((MyString) result).value);
 

@@ -57,30 +57,30 @@ public class TransientTest extends BaseMapTest
     public void testTransientFieldHandling() throws Exception
     {
         // default handling: remove transient field but do not propagate
-        assertEquals(aposToQuotes("{'x':42,'value':3}"),
+        assertEquals(a2q("{'x':42,'value':3}"),
                 MAPPER.writeValueAsString(new ClassyTransient()));
-        assertEquals(aposToQuotes("{'a':1}"),
+        assertEquals(a2q("{'a':1}"),
                 MAPPER.writeValueAsString(new SimplePrunableTransient()));
 
         // but may change that
         ObjectMapper m = jsonMapperBuilder()
             .enable(MapperFeature.PROPAGATE_TRANSIENT_MARKER)
             .build();
-        assertEquals(aposToQuotes("{'x':42}"),
+        assertEquals(a2q("{'x':42}"),
                 m.writeValueAsString(new ClassyTransient()));
     }
 
     // for [databind#857]
     public void testBeanTransient() throws Exception
     {
-        assertEquals(aposToQuotes("{'y':4}"),
+        assertEquals(a2q("{'y':4}"),
                 MAPPER.writeValueAsString(new BeanTransient()));
     }
 
     // for [databind#1184]
     public void testOverridingTransient() throws Exception
     {
-        assertEquals(aposToQuotes("{'tValue':38}"),
+        assertEquals(a2q("{'tValue':38}"),
                 MAPPER.writeValueAsString(new OverridableTransient(38)));
     }
 }

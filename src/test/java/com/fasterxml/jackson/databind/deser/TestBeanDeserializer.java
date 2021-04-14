@@ -410,7 +410,7 @@ public class TestBeanDeserializer extends BaseMapTest
         mapper.registerModule(new SimpleModule("test")
             .setDeserializerModifier(new EnumDeserializerModifier())
         );
-        Object result = mapper.readValue(quote("B"), EnumABC.class);
+        Object result = mapper.readValue(q("B"), EnumABC.class);
         assertEquals("foo", result);
     }
 
@@ -443,7 +443,7 @@ public class TestBeanDeserializer extends BaseMapTest
                             return deser;
                         }
             }));
-        Object result = mapper.readValue(quote("abcDEF"), String.class);
+        Object result = mapper.readValue(q("abcDEF"), String.class);
         assertEquals("ABCDEF", result);
     }
 

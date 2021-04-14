@@ -305,7 +305,7 @@ public class BuilderSimpleTest extends BaseMapTest
 
     public void testSimple() throws Exception
     {
-        String json = aposToQuotes("{'x':1,'y':2}");
+        String json = a2q("{'x':1,'y':2}");
         Object o = MAPPER.readValue(json, ValueClassXY.class);
         assertNotNull(o);
         assertSame(ValueClassXY.class, o.getClass());
@@ -319,7 +319,7 @@ public class BuilderSimpleTest extends BaseMapTest
     public void testSimpleWithIgnores() throws Exception
     {
         // 'z' is unknown, and would fail by default:
-        final String json = aposToQuotes("{'x':1,'y':2,'z':4}");
+        final String json = a2q("{'x':1,'y':2,'z':4}");
         Object o = null;
 
         try {
@@ -346,7 +346,7 @@ public class BuilderSimpleTest extends BaseMapTest
     
     public void testMultiAccess() throws Exception
     {
-        String json = aposToQuotes("{'c':3,'a':2,'b':-9}");
+        String json = a2q("{'c':3,'a':2,'b':-9}");
         ValueClassABC value = MAPPER.readValue(json, ValueClassABC.class);
         assertNotNull(value);
         assertEquals(2, value.a);
@@ -354,7 +354,7 @@ public class BuilderSimpleTest extends BaseMapTest
         assertEquals(3, value.c);
 
         // also, since we can ignore some properties:
-        value = MAPPER.readValue(aposToQuotes("{'c':3,'d':5,'b':-9}"), ValueClassABC.class);
+        value = MAPPER.readValue(a2q("{'c':3,'d':5,'b':-9}"), ValueClassABC.class);
         assertNotNull(value);
         assertEquals(0, value.a);
         assertEquals(-9, value.b);
@@ -395,7 +395,7 @@ public class BuilderSimpleTest extends BaseMapTest
 
     public void testSelfBuilder777() throws Exception
     {
-        SelfBuilder777 result = MAPPER.readValue(aposToQuotes("{'x':3}'"),
+        SelfBuilder777 result = MAPPER.readValue(a2q("{'x':3}'"),
                 SelfBuilder777.class);
         assertNotNull(result);
         assertEquals(3, result.x);
@@ -427,7 +427,7 @@ public class BuilderSimpleTest extends BaseMapTest
     // related to [databind#2354] (ensure private inner builder classes are ok)
     public void testPrivateInnerBuilder() throws Exception
     {
-        String json = aposToQuotes("{'value':13}");
+        String json = a2q("{'value':13}");
         Value2354 result = MAPPER.readValue(json, Value2354.class);
         assertEquals(13, result.value());
     }

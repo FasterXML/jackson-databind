@@ -159,7 +159,7 @@ public class CaseInsensitiveDeserTest extends BaseMapTest
     // [databind#1232]: allow per-property case-insensitivity
     public void testCaseInsensitiveWithFormat() throws Exception {
         CaseInsensitiveRoleWrapper w = MAPPER.readValue
-                (aposToQuotes("{'role':{'id':'12','name':'Foo'}}"),
+                (a2q("{'role':{'id':'12','name':'Foo'}}"),
                         CaseInsensitiveRoleWrapper.class);
         assertNotNull(w);
         assertEquals("12", w.role.ID);
@@ -169,7 +169,7 @@ public class CaseInsensitiveDeserTest extends BaseMapTest
     // [databind#1438]
     public void testCreatorWithInsensitive() throws Exception
     {
-        final String json = aposToQuotes("{'VALUE':3}");
+        final String json = a2q("{'VALUE':3}");
         InsensitiveCreator bean = INSENSITIVE_MAPPER.readValue(json, InsensitiveCreator.class);
         assertEquals(3, bean.v);
     }
@@ -182,7 +182,7 @@ public class CaseInsensitiveDeserTest extends BaseMapTest
             .setFormat(JsonFormat.Value.empty()
                     .withFeature(JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
         Role role = mapper.readValue
-                (aposToQuotes("{'id':'12','name':'Foo'}"),
+                (a2q("{'id':'12','name':'Foo'}"),
                         Role.class);
         assertNotNull(role);
         assertEquals("12", role.ID);
@@ -191,7 +191,7 @@ public class CaseInsensitiveDeserTest extends BaseMapTest
 
     public void testIssue1854() throws Exception
     {
-        final String DOC = aposToQuotes("{'ID': 1, 'Items': [ { 'ChildID': 10 } ]}");
+        final String DOC = a2q("{'ID': 1, 'Items': [ { 'ChildID': 10 } ]}");
         Obj1854 result = INSENSITIVE_MAPPER.readValue(DOC, Obj1854.class);
         assertNotNull(result);
         assertEquals(1, result.getId());
@@ -203,7 +203,7 @@ public class CaseInsensitiveDeserTest extends BaseMapTest
     // [databind#1886]: allow case-insensitivity by default on a class
     public void testCaseInsensitiveViaClassAnnotation() throws Exception
     {
-        final String CONTAINED = aposToQuotes("{'role': {'id':'3','name':'Bob'}}");
+        final String CONTAINED = a2q("{'role': {'id':'3','name':'Bob'}}");
 
         // First: via wrapper/container:
         CaseInsensitiveRoleContainer cont = MAPPER.readValue(CONTAINED,
@@ -213,7 +213,7 @@ public class CaseInsensitiveDeserTest extends BaseMapTest
 
         // second: directly as root value
         CaseInsensitiveRole role = MAPPER.readValue
-                (aposToQuotes("{'id':'12','name':'Billy'}"),
+                (a2q("{'id':'12','name':'Billy'}"),
                         CaseInsensitiveRole.class);
         assertEquals("12", role.ID);
         assertEquals("Billy", role.Name);

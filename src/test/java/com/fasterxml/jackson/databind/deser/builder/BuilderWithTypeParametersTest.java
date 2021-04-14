@@ -96,7 +96,7 @@ public class BuilderWithTypeParametersTest
         final ObjectMapper mapper = jsonMapperBuilder()
                 .enable(MapperFeature.INFER_BUILDER_TYPE_BINDINGS)
                 .build();
-        final String json = aposToQuotes("{ 'data': [ { 'x': 'x', 'y': 'y' } ] }");
+        final String json = a2q("{ 'data': [ { 'x': 'x', 'y': 'y' } ] }");
         final MyGenericPOJO<MyPOJO> deserialized =
                 mapper.readValue(json, new TypeReference<MyGenericPOJO<MyPOJO>>() {});
         assertEquals(1, deserialized.data.size());
@@ -109,7 +109,7 @@ public class BuilderWithTypeParametersTest
         final ObjectMapper mapper = jsonMapperBuilder()
                 .disable(MapperFeature.INFER_BUILDER_TYPE_BINDINGS)
                 .build();
-      final String json = aposToQuotes("{ 'data': [ { 'x': 'x', 'y': 'y' } ] }");
+      final String json = a2q("{ 'data': [ { 'x': 'x', 'y': 'y' } ] }");
       final MyGenericPOJO<MyPOJO> deserialized =
           mapper.readValue(json, new TypeReference<MyGenericPOJO<MyPOJO>>() {});
       assertEquals(1, deserialized.data.size());
@@ -122,7 +122,7 @@ public class BuilderWithTypeParametersTest
 /*    
     public void testWithCreator() throws Exception {
       final ObjectMapper mapper = new ObjectMapper();
-      final String json = aposToQuotes("{ 'data': [ { 'x': 'x', 'y': 'y' } ] }");
+      final String json = a2q("{ 'data': [ { 'x': 'x', 'y': 'y' } ] }");
       final MyGenericPOJOWithCreator<MyPOJO> deserialized =
           mapper.readValue(json,
                   new TypeReference<MyGenericPOJOWithCreator<MyPOJO>>() {});

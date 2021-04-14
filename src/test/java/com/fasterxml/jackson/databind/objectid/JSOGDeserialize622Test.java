@@ -23,7 +23,7 @@ public class JSOGDeserialize622Test extends BaseMapTest
     /**
      * JSON input
      */
-    private static final String EXP_EXAMPLE_JSOG =  aposToQuotes(
+    private static final String EXP_EXAMPLE_JSOG =  a2q(
             "{'@id':'1','foo':66,'next':{'"+REF_KEY+"':'1'}}");
 
     /**

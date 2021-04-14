@@ -139,7 +139,7 @@ public class ObjectReaderTest extends BaseMapTest
     {
         String FIELD = "a\tb";
         String VALUE = "\t";
-        String JSON = "{ "+quote(FIELD)+" : "+quote(VALUE)+"}";
+        String JSON = "{ "+q(FIELD)+" : "+q(VALUE)+"}";
         Map<?, ?> result;
 
         // First: by default, unescaped control characters should not work
@@ -390,7 +390,7 @@ public class ObjectReaderTest extends BaseMapTest
     // [databind#1637]
     public void testPointerWithArrays() throws Exception
     {
-        final String json = aposToQuotes("{\n'wrapper1': {\n" +
+        final String json = a2q("{\n'wrapper1': {\n" +
                 "  'set1': ['one', 'two', 'three'],\n" +
                 "  'set2': ['four', 'five', 'six']\n" +
                 "},\n" +
@@ -501,7 +501,7 @@ public class ObjectReaderTest extends BaseMapTest
         try {
             // but not schema that doesn't match format (no schema exists for json)
             r = r.with(new BogusSchema())
-                .readValue(quote("foo"));
+                .readValue(q("foo"));
             
             fail("Should not pass");
         } catch (IllegalArgumentException e) {

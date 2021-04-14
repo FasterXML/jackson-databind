@@ -117,7 +117,7 @@ public class CustomAnnotationIntrospector1756Test extends BaseMapTest
                 .addModule(m)
                 .build();
 
-        final Foobar foobar = mapper.readValue(aposToQuotes("{'bar':'bar', 'foo':'foo'}"),
+        final Foobar foobar = mapper.readValue(a2q("{'bar':'bar', 'foo':'foo'}"),
                 Foobar.class);
         assertNotNull(foobar);
     }

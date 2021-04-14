@@ -240,7 +240,7 @@ public class EnumSerializationTest
         // By default, serialize using name
         ObjectMapper m = new ObjectMapper();
         assertFalse(m.isEnabled(SerializationFeature.WRITE_ENUMS_USING_INDEX));
-        assertEquals(quote("B"), m.writeValueAsString(TestEnum.B));
+        assertEquals(q("B"), m.writeValueAsString(TestEnum.B));
 
         // but we can change (dynamically, too!) it to be number-based
         m.enable(SerializationFeature.WRITE_ENUMS_USING_INDEX);
@@ -249,9 +249,9 @@ public class EnumSerializationTest
 
     public void testAnnotationsOnEnumCtor() throws Exception
     {
-        assertEquals(quote("V1"), MAPPER.writeValueAsString(OK.V1));
-        assertEquals(quote("V1"), MAPPER.writeValueAsString(NOT_OK.V1));
-        assertEquals(quote("V2"), MAPPER.writeValueAsString(NOT_OK2.V2));
+        assertEquals(q("V1"), MAPPER.writeValueAsString(OK.V1));
+        assertEquals(q("V1"), MAPPER.writeValueAsString(NOT_OK.V1));
+        assertEquals(q("V2"), MAPPER.writeValueAsString(NOT_OK2.V2));
     }
 
     // [databind#227]
@@ -262,7 +262,7 @@ public class EnumSerializationTest
         SimpleModule module = new SimpleModule("foobar");
         module.addSerializer(Enum.class, new LowerCasingEnumSerializer());
         m.registerModule(module);
-        assertEquals(quote("b"), m.writeValueAsString(TestEnum.B));
+        assertEquals(q("b"), m.writeValueAsString(TestEnum.B));
     }
 
     // [databind#749]
@@ -292,14 +292,14 @@ public class EnumSerializationTest
 
     // [databind#1322]
     public void testEnumsWithJsonProperty() throws Exception {
-        assertEquals(quote("aleph"), MAPPER.writeValueAsString(EnumWithJsonProperty.A));
+        assertEquals(q("aleph"), MAPPER.writeValueAsString(EnumWithJsonProperty.A));
     }
 
     // [databind#1535]
     public void testEnumKeysWithJsonProperty() throws Exception {
         Map<EnumWithJsonProperty,Integer> input = new HashMap<EnumWithJsonProperty,Integer>();
         input.put(EnumWithJsonProperty.A, 13);
-        assertEquals(aposToQuotes("{'aleph':13}"), MAPPER.writeValueAsString(input));
+        assertEquals(a2q("{'aleph':13}"), MAPPER.writeValueAsString(input));
     }
 
     // [databind#1322]

@@ -57,7 +57,7 @@ public class ImplicitParamsForCreatorTest extends BaseMapTest
 
     public void testNonSingleArgCreator() throws Exception
     {
-        XY value = MAPPER.readValue(aposToQuotes("{'paramName0':1,'paramName1':2}"), XY.class);
+        XY value = MAPPER.readValue(a2q("{'paramName0':1,'paramName1':2}"), XY.class);
         assertNotNull(value);
         assertEquals(1, value.x);
         assertEquals(2, value.y);

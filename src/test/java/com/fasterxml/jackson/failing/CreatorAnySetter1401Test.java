@@ -32,12 +32,12 @@ public class CreatorAnySetter1401Test extends BaseMapTest
     // [databind#1401]
     public void testCreatorNoSetter() throws Exception
     {
-        NoSetter1401 b = MAPPER.readValue(aposToQuotes("{'a':1,'b':2}"),
+        NoSetter1401 b = MAPPER.readValue(a2q("{'a':1,'b':2}"),
                 NoSetter1401.class);
         assertEquals(1, b._a);
 
         NoSetter1401 b2 = MAPPER.readerForUpdating(new NoSetter1401(1))
-                .readValue(aposToQuotes("{'a':1}"));
+                .readValue(a2q("{'a':1}"));
         assertEquals(1, b2._a);
     }
 }

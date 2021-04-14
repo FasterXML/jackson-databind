@@ -193,7 +193,7 @@ public class MapDeserializationTest
     {
         ObjectMapper m = new ObjectMapper();
         m.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
-        Map<?,?> result = m.readValue(quote(""), Map.class);
+        Map<?,?> result = m.readValue(q(""), Map.class);
         assertNull(result);
     }
 
@@ -451,7 +451,7 @@ public class MapDeserializationTest
     public void testKeyWithCreator() throws Exception
     {
         // first, key should deserialize normally:
-        KeyType key = MAPPER.readValue(quote("abc"), KeyType.class);
+        KeyType key = MAPPER.readValue(q("abc"), KeyType.class);
         assertEquals("abc", key.value);
 
         Map<KeyType,Integer> map = MAPPER.readValue("{\"foo\":3}", new TypeReference<Map<KeyType,Integer>>() {} );
@@ -461,7 +461,7 @@ public class MapDeserializationTest
     }
 
     public void testClassKeyMap() throws Exception {
-        ClassStringMap map = MAPPER.readValue(aposToQuotes("{'java.lang.String':'foo'}"),
+        ClassStringMap map = MAPPER.readValue(a2q("{'java.lang.String':'foo'}"),
                 ClassStringMap.class);
         assertNotNull(map);
         assertEquals(1, map.size());
@@ -469,7 +469,7 @@ public class MapDeserializationTest
     }
 
     public void testcharSequenceKeyMap() throws Exception {
-        String JSON = aposToQuotes("{'a':'b'}");
+        String JSON = a2q("{'a':'b'}");
         Map<CharSequence,String> result = MAPPER.readValue(JSON, new TypeReference<Map<CharSequence,String>>() { });
         assertNotNull(result);
         assertEquals(1, result.size());
@@ -488,7 +488,7 @@ public class MapDeserializationTest
      */
     public void testMapWithDeserializer() throws Exception
     {
-        CustomMap result = MAPPER.readValue(quote("xyz"), CustomMap.class);
+        CustomMap result = MAPPER.readValue(q("xyz"), CustomMap.class);
         assertEquals(1, result.size());
         assertEquals("xyz", result.get("x"));
     }

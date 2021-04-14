@@ -59,7 +59,7 @@ public class CollectionMergeTest extends BaseMapTest
 
     public void testCollectionMerging() throws Exception
     {
-        CollectionWrapper w = MAPPER.readValue(aposToQuotes("{'bag':['b']}"), CollectionWrapper.class);
+        CollectionWrapper w = MAPPER.readValue(a2q("{'bag':['b']}"), CollectionWrapper.class);
         assertEquals(2, w.bag.size());
         assertTrue(w.bag.contains("a"));
         assertTrue(w.bag.contains("b"));
@@ -67,7 +67,7 @@ public class CollectionMergeTest extends BaseMapTest
 
     public void testListMerging() throws Exception
     {
-        MergedList w = MAPPER.readValue(aposToQuotes("{'values':['x']}"), MergedList.class);
+        MergedList w = MAPPER.readValue(a2q("{'values':['x']}"), MergedList.class);
         assertEquals(2, w.values.size());
         assertTrue(w.values.contains("a"));
         assertTrue(w.values.contains("x"));
@@ -83,7 +83,7 @@ public class CollectionMergeTest extends BaseMapTest
         MergedX<Collection<String>> result = MAPPER
                 .readerFor(new TypeReference<MergedX<Collection<String>>>() {})
                 .withValueToUpdate(input)
-                .readValue(aposToQuotes("{'value':['bar']}"));
+                .readValue(a2q("{'value':['bar']}"));
         assertSame(input, result);
         assertEquals(2, result.value.size());
         Iterator<String> it = result.value.iterator();
@@ -93,7 +93,7 @@ public class CollectionMergeTest extends BaseMapTest
 
     public void testEnumSetMerging() throws Exception
     {
-        MergedEnumSet result = MAPPER.readValue(aposToQuotes("{'abc':['A']}"), MergedEnumSet.class);
+        MergedEnumSet result = MAPPER.readValue(a2q("{'abc':['A']}"), MergedEnumSet.class);
         assertEquals(2, result.abc.size());
         assertTrue(result.abc.contains(ABC.B)); // original
         assertTrue(result.abc.contains(ABC.A)); // added

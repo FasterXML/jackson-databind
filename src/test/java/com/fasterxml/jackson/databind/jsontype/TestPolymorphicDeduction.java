@@ -46,14 +46,14 @@ public class TestPolymorphicDeduction extends BaseMapTest {
   /**********************************************************
    */
 
-  private static final String deadCatJson = aposToQuotes("{'name':'Felix','causeOfDeath':'entropy'}");
-  private static final String liveCatJson = aposToQuotes("{'name':'Felix','angry':true}");
-  private static final String luckyCatJson = aposToQuotes("{'name':'Felix','angry':true,'lives':8}");
-  private static final String ambiguousCatJson = aposToQuotes("{'name':'Felix','age':2}");
-  private static final String box1Json = aposToQuotes("{'cat':" + liveCatJson + "}");
-  private static final String box2Json = aposToQuotes("{'cat':" + deadCatJson + "}");
-  private static final String arrayOfCatsJson = aposToQuotes("[" + liveCatJson + "," + deadCatJson + "]");
-  private static final String mapOfCatsJson = aposToQuotes("{'live':" + liveCatJson + "}");
+  private static final String deadCatJson = a2q("{'name':'Felix','causeOfDeath':'entropy'}");
+  private static final String liveCatJson = a2q("{'name':'Felix','angry':true}");
+  private static final String luckyCatJson = a2q("{'name':'Felix','angry':true,'lives':8}");
+  private static final String ambiguousCatJson = a2q("{'name':'Felix','age':2}");
+  private static final String box1Json = a2q("{'cat':" + liveCatJson + "}");
+  private static final String box2Json = a2q("{'cat':" + deadCatJson + "}");
+  private static final String arrayOfCatsJson = a2q("[" + liveCatJson + "," + deadCatJson + "]");
+  private static final String mapOfCatsJson = a2q("{'live':" + liveCatJson + "}");
 
   /*
   /**********************************************************

@@ -50,19 +50,19 @@ public class SqlDateSerializationTest extends BaseMapTest
         assertEquals(String.valueOf(date99.getTime()),
                 MAPPER.writeValueAsString(date99));
 
-        assertEquals(aposToQuotes("{'date':0}"),
+        assertEquals(a2q("{'date':0}"),
                 MAPPER.writeValueAsString(new SqlDateAsDefaultBean(0L)));
 
         // but may explicitly force timestamp too
-        assertEquals(aposToQuotes("{'date':0}"),
+        assertEquals(a2q("{'date':0}"),
                 MAPPER.writeValueAsString(new SqlDateAsNumberBean(0L)));
 
         // And also should be able to use String output as need be:
         ObjectWriter w = MAPPER.writer().without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
                
-        assertEquals(quote("1999-04-01"), w.writeValueAsString(date99));
-        assertEquals(quote(date0.toString()), w.writeValueAsString(date0));
-        assertEquals(aposToQuotes("{'date':'"+date0.toString()+"'}"),
+        assertEquals(q("1999-04-01"), w.writeValueAsString(date99));
+        assertEquals(q(date0.toString()), w.writeValueAsString(date0));
+        assertEquals(a2q("{'date':'"+date0.toString()+"'}"),
                 w.writeValueAsString(new SqlDateAsDefaultBean(0L)));
     }
 
@@ -71,7 +71,7 @@ public class SqlDateSerializationTest extends BaseMapTest
         java.sql.Time time = new java.sql.Time(0L);
         // not 100% sure what we should expect wrt timezone, but what serializes
         // does use is quite simple:
-        assertEquals(quote(time.toString()), MAPPER.writeValueAsString(time));
+        assertEquals(q(time.toString()), MAPPER.writeValueAsString(time));
     }
 
     public void testSqlTimestamp() throws IOException
@@ -91,7 +91,7 @@ public class SqlDateSerializationTest extends BaseMapTest
 
         Person i = new Person();
         i.dateOfBirth = java.sql.Date.valueOf("1980-04-14");
-        assertEquals(aposToQuotes("{'dateOfBirth':'1980.04.14'}"),
+        assertEquals(a2q("{'dateOfBirth':'1980.04.14'}"),
                 mapper.writeValueAsString(i));
     }
 

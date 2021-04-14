@@ -415,7 +415,7 @@ public class ObjectNodeTest
 
     public void testFailOnDupNestedKeys() throws Exception
     {
-        final String DOC = aposToQuotes(
+        final String DOC = a2q(
                 "{'node' : { 'data' : [ 1, 2, { 'a':3 }, { 'foo' : 1, 'bar' : 2, 'foo': 3}]}}"
         );
         try {

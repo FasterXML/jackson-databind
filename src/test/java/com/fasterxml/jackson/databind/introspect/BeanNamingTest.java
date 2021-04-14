@@ -21,17 +21,17 @@ public class BeanNamingTest extends BaseMapTest
     {
         ObjectMapper mapper = new ObjectMapper();
         assertFalse(mapper.isEnabled(MapperFeature.USE_STD_BEAN_NAMING));
-        assertEquals(aposToQuotes("{'url':'http://foo'}"),
+        assertEquals(a2q("{'url':'http://foo'}"),
                 mapper.writeValueAsString(new URLBean()));
-        assertEquals(aposToQuotes("{'a':3}"),
+        assertEquals(a2q("{'a':3}"),
                 mapper.writeValueAsString(new ABean()));
 
         mapper = jsonMapperBuilder()
                 .enable(MapperFeature.USE_STD_BEAN_NAMING)
                 .build();
-        assertEquals(aposToQuotes("{'URL':'http://foo'}"),
+        assertEquals(a2q("{'URL':'http://foo'}"),
                 mapper.writeValueAsString(new URLBean()));
-        assertEquals(aposToQuotes("{'a':3}"),
+        assertEquals(a2q("{'a':3}"),
                 mapper.writeValueAsString(new ABean()));
     }
 }

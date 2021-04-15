@@ -169,13 +169,38 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
                 Visibility.PUBLIC_ONLY // field
                 );
 
+        /**
+         * Alternate base settings used for JDK types: public visibility
+         * required for everything
+         *
+         * @since 2.13
+         */
+        protected final static Std ALL_PUBLIC = new Std(
+                Visibility.PUBLIC_ONLY, // getter
+                Visibility.PUBLIC_ONLY, // is-getter
+                Visibility.PUBLIC_ONLY, // setter
+                Visibility.PUBLIC_ONLY, // creator (single-arg ctors)
+                Visibility.PUBLIC_ONLY // field
+        );
+
         protected final Visibility _getterMinLevel;
         protected final Visibility _isGetterMinLevel;
         protected final Visibility _setterMinLevel;
         protected final Visibility _creatorMinLevel;
         protected final Visibility _fieldMinLevel;
-		
+
+        /**
+         * @return Instance with default settings: "public" for getters/is-getters,
+         *    fields; "any" for setters and legacy 1-arg constructors
+         */
         public static Std defaultInstance() { return DEFAULT; }
+
+        /**
+         * @return Instance with all visibility levels set to "public"
+         *
+         * @since 2.13
+         */
+        public static Std allPublicInstance() { return ALL_PUBLIC; }
         
         /**
          * Constructor used for building instance that has minumum visibility

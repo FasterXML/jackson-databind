@@ -999,7 +999,7 @@ public final class ClassUtil
             // 14-Apr-2021, tatu: [databind#3118] Java 9/JPMS causes new fails...
             //    But while our baseline is Java 8, must check name
         } catch (RuntimeException se) {
-            if (!"InaccessibleObjectException".equals(se.getClass().getSimpleName())) {
+            if ("InaccessibleObjectException".equals(se.getClass().getSimpleName())) {
                 throw new IllegalArgumentException(String.format(
 "Failed to call `setAccess()` on %s '%s' due to `%s`, problem: %s",
 member.getClass().getTypeName(), member.getName(), se.getClass().getName(), se.getMessage()),

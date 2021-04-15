@@ -980,10 +980,9 @@ public final class ClassUtil
         // We know all members are also accessible objects...
         AccessibleObject ao = (AccessibleObject) member;
 
-        /* 14-Jan-2009, tatu: It seems safe and potentially beneficial to
-         *   always to make it accessible (latter because it will force
-         *   skipping checks we have no use for...), so let's always call it.
-         */
+        // 14-Jan-2009, tatu: It seems safe and potentially beneficial to
+        //   always to make it accessible (latter because it will force
+        //   skipping checks we have no use for...), so let's always call it.
         try {
             if (force || 
                     (!Modifier.isPublic(member.getModifiers())
@@ -991,12 +990,22 @@ public final class ClassUtil
                 ao.setAccessible(true);
             }
         } catch (SecurityException se) {
-            // 17-Apr-2009, tatu: Related to [JACKSON-101]: this can fail on platforms like
+            // 17-Apr-2009, tatu: This can fail on platforms like
             // Google App Engine); so let's only fail if we really needed it...
             if (!ao.isAccessible()) {
                 Class<?> declClass = member.getDeclaringClass();
                 throw new IllegalArgumentException("Cannot access "+member+" (from class "+declClass.getName()+"; failed to set access: "+se.getMessage());
             }
+            // 14-Apr-2021, tatu: [databind#3118] Java 9/JPMS causes new fails...
+            //    But while our baseline is Java 8, must check name
+        } catch (RuntimeException se) {
+            if (!"InaccessibleObjectException".equals(se.getClass().getSimpleName())) {
+                throw new IllegalArgumentException(String.format(
+"Failed to call `setAccess()` on %s '%s' due to `%s`, problem: %s",
+member.getClass().getTypeName(), member.getName(), se.getClass().getName(), se.getMessage()),
+                        se);
+            }
+            throw se;
         }
     }
 

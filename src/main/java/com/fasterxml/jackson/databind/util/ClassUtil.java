@@ -1002,7 +1002,7 @@ public final class ClassUtil
             if ("InaccessibleObjectException".equals(se.getClass().getSimpleName())) {
                 throw new IllegalArgumentException(String.format(
 "Failed to call `setAccess()` on %s '%s' due to `%s`, problem: %s",
-member.getClass().getTypeName(), member.getName(), se.getClass().getName(), se.getMessage()),
+member.getClass().getSimpleName(), member.getName(), se.getClass().getName(), se.getMessage()),
                         se);
             }
             throw se;
@@ -1330,12 +1330,34 @@ cls.getName(), rootCause.getClass().getName(), rootCause.getMessage()),
 
         private final Field enumSetTypeField;
         private final Field enumMapTypeField;
-    	
+
+        private final String failForEnumSet;
+        private final String failForEnumMap;
+
         private EnumTypeLocator() {
             //JDK uses following fields to store information about actual Enumeration
             // type for EnumSets, EnumMaps...
-    	        enumSetTypeField = locateField(EnumSet.class, "elementType", Class.class);
-    	        enumMapTypeField = locateField(EnumMap.class, "elementType", Class.class);
+
+            Field f = null;
+            String msg = null;
+
+            try {
+                f = locateField(EnumSet.class, "elementType", Class.class);
+            } catch (Exception e) {
+                msg = e.toString();
+            }
+            enumSetTypeField = f;
+            failForEnumSet = msg;
+
+            f = null;
+            msg = null;
+            try {
+                f = locateField(EnumMap.class, "keyType", Class.class);
+            } catch (Exception e) {
+                msg  = e.toString();
+            }
+            enumMapTypeField = f;
+            failForEnumMap = msg;
         }
 
         @SuppressWarnings("unchecked")
@@ -1344,7 +1366,8 @@ cls.getName(), rootCause.getClass().getName(), rootCause.getMessage()),
             if (enumSetTypeField != null) {
                 return (Class<? extends Enum<?>>) get(set, enumSetTypeField);
             }
-            throw new IllegalStateException("Cannot figure out type for EnumSet (odd JDK platform?)");
+            throw new IllegalStateException(
+"Cannot figure out type parameter for `EnumSet` (odd JDK platform?), problem: "+failForEnumSet);
         }
 
         @SuppressWarnings("unchecked")
@@ -1353,9 +1376,10 @@ cls.getName(), rootCause.getClass().getName(), rootCause.getMessage()),
             if (enumMapTypeField != null) {
                 return (Class<? extends Enum<?>>) get(set, enumMapTypeField);
             }
-            throw new IllegalStateException("Cannot figure out type for EnumMap (odd JDK platform?)");
+            throw new IllegalStateException(
+"Cannot figure out type parameter for `EnumMap` (odd JDK platform?), problem: "+failForEnumMap);
         }
-    	
+
         private Object get(Object bean, Field field)
         {
             try {
@@ -1364,34 +1388,22 @@ cls.getName(), rootCause.getClass().getName(), rootCause.getMessage()),
                 throw new IllegalArgumentException(e);
             }
         }
-    	
+
         private static Field locateField(Class<?> fromClass, String expectedName, Class<?> type)
+            throws Exception
         {
-            Field found = null;
     	        // First: let's see if we can find exact match:
             Field[] fields = fromClass.getDeclaredFields();
-    	        for (Field f : fields) {
-    	            if (expectedName.equals(f.getName()) && f.getType() == type) {
-    	                found = f;
-    	                break;
-    	            }
-    	        }
-    	        // And if not, if there is just one field with the type, that field
-    	        if (found == null) {
-    	            for (Field f : fields) {
-    	                if (f.getType() == type) {
-    	                    // If more than one, can't choose
-    	                    if (found != null) return null;
-    	                    found = f;
-    	                }
-    	            }
-    	        }
-    	        if (found != null) { // it's non-public, need to force accessible
-    	            try {
-    	                found.setAccessible(true);
-    	            } catch (Throwable t) { }
-    	        }
-    	        return found;
+            for (Field f : fields) {
+                if (!expectedName.equals(f.getName()) || f.getType() != type) {
+                    continue;
+                }
+                f.setAccessible(true);
+                return f;
+            }
+            // If not found, indicate with exception
+            throw new IllegalStateException(String.format(
+"No field named '%s' in class '%s'", expectedName, fromClass.getTypeName()));
         }
     }
 

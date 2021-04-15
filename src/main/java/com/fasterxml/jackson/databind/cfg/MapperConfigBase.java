@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverProvider;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.RootNameLookup;
 
 @SuppressWarnings("serial")
@@ -501,7 +502,15 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     public final VisibilityChecker getDefaultVisibilityChecker(Class<?> baseType,
             AnnotatedClass actualClass)
     {
-        VisibilityChecker vc = getDefaultVisibilityChecker();
+        // 14-Apr-2021, tatu: [databind#3117] JDK types should be limited
+        //    to "public-only" regardless of settings for other types
+        VisibilityChecker vc;
+
+        if (ClassUtil.isJDKClass(baseType)) {
+            vc = VisibilityChecker.allPublicInstance();
+        } else {
+            vc = getDefaultVisibilityChecker();
+        }
         AnnotationIntrospector intr = getAnnotationIntrospector();
         if (intr != null) {
             vc = intr.findAutoDetectVisibility(this, actualClass, vc);

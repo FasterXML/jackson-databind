@@ -25,7 +25,17 @@ public class VisibilityChecker
             Visibility.ANY, // setter
             Visibility.PUBLIC_ONLY, // creator -- NOTE: was `ANY` for 2.x
             Visibility.NON_PRIVATE // scalar-constructor (new in 3.x)
-            );
+    );
+
+    // Added in 2.13 to be used for JDK types
+    protected final static VisibilityChecker ALL_PUBLIC = new VisibilityChecker(
+            Visibility.PUBLIC_ONLY, // field
+            Visibility.PUBLIC_ONLY, // getter
+            Visibility.PUBLIC_ONLY, // is-getter
+            Visibility.PUBLIC_ONLY, // setter
+            Visibility.PUBLIC_ONLY, // creator -- NOTE: was `ANY` for 2.x
+            Visibility.PUBLIC_ONLY // scalar-constructor (new in 3.x)
+    );
 
     protected final Visibility _fieldMinLevel;
     protected final Visibility _getterMinLevel;
@@ -58,7 +68,6 @@ public class VisibilityChecker
             Visibility getter, Visibility isGetter, Visibility setter,
             Visibility creator, Visibility scalarConstructor)
     {
-        
         _getterMinLevel = getter;
         _isGetterMinLevel = isGetter;
         _setterMinLevel = setter;
@@ -97,8 +106,9 @@ public class VisibilityChecker
         return DEFAULT.withOverrides(vis);
     }
 
-    
     public static VisibilityChecker defaultInstance() { return DEFAULT; }
+
+    public static VisibilityChecker allPublicInstance() { return ALL_PUBLIC; }
 
     /*
     /**********************************************************************

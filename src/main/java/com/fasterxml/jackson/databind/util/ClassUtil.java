@@ -799,10 +799,11 @@ public final class ClassUtil
      * is done by calling {@link AccessibleObject#setAccessible(boolean)}.
      * 
      * @param member Accessor to call <code>setAccessible()</code> on.
-     * @param force Whether to always try to make accessor accessible (true),
-     *   or only if needed as per access rights (false)
+     * @param evenIfAlreadyPublic Whether to always try to make accessor
+     *   accessible, even if {@code public} (true),
+     *   or only if needed to force by-pass of non-{@code public} access (false)
      */
-    public static void checkAndFixAccess(Member member, boolean force)
+    public static void checkAndFixAccess(Member member, boolean evenIfAlreadyPublic)
     {
         // We know all members are also accessible objects...
         AccessibleObject ao = (AccessibleObject) member;
@@ -811,9 +812,12 @@ public final class ClassUtil
         //   always to make it accessible (latter because it will force
         //   skipping checks we have no use for...), so let's always call it.
         try {
-            if (force || 
-                    (!Modifier.isPublic(member.getModifiers())
-                            || !Modifier.isPublic(member.getDeclaringClass().getModifiers()))) {
+            // 15-Apr-2021, tatu: With JDK 14+ we will be hitting access limitations
+            //    esp. wrt JDK types so let's change a bit
+            final Class<?> declaringClass = member.getDeclaringClass();
+            boolean isPublic = Modifier.isPublic(member.getModifiers())
+                    && Modifier.isPublic(declaringClass.getModifiers());
+            if (!isPublic || (evenIfAlreadyPublic && !isJDKClass(declaringClass))) {
                 ao.setAccessible(true);
             }
         } catch (SecurityException se) {

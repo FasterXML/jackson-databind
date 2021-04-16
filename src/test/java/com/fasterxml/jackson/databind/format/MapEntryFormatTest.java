@@ -100,9 +100,9 @@ public class MapEntryFormatTest extends BaseMapTest
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods, basic
-    /**********************************************************
+    /**********************************************************************
      */
     
     private final ObjectMapper MAPPER = newJsonMapper();
@@ -139,9 +139,9 @@ public class MapEntryFormatTest extends BaseMapTest
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods, as-Object (Shape)
-    /**********************************************************
+    /**********************************************************************
      */
 
     public void testAsNaturalRoundtrip() throws Exception
@@ -153,6 +153,7 @@ public class MapEntryFormatTest extends BaseMapTest
         assertEquals("foo", result.entry.getKey());
         assertEquals("bar", result.entry.getValue());
     }
+
     // should work via class annotation
     public void testAsObjectRoundtrip() throws Exception
     {
@@ -162,7 +163,7 @@ public class MapEntryFormatTest extends BaseMapTest
 
         // 16-Oct-2016, tatu: Happens to work by default because it's NOT basic
         //   `Map.Entry` but subtype.
-        
+
         MapEntryAsObject result = MAPPER.readValue(json, MapEntryAsObject.class);
         assertEquals("foo", result.getKey());
         assertEquals("bar", result.getValue());
@@ -171,9 +172,10 @@ public class MapEntryFormatTest extends BaseMapTest
     // [databind#1895]
     public void testDefaultShapeOverride() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configOverride(Map.Entry.class)
-            .setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.OBJECT));
+        ObjectMapper mapper = jsonMapperBuilder()
+                .withConfigOverride(Map.Entry.class, cfg ->
+                    cfg.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.OBJECT)))
+                .build();
         Map.Entry<String,String> input = new BeanWithMapEntry("foo", "bar").entry;
         assertEquals(a2q("{'key':'foo','value':'bar'}"),
                 mapper.writeValueAsString(input));

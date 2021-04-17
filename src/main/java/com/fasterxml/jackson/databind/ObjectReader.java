@@ -2062,6 +2062,12 @@ public class ObjectReader
 
     protected final JsonNode _bindAsTree(JsonParser p) throws IOException
     {
+        // 16-Apr-2021, tatu: Should usually NOT be called this way but
+        //    as per [databind#3122] should still work
+        if (_valueToUpdate != null) {
+            return (JsonNode) _bind(p, _valueToUpdate);
+        }
+        
         // Need to inline `_initForReading()` due to tree reading handling end-of-input specially
         _config.initialize(p);
         if (_schema != null) {
@@ -2098,6 +2104,13 @@ public class ObjectReader
      */
     protected final JsonNode _bindAsTreeOrNull(JsonParser p) throws IOException
     {
+        // 16-Apr-2021, tatu: Should usually NOT be called this way but
+        //    as per [databind#3122] should still work
+        if (_valueToUpdate != null) {
+            return (JsonNode) _bind(p, _valueToUpdate);
+        }
+
+        // Need to inline `_initForReading()` (as per above)
         _config.initialize(p);
         if (_schema != null) {
             p.setSchema(_schema);

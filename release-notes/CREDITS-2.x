@@ -1327,3 +1327,7 @@ Asaf Romano (asaf-romano@github)
 David Hoffman (dhofftgt@github)
   * Contributed #3082: Dont track unknown props in buffer if `ignoreAllUnknown` is true
    (2.13.0)
+
+Eric Sirianni (sirianni@github)
+  * Reported #3122: Deep merge for `JsonNode` using `ObjectReader.readTree()`
+   (2.13.0)

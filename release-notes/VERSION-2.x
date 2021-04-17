@@ -28,6 +28,8 @@ Project: jackson-databind
 #3099: Optimize "AnnotatedConstructor.call()" case by passing explicit null
 #3101: Add AnnotationIntrospector.XmlExtensions interface for decoupling javax dependencies
 #3117: Use more limiting default visibility settings for JDK types (java.*, javax.*)
+#3122: Deep merge for `JsonNode` using `ObjectReader.readTree()`
+ (reported by Eric S)
 - Fix to avoid problem with `BigDecimalNode`, scale of `Integer.MIN_VALUE` (see
   [dataformats-binary#264] for details)
 

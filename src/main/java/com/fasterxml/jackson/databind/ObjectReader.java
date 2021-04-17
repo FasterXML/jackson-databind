@@ -1601,6 +1601,7 @@ public class ObjectReader
             } else {
                 result = ctxt.readRootValue(p, _valueType, _findRootDeserializer(ctxt), _valueToUpdate);
             }
+            // No need to consume the token as parser gets closed anyway
             if (_config.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
                 _verifyNoTrailingTokens(p, ctxt, _valueType);
             }
@@ -1635,6 +1636,8 @@ public class ObjectReader
             // Will not be called for merge (need not pass _valueToUpdate)
             resultNode = (JsonNode) ctxt.readRootValue(p, JSON_NODE_TYPE, _findTreeDeserializer(ctxt), null);
         }
+        // Need to consume the token too
+        p.clearCurrentToken();
         if (_config.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
             _verifyNoTrailingTokens(p, ctxt, JSON_NODE_TYPE);
         }
@@ -1663,6 +1666,8 @@ public class ObjectReader
             // Will not be called for merge (need not pass _valueToUpdate)
             resultNode = (JsonNode) ctxt.readRootValue(p, JSON_NODE_TYPE, _findTreeDeserializer(ctxt), null);
         }
+        // Need to consume the token too
+        p.clearCurrentToken();
         if (_config.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
             _verifyNoTrailingTokens(p, ctxt, JSON_NODE_TYPE);
         }

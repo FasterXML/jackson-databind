@@ -1620,6 +1620,12 @@ public class ObjectReader
             JsonParser p)
         throws JacksonException
     {
+        // 16-Apr-2021, tatu: Should usually NOT be called this way but
+        //    as per [databind#3122] should still work
+        if (_valueToUpdate != null) {
+            return (JsonNode) _bind(ctxt, p, _valueToUpdate);
+        }
+
         JsonToken t = p.currentToken();
         if (t == null) {
             t = p.nextToken();
@@ -1651,6 +1657,12 @@ public class ObjectReader
     protected final JsonNode _bindAsTreeOrNull(DeserializationContextExt ctxt,
             JsonParser p) throws JacksonException
     {
+        // 16-Apr-2021, tatu: Should usually NOT be called this way but
+        //    as per [databind#3122] should still work
+        if (_valueToUpdate != null) {
+            return (JsonNode) _bind(ctxt, p, _valueToUpdate);
+        }
+
         ctxt.assignParser(p);
         JsonToken t = p.currentToken();
         if (t == null) {

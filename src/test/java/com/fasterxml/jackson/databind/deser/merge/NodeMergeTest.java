@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.deser.merge;
 
 import com.fasterxml.jackson.annotation.JsonMerge;
-
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -162,5 +162,39 @@ public class NodeMergeTest extends BaseMapTest
             .readValue(update);
 
         assertEquals(a2q("{'test':'n/a'}"), result.toString());
+    }
+
+    // [databind#3122]: "readTree()" fails where "readValue()" doesn't:
+    public void testObjectDeepMerge3122() throws Exception
+    {
+        final String jsonToMerge = a2q("{'root':{'b':'bbb','foo':'goodbye'}}");
+
+        JsonNode node1 = MAPPER.readTree(a2q("{'root':{'a':'aaa','foo':'hello'}}"));
+        assertEquals(2, node1.path("root").size());
+
+        JsonNode node2 = MAPPER.readerForUpdating(node1)
+                .readValue(jsonToMerge);
+        assertSame(node1, node2);
+        assertEquals(3, node1.path("root").size());
+
+        node1 = MAPPER.readTree(a2q("{'root':{'a':'aaa','foo':'hello'}}"));
+        JsonNode node3 = MAPPER.readerForUpdating(node1)
+                .readTree(jsonToMerge);
+        assertSame(node1, node3);
+        assertEquals(3, node1.path("root").size());
+
+        node1 = MAPPER.readTree(a2q("{'root':{'a':'aaa','foo':'hello'}}"));
+        JsonNode node4 = MAPPER.readerForUpdating(node1)
+                .readTree(utf8Bytes(jsonToMerge));
+        assertSame(node1, node4);
+        assertEquals(3, node1.path("root").size());
+
+        // And finally variant passing `JsonParser`
+        try (JsonParser p = MAPPER.createParser(jsonToMerge)) {
+            JsonNode node5 = MAPPER.readerForUpdating(node1)
+                    .readTree(p);
+            assertSame(node1, node5);
+            assertEquals(3, node1.path("root").size());
+        }
     }
 }

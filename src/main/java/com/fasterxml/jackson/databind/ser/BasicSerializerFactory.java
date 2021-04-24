@@ -475,6 +475,10 @@ public abstract class BasicSerializerFactory
             }
             return NumberSerializer.instance;
         }
+        // 23-Apr-2021, tatu: [databind#3130]: Suppress ClassLoader...
+        if (ClassLoader.class.isAssignableFrom(raw)) {
+            return new ToEmptyObjectSerializer(type);
+        }
         return null;
     }
 

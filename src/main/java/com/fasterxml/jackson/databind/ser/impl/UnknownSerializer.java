@@ -4,49 +4,43 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.type.WritableTypeId;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.fasterxml.jackson.databind.ser.std.ToEmptyObjectSerializer;
 
 @SuppressWarnings("serial")
 public class UnknownSerializer
-    extends StdSerializer<Object>
+    extends ToEmptyObjectSerializer // since 2.13
 {
     public UnknownSerializer() {
         super(Object.class);
     }
 
-    /**
-     * @since 2.6
-     */
+    // @since 2.6
     public UnknownSerializer(Class<?> cls) {
-        super(cls, false);
-    }
-    
-    @Override
-    public void serialize(Object value, JsonGenerator gen, SerializerProvider provider) throws IOException
-    {
-        // 27-Nov-2009, tatu: As per [JACKSON-201] may or may not fail...
-        if (provider.isEnabled(SerializationFeature.FAIL_ON_EMPTY_BEANS)) {
-            failForEmpty(provider, value);
-        }
-        // But if it's fine, we'll just output empty JSON Object:
-        gen.writeStartObject(value, 0);
-        gen.writeEndObject();
+        super(cls);
     }
 
     @Override
-    public final void serializeWithType(Object value, JsonGenerator gen, SerializerProvider provider,
+    public void serialize(Object value, JsonGenerator gen, SerializerProvider ctxt) throws IOException
+    {
+        // 27-Nov-2009, tatu: As per [JACKSON-201] may or may not fail...
+        if (ctxt.isEnabled(SerializationFeature.FAIL_ON_EMPTY_BEANS)) {
+            failForEmpty(ctxt, value);
+        }
+        super.serialize(value, gen, ctxt);
+    }
+
+    @Override
+    public void serializeWithType(Object value, JsonGenerator gen, SerializerProvider ctxt,
             TypeSerializer typeSer) throws IOException
     {
-        if (provider.isEnabled(SerializationFeature.FAIL_ON_EMPTY_BEANS)) {
-            failForEmpty(provider, value);
+        if (ctxt.isEnabled(SerializationFeature.FAIL_ON_EMPTY_BEANS)) {
+            failForEmpty(ctxt, value);
         }
-        WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen,
-                typeSer.typeId(value, JsonToken.START_OBJECT));
-        typeSer.writeTypeSuffix(gen, typeIdDef);
+        super.serializeWithType(value, gen, ctxt, typeSer);
     }
 
     @Override

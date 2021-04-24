@@ -49,7 +49,9 @@ public class Jdk8OptionalDeserializer
 
     @Override
     public Object getReferenced(Optional<?> reference) {
-        return reference.get();
+        // 23-Apr-2021, tatu: [modules-java8#214] Need to support empty
+        //    for merging too
+        return reference.orElse(null);
     }
 
     @Override

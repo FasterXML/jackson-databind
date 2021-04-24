@@ -32,6 +32,8 @@ Project: jackson-databind
 #3117: Use more limiting default visibility settings for JDK types (java.*, javax.*)
 #3122: Deep merge for `JsonNode` using `ObjectReader.readTree()`
  (reported by Eric S)
+#3130: Serializing java.lang.Thread fails on JDK 11 and above (should suppress
+  serialization of ClassLoader)
 - Fix to avoid problem with `BigDecimalNode`, scale of `Integer.MIN_VALUE` (see
   [dataformats-binary#264] for details)
 

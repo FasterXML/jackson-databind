@@ -424,6 +424,10 @@ public abstract class BasicSerializerFactory
         if (Path.class.isAssignableFrom(raw)) {
             return JDKStringLikeSerializer.find(Path.class);
         }
+        // 23-Apr-2021, tatu: [databind#3130]: Suppress ClassLoader...
+        if (ClassLoader.class.isAssignableFrom(raw)) {
+            return new ToEmptyObjectSerializer(type);
+        }
         // Then check for optional/external serializers 
         return OptionalHandlerFactory.instance.findSerializer(ctxt.getConfig(), type);
     }

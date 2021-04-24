@@ -202,4 +202,19 @@ public class JDKTypeSerializationTest
         String json = MAPPER.writeValueAsString(properties);
         assertEquals("{\"key\":1}", json);
     }
+
+    // [databind#3130]: fails on JDK 11+
+    public void testThreadSerialization() throws Exception
+    {
+        final Thread input = Thread.currentThread();
+//        String json = MAPPER.writerWithDefaultPrettyPrinter()
+//                .writeValueAsString(input);
+        Map<?,?> asMap = MAPPER.convertValue(input, Map.class);
+//        System.err.println("PROPS -> "+asMap.keySet());
+
+        // Should get empty "contextClassLoader"
+        Map<?,?> cl = (Map<?,?>) asMap.get("contextClassLoader");
+        assertNotNull(cl);
+        assertEquals(0, cl.size());
+    }
 }

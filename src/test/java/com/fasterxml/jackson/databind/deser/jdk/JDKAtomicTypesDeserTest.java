@@ -2,6 +2,8 @@ package com.fasterxml.jackson.databind.deser.jdk;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.atomic.*;
 
 import com.fasterxml.jackson.annotation.*;
@@ -99,13 +101,19 @@ public class JDKAtomicTypesDeserTest
         public AtomicReference<AtomicReference<Integer>> refRef;
     }
 
+    // [modules-java8#214]
+    static class ListWrapper {
+        @JsonMerge
+        public AtomicReference<List<String>> list;
+    }
+
     /*
     /**********************************************************
     /* Test methods
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
     
     public void testAtomicBoolean() throws Exception
     {
@@ -297,5 +305,19 @@ public class JDKAtomicTypesDeserTest
         assertNotNull(nullRef.refRef);
         assertNotNull(nullRef.refRef.get());
         assertNull(nullRef.refRef.get().get());
+    }
+
+    // for [modules-java8#214]: ReferenceType of List, merge
+    public void testMergeToListViaRef() throws Exception
+    {
+        ListWrapper base = MAPPER.readValue(a2q("{'list':['a']}"),
+                ListWrapper.class);
+        assertNotNull(base.list);
+        assertEquals(Arrays.asList("a"), base.list.get());
+
+        ListWrapper merged = MAPPER.readerForUpdating(base)
+                .readValue(a2q("{'list':['b']}"));
+        assertSame(base, merged);
+        assertEquals(Arrays.asList("a", "b"), base.list.get());
     }
 }

@@ -1,12 +1,10 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.std.ToEmptyObjectSerializer;
 
@@ -41,23 +39,6 @@ public class UnknownSerializer
             failForEmpty(ctxt, value);
         }
         super.serializeWithType(value, gen, ctxt, typeSer);
-    }
-
-    @Override
-    public boolean isEmpty(SerializerProvider provider, Object value) {
-        return true;
-    }
-
-    @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint) throws JsonMappingException {
-        return null;
-    }
-    
-    @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-        throws JsonMappingException
-    { 
-        visitor.expectAnyFormat(typeHint);
     }
 
     protected void failForEmpty(SerializerProvider prov, Object value)

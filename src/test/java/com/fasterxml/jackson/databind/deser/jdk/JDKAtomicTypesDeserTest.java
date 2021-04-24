@@ -104,7 +104,7 @@ public class JDKAtomicTypesDeserTest
     // [modules-java8#214]
     static class ListWrapper {
         @JsonMerge
-        public AtomicReference<List<String>> list;
+        public AtomicReference<List<String>> list = new AtomicReference<>();
     }
 
     /*

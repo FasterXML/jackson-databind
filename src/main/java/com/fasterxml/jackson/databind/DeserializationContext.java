@@ -451,7 +451,7 @@ public abstract class DeserializationContext
      * to the active parser, that should be used instead.
      */
     public final JsonParser getParser() { return _parser; }
-    
+
     public final Object findInjectableValue(Object valueId,
             BeanProperty forProperty, Object beanInstance)
     {
@@ -979,7 +979,7 @@ public abstract class DeserializationContext
      * but a Scalar value (potentially coercible from String value) is expected.
      * This would typically be used to deserializer a Number, Boolean value or some other
      * "simple" unstructured value type.
-     * 
+     *
      * @param p Actual parser to read content from
      * @param deser Deserializer that needs extracted String value
      * @param scalarType Immediate type of scalar to extract; usually type deserializer
@@ -1317,6 +1317,13 @@ public abstract class DeserializationContext
         }
         msg = _format(msg, msgArgs);
         LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
+        if (isEnabled(MapperFeature.CREATE_DEFAULT_CONSTRUCTOR_IF_NOT_EXISTS)) {
+            LinkedNode<DeserializationProblemHandler> node = new LinkedNode<>(MissingInstantiatorHandler.getInstance(), null);
+            if (h == null) {
+                h = node;
+            }
+            h.linkNext(node);
+        }
         while (h != null) {
             // Can bail out if it's handled
             Object instance = h.value().handleMissingInstantiator(this,

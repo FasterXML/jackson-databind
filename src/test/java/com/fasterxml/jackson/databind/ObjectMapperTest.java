@@ -1,16 +1,42 @@
 package com.fasterxml.jackson.databind;
 
+import com.fasterxml.jackson.core.JsonEncoding;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.StreamReadFeature;
+import com.fasterxml.jackson.core.StreamWriteFeature;
+import com.fasterxml.jackson.core.TokenStreamFactory;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import java.io.*;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
-import java.util.*;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 import java.util.zip.ZipOutputStream;
 
-import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonWriteFeature;
 import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
 
@@ -18,7 +44,8 @@ import com.fasterxml.jackson.databind.cfg.DeserializationContexts;
 import com.fasterxml.jackson.databind.deser.DeserializerCache;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.node.*;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.type.SimpleType;
 
 public class ObjectMapperTest extends BaseMapTest
@@ -33,6 +60,22 @@ public class ObjectMapperTest extends BaseMapTest
     }
 
     static class EmptyBean { }
+
+    static class BeanWithoutDefaultConstructor {
+        private int value;
+
+        public BeanWithoutDefaultConstructor(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        public void setValue(int value) {
+            this.value = value;
+        }
+    }
 
     @SuppressWarnings("serial")
     static class MyAnnotationIntrospector extends JacksonAnnotationIntrospector { }
@@ -687,6 +730,19 @@ public class ObjectMapperTest extends BaseMapTest
         JsonParser jsonParser3 = MAPPER.createParser(string);
         String result3 = MAPPER.readValue(jsonParser3, new TypeReference<String>() {});
         assertEquals(result3, "value");
+    }
+
+    public void test_readValue_withoutDefaultContructor() throws Exception {
+        BeanWithoutDefaultConstructor bean = new BeanWithoutDefaultConstructor(1);
+        byte[] bytes = MAPPER.writeValueAsBytes(bean);
+        BeanWithoutDefaultConstructor result1 = MAPPER.readValue(bytes, BeanWithoutDefaultConstructor.class);
+        assertNotNull(result1);
+        JsonMapper jsonMapper = jsonMapperBuilder().disable(MapperFeature.CREATE_DEFAULT_CONSTRUCTOR_IF_NOT_EXISTS).build();
+        try {
+            jsonMapper.readValue(bytes, BeanWithoutDefaultConstructor.class);
+        } catch (Exception e) {
+            assertTrue(e.getMessage().contains("Cannot construct instance"));
+        }
     }
 
     @SuppressWarnings("rawtypes")

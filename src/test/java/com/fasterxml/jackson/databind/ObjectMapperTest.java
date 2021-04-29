@@ -741,7 +741,7 @@ public class ObjectMapperTest extends BaseMapTest
         try {
             jsonMapper.readValue(bytes, BeanWithoutDefaultConstructor.class);
         } catch (Exception e) {
-            assertTrue(e.getMessage().contains("Cannot construct instance"));
+            verifyException(e, "Cannot construct instance");
         }
     }
 

@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
@@ -153,6 +154,7 @@ public abstract class DeserializationContext
      */
     protected transient ClassIntrospector _classIntrospector;
 
+    protected final AtomicBoolean initProblemHandler = new AtomicBoolean(false);
     /*
     /**********************************************************************
     /* Life-cycle
@@ -1317,12 +1319,13 @@ public abstract class DeserializationContext
         }
         msg = _format(msg, msgArgs);
         LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
-        if (isEnabled(MapperFeature.CREATE_DEFAULT_CONSTRUCTOR_IF_NOT_EXISTS)) {
+        if (initProblemHandler.compareAndSet(false, true) && isEnabled(MapperFeature.CREATE_DEFAULT_CONSTRUCTOR_IF_NOT_EXISTS)) {
             LinkedNode<DeserializationProblemHandler> node = new LinkedNode<>(MissingInstantiatorHandler.getInstance(), null);
             if (h == null) {
                 h = node;
+            } else {
+                h.linkNext(node);
             }
-            h.linkNext(node);
         }
         while (h != null) {
             // Can bail out if it's handled

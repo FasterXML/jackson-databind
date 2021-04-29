@@ -735,11 +735,12 @@ public class ObjectMapperTest extends BaseMapTest
     public void test_readValue_withoutDefaultContructor() throws Exception {
         BeanWithoutDefaultConstructor bean = new BeanWithoutDefaultConstructor(1);
         byte[] bytes = MAPPER.writeValueAsBytes(bean);
-        BeanWithoutDefaultConstructor result1 = MAPPER.readValue(bytes, BeanWithoutDefaultConstructor.class);
-        assertNotNull(result1);
-        JsonMapper jsonMapper = jsonMapperBuilder().disable(MapperFeature.CREATE_DEFAULT_CONSTRUCTOR_IF_NOT_EXISTS).build();
+
+        JsonMapper jsonMapper = jsonMapperBuilder().enable(MapperFeature.CREATE_DEFAULT_CONSTRUCTOR_IF_NOT_EXISTS).build();
+        BeanWithoutDefaultConstructor result = jsonMapper.readValue(bytes, BeanWithoutDefaultConstructor.class);
+        assertNotNull(result);
         try {
-            jsonMapper.readValue(bytes, BeanWithoutDefaultConstructor.class);
+            MAPPER.readValue(bytes, BeanWithoutDefaultConstructor.class);
         } catch (Exception e) {
             verifyException(e, "Cannot construct instance");
         }

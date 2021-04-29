@@ -395,10 +395,10 @@ public enum MapperFeature
      * Feature that determines whether create default constructor if not exists;
      * either deserialize the class without default constructor will throw an exception
      *<p>
-     * Feature is enabled by default (for backwards compatibility since this was the
+     * Feature is disabled by default (for backwards compatibility since this was the
      * default behavior)
      */
-    CREATE_DEFAULT_CONSTRUCTOR_IF_NOT_EXISTS(true),
+    CREATE_DEFAULT_CONSTRUCTOR_IF_NOT_EXISTS(false),
     ;
 
     private final boolean _defaultState;

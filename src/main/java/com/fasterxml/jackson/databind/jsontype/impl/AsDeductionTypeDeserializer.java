@@ -35,6 +35,8 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
     // Bitmap of available fields in each subtype (including its parents)
     private final Map<BitSet, String> subtypeFingerprints;
 
+    private static final String EMPTY_CLASS_MARKER = "";
+
     public AsDeductionTypeDeserializer(JavaType bt, TypeIdResolver idRes, JavaType defaultImpl,
             DeserializationConfig config, Collection<NamedType> subtypes)
     {
@@ -65,15 +67,14 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
             List<BeanPropertyDefinition> properties = config.introspect(subtyped).findProperties();
 
             BitSet fingerprint = new BitSet(nextField + properties.size());
-            for (BeanPropertyDefinition property : properties) {
-                String name = property.getName();
-                if (ignoreCase) name = name.toLowerCase();
-                Integer bitIndex = fieldBitIndex.get(name);
-                if (bitIndex == null) {
-                    bitIndex = nextField;
-                    fieldBitIndex.put(name, nextField++);
+            if (properties.size() > 0) {
+                for (BeanPropertyDefinition property : properties) {
+                    String name = property.getName();
+                    if (ignoreCase) name = name.toLowerCase();
+                    nextField = setField(fingerprint, name, nextField);
                 }
-                fingerprint.set(bitIndex);
+            } else {
+                nextField = setField(fingerprint, EMPTY_CLASS_MARKER, nextField);
             }
 
             String existingFingerprint = fingerprints.put(fingerprint, subtype.getType().getName());
@@ -86,6 +87,16 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
             }
         }
         return fingerprints;
+    }
+
+    private int setField(BitSet fingerprint, String name, int nextField) {
+        Integer bitIndex = fieldBitIndex.get(name);
+        if (bitIndex == null) {
+            bitIndex = nextField;
+            fieldBitIndex.put(name, nextField++);
+        }
+        fingerprint.set(bitIndex);
+        return nextField;
     }
 
     @Override
@@ -110,22 +121,23 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
         // Record processed tokens as we must rewind once after deducing the deserializer to use
         @SuppressWarnings("resource")
         TokenBuffer tb = new TokenBuffer(p, ctxt);
-        boolean ignoreCase = ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
+        Object result = null;
 
-        for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
-            String name = p.currentName();
-            if (ignoreCase) name = name.toLowerCase();
-
-            tb.copyCurrentStructure(p);
-
-            Integer bit = fieldBitIndex.get(name);
-            if (bit != null) {
-                // field is known by at least one subtype
-                prune(candidates, bit);
-                if (candidates.size() == 1) {
-                    return _deserializeTypedForId(p, ctxt, tb, subtypeFingerprints.get(candidates.get(0)));
+        // Next character of empty class is '}'
+        if (t == JsonToken.END_OBJECT) {
+            result = deserializeCandidates(EMPTY_CLASS_MARKER, candidates, p, ctxt, tb);
+        } else {
+            boolean ignoreCase = ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
+            for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
+                String name = p.currentName();
+                if (ignoreCase) name = name.toLowerCase();
+                if ((result = deserializeCandidates(name, candidates, p, ctxt, tb)) != null) {
+                    break;
                 }
             }
+        }
+        if (result != null) {
+            return result;
         }
 
         // We have zero or multiple candidates, deduction has failed
@@ -133,12 +145,20 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
         return _deserializeTypedUsingDefaultImpl(p, ctxt, tb, msgToReportIfDefaultImplFailsToo);
     }
 
-    // Keep only fingerprints containing this field
-    private static void prune(List<BitSet> candidates, int bit) {
-        for (Iterator<BitSet> iter = candidates.iterator(); iter.hasNext(); ) {
-            if (!iter.next().get(bit)) {
-                iter.remove();
-            }
+    private Object deserializeCandidates(String name, List<BitSet> candidates, JsonParser p, DeserializationContext ctxt, TokenBuffer tb) throws IOException {
+        Integer bit = fieldBitIndex.get(name);
+        // No empty class is registered
+        if (bit == null && name.equals(EMPTY_CLASS_MARKER)) {
+            return null;
         }
+        if (bit != null) {
+            // field is known by at least one subtype
+            candidates.removeIf(bitSet -> !bitSet.get(bit));
+        }
+        tb.copyCurrentStructure(p);
+        if (candidates.size() != 1) {
+            return null;
+        }
+        return _deserializeTypedForId(p, ctxt, tb, subtypeFingerprints.get(candidates.get(0)));
     }
 }

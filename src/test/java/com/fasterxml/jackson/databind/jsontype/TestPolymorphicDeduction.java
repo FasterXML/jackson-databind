@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.jsontype;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -22,11 +23,12 @@ import static com.fasterxml.jackson.annotation.JsonTypeInfo.Id.DEDUCTION;
 // for [databind#43], deduction-based polymorphism
 public class TestPolymorphicDeduction extends BaseMapTest {
 
-  @JsonTypeInfo(use = DEDUCTION)
-  @JsonSubTypes( {@Type(LiveCat.class), @Type(DeadCat.class)})
-  public static class Cat {
-    public String name;
-  }
+    @JsonTypeInfo(use = DEDUCTION)
+    @JsonSubTypes({@Type(LiveCat.class), @Type(DeadCat.class)})
+    public static class Cat {
+        public String name;
+        public Flea flea;
+    }
 
   static class DeadCat extends Cat {
     public String causeOfDeath;
@@ -35,6 +37,18 @@ public class TestPolymorphicDeduction extends BaseMapTest {
   static class LiveCat extends Cat {
     public boolean angry;
   }
+
+    @JsonTypeInfo(use = DEDUCTION)
+    @JsonSubTypes({@Type(NoFlea.class), @Type(HasFlea.class)})
+    interface Flea {
+    }
+
+    static class NoFlea implements Flea {
+    }
+
+    static class HasFlea implements Flea {
+        public int count;
+    }
 
   static class Box {
     public Cat cat;
@@ -46,14 +60,16 @@ public class TestPolymorphicDeduction extends BaseMapTest {
   /**********************************************************
    */
 
-  private static final String deadCatJson = aposToQuotes("{'name':'Felix','causeOfDeath':'entropy'}");
-  private static final String liveCatJson = aposToQuotes("{'name':'Felix','angry':true}");
-  private static final String luckyCatJson = aposToQuotes("{'name':'Felix','angry':true,'lives':8}");
-  private static final String ambiguousCatJson = aposToQuotes("{'name':'Felix','age':2}");
-  private static final String box1Json = aposToQuotes("{'cat':" + liveCatJson + "}");
-  private static final String box2Json = aposToQuotes("{'cat':" + deadCatJson + "}");
-  private static final String arrayOfCatsJson = aposToQuotes("[" + liveCatJson + "," + deadCatJson + "]");
-  private static final String mapOfCatsJson = aposToQuotes("{'live':" + liveCatJson + "}");
+    private static final String deadCatJson = aposToQuotes("{'name':'Felix','flea':null,'causeOfDeath':'entropy'}");
+    private static final String liveCatJson = aposToQuotes("{'name':'Felix','flea':null,'angry':true}");
+    private static final String liveNoFleaCatJson = aposToQuotes("{'name':'Felix','flea':{},'angry':true}");
+    private static final String liveHasFleaCatJson = aposToQuotes("{'name':'Felix','flea':{'count':42},'angry':true}");
+    private static final String luckyCatJson = aposToQuotes("{'name':'Felix','flea':null,'angry':true,'lives':8}");
+    private static final String ambiguousCatJson = aposToQuotes("{'name':'Felix','age':2}");
+    private static final String box1Json = aposToQuotes("{'cat':" + liveCatJson + "}");
+    private static final String box2Json = aposToQuotes("{'cat':" + deadCatJson + "}");
+    private static final String arrayOfCatsJson = aposToQuotes("[" + liveCatJson + "," + deadCatJson + "," + liveNoFleaCatJson + "]");
+    private static final String mapOfCatsJson = aposToQuotes("{'live':" + liveCatJson + ",'noFlea':" + liveNoFleaCatJson + "}");
 
   /*
   /**********************************************************
@@ -61,25 +77,43 @@ public class TestPolymorphicDeduction extends BaseMapTest {
   /**********************************************************
    */
 
-  public void testSimpleInference() throws Exception {
-    Cat cat = sharedMapper().readValue(liveCatJson, Cat.class);
-    assertTrue(cat instanceof LiveCat);
-    assertSame(cat.getClass(), LiveCat.class);
-    assertEquals("Felix", cat.name);
-    assertTrue(((LiveCat)cat).angry);
+    public void testSimpleInference() throws Exception {
 
-    cat = sharedMapper().readValue(deadCatJson, Cat.class);
-    assertTrue(cat instanceof DeadCat);
-    assertSame(cat.getClass(), DeadCat.class);
-    assertEquals("Felix", cat.name);
-    assertEquals("entropy", ((DeadCat)cat).causeOfDeath);
-  }
+        Cat cat = sharedMapper().readValue(liveCatJson, Cat.class);
+        assertTrue(cat instanceof LiveCat);
+        assertSame(cat.getClass(), LiveCat.class);
+        assertEquals("Felix", cat.name);
+        assertTrue(((LiveCat) cat).angry);
+
+        cat = sharedMapper().readValue(deadCatJson, Cat.class);
+        assertTrue(cat instanceof DeadCat);
+        assertSame(cat.getClass(), DeadCat.class);
+        assertEquals("Felix", cat.name);
+        assertEquals("entropy", ((DeadCat) cat).causeOfDeath);
+
+        cat = sharedMapper().readValue(liveNoFleaCatJson, Cat.class);
+        assertTrue(cat instanceof LiveCat);
+        assertTrue(cat.flea instanceof NoFlea);
+        assertSame(cat.getClass(), LiveCat.class);
+        assertSame(cat.flea.getClass(), NoFlea.class);
+        assertEquals("Felix", cat.name);
+        assertTrue(((LiveCat) cat).angry);
+
+        cat = sharedMapper().readValue(liveHasFleaCatJson, Cat.class);
+        assertTrue(cat instanceof LiveCat);
+        assertTrue(cat.flea instanceof HasFlea);
+        assertSame(cat.getClass(), LiveCat.class);
+        assertSame(cat.flea.getClass(), HasFlea.class);
+        assertEquals("Felix", cat.name);
+        assertEquals(42, ((HasFlea) cat.flea).count);
+        assertTrue(((LiveCat) cat).angry);
+    }
 
   public void testCaseInsensitiveInference() throws Exception {
     Cat cat = JsonMapper.builder() // Don't use shared mapper!
       .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
       .build()
-      .readValue(deadCatJson.toUpperCase(), Cat.class);
+      .readValue(deadCatJson.toUpperCase().replace("NULL", "null"), Cat.class);
     assertTrue(cat instanceof DeadCat);
     assertSame(cat.getClass(), DeadCat.class);
     assertEquals("FELIX", cat.name);
@@ -120,12 +154,18 @@ public class TestPolymorphicDeduction extends BaseMapTest {
     assertTrue(boxes.get(1) instanceof DeadCat);
   }
 
-  public void testMapInference() throws Exception {
-    JavaType mapOfCats = TypeFactory.defaultInstance().constructParametricType(Map.class, String.class, Cat.class);
-    Map<String, Cat> map = sharedMapper().readValue(mapOfCatsJson, mapOfCats);
-    assertEquals(1, map.size());
-    assertTrue(map.entrySet().iterator().next().getValue() instanceof LiveCat);
-  }
+    public void testMapInference() throws Exception {
+        JavaType mapOfCats = TypeFactory.defaultInstance().constructParametricType(Map.class, String.class, Cat.class);
+        Map<String, Cat> map = sharedMapper().readValue(mapOfCatsJson, mapOfCats);
+        assertEquals(2, map.size());
+
+        Iterator<Map.Entry<String, Cat>> iterator = map.entrySet().iterator();
+        assertTrue(iterator.next().getValue() instanceof LiveCat);
+
+        Cat noFlea = iterator.next().getValue();
+        assertTrue(noFlea instanceof LiveCat);
+        assertTrue(noFlea.flea instanceof NoFlea);
+    }
 
   public void testArrayInference() throws Exception {
     Cat[] boxes = sharedMapper().readValue(arrayOfCatsJson, Cat[].class);
@@ -200,16 +240,39 @@ public class TestPolymorphicDeduction extends BaseMapTest {
     assertEquals("Felix", cat.name);
   }
 
-  public void testSimpleSerialization() throws Exception {
-    // Given:
-    JavaType listOfCats = TypeFactory.defaultInstance().constructParametricType(List.class, Cat.class);
-    List<Cat> list = sharedMapper().readValue(arrayOfCatsJson, listOfCats);
-    Cat cat = list.get(0);
-    // When:
-    String json = sharedMapper().writeValueAsString(cat);
-    // Then:
-    assertEquals(liveCatJson, json);
-  }
+
+    @JsonTypeInfo(use = DEDUCTION)
+    @JsonSubTypes({@Type(HasFlea.class)})
+    abstract static class FleaMixin {
+
+    }
+    public void testNoEmptyClassRegistered() throws Exception {
+        JsonMapper mapper = JsonMapper.builder() // Don't use shared mapper!
+                .addMixIn(Flea.class, FleaMixin.class)
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .build();
+        try {
+            mapper.readValue(liveNoFleaCatJson, Cat.class);
+        } catch (InvalidTypeIdException e) {
+            verifyException(e, "Cannot deduce unique subtype");
+        }
+    }
+
+    public void testSimpleSerialization() throws Exception {
+        // Given:
+        JavaType listOfCats = TypeFactory.defaultInstance().constructParametricType(List.class, Cat.class);
+        List<Cat> list = sharedMapper().readValue(arrayOfCatsJson, listOfCats);
+        Cat liveCat = list.get(0);
+        Cat liveNoFleaCat = list.get(2);
+        // When:
+        String json = sharedMapper().writeValueAsString(liveCat);
+        String noFleaJson = sharedMapper().writeValueAsString(liveNoFleaCat);
+        // Then:
+        assertEquals(liveCatJson, json);
+        assertEquals(liveNoFleaCatJson, noFleaJson);
+    }
+
+
 
   public void testListSerialization() throws Exception {
     // Given:

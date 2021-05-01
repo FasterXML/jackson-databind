@@ -153,7 +153,11 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
         }
         if (bit != null) {
             // field is known by at least one subtype
-            candidates.removeIf(bitSet -> !bitSet.get(bit));
+            for (Iterator<BitSet> iter = candidates.iterator(); iter.hasNext(); ) {
+                if (!iter.next().get(bit)) {
+                    iter.remove();
+                }
+            }
         }
         tb.copyCurrentStructure(p);
         if (candidates.size() != 1) {

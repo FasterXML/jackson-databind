@@ -131,8 +131,10 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             p.clearCurrentToken();
             p = JsonParserSequence.createFlattened(false, tb.asParser(p), p);
         }
-        // Must point to the next value; tb had no current, jp pointed to VALUE_STRING:
-        p.nextToken(); // to skip past String value
+        if (p.currentToken() != JsonToken.END_OBJECT) {
+            // Must point to the next value; tb had no current, p pointed to VALUE_STRING:
+            p.nextToken(); // to skip past String value
+        }
         // deserializer should take care of closing END_OBJECT as well
         return deser.deserialize(p, ctxt);
     }

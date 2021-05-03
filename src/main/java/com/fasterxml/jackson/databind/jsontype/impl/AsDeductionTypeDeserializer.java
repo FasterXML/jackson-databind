@@ -25,10 +25,15 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  * the absence of child fields infers a parent type. That is, every deducible subtype
  * MUST have some unique fields and the input data MUST contain said unique fields
  * to provide a <i>positive match</i>.
+ *
+ * @since 2.12
  */
 public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
 {
     private static final long serialVersionUID = 1L;
+
+    // 03-May-2021, tatu: for [databind#3139], support for "empty" type
+    private static final BitSet EMPTY_CLASS_FINGERPRINT = new BitSet(0);
 
     // Fieldname -> bitmap-index of every field discovered, across all subtypes
     private final Map<String, Integer> fieldBitIndex;
@@ -103,6 +108,14 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
              * is defined, it will be asked to handle this case.
              */
             return _deserializeTypedUsingDefaultImpl(p, ctxt, null, "Unexpected input");
+        }
+
+        // 03-May-2021, tatu: [databind#3139] Special case, "empty" Object
+        if (t == JsonToken.END_OBJECT) {
+            String emptySubtype = subtypeFingerprints.get(EMPTY_CLASS_FINGERPRINT);
+            if (emptySubtype != null) { // ... and an "empty" subtype registered
+                return _deserializeTypedForId(p, ctxt, null, emptySubtype);
+            }
         }
 
         List<BitSet> candidates = new LinkedList<>(subtypeFingerprints.keySet());

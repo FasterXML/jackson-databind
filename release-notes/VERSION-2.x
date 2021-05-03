@@ -35,6 +35,11 @@ Project: jackson-databind
 - Fix to avoid problem with `BigDecimalNode`, scale of `Integer.MIN_VALUE` (see
   [dataformats-binary#264] for details)
 
+2.12.4 (not yet released)
+
+#3139: Deserialization of "empty" subtype with DEDUCTION failed
+ (reported by JoeWoo; fix provided by drekbour@github)
+
 2.12.3 (12-Apr-2021)
 
 #3108: `TypeFactory` cannot convert `Collection` sub-type without type parameters

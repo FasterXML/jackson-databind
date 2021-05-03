@@ -1205,6 +1205,7 @@ Marc Carter (drekbour@github)
   (2.12.0)
   * Contributed #3055: Polymorphic subtype deduction ignores `defaultImpl` attribute
   (2.12.2)
+  * Contributed #3139: Deserialization of "empty" subtype with DEDUCTION failed
 
 Mike Gilbode (gilbode@github)
   * Reported #792: Deserialization Not Working Right with Generic Types and Builders
@@ -1319,6 +1320,10 @@ Jelle Voost (jellevoost@github)
   * Reported #3038: Two cases of incorrect error reporting about DeserializationFeature
    (2.12.2)
 
+JoeWoo (xJoeWoo@github)
+  * Reported #3139: Deserialization of "empty" subtype with DEDUCTION failed
+   (2.12.4)
+
 Asaf Romano (asaf-romano@github)
   * Reported #3080: configOverrides(boolean.class) silently ignored, whereas .configOverride(Boolean.class)
     works for both primitives and boxed boolean values
@@ -1331,3 +1336,4 @@ David Hoffman (dhofftgt@github)
 Eric Sirianni (sirianni@github)
   * Reported #3122: Deep merge for `JsonNode` using `ObjectReader.readTree()`
    (2.13.0)
+

@@ -28,9 +28,12 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  */
 public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
 {
+    // 03-May-2021, tatu: for [databind#3139], support for "empty" type
+    private static final BitSet EMPTY_CLASS_FINGERPRINT = new BitSet(0);
     // Property name -> bitmap-index of every Property discovered, across all subtypes
     private final Map<String, Integer> propertyBitIndex;
     // Bitmap of available properties in each subtype (including its parents)
+
     private final Map<BitSet, String> subtypeFingerprints;
 
     public AsDeductionTypeDeserializer(DeserializationContext ctxt,
@@ -106,6 +109,14 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
              * is defined, it will be asked to handle this case.
              */
             return _deserializeTypedUsingDefaultImpl(p, ctxt, null, "Unexpected input");
+        }
+
+        // 03-May-2021, tatu: [databind#3139] Special case, "empty" Object
+        if (t == JsonToken.END_OBJECT) {
+            String emptySubtype = subtypeFingerprints.get(EMPTY_CLASS_FINGERPRINT);
+            if (emptySubtype != null) { // ... and an "empty" subtype registered
+                return _deserializeTypedForId(p, ctxt, null, emptySubtype);
+            }
         }
 
         List<BitSet> candidates = new LinkedList<>(subtypeFingerprints.keySet());

@@ -23,21 +23,35 @@ import static com.fasterxml.jackson.annotation.JsonTypeInfo.Id.DEDUCTION;
 public class TestPolymorphicDeduction extends BaseMapTest {
 
   @JsonTypeInfo(use = DEDUCTION)
+  @JsonSubTypes( {@Type(LiveCat.class), @Type(DeadCat.class), @Type(Fleabag.class)})
+  // A general supertype with no properties - used for tests involving {}
+  interface Feline {}
+
+  @JsonTypeInfo(use = DEDUCTION)
   @JsonSubTypes( {@Type(LiveCat.class), @Type(DeadCat.class)})
-  public static class Cat {
+  // A supertype containing common properties
+  public static class Cat implements Feline {
     public String name;
   }
 
+  // Distinguished by its parent and a unique property
   static class DeadCat extends Cat {
     public String causeOfDeath;
   }
 
+  // Distinguished by its parent and a unique property
   static class LiveCat extends Cat {
     public boolean angry;
   }
 
+  // No distinguishing properties whatsoever
+  static class Fleabag implements Feline {
+    // NO OP
+  }
+
+  // Something to put felines in
   static class Box {
-    public Cat cat;
+    public Feline feline;
   }
 
   /*
@@ -50,8 +64,12 @@ public class TestPolymorphicDeduction extends BaseMapTest {
   private static final String liveCatJson = aposToQuotes("{'name':'Felix','angry':true}");
   private static final String luckyCatJson = aposToQuotes("{'name':'Felix','angry':true,'lives':8}");
   private static final String ambiguousCatJson = aposToQuotes("{'name':'Felix','age':2}");
-  private static final String box1Json = aposToQuotes("{'cat':" + liveCatJson + "}");
-  private static final String box2Json = aposToQuotes("{'cat':" + deadCatJson + "}");
+  private static final String fleabagJson = aposToQuotes("{}");
+  private static final String box1Json = aposToQuotes("{'feline':" + liveCatJson + "}");
+  private static final String box2Json = aposToQuotes("{'feline':" + deadCatJson + "}");
+  private static final String box3Json = aposToQuotes("{'feline':" + fleabagJson + "}");
+  private static final String box4Json = aposToQuotes("{'feline':null}");
+  private static final String box5Json = aposToQuotes("{}");
   private static final String arrayOfCatsJson = aposToQuotes("[" + liveCatJson + "," + deadCatJson + "]");
   private static final String mapOfCatsJson = aposToQuotes("{'live':" + liveCatJson + "}");
 
@@ -73,6 +91,24 @@ public class TestPolymorphicDeduction extends BaseMapTest {
     assertSame(cat.getClass(), DeadCat.class);
     assertEquals("Felix", cat.name);
     assertEquals("entropy", ((DeadCat)cat).causeOfDeath);
+  }
+
+  public void testSimpleInferenceOfEmptySubtype() throws Exception {
+    // Given:
+    ObjectMapper mapper = sharedMapper();
+    // When:
+    Feline feline = mapper.readValue(fleabagJson, Feline.class);
+    // Then:
+    assertTrue(feline instanceof Fleabag);
+  }
+
+  public void testSimpleInferenceOfEmptySubtypeDoesntMatchNull() throws Exception {
+    // Given:
+    ObjectMapper mapper = sharedMapper();
+    // When:
+    Feline feline = mapper.readValue("null", Feline.class);
+    // Then:
+    assertNull(feline);
   }
 
   public void testCaseInsensitiveInference() throws Exception {
@@ -101,16 +137,27 @@ public class TestPolymorphicDeduction extends BaseMapTest {
 
   public void testContainedInference() throws Exception {
     Box box = sharedMapper().readValue(box1Json, Box.class);
-    assertTrue(box.cat instanceof LiveCat);
-    assertSame(box.cat.getClass(), LiveCat.class);
-    assertEquals("Felix", box.cat.name);
-    assertTrue(((LiveCat)box.cat).angry);
+    assertTrue(box.feline instanceof LiveCat);
+    assertSame(box.feline.getClass(), LiveCat.class);
+    assertEquals("Felix", ((LiveCat)box.feline).name);
+    assertTrue(((LiveCat)box.feline).angry);
 
     box = sharedMapper().readValue(box2Json, Box.class);
-    assertTrue(box.cat instanceof DeadCat);
-    assertSame(box.cat.getClass(), DeadCat.class);
-    assertEquals("Felix", box.cat.name);
-    assertEquals("entropy", ((DeadCat)box.cat).causeOfDeath);
+    assertTrue(box.feline instanceof DeadCat);
+    assertSame(box.feline.getClass(), DeadCat.class);
+    assertEquals("Felix", ((DeadCat)box.feline).name);
+    assertEquals("entropy", ((DeadCat)box.feline).causeOfDeath);
+  }
+
+  public void testContainedInferenceOfEmptySubtype() throws Exception {
+    Box box = sharedMapper().readValue(box3Json, Box.class);
+    assertTrue(box.feline instanceof Fleabag);
+
+    box = sharedMapper().readValue(box4Json, Box.class);
+    assertNull("null != {}", box.feline);
+
+    box = sharedMapper().readValue(box5Json, Box.class);
+    assertNull("<absent> != {}", box.feline);
   }
 
   public void testListInference() throws Exception {

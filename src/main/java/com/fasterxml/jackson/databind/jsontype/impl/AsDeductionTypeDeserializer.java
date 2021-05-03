@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
 public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
 {
     private static final long serialVersionUID = 1L;
+    private static final BitSet EMPTY_CLASS_FINGERPRINT = new BitSet(0);
 
     // Fieldname -> bitmap-index of every field discovered, across all subtypes
     private final Map<String, Integer> fieldBitIndex;
@@ -111,8 +112,10 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
         @SuppressWarnings("resource")
         TokenBuffer tb = new TokenBuffer(p, ctxt);
         boolean ignoreCase = ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
+        boolean incomingIsEmpty = true;
 
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
+            incomingIsEmpty = false; // Has at least one property
             String name = p.currentName();
             if (ignoreCase) name = name.toLowerCase();
 
@@ -125,6 +128,13 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
                 if (candidates.size() == 1) {
                     return _deserializeTypedForId(p, ctxt, tb, subtypeFingerprints.get(candidates.get(0)));
                 }
+            }
+        }
+
+        if (incomingIsEmpty) { // Special case - if we have empty content ...
+            String emptySubtype = subtypeFingerprints.get(EMPTY_CLASS_FINGERPRINT);
+            if (emptySubtype != null) { // ... and an "empty" subtype registered
+                return _deserializeTypedForId(p, ctxt, null, emptySubtype);
             }
         }
 

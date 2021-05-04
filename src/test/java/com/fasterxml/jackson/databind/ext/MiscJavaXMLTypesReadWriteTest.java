@@ -1,9 +1,11 @@
 package com.fasterxml.jackson.databind.ext;
 
+import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.*;
 import javax.xml.namespace.QName;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
  * Core XML types (javax.xml) are considered "external" (or more precisely "optional")
@@ -66,6 +68,13 @@ public class MiscJavaXMLTypesReadWriteTest
         assertEquals(exp, act);
     }
 
+    public void testJAXBElementSer() throws Exception
+    {
+        String value = "test";
+        JAXBElement<String> element = new JAXBElement<>(new QName("http://abc", "tag", "prefix"), String.class, value);
+        assertEquals(q(value), MAPPER.writeValueAsString(element));
+    }
+
     private String removeZ(String dateStr) {
         if (dateStr.endsWith("Z")) {
             return dateStr.substring(0, dateStr.length()-1);
@@ -109,5 +118,14 @@ public class MiscJavaXMLTypesReadWriteTest
         String exp = dur.toString();
         assertEquals("Should deserialize to equal Duration ('"+exp+"')", dur,
                 new ObjectMapper().readValue(q(exp), Duration.class));
+    }
+
+    public void testJAXBElementDeser() throws Exception
+    {
+        JAXBElement<String> element = new JAXBElement<>(new QName("http://abc", "tag", "prefix"), String.class, "test");
+        String exp = element.getValue();
+        //noinspection unchecked
+        assertEquals("Should deserialize to equal JAXBElement ('"+exp+"')", element.getValue(),
+                ((JAXBElement<String>) new ObjectMapper().readValue(q(exp), TypeFactory.defaultInstance().constructParametricType(JAXBElement.class, String.class))).getValue());
     }
 }

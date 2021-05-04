@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.ext;
 
 import java.util.HashMap;
 import java.util.Map;
+import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
@@ -100,6 +101,9 @@ public class OptionalHandlerFactory
             }
             if (XMLGregorianCalendar.class.isAssignableFrom(rawType)) {
                 return XMLGregorianCalendarSerializer.instance;
+            }
+            if (JAXBElement.class.isAssignableFrom(rawType)) {
+                return JAXBElementSerializer.instance;
             }
         }
         return null;

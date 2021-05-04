@@ -36,6 +36,8 @@ Project: jackson-databind
   serialization of ClassLoader)
 - Fix to avoid problem with `BigDecimalNode`, scale of `Integer.MIN_VALUE` (see
   [dataformats-binary#264] for details)
+- Extend handling of `FAIL_ON_NULL_FOR_PRIMITIVES` to cover coercion from (Empty) String
+  via `AsNull`
 
 2.12.4 (not yet released)
 

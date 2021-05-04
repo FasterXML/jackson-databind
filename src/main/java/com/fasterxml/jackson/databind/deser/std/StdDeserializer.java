@@ -596,7 +596,9 @@ public abstract class StdDeserializer<T>
         CoercionAction act = _checkFromStringCoercion(ctxt, text,
                 LogicalType.Integer, Byte.TYPE);
         if (act == CoercionAction.AsNull) {
-            return (byte) 0; // no need to check as does not come from `null`, explicit coercion
+            // 03-May-2021, tatu: Might not be allowed (should we do "empty" check?)
+            _verifyNullForPrimitive(ctxt);
+            return (byte) 0;
         }
         if (act == CoercionAction.AsEmpty) {
             return (byte) 0;
@@ -663,7 +665,9 @@ public abstract class StdDeserializer<T>
         CoercionAction act = _checkFromStringCoercion(ctxt, text,
                 LogicalType.Integer, Short.TYPE);
         if (act == CoercionAction.AsNull) {
-            return (short) 0; // no need to check as does not come from `null`, explicit coercion
+            // 03-May-2021, tatu: Might not be allowed (should we do "empty" check?)
+            _verifyNullForPrimitive(ctxt);
+            return (short) 0;
         }
         if (act == CoercionAction.AsEmpty) {
             return (short) 0;
@@ -728,7 +732,9 @@ public abstract class StdDeserializer<T>
         final CoercionAction act = _checkFromStringCoercion(ctxt, text,
                 LogicalType.Integer, Integer.TYPE);
         if (act == CoercionAction.AsNull) {
-            return 0; // no need to check as does not come from `null`, explicit coercion
+            // 03-May-2021, tatu: Might not be allowed (should we do "empty" check?)
+            _verifyNullForPrimitive(ctxt);
+            return 0;
         }
         if (act == CoercionAction.AsEmpty) {
             return 0;
@@ -855,7 +861,9 @@ public abstract class StdDeserializer<T>
         final CoercionAction act = _checkFromStringCoercion(ctxt, text,
                 LogicalType.Integer, Long.TYPE);
         if (act == CoercionAction.AsNull) {
-            return 0L; // no need to check as does not come from `null`, explicit coercion
+            // 03-May-2021, tatu: Might not be allowed (should we do "empty" check?)
+            _verifyNullForPrimitive(ctxt);
+            return 0L; 
         }
         if (act == CoercionAction.AsEmpty) {
             return 0L;
@@ -976,7 +984,9 @@ public abstract class StdDeserializer<T>
         final CoercionAction act = _checkFromStringCoercion(ctxt, text,
                 LogicalType.Integer, Float.TYPE);
         if (act == CoercionAction.AsNull) {
-            return  0.0f; // no need to check as does not come from `null`, explicit coercion
+            // 03-May-2021, tatu: Might not be allowed (should we do "empty" check?)
+            _verifyNullForPrimitive(ctxt);
+            return  0.0f;
         }
         if (act == CoercionAction.AsEmpty) {
             return  0.0f;
@@ -1081,7 +1091,9 @@ public abstract class StdDeserializer<T>
         final CoercionAction act = _checkFromStringCoercion(ctxt, text,
                 LogicalType.Integer, Double.TYPE);
         if (act == CoercionAction.AsNull) {
-            return  0.0; // no need to check as does not come from `null`, explicit coercion
+            // 03-May-2021, tatu: Might not be allowed (should we do "empty" check?)
+            _verifyNullForPrimitive(ctxt);
+            return  0.0;
         }
         if (act == CoercionAction.AsEmpty) {
             return  0.0;

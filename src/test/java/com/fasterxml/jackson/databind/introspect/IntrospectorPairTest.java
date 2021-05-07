@@ -3,14 +3,20 @@ package com.fasterxml.jackson.databind.introspect;
 import java.lang.annotation.Annotation;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JacksonInject;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.OptBoolean;
+
 import com.fasterxml.jackson.core.Version;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.deser.jdk.StringDeserializer;
 import com.fasterxml.jackson.databind.deser.jdk.UntypedObjectDeserializer;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.ser.jdk.StringSerializer;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
@@ -578,5 +584,98 @@ public class IntrospectorPairTest extends BaseMapTest
 
         assertEquals(JsonInclude.Include.NON_EMPTY, v21.getContentInclusion());
         assertEquals(JsonInclude.Include.NON_ABSENT, v21.getValueInclusion());
+    }
+
+    /*
+    /**********************************************************
+    /* Introspectors and test for [jackson-modules-base#134]/[databind#962]
+    /**********************************************************
+     */
+    static class TestIntrospector extends NopAnnotationIntrospector {
+        @Override
+        public JacksonInject.Value findInjectableValue(MapperConfig<?> config,
+                AnnotatedMember m) {
+            if (m.getRawType() == UnreadableBean.class) {
+                return JacksonInject.Value.forId("jjj");
+            }
+            return null;
+        }
+    }
+
+    static class TestInjector extends InjectableValues {
+        @Override
+        public Object findInjectableValue(Object valueId, DeserializationContext ctxt, BeanProperty forProperty, Object beanInstance) {
+            if (valueId == "jjj") {
+                UnreadableBean bean = new UnreadableBean();
+                bean.setValue(1);
+                return bean;
+            }
+            return null;
+        }
+
+        @Override
+        public InjectableValues snapshot() {
+            return this;
+        }
+    }
+
+    enum SimpleEnum { ONE, TWO }
+
+    static class UnreadableBean {
+        public SimpleEnum value;
+
+        public void setValue(SimpleEnum value) {
+            this.value = value;
+        }
+
+        public void setValue(Integer intValue) {
+            this.value = SimpleEnum.values()[intValue];
+        }
+
+        public SimpleEnum getValue() {
+            return value;
+        }
+    }
+
+    static class ReadableInjectedBean {
+        public ReadableInjectedBean(@JacksonInject(useInput = OptBoolean.FALSE) UnreadableBean injectBean) {
+            this.injectBean = injectBean;
+        }
+        @JsonProperty
+        String foo;
+        @JsonIgnore
+        UnreadableBean injectBean;
+    }
+
+    static class UnreadableInjectedBean {
+        public UnreadableInjectedBean(@JacksonInject UnreadableBean injectBean) {
+            this.injectBean = injectBean;
+        }
+        @JsonProperty
+        private String foo;
+        @JsonIgnore
+        private UnreadableBean injectBean;
+    }
+
+    public void testMergingIntrospectorsForInjection() throws Exception {
+        AnnotationIntrospector testIntrospector = new TestIntrospector();
+        ObjectMapper mapper = JsonMapper.builder()
+                .injectableValues(new TestInjector())
+                .annotationIntrospector(new AnnotationIntrospectorPair(testIntrospector,
+                        new JacksonAnnotationIntrospector()))
+                .build();
+        ReadableInjectedBean bean = mapper.readValue("{\"foo\": \"bob\"}", ReadableInjectedBean.class);
+        assertEquals("bob", bean.foo);
+        assertEquals(SimpleEnum.TWO, bean.injectBean.value);
+
+        boolean successReadingUnreadableInjectedBean;
+        try {
+            /*UnreadableInjectedBean noBean =*/ mapper.readValue("{\"foo\": \"bob\"}", UnreadableInjectedBean.class);
+            successReadingUnreadableInjectedBean = true;
+        } catch (DatabindException e) {
+            successReadingUnreadableInjectedBean = false;
+            assertTrue(e.getMessage().contains("Conflicting setter definitions"));
+        }
+        assertFalse(successReadingUnreadableInjectedBean);
     }
 }

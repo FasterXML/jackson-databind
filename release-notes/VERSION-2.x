@@ -43,6 +43,8 @@ Project: jackson-databind
 
 #3139: Deserialization of "empty" subtype with DEDUCTION failed
  (reported by JoeWoo; fix provided by drekbour@github)
+#3146: Merge findInjectableValues() results in AnnotationIntrospectorPair
+ (contributed by Joe B)
 
 2.12.3 (12-Apr-2021)
 

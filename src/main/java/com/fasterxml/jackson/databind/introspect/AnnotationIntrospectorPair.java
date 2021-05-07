@@ -284,7 +284,11 @@ public class AnnotationIntrospectorPair
     @Override
     public JacksonInject.Value findInjectableValue(MapperConfig<?> config, AnnotatedMember m) {
         JacksonInject.Value r = _primary.findInjectableValue(config, m);
-        return (r == null) ? _secondary.findInjectableValue(config, m) : r;
+        if (r == null || r.getUseInput() == null) {
+            JacksonInject.Value secondary = _secondary.findInjectableValue(config, m);
+            r = (r == null || secondary == null) ? secondary : r.withUseInput(secondary.getUseInput());
+        }
+        return r;
     }
 
     @Override

@@ -300,7 +300,11 @@ public class AnnotationIntrospectorPair
     @Override
     public JacksonInject.Value findInjectableValue(AnnotatedMember m) {
         JacksonInject.Value r = _primary.findInjectableValue(m);
-        return (r == null) ? _secondary.findInjectableValue(m) : r;
+        if (r == null || r.getUseInput() == null) {
+            JacksonInject.Value secondary = _secondary.findInjectableValue(m);
+            r = (r == null || secondary == null) ? secondary : r.withUseInput(secondary.getUseInput());
+        }
+        return r;
     }
 
     @Override

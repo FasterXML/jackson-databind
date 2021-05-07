@@ -302,7 +302,9 @@ public class AnnotationIntrospectorPair
         JacksonInject.Value r = _primary.findInjectableValue(m);
         if (r == null || r.getUseInput() == null) {
             JacksonInject.Value secondary = _secondary.findInjectableValue(m);
-            r = (r == null || secondary == null) ? secondary : r.withUseInput(secondary.getUseInput());
+            if (secondary != null) {
+                r = (r == null) ? secondary : r.withUseInput(secondary.getUseInput());
+            }
         }
         return r;
     }

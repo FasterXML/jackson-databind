@@ -905,6 +905,9 @@ Joe Barnett (josephlbarnett@github)
   * Reported, contributed fix for #2404: FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY setting
     ignored when creator properties are buffered
    (2.9.10)
+  * Reported, contributed fix for #3146: Merge findInjectableValues() results in
+    AnnotationIntrospectorPair
+   (2.12.4)
 
 Kaki King (kingkk9279@g)
   * Reported #2449: Block one more gadget type (cve CVE-2019-14540)

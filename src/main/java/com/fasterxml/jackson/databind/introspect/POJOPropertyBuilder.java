@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.introspect;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -483,6 +484,59 @@ public class POJOPropertyBuilder
         return curr.value;
     }
 
+    /**
+     * Helper method called in cases where we have encountered two setter methods
+     * that have same precedence and cannot be resolved. This does not yet necessarily
+     * mean a failure since it is possible something with a higher precedence could
+     * still be found; handling is just separated into separate method for convenience.
+     *
+     * @param curr
+     * @param next
+     *
+     * @return Chosen setter method, if any
+     *
+     * @throws IllegalArgumentException If conflict could not be resolved
+     *
+     * @since 2.13
+     */
+    protected AnnotatedMethod _selectSetterFromMultiple(Linked<AnnotatedMethod> curr,
+            Linked<AnnotatedMethod> next)
+    {
+        // First: store reference to the initial possible conflict
+        List<AnnotatedMethod> conflicts = new ArrayList<>();
+        conflicts.add(curr.value);
+        conflicts.add(next.value);
+
+        next = next.next;
+        for (; next != null; next = next.next) {
+            AnnotatedMethod selected = _selectSetter(curr.value, next.value);
+            if (selected == curr.value) {
+                // No change, next was lower-precedence
+                continue;
+            }
+            if (selected == next.value) {
+                // Hooray! Found a higher-priority one; clear conflict list
+                conflicts.clear();
+                curr = next;
+                continue;
+            }
+            // Tie means one more non-resolved, add
+            conflicts.add(next.value);
+        }
+
+        // It is possible we resolved it; if so:
+        if (conflicts.isEmpty()) {
+            _setters = curr.withoutNext();
+            return curr.value;
+        }
+        // Otherwise
+        String desc = conflicts.stream().map(AnnotatedMethod::getFullName)
+                .collect(Collectors.joining(" vs "));
+        throw new IllegalArgumentException(String.format(
+                "Conflicting setter definitions for property \"%s\": %s",
+                getName(), desc));
+    }
+
     // @since 2.13
     protected AnnotatedMethod _selectSetter(AnnotatedMethod currM, AnnotatedMethod nextM)
     {
@@ -519,15 +573,6 @@ public class POJOPropertyBuilder
         // 11-Dec-2015, tatu: As per [databind#1033] allow pluggable conflict resolution
         return (_annotationIntrospector == null) ? null
                 : _annotationIntrospector.resolveSetterConflict(_config, currM, nextM);
-    }
-
-    // @since 2.13
-    protected AnnotatedMethod _selectSetterFromMultiple(Linked<AnnotatedMethod> curr,
-            Linked<AnnotatedMethod> next)
-    {
-        throw new IllegalArgumentException(String.format(
-                "Conflicting setter definitions for property \"%s\": %s vs %s",
-                getName(), curr.value.getFullName(), next.value.getFullName()));
     }
 
     @Override

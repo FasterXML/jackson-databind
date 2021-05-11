@@ -466,56 +466,68 @@ public class POJOPropertyBuilder
         }
         // But if multiple, verify that they do not conflict...
         for (; next != null; next = next.next) {
-            // Allow masking, i.e. do not fail if one is in super-class from the other
-            Class<?> currClass = curr.value.getDeclaringClass();
-            Class<?> nextClass = next.value.getDeclaringClass();
-            if (currClass != nextClass) {
-                if (currClass.isAssignableFrom(nextClass)) { // next is more specific
-                    curr = next;
-                    continue;
-                }
-                if (nextClass.isAssignableFrom(currClass)) { // current more specific
-                    continue;
-                }
-            }
-            AnnotatedMethod nextM = next.value;
-            AnnotatedMethod currM = curr.value;
-
-            /* 30-May-2014, tatu: Two levels of precedence:
-             * 
-             * 1. Regular setters ("setX(...)")
-             * 2. Implicit, possible setters ("x(...)")
-             */
-            int priNext = _setterPriority(nextM);
-            int priCurr = _setterPriority(currM);
-
-            if (priNext != priCurr) {
-                if (priNext < priCurr) {
-                    curr = next;
-                }
+            AnnotatedMethod selected = _selectSetter(curr.value, next.value);
+            if (selected == curr.value) {
                 continue;
             }
-            // 11-Dec-2015, tatu: As per [databind#1033] allow pluggable conflict resolution
-            if (_annotationIntrospector != null) {
-                AnnotatedMethod pref = _annotationIntrospector.resolveSetterConflict(_config,
-                        currM, nextM);
-                
-                // note: should be one of nextM/currM; but no need to check
-                if (pref == currM) {
-                    continue;
-                }
-                if (pref == nextM) {
-                    curr = next;
-                    continue;
-                }
+            if (selected == next.value) {
+                curr = next;
+                continue;
             }
-            throw new IllegalArgumentException(String.format(
- "Conflicting setter definitions for property \"%s\": %s vs %s",
- getName(), curr.value.getFullName(), next.value.getFullName()));
+            // 10-May-2021, tatu: unbreakable tie, for now; offline handling
+            return _selectSetterFromMultiple(curr, next);
         }
+
         // One more thing; to avoid having to do it again...
         _setters = curr.withoutNext();
         return curr.value;
+    }
+
+    // @since 2.13
+    protected AnnotatedMethod _selectSetter(AnnotatedMethod currM, AnnotatedMethod nextM)
+    {
+        // Allow masking, i.e. do not fail if one is in super-class from the other
+        final Class<?> currClass = currM.getDeclaringClass();
+        final Class<?> nextClass = nextM.getDeclaringClass();
+        if (currClass != nextClass) {
+            if (currClass.isAssignableFrom(nextClass)) { // next is more specific
+                return nextM;
+            }
+            if (nextClass.isAssignableFrom(currClass)) { // current more specific
+                return currM;
+            }
+        }
+
+        /* 30-May-2014, tatu: Two levels of precedence:
+         * 
+         * 1. Regular setters ("setX(...)")
+         * 2. Implicit, possible setters ("x(...)")
+         */
+        // 25-Apr-2021, tatu: This is probably wrong, should not rely on
+        //    hard-coded "set" prefix here.
+        int priNext = _setterPriority(nextM);
+        int priCurr = _setterPriority(currM);
+
+        if (priNext != priCurr) {
+            // Smaller value, higher; so, if next has higher precedence:
+            if (priNext < priCurr) {
+                return nextM;
+            }
+            // otherwise current one has, proceed
+            return currM;
+        }
+        // 11-Dec-2015, tatu: As per [databind#1033] allow pluggable conflict resolution
+        return (_annotationIntrospector == null) ? null
+                : _annotationIntrospector.resolveSetterConflict(_config, currM, nextM);
+    }
+
+    // @since 2.13
+    protected AnnotatedMethod _selectSetterFromMultiple(Linked<AnnotatedMethod> curr,
+            Linked<AnnotatedMethod> next)
+    {
+        throw new IllegalArgumentException(String.format(
+                "Conflicting setter definitions for property \"%s\": %s vs %s",
+                getName(), curr.value.getFullName(), next.value.getFullName()));
     }
 
     @Override

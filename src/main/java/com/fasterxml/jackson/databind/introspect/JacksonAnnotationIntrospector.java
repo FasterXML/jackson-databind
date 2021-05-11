@@ -522,6 +522,20 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
+    /**
+     * Specific implementation that will use following tie-breaker on
+     * given setter parameter types:
+     *<ol>
+     * <li>If either one is primitive type then either return {@code null}
+     *   (both primitives) or one that is primitive (when only primitive)
+     *  </li>
+     * <li>If only one is of type {@code String}, return that setter
+     *  </li>
+     * <li>Otherwise return {@code null}
+     *  </li>
+     * </ol>
+     * Returning {@code null} will indicate that resolution could not be done.
+     */
     public AnnotatedMethod resolveSetterConflict(MapperConfig<?> config,
             AnnotatedMethod setter1, AnnotatedMethod setter2)
     {
@@ -534,10 +548,12 @@ public class JacksonAnnotationIntrospector
             if (!cls2.isPrimitive()) {
                 return setter1;
             }
+            // 10-May-2021, tatu: if both primitives cannot decide
+            return null;
         } else if (cls2.isPrimitive()) {
             return setter2;
         }
-        
+
         if (cls1 == String.class) {
             if (cls2 != String.class) {
                 return setter1;
@@ -555,7 +571,7 @@ public class JacksonAnnotationIntrospector
         // Nothing to report, only used by modules. But define just as documentation
         return null;
     }
-    
+
     /*
     /**********************************************************************
     /* Annotations for Polymorphic Type handling

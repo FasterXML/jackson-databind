@@ -233,14 +233,6 @@ public class POJOPropertiesCollectorTest
         public boolean getBloop() { return true; }
     }
 
-    // [databind#3125]: As per existing (2.7+) logic we SHOULD tie-break
-    // in favor of `String` but code up until 2.12 short-circuited early fail
-    static class DupSetter3125Bean {
-        public void setValue(Integer value) { }
-        public void setValue(Boolean value) { }
-        public void setValue(String value) { }
-    }
-
     /*
     /**********************************************************
     /* Unit tests
@@ -445,23 +437,6 @@ public class POJOPropertiesCollectorTest
         assertNotNull(prop._getters.next);
         assertTrue(prop._getters.next.value.hasAnnotation(A.class));
     }
-
-/*
-    // [databind#3125]
-    public void testDuplicateSetters() throws Exception
-    {
-        POJOPropertiesCollector coll = collector(MAPPER, DupSetter3125Bean.class,
-                false);
-        final List<BeanPropertyDefinition> props = coll.getProperties();
-        assertEquals(1, props.size());
-        POJOPropertyBuilder prop = (POJOPropertyBuilder) props.get(0);
-        assertEquals("value", prop.getName());
-        // but this failed
-        AnnotatedMethod m = prop.getSetter();
-        assertNotNull(m);
-        assertEquals(String.class, m.getRawParameterType(0));
-    }
-*/
 
     /*
     /**********************************************************************

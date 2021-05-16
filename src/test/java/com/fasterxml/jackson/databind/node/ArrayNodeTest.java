@@ -61,7 +61,7 @@ public class ArrayNodeTest
         // change to text
         n.set(1, text);
         assertSame(text, n.get(1));
-        n.set(0, null);
+        n.set(0, (JsonNode) null);
         assertTrue(n.get(0).isNull());
 
         // and finally, clear it all

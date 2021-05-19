@@ -233,7 +233,7 @@
       <!-- Build Record tests using Java 14 if JDK is available -->
       <id>java14+</id>
       <activation>
-        <jdk>[14,</jdk>
+        <jdk>[14,)</jdk>
       </activation>
       <build>
         <plugins>

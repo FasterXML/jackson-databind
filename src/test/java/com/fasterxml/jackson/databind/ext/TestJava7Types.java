@@ -20,9 +20,9 @@ public class TestJava7Types extends BaseMapTest
 
         Path p = mapper.readValue(json, Path.class);
         assertNotNull(p);
-        
+
         assertEquals(input.toUri(), p.toUri());
-        assertEquals(input, p);
+        assertEquals(input.toAbsolutePath(), p.toAbsolutePath());
     }
 
     // [databind#1688]:
@@ -41,6 +41,6 @@ public class TestJava7Types extends BaseMapTest
         Object ob = obs[0];
         assertTrue(ob instanceof Path);
 
-        assertEquals(input.toString(), ob.toString());
+        assertEquals(input.toAbsolutePath().toString(), ob.toString());
     }
 }

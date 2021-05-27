@@ -22,7 +22,7 @@ public class TestJava7Types extends BaseMapTest
         assertNotNull(p);
 
         assertEquals(input.toUri(), p.toUri());
-        assertEquals(input, p);
+        assertEquals(input.toAbsolutePath(), p.toAbsolutePath());
     }
 
     // [databind#1688]:
@@ -43,6 +43,6 @@ public class TestJava7Types extends BaseMapTest
             fail("Should deserialize as `Path`, got: `" + ob.getClass().getName() + "`");
         }
 
-        assertEquals(input.toString(), ob.toString());
+        assertEquals(input.toAbsolutePath().toString(), ob.toString());
     }
 }

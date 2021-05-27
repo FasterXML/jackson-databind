@@ -2,10 +2,14 @@ package com.fasterxml.jackson.databind.interop;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
+
+import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
+import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 // [databind#2683]: add fallback handling for Java 8 date/time types, to
 // prevent accidental serialization as POJOs, as well as give more information
@@ -40,6 +44,35 @@ public class DateJava8FallbacksTest extends BaseMapTest
         } catch (InvalidDefinitionException e) {
             verifyException(e, "Java 8 date/time type `java.time.OffsetDateTime` not supported by default");
             verifyException(e, "add Module \"com.fasterxml.jackson.datatype:jackson-datatype-jsr310\"");
+        }
+    }
+
+    // But, [databind#3091], allow deser from JsonToken.VALUE_EMBEDDED_OBJECT
+    public void testAllowAsEmbedded() throws Exception
+    {
+        OffsetDateTime time = OffsetDateTime.ofInstant(Instant.now(),
+                ZoneId.of("Z"));
+        try (TokenBuffer tb = new TokenBuffer(false)) {
+            tb.writeEmbeddedObject(time);
+
+            try (JsonParser p = tb.asParser()) {
+                OffsetDateTime result = MAPPER.readValue(p, OffsetDateTime.class);
+                assertSame(time, result);
+            }
+        }
+
+        // but also try deser into an array
+        try (TokenBuffer tb = new TokenBuffer(false)) {
+            tb.writeStartArray();
+            tb.writeEmbeddedObject(time);
+            tb.writeEndArray();
+
+            try (JsonParser p = tb.asParser()) {
+                Object[] result = MAPPER.readValue(p, Object[].class);
+                assertNotNull(result);
+                assertEquals(1, result.length);
+                assertSame(time, result[0]);
+            }
         }
     }
 }

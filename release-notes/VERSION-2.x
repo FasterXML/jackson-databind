@@ -27,6 +27,8 @@ Project: jackson-databind
  (reported by Asaf R)
 #3082: Dont track unknown props in buffer if `ignoreAllUnknown` is true
  (contributed by David H)
+#3091: Should allow deserialization of java.time types via opaque
+   `JsonToken.VALUE_EMBEDDED_OBJECT`
 #3099: Optimize "AnnotatedConstructor.call()" case by passing explicit null
 #3101: Add AnnotationIntrospector.XmlExtensions interface for decoupling javax dependencies
 #3117: Use more limiting default visibility settings for JDK types (java.*, javax.*)

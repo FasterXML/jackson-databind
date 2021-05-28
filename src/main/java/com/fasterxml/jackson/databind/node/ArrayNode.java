@@ -370,7 +370,7 @@ public class ArrayNode
 
     /*
     /**********************************************************
-    /* Extended ObjectNode API, mutators, generic; addXxx()/insertXxx()
+    /* Extended ObjectNode API, mutators, generic; addXxx()/insertXxx()/setXxx()
     /**********************************************************
      */
 
@@ -553,7 +553,7 @@ public class ArrayNode
         }
         return _add(numberNode(v));
     }
-    
+
     /**
      * Method for adding specified String value at the end of this array.
      *
@@ -776,7 +776,7 @@ public class ArrayNode
         }
         return _insert(index, numberNode(v));
     }
-    
+
     /**
      * Method that will insert specified String
      * at specified position in this array.
@@ -827,6 +827,181 @@ public class ArrayNode
         return _insert(index, binaryNode(v));
     }
 
+    /**
+     * @return This array node, to allow chaining
+     */
+    public ArrayNode setPOJO(int index, Object pojo) {
+        return _set(index, (pojo == null) ? nullNode()
+                : pojoNode(pojo));
+    }
+
+    /**
+     * @return This array node, to allow chaining
+     */
+    public ArrayNode setRawValue(int index, RawValue raw) {
+        return _set(index, (raw == null) ? nullNode()
+                : rawValueNode(raw));
+    }
+
+    /**
+     * @return This node (to allow chaining)
+     */
+    public ArrayNode setNull(int index)
+    {
+        return _set(index, nullNode());
+    }
+
+    /**
+     * @return This node (to allow chaining)
+     */
+    public ArrayNode set(int index, short v) {
+        return _set(index, numberNode(v));
+    }
+
+    /**
+     * Alternative method that we need to avoid bumping into NPE issues
+     * with auto-unboxing.
+     *
+     * @return This node (to allow chaining)
+     */
+    public ArrayNode set(int index, Short v) {
+        return _set(index, (v == null) ? nullNode()
+                : numberNode(v.shortValue()));
+    }
+
+    /**
+     * @return This node (to allow chaining)
+     */
+    public ArrayNode set(int index, int v) {
+        return _set(index, numberNode(v));
+    }
+
+    /**
+     * Alternative method that we need to avoid bumping into NPE issues
+     * with auto-unboxing.
+     *
+     * @return This node (to allow chaining)
+     */
+    public ArrayNode set(int index, Integer v) {
+        return _set(index, (v == null) ? nullNode()
+                : numberNode(v.intValue()));
+    }
+
+    /**
+     * @return This node (to allow chaining)
+     */
+    public ArrayNode set(int index, long v) {
+        return _set(index, numberNode(v));
+    }
+
+    /**
+     * @return This node (to allow chaining)
+     */
+    public ArrayNode set(int index, Long v) {
+        return _set(index, (v == null) ? nullNode()
+                : numberNode(v.longValue()));
+    }
+
+    /**
+     * Method for setting value of a field to specified numeric value.
+     *
+     * @return This node (to allow chaining)
+     */
+    public ArrayNode set(int index, float v) {
+        return _set(index, numberNode(v));
+    }
+
+    /**
+     * Alternative method that we need to avoid bumping into NPE issues
+     * with auto-unboxing.
+     *
+     * @return This node (to allow chaining)
+     */
+    public ArrayNode set(int index, Float v) {
+        return _set(index, (v == null) ? nullNode()
+                : numberNode(v.floatValue()));
+    }
+
+    /**
+     * Method for setting value of a field to specified numeric value.
+     *
+     * @return This node (to allow chaining)
+     */
+    public ArrayNode set(int index, double v) {
+        return _set(index, numberNode(v));
+    }
+
+    /**
+     * Alternative method that we need to avoid bumping into NPE issues
+     * with auto-unboxing.
+     *
+     * @return This node (to allow chaining)
+     */
+    public ArrayNode set(int index, Double v) {
+        return _set(index, (v == null) ? nullNode()
+                : numberNode(v.doubleValue()));
+    }
+
+    /**
+     * Method for setting value of a field to specified numeric value.
+     *
+     * @return This node (to allow chaining)
+     */
+    public ArrayNode set(int index, BigDecimal v) {
+        return _set(index, (v == null) ? nullNode()
+                : numberNode(v));
+    }
+
+    /**
+     * Method for setting value of a field to specified numeric value.
+     *
+     * @return This node (to allow chaining)
+     */
+    public ArrayNode set(int index, BigInteger v) {
+        return _set(index, (v == null) ? nullNode()
+                : numberNode(v));
+    }
+
+    /**
+     * Method for setting value of a field to specified String value.
+     *
+     * @return This node (to allow chaining)
+     */
+    public ArrayNode set(int index, String v) {
+        return _set(index, (v == null) ? nullNode()
+                : textNode(v));
+    }
+
+    /**
+     * Method for setting value of a field to specified String value.
+     *
+     * @return This node (to allow chaining)
+     */
+    public ArrayNode set(int index, boolean v) {
+        return _set(index, booleanNode(v));
+    }
+
+    /**
+     * Alternative method that we need to avoid bumping into NPE issues
+     * with auto-unboxing.
+     *
+     * @return This node (to allow chaining)
+     */
+    public ArrayNode set(int index, Boolean v) {
+        return _set(index, (v == null) ? nullNode()
+                : booleanNode(v.booleanValue()));
+    }
+
+    /**
+     * Method for setting value of a field to specified binary value
+     *
+     * @return This node (to allow chaining)
+     */
+    public ArrayNode set(int index, byte[] v) {
+        return _set(index, (v == null) ? nullNode()
+                : binaryNode(v));
+    }
+
     /*
     /**********************************************************
     /* Standard methods
@@ -861,6 +1036,14 @@ public class ArrayNode
     /* Internal methods (overridable)
     /**********************************************************
      */
+
+    protected ArrayNode _set(int index, JsonNode node) {
+        if (index < 0 || index >= _children.size()) {
+            throw new IndexOutOfBoundsException("Illegal index "+ index +", array size "+size());
+        }
+        _children.set(index, node);
+        return this;
+    }
 
     protected ArrayNode _add(JsonNode node) {
         _children.add(node);

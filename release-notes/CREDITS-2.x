@@ -1340,3 +1340,6 @@ Eric Sirianni (sirianni@github)
   * Reported #3122: Deep merge for `JsonNode` using `ObjectReader.readTree()`
    (2.13.0)
 
+Tarekk Mohamed Abdalla (TarekkMA@github)
+  * Contributed #3154: Add ArrayNode#set(int index, primitive_type value)
+   (2.13.0)

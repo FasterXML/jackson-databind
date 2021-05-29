@@ -487,7 +487,7 @@ public abstract class SerializerProvider
     /*
     /**********************************************************************
     /* Factory methods for getting appropriate TokenBuffer instances
-    /* (possibly overridden based on backend data format)
+    /* (possibly overridden by backends for alternate data formats)
     /**********************************************************************
      */
 

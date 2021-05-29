@@ -464,7 +464,7 @@ public abstract class SerializerProvider
     /*
     /**********************************************************************
     /* Factory methods for getting appropriate TokenBuffer instances
-    /* (possibly overridden based on backend data format)
+    /* (possibly overridden by backends for alternate data formats)
     /**********************************************************************
      */
 
@@ -472,19 +472,18 @@ public abstract class SerializerProvider
      * Specialized factory method used when we are converting values and do not
      * typically have or use "real" parsers or generators.
      *
-     * @since 3.0
+     * @since 2.13
      */
     public TokenBuffer bufferForValueConversion(ObjectCodec oc) {
         // false -> no native type/object ids
         return new TokenBuffer(oc, false);
     }
 
-
     /**
      * Specialized factory method used when we are converting values and do not
      * typically have or use "real" parsers or generators.
      *
-     * @since 3.0
+     * @since 2.13
      */
     public final TokenBuffer bufferForValueConversion() {
         return bufferForValueConversion(null);

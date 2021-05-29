@@ -155,9 +155,7 @@ public class ExternalTypeHandler
                     _typeIds[it.next()] = typeId;
                 }
             } else {
-                @SuppressWarnings("resource")
-                TokenBuffer tokens = new TokenBuffer(p, ctxt);
-                tokens.copyCurrentStructure(p);
+                TokenBuffer tokens = ctxt.bufferAsCopyOfValue(p);
                 _tokens[index] = tokens;
                 while (it.hasNext()) {
                     _tokens[it.next()] = tokens;
@@ -179,8 +177,7 @@ public class ExternalTypeHandler
             canDeserialize = (bean != null) && (_tokens[index] != null);
         } else {
             @SuppressWarnings("resource")
-            TokenBuffer tokens = new TokenBuffer(p, ctxt);
-            tokens.copyCurrentStructure(p);
+            TokenBuffer tokens = ctxt.bufferAsCopyOfValue(p);
             _tokens[index] = tokens;
             canDeserialize = (bean != null) && (_typeIds[index] != null);
         }
@@ -317,7 +314,7 @@ public class ExternalTypeHandler
                     if (typeProp.getType().hasRawClass(String.class)) {
                         v = typeId;
                     } else {
-                        TokenBuffer tb = new TokenBuffer(p, ctxt);
+                        TokenBuffer tb = ctxt.bufferForInputBuffering(p);
                         tb.writeString(typeId);
                         v = typeProp.getValueDeserializer().deserialize(tb.asParserOnFirstToken(), ctxt);
                         tb.close();
@@ -347,7 +344,7 @@ public class ExternalTypeHandler
         if (t == JsonToken.VALUE_NULL) {
             return null;
         }
-        TokenBuffer merged = new TokenBuffer(p, ctxt);
+        TokenBuffer merged = ctxt.bufferForInputBuffering(p);
         merged.writeStartArray();
         merged.writeString(typeId);
         merged.copyCurrentStructure(p2);
@@ -377,7 +374,7 @@ public class ExternalTypeHandler
             _properties[index].getProperty().set(bean, null);
             return;
         }
-        TokenBuffer merged = new TokenBuffer(p, ctxt);
+        TokenBuffer merged = ctxt.bufferForInputBuffering(p);
         merged.writeStartArray();
         merged.writeString(typeId);
 

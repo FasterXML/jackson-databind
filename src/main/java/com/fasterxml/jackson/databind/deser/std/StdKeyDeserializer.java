@@ -334,7 +334,7 @@ public class StdKeyDeserializer extends KeyDeserializer
             if (key == null) { // is this even legal call?
                 return null;
             }
-            TokenBuffer tb = new TokenBuffer(ctxt.getParser(), ctxt);
+            TokenBuffer tb = ctxt.bufferForInputBuffering();
             tb.writeString(key);
             try {
                 // Ugh... should not have to give parser which may or may not be correct one...

@@ -517,6 +517,56 @@ public abstract class DeserializationContext
     }
 
     /*
+    /**********************************************************************
+    /* Factory methods for getting appropriate TokenBuffer instances
+    /* (possibly overridden by backends for alternate data formats)
+    /**********************************************************************
+     */
+
+    /**
+     * Factory method used for creating {@link TokenBuffer} to temporarily
+     * contain copy of content read from specified parser; usually for purpose
+     * of reading contents later on (possibly augmeneted with injected additional
+     * content)
+     *
+     * @since 2.13
+     */
+    public TokenBuffer bufferForInputBuffering(JsonParser p) {
+        return new TokenBuffer(p, this);
+    }
+
+    /**
+     * Convenience method that is equivalent to:
+     *<pre>
+     *   ctxt.bufferForInputBuffering(ctxt.getParser());
+     *</pre>
+     */
+    public final TokenBuffer bufferForInputBuffering() {
+        return bufferForInputBuffering(getParser());
+    }
+
+    /**
+     * Convenience method, equivalent to:
+     *<pre>
+     * TokenBuffer buffer = ctxt.bufferForInputBuffering(parser);
+     * buffer.copyCurrentStructure(parser);
+     * return buffer;
+     *</pre>
+     *<p>
+     * NOTE: the whole "current value" that parser points to is read and
+     * buffered, including Object and Array values (if parser pointing to
+     * start marker).
+     *
+     * @since 2.9
+     */
+    public TokenBuffer bufferAsCopyOfValue(JsonParser p) throws IOException
+    {
+        TokenBuffer buf = bufferForInputBuffering(p);
+        buf.copyCurrentStructure(p);
+        return buf;
+    }
+
+    /*
     /**********************************************************
     /* Public API, pass-through to DeserializerCache
     /**********************************************************

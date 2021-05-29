@@ -14,6 +14,7 @@ import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.tree.ArrayTreeNode;
 import com.fasterxml.jackson.core.tree.ObjectTreeNode;
 import com.fasterxml.jackson.core.util.JacksonFeatureSet;
+
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.cfg.GeneratorSettings;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
@@ -481,6 +482,26 @@ public abstract class SerializerProvider
 
     public JsonGenerator getGenerator() {
         return _generator;
+    }
+
+    /*
+    /**********************************************************************
+    /* Factory methods for getting appropriate TokenBuffer instances
+    /* (possibly overridden based on backend data format)
+    /**********************************************************************
+     */
+
+    /**
+     * Specialized factory method used when we are converting values and do not
+     * typically have or use "real" parsers or generators.
+     */
+    public TokenBuffer bufferForValueConversion() {
+        // 28-May-2021, tatu: Will directly call constructor from here, instead
+        //    of adding a factory method, since alternate formats likely need to
+        //    use different TokenBuffer sub[class:
+
+        // false -> no native Object Ids available (or rather not needed)
+        return new TokenBuffer(this, false);
     }
 
     /*

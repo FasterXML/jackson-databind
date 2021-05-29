@@ -1321,25 +1321,6 @@ public class ObjectMapper
         // 02-Mar-2021, tatu: [databind#2411] Rewrite "valueToTree()" impl; old
         //   impl left for reference
         return _serializerProvider().valueToTree(fromValue);
-
-        /*
-        // 06-Oct-2017, tatu: `convertValue()` disables root value wrapping so
-        //   do it here too
-        SerializationConfig config = serializationConfig()
-            .without(SerializationFeature.WRAP_ROOT_VALUE);
-        SerializationContextExt prov = _serializerProvider(config);
-        TokenBuffer buf = TokenBuffer.forValueConversion(prov);
-        // Would like to let buffer decide, but it won't have deser config to check so...
-        if (isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
-            buf = buf.forceUseOfBigDecimal(true);
-        }
-        // Equivalent to `writeValue()`, basically:
-        prov.serializeValue(buf, fromValue);
-        // 11-Apr-2019, tatu: Should we create "real" DeserializationContext or is this ok?
-        try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
-            return (T) readTree(p);
-        }
-        */
     }
 
     /*
@@ -2329,35 +2310,34 @@ public class ObjectMapper
 
         // inlined 'writeValue' with minor changes:
         // first: disable wrapping when writing
-        SerializationConfig config = serializationConfig()
+        final SerializationConfig config = serializationConfig()
                 .without(SerializationFeature.WRAP_ROOT_VALUE);
-        SerializationContextExt prov = _serializerProvider(config);
-        TokenBuffer buf = TokenBuffer.forValueConversion(prov);
+        final SerializationContextExt ctxt = _serializerProvider(config);
+        TokenBuffer buf = ctxt.bufferForValueConversion();
         // Would like to let buffer decide, but it won't have deser config to check so...
         if (isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
             buf = buf.forceUseOfBigDecimal(true);
         }
-        // no need to check for closing of TokenBuffer
-        prov.serializeValue(buf, fromValue);
+        ctxt.serializeValue(buf, fromValue);
 
         // then matching read, inlined 'readValue' with minor mods:
         DeserializationContextExt readCtxt = _deserializationContext();
-        final JsonParser p = buf.asParser(readCtxt);
-        readCtxt.assignParser(p);
-        Object result;
-        // ok to pass in existing feature flags; unwrapping handled by mapper
-        JsonToken t = _initForReading(p, toValueType);
-        if (t == JsonToken.VALUE_NULL) {
-            result = _findRootDeserializer(readCtxt, toValueType).getNullValue(readCtxt);
-        } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
-            result = null;
-        } else { // pointing to event other than null
-            ValueDeserializer<Object> deser = _findRootDeserializer(readCtxt, toValueType);
-            // note: no handling of unwrapping
-            result = deser.deserialize(p, readCtxt);
+        try (final JsonParser p = buf.asParser(readCtxt)) {
+            readCtxt.assignParser(p);
+            Object result;
+            // ok to pass in existing feature flags; unwrapping handled by mapper
+            JsonToken t = _initForReading(p, toValueType);
+            if (t == JsonToken.VALUE_NULL) {
+                result = _findRootDeserializer(readCtxt, toValueType).getNullValue(readCtxt);
+            } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
+                result = null;
+            } else { // pointing to event other than null
+                ValueDeserializer<Object> deser = _findRootDeserializer(readCtxt, toValueType);
+                // note: no handling of unwrapping
+                result = deser.deserialize(p, readCtxt);
+            }
+            return result;
         }
-        p.close();
-        return result;
     }
 
     /**
@@ -2402,13 +2382,13 @@ public class ObjectMapper
         }
         SerializationConfig config = serializationConfig()
                 .without(SerializationFeature.WRAP_ROOT_VALUE);
-        SerializationContextExt prov = _serializerProvider(config);
-        TokenBuffer buf = TokenBuffer.forValueConversion(prov);
+        SerializationContextExt ctxt = _serializerProvider(config);
+        TokenBuffer buf = ctxt.bufferForValueConversion();
         // Would like to let buffer decide, but it won't have deser config to check so...
         if (isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
             buf = buf.forceUseOfBigDecimal(true);
         }
-        prov.serializeValue(buf, overrides);
+        ctxt.serializeValue(buf, overrides);
         // 11-Apr-2019, tatu: Should we create "real" DeserializationContext or is this ok?
         try (JsonParser p = buf.asParser(ObjectReadContext.empty())) {
             return readerForUpdating(valueToUpdate).readValue(p);

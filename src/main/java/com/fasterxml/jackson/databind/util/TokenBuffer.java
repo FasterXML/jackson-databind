@@ -152,7 +152,7 @@ public class TokenBuffer
     /**
      * @since 3.0
      */
-    protected TokenBuffer(ObjectWriteContext writeContext, boolean hasNativeIds)
+    public TokenBuffer(ObjectWriteContext writeContext, boolean hasNativeIds)
     {
         _objectWriteContext = writeContext;
         _streamWriteFeatures = DEFAULT_STREAM_WRITE_FEATURES;
@@ -166,6 +166,9 @@ public class TokenBuffer
         _mayHaveNativeIds = _hasNativeTypeIds || _hasNativeObjectIds;
     }
 
+    // 28-May-2021, tatu: SHOULD take `ObjectReadContext` and not DeserCtxt,
+    //     ideally, but for now need to consider one `DeserializationFeature`...
+//    public TokenBuffer(JsonParser p, ObjectReadContext ctxt)
     public TokenBuffer(JsonParser p, DeserializationContext ctxt)
     {
         _parentContext = p.streamReadContext();
@@ -186,18 +189,6 @@ public class TokenBuffer
     /* Life-cycle: helper factory methods
     /**********************************************************************
      */
-
-    /**
-     * Specialized factory method used when we are converting values and do not
-     * have or use "real" parsers or generators.
-     *
-     * @since 3.0
-     */
-    public static TokenBuffer forValueConversion(SerializerProvider prov)
-    {
-        // false -> no native Object Ids available (or rather not needed)
-        return new TokenBuffer(prov, false);
-    }
 
     /**
      * Specialized factory method used when we are buffering input being read from

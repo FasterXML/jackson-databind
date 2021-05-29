@@ -98,7 +98,7 @@ public class AsArrayTypeDeserializer
                 && !_usesExternalId()
                 && p.isExpectedStartObjectToken()) {
             // but what if there's nowhere to add it in? Error? Or skip? For now, skip.
-            TokenBuffer tb = TokenBuffer.forInputBuffering(p, ctxt);
+            TokenBuffer tb = ctxt.bufferForInputBuffering(p);
             tb.writeStartObject(); // recreate START_OBJECT
             tb.writeName(_typePropertyName);
             tb.writeString(typeId);

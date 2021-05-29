@@ -191,17 +191,6 @@ public class TokenBuffer
      */
 
     /**
-     * Specialized factory method used when we are buffering input being read from
-     * specified token stream and within specified {@link DeserializationContext}.
-     *
-     * @since 3.0
-     */
-    public static TokenBuffer forInputBuffering(JsonParser p, DeserializationContext ctxt)
-    {
-        return new TokenBuffer(p, ctxt);
-    }
-
-    /**
      * Specialized factory method used when we are generating token stream for further processing
      * without tokens coming from specific input token stream.
      *
@@ -217,21 +206,6 @@ public class TokenBuffer
     /* Life-cycle: initialization
     /**********************************************************************
      */
-    
-    /**
-     * Convenience method, equivalent to:
-     *<pre>
-     * TokenBuffer b = new TokenBuffer(p);
-     * b.copyCurrentStructure(p);
-     * return b;
-     *</pre>
-     */
-    public static TokenBuffer asCopyOfValue(JsonParser p)
-    {
-        TokenBuffer b = new TokenBuffer(p, null);
-        b.copyCurrentStructure(p);
-        return b;
-    }
 
     /**
      * Method that allows explicitly specifying parent parse context to associate

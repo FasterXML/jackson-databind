@@ -123,7 +123,7 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
 
         // Keep track of processed tokens as we must rewind once after deducing
         // the deserializer to use
-        TokenBuffer tb = TokenBuffer.forInputBuffering(p, ctxt);
+        final TokenBuffer tb = ctxt.bufferForInputBuffering(p);
         boolean ignoreCase = ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
 
         for (; t == JsonToken.PROPERTY_NAME; t = p.nextToken()) {

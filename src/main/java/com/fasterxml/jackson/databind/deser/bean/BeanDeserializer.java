@@ -880,7 +880,7 @@ public class BeanDeserializer
                 continue;
             }
             // Need to copy to a separate buffer first
-            TokenBuffer b2 = TokenBuffer.asCopyOfValue(p);
+            TokenBuffer b2 = ctxt.bufferAsCopyOfValue(p);
             tokens.writeName(propName);
             tokens.append(b2);
             try {
@@ -903,7 +903,7 @@ public class BeanDeserializer
         if (t == JsonToken.START_OBJECT) {
             t = p.nextToken();
         }
-        TokenBuffer tokens = TokenBuffer.forInputBuffering(p, ctxt);
+        TokenBuffer tokens = ctxt.bufferForInputBuffering(p);
         tokens.writeStartObject();
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
         for (int ix = p.currentNameMatch(_propNameMatcher); ; ix = p.nextNameMatch(_propNameMatcher)) {
@@ -943,7 +943,7 @@ public class BeanDeserializer
                 tokens.copyCurrentStructure(p);
             } else {
                 // Need to copy to a separate buffer first
-                TokenBuffer b2 = TokenBuffer.asCopyOfValue(p);
+                TokenBuffer b2 = ctxt.bufferAsCopyOfValue(p);
                 tokens.writeName(propName);
                 tokens.append(b2);
                 try {
@@ -1042,7 +1042,7 @@ public class BeanDeserializer
                 tokens.copyCurrentStructure(p);
             } else {
                 // Need to copy to a separate buffer first
-                TokenBuffer b2 = TokenBuffer.asCopyOfValue(p);
+                TokenBuffer b2 = ctxt.bufferAsCopyOfValue(p);
                 tokens.writeName(propName);
                 tokens.append(b2);
                 try {

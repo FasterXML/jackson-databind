@@ -657,9 +657,9 @@ public class IntrospectorPairTest extends BaseMapTest
             this.injectBean = injectBean;
         }
         @JsonProperty
-        private String foo;
+        String foo;
         @JsonIgnore
-        private UnreadableBean injectBean;
+        UnreadableBean injectBean;
     }
 
     static class UnreadableInjectedBean {
@@ -688,7 +688,7 @@ public class IntrospectorPairTest extends BaseMapTest
 
         boolean successReadingUnreadableInjectedBean;
         try {
-            UnreadableInjectedBean noBean = mapper.readValue("{\"foo\": \"bob\"}", UnreadableInjectedBean.class);
+            /*UnreadableInjectedBean noBean =*/ mapper.readValue("{\"foo\": \"bob\"}", UnreadableInjectedBean.class);
             successReadingUnreadableInjectedBean = true;
         } catch (JsonMappingException e) {
             successReadingUnreadableInjectedBean = false;

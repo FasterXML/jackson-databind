@@ -12,6 +12,8 @@ Project: jackson-databind
 #2828: Add `DatabindException` as intermediate subtype of `JsonMappingException`
 #2900: Jackson does not support deserializing new Java 9 unmodifiable collections
  (reported by Daniel H)
+#2989: Allocate TokenBuffer instance via context objects (to allow format-specific
+  buffer types)
 #3001: Add mechanism for setting default `ContextAttributes` for `ObjectMapper`
 #3002: Add `DeserializationContext.readTreeAsValue()` methods for more convenient
   conversions for deserializers to use

@@ -103,7 +103,7 @@ public class AsArrayTypeDeserializer
                 && !_usesExternalId()
                 && p.hasToken(JsonToken.START_OBJECT)) {
             // but what if there's nowhere to add it in? Error? Or skip? For now, skip.
-            TokenBuffer tb = new TokenBuffer(null, false);
+            TokenBuffer tb = ctxt.bufferForInputBuffering(p);
             tb.writeStartObject(); // recreate START_OBJECT
             tb.writeFieldName(_typePropertyName);
             tb.writeString(typeId);

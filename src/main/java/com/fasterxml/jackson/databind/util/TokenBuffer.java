@@ -191,7 +191,10 @@ public class TokenBuffer
      *</pre>
      *
      * @since 2.9
+     *
+     * @deprecated Since 2.13: use {@link DeserializationContext#bufferAsCopyOfValue} instead.
      */
+    @Deprecated // since 2.13
     public static TokenBuffer asCopyOfValue(JsonParser p) throws IOException {
         TokenBuffer b = new TokenBuffer(p);
         b.copyCurrentStructure(p);
@@ -488,10 +491,9 @@ public class TokenBuffer
             copyCurrentStructure(p);
             return this;
         }
-        /* 28-Oct-2014, tatu: As per [databind#592], need to support a special case of starting from
-         *    FIELD_NAME, which is taken to mean that we are missing START_OBJECT, but need
-         *    to assume one did exist.
-         */
+        // 28-Oct-2014, tatu: As per [databind#592], need to support a special case of starting from
+        //    FIELD_NAME, which is taken to mean that we are missing START_OBJECT, but need
+        //    to assume one did exist.
         JsonToken t;
         writeStartObject();
         do {

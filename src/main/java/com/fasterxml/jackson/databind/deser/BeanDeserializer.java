@@ -733,7 +733,7 @@ public class BeanDeserializer
                 continue;
             }
             // Need to copy to a separate buffer first
-            TokenBuffer b2 = TokenBuffer.asCopyOfValue(p);
+            TokenBuffer b2 = ctxt.bufferAsCopyOfValue(p);
             tokens.writeFieldName(propName);
             tokens.append(b2);
             try {
@@ -789,7 +789,7 @@ public class BeanDeserializer
                 tokens.copyCurrentStructure(p);
             } else {
                 // Need to copy to a separate buffer first
-                TokenBuffer b2 = TokenBuffer.asCopyOfValue(p);
+                TokenBuffer b2 = ctxt.bufferAsCopyOfValue(p);
                 tokens.writeFieldName(propName);
                 tokens.append(b2);
                 try {
@@ -888,7 +888,7 @@ public class BeanDeserializer
                 tokens.copyCurrentStructure(p);
             } else {
                 // Need to copy to a separate buffer first
-                TokenBuffer b2 = TokenBuffer.asCopyOfValue(p);
+                TokenBuffer b2 = ctxt.bufferAsCopyOfValue(p);
                 tokens.writeFieldName(propName);
                 tokens.append(b2);
                 try {

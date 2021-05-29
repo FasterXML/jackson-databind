@@ -107,7 +107,7 @@ public class AsWrapperTypeDeserializer
         // Minor complication: we may need to merge type id in?
         if (_typeIdVisible && p.hasToken(JsonToken.START_OBJECT)) {
             // but what if there's nowhere to add it in? Error? Or skip? For now, skip.
-            TokenBuffer tb = new TokenBuffer(null, false);
+            TokenBuffer tb = ctxt.bufferForInputBuffering(p);
             tb.writeStartObject(); // recreate START_OBJECT
             tb.writeFieldName(_typePropertyName);
             tb.writeString(typeId);

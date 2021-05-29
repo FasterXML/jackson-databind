@@ -644,7 +644,7 @@ public class BeanDeserializer
             if (!_ignoreAllUnknown) {
                 // Ok then, let's collect the whole field; name and value
                 if (unknown == null) {
-                    unknown = TokenBuffer.forInputBuffering(p, ctxt);
+                    unknown = ctxt.bufferForInputBuffering(p);
                 }
                 unknown.writeName(propName);
                 unknown.copyCurrentStructure(p);
@@ -716,7 +716,7 @@ public class BeanDeserializer
         //   `VALUE_NULL` tokens
         /*
         if (p.canSynthesizeNulls()) {
-            TokenBuffer tb = TokenBuffer.forGeneration();
+            TokenBuffer tb = ctxt.bufferForInputBuffering(p);
             tb.writeEndObject();
             JsonParser p2 = tb.asParser(ctxt, p);
             p2.nextToken(); // to point to END_OBJECT
@@ -829,7 +829,7 @@ public class BeanDeserializer
         if (_propertyBasedCreator != null) {
             return deserializeUsingPropertyBasedWithUnwrapped(p, ctxt);
         }
-        TokenBuffer tokens = TokenBuffer.forInputBuffering(p, ctxt);
+        TokenBuffer tokens = ctxt.bufferForInputBuffering(p);
         tokens.writeStartObject();
         final Object bean = _valueInstantiator.createUsingDefault(ctxt);
 
@@ -969,7 +969,7 @@ public class BeanDeserializer
         final PropertyBasedCreator creator = _propertyBasedCreator;
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
 
-        TokenBuffer tokens = TokenBuffer.forInputBuffering(p, ctxt);
+        TokenBuffer tokens = ctxt.bufferForInputBuffering(p);
         tokens.writeStartObject();
 
         JsonToken t = p.currentToken();

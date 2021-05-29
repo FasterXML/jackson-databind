@@ -1265,7 +1265,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
     protected Object _convertObjectId(JsonParser p, DeserializationContext ctxt,
             Object rawId, ValueDeserializer<Object> idDeser) throws JacksonException
     {
-        TokenBuffer buf = TokenBuffer.forInputBuffering(p, ctxt);
+        TokenBuffer buf = ctxt.bufferForInputBuffering(p);
         if (rawId instanceof String) {
             buf.writeString((String) rawId);
         } else if (rawId instanceof Long) {

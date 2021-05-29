@@ -1338,7 +1338,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
     protected Object _convertObjectId(JsonParser p, DeserializationContext ctxt,
             Object rawId, JsonDeserializer<Object> idDeser) throws IOException
     {
-        TokenBuffer buf = new TokenBuffer(p, ctxt);
+        TokenBuffer buf = ctxt.bufferForInputBuffering(p);
         if (rawId instanceof String) {
             buf.writeString((String) rawId);
         } else if (rawId instanceof Long) {

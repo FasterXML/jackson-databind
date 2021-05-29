@@ -20,17 +20,6 @@ public class BeanDeserializer
     extends BeanDeserializerBase
     implements java.io.Serializable
 {
-    /* TODOs for future versions:
-     * 
-     * For 2.9?
-     *
-     * - New method in JsonDeserializer (deserializeNext()) to allow use of more
-     *   efficient 'nextXxx()' method `JsonParser` provides.
-     *
-     * Also: need to ensure efficient impl of those methods for Smile, CBOR
-     * at least (in addition to JSON)
-     */
-
     private static final long serialVersionUID = 1L;
 
     /**
@@ -513,7 +502,7 @@ public class BeanDeserializer
             if (!_ignoreAllUnknown) {
                 // Ok then, let's collect the whole field; name and value
                 if (unknown == null) {
-                    unknown = new TokenBuffer(p, ctxt);
+                    unknown = ctxt.bufferForInputBuffering(p);
                 }
                 unknown.writeFieldName(propName);
                 unknown.copyCurrentStructure(p);
@@ -592,7 +581,7 @@ public class BeanDeserializer
         //   `VALUE_NULL` token.
         if (p.requiresCustomCodec()) { // not only XML module, but mostly it...
             @SuppressWarnings("resource")
-            TokenBuffer tb = new TokenBuffer(p, ctxt);
+            TokenBuffer tb = ctxt.bufferForInputBuffering(p);
             tb.writeEndObject();
             JsonParser p2 = tb.asParser(p);
             p2.nextToken(); // to point to END_OBJECT
@@ -700,7 +689,7 @@ public class BeanDeserializer
         if (_propertyBasedCreator != null) {
             return deserializeUsingPropertyBasedWithUnwrapped(p, ctxt);
         }
-        TokenBuffer tokens = new TokenBuffer(p, ctxt);
+        TokenBuffer tokens = ctxt.bufferForInputBuffering(p);
         tokens.writeStartObject();
         final Object bean = _valueInstantiator.createUsingDefault(ctxt);
 
@@ -767,7 +756,7 @@ public class BeanDeserializer
         if (t == JsonToken.START_OBJECT) {
             t = p.nextToken();
         }
-        TokenBuffer tokens = new TokenBuffer(p, ctxt);
+        TokenBuffer tokens = ctxt.bufferForInputBuffering(p);
         tokens.writeStartObject();
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
@@ -827,7 +816,7 @@ public class BeanDeserializer
         final PropertyBasedCreator creator = _propertyBasedCreator;
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
 
-        TokenBuffer tokens = new TokenBuffer(p, ctxt);
+        TokenBuffer tokens = ctxt.bufferForInputBuffering(p);
         tokens.writeStartObject();
 
         JsonToken t = p.currentToken();

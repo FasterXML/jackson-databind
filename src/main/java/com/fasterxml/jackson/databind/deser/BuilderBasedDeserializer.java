@@ -424,7 +424,7 @@ public class BuilderBasedDeserializer
             }
             // Ok then, let's collect the whole field; name and value
             if (unknown == null) {
-                unknown = new TokenBuffer(p, ctxt);
+                unknown = ctxt.bufferForInputBuffering(p);
             }
             unknown.writeFieldName(propName);
             unknown.copyCurrentStructure(p);
@@ -458,7 +458,7 @@ public class BuilderBasedDeserializer
             if (p.hasToken(JsonToken.START_OBJECT)) {
                 p.nextToken();
             }
-            TokenBuffer tokens = new TokenBuffer(p, ctxt);
+            TokenBuffer tokens = ctxt.bufferForInputBuffering(p);
             tokens.writeStartObject();
             return deserializeWithUnwrapped(p, ctxt, builder, tokens);
         }
@@ -589,7 +589,7 @@ public class BuilderBasedDeserializer
         if (_propertyBasedCreator != null) {
             return deserializeUsingPropertyBasedWithUnwrapped(p, ctxt);
         }
-        TokenBuffer tokens = new TokenBuffer(p, ctxt);
+        TokenBuffer tokens = ctxt.bufferForInputBuffering(p);
         tokens.writeStartObject();
         Object bean = _valueInstantiator.createUsingDefault(ctxt);
 
@@ -644,7 +644,7 @@ public class BuilderBasedDeserializer
         final PropertyBasedCreator creator = _propertyBasedCreator;
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
 
-        TokenBuffer tokens = new TokenBuffer(p, ctxt);
+        TokenBuffer tokens = ctxt.bufferForInputBuffering(p);
         tokens.writeStartObject();
         Object builder = null;
 

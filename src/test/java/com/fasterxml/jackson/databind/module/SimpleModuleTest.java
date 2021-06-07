@@ -8,7 +8,7 @@ import java.util.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.*;
-
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
@@ -285,7 +285,12 @@ public class SimpleModuleTest extends BaseMapTest
     public void testMultipleModules() throws Exception
     {
         MySimpleModule mod1 = new MySimpleModule("test1", Version.unknownVersion());
+        assertEquals("test1", mod1.getModuleName());
+        // 07-Jun-2021, tatu: as per [databind#3110]:
+        assertEquals("test1", mod1.getTypeId());
         SimpleModule mod2 = new SimpleModule("test2", Version.unknownVersion());
+        assertEquals("test2", mod2.getModuleName());
+        assertEquals("test2", mod2.getTypeId());
         mod1.addSerializer(SimpleEnum.class, new SimpleEnumSerializer());
         mod1.addDeserializer(CustomBean.class, new CustomBeanDeserializer());
 
@@ -315,10 +320,10 @@ public class SimpleModuleTest extends BaseMapTest
         MySimpleModule mod1 = new MySimpleModule("test1", Version.unknownVersion());
         AnotherSimpleModule mod2 = new AnotherSimpleModule("test2", Version.unknownVersion());
 
-        ObjectMapper mapper = new ObjectMapper();
-
-        mapper.registerModule(mod1);
-        mapper.registerModule(mod2);
+        ObjectMapper mapper = JsonMapper.builder()
+                .addModule(mod1)
+                .addModule(mod2)
+                .build();
 
         Set<Object> registeredModuleIds = mapper.getRegisteredModuleIds();
         assertEquals(2, registeredModuleIds.size());
@@ -328,6 +333,20 @@ public class SimpleModuleTest extends BaseMapTest
         // 01-Jul-2019, [databind#2374]: verify empty list is fine
         mapper = new ObjectMapper();
         assertEquals(0, mapper.getRegisteredModuleIds().size());
+
+        // 07-Jun-2021, tatu [databind#3110] Casual SimpleModules not returned
+        //     as registered
+        mapper = JsonMapper.builder()
+                .addModule(new SimpleModule())
+                .build();
+        assertEquals(0, mapper.getRegisteredModuleIds().size());
+
+        // But named ones are
+        mapper = JsonMapper.builder()
+                .addModule(new SimpleModule("VerySpecialModule"))
+                .build();
+        assertEquals(Collections.singleton("VerySpecialModule"),
+                mapper.getRegisteredModuleIds());
     }
 
     /*

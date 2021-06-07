@@ -45,6 +45,16 @@ public class SimpleModule
     protected final String _name;
     protected final Version _version;
 
+    /**
+     * Flag that indicates whether module was given an explicit name
+     * or not. Distinction is used to determine whether method
+     * {@link #getTypeId()} should return name (yes, if explicit) or
+     * {@code null} (if no explicit name was passed).
+     *
+     * @since 2.13
+     */
+    protected final boolean _hasExplicitName;
+
     protected SimpleSerializers _serializers = null;
     protected SimpleDeserializers _deserializers = null;
 
@@ -109,8 +119,10 @@ public class SimpleModule
                 "SimpleModule-"+System.identityHashCode(this)
                 : getClass().getName();
         _version = Version.unknownVersion();
+        // 07-Jun-2021, tatu: [databind#3110] Not passed explicitly so...
+        _hasExplicitName = false;
     }
-    
+
     /**
      * Convenience constructor that will default version to
      * {@link Version#unknownVersion()}.
@@ -121,13 +133,12 @@ public class SimpleModule
 
     /**
      * Convenience constructor that will use specified Version,
-     * including name from {@link Version#getArtifactId()}
+     * including name from {@link Version#getArtifactId()}.
      */
     public SimpleModule(Version version) {
-        _name = version.getArtifactId();
-        _version = version;
+        this(version.getArtifactId(), version);
     }
-    
+
     /**
      * Constructor to use for actual reusable modules.
      * ObjectMapper may use name as identifier to notice attempts
@@ -140,6 +151,8 @@ public class SimpleModule
     public SimpleModule(String name, Version version) {
         _name = name;
         _version = version;
+        // 07-Jun-2021, tatu: [databind#3110] Is passed explicitly (may be `null`)
+        _hasExplicitName = true;
     }
 
     /**
@@ -166,6 +179,8 @@ public class SimpleModule
             List<JsonSerializer<?>> serializers)
     {
         _name = name;
+        // 07-Jun-2021, tatu: [databind#3110] Is passed explicitly (may be `null`)
+        _hasExplicitName = true;
         _version = version;
         if (deserializers != null) {
             _deserializers = new SimpleDeserializers(deserializers);
@@ -181,13 +196,18 @@ public class SimpleModule
      * but class name (default impl) for sub-classes.
      */
     @Override
-    public Object getTypeId() {
-        if (getClass() == SimpleModule.class) {
-            return null;
+    public Object getTypeId()
+    {
+        // 07-Jun-2021, tatu: [databind#3110] Only return Type Id if name
+        //    was explicitly given
+        if (_hasExplicitName) {
+            return _name;
         }
-        return super.getTypeId();
+        // ...otherwise give no type id, even for sub-classes (sub-classes are
+        // welcome to override this method of course)
+        return null;
     }
-    
+
     /*
     /**********************************************************
     /* Simple setters to allow overriding

@@ -1043,8 +1043,14 @@ public class ObjectMapper
 
     /**
      * The set of {@link Module} typeIds that are registered in this
-     * ObjectMapper. By default the typeId for a module is it's full
-     * class name (see {@link Module#getTypeId()}).
+     * ObjectMapper, if (and only if!)
+     * {@link MapperFeature#IGNORE_DUPLICATE_MODULE_REGISTRATIONS}
+     * is enabled AND module being added returns non-{@null} value
+     * for its {@link Module#getTypeId()}.
+     *<p>
+     * NOTE: when using the default {@link com.fasterxml.jackson.databind.module.SimpleModule}
+     * constructor, its id is specified as {@code null} and as a consequence such
+     * module is NOT included in returned set.
      *
      * @since 2.9.6
      */

@@ -213,26 +213,26 @@ public class EnumDefaultReadTest extends BaseMapTest
         ObjectReader r = MAPPER.readerFor(SimpleEnumWithDefault.class)
                 .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
         assertEquals(SimpleEnumWithDefault.ONE,
-                r.readValue(quote("ONE")));
+                r.readValue(q("ONE")));
         assertEquals(SimpleEnumWithDefault.ZERO,
-                r.readValue(quote("Zero")));
+                r.readValue(q("Zero")));
         assertEquals(SimpleEnumWithDefault.ZERO,
-                r.readValue(quote("")));
+                r.readValue(q("")));
         assertEquals(SimpleEnumWithDefault.ZERO,
-                r.readValue(quote("    ")));
+                r.readValue(q("    ")));
 
         // Also check with `null` coercion as well
         ObjectReader r2 = MAPPER.readerFor(SimpleEnumWithDefault.class)
                 .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
-        assertNull(r2.readValue(quote("")));
-        assertNull(r2.readValue(quote("    ")));
+        assertNull(r2.readValue(q("")));
+        assertNull(r2.readValue(q("    ")));
     }
 
     private <T> void _verifyOkDeserialization(ObjectReader reader, String fromValue,
             Class<T> toValueType, T expValue)
         throws IOException
     {
-        assertEquals(expValue, reader.forType(toValueType).readValue(quote(fromValue)));
+        assertEquals(expValue, reader.forType(toValueType).readValue(q(fromValue)));
     }
 
     private <T> void _verifyFailingDeserialization(final ObjectReader reader,
@@ -240,7 +240,7 @@ public class EnumDefaultReadTest extends BaseMapTest
         throws IOException
     {
         try {
-            reader.forType(toValueType).readValue(quote(fromValue));
+            reader.forType(toValueType).readValue(q(fromValue));
             fail("Deserialization should have failed");
         } catch (InvalidFormatException e) {
             verifyException(e, "Cannot deserialize value of type");

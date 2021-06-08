@@ -57,6 +57,8 @@ Project: jackson-databind
  (reported by JoeWoo; fix provided by drekbour@github)
 #3146: Merge findInjectableValues() results in AnnotationIntrospectorPair
  (contributed by Joe B)
+#3171: READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE doesn't work with empty strings
+ (reported by unintended@github)
 
 2.12.3 (12-Apr-2021)
 

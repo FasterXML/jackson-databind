@@ -207,6 +207,27 @@ public class EnumDefaultReadTest extends BaseMapTest
         _verifyOkDeserialization(r, "2", CustomEnumWithDefault.class, CustomEnumWithDefault.ZERO);
     }
 
+    // [databind#3171]: Ensure "" gets returned as Default Value, not coerced
+    public void testEmptyStringAsDefault() throws Exception
+    {
+        ObjectReader r = MAPPER.readerFor(SimpleEnumWithDefault.class)
+                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
+        assertEquals(SimpleEnumWithDefault.ONE,
+                r.readValue(q("ONE")));
+        assertEquals(SimpleEnumWithDefault.ZERO,
+                r.readValue(q("Zero")));
+        assertEquals(SimpleEnumWithDefault.ZERO,
+                r.readValue(q("")));
+        assertEquals(SimpleEnumWithDefault.ZERO,
+                r.readValue(q("    ")));
+
+        // Also check with `null` coercion as well
+        ObjectReader r2 = MAPPER.readerFor(SimpleEnumWithDefault.class)
+                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
+        assertNull(r2.readValue(q("")));
+        assertNull(r2.readValue(q("    ")));
+    }
+
     private <T> void _verifyOkDeserialization(ObjectReader reader, String fromValue,
             Class<T> toValueType, T expValue)
         throws IOException

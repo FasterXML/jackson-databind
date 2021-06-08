@@ -218,6 +218,14 @@ public class EnumDefaultReadTest extends BaseMapTest
                 r.readValue(quote("Zero")));
         assertEquals(SimpleEnumWithDefault.ZERO,
                 r.readValue(quote("")));
+        assertEquals(SimpleEnumWithDefault.ZERO,
+                r.readValue(quote("    ")));
+
+        // Also check with `null` coercion as well
+        ObjectReader r2 = MAPPER.readerFor(SimpleEnumWithDefault.class)
+                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
+        assertNull(r2.readValue(quote("")));
+        assertNull(r2.readValue(quote("    ")));
     }
 
     private <T> void _verifyOkDeserialization(ObjectReader reader, String fromValue,

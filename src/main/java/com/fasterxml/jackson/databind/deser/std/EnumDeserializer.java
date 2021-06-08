@@ -273,6 +273,16 @@ public class EnumDeserializer
     {
         String name = nameOrig.trim();
         if (name.isEmpty()) { // empty or blank
+            // 07-Jun-2021, tatu: [databind#3171] Need to consider Default value first
+            //   (alas there's bit of duplication here)
+            if ((_enumDefaultValue != null)
+                    && ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)) {
+                return _enumDefaultValue;
+            }
+            if (ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
+                return null;
+            }
+
             CoercionAction act;
             if (nameOrig.isEmpty()) {
                 act = _findCoercionFromEmptyString(ctxt);
@@ -323,11 +333,11 @@ public class EnumDeserializer
                 && ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)) {
             return _enumDefaultValue;
         }
-        if (!ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
-            return ctxt.handleWeirdStringValue(_enumClass(), name,
-                    "not one of the values accepted for Enum class: %s",  lookup.keys());
+        if (ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
+            return null;
         }
-        return null;
+        return ctxt.handleWeirdStringValue(_enumClass(), name,
+                "not one of the values accepted for Enum class: %s",  lookup.keys());
     }
 
     protected Object _deserializeOther(JsonParser p, DeserializationContext ctxt) throws IOException

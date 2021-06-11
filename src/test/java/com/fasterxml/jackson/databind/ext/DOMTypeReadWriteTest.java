@@ -14,6 +14,8 @@ public class DOMTypeReadWriteTest extends com.fasterxml.jackson.databind.BaseMap
         "<root attr='3'><leaf>Rock &amp; Roll!</leaf><?proc instr?></root>";
     final static String SIMPLE_XML_NS =
         "<root ns:attr='abc' xmlns:ns='http://foo' />";
+    final static String SIMPLE_XML_DEFAULT_NS =
+            "<root xmlns='http://foo'/>";
 
     private final ObjectMapper MAPPER = new ObjectMapper();
     
@@ -31,6 +33,22 @@ public class DOMTypeReadWriteTest extends com.fasterxml.jackson.databind.BaseMap
          * output (single vs double quotes, xml declaration etc)
          */
         assertEquals(SIMPLE_XML, normalizeOutput(output));
+    }
+
+    public void testSerializeSimpleDefaultNS() throws Exception
+    {
+        // Let's just parse first, easiest
+        Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse
+                (new InputSource(new StringReader(SIMPLE_XML_DEFAULT_NS)));
+        assertNotNull(doc);
+        // need to strip xml declaration, if any
+        String outputRaw = MAPPER.writeValueAsString(doc);
+        // And re-parse as String, since JSON has quotes...
+        String output = MAPPER.readValue(outputRaw, String.class);
+        /* ... and finally, normalize to (close to) canonical XML
+         * output (single vs double quotes, xml declaration etc)
+         */
+        assertEquals(SIMPLE_XML_DEFAULT_NS, normalizeOutput(output));
     }
 
     public void testDeserializeNonNS() throws Exception

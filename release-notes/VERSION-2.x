@@ -44,6 +44,8 @@ Project: jackson-databind
   serialization of ClassLoader)
 #3154: Add ArrayNode#set(int index, primitive_type value)
  (contributed by Tarekk Mohamed A)
+#3174: DOM `Node` serialization omits the default namespace declaration
+ (contributed by Morten A-G)
 - Fix to avoid problem with `BigDecimalNode`, scale of `Integer.MIN_VALUE` (see
   [dataformats-binary#264] for details)
 - Extend handling of `FAIL_ON_NULL_FOR_PRIMITIVES` to cover coercion from (Empty) String

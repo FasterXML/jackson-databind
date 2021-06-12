@@ -139,6 +139,24 @@ public abstract class BeanDescription
 
     public abstract List<AnnotatedConstructor> getConstructors();
 
+    /**
+     * Helper method that will check all static methods of the bean class
+     * that seem like factory methods eligible to be used as Creators.
+     * This requires that the static method:
+     *<ol>
+     * <li>Returns type compatible with bean type (same or subtype)
+     *  </li>
+     * <li>Is recognized from either explicit annotation (usually {@code @JsonCreator}
+     *   OR naming:
+     *   names {@code valueOf()} and {@code fromString()} are recognized but
+     *   only for 1-argument factory methods, and in case of {@code fromString()}
+     *   argument type must further be either {@code String} or {@code CharSequence}.
+     *  </li>
+     *</ol>
+     * Note that caller typically applies further checks for things like visibility.
+     *
+     * @return List of static methods considered as possible Factory methods
+     */
     public abstract List<AnnotatedMethod> getFactoryMethods();
 
     /**
@@ -149,22 +167,15 @@ public abstract class BeanDescription
     public abstract AnnotatedConstructor findDefaultConstructor();
 
     /**
-     * Method that can be called to locate a single-arg constructor that
-     * takes specified exact type (will not accept supertype constructors)
-     *
-     * @param argTypes Type(s) of the argument that we are looking for
+     * @deprecated Since 2.13: instead use {@link #getConstructors()}, filter.
      */
+    @Deprecated
     public abstract Constructor<?> findSingleArgConstructor(Class<?>... argTypes);
 
     /**
-     * Method that can be called to find if introspected class declares
-     * a static "valueOf" factory method that returns an instance of
-     * introspected type, given one of acceptable types.
-     *
-     * @param expArgTypes Types that the matching single argument factory
-     *   method can take: will also accept super types of these types
-     *   (ie. arg just has to be assignable from expArgType)
+     * @deprecated Since 2.13: instead use {@link #getFactoryMethods()}, filter.
      */
+    @Deprecated
     public abstract Method findFactoryMethod(Class<?>... expArgTypes);
 
     /*

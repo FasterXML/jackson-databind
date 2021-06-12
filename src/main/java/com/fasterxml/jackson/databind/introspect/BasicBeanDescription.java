@@ -572,13 +572,11 @@ anyField.getName()));
     }
 
     @Override
+    @Deprecated // since 2.13
     public Constructor<?> findSingleArgConstructor(Class<?>... argTypes)
     {
         for (AnnotatedConstructor ac : _classInfo.getConstructors()) {
             // This list is already filtered to only include accessible
-            /* (note: for now this is a redundant check; but in future
-             * that may change; thus leaving here for now)
-             */
             if (ac.getParameterCount() == 1) {
                 Class<?> actArg = ac.getRawParameterType(0);
                 for (Class<?> expArg : argTypes) {
@@ -592,6 +590,7 @@ anyField.getName()));
     }
 
     @Override
+    @Deprecated // since 2.13
     public Method findFactoryMethod(Class<?>... expArgTypes)
     {
         // So, of all single-arg static methods:
@@ -621,7 +620,8 @@ anyField.getName()));
         }
         /* Also: must be a recognized factory method, meaning:
          * (a) marked with @JsonCreator annotation, or
-         * (b) "valueOf" (at this point, need not be public)
+         * (b) 1-argument "valueOf" (at this point, need not be public), or
+         * (c) 1-argument "fromString()" AND takes {@code String} as the argument
          */
         JsonCreator.Mode mode = _annotationIntrospector.findCreatorAnnotation(_config, am);
         if ((mode != null) && (mode != JsonCreator.Mode.DISABLED)) {

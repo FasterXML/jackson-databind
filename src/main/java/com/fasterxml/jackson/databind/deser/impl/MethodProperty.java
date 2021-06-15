@@ -1,7 +1,9 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.function.*;
 
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
@@ -12,6 +14,14 @@ import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.Annotations;
+import com.fasterxml.jackson.databind.util.LambdaMetafactoryUtils;
+
+// https://github.com/FasterXML/jackson-databind/issues/2083
+// TODO:
+// - tests of performance
+// - create pull request
+// - add support for Java 9,10,11,12,13
+
 
 /**
  * This concrete sub-class implements property that is set
@@ -29,6 +39,8 @@ public final class MethodProperty
      * "regular" method-accessible properties.
      */
     protected final transient Method _setter;
+    protected final transient BiConsumer consumer;
+    protected final transient BiFunction function;
 
     protected final boolean _skipNulls;
     
@@ -39,6 +51,8 @@ public final class MethodProperty
         super(propDef, type, typeDeser, contextAnnotations);
         _annotated = method;
         _setter = method.getAnnotated();
+        consumer = getConsumer();
+        function = getFunction();
         _skipNulls = NullsConstantProvider.isSkipper(_nullProvider);
     }
 
@@ -47,6 +61,9 @@ public final class MethodProperty
         super(src, deser, nva);
         _annotated = src._annotated;
         _setter = src._setter;
+        consumer = getConsumer();
+        function = getFunction();
+
         _skipNulls = NullsConstantProvider.isSkipper(nva);
     }
 
@@ -54,6 +71,9 @@ public final class MethodProperty
         super(src, newName);
         _annotated = src._annotated;
         _setter = src._setter;
+        consumer = getConsumer();
+        function = getFunction();
+
         _skipNulls = src._skipNulls;
     }
 
@@ -64,7 +84,18 @@ public final class MethodProperty
         super(src);
         _annotated = src._annotated;
         _setter = m;
+        consumer = getConsumer();
+        function = getFunction();
+
         _skipNulls = src._skipNulls;
+    }
+
+    private BiConsumer getConsumer() {
+        return LambdaMetafactoryUtils.getBiConsumerObjectSetter(_setter);
+    }
+
+    private BiFunction getFunction() {
+        return LambdaMetafactoryUtils.getBiFunctionObjectSetter(_setter);
     }
 
     @Override
@@ -135,7 +166,7 @@ public final class MethodProperty
             value = _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
         }
         try {
-            _setter.invoke(instance, value);
+            invokeWithoutResult(isConsumerEnabled(ctxt), instance, value);
         } catch (Exception e) {
             _throwAsJacksonE(p, e, value);
         }
@@ -164,7 +195,7 @@ public final class MethodProperty
             value = _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
         }
         try {
-            Object result = _setter.invoke(instance, value);
+            Object result = invokeWithResult(isConsumerEnabled(ctxt), instance, value);
             return (result == null) ? instance : result;
         } catch (Exception e) {
             _throwAsJacksonE(p, e, value);
@@ -172,11 +203,40 @@ public final class MethodProperty
         }
     }
 
+    private boolean isConsumerEnabled(DeserializationContext ctxt) {
+        return ctxt.isEnabled(DeserializationFeature.LAMBDA_METAFACTORY_AS_INVOKER);
+    }
+
+
+    private void invokeWithoutResult(boolean useConsumer, Object instance, Object value) throws InvocationTargetException, IllegalAccessException {
+//        if (useConsumer) {
+            if (consumer != null) {
+                consumer.accept(instance, value);
+            } else {
+                _setter.invoke(instance, value);
+            }
+//        } else {
+//            _setter.invoke(instance, value);
+//        }
+    }
+
+    private Object invokeWithResult(boolean useConsumer, Object instance, Object value) throws InvocationTargetException, IllegalAccessException {
+//        if (useConsumer) {
+            if (function != null) {
+                return function.apply(instance, value);
+            } else {
+                return _setter.invoke(instance, value);
+            }
+//        } else {
+//            return _setter.invoke(instance, value);
+//        }
+    }
+
     @Override
     public final void set(Object instance, Object value) throws JacksonException
     {
         try {
-            _setter.invoke(instance, value);
+            invokeWithoutResult(false, instance, value);
         } catch (Exception e) {
             // 15-Sep-2015, tatu: How could we get a ref to JsonParser?
             _throwAsJacksonE(e, value);
@@ -187,7 +247,7 @@ public final class MethodProperty
     public Object setAndReturn(Object instance, Object value) throws JacksonException
     {
         try {
-            Object result = _setter.invoke(instance, value);
+            Object result = invokeWithResult(false, instance, value);
             return (result == null) ? instance : result;
         } catch (Exception e) {
             // 15-Sep-2015, tatu: How could we get a ref to JsonParser?

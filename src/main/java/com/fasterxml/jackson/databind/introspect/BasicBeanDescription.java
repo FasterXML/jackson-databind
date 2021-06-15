@@ -347,6 +347,23 @@ anyField.getName()));
     }
 
     @Override
+    public List<AnnotatedAndMetadata<AnnotatedConstructor, JsonCreator.Mode>> getConstructorsWithMode() {
+        List<AnnotatedConstructor> allCtors = _classInfo.getConstructors();
+        if (allCtors.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<AnnotatedAndMetadata<AnnotatedConstructor, JsonCreator.Mode>> result = new ArrayList<>();
+        for (AnnotatedConstructor ctor : allCtors) {
+            JsonCreator.Mode mode = _annotationIntrospector.findCreatorAnnotation(_config, ctor);
+            if (mode == JsonCreator.Mode.DISABLED) {
+                continue;
+            }
+            result.add(AnnotatedAndMetadata.of(ctor, mode));
+        }
+        return result;
+    }
+
+    @Override
     public Object instantiateBean(boolean fixAccess) {
         AnnotatedConstructor ac = _classInfo.getDefaultConstructor();
         if (ac == null) {
@@ -571,6 +588,30 @@ anyField.getName()));
         return result;
     }
 
+    @Override // since 2.13
+    public List<AnnotatedAndMetadata<AnnotatedMethod, JsonCreator.Mode>> getFactoryMethodsWithMode()
+    {
+        List<AnnotatedMethod> candidates = _classInfo.getFactoryMethods();
+        if (candidates.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<AnnotatedAndMetadata<AnnotatedMethod, JsonCreator.Mode>> result = null;
+        for (AnnotatedMethod am : candidates) {
+            AnnotatedAndMetadata<AnnotatedMethod, JsonCreator.Mode> match
+                = findFactoryMethodMetadata(am);
+            if (match != null) {
+                if (result == null) {
+                    result = new ArrayList<>();
+                }
+                result.add(match);
+            }
+        }
+        if (result == null) {
+            return Collections.emptyList();
+        }
+        return result;
+    }
+
     @Override
     @Deprecated // since 2.13
     public Constructor<?> findSingleArgConstructor(Class<?>... argTypes)
@@ -644,6 +685,45 @@ anyField.getName()));
             }
         }
         return false;
+    }
+
+    // @since 2.13
+    protected AnnotatedAndMetadata<AnnotatedMethod, JsonCreator.Mode> findFactoryMethodMetadata(AnnotatedMethod am)
+    {
+        // First: return type must be compatible with the introspected class
+        // (i.e. allowed to be sub-class, although usually is the same class)
+        Class<?> rt = am.getRawReturnType();
+        if (!getBeanClass().isAssignableFrom(rt)) {
+            return null;
+        }
+        // Also: must be a recognized factory method, meaning:
+        // (a) marked with @JsonCreator annotation, or
+        // (b) 1-argument "valueOf" (at this point, need not be public), or
+        // (c) 1-argument "fromString()" AND takes {@code String} as the argument
+        JsonCreator.Mode mode = _annotationIntrospector.findCreatorAnnotation(_config, am);
+        if (mode != null) {
+            if (mode == JsonCreator.Mode.DISABLED) {
+                return null;
+            }
+            return AnnotatedAndMetadata.of(am, mode);
+        }
+        final String name = am.getName();
+        // 24-Oct-2016, tatu: As per [databind#1429] must ensure takes exactly one arg
+        if ("valueOf".equals(name)) {
+            if (am.getParameterCount() == 1) {
+                return AnnotatedAndMetadata.of(am, mode);
+            }
+        }
+        // [databind#208] Also accept "fromString()", if takes String or CharSequence
+        if ("fromString".equals(name)) {
+            if (am.getParameterCount() == 1) {
+                Class<?> cls = am.getRawParameterType(0);
+                if (cls == String.class || CharSequence.class.isAssignableFrom(cls)) {
+                    return AnnotatedAndMetadata.of(am, mode);
+                }
+            }
+        }
+        return null;
     }
 
     /**

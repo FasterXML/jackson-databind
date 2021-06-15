@@ -663,15 +663,23 @@ public abstract class DeserializationContext
     public final KeyDeserializer findKeyDeserializer(JavaType keyType,
             BeanProperty prop) throws JsonMappingException
     {
-        KeyDeserializer kd = _cache.findKeyDeserializer(this,
-                _factory, keyType);
+        KeyDeserializer kd;
+        // 15-Jun-2021, tatu: Needed wrt [databind#3143]
+        try {
+            kd = _cache.findKeyDeserializer(this, _factory, keyType);
+        } catch (IllegalArgumentException iae) {
+            // We better only expose checked exceptions, since those
+            // are what caller is expected to handle
+            reportBadDefinition(keyType, ClassUtil.exceptionMessage(iae));
+            kd = null;
+        }
         // Second: contextualize?
         if (kd instanceof ContextualKeyDeserializer) {
             kd = ((ContextualKeyDeserializer) kd).createContextual(this, prop);
         }
         return kd;
     }
-    
+
     /*
     /**********************************************************
     /* Public API, ObjectId handling

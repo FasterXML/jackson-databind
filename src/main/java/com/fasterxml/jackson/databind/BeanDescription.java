@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -137,7 +138,23 @@ public abstract class BeanDescription
     /**********************************************************
      */
 
+    /**
+     * Helper method that will return all non-default constructors (that is,
+     * constructors that take one or more arguments) this class has.
+     */
     public abstract List<AnnotatedConstructor> getConstructors();
+
+    /**
+     * Method similar to {@link #getConstructors()} except will also introspect
+     * {@code JsonCreator.Mode} and filter out ones marked as not applicable and
+     * include mode (or lack thereof) for remaining constructors.
+     *<p>
+     * Note that no other filtering (regarding visibility or other annotations)
+     * is performed
+     *
+     * @since 2.13
+     */
+    public abstract List<AnnotatedAndMetadata<AnnotatedConstructor, JsonCreator.Mode>> getConstructorsWithMode();
 
     /**
      * Helper method that will check all static methods of the bean class
@@ -158,6 +175,14 @@ public abstract class BeanDescription
      * @return List of static methods considered as possible Factory methods
      */
     public abstract List<AnnotatedMethod> getFactoryMethods();
+
+    /**
+     * Method similar to {@link #getFactoryMethods()} but will return {@code JsonCreator.Mode}
+     * metadata along with qualifying factory method candidates.
+     *
+     * @since 2.13
+     */
+    public abstract List<AnnotatedAndMetadata<AnnotatedMethod, JsonCreator.Mode>> getFactoryMethodsWithMode();
 
     /**
      * Method that will locate the no-arg constructor for this class,

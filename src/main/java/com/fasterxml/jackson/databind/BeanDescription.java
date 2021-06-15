@@ -1,11 +1,11 @@
 package com.fasterxml.jackson.databind;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.util.Annotations;
@@ -103,9 +103,51 @@ public abstract class BeanDescription
     /**********************************************************************
      */
 
+    /**
+     * Helper method that will return all non-default constructors (that is,
+     * constructors that take one or more arguments) this class has.
+     */
     public abstract List<AnnotatedConstructor> getConstructors();
 
+    /**
+     * Method similar to {@link #getConstructors()} except will also introspect
+     * {@code JsonCreator.Mode} and filter out ones marked as not applicable and
+     * include mode (or lack thereof) for remaining constructors.
+     *<p>
+     * Note that no other filtering (regarding visibility or other annotations)
+     * is performed
+     *
+     * @since 2.13
+     */
+    public abstract List<AnnotatedAndMetadata<AnnotatedConstructor, JsonCreator.Mode>> getConstructorsWithMode();
+
+    /**
+     * Helper method that will check all static methods of the bean class
+     * that seem like factory methods eligible to be used as Creators.
+     * This requires that the static method:
+     *<ol>
+     * <li>Returns type compatible with bean type (same or subtype)
+     *  </li>
+     * <li>Is recognized from either explicit annotation (usually {@code @JsonCreator}
+     *   OR naming:
+     *   names {@code valueOf()} and {@code fromString()} are recognized but
+     *   only for 1-argument factory methods, and in case of {@code fromString()}
+     *   argument type must further be either {@code String} or {@code CharSequence}.
+     *  </li>
+     *</ol>
+     * Note that caller typically applies further checks for things like visibility.
+     *
+     * @return List of static methods considered as possible Factory methods
+     */
     public abstract List<AnnotatedMethod> getFactoryMethods();
+
+    /**
+     * Method similar to {@link #getFactoryMethods()} but will return {@code JsonCreator.Mode}
+     * metadata along with qualifying factory method candidates.
+     *
+     * @since 2.13
+     */
+    public abstract List<AnnotatedAndMetadata<AnnotatedMethod, JsonCreator.Mode>> getFactoryMethodsWithMode();
 
     /**
      * Method that will locate the no-arg constructor for this class,
@@ -113,25 +155,6 @@ public abstract class BeanDescription
      * ignorable.
      */
     public abstract AnnotatedConstructor findDefaultConstructor();
-
-    /**
-     * Method that can be called to locate a single-arg constructor that
-     * takes specified exact type (will not accept supertype constructors)
-     *
-     * @param argTypes Type(s) of the argument that we are looking for
-     */
-    public abstract Constructor<?> findSingleArgConstructor(Class<?>... argTypes);
-
-    /**
-     * Method that can be called to find if introspected class declares
-     * a static "valueOf" factory method that returns an instance of
-     * introspected type, given one of acceptable types.
-     *
-     * @param expArgTypes Types that the matching single argument factory
-     *   method can take: will also accept super types of these types
-     *   (ie. arg just has to be assignable from expArgType)
-     */
-    public abstract Method findFactoryMethod(Class<?>... expArgTypes);
 
     /*
     /**********************************************************************
@@ -145,8 +168,6 @@ public abstract class BeanDescription
      * {@link com.fasterxml.jackson.annotation.JsonKey} annotation,
      * if any. If multiple ones are found,
      * an error is reported by throwing {@link IllegalArgumentException}
-     *
-     * @since 2.12
      */
     public AnnotatedMember findJsonKeyAccessor() {
         return null;

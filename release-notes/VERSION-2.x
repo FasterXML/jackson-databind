@@ -44,6 +44,9 @@ Project: jackson-databind
  (reported by mistyzyq@github)
 #3130: Serializing java.lang.Thread fails on JDK 11 and above (should suppress
   serialization of ClassLoader)
+#3143: String-based `Map` key deserializer is not deterministic when there is no
+  single arg constructor
+ (reported by Halil İbrahim Ş)
 #3154: Add ArrayNode#set(int index, primitive_type value)
  (contributed by Tarekk Mohamed A)
 #3174: DOM `Node` serialization omits the default namespace declaration

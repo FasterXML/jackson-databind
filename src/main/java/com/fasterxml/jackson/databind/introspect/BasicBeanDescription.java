@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.databind.introspect;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -313,6 +311,23 @@ anyField.getName()));
     }
 
     @Override
+    public List<AnnotatedAndMetadata<AnnotatedConstructor, JsonCreator.Mode>> getConstructorsWithMode() {
+        List<AnnotatedConstructor> allCtors = _classInfo.getConstructors();
+        if (allCtors.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<AnnotatedAndMetadata<AnnotatedConstructor, JsonCreator.Mode>> result = new ArrayList<>();
+        for (AnnotatedConstructor ctor : allCtors) {
+            JsonCreator.Mode mode = _intr.findCreatorAnnotation(_config, ctor);
+            if (mode == JsonCreator.Mode.DISABLED) {
+                continue;
+            }
+            result.add(AnnotatedAndMetadata.of(ctor, mode));
+        }
+        return result;
+    }
+
+    @Override
     public Object instantiateBean(boolean fixAccess) {
         AnnotatedConstructor ac = _classInfo.getDefaultConstructor();
         if (ac == null) {
@@ -527,44 +542,28 @@ anyField.getName()));
         return result;
     }
 
-    @Override
-    public Constructor<?> findSingleArgConstructor(Class<?>... argTypes)
+    @Override // since 2.13
+    public List<AnnotatedAndMetadata<AnnotatedMethod, JsonCreator.Mode>> getFactoryMethodsWithMode()
     {
-        for (AnnotatedConstructor ac : _classInfo.getConstructors()) {
-            // This list is already filtered to only include accessible
-            /* (note: for now this is a redundant check; but in future
-             * that may change; thus leaving here for now)
-             */
-            if (ac.getParameterCount() == 1) {
-                Class<?> actArg = ac.getRawParameterType(0);
-                for (Class<?> expArg : argTypes) {
-                    if (expArg == actArg) {
-                        return ac.getAnnotated();
-                    }
+        List<AnnotatedMethod> candidates = _classInfo.getFactoryMethods();
+        if (candidates.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<AnnotatedAndMetadata<AnnotatedMethod, JsonCreator.Mode>> result = null;
+        for (AnnotatedMethod am : candidates) {
+            AnnotatedAndMetadata<AnnotatedMethod, JsonCreator.Mode> match
+                = findFactoryMethodMetadata(am);
+            if (match != null) {
+                if (result == null) {
+                    result = new ArrayList<>();
                 }
+                result.add(match);
             }
         }
-        return null;
-    }
-
-    @Override
-    public Method findFactoryMethod(Class<?>... expArgTypes)
-    {
-        // So, of all single-arg static methods:
-        for (AnnotatedMethod am : _classInfo.getFactoryMethods()) {
-            // 24-Oct-2016, tatu: Better ensure it only takes 1 arg, no matter what
-            if (isFactoryMethod(am) && am.getParameterCount() == 1) {
-                // And must take one of expected arg types (or supertype)
-                Class<?> actualArgType = am.getRawParameterType(0);
-                for (Class<?> expArgType : expArgTypes) {
-                    // And one that matches what we would pass in
-                    if (actualArgType.isAssignableFrom(expArgType)) {
-                        return am.getAnnotated();
-                    }
-                }
-            }
+        if (result == null) {
+            return Collections.emptyList();
         }
-        return null;
+        return result;
     }
 
     protected boolean isFactoryMethod(AnnotatedMethod am)
@@ -577,7 +576,8 @@ anyField.getName()));
         }
         /* Also: must be a recognized factory method, meaning:
          * (a) marked with @JsonCreator annotation, or
-         * (b) "valueOf" (at this point, need not be public)
+         * (b) 1-argument "valueOf" (at this point, need not be public), or
+         * (c) 1-argument "fromString()" AND takes {@code String} as the argument
          */
         JsonCreator.Mode mode = _intr.findCreatorAnnotation(_config, am);
         if ((mode != null) && (mode != JsonCreator.Mode.DISABLED)) {
@@ -602,7 +602,46 @@ anyField.getName()));
         return false;
     }
 
-    /*
+    // @since 2.13
+    protected AnnotatedAndMetadata<AnnotatedMethod, JsonCreator.Mode> findFactoryMethodMetadata(AnnotatedMethod am)
+    {
+        // First: return type must be compatible with the introspected class
+        // (i.e. allowed to be sub-class, although usually is the same class)
+        Class<?> rt = am.getRawReturnType();
+        if (!getBeanClass().isAssignableFrom(rt)) {
+            return null;
+        }
+        // Also: must be a recognized factory method, meaning:
+        // (a) marked with @JsonCreator annotation, or
+        // (b) 1-argument "valueOf" (at this point, need not be public), or
+        // (c) 1-argument "fromString()" AND takes {@code String} as the argument
+        JsonCreator.Mode mode = _intr.findCreatorAnnotation(_config, am);
+        if (mode != null) {
+            if (mode == JsonCreator.Mode.DISABLED) {
+                return null;
+            }
+            return AnnotatedAndMetadata.of(am, mode);
+        }
+        final String name = am.getName();
+        // 24-Oct-2016, tatu: As per [databind#1429] must ensure takes exactly one arg
+        if ("valueOf".equals(name)) {
+            if (am.getParameterCount() == 1) {
+                return AnnotatedAndMetadata.of(am, mode);
+            }
+        }
+        // [databind#208] Also accept "fromString()", if takes String or CharSequence
+        if ("fromString".equals(name)) {
+            if (am.getParameterCount() == 1) {
+                Class<?> cls = am.getRawParameterType(0);
+                if (cls == String.class || CharSequence.class.isAssignableFrom(cls)) {
+                    return AnnotatedAndMetadata.of(am, mode);
+                }
+            }
+        }
+        return null;
+    }
+
+/*
     /**********************************************************************
     /* Introspection for deserialization, other
     /**********************************************************************

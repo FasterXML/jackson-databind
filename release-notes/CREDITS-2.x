@@ -1299,6 +1299,9 @@ Halil İbrahim Şener (hisener@github)
   * Reported #2962: Auto-detection of constructor-based creator method skipped if there is
    an annotated factory-based creator method (regression from 2.11)
    (2.12.1)
+  * Reported #3143: String-based `Map` key deserializer is not deterministic when there is no
+   single arg constructor
+   (2.13.0)
 
 Faron Dutton (fdutton@github)
   * Contributed fix for #2990: Breaking API change in `BasicClassIntrospector` (2.12.0)

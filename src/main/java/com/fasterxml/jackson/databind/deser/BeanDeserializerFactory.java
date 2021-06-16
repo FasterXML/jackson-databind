@@ -34,6 +34,10 @@ public class BeanDeserializerFactory
 {
     private static final long serialVersionUID = 1;
 
+    protected final static String PREFIX_SPRING = "org.springframework.";
+
+    protected final static String PREFIX_C3P0 = "com.mchange.v2.c3p0.";
+
     /**
      * Signature of <b>Throwable.initCause</b> method.
      */
@@ -1072,13 +1076,47 @@ public class BeanDeserializerFactory
     {
         // There are certain nasty classes that could cause problems, mostly
         // via default typing -- catch them here.
-        String full = type.getRawClass().getName();
+        final Class<?> raw = type.getRawClass();
+        String full = raw.getName();
 
-        if (_cfgIllegalClassNames.contains(full)) {
-            String message = String.format("Illegal type (%s) to deserialize: prevented for security reasons",
-                    full);
-            throw ctxt.mappingException("Invalid type definition for type %s: %s",
-                    beanDesc, message);
-        }
+        main_check:
+        do {
+            if (_cfgIllegalClassNames.contains(full)) {
+                break;
+            }
+
+            // 18-Dec-2017, tatu: As per [databind#1855], need bit more sophisticated handling
+            //    for some Spring framework types
+            // 05-Jan-2017, tatu: ... also, only applies to classes, not interfaces
+            if (raw.isInterface()) {
+                ;
+            } else if (full.startsWith(PREFIX_SPRING)) {
+                for (Class<?> cls = raw; (cls != null) && (cls != Object.class); cls = cls.getSuperclass()){
+                    String name = cls.getSimpleName();
+                    // looking for "AbstractBeanFactoryPointcutAdvisor" but no point to allow any is there?
+                    if ("AbstractPointcutAdvisor".equals(name)
+                            // ditto  for "FileSystemXmlApplicationContext": block all ApplicationContexts
+                            || "AbstractApplicationContext".equals(name)) {
+                        break main_check;
+                    }
+                }
+            } else if (full.startsWith(PREFIX_C3P0)) {
+                // [databind#1737]; more 3rd party
+                // s.add("com.mchange.v2.c3p0.JndiRefForwardingDataSource");
+                // s.add("com.mchange.v2.c3p0.WrapperConnectionPoolDataSource");
+                // [databind#1931]; more 3rd party
+                // com.mchange.v2.c3p0.ComboPooledDataSource
+                // com.mchange.v2.c3p0.debug.AfterCloseLoggingComboPooledDataSource 
+                if (full.endsWith("DataSource")) {
+                    break main_check;
+                }
+            }
+            return;
+        } while (false);
+
+        String message = String.format("Illegal type (%s) to deserialize: prevented for security reasons",
+                full);
+        throw ctxt.mappingException("Invalid type definition for type %s: %s",
+                beanDesc, message);
     }
 }

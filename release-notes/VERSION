@@ -17,6 +17,7 @@ Backported all CVE fixes up to CVE-2021-20190
 #2986: Block 2 more gadget types (commons-dbcp2, CVE-2020-35490 / CVE-2020-35491)
 #2854: Block one more gadget type (javax.swing, CVE-2021-20190)
 #2798: Block one more gadget type (com.pastdev.httpcomponents, CVE-2020-24750)
+#1931: Block two more gadgets to exploit default typing issue (c3p0, CVE-2018-7489)
 
 2.6.7.4 (25-Oct-2020)
 

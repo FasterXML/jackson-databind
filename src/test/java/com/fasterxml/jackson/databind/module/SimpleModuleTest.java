@@ -334,14 +334,20 @@ public class SimpleModuleTest extends BaseMapTest
         mapper = new ObjectMapper();
         assertEquals(0, mapper.getRegisteredModuleIds().size());
 
-        // 07-Jun-2021, tatu [databind#3110] Casual SimpleModules not returned
-        //     as registered
+        // 07-Jun-2021, tatu [databind#3110] Casual SimpleModules ARE returned
+        //    too!
         mapper = JsonMapper.builder()
                 .addModule(new SimpleModule())
                 .build();
-        assertEquals(0, mapper.getRegisteredModuleIds().size());
+        assertEquals(1, mapper.getRegisteredModuleIds().size());
+        Object id = mapper.getRegisteredModuleIds().iterator().next();
+        assertTrue(id instanceof String);
+        if (!id.toString().startsWith("SimpleModule-")) {
+            fail("SimpleModule registration id should start with 'SimpleModule-', does not: ["
+                    +id+"]");
+        }
 
-        // But named ones are
+        // And named ones retain their name
         mapper = JsonMapper.builder()
                 .addModule(new SimpleModule("VerySpecialModule"))
                 .build();

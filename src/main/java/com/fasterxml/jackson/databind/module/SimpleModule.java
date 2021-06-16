@@ -115,8 +115,8 @@ public class SimpleModule
     public SimpleModule() {
         // can't chain when making reference to 'this'
         // note: generate different name for direct instantiation, sub-classing
-        _name = (getClass() == SimpleModule.class) ?
-                "SimpleModule-"+System.identityHashCode(this)
+        _name = (getClass() == SimpleModule.class)
+                ? "SimpleModule-"+System.identityHashCode(this)
                 : getClass().getName();
         _version = Version.unknownVersion();
         // 07-Jun-2021, tatu: [databind#3110] Not passed explicitly so...
@@ -198,14 +198,22 @@ public class SimpleModule
     @Override
     public Object getTypeId()
     {
-        // 07-Jun-2021, tatu: [databind#3110] Only return Type Id if name
-        //    was explicitly given
+        // 07-Jun-2021, tatu: [databind#3110] Return Type Id if name was
+        //    explicitly given
         if (_hasExplicitName) {
             return _name;
         }
-        // ...otherwise give no type id, even for sub-classes (sub-classes are
-        // welcome to override this method of course)
-        return null;
+        // Otherwise behavior same as with 2.12: no registration id for "throw-away"
+        // instances (to avoid bogus conflicts if user just instantiates SimpleModule)
+
+        // Note: actually... always returning `supet.getTypeId()` should be fine since
+        // that would return generated id? Let's do that actually.
+        if (getClass() == SimpleModule.class) {
+            return _name;
+        }
+        // And for what it is worth, this should usually do the same and we could
+        // in fact always just return `_name`. But leaving as-is for now.
+        return super.getTypeId();
     }
 
     /*

@@ -355,6 +355,40 @@ public class SimpleModuleTest extends BaseMapTest
                 mapper.getRegisteredModuleIds());
     }
 
+    // More [databind#3110] testing
+    public void testMultipleSimpleModules()
+    {
+        final SimpleModule mod1 = new SimpleModule();
+        final SimpleModule mod2 = new SimpleModule();
+        ObjectMapper mapper = JsonMapper.builder()
+                .addModule(mod1)
+                .addModule(mod2)
+                .build();
+        assertEquals(2, mapper.getRegisteredModuleIds().size());
+
+        // Still avoid actual duplicates
+        mapper = JsonMapper.builder()
+                .addModule(mod1)
+                .addModule(mod1)
+                .build();
+        assertEquals(1, mapper.getRegisteredModuleIds().size());
+
+        // Same for (anonymous) sub-classes
+        final SimpleModule subMod1 = new SimpleModule() { };
+        final SimpleModule subMod2 = new SimpleModule() { };
+        mapper = JsonMapper.builder()
+                .addModule(subMod1)
+                .addModule(subMod2)
+                .build();
+        assertEquals(2, mapper.getRegisteredModuleIds().size());
+
+        mapper = JsonMapper.builder()
+                .addModule(subMod1)
+                .addModule(subMod1)
+                .build();
+        assertEquals(1, mapper.getRegisteredModuleIds().size());
+    }
+
     /*
     /**********************************************************
     /* Unit tests; other

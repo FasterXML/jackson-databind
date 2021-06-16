@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
@@ -41,6 +42,11 @@ public class SimpleModule
     implements java.io.Serializable
 {
     private static final long serialVersionUID = 1L; // 2.5.0
+
+    // 16-Jun-2021, tatu: For [databind#3110], generate actual unique ids
+    //   for SimpleModule instances (System.identityHashCode(...) is close
+    //   but not quite it...
+    private static final AtomicInteger MODULE_ID_SEQ = new AtomicInteger(1);
 
     protected final String _name;
     protected final Version _version;
@@ -114,9 +120,11 @@ public class SimpleModule
      */
     public SimpleModule() {
         // can't chain when making reference to 'this'
-        // note: generate different name for direct instantiation, sub-classing
+        // note: generate different name for direct instantiation, sub-classing;
+        // this to avoid collision in former case while still addressing
+        // [databind#3110]
         _name = (getClass() == SimpleModule.class)
-                ? "SimpleModule-"+System.identityHashCode(this)
+                ? "SimpleModule-"+MODULE_ID_SEQ.getAndIncrement()
                 : getClass().getName();
         _version = Version.unknownVersion();
         // 07-Jun-2021, tatu: [databind#3110] Not passed explicitly so...

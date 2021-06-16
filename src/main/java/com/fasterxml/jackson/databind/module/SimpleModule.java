@@ -46,13 +46,13 @@ public class SimpleModule
      * Unique id generated to avoid instances from ever matching so all
      * registrations succeed.
      *<p>
-     * NOTE! Id should be {@link java.io.Serializable} to allow serialization
-     * of mapper instances.
+     * NOTE! If serialization of SimpleModule instance needed, should be
+     * {@link java.io.Serializable}.
      *
      * @since 3.0
      */
     protected final Object _id;
-    
+
     protected SimpleSerializers _serializers = null;
     protected SimpleDeserializers _deserializers = null;
 
@@ -104,8 +104,9 @@ public class SimpleModule
      * convenience modules used by app code: "real" modules should
      * use actual name and version number information.
      */
-    public SimpleModule() {
-        this((String) null);
+    public SimpleModule()
+    {
+        this(null, Version.unknownVersion());
     }
 
     /**
@@ -139,19 +140,26 @@ public class SimpleModule
 
     public SimpleModule(String name, Version version, Object registrationId) {
         if (name == null) {
-            name = (getClass() == SimpleModule.class) ?
-                    "SimpleModule-"+System.identityHashCode(this)
-                    : getClass().getName();
+            // So: if constructing plain `SimpleModule`, instances assumed to be
+            // distinct, not same, so generate unique id. But if sub-class,
+            // class name assumed.
+            if (getClass() == SimpleModule.class) {
+                if (registrationId == null) {
+                    registrationId = UniqueId.create("SimpleModule-");
+                }
+                name = "SimpleModule-"+registrationId;
+            } else {
+                name = getClass().getName();
+                if (registrationId == null) {
+                    registrationId = name;
+                }
+            }
+        } else if (registrationId == null) {
+            registrationId = name;
         }
         _name = name;
         _version = version;
-        _id = (registrationId == null) ? _createId() : registrationId;
-    }
-    
-    // 27-Feb-2018, tatu: Need to create Registration Id that never matches any
-    //    other id, but is serializable
-    protected Object _createId() {
-        return new UniqueId();
+        _id = registrationId;
     }
 
     /*

@@ -2,12 +2,15 @@ package com.fasterxml.jackson.databind.module;
 
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.exc.StreamReadException;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperBuilder;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
@@ -154,9 +157,9 @@ public class SimpleModuleTest extends BaseMapTest
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Unit tests; first, verifying need for custom handlers
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -190,9 +193,9 @@ public class SimpleModuleTest extends BaseMapTest
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Unit tests; simple serializers
-    /**********************************************************
+    /**********************************************************************
      */
 
     public void testSimpleBeanSerializer() throws Exception
@@ -228,11 +231,11 @@ public class SimpleModuleTest extends BaseMapTest
         assertEquals(q("Base:1"), mapper.writeValueAsString(new Impl1()));
         assertEquals(q("Base:2"), mapper.writeValueAsString(new Impl2()));
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Unit tests; simple deserializers
-    /**********************************************************
+    /**********************************************************************
      */
     
     public void testSimpleBeanDeserializer() throws Exception
@@ -307,12 +310,68 @@ public class SimpleModuleTest extends BaseMapTest
         // 01-Jul-2019, [databind#2374]: verify empty list is fine
         mapper = newJsonMapper();
         assertEquals(0, mapper.getRegisteredModules().size());
+
+        // 07-Jun-2021, tatu [databind#3110] Casual SimpleModules ARE returned
+        //    too!
+        mapper = JsonMapper.builder()
+                .addModule(new SimpleModule())
+                .build();
+        assertEquals(1, mapper.getRegisteredModules().size());
+        Object id = mapper.getRegisteredModules().iterator().next().getRegistrationId();
+        // Id type won't be String but...
+        if (!id.toString().startsWith("SimpleModule-")) {
+            fail("SimpleModule registration id should start with 'SimpleModule-', does not: ["
+                    +id+"]");
+        }
+
+        // And named ones retain their name
+        final JacksonModule vsm = new SimpleModule("VerySpecialModule");
+        mapper = JsonMapper.builder()
+                .addModule(vsm)
+                .build();
+        Collection<JacksonModule> reg = mapper.getRegisteredModules();
+        assertEquals(1, reg.size());
+        assertSame(vsm, reg.iterator().next());
+    }
+
+    // More [databind#3110] testing
+    public void testMultipleSimpleModules()
+    {
+        final SimpleModule mod1 = new SimpleModule();
+        final SimpleModule mod2 = new SimpleModule();
+        ObjectMapper mapper = JsonMapper.builder()
+                .addModule(mod1)
+                .addModule(mod2)
+                .build();
+        assertEquals(2, mapper.getRegisteredModules().size());
+
+        // Still avoid actual duplicates
+        mapper = JsonMapper.builder()
+                .addModule(mod1)
+                .addModule(mod1)
+                .build();
+        assertEquals(1, mapper.getRegisteredModules().size());
+
+        // Same for (anonymous) sub-classes
+        final SimpleModule subMod1 = new SimpleModule() { };
+        final SimpleModule subMod2 = new SimpleModule() { };
+        mapper = JsonMapper.builder()
+                .addModule(subMod1)
+                .addModule(subMod2)
+                .build();
+        assertEquals(2, mapper.getRegisteredModules().size());
+
+        mapper = JsonMapper.builder()
+                .addModule(subMod1)
+                .addModule(subMod1)
+                .build();
+        assertEquals(1, mapper.getRegisteredModules().size());
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Unit tests; other
-    /**********************************************************
+    /**********************************************************************
      */
 
     public void testMixIns() throws Exception

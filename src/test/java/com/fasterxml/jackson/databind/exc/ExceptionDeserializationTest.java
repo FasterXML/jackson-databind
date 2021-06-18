@@ -6,6 +6,9 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 
 /**
  * Unit tests for verifying that simple exceptions can be deserialized.
@@ -128,6 +131,47 @@ public class ExceptionDeserializationTest
         assertNotNull(act.getCause());
         assertEquals(exp.getCause().getMessage(), act.getCause().getMessage());
         _assertEquality(exp.getCause().getStackTrace(), act.getCause().getStackTrace());
+    }
+
+
+    public void testSuppressedGenericThrowableDeserialization() throws IOException
+    {
+        ObjectMapper mapper = new ObjectMapper();
+
+        final IOException exp = new IOException("the outer exception");
+        exp.addSuppressed(new Throwable("the suppressed exception"));
+
+        final String value = mapper.writeValueAsString(exp);
+        final IOException act = mapper.readValue(value, IOException.class);
+
+        assertNotNull(act.getSuppressed());
+        assertEquals(1, act.getSuppressed().length);
+        assertEquals(exp.getSuppressed()[0].getMessage(), act.getSuppressed()[0].getMessage());
+        _assertEquality(exp.getSuppressed()[0].getStackTrace(), act.getSuppressed()[0].getStackTrace());
+    }
+
+    public void testSuppressedTypedExceptionDeserialization() throws IOException
+    {
+        PolymorphicTypeValidator typeValidator = BasicPolymorphicTypeValidator.builder()
+                .allowIfSubTypeIsArray()
+                .allowIfSubType(Throwable.class)
+                .build();
+
+        ObjectMapper mapper = JsonMapper.builder()
+                .activateDefaultTyping(typeValidator, ObjectMapper.DefaultTyping.NON_FINAL)
+                .build();
+
+        final IOException exp = new IOException("the outer exception");
+        exp.addSuppressed(new IllegalArgumentException("the suppressed exception"));
+
+        final String value = mapper.writeValueAsString(exp);
+        final IOException act = mapper.readValue(value, IOException.class);
+
+        assertNotNull(act.getSuppressed());
+        assertEquals(1, act.getSuppressed().length);
+        assertEquals(IllegalArgumentException.class, act.getSuppressed()[0].getClass());
+        assertEquals(exp.getSuppressed()[0].getMessage(), act.getSuppressed()[0].getMessage());
+        _assertEquality(exp.getSuppressed()[0].getStackTrace(), act.getSuppressed()[0].getStackTrace());
     }
 
     private void _assertEquality(StackTraceElement[] exp, StackTraceElement[] act) {

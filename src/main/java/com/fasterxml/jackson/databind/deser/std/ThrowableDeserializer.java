@@ -19,6 +19,7 @@ public class ThrowableDeserializer
     private static final long serialVersionUID = 1L;
 
     protected final static String PROP_NAME_MESSAGE = "message";
+    protected final static String PROP_NAME_SUPPRESSED = "suppressed";
 
     /*
     /************************************************************
@@ -82,6 +83,7 @@ public class ThrowableDeserializer
         
         Object throwable = null;
         Object[] pending = null;
+        Throwable[] suppressed = null;
         int pendingIx = 0;
 
         for (; !p.hasToken(JsonToken.END_OBJECT); p.nextToken()) {
@@ -120,6 +122,14 @@ public class ThrowableDeserializer
                     continue;
                 }
             }
+
+            // Maybe it's "suppressed"?
+            final boolean isSuppressed = PROP_NAME_SUPPRESSED.equals(propName);
+            if (isSuppressed) {
+                suppressed = p.readValueAs(Throwable[].class);
+                continue;
+            }
+
             // Things marked as ignorable should not be passed to any setter
             if ((_ignorableProps != null) && _ignorableProps.contains(propName)) {
                 p.skipChildren();
@@ -156,6 +166,14 @@ public class ThrowableDeserializer
                 }
             }
         }
+
+        if (suppressed != null && throwable instanceof Throwable) {
+            Throwable t = (Throwable) throwable;
+            for (Throwable s : suppressed) {
+                t.addSuppressed(s);
+            }
+        }
+
         return throwable;
     }
 }

@@ -491,6 +491,19 @@ public enum DeserializationFeature implements ConfigFeature
      * @since 2.1
      */
     EAGER_DESERIALIZER_FETCH(true)
+
+    /**
+     * Feature that determines whether {@link ObjectReader} applies default values
+     * defined in class defintions in cases where the input data omits the relevant values.
+     *<p>
+     * Not all modules will respect this feature. Initially, only jackson-module-scala
+     * will respect this feature but other modules will add support over time.
+     *<p>
+     * Feature is enabled by default.
+     *
+     * @since 2.13
+     */
+    APPLY_DEFAULT_VALUES(true)
     
     ;
 

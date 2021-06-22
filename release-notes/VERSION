@@ -4,9 +4,11 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
-2.6.7.5 (not yet released)
+2.6.7.5 (22-Jun-2021)
 
-Backported all CVE fixes up to CVE-2021-20190
+The very last 2.6.7 micro-patch for Jackson.
+
+Backported all CVE fixes up to CVE-2021-20190:
 
 #3004: Block some more DBCP-related potential gadget classes (CVE-2020-36179 / CVE-2020-36182)
 #3003: Block one more gadget type (org.docx4j.org.apache:xalan-interpretive, CVE-2020-36183)

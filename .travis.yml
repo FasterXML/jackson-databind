@@ -5,9 +5,10 @@ git:
   submodules: false
 
 # 30-Nov-2020, tatu: [databind#2832]: add support for ppc64le architecture
-arch:
-  - ppc64le
-  - amd64
+# 23-Jun-2021, tatu: Due to severe limitations of Travis CI, no, cannot double builds
+#arch:
+#  - ppc64le
+#  - amd64
 
 # Since Jackson 2.10 build requires JDK 8 even if only JDK 7 runtime
 # But we also want to test against newer LTS versions

@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.13.0 (not yet released)
+2.13.0 (not yet released) 
 
 #2509: `AnnotatedMethod.getValue()/setValue()` doesn't have useful exception message
  (reported by henryptung@github)

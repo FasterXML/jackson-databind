@@ -53,6 +53,7 @@ Project: jackson-databind
   [dataformats-binary#264] for details)
 - Extend handling of `FAIL_ON_NULL_FOR_PRIMITIVES` to cover coercion from (Empty) String
   via `AsNull`
+- Add `mvnw` wrapper
 
 2.12.4 (not yet released)
 

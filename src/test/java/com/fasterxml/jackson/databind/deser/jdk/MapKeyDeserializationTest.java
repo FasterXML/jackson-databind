@@ -1,7 +1,9 @@
 package com.fasterxml.jackson.databind.deser.jdk;
 
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -10,6 +12,7 @@ import com.fasterxml.jackson.core.Base64Variants;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
 import org.junit.Assert;
 
@@ -64,11 +67,45 @@ public class MapKeyDeserializationTest extends BaseMapTest
         public static TestEnum2725 getByStringId(final String id) {
             return Integer.parseInt(id) == FOO.i ? FOO : null;
         }
-    }    
+    }
+
+    // for [databind#2158]
+    private static final class DummyDto2158 {
+        @JsonValue
+        private final String value;
+
+        private DummyDto2158(String value) {
+            this.value = value;
+        }
+
+        @JsonCreator
+        static DummyDto2158 fromValue(String value) {
+            if (value.isEmpty()) {
+                throw new IllegalArgumentException("Value must be nonempty");
+            }
+
+            return new DummyDto2158(value.toLowerCase(Locale.ROOT));
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return o instanceof DummyDto2158 && ((DummyDto2158) o).value.equals(value);
+        }
+
+        @Override
+        public int hashCode() { return Objects.hash(value); }
+
+        @Override
+        public String toString() { return String.format("DummyDto{value=%s}", value); }
+    }
+
+    private static final TypeReference<Map<DummyDto2158, Integer>> MAP_TYPE_2158 =
+            new TypeReference<Map<DummyDto2158, Integer>>() {};
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods, wrapper keys
-    /**********************************************************
+    /**********************************************************************
      */
 
     final private ObjectMapper MAPPER = objectMapper();
@@ -134,9 +171,9 @@ public class MapKeyDeserializationTest extends BaseMapTest
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods, other
-    /**********************************************************
+    /**********************************************************************
      */
 
     public void testDeserializeKeyViaFactory() throws Exception
@@ -176,5 +213,23 @@ public class MapKeyDeserializationTest extends BaseMapTest
 
         assertNotNull(output);
         assertEquals(1, output.size());
+    }
+
+    // [databind#2158]
+    public void testDeserializeInvalidKey() throws Exception
+    {
+        try {
+            MAPPER.readValue("{ \"\": 0 }", MAP_TYPE_2158);
+            fail("Should no pass");
+        } catch (InvalidFormatException e) {
+            verifyException(e, "Value must be nonempty");
+        }
+    }
+
+    // [databind#2158]
+    public void testNormalizeKey() throws Exception
+    {
+        assertEquals(Collections.singletonMap(DummyDto2158.fromValue("foo"), 0),
+                MAPPER.readValue("{ \"FOO\": 0 }", MAP_TYPE_2158));
     }
 }

@@ -4,10 +4,12 @@ on:
     branches:
     - master
     - "3.0"
+    - "2.13"
   pull_request:
     branches:
     - master
     - "3.0"
+    - "2.13"
 jobs:
   build:
     runs-on: ${{ matrix.os }}

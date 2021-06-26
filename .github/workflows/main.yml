@@ -47,4 +47,4 @@ jobs:
         CI_DEPLOY_USERNAME: ${{ secrets.CI_DEPLOY_USERNAME }}
         CI_DEPLOY_PASSWORD: ${{ secrets.CI_DEPLOY_PASSWORD }}
         # MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
-      run: ./mvnw -V -B -ff -ntp source:jar deploy
+      run: ./mvnw -V -B -ff -DskipTests -ntp source:jar deploy

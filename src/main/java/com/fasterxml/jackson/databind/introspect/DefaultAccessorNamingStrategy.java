@@ -158,16 +158,7 @@ public class DefaultAccessorNamingStrategy
         // otherwise, lower case initial chars. Common case first, just one char
         StringBuilder sb = new StringBuilder(end - offset);
         sb.append(d);
-        int i = offset+1;
-        for (; i < end; ++i) {
-            c = basename.charAt(i);
-            d = Character.toLowerCase(c);
-            if (c == d) {
-                sb.append(basename, i, end);
-                break;
-            }
-            sb.append(d);
-        }
+        sb.append(basename, offset+1, end);
         return sb.toString();
     }
 

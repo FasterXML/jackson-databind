@@ -5,11 +5,19 @@ on:
     - master
     - "3.0"
     - "2.13"
+    paths-ignore:
+    - "README.md"
+    - "release-notes/*"
+    - ".github/**"
   pull_request:
     branches:
     - master
     - "3.0"
     - "2.13"
+    paths-ignore:
+    - "README.md"
+    - "release-notes/*"
+    - ".github/**"
 jobs:
   build:
     runs-on: ${{ matrix.os }}

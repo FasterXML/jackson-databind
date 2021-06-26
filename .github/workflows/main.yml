@@ -50,7 +50,7 @@ jobs:
     - name: Build
       run: ./mvnw -V -B -ff -ntp verify
     - name: Deploy snapshot
-      if: github.event_name != 'pull_request'
+      if: github.event_name != 'pull_request' && matrix.java_version == '8'
       env:
         CI_DEPLOY_USERNAME: ${{ secrets.CI_DEPLOY_USERNAME }}
         CI_DEPLOY_PASSWORD: ${{ secrets.CI_DEPLOY_PASSWORD }}

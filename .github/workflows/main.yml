@@ -1,0 +1,56 @@
+name: Main
+on:
+  push:
+    branches:
+    - master
+    - "3.0"
+    - "2.13"
+    paths-ignore:
+    - "README.md"
+    - "release-notes/*"
+  pull_request:
+    branches:
+    - master
+    - "3.0"
+    - "2.13"
+    paths-ignore:
+    - "README.md"
+    - "release-notes/*"
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        java_version: ['8', '11']
+        os: ['ubuntu-20.04']
+    env:
+      JAVA_OPTS: "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK
+      uses: actions/setup-java@v2
+      with:
+        distribution: "adopt"
+        java-version: ${{ matrix.java_version }}
+        server-id: sonatype-nexus-snapshots
+        server-username: CI_DEPLOY_USERNAME
+        server-password: CI_DEPLOY_PASSWORD
+        # See https://github.com/actions/setup-java/blob/v2/docs/advanced-usage.md#Publishing-using-Apache-Maven
+        # gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }} # Value of the GPG private key to import
+        # gpg-passphrase: MAVEN_GPG_PASSPHRASE # env variable for GPG private key passphrase
+    - uses: actions/cache@v2.1.6
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-
+    - name: Build
+      run: ./mvnw -V -B -ff -ntp verify
+    - name: Deploy snapshot
+      if: github.event_name != 'pull_request' && matrix.java_version == '8'
+      env:
+        CI_DEPLOY_USERNAME: ${{ secrets.CI_DEPLOY_USERNAME }}
+        CI_DEPLOY_PASSWORD: ${{ secrets.CI_DEPLOY_PASSWORD }}
+        # MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+      run: ./mvnw -V -B -ff -DskipTests -ntp source:jar deploy

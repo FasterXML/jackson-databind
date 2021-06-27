@@ -52,7 +52,7 @@ and include these 2 jars explicitly.
 ## Non-Maven dependency resolution
 
 For use cases that do not automaticall resolve dependencies from Maven repositories, you can still
-download jars from [Central Maven repository](http://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-databind/).
+download jars from [Central Maven repository](https://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-databind/).
 
 Databind jar is also a functional OSGi bundle, with proper import/export declarations, so it can be use on OSGi container as is.
 

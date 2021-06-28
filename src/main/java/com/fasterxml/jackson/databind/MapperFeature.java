@@ -569,7 +569,20 @@ public enum MapperFeature implements ConfigFeature
      * 
      * @since 2.11
      */
-    BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES(false)
+    BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES(false),
+
+    /**
+     * Feature that determines whether {@link ObjectReader} applies default values
+     * defined in class defintions in cases where the input data omits the relevant values.
+     *<p>
+     * Not all modules will respect this feature. Initially, only jackson-module-scala
+     * will respect this feature but other modules will add support over time.
+     *<p>
+     * Feature is enabled by default.
+     *
+     * @since 2.13
+     */
+    APPLY_DEFAULT_VALUES(true)
     ;
 
     private final boolean _defaultState;

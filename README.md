@@ -1,17 +1,19 @@
 # Overview
 
 This project contains the general-purpose data-binding functionality
-and tree-model for [Jackson Data Processor](http://wiki.fasterxml.com/JacksonHome).
-It builds on [core streaming parser/generator](../../../jackson-core) package,
+and tree-model for [Jackson Data Processor](../../../jackson).
+It builds on [Streaming API](../../../jackson-core) (stream parser/generator) package,
 and uses [Jackson Annotations](../../../jackson-annotations) for configuration.
 Project is licensed under [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 
-While the original use case for Jackson was JSON data-binding, it can now be used for other data formats as well, as long as parser and generator implementations exist.
+While the original use case for Jackson was JSON data-binding, it can now be used to read content
+encoded in other data formats as well, as long as parser and generator implementations exist.
 Naming of classes uses word 'JSON' in many places even though there is no actual hard dependency to JSON format.
 
-[![Build Status](https://travis-ci.org/FasterXML/jackson-databind.svg?branch=master)](https://travis-ci.org/FasterXML/jackson-databind) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-databind/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-databind)
-[![Javadoc](https://javadoc-emblem.rhcloud.com/doc/com.fasterxml.jackson.core/jackson-databind/badge.svg)](http://www.javadoc.io/doc/com.fasterxml.jackson.core/jackson-databind)
-[![Coverage Status](https://coveralls.io/repos/github/FasterXML/jackson-databind/badge.svg?branch=master)](https://coveralls.io/github/FasterXML/jackson-databind?branch=master)
+[![Build (github)](https://github.com/FasterXML/jackson-databind/actions/workflows/main.yml/badge.svg)](https://github.com/FasterXML/jackson-databind/actions/workflows/main.yml)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-databind/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-databind)
+[![Javadoc](https://javadoc.io/badge/com.fasterxml.jackson.core/jackson-databind.svg)](http://www.javadoc.io/doc/com.fasterxml.jackson.core/jackson-databind)
+[![Tidelift](https://tidelift.com/badges/package/maven/com.fasterxml.jackson.core:jackson-databind)](https://tidelift.com/subscription/pkg/maven-com-fasterxml-jackson-core-jackson-databind?utm_source=maven-com-fasterxml-jackson-core-jackson-databind&utm_medium=referral&utm_campaign=readme)
 
 -----
 
@@ -25,7 +27,7 @@ Functionality of this package is contained in Java package `com.fasterxml.jackso
 <properties>
   ...
   <!-- Use the latest version whenever possible. -->
-  <jackson.version>2.10.0</jackson.version>
+  <jackson.version>2.12.3</jackson.version>
   ...
 </properties>
 
@@ -40,35 +42,23 @@ Functionality of this package is contained in Java package `com.fasterxml.jackso
 </dependencies>
 ```
 
-Since package also depends on `jackson-core` and `jackson-annotations` packages, you will need to download these if not using Maven; and you may also want to add them as Maven dependency to ensure that compatible versions are used.
-If so, also add:
+Package also depends on `jackson-core` and `jackson-annotations` packages, but when using build tools
+like Maven or Gradle, dependencies are automatically included.
+You may, however, want to use [jackson-bom](../../../jackson-bom) to ensure compatible versions
+of dependencies.
+If not using build tool that can handle dependencies using project's `pom.xml`, you will need to download
+and include these 2 jars explicitly.
 
-```xml
-<dependencies>
-  ...
-  <dependency>
-    <!-- Note: core-annotations version x.y.0 is generally compatible with
-         (identical to) version x.y.1, x.y.2, etc. -->
-    <groupId>com.fasterxml.jackson.core</groupId>
-    <artifactId>jackson-annotations</artifactId>
-    <version>${jackson.version}</version>
-  </dependency>
-  <dependency>
-    <groupId>com.fasterxml.jackson.core</groupId>
-    <artifactId>jackson-core</artifactId>
-    <version>${jackson.version}</version>
-  </dependency>
-  ...
-<dependencies>
-```
+## Non-Maven dependency resolution
 
-but note that this is optional, and only necessary if there are conflicts between jackson core dependencies through transitive dependencies.
-
-## Non-Maven
-
-For non-Maven use cases, you download jars from [Central Maven repository](http://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-databind/).
+For use cases that do not automaticall resolve dependencies from Maven repositories, you can still
+download jars from [Central Maven repository](https://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-databind/).
 
 Databind jar is also a functional OSGi bundle, with proper import/export declarations, so it can be use on OSGi container as is.
+
+With Jackson 2.10, jar will also include `module-info.class` to work as proper Java Module.
+
+Jackson 2.12 also includes additional Gradle 6 Module Metadata for version alignment with Gradle.
 
 -----
 
@@ -180,7 +170,7 @@ But let's look at a simple teaser to whet your appetite.
 JsonFactory f = mapper.getFactory(); // may alternatively construct directly too
 
 // First: write simple JSON output
-File jsonFile = new JsonFile("test.json");
+File jsonFile = new File("test.json");
 JsonGenerator g = f.createGenerator(jsonFile);
 // write JSON: { "message" : "Hello world!" }
 g.writeStartObject();
@@ -348,7 +338,7 @@ Alternatively, you can also define "factory methods":
 ```java
 public class FactoryBean
 {
-    // fields etc omitted for brewity
+    // fields etc omitted for brevity
 
     @JsonCreator
     public static FactoryBean create(@JsonProperty("name") String name) {
@@ -390,6 +380,102 @@ byte[] binary = mapper.convertValue(base64, byte[].class);
 
 Basically, Jackson can work as a replacement for many Apache Commons components, for tasks like base64 encoding/decoding, and handling of "dyna beans" (Maps to/from POJOs).
 
+## Tutorial: Builder design pattern + Jackson
+The Builder design pattern is a creational design pattern and can be used to create complex objects step by step.
+If we have an object that needs multiple checks on other dependencies, In such cases, it is preferred to use builder design pattern.
+
+Let's consider the person structure, which has some optional fields
+
+```java
+public class Person {
+    private final String name;
+    private final Integer age;
+ 
+    // getters
+}
+```
+
+Let’s see how we can employ its power in deserialization. First of all, let’s declare a private all-arguments constructor, and a Builder class.
+```java
+private Person(String name, Integer age) {
+    this.name = name;
+    this.age = age;
+}
+ 
+static class Builder {
+    String name;
+    Integer age;
+    
+    Builder withName(String name) {
+        this.name = name;
+        return this;
+    }
+    
+    Builder withAge(Integer age) {
+        this.age = age;
+        return this;
+    }
+    
+    public Person build() {
+        return new Person(name, age);
+    } 
+}
+```
+First of all, we need to mark our class with `@JsonDeserialize` annotation, passing a builder parameter with a fully qualified domain name of a builder class.
+After that, we need to annotate the builder class itself as `@JsonPOJOBuilder`.
+
+```java
+@JsonDeserialize(builder = Person.Builder.class)
+public class Person {
+    //...
+    
+    @JsonPOJOBuilder
+    static class Builder {
+        //...
+    }
+}
+```
+
+A simple unit test will be:
+
+```java
+String json = "{\"name\":\"Hassan\",\"age\":23}";
+Person person = new ObjectMapper().readValue(json, Person.class);
+ 
+assertEquals("Hassan", person.getName());
+assertEquals(23, person.getAge().intValue());
+```
+
+If your builder pattern implementation uses other prefixes for methods or uses other names than build() for the builder method Jackson also provide a handy way for you.
+
+For example, if you have a builder class uses the "set" prefix for its methods and use the create() method instead of build() for building the whole class, you have to annotate your class like:
+```java
+@JsonPOJOBuilder(buildMethodName = "create", withPrefix = "set")
+static class Builder {
+    String name;
+    Integer age;
+    
+    Builder setName(String name) {
+        this.name = name;
+        return this;
+    }
+    
+    Builder setAge(Integer age) {
+        this.age = age;
+        return this;
+    }
+    
+    public Person create() {
+        return new Person(name, age);
+    } 
+}
+```
+
+
+
+
+Overall, Jackson library is very powerful in deserializing objects using builder pattern.
+ 
 # Contribute!
 
 We would love to get your contribution, whether it's in form of bug reports, Requests for Enhancement (RFE), documentation, or code patches.
@@ -401,7 +487,7 @@ There is really just one main rule, which is that to accept any code contributio
 
 ## Limitation on Dependencies by Core Components
 
-One additional limitation exists for so-called core components (streaming api, jackson-annotations and jackson-databind): no additional dependendies are allowed beyond:
+One additional limitation exists for so-called core components (streaming api, jackson-annotations and jackson-databind): no additional dependencies are allowed beyond:
 
 * Core components may rely on any methods included in the supported JDK
     * Minimum JDK version was 1.5 until (and including) version 2.3
@@ -419,8 +505,9 @@ usually a Jackson module.
 `master` branch is for developing the next major Jackson version -- 3.0 -- but there
 are active maintenance branches in which much of development happens:
 
-* `2.10` is the current stable minor 2.x version
-* `2.9` is for selected backported fixes 
+* `2.13` is the branch for "next" minor version to release (as of June 2021)
+* `2.12` is the current stable minor 2.x version
+* `2.11` is for selected backported fixes
 
 Older branches are usually not maintained after being declared as closed
 on [Jackson Releases](https://github.com/FasterXML/jackson/wiki/Jackson-Releases) page,
@@ -429,19 +516,34 @@ All released versions have matching git tags (`jackson-dataformats-binary-2.9.10
 
 -----
 
-# Differences from Jackson 1.x
+## Differences from Jackson 1.x
 
-Project contains versions 2.0 and above: source code for earlier (1.x) versions was available from [Codehaus](http://jackson.codehaus.org) SVN repository, but due to Codehaus closure is currently (July 2015) not officially available.
-We may try to create Jackson1x repository at Github in future (if you care about this, ping Jackson team via mailing lists, or file an issue for this project).
+Project contains versions 2.0 and above: source code for last (1.x) release, 1.9, is available at
+[Jackson-1](../../../jackson-1) repo.
 
-Main differences compared to 1.0 "mapper" jar are:
+Main differences compared to 1.x "mapper" jar are:
 
 * Maven build instead of Ant
 * Java package is now `com.fasterxml.jackson.databind` (instead of `org.codehaus.jackson.map`)
 
 -----
 
-# Further reading
+## Support
+
+### Community support
+
+Jackson components are supported by the Jackson community through mailing lists, Gitter forum, Github issues. See [Participation, Contributing](../../../jackson#participation-contributing) for full details.
+
+
+### Enterprise support
+
+Available as part of the Tidelift Subscription.
+
+The maintainers of `jackson-databind` and thousands of other packages are working with Tidelift to deliver commercial support and maintenance for the open source dependencies you use to build your applications. Save time, reduce risk, and improve code health, while paying the maintainers of the exact dependencies you use. [Learn more.](https://tidelift.com/subscription/pkg/maven-com-fasterxml-jackson-core-jackson-databind?utm_source=maven-com-fasterxml-jackson-core-jackson-databind&utm_medium=referral&utm_campaign=enterprise&utm_term=repo)
+
+-----
+
+## Further reading
 
 * [Overall Jackson Docs](../../../jackson-docs)
 * [Project wiki page](https://github.com/FasterXML/jackson-databind/wiki)
@@ -450,3 +552,6 @@ Related:
 
 * [Core annotations](https://github.com/FasterXML/jackson-annotations) package defines annotations commonly used for configuring databinding details
 * [Core parser/generator](https://github.com/FasterXML/jackson-core) package defines low-level incremental/streaming parsers, generators
+* [Jackson Project Home](../../../jackson) has links to all modules
+* [Jackson Docs](../../../jackson-docs) is project's documentation hub
+

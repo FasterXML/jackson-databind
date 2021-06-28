@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.13.0 (not yet released)
+2.13.0 (not yet released) 
 
 #2509: `AnnotatedMethod.getValue()/setValue()` doesn't have useful exception message
  (reported by henryptung@github)
@@ -53,6 +53,7 @@ Project: jackson-databind
   [dataformats-binary#264] for details)
 - Extend handling of `FAIL_ON_NULL_FOR_PRIMITIVES` to cover coercion from (Empty) String
   via `AsNull`
+- Add `mvnw` wrapper
 
 2.12.4 (not yet released)
 

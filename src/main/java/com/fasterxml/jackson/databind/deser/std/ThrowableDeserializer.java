@@ -111,14 +111,6 @@ public class ThrowableDeserializer
             if (isMessage) {
                 if (hasStringCreator) {
                     throwable = _valueInstantiator.createFromString(ctxt, p.getValueAsString());
-                    // any pending values?
-                    if (pending != null) {
-                        for (int i = 0, len = pendingIx; i < len; i += 2) {
-                            prop = (SettableBeanProperty)pending[i];
-                            prop.set(throwable, pending[i+1]);
-                        }
-                        pending = null;
-                    }
                     continue;
                 }
             }
@@ -126,7 +118,7 @@ public class ThrowableDeserializer
             // Maybe it's "suppressed"?
             final boolean isSuppressed = PROP_NAME_SUPPRESSED.equals(propName);
             if (isSuppressed) {
-                suppressed = p.readValueAs(Throwable[].class);
+                suppressed = ctxt.readValue(p, Throwable[].class);
                 continue;
             }
 
@@ -158,15 +150,17 @@ public class ThrowableDeserializer
             } else {
                 throwable = _valueInstantiator.createUsingDefault(ctxt);
             }
-            // any pending values?
-            if (pending != null) {
-                for (int i = 0, len = pendingIx; i < len; i += 2) {
-                    SettableBeanProperty prop = (SettableBeanProperty)pending[i];
-                    prop.set(throwable, pending[i+1]);
-                }
+        }
+
+        // any pending values?
+        if (pending != null) {
+            for (int i = 0, len = pendingIx; i < len; i += 2) {
+                SettableBeanProperty prop = (SettableBeanProperty)pending[i];
+                prop.set(throwable, pending[i+1]);
             }
         }
 
+        // any suppressed exceptions?
         if (suppressed != null && throwable instanceof Throwable) {
             Throwable t = (Throwable) throwable;
             for (Throwable s : suppressed) {

@@ -51,6 +51,8 @@ Project: jackson-databind
  (contributed by Tarekk Mohamed A)
 #3174: DOM `Node` serialization omits the default namespace declaration
  (contributed by Morten A-G)
+#3193: Add `MapperFeature.APPLY_DEFAULT_VALUES`, initially for Scala module
+ (suggested by Nick B)
 - Fix to avoid problem with `BigDecimalNode`, scale of `Integer.MIN_VALUE` (see
   [dataformats-binary#264] for details)
 - Extend handling of `FAIL_ON_NULL_FOR_PRIMITIVES` to cover coercion from (Empty) String

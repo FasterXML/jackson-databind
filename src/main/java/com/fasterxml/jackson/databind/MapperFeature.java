@@ -389,8 +389,20 @@ public enum MapperFeature
      * Feature is enabled by default, to allow use of merge defaults even in presence
      * of some unmergeable properties.
      */
-    IGNORE_MERGE_FOR_UNMERGEABLE(true)
+    IGNORE_MERGE_FOR_UNMERGEABLE(true),
 
+    /**
+     * Feature that determines whether {@link ObjectReader} applies default values
+     * defined in class definitions in cases where the input data omits the relevant values.
+     *<p>
+     * Not all modules will respect this feature. Initially, only {@code jackson-module-scala}
+     * will respect this feature but other modules will add support over time.
+     *<p>
+     * Feature is enabled by default.
+     *
+     * @since 2.13
+     */
+    APPLY_DEFAULT_VALUES(true)
     ;
 
     private final boolean _defaultState;

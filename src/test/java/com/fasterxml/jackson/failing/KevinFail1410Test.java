@@ -68,7 +68,7 @@ public class KevinFail1410Test extends BaseMapTest
 
     public void testDupProps() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = newJsonMapper();
         EnvironmentEvent event = new BackendEvent("foo", "hello", "bar", null);
         String ser = mapper
                 .writerWithDefaultPrettyPrinter()

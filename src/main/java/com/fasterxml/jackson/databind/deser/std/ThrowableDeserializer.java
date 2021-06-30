@@ -22,9 +22,9 @@ public class ThrowableDeserializer
     protected final static String PROP_NAME_SUPPRESSED = "suppressed";
 
     /*
-    /************************************************************
-    /* Construction
-    /************************************************************
+    /**********************************************************************
+    /* Life-cycle
+    /**********************************************************************
      */
 
     public ThrowableDeserializer(BeanDeserializer baseDeserializer) {
@@ -45,17 +45,16 @@ public class ThrowableDeserializer
         if (getClass() != ThrowableDeserializer.class) {
             return this;
         }
-        /* main thing really is to just enforce ignoring of unknown
-         * properties; since there may be multiple unwrapped values
-         * and properties for all may be interleaved...
-         */
+        // main thing really is to just enforce ignoring of unknown
+        // properties; since there may be multiple unwrapped values
+        // and properties for all may be interleaved...
         return new ThrowableDeserializer(this, unwrapper);
     }
 
     /*
-    /************************************************************
+    /**********************************************************************
     /* Overridden methods
-    /************************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -81,7 +80,7 @@ public class ThrowableDeserializer
                     "Throwable needs a default constructor, a single-String-arg constructor; or explicit @JsonCreator");
         }
         
-        Object throwable = null;
+        Throwable throwable = null;
         Object[] pending = null;
         Throwable[] suppressed = null;
         int pendingIx = 0;
@@ -107,17 +106,12 @@ public class ThrowableDeserializer
             }
 
             // Maybe it's "message"?
-            final boolean isMessage = PROP_NAME_MESSAGE.equals(propName);
-            if (isMessage) {
+            if (PROP_NAME_MESSAGE.equals(propName)) {
                 if (hasStringCreator) {
-                    throwable = _valueInstantiator.createFromString(ctxt, p.getValueAsString());
+                    throwable = (Throwable) _valueInstantiator.createFromString(ctxt, p.getValueAsString());
                     continue;
                 }
-            }
-
-            // Maybe it's "suppressed"?
-            final boolean isSuppressed = PROP_NAME_SUPPRESSED.equals(propName);
-            if (isSuppressed) {
+            } else if (PROP_NAME_SUPPRESSED.equals(propName)) { // or "suppressed"?
                 suppressed = ctxt.readValue(p, Throwable[].class);
                 continue;
             }
@@ -146,9 +140,9 @@ public class ThrowableDeserializer
              */
             //throw new XxxException("No 'message' property found: could not deserialize "+_beanType);
             if (hasStringCreator) {
-                throwable = _valueInstantiator.createFromString(ctxt, null);
+                throwable = (Throwable) _valueInstantiator.createFromString(ctxt, null);
             } else {
-                throwable = _valueInstantiator.createUsingDefault(ctxt);
+                throwable = (Throwable) _valueInstantiator.createUsingDefault(ctxt);
             }
         }
 
@@ -161,10 +155,9 @@ public class ThrowableDeserializer
         }
 
         // any suppressed exceptions?
-        if (suppressed != null && throwable instanceof Throwable) {
-            Throwable t = (Throwable) throwable;
+        if (suppressed != null) {
             for (Throwable s : suppressed) {
-                t.addSuppressed(s);
+                throwable.addSuppressed(s);
             }
         }
 

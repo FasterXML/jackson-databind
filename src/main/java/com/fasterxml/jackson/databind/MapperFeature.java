@@ -573,9 +573,9 @@ public enum MapperFeature implements ConfigFeature
 
     /**
      * Feature that determines whether {@link ObjectReader} applies default values
-     * defined in class defintions in cases where the input data omits the relevant values.
+     * defined in class definitions in cases where the input data omits the relevant values.
      *<p>
-     * Not all modules will respect this feature. Initially, only jackson-module-scala
+     * Not all modules will respect this feature. Initially, only {@code jackson-module-scala}
      * will respect this feature but other modules will add support over time.
      *<p>
      * Feature is enabled by default.

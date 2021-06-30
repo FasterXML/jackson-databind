@@ -18,10 +18,11 @@ public class ThrowableDeserializer
     extends BeanDeserializer
 {
     protected final static String PROP_NAME_MESSAGE = "message";
+    protected final static String PROP_NAME_SUPPRESSED = "suppressed";
 
     /*
     /**********************************************************************
-    /* Construction
+    /* Life-cycle
     /**********************************************************************
      */
 
@@ -66,7 +67,8 @@ public class ThrowableDeserializer
      */
 
     @Override
-    public Object deserializeFromObject(JsonParser p, DeserializationContext ctxt) throws JacksonException
+    public Object deserializeFromObject(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
     {
         // 30-Sep-2010, tatu: Need to allow use of @JsonCreator, so:
         if (_propertyBasedCreator != null) { // proper @JsonCreator
@@ -88,8 +90,9 @@ public class ThrowableDeserializer
                     "Throwable needs a default constructor, a single-String-arg constructor; or explicit @JsonCreator");
         }
         
-        Object throwable = null;
+        Throwable throwable = null;
         Object[] pending = null;
+        Throwable[] suppressed = null;
         int pendingIx = 0;
 
         int ix = p.currentNameMatch(_propNameMatcher);
@@ -119,10 +122,9 @@ public class ThrowableDeserializer
             // Maybe it's "message"?
             String propName = p.currentName();
             p.nextToken();
-            final boolean isMessage = PROP_NAME_MESSAGE.equals(propName);
-            if (isMessage) {
+            if (PROP_NAME_MESSAGE.equals(propName)) {
                 if (hasStringCreator) {
-                    throwable = _valueInstantiator.createFromString(ctxt, p.getValueAsString());
+                    throwable = (Throwable) _valueInstantiator.createFromString(ctxt, p.getValueAsString());
                     // any pending values?
                     if (pending != null) {
                         for (int i = 0, len = pendingIx; i < len; i += 2) {
@@ -133,7 +135,11 @@ public class ThrowableDeserializer
                     }
                     continue;
                 }
+            } else if (PROP_NAME_SUPPRESSED.equals(propName)) { // or "suppressed"?
+                suppressed = ctxt.readValue(p, Throwable[].class);
+                continue;
             }
+
             // Things marked as ignorable should not be passed to any setter
             if ((_ignorableProps != null) && _ignorableProps.contains(propName)) {
                 p.skipChildren();
@@ -157,18 +163,27 @@ public class ThrowableDeserializer
             //   Should probably allow use of default constructor, too...
             //throw new XxxException("No 'message' property found: could not deserialize "+_beanType);
             if (hasStringCreator) {
-                throwable = _valueInstantiator.createFromString(ctxt, null);
+                throwable = (Throwable) _valueInstantiator.createFromString(ctxt, null);
             } else {
-                throwable = _valueInstantiator.createUsingDefault(ctxt);
-            }
-            // any pending values?
-            if (pending != null) {
-                for (int i = 0, len = pendingIx; i < len; i += 2) {
-                    SettableBeanProperty prop = (SettableBeanProperty)pending[i];
-                    prop.set(throwable, pending[i+1]);
-                }
+                throwable = (Throwable) _valueInstantiator.createUsingDefault(ctxt);
             }
         }
+
+        // any pending values?
+        if (pending != null) {
+            for (int i = 0, len = pendingIx; i < len; i += 2) {
+                SettableBeanProperty prop = (SettableBeanProperty)pending[i];
+                prop.set(throwable, pending[i+1]);
+            }
+        }
+
+        // any suppressed exceptions?
+        if (suppressed != null) {
+            for (Throwable s : suppressed) {
+                throwable.addSuppressed(s);
+            }
+        }
+
         return throwable;
     }
 }

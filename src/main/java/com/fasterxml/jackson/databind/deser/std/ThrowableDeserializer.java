@@ -19,6 +19,7 @@ public class ThrowableDeserializer
     private static final long serialVersionUID = 1L;
 
     protected final static String PROP_NAME_MESSAGE = "message";
+    protected final static String PROP_NAME_SUPPRESSED = "suppressed";
 
     /*
     /************************************************************
@@ -82,6 +83,7 @@ public class ThrowableDeserializer
         
         Object throwable = null;
         Object[] pending = null;
+        Throwable[] suppressed = null;
         int pendingIx = 0;
 
         for (; !p.hasToken(JsonToken.END_OBJECT); p.nextToken()) {
@@ -109,17 +111,17 @@ public class ThrowableDeserializer
             if (isMessage) {
                 if (hasStringCreator) {
                     throwable = _valueInstantiator.createFromString(ctxt, p.getValueAsString());
-                    // any pending values?
-                    if (pending != null) {
-                        for (int i = 0, len = pendingIx; i < len; i += 2) {
-                            prop = (SettableBeanProperty)pending[i];
-                            prop.set(throwable, pending[i+1]);
-                        }
-                        pending = null;
-                    }
                     continue;
                 }
             }
+
+            // Maybe it's "suppressed"?
+            final boolean isSuppressed = PROP_NAME_SUPPRESSED.equals(propName);
+            if (isSuppressed) {
+                suppressed = ctxt.readValue(p, Throwable[].class);
+                continue;
+            }
+
             // Things marked as ignorable should not be passed to any setter
             if ((_ignorableProps != null) && _ignorableProps.contains(propName)) {
                 p.skipChildren();
@@ -148,14 +150,24 @@ public class ThrowableDeserializer
             } else {
                 throwable = _valueInstantiator.createUsingDefault(ctxt);
             }
-            // any pending values?
-            if (pending != null) {
-                for (int i = 0, len = pendingIx; i < len; i += 2) {
-                    SettableBeanProperty prop = (SettableBeanProperty)pending[i];
-                    prop.set(throwable, pending[i+1]);
-                }
+        }
+
+        // any pending values?
+        if (pending != null) {
+            for (int i = 0, len = pendingIx; i < len; i += 2) {
+                SettableBeanProperty prop = (SettableBeanProperty)pending[i];
+                prop.set(throwable, pending[i+1]);
             }
         }
+
+        // any suppressed exceptions?
+        if (suppressed != null && throwable instanceof Throwable) {
+            Throwable t = (Throwable) throwable;
+            for (Throwable s : suppressed) {
+                t.addSuppressed(s);
+            }
+        }
+
         return throwable;
     }
 }

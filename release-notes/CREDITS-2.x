@@ -1351,3 +1351,6 @@ Morten Andersen-Gott (magott@github)
   * Contributed #3174: DOM `Node` serialization omits the default namespace declaration
    (2.13.0)
 
+Nick Benoit (nick-benoit14@github)
+  * Proposed #3193: Add `MapperFeature.APPLY_DEFAULT_VALUES`, initially for Scala module
+   (2.13.0)

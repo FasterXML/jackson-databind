@@ -9,28 +9,11 @@ jdk:
   - openjdk8
   - openjdk11
 
-# 2021-06-25, tatu: Stop snapshot builds via Travis, only check for fails
-
-# Below this line is configuration for deploying to the Sonatype OSS repo
-# https://knowm.org/configure-travis-ci-to-deploy-snapshots/
-#before_install: 
-#  - "git clone -b travis `git config --get remote.origin.url` target/travis"
-#  - mkdir -p /opt/maven
-#  - curl https://downloads.apache.org/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz|tar -xz --strip 1 -C /opt/maven
-#  - export MAVEN_HOME=/opt/maven
-#  - export PATH=${MAVEN_HOME}/bin:${PATH}
-
-#script: "[ ${TRAVIS_PULL_REQUEST} = 'false' ] && mvn -B source:jar deploy --settings target/travis/settings.xml || mvn clean verify --settings target/travis/settings.xml"
-
-script: mvn -B clean verify
-
 # whitelist
 branches:
   only:
     - master
     - "3.0"
 
-#env:
-#  global:
-#    - secure: "ZIFMeNzZCvLYWICiUyHFSm8Ypz6lYFbF/+LGz6a+Sh8B9tSnvYvlrE4gSFJj3NzRWY0RG/vizoyFEpVgxOnzXDMLuuy/dreupnHR1FfVmiaiceK4JHRwAzl0lQzr2hdVwJbqpX0GfrxKmbg8Jvv9WPKtfM6X4167ElVj4O/8IRc="
-#    - secure: "VOC/J8eFbM2OeysBp0Gx0G73MySRATCoN7hc9Ok0kJXE/dbE/2KOoFlTwwxUgErwJXkjJKKXafYcbq/22S7wkaoDW5XAvplSu3skxdE0NRGVzozcDMXO5UoGlt9Ti4XIBMCvy7bB/NO+J5IgNedCtcNnBsrGZCdodW3DTYtqQLs="
+# 2021-06-25, tatu: Stop snapshot builds via Travis, only check for fails
+script: mvn -B clean verify

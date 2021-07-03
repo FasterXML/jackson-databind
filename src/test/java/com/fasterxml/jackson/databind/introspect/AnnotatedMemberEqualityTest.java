@@ -25,6 +25,7 @@ public class AnnotatedMemberEqualityTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+ // [databind#3187]
     public void testAnnotatedConstructorEquality() {
         DeserializationConfig context = MAPPER.deserializationConfig();
         JavaType beanType = MAPPER.constructType(SomeBean.class);
@@ -41,6 +42,7 @@ public class AnnotatedMemberEqualityTest extends BaseMapTest
         assertEquals(constructor1.getParameter(0), constructor2.getParameter(0));
     }
 
+    // [databind#3187]
     public void testAnnotatedMethodEquality() {
         DeserializationConfig context = MAPPER.deserializationConfig();
         JavaType beanType = MAPPER.constructType(SomeBean.class);
@@ -59,6 +61,7 @@ public class AnnotatedMemberEqualityTest extends BaseMapTest
         assertEquals(method1.getParameter(0), method2.getParameter(0));
     }
 
+    // [databind#3187]
     public void testAnnotatedFieldEquality() {
         DeserializationConfig context = MAPPER.deserializationConfig();
         JavaType beanType = MAPPER.constructType(SomeBean.class);

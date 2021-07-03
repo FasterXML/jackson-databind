@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.ser;
+package com.fasterxml.jackson.failing;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -19,16 +19,82 @@ import java.util.TreeSet;
  * at the same level to be sometimes serialized as
  * IDs when they could have not yet been visited.
  */
-public class TestCollectionCyclicReference
-        extends BaseMapTest {
+public class CyclicRefViaCollection3069Test
+    extends BaseMapTest
+{
+    // [databind#3069]
+    @JsonIdentityInfo(
+            generator = ObjectIdGenerators.PropertyGenerator.class
+            , property = "id"
+            , scope = Bean.class
+    )
+    static class Bean implements Comparable<Bean>
+    {
+        final int _id;
+        final String _name;
+        Collection<Bean> _next;
+
+        public Bean(int id, String name) {
+            _id = id;
+            _name = name;
+        }
+
+        public int getId() {
+            return _id;
+        }
+
+        public Collection<Bean> getNext() {
+            return _next;
+        }
+
+        public void setNext(final Collection<Bean> n) {
+            _next = n;
+        }
+
+        public String getName() {
+            return _name;
+        }
+
+        @Override
+        public int compareTo(Bean o) {
+            if (o == null) {
+                return -1;
+            }
+            return Integer.compare(_id, ((Bean) o).getId());
+        }
+    }
+
     /*
     /**********************************************************
-    /* Helper bean classes
+    /* Test methods
     /**********************************************************
      */
 
-    public void testSerialization() throws Exception {
+    private final ObjectMapper MAPPER = new ObjectMapper();
 
+    // [databind#3069]
+    public void testSerializationCollection() throws Exception
+    {
+        testSerializationCollection(MAPPER, new TreeSet<>(abc()));
+        //testSerializationEnumSet(MAPPER, EnumSet.of(addEnum(BeanEnum.class, a), addEnum(BeanEnum.class, b)));
+    }
+
+    public void testSerializationList() throws Exception
+    {
+        testSerializationIndexedList(MAPPER, abc());
+    }
+
+    public void testSerializationIterable() throws Exception
+    {
+        testSerializationIterable(MAPPER, new PriorityQueue<>(abc()));
+    }
+
+    public void testSerializationIterator() throws Exception
+    {
+        testSerializationIterator(MAPPER, abc().iterator());
+    }
+
+    private List<Bean> abc() {
         final Bean a = new Bean(1, "A");
         final Bean b = new Bean(2, "B");
         final Bean c = new Bean(3, "C");
@@ -37,15 +103,9 @@ public class TestCollectionCyclicReference
         b.setNext(Arrays.asList(a, c));
         c.setNext(Arrays.asList(a, b));
 
-        final ObjectMapper mapper = new ObjectMapper();
-
-        testSerializationCollection(mapper, new TreeSet<>(Arrays.asList(a, b, c)));
-        //testSerializationEnumSet(mapper, EnumSet.of(addEnum(BeanEnum.class, a), addEnum(BeanEnum.class, b)));
-        testSerializationIndexedList(mapper, Arrays.asList(a, b, c));
-        testSerializationIterable(mapper, new PriorityQueue<>(Arrays.asList(a, b, c)));
-        testSerializationIterator(mapper, Arrays.asList(a, b, c).iterator());
+        return Arrays.asList(a, b, c);
     }
-
+    
     public void testSerializationCollection(final ObjectMapper mapper, final Collection<Bean> collection)
             throws Exception {
         assertEquals(getExpectedResult(), mapper.writeValueAsString(collection));
@@ -97,51 +157,5 @@ public class TestCollectionCyclicReference
         builder.append("]}");
         builder.append("]");
         return builder.toString();
-    }
-
-    /*
-    /**********************************************************
-    /* Types
-    /**********************************************************
-     */
-
-    @JsonIdentityInfo(
-            generator = ObjectIdGenerators.PropertyGenerator.class
-            , property = "id"
-            , scope = Bean.class
-    )
-    static class Bean implements Comparable {
-        final int _id;
-        final String _name;
-        Collection<Bean> _next;
-
-        public Bean(int id, String name) {
-            _id = id;
-            _name = name;
-        }
-
-        public int getId() {
-            return _id;
-        }
-
-        public Collection<Bean> getNext() {
-            return _next;
-        }
-
-        public void setNext(final Collection<Bean> n) {
-            _next = n;
-        }
-
-        public String getName() {
-            return _name;
-        }
-
-        @Override
-        public int compareTo(Object o) {
-            if (o == null) {
-                return -1;
-            }
-            return o instanceof Bean ? Integer.compare(_id, ((Bean) o).getId()) : 0;
-        }
     }
 }

@@ -51,6 +51,8 @@ Project: jackson-databind
  (contributed by Morten A-G)
 #3177: Support `suppressed` property when deserializing `Throwable`
  (contributed by Klaas D)
+#3187: `AnnotatedMember.equals()` does not work reliably
+ (contributed by Klaas D)
 #3193: Add `MapperFeature.APPLY_DEFAULT_VALUES`, initially for Scala module
  (suggested by Nick B)
 - Fix to avoid problem with `BigDecimalNode`, scale of `Integer.MIN_VALUE` (see

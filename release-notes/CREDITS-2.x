@@ -1354,6 +1354,8 @@ Morten Andersen-Gott (magott@github)
 Klaas Dellschaft (klaasdellschaft@github)
   * Contributed #3177: Support `suppressed` property when deserializing `Throwable`
    (2.13.0)
+  * Contributed #3187: `AnnotatedMember.equals()` does not work reliably
+   (2.13.0)
 
 Nick Benoit (nick-benoit14@github)
   * Proposed #3193: Add `MapperFeature.APPLY_DEFAULT_VALUES`, initially for Scala module

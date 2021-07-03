@@ -135,8 +135,16 @@ public final class AnnotatedField
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
-        return ClassUtil.hasClass(o, getClass())
-                && (((AnnotatedField) o)._field == _field);
+        if (!ClassUtil.hasClass(o, getClass())) {
+            return false;
+        }
+
+        AnnotatedField other = (AnnotatedField) o;
+        if (other._field == null) {
+            return _field == null;
+        } else {
+            return other._field.equals(_field);
+        }
     }
 
     @Override

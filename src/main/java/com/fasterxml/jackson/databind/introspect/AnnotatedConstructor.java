@@ -1,6 +1,8 @@
 package com.fasterxml.jackson.databind.introspect;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Member;
+import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -151,11 +153,19 @@ public final class AnnotatedConstructor
     public int hashCode() {
         return _constructor.getName().hashCode();
     }
-    
+
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
-        return ClassUtil.hasClass(o, getClass())
-                && (((AnnotatedConstructor) o)._constructor == _constructor);
+        if (!ClassUtil.hasClass(o, getClass())) {
+            return false;
+        }
+
+        AnnotatedConstructor other = (AnnotatedConstructor) o;
+        if (other._constructor == null) {
+            return _constructor == null;
+        } else {
+            return other._constructor.equals(_constructor);
+        }
     }
 }

@@ -205,7 +205,15 @@ public final class AnnotatedMethod
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
-        return ClassUtil.hasClass(o, getClass())
-                && (((AnnotatedMethod) o)._method == _method);
+        if (!ClassUtil.hasClass(o, getClass())) {
+            return false;
+        }
+
+        AnnotatedMethod other = (AnnotatedMethod) o;
+        if (other._method == null) {
+            return _method == null;
+        } else {
+            return other._method.equals(_method);
+        }
     }
 }

@@ -19,6 +19,8 @@ import java.util.TreeSet;
  * at the same level to be sometimes serialized as
  * IDs when they could have not yet been visited.
  */
+// 02-Jul-2021, tatu: not sure if this is valid, but adding for further
+//   inspection
 public class CyclicRefViaCollection3069Test
     extends BaseMapTest
 {

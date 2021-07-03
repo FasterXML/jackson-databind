@@ -4,12 +4,10 @@ import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 
-public class AnnotatedMemberEqualityTest extends BaseMapTest {
-
-    private static class SomeBean {
-
+public class AnnotatedMemberEqualityTest extends BaseMapTest
+{
+    static class SomeBean {
         private String value;
 
         public SomeBean(String value) {
@@ -25,10 +23,11 @@ public class AnnotatedMemberEqualityTest extends BaseMapTest {
         }
     }
 
+    private final ObjectMapper MAPPER = newJsonMapper();
+
     public void testAnnotatedConstructorEquality() {
-        ObjectMapper mapper = new JsonMapper();
-        DeserializationConfig context = mapper.getDeserializationConfig();
-        JavaType beanType = mapper.constructType(SomeBean.class);
+        DeserializationConfig context = MAPPER.deserializationConfig();
+        JavaType beanType = MAPPER.constructType(SomeBean.class);
 
         AnnotatedClass instance1 = AnnotatedClassResolver.resolve(context, beanType, context);
         AnnotatedClass instance2 = AnnotatedClassResolver.resolve(context, beanType, context);
@@ -43,9 +42,8 @@ public class AnnotatedMemberEqualityTest extends BaseMapTest {
     }
 
     public void testAnnotatedMethodEquality() {
-        ObjectMapper mapper = new JsonMapper();
-        DeserializationConfig context = mapper.getDeserializationConfig();
-        JavaType beanType = mapper.constructType(SomeBean.class);
+        DeserializationConfig context = MAPPER.deserializationConfig();
+        JavaType beanType = MAPPER.constructType(SomeBean.class);
 
         AnnotatedClass instance1 = AnnotatedClassResolver.resolve(context, beanType, context);
         AnnotatedClass instance2 = AnnotatedClassResolver.resolve(context, beanType, context);
@@ -62,9 +60,8 @@ public class AnnotatedMemberEqualityTest extends BaseMapTest {
     }
 
     public void testAnnotatedFieldEquality() {
-        ObjectMapper mapper = new JsonMapper();
-        DeserializationConfig context = mapper.getDeserializationConfig();
-        JavaType beanType = mapper.constructType(SomeBean.class);
+        DeserializationConfig context = MAPPER.deserializationConfig();
+        JavaType beanType = MAPPER.constructType(SomeBean.class);
 
         AnnotatedClass instance1 = AnnotatedClassResolver.resolve(context, beanType, context);
         AnnotatedClass instance2 = AnnotatedClassResolver.resolve(context, beanType, context);
@@ -76,5 +73,4 @@ public class AnnotatedMemberEqualityTest extends BaseMapTest {
         assertEquals(field1.getAnnotated(), field2.getAnnotated());
         assertEquals(field1, field2);
     }
-
 }

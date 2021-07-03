@@ -40,7 +40,7 @@ public final class EnumValues
         return constructFromName(config, enumClass);
     }
 
-    public static EnumValues constructFromName(MapperConfig<?> config, Class<Enum<?>> enumClass)
+    public static EnumValues constructFromName(SerializationConfig config, Class<Enum<?>> enumClass)
     {
         // Enum types with per-instance sub-classes need special handling
         Class<? extends Enum<?>> enumCls = ClassUtil.findEnumType(enumClass);
@@ -56,6 +56,9 @@ public final class EnumValues
             String name = names[i];
             if (name == null) {
                 name = en.name();
+            }
+            if (config.isEnabled(SerializationFeature.WRITE_ENUMS_LOWERCASED)) {
+                name = name.toLowerCase();
             }
             textual[en.ordinal()] = config.compileString(name);
         }

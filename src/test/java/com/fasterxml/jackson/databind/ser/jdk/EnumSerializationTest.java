@@ -213,6 +213,19 @@ public class EnumSerializationTest
         assertEquals("\"foo\"", MAPPER.writeValueAsString(SerializableEnum.A));
     }
 
+    public void testToLowerCasedEnum() throws Exception
+    {
+        ObjectMapper m = jsonMapperBuilder()
+                .configure(SerializationFeature.WRITE_ENUMS_LOWERCASED, true)
+                .build();
+        assertEquals("\"b\"", m.writeValueAsString(TestEnum.B));
+
+        // [databind#749] but should also be able to dynamically disable
+        assertEquals("\"B\"",
+                m.writer().without(SerializationFeature.WRITE_ENUMS_LOWERCASED)
+                        .writeValueAsString(LowerCaseEnum.B));
+    }
+
     public void testToStringEnum() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()

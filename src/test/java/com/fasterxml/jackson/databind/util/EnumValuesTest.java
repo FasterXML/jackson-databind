@@ -38,6 +38,19 @@ public class EnumValuesTest extends BaseMapTest
     }
 
     @SuppressWarnings("unchecked")
+    public void testConstructFromNameLowerCased() {
+        SerializationConfig cfg = MAPPER.serializationConfig()
+                .with(SerializationFeature.WRITE_ENUMS_LOWERCASED);
+        Class<Enum<?>> enumClass = (Class<Enum<?>>)(Class<?>) ABC.class;
+        EnumValues values = EnumValues.construct(cfg, enumClass);
+        assertEquals("a", values.serializedValueFor(ABC.A).toString());
+        assertEquals("b", values.serializedValueFor(ABC.B).toString());
+        assertEquals("c", values.serializedValueFor(ABC.C).toString());
+        assertEquals(3, values.values().size());
+        assertEquals(3, values.internalMap().size());
+    }
+
+    @SuppressWarnings("unchecked")
     public void testConstructWithToString() {
         SerializationConfig cfg = MAPPER.serializationConfig()
                 .with(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);

@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
@@ -169,6 +170,14 @@ public enum MapperFeature
      * until 2.6)
      */
     OVERRIDE_PUBLIC_ACCESS_MODIFIERS(true),
+
+    /**
+     * Feature that inverse logic in {@link JsonProperty#access}
+     * for <code>READ_ONLY</code> and <code>WRITE_ONLY</code>.
+     *<p>
+     * Feature is disabled by default.
+     */
+    INVERSE_READ_WRITE_ACCESS(false),
 
     /*
     /**********************************************************************

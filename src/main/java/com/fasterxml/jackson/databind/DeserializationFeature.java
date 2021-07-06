@@ -464,7 +464,7 @@ public enum DeserializationFeature implements ConfigFeature
      *<p>
      *<p>
      * Taking above into account, this feature is supported only by extension modules for
-     * Joda and Java 8 date/tyime datatypes.
+     * Joda and Java 8 date/time datatypes.
      * 
      * @since 2.2
      */

@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.12.4 (not yet released)
+2.12.4 (06-Jul-2021)
 
 #3139: Deserialization of "empty" subtype with DEDUCTION failed
  (reported by JoeWoo; fix provided by drekbour@github)

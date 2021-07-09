@@ -238,13 +238,16 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
             _resync();
             // fall-through
         case STATE_MAY_HAVE_VALUE:
+            if (_parser == null) {
+                return false;
+            }
             JsonToken t = _parser.currentToken();
             if (t == null) { // un-initialized or cleared; find next
                 t = _parser.nextToken();
                 // If EOF, no more, or if we hit END_ARRAY (although we don't clear the token).
                 if (t == null || t == JsonToken.END_ARRAY) {
                     _state = STATE_CLOSED;
-                    if (_closeParser && (_parser != null)) {
+                    if (_closeParser) {
                         _parser.close();
                     }
                     return false;

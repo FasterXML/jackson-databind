@@ -113,6 +113,9 @@ public class ISO8601Utils
      * @throws ParseException if the date is not in the appropriate format
      */
     public static Date parse(String date, ParsePosition pos) throws ParseException {
+        if (date == null) {
+            throw new IllegalArgumentException("No date provided");
+        }
         Exception fail = null;
         try {
             int offset = pos.getIndex();

@@ -1895,7 +1895,8 @@ inputDesc, _coercedTypeDesc());
     {
         if (nulls == Nulls.FAIL) {
             if (prop == null) {
-                return NullsFailProvider.constructForRootValue(ctxt.constructType(valueDeser.handledType()));
+                final Class<?> type = valueDeser != null ? valueDeser.handledType() : null;
+                return NullsFailProvider.constructForRootValue(ctxt.constructType(type));
             }
             return NullsFailProvider.constructForProperty(prop);
         }
@@ -1912,7 +1913,7 @@ inputDesc, _coercedTypeDesc());
             if (valueDeser instanceof BeanDeserializerBase) {
                 ValueInstantiator vi = ((BeanDeserializerBase) valueDeser).getValueInstantiator();
                 if (!vi.canCreateUsingDefault()) {
-                    final JavaType type = prop.getType();
+                    final JavaType type = prop != null ? prop.getType() : null;
                     ctxt.reportBadDefinition(type,
                             String.format("Cannot create empty instance of %s, no default Creator", type));
                 }

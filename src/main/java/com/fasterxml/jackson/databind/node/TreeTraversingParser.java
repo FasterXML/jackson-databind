@@ -194,7 +194,7 @@ public class TreeTraversingParser extends ParserMinimalBase
     @Override
     public String getText()
     {
-        if (_closed) {
+        if (_closed || _currToken == null) {
             return null;
         }
         // need to separate handling a bit...

@@ -431,7 +431,7 @@ public class BeanPropertyMap
         int end = _hashArea.length;
 
         for (;; i += 2) {
-            if (i > end) {
+            if (i >= end) {
                 throw new NoSuchElementException("No entry '"+origProp.getName()+"' found, can't replace");
             }
             if (_hashArea[i] == origProp) {

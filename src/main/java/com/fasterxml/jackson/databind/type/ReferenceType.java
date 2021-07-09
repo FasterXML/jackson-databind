@@ -31,7 +31,7 @@ public class ReferenceType extends SimpleType
             JavaType anchorType,
             Object valueHandler, Object typeHandler, boolean asStatic)
     {
-        super(cls, bindings, superClass, superInts, refType.hashCode(),
+        super(cls, bindings, superClass, superInts, refType != null ? refType.hashCode() : 0,
                 valueHandler, typeHandler, asStatic);
         _referencedType = refType;
         _anchorType = (anchorType == null) ? this : anchorType;

@@ -47,6 +47,9 @@ Project: jackson-databind
  (reported by Halil İbrahim Ş)
 #3154: Add ArrayNode#set(int index, primitive_type value)
  (contributed by Tarekk Mohamed A)
+#3160: JsonStreamContext "currentValue" wrongly references to @JsonTypeInfo
+  annotated object
+ (reported by Aritz B)
 #3174: DOM `Node` serialization omits the default namespace declaration
  (contributed by Morten A-G)
 #3177: Support `suppressed` property when deserializing `Throwable`

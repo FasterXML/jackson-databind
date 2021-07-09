@@ -529,7 +529,7 @@ public class BeanDeserializer
         }
         if (unknown != null) {
             // polymorphic?
-            if (bean.getClass() != _beanType.getRawClass()) {
+            if (bean.getClass() != _beanType.getRawClass()) { // lgtm [java/dereferenced-value-may-be-null]
                 return handlePolymorphic(null, ctxt, bean, unknown);
             }
             // no, just some extra unknown properties

@@ -128,7 +128,7 @@ public class AbstractDeserializer
 "Invalid Object Id definition for %s: cannot find property with name %s",
 ClassUtil.nameOf(handledType()), ClassUtil.name(propName)));
                         }
-                        idType = idProp.getType();
+                        idType = idProp.getType(); // lgtm [java/dereferenced-value-may-be-null]
                         idGen = new PropertyBasedObjectIdGenerator(objectIdInfo.getScope());
 /*
                          ctxt.reportBadDefinition(_baseType, String.format(

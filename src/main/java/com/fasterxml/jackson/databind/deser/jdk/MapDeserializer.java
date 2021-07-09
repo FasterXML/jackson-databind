@@ -832,7 +832,7 @@ public class MapDeserializer
             ctxt.reportInputMismatch(this,
                     "Unresolved forward reference but no identity info: "+reference);
         }
-        Referring referring = accumulator.handleUnresolvedReference(reference, key);
+        Referring referring = accumulator.handleUnresolvedReference(reference, key); // lgtm [java/dereferenced-value-may-be-null]
         reference.getRoid().appendReferring(referring);
     }
 

@@ -816,7 +816,7 @@ public abstract class JsonNode
             if (currentExpr.matches()) {
                 return curr;
             }
-            curr = curr._at(currentExpr);
+            curr = curr._at(currentExpr); // lgtm [java/dereferenced-value-may-be-null]
             if (curr == null) {
                 _reportRequiredViolation("No node at '%s' (unmatched part: '%s')",
                         path, currentExpr);

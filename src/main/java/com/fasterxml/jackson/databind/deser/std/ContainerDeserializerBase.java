@@ -142,7 +142,7 @@ public abstract class ContainerDeserializerBase<T>
                     String.format("Cannot create empty instance of %s, no default Creator", type));
         }
         try {
-            return vi.createUsingDefault(ctxt);
+            return vi.createUsingDefault(ctxt); // lgtm [java/dereferenced-value-may-be-null]
         } catch (IOException e) {
             return ClassUtil.throwAsMappingException(ctxt, e);
         }

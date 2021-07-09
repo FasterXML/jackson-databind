@@ -85,7 +85,7 @@ public class TypeNameIdResolver extends TypeIdResolverBase
                     }
                     // One more problem; sometimes we have same name for multiple types;
                     // if so, use most specific
-                    JavaType prev = idToType.get(id);
+                    JavaType prev = idToType.get(id); // lgtm [java/dereferenced-value-may-be-null]
                     if (prev != null) { // Can only override if more specific
                         if (cls.isAssignableFrom(prev.getRawClass())) { // nope, more generic (or same)
                             continue;

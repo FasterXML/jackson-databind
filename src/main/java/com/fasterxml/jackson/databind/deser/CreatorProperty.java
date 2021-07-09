@@ -224,7 +224,7 @@ public class CreatorProperty
                     String.format("Property %s (type %s) has no injectable value id configured",
                     ClassUtil.name(getName()), ClassUtil.classNameOf(this)));
         }
-        return context.findInjectableValue(_injectableValue.getId(), this, beanInstance);
+        return context.findInjectableValue(_injectableValue.getId(), this, beanInstance); // lgtm [java/dereferenced-value-may-be-null]
     }
 
     // 14-Apr-2020, tatu: Does not appear to be used so deprecated in 2.11.0,

@@ -104,7 +104,7 @@ public class SimpleBeanPropertyFilter
     /* PropertyFilter implementation
     /**********************************************************************
      */
-    
+
     @Override
     public void serializeAsProperty(Object pojo, JsonGenerator g,
             SerializerProvider provider, PropertyWriter writer)

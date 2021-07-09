@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.cfg.ConfigFeature;
  * changes must be done using {@link ObjectReader}.
  *<p>
  * Note that features that do not indicate version of inclusion
- * were available in Jackson 2.0 (or earlier); only later additions
+ * were available in Jackson 3.0 (or earlier); only later additions
  * indicate version of inclusion.
  */
 public enum DeserializationFeature implements ConfigFeature

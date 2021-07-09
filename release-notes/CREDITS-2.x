@@ -1347,6 +1347,11 @@ Tarekk Mohamed Abdalla (TarekkMA@github)
   * Contributed #3154: Add ArrayNode#set(int index, primitive_type value)
    (2.13.0)
 
+Aritz Bastida (aritzbastida@github)
+  * Reported #3160: JsonStreamContext "currentValue" wrongly references to @JsonTypeInfo
+   annotated object
+   (2.13.0)
+
 Morten Andersen-Gott (magott@github)
   * Contributed #3174: DOM `Node` serialization omits the default namespace declaration
    (2.13.0)

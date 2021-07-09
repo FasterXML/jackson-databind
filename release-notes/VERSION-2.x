@@ -49,6 +49,9 @@ Project: jackson-databind
  (reported by Halil İbrahim Ş)
 #3154: Add ArrayNode#set(int index, primitive_type value)
  (contributed by Tarekk Mohamed A)
+#3160: JsonStreamContext "currentValue" wrongly references to @JsonTypeInfo
+  annotated object
+ (reported by Aritz B)
 #3174: DOM `Node` serialization omits the default namespace declaration
  (contributed by Morten A-G)
 #3177: Support `suppressed` property when deserializing `Throwable`
@@ -63,7 +66,7 @@ Project: jackson-databind
   via `AsNull`
 - Add `mvnw` wrapper
 
-2.12.4 (not yet released)
+2.12.4 (06-Jul-2021)
 
 #3139: Deserialization of "empty" subtype with DEDUCTION failed
  (reported by JoeWoo; fix provided by drekbour@github)

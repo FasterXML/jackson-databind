@@ -635,6 +635,8 @@ public abstract class BeanSerializerBase
         }
         WritableTypeId typeIdDef = _typeIdDef(typeSer, bean, JsonToken.START_OBJECT);
         typeSer.writeTypePrefix(gen, ctxt, typeIdDef);
+        gen.assignCurrentValue(bean); // [databind#631]
+
         if (_propertyFilterId != null) {
             _serializePropertiesFiltered(bean, gen, ctxt, _propertyFilterId);
         } else {
@@ -647,7 +649,6 @@ public abstract class BeanSerializerBase
             SerializerProvider provider, boolean startEndObject)
         throws JacksonException
     {
-        g.assignCurrentValue(bean);
         final ObjectIdWriter w = _objectIdWriter;
         WritableObjectId objectId = provider.findObjectId(bean, w.generator);
         // If possible, write as id already

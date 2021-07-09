@@ -238,14 +238,15 @@ public enum SerializationFeature implements ConfigFeature
      * If disabled, timezone/offset value is used-is; if enabled, context time zone
      * is used instead.
      *<p>
-     * Note that this setting only affects "Zoned" date/time values of {@code Joda}
-     * and {@code Java 8 date/time} types -- it will have no effect on old
+     * Note that this setting only affects "Zoned" date/time values of
+     * {@code Java 8 date/time} types -- it will have no effect on old
      * {@link java.util} value handling (of which {@link java.util.Date} has no timezone
      * information and must use contextual timezone, implicit or explicit; and
      * {@link java.util.Calendar} which will always use timezone Calendar value has).
+     * Setting is also ignored by Joda date/time values.
      *<p>
      * Featured is enabled by default for backwards-compatibility purposes (in
-     * Jackson 2.12 override was always done if there was explicitly defined timezone)
+     * Jackson 2.12 override was always done if there was explicitly defined timezone).
      *
      * @since 2.13
      */

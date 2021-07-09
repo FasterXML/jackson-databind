@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.type;
 
+import java.util.Objects;
+
 import com.fasterxml.jackson.databind.JavaType;
 
 /**
@@ -31,7 +33,7 @@ public class ReferenceType extends SimpleType
             JavaType anchorType,
             Object valueHandler, Object typeHandler, boolean asStatic)
     {
-        super(cls, bindings, superClass, superInts, refType.hashCode(),
+        super(cls, bindings, superClass, superInts, Objects.hashCode(refType),
                 valueHandler, typeHandler, asStatic);
         _referencedType = refType;
         _anchorType = (anchorType == null) ? this : anchorType;

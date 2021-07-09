@@ -83,8 +83,16 @@ public class StdSubtypeResolver
             AnnotatedMember property, JavaType baseType)
     {
         final AnnotationIntrospector ai = config.getAnnotationIntrospector();
+
         // for backwards compatibility, must allow null here:
-        Class<?> rawBase = (baseType == null) ? property.getRawType() : baseType.getRawClass();
+        final Class<?> rawBase;
+        if (baseType != null) {
+            rawBase = baseType.getRawClass();
+        } else if (property != null) {
+            rawBase = property.getRawType();
+        } else {
+            throw new IllegalArgumentException("Both property and base type are nulls");
+        }
         
         HashMap<NamedType, NamedType> collected = new HashMap<NamedType, NamedType>();
         // start with registered subtypes (which have precedence)

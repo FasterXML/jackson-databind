@@ -187,7 +187,7 @@ public class TreeTraversingParser
     @Override
     public String getText()
     {
-        if (_closed) {
+        if (_currToken == null) {
             return null;
         }
         // need to separate handling a bit...
@@ -206,7 +206,7 @@ public class TreeTraversingParser
                 return n.asText();
             }
         default:
-        	return (_currToken == null) ? null : _currToken.asString();
+            return _currToken.asString();
         }
     }
 

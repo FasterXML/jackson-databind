@@ -88,11 +88,13 @@ public class EnumResolver implements java.io.Serializable
     {
         final Class<Enum<?>> enumCls = _enumClass(enumCls0);
         final Enum<?>[] enumConstants = _enumConstants(enumCls);
-        final AnnotationIntrospector intr = config.getAnnotationIntrospector();
         final HashMap<String, Enum<?>> byId = new HashMap<String, Enum<?>>();
         final String[][] allAliases = new String[enumConstants.length][];
 
-        intr.findEnumAliases(config, enumCls, enumConstants, allAliases);
+        final AnnotationIntrospector intr = config.getAnnotationIntrospector();
+        if (intr != null) {
+            intr.findEnumAliases(config, enumCls, enumConstants, allAliases);
+        }
 
         // from last to first, so that in case of duplicate values, first wins
         for (int i = enumConstants.length; --i >= 0; ) {

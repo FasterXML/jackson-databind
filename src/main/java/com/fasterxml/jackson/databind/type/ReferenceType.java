@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.type;
 
+import java.util.Objects;
+
 import com.fasterxml.jackson.databind.JavaType;
 
 /**
@@ -27,7 +29,7 @@ public class ReferenceType extends SimpleType
             JavaType anchorType,
             Object valueHandler, Object typeHandler, boolean asStatic)
     {
-        super(cls, bindings, superClass, superInts, refType.hashCode(),
+        super(cls, bindings, superClass, superInts, Objects.hashCode(refType),
                 valueHandler, typeHandler, asStatic);
         _referencedType = refType;
         _anchorType = (anchorType == null) ? this : anchorType;
@@ -96,7 +98,7 @@ public class ReferenceType extends SimpleType
     @Override
     public ReferenceType withContentTypeHandler(Object h)
     {
-        if (h == _referencedType.<Object>getTypeHandler()) {
+        if (h == _referencedType.getTypeHandler()) {
             return this;
         }
         return new ReferenceType(_class, _bindings, _superClass, _superInterfaces,
@@ -116,7 +118,7 @@ public class ReferenceType extends SimpleType
 
     @Override
     public ReferenceType withContentValueHandler(Object h) {
-        if (h == _referencedType.<Object>getValueHandler()) {
+        if (h == _referencedType.getValueHandler()) {
             return this;
         }
         JavaType refdType = _referencedType.withValueHandler(h);

@@ -3785,17 +3785,17 @@ public class ObjectMapper
     public byte[] writeValueAsBytes(Object value)
         throws JsonProcessingException
     {
-        ByteArrayBuilder bb = new ByteArrayBuilder(_jsonFactory._getBufferRecycler());
-        try {
+        // Although 'close()' is NOP, use auto-close to avoid lgtm complaints
+        try (ByteArrayBuilder bb = new ByteArrayBuilder(_jsonFactory._getBufferRecycler())) {
             _writeValueAndClose(createGenerator(bb, JsonEncoding.UTF8), value);
+            final byte[] result = bb.toByteArray();
+            bb.release();
+            return result;
         } catch (JsonProcessingException e) { // to support [JACKSON-758]
             throw e;
         } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:
             throw JsonMappingException.fromUnexpectedIOE(e);
         }
-        byte[] result = bb.toByteArray();
-        bb.release();
-        return result;
     }
 
     /*

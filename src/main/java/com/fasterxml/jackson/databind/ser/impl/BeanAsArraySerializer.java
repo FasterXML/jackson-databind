@@ -220,11 +220,11 @@ public class BeanAsArraySerializer
             //    _anyGetterWriter.getAndSerialize(bean, gen, provider);
             //}
         } catch (Exception e) {
-            String name = (i == props.length) ? "[anySetter]" : props[i].getName();
+            String name = props[i].getName();
             wrapAndThrow(provider, e, bean, name);
         } catch (StackOverflowError e) {
             DatabindException mapE = JsonMappingException.from(gen, "Infinite recursion (StackOverflowError)", e);
-            String name = (i == props.length) ? "[anySetter]" : props[i].getName();
+            String name = props[i].getName();
             mapE.prependPath(bean, name);
             throw mapE;
         }

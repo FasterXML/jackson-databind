@@ -1862,6 +1862,9 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         if (!wrap) { // [JACKSON-407] -- allow disabling wrapping for unchecked exceptions
             ClassUtil.throwIfRTE(t);
         }
+        if (ctxt == null) {
+            ClassUtil.throwAsIAE(t);
+        }
         return ctxt.handleInstantiationProblem(_beanType.getRawClass(), null, t);
     }
 }

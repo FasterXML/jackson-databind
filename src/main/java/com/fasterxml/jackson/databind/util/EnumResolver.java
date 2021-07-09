@@ -110,7 +110,9 @@ public class EnumResolver implements java.io.Serializable
         final Enum<?>[] enumConstants = _enumConstants(enumCls0);
         HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();
         final String[][] allAliases = new String[enumConstants.length][];
-        ai.findEnumAliases(enumCls, enumConstants, allAliases);
+        if (ai != null) {
+            ai.findEnumAliases(enumCls, enumConstants, allAliases);
+        }
 
         // from last to first, so that in case of duplicate values, first wins
         for (int i = enumConstants.length; --i >= 0; ) {

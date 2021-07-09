@@ -131,7 +131,7 @@ public class PropertyBuilder
         JavaType actualType = (serializationType == null) ? declaredType : serializationType;
         
         // 17-Mar-2017: [databind#1522] Allow config override per property type
-        AnnotatedMember accessor = propDef.getAccessor();
+        AnnotatedMember accessor = propDef != null ? propDef.getAccessor() : null;
         if (accessor == null) {
             // neither Setter nor ConstructorParameter are expected here
             return prov.reportBadPropertyDefinition(_beanDesc, propDef,

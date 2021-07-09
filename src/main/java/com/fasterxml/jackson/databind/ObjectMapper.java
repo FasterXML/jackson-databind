@@ -3788,14 +3788,15 @@ public class ObjectMapper
         ByteArrayBuilder bb = new ByteArrayBuilder(_jsonFactory._getBufferRecycler());
         try {
             _writeValueAndClose(createGenerator(bb, JsonEncoding.UTF8), value);
+            return bb.toByteArray();
         } catch (JsonProcessingException e) { // to support [JACKSON-758]
             throw e;
         } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:
             throw JsonMappingException.fromUnexpectedIOE(e);
+        } finally {
+            bb.release();
+            bb.close();
         }
-        byte[] result = bb.toByteArray();
-        bb.release();
-        return result;
     }
 
     /*

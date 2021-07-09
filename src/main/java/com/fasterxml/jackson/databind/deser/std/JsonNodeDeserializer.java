@@ -705,18 +705,18 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
 
         public void push(ContainerNode node)
         {
+            if (_stack == null) {
+                _end = 10;
+                _stack = new ContainerNode[_end];
+            }
             if (_top < _end) {
                 _stack[_top++] = node;
                 return;
             }
-            if (_stack == null) {
-                _end = 10;
-                _stack = new ContainerNode[_end];
-            } else {
-                // grow by 50%, for most part
-                _end += Math.min(4000, Math.max(20, _end>>1));
-                _stack = Arrays.copyOf(_stack, _end);
-            }
+
+            // grow by 50%, for most part
+            _end += Math.min(4000, Math.max(20, _end>>1));
+            _stack = Arrays.copyOf(_stack, _end);
             _stack[_top++] = node;
         }
 

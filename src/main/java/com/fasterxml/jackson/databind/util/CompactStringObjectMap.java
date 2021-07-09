@@ -133,12 +133,12 @@ public final class CompactStringObjectMap
      * @since 2.9
      */
     public Object findCaseInsensitive(String key) {
-        for (int i = 0, end = _hashArea.length; i < end; i += 2) {
+        for (int i = 0, j = 1, end = _hashArea.length; j < end; i += 2, j = i + 1) {
             Object k2 = _hashArea[i];
             if (k2 != null) {
                 String s = (String) k2;
                 if (s.equalsIgnoreCase(key)) {
-                    return _hashArea[i+1];
+                    return _hashArea[j];
                 }
             }
         }

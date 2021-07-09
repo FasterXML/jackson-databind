@@ -1815,13 +1815,15 @@ public class ObjectMapper
     @SuppressWarnings("resource")
     public byte[] writeValueAsBytes(Object value) throws JacksonException
     {
-        SerializationContextExt prov = _serializerProvider();
-        ByteArrayBuilder bb = new ByteArrayBuilder(_streamFactory._getBufferRecycler());
-        _configAndWriteValue(prov,
-                _streamFactory.createGenerator(prov, bb, JsonEncoding.UTF8), value);
-        byte[] result = bb.toByteArray();
-        bb.release();
-        return result;
+        // Although 'close()' is NOP, use auto-close to avoid lgtm complaints
+        try (ByteArrayBuilder bb = new ByteArrayBuilder(_streamFactory._getBufferRecycler())) {
+            final SerializationContextExt ctxt = _serializerProvider();
+            _configAndWriteValue(ctxt,
+                    _streamFactory.createGenerator(ctxt, bb, JsonEncoding.UTF8), value);
+            byte[] result = bb.toByteArray();
+            bb.release();
+            return result;
+        }
     }
 
     /**

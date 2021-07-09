@@ -1105,20 +1105,23 @@ paramIndex, candidate);
         final DeserializationConfig config = ctxt.getConfig();
         final AnnotationIntrospector intr = config.getAnnotationIntrospector();
         PropertyMetadata metadata;
+        final PropertyName wrapperName;
         {
             if (intr == null) {
                 metadata = PropertyMetadata.STD_REQUIRED_OR_OPTIONAL;
+                wrapperName = null;
             } else {
                 Boolean b = intr.hasRequiredMarker(config, param);
                 String desc = intr.findPropertyDescription(config, param);
                 Integer idx = intr.findPropertyIndex(config, param);
                 String def = intr.findPropertyDefaultValue(config, param);
                 metadata = PropertyMetadata.construct(b, desc, idx, def);
+                wrapperName = intr.findWrapperName(config, param);
             }
         }
         JavaType type = resolveMemberAndTypeAnnotations(ctxt, param, param.getType());
         BeanProperty.Std property = new BeanProperty.Std(name, type,
-                intr.findWrapperName(config, param), param, metadata);
+                wrapperName, param, metadata);
         // Type deserializer: either comes from property (and already resolved)
         TypeDeserializer typeDeser = (TypeDeserializer) type.getTypeHandler();
         // or if not, based on type being referenced:

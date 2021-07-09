@@ -1038,13 +1038,15 @@ public class ObjectWriter
      */
     public byte[] writeValueAsBytes(Object value) throws JacksonException
     {
-        ByteArrayBuilder bb = new ByteArrayBuilder(_generatorFactory._getBufferRecycler());
-        SerializationContextExt ctxt = _serializerProvider();
-        _configAndWriteValue(ctxt,
-                _generatorFactory.createGenerator(ctxt, bb, JsonEncoding.UTF8), value);
-        byte[] result = bb.toByteArray();
-        bb.release();
-        return result;
+        // Although 'close()' is NOP, use auto-close to avoid lgtm complaints
+        try (ByteArrayBuilder bb = new ByteArrayBuilder(_generatorFactory._getBufferRecycler())) {
+            final SerializationContextExt ctxt = _serializerProvider();
+            _configAndWriteValue(ctxt,
+                    _generatorFactory.createGenerator(ctxt, bb, JsonEncoding.UTF8), value);
+            byte[] result = bb.toByteArray();
+            bb.release();
+            return result;
+        }
     }
 
     /**

@@ -224,6 +224,26 @@ public enum SerializationFeature implements ConfigFeature
     WRITE_DATES_WITH_ZONE_ID(false), 
 
     /**
+     * Feature that determines whether timezone/offset included in zoned date/time
+     * values (note: does NOT {@link java.util.Date} will be overridden if there
+     * is an explicitly set context time zone.
+     * If disabled, timezone/offset value is used-is; if enabled, context time zone
+     * is used instead.
+     *<p>
+     * Note that this setting only affects "Zoned" date/time values of {@code Joda}
+     * and {@code Java 8 date/time} types -- it will have no effect on old
+     * {@link java.util} value handling (of which {@link java.util.Date} has no timezone
+     * information and must use contextual timezone, implicit or explicit; and
+     * {@link java.util.Calendar} which will always use timezone Calendar value has).
+     *<p>
+     * Featured is enabled by default for backwards-compatibility purposes (in
+     * Jackson 2.12 override was always done if there was explicitly defined timezone)
+     *
+     * @since 2.13
+     */
+    WRITE_DATES_WITH_CONTEXT_TIME_ZONE(true),
+
+    /**
      * Feature that determines whether time values that represents time periods
      * (durations, periods, ranges) are to be serialized by default using
      * a numeric (true) or textual (false) representations. Note that numeric

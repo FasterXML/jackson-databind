@@ -18,7 +18,7 @@ Naming of classes uses word 'JSON' in many places even though there is no actual
 | Artifact | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-databind/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-databind) |
 | OSS Sponsorship | [![Tidelift](https://tidelift.com/badges/package/maven/com.fasterxml.jackson.core:jackson-databind)](https://tidelift.com/subscription/pkg/maven-com-fasterxml-jackson-core-jackson-databind?utm_source=maven-com-fasterxml-jackson-core-jackson-databind&utm_medium=referral&utm_campaign=readme) |
 | Javadocs | [![Javadoc](https://javadoc.io/badge/com.fasterxml.jackson.core/jackson-databind.svg)](http://www.javadoc.io/doc/com.fasterxml.jackson.core/jackson-databind) |
-| Code Quality | [![Fuzzing Status](https://oss-fuzz-build-logs.storage.googleapis.com/badges/jackson-databind.svg)](https://bugs.chromium.org/p/oss-fuzz/issues/list?sort=-opened&can=1&q=proj:jackson-databind)  [![LGTM alerts](https://img.shields.io/lgtm/alerts/g/FasterXML/jackson-databind.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/FasterXML/jackson-databind/alerts/) |
+| Code Quality | [![LGTM alerts](https://img.shields.io/lgtm/alerts/g/FasterXML/jackson-databind.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/FasterXML/jackson-databind/alerts/) |
 
 # Get it!
 

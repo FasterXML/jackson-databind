@@ -59,9 +59,9 @@ download jars from [Central Maven repository](https://repo1.maven.org/maven2/com
 
 Databind jar is also a functional OSGi bundle, with proper import/export declarations, so it can be use on OSGi container as is.
 
-With Jackson 2.10, jar will also include `module-info.class` to work as proper Java Module.
+Jackson 2.10 and above include `module-info.class` definitions so the jar is also a proper Java Module (JPMS).
 
-Jackson 2.12 also includes additional Gradle 6 Module Metadata for version alignment with Gradle.
+Jackson 2.12 and above include additional Gradle 6 Module Metadata for version alignment with Gradle.
 
 -----
 
@@ -170,11 +170,12 @@ For in-depth explanation, look at [Jackson Core component](https://github.com/Fa
 But let's look at a simple teaser to whet your appetite.
 
 ```java
-JsonFactory f = mapper.getFactory(); // may alternatively construct directly too
-
+ObjectMapper mapper = ...;
 // First: write simple JSON output
 File jsonFile = new File("test.json");
-JsonGenerator g = f.createGenerator(jsonFile);
+// note: method added in Jackson 2.11 (earlier would need to use
+// mapper.getFactory().createGenerator(...)
+JsonGenerator g = f.createGenerator(jsonFile, JsonEncoding.UTF8);
 // write JSON: { "message" : "Hello world!" }
 g.writeStartObject();
 g.writeStringField("message", "Hello world!");
@@ -182,21 +183,19 @@ g.writeEndObject();
 g.close();
 
 // Second: read file back
-JsonParser p = f.createParser(jsonFile);
-
-JsonToken t = p.nextToken(); // Should be JsonToken.START_OBJECT
-t = p.nextToken(); // JsonToken.FIELD_NAME
-if ((t != JsonToken.FIELD_NAME) || !"message".equals(p.getCurrentName())) {
+try (JsonParser p = mapper.createParser(jsonFile)) {
+  JsonToken t = p.nextToken(); // Should be JsonToken.START_OBJECT
+  t = p.nextToken(); // JsonToken.FIELD_NAME
+  if ((t != JsonToken.FIELD_NAME) || !"message".equals(p.getCurrentName())) {
    // handle error
-}
-t = p.nextToken();
-if (t != JsonToken.VALUE_STRING) {
+  }
+  t = p.nextToken();
+  if (t != JsonToken.VALUE_STRING) {
    // similarly
+  }
+  String msg = p.getText();
+  System.out.printf("My message to you is: %s!\n", msg);
 }
-String msg = p.getText();
-System.out.printf("My message to you is: %s!\n", msg);
-p.close();
-
 ```
 
 ## 10 minute tutorial: configuration

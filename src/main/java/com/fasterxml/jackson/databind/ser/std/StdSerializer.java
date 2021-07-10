@@ -352,7 +352,7 @@ public abstract class StdSerializer<T>
         FilterProvider filters = provider.getFilterProvider();
         // Not ok to miss the provider, if a filter is declared to be needed.
         if (filters == null) {
-            provider.reportBadDefinition(handledType(),
+            return provider.reportBadDefinition(handledType(),
                     "Cannot resolve PropertyFilter with id '"+filterId+"'; no FilterProvider configured");
         }
         // But whether unknown ids are ok just depends on filter provider; if we get null that's fine

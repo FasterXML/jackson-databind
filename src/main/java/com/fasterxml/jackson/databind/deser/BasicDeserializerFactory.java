@@ -732,7 +732,8 @@ nonAnnotatedParamIndex, ctor);
                 } else { // otherwise, epic fail
                     ctxt.reportBadTypeDefinition(beanDesc,
 "Argument #%d of factory method %s has no property name annotation; must have name when multiple-parameter constructor annotated as Creator",
-                    nonAnnotatedParam.getIndex(), factory);
+                    (nonAnnotatedParam == null) ? -1 : nonAnnotatedParam.getIndex(),
+                    factory);
                 }
             }
         }

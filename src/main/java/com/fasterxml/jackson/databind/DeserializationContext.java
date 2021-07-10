@@ -456,7 +456,7 @@ public abstract class DeserializationContext
             BeanProperty forProperty, Object beanInstance)
     {
         if (_injectableValues == null) {
-            reportBadDefinition(ClassUtil.classOf(valueId), String.format(
+            return reportBadDefinition(ClassUtil.classOf(valueId), String.format(
 "No 'injectableValues' configured, cannot inject value with id [%s]", valueId));
         }
         return _injectableValues.findInjectableValue(valueId, this, forProperty, beanInstance);

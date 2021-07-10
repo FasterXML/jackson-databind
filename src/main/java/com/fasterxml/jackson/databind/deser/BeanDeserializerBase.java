@@ -1861,8 +1861,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         if (ctxt == null) { // only to please LGTM...
             throw new IllegalArgumentException(t.getMessage(), t);
         }
-        boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
-        if (!wrap) { // [JACKSON-407] -- allow disabling wrapping for unchecked exceptions
+        if (!ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS)) {
             ClassUtil.throwIfRTE(t);
         }
         return ctxt.handleInstantiationProblem(_beanType.getRawClass(), null, t);

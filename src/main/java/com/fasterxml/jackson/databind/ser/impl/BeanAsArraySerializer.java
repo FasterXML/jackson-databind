@@ -220,16 +220,14 @@ public class BeanAsArraySerializer
             //    _anyGetterWriter.getAndSerialize(bean, gen, provider);
             //}
         } catch (Exception e) {
-            String name = (i == props.length) ? "[anySetter]" : props[i].getName();
-            wrapAndThrow(provider, e, bean, name);
+            wrapAndThrow(provider, e, bean, props[i].getName());
         } catch (StackOverflowError e) {
             DatabindException mapE = JsonMappingException.from(gen, "Infinite recursion (StackOverflowError)", e);
-            String name = (i == props.length) ? "[anySetter]" : props[i].getName();
-            mapE.prependPath(bean, name);
+            mapE.prependPath(bean, props[i].getName());
             throw mapE;
         }
     }
-    
+
     /*
     /**********************************************************
     /* Standard methods

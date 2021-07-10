@@ -1768,7 +1768,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         ClassUtil.throwIfError(t);
         ClassUtil.throwIfJacksonE(t);
         boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
-        if (!wrap) { // [JACKSON-407] -- allow disabling wrapping for unchecked exceptions
+        if (!wrap) {
             ClassUtil.throwIfRTE(t);
         }
         return ctxt.handleInstantiationProblem(_beanType.getRawClass(), null, t);

@@ -694,9 +694,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     @SuppressWarnings("rawtypes")
     final static class ContainerStack
     {
-        private final static ContainerNode[] EMPTY_STACK = new ContainerNode[0];
-
-        private ContainerNode[] _stack = EMPTY_STACK;
+        private ContainerNode[] _stack;
         private int _top, _end;
 
         public ContainerStack() { }
@@ -706,7 +704,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
 
         public void push(ContainerNode node)
         {
-            if (_top < _end) {
+            if (_top < _end) {// lgtm [java/dereferenced-value-may-be-null]
                 _stack[_top++] = node;
                 return;
             }

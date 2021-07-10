@@ -170,11 +170,12 @@ For in-depth explanation, look at [Jackson Core component](https://github.com/Fa
 But let's look at a simple teaser to whet your appetite.
 
 ```java
-JsonFactory f = mapper.getFactory(); // may alternatively construct directly too
-
+ObjectMapper mapper = ...;
 // First: write simple JSON output
 File jsonFile = new File("test.json");
-JsonGenerator g = f.createGenerator(jsonFile);
+// note: method added in Jackson 2.11 (earlier would need to use
+// mapper.getFactory().createGenerator(...)
+JsonGenerator g = f.createGenerator(jsonFile, JsonEncoding.UTF8);
 // write JSON: { "message" : "Hello world!" }
 g.writeStartObject();
 g.writeStringField("message", "Hello world!");
@@ -182,21 +183,19 @@ g.writeEndObject();
 g.close();
 
 // Second: read file back
-JsonParser p = f.createParser(jsonFile);
-
-JsonToken t = p.nextToken(); // Should be JsonToken.START_OBJECT
-t = p.nextToken(); // JsonToken.FIELD_NAME
-if ((t != JsonToken.FIELD_NAME) || !"message".equals(p.getCurrentName())) {
+try (JsonParser p = mapper.createParser(jsonFile)) {
+  JsonToken t = p.nextToken(); // Should be JsonToken.START_OBJECT
+  t = p.nextToken(); // JsonToken.FIELD_NAME
+  if ((t != JsonToken.FIELD_NAME) || !"message".equals(p.getCurrentName())) {
    // handle error
-}
-t = p.nextToken();
-if (t != JsonToken.VALUE_STRING) {
+  }
+  t = p.nextToken();
+  if (t != JsonToken.VALUE_STRING) {
    // similarly
+  }
+  String msg = p.getText();
+  System.out.printf("My message to you is: %s!\n", msg);
 }
-String msg = p.getText();
-System.out.printf("My message to you is: %s!\n", msg);
-p.close();
-
 ```
 
 ## 10 minute tutorial: configuration

@@ -441,7 +441,7 @@ public abstract class DeserializationContext
         throws JsonMappingException
     {
         if (_injectableValues == null) {
-            reportBadDefinition(ClassUtil.classOf(valueId), String.format(
+            return reportBadDefinition(ClassUtil.classOf(valueId), String.format(
 "No 'injectableValues' configured, cannot inject value with id [%s]", valueId));
         }
         return _injectableValues.findInjectableValue(valueId, this, forProperty, beanInstance);
@@ -960,7 +960,7 @@ public abstract class DeserializationContext
     public <T> T readValue(JsonParser p, JavaType type) throws IOException {
         JsonDeserializer<Object> deser = findRootValueDeserializer(type);
         if (deser == null) {
-            reportBadDefinition(type,
+            return reportBadDefinition(type,
                     "Could not find JsonDeserializer for type "+ClassUtil.getTypeDescription(type));
         }
         return (T) deser.deserialize(p, this);

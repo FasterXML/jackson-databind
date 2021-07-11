@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.ext;
 
 import java.util.*;
 
+import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.*;
 import javax.xml.namespace.QName;
 
@@ -44,6 +45,9 @@ public class CoreXMLDeserializers
         if (raw == Duration.class) {
             return new Std(raw, TYPE_DURATION);
         }
+        if (raw == JAXBElement.class) {
+            return new Std(raw, TYPE_JAXB_ELEMENT);
+        }
         return null;
     }
 
@@ -51,6 +55,7 @@ public class CoreXMLDeserializers
         return (valueType == QName.class)
                 || (valueType == XMLGregorianCalendar.class)
                 || (valueType == Duration.class)
+                || (valueType == JAXBElement.class)
                 ;
     }
 
@@ -63,6 +68,7 @@ public class CoreXMLDeserializers
     protected final static int TYPE_DURATION = 1;
     protected final static int TYPE_G_CALENDAR = 2;
     protected final static int TYPE_QNAME = 3;
+    protected final static int TYPE_JAXB_ELEMENT = 4;
 
     /**
      * Combo-deserializer that supports deserialization of somewhat optional
@@ -112,6 +118,15 @@ public class CoreXMLDeserializers
                     return _dataTypeFactory.newXMLGregorianCalendar(value);
                 }
                 return _gregorianFromDate(ctxt, d);
+            case TYPE_JAXB_ELEMENT:
+                Class<?> declaredType;
+                if (_valueType != null && _valueType.hasGenericTypes()) {
+                    declaredType = _valueType.getBindings().getBoundType(0).getRawClass();
+                } else {
+                    declaredType = Object.class;
+                }
+                //noinspection unchecked
+                return new JAXBElement(QName.valueOf(value), declaredType, value);
             }
             throw new IllegalStateException();
         }

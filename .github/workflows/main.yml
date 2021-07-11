@@ -52,5 +52,14 @@ jobs:
       env:
         CI_DEPLOY_USERNAME: ${{ secrets.CI_DEPLOY_USERNAME }}
         CI_DEPLOY_PASSWORD: ${{ secrets.CI_DEPLOY_PASSWORD }}
-        # MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
-      run: ./mvnw -V -B -ff -DskipTests -ntp source:jar deploy
+      run: ./mvnw -B -ff -DskipTests -ntp source:jar deploy
+    - name: Generate code coverage
+      if: github.event_name != 'pull_request' && matrix.java_version == '8'
+      run: ./mvnw -B -ff -ntp test
+    - name: Publish code coverage
+      if: github.event_name != 'pull_request' && matrix.java_version == '8'
+      uses: codecov/codecov-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        file: ./target/site/jacoco/jacoco.xml
+        flags: unittests

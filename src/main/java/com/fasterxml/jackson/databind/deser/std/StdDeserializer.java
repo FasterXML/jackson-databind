@@ -1716,7 +1716,7 @@ inputDesc, _coercedTypeDesc());
                 ValueInstantiator vi = ((BeanDeserializerBase) valueDeser).getValueInstantiator();
                 if (!vi.canCreateUsingDefault()) {
                     final JavaType type = prop.getType();
-                    ctxt.reportBadDefinition(type,
+                    return ctxt.reportBadDefinition(type,
                             String.format("Cannot create empty instance of %s, no default Creator", type));
                 }
             }

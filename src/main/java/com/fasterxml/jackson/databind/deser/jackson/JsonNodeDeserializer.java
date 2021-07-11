@@ -704,8 +704,8 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
 
         public void push(ContainerNode node)
         {
-            if (_top < _end) {// lgtm [java/dereferenced-value-may-be-null]
-                _stack[_top++] = node;
+            if (_top < _end) {
+                _stack[_top++] = node; // lgtm [java/dereferenced-value-may-be-null]
                 return;
             }
             if (_stack == null) {

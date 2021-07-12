@@ -739,7 +739,7 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
                     PropertyName propName = objectIdInfo.getPropertyName();
                     idProp = findProperty(propName);
                     if (idProp == null) {
-                        ctxt.reportBadDefinition(_beanType, String.format(
+                        return ctxt.reportBadDefinition(_beanType, String.format(
 "Invalid Object Id definition for %s: cannot find property with name %s",
 ClassUtil.nameOf(handledType()), ClassUtil.name(propName)));
                     }
@@ -847,7 +847,7 @@ ClassUtil.nameOf(handledType()), ClassUtil.name(propName)));
         ValueDeserializer<?> valueDeser = prop.getValueDeserializer();
         SettableBeanProperty backProp = valueDeser.findBackReference(refName);
         if (backProp == null) {
-            ctxt.reportBadDefinition(_beanType, String.format(
+            return ctxt.reportBadDefinition(_beanType, String.format(
 "Cannot handle managed/back reference %s: no back reference property found from type %s",
 ClassUtil.name(refName), ClassUtil.getTypeDescription(prop.getType())));
         }

@@ -133,7 +133,7 @@ public final class CompactStringObjectMap
             if (k2 != null) {
                 String s = (String) k2;
                 if (s.equalsIgnoreCase(key)) {
-                    return _hashArea[i+1];
+                    return _hashArea[i+1]; // lgtm [java/index-out-of-bounds]
                 }
             }
         }

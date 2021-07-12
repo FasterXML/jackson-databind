@@ -494,10 +494,11 @@ There is really just one main rule, which is that to accept any code contributio
 One additional limitation exists for so-called core components (streaming api, jackson-annotations and jackson-databind): no additional dependencies are allowed beyond:
 
 * Core components may rely on any methods included in the supported JDK
-    * Minimum JDK version was 1.5 until (and including) version 2.3
-    * Minimum JDK version was 1.6 for Jackson 2.4 - 2.7 (inclusive) for all core components
-        * Minimum is still 1.6 for `jackson-annotations` and `jackson-core`, for all remaining Jackson 2.x versions
-    * Minimum JDK version is 1.7 for Jackson 2.7 - 2.10 of `jackson-databind` and most non-core components
+    * Minimum Java version was Java 5 until (and including) version 2.3
+    * Minimum Java version was Java 6 for Jackson 2.4 - 2.7 (inclusive) for all core components
+        * Minimum is still Java 6 for `jackson-annotations` and `jackson-core`, for all remaining Jackson 2.x versions
+    * Minimum Java version is Java 7 for Jackson 2.7 - 2.12 of `jackson-databind` and most non-core components
+    * Minimum Java version is Java 8 for Jackson 2.13 and later
 * Jackson-databind (this package) depends on the other two (annotations, streaming).
 
 This means that anything that has to rely on additional APIs or libraries needs to be built as an extension,
@@ -509,14 +510,14 @@ usually a Jackson module.
 `master` branch is for developing the next major Jackson version -- 3.0 -- but there
 are active maintenance branches in which much of development happens:
 
-* `2.13` is the branch for "next" minor version to release (as of June 2021)
+* `2.13` is the branch for "next" minor version to release (as of July 2021)
 * `2.12` is the current stable minor 2.x version
 * `2.11` is for selected backported fixes
 
 Older branches are usually not maintained after being declared as closed
 on [Jackson Releases](https://github.com/FasterXML/jackson/wiki/Jackson-Releases) page,
 but exist just in case a rare emergency patch is needed.
-All released versions have matching git tags (`jackson-dataformats-binary-2.9.10`).
+All released versions have matching git tags (`jackson-dataformats-binary-2.12.3`).
 
 -----
 

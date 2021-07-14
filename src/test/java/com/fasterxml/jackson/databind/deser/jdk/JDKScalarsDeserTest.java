@@ -554,6 +554,42 @@ public class JDKScalarsDeserTest
         }
     }
 
+    public void testCoercedEmptyStringWhenNullForPrimitivesNotAllowed() throws IOException
+    {
+        final ObjectReader reader = MAPPER
+                .readerFor(PrimitivesBean.class)
+                .with(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
+
+        try {
+            reader.readValue("{\"byteValue\":\"\"}");
+            fail("Expected failure for byte + null");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Cannot coerce empty String (\"\") to Null value as `byte` value");
+            verifyPath(e, "byteValue");
+        }
+        try {
+            reader.readValue("{\"shortValue\":\"\"}");
+            fail("Expected failure for short + null");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Cannot coerce empty String (\"\") to Null value as `short` value");
+            verifyPath(e, "shortValue");
+        }
+        try {
+            reader.readValue("{\"intValue\":\"\"}");
+            fail("Expected failure for int + null");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Cannot coerce empty String (\"\") to Null value as `int` value");
+            verifyPath(e, "intValue");
+        }
+        try {
+            reader.readValue("{\"longValue\":\"\"}");
+            fail("Expected failure for long + null");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Cannot coerce empty String (\"\") to Null value as `long` value");
+            verifyPath(e, "longValue");
+        }
+    }
+
     public void testNullForPrimitivesNotAllowedFP() throws IOException
     {
         final ObjectReader reader = MAPPER

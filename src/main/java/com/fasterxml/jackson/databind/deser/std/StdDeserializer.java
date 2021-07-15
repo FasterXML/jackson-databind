@@ -1698,7 +1698,8 @@ inputDesc, _coercedTypeDesc());
     {
         if (nulls == Nulls.FAIL) {
             if (prop == null) {
-                return NullsFailProvider.constructForRootValue(ctxt.constructType(valueDeser.handledType()));
+                Class<?> rawType = (valueDeser == null) ? Object.class : valueDeser.handledType();
+                return NullsFailProvider.constructForRootValue(ctxt.constructType(rawType));
             }
             return NullsFailProvider.constructForProperty(prop);
         }
@@ -1713,9 +1714,10 @@ inputDesc, _coercedTypeDesc());
             // NOTE: although we could use `ValueInstantiator.Gettable` in general,
             // let's not since that would prevent being able to use custom impls:
             if (valueDeser instanceof BeanDeserializerBase) {
-                ValueInstantiator vi = ((BeanDeserializerBase) valueDeser).getValueInstantiator();
+                BeanDeserializerBase bd = (BeanDeserializerBase) valueDeser;
+                ValueInstantiator vi = bd.getValueInstantiator();
                 if (!vi.canCreateUsingDefault()) {
-                    final JavaType type = prop.getType();
+                    final JavaType type = (prop == null) ? bd.getValueType() : prop.getType();
                     return ctxt.reportBadDefinition(type,
                             String.format("Cannot create empty instance of %s, no default Creator", type));
                 }

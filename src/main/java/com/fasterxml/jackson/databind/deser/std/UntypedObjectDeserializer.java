@@ -492,7 +492,6 @@ public class UntypedObjectDeserializer
     protected Object mapObject(JsonParser p, DeserializationContext ctxt) throws IOException
     {
         String key1;
-
         JsonToken t = p.currentToken();
         
         if (t == JsonToken.START_OBJECT) {
@@ -802,7 +801,6 @@ public class UntypedObjectDeserializer
             if (_nonMerging) {
                 return deserialize(p, ctxt);
             }
-
             switch (p.currentTokenId()) {
             case JsonTokenId.ID_END_OBJECT:
             case JsonTokenId.ID_END_ARRAY:
@@ -920,7 +918,8 @@ public class UntypedObjectDeserializer
         protected Object mapObject(JsonParser p, DeserializationContext ctxt) throws IOException
         {
             // will point to FIELD_NAME at this point, guaranteed
-            String key1 = p.getText();
+            // 19-Jul-2021, tatu: Was incorrectly using "getText()" before 2.13, fixed for 2.13.0
+            String key1 = p.currentName();
             p.nextToken();
             Object value1 = deserialize(p, ctxt);
 

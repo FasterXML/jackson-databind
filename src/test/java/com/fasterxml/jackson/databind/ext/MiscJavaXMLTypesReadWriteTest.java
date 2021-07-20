@@ -14,15 +14,13 @@ import com.fasterxml.jackson.databind.*;
 public class MiscJavaXMLTypesReadWriteTest
     extends BaseMapTest
 {
-    private final ObjectMapper MAPPER = newJsonMapper();
-
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Serializer tests
-    /**********************************************************
+    /**********************************************************************
      */
 
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     public void testQNameSer() throws Exception
     {

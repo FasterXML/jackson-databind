@@ -1803,8 +1803,7 @@ public abstract class DeserializationContext
             String msg, Object... msgArgs) throws JsonMappingException
     {
         msg = _format(msg, msgArgs);
-        InvalidFormatException e = InvalidFormatException.from(getParser(),
-                msg, inputValue, targetType);
+        MismatchedInputException e = MismatchedInputException.from(getParser(), targetType, msg);
         throw e;
     }
 

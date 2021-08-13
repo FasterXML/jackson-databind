@@ -58,7 +58,7 @@ public abstract class PropertyNamingStrategies
      * See {@link UpperSnakeCaseStrategy} for details.
      * <p>
      */
-    public static final PropertyNamingStrategy UPPER_SNAKE_CASE = new UpperCamelCaseStrategy();
+    public static final PropertyNamingStrategy UPPER_SNAKE_CASE = new UpperSnakeCaseStrategy();
 
     /**
      * Naming convention in which all words of the logical name are in lower case, and

@@ -56,6 +56,7 @@ public abstract class PropertyNamingStrategies
     /**
      * Naming convention in which the words are in upper-case letters, separated by underscores.
      * See {@link UpperSnakeCaseStrategy} for details.
+     * @since 2.13
      * <p>
      */
     public static final PropertyNamingStrategy UPPER_SNAKE_CASE = new UpperSnakeCaseStrategy();

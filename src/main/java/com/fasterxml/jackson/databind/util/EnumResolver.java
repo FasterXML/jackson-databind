@@ -2,8 +2,10 @@ package com.fasterxml.jackson.databind.util;
 
 import java.util.*;
 
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.DeserializationConfig;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 
@@ -22,6 +24,7 @@ public class EnumResolver implements java.io.Serializable
     protected final HashMap<String, Enum<?>> _enumsById;
 
     protected final Enum<?> _defaultValue;
+    protected final Class<?> _jsonValueClass;
 
     /**
      * @since 2.12
@@ -35,11 +38,17 @@ public class EnumResolver implements java.io.Serializable
             HashMap<String, Enum<?>> map, Enum<?> defaultValue,
             boolean isIgnoreCase)
     {
+        this(enumClass, enums, map, defaultValue, isIgnoreCase, null);
+    }
+    protected EnumResolver(Class<Enum<?>> enumClass, Enum<?>[] enums,
+                           HashMap<String, Enum<?>> map, Enum<?> defaultValue,
+                           boolean isIgnoreCase, Class<?> jsonValueClass) {
         _enumClass = enumClass;
         _enums = enums;
         _enumsById = map;
         _defaultValue = defaultValue;
         _isIgnoreCase = isIgnoreCase;
+        _jsonValueClass = jsonValueClass;
     }
 
     /**
@@ -167,7 +176,7 @@ public class EnumResolver implements java.io.Serializable
             }
         }
         return new EnumResolver(enumCls, enumConstants, map,
-                _enumDefault(ai, enumCls), isIgnoreCase);
+                _enumDefault(ai, enumCls), isIgnoreCase, accessor.getRawType());
     }    
 
     public CompactStringObjectMap constructLookup() {
@@ -325,6 +334,13 @@ public class EnumResolver implements java.io.Serializable
     }
     
     public Class<Enum<?>> getEnumClass() { return _enumClass; }
+
+    public boolean isIntEnumValue() {
+        if (_jsonValueClass == null) {
+            return false;
+        }
+        return Integer.class.equals(_jsonValueClass);
+    }
 
     public int lastValidIndex() { return _enums.length-1; }
 }

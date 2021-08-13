@@ -38,6 +38,8 @@ public class EnumDeserializer
      */
     private final Enum<?> _enumDefaultValue;
 
+    private final boolean _intEnumValue;
+
     /**
      * @since 2.7.3
      */
@@ -62,6 +64,7 @@ public class EnumDeserializer
         _lookupByName = byNameResolver.constructLookup();
         _enumsByIndex = byNameResolver.getRawEnums();
         _enumDefaultValue = byNameResolver.getDefaultValue();
+        _intEnumValue = byNameResolver.isIntEnumValue();
         _caseInsensitive = caseInsensitive;
     }
 
@@ -74,6 +77,7 @@ public class EnumDeserializer
         _lookupByName = base._lookupByName;
         _enumsByIndex = base._enumsByIndex;
         _enumDefaultValue = base._enumDefaultValue;
+        _intEnumValue = base._intEnumValue;
         _caseInsensitive = caseInsensitive;
     }
 
@@ -190,6 +194,9 @@ public class EnumDeserializer
 
         // But let's consider int acceptable as well (if within ordinal range)
         if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
+            if (_intEnumValue) {
+                return _fromString(p, ctxt, p.getText());
+            }
             return _fromInteger(p, ctxt, p.getIntValue());
         }
 

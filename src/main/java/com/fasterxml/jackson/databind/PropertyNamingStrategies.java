@@ -54,6 +54,13 @@ public abstract class PropertyNamingStrategies
     public static final PropertyNamingStrategy SNAKE_CASE = new SnakeCaseStrategy();
 
     /**
+     * Naming convention in which the words are in upper-case letters, separated by underscores.
+     * See {@link UpperSnakeCaseStrategy} for details.
+     * <p>
+     */
+    public static final PropertyNamingStrategy UPPER_SNAKE_CASE = new UpperCamelCaseStrategy();
+
+    /**
      * Naming convention in which all words of the logical name are in lower case, and
      * no separator is used between words.
      * See {@link LowerCaseStrategy} for details.
@@ -79,7 +86,7 @@ public abstract class PropertyNamingStrategies
      * Example external property names would be "number.value", "naming.strategy", "the.definite.proof".
      */
     public static final PropertyNamingStrategy LOWER_DOT_CASE = new LowerDotCaseStrategy();
-    
+
     /*
     /**********************************************************************
     /* Public base class for simple implementations
@@ -159,7 +166,7 @@ public abstract class PropertyNamingStrategies
 
     /*
     /**********************************************************************
-    /* Standard implementations 
+    /* Standard implementations
     /**********************************************************************
      */
     
@@ -207,7 +214,7 @@ public abstract class PropertyNamingStrategies
      * <li>&quot;USER&quot; is translated to &quot;user&quot;</li>
      * <li>&quot;_user&quot; is translated to &quot;user&quot;</li>
      * <li>&quot;_User&quot; is translated to &quot;user&quot;</li>
-     * <li>&quot;__user&quot; is translated to &quot;_user&quot; 
+     * <li>&quot;__user&quot; is translated to &quot;_user&quot;
      * (the first of two underscores was removed)</li>
      * <li>&quot;user__name&quot; is translated to &quot;user__name&quot;
      * (unchanged, with two underscores)</li></ul>
@@ -248,6 +255,22 @@ public abstract class PropertyNamingStrategies
                 }
             }
             return resultLength > 0 ? result.toString() : input;
+        }
+    }
+
+    /**
+     * A {@link PropertyNamingStrategy} that translates an input to the equivalent upper case snake
+     * case. The class extends {@link PropertyNamingStrategies.SnakeCaseStrategy} to retain the
+     * snake case conversion functionality offered by the strategy.
+     */
+    public static class UpperSnakeCaseStrategy extends SnakeCaseStrategy {
+
+        @Override
+        public String translate(String input) {
+            String output = super.translate(input);
+            if (output == null)
+                return null;
+            return super.translate(input).toUpperCase();
         }
     }
 

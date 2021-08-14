@@ -215,7 +215,8 @@ public class NumberSerializers {
 
         @Override
         public void serialize(Object value, JsonGenerator gen,
-                SerializerProvider provider) throws JacksonException {
+                SerializerProvider provider) throws JacksonException
+        {
             gen.writeNumber(((Double) value).doubleValue());
         }
 
@@ -223,15 +224,14 @@ public class NumberSerializers {
         @Override
         public void serializeWithType(Object value, JsonGenerator g,
                 SerializerProvider ctxt, TypeSerializer typeSer)
-                throws JacksonException
+            throws JacksonException
         {
             // no type info, just regular serialization
-            // 08-Feb-2018, tatu: Except that as per [databind#2236], NaN values need
-            //    special handling
+            // 08-Feb-2018, tatu: But as per [databind#2236], NaN values need special care
             Double d = (Double) value;
             if (NumberOutput.notFinite(d)) {
                 WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
-                        // whether to indicate it's number or string is arbitrary; important it is scalar
+                // whether to indicate it's number or string is arbitrary; important it is scalar
                         typeSer.typeId(value, JsonToken.VALUE_NUMBER_FLOAT));
                 g.writeNumber(d);
                 typeSer.writeTypeSuffix(g, ctxt, typeIdDef);

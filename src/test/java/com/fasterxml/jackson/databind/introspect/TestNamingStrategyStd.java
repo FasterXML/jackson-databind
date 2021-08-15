@@ -24,7 +24,7 @@ public class TestNamingStrategyStd extends BaseMapTest
         public String WWW;
         public String someURL;
         public String someURIs;
-        
+
         public Acronyms() {this(null, null, null);}
         public Acronyms(String WWW, String someURL, String someURIs)
         {
@@ -33,7 +33,7 @@ public class TestNamingStrategyStd extends BaseMapTest
             this.someURIs = someURIs;
         }
     }
-    
+
     @JsonPropertyOrder({"from_user", "user", "from$user", "from7user", "_x"})
     static class UnchangedNames
     {
@@ -43,7 +43,7 @@ public class TestNamingStrategyStd extends BaseMapTest
         public String from7user;
         // Used to test "_", but it's explicitly deprecated in JDK8 so...
         public String _x;
-        
+
         public UnchangedNames() {this(null, null, null, null, null);}
         public UnchangedNames(String from_user, String _user, String from$user, String from7user, String _x)
         {
@@ -84,7 +84,7 @@ public class TestNamingStrategyStd extends BaseMapTest
         public String firstName = "Bob";
         public String lastName = "Burger";
     }
- 
+
     public static class ClassWithObjectNodeField {
         public String id;
         public ObjectNode json;
@@ -278,8 +278,8 @@ public class TestNamingStrategyStd extends BaseMapTest
      */
 
     /**
-     * Unit test to verify translations of 
-     * {@link PropertyNamingStrategies#SNAKE_CASE} 
+     * Unit test to verify translations of
+     * {@link PropertyNamingStrategies#SNAKE_CASE}
      * outside the context of an ObjectMapper.
      */
     public void testLowerCaseStrategyStandAlone()
@@ -296,7 +296,7 @@ public class TestNamingStrategyStd extends BaseMapTest
         // First serialize
         String json = _lcWithUnderscoreMapper.writeValueAsString(new PersonBean("Joe", "Sixpack", 42));
         assertEquals("{\"first_name\":\"Joe\",\"last_name\":\"Sixpack\",\"age\":42}", json);
-        
+
         // then deserialize
         PersonBean result = _lcWithUnderscoreMapper.readValue(json, PersonBean.class);
         assertEquals("Joe", result.firstName);
@@ -309,7 +309,7 @@ public class TestNamingStrategyStd extends BaseMapTest
         // First serialize
         String json = _lcWithUnderscoreMapper.writeValueAsString(new Acronyms("world wide web", "http://jackson.codehaus.org", "/path1/,/path2/"));
         assertEquals("{\"www\":\"world wide web\",\"some_url\":\"http://jackson.codehaus.org\",\"some_uris\":\"/path1/,/path2/\"}", json);
-        
+
         // then deserialize
         Acronyms result = _lcWithUnderscoreMapper.readValue(json, Acronyms.class);
         assertEquals("world wide web", result.WWW);
@@ -322,7 +322,7 @@ public class TestNamingStrategyStd extends BaseMapTest
         // First serialize
         String json = _lcWithUnderscoreMapper.writeValueAsString(new OtherNonStandardNames("Results", "_User", "___", "$User"));
         assertEquals("{\"results\":\"Results\",\"user\":\"_User\",\"__\":\"___\",\"$_user\":\"$User\"}", json);
-        
+
         // then deserialize
         OtherNonStandardNames result = _lcWithUnderscoreMapper.readValue(json, OtherNonStandardNames.class);
         assertEquals("Results", result.Results);
@@ -352,13 +352,26 @@ public class TestNamingStrategyStd extends BaseMapTest
     /**********************************************************
      */
 
-    public void testUpperCaseStrategyStandAlone()
+    public void testUpperSnakeCaseStrategyStandAlone()
     {
         for (Object[] pair : UPPER_SNAKE_CASE_NAME_TRANSLATIONS) {
             String translatedJavaName = PropertyNamingStrategies.UPPER_SNAKE_CASE
                 .nameForField(null, null, (String) pair[0]);
             assertEquals((String) pair[1], translatedJavaName);
         }
+    }
+
+    public void testUpperSnakeCaseTranslations() throws Exception
+    {
+        // First serialize
+        String json = _ucWithUnderscoreMapper.writeValueAsString(new PersonBean("Joe", "Sixpack", 42));
+        assertEquals("{\"FIRST_NAME\":\"Joe\",\"LAST_NAME\":\"Sixpack\",\"AGE\":42}", json);
+
+        // then deserialize
+        PersonBean result = _ucWithUnderscoreMapper.readValue(json, PersonBean.class);
+        assertEquals("Joe", result.firstName);
+        assertEquals("Sixpack", result.lastName);
+        assertEquals(42, result.age);
     }
 
 
@@ -369,8 +382,8 @@ public class TestNamingStrategyStd extends BaseMapTest
      */
 
     /**
-     * Unit test to verify translations of 
-     * {@link PropertyNamingStrategies#UPPER_CAMEL_CASE } 
+     * Unit test to verify translations of
+     * {@link PropertyNamingStrategies#UPPER_CAMEL_CASE }
      * outside the context of an ObjectMapper.
      */
     public void testPascalCaseStandAlone()

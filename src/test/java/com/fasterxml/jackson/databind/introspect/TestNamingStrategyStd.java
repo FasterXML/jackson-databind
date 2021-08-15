@@ -364,7 +364,8 @@ public class TestNamingStrategyStd extends BaseMapTest
     public void testUpperSnakeCaseTranslations() throws Exception
     {
         // First serialize
-        String json = _ucWithUnderscoreMapper.writeValueAsString(new PersonBean("Joe", "Sixpack", 42));
+        String json = _ucWithUnderscoreMapper
+            .writeValueAsString(new PersonBean("Joe", "Sixpack", 42));
         assertEquals("{\"FIRST_NAME\":\"Joe\",\"LAST_NAME\":\"Sixpack\",\"AGE\":42}", json);
 
         // then deserialize

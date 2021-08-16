@@ -263,6 +263,7 @@ public abstract class PropertyNamingStrategies
      * A {@link PropertyNamingStrategy} that translates an input to the equivalent upper case snake
      * case. The class extends {@link PropertyNamingStrategies.SnakeCaseStrategy} to retain the
      * snake case conversion functionality offered by the strategy.
+     * @since 2.13
      */
     public static class UpperSnakeCaseStrategy extends SnakeCaseStrategy {
 

@@ -60,6 +60,20 @@ public class StdTypeResolverBuilder
         _typeProperty = propName;
     }
 
+    protected StdTypeResolverBuilder(StdTypeResolverBuilder other) {
+        this._idType = other._idType;
+        this._includeAs = other._includeAs;
+        this._typeProperty = other._typeProperty;
+        this._customIdResolver = other._customIdResolver;
+        this._typeIdVisible = other._typeIdVisible;
+        this._defaultImpl = other._defaultImpl;
+    }
+
+    protected StdTypeResolverBuilder copy() {
+        ClassUtil.verifyMustOverride(StdTypeResolverBuilder.class, this, "copy");
+        return new StdTypeResolverBuilder(this);
+    }
+
     public static StdTypeResolverBuilder noTypeInfoBuilder() {
         return new StdTypeResolverBuilder().init(JsonTypeInfo.Id.NONE, null);
     }
@@ -169,44 +183,40 @@ public class StdTypeResolverBuilder
     }
 
     protected JavaType defineDefaultImpl(DeserializationConfig config, JavaType baseType) {
-        JavaType defaultImpl;
-        if (_defaultImpl == null) {
-            if (config.isEnabled(MapperFeature.USE_BASE_TYPE_AS_DEFAULT_IMPL) && !baseType.isAbstract()) {
-                defaultImpl = baseType;
-            } else {
-                defaultImpl = null;
-            }
-        } else {
+        JavaType defaultImpl = null;
+        if (_defaultImpl != null) {
             // 20-Mar-2016, tatu: It is important to do specialization go through
             //   TypeFactory to ensure proper resolution; with 2.7 and before, direct
             //   call to JavaType was used, but that cannot work reliably with 2.7
             // 20-Mar-2016, tatu: Can finally add a check for type compatibility BUT
             //   if so, need to add explicit checks for marker types. Not ideal, but
             //   seems like a reasonable compromise.
-            if ((_defaultImpl == Void.class)
-                    || (_defaultImpl == NoClass.class)) {
+            if ((_defaultImpl == Void.class) || (_defaultImpl == NoClass.class)) {
                 defaultImpl = config.getTypeFactory().constructType(_defaultImpl);
-            } else {
-                if (baseType.hasRawClass(_defaultImpl)) { // common enough to check
-                    defaultImpl = baseType;
-                } else if (baseType.isTypeOrSuperTypeOf(_defaultImpl)) {
-                    // most common case with proper base type...
-                    defaultImpl = config.getTypeFactory()
-                            .constructSpecializedType(baseType, _defaultImpl);
-                } else {
-                    // 05-Apr-2018, tatu: As [databind#1565] and [databind#1861] need to allow
-                    //    some cases of seemingly incompatible `defaultImpl`. Easiest to just clear
-                    //    the setting.
+            } else if (baseType.isTypeOrSuperTypeOf(_defaultImpl)) {
+                // most common case with proper base type...
+                defaultImpl = config.getTypeFactory().constructSpecializedType(baseType, _defaultImpl);
+            } else if (baseType.hasRawClass(_defaultImpl)) {
+                defaultImpl = baseType;
+            }
+            /* else {
+                // 05-Apr-2018, tatu: As [databind#1565] and [databind#1861] need to allow
+                //    some cases of seemingly incompatible `defaultImpl`. Easiest to just clear
+                //    the setting.
 
-                    /*
                     throw new IllegalArgumentException(
                             String.format("Invalid \"defaultImpl\" (%s): not a subtype of basetype (%s)",
                                     ClassUtil.nameOf(_defaultImpl), ClassUtil.nameOf(baseType.getRawClass()))
                             );
-                            */
-                    defaultImpl = null;
-                }
+                defaultImpl = null;
             }
+            */
+        }
+        // use base type as default should always be used as the last choice.
+        if (config.isEnabled(MapperFeature.USE_BASE_TYPE_AS_DEFAULT_IMPL)
+                && defaultImpl == null && !baseType.isAbstract()) {
+            // still can not resolve by default impl, fall back to use base type as default impl
+            defaultImpl = baseType;
         }
         return defaultImpl;
     }
@@ -242,8 +252,9 @@ public class StdTypeResolverBuilder
 
     @Override
     public StdTypeResolverBuilder defaultImpl(Class<?> defaultImpl) {
-        _defaultImpl = defaultImpl;
-        return this;
+        StdTypeResolverBuilder ret = this.copy();
+        ret._defaultImpl = defaultImpl;
+        return ret;
     }
 
     @Override

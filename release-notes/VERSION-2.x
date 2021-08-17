@@ -60,6 +60,8 @@ Project: jackson-databind
  (contributed by Klaas D)
 #3193: Add `MapperFeature.APPLY_DEFAULT_VALUES`, initially for Scala module
  (suggested by Nick B)
+#3217: `XMLGregorianCalendar` doesn't work with default typing
+ (reported by Xinzhe Y)
 #3238: Add PropertyNamingStrategies.UpperSnakeCaseStrategy (and UPPER_SNAKE_CASE constant)
  (requested by Kenneth J)
  (contributed by Tanvesh)

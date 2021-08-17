@@ -1366,6 +1366,10 @@ Nick Benoit (nick-benoit14@github)
   * Proposed #3193: Add `MapperFeature.APPLY_DEFAULT_VALUES`, initially for Scala module
    (2.13.0)
 
+Xinzhe Yang (xinzheyang@github)
+  * Reported #3217: `XMLGregorianCalendar` doesn't work with default typing
+   (2.13.0)
+
 Kenneth Jorgensen (kennethjor@github)
   * Requested #3238: Add PropertyNamingStrategies.UpperSnakeCaseStrategy
     (and UPPER_SNAKE_CASE constant)

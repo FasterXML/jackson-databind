@@ -6,7 +6,8 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
-
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ValueSerializer;
@@ -51,10 +52,21 @@ public class XMLGregorianCalendarSerializer
     }
 
     @Override
-    public void serializeWithType(XMLGregorianCalendar value, JsonGenerator gen, SerializerProvider provider,
+    public void serializeWithType(XMLGregorianCalendar value, JsonGenerator g, SerializerProvider ctxt,
             TypeSerializer typeSer) throws JacksonException
     {
-        _delegate.serializeWithType(_convert(value), gen, provider, typeSer);
+        // 16-Aug-2021, tatu: as per [databind#3217] we cannot simply delegate
+        //    as that would produce wrong Type Id altogether. So redefine
+        //    implementation from `StdScalarSerializer`
+
+        // Need not really be string; just indicates "scalar of some kind"
+        // (and so numeric timestamp is fine as well):
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
+                // important! Pass value AND type to use
+                typeSer.typeId(value, XMLGregorianCalendar.class, JsonToken.VALUE_STRING));
+        // note: serialize() will convert to delegate value
+        serialize(value, g, ctxt);
+        typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 
     @Override
@@ -63,9 +75,9 @@ public class XMLGregorianCalendarSerializer
     }
 
     @Override
-    public ValueSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
+    public ValueSerializer<?> createContextual(SerializerProvider ctxt, BeanProperty property)
     {
-        ValueSerializer<?> ser = prov.handlePrimaryContextualization(_delegate, property);
+        ValueSerializer<?> ser = ctxt.handlePrimaryContextualization(_delegate, property);
         if (ser != _delegate) {
             return new XMLGregorianCalendarSerializer(ser);
         }

@@ -4,6 +4,7 @@ import javax.xml.datatype.*;
 import javax.xml.namespace.QName;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 /**
  * Core XML types (javax.xml) are considered "external" (or more precisely "optional")
@@ -21,6 +22,10 @@ public class MiscJavaXMLTypesReadWriteTest
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
+    private final ObjectMapper POLY_MAPPER = jsonMapperBuilder()
+            .activateDefaultTyping(NoCheckSubTypeValidator.instance,
+                    DefaultTyping.NON_FINAL)
+            .build();
 
     public void testQNameSer() throws Exception
     {
@@ -73,11 +78,11 @@ public class MiscJavaXMLTypesReadWriteTest
         }
         return dateStr;
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Deserializer tests
-    /**********************************************************
+    /**********************************************************************
      */
 
     public void testQNameDeser() throws Exception
@@ -88,7 +93,7 @@ public class MiscJavaXMLTypesReadWriteTest
                      qn, MAPPER.readValue(q(qstr), QName.class));
     }
 
-    public void testCalendarDeser() throws Exception
+    public void testXMLGregorianCalendarDeser() throws Exception
     {
         DatatypeFactory dtf = DatatypeFactory.newInstance();
         XMLGregorianCalendar cal = dtf.newXMLGregorianCalendar
@@ -106,5 +111,23 @@ public class MiscJavaXMLTypesReadWriteTest
         String exp = dur.toString();
         assertEquals("Should deserialize to equal Duration ('"+exp+"')", dur,
                 MAPPER.readValue(q(exp), Duration.class));
+    }
+
+    /*
+    /**********************************************************************
+    /* Polymorphic handling tests
+    /**********************************************************************
+     */
+
+    public void testPolymorphicXMLGregorianCalendar() throws Exception
+    {
+        XMLGregorianCalendar cal = DatatypeFactory.newInstance().newXMLGregorianCalendar
+                (1974, 10, 10, 18, 15, 17, 123, 0);
+        String json = POLY_MAPPER.writeValueAsString(cal);
+        Object result = POLY_MAPPER.readValue(json, Object.class);
+        if (!(result instanceof XMLGregorianCalendar)) {
+            fail("Expected a `XMLGregorianCalendar`, got: "+result.getClass());
+        }
+        assertEquals(cal, result);
     }
 }

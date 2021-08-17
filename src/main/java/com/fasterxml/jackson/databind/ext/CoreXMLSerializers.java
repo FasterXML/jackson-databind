@@ -8,6 +8,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -78,10 +79,22 @@ public class CoreXMLSerializers extends Serializers.Base
         }
 
         @Override
-        public void serializeWithType(XMLGregorianCalendar value, JsonGenerator gen, SerializerProvider provider,
+        public void serializeWithType(XMLGregorianCalendar value, JsonGenerator g, SerializerProvider provider,
                 TypeSerializer typeSer) throws IOException
         {
-            _delegate.serializeWithType(_convert(value), gen, provider, typeSer);
+            // 16-Aug-2021, tatu: as per [databind#3217] we cannot simply delegate
+            //    as that would produce wrong Type Id altogether. So redefine
+            //    implementation from `StdScalarSerializer`
+//            _delegate.serializeWithType(_convert(value), gen, provider, typeSer);
+
+            // Need not really be string; just indicates "scalar of some kind"
+            // (and so numeric timestamp is fine as well):
+            WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
+                    // important! Pass value AND type to use
+                    typeSer.typeId(value, XMLGregorianCalendar.class, JsonToken.VALUE_STRING));
+            // note: serialize() will convert to delegate value
+            serialize(value, g, provider);
+            typeSer.writeTypeSuffix(g, typeIdDef);
         }
 
         @Override

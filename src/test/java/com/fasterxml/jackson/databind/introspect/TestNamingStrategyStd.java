@@ -24,7 +24,7 @@ public class TestNamingStrategyStd extends BaseMapTest
         public String WWW;
         public String someURL;
         public String someURIs;
-        
+
         public Acronyms() {this(null, null, null);}
         public Acronyms(String WWW, String someURL, String someURIs)
         {
@@ -33,7 +33,7 @@ public class TestNamingStrategyStd extends BaseMapTest
             this.someURIs = someURIs;
         }
     }
-    
+
     @JsonPropertyOrder({"from_user", "user", "from$user", "from7user", "_x"})
     static class UnchangedNames
     {
@@ -43,7 +43,7 @@ public class TestNamingStrategyStd extends BaseMapTest
         public String from7user;
         // Used to test "_", but it's explicitly deprecated in JDK8 so...
         public String _x;
-        
+
         public UnchangedNames() {this(null, null, null, null, null);}
         public UnchangedNames(String from_user, String _user, String from$user, String from7user, String _x)
         {
@@ -144,9 +144,9 @@ public class TestNamingStrategyStd extends BaseMapTest
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Set up
-    /**********************************************************
+    /**********************************************************************
      */
 
     final static List<Object[]> SNAKE_CASE_NAME_TRANSLATIONS = Arrays.asList(new Object[][] {
@@ -206,19 +206,78 @@ public class TestNamingStrategyStd extends BaseMapTest
                 {"xCoordinate", "x_coordinate" },
     });
 
-    private static ObjectMapper _lcWithUndescoreMapper = jsonMapperBuilder()
-                .propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
-                .build();
+    final static List<Object[]> UPPER_SNAKE_CASE_NAME_TRANSLATIONS = Arrays.asList(new Object[][] {
+        {null, null},
+        {"", ""},
+        {"a", "A"},
+        {"abc", "ABC"},
+        {"1", "1"},
+        {"123", "123"},
+        {"1a", "1A"},
+        {"a1", "A1"},
+        {"$", "$"},
+        {"$a", "$A"},
+        {"a$", "A$"},
+        {"$_a", "$_A"},
+        {"a_$", "A_$"},
+        {"a$a", "A$A"},
+        {"$A", "$_A"},
+        {"$_A", "$_A"},
+        {"_", "_"},
+        {"__", "_"},
+        {"___", "__"},
+        {"A", "A"},
+        {"A1", "A1"},
+        {"1A", "1_A"},
+        {"_a", "A"},
+        {"_A", "A"},
+        {"a_a", "A_A"},
+        {"a_A", "A_A"},
+        {"A_A", "A_A"},
+        {"A_a", "A_A"},
+        {"WWW", "WWW"},
+        {"someURI", "SOME_URI"},
+        {"someURIs", "SOME_URIS"},
+        {"Results", "RESULTS"},
+        {"_Results", "RESULTS"},
+        {"_results", "RESULTS"},
+        {"__results", "_RESULTS"},
+        {"__Results", "_RESULTS"},
+        {"___results", "__RESULTS"},
+        {"___Results", "__RESULTS"},
+        {"userName", "USER_NAME"},
+        {"user_name", "USER_NAME"},
+        {"user__name", "USER__NAME"},
+        {"UserName", "USER_NAME"},
+        {"User_Name", "USER_NAME"},
+        {"User__Name", "USER__NAME"},
+        {"_user_name", "USER_NAME"},
+        {"_UserName", "USER_NAME"},
+        {"_User_Name", "USER_NAME"},
+        {"USER_NAME", "USER_NAME"},
+        {"_Bars", "BARS" },
+        {"usId", "US_ID" },
+        {"uId", "U_ID" },
+        {"xCoordinate", "X_COORDINATE" },
+    });
+
+    private final static ObjectMapper _lcWithUnderscoreMapper = jsonMapperBuilder()
+        .propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
+        .build();
+
+    private final static ObjectMapper _ucWithUnderscoreMapper = jsonMapperBuilder()
+        .propertyNamingStrategy(PropertyNamingStrategies.UPPER_SNAKE_CASE)
+        .build();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods for SNAKE_CASE
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
-     * Unit test to verify translations of 
-     * {@link PropertyNamingStrategies#SNAKE_CASE} 
+     * Unit test to verify translations of
+     * {@link PropertyNamingStrategies#SNAKE_CASE}
      * outside the context of an ObjectMapper.
      */
     public void testLowerCaseStrategyStandAlone()
@@ -233,11 +292,11 @@ public class TestNamingStrategyStd extends BaseMapTest
     public void testLowerCaseTranslations() throws Exception
     {
         // First serialize
-        String json = _lcWithUndescoreMapper.writeValueAsString(new PersonBean("Joe", "Sixpack", 42));
+        String json = _lcWithUnderscoreMapper.writeValueAsString(new PersonBean("Joe", "Sixpack", 42));
         assertEquals("{\"first_name\":\"Joe\",\"last_name\":\"Sixpack\",\"age\":42}", json);
-        
+
         // then deserialize
-        PersonBean result = _lcWithUndescoreMapper.readValue(json, PersonBean.class);
+        PersonBean result = _lcWithUnderscoreMapper.readValue(json, PersonBean.class);
         assertEquals("Joe", result.firstName);
         assertEquals("Sixpack", result.lastName);
         assertEquals(42, result.age);
@@ -246,11 +305,11 @@ public class TestNamingStrategyStd extends BaseMapTest
     public void testLowerCaseAcronymsTranslations() throws Exception
     {
         // First serialize
-        String json = _lcWithUndescoreMapper.writeValueAsString(new Acronyms("world wide web", "http://jackson.codehaus.org", "/path1/,/path2/"));
+        String json = _lcWithUnderscoreMapper.writeValueAsString(new Acronyms("world wide web", "http://jackson.codehaus.org", "/path1/,/path2/"));
         assertEquals("{\"www\":\"world wide web\",\"some_url\":\"http://jackson.codehaus.org\",\"some_uris\":\"/path1/,/path2/\"}", json);
-        
+
         // then deserialize
-        Acronyms result = _lcWithUndescoreMapper.readValue(json, Acronyms.class);
+        Acronyms result = _lcWithUnderscoreMapper.readValue(json, Acronyms.class);
         assertEquals("world wide web", result.WWW);
         assertEquals("http://jackson.codehaus.org", result.someURL);
         assertEquals("/path1/,/path2/", result.someURIs);
@@ -259,11 +318,11 @@ public class TestNamingStrategyStd extends BaseMapTest
     public void testLowerCaseOtherNonStandardNamesTranslations() throws Exception
     {
         // First serialize
-        String json = _lcWithUndescoreMapper.writeValueAsString(new OtherNonStandardNames("Results", "_User", "___", "$User"));
+        String json = _lcWithUnderscoreMapper.writeValueAsString(new OtherNonStandardNames("Results", "_User", "___", "$User"));
         assertEquals("{\"results\":\"Results\",\"user\":\"_User\",\"__\":\"___\",\"$_user\":\"$User\"}", json);
-        
+
         // then deserialize
-        OtherNonStandardNames result = _lcWithUndescoreMapper.readValue(json, OtherNonStandardNames.class);
+        OtherNonStandardNames result = _lcWithUnderscoreMapper.readValue(json, OtherNonStandardNames.class);
         assertEquals("Results", result.Results);
         assertEquals("_User", result._User);
         assertEquals("___", result.___);
@@ -273,11 +332,11 @@ public class TestNamingStrategyStd extends BaseMapTest
     public void testLowerCaseUnchangedNames() throws Exception
     {
         // First serialize
-        String json = _lcWithUndescoreMapper.writeValueAsString(new UnchangedNames("from_user", "_user", "from$user", "from7user", "_x"));
+        String json = _lcWithUnderscoreMapper.writeValueAsString(new UnchangedNames("from_user", "_user", "from$user", "from7user", "_x"));
         assertEquals("{\"from_user\":\"from_user\",\"user\":\"_user\",\"from$user\":\"from$user\",\"from7user\":\"from7user\",\"x\":\"_x\"}", json);
         
         // then deserialize
-        UnchangedNames result = _lcWithUndescoreMapper.readValue(json, UnchangedNames.class);
+        UnchangedNames result = _lcWithUnderscoreMapper.readValue(json, UnchangedNames.class);
         assertEquals("from_user", result.from_user);
         assertEquals("_user", result._user);
         assertEquals("from$user", result.from$user);
@@ -286,14 +345,43 @@ public class TestNamingStrategyStd extends BaseMapTest
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
+    /* Test methods for UPPER_SNAKE_CASE
+    /**********************************************************************
+     */
+
+    public void testUpperSnakeCaseStrategyStandAlone()
+    {
+        for (Object[] pair : UPPER_SNAKE_CASE_NAME_TRANSLATIONS) {
+            String translatedJavaName = PropertyNamingStrategies.UPPER_SNAKE_CASE
+                .nameForField(null, null, (String) pair[0]);
+            assertEquals((String) pair[1], translatedJavaName);
+        }
+    }
+
+    public void testUpperSnakeCaseTranslations() throws Exception
+    {
+        // First serialize
+        String json = _ucWithUnderscoreMapper
+            .writeValueAsString(new PersonBean("Joe", "Sixpack", 42));
+        assertEquals("{\"FIRST_NAME\":\"Joe\",\"LAST_NAME\":\"Sixpack\",\"AGE\":42}", json);
+
+        // then deserialize
+        PersonBean result = _ucWithUnderscoreMapper.readValue(json, PersonBean.class);
+        assertEquals("Joe", result.firstName);
+        assertEquals("Sixpack", result.lastName);
+        assertEquals(42, result.age);
+    }
+
+    /*
+    /**********************************************************************
     /* Test methods for UPPER_CAMEL_CASE
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
-     * Unit test to verify translations of 
-     * {@link PropertyNamingStrategies#UPPER_CAMEL_CASE } 
+     * Unit test to verify translations of
+     * {@link PropertyNamingStrategies#UPPER_CAMEL_CASE }
      * outside the context of an ObjectMapper.
      */
     public void testPascalCaseStandAlone()
@@ -320,9 +408,9 @@ public class TestNamingStrategyStd extends BaseMapTest
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods for LOWER_CASE
-    /**********************************************************
+    /**********************************************************************
      */
 
     // For [databind#461]
@@ -336,9 +424,9 @@ public class TestNamingStrategyStd extends BaseMapTest
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods for KEBAB_CASE
-    /**********************************************************
+    /**********************************************************************
      */
     
     public void testKebabCaseStrategyStandAlone()
@@ -368,9 +456,9 @@ public class TestNamingStrategyStd extends BaseMapTest
         assertEquals("Billy", result.firstName);
     }
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods for LOWER_DOT_CASE
-    /**********************************************************
+    /**********************************************************************
      */
 
     public void testLowerCaseWithDotsStrategyStandAlone()
@@ -402,9 +490,9 @@ public class TestNamingStrategyStd extends BaseMapTest
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods, other
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**

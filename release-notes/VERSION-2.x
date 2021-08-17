@@ -58,6 +58,9 @@ Project: jackson-databind
  (contributed by Klaas D)
 #3193: Add `MapperFeature.APPLY_DEFAULT_VALUES`, initially for Scala module
  (suggested by Nick B)
+#3238: Add PropertyNamingStrategies.UpperSnakeCaseStrategy (and UPPER_SNAKE_CASE constant)
+ (requested by Kenneth J)
+ (contributed by Tanvesh)
 - Fix to avoid problem with `BigDecimalNode`, scale of `Integer.MIN_VALUE` (see
   [dataformats-binary#264] for details)
 - Extend handling of `FAIL_ON_NULL_FOR_PRIMITIVES` to cover coercion from (Empty) String

@@ -1885,7 +1885,9 @@ inputDesc, _coercedTypeDesc());
         if (prop != null) {
             return prop.getMetadata().getContentNulls();
         }
-        return null;
+
+        DeserializationConfig config = ctxt.getConfig();
+        return config.getDefaultSetterInfo().getContentNulls();
     }
 
     // @since 2.9

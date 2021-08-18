@@ -1,17 +1,15 @@
 package com.fasterxml.jackson.databind.deser;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.InvalidNullException;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 public class NullHandlingTest extends BaseMapTest
@@ -76,6 +74,11 @@ public class NullHandlingTest extends BaseMapTest
         public TypeB(String b) {
             this.bValue = b;
         }
+    }
+
+    // [databind #3227]
+    enum EnumMapTestEnum {
+        A, B, C;
     }
 
     private final ObjectMapper MAPPER = objectMapper();
@@ -200,5 +203,60 @@ public class NullHandlingTest extends BaseMapTest
                 "{\"name\":\"TypeBData\", \"type\":\"TypeB\", \"proxy\": null}";
         RootData typeBNullData = MAPPER.readValue(typeBNull, RootData.class);
         assertNull("Proxy should be null!", typeBNullData.proxy);
+    }
+
+    // Test for databind #3227
+    public void testNullsFailIfContentValueIsNull() throws Exception {
+        ObjectMapper objectMapper = JsonMapper.builder()
+                .defaultSetterInfo(JsonSetter.Value.construct(Nulls.FAIL, Nulls.FAIL))
+                .build();
+
+        try {
+            objectMapper.readValue("{ \"field\": null, \"property\": '1' }", Map.class);
+            fail("InvalidNullException expected");
+        } catch (InvalidNullException e) {
+        }
+
+        try {
+            objectMapper.readValue("{ \"A\": 1, \"B\": null }", new TypeReference<EnumMap<EnumMapTestEnum, Integer>>() {});
+            fail("InvalidNullException expected");
+        } catch (InvalidNullException e) {
+        }
+
+        try {
+            objectMapper.readValue("[null, {\"field\": 1}]", new TypeReference<List<Object>>() {});
+            fail("InvalidNullException expected");
+        } catch (InvalidNullException e) {
+        }
+
+        try {
+            objectMapper.readValue("[{\"field\": 1}, null]", new TypeReference<Set<Object>>() {});
+            fail("InvalidNullException expected");
+        } catch (InvalidNullException e) {
+        }
+
+        try {
+            objectMapper.readValue("[null, {\"field\": 1}]", Object[].class);
+            fail("InvalidNullException expected");
+        } catch (InvalidNullException e) {
+        }
+
+        try {
+            objectMapper.readValue("[\"foo\", null]", new TypeReference<List<String>>() {});
+            fail("InvalidNullException expected");
+        } catch (InvalidNullException e) {
+        }
+
+        try {
+            objectMapper.readValue("[\"foo\", null]", new TypeReference<Set<String>>() {});
+            fail("InvalidNullException expected");
+        } catch (InvalidNullException e) {
+        }
+
+        try {
+            objectMapper.readValue("[null, \"foo\"]", String[].class);
+            fail("InvalidNullException expected");
+        } catch (InvalidNullException e) {
+        }
     }
 }

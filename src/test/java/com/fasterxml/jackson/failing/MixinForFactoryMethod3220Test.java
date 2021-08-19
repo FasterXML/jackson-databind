@@ -1,21 +1,22 @@
-package com.fasterxml.jackson.databind.deser;
+package com.fasterxml.jackson.failing;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Objects;
-import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import com.fasterxml.jackson.annotation.*;
 
-public class MixingFactoryMethodTest {
-    public static class Timestamped<T> {
+import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+
+public class MixinForFactoryMethod3220Test
+    extends BaseMapTest
+{
+    // [databind#3220]
+    static class Timestamped<T> {
         private final T value;
         private final int timestamp;
 
-        private Timestamped(T value, int timestamp) {
+        Timestamped(T value, int timestamp) {
             this.value = value;
             this.timestamp = timestamp;
         }
@@ -46,12 +47,11 @@ public class MixingFactoryMethodTest {
         }
     }
 
-    public abstract static class TimestampedMixin<T> {
+    abstract static class TimestampedMixin<T> {
         @JsonCreator
         public static <T> void stamp(
             @JsonProperty("value") T value,
-            @JsonProperty("timestamp") int timestamp
-        ) {
+            @JsonProperty("timestamp") int timestamp) {
         }
 
         @JsonGetter("value")
@@ -61,16 +61,13 @@ public class MixingFactoryMethodTest {
         abstract int getTimestamp();
     }
 
-    public static class Profile {
+    static class Profile {
         private final String firstName;
         private final String lastName;
 
         @JsonCreator
-        public Profile(
-            @JsonProperty("firstName")
-                String firstName,
-            @JsonProperty("lastName")
-                String lastName
+        public Profile(@JsonProperty("firstName") String firstName,
+            @JsonProperty("lastName") String lastName
         ) {
             this.firstName = firstName;
             this.lastName = lastName;
@@ -100,14 +97,11 @@ public class MixingFactoryMethodTest {
         }
     }
 
-    public static class User {
+    static class User {
         private final Timestamped<Profile> profile;
 
         @JsonCreator
-        private User(
-            @JsonProperty("profile")
-                Timestamped<Profile> profile
-        ) {
+        User(@JsonProperty("profile") Timestamped<Profile> profile) {
             this.profile = profile;
         }
 
@@ -130,10 +124,12 @@ public class MixingFactoryMethodTest {
         }
     }
 
-    @Test
-    public void testMixin() throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.addMixIn(Timestamped.class, TimestampedMixin.class);
+    // [databind#3220]
+    public void testMixin() throws Exception
+    {
+        ObjectMapper mapper = JsonMapper.builder()
+                .addMixIn(Timestamped.class, TimestampedMixin.class)
+                .build();
 
         Profile profile = new Profile("Jackson", "Databind");
         User user = new User(new Timestamped<>(profile, 1));
@@ -144,7 +140,6 @@ public class MixingFactoryMethodTest {
         );
 
         Profile deserializedProfile = deserializedUser.getProfile().getValue();
-
         assertEquals(profile, deserializedProfile);
         assertEquals(user, deserializedUser);
     }

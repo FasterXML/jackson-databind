@@ -499,14 +499,17 @@ public class BeanDeserializer
             // 29-Mar-2021, tatu: [databind#3082] May skip collection if we know
             //    they'd just get ignored (note: any-setter handled above; unwrapped
             //    properties also separately handled)
-            if (!_ignoreAllUnknown) {
-                // Ok then, let's collect the whole field; name and value
-                if (unknown == null) {
-                    unknown = ctxt.bufferForInputBuffering(p);
-                }
-                unknown.writeFieldName(propName);
-                unknown.copyCurrentStructure(p);
+            if (_ignoreAllUnknown) {
+                // 22-Aug-2021, tatu: [databind#3252] must ensure we do skip the whole value
+                p.skipChildren();
+                continue;
             }
+            // Ok then, let's collect the whole field; name and value
+            if (unknown == null) {
+                unknown = ctxt.bufferForInputBuffering(p);
+            }
+            unknown.writeFieldName(propName);
+            unknown.copyCurrentStructure(p);
         }
 
         // We hit END_OBJECT, so:

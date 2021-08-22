@@ -1664,7 +1664,6 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
             Object beanOrBuilder, String propName)
         throws IOException
     {
-
         if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {
             handleIgnoredProperty(p, ctxt, beanOrBuilder, propName);
         } else if (_anySetter != null) {

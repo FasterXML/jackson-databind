@@ -139,7 +139,8 @@ public class MixinForFactoryMethod3220Test
             User.class
         );
 
-        Profile deserializedProfile = deserializedUser.getProfile().getValue();
+        Timestamped<Profile> td = deserializedUser.getProfile();
+        Profile deserializedProfile = td.getValue();
         assertEquals(profile, deserializedProfile);
         assertEquals(user, deserializedUser);
     }

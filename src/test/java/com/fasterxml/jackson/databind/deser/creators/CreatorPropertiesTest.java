@@ -1,8 +1,14 @@
 package com.fasterxml.jackson.databind.deser.creators;
 
 import java.beans.ConstructorProperties;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.*;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+
 import com.fasterxml.jackson.databind.*;
 
 public class CreatorPropertiesTest extends BaseMapTest
@@ -58,13 +64,29 @@ public class CreatorPropertiesTest extends BaseMapTest
         }
     }
 
+    // [databind#3252]: ensure full skipping of ignored properties
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class Value3252 {
+        @JsonProperty("name")
+        private final String name;
+        @JsonProperty("dumbMap")
+        private final Map<String, String> dumbMap;
+
+        @JsonCreator
+        public Value3252(@JsonProperty("name") String name,
+                @JsonProperty("dumbMap") Map<String, String> dumbMap) {
+            this.name = name;
+            this.dumbMap = (dumbMap == null) ? Collections.emptyMap() : dumbMap;
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#905]
     public void testCreatorPropertiesAnnotation() throws Exception
@@ -103,5 +125,20 @@ public class CreatorPropertiesTest extends BaseMapTest
         result = mapper.readValue(JSON, Lombok1371Bean.class);
         assertEquals(3, result.x);
         assertEquals(5, result.y);
+    }
+
+    // [databind#3252]: ensure full skipping of ignored properties
+    public void testSkipNonScalar3252() throws Exception
+    {
+        List<Value3252> testData = MAPPER.readValue(a2q(
+"[\n"+
+"      {'name': 'first entry'},\n"+
+"      {'name': 'second entry', 'breaker': ['' ]},\n"+
+"      {'name': 'third entry'}\n"+
+"    ]\n"),
+            new TypeReference<List<Value3252>>() {});
+
+//System.err.println("JsON: "+MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(testData));       
+        assertEquals(3, testData.size());
     }
 }

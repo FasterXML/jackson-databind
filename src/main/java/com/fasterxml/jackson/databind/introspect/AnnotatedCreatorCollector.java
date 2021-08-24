@@ -211,10 +211,14 @@ final class AnnotatedCreatorCollector
         // 27-Oct-2020, tatu: SIGH. As per [databind#2894] there is widespread use of
         //   incorrect bindings in the wild -- not supported (no tests) but used
         //   nonetheless. So, for 2.11.x, put back "Bad Bindings"...
-//        final TypeResolutionContext typeResCtxt = _typeContext;
+//        
 
         // 03-Nov-2020, ckozak: Implement generic JsonCreator TypeVariable handling [databind#2895]
-        final TypeResolutionContext emptyTypeResCtxt = new TypeResolutionContext.Empty(_config.getTypeFactory());
+//        final TypeResolutionContext emptyTypeResCtxt = new TypeResolutionContext.Empty(_config.getTypeFactory());
+
+        // 23-Aug-2021, tatu: Double-d'oh! As per [databind#3220], we must revert to
+        //   the Incorrect Illogical But Used By Users Bindings... for 2.x at least.
+        final TypeResolutionContext initialTypeResCtxt = _typeContext;
 
         int factoryCount = candidates.size();
         List<AnnotatedMethod> result = new ArrayList<>(factoryCount);
@@ -239,7 +243,7 @@ final class AnnotatedCreatorCollector
                     if (key.equals(methodKeys[i])) {
                         result.set(i,
                                 constructFactoryCreator(candidates.get(i),
-                                        emptyTypeResCtxt, mixinFactory));
+                                        initialTypeResCtxt, mixinFactory));
                         break;
                     }
                 }
@@ -253,8 +257,9 @@ final class AnnotatedCreatorCollector
                 // 06-Nov-2020, tatu: Fix from [databind#2895] will try to resolve
                 //   nominal static method type bindings into expected target type
                 //   (if generic types involved)
+                // 23-Aug-2021, tatu: ... is this still needed, wrt un-fix in [databind#3220]?
                 TypeResolutionContext typeResCtxt = MethodGenericTypeResolver.narrowMethodTypeParameters(
-                        candidate, type, _config.getTypeFactory(), emptyTypeResCtxt);
+                        candidate, type, _config.getTypeFactory(), initialTypeResCtxt);
                 result.set(i,
                         constructFactoryCreator(candidate, typeResCtxt, null));
             }

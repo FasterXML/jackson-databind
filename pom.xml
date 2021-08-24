@@ -104,6 +104,11 @@
       <version>0.9.1</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.google.cloud.functions.invoker</groupId>
+      <artifactId>java-function-invoker</artifactId>
+      <version>1.0.1</version>
+    </dependency>
   </dependencies>
 
   <!-- Alas, need to include snapshot reference since otherwise can not find

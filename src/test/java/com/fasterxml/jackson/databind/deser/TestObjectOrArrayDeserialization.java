@@ -3,8 +3,11 @@ package com.fasterxml.jackson.databind.deser;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import org.junit.Assert;
 
 public class TestObjectOrArrayDeserialization extends BaseMapTest
 {
@@ -26,6 +29,21 @@ public class TestObjectOrArrayDeserialization extends BaseMapTest
         public ArrayOrObject(SomeObject object) {
             this.objects = null;
             this.object = object;
+        }
+    }
+
+
+    public void testCoercionOfBlankStrings() {
+        String s =  " ";
+
+        final String json = "{ \"J\" : \"" + s + "\" }";
+        try {
+            final Jack jack = new ObjectMapper().readValue(json, Jack.class);
+            System.out.println("j=" + jack.getJ());
+            Assert.assertEquals(0, jack.getJ());
+        } catch (Throwable t) {
+            t.printStackTrace();
+            fail();
         }
     }
 

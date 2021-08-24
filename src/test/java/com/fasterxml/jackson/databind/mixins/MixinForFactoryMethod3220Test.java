@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.mixins;
 
 import java.util.Objects;
 
@@ -8,6 +8,17 @@ import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
+// 23-Aug-2021, tatu: UGGGGH. This is a recurring problem; users assuming
+//   that a generic type parameter T (or whatever) of a Class will be related
+//   to locally declared type parameter with same name (T), assume Creator
+//   factory method will magically work. Despite Java Language quite clearly
+//   considering these separate bindings regardless of name overlap.
+//
+//   But for Jackson 2.x there is common enough usage of this anti-patterns so
+//   we cannot block it.
+//
+//   NOTE! Problem is actually not the mixin handling but type resolution;
+//   see f.ex [databind#2821], [databind#2895]
 public class MixinForFactoryMethod3220Test
     extends BaseMapTest
 {
@@ -125,7 +136,7 @@ public class MixinForFactoryMethod3220Test
     }
 
     // [databind#3220]
-    public void testMixin() throws Exception
+    public void testMixin3220() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder()
                 .addMixIn(Timestamped.class, TimestampedMixin.class)

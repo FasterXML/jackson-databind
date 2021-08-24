@@ -974,6 +974,9 @@ Marcos Passos (marcospassos@github(
    (2.10.0)
   * Reported #2795: Cannot detect creator arguments of mixins for JDK types
    (2.11.3)
+  * Reported #3220: (regression) Factory method generic type resolution does not use
+    Class-bound type parameter
+   (2.12.5)
 
 David Becker (dsbecker@github)
   * Suggested #2433: Improve `NullNode.equals()`

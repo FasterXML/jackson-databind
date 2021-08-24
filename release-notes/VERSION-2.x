@@ -4,6 +4,12 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.12.5 (not yet released)
+
+#3220: (regression) Factory method generic type resolution does not use
+  Class-bound type parameter
+ (reported by Marcos P)
+
 2.12.4 (06-Jul-2021)
 
 #3139: Deserialization of "empty" subtype with DEDUCTION failed

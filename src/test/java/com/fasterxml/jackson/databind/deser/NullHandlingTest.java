@@ -81,12 +81,16 @@ public class NullHandlingTest extends BaseMapTest
         A, B, C;
     }
 
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
+    private final ObjectMapper CONTENT_NULL_FAIL_MAPPER = JsonMapper.builder()
+            .defaultSetterInfo(JsonSetter.Value.construct(Nulls.AS_EMPTY, Nulls.FAIL))
+            .build();
+    
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     public void testNull() throws Exception
@@ -205,58 +209,73 @@ public class NullHandlingTest extends BaseMapTest
         assertNull("Proxy should be null!", typeBNullData.proxy);
     }
 
-    // Test for databind #3227
-    public void testNullsFailIfContentValueIsNull() throws Exception {
-        ObjectMapper objectMapper = JsonMapper.builder()
-                .defaultSetterInfo(JsonSetter.Value.construct(Nulls.FAIL, Nulls.FAIL))
-                .build();
-
+    // Test for [databind#3227]
+    public void testContentsNullFailForMaps() throws Exception
+    {
         try {
-            objectMapper.readValue("{ \"field\": null, \"property\": '1' }", Map.class);
+            CONTENT_NULL_FAIL_MAPPER.readValue("{ \"field\": null, \"property\": 1 }", Map.class);
             fail("InvalidNullException expected");
         } catch (InvalidNullException e) {
+            verifyException(e, "Invalid `null` value encountered");
         }
 
         try {
-            objectMapper.readValue("{ \"A\": 1, \"B\": null }", new TypeReference<EnumMap<EnumMapTestEnum, Integer>>() {});
+            CONTENT_NULL_FAIL_MAPPER.readValue("{ \"A\": 1, \"B\": null }", new TypeReference<EnumMap<EnumMapTestEnum, Integer>>() {});
             fail("InvalidNullException expected");
         } catch (InvalidNullException e) {
+            verifyException(e, "Invalid `null` value encountered");
+        }
+    }
+
+    // Test for [databind#3227]
+    public void testContentsNullFailForCollections() throws Exception
+    {
+        try {
+            CONTENT_NULL_FAIL_MAPPER.readValue("[null, {\"field\": 1}]",
+                    new TypeReference<List<Object>>() {});
+            fail("InvalidNullException expected");
+        } catch (InvalidNullException e) {
+            verifyException(e, "Invalid `null` value encountered");
         }
 
         try {
-            objectMapper.readValue("[null, {\"field\": 1}]", new TypeReference<List<Object>>() {});
+            CONTENT_NULL_FAIL_MAPPER.readValue("[{\"field\": 1}, null]",
+                    new TypeReference<Set<Object>>() {});
             fail("InvalidNullException expected");
         } catch (InvalidNullException e) {
+            verifyException(e, "Invalid `null` value encountered");
         }
 
         try {
-            objectMapper.readValue("[{\"field\": 1}, null]", new TypeReference<Set<Object>>() {});
+            CONTENT_NULL_FAIL_MAPPER.readValue("[\"foo\", null]", new TypeReference<List<String>>() {});
             fail("InvalidNullException expected");
         } catch (InvalidNullException e) {
+            verifyException(e, "Invalid `null` value encountered");
         }
 
         try {
-            objectMapper.readValue("[null, {\"field\": 1}]", Object[].class);
+            CONTENT_NULL_FAIL_MAPPER.readValue("[\"foo\", null]", new TypeReference<Set<String>>() {});
             fail("InvalidNullException expected");
         } catch (InvalidNullException e) {
+            verifyException(e, "Invalid `null` value encountered");
+        }
+    }
+
+    // Test for [databind#3227]
+    public void testContentsNullFailForArrays() throws Exception
+    {
+        try {
+            CONTENT_NULL_FAIL_MAPPER.readValue("[null, {\"field\": 1}]", Object[].class);
+            fail("InvalidNullException expected");
+        } catch (InvalidNullException e) {
+            verifyException(e, "Invalid `null` value encountered");
         }
 
         try {
-            objectMapper.readValue("[\"foo\", null]", new TypeReference<List<String>>() {});
+            CONTENT_NULL_FAIL_MAPPER.readValue("[null, \"foo\"]", String[].class);
             fail("InvalidNullException expected");
         } catch (InvalidNullException e) {
-        }
-
-        try {
-            objectMapper.readValue("[\"foo\", null]", new TypeReference<Set<String>>() {});
-            fail("InvalidNullException expected");
-        } catch (InvalidNullException e) {
-        }
-
-        try {
-            objectMapper.readValue("[null, \"foo\"]", String[].class);
-            fail("InvalidNullException expected");
-        } catch (InvalidNullException e) {
+            verifyException(e, "Invalid `null` value encountered");
         }
     }
 }

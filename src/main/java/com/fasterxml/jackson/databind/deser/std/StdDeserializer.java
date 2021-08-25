@@ -1885,9 +1885,10 @@ inputDesc, _coercedTypeDesc());
         if (prop != null) {
             return prop.getMetadata().getContentNulls();
         }
-
-        DeserializationConfig config = ctxt.getConfig();
-        return config.getDefaultSetterInfo().getContentNulls();
+        // 24-Aug-2021, tatu: As per [databind#3227] root values also need
+        //     to be checked for content nulls
+        //  NOTE: will this work wrt type-specific overrides? Probably not...
+        return ctxt.getConfig().getDefaultSetterInfo().getContentNulls();
     }
 
     // @since 2.9

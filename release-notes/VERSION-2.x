@@ -60,6 +60,9 @@ Project: jackson-databind
  (suggested by Nick B)
 #3217: `XMLGregorianCalendar` doesn't work with default typing
  (reported by Xinzhe Y)
+#3227: Content `null` handling not working for root values
+ (reported by João G)
+ (fix contributed by proost@github)
 #3238: Add PropertyNamingStrategies.UpperSnakeCaseStrategy (and UPPER_SNAKE_CASE constant)
  (requested by Kenneth J)
  (contributed by Tanvesh)

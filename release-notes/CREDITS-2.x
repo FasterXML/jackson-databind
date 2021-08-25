@@ -1025,6 +1025,8 @@ João Guerra (joca-bt@github)
   * Reported #2770: JsonParser from MismatchedInputException cannot getText() for
     floating-point value
   (2.11.1)
+  * Reported #3227: Content `null` handling not working for root values
+  (2.13.0)
 
 Ryan Bohn (bohnman@github)
   * Reported #2475: `StringCollectionSerializer` calls `JsonGenerator.setCurrentValue(value)`,
@@ -1381,4 +1383,8 @@ Kenneth Jorgensen (kennethjor@github)
 Tanvesh Takawale (TanveshT@github)
   * Contributed implementation for #3238: Add PropertyNamingStrategies.UpperSnakeCaseStrategy
     (and UPPER_SNAKE_CASE constant)
+   (2.13.0)
+
+Hyeonho Kim (proost@github)
+  * Contributed fix for #3227: Content `null` handling not working for root values
    (2.13.0)

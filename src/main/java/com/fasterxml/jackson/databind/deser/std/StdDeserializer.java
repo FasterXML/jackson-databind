@@ -1367,7 +1367,7 @@ public abstract class StdDeserializer<T>
             return _checkCoercionFail(ctxt, act, rawTargetType, value,
                     "empty String (\"\")");
         } else if (_isBlank(value)) {
-            act = ctxt.findCoercionFromBlankString(logicalType, rawTargetType, CoercionAction.Fail);
+            act = ctxt.findCoercionFromBlankString(logicalType, rawTargetType, CoercionAction.AsEmpty);
             return _checkCoercionFail(ctxt, act, rawTargetType, value,
                     "blank String (all whitespace)");
         } else {

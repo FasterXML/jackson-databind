@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.12.5 (not yet released)
+2.12.5 (27-Aug-2021)
 
 #3220: (regression) Factory method generic type resolution does not use
   Class-bound type parameter

@@ -12,8 +12,15 @@ import java.util.regex.Pattern;
 import com.fasterxml.jackson.core.io.NumberInput;
 
 /**
- * Default {@link DateFormat} implementation used by standard Date
- * serializers and deserializers. For serialization defaults to using
+ * Jackson's internal {@link DateFormat} implementation used by standard Date
+ * serializers and deserializers to implement default behavior: does <b>NOT</b>
+ * fully implement all aspects expected by {@link DateFormat} and as a consequence
+ * <b>SHOULD NOT</b> to be used by code outside core Jackson databind functionality.
+ * In particular, {@code ParsePosition} argument of {@link #parse(String, ParsePosition)}
+ * and {@link #format(Date, StringBuffer, FieldPosition)} methods is fully ignored;
+ * Jackson itself never calls these methods.
+ *<p>
+ * For serialization defaults to using
  * an ISO-8601 compliant format (format String "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
  * and for deserialization, both ISO-8601 and RFC-1123.
  *<br>
@@ -25,6 +32,9 @@ import com.fasterxml.jackson.core.io.NumberInput;
  * Note that it is possible to enable/disable use of colon in time offset by using method
  * {@link #withColonInTimeZone} for creating new differently configured format instance,
  * and configuring {@code ObjectMapper} with it.
+ *<p>
+ * TODO: in Jackson 2.14 or later, should change behavior to fail if {@link ParsePosition}
+ * is specified by caller (at least with non-0 offset).
  */
 @SuppressWarnings("serial")
 public class StdDateFormat

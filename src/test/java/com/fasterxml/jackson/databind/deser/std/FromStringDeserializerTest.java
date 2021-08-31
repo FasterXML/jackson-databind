@@ -157,6 +157,16 @@ public class FromStringDeserializerTest extends BaseTest {
         }
     }
 
+    public void testSpecialCases() throws JsonProcessingException {
+        Locale locale = new Locale("ja", "JP", "JP");
+        Locale deSerializedLocale = MAPPER.readValue(MAPPER.writeValueAsString(locale), Locale.class);
+        assertLocale(locale, deSerializedLocale);
+
+        locale = new Locale("th", "TH", "TH");
+        deSerializedLocale = MAPPER.readValue(MAPPER.writeValueAsString(locale), Locale.class);
+        assertLocale(locale, deSerializedLocale);
+    }
+
     private void assertBaseValues(Locale expected, Locale actual) {
         assertEquals(expected.getLanguage(), actual.getLanguage());
         assertEquals(expected.getCountry(), actual.getCountry());
@@ -178,5 +188,4 @@ public class FromStringDeserializerTest extends BaseTest {
         assertEquals(expected.getExtension('x'), actual.getExtension('x'));
         assertEquals(expected.getScript(), actual.getScript());
     }
-
 }

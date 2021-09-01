@@ -61,6 +61,15 @@ public class JsonNodeDeserializer
     }
 
     /**
+     * Overridden variant to ensure that absent values are NOT coerced into
+     * {@code NullNode}s, unlike incoming {@code null} values.
+     */
+    @Override // since 2.13
+    public Object getAbsentValue(DeserializationContext ctxt) {
+        return null;
+    }
+
+    /**
      * Implementation that will produce types of any JSON nodes; not just one
      * deserializer is registered to handle (in case of more specialized handler).
      * Overridden by typed sub-classes for more thorough checking

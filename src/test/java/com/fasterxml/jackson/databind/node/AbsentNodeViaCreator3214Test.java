@@ -1,11 +1,11 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.node;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.node.TextNode;
 
-public class NullJsonNodeViaCreator3214Test extends BaseMapTest
+import com.fasterxml.jackson.databind.*;
+
+public class AbsentNodeViaCreator3214Test extends BaseMapTest
 {
     static class Pojo3214
     {

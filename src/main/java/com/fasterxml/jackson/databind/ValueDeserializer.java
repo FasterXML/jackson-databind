@@ -343,8 +343,9 @@ public abstract class ValueDeserializer<T>
      * to be called just once (static values), or each time empty value is
      * needed.
      *<p>
-     * Default implementation indicates that "null value" to use for input null
-     * is simply Java `null` for all deserializers, unless overridden by sub-classes.
+     * Default implementation indicates that the "null value" to use for input null
+     * does not vary across uses so that {@link #getNullValue(DeserializationContext)}
+     * need not be called more than once per deserializer instance.
      * This information may be used as optimization.
      */
     @Override
@@ -353,6 +354,28 @@ public abstract class ValueDeserializer<T>
         // is usually the case for most implementations. But it is not necessarily
         // `null`; so sub-classes may want to refine further.
         return AccessPattern.CONSTANT;
+    }
+
+    /**
+     * Method called to determine placeholder value to be used for cases
+     * where no value was obtained from input but we must pass a value
+     * nonetheless: the common case is that of Creator methods requiring
+     * passing a value for every parameter.
+     * Usually this is same as {@link #getNullValue} (which in turn
+     * is usually simply Java {@code null}), but it can be overridden
+     * for specific types: most notable scalar types must use "default"
+     * values.
+     *<p>
+     * This method needs to be called every time a determination is made.
+     *<p>
+     * Default implementation simply calls {@link #getNullValue} and
+     * returns value.
+     *
+     * @since 2.13
+     */
+    @Override
+    public Object getAbsentValue(DeserializationContext ctxt) {
+        return getNullValue(ctxt);
     }
 
     /*

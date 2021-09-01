@@ -28,4 +28,24 @@ public interface NullValueProvider
      * access null replacement value.
      */
     public AccessPattern getNullAccessPattern(); 
+
+    /**
+     * Method called to determine placeholder value to be used for cases
+     * where no value was obtained from input but we must pass a value
+     * nonetheless: the common case is that of Creator methods requiring
+     * passing a value for every parameter.
+     * Usually this is same as {@link #getNullValue} (which in turn
+     * is usually simply Java {@code null}), but it can be overridden
+     * for specific types: most notable scalar types must use "default"
+     * values.
+     *<p>
+     * This method needs to be called every time a determination is made.
+     *<p>
+     * Default implementation simply calls and returns {@link #getNullValue}.
+     *
+     * @since 2.13
+     */
+    default Object getAbsentValue(DeserializationContext ctxt) {
+        return getNullValue(ctxt);
+    }
 }

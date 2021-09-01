@@ -197,14 +197,15 @@ public class PropertyValueBuffer
         }
         try {
             // Third: NullValueProvider? (22-Sep-2019, [databind#2458])
-            Object nullValue = prop.getNullValueProvider().getNullValue(_context);
-            if (nullValue != null) {
-                return nullValue;
+            // 08-Aug-2021, tatu: consider [databind#3214]; not null but "absent" value...
+            Object absentValue = prop.getNullValueProvider().getAbsentValue(_context);
+            if (absentValue != null) {
+                return absentValue;
             }
 
             // Fourth: default value
             ValueDeserializer<Object> deser = prop.getValueDeserializer();
-            return deser.getNullValue(_context);
+            return deser.getAbsentValue(_context);
         } catch (DatabindException e) {
             // [databind#2101]: Include property name, if we have it
             AnnotatedMember member = prop.getMember();

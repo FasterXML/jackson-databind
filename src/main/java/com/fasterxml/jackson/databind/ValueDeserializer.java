@@ -355,23 +355,13 @@ public abstract class ValueDeserializer<T>
         return AccessPattern.CONSTANT;
     }
 
-    /**
-     * This method may be called in conjunction with calls to
-     * {@link #getEmptyValue(DeserializationContext)}, to check whether it needs
-     * to be called just once (static values), or each time empty value is
-     * needed.
-     */
-    public AccessPattern getEmptyAccessPattern() {
-        return AccessPattern.DYNAMIC;
-    }
-
     /*
     /**********************************************************************
-    /* Other accessors
+    /* Accessors for other replacement/placeholder values
     /**********************************************************************
      */
-    
-    /**
+
+/**
      * Method called to determine value to be used for "empty" values
      * (most commonly when deserializing from empty JSON Strings).
      * Usually this is same as {@link #getNullValue} (which in turn
@@ -388,6 +378,22 @@ public abstract class ValueDeserializer<T>
     public Object getEmptyValue(DeserializationContext ctxt) {
         return getNullValue(ctxt);
     }
+
+    /**
+     * This method may be called in conjunction with calls to
+     * {@link #getEmptyValue(DeserializationContext)}, to check whether it needs
+     * to be called just once (static values), or each time empty value is
+     * needed.
+     */
+    public AccessPattern getEmptyAccessPattern() {
+        return AccessPattern.DYNAMIC;
+    }
+
+    /*
+    /**********************************************************************
+    /* Other accessors
+    /**********************************************************************
+     */
 
     /**
      * Accessor that can be used to check whether this deserializer

@@ -4,11 +4,8 @@ import java.io.IOException;
 import java.util.BitSet;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DatabindException;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
+
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.SettableAnyProperty;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -202,14 +199,15 @@ public class PropertyValueBuffer
         }
         try {
             // Third: NullValueProvider? (22-Sep-2019, [databind#2458])
-            Object nullValue = prop.getNullValueProvider().getNullValue(_context);
-            if (nullValue != null) {
-                return nullValue;
+            // 08-Aug-2021, tatu: consider [databind#3214]; not null but "absent" value...
+            Object absentValue = prop.getNullValueProvider().getAbsentValue(_context);
+            if (absentValue != null) {
+                return absentValue;
             }
 
             // Fourth: default value
             JsonDeserializer<Object> deser = prop.getValueDeserializer();
-            return deser.getNullValue(_context);
+            return deser.getAbsentValue(_context);
         } catch (DatabindException e) {
             // [databind#2101]: Include property name, if we have it
             AnnotatedMember member = prop.getMember();

@@ -58,6 +58,9 @@ Project: jackson-databind
  (contributed by Klaas D)
 #3193: Add `MapperFeature.APPLY_DEFAULT_VALUES`, initially for Scala module
  (suggested by Nick B)
+#3214: For an absent property Jackson injects `NullNode` instead of `null` to a
+  JsonNode-typed constructor argument of a `@ConstructorProperties`-annotated constructor
+ (repored by robvarga@github)
 #3217: `XMLGregorianCalendar` doesn't work with default typing
  (reported by Xinzhe Y)
 #3227: Content `null` handling not working for root values

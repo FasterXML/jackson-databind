@@ -1975,7 +1975,11 @@ public class ObjectReader
         }
     }
 
-    // @since 2.13
+    /**
+     * Same as {@link #treeToValue(TreeNode, Class)} but with type-resolved target value type.
+     *
+     * @since 2.13
+     */
     public <T> T treeToValue(TreeNode n, JavaType valueType) throws JsonProcessingException
     {
         _assertNotNull("n", n);

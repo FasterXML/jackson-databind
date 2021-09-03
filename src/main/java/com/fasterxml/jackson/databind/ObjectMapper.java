@@ -3256,7 +3256,7 @@ public class ObjectMapper
             // 25-Jan-2019, tatu: [databind#2220] won't prevent existing coercions here
             // Simple cast when we just want to cast to, say, ObjectNode
             if (TreeNode.class.isAssignableFrom(valueType)
-                    && valueType.isAssignableFrom(n.getClass())) {
+                     && valueType.isAssignableFrom(n.getClass())) {
                 return (T) n;
             }
             final JsonToken tt = n.asToken();
@@ -3277,6 +3277,45 @@ public class ObjectMapper
                  return null;
             }*/
             return readValue(treeAsTokens(n), valueType);
+        } catch (JsonProcessingException e) {
+            // 12-Nov-2020, tatu: These can legit happen, during conversion, especially
+            //   with things like Builders that validate arguments.
+            throw e;
+        } catch (IOException e) { // should not occur, no real i/o...
+            throw new IllegalArgumentException(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Same as {@link #treeToValue(TreeNode, Class)} but target type specified
+     * using fully resolved {@link JavaType}.
+     *
+     * @since 2.13
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T treeToValue(TreeNode n, JavaType valueType)
+        throws IllegalArgumentException,
+            JsonProcessingException
+    {
+        // Implementation copied from the type-erased variant
+        if (n == null) {
+            return null;
+        }
+        try {
+            if (valueType.isTypeOrSubTypeOf(TreeNode.class)
+                    && valueType.isTypeOrSuperTypeOf(n.getClass())) {
+                return (T) n;
+            }
+            final JsonToken tt = n.asToken();
+            if (tt == JsonToken.VALUE_EMBEDDED_OBJECT) {
+                if (n instanceof POJONode) {
+                    Object ob = ((POJONode) n).getPojo();
+                    if ((ob == null) || valueType.isTypeOrSuperTypeOf(ob.getClass())) {
+                        return (T) ob;
+                    }
+                }
+            }
+            return (T) readValue(treeAsTokens(n), valueType);
         } catch (JsonProcessingException e) {
             // 12-Nov-2020, tatu: These can legit happen, during conversion, especially
             //   with things like Builders that validate arguments.

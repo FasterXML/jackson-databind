@@ -4,14 +4,12 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.TreeNode;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.util.StdConverter;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -197,17 +195,7 @@ public class TestBeanConversions
         // should just cast...
         assertSame(str, result);
     }
-    
-    // [Issue-11]: simple cast, for Tree
-    public void testNodeConvert() throws Exception
-    {
-        ObjectNode src = (ObjectNode) MAPPER.readTree("{}");
-        TreeNode node = src;
-        ObjectNode result = MAPPER.treeToValue(node, ObjectNode.class);
-        // should just cast...
-        assertSame(src, result);
-    }
-    
+
     private void _convertAndVerifyPoint(ObjectMapper m)
     {
         final PointZ input = new PointZ(1, 2, 3);

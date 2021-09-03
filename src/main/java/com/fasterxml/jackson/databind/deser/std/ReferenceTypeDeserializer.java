@@ -126,6 +126,11 @@ public abstract class ReferenceTypeDeserializer<T>
         return getNullValue(ctxt);
     }
 
+    @Override
+    public Object getAbsentValue(DeserializationContext ctxt) throws JsonMappingException {
+        return null;
+    }
+
     public abstract T referenceValue(Object contents);
 
     /**

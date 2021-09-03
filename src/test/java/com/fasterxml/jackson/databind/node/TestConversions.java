@@ -166,6 +166,10 @@ public class TestConversions extends BaseMapTest
         Root r1 = mapper.treeToValue(root, Root.class);
         assertNotNull(r1);
         assertEquals(13, r1.leaf.value);
+
+        // ... also JavaType
+        r1 = mapper.treeToValue(root, mapper.constructType(Root.class));
+        assertEquals(13, r1.leaf.value);
     }
 
     // [databind#1208]: should coerce POJOs at least at root level
@@ -173,9 +177,12 @@ public class TestConversions extends BaseMapTest
     {
         Calendar c = Calendar.getInstance();
         c.setTime(new java.util.Date(0));
-        ValueNode pojoNode = MAPPER.getNodeFactory().pojoNode(c);        
+        final ValueNode pojoNode = MAPPER.getNodeFactory().pojoNode(c);
         Calendar result = MAPPER.treeToValue(pojoNode, Calendar.class);
-        assertNotNull(result);
+        assertEquals(result.getTimeInMillis(), c.getTimeInMillis());
+
+        // and same with JavaType
+        result = MAPPER.treeToValue(pojoNode, MAPPER.constructType(Calendar.class));
         assertEquals(result.getTimeInMillis(), c.getTimeInMillis());
     }
 
@@ -328,10 +335,32 @@ public class TestConversions extends BaseMapTest
         Object pojo = MAPPER.treeToValue(n, Root.class);
         assertNull(pojo);
 
+        pojo = MAPPER.treeToValue(n, MAPPER.constructType(Root.class));
+        assertNull(pojo);
+        
         // [databind#2972]
         AtomicReference<?> result = MAPPER.treeToValue(NullNode.instance,
                 AtomicReference.class);
         assertNotNull(result);
         assertNull(result.get());
+
+        result = MAPPER.treeToValue(NullNode.instance,
+                MAPPER.constructType(AtomicReference.class));
+        assertNotNull(result);
+        assertNull(result.get());
+    }
+
+    // Simple cast, for Tree
+    public void testNodeConvert() throws Exception
+    {
+        ObjectNode src = (ObjectNode) MAPPER.readTree("{}");
+        TreeNode node = src;
+        ObjectNode result = MAPPER.treeToValue(node, ObjectNode.class);
+        // should just cast...
+        assertSame(src, result);
+
+        // ditto w/ JavaType
+        result = MAPPER.treeToValue(node, MAPPER.constructType(ObjectNode.class));
+        assertSame(src, result);
     }
 }

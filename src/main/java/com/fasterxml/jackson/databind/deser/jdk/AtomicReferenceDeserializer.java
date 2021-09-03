@@ -42,6 +42,14 @@ public class AtomicReferenceDeserializer
         return getNullValue(ctxt);
     }
 
+    /**
+     * Let's actually NOT coerce missing Creator parameters into empty value.
+     */
+    @Override
+    public Object getAbsentValue(DeserializationContext ctxt) {
+        return null;
+    }
+
     @Override
     public AtomicReference<Object> referenceValue(Object contents) {
         return new AtomicReference<Object>(contents);

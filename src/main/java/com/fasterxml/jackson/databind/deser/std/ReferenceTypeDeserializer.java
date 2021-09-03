@@ -111,10 +111,12 @@ public abstract class ReferenceTypeDeserializer<T>
         return getNullValue(ctxt);
     }
 
-    @Override
-    public Object getAbsentValue(DeserializationContext ctxt) {
-        return null;
-    }
+    // 02-Sep-2021, tatu: Related to [databind#3214] we may want to add this... but
+    //    with 2.13.0 so close will not yet do that, but wait for 2.14
+//    @Override
+//    public Object getAbsentValue(DeserializationContext ctxt) {
+//        return null;
+//    }
 
     public abstract T referenceValue(Object contents);
 

@@ -111,6 +111,11 @@ public abstract class ReferenceTypeDeserializer<T>
         return getNullValue(ctxt);
     }
 
+    @Override
+    public Object getAbsentValue(DeserializationContext ctxt) {
+        return null;
+    }
+
     public abstract T referenceValue(Object contents);
 
     /**

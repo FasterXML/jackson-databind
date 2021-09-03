@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.*;
 
-public class CreatorTest extends BaseMapTest
+public class CreatorForOptionalTest extends BaseMapTest
 {
     static class CreatorWithOptionalStrings
     {
@@ -32,7 +32,6 @@ public class CreatorTest extends BaseMapTest
 
     /**
      * Test to ensure that creator parameters use defaulting
-     * (introduced in Jackson 2.6)
      */
     public void testCreatorWithOptional() throws Exception
     {

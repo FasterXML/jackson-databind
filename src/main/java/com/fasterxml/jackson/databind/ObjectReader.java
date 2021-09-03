@@ -1543,6 +1543,9 @@ public class ObjectReader
         return forType(valueType).readValue(treeAsTokens(n));
     }
 
+    /**
+     * Same as {@link #treeToValue(TreeNode, Class)} but with type-resolved target value type.
+     */
     public <T> T treeToValue(TreeNode n, JavaType valueType) throws JacksonException
     {
         _assertNotNull("n", n);

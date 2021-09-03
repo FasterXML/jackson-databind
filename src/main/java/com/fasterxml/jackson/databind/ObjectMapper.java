@@ -1291,6 +1291,34 @@ public class ObjectMapper
     }
 
     /**
+     * Same as {@link #treeToValue(TreeNode, Class)} but target type specified
+     * using fully resolved {@link JavaType}.
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T treeToValue(TreeNode n, JavaType valueType)
+        throws JacksonException
+    {
+        // Implementation copied from the type-erased variant
+        if (n == null) {
+            return null;
+        }
+        if (valueType.isTypeOrSubTypeOf(TreeNode.class)
+                && valueType.isTypeOrSuperTypeOf(n.getClass())) {
+            return (T) n;
+        }
+        final JsonToken tt = n.asToken();
+        if (tt == JsonToken.VALUE_EMBEDDED_OBJECT) {
+            if (n instanceof POJONode) {
+                Object ob = ((POJONode) n).getPojo();
+                if ((ob == null) || valueType.isTypeOrSuperTypeOf(ob.getClass())) {
+                    return (T) ob;
+                }
+            }
+        }
+        return (T) readValue(treeAsTokens(n), valueType);
+    }
+
+    /**
      * Method that is reverse of {@link #treeToValue}: it
      * will convert given Java value (usually bean) into its
      * equivalent Tree model {@link JsonNode} representation.

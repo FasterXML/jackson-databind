@@ -8,6 +8,9 @@ import com.fasterxml.jackson.annotation.JsonIncludeProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.core.JacksonException;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.TokenStreamFactory;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 
 import com.fasterxml.jackson.databind.*;
@@ -20,6 +23,7 @@ import com.fasterxml.jackson.databind.ser.impl.PropertyBasedObjectIdGenerator;
 import com.fasterxml.jackson.databind.ser.impl.UnsupportedTypeSerializer;
 import com.fasterxml.jackson.databind.ser.jdk.MapSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdDelegatingSerializer;
+import com.fasterxml.jackson.databind.ser.std.ToEmptyObjectSerializer;
 import com.fasterxml.jackson.databind.type.ReferenceType;
 import com.fasterxml.jackson.databind.util.BeanUtil;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -283,7 +287,11 @@ public class BeanSerializerFactory
         if (ser != null) {
             return (ValueSerializer<Object>) ser;
         }
-
+        // 02-Sep-2021, tatu: [databind#3244] Should not try "proper" serialization of
+        //      things like ObjectMapper, JsonParser or JsonGenerator...
+        if (_isUnserializableJacksonType(ctxt, type)) {
+            return new ToEmptyObjectSerializer(type);
+        }
         final SerializationConfig config = ctxt.getConfig();
         BeanSerializerBuilder builder = constructBeanSerializerBuilder(beanDesc);
         builder.setConfig(config);
@@ -736,5 +744,24 @@ ClassUtil.getTypeDescription(beanDesc.getType()), ClassUtil.name(propName)));
             }
         }
         return null;
+    }
+
+    /* Helper method used for preventing attempts to serialize various Jackson
+     * processor things which are not generally serializable.
+     *
+     * @since 2.13
+     */
+    protected boolean _isUnserializableJacksonType(SerializerProvider ctxt,
+            JavaType type)
+    {
+        final Class<?> raw = type.getRawClass();
+        return ObjectMapper.class.isAssignableFrom(raw)
+                || ObjectReader.class.isAssignableFrom(raw)
+                || ObjectWriter.class.isAssignableFrom(raw)
+                || DatabindContext.class.isAssignableFrom(raw)
+                || TokenStreamFactory.class.isAssignableFrom(raw)
+                || JsonParser.class.isAssignableFrom(raw)
+                || JsonGenerator.class.isAssignableFrom(raw)
+                ;
     }
 }

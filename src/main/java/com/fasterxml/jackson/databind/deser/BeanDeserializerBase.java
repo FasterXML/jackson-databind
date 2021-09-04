@@ -1034,7 +1034,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         // Empty values cannot be shared
         return AccessPattern.DYNAMIC;
     }
-    
+
     @Override // since 2.9
     public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
         // alas, need to promote exception, if any:

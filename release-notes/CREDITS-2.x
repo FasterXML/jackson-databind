@@ -1388,3 +1388,7 @@ Tanvesh Takawale (TanveshT@github)
 Hyeonho Kim (proost@github)
   * Contributed fix for #3227: Content `null` handling not working for root values
    (2.13.0)
+
+Abishek Ravichandran (abrav9595@github)
+  * Contributed #3259: Support for BCP 47 `java.util.Locale` serialization/deserialization
+   (2.13.0)

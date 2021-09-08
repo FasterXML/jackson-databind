@@ -71,6 +71,8 @@ Project: jackson-databind
  (contributed by Tanvesh)
 #3244: StackOverflowError when serializing JsonProcessingException
  (reported by saneksanek@github)
+#3259: Support for BCP 47 `java.util.Locale` serialization/deserialization
+ (contributed by Abishek R)
 - Fix to avoid problem with `BigDecimalNode`, scale of `Integer.MIN_VALUE` (see
   [dataformats-binary#264] for details)
 - Extend handling of `FAIL_ON_NULL_FOR_PRIMITIVES` to cover coercion from (Empty) String

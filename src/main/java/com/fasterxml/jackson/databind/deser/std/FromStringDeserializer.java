@@ -282,6 +282,8 @@ _coercedTypeDesc());
         // No longer implemented here since 2.12
         //        public final static int STD_STRING_BUILDER = 13;
 
+        protected final static String LOCALE_EXT_MARKER = "_#";
+
         protected final int _kind;
 
         protected Std(Class<?> valueType, int kind) {
@@ -315,25 +317,7 @@ _coercedTypeDesc());
                 // will throw IAE (or its subclass) if malformed
                 return Pattern.compile(value);
             case STD_LOCALE:
-                {
-                    int ix = _firstHyphenOrUnderscore(value);
-                    if (ix < 0) { // single argument
-                        return new Locale(value);
-                    }
-                    String first = value.substring(0, ix);
-                    value = value.substring(ix+1);
-                    ix = _firstHyphenOrUnderscore(value);
-                    if (ix < 0) { // two pieces
-                        return new Locale(first, value);
-                    }
-                    String second = value.substring(0, ix);
-                    if(!_isScriptOrExtensionPresent(value)) {
-                        return new Locale(first, second, value.substring(ix+1));
-                    } else {
-                        // Issue #3259: Support for BCP 47 java.util.Locale Serialization / De-serialization
-                        return _deSerializeBCP47Locale(value, ix, first, second);
-                    }
-                }
+                return _deserializeLocale(value, ctxt);
             case STD_CHARSET:
                 return Charset.forName(value);
             case STD_TIME_ZONE:
@@ -402,17 +386,41 @@ _coercedTypeDesc());
             return -1;
         }
 
+        private Locale _deserializeLocale(String value, DeserializationContext ctxt)
+            throws IOException
+        {
+            int ix = _firstHyphenOrUnderscore(value);
+            if (ix < 0) { // single argument
+                return new Locale(value);
+            }
+            String first = value.substring(0, ix);
+            value = value.substring(ix+1);
+            ix = _firstHyphenOrUnderscore(value);
+            if (ix < 0) { // two pieces
+                return new Locale(first, value);
+            }
+            String second = value.substring(0, ix);
+            if(!_isScriptOrExtensionPresent(value)) {
+                return new Locale(first, second, value.substring(ix+1));
+            }
+            // Issue #3259: Support for BCP 47 java.util.Locale Serialization / De-serialization
+            return _deSerializeBCP47Locale(value, ix, first, second);
+        }
+
+        private boolean _isScriptOrExtensionPresent(String value) {
+            return value.contains(LOCALE_EXT_MARKER);
+        }
+
         private Locale _deSerializeBCP47Locale(String value, int ix, String first, String second) {
             String third = "";
             try {
                 int scriptExpIx = value.indexOf("_#");
-                /*
-                 * Below condition checks if variant value is present to handle empty variant values such as
-                 * en__#Latn_x-ext
-                 * _US_#Latn
-                 */
-                if (scriptExpIx > 0 && scriptExpIx > ix)
+                // Below condition checks if variant value is present to handle empty variant values such as
+                // en__#Latn_x-ext
+                // _US_#Latn
+                if (scriptExpIx > 0 && scriptExpIx > ix) {
                     third = value.substring(ix + 1, scriptExpIx);
+                }
                 value = value.substring(scriptExpIx + 2);
 
                 if (value.indexOf('_') < 0 && value.indexOf('-') < 0) {
@@ -435,10 +443,6 @@ _coercedTypeDesc());
             } catch(IllformedLocaleException ex) {
                 return new Locale(first, second, third);
             }
-        }
-
-        private boolean _isScriptOrExtensionPresent(String value) {
-            return value.contains("_#");
         }
     }
 

@@ -1,22 +1,13 @@
 package com.fasterxml.jackson.databind.deser.jdk;
 
 import java.io.*;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.nio.charset.Charset;
 import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.spi.FileSystemProvider;
-import java.util.Currency;
-import java.util.Locale;
-import java.util.ServiceLoader;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.core.*;
@@ -97,6 +88,8 @@ public class JDKFromStringDeserializer
             StringBuilder.class,
         };
     }
+
+    protected final static String LOCALE_EXT_MARKER = "_#";
 
     protected final int _kind;
 
@@ -190,20 +183,7 @@ public class JDKFromStringDeserializer
             // will throw IAE (or its subclass) if malformed
             return Pattern.compile(value);
         case STD_LOCALE:
-            {
-                int ix = _firstHyphenOrUnderscore(value);
-                if (ix < 0) { // single argument
-                    return new Locale(value);
-                }
-                String first = value.substring(0, ix);
-                value = value.substring(ix+1);
-                ix = _firstHyphenOrUnderscore(value);
-                if (ix < 0) { // two pieces
-                    return new Locale(first, value);
-                }
-                String second = value.substring(0, ix);
-                return new Locale(first, second, value.substring(ix+1));
-            }
+            return _deserializeLocale(value, ctxt);
         case STD_CHARSET:
             return Charset.forName(value);
         case STD_TIME_ZONE:
@@ -269,6 +249,65 @@ public class JDKFromStringDeserializer
             }
         }
         return -1;
+    }
+
+    private Locale _deserializeLocale(String value, DeserializationContext ctxt)
+        throws JacksonException
+    {
+        int ix = _firstHyphenOrUnderscore(value);
+        if (ix < 0) { // single argument
+            return new Locale(value);
+        }
+        String first = value.substring(0, ix);
+        value = value.substring(ix+1);
+        ix = _firstHyphenOrUnderscore(value);
+        if (ix < 0) { // two pieces
+            return new Locale(first, value);
+        }
+        String second = value.substring(0, ix);
+        if(!_isScriptOrExtensionPresent(value)) {
+            return new Locale(first, second, value.substring(ix+1));
+        }
+        // Issue #3259: Support for BCP 47 java.util.Locale Serialization / De-serialization
+        return _deSerializeBCP47Locale(value, ix, first, second);
+    }
+
+    private boolean _isScriptOrExtensionPresent(String value) {
+        return value.contains(LOCALE_EXT_MARKER);
+    }
+
+    private Locale _deSerializeBCP47Locale(String value, int ix, String first, String second) {
+        String third = "";
+        try {
+            int scriptExpIx = value.indexOf("_#");
+            // Below condition checks if variant value is present to handle empty variant values such as
+            // en__#Latn_x-ext
+            // _US_#Latn
+            if (scriptExpIx > 0 && scriptExpIx > ix) {
+                third = value.substring(ix + 1, scriptExpIx);
+            }
+            value = value.substring(scriptExpIx + 2);
+
+            if (value.indexOf('_') < 0 && value.indexOf('-') < 0) {
+                return new Locale.Builder().setLanguage(first)
+                        .setRegion(second).setVariant(third).setScript(value).build();
+            }
+            if (value.indexOf('_') < 0) {
+                ix = value.indexOf('-');
+                return new Locale.Builder().setLanguage(first)
+                        .setRegion(second).setVariant(third)
+                        .setExtension(value.charAt(0), value.substring(ix + 1))
+                        .build();
+            }
+            ix = value.indexOf('_');
+            return new Locale.Builder().setLanguage(first)
+                    .setRegion(second).setVariant(third)
+                    .setScript(value.substring(0, ix))
+                    .setExtension(value.charAt(ix + 1), value.substring(ix + 3))
+                    .build();
+        } catch(IllformedLocaleException ex) {
+            return new Locale(first, second, third);
+        }
     }
 
     static class StringBuilderDeserializer extends JDKFromStringDeserializer

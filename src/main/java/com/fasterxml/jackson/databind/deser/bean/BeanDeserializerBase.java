@@ -998,7 +998,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         // Empty values cannot be shared
         return AccessPattern.DYNAMIC;
     }
-    
+
     @Override
     public Object getEmptyValue(DeserializationContext ctxt) throws JacksonException {
         return _valueInstantiator.createUsingDefault(ctxt);

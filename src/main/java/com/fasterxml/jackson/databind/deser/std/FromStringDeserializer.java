@@ -8,6 +8,7 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Currency;
+import java.util.IllformedLocaleException;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
@@ -326,7 +327,12 @@ _coercedTypeDesc());
                         return new Locale(first, value);
                     }
                     String second = value.substring(0, ix);
-                    return new Locale(first, second, value.substring(ix+1));
+                    if(!_isScriptOrExtensionPresent(value)) {
+                        return new Locale(first, second, value.substring(ix+1));
+                    } else {
+                        // Issue #3259: Support for BCP 47 java.util.Locale Serialization / De-serialization
+                        return _deSerializeBCP47Locale(value, ix, first, second);
+                    }
                 }
             case STD_CHARSET:
                 return Charset.forName(value);
@@ -394,6 +400,45 @@ _coercedTypeDesc());
                 }
             }
             return -1;
+        }
+
+        private Locale _deSerializeBCP47Locale(String value, int ix, String first, String second) {
+            String third = "";
+            try {
+                int scriptExpIx = value.indexOf("_#");
+                /*
+                 * Below condition checks if variant value is present to handle empty variant values such as
+                 * en__#Latn_x-ext
+                 * _US_#Latn
+                 */
+                if (scriptExpIx > 0 && scriptExpIx > ix)
+                    third = value.substring(ix + 1, scriptExpIx);
+                value = value.substring(scriptExpIx + 2);
+
+                if (value.indexOf('_') < 0 && value.indexOf('-') < 0) {
+                    return new Locale.Builder().setLanguage(first)
+                            .setRegion(second).setVariant(third).setScript(value).build();
+                }
+                if (value.indexOf('_') < 0) {
+                    ix = value.indexOf('-');
+                    return new Locale.Builder().setLanguage(first)
+                            .setRegion(second).setVariant(third)
+                            .setExtension(value.charAt(0), value.substring(ix + 1))
+                            .build();
+                }
+                ix = value.indexOf('_');
+                return new Locale.Builder().setLanguage(first)
+                        .setRegion(second).setVariant(third)
+                        .setScript(value.substring(0, ix))
+                        .setExtension(value.charAt(ix + 1), value.substring(ix + 3))
+                        .build();
+            } catch(IllformedLocaleException ex) {
+                return new Locale(first, second, third);
+            }
+        }
+
+        private boolean _isScriptOrExtensionPresent(String value) {
+            return value.contains("_#");
         }
     }
 

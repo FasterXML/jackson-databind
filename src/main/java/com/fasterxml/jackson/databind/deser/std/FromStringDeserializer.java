@@ -400,28 +400,26 @@ _coercedTypeDesc());
                 return new Locale(first, value);
             }
             String second = value.substring(0, ix);
-            if(!_isScriptOrExtensionPresent(value)) {
+            // [databind#3259]: Support for BCP 47 java.util.Locale ser/deser
+            int extMarkerIx = value.indexOf(LOCALE_EXT_MARKER);
+            if (extMarkerIx < 0) {
                 return new Locale(first, second, value.substring(ix+1));
             }
-            // Issue #3259: Support for BCP 47 java.util.Locale Serialization / De-serialization
-            return _deSerializeBCP47Locale(value, ix, first, second);
+            return _deSerializeBCP47Locale(value, ix, first, second, extMarkerIx);
         }
 
-        private boolean _isScriptOrExtensionPresent(String value) {
-            return value.contains(LOCALE_EXT_MARKER);
-        }
-
-        private Locale _deSerializeBCP47Locale(String value, int ix, String first, String second) {
+        private Locale _deSerializeBCP47Locale(String value, int ix, String first, String second,
+                int extMarkerIx)
+        {
             String third = "";
             try {
-                int scriptExpIx = value.indexOf("_#");
                 // Below condition checks if variant value is present to handle empty variant values such as
                 // en__#Latn_x-ext
                 // _US_#Latn
-                if (scriptExpIx > 0 && scriptExpIx > ix) {
-                    third = value.substring(ix + 1, scriptExpIx);
+                if (extMarkerIx > 0 && extMarkerIx > ix) {
+                    third = value.substring(ix + 1, extMarkerIx);
                 }
-                value = value.substring(scriptExpIx + 2);
+                value = value.substring(extMarkerIx + 2);
 
                 if (value.indexOf('_') < 0 && value.indexOf('-') < 0) {
                     return new Locale.Builder().setLanguage(first)
@@ -440,7 +438,8 @@ _coercedTypeDesc());
                         .setScript(value.substring(0, ix))
                         .setExtension(value.charAt(ix + 1), value.substring(ix + 3))
                         .build();
-            } catch(IllformedLocaleException ex) {
+            } catch (IllformedLocaleException ex) {
+                // should we really just swallow the exception?
                 return new Locale(first, second, third);
             }
         }

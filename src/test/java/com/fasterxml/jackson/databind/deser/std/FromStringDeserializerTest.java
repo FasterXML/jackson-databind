@@ -1,18 +1,17 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.BaseTest;
+import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Locale;
 
-public class FromStringDeserializerTest extends BaseTest {
-
+public class FromStringDeserializerTest extends BaseMapTest
+{
     private final Locale[] LOCALES = new Locale[]
             {Locale.CANADA, Locale.ROOT, Locale.GERMAN, Locale.CHINESE, Locale.KOREA, Locale.TAIWAN};
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
-    public void testLocaleDeserializeNonBCPFormat() throws JsonProcessingException {
+    public void testLocaleDeserializeNonBCPFormat() throws Exception {
         Locale locale = new Locale("en", "US");
         Locale deSerializedLocale = MAPPER.readValue(MAPPER.writeValueAsString(locale), Locale.class);
         assertBaseValues(locale, deSerializedLocale);
@@ -38,7 +37,7 @@ public class FromStringDeserializerTest extends BaseTest {
         assertBaseValues(locale, deSerializedLocale);
     }
 
-    public void testLocaleDeserializeWithScript() throws JsonProcessingException {
+    public void testLocaleDeserializeWithScript() throws Exception {
         Locale locale = new Locale.Builder().setLanguage("en").setRegion("GB").setVariant("VARIANT")
                 .setScript("Latn").build();
         Locale deSerializedLocale = MAPPER.readValue(MAPPER.writeValueAsString(locale), Locale.class);
@@ -65,7 +64,7 @@ public class FromStringDeserializerTest extends BaseTest {
         assertLocaleWithScript(locale, deSerializedLocale);
     }
 
-    public void testLocaleDeserializeWithExtension() throws JsonProcessingException {
+    public void testLocaleDeserializeWithExtension() throws Exception {
         Locale locale = new Locale.Builder().setLanguage("en").setRegion("GB").setVariant("VARIANT")
                 .setExtension('x', "dummy").build();
         Locale deSerializedLocale = MAPPER.readValue(MAPPER.writeValueAsString(locale), Locale.class);
@@ -92,7 +91,7 @@ public class FromStringDeserializerTest extends BaseTest {
         assertLocaleWithScript(locale, deSerializedLocale);
     }
 
-    public void testLocaleDeserializeWithScriptAndExtension() throws JsonProcessingException {
+    public void testLocaleDeserializeWithScriptAndExtension() throws Exception {
         Locale locale = new Locale.Builder().setLanguage("en").setRegion("GB").setVariant("VARIANT")
                 .setExtension('x', "dummy").setScript("latn").build();
         Locale deSerializedLocale = MAPPER.readValue(MAPPER.writeValueAsString(locale), Locale.class);
@@ -122,7 +121,7 @@ public class FromStringDeserializerTest extends BaseTest {
         assertLocale(locale, deSerializedLocale);
     }
 
-    public void testLocaleDeserializeWithLanguageTag() throws JsonProcessingException {
+    public void testLocaleDeserializeWithLanguageTag() throws Exception {
         Locale locale = Locale.forLanguageTag("en-US-x-debug");
         Locale deSerializedLocale = MAPPER.readValue(MAPPER.writeValueAsString(locale), Locale.class);
         assertLocale(locale, deSerializedLocale);
@@ -144,20 +143,20 @@ public class FromStringDeserializerTest extends BaseTest {
         assertLocale(locale, deSerializedLocale);
     }
 
-    public void testIllFormedVariant() throws JsonProcessingException {
+    public void testIllFormedVariant() throws Exception {
         Locale locale = Locale.forLanguageTag("de-POSIX-x-URP-lvariant-Abc-Def");
         Locale deSerializedLocale = MAPPER.readValue(MAPPER.writeValueAsString(locale), Locale.class);
         assertBaseValues(locale, deSerializedLocale);
     }
 
-    public void testLocaleDeserializeWithLocaleConstants() throws JsonProcessingException {
+    public void testLocaleDeserializeWithLocaleConstants() throws Exception {
         for (Locale locale: LOCALES) {
             Locale deSerializedLocale = MAPPER.readValue(MAPPER.writeValueAsString(locale), Locale.class);
             assertLocale(locale, deSerializedLocale);
         }
     }
 
-    public void testSpecialCases() throws JsonProcessingException {
+    public void testSpecialCases() throws Exception {
         Locale locale = new Locale("ja", "JP", "JP");
         Locale deSerializedLocale = MAPPER.readValue(MAPPER.writeValueAsString(locale), Locale.class);
         assertLocale(locale, deSerializedLocale);

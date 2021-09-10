@@ -95,7 +95,11 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             p.nextToken(); // to point to the value
             if (name.equals(_typePropertyName)
                     || (ignoreCase && name.equalsIgnoreCase(_typePropertyName))) { // gotcha!
-                return _deserializeTypedForId(p, ctxt, tb, p.getText());
+                // 09-Sep-2021, tatu: [databind#3271]: Avoid converting null to "null"
+                String typeId = p.getValueAsString();
+                if (typeId != null) {
+                    return _deserializeTypedForId(p, ctxt, tb, typeId);
+                }
             }
             if (tb == null) {
                 tb = ctxt.bufferForInputBuffering(p);

@@ -75,6 +75,8 @@ Project: jackson-databind
  (reported by saneksanek@github)
 #3259: Support for BCP 47 `java.util.Locale` serialization/deserialization
  (contributed by Abishek R)
+#3271: String property deserializes null as "null" for JsonTypeInfo.As.EXISTING_PROPERTY
+ (reported by jonc2@github)
 - Fix to avoid problem with `BigDecimalNode`, scale of `Integer.MIN_VALUE` (see
   [dataformats-binary#264] for details)
 - Extend handling of `FAIL_ON_NULL_FOR_PRIMITIVES` to cover coercion from (Empty) String

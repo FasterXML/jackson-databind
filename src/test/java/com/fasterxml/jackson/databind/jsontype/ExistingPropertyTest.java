@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -192,10 +191,26 @@ public class ExistingPropertyTest extends BaseMapTest
 
     static class Bean1635Default extends Bean1635 { }
 
+    // [databind#3271]
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY,
+            visible = true, property = "type", defaultImpl = DefaultShape3271.class)
+    @JsonSubTypes({@JsonSubTypes.Type(value = Square3271.class, name = "square")})
+    static abstract class Shape3271 {
+        public String type;
+
+        public String getType() { return this.type; }
+
+        public void setType(String type) { this.type = type; }
+    }
+
+    static class Square3271 extends Shape3271 {}
+
+    static class DefaultShape3271 extends Shape3271 {}
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Mock data
-    /**********************************************************
+    /**********************************************************************
      */
 
     private static final Orange mandarin = new Orange("Mandarin Orange", "orange");
@@ -226,12 +241,12 @@ public class ExistingPropertyTest extends BaseMapTest
     private static final String carListJson = "[" + camryJson + "," + accordJson + "]";
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods
-    /**********************************************************
+    /**********************************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     /**
      * Fruits - serialization tests for simple property on sub-classes
@@ -442,5 +457,22 @@ public class ExistingPropertyTest extends BaseMapTest
                 Bean1635.class);
         assertEquals(Bean1635Default.class, result.getClass());
         assertEquals(ABC.C, result.type);
+    }
+
+    // [databind#3271]: verify that `null` token does not become "null" String
+
+    public void testDeserializationWithValidType() throws Exception {
+        Shape3271 deserShape = MAPPER.readValue("{\"type\":\"square\"}", Shape3271.class);
+        assertEquals("square", deserShape.getType());
+    }
+
+    public void testDeserializationWithInvalidType() throws Exception {
+        Shape3271 deserShape = MAPPER.readValue("{\"type\":\"invalid\"}", Shape3271.class);
+        assertEquals("invalid", deserShape.getType());
+    }
+
+    public void testDeserializationNull() throws Exception {
+        Shape3271 deserShape = MAPPER.readValue("{\"type\":null}", Shape3271.class);
+        assertNull(deserShape.getType()); // error: "expected null, but was:<null>"
     }
 }

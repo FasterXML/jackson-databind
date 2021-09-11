@@ -1,15 +1,54 @@
 package com.fasterxml.jackson.databind.deser.std;
 
+import java.io.IOException;
+import java.util.Locale;
+import java.util.Map;
+
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.util.Locale;
 
 public class FromStringDeserializerTest extends BaseMapTest
 {
     private final Locale[] LOCALES = new Locale[]
             {Locale.CANADA, Locale.ROOT, Locale.GERMAN, Locale.CHINESE, Locale.KOREA, Locale.TAIWAN};
+
+    /*
+    /**********************************************************************
+    /* Test methods, old, from Jackson pre-2.13
+    /**********************************************************************
+     */
+
     private final ObjectMapper MAPPER = newJsonMapper();
+
+    public void testLocale() throws IOException
+    {
+        assertEquals(new Locale("en"), MAPPER.readValue(q("en"), Locale.class));
+        assertEquals(new Locale("es", "ES"), MAPPER.readValue(q("es_ES"), Locale.class));
+        assertEquals(new Locale("FI", "fi", "savo"),
+                MAPPER.readValue(q("fi_FI_savo"), Locale.class));
+        assertEquals(new Locale("en", "US"),
+                MAPPER.readValue(q("en-US"), Locale.class));
+    }
+
+    public void testLocaleKeyMap() throws Exception {
+        Locale key = Locale.CHINA;
+        String JSON = "{ \"" + key + "\":4}";
+        Map<Locale, Object> result = MAPPER.readValue(JSON, new TypeReference<Map<Locale, Object>>() {
+        });
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        Object ob = result.keySet().iterator().next();
+        assertNotNull(ob);
+        assertEquals(Locale.class, ob.getClass());
+        assertEquals(key, ob);
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods, advanced (2.13+) -- [databind#3259]
+    /**********************************************************************
+     */
 
     public void testLocaleDeserializeNonBCPFormat() throws Exception {
         Locale locale = new Locale("en", "US");

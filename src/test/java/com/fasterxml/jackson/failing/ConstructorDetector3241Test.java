@@ -2,7 +2,6 @@ package com.fasterxml.jackson.failing;
 
 import java.lang.annotation.*;
 
-import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 
 import com.fasterxml.jackson.databind.*;

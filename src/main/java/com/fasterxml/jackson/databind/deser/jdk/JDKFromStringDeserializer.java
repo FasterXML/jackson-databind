@@ -254,6 +254,12 @@ public class JDKFromStringDeserializer
     private Locale _deserializeLocale(String value, DeserializationContext ctxt)
         throws JacksonException
     {
+        // 10-Sep-2021, tatu: Looks like a simplified version might just work:
+        return Locale.forLanguageTag(value);
+
+        // ... but leaving Jackson 2.13.0 implementation below in case inspiration might
+        // be needed; feel free to remove once 3.0.0 is released
+/*
         int ix = _firstHyphenOrUnderscore(value);
         if (ix < 0) { // single argument
             return new Locale(value);
@@ -271,8 +277,10 @@ public class JDKFromStringDeserializer
             return new Locale(first, second, value.substring(ix+1));
         }
         return _deSerializeBCP47Locale(value, ix, first, second, extMarkerIx);
+        */
     }
 
+    /*
     private Locale _deSerializeBCP47Locale(String value, int ix, String first, String second,
             int extMarkerIx)
     {
@@ -307,6 +315,7 @@ public class JDKFromStringDeserializer
             return new Locale(first, second, third);
         }
     }
+    */
 
     static class StringBuilderDeserializer extends JDKFromStringDeserializer
     {

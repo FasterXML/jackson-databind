@@ -5,7 +5,6 @@ import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Currency;
-import java.util.Locale;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -127,16 +126,6 @@ public class JDKStringLikeTypesTest extends BaseMapTest
         String json = MAPPER.writeValueAsString(abs);
         File result = MAPPER.readValue(json, File.class);
         assertEquals(abs, result.getAbsolutePath());
-    }
-
-    public void testLocale() throws IOException
-    {
-        assertEquals(new Locale("en"), MAPPER.readValue(q("en"), Locale.class));
-        assertEquals(new Locale("es", "ES"), MAPPER.readValue(q("es_ES"), Locale.class));
-        assertEquals(new Locale("FI", "fi", "savo"),
-                MAPPER.readValue(q("fi_FI_savo"), Locale.class));
-        assertEquals(new Locale("en", "US"),
-                MAPPER.readValue(q("en-US"), Locale.class));
     }
 
     public void testCharSequence() throws IOException

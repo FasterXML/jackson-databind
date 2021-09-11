@@ -357,6 +357,7 @@ public class MapDeserializationTest
     /* Test methods, maps with Date
     /**********************************************************
      */
+
     public void testDateMap() throws Exception
     {
     	 Date date1=new Date(123456000L);
@@ -417,19 +418,6 @@ public class MapDeserializationTest
          assertNotNull(ob);
          assertEquals(UUID.class, ob.getClass());
          assertEquals(key, ob);
-    }
-
-    public void testLocaleKeyMap() throws Exception {
-        Locale key = Locale.CHINA;
-        String JSON = "{ \"" + key + "\":4}";
-        Map<Locale, Object> result = MAPPER.readValue(JSON, new TypeReference<Map<Locale, Object>>() {
-        });
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        Object ob = result.keySet().iterator().next();
-        assertNotNull(ob);
-        assertEquals(Locale.class, ob.getClass());
-        assertEquals(key, ob);
     }
 
     public void testCurrencyKeyMap() throws Exception {

@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.deser.std;
+package com.fasterxml.jackson.databind.deser.jdk;
 
 import java.io.IOException;
 import java.util.Locale;
@@ -8,7 +8,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class FromStringDeserializerTest extends BaseMapTest
+// Tests for `java.util.Locale`
+public class LocaleDeserTest extends BaseMapTest
 {
     private final Locale[] LOCALES = new Locale[]
             {Locale.CANADA, Locale.ROOT, Locale.GERMAN, Locale.CHINESE, Locale.KOREA, Locale.TAIWAN};
@@ -23,17 +24,27 @@ public class FromStringDeserializerTest extends BaseMapTest
 
     public void testLocale() throws IOException
     {
-        assertEquals(new Locale("en"), MAPPER.readValue(q("en"), Locale.class));
-        assertEquals(new Locale("es", "ES"), MAPPER.readValue(q("es_ES"), Locale.class));
-        assertEquals(new Locale("FI", "fi", "savo"),
-                MAPPER.readValue(q("fi_FI_savo"), Locale.class));
+        // Simplest, one part
+        assertEquals(new Locale("en"),
+                MAPPER.readValue(q("en"), Locale.class));
+
+        // Simple; language+country
+        assertEquals(new Locale("es", "ES"),
+                MAPPER.readValue(q("es-ES"), Locale.class));
+        assertEquals(new Locale("es", "ES"),
+                MAPPER.readValue(q("es_ES"), Locale.class));
         assertEquals(new Locale("en", "US"),
                 MAPPER.readValue(q("en-US"), Locale.class));
+        assertEquals(new Locale("en", "US"),
+                MAPPER.readValue(q("en_US"), Locale.class));
+
+        assertEquals(new Locale("FI", "fi", "savo"),
+                MAPPER.readValue(q("fi_FI_savo"), Locale.class));
     }
 
     public void testLocaleKeyMap() throws Exception {
         Locale key = Locale.CHINA;
-        String JSON = "{ \"" + key + "\":4}";
+        String JSON = "{ \"" + key.toString() + "\":4}";
         Map<Locale, Object> result = MAPPER.readValue(JSON, new TypeReference<Map<Locale, Object>>() {
         });
         assertNotNull(result);

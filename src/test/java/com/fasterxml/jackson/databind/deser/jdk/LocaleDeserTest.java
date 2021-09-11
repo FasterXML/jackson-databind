@@ -22,12 +22,15 @@ public class LocaleDeserTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    public void testLocale() throws IOException
+    public void testLocaleOnePart() throws IOException
     {
         // Simplest, one part
         assertEquals(new Locale("en"),
                 MAPPER.readValue(q("en"), Locale.class));
+    }
 
+    public void testLocaleTwoPart() throws IOException
+    {
         // Simple; language+country
         assertEquals(new Locale("es", "ES"),
                 MAPPER.readValue(q("es-ES"), Locale.class));
@@ -38,12 +41,22 @@ public class LocaleDeserTest extends BaseMapTest
         assertEquals(new Locale("en", "US"),
                 MAPPER.readValue(q("en_US"), Locale.class));
 
+        assertEquals(Locale.CHINA,
+                MAPPER.readValue(q("zh-CN"), Locale.class));
+        assertEquals(Locale.CHINA,
+                MAPPER.readValue(q("zh_CN"), Locale.class));
+    }
+
+    public void testLocaleThreePart() throws IOException
+    {
         assertEquals(new Locale("FI", "fi", "savo"),
                 MAPPER.readValue(q("fi_FI_savo"), Locale.class));
     }
 
     public void testLocaleKeyMap() throws Exception {
         Locale key = Locale.CHINA;
+
+        // .toString() or .toLanguageTag()?
         String JSON = "{ \"" + key.toString() + "\":4}";
         Map<Locale, Object> result = MAPPER.readValue(JSON, new TypeReference<Map<Locale, Object>>() {
         });
@@ -61,7 +74,8 @@ public class LocaleDeserTest extends BaseMapTest
     /**********************************************************************
      */
 
-    public void testLocaleDeserializeNonBCPFormat() throws Exception {
+    public void testLocaleDeserializeNonBCPFormat1() throws Exception
+    {
         Locale locale = new Locale("en", "US");
         Locale deSerializedLocale = MAPPER.readValue(MAPPER.writeValueAsString(locale), Locale.class);
         assertBaseValues(locale, deSerializedLocale);
@@ -73,11 +87,20 @@ public class LocaleDeserTest extends BaseMapTest
         locale = new Locale("en", "US", "VARIANT");
         deSerializedLocale = MAPPER.readValue(MAPPER.writeValueAsString(locale), Locale.class);
         assertBaseValues(locale, deSerializedLocale);
+    }
 
+    public void testLocaleDeserializeNonBCPFormat2() throws Exception
+    {
+        Locale locale, deSerializedLocale;
+
+        // 10-Sep-2021, tatu: Will get serialized as "en_VARIANT" which won't roundtrip
+        //     ... same for others
         locale = new Locale("en", "", "VARIANT");
-        deSerializedLocale = MAPPER.readValue(MAPPER.writeValueAsString(locale), Locale.class);
+        deSerializedLocale = MAPPER.readValue(MAPPER.writeValueAsString(locale),
+                Locale.class);
         assertBaseValues(locale, deSerializedLocale);
 
+        // But "unknown" language handling does work
         locale = new Locale("", "US", "VARIANT");
         deSerializedLocale = MAPPER.readValue(MAPPER.writeValueAsString(locale), Locale.class);
         assertBaseValues(locale, deSerializedLocale);
@@ -87,25 +110,32 @@ public class LocaleDeserTest extends BaseMapTest
         assertBaseValues(locale, deSerializedLocale);
     }
 
-    public void testLocaleDeserializeWithScript() throws Exception {
+    public void testLocaleDeserializeWithScript1() throws Exception
+    {
         Locale locale = new Locale.Builder().setLanguage("en").setRegion("GB").setVariant("VARIANT")
                 .setScript("Latn").build();
         Locale deSerializedLocale = MAPPER.readValue(MAPPER.writeValueAsString(locale), Locale.class);
-        assertLocaleWithScript(locale, deSerializedLocale);
-
-        locale = new Locale.Builder().setLanguage("en").setScript("Latn").build();
-        deSerializedLocale = MAPPER.readValue(MAPPER.writeValueAsString(locale), Locale.class);
         assertLocaleWithScript(locale, deSerializedLocale);
 
         locale = new Locale.Builder().setRegion("IN").setScript("Latn").build();
         deSerializedLocale = MAPPER.readValue(MAPPER.writeValueAsString(locale), Locale.class);
         assertLocaleWithScript(locale, deSerializedLocale);
 
-        locale = new Locale.Builder().setLanguage("fr").setRegion("CA").setScript("Latn").build();
+        locale = new Locale.Builder().setRegion("CA").setVariant("VARIANT").setScript("Latn").build();
+        deSerializedLocale = MAPPER.readValue(MAPPER.writeValueAsString(locale), Locale.class);
+        assertLocaleWithScript(locale, deSerializedLocale);
+    }
+
+    // 10-Sep-2021, tatu: Does not round-trip correctly, for whatever reason:
+    public void testLocaleDeserializeWithScript2() throws Exception
+    {
+        Locale locale, deSerializedLocale;
+
+        locale = new Locale.Builder().setLanguage("en").setScript("Latn").build();
         deSerializedLocale = MAPPER.readValue(MAPPER.writeValueAsString(locale), Locale.class);
         assertLocaleWithScript(locale, deSerializedLocale);
 
-        locale = new Locale.Builder().setRegion("CA").setVariant("VARIANT").setScript("Latn").build();
+        locale = new Locale.Builder().setLanguage("fr").setRegion("CA").setScript("Latn").build();
         deSerializedLocale = MAPPER.readValue(MAPPER.writeValueAsString(locale), Locale.class);
         assertLocaleWithScript(locale, deSerializedLocale);
 
@@ -114,15 +144,13 @@ public class LocaleDeserTest extends BaseMapTest
         assertLocaleWithScript(locale, deSerializedLocale);
     }
 
-    public void testLocaleDeserializeWithExtension() throws Exception {
+    public void testLocaleDeserializeWithExtension() throws Exception
+    {
         Locale locale = new Locale.Builder().setLanguage("en").setRegion("GB").setVariant("VARIANT")
                 .setExtension('x', "dummy").build();
-        Locale deSerializedLocale = MAPPER.readValue(MAPPER.writeValueAsString(locale), Locale.class);
+        String json = MAPPER.writeValueAsString(locale);
+        Locale deSerializedLocale = MAPPER.readValue(json, Locale.class);
         assertLocaleWithExtension(locale, deSerializedLocale);
-
-        locale = new Locale.Builder().setLanguage("en").setExtension('x', "dummy").build();
-        deSerializedLocale = MAPPER.readValue(MAPPER.writeValueAsString(locale), Locale.class);
-        assertLocaleWithScript(locale, deSerializedLocale);
 
         locale = new Locale.Builder().setRegion("IN").setExtension('x', "dummy").build();
         deSerializedLocale = MAPPER.readValue(MAPPER.writeValueAsString(locale), Locale.class);
@@ -138,6 +166,14 @@ public class LocaleDeserTest extends BaseMapTest
 
         locale = new Locale.Builder().setLanguage("it").setVariant("VARIANT").setExtension('x', "dummy").build();
         deSerializedLocale = MAPPER.readValue(MAPPER.writeValueAsString(locale), Locale.class);
+        assertLocaleWithScript(locale, deSerializedLocale);
+    }
+
+    public void testLocaleDeserializeWithExtension2() throws Exception
+    {
+        Locale locale = new Locale.Builder().setLanguage("en").setExtension('x', "dummy").build();
+        String json = MAPPER.writeValueAsString(locale);
+        Locale deSerializedLocale = MAPPER.readValue(json, Locale.class);
         assertLocaleWithScript(locale, deSerializedLocale);
     }
 
@@ -217,24 +253,24 @@ public class LocaleDeserTest extends BaseMapTest
     }
 
     private void assertBaseValues(Locale expected, Locale actual) {
-        assertEquals(expected.getLanguage(), actual.getLanguage());
-        assertEquals(expected.getCountry(), actual.getCountry());
-        assertEquals(expected.getVariant(), actual.getVariant());
+        assertEquals("Language mismatch", expected.getLanguage(), actual.getLanguage());
+        assertEquals("Country mismatch", expected.getCountry(), actual.getCountry());
+        assertEquals("Variant mismatch", expected.getVariant(), actual.getVariant());
     }
 
     private void assertLocaleWithScript(Locale expected, Locale actual) {
         assertBaseValues(expected, actual);
-        assertEquals(expected.getScript(), actual.getScript());
+        assertEquals("Script mismatch", expected.getScript(), actual.getScript());
     }
 
     private void assertLocaleWithExtension(Locale expected, Locale actual) {
         assertBaseValues(expected, actual);
-        assertEquals(expected.getExtension('x'), actual.getExtension('x'));
+        assertEquals("Extension mismatch", expected.getExtension('x'), actual.getExtension('x'));
     }
 
     private void assertLocale(Locale expected, Locale actual) {
         assertBaseValues(expected, actual);
-        assertEquals(expected.getExtension('x'), actual.getExtension('x'));
-        assertEquals(expected.getScript(), actual.getScript());
+        assertEquals("Extension mismatch", expected.getExtension('x'), actual.getExtension('x'));
+        assertEquals("Script mismatch", expected.getScript(), actual.getScript());
     }
 }

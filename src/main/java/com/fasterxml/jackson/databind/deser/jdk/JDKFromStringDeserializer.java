@@ -89,8 +89,6 @@ public class JDKFromStringDeserializer
         };
     }
 
-    protected final static String LOCALE_EXT_MARKER = "_#";
-
     protected final int _kind;
 
     /*
@@ -251,71 +249,29 @@ public class JDKFromStringDeserializer
         return -1;
     }
 
-    private Locale _deserializeLocale(String value, DeserializationContext ctxt)
+    private Locale _deserializeLocale(String fullValue, DeserializationContext ctxt)
         throws JacksonException
     {
-        // 10-Sep-2021, tatu: Looks like a simplified version might just work:
-        return Locale.forLanguageTag(value);
-
-        // ... but leaving Jackson 2.13.0 implementation below in case inspiration might
-        // be needed; feel free to remove once 3.0.0 is released
-/*
-        int ix = _firstHyphenOrUnderscore(value);
+        // First things first: simple single-segment value easiest to check for
+        // manually
+        int ix = _firstHyphenOrUnderscore(fullValue);
         if (ix < 0) { // single argument
-            return new Locale(value);
+            return new Locale(fullValue);
         }
-        String first = value.substring(0, ix);
-        value = value.substring(ix+1);
-        ix = _firstHyphenOrUnderscore(value);
-        if (ix < 0) { // two pieces
-            return new Locale(first, value);
+        // But also of interest: "_" signals "old" serialization, simpleish;
+        // but "-" language-tag
+        boolean newStyle = fullValue.charAt(ix) == '-';
+        if (newStyle) {
+            return Locale.forLanguageTag(fullValue);
         }
-        String second = value.substring(0, ix);
-        // [databind#3259]: Support for BCP 47 java.util.Locale ser/deser
-        int extMarkerIx = value.indexOf(LOCALE_EXT_MARKER);
-        if (extMarkerIx < 0) {
-            return new Locale(first, second, value.substring(ix+1));
+        final String first = fullValue.substring(0, ix);
+        final String rest = fullValue.substring(ix+1);
+        ix = _firstHyphenOrUnderscore(rest);
+        if (ix < 0) {
+            return new Locale(first, rest);
         }
-        return _deSerializeBCP47Locale(value, ix, first, second, extMarkerIx);
-        */
+        return new Locale(first, rest.substring(0, ix), rest.substring(ix+1));
     }
-
-    /*
-    private Locale _deSerializeBCP47Locale(String value, int ix, String first, String second,
-            int extMarkerIx)
-    {
-        String third = "";
-        try {
-            // Below condition checks if variant value is present to handle empty variant values such as
-            // en__#Latn_x-ext
-            // _US_#Latn
-            if (extMarkerIx > 0 && extMarkerIx > ix) {
-                third = value.substring(ix + 1, extMarkerIx);
-            }
-            value = value.substring(extMarkerIx + 2);
-
-            if (value.indexOf('_') < 0 && value.indexOf('-') < 0) {
-                return new Locale.Builder().setLanguage(first)
-                        .setRegion(second).setVariant(third).setScript(value).build();
-            }
-            if (value.indexOf('_') < 0) {
-                ix = value.indexOf('-');
-                return new Locale.Builder().setLanguage(first)
-                        .setRegion(second).setVariant(third)
-                        .setExtension(value.charAt(0), value.substring(ix + 1))
-                        .build();
-            }
-            ix = value.indexOf('_');
-            return new Locale.Builder().setLanguage(first)
-                    .setRegion(second).setVariant(third)
-                    .setScript(value.substring(0, ix))
-                    .setExtension(value.charAt(ix + 1), value.substring(ix + 3))
-                    .build();
-        } catch(IllformedLocaleException ex) {
-            return new Locale(first, second, third);
-        }
-    }
-    */
 
     static class StringBuilderDeserializer extends JDKFromStringDeserializer
     {

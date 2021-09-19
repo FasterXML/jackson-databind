@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.introspect;
 
 import java.lang.reflect.Modifier;
 import java.util.*;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -1179,7 +1180,7 @@ public class POJOPropertiesCollector
 
         // Second (starting with 2.11): index, if any:
         if (indexed) {
-            Map<Integer,POJOPropertyBuilder> byIndex = new TreeMap<>();
+            Map<Integer,POJOPropertyBuilder> byIndex = new ConcurrentSkipListMap<>();
             Iterator<Map.Entry<String,POJOPropertyBuilder>> it = all.entrySet().iterator();
             while (it.hasNext()) {
                 Map.Entry<String,POJOPropertyBuilder> entry = it.next();

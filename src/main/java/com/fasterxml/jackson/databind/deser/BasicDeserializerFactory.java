@@ -1797,8 +1797,10 @@ factory.toString()));
         // (note: check for abstract type is not 100% mandatory, more of an optimization)
         if ((b.getDefaultImpl() == null) && baseType.isAbstract()) {
             JavaType defaultType = mapAbstractType(config, baseType);
+            // 18-Sep-2021, tatu: We have a shared instance, MUST NOT call mutating method
+            //    but the new "mutant factory":
             if ((defaultType != null) && !defaultType.hasRawClass(baseType.getRawClass())) {
-                b = b.defaultImpl(defaultType.getRawClass());
+                b = b.withDefaultImpl(defaultType.getRawClass());
             }
         }
         // 05-Apt-2018, tatu: Since we get non-mapping exception due to various limitations,

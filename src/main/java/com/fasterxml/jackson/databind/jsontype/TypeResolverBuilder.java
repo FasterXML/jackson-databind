@@ -97,7 +97,7 @@ public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
      *   but not necessarily)
      */
     public T init(JsonTypeInfo.Id idType, TypeIdResolver res);
-    
+
     /*
     /**********************************************************
     /* Methods for configuring resolver to build 
@@ -136,7 +136,7 @@ public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
     /**
      * Method for specifying default implementation to use if type id 
      * is either not available, or cannot be resolved.
-     * 
+     *
      * @return Resulting builder instance (usually this builder,
      *   but may be a newly constructed instance for immutable builders}
      */
@@ -152,4 +152,25 @@ public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
      * @since 2.0
      */
     public T typeIdVisibility(boolean isVisible);
+
+    /*
+    /**********************************************************************
+    /* Mutant factories (2.13+)
+    /**********************************************************************
+     */
+
+    /**
+     * "Mutant factory" method for creating a new instance with different default
+     * implementation.
+     *
+     * @since 2.13
+     *
+     * @return Either this instance (if nothing changed) or a new instance with
+     *    different default implementation
+     */
+    public default T withDefaultImpl(Class<?> defaultImpl) {
+        // 18-Sep-2021, tatu: Not sure if this should be left failing, or use
+        //    possibly unsafe variant
+        return defaultImpl(defaultImpl);
+    }
 }

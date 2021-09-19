@@ -260,6 +260,13 @@ public class ObjectMapper
             _subtypeValidator = _requireNonNull(ptv, "Can not pass `null` PolymorphicTypeValidator");
         }
 
+        // @since 2.13
+        protected DefaultTypeResolverBuilder(DefaultTypeResolverBuilder base, Class<?> defaultImpl) {
+            super(base, defaultImpl);
+            _appliesFor = base._appliesFor;
+            _subtypeValidator = base._subtypeValidator;
+        }
+
         // 20-Jan-2020: as per [databind#2599] Objects.requireNonNull() from JDK7 not in all Android so
         private static <T> T _requireNonNull(T value, String msg) {
             // Replacement for: return Objects.requireNonNull(t, msg);
@@ -275,6 +282,15 @@ public class ObjectMapper
         public static DefaultTypeResolverBuilder construct(DefaultTyping t,
                 PolymorphicTypeValidator ptv) {
             return new DefaultTypeResolverBuilder(t, ptv);
+        }
+
+        @Override // since 2.13
+        public DefaultTypeResolverBuilder withDefaultImpl(Class<?> defaultImpl) {
+            if (_defaultImpl == defaultImpl) {
+                return this;
+            }
+            ClassUtil.verifyMustOverride(DefaultTypeResolverBuilder.class, this, "withDefaultImpl");
+            return new DefaultTypeResolverBuilder(this, defaultImpl);
         }
 
         @Override // since 2.10

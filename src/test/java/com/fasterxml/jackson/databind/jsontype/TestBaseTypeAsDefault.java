@@ -7,14 +7,11 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 
-import java.io.IOException;
-
 public class TestBaseTypeAsDefault extends BaseMapTest
 {
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "@class")
     static class Parent {
     }
-
 
     static class Child extends Parent {
     }
@@ -44,18 +41,18 @@ public class TestBaseTypeAsDefault extends BaseMapTest
     protected ObjectMapper MAPPER_WITHOUT_BASE = jsonMapperBuilder()
             .disable(MapperFeature.USE_BASE_TYPE_AS_DEFAULT_IMPL)
             .build();
-    
-    public void testPositiveForParent() throws IOException {
+
+    public void testPositiveForParent() throws Exception {
         Object o = MAPPER_WITH_BASE.readerFor(Parent.class).readValue("{}");
         assertEquals(o.getClass(), Parent.class);
     }
 
-    public void testPositiveForChild() throws IOException {
+    public void testPositiveForChild() throws Exception {
         Object o = MAPPER_WITH_BASE.readerFor(Child.class).readValue("{}");
         assertEquals(o.getClass(), Child.class);
     }
 
-    public void testNegativeForParent() throws IOException {
+    public void testNegativeForParent() throws Exception {
         try {
             /*Object o =*/ MAPPER_WITHOUT_BASE.readerFor(Parent.class).readValue("{}");
             fail("Should not pass");
@@ -64,7 +61,7 @@ public class TestBaseTypeAsDefault extends BaseMapTest
         }
     }
 
-    public void testNegativeForChild() throws IOException {
+    public void testNegativeForChild() throws Exception {
         try {
             /*Object o =*/ MAPPER_WITHOUT_BASE.readerFor(Child.class).readValue("{}");
             fail("Should not pass");
@@ -73,19 +70,19 @@ public class TestBaseTypeAsDefault extends BaseMapTest
         }
     }
 
-    public void testConversionForAbstractWithDefault() throws IOException {
+    public void testConversionForAbstractWithDefault() throws Exception {
         // should pass shouldn't it?
         Object o = MAPPER_WITH_BASE.readerFor(AbstractParentWithDefault.class).readValue("{}");
         assertEquals(o.getClass(), ChildOfChild.class);
     }
 
-    public void testPositiveWithTypeSpecification() throws IOException {
+    public void testPositiveWithTypeSpecification() throws Exception {
         Object o = MAPPER_WITH_BASE.readerFor(Parent.class)
                 .readValue("{\"@class\":\""+Child.class.getName()+"\"}");
         assertEquals(o.getClass(), Child.class);
     }
 
-    public void testPositiveWithManualDefault() throws IOException {
+    public void testPositiveWithManualDefault() throws Exception {
         Object o = MAPPER_WITH_BASE.readerFor(ChildOfAbstract.class).readValue("{}");
 
         assertEquals(o.getClass(), ChildOfChild.class);

@@ -16,11 +16,9 @@ public class TestBaseTypeAsDefault extends BaseMapTest
     static class Child extends Parent {
     }
 
-
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "@class", defaultImpl = ChildOfChild.class)
     static abstract class AbstractParentWithDefault {
     }
-
 
     static class ChildOfAbstract extends AbstractParentWithDefault {
     }

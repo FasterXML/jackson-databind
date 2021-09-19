@@ -76,6 +76,23 @@ public class StdTypeResolverBuilder
         return propName;
     }
 
+    /**
+     * Copy-constructor
+     *
+     * @since 2.13
+     */
+    protected StdTypeResolverBuilder(StdTypeResolverBuilder base,
+            Class<?> defaultImpl)
+    {
+        _idType = base._idType;
+        _includeAs = base._includeAs;
+        _typeProperty = base._typeProperty;
+        _typeIdVisible = base._typeIdVisible;
+        _customIdResolver = base._customIdResolver;
+
+        _defaultImpl = defaultImpl;
+    }
+
     public static StdTypeResolverBuilder noTypeInfoBuilder() {
         return new StdTypeResolverBuilder(JsonTypeInfo.Id.NONE, null, null);
     }
@@ -226,9 +243,14 @@ public class StdTypeResolverBuilder
      */
 
     @Override
-    public StdTypeResolverBuilder defaultImpl(Class<?> defaultImpl) {
-        _defaultImpl = defaultImpl;
-        return this;
+    public StdTypeResolverBuilder withDefaultImpl(Class<?> defaultImpl) {
+        if (_defaultImpl == defaultImpl) {
+            return this;
+        }
+        ClassUtil.verifyMustOverride(StdTypeResolverBuilder.class, this, "withDefaultImpl");
+
+        // NOTE: MUST create new instance, NOT modify this instance
+        return new StdTypeResolverBuilder(this, defaultImpl);
     }
 
     /*

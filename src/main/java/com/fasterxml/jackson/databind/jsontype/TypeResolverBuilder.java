@@ -96,16 +96,20 @@ public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
 
     /*
     /**********************************************************************
-    /* Methods for configuring resolver to build 
+    /* Mutant factories
     /**********************************************************************
      */
 
     /**
-     * Method for specifying default implementation to use if type id 
+     * "Mutant factory" method for creating a new instance with different
+     * default implementation to use if type id 
      * is either not available, or cannot be resolved.
-     * 
-     * @return Resulting builder instance (usually this builder,
-     *   but may be a newly constructed instance for immutable builders}
+     *<p>
+     * In Jackson 2.x there was instead method {@code defaultImpl()} which
+     * was a mutator: this method MUST NOT change the underlying state. 
+     *
+     * @return Either this instance (if nothing changed) or a new instance with
+     *    different default implementation
      */
-    public T defaultImpl(Class<?> defaultImpl);
+    public T withDefaultImpl(Class<?> defaultImpl);
 }

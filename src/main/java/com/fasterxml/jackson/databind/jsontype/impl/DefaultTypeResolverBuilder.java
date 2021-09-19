@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Customized {@link TypeResolverBuilder} that provides type resolver builders
@@ -70,6 +71,24 @@ public class DefaultTypeResolverBuilder
             propertyName = _idType.getDefaultPropertyName();
         }
         _typeProperty = propertyName;
+    }
+
+    protected DefaultTypeResolverBuilder(DefaultTypeResolverBuilder base,
+            Class<?> defaultImpl) {
+        super(base, defaultImpl);
+        _subtypeValidator = base._subtypeValidator;
+        _appliesFor = base._appliesFor;
+    }
+
+    @Override
+    public DefaultTypeResolverBuilder withDefaultImpl(Class<?> defaultImpl) {
+        if (_defaultImpl == defaultImpl) {
+            return this;
+        }
+        ClassUtil.verifyMustOverride(DefaultTypeResolverBuilder.class, this, "withDefaultImpl");
+
+        // NOTE: MUST create new instance, NOT modify this instance
+        return new DefaultTypeResolverBuilder(this, defaultImpl);
     }
 
     @Override

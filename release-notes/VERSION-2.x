@@ -68,6 +68,8 @@ Project: jackson-databind
 #3227: Content `null` handling not working for root values
  (reported by João G)
  (fix contributed by proost@github)
+#3235: `USE_BASE_TYPE_AS_DEFAULT_IMPL` not working with `DefaultTypeResolverBuilder`
+ (reported, fix contributed by silas.u / sialais@github)
 #3238: Add PropertyNamingStrategies.UpperSnakeCaseStrategy (and UPPER_SNAKE_CASE constant)
  (requested by Kenneth J)
  (contributed by Tanvesh)

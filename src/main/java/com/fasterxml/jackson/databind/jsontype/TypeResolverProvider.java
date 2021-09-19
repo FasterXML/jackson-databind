@@ -91,7 +91,7 @@ public class TypeResolverProvider
         if ((b.getDefaultImpl() == null) && baseType.isAbstract()) {
             JavaType defaultType = config.mapAbstractType(baseType);
             if ((defaultType != null) && !defaultType.hasRawClass(baseType.getRawClass())) {
-                b = b.defaultImpl(defaultType.getRawClass());
+                b = b.withDefaultImpl(defaultType.getRawClass());
             }
         }
         return b.buildTypeDeserializer(ctxt, baseType, subtypes);
@@ -143,7 +143,7 @@ public class TypeResolverProvider
         if ((b.getDefaultImpl() == null) && baseType.isAbstract()) {
             JavaType defaultType = config.mapAbstractType(baseType);
             if ((defaultType != null) && !defaultType.hasRawClass(baseType.getRawClass())) {
-                b = b.defaultImpl(defaultType.getRawClass());
+                b = b.withDefaultImpl(defaultType.getRawClass());
             }
         }
         return b.buildTypeDeserializer(ctxt, baseType, subtypes);
@@ -191,7 +191,7 @@ public class TypeResolverProvider
         if ((b.getDefaultImpl() == null) && contentType.isAbstract()) {
             JavaType defaultType = config.mapAbstractType(contentType);
             if ((defaultType != null) && !defaultType.hasRawClass(contentType.getRawClass())) {
-                b = b.defaultImpl(defaultType.getRawClass());
+                b = b.withDefaultImpl(defaultType.getRawClass());
             }
         }
         return b.buildTypeDeserializer(ctxt, contentType, subtypes);

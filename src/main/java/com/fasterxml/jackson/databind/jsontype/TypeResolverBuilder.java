@@ -48,7 +48,7 @@ public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
      * available during type resolution
      */
     public Class<?> getDefaultImpl();
-    
+
     /*
     /**********************************************************************
     /* Actual builder methods

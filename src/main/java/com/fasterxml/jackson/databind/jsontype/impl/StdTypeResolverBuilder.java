@@ -185,45 +185,38 @@ public class StdTypeResolverBuilder
         throw new IllegalStateException("Do not know how to construct standard type serializer for inclusion type: "+_includeAs);
     }
 
-    protected JavaType defineDefaultImpl(DatabindContext ctxt, JavaType baseType) {
-        JavaType defaultImpl;
-        if (_defaultImpl == null) {
-            if (ctxt.isEnabled(MapperFeature.USE_BASE_TYPE_AS_DEFAULT_IMPL) && !baseType.isAbstract()) {
-                defaultImpl = baseType;
-            } else {
-                defaultImpl = null;
-            }
-        } else {
-            // 20-Mar-2016, tatu: Can finally add a check for type compatibility BUT
-            //   if so, need to add explicit checks for marker types. Not ideal, but
-            //   seems like a reasonable compromise.
+    protected JavaType defineDefaultImpl(DatabindContext ctxt, JavaType baseType)
+    {
+        if (_defaultImpl != null) {
+            // 20-Mar-2016, tatu: It is important to do specialization go through
+            //   TypeFactory to ensure proper resolution; with 2.7 and before, direct
+            //   call to JavaType was used, but that cannot work reliably with 2.7
             // NOTE: `Void` actually means that for unknown type id we should get `null`
             //  value -- NOT that there is no default implementation.
             if (_defaultImpl == Void.class) {
-                defaultImpl = ctxt.getTypeFactory().constructType(_defaultImpl);
-            } else {
-                if (baseType.hasRawClass(_defaultImpl)) { // common enough to check
-                    defaultImpl = baseType;
-                } else if (baseType.isTypeOrSuperTypeOf(_defaultImpl)) {
-                    // most common case with proper base type...
-                    defaultImpl = ctxt.getTypeFactory()
-                            .constructSpecializedType(baseType, _defaultImpl);
-                } else {
-                    // 05-Apr-2018, tatu: As [databind#1565] and [databind#1861] need to allow
-                    //    some cases of seemingly incompatible `defaultImpl`. Easiest to just clear
-                    //    the setting.
-
-                    /*
-                    throw new IllegalArgumentException(
-                            String.format("Invalid \"defaultImpl\" (%s): not a subtype of basetype (%s)",
-                                    ClassUtil.nameOf(_defaultImpl), ClassUtil.nameOf(baseType.getRawClass()))
-                            );
-                            */
-                    defaultImpl = null;
-                }
+                // 18-Sep-2021, tatu: This has specific meaning: these two markers will
+                //    be used to conjure `null` value out of invalid type ids
+                return ctxt.getTypeFactory().constructType(_defaultImpl);
+            }
+            if (baseType.hasRawClass(_defaultImpl)) { // tiny optimization
+                return baseType;
+            }
+            if (baseType.isTypeOrSuperTypeOf(_defaultImpl)) {
+                // most common case with proper base type...
+                return ctxt.getTypeFactory()
+                        .constructSpecializedType(baseType, _defaultImpl);
+            }
+            if (baseType.hasRawClass(_defaultImpl)) {
+                return baseType;
             }
         }
-        return defaultImpl;
+        // use base type as default should always be used as the last choice.
+        if (ctxt.isEnabled(MapperFeature.USE_BASE_TYPE_AS_DEFAULT_IMPL)
+               && !baseType.isAbstract()) {
+            // still can not resolve by default impl, fall back to use base type as default impl
+            return baseType;
+        }
+        return null;
     }
 
     /*

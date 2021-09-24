@@ -21,8 +21,10 @@ public class CoercionConfig
     protected final CoercionAction[] _coercionsByShape;
 
     public CoercionConfig() {
-        _coercionsByShape = new CoercionAction[INPUT_SHAPE_COUNT];   
-        _acceptBlankAsEmpty = false;
+        _coercionsByShape = new CoercionAction[INPUT_SHAPE_COUNT];
+        // 23-Sep-2021, tatu: In 2.12 was `false` but should really be `null`
+        //    to mean "not specified" (use defaults)
+        _acceptBlankAsEmpty = null;
     }
 
     protected CoercionConfig(CoercionConfig src) {

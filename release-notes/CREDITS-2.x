@@ -1389,6 +1389,10 @@ Hyeonho Kim (proost@github)
   * Contributed fix for #3227: Content `null` handling not working for root values
    (2.13.0)
 
+Peter Burka (pburka@github)
+  * Reported #3234: StdDeserializer rejects blank (all-whitespace) strings for ints
+   (2.13.0)
+
 Abishek Ravichandran (abrav9595@github)
   * Contributed #3259: Support for BCP 47 `java.util.Locale` serialization/deserialization
    (2.13.0)

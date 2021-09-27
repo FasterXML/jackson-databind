@@ -24,25 +24,42 @@ public class EnumResolver implements java.io.Serializable
 
     protected final Enum<?> _defaultValue;
 
+    /**
+     * Marker for case-insensitive handling
+     */
     protected final boolean _isIgnoreCase;
 
+    /**
+     * Marker for case where value may come from {@code @JsonValue} annotated
+     * accessor and is expected/likely to come from actual integral number
+     * value (and not String).
+     *<p>
+     * Special case is needed since this specifically means that {@code Enum.index()}
+     * should NOT be used or default to.
+     */
+    protected final boolean _isFromIntValue;    
+
     protected EnumResolver(Class<Enum<?>> enumClass, Enum<?>[] enums,
-            HashMap<String, Enum<?>> enumsById, Enum<?> defaultValue, boolean isIgnoreCase)
+            HashMap<String, Enum<?>> enumsById, Enum<?> defaultValue,
+            boolean isIgnoreCase, boolean isFromIntValue)
     {
         _enumClass = enumClass;
         _enums = enums;
         _enumsById = enumsById;
         _defaultValue = defaultValue;
         _isIgnoreCase = isIgnoreCase;
+        _isFromIntValue = isFromIntValue;
     }
 
     protected static EnumResolver _construct(DeserializationConfig config,
             Class<Enum<?>> enumClass, Enum<?>[] enums,
-            HashMap<String, Enum<?>> enumsById)
+            HashMap<String, Enum<?>> enumsById,
+            boolean isFromIntValue)
     {
         return new EnumResolver(enumClass, enums, enumsById,
                 config.getAnnotationIntrospector().findDefaultEnumValue(config, enumClass),
-                config.isEnabled(ACCEPT_CASE_INSENSITIVE_ENUMS));
+                config.isEnabled(ACCEPT_CASE_INSENSITIVE_ENUMS),
+                isFromIntValue);
     }
 
     /**
@@ -76,7 +93,7 @@ public class EnumResolver implements java.io.Serializable
                 }
             }
         }
-        return _construct(config, enumCls, enumConstants, byId);
+        return _construct(config, enumCls, enumConstants, byId, false);
     }
 
     /**
@@ -108,7 +125,7 @@ public class EnumResolver implements java.io.Serializable
                 }
             }
         }
-        return _construct(config, enumCls, enumConstants, byId);
+        return _construct(config, enumCls, enumConstants, byId, false);
     }
 
     public static EnumResolver constructUsingMethod(DeserializationConfig config,
@@ -130,7 +147,9 @@ public class EnumResolver implements java.io.Serializable
                 throw new IllegalArgumentException("Failed to access @JsonValue of Enum value "+en+": "+e.getMessage());
             }
         }
-        return _construct(config, enumCls, enumConstants, byId);
+        return _construct(config, enumCls, enumConstants, byId,
+                // 26-Sep-2021, tatu: [databind#1850] Need to consider "from int" case
+                _isIntType(accessor.getRawType()));
     }
 
     @SuppressWarnings("unchecked")
@@ -145,9 +164,20 @@ public class EnumResolver implements java.io.Serializable
         }
         return ecs;
     }
-    
+
     public CompactStringObjectMap constructLookup() {
         return CompactStringObjectMap.construct(_enumsById);
+    }
+
+    protected static boolean _isIntType(Class<?> erasedType) {
+        if (erasedType.isPrimitive()) {
+            erasedType = ClassUtil.wrapperType(erasedType);
+        }
+        return (erasedType == Long.class)
+                || (erasedType == Integer.class)
+                || (erasedType == Short.class)
+                || (erasedType == Byte.class)
+                ;
     }
 
     /*
@@ -204,5 +234,14 @@ public class EnumResolver implements java.io.Serializable
     public Class<Enum<?>> getEnumClass() { return _enumClass; }
 
     public int lastValidIndex() { return _enums.length-1; }
-}
 
+    /**
+     * Accessor for checking if we have a special case in which value to map
+     * is from {@code @JsonValue} annotated accessor with integral type: this
+     * matters for cases where incoming content value is of integral type
+     * and should be mapped to specific value and NOT to {@code Enum.index()}.
+     */
+    public boolean isFromIntValue() {
+        return _isFromIntValue;
+    }
+}

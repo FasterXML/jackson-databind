@@ -41,6 +41,12 @@ public class EnumDeserializer
 
     protected final Boolean _caseInsensitive;
 
+    /**
+     * Marker flag for cases where we expect actual integral value for Enum,
+     * based on {@code @JsonValue} (and equivalent) annotated accessor.
+     */
+    protected final boolean _isFromIntValue;
+
     public EnumDeserializer(EnumResolver byNameResolver, Boolean caseInsensitive)
     {
         super(byNameResolver.getEnumClass());
@@ -48,6 +54,7 @@ public class EnumDeserializer
         _enumsByIndex = byNameResolver.getRawEnums();
         _enumDefaultValue = byNameResolver.getDefaultValue();
         _caseInsensitive = caseInsensitive;
+        _isFromIntValue = byNameResolver.isFromIntValue();
     }
 
     protected EnumDeserializer(EnumDeserializer base, Boolean caseInsensitive)
@@ -57,6 +64,7 @@ public class EnumDeserializer
         _enumsByIndex = base._enumsByIndex;
         _enumDefaultValue = base._enumDefaultValue;
         _caseInsensitive = caseInsensitive;
+        _isFromIntValue = base._isFromIntValue;
     }
 
     /**
@@ -149,6 +157,13 @@ public class EnumDeserializer
 
         // But let's consider int acceptable as well (if within ordinal range)
         if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
+            // 26-Sep-2021, tatu: [databind#1850] Special case where we get "true" integer
+            //    enumeration and should avoid use of {@code Enum.index()}
+            if (_isFromIntValue) {
+                // ... whether to rely on "getText()" returning String, or get number, convert?
+                // For now assume all format backends can produce String:
+                return _fromString(p, ctxt, p.getText());
+            }
             return _fromInteger(p, ctxt, p.getIntValue());
         }
 
@@ -269,7 +284,8 @@ public class EnumDeserializer
                 if (match != null) {
                     return match;
                 }
-            } else if (!ctxt.isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)) {
+            } else if (!ctxt.isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)
+                    && !_isFromIntValue) {
                 // [databind#149]: Allow use of 'String' indexes as well -- unless prohibited (as per above)
                 char c = name.charAt(0);
                 if (c >= '0' && c <= '9') {

@@ -218,10 +218,7 @@ public class CoercionConfigs
 
         // classic scalars are numbers, booleans; but date/time also considered
         // scalar for this particular purpose
-        final boolean baseScalar = (targetType == LogicalType.Float)
-                || (targetType == LogicalType.Integer)
-                || (targetType == LogicalType.Boolean)
-                || (targetType == LogicalType.DateTime);
+        final boolean baseScalar = _isScalarType(targetType);
 
         if (baseScalar) {
             // Default for setting in 2.x is true
@@ -305,16 +302,33 @@ public class CoercionConfigs
         }
 
         // First: if using blank as empty is no-go, return what caller specified
-        if (!Boolean.TRUE.equals(acceptBlankAsEmpty)) {
+        if (Boolean.FALSE.equals(acceptBlankAsEmpty)) {
             return actionIfBlankNotAllowed;
         }
-
         // Otherwise, if action found, return that
         if (action != null) {
             return action;
         }
+
+        // 23-Sep-2021, tatu: [databind#3234] Should default to "allow" for Scalar types
+        //    for backwards compatibility
+        if (_isScalarType(targetType)) {
+            return CoercionAction.AsNull;
+        }
+
         // If not, one specific legacy setting to consider...
-        return config.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT) ?
-                    CoercionAction.AsNull : CoercionAction.Fail;
+        if (config.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
+            return CoercionAction.AsNull;
+        }
+
+        // But finally consider ultimate default to be "false" and so:
+        return actionIfBlankNotAllowed;
+    }
+
+    protected boolean _isScalarType(LogicalType targetType) {
+        return (targetType == LogicalType.Float)
+                || (targetType == LogicalType.Integer)
+                || (targetType == LogicalType.Boolean)
+                || (targetType == LogicalType.DateTime);
     }
 }

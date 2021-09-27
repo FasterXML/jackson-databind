@@ -1396,3 +1396,7 @@ Peter Burka (pburka@github)
 Abishek Ravichandran (abrav9595@github)
   * Contributed #3259: Support for BCP 47 `java.util.Locale` serialization/deserialization
    (2.13.0)
+
+李孟宁 (limengning@github)
+  * Contributed fix for #1850: `@JsonValue` with integer for enum does not deserialize correctly
+  (2.13.0)

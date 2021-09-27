@@ -6,6 +6,9 @@ Project: jackson-databind
 
 2.13.0 (not yet released) 
 
+#1850: `@JsonValue` with integer for enum does not deserialize correctly
+ (reported by tgolden-andplus@github)
+ (fix contributed by limengning@github)
 #2509: `AnnotatedMethod.getValue()/setValue()` doesn't have useful exception message
  (reported by henryptung@github)
  (fix contributed by Stephan S)
@@ -60,7 +63,7 @@ Project: jackson-databind
  (suggested by Nick B)
 #3214: For an absent property Jackson injects `NullNode` instead of `null` to a
   JsonNode-typed constructor argument of a `@ConstructorProperties`-annotated constructor
- (repored by robvarga@github)
+ (reported by robvarga@github)
 #3217: `XMLGregorianCalendar` doesn't work with default typing
  (reported by Xinzhe Y)
 #3227: Content `null` handling not working for root values

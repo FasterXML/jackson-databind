@@ -875,7 +875,9 @@ public final class ClassUtil
 
     /**
      * Helper method for finding wrapper type for given primitive type (why isn't
-     * there one in JDK?)
+     * there one in JDK?).
+     * NOTE: throws {@link IllegalArgumentException} if given type is NOT primitive
+     * type (caller has to check).
      */
     public static Class<?> wrapperType(Class<?> primitiveType)
     {
@@ -908,7 +910,7 @@ public final class ClassUtil
 
     /**
      * Method that can be used to find primitive type for given class if (but only if)
-     * it is either wrapper type or primitive type; returns `null` if type is neither.
+     * it is either wrapper type or primitive type; returns {@code null} if type is neither.
      *
      * @since 2.7
      */

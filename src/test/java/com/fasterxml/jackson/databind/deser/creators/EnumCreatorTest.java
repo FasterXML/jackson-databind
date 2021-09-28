@@ -1,7 +1,11 @@
 package com.fasterxml.jackson.databind.deser.creators;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Collection;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
@@ -187,13 +191,33 @@ public class EnumCreatorTest extends BaseMapTest
         }
     }
 
+    // [databind#3280]
+    static enum Enum3280 {
+        x("x"),
+        y("y"),
+        z("z");
+        private final String value;
+        Enum3280(String value) {
+            this.value = value;
+        }
+        @JsonCreator
+        public static Enum3280 getByValue(@JsonProperty("b") String value) {
+            for (Enum3280 e : Enum3280.values()) {
+                if (e.value.equals(value)) {
+                    return e;
+                }
+            }
+            return null;
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods
     /**********************************************************
      */
 
-    protected final ObjectMapper MAPPER = new ObjectMapper();
+    protected final ObjectMapper MAPPER = newJsonMapper();
 
     public void testCreatorEnums() throws Exception {
         EnumWithCreator value = MAPPER.readValue("\"enumA\"", EnumWithCreator.class);
@@ -309,4 +333,15 @@ public class EnumCreatorTest extends BaseMapTest
         assertEquals(Enum929.B, valueList.get(2));
     }
 
+    // for [databind#3280]
+    public void testPropertyCreatorEnum3280() throws Exception
+    {
+        final ObjectReader r = MAPPER.readerFor(Enum3280.class);
+        assertEquals(Enum3280.x, r.readValue("{\"b\":\"x\"}"));
+        assertEquals(Enum3280.x, r.readValue("{\"a\":\"1\", \"b\":\"x\"}"));
+        assertEquals(Enum3280.y, r.readValue("{\"b\":\"y\", \"a\":{}}"));
+        assertEquals(Enum3280.y, r.readValue("{\"b\":\"y\", \"a\":{}}"));
+        assertEquals(Enum3280.x, r.readValue("{\"a\":[], \"b\":\"x\"}"));
+        assertEquals(Enum3280.x, r.readValue("{\"a\":{}, \"b\":\"x\"}"));
+    }
 }

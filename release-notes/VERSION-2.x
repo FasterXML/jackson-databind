@@ -4,6 +4,12 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+(not yet released)
+
+#3280: Can not deserialize json to enum value with Object-/Array-valued input,
+  `@JsonCreator`
+ (reported by peteryuanpan@github)
+
 2.12.5 (27-Aug-2021)
 
 #3220: (regression) Factory method generic type resolution does not use

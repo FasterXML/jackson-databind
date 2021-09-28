@@ -189,6 +189,7 @@ ClassUtil.getTypeDescription(targetType), _factory, p.currentToken());
                 continue;
             }
             // 26-Nov-2020, tatu: ... what should we do here tho?
+            p.skipChildren();
         }
         return creator.build(ctxt, buffer);
     }

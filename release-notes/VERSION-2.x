@@ -85,6 +85,9 @@ Project: jackson-databind
  (contributed by Abishek R)
 #3271: String property deserializes null as "null" for JsonTypeInfo.As.EXISTING_PROPERTY
  (reported by jonc2@github)
+#3280: Can not deserialize json to enum value with Object-/Array-valued input,
+  `@JsonCreator`
+ (reported by peteryuanpan@github)
 - Fix to avoid problem with `BigDecimalNode`, scale of `Integer.MIN_VALUE` (see
   [dataformats-binary#264] for details)
 - Extend handling of `FAIL_ON_NULL_FOR_PRIMITIVES` to cover coercion from (Empty) String

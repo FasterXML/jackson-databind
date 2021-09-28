@@ -169,8 +169,8 @@
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
           <links combine.children="append">
-            <link>http://fasterxml.github.com/jackson-annotations/javadoc/3.0.2021-01</link>
-            <link>http://fasterxml.github.com/jackson-core/javadoc/3.0.2021-01</link>
+            <link>http://fasterxml.github.io/jackson-annotations/javadoc/3.0.2021-01</link>
+            <link>http://fasterxml.github.io/jackson-core/javadoc/3.0.2021-01</link>
           </links>
         </configuration>
       </plugin>

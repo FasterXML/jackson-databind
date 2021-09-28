@@ -101,8 +101,8 @@ public class ObjectNode
     public JsonNode get(int index) { return null; }
 
     @Override
-    public JsonNode get(String fieldName) {
-        return _children.get(fieldName);
+    public JsonNode get(String propertyName) {
+        return _children.get(propertyName);
     }
 
     @Override
@@ -116,9 +116,9 @@ public class ObjectNode
     }
 
     @Override
-    public JsonNode path(String fieldName)
+    public JsonNode path(String propertyName)
     {
-        JsonNode n = _children.get(fieldName);
+        JsonNode n = _children.get(propertyName);
         if (n != null) {
             return n;
         }
@@ -126,16 +126,16 @@ public class ObjectNode
     }
 
     @Override
-    public JsonNode required(String fieldName) {
-        JsonNode n = _children.get(fieldName);
+    public JsonNode required(String propertyName) {
+        JsonNode n = _children.get(propertyName);
         if (n != null) {
             return n;
         }
-        return _reportRequiredViolation("No value for property '%s' of `ObjectNode`", fieldName);
+        return _reportRequiredViolation("No value for property '%s' of `ObjectNode`", propertyName);
     }
 
     /**
-     * Method to use for accessing all fields (with both names
+     * Method to use for accessing all properties (with both names
      * and values) of this JSON Object.
      */
     @Override
@@ -207,13 +207,13 @@ public class ObjectNode
      */
     
     @Override
-    public JsonNode findValue(String fieldName)
+    public JsonNode findValue(String propertyName)
     {
         for (Map.Entry<String, JsonNode> entry : _children.entrySet()) {
-            if (fieldName.equals(entry.getKey())) {
+            if (propertyName.equals(entry.getKey())) {
                 return entry.getValue();
             }
-            JsonNode value = entry.getValue().findValue(fieldName);
+            JsonNode value = entry.getValue().findValue(propertyName);
             if (value != null) {
                 return value;
             }
@@ -222,32 +222,32 @@ public class ObjectNode
     }
     
     @Override
-    public List<JsonNode> findValues(String fieldName, List<JsonNode> foundSoFar)
+    public List<JsonNode> findValues(String propertyName, List<JsonNode> foundSoFar)
     {
         for (Map.Entry<String, JsonNode> entry : _children.entrySet()) {
-            if (fieldName.equals(entry.getKey())) {
+            if (propertyName.equals(entry.getKey())) {
                 if (foundSoFar == null) {
                     foundSoFar = new ArrayList<JsonNode>();
                 }
                 foundSoFar.add(entry.getValue());
             } else { // only add children if parent not added
-                foundSoFar = entry.getValue().findValues(fieldName, foundSoFar);
+                foundSoFar = entry.getValue().findValues(propertyName, foundSoFar);
             }
         }
         return foundSoFar;
     }
 
     @Override
-    public List<String> findValuesAsText(String fieldName, List<String> foundSoFar)
+    public List<String> findValuesAsText(String propertyName, List<String> foundSoFar)
     {
         for (Map.Entry<String, JsonNode> entry : _children.entrySet()) {
-            if (fieldName.equals(entry.getKey())) {
+            if (propertyName.equals(entry.getKey())) {
                 if (foundSoFar == null) {
                     foundSoFar = new ArrayList<String>();
                 }
                 foundSoFar.add(entry.getValue().asText());
             } else { // only add children if parent not added
-                foundSoFar = entry.getValue().findValuesAsText(fieldName,
+                foundSoFar = entry.getValue().findValuesAsText(propertyName,
                     foundSoFar);
             }
         }
@@ -255,13 +255,13 @@ public class ObjectNode
     }
     
     @Override
-    public ObjectNode findParent(String fieldName)
+    public ObjectNode findParent(String propertyName)
     {
         for (Map.Entry<String, JsonNode> entry : _children.entrySet()) {
-            if (fieldName.equals(entry.getKey())) {
+            if (propertyName.equals(entry.getKey())) {
                 return this;
             }
-            JsonNode value = entry.getValue().findParent(fieldName);
+            JsonNode value = entry.getValue().findParent(propertyName);
             if (value != null) {
                 return (ObjectNode) value;
             }
@@ -270,22 +270,22 @@ public class ObjectNode
     }
 
     @Override
-    public List<JsonNode> findParents(String fieldName, List<JsonNode> foundSoFar)
+    public List<JsonNode> findParents(String propertyName, List<JsonNode> foundSoFar)
     {
         for (Map.Entry<String, JsonNode> entry : _children.entrySet()) {
-            if (fieldName.equals(entry.getKey())) {
+            if (propertyName.equals(entry.getKey())) {
                 if (foundSoFar == null) {
                     foundSoFar = new ArrayList<JsonNode>();
                 }
                 foundSoFar.add(this);
             } else { // only add children if parent not added
                 foundSoFar = entry.getValue()
-                    .findParents(fieldName, foundSoFar);
+                    .findParents(propertyName, foundSoFar);
             }
         }
         return foundSoFar;
     }
-    
+
     /*
     /**********************************************************************
     /* Public API, serialization
@@ -358,7 +358,7 @@ public class ObjectNode
      */
 
     /**
-     * Method that will set specified field, replacing old value, if any.
+     * Method that will set specified property, replacing old value, if any.
      * Note that this is identical to {@link #replace(String, JsonNode)},
      * except for return value.
      *
@@ -416,25 +416,25 @@ public class ObjectNode
      * Method for replacing value of specific property with passed
      * value, and returning previous value (or null if none).
      *
-     * @param fieldName Property of which value to replace
+     * @param propertyName Property of which value to replace
      * @param value Value to set property to, replacing old value if any
      * 
      * @return Old value of the property; null if there was no such property
      *   with value
      */
-    public JsonNode replace(String fieldName, JsonNode value)
+    public JsonNode replace(String propertyName, JsonNode value)
     {
         if (value == null) { // let's not store 'raw' nulls but nodes
             value = nullNode();
         }
-        return _children.put(fieldName, value);
+        return _children.put(propertyName, value);
     }
 
     /**
-     * Method for removing field entry from this ObjectNode, and
+     * Method for removing property from this ObjectNode, and
      * returning instance after removal.
      * 
-     * @return This node after removing entry (if any)
+     * @return This node after removing property (if any)
      */
     public ObjectNode without(String fieldName)
     {
@@ -446,13 +446,13 @@ public class ObjectNode
      * Method for removing specified field properties out of
      * this ObjectNode.
      * 
-     * @param fieldNames Names of fields to remove
+     * @param propertyNames Names of properties to remove
      * 
      * @return This node after removing entries
      */
-    public ObjectNode without(Collection<String> fieldNames)
+    public ObjectNode without(Collection<String> propertyNames)
     {
-        _children.keySet().removeAll(fieldNames);
+        _children.keySet().removeAll(propertyNames);
         return this;
     }
 
@@ -480,7 +480,7 @@ public class ObjectNode
      * @param value Value to set to property (if and only if it had no value previously);
      *  if null, will be converted to a {@link NullNode} first.
      *
-     * @return Old value of the field, if any (in which case value was not changed);
+     * @return Old value of the property, if any (in which case value was not changed);
      *     null if there was no old value (in which case value is now set)
      */
     public JsonNode putIfAbsent(String propertyName, JsonNode value)
@@ -496,28 +496,28 @@ public class ObjectNode
      * Will return previous value of the property, if such property existed;
      * null if not.
      * 
-     * @return Value of specified field, if it existed; null if not
+     * @return Value of specified property, if it existed; null if not
      */
-    public JsonNode remove(String fieldName) {
-        return _children.remove(fieldName);
+    public JsonNode remove(String propertyName) {
+        return _children.remove(propertyName);
     }
 
     /**
      * Method for removing specified field properties out of
      * this ObjectNode.
      * 
-     * @param fieldNames Names of fields to remove
+     * @param propertyNames Names of fields to remove
      * 
      * @return This node after removing entries
      */
-    public ObjectNode remove(Collection<String> fieldNames)
+    public ObjectNode remove(Collection<String> propertyNames)
     {
-        _children.keySet().removeAll(fieldNames);
+        _children.keySet().removeAll(propertyNames);
         return this;
     }
     
     /**
-     * Method for removing all field properties, such that this
+     * Method for removing all properties, such that this
      * ObjectNode will contain no properties after call.
      * 
      * @return This node after removing all entries
@@ -533,28 +533,28 @@ public class ObjectNode
      * Method for removing all field properties out of this ObjectNode
      * <b>except</b> for ones specified in argument.
      * 
-     * @param fieldNames Fields to <b>retain</b> in this ObjectNode
+     * @param propertyNames Fields to <b>retain</b> in this ObjectNode
      * 
      * @return This node (to allow call chaining)
      */
-    public ObjectNode retain(Collection<String> fieldNames)
+    public ObjectNode retain(Collection<String> propertyNames)
     {
-        _children.keySet().retainAll(fieldNames);
+        _children.keySet().retainAll(propertyNames);
         return this;
     }
 
     /**
-     * Method for removing all field properties out of this ObjectNode
+     * Method for removing all properties out of this ObjectNode
      * <b>except</b> for ones specified in argument.
      * 
-     * @param fieldNames Fields to <b>retain</b> in this ObjectNode
+     * @param propertyNames Fields to <b>retain</b> in this ObjectNode
      * 
      * @return This node (to allow call chaining)
      */
-    public ObjectNode retain(String... fieldNames) {
-        return retain(Arrays.asList(fieldNames));
+    public ObjectNode retain(String... propertyNames) {
+        return retain(Arrays.asList(propertyNames));
     }
-    
+
     /*
     /**********************************************************************
     /* Extended ObjectNode API, mutators, typed
@@ -624,23 +624,25 @@ public class ObjectNode
     }
 
     /**
-     * Method for setting value of a field to specified String value.
+     * Method for setting value of a property to explicit {@code null} value.
      * 
+     * @param propertyName Name of property to set.
+     *
      * @return This {@code ObjectNode} (to allow chaining)
      */
-    public ObjectNode putNull(String fieldName)
+    public ObjectNode putNull(String propertyName)
     {
-        _children.put(fieldName, nullNode());
+        _children.put(propertyName, nullNode());
         return this;
     }
 
     /**
-     * Method for setting value of a field to specified numeric value.
+     * Method for setting value of a property to specified numeric value.
      * 
      * @return This node (to allow chaining)
      */
-    public ObjectNode put(String fieldName, short v) {
-        return _put(fieldName, numberNode(v));
+    public ObjectNode put(String propertyName, short v) {
+        return _put(propertyName, numberNode(v));
     }
 
     /**

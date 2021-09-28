@@ -1061,7 +1061,7 @@ public class ObjectMapper
      * The set of {@link Module} typeIds that are registered in this
      * ObjectMapper, if (and only if!)
      * {@link MapperFeature#IGNORE_DUPLICATE_MODULE_REGISTRATIONS}
-     * is enabled AND module being added returns non-{@null} value
+     * is enabled AND module being added returns non-{@code null} value
      * for its {@link Module#getTypeId()}.
      *<p>
      * NOTE: when using the default {@link com.fasterxml.jackson.databind.module.SimpleModule}

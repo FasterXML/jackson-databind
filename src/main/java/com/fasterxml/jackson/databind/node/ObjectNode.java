@@ -653,7 +653,7 @@ public class ObjectNode
 
     /**
      * Method that will construct an ArrayNode and add it as a
-     * field of this ObjectNode, replacing old value, if any.
+     * property of this {@code ObjectNode}, replacing old value, if any.
      *<p>
      * <b>NOTE</b>: Unlike all <b>put(...)</b> methods, return value
      * is <b>NOT</b> this <code>ObjectNode</code>, but the
@@ -662,16 +662,16 @@ public class ObjectNode
      * @return Newly constructed ArrayNode (NOT the old value,
      *   which could be of any type)
      */
-    public ArrayNode putArray(String fieldName)
+    public ArrayNode putArray(String propertyName)
     {
         ArrayNode n  = arrayNode();
-        _put(fieldName, n);
+        _put(propertyName, n);
         return n;
     }
 
     /**
      * Method that will construct an ObjectNode and add it as a
-     * field of this ObjectNode, replacing old value, if any.
+     * property of this {@code ObjectNode}, replacing old value, if any.
      *<p>
      * <b>NOTE</b>: Unlike all <b>put(...)</b> methods, return value
      * is <b>NOT</b> this <code>ObjectNode</code>, but the
@@ -680,29 +680,44 @@ public class ObjectNode
      * @return Newly constructed ObjectNode (NOT the old value,
      *   which could be of any type)
      */
-    public ObjectNode putObject(String fieldName)
+    public ObjectNode putObject(String propertyName)
     {
         ObjectNode n = objectNode();
-        _put(fieldName, n);
+        _put(propertyName, n);
         return n;
     }
 
     /**
-     * @return This node (to allow chaining)
+     * Method for adding an opaque Java value as the value of specified property.
+     * Value can be serialized like any other property, as long as Jackson can
+     * serialize it. Despite term "POJO" this allows use of about any Java type, including
+     * {@link java.util.Map}s, {@link java.util.Collection}s, as well as Beans (POJOs),
+     * primitives/wrappers and even {@link JsonNode}s.
+     * Method is most commonly useful when composing content to serialize from heterogenous
+     * sources.
+     *<p>
+     * NOTE: if using {@link JsonNode#toString()} (or {@link JsonNode#toPrettyString()}
+     * support for serialization may be more limited, compared to serializing node
+     * with specifically configured {@link ObjectMapper}.
+     *
+     * @param propertyName Name of property to set.
+     * @param pojo Java value to set as the property value
+     *
+     * @return This {@code ObjectNode} (to allow chaining)
      */
-    public ObjectNode putPOJO(String fieldName, Object pojo) {
-        return _put(fieldName, pojoNode(pojo));
+    public ObjectNode putPOJO(String propertyName, Object pojo) {
+        return _put(propertyName, pojoNode(pojo));
     }
 
     /**
      * @since 2.6
      */
-    public ObjectNode putRawValue(String fieldName, RawValue raw) {
-        return _put(fieldName, rawValueNode(raw));
+    public ObjectNode putRawValue(String propertyName, RawValue raw) {
+        return _put(propertyName, rawValueNode(raw));
     }
     
     /**
-     * @return This node (to allow chaining)
+     * @return This {@code ObjectNode} (to allow chaining)
      */
     public ObjectNode putNull(String fieldName)
     {

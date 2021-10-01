@@ -87,14 +87,15 @@ public final class AnnotatedConstructor
 
     @Override
     public int getParameterCount() {
-        return _constructor.getParameterTypes().length;
+        return _constructor.getParameterCount();
     }
 
     @Override
-    public Class<?> getRawParameterType(int index)
-    {
-        Class<?>[] types = _constructor.getParameterTypes();
-        return (index >= types.length) ? null : types[index];
+    public Class<?> getRawParameterType(int index) {
+        if (index >= _constructor.getParameterCount()) {
+            return null;
+        }
+        return _constructor.getParameterTypes()[index];
     }
 
     @Override
@@ -169,8 +170,7 @@ public final class AnnotatedConstructor
 
     @Override
     public String toString() {
-        // 03-Nov-2020 ckozak: This can use _constructor.getParameterCount() once java 8 is required.
-        final int argCount = _constructor.getParameterTypes().length;
+        final int argCount = _constructor.getParameterCount();
         return String.format("[constructor for %s (%d arg%s), annotations: %s",
                 ClassUtil.nameOf(_constructor.getDeclaringClass()), argCount,
                 (argCount == 1) ? "" : "s", _annotations);

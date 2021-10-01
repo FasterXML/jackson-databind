@@ -339,8 +339,7 @@ public final class ClassUtil
             return false;
         }
         // Must take no args
-        Class<?>[] pts = m.getParameterTypes();
-        if (pts != null && pts.length != 0) {
+        if (m.getParameterCount() != 0) {
             return false;
         }
         // Can't be a void method
@@ -1446,7 +1445,7 @@ cls.getName(), rootCause.getClass().getName(), rootCause.getMessage()),
         public int getParamCount() {
             int c = _paramCount;
             if (c < 0) {
-                c = _ctor.getParameterTypes().length;
+                c = _ctor.getParameterCount();
                 _paramCount = c;
             }
             return c;

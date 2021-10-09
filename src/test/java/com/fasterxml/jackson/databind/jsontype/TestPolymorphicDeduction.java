@@ -11,8 +11,10 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
@@ -23,7 +25,7 @@ import static com.fasterxml.jackson.annotation.JsonTypeInfo.Id.DEDUCTION;
 public class TestPolymorphicDeduction extends BaseMapTest {
 
   @JsonTypeInfo(use = DEDUCTION)
-  @JsonSubTypes( {@Type(LiveCat.class), @Type(DeadCat.class), @Type(Fleabag.class)})
+  @JsonSubTypes( {@Type(LiveCat.class), @Type(DeadCat.class), @Type(Fleabag.class)}) // NOT including Cat
   // A general supertype with no properties - used for tests involving {}
   interface Feline {}
 
@@ -60,10 +62,11 @@ public class TestPolymorphicDeduction extends BaseMapTest {
   /**********************************************************
    */
 
+  private static final String catJson = a2q("{'name':'Felix'}");
   private static final String deadCatJson = a2q("{'name':'Felix','causeOfDeath':'entropy'}");
   private static final String liveCatJson = a2q("{'name':'Felix','angry':true}");
   private static final String luckyCatJson = a2q("{'name':'Felix','angry':true,'lives':8}");
-  private static final String ambiguousCatJson = a2q("{'name':'Felix','age':2}");
+  private static final String unknownCatJson = a2q("{'name':'Felix','age':2}");
   private static final String fleabagJson = a2q("{}");
   private static final String box1Json = a2q("{'feline':" + liveCatJson + "}");
   private static final String box2Json = a2q("{'feline':" + deadCatJson + "}");
@@ -183,10 +186,13 @@ public class TestPolymorphicDeduction extends BaseMapTest {
   }
 
   public void testIgnoreProperties() throws Exception {
-    Cat cat = MAPPER.reader()
-      .without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-      .readValue(luckyCatJson, Cat.class);
-    assertTrue(cat instanceof LiveCat);
+    // Given:
+    ObjectReader reader = MAPPER.reader()
+      .without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+    // When:
+    Cat cat = reader.readValue(luckyCatJson, Cat.class);
+    // Then:
+    assertTrue("Should ignore 'lives' property", cat instanceof LiveCat);
     assertSame(cat.getClass(), LiveCat.class);
     assertEquals("Felix", cat.name);
     assertTrue(((LiveCat)cat).angry);
@@ -198,39 +204,45 @@ public class TestPolymorphicDeduction extends BaseMapTest {
 
   public void testAmbiguousClasses() throws Exception {
     try {
+      // Given:
       ObjectMapper mapper = JsonMapper.builder() // Don't use shared mapper!
-              .registerSubtypes(AnotherLiveCat.class)
-              .build();
-      /*Cat cat =*/ mapper.readValue(liveCatJson, Cat.class);
-      fail("Should not get here");
+        .registerSubtypes(AnotherLiveCat.class)
+        .build();
+      // When:
+      mapper.readValue(liveCatJson, Cat.class);
+
+      fail("AnotherLiveCat and LiveCat have same signature and should fail to register");
     } catch (InvalidDefinitionException e) {
-        verifyException(e, "Subtypes ");
-        verifyException(e, "have the same signature");
-        verifyException(e, "cannot be uniquely deduced");
+      // Then:
+      verifyException(e, "Subtypes ");
+      verifyException(e, "have the same signature");
+      verifyException(e, "cannot be uniquely deduced");
     }
   }
 
   public void testAmbiguousProperties() throws Exception {
     try {
-      /*Cat cat =*/ MAPPER.readValue(ambiguousCatJson, Cat.class);
-      fail("Should not get here");
+      // When:
+      MAPPER.readValue(catJson, Feline.class);
+
+      fail("Feline doesn't include the Cat subtype");
     } catch (InvalidTypeIdException e) {
-        verifyException(e, "Cannot deduce unique subtype");
+      // Then:
+      verifyException(e, "Cannot deduce unique subtype");
     }
   }
 
   public void testFailOnInvalidSubtype() throws Exception {
-    // Given:
-    JsonMapper mapper = JsonMapper.builder() // Don't use shared mapper!
-      .disable(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE)
-      .build();
     // When:
-    Cat cat = mapper.readValue(ambiguousCatJson, Cat.class);
+    ObjectReader reader = MAPPER.reader()
+      .without(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE);
+    // Given:
+    Cat cat = reader.readValue(unknownCatJson, Cat.class);
     // Then:
-    assertNull(cat);
+    assertNull("Should return null not an Exception", cat);
   }
 
-  @JsonTypeInfo(use = DEDUCTION, defaultImpl = Cat.class)
+  @JsonTypeInfo(use = DEDUCTION, defaultImpl = AnotherLiveCat.class)
   abstract static class CatMixin {
   }
 
@@ -241,12 +253,26 @@ public class TestPolymorphicDeduction extends BaseMapTest {
       .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
       .build();
     // When:
-    Cat cat = mapper.readValue(ambiguousCatJson, Cat.class);
+    Feline cat = mapper.readValue(unknownCatJson, Cat.class);
     // Then:
-    // Even though "age":2 implies this was a failed subtype, we are instructed to fallback to Cat regardless.
-    assertTrue(cat instanceof Cat);
-    assertSame(Cat.class, cat.getClass());
-    assertEquals("Felix", cat.name);
+    assertTrue("Should fallback when unknown property blocks deduction", cat instanceof AnotherLiveCat);
+    assertSame(AnotherLiveCat.class, cat.getClass());
+  }
+
+  public void testDefaultImplSupercededByUnknownProperty() throws Exception {
+    try {
+      // Given:
+      JsonMapper mapper = JsonMapper.builder() // Don't use shared mapper!
+        .addMixIn(Cat.class, CatMixin.class)
+        //.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+        .build();
+      // When:
+      mapper.readValue(unknownCatJson, Cat.class);
+
+      fail("Unknown property supercedes defaultImpl");
+    } catch (UnrecognizedPropertyException e) {
+      // Then:
+    }
   }
 
   public void testSimpleSerialization() throws Exception {

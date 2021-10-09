@@ -126,7 +126,7 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
         final TokenBuffer tb = ctxt.bufferForInputBuffering(p);
         boolean ignoreCase = ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
 
-        for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
+        for (; t == JsonToken.FIELD_NAME && !candidates.isEmpty(); t = p.nextToken()) {
             String name = p.currentName();
             if (ignoreCase) name = name.toLowerCase();
 

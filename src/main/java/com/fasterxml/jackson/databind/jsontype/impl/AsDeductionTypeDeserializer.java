@@ -63,7 +63,8 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
         boolean ignoreCase = config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
 
         int nextField = 0;
-        Map<BitSet, String> fingerprints = new HashMap<>();
+        // Sorting by fingerprints such that supertypes always come first
+        Map<BitSet, String> fingerprints = new TreeMap<>(new BitSetComparator().reversed());
 
         for (NamedType subtype : subtypes) {
             JavaType subtyped = config.getTypeFactory().constructType(subtype.getType());
@@ -141,10 +142,27 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
                 }
             }
         }
+        // We have zero or multiple candidates after parsing the whole input
 
-        // We have zero or multiple candidates, deduction has failed
+        if (!candidates.isEmpty() && firstCandidateIsSupertypeOfOthers(candidates)) {
+            return _deserializeTypedForId(p, ctxt, tb, subtypeFingerprints.get(candidates.get(0)));
+        }
+
+        // deduction has failed
         String msgToReportIfDefaultImplFailsToo = String.format("Cannot deduce unique subtype of %s (%d candidates match)", ClassUtil.getTypeDescription(_baseType), candidates.size());
         return _deserializeTypedUsingDefaultImpl(p, ctxt, tb, msgToReportIfDefaultImplFailsToo);
+    }
+
+    private static boolean firstCandidateIsSupertypeOfOthers(List<BitSet> candidates) {
+        // Pre-sorted fingerprints means the _first_ item may be a supertype...
+        BitSet supertypeFields = candidates.get(0);
+
+        // bitset is mutable, must take a copy :( ThreadLocal?
+        BitSet commonFields = (BitSet)supertypeFields.clone();
+        for (BitSet candidate : candidates) {
+            commonFields.and(candidate);
+        }
+        return commonFields.equals(supertypeFields);
     }
 
     // Keep only fingerprints containing this field

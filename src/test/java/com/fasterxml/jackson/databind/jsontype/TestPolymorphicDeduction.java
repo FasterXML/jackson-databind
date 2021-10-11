@@ -198,6 +198,30 @@ public class TestPolymorphicDeduction extends BaseMapTest {
     assertTrue(((LiveCat)cat).angry);
   }
 
+  public void testAmbiguousPropertiesMatchSupertype() throws Exception {
+    // Given:
+    JsonMapper mapper = JsonMapper.builder() // Don't use shared mapper!
+      .build();
+    // When:
+    Feline feline = mapper.readValue(catJson, Cat.class);
+    // Then:
+    assertTrue("Cat is included in subtypes and is an exact match", feline instanceof Cat);
+    assertSame(feline.getClass(), Cat.class);
+    assertEquals("Felix", ((Cat)feline).name);
+  }
+
+  public void testIgnorePropertiesCanMatchSupertype() throws Exception {
+    // Given:
+    ObjectReader reader = MAPPER.reader()
+      .without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+    // When:
+    Cat cat = reader.readValue(unknownCatJson, Cat.class);
+    // Then:
+    assertTrue("Should ignore 'age' property, leaving 'name' to match Cat", cat instanceof Cat);
+    assertSame(cat.getClass(), Cat.class);
+    assertEquals("Felix", cat.name);
+  }
+
   static class AnotherLiveCat extends Cat {
     public boolean angry;
   }
@@ -237,23 +261,23 @@ public class TestPolymorphicDeduction extends BaseMapTest {
     ObjectReader reader = MAPPER.reader()
       .without(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE);
     // Given:
-    Cat cat = reader.readValue(unknownCatJson, Cat.class);
+    Feline cat = reader.readValue(unknownCatJson, Feline.class);
     // Then:
     assertNull("Should return null not an Exception", cat);
   }
 
   @JsonTypeInfo(use = DEDUCTION, defaultImpl = AnotherLiveCat.class)
-  abstract static class CatMixin {
+  abstract static class FelineMixin {
   }
 
   public void testDefaultImpl() throws Exception {
     // Given:
     JsonMapper mapper = JsonMapper.builder() // Don't use shared mapper!
-      .addMixIn(Cat.class, CatMixin.class)
+      .addMixIn(Feline.class, FelineMixin.class)
       .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
       .build();
     // When:
-    Feline cat = mapper.readValue(unknownCatJson, Cat.class);
+    Feline cat = mapper.readValue(unknownCatJson, Feline.class);
     // Then:
     assertTrue("Should fallback when unknown property blocks deduction", cat instanceof AnotherLiveCat);
     assertSame(AnotherLiveCat.class, cat.getClass());
@@ -263,7 +287,7 @@ public class TestPolymorphicDeduction extends BaseMapTest {
     try {
       // Given:
       JsonMapper mapper = JsonMapper.builder() // Don't use shared mapper!
-        .addMixIn(Cat.class, CatMixin.class)
+        .addMixIn(Cat.class, FelineMixin.class)
         //.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
         .build();
       // When:

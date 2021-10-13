@@ -77,6 +77,17 @@ public class EnumMapDeserializationTest extends BaseMapTest
         }
     }
 
+    // [databind#1988]
+    enum Enum1988 {
+        FOO_BAR,
+        FOO_BAZ
+    }
+
+    static class Holder1988 {
+        public Map<Enum1988, Number> mapHolder;
+        public Enum1988 enumHolder;
+    }
+
     // [databind#2457]
     enum MyEnum2457 {
         A,
@@ -99,7 +110,7 @@ public class EnumMapDeserializationTest extends BaseMapTest
     /**********************************************************
      */
 
-    protected final ObjectMapper MAPPER = new ObjectMapper();
+    protected final ObjectMapper MAPPER = newJsonMapper();
 
     public void testEnumMaps() throws Exception
     {
@@ -244,17 +255,42 @@ public class EnumMapDeserializationTest extends BaseMapTest
     // [databind#2457]
     public void testCustomEnumAsRootMapKey() throws Exception
     {
-        final ObjectMapper mapper = newJsonMapper();
         final Map<MyEnum2457, String> map = new LinkedHashMap<>();
         map.put(MyEnum2457.A, "1");
         map.put(MyEnum2457.B, "2");
         assertEquals(a2q("{'A':'1','B':'2'}"),
-                mapper.writeValueAsString(map));
+                MAPPER.writeValueAsString(map));
 
         // But should be able to override
         assertEquals(a2q("{'"+MyEnum2457.A.toString()+"':'1','"+MyEnum2457.B.toString()+"':'2'}"),
-                mapper.writer()
+                MAPPER.writer()
                     .with(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
                     .writeValueAsString(map));
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods: case-insensitive Enums
+    /**********************************************************************
+     */
+
+    // [databind#1988]
+    public void testCaseInsensitiveEnumsInMaps() throws Exception
+    {
+        ObjectReader r = JsonMapper.builder()
+            .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+            .build()
+            .readerFor(Holder1988.class);
+
+        Holder1988 h;
+
+        h = r.readValue("{\"mapHolder\":{\"foo_bar\": \"4\"}}");
+        assertNull(h.enumHolder);
+        assertNotNull(h.mapHolder);
+        assertEquals(Integer.valueOf(4), h.mapHolder.get(Enum1988.FOO_BAR));
+
+        h = r.readValue("{\"enumHolder\":\"foo_bar\"}");
+        assertEquals(Enum1988.FOO_BAR, h.enumHolder);
+        assertNull(h.mapHolder);
     }
 }

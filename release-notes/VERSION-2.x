@@ -11,6 +11,8 @@ Project: jackson-databind
 #1850: `@JsonValue` with integer for enum does not deserialize correctly
  (reported by tgolden-andplus@github)
  (fix contributed by limengning@github)
+#1988: MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUM does not work for Enum keys of Map
+ (reported by Myp3ik@github)
 #2509: `AnnotatedMethod.getValue()/setValue()` doesn't have useful exception message
  (reported by henryptung@github)
  (fix contributed by Stephan S)

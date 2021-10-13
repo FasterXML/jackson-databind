@@ -22,13 +22,14 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 class FactoryBasedEnumDeserializer
     extends StdDeserializer<Object>
 {
-    // Marker type; null if String expected; otherwise numeric wrapper
+    // Marker type; null if String expected; otherwise usually numeric wrapper
     protected final JavaType _inputType;
-    protected final boolean _hasArgs;
     protected final AnnotatedMethod _factory;
     protected final ValueDeserializer<?> _deser;
     protected final ValueInstantiator _valueInstantiator;
     protected final SettableBeanProperty[] _creatorProps;
+
+    protected final boolean _hasArgs;
 
     /**
      * Lazily instantiated property-based creator.
@@ -42,7 +43,8 @@ class FactoryBasedEnumDeserializer
         _factory = f;
         _hasArgs = true;
         // We'll skip case of `String`, as well as no type (zero-args): 
-        _inputType = paramType.hasRawClass(String.class) ? null : paramType;
+        _inputType = (paramType.hasRawClass(String.class) || paramType.hasRawClass(CharSequence.class))
+                ? null : paramType;
         _deser = null;
         _valueInstantiator = valueInstantiator;
         _creatorProps = creatorProps;
@@ -78,6 +80,9 @@ class FactoryBasedEnumDeserializer
     public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property)
     {
+        // So: no need to fetch if we had it; or if target is `String`(-like); or
+        // if we have properties-based Creator (for which we probably SHOULD do
+        // different contextualization?)
         if ((_deser == null) && (_inputType != null) && (_creatorProps == null)) {
             return new FactoryBasedEnumDeserializer(this,
                     ctxt.findContextualValueDeserializer(_inputType, property));
@@ -106,11 +111,14 @@ class FactoryBasedEnumDeserializer
         throws JacksonException
     {
         Object value;
+
+        // First: the case of having deserializer for non-String input for delegating
+        // Creator method
         if (_deser != null) {
             value = _deser.deserialize(p, ctxt);
-        } else if (_hasArgs) {
-            JsonToken curr = p.currentToken();
 
+        // Second: property- and delegating-creators
+        } else if (_hasArgs) {
             // 30-Mar-2020, tatu: For properties-based one, MUST get JSON Object (before
             //   2.11, was just assuming match)
             if (_creatorProps != null) {
@@ -127,16 +135,9 @@ ClassUtil.getTypeDescription(targetType), _factory, p.currentToken());
                 p.nextToken();
                 return deserializeEnumUsingPropertyBased(p, ctxt, _propCreator);
             }
-
-            // 30-Mar-2020, tatu: Single-arg delegating creators may go through
-            //    here; although not 100% sure why they do not take the first branch
-            if (curr == JsonToken.VALUE_STRING || curr == JsonToken.PROPERTY_NAME) {
-                value = p.getText();
-            } else if (curr == JsonToken.VALUE_NUMBER_INT) {
-                value = p.getNumberValue();
-            } else {
-                value = p.getValueAsString();
-            }
+            // 12-Oct-2021, tatu: We really should only get here if and when String
+            //    value is expected; otherwise Deserializer should have been used earlier
+            value = p.getValueAsString();
         } else { // zero-args; just skip whatever value there may be
             p.skipChildren();
             try {
@@ -150,10 +151,13 @@ ClassUtil.getTypeDescription(targetType), _factory, p.currentToken());
             return _factory.callOnWith(_valueClass, value);
         } catch (Exception e) {
             Throwable t = ClassUtil.throwRootCauseIfJacksonE(e);
-            // [databind#1642]:
-            if (ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL) &&
-                    t instanceof IllegalArgumentException) {
-                return null;
+            if (t instanceof IllegalArgumentException) {
+                // [databind#1642]:
+                if (ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
+                    return null;
+                }
+                // 12-Oct-2021, tatu: Should probably try to provide better exception since
+                //   we likely hit argument incompatibility... Or can this happen?
             }
             return ctxt.handleInstantiationProblem(_valueClass, value, t);
         }

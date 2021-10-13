@@ -6,6 +6,12 @@ Project: jackson-databind
 
 (3.0.x and later changes not included here)
 
+2.13.1 (not yet released)
+
+#3006: Argument type mismatch for `enum` with `@JsonCreator` that takes String,
+  gets JSON Number
+ (reported by GrozaAnton@github)
+
 2.13.0 (30-Sep-2021)
 
 #1850: `@JsonValue` with integer for enum does not deserialize correctly

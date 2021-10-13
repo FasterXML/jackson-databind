@@ -132,8 +132,6 @@ public class EnumDeserializationTest
         }
     }
 
-    // // 
-    
     public enum AnEnum {
         ZERO,
         ONE
@@ -208,6 +206,33 @@ public class EnumDeserializationTest
             return value;
         }
     }        
+
+    // [databind#3006]
+    enum Operation3006 {
+        ONE(1L), TWO(2L), THREE(3L);
+
+        private static final Map<Long, Operation3006> mapping = new HashMap<>();
+        static {
+            for (Operation3006 operation : Operation3006.values()) {
+                mapping.put(operation.id, operation);
+            }
+        }
+
+        final long id;
+
+        Operation3006(final long id) {
+            this.id = id;
+        }
+
+        @JsonCreator
+        public static Operation3006 forValue(final String idStr) {
+            Operation3006 candidate = mapping.get(Long.parseLong(idStr));
+            if (candidate == null) {
+                throw new IllegalArgumentException("Unable to find: " + idStr);
+            }
+            return candidate;
+        }
+    }
 
     /*
     /**********************************************************
@@ -608,7 +633,6 @@ public class EnumDeserializationTest
         } catch (InvalidFormatException e) {
             verifyException(e, "Cannot deserialize Map key of type `com.fasterxml.jackson.databind.deser.jdk.EnumDeserializationTest$TestEnum");
         }
-
     }
 
     public void testAllowCaseInsensitiveEnumValues() throws Exception {
@@ -620,4 +644,12 @@ public class EnumDeserializationTest
         assertEquals(1, result.map.size());
     }
 
+    // [databind#3006]
+    public void testIssue3006() throws Exception
+    {
+        assertEquals(Operation3006.ONE, MAPPER.readValue("1", Operation3006.class));
+        assertEquals(Operation3006.ONE, MAPPER.readValue(q("1"), Operation3006.class));
+        assertEquals(Operation3006.THREE, MAPPER.readValue("3", Operation3006.class));
+        assertEquals(Operation3006.THREE, MAPPER.readValue(q("3"), Operation3006.class));
+    }
 }

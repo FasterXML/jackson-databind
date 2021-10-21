@@ -9,11 +9,11 @@
   <parent>
     <groupId>com.fasterxml.jackson</groupId>
     <artifactId>jackson-base</artifactId>
-    <version>2.13.1-SNAPSHOT</version>
+    <version>2.14.0-SNAPSHOT</version>
   </parent>
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-databind</artifactId>
-  <version>2.13.1-SNAPSHOT</version>
+  <version>2.14.0-SNAPSHOT</version>
   <name>jackson-databind</name>
   <packaging>bundle</packaging>
   <description>General data-binding functionality for Jackson: works on core streaming API</description>
@@ -35,7 +35,7 @@
   </scm>
 
   <properties>
-    <!-- Until Jackson 2.11 (inclusive) baseline is JDK 7 (except for annotations/streaming),
+    <!-- Until Jackson 2.11 (inclusive) baseline was JDK 7 (except for annotations/streaming),
          with 2.12 baseline became JDK8
       -->
     <javac.src.version>1.8</javac.src.version>
@@ -176,8 +176,8 @@
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
           <links combine.children="append">
-            <link>http://fasterxml.github.com/jackson-annotations/javadoc/2.12</link>
-            <link>http://fasterxml.github.com/jackson-core/javadoc/2.12</link>
+            <link>http://fasterxml.github.com/jackson-annotations/javadoc/2.14</link>
+            <link>http://fasterxml.github.com/jackson-core/javadoc/2.14</link>
           </links>
         </configuration>
       </plugin>

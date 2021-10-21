@@ -4,6 +4,7 @@ on:
     branches:
     - master
     - "3.0"
+    - "2.14"
     - "2.13"
     paths-ignore:
     - "README.md"
@@ -12,6 +13,7 @@ on:
     branches:
     - master
     - "3.0"
+    - "2.14"
     - "2.13"
     paths-ignore:
     - "README.md"

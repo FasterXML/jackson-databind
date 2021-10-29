@@ -9,6 +9,9 @@ Project: jackson-databind
 #3006: Argument type mismatch for `enum` with `@JsonCreator` that takes String,
   gets JSON Number
  (reported by GrozaAnton@github)
+#3308: `ObjectMapper.valueToTree()` fails when
+ `DeserializationFeature.FAIL_ON_TRAILING_TOKENS` is enabled
+ (fix contributed by raphaelNguyen@github)
 
 2.13.0 (30-Sep-2021)
 

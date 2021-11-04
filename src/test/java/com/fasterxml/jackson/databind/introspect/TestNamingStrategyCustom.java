@@ -102,7 +102,7 @@ public class TestNamingStrategyCustom extends BaseMapTest
         public FieldBean(int v) { key = v; }
     }
 
-    @JsonPropertyOrder({"first_name", "last_name"})
+    @JsonPropertyOrder({"firstName", "lastName", "age"})
     static class PersonBean {
         public String firstName;
         public String lastName;

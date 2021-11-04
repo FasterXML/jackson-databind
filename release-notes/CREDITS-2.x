@@ -1400,3 +1400,7 @@ Abishek Ravichandran (abrav9595@github)
 李孟宁 (limengning@github)
   * Contributed fix for #1850: `@JsonValue` with integer for enum does not deserialize correctly
   (2.13.0)
+
+ZeyuCai@github:
+  * Contributed #3314: Four Flaky Tests Detected in 2.14
+  (2.14.0)

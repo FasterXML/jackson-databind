@@ -1,15 +1,18 @@
 package com.fasterxml.jackson.databind.records;
 
-import com.fasterxml.jackson.annotation.*;
-
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.util.ClassUtil;
-
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 public class RecordBasicsTest extends BaseMapTest
 {
@@ -85,6 +88,11 @@ public class RecordBasicsTest extends BaseMapTest
         final Object EXP = Collections.singletonMap("record",
                 map("id", Integer.valueOf(123), "name", "Bob"));
         assertEquals(EXP, MAPPER.readValue(json, Object.class));
+    }
+
+    public void testDeserializeRecordOfRecord() throws Exception {
+        assertEquals(new RecordOfRecord(new SimpleRecord(123, "Bob")),
+                MAPPER.readValue("{\"record\":{\"id\":123,\"name\":\"Bob\"}}", RecordOfRecord.class));
     }
 
     /*

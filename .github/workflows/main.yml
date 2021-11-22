@@ -24,7 +24,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java_version: ['8', '11']
+        java_version: ['8.0.192', '8', '11.0.3', '11']
         os: ['ubuntu-20.04']
     env:
       JAVA_OPTS: "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
@@ -33,7 +33,7 @@ jobs:
     - name: Set up JDK
       uses: actions/setup-java@v2
       with:
-        distribution: "adopt"
+        distribution: "zulu"
         java-version: ${{ matrix.java_version }}
         server-id: sonatype-nexus-snapshots
         server-username: CI_DEPLOY_USERNAME

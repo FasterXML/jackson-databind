@@ -637,6 +637,8 @@ ClassUtil.getTypeDescription(beanDesc.getType()), ClassUtil.name(propName)));
     protected List<BeanPropertyWriter> filterBeanProperties(SerializationConfig config,
             BeanDescription beanDesc, List<BeanPropertyWriter> props)
     {
+        removeDefaultProperties(props);
+
         // 01-May-2016, tatu: Which base type to use here gets tricky, since
         //   it may often make most sense to use general type for overrides,
         //   but what we have here may be more specific impl type. But for now
@@ -763,6 +765,28 @@ ClassUtil.getTypeDescription(beanDesc.getType()), ClassUtil.name(propName)));
             // explicitly annotated ones should remain
             if (!property.couldDeserialize() && !property.isExplicitlyIncluded()) {
                 it.remove();
+            }
+        }
+    }
+
+    /**
+     * Helper method that will remove all properties that are added by default JDK methods,
+     * e.g. java.lang.CharSequence.isEmpty() (since JDK 15).
+     */
+    private void removeDefaultProperties(List<BeanPropertyWriter> properties)
+    {
+        Iterator<BeanPropertyWriter> it = properties.iterator();
+        while (it.hasNext()) {
+            BeanPropertyWriter writer = it.next();
+
+            AnnotatedMember member = writer.getMember();
+            if (member != null) {
+                Class<?> declaringClass = member.getDeclaringClass();
+
+                if (declaringClass == CharSequence.class) {
+                    // #3331 JDK 15 defines CharSequence.isEmpty() method that is treated as property
+                    it.remove();
+                }
             }
         }
     }

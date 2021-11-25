@@ -231,10 +231,25 @@ public class TestGenerateJsonSchema
     {
         JsonSchema jsonSchema = MAPPER.generateJsonSchema(UnwrappingRoot.class);
         String json = jsonSchema.toString().replaceAll("\"", "'");
-        String EXP = "{'type':'object',"
+        boolean EXP1 = json.equals("{'type':'object',"
                 +"'properties':{'age':{'type':'integer'},"
-                +"'name.first':{'type':'string'},'name.last':{'type':'string'}}}";
-        assertEquals(EXP, json);
+                +"'name.first':{'type':'string'},'name.last':{'type':'string'}}}");
+        boolean EXP2 = json.equals("{'type':'object',"
+                +"'properties':{'age':{'type':'integer'},"
+                +"'name.last':{'type':'string'},'name.first':{'type':'string'}}}");
+        boolean EXP3 = json.equals("{'type':'object',"
+                +"'properties':{'name.last':{'type':'string'},"
+                +"'age':{'type':'integer'},'name.first':{'type':'string'}}}");
+        boolean EXP4 = json.equals("{'type':'object',"
+                +"'properties':{'name.last':{'type':'string'},"
+                +"'name.first':{'type':'string'},'age':{'type':'integer'}}}");
+        boolean EXP5 = json.equals("{'type':'object',"
+                +"'properties':{'name.first':{'type':'string'},"
+                +"'name.last':{'type':'string'},'age':{'type':'integer'}}}");
+        boolean EXP6 = json.equals("{'type':'object',"
+                +"'properties':{'name.first':{'type':'string'},"
+                +"'age':{'type':'integer'},'name.last':{'type':'string'}}}");
+        assertTrue(EXP1 || EXP2 || EXP3 || EXP4 || EXP5 || EXP6);
     }
 
     // 

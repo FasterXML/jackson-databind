@@ -230,26 +230,16 @@ public class TestGenerateJsonSchema
     public void testUnwrapping()  throws Exception
     {
         JsonSchema jsonSchema = MAPPER.generateJsonSchema(UnwrappingRoot.class);
-        String json = jsonSchema.toString().replaceAll("\"", "'");
-        boolean EXP1 = json.equals("{'type':'object',"
-                +"'properties':{'age':{'type':'integer'},"
-                +"'name.first':{'type':'string'},'name.last':{'type':'string'}}}");
-        boolean EXP2 = json.equals("{'type':'object',"
-                +"'properties':{'age':{'type':'integer'},"
-                +"'name.last':{'type':'string'},'name.first':{'type':'string'}}}");
-        boolean EXP3 = json.equals("{'type':'object',"
-                +"'properties':{'name.last':{'type':'string'},"
-                +"'age':{'type':'integer'},'name.first':{'type':'string'}}}");
-        boolean EXP4 = json.equals("{'type':'object',"
-                +"'properties':{'name.last':{'type':'string'},"
-                +"'name.first':{'type':'string'},'age':{'type':'integer'}}}");
-        boolean EXP5 = json.equals("{'type':'object',"
-                +"'properties':{'name.first':{'type':'string'},"
-                +"'name.last':{'type':'string'},'age':{'type':'integer'}}}");
-        boolean EXP6 = json.equals("{'type':'object',"
-                +"'properties':{'name.first':{'type':'string'},"
-                +"'age':{'type':'integer'},'name.last':{'type':'string'}}}");
-        assertTrue(EXP1 || EXP2 || EXP3 || EXP4 || EXP5 || EXP6);
+        ObjectNode root = jsonSchema.getSchemaNode();
+        JsonNode propertiesSchema = root.get("properties");
+        String ageType = propertiesSchema.get("age").get("type").asText();
+        String firstType = propertiesSchema.get("name.first").get("type").asText();
+        String lastType = propertiesSchema.get("name.last").get("type").asText();
+        String type = root.get("type").asText();
+        assertEquals(type, "object");
+        assertEquals(ageType, "integer");
+        assertEquals(firstType, "string");
+        assertEquals(lastType, "string");
     }
 
     // 

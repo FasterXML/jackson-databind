@@ -1,13 +1,9 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.math.BigDecimal;
-import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
-
-import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.io.NumberOutput;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
@@ -16,13 +12,19 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrappe
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.math.BigDecimal;
+import java.util.Map;
+
 /**
  * Container class for serializers used for handling standard JDK-provided
  * primitve number types and their wrapper counterparts (like {@link java.lang.Integer}).
  */
 @SuppressWarnings("serial")
 public class NumberSerializers {
-    protected NumberSerializers() { }
+    protected NumberSerializers() {
+    }
 
     public static void addAll(Map<String, JsonSerializer<?>> allDeserializers) {
         allDeserializers.put(Integer.class.getName(), new IntegerSerializer(Integer.class));
@@ -55,18 +57,17 @@ public class NumberSerializers {
      * being part of public API its implementation and interfaces may change
      * in minor releases; however deprecation markers will be used to allow
      * code evolution.
-     *<p>
+     * <p>
      * NOTE: {@code public} since 2.10: previously had {@code protected} access.
      */
     public abstract static class Base<T> extends StdScalarSerializer<T>
-            implements ContextualSerializer
-    {
+            implements ContextualSerializer {
         protected final JsonParser.NumberType _numberType;
         protected final String _schemaType;
         protected final boolean _isInt;
 
         protected Base(Class<?> cls, JsonParser.NumberType numberType,
-                String schemaType) {
+                       String schemaType) {
             super(cls, false);
             _numberType = numberType;
             _schemaType = schemaType;
@@ -82,8 +83,7 @@ public class NumberSerializers {
 
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor,
-                JavaType typeHint) throws JsonMappingException
-        {
+                                            JavaType typeHint) throws JsonMappingException {
             if (_isInt) {
                 visitIntFormat(visitor, typeHint, _numberType);
             } else {
@@ -93,17 +93,19 @@ public class NumberSerializers {
 
         @Override
         public JsonSerializer<?> createContextual(SerializerProvider prov,
-                BeanProperty property) throws JsonMappingException
-        {
+                                                  BeanProperty property) throws JsonMappingException {
             JsonFormat.Value format = findFormatOverrides(prov, property, handledType());
             if (format != null) {
+                if (format.getPattern() != null && !"".equals(format.getPattern().trim())) {
+                    return new NumberDecimalFormatSerializer(format.getPattern());
+                }
                 switch (format.getShape()) {
-                case STRING:
-                    if (((Class<?>) handledType()) == BigDecimal.class) {
-                        return NumberSerializer.bigDecimalAsStringSerializer();
-                    }
-                    return ToStringSerializer.instance;
-                default:
+                    case STRING:
+                        if (((Class<?>) handledType()) == BigDecimal.class) {
+                            return NumberSerializer.bigDecimalAsStringSerializer();
+                        }
+                        return ToStringSerializer.instance;
+                    default:
                 }
             }
             return this;
@@ -126,7 +128,7 @@ public class NumberSerializers {
 
         @Override
         public void serialize(Object value, JsonGenerator gen,
-                SerializerProvider provider) throws IOException {
+                              SerializerProvider provider) throws IOException {
             gen.writeNumber(((Short) value).shortValue());
         }
     }
@@ -149,14 +151,14 @@ public class NumberSerializers {
 
         @Override
         public void serialize(Object value, JsonGenerator gen,
-                SerializerProvider provider) throws IOException {
+                              SerializerProvider provider) throws IOException {
             gen.writeNumber(((Integer) value).intValue());
         }
 
         // IMPORTANT: copied from `NonTypedScalarSerializerBase`
         @Override
         public void serializeWithType(Object value, JsonGenerator gen,
-                SerializerProvider provider, TypeSerializer typeSer)
+                                      SerializerProvider provider, TypeSerializer typeSer)
                 throws IOException {
             // no type info, just regular serialization
             serialize(value, gen, provider);
@@ -178,7 +180,7 @@ public class NumberSerializers {
 
         @Override
         public void serialize(Object value, JsonGenerator gen,
-                SerializerProvider provider) throws IOException {
+                              SerializerProvider provider) throws IOException {
             gen.writeNumber(((Number) value).intValue());
         }
     }
@@ -191,7 +193,7 @@ public class NumberSerializers {
 
         @Override
         public void serialize(Object value, JsonGenerator gen,
-                SerializerProvider provider) throws IOException {
+                              SerializerProvider provider) throws IOException {
             gen.writeNumber(((Long) value).longValue());
         }
     }
@@ -206,7 +208,7 @@ public class NumberSerializers {
 
         @Override
         public void serialize(Object value, JsonGenerator gen,
-                SerializerProvider provider) throws IOException {
+                              SerializerProvider provider) throws IOException {
             gen.writeNumber(((Float) value).floatValue());
         }
     }
@@ -226,17 +228,15 @@ public class NumberSerializers {
 
         @Override
         public void serialize(Object value, JsonGenerator gen,
-                SerializerProvider provider) throws IOException
-        {
+                              SerializerProvider provider) throws IOException {
             gen.writeNumber(((Double) value).doubleValue());
         }
 
         // IMPORTANT: copied from `NonTypedScalarSerializerBase`
         @Override
         public void serializeWithType(Object value, JsonGenerator g,
-                SerializerProvider provider, TypeSerializer typeSer)
-            throws IOException
-        {
+                                      SerializerProvider provider, TypeSerializer typeSer)
+                throws IOException {
             // 08-Feb-2018, tatu: [databind#2236], NaN values need special care
             Double d = (Double) value;
             if (NumberOutput.notFinite(d)) {

@@ -9,6 +9,7 @@ Project: jackson-databind
 #3280: Can not deserialize json to enum value with Object-/Array-valued input,
   `@JsonCreator`
  (reported by peteryuanpan@github)
+#3328: Possible DoS issue
 
 2.12.5 (27-Aug-2021)
 

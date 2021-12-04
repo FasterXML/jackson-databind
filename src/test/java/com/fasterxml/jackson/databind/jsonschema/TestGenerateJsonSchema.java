@@ -230,11 +230,16 @@ public class TestGenerateJsonSchema
     public void testUnwrapping()  throws Exception
     {
         JsonSchema jsonSchema = MAPPER.generateJsonSchema(UnwrappingRoot.class);
-        String json = jsonSchema.toString().replaceAll("\"", "'");
-        String EXP = "{'type':'object',"
-                +"'properties':{'age':{'type':'integer'},"
-                +"'name.first':{'type':'string'},'name.last':{'type':'string'}}}";
-        assertEquals(EXP, json);
+        ObjectNode root = jsonSchema.getSchemaNode();
+        JsonNode propertiesSchema = root.get("properties");
+        String ageType = propertiesSchema.get("age").get("type").asText();
+        String firstType = propertiesSchema.get("name.first").get("type").asText();
+        String lastType = propertiesSchema.get("name.last").get("type").asText();
+        String type = root.get("type").asText();
+        assertEquals(type, "object");
+        assertEquals(ageType, "integer");
+        assertEquals(firstType, "string");
+        assertEquals(lastType, "string");
     }
 
     // 

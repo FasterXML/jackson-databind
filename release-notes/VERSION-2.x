@@ -12,6 +12,7 @@ Project: jackson-databind
 #3308: `ObjectMapper.valueToTree()` fails when
  `DeserializationFeature.FAIL_ON_TRAILING_TOKENS` is enabled
  (fix contributed by raphaelNguyen@github)
+#3328: Possible DoS issue
 
 2.13.0 (30-Sep-2021)
 

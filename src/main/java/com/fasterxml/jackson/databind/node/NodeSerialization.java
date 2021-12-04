@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 
 /**
  * Helper value class only used during JDK serialization: contains JSON as `byte[]`
@@ -15,6 +16,9 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 class NodeSerialization implements java.io.Serializable,
     java.io.Externalizable
 {
+    // To avoid malicious input only allocate up to 100k
+    protected final static int LONGEST_EAGER_ALLOC = 100_000;
+
     private static final long serialVersionUID = 1L;
 
     private static final JsonMapper JSON_MAPPER = JsonMapper.shared();
@@ -47,8 +51,37 @@ class NodeSerialization implements java.io.Serializable,
     @Override
     public void readExternal(ObjectInput in) throws IOException {
         final int len = in.readInt();
-        json = new byte[len];
-        in.readFully(json, 0, len);
+        json = _read(in, len);
+    }
+
+    private byte[] _read(ObjectInput in, int expLen) throws IOException {
+        // Common case, just read directly
+        if (expLen <= LONGEST_EAGER_ALLOC) {
+            byte[] result = new byte[expLen];
+            in.readFully(result, 0, expLen);
+            return result;
+        }
+        // but longer content needs more care to avoid DoS by maliciously crafted data
+        // (this wrt [databind#3328]
+        try (final ByteArrayBuilder bb = new ByteArrayBuilder(LONGEST_EAGER_ALLOC)) {
+            byte[] buffer = bb.resetAndGetFirstSegment();
+            int outOffset = 0;
+            while (true) {
+                int toRead = Math.min(buffer.length - outOffset, expLen);
+                in.readFully(buffer, 0, toRead);
+                expLen -= toRead;
+                outOffset += toRead;
+                // Did we get everything we needed? If so, we are done
+                if (expLen == 0) {
+                    return bb.completeAndCoalesce(outOffset);
+                }
+                // Or perhaps we filled the current segment? If so, finish, get next
+                if (outOffset == buffer.length) {
+                    buffer = bb.finishCurrentSegment();
+                    outOffset = 0;
+                }
+            }
+        }
     }
 
     private static byte[] valueToBytes(Object value) throws JacksonException {

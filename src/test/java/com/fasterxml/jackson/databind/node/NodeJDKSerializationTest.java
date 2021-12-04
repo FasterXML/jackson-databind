@@ -1,11 +1,14 @@
-package com.fasterxml.jackson.databind;
+package com.fasterxml.jackson.databind.node;
 
 import java.io.*;
 
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.core.JsonGenerator;
 
-public class TestNodeJDKSerialization extends BaseMapTest
+import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+public class NodeJDKSerializationTest extends BaseMapTest
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 
@@ -37,6 +40,35 @@ public class TestNodeJDKSerialization extends BaseMapTest
         props.put("answer", 42);
         root.add(137);
 
+        testNodeRoundtrip(root);
+    }
+
+    // [databind#3328]
+    public void testBigArrayNodeSerialization() throws Exception
+    {
+        // Try couple of variations just to tease out possible edge cases
+        _testBigArrayNodeSerialization(NodeSerialization.LONGEST_EAGER_ALLOC - 39);
+        _testBigArrayNodeSerialization(NodeSerialization.LONGEST_EAGER_ALLOC + 1);
+        _testBigArrayNodeSerialization(3 * NodeSerialization.LONGEST_EAGER_ALLOC - 1);
+        _testBigArrayNodeSerialization(9 * NodeSerialization.LONGEST_EAGER_ALLOC);
+    }
+
+    private void _testBigArrayNodeSerialization(int expSize) throws Exception
+    {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        int ix = 0;
+        try (JsonGenerator g = MAPPER.createGenerator(out)) {
+            g.writeStartArray();
+            do {
+                g.writeStartObject();
+                g.writeNumberProperty("index", ix++);
+                g.writeStringProperty("extra", "none#"+ix);
+                g.writeEndObject();
+            } while (out.size() < expSize);
+            g.writeEndArray();
+        }
+
+        JsonNode root = MAPPER.readTree(out.toByteArray());
         testNodeRoundtrip(root);
     }
 

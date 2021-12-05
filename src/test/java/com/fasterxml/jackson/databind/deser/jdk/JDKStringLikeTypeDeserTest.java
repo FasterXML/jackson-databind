@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
-public class JDKStringLikeTypesTest extends BaseMapTest
+public class JDKStringLikeTypeDeserTest extends BaseMapTest
 {
     static class ParamClassBean
     {

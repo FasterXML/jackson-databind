@@ -208,7 +208,7 @@ public class JDKStringLikeTypeDeserTest extends BaseMapTest
         assertEquals(elem.getLineNumber(), back.getLineNumber());
         assertEquals(elem.getClassName(), back.getClassName());
         assertEquals(elem.isNativeMethod(), back.isNativeMethod());
-        assertTrue(back.getClassName().endsWith("JDKStringLikeTypesTest"));
+        assertTrue(back.getClassName().endsWith("JDKStringLikeTypeDeserTest"));
         assertFalse(back.isNativeMethod());
     }
 

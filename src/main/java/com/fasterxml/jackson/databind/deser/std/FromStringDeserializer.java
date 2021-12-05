@@ -151,9 +151,18 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
             text = ctxt.extractScalarFromObject(p, this, _valueClass);
         }
-        if (text.isEmpty() || (text = text.trim()).isEmpty()) {
+        if (text.isEmpty()) {
             // 09-Jun-2020, tatu: Commonly `null` but may coerce to "empty" as well
             return (T) _deserializeFromEmptyString(ctxt);
+        }
+        if (_shouldTrim()) {
+            final String old = text;
+            text = text.trim();
+            if (text != old) {
+                if (text.isEmpty()) {
+                    return (T) _deserializeFromEmptyString(ctxt);
+                }
+            }
         }
         Exception cause = null;
         try {
@@ -180,6 +189,11 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
      * String.
      */
     protected abstract T _deserialize(String value, DeserializationContext ctxt) throws IOException;
+
+    // @since 2.13.1
+    protected boolean _shouldTrim() {
+        return true;
+    }
 
     // @since 2.12
     protected Object _deserializeFromOther(JsonParser p, DeserializationContext ctxt,
@@ -373,6 +387,13 @@ _coercedTypeDesc());
             //    as URI and Locale did that in 2.11 (and StringBuilder probably ought to).
             //   But doing this here instead of super-class lets UUID return "as-null" instead
             return getEmptyValue(ctxt);
+        }
+
+        // @since 2.13.1
+        @Override
+        protected boolean _shouldTrim() {
+            // 04-Dec-2021, tatu: For [databund#3290]
+            return (_kind != STD_PATTERN);
         }
 
         protected int _firstHyphenOrUnderscore(String str)

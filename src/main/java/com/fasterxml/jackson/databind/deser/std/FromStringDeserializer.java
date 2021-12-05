@@ -60,9 +60,18 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
             text = ctxt.extractScalarFromObject(p, this, _valueClass);
         }
-        if (text.isEmpty() || (text = text.trim()).isEmpty()) {
+        if (text.isEmpty()) {
             // 09-Jun-2020, tatu: Commonly `null` but may coerce to "empty" as well
             return (T) _deserializeFromEmptyString(ctxt);
+        }
+        if (_shouldTrim()) {
+            final String old = text;
+            text = text.trim();
+            if (text != old) {
+                if (text.isEmpty()) {
+                    return (T) _deserializeFromEmptyString(ctxt);
+                }
+            }
         }
         Exception cause = null;
         try {
@@ -90,6 +99,10 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
      */
     protected abstract T _deserialize(String value, DeserializationContext ctxt)
         throws JacksonException, MalformedURLException, UnknownHostException;
+
+    protected boolean _shouldTrim() {
+        return true;
+    }
 
     protected Object _deserializeFromOther(JsonParser p, DeserializationContext ctxt,
             JsonToken t) throws JacksonException

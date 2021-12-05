@@ -171,17 +171,23 @@ public class JDKStringLikeTypeDeserTest extends BaseMapTest
         assertEquals(80, address.getPort());
     }
 
-    public void testRegexps() throws IOException
+    public void testPattern() throws IOException
     {
-        final String PATTERN_STR = "abc:\\s?(\\d+)";
-        Pattern exp = Pattern.compile(PATTERN_STR);
-        /* Ok: easiest way is to just serialize first; problem
-         * is the backslash
-         */
+        Pattern exp = Pattern.compile("abc:\\s?(\\d+)");
+        // Ok: easiest way is to just serialize first; problem
+        // is the backslash
         String json = MAPPER.writeValueAsString(exp);
         Pattern result = MAPPER.readValue(json, Pattern.class);
         assertEquals(exp.pattern(), result.pattern());
+
+        // [databind#3290]: actually need to retain at least trailing space
+        // (and since we do that, just retain all...)
+        exp = Pattern.compile("^WIN\\ ");
+        json = MAPPER.writeValueAsString(exp);
+        result = MAPPER.readValue(json, Pattern.class);
+        assertEquals(exp.pattern(), result.pattern());
     }
+
     public void testStackTraceElement() throws Exception
     {
         StackTraceElement elem = null;

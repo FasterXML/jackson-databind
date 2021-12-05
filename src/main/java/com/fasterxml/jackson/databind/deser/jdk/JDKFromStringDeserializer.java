@@ -216,7 +216,13 @@ public class JDKFromStringDeserializer
         return null;
     }
 
-    @Override // since 2.12
+    @Override
+    protected boolean _shouldTrim() {
+        // 04-Dec-2021, tatu: [databind#3299] Do not trim (trailing) white space:
+        return (_kind != STD_PATTERN);
+    }
+
+    @Override
     public Object getEmptyValue(DeserializationContext ctxt)
     {
         switch (_kind) {

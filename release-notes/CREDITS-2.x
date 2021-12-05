@@ -1401,6 +1401,10 @@ Abishek Ravichandran (abrav9595@github)
   * Contributed fix for #1850: `@JsonValue` with integer for enum does not deserialize correctly
   (2.13.0)
 
+Joel Berger (jberger@github)
+  * Reported #3299: Do not automatically trim trailing whitespace from `java.util.regex.Pattern` values
+  (2.13.0)
+
 ZeyuCai@github:
   * Contributed #3314: Four Flaky Tests Detected in 2.14
   (2.14.0)

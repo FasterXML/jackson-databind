@@ -9,6 +9,8 @@ Project: jackson-databind
 #3006: Argument type mismatch for `enum` with `@JsonCreator` that takes String,
   gets JSON Number
  (reported by GrozaAnton@github)
+#3299: Do not automatically trim trailing whitespace from `java.util.regex.Pattern` values
+ (reported by Joel B)
 #3308: `ObjectMapper.valueToTree()` fails when
  `DeserializationFeature.FAIL_ON_TRAILING_TOKENS` is enabled
  (fix contributed by raphaelNguyen@github)

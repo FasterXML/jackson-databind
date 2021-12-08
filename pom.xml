@@ -216,11 +216,12 @@
         <skipTests>true</skipTests>
       </properties>
     </profile>
+    <!-- 07-Dec-2021, tatu: This is a huge mess, sorry folks... -->
     <profile>
       <!-- Build Record tests using Java 14 if JDK is available -->
-      <id>java14+</id>
+      <id>java14-15</id>
       <activation>
-        <jdk>[14,)</jdk>
+        <jdk>[14,15]</jdk>
       </activation>
       <build>
         <plugins>
@@ -262,6 +263,49 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
               <argLine>--enable-preview</argLine>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <!-- And different set up for JDK 16+ -->
+      <id>java16+</id>
+      <activation>
+        <jdk>[16,)</jdk>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>add-test-source</id>
+                <phase>generate-test-sources</phase>
+                <goals>
+                  <goal>add-test-source</goal>
+                </goals>
+                <configuration>
+                  <sources>
+                    <source>src/test-jdk14/java</source>
+                  </sources>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <inherited>true</inherited>
+            <configuration>
+              <optimize>true</optimize>
+              <!-- Enable Java 17 for all sources so that Intellij picks the right language level -->
+              <source>16</source>
+              <release>16</release>
+              <compilerArgs>
+                <arg>-parameters</arg>
+              </compilerArgs>
             </configuration>
           </plugin>
         </plugins>

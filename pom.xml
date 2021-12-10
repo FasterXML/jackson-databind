@@ -218,10 +218,9 @@
     </profile>
     <!-- 07-Dec-2021, tatu: This is a huge mess, sorry folks... -->
     <profile>
-      <!-- Build Record tests using Java 14 if JDK is available -->
-      <id>java14-15</id>
+      <id>java14</id>
       <activation>
-        <jdk>[14,15]</jdk>
+        <jdk>14</jdk>
       </activation>
       <build>
         <plugins>
@@ -271,10 +270,10 @@
       </build>
     </profile>
     <profile>
-      <!-- And different set up for JDK 16+ -->
-      <id>java16+</id>
+      <!-- And different set up for JDK 17 -->
+      <id>java17</id>
       <activation>
-        <jdk>[16,)</jdk>
+        <jdk>17</jdk>
       </activation>
       <build>
         <plugins>
@@ -303,8 +302,8 @@
             <configuration>
               <optimize>true</optimize>
               <!-- Enable Java 17 for all sources so that Intellij picks the right language level -->
-              <source>16</source>
-              <release>16</release>
+              <source>17</source>
+              <release>17</release>
               <compilerArgs>
                 <arg>-parameters</arg>
               </compilerArgs>

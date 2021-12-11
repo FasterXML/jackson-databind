@@ -11,6 +11,9 @@ Project: jackson-databind
  (reported by GrozaAnton@github)
 #3299: Do not automatically trim trailing whitespace from `java.util.regex.Pattern` values
  (reported by Joel B)
+#3305: ObjectMapper serializes `CharSequence` subtypes as POJO instead of
+  as String (JDK 15+)
+ (reported by stevenupton@github; fix suggested by Sergey C)
 #3308: `ObjectMapper.valueToTree()` fails when
  `DeserializationFeature.FAIL_ON_TRAILING_TOKENS` is enabled
  (fix contributed by raphaelNguyen@github)

@@ -416,6 +416,10 @@ public class BeanSerializerFactory
         }
 
         // Any properties to suppress?
+
+        // 10-Dec-2021, tatu: [databind#3305] Some JDK types need special help
+        //    (initially, `CharSequence` with its `isEmpty()` default impl)
+        props = filterUnwantedJDKProperties(config, beanDesc, props);
         props = filterBeanProperties(config, beanDesc, props);
 
         // Need to allow reordering of properties to serialize
@@ -636,7 +640,7 @@ ClassUtil.getTypeDescription(beanDesc.getType()), ClassUtil.name(propName)));
     /* Overridable non-public methods for manipulating bean properties
     /**********************************************************
      */
-    
+
     /**
      * Overridable method that can filter out properties. Default implementation
      * checks annotations class may have.
@@ -669,6 +673,36 @@ ClassUtil.getTypeDescription(beanDesc.getType()), ClassUtil.name(propName)));
             }
         }
 
+        return props;
+    }
+
+    /**
+     * Overridable method used to filter out specifically problematic JDK provided
+     * properties.
+     *<p>
+     * See issue <a href="https://github.com/FasterXML/jackson-databind/issues/3305">
+     * databind-3305</a> for details.
+     *
+     * @since 2.13.1
+     */
+    protected List<BeanPropertyWriter> filterUnwantedJDKProperties(SerializationConfig config,
+            BeanDescription beanDesc, List<BeanPropertyWriter> props)
+    {
+        // First, only consider something that implement `CharSequence`
+        if (beanDesc.getType().isTypeOrSubTypeOf(CharSequence.class)) {
+            Iterator<BeanPropertyWriter> it = props.iterator();
+            while (it.hasNext()) {
+                BeanPropertyWriter prop = it.next();
+                // And only remove property induced by `isEmpty()` method declared
+                // in `CharSequence` (default implementation)
+                AnnotatedMember m = prop.getMember();
+                if ((m instanceof AnnotatedMethod)
+                        && "isEmpty".equals(m.getName())
+                        && m.getDeclaringClass() == CharSequence.class) {
+                    it.remove();
+                }
+            }
+        }
         return props;
     }
 

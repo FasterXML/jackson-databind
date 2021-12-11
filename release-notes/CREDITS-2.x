@@ -1402,8 +1402,14 @@ Abishek Ravichandran (abrav9595@github)
   (2.13.0)
 
 Joel Berger (jberger@github)
-  * Reported #3299: Do not automatically trim trailing whitespace from `java.util.regex.Pattern` values
-  (2.13.0)
+  * Reported #3299: Do not automatically trim trailing whitespace from `java.util.regex.Pattern`
+    values
+  (2.13.1)
+
+Sergey Chernov (seregamorph@github)
+  * Suggested the fix for #3305: ObjectMapper serializes `CharSequence` subtypes as POJO
+    instead of as String (JDK 15+)
+  (2.13.1)
 
 ZeyuCai@github:
   * Contributed #3314: Four Flaky Tests Detected in 2.14

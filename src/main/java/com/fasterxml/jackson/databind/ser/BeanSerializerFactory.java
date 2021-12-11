@@ -584,18 +584,19 @@ ClassUtil.getTypeDescription(beanDesc.getType()), ClassUtil.name(propName)));
     protected List<BeanPropertyWriter> filterUnwantedJDKProperties(SerializationConfig config,
             BeanDescription beanDesc, List<BeanPropertyWriter> props)
     {
-        // First, only consider something that implement `CharSequence`
+        // First, only consider something that implements `CharSequence`
         if (beanDesc.getType().isTypeOrSubTypeOf(CharSequence.class)) {
-            Iterator<BeanPropertyWriter> it = props.iterator();
-            while (it.hasNext()) {
-                BeanPropertyWriter prop = it.next();
+            // And only has a single property from "isEmpty()" default method
+            if (props.size() == 1) {
+                BeanPropertyWriter prop = props.get(0);
                 // And only remove property induced by `isEmpty()` method declared
                 // in `CharSequence` (default implementation)
+                // (could in theory relax this limit, probably but... should be fine)
                 AnnotatedMember m = prop.getMember();
                 if ((m instanceof AnnotatedMethod)
                         && "isEmpty".equals(m.getName())
                         && m.getDeclaringClass() == CharSequence.class) {
-                    it.remove();
+                    props.remove(0);
                 }
             }
         }

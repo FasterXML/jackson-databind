@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.jdk15;
+package com.fasterxml.jackson.databind.deser.jdk;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;

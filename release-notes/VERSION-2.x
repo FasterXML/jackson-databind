@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.12.6 (not yet released)
+2.12.6 (15-Dec-2021)
 
 #3280: Can not deserialize json to enum value with Object-/Array-valued input,
   `@JsonCreator`

@@ -23,7 +23,7 @@ No changes since 2.13
 #3308: `ObjectMapper.valueToTree()` fails when
  `DeserializationFeature.FAIL_ON_TRAILING_TOKENS` is enabled
  (fix contributed by raphaelNguyen@github)
-#3328: Possible DoS issue
+#3328: Possible DoS if using JDK serialization to serialize JsonNode
 
 2.13.0 (30-Sep-2021)
 

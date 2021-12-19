@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.13.1 (not yet released)
+2.13.1 (19-Dec-2021)
 
 #3006: Argument type mismatch for `enum` with `@JsonCreator` that takes String,
   gets JSON Number

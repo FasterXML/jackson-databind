@@ -109,6 +109,16 @@ Project: jackson-databind
   via `AsNull`
 - Add `mvnw` wrapper
 
+2.12.6 (15-Dec-2021)
+
+#3280: Can not deserialize json to enum value with Object-/Array-valued input,
+  `@JsonCreator`
+ (reported by peteryuanpan@github)
+#3305: ObjectMapper serializes `CharSequence` subtypes as POJO instead of
+  as String (JDK 15+)
+ (reported by stevenupton@github; fix suggested by Sergey C)
+#3328: Possible DoS if using JDK serialization to serialize JsonNode
+
 2.12.5 (27-Aug-2021)
 
 #3220: (regression) Factory method generic type resolution does not use

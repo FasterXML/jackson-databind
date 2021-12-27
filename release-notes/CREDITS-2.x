@@ -1411,6 +1411,10 @@ Sergey Chernov (seregamorph@github)
     instead of as String (JDK 15+)
   (2.13.1)
 
+Sam Kruglov (Sam-Kruglov@github)
+  * Reported #3344: `Set.of()` (Java 9) cannot be deserialized with polymorphic handling
+  (2.13.2)
+
 ZeyuCai@github:
   * Contributed #3314: Four Flaky Tests Detected in 2.14
   (2.14.0)

@@ -92,7 +92,7 @@ public abstract class JavaUtilCollectionsDeserializers
                         converter(TYPE_AS_LIST, type, List.class));
             }
             if (localName.contains("Set")) {
-                return new StdDelegatingDeserializer<Object>(
+                return new StdConvertingDeserializer<Object>(
                         converter(TYPE_UNMODIFIABLE_SET, type, Set.class));
             }
             return null;

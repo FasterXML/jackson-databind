@@ -21,9 +21,8 @@ public class IgnoreWithDeserTest
         public void setX(int value) { _x = value; }
         @JsonIgnore public void setY(int value) { _y = value; }
 
-        /* Just igoring won't help a lot here; let's define a replacement
-         * so that we won't get an exception for "unknown field"
-         */
+        // Just igoring won't help a lot here; let's define a replacement
+        // so that we won't get an exception for "unknown field"
         @JsonProperty("y") void foobar(int value) {
             ; // nop
         }
@@ -37,11 +36,11 @@ public class IgnoreWithDeserTest
         @JsonIgnore
         public int y = 1;
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     private final ObjectMapper MAPPER = objectMapper();

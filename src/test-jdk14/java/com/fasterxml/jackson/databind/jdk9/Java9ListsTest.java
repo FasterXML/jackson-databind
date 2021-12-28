@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.jdk9;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -80,7 +81,17 @@ System.err.println(" final? "+type.isFinal());
         actualJson = MAPPER.writeValueAsString(map);
         output = MAPPER.readValue(actualJson, Map.class);
         assertEquals(0, output.size());
-}
+    }
+
+    // [databind#3344]
+    public void testJava9SetOf() throws Exception
+    {
+        Set<?> set = Set.of("a", "b", "c");
+        String actualJson = MAPPER.writeValueAsString(set);
+        Set<?> output = MAPPER.readValue(actualJson, Set.class);
+        assertTrue(output instanceof Set<?>);
+        assertEquals(set, output);
+    }
 
     public void testJava9ListWrapped() throws Exception
     {

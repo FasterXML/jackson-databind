@@ -8,6 +8,11 @@ Project: jackson-databind
 
 No changes since 2.13
 
+2.13.2 (not yet released)
+
+#3344: `Set.of()` (Java 9) cannot be deserialized with polymorphic handling
+ (reported by Sam K)
+
 2.13.1 (19-Dec-2021)
 
 #3006: Argument type mismatch for `enum` with `@JsonCreator` that takes String,

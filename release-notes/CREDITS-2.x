@@ -1410,3 +1410,7 @@ Sergey Chernov (seregamorph@github)
   * Suggested the fix for #3305: ObjectMapper serializes `CharSequence` subtypes as POJO
     instead of as String (JDK 15+)
   (2.13.1)
+
+Sam Kruglov (Sam-Kruglov@github)
+  * Reported #3344: `Set.of()` (Java 9) cannot be deserialized with polymorphic handling
+  (2.13.2)

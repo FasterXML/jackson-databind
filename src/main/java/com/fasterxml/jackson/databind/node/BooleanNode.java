@@ -1,10 +1,8 @@
 package com.fasterxml.jackson.databind.node;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.databind.SerializerProvider;
 
+import com.fasterxml.jackson.databind.SerializerProvider;
 
 /**
  * This concrete value class is used to contain boolean (true / false)
@@ -14,7 +12,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 public class BooleanNode
     extends ValueNode
 {
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 3L;
 
     // // Just need two instances...
 
@@ -23,10 +21,12 @@ public class BooleanNode
 
     private final boolean _value;
 
-    /**
-     *<p>
-     * NOTE: visibility raised to `protected` in 2.9.3 to allow custom subtypes.
+    /*
+    /**********************************************************************
+    /* Construction
+    /**********************************************************************
      */
+
     protected BooleanNode(boolean v) { _value = v; }
 
     // To support JDK serialization, recovery of Singleton instance
@@ -38,6 +38,12 @@ public class BooleanNode
     public static BooleanNode getFalse() { return FALSE; }
 
     public static BooleanNode valueOf(boolean b) { return b ? TRUE : FALSE; }
+
+    /*
+    /**********************************************************************
+    /* Overrridden JsonNode methods
+    /**********************************************************************
+     */
 
     @Override
     public JsonNodeType getNodeType() {
@@ -82,7 +88,8 @@ public class BooleanNode
     }
     
     @Override
-    public final void serialize(JsonGenerator g, SerializerProvider provider) throws IOException {
+    public final void serialize(JsonGenerator g, SerializerProvider provider)
+            throws JacksonException {
         g.writeBoolean(_value);
     }
 

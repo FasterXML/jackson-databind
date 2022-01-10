@@ -1,9 +1,5 @@
 package com.fasterxml.jackson.databind.module;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
@@ -18,9 +14,7 @@ public class SimpleModuleArgCheckTest extends BaseMapTest
 
     public void testInvalidForDeserializers() throws Exception
     {
-        SimpleModule mod = new SimpleModule("test", Version.unknownVersion(),
-                (Map<Class<?>,JsonDeserializer<?>>) null);
-
+        SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
         try {
             mod.addDeserializer(String.class, null);
             fail("Should not pass");
@@ -38,51 +32,13 @@ public class SimpleModuleArgCheckTest extends BaseMapTest
 
     /*
     /**********************************************************
-    /* Unit tests for invalid serializers
-    /**********************************************************
-     */
-
-    public void testInvalidForSerializers() throws Exception
-    {
-        SimpleModule mod = new SimpleModule("test", Version.unknownVersion(),
-                (List<JsonSerializer<?>>) null);
-
-        try {
-            mod.addSerializer(String.class, null);
-            fail("Should not pass");
-        } catch (IllegalArgumentException e) {
-            verifyException(e, "Cannot pass `null` as serializer");
-        }
-
-        try {
-            mod.addSerializer((JsonSerializer<?>) null);
-            fail("Should not pass");
-        } catch (IllegalArgumentException e) {
-            verifyException(e, "Cannot pass `null` as serializer");
-        }
-        
-        try {
-            mod.addKeySerializer(String.class, null);
-            fail("Should not pass");
-        } catch (IllegalArgumentException e) {
-            verifyException(e, "Cannot pass `null` as key serializer");
-        }
-    }
-
-    /*
-    /**********************************************************
     /* Unit tests for invalid misc other
     /**********************************************************
      */
 
     public void testInvalidAbstractTypeMapping() throws Exception
     {
-        // just for funsies let's use more esoteric constructor
-        Map<Class<?>,JsonDeserializer<?>>  desers = Collections.emptyMap();
-        List<JsonSerializer<?>> sers = Collections.emptyList();
-        SimpleModule mod = new SimpleModule("test", Version.unknownVersion(),
-                desers, sers);
-
+        SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
         try {
             mod.addAbstractTypeMapping(null, String.class);
             fail("Should not pass");
@@ -99,8 +55,7 @@ public class SimpleModuleArgCheckTest extends BaseMapTest
 
     public void testInvalidSubtypeMappings() throws Exception
     {
-        SimpleModule mod = new SimpleModule("test", Version.unknownVersion(),
-                null, null);
+        SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
         try {
             mod.registerSubtypes(String.class, null);
             fail("Should not pass");

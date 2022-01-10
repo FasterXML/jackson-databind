@@ -5,7 +5,6 @@ import javax.xml.namespace.QName;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
  * Core XML types (javax.xml) are considered "external" (or more precisely "optional")
@@ -16,18 +15,17 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 public class MiscJavaXMLTypesReadWriteTest
     extends BaseMapTest
 {
-    private final ObjectMapper MAPPER = newJsonMapper();
-
-    private final ObjectMapper POLY_MAPPER = jsonMapperBuilder()
-            .activateDefaultTyping(NoCheckSubTypeValidator.instance,
-                    ObjectMapper.DefaultTyping.NON_FINAL)
-            .build();
-
     /*
     /**********************************************************************
     /* Serializer tests
     /**********************************************************************
      */
+
+    private final ObjectMapper MAPPER = newJsonMapper();
+    private final ObjectMapper POLY_MAPPER = jsonMapperBuilder()
+            .activateDefaultTyping(NoCheckSubTypeValidator.instance,
+                    DefaultTyping.NON_FINAL)
+            .build();
 
     public void testQNameSer() throws Exception
     {
@@ -60,10 +58,11 @@ public class MiscJavaXMLTypesReadWriteTest
 
         ObjectMapper mapper = new ObjectMapper();
         // and then textual variant
-        mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         // this is ALMOST same as default for XMLGregorianCalendar... just need to unify Z/+0000
         String exp = cal.toXMLFormat();
-        String act = mapper.writeValueAsString(cal);
+        String act = mapper.writer()
+                .without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .writeValueAsString(cal);
         act = act.substring(1, act.length() - 1); // remove quotes
         exp = removeZ(exp);
         act = removeZ(act);
@@ -73,9 +72,6 @@ public class MiscJavaXMLTypesReadWriteTest
     private String removeZ(String dateStr) {
         if (dateStr.endsWith("Z")) {
             return dateStr.substring(0, dateStr.length()-1);
-        }
-        if (dateStr.endsWith("+0000")) {
-            return dateStr.substring(0, dateStr.length()-5);
         }
         if (dateStr.endsWith("+00:00")) {
             return dateStr.substring(0, dateStr.length()-6);
@@ -88,16 +84,6 @@ public class MiscJavaXMLTypesReadWriteTest
     /* Deserializer tests
     /**********************************************************************
      */
-
-    // First things first: must be able to load the deserializers...
-    public void testDeserializerLoading()
-    {
-        CoreXMLDeserializers sers = new CoreXMLDeserializers();
-        TypeFactory f = TypeFactory.defaultInstance();
-        sers.findBeanDeserializer(f.constructType(Duration.class), null, null);
-        sers.findBeanDeserializer(f.constructType(XMLGregorianCalendar.class), null, null);
-        sers.findBeanDeserializer(f.constructType(QName.class), null, null);
-    }
 
     public void testQNameDeser() throws Exception
     {
@@ -132,7 +118,6 @@ public class MiscJavaXMLTypesReadWriteTest
     /* Polymorphic handling tests
     /**********************************************************************
      */
-
 
     public void testPolymorphicXMLGregorianCalendar() throws Exception
     {

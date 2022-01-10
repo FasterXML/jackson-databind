@@ -29,6 +29,5 @@ public interface ContextualKeyDeserializer
      *   may be this instance or a new instance.
      */
     public KeyDeserializer createContextual(DeserializationContext ctxt,
-            BeanProperty property)
-        throws JsonMappingException;
+            BeanProperty property);
 }

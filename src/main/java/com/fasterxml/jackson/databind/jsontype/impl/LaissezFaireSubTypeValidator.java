@@ -1,20 +1,19 @@
 package com.fasterxml.jackson.databind.jsontype.impl;
 
+import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 
 /**
- * Default {@link PolymorphicTypeValidator} used unless explicit one is constructed
- * (and, in 2.11, {@link com.fasterxml.jackson.databind.MapperFeature#BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES}
- * not enabled).
- * Does not do any validation, allows all subtypes. Only used for backwards-compatibility
- * reasons: users should usually NOT use such a permissive implementation but use
- * allow-list/criteria - based implementation.
- *
- * @since 2.10
+ * Simple {@link PolymorphicTypeValidator} implementation used by {@link StdTypeResolverBuilder}
+ * in cases where all subtypes for given base type are deemed acceptable; usually because
+ * user controls base type in question (and no serialization gadgets should exist).
+ *<p>
+ * NOTE: unlike in 2.x, this implementation is NOT available to regular users as its
+ * use can easily open up security holes. Only used internally in cases where validation
+ * results from regular implementation indicate that no further checks are needed.
  */
-public final class LaissezFaireSubTypeValidator
+final class LaissezFaireSubTypeValidator
     extends PolymorphicTypeValidator.Base
 {
     private static final long serialVersionUID = 1L;
@@ -22,18 +21,18 @@ public final class LaissezFaireSubTypeValidator
     public final static LaissezFaireSubTypeValidator instance = new LaissezFaireSubTypeValidator(); 
 
     @Override
-    public Validity validateBaseType(MapperConfig<?> ctxt, JavaType baseType) {
+    public Validity validateBaseType(DatabindContext ctxt, JavaType baseType) {
         return Validity.INDETERMINATE;
     }
 
     @Override
-    public Validity validateSubClassName(MapperConfig<?> ctxt,
+    public Validity validateSubClassName(DatabindContext ctxt,
             JavaType baseType, String subClassName) {
         return Validity.ALLOWED;
     }
 
     @Override
-    public Validity validateSubType(MapperConfig<?> ctxt, JavaType baseType,
+    public Validity validateSubType(DatabindContext ctxt, JavaType baseType,
             JavaType subType) {
         return Validity.ALLOWED;
     }

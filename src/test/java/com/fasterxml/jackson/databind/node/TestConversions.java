@@ -1,16 +1,14 @@
 package com.fasterxml.jackson.databind.node;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
-
-import static org.junit.Assert.*;
 
 import org.junit.Assert;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -50,20 +48,20 @@ public class TestConversions extends BaseMapTest
     @JsonSerialize(using=Issue467TreeSerializer.class)
     static class Issue467Tree  {
     }
-    
-    static class Issue467Serializer extends JsonSerializer<Issue467Bean> {
+
+    static class Issue467Serializer extends ValueSerializer<Issue467Bean> {
         @Override
-        public void serialize(Issue467Bean value, JsonGenerator jgen,
-                SerializerProvider provider) throws IOException {
-            jgen.writeObject(new Issue467TmpBean(value.i));
+        public void serialize(Issue467Bean value, JsonGenerator g,
+                SerializerProvider provider) {
+            g.writePOJO(new Issue467TmpBean(value.i));
         }
     }    
 
-    static class Issue467TreeSerializer extends JsonSerializer<Issue467Tree> {
+    static class Issue467TreeSerializer extends ValueSerializer<Issue467Tree> {
         @Override
-        public void serialize(Issue467Tree value, JsonGenerator jgen,
-                SerializerProvider provider) throws IOException {
-            jgen.writeTree(BooleanNode.TRUE);
+        public void serialize(Issue467Tree value, JsonGenerator g,
+                SerializerProvider provider) {
+            g.writeTree(BooleanNode.TRUE);
         }
     }    
     
@@ -83,7 +81,7 @@ public class TestConversions extends BaseMapTest
     }
 
     // [databind#433]
-    static class CustomSerializedPojo implements JsonSerializable
+    static class CustomSerializedPojo implements JacksonSerializable
     {
         private final ObjectNode node = JsonNodeFactory.instance.objectNode();
 
@@ -92,26 +90,26 @@ public class TestConversions extends BaseMapTest
         }
     
         @Override
-        public void serialize(final JsonGenerator jgen, final SerializerProvider provider) throws IOException
+        public void serialize(final JsonGenerator jgen, final SerializerProvider provider)
         {
             jgen.writeTree(node);
         }
 
         @Override
         public void serializeWithType(JsonGenerator g,
-                SerializerProvider provider, TypeSerializer typeSer) throws IOException
+                SerializerProvider ctxt, TypeSerializer typeSer)
         {
             WritableTypeId typeIdDef = new WritableTypeId(this, JsonToken.START_OBJECT);
-            typeSer.writeTypePrefix(g, typeIdDef);
-            serialize(g, provider);
-            typeSer.writeTypePrefix(g, typeIdDef);
+            typeSer.writeTypePrefix(g, ctxt, typeIdDef);
+            serialize(g, ctxt);
+            typeSer.writeTypePrefix(g, ctxt, typeIdDef);
         }    
     }
-    
+
     /*
-    /**********************************************************
-    /* Unit tests
-    /**********************************************************
+    /**********************************************************************
+    /* Test methods
+    /**********************************************************************
      */
 
     private final ObjectMapper MAPPER = objectMapper();
@@ -143,13 +141,12 @@ public class TestConversions extends BaseMapTest
     }
     
     // Deserializer to trigger the problem described in [JACKSON-554]
-    public static class LeafDeserializer extends JsonDeserializer<Leaf>
+    public static class LeafDeserializer extends ValueDeserializer<Leaf>
     {
         @Override
-        public Leaf deserialize(JsonParser jp, DeserializationContext ctxt)
-                throws IOException
+        public Leaf deserialize(JsonParser p, DeserializationContext ctxt)
         {
-            JsonNode tree = (JsonNode) jp.readValueAsTree();
+            JsonNode tree = (JsonNode) p.readValueAsTree();
             Leaf leaf = new Leaf();
             leaf.value = tree.get("value").intValue();
             return leaf;
@@ -159,8 +156,9 @@ public class TestConversions extends BaseMapTest
     public void testTreeToValue() throws Exception
     {
         String JSON = "{\"leaf\":{\"value\":13}}";
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.addMixIn(Leaf.class, LeafMixIn.class);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addMixIn(Leaf.class, LeafMixIn.class)
+                .build();
         JsonNode root = mapper.readTree(JSON);
         // Ok, try converting to bean using two mechanisms
         Root r1 = mapper.treeToValue(root, Root.class);
@@ -251,9 +249,9 @@ public class TestConversions extends BaseMapTest
 
     public void testEmbeddedByteArray() throws Exception
     {
-        TokenBuffer buf = new TokenBuffer(MAPPER, false);
-        buf.writeObject(new byte[3]);
-        JsonNode node = MAPPER.readTree(buf.asParser());
+        TokenBuffer buf = TokenBuffer.forGeneration();
+        buf.writePOJO(new byte[3]);
+        JsonNode node = MAPPER.readTree(buf.asParser(ObjectReadContext.empty()));
         buf.close();
         assertTrue(node.isBinary());
         byte[] data = node.binaryValue();
@@ -264,15 +262,20 @@ public class TestConversions extends BaseMapTest
     // [databind#232]
     public void testBigDecimalAsPlainStringTreeConversion() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN);
+        ObjectMapper mapper = new ObjectMapper(JsonFactory.builder()
+                .enable(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN)
+                .build());
         Map<String, Object> map = new HashMap<String, Object>();
         String PI_STR = "3.00000000";
         map.put("pi", new BigDecimal(PI_STR));
+
         JsonNode tree = mapper.valueToTree(map);
         assertNotNull(tree);
         assertEquals(1, tree.size());
         assertTrue(tree.has("pi"));
+
+        JsonNode tree2 = mapper.writer().valueToTree(map);
+        assertEquals(tree, tree2);
     }
 
     // [databind#433]
@@ -282,6 +285,10 @@ public class TestConversions extends BaseMapTest
         pojo.setFoo("bar");
         final JsonNode node = MAPPER.valueToTree(pojo);
         assertEquals(JsonNodeType.OBJECT, node.getNodeType());
+
+        final JsonNode node2 = MAPPER.writer().valueToTree(pojo);
+        assertEquals(JsonNodeType.OBJECT, node2.getNodeType());
+        assertEquals(node, node2);
     }
 
     // [databind#467]
@@ -298,6 +305,9 @@ public class TestConversions extends BaseMapTest
         JsonNode tree = MAPPER.valueToTree(input);
         assertTrue("Expected Object, got "+tree.getNodeType(), tree.isObject());
         assertEquals(EXP, MAPPER.writeValueAsString(tree));
+
+        JsonNode tree2 = MAPPER.writer().valueToTree(input);
+        assertEquals(EXP, MAPPER.writeValueAsString(tree2));
     }
 
     // [databind#467]
@@ -314,6 +324,9 @@ public class TestConversions extends BaseMapTest
         JsonNode tree = MAPPER.valueToTree(input);
         assertTrue("Expected Object, got "+tree.getNodeType(), tree.isBoolean());
         assertEquals(EXP, MAPPER.writeValueAsString(tree));
+
+        JsonNode tree2 = MAPPER.writer().valueToTree(tree);
+        assertEquals(EXP, MAPPER.writeValueAsString(tree2));
     }
 
     // [databind#1940]: losing of precision due to coercion
@@ -328,6 +341,9 @@ public class TestConversions extends BaseMapTest
     {
         // First: `null` value should become `NullNode`
         JsonNode n = MAPPER.valueToTree(null);
+        assertNotNull(n);
+        assertTrue(n.isNull());
+        n = MAPPER.writer().valueToTree(null);
         assertNotNull(n);
         assertTrue(n.isNull());
 

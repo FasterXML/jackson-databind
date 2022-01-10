@@ -1,15 +1,25 @@
 package com.fasterxml.jackson.databind.module;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
 
 public class TestDuplicateRegistration extends BaseMapTest
 {
-    static class MyModule extends com.fasterxml.jackson.databind.Module {
-        public int regCount;
-        
-        public MyModule() {
+    static class MyModule extends JacksonModule {
+        private final AtomicInteger counter;
+        private final Object id;
+
+        public MyModule(AtomicInteger c, Object id) {
             super();
+            counter = c;
+            this.id = id;
+        }
+
+        @Override
+        public Object getRegistrationId() {
+            return id;
         }
 
         @Override
@@ -24,36 +34,28 @@ public class TestDuplicateRegistration extends BaseMapTest
 
         @Override
         public void setupModule(SetupContext context) {
-            ++regCount;
+            counter.addAndGet(1);
         }
     }
 
-    @SuppressWarnings("deprecation")
     public void testDuplicateRegistration() throws Exception
     {
         // by default, duplicate registration should be prevented
-        ObjectMapper mapper = newJsonMapper();
-        assertTrue(mapper.isEnabled(MapperFeature.IGNORE_DUPLICATE_MODULE_REGISTRATIONS));
-        MyModule module = new MyModule();
-        mapper.registerModule(module);
-        mapper.registerModule(module);
-        mapper.registerModule(module);
-        assertEquals(1, module.regCount);
-
-        // but may be allowed by changing setting
-        mapper.disable(MapperFeature.IGNORE_DUPLICATE_MODULE_REGISTRATIONS);
-        mapper.registerModule(module);
-        assertEquals(2, module.regCount);
-
-        final MyModule module2 = new MyModule();
-        // and ditto for a new instance
-        @SuppressWarnings("unused")
-        ObjectMapper mapper2 = jsonMapperBuilder()
-                .disable(MapperFeature.IGNORE_DUPLICATE_MODULE_REGISTRATIONS)
-                .addModule(module2)
-                .addModule(module2)
-                .addModule(module2)
+        AtomicInteger counter = new AtomicInteger();
+        /*ObjectMapper mapper =*/ jsonMapperBuilder()
+                .addModule(new MyModule(counter, "id"))
+                .addModule(new MyModule(counter, "id"))
+                .addModule(new MyModule(counter, "id"))
                 .build();
-        assertEquals(3, module2.regCount);
+        assertEquals(1, counter.get());
+
+        // but may be allowed by using non-identical id
+        AtomicInteger counter2 = new AtomicInteger();
+        /*ObjectMapper mapper2 =*/ jsonMapperBuilder()
+                .addModule(new MyModule(counter2, "id1"))
+                .addModule(new MyModule(counter2, "id2"))
+                .addModule(new MyModule(counter2, "id3"))
+                .build();
+        assertEquals(3, counter2.get());
     }
 }

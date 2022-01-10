@@ -106,26 +106,12 @@ public final class ArrayType
     /**********************************************************
      */
 
-    /**
-     * Handling of narrowing conversions for arrays is trickier: for now,
-     * it is not even allowed.
-     */
-    @Override
-    @Deprecated // since 2.7
-    protected JavaType _narrow(Class<?> subclass) {
-        return _reportUnsupported();
-    }
-
     // Should not be called, as array types in Java are not extensible; but
     // let's not freak out even if it is called?
     @Override
     public JavaType refine(Class<?> contentClass, TypeBindings bindings,
             JavaType superClass, JavaType[] superInterfaces) {
         return null;
-    }
-
-    private JavaType _reportUnsupported() {
-        throw new UnsupportedOperationException("Cannot narrow or widen array types");
     }
 
     /*

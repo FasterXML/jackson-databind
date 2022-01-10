@@ -1,9 +1,6 @@
 package com.fasterxml.jackson.databind.introspect;
 
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.DeserializationConfig;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.SerializationConfig;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 
 /**
@@ -15,81 +12,70 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
  */
 public abstract class ClassIntrospector
 {
-    /*
-    /**********************************************************
-    /* Helper interfaces
-    /**********************************************************
-     */
-
-    /**
-     * Interface used for decoupling details of how mix-in annotation
-     * definitions are accessed (via this interface), and how
-     * they are stored (defined by classes that implement the interface)
-     */
-    public interface MixInResolver
-    {
-        /**
-         * Method that will check if there are "mix-in" classes (with mix-in
-         * annotations) for given class
-         */
-        public Class<?> findMixInClassFor(Class<?> cls);
-
-        /**
-         * Method called to create a new, non-shared copy, to be used by different
-         * <code>ObjectMapper</code> instance, and one that should not be connected
-         * to this instance, if resolver has mutable state.
-         * If resolver is immutable may simply return `this`.
-         * 
-         * @since 2.6
-         */
-        public MixInResolver copy();
-    }
-
     protected ClassIntrospector() { }
 
     /**
-     * Method that may be needed when `copy()`ing `ObjectMapper` instances.
+     * Method called to create an instance to be exclusive used by specified
+     * mapper. Needed to ensure that no sharing through cache occurs.
+     *<p>
+     * Basic implementation just returns instance itself.
      *
-     * @since 2.9.6
+     * @since 3.0
      */
-    public abstract ClassIntrospector copy();
+    public abstract ClassIntrospector forMapper();
+
+    /**
+     * Method called to further create an instance to be used for a single operation
+     * (read or write, typically matching {@link ObjectMapper} {@code readValue()} or
+     * {@code writeValue()}).
+     */
+    public abstract ClassIntrospector forOperation(MapperConfig<?> config);
+    
+    /*
+    /**********************************************************************
+    /* Public API: annotation introspection
+    /**********************************************************************
+     */
+
+    /**
+     * Factory method that constructs an introspector that only has
+     * information regarding annotations class itself (or its supertypes) has,
+     * but nothing on methods or constructors.
+     */
+    public abstract AnnotatedClass introspectClassAnnotations(JavaType type);
+
+    /**
+     * Factory method that constructs an introspector that only has
+     * information regarding annotations class itself has (but NOT including
+     * its supertypes), but nothing on methods or constructors.
+     */
+    public abstract AnnotatedClass introspectDirectClassAnnotations(JavaType type);
 
     /*
-    /**********************************************************
-    /* Public API: factory methods
-    /**********************************************************
+    /**********************************************************************
+    /* Public API: bean property introspection
+    /**********************************************************************
      */
 
     /**
      * Factory method that constructs an introspector that has all
      * information needed for serialization purposes.
      */
-    public abstract BeanDescription forSerialization(SerializationConfig cfg,
-    		JavaType type, MixInResolver r);
+    public abstract BeanDescription introspectForSerialization(JavaType type);
 
     /**
      * Factory method that constructs an introspector that has all
      * information needed for deserialization purposes.
      */
-    public abstract BeanDescription forDeserialization(DeserializationConfig cfg,
-    		JavaType type, MixInResolver r);
+    public abstract BeanDescription introspectForDeserialization(JavaType type);
 
     /**
      * Factory method that constructs an introspector that has all
      * information needed for constructing deserializers that use
      * intermediate Builder objects.
-     *
-     * @since 2.12
      */
-    public abstract BeanDescription forDeserializationWithBuilder(DeserializationConfig cfg,
-            JavaType builderType, MixInResolver r, BeanDescription valueTypeDesc);
-
-    /**
-     * @deprecated Since 2.12 use overload that take value type description
-     */
-    @Deprecated
-    public abstract BeanDescription forDeserializationWithBuilder(DeserializationConfig cfg,
-            JavaType builderType, MixInResolver r);
+    public abstract BeanDescription introspectForDeserializationWithBuilder(JavaType builderType,
+            BeanDescription valueTypeDesc);
 
     /**
      * Factory method that constructs an introspector that has
@@ -97,22 +83,5 @@ public abstract class ClassIntrospector
      * class ("creator"), as well as class annotations, but
      * no information on member methods
      */
-    public abstract BeanDescription forCreation(DeserializationConfig cfg, JavaType type,
-            MixInResolver r);
-
-    /**
-     * Factory method that constructs an introspector that only has
-     * information regarding annotations class itself (or its supertypes) has,
-     * but nothing on methods or constructors.
-     */
-    public abstract BeanDescription forClassAnnotations(MapperConfig<?> cfg, JavaType type,
-            MixInResolver r);
-
-    /**
-     * Factory method that constructs an introspector that only has
-     * information regarding annotations class itself has (but NOT including
-     * its supertypes), but nothing on methods or constructors.
-     */
-    public abstract BeanDescription forDirectClassAnnotations(MapperConfig<?> cfg, JavaType type,
-            MixInResolver r);
+    public abstract BeanDescription introspectForCreation(JavaType type);
 }

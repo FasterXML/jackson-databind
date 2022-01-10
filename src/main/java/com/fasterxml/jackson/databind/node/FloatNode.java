@@ -1,29 +1,29 @@
 package com.fasterxml.jackson.databind.node;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.io.NumberOutput;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 
 /**
- * <code>JsonNode</code> implementation for efficiently containing 32-bit
+ * {@code JsonNode} implementation for efficiently containing 32-bit
  * `float` values.
- * 
- * @since 2.2
  */
-@SuppressWarnings("serial")
 public class FloatNode extends NumericNode
 {
+    private static final long serialVersionUID = 3L;
+
     protected final float _value;
 
     /* 
-    /**********************************************************
+    /**********************************************************************
     /* Construction
-    /**********************************************************
+    /**********************************************************************
      */
 
     public FloatNode(float v) { _value = v; }
@@ -31,9 +31,9 @@ public class FloatNode extends NumericNode
     public static FloatNode valueOf(float v) { return new FloatNode(v); }
 
     /* 
-    /**********************************************************
+    /**********************************************************************
     /* BaseJsonNode extended API
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override public JsonToken asToken() { return JsonToken.VALUE_NUMBER_FLOAT; }
@@ -42,9 +42,9 @@ public class FloatNode extends NumericNode
     public JsonParser.NumberType numberType() { return JsonParser.NumberType.FLOAT; }
 
     /* 
-    /**********************************************************
+    /**********************************************************************
     /* Overrridden JsonNode methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -97,18 +97,17 @@ public class FloatNode extends NumericNode
 
     @Override
     public String asText() {
-        return NumberOutput.toString(_value);
+        return String.valueOf(_value);
     }
 
-    // @since 2.9
     @Override
     public boolean isNaN() {
-        // Java 8 will have `Float.isFinite()` to combine both checks
-        return Float.isNaN(_value) || Float.isInfinite(_value);
+        return NumberOutput.notFinite(_value);
     }
 
     @Override
-    public final void serialize(JsonGenerator g, SerializerProvider provider) throws IOException {
+    public final void serialize(JsonGenerator g, SerializerProvider provider)
+            throws JacksonException {
         g.writeNumber(_value);
     }
 
@@ -119,7 +118,7 @@ public class FloatNode extends NumericNode
         if (o == null) return false;
         if (o instanceof FloatNode) {
             // We must account for NaNs: NaN does not equal NaN, therefore we have
-            // to use Double.compare().
+            // to use Float.compare().
             final float otherValue = ((FloatNode) o)._value;
             return Float.compare(_value, otherValue) == 0;
         }

@@ -42,8 +42,7 @@ public class NullsFailProvider
     }
 
     @Override
-    public Object getNullValue(DeserializationContext ctxt)
-            throws JsonMappingException {
+    public Object getNullValue(DeserializationContext ctxt) {
         throw InvalidNullException.from(ctxt, _name, _type);
     }
 }

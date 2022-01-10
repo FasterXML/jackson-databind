@@ -1,11 +1,9 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
-import java.io.IOException;
-
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 
 /**
  * Simple serializer that will call configured type serializer, passing
@@ -13,28 +11,27 @@ import com.fasterxml.jackson.databind.ser.ContextualSerializer;
  * serializer.
  */
 public final class TypeWrappedSerializer
-    extends JsonSerializer<Object>
-    implements ContextualSerializer // since 2.9
+    extends ValueSerializer<Object>
 {
     final protected TypeSerializer _typeSerializer;
-    final protected JsonSerializer<Object> _serializer;
+    final protected ValueSerializer<Object> _serializer;
 
     @SuppressWarnings("unchecked")
-    public TypeWrappedSerializer(TypeSerializer typeSer, JsonSerializer<?> ser)
+    public TypeWrappedSerializer(TypeSerializer typeSer, ValueSerializer<?> ser)
     {
         super();
         _typeSerializer = typeSer;
-        _serializer = (JsonSerializer<Object>) ser;
+        _serializer = (ValueSerializer<Object>) ser;
     }
 
     @Override
-    public void serialize(Object value, JsonGenerator g, SerializerProvider provider) throws IOException {
+    public void serialize(Object value, JsonGenerator g, SerializerProvider provider) throws JacksonException {
         _serializer.serializeWithType(value, g, provider, _typeSerializer);
     }
 
     @Override
     public void serializeWithType(Object value, JsonGenerator g, SerializerProvider provider,
-            TypeSerializer typeSer) throws IOException
+            TypeSerializer typeSer) throws JacksonException
     {
         // Is this an erroneous call? For now, let's assume it is not, and
         // that type serializer is just overridden if so
@@ -45,18 +42,17 @@ public final class TypeWrappedSerializer
     public Class<Object> handledType() { return Object.class; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* ContextualDeserializer
-    /**********************************************************
+    /**********************************************************************
      */
 
-    @Override // since 2.9
-    public JsonSerializer<?> createContextual(SerializerProvider provider, BeanProperty property)
-        throws JsonMappingException
+    @Override
+    public ValueSerializer<?> createContextual(SerializerProvider provider, BeanProperty property)
     {
         // 13-Mar-2017, tatu: Should we call `TypeSerializer.forProperty()`?
-        JsonSerializer<?> ser = _serializer;
-        if (ser instanceof ContextualSerializer) {
+        ValueSerializer<?> ser = _serializer;
+        if (ser != null) {
             ser = provider.handleSecondaryContextualization(ser, property);
         }
         if (ser == _serializer) {
@@ -66,12 +62,12 @@ public final class TypeWrappedSerializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended API for other core classes
-    /**********************************************************
+    /**********************************************************************
      */
 
-    public JsonSerializer<Object> valueSerializer() {
+    public ValueSerializer<Object> valueSerializer() {
         return _serializer;
     }
 

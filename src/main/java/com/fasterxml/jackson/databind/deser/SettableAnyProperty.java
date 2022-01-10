@@ -1,11 +1,10 @@
 package com.fasterxml.jackson.databind.deser;
 
-import java.io.IOException;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId.Referring;
+import com.fasterxml.jackson.databind.deser.ReadableObjectId.Referring;
 import com.fasterxml.jackson.databind.introspect.AnnotatedField;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
@@ -40,13 +39,9 @@ public class SettableAnyProperty
     
     protected final JavaType _type;
 
-    protected JsonDeserializer<Object> _valueDeserializer;
+    protected ValueDeserializer<Object> _valueDeserializer;
 
     protected final TypeDeserializer _valueTypeDeserializer;
-
-    /**
-     * @since 2.9
-     */
     protected final KeyDeserializer _keyDeserializer;
 
     /*
@@ -57,7 +52,7 @@ public class SettableAnyProperty
 
     public SettableAnyProperty(BeanProperty property, AnnotatedMember setter, JavaType type,
             KeyDeserializer keyDeser,
-            JsonDeserializer<Object> valueDeser, TypeDeserializer typeDeser)
+            ValueDeserializer<Object> valueDeser, TypeDeserializer typeDeser)
     {
         _property = property;
         _setter = setter;
@@ -68,14 +63,7 @@ public class SettableAnyProperty
         _setterIsField = setter instanceof AnnotatedField;
     }
 
-    @Deprecated // since 2.9
-    public SettableAnyProperty(BeanProperty property, AnnotatedMember setter, JavaType type,
-            JsonDeserializer<Object> valueDeser, TypeDeserializer typeDeser)
-    {
-        this(property, setter, type, null, valueDeser, typeDeser);
-    }
-
-    public SettableAnyProperty withValueDeserializer(JsonDeserializer<Object> deser) {
+    public SettableAnyProperty withValueDeserializer(ValueDeserializer<Object> deser) {
         return new SettableAnyProperty(_property, _setter, _type,
                 _keyDeserializer, deser, _valueTypeDeserializer);
     }
@@ -126,15 +114,15 @@ public class SettableAnyProperty
      */
     public final void deserializeAndSet(JsonParser p, DeserializationContext ctxt,
             Object instance, String propName)
-        throws IOException
+        throws JacksonException
     {
         try {
             Object key = (_keyDeserializer == null) ? propName
                     : _keyDeserializer.deserializeKey(propName, ctxt);
             set(instance, key, deserialize(p, ctxt));
         } catch (UnresolvedForwardReference reference) {
-            if (!(_valueDeserializer.getObjectIdReader() != null)) {
-                throw JsonMappingException.from(p, "Unresolved forward reference but no identity info.", reference);
+            if (_valueDeserializer.getObjectIdReader(ctxt) == null) {
+                throw DatabindException.from(p, "Unresolved forward reference but no identity info.", reference);
             }
             AnySetterReferring referring = new AnySetterReferring(this, reference,
                     _type.getRawClass(), instance, propName);
@@ -142,9 +130,10 @@ public class SettableAnyProperty
         }
     }
 
-    public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+    public Object deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
-        if (p.hasToken(JsonToken.VALUE_NULL)) {
+        JsonToken t = p.currentToken();
+        if (t == JsonToken.VALUE_NULL) {
             return _valueDeserializer.getNullValue(ctxt);
         }
         if (_valueTypeDeserializer != null) {
@@ -154,7 +143,7 @@ public class SettableAnyProperty
     }
 
     @SuppressWarnings("unchecked")
-    public void set(Object instance, Object propName, Object value) throws IOException
+    public void set(Object instance, Object propName, Object value) throws JacksonException
     {
         try {
             // if annotation in the field (only map is supported now)
@@ -191,7 +180,7 @@ public class SettableAnyProperty
      * @param value Value of the property
      */
     protected void _throwAsIOE(Exception e, Object propName, Object value)
-        throws IOException
+        throws JacksonException
     {
         if (e instanceof IllegalArgumentException) {
             String actType = ClassUtil.classNameOf(value);
@@ -204,13 +193,13 @@ public class SettableAnyProperty
             } else {
                 msg.append(" (no error message provided)");
             }
-            throw new JsonMappingException(null, msg.toString(), e);
+            throw DatabindException.from((JsonParser) null, msg.toString(), e);
         }
-        ClassUtil.throwIfIOE(e);
+        ClassUtil.throwIfJacksonE(e);
         ClassUtil.throwIfRTE(e);
         // let's wrap the innermost problem
         Throwable t = ClassUtil.getRootCause(e);
-        throw new JsonMappingException(null, ClassUtil.exceptionMessage(t), t);
+        throw DatabindException.from((JsonParser) null, ClassUtil.exceptionMessage(t), t);
     }
 
     private String getClassName() { return _setter.getDeclaringClass().getName(); }
@@ -233,7 +222,7 @@ public class SettableAnyProperty
 
         @Override
         public void handleResolvedForwardReference(Object id, Object value)
-            throws IOException
+            throws JacksonException
         {
             if (!hasId(id)) {
                 throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id.toString()

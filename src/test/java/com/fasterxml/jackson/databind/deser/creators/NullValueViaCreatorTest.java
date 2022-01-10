@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser.creators;
 
-import java.io.IOException;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.*;
@@ -26,9 +25,9 @@ public class NullValueViaCreatorTest extends BaseMapTest
 
     protected static final NullContained NULL_CONTAINED = new NullContained();
 
-    protected static class ContainedDeserializer extends JsonDeserializer<Contained<?>> {
+    protected static class ContainedDeserializer extends ValueDeserializer<Contained<?>> {
         @Override
-        public Contained<?> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+        public Contained<?> deserialize(JsonParser jp, DeserializationContext ctxt) {
             return null;
         }
 
@@ -40,7 +39,7 @@ public class NullValueViaCreatorTest extends BaseMapTest
 
     protected static class ContainerDeserializerResolver extends Deserializers.Base {
         @Override
-        public JsonDeserializer<?> findBeanDeserializer(JavaType type,
+        public ValueDeserializer<?> findBeanDeserializer(JavaType type,
                 DeserializationConfig config, BeanDescription beanDesc)
         {
             if (!Contained.class.isAssignableFrom(type.getRawClass())) {
@@ -48,9 +47,15 @@ public class NullValueViaCreatorTest extends BaseMapTest
             }
             return new ContainedDeserializer();
         }
+
+        @Override
+        public boolean hasDeserializerFor(DeserializationConfig config,
+                Class<?> valueType) {
+            return false;
+        }
     }
 
-    protected static class TestModule extends com.fasterxml.jackson.databind.Module
+    protected static class TestModule extends com.fasterxml.jackson.databind.JacksonModule
     {
         @Override
         public String getModuleName() {
@@ -95,14 +100,16 @@ public class NullValueViaCreatorTest extends BaseMapTest
      */
 
     public void testUsesDeserializersNullValue() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new TestModule());
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new TestModule())
+                .build();
         Container container = mapper.readValue("{}", Container.class);
         assertEquals(NULL_CONTAINED, container.contained);
     }
 
     // [databind#597]: ensure that a useful exception is thrown
-    public void testCreatorReturningNull() throws IOException {
+    public void testCreatorReturningNull()
+    {
         ObjectMapper objectMapper = new ObjectMapper();
         String json = "{ \"type\" : \"     \", \"id\" : \"000c0ffb-a0d6-4d2e-a379-4aeaaf283599\" }";
         try {

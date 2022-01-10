@@ -1,10 +1,8 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdResolver;
-
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.*;
@@ -34,7 +32,7 @@ public class ObjectIdReader
     /**
      * Deserializer used for deserializing id values.
      */
-    protected final JsonDeserializer<Object> _deserializer;
+    protected final ValueDeserializer<Object> _deserializer;
 
     public final SettableBeanProperty idProperty;
     
@@ -46,23 +44,23 @@ public class ObjectIdReader
     
     @SuppressWarnings("unchecked")
     protected ObjectIdReader(JavaType t, PropertyName propName, ObjectIdGenerator<?> gen,
-            JsonDeserializer<?> deser, SettableBeanProperty idProp, ObjectIdResolver resolver)
+            ValueDeserializer<?> deser, SettableBeanProperty idProp, ObjectIdResolver resolver)
     {
         _idType = t;
         propertyName = propName;
         generator = gen;
         this.resolver = resolver;
-        _deserializer = (JsonDeserializer<Object>) deser;
+        _deserializer = (ValueDeserializer<Object>) deser;
         idProperty = idProp;
     }
 
     /**
-     * Factory method called by {@link com.fasterxml.jackson.databind.ser.std.BeanSerializerBase}
+     * Factory method called by {@link com.fasterxml.jackson.databind.ser.bean.BeanSerializerBase}
      * with the initial information based on standard settings for the type
      * for which serializer is being built.
      */
     public static ObjectIdReader construct(JavaType idType, PropertyName propName,
-            ObjectIdGenerator<?> generator, JsonDeserializer<?> deser,
+            ObjectIdGenerator<?> generator, ValueDeserializer<?> deser,
             SettableBeanProperty idProp, ObjectIdResolver resolver)
     {
         return new ObjectIdReader(idType, propName, generator, deser, idProp, resolver);
@@ -74,7 +72,7 @@ public class ObjectIdReader
     /**********************************************************
      */
 
-    public JsonDeserializer<Object> getDeserializer() {
+    public ValueDeserializer<Object> getDeserializer() {
         return _deserializer;
     }
 
@@ -90,8 +88,6 @@ public class ObjectIdReader
      * and used to determine whether Object Ids handled by the underlying
      * generator may be in form of (JSON) Objects.
      * Used for optimizing handling in cases where method returns false.
-     * 
-     * @since 2.5
      */
     public boolean maySerializeAsObject() {
         return generator.maySerializeAsObject();
@@ -105,8 +101,6 @@ public class ObjectIdReader
      * and used to determine whether Object Ids handled by the underlying
      * generator may be in form of (JSON) Objects.
      * Used for optimizing handling in cases where method returns false.
-     * 
-     * @since 2.5
      */
     public boolean isValidReferencePropertyName(String name, JsonParser parser) {
         return generator.isValidReferencePropertyName(name, parser);
@@ -115,10 +109,10 @@ public class ObjectIdReader
     /**
      * Method called to read value that is expected to be an Object Reference
      * (that is, value of an Object Id used to refer to another object).
-     * 
-     * @since 2.3
      */
-    public Object readObjectReference(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        return _deserializer.deserialize(jp, ctxt);
+    public Object readObjectReference(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
+    {
+        return _deserializer.deserialize(p, ctxt);
     }
 }

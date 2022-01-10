@@ -1,13 +1,15 @@
 package com.fasterxml.jackson.databind.module;
 
-import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.core.exc.StreamReadException;
+
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.MapperBuilder;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
@@ -37,29 +39,22 @@ public class SimpleModuleTest extends BaseMapTest
         public CustomBeanSerializer() { super(CustomBean.class); }
 
         @Override
-        public void serialize(CustomBean value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException
+        public void serialize(CustomBean value, JsonGenerator g, SerializerProvider provider)
         {
             // We will write it as a String, with '|' as delimiter
-            jgen.writeString(value.str + "|" + value.num);
-        }
-
-        @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
-            return null;
+            g.writeString(value.str + "|" + value.num);
         }
     }
-    
-    static class CustomBeanDeserializer extends JsonDeserializer<CustomBean>
+
+    static class CustomBeanDeserializer extends ValueDeserializer<CustomBean>
     {
         @Override
-        public CustomBean deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException
+        public CustomBean deserialize(JsonParser p, DeserializationContext ctxt)
         {
-            String text = jp.getText();
+            String text = p.getText();
             int ix = text.indexOf('|');
             if (ix < 0) {
-                throw new IOException("Failed to parse String value of \""+text+"\"");
+                throw new StreamReadException(p, "Failed to parse String value of \""+text+"\"");
             }
             String str = text.substring(0, ix);
             int num = Integer.parseInt(text.substring(ix+1));
@@ -72,25 +67,18 @@ public class SimpleModuleTest extends BaseMapTest
         public SimpleEnumSerializer() { super(SimpleEnum.class); }
 
         @Override
-        public void serialize(SimpleEnum value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException
+        public void serialize(SimpleEnum value, JsonGenerator g, SerializerProvider provider)
         {
-            jgen.writeString(value.name().toLowerCase());
-        }
-
-        @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
-            return null;
+            g.writeString(value.name().toLowerCase());
         }
     }
 
-    static class SimpleEnumDeserializer extends JsonDeserializer<SimpleEnum>
+    static class SimpleEnumDeserializer extends ValueDeserializer<SimpleEnum>
     {
         @Override
-        public SimpleEnum deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException
+        public SimpleEnum deserialize(JsonParser p, DeserializationContext ctxt)
         {
-            return SimpleEnum.valueOf(jp.getText().toUpperCase());
+            return SimpleEnum.valueOf(p.getText().toUpperCase());
         }
     }
 
@@ -113,8 +101,8 @@ public class SimpleModuleTest extends BaseMapTest
         public BaseSerializer() { super(Base.class); }
         
         @Override
-        public void serialize(Base value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
-            jgen.writeString("Base:"+value.getText());
+        public void serialize(Base value, JsonGenerator g, SerializerProvider provider) {
+            g.writeString("Base:"+value.getText());
         }
     }
 
@@ -154,25 +142,6 @@ public class SimpleModuleTest extends BaseMapTest
         }
     }
 
-    protected static class ContextVerifierModule extends com.fasterxml.jackson.databind.Module
-    {
-        @Override
-        public String getModuleName() { return "x"; }
-
-        @Override
-        public Version version() { return Version.unknownVersion(); }
-
-        @Override
-        public void setupModule(SetupContext context)
-        {
-            ObjectCodec c = context.getOwner();
-            assertNotNull(c);
-            assertTrue(c instanceof ObjectMapper);
-            ObjectMapper m = context.getOwner();
-            assertNotNull(m);
-        }
-    }
-
     static class TestModule626 extends SimpleModule {
         final Class<?> mixin, target;
         public TestModule626(Class<?> t, Class<?> m) {
@@ -183,28 +152,28 @@ public class SimpleModuleTest extends BaseMapTest
 
         @Override
         public void setupModule(SetupContext context) {
-            context.setMixInAnnotations(target, mixin);
+            context.setMixIn(target, mixin);
         }
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Unit tests; first, verifying need for custom handlers
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
      * Basic test to ensure we do not have functioning default
      * serializers for custom types used in tests.
      */
-    public void testWithoutModule()
+    public void testWithoutModule() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         // first: serialization failure:
         try {
             mapper.writeValueAsString(new CustomBean("foo", 3));
             fail("Should have caused an exception");
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             verifyException(e, "No serializer found");
         }
 
@@ -212,61 +181,70 @@ public class SimpleModuleTest extends BaseMapTest
         try {
             mapper.readValue("{\"str\":\"ab\",\"num\":2}", CustomBean.class);
             fail("Should have caused an exception");
-        } catch (IOException e) {
+        } catch (UnrecognizedPropertyException e) {
+            // 20-Sep-2017, tatu: Jackson 2.x had different exception; 3.x finds implicits too
+            verifyException(e, "Unrecognized property \"str\"");
+
+            /*
             verifyException(e, "Cannot construct");
             verifyException(e, "no creators");
+            */
         }
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Unit tests; simple serializers
-    /**********************************************************
+    /**********************************************************************
      */
 
     public void testSimpleBeanSerializer() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
         mod.addSerializer(new CustomBeanSerializer());
-        mapper.registerModule(mod);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(mod)
+                .build();
         assertEquals(q("abcde|5"), mapper.writeValueAsString(new CustomBean("abcde", 5)));
     }
 
     public void testSimpleEnumSerializer() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
         mod.addSerializer(new SimpleEnumSerializer());
         // for fun, call "multi-module" registration
-        mapper.registerModules(mod);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(mod)
+                .build();
         assertEquals(q("b"), mapper.writeValueAsString(SimpleEnum.B));
     }
 
     public void testSimpleInterfaceSerializer() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
         mod.addSerializer(new BaseSerializer());
         // and another variant here too
         List<SimpleModule> mods = Arrays.asList(mod);
-        mapper.registerModules(mods);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModules(mods)
+                .build();
         assertEquals(q("Base:1"), mapper.writeValueAsString(new Impl1()));
         assertEquals(q("Base:2"), mapper.writeValueAsString(new Impl2()));
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Unit tests; simple deserializers
-    /**********************************************************
+    /**********************************************************************
      */
     
     public void testSimpleBeanDeserializer() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
         mod.addDeserializer(CustomBean.class, new CustomBeanDeserializer());
-        mapper.registerModule(mod);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(mod)
+                .build();
         CustomBean bean = mapper.readValue(q("xyz|3"), CustomBean.class);
         assertEquals("xyz", bean.str);
         assertEquals(3, bean.num);
@@ -274,10 +252,11 @@ public class SimpleModuleTest extends BaseMapTest
 
     public void testSimpleEnumDeserializer() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
         mod.addDeserializer(SimpleEnum.class, new SimpleEnumDeserializer());
-        mapper.registerModule(mod);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(mod)
+                .build();
         SimpleEnum result = mapper.readValue(q("a"), SimpleEnum.class);
         assertSame(SimpleEnum.A, result);
     }
@@ -285,31 +264,28 @@ public class SimpleModuleTest extends BaseMapTest
     public void testMultipleModules() throws Exception
     {
         MySimpleModule mod1 = new MySimpleModule("test1", Version.unknownVersion());
-        assertEquals("test1", mod1.getModuleName());
-        // 07-Jun-2021, tatu: as per [databind#3110]:
-        assertEquals("test1", mod1.getTypeId());
         SimpleModule mod2 = new SimpleModule("test2", Version.unknownVersion());
-        assertEquals("test2", mod2.getModuleName());
-        assertEquals("test2", mod2.getTypeId());
         mod1.addSerializer(SimpleEnum.class, new SimpleEnumSerializer());
         mod1.addDeserializer(CustomBean.class, new CustomBeanDeserializer());
 
-        Map<Class<?>,JsonDeserializer<?>> desers = new HashMap<>();
+        Map<Class<?>,ValueDeserializer<?>> desers = new HashMap<>();
         desers.put(SimpleEnum.class, new SimpleEnumDeserializer());
         mod2.setDeserializers(new SimpleDeserializers(desers));
         mod2.addSerializer(CustomBean.class, new CustomBeanSerializer());
 
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(mod1);
-        mapper.registerModule(mod2);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(mod1)
+                .addModule(mod2)
+                .build();
         assertEquals(q("b"), mapper.writeValueAsString(SimpleEnum.B));
         SimpleEnum result = mapper.readValue(q("a"), SimpleEnum.class);
         assertSame(SimpleEnum.A, result);
 
         // also let's try it with different order of registration, just in case
-        mapper = new ObjectMapper();
-        mapper.registerModule(mod2);
-        mapper.registerModule(mod1);
+        mapper = jsonMapperBuilder()
+                .addModule(mod2)
+                .addModule(mod1)
+                .build();
         assertEquals(q("b"), mapper.writeValueAsString(SimpleEnum.B));
         result = mapper.readValue(q("a"), SimpleEnum.class);
         assertSame(SimpleEnum.A, result);
@@ -320,39 +296,42 @@ public class SimpleModuleTest extends BaseMapTest
         MySimpleModule mod1 = new MySimpleModule("test1", Version.unknownVersion());
         AnotherSimpleModule mod2 = new AnotherSimpleModule("test2", Version.unknownVersion());
 
-        ObjectMapper mapper = JsonMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(mod1)
                 .addModule(mod2)
                 .build();
 
-        Set<Object> registeredModuleIds = mapper.getRegisteredModuleIds();
-        assertEquals(2, registeredModuleIds.size());
-        assertTrue(registeredModuleIds.contains(mod1.getTypeId()));
-        assertTrue(registeredModuleIds.contains(mod2.getTypeId()));
+        List<JacksonModule> mods = new ArrayList<>(mapper.getRegisteredModules());
+        assertEquals(2, mods.size());
+        // Should retain ordering even if not mandated
+        assertEquals("test1", mods.get(0).getModuleName());
+        assertEquals("test2", mods.get(1).getModuleName());
 
         // 01-Jul-2019, [databind#2374]: verify empty list is fine
-        mapper = new ObjectMapper();
-        assertEquals(0, mapper.getRegisteredModuleIds().size());
+        mapper = newJsonMapper();
+        assertEquals(0, mapper.getRegisteredModules().size());
 
         // 07-Jun-2021, tatu [databind#3110] Casual SimpleModules ARE returned
         //    too!
         mapper = JsonMapper.builder()
                 .addModule(new SimpleModule())
                 .build();
-        assertEquals(1, mapper.getRegisteredModuleIds().size());
-        Object id = mapper.getRegisteredModuleIds().iterator().next();
-        assertTrue(id instanceof String);
+        assertEquals(1, mapper.getRegisteredModules().size());
+        Object id = mapper.getRegisteredModules().iterator().next().getRegistrationId();
+        // Id type won't be String but...
         if (!id.toString().startsWith("SimpleModule-")) {
             fail("SimpleModule registration id should start with 'SimpleModule-', does not: ["
                     +id+"]");
         }
 
         // And named ones retain their name
+        final JacksonModule vsm = new SimpleModule("VerySpecialModule");
         mapper = JsonMapper.builder()
-                .addModule(new SimpleModule("VerySpecialModule"))
+                .addModule(vsm)
                 .build();
-        assertEquals(Collections.singleton("VerySpecialModule"),
-                mapper.getRegisteredModuleIds());
+        Collection<JacksonModule> reg = mapper.getRegisteredModules();
+        assertEquals(1, reg.size());
+        assertSame(vsm, reg.iterator().next());
     }
 
     // More [databind#3110] testing
@@ -364,14 +343,14 @@ public class SimpleModuleTest extends BaseMapTest
                 .addModule(mod1)
                 .addModule(mod2)
                 .build();
-        assertEquals(2, mapper.getRegisteredModuleIds().size());
+        assertEquals(2, mapper.getRegisteredModules().size());
 
         // Still avoid actual duplicates
         mapper = JsonMapper.builder()
                 .addModule(mod1)
                 .addModule(mod1)
                 .build();
-        assertEquals(1, mapper.getRegisteredModuleIds().size());
+        assertEquals(1, mapper.getRegisteredModules().size());
 
         // Same for (anonymous) sub-classes
         final SimpleModule subMod1 = new SimpleModule() { };
@@ -380,27 +359,28 @@ public class SimpleModuleTest extends BaseMapTest
                 .addModule(subMod1)
                 .addModule(subMod2)
                 .build();
-        assertEquals(2, mapper.getRegisteredModuleIds().size());
+        assertEquals(2, mapper.getRegisteredModules().size());
 
         mapper = JsonMapper.builder()
                 .addModule(subMod1)
                 .addModule(subMod1)
                 .build();
-        assertEquals(1, mapper.getRegisteredModuleIds().size());
+        assertEquals(1, mapper.getRegisteredModules().size());
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Unit tests; other
-    /**********************************************************
+    /**********************************************************************
      */
 
     public void testMixIns() throws Exception
     {
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.setMixInAnnotation(MixableBean.class, MixInForOrder.class);
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(module);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
         Map<String,Object> props = this.writeAndMap(mapper, new MixableBean());
         assertEquals(3, props.size());
         assertEquals(Integer.valueOf(3), props.get("c"));
@@ -410,24 +390,32 @@ public class SimpleModuleTest extends BaseMapTest
 
     public void testAccessToMapper() throws Exception
     {
-        ContextVerifierModule module = new ContextVerifierModule();        
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(module);
-    }
+        final JacksonModule module = new JacksonModule()
+        {
+            @Override
+            public String getModuleName() { return "x"; }
 
-    // [databind#626]
-    public void testMixIns626() throws Exception
-    {
-        ObjectMapper mapper = new ObjectMapper();
-        // no real annotations, but nominally add ones from 'String' to 'Object', just for testing
-        mapper.registerModule(new TestModule626(Object.class, String.class));
-        Class<?> found = mapper.findMixInClassFor(Object.class);
-        assertEquals(String.class, found);
+            @Override
+            public Version version() { return Version.unknownVersion(); }
+
+            @Override
+            public void setupModule(SetupContext context)
+            {
+                Object c = context.getOwner();
+                if (!(c instanceof MapperBuilder<?,?>)) {
+                    throw new RuntimeException("Owner should be a `MapperBuilder` but is not; is: "+c);
+                }
+            }
+        };
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
+        assertNotNull(mapper);
     }
 
     public void testAutoDiscovery() throws Exception
     {
-        List<?> mods = ObjectMapper.findModules();
+        List<?> mods = MapperBuilder.findModules();
         assertEquals(0, mods.size());
     }
 }

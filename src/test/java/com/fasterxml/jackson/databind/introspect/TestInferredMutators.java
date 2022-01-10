@@ -27,20 +27,16 @@ public class TestInferredMutators extends BaseMapTest
     /**********************************************************
      */
 
-    // for #190
     public void testFinalFieldIgnoral() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        // default value is 'enabled', for backwards compatibility
-        assertTrue(mapper.isEnabled(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS));
-        mapper = jsonMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .disable(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS)
                 .build();
         try {
             /*p =*/ mapper.readValue("{\"x\":2}", FixedPoint.class);
             fail("Should not try to use final field");
         } catch (UnrecognizedPropertyException e) {
-            verifyException(e, "unrecognized field \"x\"");
+            verifyException(e, "Unrecognized property \"x\"");
         }
     }
     
@@ -62,7 +58,7 @@ public class TestInferredMutators extends BaseMapTest
             p = mapper.readValue(JSON,  Point.class);
             fail("Should not succeeed");
         } catch (UnrecognizedPropertyException e) {
-            verifyException(e, "unrecognized field \"x\"");
+            verifyException(e, "Unrecognized property \"x\"");
         }
     }
 }

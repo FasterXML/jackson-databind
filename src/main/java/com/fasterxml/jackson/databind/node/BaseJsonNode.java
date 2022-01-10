@@ -1,27 +1,28 @@
 package com.fasterxml.jackson.databind.node;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.JsonSerializable;
+import com.fasterxml.jackson.databind.JacksonSerializable;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
 /**
  * Abstract base class common to all standard {@link JsonNode}
  * implementations.
  * The main addition here is that we declare that sub-classes must
- * implement {@link JsonSerializable}.
+ * implement {@link JacksonSerializable}.
  * This simplifies object mapping aspects a bit, as no external serializers are needed.
  *<p>
- * Since 2.10, all implements have been {@link java.io.Serializable}.
+ * Note that support for {@link java.io.Serializable} is added here and so all subtypes
+ * are fully JDK serializable: but also note that serialization is as JSON and should
+ * only be used for interoperability purposes where other approaches are not available.
  */
 public abstract class BaseJsonNode
     extends JsonNode
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 3L;
 
     // Simplest way is by using a helper
     Object writeReplace() {
@@ -29,6 +30,18 @@ public abstract class BaseJsonNode
     }
 
     protected BaseJsonNode() { }
+
+    /*
+    /**********************************************************
+    /* Defaulting for introspection
+    /**********************************************************
+     */
+    
+    @Override
+    public boolean isMissingNode() { return false; }
+
+    @Override
+    public boolean isEmbeddedValue() { return false; }
 
     /*
     /**********************************************************
@@ -46,7 +59,7 @@ public abstract class BaseJsonNode
         return value;
     }
 
-    // Also, force (re)definition (2.7)
+    // Also, force (re)definition
     @Override public abstract int hashCode();
 
     /*
@@ -74,15 +87,10 @@ public abstract class BaseJsonNode
      */
 
     @Override
-    public JsonParser traverse() {
-        return new TreeTraversingParser(this);
+    public JsonParser traverse(ObjectReadContext readCtxt) {
+        return new TreeTraversingParser(this, readCtxt);
     }
 
-    @Override
-    public JsonParser traverse(ObjectCodec codec) {
-        return new TreeTraversingParser(this, codec);
-    }
-    
     /**
      * Method that can be used for efficient type detection
      * when using stream abstraction for traversing nodes.
@@ -105,7 +113,7 @@ public abstract class BaseJsonNode
 
     /*
     /**********************************************************
-    /* JsonSerializable
+    /* JacksonSerializable
     /**********************************************************
      */
 
@@ -114,18 +122,18 @@ public abstract class BaseJsonNode
      */
     @Override
     public abstract void serialize(JsonGenerator jgen, SerializerProvider provider)
-        throws IOException;
+        throws JacksonException;
 
     /**
      * Type information is needed, even if JsonNode instances are "plain" JSON,
      * since they may be mixed with other types.
      */
-   @Override
+    @Override
     public abstract void serializeWithType(JsonGenerator jgen, SerializerProvider provider,
             TypeSerializer typeSer)
-        throws IOException;
+        throws JacksonException;
 
-   /*
+    /*
    /**********************************************************
    /* Standard method overrides
    /**********************************************************
@@ -133,12 +141,13 @@ public abstract class BaseJsonNode
 
    @Override
    public String toString() {
-       return InternalNodeMapper.nodeToString(this);
+       return JsonMapper.shared().writeValueAsString(this);
    }
 
    @Override
    public String toPrettyString() {
-       return InternalNodeMapper.nodeToPrettyString(this);
+       return JsonMapper.shared()
+               .writerWithDefaultPrettyPrinter()
+               .writeValueAsString(this);
    }
 }
-

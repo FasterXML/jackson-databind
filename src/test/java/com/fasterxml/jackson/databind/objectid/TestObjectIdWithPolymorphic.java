@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 public class TestObjectIdWithPolymorphic extends BaseMapTest
@@ -132,12 +131,13 @@ public class TestObjectIdWithPolymorphic extends BaseMapTest
 
     public void testIssue811() throws Exception
     {
-        ObjectMapper om = new ObjectMapper();
-        om.enable(SerializationFeature.WRITE_ENUMS_USING_INDEX);
-        om.enable(SerializationFeature.INDENT_OUTPUT);
-        om.activateDefaultTypingAsProperty(NoCheckSubTypeValidator.instance,
-                DefaultTyping.NON_FINAL, "@class");
-    
+        ObjectMapper om = jsonMapperBuilder()
+                .activateDefaultTypingAsProperty(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.NON_FINAL, "@class")
+                .enable(SerializationFeature.WRITE_ENUMS_USING_INDEX,
+                        SerializationFeature.INDENT_OUTPUT)
+                .build();
+
         Process p = new Process();
         Scope s = new Scope(p, null);
         FaultHandler fh = new FaultHandler(p);

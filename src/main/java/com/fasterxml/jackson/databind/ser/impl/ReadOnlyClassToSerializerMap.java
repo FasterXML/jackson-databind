@@ -1,42 +1,45 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
-import java.util.*;
-
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ValueSerializer;
+import com.fasterxml.jackson.databind.ser.SerializerCache;
+import com.fasterxml.jackson.databind.util.SimpleLookupCache;
 import com.fasterxml.jackson.databind.util.TypeKey;
 
 /**
  * Optimized lookup table for accessing two types of serializers; typed
  * and non-typed. Only accessed from a single thread, so no synchronization
  * needed for accessors.
- *<p>
- * Note that before 2.6 this class was much smaller, and referred most
- * operations to separate <code>JsonSerializerMap</code>, but in 2.6
- * functions were combined.
  */
 public final class ReadOnlyClassToSerializerMap
 {
+    /**
+     * Shared cache used for call-throughs in cases where we do not have local matches.
+     *
+     * @since 3.0
+     */
+    private final SerializerCache _sharedCache;
+
     private final Bucket[] _buckets;
 
     private final int _size;
 
     private final int _mask;
 
-    public ReadOnlyClassToSerializerMap(Map<TypeKey,JsonSerializer<Object>> serializers)
+    protected ReadOnlyClassToSerializerMap(SerializerCache shared,
+            SimpleLookupCache<TypeKey, ValueSerializer<Object>> src)
     {
-        int size = findSize(serializers.size());
-        _size = size;
-        _mask = (size-1);
-        Bucket[] buckets = new Bucket[size];
-        for (Map.Entry<TypeKey,JsonSerializer<Object>> entry : serializers.entrySet()) {
-            TypeKey key = entry.getKey();
+        _sharedCache = shared;
+        _size = findSize(src.size());
+        _mask = (_size-1);
+        Bucket[] buckets = new Bucket[_size];
+        src.contents((key, value) -> {
             int index = key.hashCode() & _mask;
-            buckets[index] = new Bucket(buckets[index], key, entry.getValue());
-        }
+            buckets[index] = new Bucket(buckets[index], key, value);
+        });
         _buckets = buckets;
     }
-    
+
     private final static int findSize(int size)
     {
         // For small enough results (64 or less), we'll require <= 50% fill rate; otherwise 80%
@@ -51,95 +54,92 @@ public final class ReadOnlyClassToSerializerMap
     /**
      * Factory method for constructing an instance.
      */
-    public static ReadOnlyClassToSerializerMap from(HashMap<TypeKey, JsonSerializer<Object>> src) {
-        return new ReadOnlyClassToSerializerMap(src);
+    public static ReadOnlyClassToSerializerMap from(SerializerCache shared,
+            SimpleLookupCache<TypeKey, ValueSerializer<Object>> src) {
+        return new ReadOnlyClassToSerializerMap(shared, src);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API
-    /**********************************************************
+    /**********************************************************************
      */
 
     public int size() { return _size; }
     
-    public JsonSerializer<Object> typedValueSerializer(JavaType type)
+    public ValueSerializer<Object> typedValueSerializer(JavaType type)
     {
         Bucket bucket = _buckets[TypeKey.typedHash(type) & _mask];
-        if (bucket == null) {
-            return null;
-        }
-        if (bucket.matchesTyped(type)) {
-            return bucket.value;
-        }
-        while ((bucket = bucket.next) != null) {
+        if (bucket != null) {
             if (bucket.matchesTyped(type)) {
                 return bucket.value;
             }
-        }
-        return null;
-    }
-
-    public JsonSerializer<Object> typedValueSerializer(Class<?> type)
-    {
-        Bucket bucket = _buckets[TypeKey.typedHash(type) & _mask];
-        if (bucket == null) {
-            return null;
-        }
-        if (bucket.matchesTyped(type)) {
-            return bucket.value;
-        }
-        while ((bucket = bucket.next) != null) {
-            if (bucket.matchesTyped(type)) {
-                return bucket.value;
+            while ((bucket = bucket.next) != null) {
+                if (bucket.matchesTyped(type)) {
+                    return bucket.value;
+                }
             }
         }
-        return null;
+        return _sharedCache.typedValueSerializer(type);
     }
 
-    public JsonSerializer<Object> untypedValueSerializer(JavaType type)
+    public ValueSerializer<Object> typedValueSerializer(Class<?> rawType)
+    {
+        Bucket bucket = _buckets[TypeKey.typedHash(rawType) & _mask];
+        if (bucket != null) {
+            if (bucket.matchesTyped(rawType)) {
+                return bucket.value;
+            }
+            while ((bucket = bucket.next) != null) {
+                if (bucket.matchesTyped(rawType)) {
+                    return bucket.value;
+                }
+            }
+        }
+        return _sharedCache.typedValueSerializer(rawType);
+    }
+
+    public ValueSerializer<Object> untypedValueSerializer(JavaType type)
     {
         Bucket bucket = _buckets[TypeKey.untypedHash(type) & _mask];
-        if (bucket == null) {
-            return null;
-        }
-        if (bucket.matchesUntyped(type)) {
-            return bucket.value;
-        }
-        while ((bucket = bucket.next) != null) {
+        if (bucket != null) {
             if (bucket.matchesUntyped(type)) {
                 return bucket.value;
             }
-        }
-        return null;
-    }
-
-    public JsonSerializer<Object> untypedValueSerializer(Class<?> type)
-    {
-        Bucket bucket = _buckets[TypeKey.untypedHash(type) & _mask];
-        if (bucket == null) {
-            return null;
-        }
-        if (bucket.matchesUntyped(type)) {
-            return bucket.value;
-        }
-        while ((bucket = bucket.next) != null) {
-            if (bucket.matchesUntyped(type)) {
-                return bucket.value;
+            while ((bucket = bucket.next) != null) {
+                if (bucket.matchesUntyped(type)) {
+                    return bucket.value;
+                }
             }
         }
-        return null;
+        return _sharedCache.untypedValueSerializer(type);
+    }
+
+    public ValueSerializer<Object> untypedValueSerializer(Class<?> rawType)
+    {
+        Bucket bucket = _buckets[TypeKey.untypedHash(rawType) & _mask];
+        if (bucket != null) {
+            if (bucket.matchesUntyped(rawType)) {
+                return bucket.value;
+            }
+            while ((bucket = bucket.next) != null) {
+                if (bucket.matchesUntyped(rawType)) {
+                    return bucket.value;
+                }
+            }
+        }
+        return _sharedCache.untypedValueSerializer(rawType);
     }    
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper classes
-    /**********************************************************
+    /**********************************************************************
      */
 
     private final static class Bucket
     {
-        public final JsonSerializer<Object> value;
+        public final ValueSerializer<Object> value;
         public final Bucket next;
 
         protected final Class<?> _class;
@@ -147,7 +147,7 @@ public final class ReadOnlyClassToSerializerMap
 
         protected final boolean _isTyped;
         
-        public Bucket(Bucket next, TypeKey key, JsonSerializer<Object> value)
+        public Bucket(Bucket next, TypeKey key, ValueSerializer<Object> value)
         {
             this.next = next;
             this.value = value;

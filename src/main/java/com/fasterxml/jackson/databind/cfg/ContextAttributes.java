@@ -2,6 +2,8 @@ package com.fasterxml.jackson.databind.cfg;
 
 import java.util.*;
 
+import com.fasterxml.jackson.core.util.Snapshottable;
+
 /**
  * Helper class used for storing and accessing per-call attributes.
  * Storage is two-layered: at higher precedence, we have actual per-call
@@ -15,10 +17,9 @@ import java.util.*;
  * sharing, by creating new copies instead of modifying state.
  * This allows sharing of default values without per-call copying, but
  * requires two-level lookup on access.
- * 
- * @since 2.3
  */
 public abstract class ContextAttributes
+    implements Snapshottable<ContextAttributes>
 {
     public static ContextAttributes getEmpty() {
         return Impl.getEmpty();
@@ -101,6 +102,16 @@ public abstract class ContextAttributes
         
         public static ContextAttributes getEmpty() {
             return EMPTY;
+        }
+
+        @Override
+        public ContextAttributes snapshot() {
+            // 01-Feb-2020, tatu: Should only retain shared attributes, but not
+            //    sure what to do with values within. For now assume they must be
+            //    immutable and (if caller wants to retain JDK Serializability of mappers)
+            //    be JDK Serializable
+            Map<?,?> copyOfShared = (_shared == null) ? null : _copy(_shared);
+            return new Impl(copyOfShared);
         }
 
         /*

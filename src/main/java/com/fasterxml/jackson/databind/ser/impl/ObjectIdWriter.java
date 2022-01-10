@@ -29,7 +29,7 @@ public final class ObjectIdWriter
     /**
      * Serializer used for serializing id values.
      */
-    public final JsonSerializer<Object> serializer;
+    public final ValueSerializer<Object> serializer;
 
     /**
      * Marker that indicates what the first reference is to be
@@ -48,17 +48,17 @@ public final class ObjectIdWriter
 
     @SuppressWarnings("unchecked")
     protected ObjectIdWriter(JavaType t, SerializableString propName,
-            ObjectIdGenerator<?> gen, JsonSerializer<?> ser, boolean alwaysAsId)
+            ObjectIdGenerator<?> gen, ValueSerializer<?> ser, boolean alwaysAsId)
     {
         idType = t;
         propertyName = propName;
         generator = gen;
-        serializer = (JsonSerializer<Object>) ser;
+        serializer = (ValueSerializer<Object>) ser;
         this.alwaysAsId = alwaysAsId;
     }
 
     /**
-     * Factory method called by {@link com.fasterxml.jackson.databind.ser.std.BeanSerializerBase}
+     * Factory method called by {@link com.fasterxml.jackson.databind.ser.bean.BeanSerializerBase}
      * with the initial information based on standard settings for the type
      * for which serializer is being built.
      * 
@@ -72,7 +72,7 @@ public final class ObjectIdWriter
         return new ObjectIdWriter(idType, serName, generator, null, alwaysAsId);
     }
 
-    public ObjectIdWriter withSerializer(JsonSerializer<?> ser) {
+    public ObjectIdWriter withSerializer(ValueSerializer<?> ser) {
         return new ObjectIdWriter(idType, propertyName, generator, ser, alwaysAsId);
     }
 

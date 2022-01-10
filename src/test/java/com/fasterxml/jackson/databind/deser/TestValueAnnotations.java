@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
@@ -61,7 +60,6 @@ public class TestValueAnnotations
     @JsonDeserialize(contentAs=RootStringImpl.class)
     static class RootList extends LinkedList<RootStringImpl> { }
 
-    @SuppressWarnings("serial")
     static class RootStringDeserializer
         extends StdDeserializer<RootString>
     {
@@ -69,12 +67,11 @@ public class TestValueAnnotations
 
         @Override
         public RootString deserialize(JsonParser p, DeserializationContext ctxt)
-            throws IOException
         {
             if (p.hasToken(JsonToken.VALUE_STRING)) {
                 return new RootStringImpl(p.getText());
             }
-            return (RootString) ctxt.handleUnexpectedToken(_valueClass, p);
+            return (RootString) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
         }
     }
 

@@ -5,16 +5,14 @@ import com.fasterxml.jackson.core.io.ContentReference;
 import com.fasterxml.jackson.core.json.JsonReadContext;
 
 /**
- * Implementation of {@link JsonStreamContext} used by {@link TokenBuffer}
+ * Implementation of {@link TokenStreamContext} used by {@link TokenBuffer}
  * to link back to the original context to try to keep location information
  * consistent between source location and buffered content when it's re-read
  * from the buffer.
- *
- * @since 2.9
  */
-public class TokenBufferReadContext extends JsonStreamContext
+public class TokenBufferReadContext extends TokenStreamContext
 {
-    protected final JsonStreamContext _parent;
+    protected final TokenStreamContext _parent;
 
     protected final JsonLocation _startLocation;
 
@@ -22,44 +20,34 @@ public class TokenBufferReadContext extends JsonStreamContext
 //    protected JsonReadContext _child;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Location/state information (minus source reference)
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected String _currentName;
 
     protected Object _currentValue;
 
-    /**
-     * @since 2.13
-     */
-    protected TokenBufferReadContext(JsonStreamContext base, ContentReference srcRef)
+    protected TokenBufferReadContext(TokenStreamContext base, ContentReference contentRef)
     {
         super(base);
         _parent = base.getParent();
-        _currentName = base.getCurrentName();
-        _currentValue = base.getCurrentValue();
+        _currentName = base.currentName();
+        _currentValue = base.currentValue();
         if (base instanceof JsonReadContext) {
             JsonReadContext rc = (JsonReadContext) base;
-            _startLocation = rc.startLocation(srcRef);
+            _startLocation = rc.startLocation(contentRef);
         } else {
             _startLocation = JsonLocation.NA;
         }
     }
 
-    @Deprecated // @since 2.13
-    protected TokenBufferReadContext(JsonStreamContext base, Object srcRef) {
-        this(base, (srcRef instanceof ContentReference) ?
-                (ContentReference) srcRef :
-                    ContentReference.rawReference(srcRef));
-    }
-
-    protected TokenBufferReadContext(JsonStreamContext base, JsonLocation startLoc) {
+    protected TokenBufferReadContext(TokenStreamContext base, JsonLocation startLoc) {
         super(base);
         _parent = base.getParent();
-        _currentName = base.getCurrentName();
-        _currentValue = base.getCurrentValue();
+        _currentName = base.currentName();
+        _currentValue = base.currentValue();
         _startLocation = startLoc;
     }
 
@@ -80,22 +68,22 @@ public class TokenBufferReadContext extends JsonStreamContext
     }
 
     @Override
-    public Object getCurrentValue() {
+    public Object currentValue() {
         return _currentValue;
     }
 
     @Override
-    public void setCurrentValue(Object v) {
+    public void assignCurrentValue(Object v) {
         _currentValue = v;
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory methods
-    /**********************************************************
+    /**********************************************************************
      */
 
-    public static TokenBufferReadContext createRootContext(JsonStreamContext origContext) {
+    public static TokenBufferReadContext createRootContext(TokenStreamContext origContext) {
         // First: possible to have no current context; if so, just create bogus ROOT context
         if (origContext == null) {
             return new TokenBufferReadContext();
@@ -133,31 +121,27 @@ public class TokenBufferReadContext extends JsonStreamContext
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Abstract method implementation
-    /**********************************************************
+    /**********************************************************************
      */
 
-    @Override public String getCurrentName() { return _currentName; }
+    @Override public String currentName() { return _currentName; }
 
-    // @since 2.9
     @Override public boolean hasCurrentName() { return _currentName != null; }
 
-    @Override public JsonStreamContext getParent() { return _parent; }
+    @Override public TokenStreamContext getParent() { return _parent; }
 
-    public void setCurrentName(String name) throws JsonProcessingException {
+    public void setCurrentName(String name) {
         _currentName = name;
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended support for context updates
-    /**********************************************************
+    /**********************************************************************
      */
 
-    /**
-     * @since 2.10.1
-     */
     public void updateForValue() {
         ++_index;
     }

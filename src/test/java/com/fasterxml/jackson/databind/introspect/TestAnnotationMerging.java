@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 /**
  * Tests to verify that annotations are shared and merged between members
@@ -77,7 +78,9 @@ public class TestAnnotationMerging extends BaseMapTest
     
     public void testSharedTypeInfo() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .polymorphicTypeValidator(new NoCheckSubTypeValidator())
+                .build();
         String json = mapper.writeValueAsString(new Wrapper(13L));
         Wrapper result = mapper.readValue(json, Wrapper.class);
         assertEquals(Long.class, result.value.getClass());
@@ -85,7 +88,9 @@ public class TestAnnotationMerging extends BaseMapTest
 
     public void testSharedTypeInfoWithCtor() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .polymorphicTypeValidator(new NoCheckSubTypeValidator())
+                .build();
         String json = mapper.writeValueAsString(new TypeWrapper(13L));
         TypeWrapper result = mapper.readValue(json, TypeWrapper.class);
         assertEquals(Long.class, result.value.getClass());

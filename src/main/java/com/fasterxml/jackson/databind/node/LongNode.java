@@ -1,38 +1,36 @@
 package com.fasterxml.jackson.databind.node;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.io.NumberOutput;
 import com.fasterxml.jackson.databind.SerializerProvider;
-
 
 /**
  * Numeric node that contains simple 64-bit integer values.
  */
-@SuppressWarnings("serial")
 public class LongNode
     extends NumericNode
 {
+    private static final long serialVersionUID = 3L;
+
     protected final long _value;
 
-    /* 
-    ************************************************
-    * Construction
-    ************************************************
-    */
+    /*
+    /**********************************************************************
+    /* Construction
+    /**********************************************************************
+     */
 
     public LongNode(long v) { _value = v; }
 
     public static LongNode valueOf(long l) { return new LongNode(l); }
 
-    /* 
-    ************************************************
-    * Overrridden JsonNode methods
-    ************************************************
-    */
+    /*
+    /**********************************************************************
+    /* Overrridden JsonNode methods
+    /**********************************************************************
+     */
 
     @Override public JsonToken asToken() { return JsonToken.VALUE_NUMBER_INT; }
 
@@ -79,7 +77,7 @@ public class LongNode
 
     @Override
     public String asText() {
-        return NumberOutput.toString(_value);
+        return String.valueOf(_value);
     }
 
     @Override
@@ -88,10 +86,10 @@ public class LongNode
     }
     
     @Override
-    public final void serialize(JsonGenerator g, SerializerProvider provider)
-        throws IOException
+    public final void serialize(JsonGenerator jg, SerializerProvider provider)
+        throws JacksonException
     {
-        g.writeNumber(_value);
+        jg.writeNumber(_value);
     }
 
     @Override

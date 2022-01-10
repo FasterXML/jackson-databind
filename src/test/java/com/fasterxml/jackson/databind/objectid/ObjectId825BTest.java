@@ -134,7 +134,7 @@ public class ObjectId825BTest extends BaseMapTest
 
     static class V extends AbstractData {
         private static final long serialVersionUID = 1L;
-    }
+    }    
 
     /*
     /*****************************************************
@@ -146,7 +146,7 @@ public class ObjectId825BTest extends BaseMapTest
     {
         final ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
-                        ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE)
+                        DefaultTyping.OBJECT_AND_NON_CONCRETE)
                 .build();
 
         String INPUT = a2q(

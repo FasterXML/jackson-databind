@@ -4,8 +4,6 @@ import com.fasterxml.jackson.core.Base64Variants;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static org.junit.Assert.*;
-
 /**
  * Unit tests for verifying serialization of simple basic non-structured
  * types; primitives (and/or their wrappers), Strings.
@@ -17,14 +15,14 @@ public class TestSimpleTypes
     
     public void testBoolean() throws Exception
     {
-        assertEquals("true", serializeAsString(MAPPER, Boolean.TRUE));
-        assertEquals("false", serializeAsString(MAPPER, Boolean.FALSE));
+        assertEquals("true", MAPPER.writeValueAsString(Boolean.TRUE));
+        assertEquals("false", MAPPER.writeValueAsString(Boolean.FALSE));
     }
 
     public void testBooleanArray() throws Exception
     {
-        assertEquals("[true,false]", serializeAsString(MAPPER, new boolean[] { true, false} ));
-        assertEquals("[true,false]", serializeAsString(MAPPER, new Boolean[] { Boolean.TRUE, Boolean.FALSE} ));
+        assertEquals("[true,false]", MAPPER.writeValueAsString(new boolean[] { true, false} ));
+        assertEquals("[true,false]", MAPPER.writeValueAsString(new Boolean[] { Boolean.TRUE, Boolean.FALSE} ));
     }
 
     public void testByteArray() throws Exception
@@ -35,8 +33,8 @@ public class TestSimpleTypes
             data2[i] = data[i]; // auto-boxing
         }
         // For this we need to deserialize, to get base64 codec
-        String str1 = serializeAsString(MAPPER, data);
-        String str2 = serializeAsString(MAPPER, data2);
+        String str1 = MAPPER.writeValueAsString(data);
+        String str2 = MAPPER.writeValueAsString(data2);
         assertArrayEquals(data, MAPPER.readValue(str1, byte[].class));
         assertArrayEquals(data2, MAPPER.readValue(str2, Byte[].class));
     }
@@ -63,14 +61,14 @@ public class TestSimpleTypes
     
     public void testShortArray() throws Exception
     {
-        assertEquals("[0,1]", serializeAsString(MAPPER, new short[] { 0, 1 }));
-        assertEquals("[2,3]", serializeAsString(MAPPER, new Short[] { 2, 3 }));
+        assertEquals("[0,1]", MAPPER.writeValueAsString(new short[] { 0, 1 }));
+        assertEquals("[2,3]", MAPPER.writeValueAsString(new Short[] { 2, 3 }));
     }
 
     public void testIntArray() throws Exception
     {
-        assertEquals("[0,-3]", serializeAsString(MAPPER, new int[] { 0, -3 }));
-        assertEquals("[13,9]", serializeAsString(MAPPER, new Integer[] { 13, 9 }));
+        assertEquals("[0,-3]", MAPPER.writeValueAsString(new int[] { 0, -3 }));
+        assertEquals("[13,9]", MAPPER.writeValueAsString(new Integer[] { 13, 9 }));
     }
 
     /* Note: dealing with floating-point values is tricky; not sure if
@@ -89,7 +87,7 @@ public class TestSimpleTypes
            if (Float.isNaN(f) || Float.isInfinite(f)) {
                expected = "\""+expected+"\"";
        	   }
-           assertEquals(expected,serializeAsString(MAPPER, Float.valueOf(f)));
+           assertEquals(expected, MAPPER.writeValueAsString(Float.valueOf(f)));
         }
     }
 

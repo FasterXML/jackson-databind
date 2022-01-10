@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 import org.junit.Test;
 
@@ -115,6 +116,10 @@ public class TestSubtypesExternalPropertyMissingProperty extends BaseMapTest
     /**********************************************************
      */
 
+    protected static JsonMapper.Builder jsonMapperBuilder() {
+        return JsonMapper.builder();
+    }
+    
     /**
      * Deserialization tests for external type id property present
      */
@@ -242,16 +247,16 @@ public class TestSubtypesExternalPropertyMissingProperty extends BaseMapTest
             r.forType(Box.class).readValue(json);
             fail("Should not pass");
         } catch (MismatchedInputException e) {
-            BaseMapTest.verifyException(e, "Missing property 'fruit' for external type id 'type'");
+            verifyException(e, "Missing property 'fruit' for external type id 'type'");
         }
     }
 
     private void checkReqBoxDatabindException(ObjectReader r, String json) throws Exception {
         try {
-            r.forType(ReqBox.class).readValue(json, ReqBox.class);
+            r.forType(ReqBox.class).readValue(json);
             fail("Should not pass");
         } catch (MismatchedInputException e) {
-            BaseMapTest.verifyException(e, "Missing property 'fruit' for external type id 'type'");
+            verifyException(e, "Missing property 'fruit' for external type id 'type'");
         }
     }
 }    

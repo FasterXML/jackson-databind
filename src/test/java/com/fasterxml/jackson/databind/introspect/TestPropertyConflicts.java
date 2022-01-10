@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.introspect;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 
 /**
@@ -45,7 +46,7 @@ public class TestPropertyConflicts extends BaseMapTest
         private static final long serialVersionUID = 1L;
 
         @Override
-        public String findImplicitPropertyName(AnnotatedMember member) {
+        public String findImplicitPropertyName(MapperConfig<?> config, AnnotatedMember member) {
             String name = member.getName();
             if (name.startsWith("_")) {
                 return name.substring(1);
@@ -124,22 +125,17 @@ public class TestPropertyConflicts extends BaseMapTest
     
     public void testInferredNameConflictsWithSetters() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setAnnotationIntrospector(new InferingIntrospector());
+        ObjectMapper mapper = jsonMapperBuilder()
+                .annotationIntrospector(new InferingIntrospector())
+                .build();
         Infernal inf = mapper.readValue(a2q("{'stuff':'Bob'}"), Infernal.class);
         assertNotNull(inf);
     }
 
     public void testIssue541() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
-                .disable(
-                MapperFeature.AUTO_DETECT_CREATORS,
-                MapperFeature.AUTO_DETECT_FIELDS,
-                MapperFeature.AUTO_DETECT_GETTERS,
-                MapperFeature.AUTO_DETECT_IS_GETTERS,
-                MapperFeature.AUTO_DETECT_SETTERS,
-                MapperFeature.USE_GETTERS_AS_SETTERS
-                        ).build();
+                .disable(MapperFeature.USE_GETTERS_AS_SETTERS)
+                .build();
         Bean541 data = mapper.readValue("{\"str\":\"the string\"}", Bean541.class);
         if (data == null) {
             throw new IllegalStateException("data is null");

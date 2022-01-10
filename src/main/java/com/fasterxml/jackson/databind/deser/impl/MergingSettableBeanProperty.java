@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
-import java.io.IOException;
-
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.*;
@@ -10,7 +9,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 /**
  * {@link SettableBeanProperty} implementation that will try to access value of
  * the property first, and if non-null value found, pass that for update
- * (using {@link com.fasterxml.jackson.databind.JsonDeserializer#deserialize(com.fasterxml.jackson.core.JsonParser, com.fasterxml.jackson.databind.DeserializationContext, Object)})
+ * (using {@link com.fasterxml.jackson.databind.ValueDeserializer#deserialize(com.fasterxml.jackson.core.JsonParser, com.fasterxml.jackson.databind.DeserializationContext, Object)})
  * instead of constructing a new value. This is necessary to support "merging" properties.
  *<p>
  * Note that there are many similarities to {@link SetterlessProperty}, which predates
@@ -68,7 +67,7 @@ public class MergingSettableBeanProperty
 
     @Override
     public void deserializeAndSet(JsonParser p, DeserializationContext ctxt,
-            Object instance) throws IOException
+            Object instance) throws JacksonException
     {
         Object oldValue = _accessor.getValue(instance);
         Object newValue;
@@ -88,7 +87,8 @@ public class MergingSettableBeanProperty
 
     @Override
     public Object deserializeSetAndReturn(JsonParser p,
-            DeserializationContext ctxt, Object instance) throws IOException
+            DeserializationContext ctxt, Object instance)
+        throws JacksonException
     {
         Object oldValue = _accessor.getValue(instance);
         Object newValue;
@@ -113,7 +113,7 @@ public class MergingSettableBeanProperty
     }
 
     @Override
-    public void set(Object instance, Object value) throws IOException {
+    public void set(Object instance, Object value) {
         // 31-Oct-2016, tatu: Basically should just ignore as null can't really
         //    contribute to merging.
         if (value != null) {
@@ -122,7 +122,7 @@ public class MergingSettableBeanProperty
     }
 
     @Override
-    public Object setAndReturn(Object instance, Object value) throws IOException {
+    public Object setAndReturn(Object instance, Object value) {
         // 31-Oct-2016, tatu: Basically should just ignore as null can't really
         //    contribute to merging.
         if (value != null) {

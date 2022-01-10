@@ -6,17 +6,14 @@ import java.util.Iterator;
 
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.JsonMappingException;
 
 /**
- * Base class for {@link JsonMappingException}s that are specifically related
+ * Base class for {@link MismatchedInputException}s that are specifically related
  * to problems related to binding an individual property.
- * 
- * @since 2.3
  */
 @SuppressWarnings("serial")
 public abstract class PropertyBindingException
-    extends MismatchedInputException // since 2.9
+    extends MismatchedInputException
 {
     /**
      * Class that does not contain mapping for the unrecognized property.
@@ -42,9 +39,6 @@ public abstract class PropertyBindingException
      */
     protected transient String _propertiesAsString;
 
-    /**
-     * @since 2.7
-     */
     protected PropertyBindingException(JsonParser p, String msg, JsonLocation loc,
             Class<?> referringClass, String propName,
             Collection<Object> propertyIds)
@@ -53,17 +47,6 @@ public abstract class PropertyBindingException
         _referringClass = referringClass;
         _propertyName = propName;
         _propertyIds = propertyIds;
-    }
-
-    /**
-     * @deprecated Since 2.7
-     */
-    @Deprecated // since 2.7
-    protected PropertyBindingException(String msg, JsonLocation loc,
-            Class<?> referringClass, String propName,
-            Collection<Object> propertyIds)
-    {
-        this(null, msg, loc, referringClass, propName, propertyIds);
     }
 
     /*
@@ -79,7 +62,7 @@ public abstract class PropertyBindingException
     private final static int MAX_DESC_LENGTH = 1000;
 
     @Override
-    public String getMessageSuffix()
+    public String messageSuffix()
     {
         String suffix = _propertiesAsString;
         if (suffix == null && _propertyIds != null) {

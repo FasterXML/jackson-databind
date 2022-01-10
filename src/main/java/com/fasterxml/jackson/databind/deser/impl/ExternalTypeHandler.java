@@ -1,11 +1,13 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
+import com.fasterxml.jackson.databind.deser.bean.BeanPropertyMap;
+import com.fasterxml.jackson.databind.deser.bean.PropertyBasedCreator;
+import com.fasterxml.jackson.databind.deser.bean.PropertyValueBuffer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
@@ -55,9 +57,6 @@ public class ExternalTypeHandler
         _tokens = new TokenBuffer[len];
     }
 
-    /**
-     * @since 2.9
-     */
     public static Builder builder(JavaType beanType) {
         return new Builder(beanType);
     }
@@ -80,7 +79,7 @@ public class ExternalTypeHandler
     @SuppressWarnings("unchecked")
     public boolean handleTypePropertyValue(JsonParser p, DeserializationContext ctxt,
             String propName, Object bean)
-        throws IOException
+        throws JacksonException
     {
         Object ob = _nameToPropertyIndex.get(propName);
         if (ob == null) {
@@ -104,7 +103,7 @@ public class ExternalTypeHandler
 
     private final boolean _handleTypePropertyValue(JsonParser p, DeserializationContext ctxt,
             String propName, Object bean, String typeId, int index)
-        throws IOException
+        throws JacksonException
     {
         ExtTypedProperty prop = _properties[index];
         if (!prop.hasTypePropertyName(propName)) { // when could/should this ever happen?
@@ -133,7 +132,7 @@ public class ExternalTypeHandler
      */
     @SuppressWarnings("unchecked")
     public boolean handlePropertyValue(JsonParser p, DeserializationContext ctxt,
-            String propName, Object bean) throws IOException
+            String propName, Object bean) throws JacksonException
     {
         Object ob = _nameToPropertyIndex.get(propName);
         if (ob == null) {
@@ -199,7 +198,7 @@ public class ExternalTypeHandler
      */
     @SuppressWarnings("resource")
     public Object complete(JsonParser p, DeserializationContext ctxt, Object bean)
-        throws IOException
+        throws JacksonException
     {
         for (int i = 0, len = _properties.length; i < len; ++i) {
             String typeId = _typeIds[i];
@@ -215,7 +214,7 @@ public class ExternalTypeHandler
                 // will be included.
                 JsonToken t = tokens.firstToken();
                 if (t.isScalarValue()) { // can't be null as we never store empty buffers
-                    JsonParser buffered = tokens.asParser(p);
+                    JsonParser buffered = tokens.asParser(ctxt, p);
                     buffered.nextToken();
                     SettableBeanProperty prop = extProp.getProperty();
                     Object result = TypeDeserializer.deserializeIfNatural(buffered, ctxt, prop.getType());
@@ -230,7 +229,7 @@ public class ExternalTypeHandler
                             "Missing external type id property '%s' (and no 'defaultImpl' specified)",
                             extProp.getTypePropertyName());
                 } else  {
-                    typeId = extProp.getDefaultTypeId();
+                    typeId = extProp.getDefaultTypeId(ctxt);
                     if (typeId == null) {
                         ctxt.reportPropertyInputMismatch(_beanType, extProp.getProperty().getName(),
 "Invalid default type id for property '%s': `null` returned by TypeIdResolver",
@@ -259,7 +258,7 @@ public class ExternalTypeHandler
      */
     public Object complete(JsonParser p, DeserializationContext ctxt,
             PropertyValueBuffer buffer, PropertyBasedCreator creator)
-        throws IOException
+        throws JacksonException
     {
         // first things first: deserialize all data buffered:
         final int len = _properties.length;
@@ -284,7 +283,7 @@ public class ExternalTypeHandler
                             "Missing external type id property '%s'",
                             extProp.getTypePropertyName());
                 } else {
-                    typeId = extProp.getDefaultTypeId();
+                    typeId = extProp.getDefaultTypeId(ctxt);
                 }
             } else if (_tokens[i] == null) {
                 SettableBeanProperty prop = extProp.getProperty();
@@ -336,9 +335,9 @@ public class ExternalTypeHandler
 
     @SuppressWarnings("resource")
     protected final Object _deserialize(JsonParser p, DeserializationContext ctxt,
-            int index, String typeId) throws IOException
+            int index, String typeId) throws JacksonException
     {
-        JsonParser p2 = _tokens[index].asParser(p);
+        JsonParser p2 = _tokens[index].asParser(ctxt, p);
         JsonToken t = p2.nextToken();
         // 29-Sep-2015, tatu: As per [databind#942], nulls need special support
         if (t == JsonToken.VALUE_NULL) {
@@ -351,14 +350,14 @@ public class ExternalTypeHandler
         merged.writeEndArray();
 
         // needs to point to START_OBJECT (or whatever first token is)
-        JsonParser mp = merged.asParser(p);
+        JsonParser mp = merged.asParser(ctxt, p);
         mp.nextToken();
         return _properties[index].getProperty().deserialize(mp, ctxt);
     }
 
     @SuppressWarnings("resource")
     protected final void _deserializeAndSet(JsonParser p, DeserializationContext ctxt,
-            Object bean, int index, String typeId) throws IOException
+            Object bean, int index, String typeId) throws JacksonException
     {
         // 11-Nov-2020, tatu: Should never get `null` passed this far,
         if (typeId == null) {
@@ -367,7 +366,7 @@ public class ExternalTypeHandler
 
         // Ok: time to mix type id, value; and we will actually use "wrapper-array"
         // style to ensure we can handle all kinds of JSON constructs.
-        JsonParser p2 = _tokens[index].asParser(p);
+        JsonParser p2 = _tokens[index].asParser(ctxt, p);
         JsonToken t = p2.nextToken();
         // 29-Sep-2015, tatu: As per [databind#942], nulls need special support
         if (t == JsonToken.VALUE_NULL) {
@@ -381,7 +380,7 @@ public class ExternalTypeHandler
         merged.copyCurrentStructure(p2);
         merged.writeEndArray();
         // needs to point to START_OBJECT (or whatever first token is)
-        JsonParser mp = merged.asParser(p);
+        JsonParser mp = merged.asParser(ctxt, p);
         mp.nextToken();
         _properties[index].getProperty().deserializeAndSet(mp, ctxt, bean);
     }
@@ -431,8 +430,6 @@ public class ExternalTypeHandler
          * Method called after all external properties have been assigned, to further
          * link property with polymorphic value with possible property for type id
          * itself. This is needed to support type ids as Creator properties.
-         *
-         * @since 2.8
          */
         public ExternalTypeHandler build(BeanPropertyMap otherProps) {
             // 21-Jun-2016, tatu: as per [databind#999], may need to link type id property also
@@ -441,7 +438,7 @@ public class ExternalTypeHandler
             for (int i = 0; i < len; ++i) {
                 ExtTypedProperty extProp = _properties.get(i);
                 String typePropId = extProp.getTypePropertyName();
-                SettableBeanProperty typeProp = otherProps.find(typePropId);
+                SettableBeanProperty typeProp = otherProps.findDefinition(typePropId);
                 if (typeProp != null) {
                     extProp.linkTypeProperty(typeProp);
                 }
@@ -458,9 +455,6 @@ public class ExternalTypeHandler
         private final TypeDeserializer _typeDeserializer;
         private final String _typePropertyName;
 
-        /**
-         * @since 2.8
-         */
         private SettableBeanProperty _typeProperty;
 
         public ExtTypedProperty(SettableBeanProperty property, TypeDeserializer typeDeser)
@@ -490,12 +484,12 @@ public class ExternalTypeHandler
          * serializing: we may need to expose it for assignment to a property, or
          * it may be requested as visible for some other reason.
          */
-        public String getDefaultTypeId() {
+        public String getDefaultTypeId(DeserializationContext ctxt) {
             Class<?> defaultType = _typeDeserializer.getDefaultImpl();
             if (defaultType == null) {
                 return null;
             }
-            return _typeDeserializer.getTypeIdResolver().idFromValueAndType(null, defaultType);
+            return _typeDeserializer.getTypeIdResolver().idFromValueAndType(ctxt, null, defaultType);
         }
 
         public String getTypePropertyName() { return _typePropertyName; }
@@ -504,9 +498,6 @@ public class ExternalTypeHandler
             return _property;
         }
 
-        /**
-         * @since 2.8
-         */
         public SettableBeanProperty getTypeProperty() {
             return _typeProperty;
         }

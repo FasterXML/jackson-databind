@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.jsontype;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
 
 /**
  * Interface for classes that handle validation of class-name - based subtypes used
@@ -27,7 +26,7 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
  *     denial with exception
  *   </li>
  *  <li>If no denial/allowance indicated, class name is resolved to actual {@link Class}, and
- *  {@link #validateSubType(MapperConfig, JavaType, JavaType)} is called: if
+ *  {@link #validateSubType} is called: if
  *  {@link Validity#ALLOWED} is returned, usage is accepted; otherwise (denied or indeterminate)
  *  usage is not allowed and exception is thrown
  *   </li>
@@ -44,13 +43,11 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
  * abstract base class, {@link PolymorphicTypeValidator.Base} which contains helper methods
  * and default implementations for returning {@link Validity#INDETERMINATE} for validation
  * methods (to allow only overriding relevant methods implementation cares about)
- *
- * @since 2.10
  */
 public abstract class PolymorphicTypeValidator
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 3L;
 
     /**
      * Definition of return values to indicate determination regarding validity.
@@ -85,7 +82,7 @@ public abstract class PolymorphicTypeValidator
      * are known to be safe). Check can be thought of as both optimization (for latter case)
      * and eager-fail (for former case) to give better feedback.
      * 
-     * @param config Configuration for resolution: typically will be {@code DeserializationConfig}
+     * @param ctxt Context for resolution: typically will be {@code DeserializationContext}
      * @param baseType Nominal base type used for polymorphic handling: subtypes MUST be instances
      *   of this type and assignment compatibility is verified by Jackson core
      *
@@ -95,7 +92,7 @@ public abstract class PolymorphicTypeValidator
      *    (caller will usually throw an exception); otherwise (return {@link Validity#INDETERMINATE})
      *    per sub-type validation calls are made for each new subclass encountered.
      */
-    public abstract Validity validateBaseType(MapperConfig<?> config, JavaType baseType);
+    public abstract Validity validateBaseType(DatabindContext ctxt, JavaType baseType);
 
     /**
      * Method called after intended class name for subtype has been read (and in case of minimal
@@ -106,10 +103,10 @@ public abstract class PolymorphicTypeValidator
      * {@link Validity#DENIED}) or, if not able to, can defer validation to actual
      * resolved type by returning {@link Validity#INDETERMINATE}.
      *<p>
-     * Validator may also choose to indicate denial by throwing a {@link JsonMappingException}
+     * Validator may also choose to indicate denial by throwing a {@link DatabindException}
      * (such as {@link com.fasterxml.jackson.databind.exc.InvalidTypeIdException})
      *
-     * @param config Configuration for resolution: typically will be {@code DeserializationConfig}
+     * @param ctxt Context for resolution: typically will be {@code DeserializationContext}
      * @param baseType Nominal base type used for polymorphic handling: subtypes MUST be instances
      *   of this type and assignment compatibility is verified by Jackson core
      * @param subClassName Name of class that will be resolved to {@link java.lang.Class} if
@@ -118,8 +115,8 @@ public abstract class PolymorphicTypeValidator
      * @return Determination of validity of given class name, as a subtype of given base type:
      *   should NOT return {@code null}
      */
-    public abstract Validity validateSubClassName(MapperConfig<?> config, JavaType baseType,
-            String subClassName) throws JsonMappingException;
+    public abstract Validity validateSubClassName(DatabindContext ctxt, JavaType baseType,
+            String subClassName);
 
     /**
      * Method called after class name has been resolved to actual type, in cases where previous
@@ -127,10 +124,10 @@ public abstract class PolymorphicTypeValidator
      * Validator should be able to determine validity and return appropriate {@link Validity}
      * value, although it may also
      *<p>
-     * Validator may also choose to indicate denial by throwing a {@link JsonMappingException}
+     * Validator may also choose to indicate denial by throwing a {@link DatabindException}
      * (such as {@link com.fasterxml.jackson.databind.exc.InvalidTypeIdException})
      *
-     * @param config Configuration for resolution: typically will be {@code DeserializationConfig}
+     * @param ctxt Context for resolution: typically will be {@code DeserializationContext}
      * @param baseType Nominal base type used for polymorphic handling: subtypes MUST be instances
      *   of this type and assignment compatibility has been verified by Jackson core
      * @param subType Resolved subtype to validate
@@ -138,8 +135,8 @@ public abstract class PolymorphicTypeValidator
      * @return Determination of validity of given class name, as a subtype of given base type:
      *   should NOT return {@code null}
      */
-    public abstract Validity validateSubType(MapperConfig<?> config, JavaType baseType,
-            JavaType subType) throws JsonMappingException;
+    public abstract Validity validateSubType(DatabindContext ctxt, JavaType baseType,
+            JavaType subType);
 
     /**
      * Shared base class with partial implementation (with all validation calls returning
@@ -153,19 +150,20 @@ public abstract class PolymorphicTypeValidator
         private static final long serialVersionUID = 1L;
 
         @Override
-        public Validity validateBaseType(MapperConfig<?> config, JavaType baseType) {
+        public Validity validateBaseType(DatabindContext ctxt, JavaType baseType)
+        {
             return Validity.INDETERMINATE;
         }
     
         @Override
-        public Validity validateSubClassName(MapperConfig<?> config, JavaType baseType, String subClassName)
-                throws JsonMappingException {
+        public Validity validateSubClassName(DatabindContext ctxt, JavaType baseType, String subClassName)
+        {
             return Validity.INDETERMINATE;
         }
     
         @Override
-        public Validity validateSubType(MapperConfig<?> config, JavaType baseType, JavaType subType)
-                throws JsonMappingException {
+        public Validity validateSubType(DatabindContext ctxt, JavaType baseType, JavaType subType)
+        {
             return Validity.INDETERMINATE;
         }
     }

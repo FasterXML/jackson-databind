@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
  * @param <OUT> Result type from conversion
  *
  * @see com.fasterxml.jackson.databind.ser.std.StdDelegatingSerializer
- * @see com.fasterxml.jackson.databind.deser.std.StdDelegatingDeserializer
+ * @see com.fasterxml.jackson.databind.deser.std.StdConvertingDeserializer
  *
  * @since 2.1
  */

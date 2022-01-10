@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser.filter;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
@@ -41,10 +40,9 @@ public class ProblemHandlerLocation1440Test extends BaseMapTest
         
         @Override
         public boolean handleUnknownProperty(final DeserializationContext ctxt, final JsonParser p,
-                JsonDeserializer<?> deserializer, Object beanOrClass, String propertyName)
-                        throws IOException
+                ValueDeserializer<?> deserializer, Object beanOrClass, String propertyName)
         {
-            final JsonStreamContext parsingContext = p.getParsingContext();
+            final TokenStreamContext parsingContext = p.streamReadContext();
             final List<String> pathList = new ArrayList<>();
             addParent(parsingContext, pathList);
             Collections.reverse(pathList);
@@ -67,9 +65,9 @@ public class ProblemHandlerLocation1440Test extends BaseMapTest
             return sb.toString();
         }
 
-        private void addParent(final JsonStreamContext streamContext, final List<String> pathList) {
-            if (streamContext != null && streamContext.getCurrentName() != null) {
-                pathList.add(streamContext.getCurrentName());
+        private void addParent(final TokenStreamContext streamContext, final List<String> pathList) {
+            if (streamContext != null && streamContext.currentName() != null) {
+                pathList.add(streamContext.currentName());
                 addParent(streamContext.getParent(), pathList);
             }
         }
@@ -124,11 +122,12 @@ public class ProblemHandlerLocation1440Test extends BaseMapTest
 +"'target': {'id': 'target_id','type': 'target_type','invalid_3': 'target_invalid_3',"
 +"'invalid_4': 'target_invalid_4','status': 'target_status','context': 'target_context'}}"
 );
-
-        ObjectMapper mapper = newJsonMapper();
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         final DeserializationProblemLogger logger = new DeserializationProblemLogger();
-        mapper.addHandler(logger);
+
+        ObjectMapper mapper = jsonMapperBuilder()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .addHandler(logger)
+                .build();
         mapper.readValue(invalidInput, Activity.class);
 
         List<String> probs = logger.problems();

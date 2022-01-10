@@ -5,8 +5,8 @@ import org.junit.Assert;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.DefaultTyping;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 public class TestDefaultWithCreators
@@ -67,9 +67,9 @@ public class TestDefaultWithCreators
 
     public void testWithCreators() throws Exception
     {
-        ObjectMapper mapper = JsonMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
-                        ObjectMapper.DefaultTyping.NON_FINAL)
+                        DefaultTyping.NON_FINAL)
                 .build();
         UrlJob input = new UrlJob(123L, "http://foo", 3);
         String json = mapper.writeValueAsString(input);
@@ -87,7 +87,7 @@ public class TestDefaultWithCreators
     public void testWithCreatorAndJsonValue() throws Exception
     {
         final byte[] BYTES = new byte[] { 1, 2, 3, 4, 5 };
-        ObjectMapper mapper = JsonMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance)
                 .build();
         String json = mapper.writeValueAsString(new Bean1385Wrapper(

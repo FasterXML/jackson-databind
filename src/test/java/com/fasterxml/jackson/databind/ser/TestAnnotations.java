@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 /**
  * This unit test suite tests use of Annotations for
@@ -17,12 +18,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 public class TestAnnotations
     extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Helper classes
-    /**********************************************************
-     */
-
     /// Class for testing {@link JsonProperty} annotations with getters
     final static class SizeClassGetter
     {
@@ -51,7 +46,7 @@ public class TestAnnotations
 
 
     /**
-     * Class for testing {@link JsonSerializer} annotation
+     * Class for testing {@link ValueSerializer} annotation
      * for class itself.
      */
     @JsonSerialize(using=BogusSerializer.class)
@@ -81,7 +76,7 @@ public class TestAnnotations
         public InactiveClassMethodSerializer(int x) { _x = x; }
 
         // Basically, has no effect, hence gets serialized as number
-        @JsonSerialize(using=JsonSerializer.None.class)
+        @JsonSerialize(using=ValueSerializer.None.class)
         public int getX() { return _x; }
     }
 
@@ -135,23 +130,23 @@ public class TestAnnotations
     /**********************************************************
      */
 
-    public final static class BogusSerializer extends JsonSerializer<Object>
+    public final static class BogusSerializer extends StdSerializer<Object>
     {
+        public BogusSerializer() { super(Object.class); }
         @Override
-        public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException
+        public void serialize(Object value, JsonGenerator g, SerializerProvider provider)
         {
-            jgen.writeBoolean(true);
+            g.writeBoolean(true);
         }
     }
 
-    private final static class StringSerializer extends JsonSerializer<Object>
+    private final static class StringSerializer extends StdSerializer<Object>
     {
+        public StringSerializer() { super(Object.class); }
         @Override
-        public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException
+        public void serialize(Object value, JsonGenerator g, SerializerProvider provider)
         {
-            jgen.writeString("X"+value+"X");
+            g.writeString("X"+value+"X");
         }
 
     }
@@ -213,16 +208,15 @@ public class TestAnnotations
     }
 
     /**
-     * Unit test to verify that @JsonSerializer annotation works
+     * Unit test to verify that {@code @JsonSerialize} annotation works
      * when applied to a Method
      */
     public void testActiveMethodSerializer() throws Exception
     {
         StringWriter sw = new StringWriter();
         MAPPER.writeValue(sw, new ClassMethodSerializer(13));
-        /* Here we will get wrapped as an object, since we have
-         * full object, just override a single property
-         */
+        // Here we will get wrapped as an object, since we have
+        // full object, just override a single property
         assertEquals("{\"x\":\"X13X\"}", sw.toString());
     }
 

@@ -101,8 +101,9 @@ public class TestTypedSerialization
      */
     public void testTypeAsWrapper() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.addMixIn(Animal.class, TypeWithWrapper.class);
+        ObjectMapper m = jsonMapperBuilder()
+                .addMixIn(Animal.class, TypeWithWrapper.class)
+                .build();
         Map<String,Object> result = writeAndMap(m, new Cat("Venla", "black"));
         // should get a wrapper; keyed by minimal class name ("Cat" here)
         assertEquals(1, result.size());
@@ -119,8 +120,9 @@ public class TestTypedSerialization
      */
     public void testTypeAsArray() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.addMixIn(Animal.class, TypeWithArray.class);
+        ObjectMapper m = jsonMapperBuilder()
+                .addMixIn(Animal.class, TypeWithArray.class)
+                .build();
         // hmmh. Not good idea to rely on exact output, order may change. But...
         Map<String,Object> result = writeAndMap(m, new AnimalWrapper(new Dog("Amadeus", 7)));
         // First level, wrapper
@@ -149,9 +151,10 @@ public class TestTypedSerialization
     public void testInArray() throws Exception
     {
         // ensure we'll use mapper with default configs
-        ObjectMapper m = new ObjectMapper();
-        // ... so this should NOT be needed...
-        m.deactivateDefaultTyping();
+        ObjectMapper m = jsonMapperBuilder()
+                // ... so this should NOT be needed...
+                .deactivateDefaultTyping()
+                .build();
         
         Animal[] animals = new Animal[] { new Cat("Miuku", "white"), new Dog("Murre", 9) };
         Map<String,Object> map = new HashMap<String,Object>();
@@ -181,14 +184,12 @@ public class TestTypedSerialization
      */
     public void testEmptyBean() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+        ObjectMapper m = jsonMapperBuilder()
+                .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
+                .build();
         assertEquals("{\"@type\":\"empty\"}", m.writeValueAsString(new Empty()));
     }
 
-    /**
-     * Unit test for [JACKSON-543]
-     */
     public void testTypedMaps() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();

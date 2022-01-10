@@ -1,10 +1,10 @@
 package com.fasterxml.jackson.databind.util;
 
-import java.io.IOException;
-
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.SerializableString;
-import com.fasterxml.jackson.databind.JsonSerializable;
+
+import com.fasterxml.jackson.databind.JacksonSerializable;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
@@ -14,15 +14,13 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  * {@link com.fasterxml.jackson.core.JsonGenerator#writeRawValue(String)}.
  * It may be stored in {@link TokenBuffer}, as well as in Tree Model
  * ({@link com.fasterxml.jackson.databind.JsonNode})
- * 
- * @since 2.6
  */
 public class RawValue
-    implements JsonSerializable
+    implements JacksonSerializable
 {
     /**
      * Contents to serialize. Untyped because there are multiple types that are
-     * supported: {@link java.lang.String}, {@link JsonSerializable}, {@link SerializableString}.
+     * supported: {@link java.lang.String}, {@link JacksonSerializable}, {@link SerializableString}.
      */
     protected Object _value;
 
@@ -34,7 +32,7 @@ public class RawValue
         _value = v;
     }
 
-    public RawValue(JsonSerializable v) {
+    public RawValue(JacksonSerializable v) {
         _value = v;
     }
 
@@ -51,17 +49,17 @@ public class RawValue
 
     /**
      * Accessor for returning enclosed raw value in whatever form it was created in
-     * (usually {@link java.lang.String}, {link SerializableString}, or any {@link JsonSerializable}).
+     * (usually {@link java.lang.String}, {link SerializableString}, or any {@link JacksonSerializable}).
      */
     public Object rawValue() {
         return _value;
     }
     
     @Override
-    public void serialize(JsonGenerator gen, SerializerProvider serializers) throws IOException
+    public void serialize(JsonGenerator gen, SerializerProvider serializers) throws JacksonException
     {
-        if (_value instanceof JsonSerializable) {
-            ((JsonSerializable) _value).serialize(gen, serializers);
+        if (_value instanceof JacksonSerializable) {
+            ((JacksonSerializable) _value).serialize(gen, serializers);
         } else {
             _serialize(gen);
         }
@@ -69,10 +67,10 @@ public class RawValue
 
     @Override
     public void serializeWithType(JsonGenerator gen, SerializerProvider serializers,
-            TypeSerializer typeSer) throws IOException
+            TypeSerializer typeSer) throws JacksonException
     {
-        if (_value instanceof JsonSerializable) {
-            ((JsonSerializable) _value).serializeWithType(gen, serializers, typeSer);
+        if (_value instanceof JacksonSerializable) {
+            ((JacksonSerializable) _value).serializeWithType(gen, serializers, typeSer);
         } else if (_value instanceof SerializableString) {
             /* Since these are not really to be deserialized (with or without type info),
              * just re-route as regular write, which will create one... hopefully it works
@@ -81,17 +79,17 @@ public class RawValue
         }
     }
 
-    public void serialize(JsonGenerator gen) throws IOException
+    public void serialize(JsonGenerator gen) throws JacksonException
     {
-        if (_value instanceof JsonSerializable) {
+        if (_value instanceof JacksonSerializable) {
             // No SerializerProvider passed, must go via generator, callback
-            gen.writeObject(_value);
+            gen.writePOJO(_value);
         } else {
             _serialize(gen);
         }
     }
 
-    protected void _serialize(JsonGenerator gen) throws IOException
+    protected void _serialize(JsonGenerator gen) throws JacksonException
     {
         if (_value instanceof SerializableString) {
             gen.writeRawValue((SerializableString) _value);

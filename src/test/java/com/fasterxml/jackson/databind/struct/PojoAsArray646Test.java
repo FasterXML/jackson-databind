@@ -75,12 +75,12 @@ public class PojoAsArray646Test extends BaseMapTest
     }
 
     /*
-    /**********************************************************
-    /* Tests
-    /**********************************************************
+    /**********************************************************************
+    /* Test methods
+    /**********************************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = objectMapper();
 
     public void testWithCustomTypeId() throws Exception {
 

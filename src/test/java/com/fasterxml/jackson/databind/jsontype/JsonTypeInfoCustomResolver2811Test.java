@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.databind.jsontype;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.databind.*;
@@ -53,23 +51,24 @@ public class JsonTypeInfoCustomResolver2811Test extends BaseMapTest
         }
 
         @Override
-        public String idFromValue(Object value) {
-            return idFromValueAndType(value, value.getClass());
+        public String idFromValue(DatabindContext ctxt, Object value) {
+            return idFromValueAndType(ctxt, value, value.getClass());
         }
 
         @Override
-        public String idFromValueAndType(Object value, Class<?> suggestedType) {
+        public String idFromValueAndType(DatabindContext ctxt,
+                Object value, Class<?> suggestedType) {
             // only to be called for default type but...
             return suggestedType.getSimpleName().toUpperCase();
         }
 
         @Override
-        public JavaType typeFromId(DatabindContext context, String id) throws IOException {
+        public JavaType typeFromId(DatabindContext context, String id) {
             Class<? extends Vehicle> vehicleClass;
             try {
                 vehicleClass = VehicleType.valueOf(id).vehicleClass;
             } catch (IllegalArgumentException e) {
-                throw new IOException(e.getMessage(), e);
+                throw e;
             }
             return context.constructSpecializedType(superType, vehicleClass);
         }

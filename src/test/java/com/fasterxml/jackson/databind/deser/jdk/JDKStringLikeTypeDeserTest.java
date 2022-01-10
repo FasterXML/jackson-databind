@@ -5,7 +5,6 @@ import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Currency;
-import java.util.Locale;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -13,6 +12,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.core.Base64Variants;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.ObjectReadContext;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -44,14 +44,13 @@ public class JDKStringLikeTypeDeserTest extends BaseMapTest
         protected StackTraceElement location;    
     }
 
-    @SuppressWarnings("serial")
     static class MyStackTraceElementDeserializer extends StdDeserializer<StackTraceElement>
     {
         public MyStackTraceElementDeserializer() { super(StackTraceElement.class); }
         
         @Override
         public StackTraceElement deserialize(JsonParser jp,
-                DeserializationContext ctxt) throws IOException {
+                DeserializationContext ctxt) {
             jp.skipChildren();
             return new StackTraceElement("a", "b", "b", StackTraceBean.NUM);
         }
@@ -127,16 +126,6 @@ public class JDKStringLikeTypeDeserTest extends BaseMapTest
         String json = MAPPER.writeValueAsString(abs);
         File result = MAPPER.readValue(json, File.class);
         assertEquals(abs, result.getAbsolutePath());
-    }
-
-    public void testLocale() throws IOException
-    {
-        assertEquals(new Locale("en"), MAPPER.readValue(q("en"), Locale.class));
-        assertEquals(new Locale("es", "ES"), MAPPER.readValue(q("es_ES"), Locale.class));
-        assertEquals(new Locale("FI", "fi", "savo"),
-                MAPPER.readValue(q("fi_FI_savo"), Locale.class));
-        assertEquals(new Locale("en", "US"),
-                MAPPER.readValue(q("en-US"), Locale.class));
     }
 
     public void testCharSequence() throws IOException
@@ -229,11 +218,11 @@ public class JDKStringLikeTypeDeserTest extends BaseMapTest
         assertEquals(StackTraceBean.NUM, bean.location.getLineNumber());
 
         // and then directly, iff registered
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
         module.addDeserializer(StackTraceElement.class, new MyStackTraceElementDeserializer());
-        mapper.registerModule(module);
-        
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
         StackTraceElement elem = mapper.readValue("123", StackTraceElement.class);
         assertNotNull(elem);
         assertEquals(StackTraceBean.NUM, elem.getLineNumber());
@@ -277,17 +266,20 @@ public class JDKStringLikeTypeDeserTest extends BaseMapTest
         assertEquals(exp, MAPPER.readValue("\""+exp.toString()+"\"", URL.class));
 
         // trivial case; null to null, embedded URL to URL
-        TokenBuffer buf = new TokenBuffer(null, false);
-        buf.writeObject(null);
-        assertNull(MAPPER.readValue(buf.asParser(), URL.class));
+        TokenBuffer buf = TokenBuffer.forGeneration();
+        buf.writePOJO(null);
+        assertNull(MAPPER.readValue(buf.asParser(ObjectReadContext.empty()), URL.class));
         buf.close();
 
         // then, URLitself come as is:
-        buf = new TokenBuffer(null, false);
-        buf.writeObject(exp);
-        assertSame(exp, MAPPER.readValue(buf.asParser(), URL.class));
+        buf = TokenBuffer.forGeneration();
+        buf.writePOJO(exp);
+        assertSame(exp, MAPPER.readValue(buf.asParser(ObjectReadContext.empty()), URL.class));
         buf.close();
+    }
 
+    public void testURLInvalid() throws Exception
+    {
         // and finally, invalid URL should be handled appropriately too
         try {
             URL result = MAPPER.readValue(q("a b"), URL.class);
@@ -296,7 +288,7 @@ public class JDKStringLikeTypeDeserTest extends BaseMapTest
             verifyException(e, "not a valid textual representation");
         }
     }
-
+    
     public void testUUID() throws Exception
     {
         final String NULL_UUID = "00000000-0000-0000-0000-000000000000";
@@ -356,15 +348,15 @@ public class JDKStringLikeTypeDeserTest extends BaseMapTest
         final UUID value = UUID.fromString("76e6d183-5f68-4afa-b94a-922c1fdb83f8");
 
         // first, null should come as null
-        try (TokenBuffer buf = new TokenBuffer(null, false)) {
-            buf.writeObject(null);
-            assertNull(MAPPER.readValue(buf.asParser(), UUID.class));
+        try (TokenBuffer buf = TokenBuffer.forGeneration()) {
+            buf.writePOJO(null);
+            assertNull(MAPPER.readValue(buf.asParser(ObjectReadContext.empty()), UUID.class));
         }
 
         // then, UUID itself come as is:
-        try (TokenBuffer buf = new TokenBuffer(null, false)) {
-            buf.writeObject(value);
-            assertSame(value, MAPPER.readValue(buf.asParser(), UUID.class));
+        try (TokenBuffer buf = TokenBuffer.forGeneration()) {
+            buf.writePOJO(value);
+            assertSame(value, MAPPER.readValue(buf.asParser(ObjectReadContext.empty()), UUID.class));
     
             // and finally from byte[]
             // oh crap; JDK UUID just... sucks. Not even byte[] accessors or constructors? Huh?
@@ -376,11 +368,12 @@ public class JDKStringLikeTypeDeserTest extends BaseMapTest
             byte[] data = bytes.toByteArray();
             assertEquals(16, data.length);
             
-            buf.writeObject(data);
+            buf.writePOJO(data);
     
-            UUID value2 = MAPPER.readValue(buf.asParser(), UUID.class);
+            UUID value2 = MAPPER.readValue(buf.asParser(ObjectReadContext.empty()), UUID.class);
             
             assertEquals(value, value2);
+            buf.close();
         }
     }
 }

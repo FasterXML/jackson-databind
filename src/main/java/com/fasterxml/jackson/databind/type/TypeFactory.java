@@ -5,12 +5,13 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.lang.reflect.*;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.core.util.Snapshottable;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.ClassUtil;
-import com.fasterxml.jackson.databind.util.LRUMap;
 import com.fasterxml.jackson.databind.util.LookupCache;
+import com.fasterxml.jackson.databind.util.SimpleLookupCache;
 
 /**
  * Class used for creating concrete {@link JavaType} instances,
@@ -33,10 +34,11 @@ import com.fasterxml.jackson.databind.util.LookupCache;
  *</pre>
  */
 @SuppressWarnings({"rawtypes" })
-public class TypeFactory // note: was final in 2.9, removed from 2.10
-    implements java.io.Serializable
+public final class TypeFactory
+    implements Snapshottable<TypeFactory>,
+        java.io.Serializable
 {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 3L;
 
     private final static JavaType[] NO_TYPES = new JavaType[0];
 
@@ -50,9 +52,9 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
     protected final static TypeBindings EMPTY_BINDINGS = TypeBindings.emptyBindings();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Constants for "well-known" classes
-    /**********************************************************
+    /**********************************************************************
      */
 
     // // // Let's assume that a small set of core primitive/basic types
@@ -70,45 +72,40 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
     private final static Class<?> CLS_BOOL = Boolean.TYPE;
     private final static Class<?> CLS_INT = Integer.TYPE;
     private final static Class<?> CLS_LONG = Long.TYPE;
+    private final static Class<?> CLS_DOUBLE = Double.TYPE;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Cached pre-constructed JavaType instances
-    /**********************************************************
+    /**********************************************************************
      */
 
     // note: these are primitive, hence no super types
     protected final static SimpleType CORE_TYPE_BOOL = new SimpleType(CLS_BOOL);
     protected final static SimpleType CORE_TYPE_INT = new SimpleType(CLS_INT);
     protected final static SimpleType CORE_TYPE_LONG = new SimpleType(CLS_LONG);
+    protected final static SimpleType CORE_TYPE_DOUBLE = new SimpleType(CLS_DOUBLE);
 
     // and as to String... well, for now, ignore its super types
     protected final static SimpleType CORE_TYPE_STRING = new SimpleType(CLS_STRING);
 
-    // @since 2.7
     protected final static SimpleType CORE_TYPE_OBJECT = new SimpleType(CLS_OBJECT);
 
     /**
      * Cache {@link Comparable} because it is both parameteric (relatively costly to
      * resolve) and mostly useless (no special handling), better handle directly
-     *
-     * @since 2.7
      */
     protected final static SimpleType CORE_TYPE_COMPARABLE = new SimpleType(CLS_COMPARABLE);
 
     /**
      * Cache {@link Enum} because it is parametric AND self-referential (costly to
      * resolve) and useless in itself (no special handling).
-     *
-     * @since 2.7
      */
     protected final static SimpleType CORE_TYPE_ENUM = new SimpleType(CLS_ENUM);
 
     /**
      * Cache {@link Class} because it is nominally parametric, but has no really
      * useful information.
-     *
-     * @since 2.7
      */
     protected final static SimpleType CORE_TYPE_CLASS = new SimpleType(CLS_CLASS);
 
@@ -128,9 +125,9 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
     protected final LookupCache<Object,JavaType> _typeCache;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -139,69 +136,52 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      */
     protected final TypeModifier[] _modifiers;
 
-    protected final TypeParser _parser;
-    
     /**
      * ClassLoader used by this factory [databind#624].
      */
     protected final ClassLoader _classLoader;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     private TypeFactory() {
-        this((LookupCache<Object,JavaType>) null);
+        this(null);
     }
 
-    /**
-     * @since 2.8
-     * @deprecated Since 2.12
-     */
-    @Deprecated // since 2.12
-    protected TypeFactory(LRUMap<Object,JavaType> typeCache) {
-        this((LookupCache<Object,JavaType>) typeCache);
-    }
-
-    /**
-     * @since 2.12
-     */
     protected TypeFactory(LookupCache<Object,JavaType> typeCache) {
         if (typeCache == null) {
-            typeCache = new LRUMap<>(16, 200);
+            typeCache = new SimpleLookupCache<Object,JavaType>(16, 200);
         }
         _typeCache = typeCache;
-        _parser = new TypeParser(this);
         _modifiers = null;
         _classLoader = null;
     }
 
-    /**
-     * @deprecated Since 2.12
-     */
-    @Deprecated // since 2.12
-    protected TypeFactory(LRUMap<Object,JavaType> typeCache, TypeParser p,
+    protected TypeFactory(LookupCache<Object,JavaType> typeCache,
             TypeModifier[] mods, ClassLoader classLoader)
     {
-        this((LookupCache<Object,JavaType>) typeCache, p, mods, classLoader);
+        if (typeCache == null) {
+            typeCache = new SimpleLookupCache<Object,JavaType>(16, 200);
+        }
+        _typeCache = typeCache;
+        _modifiers = mods;
+        _classLoader = classLoader;
     }
 
     /**
-     * @since 2.12
+     * Need to make a copy on snapshot() to avoid accidental leakage via cache.
+     * In theory only needed if there are modifiers, but since these are lightweight
+     * objects, let's recreate always.
      */
-    protected TypeFactory(LookupCache<Object,JavaType> typeCache, TypeParser p,
-                          TypeModifier[] mods, ClassLoader classLoader)
-    {
-        if (typeCache == null) {
-            typeCache = new LRUMap<>(16, 200);
-        }
-        _typeCache = typeCache;
-        // As per [databind#894] must ensure we have back-linkage from TypeFactory:
-        _parser = p.withFactory(this);
-        _modifiers = mods;
-        _classLoader = classLoader;
+    @Override
+    public TypeFactory snapshot() {
+        return new TypeFactory(_typeCache.snapshot(),
+                // this is safe since array never modified, always copy-on-mod
+                _modifiers,
+                _classLoader);
     }
 
     /**
@@ -227,7 +207,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
             // but may keep existing cache otherwise
             mods = ArrayBuilders.insertInListNoDup(_modifiers, mod);
         }
-        return new TypeFactory(typeCache, _parser, mods, _classLoader);
+        return new TypeFactory(typeCache, mods, _classLoader);
     }
 
     /**
@@ -235,31 +215,16 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      * {@link ClassLoader} to use by {@link #findClass}.
      */
     public TypeFactory withClassLoader(ClassLoader classLoader) {
-        return new TypeFactory(_typeCache, _parser, _modifiers, classLoader);
+        return new TypeFactory(_typeCache, _modifiers, classLoader);
     }
 
     /**
      * Mutant factory method that will construct new {@link TypeFactory} with
      * identical settings except for different cache; most likely one with
      * bigger maximum size.
-     *
-     * @since 2.8
-     * @deprecated Since 2.12
-     */
-    @Deprecated // since 2.12
-    public TypeFactory withCache(LRUMap<Object,JavaType> cache)  {
-        return new TypeFactory(cache, _parser, _modifiers, _classLoader);
-    }
-
-    /**
-     * Mutant factory method that will construct new {@link TypeFactory} with
-     * identical settings except for different cache; most likely one with
-     * bigger maximum size.
-     *
-     * @since 2.12
      */
     public TypeFactory withCache(LookupCache<Object,JavaType> cache)  {
-        return new TypeFactory(cache, _parser, _modifiers, _classLoader);
+        return new TypeFactory(cache, _modifiers, _classLoader);
     }
 
     /**
@@ -276,8 +241,6 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      * if you know there is a problem with retention of type definitions;
      * the most likely (and currently only known) problem is retention
      * of {@link Class} instances via {@link JavaType} reference.
-     *
-     * @since 2.4.1
      */
     public void clearCache() {
         _typeCache.clear();
@@ -286,11 +249,11 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
     public ClassLoader getClassLoader() {
         return _classLoader;
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Static methods for non-instance-specific functionality
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -317,16 +280,14 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Low-level helper methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
      * Low-level lookup method moved from {@link com.fasterxml.jackson.databind.util.ClassUtil},
      * to allow for overriding of lookup functionality in environments like OSGi.
-     *
-     * @since 2.6
      */
     public Class<?> findClass(String className) throws ClassNotFoundException
     {
@@ -382,11 +343,11 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
         if ("void".equals(className)) return Void.TYPE;
         return null;
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Type conversion, parameterization resolution methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -618,10 +579,6 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      * less-specific type of given type. Usually this is as simple as simply
      * finding super-type with type erasure of <code>superClass</code>, but
      * there may be need for some additional work-arounds.
-     *
-     * @param superClass
-     *
-     * @since 2.7
      */
     public JavaType constructGeneralizedType(JavaType baseType, Class<?> superClass)
     {
@@ -657,7 +614,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      */
     public JavaType constructFromCanonical(String canonical) throws IllegalArgumentException
     {
-        return _parser.parse(canonical);
+        return TypeParser.instance.parse(this, canonical);
     }
 
     /**
@@ -679,19 +636,20 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
     }
 
     /**
-     * @deprecated Since 2.7 resolve raw type first, then find type parameters
+     * Specialized alternative to {@link #findTypeParameters}
+     *
+     * @since 3.0
      */
-    @Deprecated // since 2.7    
-    public JavaType[] findTypeParameters(Class<?> clz, Class<?> expType, TypeBindings bindings) {
-        return findTypeParameters(constructType(clz, bindings), expType);
-    }
-    
-    /**
-     * @deprecated Since 2.7 resolve raw type first, then find type parameters
-     */
-    @Deprecated // since 2.7    
-    public JavaType[] findTypeParameters(Class<?> clz, Class<?> expType) {
-        return findTypeParameters(constructType(clz), expType);
+    public JavaType findFirstTypeParameter(JavaType type, Class<?> expType)
+    {
+        JavaType match = type.findSuperType(expType);
+        if (match != null) {
+            JavaType t = match.getBindings().getBoundType(0);
+            if (t != null) {
+                return t;
+            }
+        }
+        return _unknownType();
     }
 
     /**
@@ -701,8 +659,6 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      * 
      * @param type1 Primary type to consider
      * @param type2 Secondary type to consider
-     * 
-     * @since 2.2
      */
     public JavaType moreSpecificType(JavaType type1, JavaType type2)
     {
@@ -725,9 +681,9 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public general-purpose factory methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     public JavaType constructType(Type type) {
@@ -770,83 +726,23 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      *     member declared but may be subtype of that type (to bind actual bound
      *     type parametrers). Not used if {@code type} is of type {@code Class<?>}.
      *
-     * @return Fully resolve type
-     *
-     * @since 2.12 as replacement for deprecated {@link #constructType(Type, TypeBindings)} 
+     * @return Fully resolved type
      */
     public JavaType resolveMemberType(Type type, TypeBindings contextBindings) {
         return _fromAny(null, type, contextBindings);
     }
 
-    /*
-    /**********************************************************
-    /* Deprecated public factory methods
-    /**********************************************************
-     */
-
-    /**
-     * Method that you very likely should NOT be using -- you need to know a lot
-     * about internal details of {@link TypeBindings} and even then it will probably
-     * not do what you want.
-     * Usually you would instead want to call one of {@code constructXxxType()}
-     * methods (where {@code Xxx} would be "Array", "Collection[Like]", "Map[Like]"
-     * or "Parametric").
-     *
-     * @deprecated Since 2.12
-     */
-    @Deprecated // since 2.12
-    public JavaType constructType(Type type, TypeBindings bindings) {
-        // 15-Jun-2020, tatu: To resolve (parts of) [databind#2796], need to
-        //    call _fromClass() directly if we get `Class` argument
-        if (type instanceof Class<?>) {
-            JavaType resultType = _fromClass(null, (Class<?>) type, bindings);
-            return _applyModifiers(type, resultType);
-        }
-        return _fromAny(null, type, bindings);
-    }
-
-    /**
-     * @deprecated Since 2.7 (accidentally removed in 2.7.0; added back in 2.7.1)
-     */
-    @Deprecated
-    public JavaType constructType(Type type, Class<?> contextClass) {
-        JavaType contextType = (contextClass == null) ? null : constructType(contextClass);
-        return constructType(type, contextType);
-    }
-
-    /**
-     * @deprecated Since 2.7 (accidentally removed in 2.7.0; added back in 2.7.1)
-     */
-    @Deprecated
-    public JavaType constructType(Type type, JavaType contextType) {
-        TypeBindings bindings;
-        if (contextType == null) {
-            bindings = EMPTY_BINDINGS;
-        } else {
-            bindings = contextType.getBindings();
-            // 16-Nov-2016, tatu: Unfortunately as per [databind#1456] this can't
-            //   be made to work for some cases used to work (even if accidentally);
-            //   however, we can try a simple heuristic to increase chances of
-            //   compatibility from 2.6 code
-            if (type.getClass() != Class.class) {
-                // Ok: so, ideally we would test super-interfaces if necessary;
-                // but let's assume most if not all cases are for classes.
-                while (bindings.isEmpty()) {
-                    contextType = contextType.getSuperClass();
-                    if (contextType == null) {
-                        break;
-                    }
-                    bindings = contextType.getBindings();
-                }
-            }
-        }
-        return _fromAny(null, type, bindings);
+    // 20-Apr-2018, tatu: Really should get rid of this...
+    @Deprecated // since 2.8
+    public JavaType uncheckedSimpleType(Class<?> cls) {
+        // 18-Oct-2015, tatu: Not sure how much problem missing super-type info is here
+        return _constructSimple(cls, EMPTY_BINDINGS, null, null);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Direct factory methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -858,7 +754,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
     public ArrayType constructArrayType(Class<?> elementType) {
         return ArrayType.construct(_fromAny(null, elementType, null), null);
     }
-    
+
     /**
      * Method for constructing an {@link ArrayType}.
      *<p>
@@ -1016,26 +912,10 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
     }
 
     /**
-     * Method for constructing a type instance with specified parameterization.
-     *
-     * @since 2.6
-     *
-     * @deprecated Since 2.7
-     */
-    @Deprecated
-    public JavaType constructSimpleType(Class<?> rawType, Class<?> parameterTarget,
-            JavaType[] parameterTypes)
-    {
-        return constructSimpleType(rawType, parameterTypes);
-    } 
-
-    /**
      * Method for constructing a {@link ReferenceType} instance with given type parameter
      * (type MUST take one and only one type parameter)
      *<p>
      * NOTE: type modifiers are NOT called on constructed type itself.
-     *
-     * @since 2.6
      */
     public JavaType constructReferenceType(Class<?> rawType, JavaType referredType)
     {
@@ -1043,23 +923,6 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
                 TypeBindings.create(rawType, referredType), // [databind#2091]
                 null, null, // or super-class, interfaces?
                 referredType);
-    }
-
-    /**
-     * Method that use by core Databind functionality, and that should NOT be called
-     * by application code outside databind package.
-     *<p> 
-     * Unchecked here not only means that no checks are made as to whether given class
-     * might be non-simple type (like {@link CollectionType}) but also that most of supertype
-     * information is not gathered. This means that unless called on primitive types or
-     * {@link java.lang.String}, results are probably not what you want to use.
-     *
-     * @deprecated Since 2.8, to indicate users should never call this method.
-     */
-    @Deprecated // since 2.8
-    public JavaType uncheckedSimpleType(Class<?> cls) {
-        // 18-Oct-2015, tatu: Not sure how much problem missing super-type info is here
-        return _constructSimple(cls, EMPTY_BINDINGS, null, null);
     }
 
     /**
@@ -1076,8 +939,6 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      * 
      * @param parametrized Type-erased type to parameterize
      * @param parameterClasses Type parameters to apply
-     *
-     * @since 2.5 NOTE: was briefly deprecated for 2.6
      */
     public JavaType constructParametricType(Class<?> parametrized, Class<?>... parameterClasses) {
         int len = parameterClasses.length;
@@ -1123,8 +984,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      *
      * @param rawType Actual type-erased type
      * @param parameterTypes Type bindings for the raw type
-     *
-     * @since 2.12
+     * @since 3.0
      */
     public JavaType constructParametricType(Class<?> rawType, TypeBindings parameterTypes)
     {
@@ -1134,33 +994,11 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
         return _applyModifiers(rawType, resultType);
     }
 
-    /**
-     * @since 2.5
-     * @deprecated since 2.9 Use {@link #constructParametricType(Class,JavaType...)} instead
-     */
-    @Deprecated
-    public JavaType constructParametrizedType(Class<?> parametrized, Class<?> parametersFor,
-            JavaType... parameterTypes)
-    {
-        return constructParametricType(parametrized, parameterTypes);
-    }
-
-    /**
-     * @since 2.5
-     * @deprecated since 2.9 Use {@link #constructParametricType(Class,Class...)} instead
-     */
-    @Deprecated
-    public JavaType constructParametrizedType(Class<?> parametrized, Class<?> parametersFor,
-            Class<?>... parameterClasses)
-    {
-        return constructParametricType(parametrized, parameterClasses);
-    }
-
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Direct factory methods for "raw" variants, used when
     /* parameterization is unknown
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -1224,9 +1062,9 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Low-level factory methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     private JavaType _mapType(Class<?> rawClass, TypeBindings bindings,
@@ -1274,7 +1112,7 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
         return CollectionType.construct(rawClass, bindings, superClass, superInterfaces, ct);
     }
 
-    private JavaType _referenceType(Class<?> rawClass, TypeBindings bindings,
+    protected JavaType _referenceType(Class<?> rawClass, TypeBindings bindings,
             JavaType superClass, JavaType[] superInterfaces)
     {
         List<JavaType> typeParams = bindings.getTypeParameters();
@@ -1295,8 +1133,6 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
      * no generic parameters are passed. Default implementation may check
      * pre-constructed values for "well-known" types, but if none found
      * will simply call {@link #_newSimpleType}
-     *
-     * @since 2.7
      */
     protected JavaType _constructSimple(Class<?> raw, TypeBindings bindings,
             JavaType superClass, JavaType[] superInterfaces)
@@ -1314,8 +1150,6 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
      * Factory method that is to create a new {@link SimpleType} with no
      * checks whatsoever. Default implementation calls the single argument
      * constructor of {@link SimpleType}.
-     *
-     * @since 2.7
      */
     protected JavaType _newSimpleType(Class<?> raw, TypeBindings bindings,
             JavaType superClass, JavaType[] superInterfaces)
@@ -1324,11 +1158,6 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
     }
 
     protected JavaType _unknownType() {
-        /* 15-Sep-2015, tatu: Prior to 2.7, we constructed new instance for each call.
-         *    This may have been due to potential mutability of the instance; but that
-         *    should not be issue any more, and creation is somewhat wasteful. So let's
-         *    try reusing singleton/flyweight instance.
-         */
         return CORE_TYPE_OBJECT;
     }
 
@@ -1336,14 +1165,13 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
      * Helper method called to see if requested, non-generic-parameterized
      * type is one of common, "well-known" types, instances of which are
      * pre-constructed and do not need dynamic caching.
-     *
-     * @since 2.7
      */
     protected JavaType _findWellKnownSimple(Class<?> clz) {
         if (clz.isPrimitive()) {
             if (clz == CLS_BOOL) return CORE_TYPE_BOOL;
             if (clz == CLS_INT) return CORE_TYPE_INT;
             if (clz == CLS_LONG) return CORE_TYPE_LONG;
+            if (clz == CLS_DOUBLE) return CORE_TYPE_DOUBLE;
         } else {
             if (clz == CLS_STRING) return CORE_TYPE_STRING;
             if (clz == CLS_OBJECT) return CORE_TYPE_OBJECT; // since 2.7
@@ -1353,9 +1181,9 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Actual type resolution, traversal
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -1509,7 +1337,7 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
 
     protected JavaType _resolveSuperClass(ClassStack context, Class<?> rawType, TypeBindings parentBindings)
     {
-        Type parent = ClassUtil.getGenericSuperclass(rawType);
+        Type parent = rawType.getGenericSuperclass();
         if (parent == null) {
             return null;
         }
@@ -1518,7 +1346,7 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
 
     protected JavaType[] _resolveSuperInterfaces(ClassStack context, Class<?> rawType, TypeBindings parentBindings)
     {
-        Type[] types = ClassUtil.getGenericInterfaces(rawType);
+        Type[] types = rawType.getGenericInterfaces();
         if (types == null || types.length == 0) {
             return NO_TYPES;
         }
@@ -1550,14 +1378,28 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
             return _collectionType(rawType, bindings, superClass, superInterfaces);
         }
         // and since 2.6 one referential type
-        if (rawType == AtomicReference.class) {
+        if ((rawType == AtomicReference.class)
+                || (rawType == Optional.class)) {
+            // 17-Sep-2017, tatu: Jackson 3.x brings Java 8 optional types in...
             return _referenceType(rawType, bindings, superClass, superInterfaces);
         }
-        // 01-Nov-2015, tatu: As of 2.7, couple of potential `CollectionLikeType`s (like
-        //    `Iterable`, `Iterator`), and `MapLikeType`s (`Map.Entry`) are not automatically
-        //    detected, related to difficulties in propagating type upwards (Iterable, for
-        //    example, is a weak, tag-on type). They may be detectable in future.
-        return null;
+        // 17-Sep-2017, tatu: Jackson 3.x brings Java 8 optional types in...
+        JavaType refd;
+        if (rawType == OptionalInt.class) {
+            refd = CORE_TYPE_INT;
+        } else if (rawType == OptionalLong.class) {
+            refd = CORE_TYPE_LONG;
+        } else if (rawType == OptionalDouble.class) {
+            refd = CORE_TYPE_DOUBLE;
+        } else {
+            // 01-Nov-2015, tatu: As of 2.7, couple of potential `CollectionLikeType`s (like
+            //    `Iterable`, `Iterator`), and `MapLikeType`s (`Map.Entry`) are not automatically
+            //    detected, related to difficulties in propagating type upwards (Iterable, for
+            //    example, is a weak, tag-on type). They may be detectable in future.
+            return null;
+        }
+        JavaType base = _newSimpleType(rawType, bindings, superClass, superInterfaces);
+        return ReferenceType.upgradeFrom(base, refd);
     }
 
     protected JavaType _fromWellKnownInterface(ClassStack context, Class<?> rawType, TypeBindings bindings,
@@ -1627,9 +1469,6 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
     {
         // ideally should find it via bindings:
         final String name = var.getName();
-        if (bindings == null) {
-            throw new IllegalArgumentException("Null `bindings` passed (type variable \""+name+"\")");
-        }
         JavaType type = bindings.findBoundType(name);
         if (type != null) {
             return type;

@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.jsontype.impl;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 
 import com.fasterxml.jackson.databind.BeanProperty;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 
 /**
@@ -19,7 +20,8 @@ public class AsExistingPropertyTypeSerializer
     }
 
     @Override
-    public AsExistingPropertyTypeSerializer forProperty(BeanProperty prop) {
+    public AsExistingPropertyTypeSerializer forProperty(SerializerProvider ctxt,
+            BeanProperty prop) {
         return (_property == prop) ? this :
             new AsExistingPropertyTypeSerializer(_idResolver, prop, _typePropertyName);
     }

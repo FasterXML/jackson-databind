@@ -83,7 +83,7 @@ public class BuilderFailTest extends BaseMapTest
             MAPPER.readValue(json, ValueClassXY.class);
             fail("Missing expected UnrecognizedPropertyException exception");
         } catch (UnrecognizedPropertyException e) {
-            verifyException(e, "Unrecognized field \"z\"");
+            verifyException(e, "Unrecognized property \"z\"");
         }
     }
 }

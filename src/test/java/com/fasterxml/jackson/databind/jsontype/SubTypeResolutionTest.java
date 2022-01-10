@@ -107,7 +107,7 @@ public class SubTypeResolutionTest extends BaseMapTest
         Collection<String> values = new HashSet<>();
         values.add("ARTIFACTS_RESOLVE");
         repoPrivilegesMap.put(key, values);
-        
+
         AccessModel accessModel = new AccessModel();
         accessModel.setRepositoryPrivileges(repoPrivilegesMap);
 

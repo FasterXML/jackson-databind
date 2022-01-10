@@ -102,7 +102,7 @@ public class TestMultipleTypeNames extends BaseMapTest
             MAPPER.readValue(json, WrapperForNamesTest.class);
             fail("This serialisation should fail 'coz of x being float");
         } catch (UnrecognizedPropertyException e) {
-            verifyException(e, "Unrecognized field \"data\"");
+            verifyException(e, "Unrecognized property \"data\"");
         }
     }
 
@@ -130,7 +130,7 @@ public class TestMultipleTypeNames extends BaseMapTest
             MAPPER.readValue(json, WrapperForNameAndNamesTest.class);
             fail("This serialisation should fail 'coz of x being float");
         } catch (UnrecognizedPropertyException e) {
-            verifyException(e, "Unrecognized field \"data\"");
+            verifyException(e, "Unrecognized property \"data\"");
         }
     }
 }

@@ -1,13 +1,5 @@
 package com.fasterxml.jackson.databind.node;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.type.WritableTypeId;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.util.RawValue;
-
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -16,16 +8,23 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.tree.ArrayTreeNode;
+import com.fasterxml.jackson.core.type.WritableTypeId;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.util.RawValue;
+
 /**
  * Node class that represents Arrays mapped from JSON content.
- *<p>
- * Note: class was <code>final</code> temporarily for Jackson 2.2.
  */
 public class ArrayNode
     extends ContainerNode<ArrayNode>
-    implements java.io.Serializable // since 2.10
+    implements ArrayTreeNode, // since 3.0
+        java.io.Serializable // since 2.10
 {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 3L;
 
     private final List<JsonNode> _children;
 
@@ -34,17 +33,11 @@ public class ArrayNode
         _children = new ArrayList<JsonNode>();
     }
 
-    /**
-     * @since 2.8
-     */
     public ArrayNode(JsonNodeFactory nf, int capacity) {
         super(nf);
         _children = new ArrayList<JsonNode>(capacity);
     }
 
-    /**
-     * @since 2.7
-     */
     public ArrayNode(JsonNodeFactory nf, List<JsonNode> children) {
         super(nf);
         _children = children;
@@ -70,7 +63,7 @@ public class ArrayNode
 
     /*
     /**********************************************************
-    /* Overrides for JsonSerializable.Base
+    /* Overrides for JacksonSerializable.Base
     /**********************************************************
      */
 
@@ -169,13 +162,14 @@ public class ArrayNode
      */
 
     @Override
-    public void serialize(JsonGenerator f, SerializerProvider provider) throws IOException
+    public void serialize(JsonGenerator f, SerializerProvider provider)
+        throws JacksonException
     {
         final List<JsonNode> c = _children;
         final int size = c.size();
         f.writeStartArray(this, size);
         for (int i = 0; i < size; ++i) { // we'll typically have array list
-            // For now, assuming it's either BaseJsonNode, JsonSerializable
+            // For now, assuming it's either BaseJsonNode, JacksonSerializable
             JsonNode n = c.get(i);
             ((BaseJsonNode) n).serialize(f, provider);
         }
@@ -183,15 +177,15 @@ public class ArrayNode
     }
 
     @Override
-    public void serializeWithType(JsonGenerator g, SerializerProvider provider, TypeSerializer typeSer)
-        throws IOException
+    public void serializeWithType(JsonGenerator g, SerializerProvider ctxt, TypeSerializer typeSer)
+        throws JacksonException
     {
-        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
                 typeSer.typeId(this, JsonToken.START_ARRAY));
         for (JsonNode n : _children) {
-            ((BaseJsonNode)n).serialize(g, provider);
+            ((BaseJsonNode)n).serialize(g, ctxt);
         }
-        typeSer.writeTypeSuffix(g, typeIdDef);
+        typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 
     /*
@@ -258,17 +252,42 @@ public class ArrayNode
      */
 
     /**
-     * Method that will set specified field, replacing old value,
-     * if any.
+     * Method that will set specified element, replacing old value.
      *
-     * @param value to set field to; if null, will be converted
+     * @param value to set element to; if null, will be converted
      *   to a {@link NullNode} first  (to remove field entry, call
      *   {@link #remove} instead)
      *
-     * @return Old value of the field, if any; null if there was no
-     *   old value.
+     * @return This node after adding/replacing property value (to allow chaining)
+     *
+     * @throws IndexOutOfBoundsException If Array does not have specified element
+     *  (that is, index is outside valid range of elements in array)
      */
-    public JsonNode set(int index, JsonNode value)
+    public ArrayNode set(int index, JsonNode value)
+    {
+        if (value == null) { // let's not store 'raw' nulls but nodes
+            value = nullNode();
+        }
+        if (index < 0 || index >= _children.size()) {
+            throw new IndexOutOfBoundsException("Illegal index "+ index +", array size "+size());
+        }
+        _children.set(index, value);
+        return this;
+    }
+
+    /**
+     * Method that will set specified element, replacing old value.
+     *
+     * @param value to set element to; if null, will be converted
+     *   to a {@link NullNode} first  (to remove field entry, call
+     *   {@link #remove} instead)
+     *
+     * @return Old value of the element, if any; null if no such element existed.
+     *
+     * @throws IndexOutOfBoundsException If Array does not have specified element
+     *  (that is, index is outside valid range of elements in array)
+     */
+    public JsonNode replace(int index, JsonNode value)
     {
         if (value == null) { // let's not store 'raw' nulls but nodes
             value = nullNode();
@@ -278,7 +297,7 @@ public class ArrayNode
         }
         return _children.set(index, value);
     }
-
+    
     /**
      * Method for adding specified node at the end of this array.
      *
@@ -412,8 +431,6 @@ public class ArrayNode
 
     /**
      * @return This array node, to allow chaining
-     *
-     * @since 2.6
      */
     public ArrayNode addRawValue(RawValue raw) {
         return _add((raw == null) ? nullNode() : rawValueNode(raw));
@@ -538,8 +555,6 @@ public class ArrayNode
      * Method for adding specified number at the end of this array.
      *
      * @return This array node, to allow chaining
-     *
-     * @since 2.9
      */
     public ArrayNode add(BigInteger v) {
         return _add((v == null) ? nullNode() : numberNode(v));

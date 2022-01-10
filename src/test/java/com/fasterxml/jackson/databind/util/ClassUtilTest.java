@@ -3,14 +3,14 @@ package com.fasterxml.jackson.databind.util;
 import java.io.*;
 import java.util.*;
 
-import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.ObjectWriteContext;
+import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 public class ClassUtilTest extends BaseMapTest
@@ -242,16 +242,6 @@ public class ClassUtilTest extends BaseMapTest
                 ClassUtil.getTypeDescription(mapType));
     }
 
-    public void testSubtypes()
-    {
-        final JavaType stringType = TypeFactory.defaultInstance().constructType(String.class);
-        List<JavaType> supers = ClassUtil.findSuperTypes(stringType, Object.class, false);
-        assertEquals(Collections.emptyList(), supers);
-
-        supers = ClassUtil.findSuperTypes(stringType, Object.class, true);
-        assertEquals(Collections.singletonList(stringType), supers);
-    }
-
     public void testGetDeclaringClass()
     {
         assertEquals(null, ClassUtil.getDeclaringClass(String.class));
@@ -284,7 +274,7 @@ public class ClassUtilTest extends BaseMapTest
         final Exception testExc1 = new IllegalArgumentException("test");
         // First: without any actual stuff, with an RTE
         try {
-            ClassUtil.closeOnFailAndThrowAsIOE(null, null, testExc1);
+            ClassUtil.closeOnFailAndThrowAsJacksonE(null, null, testExc1);
             fail("Should not pass");
         } catch (Exception e) {
             assertSame(testExc1, e);
@@ -293,10 +283,10 @@ public class ClassUtilTest extends BaseMapTest
         // then with bogus Closeable and with non-RTE:
         JsonFactory f = new JsonFactory();
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        JsonGenerator gen = f.createGenerator(bytes);
+        JsonGenerator gen = f.createGenerator(ObjectWriteContext.empty(), bytes);
         final Exception testExc2 = new Exception("test");
         try {
-            ClassUtil.closeOnFailAndThrowAsIOE(gen, bytes, testExc2);
+            ClassUtil.closeOnFailAndThrowAsJacksonE(gen, bytes, testExc2);
             fail("Should not pass");
         } catch (Exception e) {
             assertEquals(RuntimeException.class, e.getClass());
@@ -309,7 +299,7 @@ public class ClassUtilTest extends BaseMapTest
 
     @SuppressWarnings("serial")
     public void testExceptionMessage() {
-        DatabindException jacksonException = new JsonMappingException((Closeable) null, "A message") {
+        DatabindException jacksonException = new DatabindException("A message") {
             @Override
             public String getOriginalMessage() {
                 return "The original message";
@@ -326,28 +316,5 @@ public class ClassUtilTest extends BaseMapTest
 
     static void throwsException() {
         throw new IllegalArgumentException("A custom message");
-    }
-
-    /*
-    /**********************************************************
-    /* Test methods, deprecated
-    /**********************************************************
-     */
-
-    @SuppressWarnings("deprecation")
-    public void testSubtypesDeprecated()
-    {
-        // just for code coverage
-        List<Class<?>> supers = ClassUtil.findSuperTypes(String.class, Object.class);
-        assertFalse(supers.isEmpty()); // serializable/comparable/char-seq
-    }
-
-    @SuppressWarnings("deprecation")
-    public void testHasGetterSignature() throws Exception
-    {
-        assertFalse(ClassUtil.hasGetterSignature(MaybeGetters.class.getDeclaredMethod("staticMethod")));
-        assertFalse(ClassUtil.hasGetterSignature(MaybeGetters.class.getDeclaredMethod("voidMethod")));
-        assertFalse(ClassUtil.hasGetterSignature(MaybeGetters.class.getDeclaredMethod("setMethod", Integer.TYPE)));
-        assertTrue(ClassUtil.hasGetterSignature(MaybeGetters.class.getDeclaredMethod("getMethod")));
     }
 }

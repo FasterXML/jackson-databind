@@ -1,9 +1,8 @@
 package com.fasterxml.jackson.databind.node;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.databind.JsonSerializable;
+
+import com.fasterxml.jackson.databind.JacksonSerializable;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
 /**
@@ -14,22 +13,25 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 public class POJONode
     extends ValueNode
 {
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 3L;
 
     protected final Object _value;
 
     public POJONode(Object v) { _value = v; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Base class overrides
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
     public JsonNodeType getNodeType() {
         return JsonNodeType.POJO;
     }
+
+    @Override
+    public boolean isEmbeddedValue() { return true; }
 
     @Override public JsonToken asToken() { return JsonToken.VALUE_EMBEDDED_OBJECT; }
 
@@ -39,7 +41,7 @@ public class POJONode
      * binary data here too.
      */
     @Override
-    public byte[] binaryValue() throws IOException
+    public byte[] binaryValue()
     {
         if (_value instanceof byte[]) {
             return (byte[]) _value;
@@ -48,9 +50,9 @@ public class POJONode
     }
     
     /* 
-    /**********************************************************
+    /**********************************************************************
     /* General type coercions
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -95,31 +97,31 @@ public class POJONode
         }
         return defaultValue;
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, serialization
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
-    public final void serialize(JsonGenerator gen, SerializerProvider ctxt) throws IOException
+    public final void serialize(JsonGenerator gen, SerializerProvider ctxt) throws JacksonException
     {
         if (_value == null) {
-            ctxt.defaultSerializeNull(gen);
-        } else if (_value instanceof JsonSerializable) {
-            ((JsonSerializable) _value).serialize(gen, ctxt);
+            ctxt.defaultSerializeNullValue(gen);
+        } else if (_value instanceof JacksonSerializable) {
+            ((JacksonSerializable) _value).serialize(gen, ctxt);
         } else {
             // 25-May-2018, tatu: [databind#1991] do not call via generator but through context;
             //    this to preserve contextual information
-            ctxt.defaultSerializeValue(_value, gen);
+            ctxt.writeValue(gen, _value);
         }
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended API
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -128,9 +130,9 @@ public class POJONode
     public Object getPojo() { return _value; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Overridden standard methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override

@@ -48,9 +48,9 @@ public class Generic1128Test extends BaseMapTest
 
     public void testIssue1128() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-
+        ObjectMapper mapper = jsonMapperBuilder()
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY))
+                .build();
         final DevMContainer devMContainer1 = new DevMContainer();
         final DevM entity = new DevM();
         final Dev parent = new Dev();

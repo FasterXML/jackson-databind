@@ -1,8 +1,7 @@
 package com.fasterxml.jackson.databind.jsontype;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.JavaType;
 
@@ -23,9 +22,9 @@ import com.fasterxml.jackson.databind.JavaType;
 public interface TypeIdResolver
 {
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Initialization/configuration methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -37,19 +36,20 @@ public interface TypeIdResolver
      * @param baseType Base type for which this id resolver instance is
      *   used
      */
-    public void init(JavaType baseType);
+    public void init(JavaType baseType) throws JacksonException;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Conversions between types and type ids
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
      * Method called to serialize type of the type of given value
      * as a String to include in serialized JSON content.
      */
-    public String idFromValue(Object value);
+    public String idFromValue(DatabindContext ctxt, Object value)
+        throws JacksonException;
 
     /**
      * Alternative method used for determining type from combination of
@@ -57,7 +57,8 @@ public interface TypeIdResolver
      * and possibly value of that type. Most common implementation will
      * use suggested type as is.
      */
-    public String idFromValueAndType(Object value, Class<?> suggestedType);
+    public String idFromValueAndType(DatabindContext ctxt, Object value, Class<?> suggestedType)
+        throws JacksonException;
 
     /**
      * Method that can be called to figure out type id to use for instances
@@ -65,26 +66,22 @@ public interface TypeIdResolver
      * for fallback handling, for cases where real type information is not
      * available for some reason.
      */
-    public String idFromBaseType();
+    public String idFromBaseType(DatabindContext ctxt) throws JacksonException;
 
     /**
      * Method called to resolve type from given type identifier.
-     * 
-     * @since 2.5 (throws clause added in 2.8)
      */
-    public JavaType typeFromId(DatabindContext context, String id) throws IOException;
+    public JavaType typeFromId(DatabindContext ctxt, String id) throws JacksonException;
 
     /**
      * Method called for error-reporting and diagnostics purposes.
-     * 
-     * @since 2.7 -- but since 2.5 has existed in {@link com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase}
      */
     public String getDescForKnownTypeIds();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Accessors for metadata
-    /**********************************************************
+    /**********************************************************************
      */
 
      /**

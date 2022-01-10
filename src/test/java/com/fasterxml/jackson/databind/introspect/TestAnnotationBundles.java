@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyName;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 
 // Tests mostly for ability to create "annotation bundles"
 public class TestAnnotationBundles extends com.fasterxml.jackson.databind.BaseMapTest
@@ -78,7 +79,7 @@ public class TestAnnotationBundles extends com.fasterxml.jackson.databind.BaseMa
     static class RecursiveHolder3 {
         public int x;
 
-        @JsonCreator
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
         @HolderA
         public RecursiveHolder3(int x) { this.x = x; }
     }
@@ -98,13 +99,13 @@ public class TestAnnotationBundles extends com.fasterxml.jackson.databind.BaseMa
     @SuppressWarnings("serial")
     static class BundleAnnotationIntrospector extends JacksonAnnotationIntrospector {
         @Override
-        public PropertyName findNameForSerialization(Annotated a)
+        public PropertyName findNameForSerialization(MapperConfig<?> config, Annotated a)
         {
             InformativeHolder informativeHolder = a.getAnnotation(InformativeHolder.class);
             if ((informativeHolder != null) && informativeHolder.important()) {
                 return PropertyName.construct("important");
             }
-            return super.findNameForSerialization(a);
+            return super.findNameForSerialization(config, a);
         }
     }
 
@@ -118,8 +119,10 @@ public class TestAnnotationBundles extends com.fasterxml.jackson.databind.BaseMa
 
     public void testKeepAnnotationBundle() throws Exception
     {
-        MAPPER.setAnnotationIntrospector(new BundleAnnotationIntrospector());
-        assertEquals("{\"important\":42}", MAPPER.writeValueAsString(new InformingHolder()));
+        ObjectMapper mapper = jsonMapperBuilder()
+                .annotationIntrospector(new BundleAnnotationIntrospector())
+                .build();
+        assertEquals("{\"important\":42}", mapper.writeValueAsString(new InformingHolder()));
     }
 
     public void testRecursiveBundlesField() throws Exception {

@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.databind.deser;
 
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 
 import com.fasterxml.jackson.annotation.JacksonInject;
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.*;
@@ -41,8 +41,6 @@ public class CreatorProperty
     /**
      * Id of value to inject, if value injection should be used for this parameter
      * (in addition to, or instead of, regular deserialization).
-     *
-     * @since 2.11
      */
     protected final JacksonInject.Value _injectableValue;
 
@@ -54,14 +52,9 @@ public class CreatorProperty
      *<p>
      * Mutable only to allow setting after construction, but must be strictly
      * set before any use.
-     * 
-     * @since 2.3
      */
     protected SettableBeanProperty _fallbackSetter;
 
-    /**
-     * @since 2.1
-     */
     protected final int _creatorIndex;
 
     /**
@@ -70,14 +63,9 @@ public class CreatorProperty
      * it represents something that should be ignored during deserialization.
      * This mostly concerns Creator properties which may not be easily deleted
      * during processing.
-     *
-     * @since 2.9.4
      */
     protected boolean _ignorable;
 
-    /**
-     * @since 2.11
-     */
     protected CreatorProperty(PropertyName name, JavaType type, PropertyName wrapperName,
             TypeDeserializer typeDeser,
             Annotations contextAnnotations, AnnotatedParameter param,
@@ -89,22 +77,6 @@ public class CreatorProperty
         _creatorIndex = index;
         _injectableValue = injectable;
         _fallbackSetter = null;
-    }
-
-    /**
-     * @deprecated Since 2.11 use factory method instead
-     */
-    @Deprecated // since 2.11
-    public CreatorProperty(PropertyName name, JavaType type, PropertyName wrapperName,
-            TypeDeserializer typeDeser,
-            Annotations contextAnnotations, AnnotatedParameter param,
-            int index, Object injectableValueId,
-            PropertyMetadata metadata)
-    {
-        this(name, type, wrapperName, typeDeser, contextAnnotations, param, index,
-                (injectableValueId == null) ? null
-                        : JacksonInject.Value.construct(injectableValueId, null),
-                metadata);
     }
 
     /**
@@ -122,8 +94,6 @@ public class CreatorProperty
      *    method parameter; used for accessing annotations of the property
      * @param injectable Information about injectable value, if any
      * @param index Index of this property within creator invocation
-     * 
-     * @since 2.11
      */
     public static CreatorProperty construct(PropertyName name, JavaType type, PropertyName wrapperName,
             TypeDeserializer typeDeser,
@@ -134,10 +104,7 @@ public class CreatorProperty
         return new CreatorProperty(name, type, wrapperName, typeDeser, contextAnnotations,
                 param, index, injectable, metadata);
     }
-    
-    /**
-     * @since 2.3
-     */
+
     protected CreatorProperty(CreatorProperty src, PropertyName newName) {
         super(src, newName);
         _annotated = src._annotated;
@@ -147,9 +114,19 @@ public class CreatorProperty
         _ignorable = src._ignorable;
     }
 
-    protected CreatorProperty(CreatorProperty src, JsonDeserializer<?> deser,
+    protected CreatorProperty(CreatorProperty src, ValueDeserializer<?> deser,
             NullValueProvider nva) {
         super(src, deser, nva);
+        _annotated = src._annotated;
+        _injectableValue = src._injectableValue;
+        _fallbackSetter = src._fallbackSetter;
+        _creatorIndex = src._creatorIndex;
+        _ignorable = src._ignorable;
+    }
+
+    protected CreatorProperty(CreatorProperty src, TypeDeserializer typeDeser)
+    {
+        super(src, typeDeser);
         _annotated = src._annotated;
         _injectableValue = src._injectableValue;
         _fallbackSetter = src._fallbackSetter;
@@ -161,9 +138,9 @@ public class CreatorProperty
     public SettableBeanProperty withName(PropertyName newName) {
         return new CreatorProperty(this, newName);
     }
-    
+
     @Override
-    public SettableBeanProperty withValueDeserializer(JsonDeserializer<?> deser) {
+    public SettableBeanProperty withValueDeserializer(ValueDeserializer<?> deser) {
         if (_valueDeserializer == deser) {
             return this;
         }
@@ -176,7 +153,15 @@ public class CreatorProperty
     public SettableBeanProperty withNullProvider(NullValueProvider nva) {
         return new CreatorProperty(this, _valueDeserializer, nva);
     }
-    
+
+    // @since 3.0
+    public SettableBeanProperty withValueTypeDeserializer(TypeDeserializer typeDeser) {
+        if (_valueTypeDeserializer == typeDeser) {
+            return this;
+        }
+        return new CreatorProperty(this, typeDeser);
+    }
+
     @Override
     public void fixAccess(DeserializationConfig config) {
         if (_fallbackSetter != null) {
@@ -187,8 +172,6 @@ public class CreatorProperty
     /**
      * NOTE: one exception to immutability, due to problems with CreatorProperty instances
      * being shared between Bean, separate PropertyBasedCreator
-     * 
-     * @since 2.6
      */
     public void setFallbackSetter(SettableBeanProperty fallbackSetter) {
         _fallbackSetter = fallbackSetter;
@@ -205,42 +188,9 @@ public class CreatorProperty
     }
 
     /*
-    /**********************************************************
-    /* Injection support
-    /**********************************************************
-     */
-
-    // 14-Apr-2020, tatu: Does not appear to be used so deprecated in 2.11.0,
-    //    to be removed from 2.12.0
-
-    // Method that can be called to locate value to be injected for this
-    // property, if it is configured for this.
-    @Deprecated // remove from 2.12
-    public Object findInjectableValue(DeserializationContext context, Object beanInstance)
-        throws JsonMappingException
-    {
-        if (_injectableValue == null) {
-            context.reportBadDefinition(ClassUtil.classOf(beanInstance),
-                    String.format("Property %s (type %s) has no injectable value id configured",
-                    ClassUtil.name(getName()), ClassUtil.classNameOf(this)));
-        }
-        return context.findInjectableValue(_injectableValue.getId(), this, beanInstance); // lgtm [java/dereferenced-value-may-be-null]
-    }
-
-    // 14-Apr-2020, tatu: Does not appear to be used so deprecated in 2.11.0,
-    //    to be removed from 2.12.0
-
-    // Method to find value to inject, and inject it to this property.
-    @Deprecated // remove from 2.12
-    public void inject(DeserializationContext context, Object beanInstance) throws IOException
-    {
-        set(beanInstance, findInjectableValue(context, beanInstance));
-    }
-
-    /*
-    /**********************************************************
+    /**********************************************************************
     /* BeanProperty impl
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override
@@ -258,14 +208,14 @@ public class CreatorProperty
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Overridden methods, SettableBeanProperty
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
     public void deserializeAndSet(JsonParser p, DeserializationContext ctxt,
-            Object instance) throws IOException
+            Object instance) throws JacksonException
     {
         _verifySetter();
         _fallbackSetter.set(instance, deserialize(p, ctxt));
@@ -273,21 +223,21 @@ public class CreatorProperty
 
     @Override
     public Object deserializeSetAndReturn(JsonParser p,
-            DeserializationContext ctxt, Object instance) throws IOException
+            DeserializationContext ctxt, Object instance) throws JacksonException
     {
         _verifySetter();
         return _fallbackSetter.setAndReturn(instance, deserialize(p, ctxt));
     }
     
     @Override
-    public void set(Object instance, Object value) throws IOException
+    public void set(Object instance, Object value)
     {
         _verifySetter();
         _fallbackSetter.set(instance, value);
     }
 
     @Override
-    public Object setAndReturn(Object instance, Object value) throws IOException
+    public Object setAndReturn(Object instance, Object value)
     {
         _verifySetter();
         return _fallbackSetter.setAndReturn(instance, value);
@@ -321,29 +271,28 @@ public class CreatorProperty
     //  public boolean isInjectionOnly() { return false; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Overridden methods, other
-    /**********************************************************
+    /**********************************************************************
      */
-    
+
     @Override
     public String toString() { return "[creator property, name "+ClassUtil.name(getName())+"; inject id '"+getInjectableValueId()+"']"; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal helper methods
-    /**********************************************************
+    /**********************************************************************
      */
 
-    // since 2.9
-    private final void _verifySetter() throws IOException {
+    private final void _verifySetter() throws JacksonException {
         if (_fallbackSetter == null) {
             _reportMissingSetter(null, null);
         }
     }
 
-    // since 2.9
-    private void _reportMissingSetter(JsonParser p, DeserializationContext ctxt) throws IOException
+    private void _reportMissingSetter(JsonParser p, DeserializationContext ctxt)
+            throws JacksonException
     {
         final String msg = "No fallback setter/field defined for creator property "+ClassUtil.name(getName());
         // Hmmmh. Should we return quietly (NOP), or error?

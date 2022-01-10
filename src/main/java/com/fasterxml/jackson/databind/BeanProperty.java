@@ -12,8 +12,7 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.fasterxml.jackson.databind.util.Annotations;
-import com.fasterxml.jackson.databind.util.Named;
+import com.fasterxml.jackson.databind.util.FullyNamed;
 
 /**
  * Bean properties are logical entities that represent data
@@ -26,33 +25,22 @@ import com.fasterxml.jackson.databind.util.Named;
  *<p>
  * Instances are not typically passed when constructing serializers
  * and deserializers, but rather only passed when context
- * is known when
- * {@link com.fasterxml.jackson.databind.ser.ContextualSerializer} and
- * {@link com.fasterxml.jackson.databind.deser.ContextualDeserializer}
- * resolution occurs (<code>createContextual(...)</code> method is called).
+ * is known and
+ * {@link ValueSerializer#createContextual} and
+ * {@link ValueDeserializer#createContextual} are called.
  * References may (need to) be retained by serializers and deserializers,
  * especially when further resolving dependent handlers like value
  * serializers/deserializers or structured types.
  */
-public interface BeanProperty extends Named
+public interface BeanProperty extends FullyNamed
 {
     public final static JsonFormat.Value EMPTY_FORMAT = new JsonFormat.Value();
     public final static JsonInclude.Value EMPTY_INCLUDE = JsonInclude.Value.empty();
 
-    /**
-     * Method to get logical name of the property
-     */
-    @Override
-    public String getName();
-
-    /**
-     * Method for getting full name definition, including possible
-     * format-specific additional properties (such as namespace when
-     * using XML backend).
-     * 
-     * @since 2.3
-     */
-    public PropertyName getFullName();
+    // // // From FullyNamed
+    
+    //public String getName();
+    //public PropertyName getFullName();
 
     /**
      * Method to get declared type of the property.
@@ -62,16 +50,12 @@ public interface BeanProperty extends Named
     /**
      * If property is indicated to be wrapped, name of
      * wrapper element to use.
-     * 
-     * @since 2.2
      */
     public PropertyName getWrapperName();
 
     /**
      * Accessor for additional optional information about property.
-     * 
-     * @since 2.3
-     * 
+     *
      * @return Metadata about property; never null.
      */
     public PropertyMetadata getMetadata();
@@ -83,23 +67,19 @@ public interface BeanProperty extends Named
      *<code>
      *  getMetadata().isRequired()
      *</code>
-     * 
-     * @since 2.2
      */
     public boolean isRequired();
 
     /**
      * Accessor for checking whether there is an actual physical property
      * behind this property abstraction or not.
-     * 
-     * @since 2.7
      */
     public boolean isVirtual();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Access to annotation information
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -133,27 +113,20 @@ public interface BeanProperty extends Named
     public AnnotatedMember getMember();
 
     /**
-     * Convenience method that is roughly equivalent to
-     *<pre>
-     *   return intr.findFormat(getMember());
-     *</pre>
-     * and specifically does NOT try to find per-type format defaults to merge;
-     * use {@link #findPropertyFormat} if such defaults would be useful.
-     *
-     * @since 2.6
-     * 
-     * @deprecated since 2.8 use {@link #findPropertyFormat} instead.
-     */
-    @Deprecated
-    public JsonFormat.Value findFormatOverrides(AnnotationIntrospector intr);
-
-    /**
      * Helper method used to look up format settings applicable to this property,
      * considering both possible per-type configuration settings
-     *
-     * @since 2.7
      */
     public JsonFormat.Value findPropertyFormat(MapperConfig<?> config, Class<?> baseType);
+
+    /**
+     * Helper method used to only access property-specified format overrides, if any,
+     * not considering type or global default format settings.
+     *
+     * @return Format override settings if any; `null` if no overrides
+     *
+     * @since 3.0
+     */
+    public JsonFormat.Value findFormatOverrides(MapperConfig<?> config);
 
     /**
      * Convenience method that is roughly equivalent to
@@ -161,8 +134,6 @@ public interface BeanProperty extends Named
      *   return config.getAnnotationIntrospector().findPropertyInclusion(getMember());
      *</pre>
      * but also considers global default settings for inclusion
-     *
-     * @since 2.7
      */
     public JsonInclude.Value findPropertyInclusion(MapperConfig<?> config, Class<?> baseType);
 
@@ -171,15 +142,13 @@ public interface BeanProperty extends Named
      * during deserialization.
      *
      * @return List (possibly empty) of alternate names; never null
-     *
-     * @since 2.9
      */
     public List<PropertyName> findAliases(MapperConfig<?> config);
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Schema/introspection support
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -188,23 +157,16 @@ public interface BeanProperty extends Named
      * Note that not all implementations support traversal with this
      * method; those that do not should throw
      * {@link UnsupportedOperationException}.
-     *<p>
-     * NOTE: Starting with 2.7, takes explicit {@link SerializerProvider}
-     * argument to reduce the need to rely on provider visitor may or may not
-     * have assigned.
      * 
      * @param objectVisitor Visitor to used as the callback handler
-     * 
-     * @since 2.2 (although signature did change in 2.7)
      */
     public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor,
-            SerializerProvider provider)
-        throws JsonMappingException;
+            SerializerProvider provider);
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper classes
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -212,9 +174,9 @@ public interface BeanProperty extends Named
      * or base class for more complex implementations.
      */
     public static class Std implements BeanProperty,
-        java.io.Serializable // 2.9
+        java.io.Serializable
     {
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 3L;
 
         protected final PropertyName _name;
         protected final JavaType _type;
@@ -239,20 +201,6 @@ public interface BeanProperty extends Named
             _member = member;
         }
 
-        /**
-         * @deprecated Since 2.9
-         */
-        @Deprecated
-        public Std(PropertyName name, JavaType type, PropertyName wrapperName,
-                Annotations contextAnnotations,
-                AnnotatedMember member, PropertyMetadata metadata)
-        {
-            this(name, type, wrapperName, member, metadata);
-        }
-
-        /**
-         * @since 2.6
-         */
         public Std(Std base, JavaType newType) {
             this(base._name, newType, base._wrapperName, base._member, base._metadata);
         }
@@ -272,17 +220,10 @@ public interface BeanProperty extends Named
         }
 
         @Override
-        @Deprecated
-        public JsonFormat.Value findFormatOverrides(AnnotationIntrospector intr) {
-            if ((_member != null) && (intr != null)) {
-                JsonFormat.Value v = intr.findFormat(_member);
-                if (v != null) {
-                    return v;
-                }
-            }
-            return EMPTY_FORMAT;
+        public JsonFormat.Value findFormatOverrides(MapperConfig<?> config) {
+            return null;
         }
-
+        
         @Override
         public JsonFormat.Value findPropertyFormat(MapperConfig<?> config, Class<?> baseType) {
             JsonFormat.Value v0 = config.getDefaultPropertyFormat(baseType);
@@ -290,7 +231,7 @@ public interface BeanProperty extends Named
             if ((intr == null) || (_member == null)) {
                 return v0;
             }
-            JsonFormat.Value v = intr.findFormat(_member);
+            JsonFormat.Value v = intr.findFormat(config, _member);
             if (v == null) {
                 return v0;
             }
@@ -305,7 +246,7 @@ public interface BeanProperty extends Named
             if ((intr == null) || (_member == null)) {
                 return v0;
             }
-            JsonInclude.Value v = intr.findPropertyInclusion(_member);
+            JsonInclude.Value v = intr.findPropertyInclusion(config, _member);
             if (v == null) {
                 return v0;
             }
@@ -346,8 +287,6 @@ public interface BeanProperty extends Named
     /**
      * Alternative "Null" implementation that can be used in cases where a non-null
      * {@link BeanProperty} is needed
-     *
-     * @since 2.9
      */
     public static class Bogus implements BeanProperty
     {
@@ -402,11 +341,10 @@ public interface BeanProperty extends Named
         }
 
         @Override
-        @Deprecated
-        public Value findFormatOverrides(AnnotationIntrospector intr) {
-            return Value.empty();
+        public JsonFormat.Value findFormatOverrides(MapperConfig<?> config) {
+            return null;
         }
-
+        
         @Override
         public Value findPropertyFormat(MapperConfig<?> config, Class<?> baseType) {
             return Value.empty();
@@ -426,7 +364,7 @@ public interface BeanProperty extends Named
 
         @Override
         public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor,
-                SerializerProvider provider) throws JsonMappingException {
+                SerializerProvider provider) {
         }
     }
 }

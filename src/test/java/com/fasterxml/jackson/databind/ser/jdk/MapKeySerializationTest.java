@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ser.jdk;
 
-import java.io.IOException;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -17,19 +16,21 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
+import com.fasterxml.jackson.databind.jsontype.impl.DefaultTypeResolverBuilder;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 public class MapKeySerializationTest extends BaseMapTest
 {
-    public static class KarlSerializer extends JsonSerializer<String>
+    static class KarlSerializer extends ValueSerializer<String>
     {
         @Override
-        public void serialize(String value, JsonGenerator gen, SerializerProvider provider) throws IOException {
-            gen.writeFieldName("Karl");
+        public void serialize(String value, JsonGenerator gen, SerializerProvider provider) {
+            gen.writeName("Karl");
         }
     }
 
-    public static class NotKarlBean
+    static class NotKarlBean
     {
         public Map<String,Integer> map = new HashMap<String,Integer>();
         {
@@ -37,7 +38,7 @@ public class MapKeySerializationTest extends BaseMapTest
         }
     }
 
-    public static class KarlBean
+    static class KarlBean
     {
         @JsonSerialize(keyUsing = KarlSerializer.class)
         public Map<String,Integer> map = new HashMap<String,Integer>();
@@ -46,7 +47,7 @@ public class MapKeySerializationTest extends BaseMapTest
         }
     }
 
-    public static enum Outer {
+    static enum Outer {
         inner;
     }
 
@@ -62,7 +63,7 @@ public class MapKeySerializationTest extends BaseMapTest
     }
 
     @JsonSerialize(keyUsing = ABCKeySerializer.class)
-    public static enum ABCMixin { }
+    static enum ABCMixin { }
 
     static class BAR<T> {
         T value;
@@ -84,40 +85,39 @@ public class MapKeySerializationTest extends BaseMapTest
         }
     }
 
-    static class ABCKeySerializer extends JsonSerializer<ABC> {
+    static class ABCKeySerializer extends ValueSerializer<ABC> {
         @Override
         public void serialize(ABC value, JsonGenerator gen,
-                SerializerProvider provider) throws IOException {
-            gen.writeFieldName("xxx"+value);
+                SerializerProvider provider) {
+            gen.writeName("xxx"+value);
         }
     }
 
-    public static class NullKeySerializer extends JsonSerializer<Object>
+    static class NullKeySerializer extends ValueSerializer<Object>
     {
         private String _null;
         public NullKeySerializer(String s) { _null = s; }
         @Override
-        public void serialize(Object value, JsonGenerator gen, SerializerProvider provider) throws IOException {
-            gen.writeFieldName(_null);
+        public void serialize(Object value, JsonGenerator gen, SerializerProvider provider) {
+            gen.writeName(_null);
         }
     }
 
-    public static class NullValueSerializer extends JsonSerializer<Object>
+    static class NullValueSerializer extends ValueSerializer<Object>
     {
         private String _null;
         public NullValueSerializer(String s) { _null = s; }
         @Override
-        public void serialize(Object value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+        public void serialize(Object value, JsonGenerator gen, SerializerProvider provider) {
             gen.writeString(_null);
         }
     }
 
-    static class DefaultKeySerializer extends JsonSerializer<Object>
+    static class DefaultKeySerializer extends ValueSerializer<Object>
     {
         @Override
-        public void serialize(Object value, JsonGenerator g, SerializerProvider provider) throws IOException
-        {
-            g.writeFieldName("DEFAULT:"+value);
+        public void serialize(Object value, JsonGenerator g, SerializerProvider provider) {
+            g.writeName("DEFAULT:"+value);
         }
     }
 
@@ -129,18 +129,18 @@ public class MapKeySerializationTest extends BaseMapTest
 
     final private ObjectMapper MAPPER = objectMapper();
 
-    public void testNotKarl() throws IOException {
+    public void testNotKarl() throws Exception {
         final String serialized = MAPPER.writeValueAsString(new NotKarlBean());
         assertEquals("{\"map\":{\"Not Karl\":1}}", serialized);
     }
 
-    public void testKarl() throws IOException {
+    public void testKarl() throws Exception {
         final String serialized = MAPPER.writeValueAsString(new KarlBean());
         assertEquals("{\"map\":{\"Karl\":1}}", serialized);
     }
 
     // [databind#75]: caching of KeySerializers
-    public void testBoth() throws IOException
+    public void testBoth() throws Exception
     {
         // Let's NOT use shared one, to ensure caching starts from clean slate
         final ObjectMapper mapper = new ObjectMapper();
@@ -151,23 +151,27 @@ public class MapKeySerializationTest extends BaseMapTest
     }
 
     // Test custom key serializer for enum
-    public void testCustomForEnum() throws IOException
+    public void testCustomForEnum() throws Exception
     {
         // cannot use shared mapper as we are registering a module
-        final ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test");
         mod.addKeySerializer(ABC.class, new ABCKeySerializer());
-        mapper.registerModule(mod);
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(mod)
+                .build();
 
         String json = mapper.writeValueAsString(new ABCMapWrapper());
         assertEquals("{\"stuff\":{\"xxxB\":\"bar\"}}", json);
     }
 
-    public void testCustomNullSerializers() throws IOException
+    public void testCustomNullSerializers() throws Exception
     {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.getSerializerProvider().setNullKeySerializer(new NullKeySerializer("NULL-KEY"));
-        mapper.getSerializerProvider().setNullValueSerializer(new NullValueSerializer("NULL"));
+        final SimpleModule mod = new SimpleModule()
+                .setDefaultNullKeySerializer(new NullKeySerializer("NULL-KEY"))
+                .setDefaultNullValueSerializer(new NullValueSerializer("NULL"));
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(mod)
+                .build();
         Map<String,Integer> input = new HashMap<>();
         input.put(null, 3);
         String json = mapper.writeValueAsString(input);
@@ -175,7 +179,7 @@ public class MapKeySerializationTest extends BaseMapTest
         json = mapper.writeValueAsString(new Object[] { 1, null, true });
         assertEquals("[1,\"NULL\",true]", json);
     }
-    
+
     public void testCustomEnumInnerMapKey() throws Exception {
         Map<Outer, Object> outerMap = new HashMap<Outer, Object>();
         Map<ABC, Map<String, String>> map = new EnumMap<ABC, Map<String, String>>(ABC.class);
@@ -183,30 +187,41 @@ public class MapKeySerializationTest extends BaseMapTest
         innerMap.put("one", "1");
         map.put(ABC.A, innerMap);
         outerMap.put(Outer.inner, map);
-        final ObjectMapper mapper = new ObjectMapper();
-        SimpleModule mod = new SimpleModule("test");
-        mod.setMixInAnnotation(ABC.class, ABCMixin.class);
-        mod.addKeySerializer(ABC.class, new ABCKeySerializer());
-        mapper.registerModule(mod);
+        SimpleModule mod = new SimpleModule("test")
+                .setMixInAnnotation(ABC.class, ABCMixin.class)
+                .addKeySerializer(ABC.class, new ABCKeySerializer())
+        ;
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(mod)
+                .build();
 
         JsonNode tree = mapper.convertValue(outerMap, JsonNode.class);
 
         JsonNode innerNode = tree.get("inner");
-        String key = innerNode.fieldNames().next();
+        String key = innerNode.propertyNames().next();
         assertEquals("xxxA", key);
     }
 
+    // 02-Nov-2020, tatu: No more "default key serializer" in 3.0, hence no test
+    /*
     public void testDefaultKeySerializer() throws IOException
     {
-        ObjectMapper m = new ObjectMapper();
-        m.getSerializerProvider().setDefaultKeySerializer(new DefaultKeySerializer());
+        final SimpleModule mod = new SimpleModule()
+                .setDefaultNullKeySerializer(new NullKeySerializer("NULL-KEY"))
+                // 10-Oct-2019, tatu: Does not exist in 3.0.0 any more./..
+                .setDefaultKeySerializer(new DefaultKeySerializer());
+                ;
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(mod)
+                .build();
         Map<String,String> map = new HashMap<String,String>();
         map.put("a", "b");
         assertEquals("{\"DEFAULT:a\":\"b\"}", m.writeValueAsString(map));
     }
+    */
 
     // [databind#682]
-    public void testClassKey() throws IOException
+    public void testClassKey() throws Exception
     {
         Map<Class<?>,Integer> map = new LinkedHashMap<Class<?>,Integer>();
         map.put(String.class, 2);
@@ -215,18 +230,16 @@ public class MapKeySerializationTest extends BaseMapTest
     }
 
     // [databind#838]
-    @SuppressWarnings("deprecation")
     public void testUnWrappedMapWithKeySerializer() throws Exception{
         SimpleModule mod = new SimpleModule("test");
         mod.addKeySerializer(ABC.class, new ABCKeySerializer());
-        final ObjectMapper mapper = new ObjectMapper()
-            .registerModule(mod)
-            .enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
-            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-            .disable(SerializationFeature.WRITE_NULL_MAP_VALUES)
-            .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY))
+                .enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
+                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .addModule(mod)
+                .build()
             ;
-
         Map<ABC,BAR<?>> stuff = new HashMap<ABC,BAR<?>>();
         stuff.put(ABC.B, new BAR<String>("bar"));
         String json = mapper.writerFor(new TypeReference<Map<ABC,BAR<?>>>() {})
@@ -236,18 +249,17 @@ public class MapKeySerializationTest extends BaseMapTest
 
     // [databind#838]
     public void testUnWrappedMapWithDefaultType() throws Exception{
-        final ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test");
         mod.addKeySerializer(ABC.class, new ABCKeySerializer());
-        mapper.registerModule(mod);
-
-        TypeResolverBuilder<?> typer = ObjectMapper.DefaultTypeResolverBuilder.construct(
-                ObjectMapper.DefaultTyping.NON_FINAL, mapper.getPolymorphicTypeValidator());
-        typer = typer.init(JsonTypeInfo.Id.NAME, null);
-        typer = typer.inclusion(JsonTypeInfo.As.PROPERTY);
-        //typer = typer.typeProperty(TYPE_FIELD);
-        typer = typer.typeIdVisibility(true);
-        mapper.setDefaultTyping(typer);
+        TypeResolverBuilder<?> typer = new DefaultTypeResolverBuilder(
+                NoCheckSubTypeValidator.instance,
+                DefaultTyping.NON_FINAL,
+                JsonTypeInfo.As.PROPERTY, JsonTypeInfo.Id.NAME, null)
+            .typeIdVisibility(true);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(mod)
+                .setDefaultTyping(typer)
+                .build();
 
         Map<ABC,String> stuff = new HashMap<ABC,String>();
         stuff.put(ABC.B, "bar");

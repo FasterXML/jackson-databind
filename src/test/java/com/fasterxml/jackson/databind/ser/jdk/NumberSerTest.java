@@ -19,8 +19,9 @@ public class NumberSerTest extends BaseMapTest
 {
     private final ObjectMapper MAPPER = sharedMapper();
 
-    private final ObjectMapper NON_EMPTY_MAPPER = newJsonMapper()
-            .setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY)
+    private final ObjectMapper NON_EMPTY_MAPPER = jsonMapperBuilder()
+            .changeDefaultPropertyInclusion(v -> v.withValueInclusion(JsonInclude.Include.NON_EMPTY))
+            .build()
             ;
 
     static class IntWrapper {
@@ -130,13 +131,16 @@ public class NumberSerTest extends BaseMapTest
 
     public void testConfigOverridesForNumbers() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configOverride(Integer.TYPE) // for `int`
-            .setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING));
-        mapper.configOverride(Double.TYPE) // for `double`
-            .setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING));
-        mapper.configOverride(BigDecimal.class)
-            .setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING));
+        ObjectMapper mapper = jsonMapperBuilder()
+                .withAllConfigOverrides(all -> { // could have used separate but test for funsies
+                    all.findOrCreateOverride(Integer.TYPE) // for `int`
+                        .setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING));
+                    all.findOrCreateOverride(Double.TYPE) // for `double`
+                        .setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING));
+                    all.findOrCreateOverride(BigDecimal.class)
+                        .setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.STRING));
+                })
+                .build();
 
         assertEquals(a2q("{'i':'3'}"),
                 mapper.writeValueAsString(new IntWrapper(3)));

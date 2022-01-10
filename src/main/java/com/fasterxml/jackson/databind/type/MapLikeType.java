@@ -1,8 +1,5 @@
 package com.fasterxml.jackson.databind.type;
 
-import java.lang.reflect.TypeVariable;
-import java.util.*;
-
 import com.fasterxml.jackson.databind.JavaType;
 
 /**
@@ -54,8 +51,6 @@ public class MapLikeType extends TypeBase {
     /**
      * Factory method that can be used to "upgrade" a basic type into
      * collection-like one; usually done via {@link TypeModifier}
-     *
-     * @since 2.7
      */
     public static MapLikeType upgradeFrom(JavaType baseType, JavaType keyT,
             JavaType valueT) {
@@ -69,35 +64,6 @@ public class MapLikeType extends TypeBase {
                 "Cannot upgrade from an instance of " + baseType.getClass());
     }
 
-    @Deprecated
-    // since 2.7; remove from 2.8
-    public static MapLikeType construct(Class<?> rawType, JavaType keyT,
-            JavaType valueT) {
-        // First: may need to fabricate TypeBindings (needed for refining into
-        // concrete collection types, as per [databind#1102])
-        TypeVariable<?>[] vars = rawType.getTypeParameters();
-        TypeBindings bindings;
-        if ((vars == null) || (vars.length != 2)) {
-            bindings = TypeBindings.emptyBindings();
-        } else {
-            bindings = TypeBindings.create(rawType, keyT, valueT);
-        }
-        return new MapLikeType(rawType, bindings, _bogusSuperClass(rawType),
-                null, keyT, valueT, null, null, false);
-    }
-
-    @Deprecated
-    // since 2.7
-    @Override
-    protected JavaType _narrow(Class<?> subclass) {
-        return new MapLikeType(subclass, _bindings, _superClass,
-                _superInterfaces, _keyType, _valueType, _valueHandler,
-                _typeHandler, _asStatic);
-    }
-
-    /**
-     * @since 2.7
-     */
     public MapLikeType withKeyType(JavaType keyType) {
         if (keyType == _keyType) {
             return this;
@@ -276,22 +242,10 @@ public class MapLikeType extends TypeBase {
                 _valueHandler, _typeHandler, _asStatic);
     }
 
-    /**
-     * Method that can be used for checking whether this type is a "real"
-     * Collection type; meaning whether it represents a parameterized subtype of
-     * {@link java.util.Collection} or just something that acts like one.
-     *
-     * @deprecated Since 2.12 just use instanceof 
-     */
-    @Deprecated // since 2.12 use assignment checks
-    public boolean isTrueMapType() {
-        return Map.class.isAssignableFrom(_class);
-    }
-
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Standard methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override

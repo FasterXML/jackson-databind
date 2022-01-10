@@ -1,18 +1,16 @@
 package com.fasterxml.jackson.databind.json;
 
-import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.json.JsonWriteFeature;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.cfg.MapperBuilder;
+import com.fasterxml.jackson.databind.cfg.MapperBuilderState;
 import com.fasterxml.jackson.databind.cfg.PackageVersion;
 
 /**
- * JSON-format specific {@link ObjectMapper} implementation.
- *
- * @since 2.10
+ * JSON-specific {@link ObjectMapper} implementation.
  */
 public class JsonMapper extends ObjectMapper
 {
@@ -21,68 +19,103 @@ public class JsonMapper extends ObjectMapper
     /**
      * Base implementation for "Vanilla" {@link ObjectMapper}, used with
      * JSON dataformat backend.
-     *
-     * @since 2.10
      */
     public static class Builder extends MapperBuilder<JsonMapper, Builder>
     {
-        public Builder(JsonMapper m) {
-            super(m);
+        public Builder(JsonFactory f) {
+            super(f);
         }
 
-        public Builder enable(JsonReadFeature... features)  {
+        public Builder(StateImpl state) {
+            super(state);
+        }
+
+        @Override
+        public JsonMapper build() {
+            return new JsonMapper(this);
+        }
+
+        @Override
+        protected MapperBuilderState _saveState() {
+            return new StateImpl(this);
+        }
+
+        /*
+        /******************************************************************
+        /* Format features
+        /******************************************************************
+         */
+
+        public Builder enable(JsonReadFeature... features) {
             for (JsonReadFeature f : features) {
-                _mapper.enable(f.mappedFeature());
+                _formatReadFeatures |= f.getMask();
             }
             return this;
         }
 
         public Builder disable(JsonReadFeature... features) {
             for (JsonReadFeature f : features) {
-                _mapper.disable(f.mappedFeature());
+                _formatReadFeatures &= ~f.getMask();
             }
             return this;
         }
 
-        public Builder configure(JsonReadFeature f, boolean state)
+        public Builder configure(JsonReadFeature feature, boolean state)
         {
             if (state) {
-                _mapper.enable(f.mappedFeature());
+                _formatReadFeatures |= feature.getMask();
             } else {
-                _mapper.disable(f.mappedFeature());
+                _formatReadFeatures &= ~feature.getMask();
             }
             return this;
         }
 
-        public Builder enable(JsonWriteFeature... features)  {
+        public Builder enable(JsonWriteFeature... features) {
             for (JsonWriteFeature f : features) {
-                _mapper.enable(f.mappedFeature());
+                _formatWriteFeatures |= f.getMask();
             }
             return this;
         }
 
         public Builder disable(JsonWriteFeature... features) {
             for (JsonWriteFeature f : features) {
-                _mapper.disable(f.mappedFeature());
+                _formatWriteFeatures &= ~f.getMask();
             }
             return this;
         }
 
-        public Builder configure(JsonWriteFeature f, boolean state)
+        public Builder configure(JsonWriteFeature feature, boolean state)
         {
             if (state) {
-                _mapper.enable(f.mappedFeature());
+                _formatWriteFeatures |= feature.getMask();
             } else {
-                _mapper.disable(f.mappedFeature());
+                _formatWriteFeatures &= ~feature.getMask();
             }
             return this;
+        }
+
+        protected static class StateImpl extends MapperBuilderState
+            implements java.io.Serializable // important!
+        {
+            private static final long serialVersionUID = 3L;
+    
+            public StateImpl(Builder src) {
+                super(src);
+            }
+    
+            // We also need actual instance of state as base class can not implement logic
+             // for reinstating mapper (via mapper builder) from state.
+            @Override
+            protected Object readResolve() {
+                return new Builder(this).build();
+            }
         }
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle, constructors
-    /**********************************************************
+    /**********************************************************************
      */
 
     public JsonMapper() {
@@ -90,44 +123,53 @@ public class JsonMapper extends ObjectMapper
     }
 
     public JsonMapper(JsonFactory f) {
-        super(f);
+        this(new Builder(f));
     }
 
-    protected JsonMapper(JsonMapper src) {
-        super(src);
-    }
-
-    @Override
-    public JsonMapper copy()
-    {
-        _checkInvalidCopy(JsonMapper.class);
-        return new JsonMapper(this);
+    public JsonMapper(Builder b) {
+        super(b);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle, builders
-    /**********************************************************
+    /**********************************************************************
      */
 
     public static JsonMapper.Builder builder() {
-        return new Builder(new JsonMapper());
+        return new Builder(new JsonFactory());
     }
 
     public static Builder builder(JsonFactory streamFactory) {
-        return new Builder(new JsonMapper(streamFactory));
+        return new Builder(streamFactory);
     }
 
-    public JsonMapper.Builder  rebuild() {
-        // 09-Dec-2018, tatu: Not as good as what 3.0 has wrt immutability, but best approximation
-        //     we have for 2.x
-        return new Builder(this.copy());
+    @SuppressWarnings("unchecked")
+    @Override
+    public JsonMapper.Builder rebuild() {
+        return new Builder((Builder.StateImpl)_savedBuilderState);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
+    /* Life-cycle, shared "vanilla" (default configuration) instance
+    /**********************************************************************
+     */
+
+    /**
+     * Accessor method for getting globally shared "default" {@link JsonMapper}
+     * instance: one that has default configuration, no modules registered, no
+     * config overrides. Usable mostly when dealing "untyped" or Tree-style
+     * content reading and writing.
+     */
+    public static JsonMapper shared() {
+        return SharedWrapper.wrapped();
+    }
+
+    /*
+    /**********************************************************************
     /* Standard method overrides
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -136,24 +178,37 @@ public class JsonMapper extends ObjectMapper
     }
 
     @Override
-    public JsonFactory getFactory() {
-        return _jsonFactory;
+    public JsonFactory tokenStreamFactory() {
+        return (JsonFactory) _streamFactory;
     }
 
     /*
     /**********************************************************
-    /* JSON-specific accessors, mutators
+    /* Format-specific
     /**********************************************************
      */
 
-    // // // 25-Oct-2018, tatu: Since for 2.x these will simply map to legacy settings,
-    // // //   we will fake them
-    
     public boolean isEnabled(JsonReadFeature f) {
-        return isEnabled(f.mappedFeature());
+        return _deserializationConfig.hasFormatFeature(f);
     }
 
     public boolean isEnabled(JsonWriteFeature f) {
-        return isEnabled(f.mappedFeature());
+        return _serializationConfig.hasFormatFeature(f);
+    }
+
+    /*
+    /**********************************************************
+    /* Helper class(es)
+    /**********************************************************
+     */
+
+    /**
+     * Helper class to contain dynamically constructed "shared" instance of
+     * mapper, should one be needed via {@link #shared}.
+     */
+    private final static class SharedWrapper {
+        private final static JsonMapper MAPPER = JsonMapper.builder().build();
+
+        public static JsonMapper wrapped() { return MAPPER; }
     }
 }

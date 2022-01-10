@@ -16,8 +16,6 @@ import com.fasterxml.jackson.databind.util.Annotations;
  * {@link com.fasterxml.jackson.databind.annotation.JsonAppend}
  * to add "virtual" properties in addition to regular ones.
  * 
- * @since 2.5
- * 
  * @see com.fasterxml.jackson.databind.ser.impl.AttributePropertyWriter
  */
 public abstract class VirtualBeanPropertyWriter
@@ -33,7 +31,7 @@ public abstract class VirtualBeanPropertyWriter
             Annotations contextAnnotations, JavaType declaredType)
     {
         this(propDef, contextAnnotations, declaredType, null, null, null,
-                propDef.findInclusion());
+                propDef.findInclusion(), null);
     }
 
     /**
@@ -51,7 +49,7 @@ public abstract class VirtualBeanPropertyWriter
      */
     protected VirtualBeanPropertyWriter(BeanPropertyDefinition propDef,
             Annotations contextAnnotations, JavaType declaredType,
-            JsonSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
+            ValueSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
             JsonInclude.Value inclusion, Class<?>[] includeInViews)
     {
         super(propDef, propDef.getPrimaryMember(), contextAnnotations, declaredType,
@@ -60,15 +58,6 @@ public abstract class VirtualBeanPropertyWriter
                 includeInViews);
     }
 
-    @Deprecated // since 2.8
-    protected VirtualBeanPropertyWriter(BeanPropertyDefinition propDef,
-            Annotations contextAnnotations, JavaType declaredType,
-            JsonSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
-            JsonInclude.Value inclusion)
-    {
-        this(propDef, contextAnnotations, declaredType, ser, typeSer, serType, inclusion, null);
-    }
-    
     protected VirtualBeanPropertyWriter(VirtualBeanPropertyWriter base) {
         super(base);
     }
@@ -99,28 +88,28 @@ public abstract class VirtualBeanPropertyWriter
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Standard accessor overrides
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
     public boolean isVirtual() { return true; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Abstract methods for sub-classes to define
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
      * Method called to figure out the value to serialize. For simple sub-types
      * (such as {@link com.fasterxml.jackson.databind.ser.impl.AttributePropertyWriter})
      * this may be one of few methods to define, although more advanced implementations
-     * may choose to not even use this method (by overriding {@link #serializeAsField})
+     * may choose to not even use this method (by overriding {@link #serializeAsProperty})
      * and define a bogus implementation.
      */
-    protected abstract Object value(Object bean, JsonGenerator gen, SerializerProvider prov) throws Exception;
+    protected abstract Object value(Object bean, JsonGenerator g, SerializerProvider prov) throws Exception;
 
     /**
      * Contextualization method called on a newly constructed virtual bean property.
@@ -139,25 +128,26 @@ public abstract class VirtualBeanPropertyWriter
             AnnotatedClass declaringClass, BeanPropertyDefinition propDef, JavaType type);
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* PropertyWriter serialization method overrides
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override
-    public void serializeAsField(Object bean, JsonGenerator gen, SerializerProvider prov) throws Exception
+    public void serializeAsProperty(Object bean, JsonGenerator g, SerializerProvider prov)
+        throws Exception
     {
         // NOTE: mostly copied from base class, but off-lined get() access
-        final Object value = value(bean, gen, prov);
+        final Object value = value(bean, g, prov);
 
         if (value == null) {
             if (_nullSerializer != null) {
-                gen.writeFieldName(_name);
-                _nullSerializer.serialize(null, gen, prov);
+                g.writeName(_name);
+                _nullSerializer.serialize(null, g, prov);
             }
             return;
         }
-        JsonSerializer<Object> ser = _serializer;
+        ValueSerializer<Object> ser = _serializer;
         if (ser == null) {
             Class<?> cls = value.getClass();
             PropertySerializerMap m = _dynamicSerializers;
@@ -177,37 +167,37 @@ public abstract class VirtualBeanPropertyWriter
         }
         if (value == bean) { // simple check for direct cycles
             // four choices: exception; handled by call; or pass-through; write null
-            if (_handleSelfReference(bean, gen, prov, ser)) {
+            if (_handleSelfReference(bean, g, prov, ser)) {
                 return;
             }
         }
-        gen.writeFieldName(_name);
+        g.writeName(_name);
         if (_typeSerializer == null) {
-            ser.serialize(value, gen, prov);
+            ser.serialize(value, g, prov);
         } else {
-            ser.serializeWithType(value, gen, prov, _typeSerializer);
+            ser.serializeWithType(value, g, prov, _typeSerializer);
         }
     }
 
     // This one's fine as-is from base class
-    //public void serializeAsOmittedField(Object bean, JsonGenerator jgen, SerializerProvider prov) throws Exception
+    //public void serializeAsOmittedProperty(Object bean, JsonGenerator g, SerializerProvider prov) throws Exception
     
     @Override
-    public void serializeAsElement(Object bean, JsonGenerator gen, SerializerProvider prov)
+    public void serializeAsElement(Object bean, JsonGenerator g, SerializerProvider prov)
         throws Exception
     {
         // NOTE: mostly copied from base class, but off-lined get() access
-        final Object value = value(bean, gen, prov);
+        final Object value = value(bean, g, prov);
 
         if (value == null) {
             if (_nullSerializer != null) {
-                _nullSerializer.serialize(null, gen, prov);
+                _nullSerializer.serialize(null, g, prov);
             } else {
-                gen.writeNull();
+                g.writeNull();
             }
             return;
         }
-        JsonSerializer<Object> ser = _serializer;
+        ValueSerializer<Object> ser = _serializer;
         if (ser == null) {
             Class<?> cls = value.getClass();
             PropertySerializerMap map = _dynamicSerializers;
@@ -219,26 +209,26 @@ public abstract class VirtualBeanPropertyWriter
         if (_suppressableValue != null) {
             if (MARKER_FOR_EMPTY == _suppressableValue) {
                 if (ser.isEmpty(prov, value)) {
-                    serializeAsPlaceholder(bean, gen, prov);
+                    serializeAsOmittedElement(bean, g, prov);
                     return;
                 }
             } else if (_suppressableValue.equals(value)) {
-                serializeAsPlaceholder(bean, gen, prov);
+                serializeAsOmittedElement(bean, g, prov);
                 return;
             }
         }
         if (value == bean) {
-            if (_handleSelfReference(bean, gen, prov, ser)) {
+            if (_handleSelfReference(bean, g, prov, ser)) {
                 return;
             }
         }
         if (_typeSerializer == null) {
-            ser.serialize(value, gen, prov);
+            ser.serialize(value, g, prov);
         } else {
-            ser.serializeWithType(value, gen, prov, _typeSerializer);
+            ser.serializeWithType(value, g, prov, _typeSerializer);
         }
     }
 
     // This one's fine as-is from base class
-    //public void serializeAsPlaceholder(Object bean, JsonGenerator jgen, SerializerProvider prov)
+    //public void serializeAsOmittedElement(Object bean, JsonGenerator g, SerializerProvider prov)
 }

@@ -1,17 +1,14 @@
 package com.fasterxml.jackson.databind.deser;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.util.AccessPattern;
 
 /**
  * Helper interface implemented by classes that are to be used as
  * null providers during deserialization. Most importantly implemented by
- * {@link com.fasterxml.jackson.databind.JsonDeserializer} (as a mix-in
+ * {@link com.fasterxml.jackson.databind.ValueDeserializer} (as a mix-in
  * interface), but also by converters used to support more configurable
  * null replacement.
- *
- * @since 2.9
  */
 public interface NullValueProvider
 {
@@ -24,7 +21,7 @@ public interface NullValueProvider
      * `CONSTANT`, this method WILL NOT use provided `ctxt` and it may thus
      * be passed as `null`.
      */
-    public Object getNullValue(DeserializationContext ctxt) throws JsonMappingException;
+    public Object getNullValue(DeserializationContext ctxt);
 
     /**
      * Accessor that may be used to determine if and when provider must be called to
@@ -48,7 +45,7 @@ public interface NullValueProvider
      *
      * @since 2.13
      */
-    default Object getAbsentValue(DeserializationContext ctxt) throws JsonMappingException {
+    default Object getAbsentValue(DeserializationContext ctxt) {
         return getNullValue(ctxt);
     }
 }

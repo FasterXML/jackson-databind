@@ -18,9 +18,6 @@ public abstract class Annotated
 
     public abstract boolean hasAnnotation(Class<?> acls);
 
-    /**
-     * @since 2.7
-     */
     public abstract boolean hasOneOf(Class<? extends Annotation>[] annoClasses);
 
     /**
@@ -41,8 +38,6 @@ public abstract class Annotated
     /**
      * Full generic type of the annotated element; definition
      * of what exactly this means depends on sub-class.
-     *
-     * @since 2.7
      */
     public abstract JavaType getType();
 
@@ -51,16 +46,6 @@ public abstract class Annotated
      * of what exactly this means depends on sub-class.
      */
     public abstract Class<?> getRawType();
-
-    /**
-     * Accessor that can be used to iterate over all the annotations
-     * associated with annotated component.
-     *
-     * @since 2.3
-     * @deprecated Since 2.9 should instead use {@link #getAnnotated()}
-     */
-    @Deprecated
-    public abstract Iterable<Annotation> annotations();
 
     // Also: ensure we can use #equals, #hashCode
     

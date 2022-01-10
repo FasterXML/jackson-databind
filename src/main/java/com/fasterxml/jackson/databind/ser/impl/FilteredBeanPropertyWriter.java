@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonSerializer;
+
+import com.fasterxml.jackson.databind.ValueSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
@@ -14,7 +14,8 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  */
 public abstract class FilteredBeanPropertyWriter
 {    
-    public static BeanPropertyWriter constructViewBased(BeanPropertyWriter base, Class<?>[] viewsToIncludeIn)
+    public static BeanPropertyWriter constructViewBased(BeanPropertyWriter base,
+            Class<?>[] viewsToIncludeIn)
     {
         if (viewsToIncludeIn.length == 1) {
             return new SingleView(base, viewsToIncludeIn[0]);
@@ -23,9 +24,9 @@ public abstract class FilteredBeanPropertyWriter
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Concrete sub-classes
-    /**********************************************************
+    /**********************************************************************
      */
 
     private final static class SingleView
@@ -51,24 +52,24 @@ public abstract class FilteredBeanPropertyWriter
         }
         
         @Override
-        public void assignSerializer(JsonSerializer<Object> ser) {
+        public void assignSerializer(ValueSerializer<Object> ser) {
             _delegate.assignSerializer(ser);
         }
 
         @Override
-        public void assignNullSerializer(JsonSerializer<Object> nullSer) {
+        public void assignNullSerializer(ValueSerializer<Object> nullSer) {
             _delegate.assignNullSerializer(nullSer);
         }
         
         @Override
-        public void serializeAsField(Object bean, JsonGenerator gen, SerializerProvider prov)
+        public void serializeAsProperty(Object bean, JsonGenerator gen, SerializerProvider prov)
             throws Exception
         {
             Class<?> activeView = prov.getActiveView();
             if (activeView == null || _view.isAssignableFrom(activeView)) {
-                _delegate.serializeAsField(bean, gen, prov);
+                _delegate.serializeAsProperty(bean, gen, prov);
             } else {
-                _delegate.serializeAsOmittedField(bean, gen, prov);
+                _delegate.serializeAsOmittedProperty(bean, gen, prov);
             }
         }
 
@@ -80,13 +81,13 @@ public abstract class FilteredBeanPropertyWriter
             if (activeView == null || _view.isAssignableFrom(activeView)) {
                 _delegate.serializeAsElement(bean, gen, prov);
             } else {
-                _delegate.serializeAsPlaceholder(bean, gen, prov);
+                _delegate.serializeAsOmittedElement(bean, gen, prov);
             }
         }
 
         @Override
         public void depositSchemaProperty(JsonObjectFormatVisitor v,
-                SerializerProvider provider) throws JsonMappingException
+                SerializerProvider provider)
         {
             Class<?> activeView = provider.getActiveView();
             if (activeView == null || _view.isAssignableFrom(activeView)) {
@@ -117,24 +118,24 @@ public abstract class FilteredBeanPropertyWriter
         }
         
         @Override
-        public void assignSerializer(JsonSerializer<Object> ser) {
+        public void assignSerializer(ValueSerializer<Object> ser) {
             _delegate.assignSerializer(ser);
         }
 
         @Override
-        public void assignNullSerializer(JsonSerializer<Object> nullSer) {
+        public void assignNullSerializer(ValueSerializer<Object> nullSer) {
             _delegate.assignNullSerializer(nullSer);
         }
         
         @Override
-        public void serializeAsField(Object bean, JsonGenerator gen, SerializerProvider prov)
+        public void serializeAsProperty(Object bean, JsonGenerator gen, SerializerProvider prov)
             throws Exception
         {
             if (_inView(prov.getActiveView())) {
-                _delegate.serializeAsField(bean, gen, prov);
+                _delegate.serializeAsProperty(bean, gen, prov);
                 return;
             }
-            _delegate.serializeAsOmittedField(bean, gen, prov);
+            _delegate.serializeAsOmittedProperty(bean, gen, prov);
         }
 
         @Override
@@ -145,12 +146,12 @@ public abstract class FilteredBeanPropertyWriter
                 _delegate.serializeAsElement(bean, gen, prov);
                 return;
             }
-            _delegate.serializeAsPlaceholder(bean, gen, prov);
+            _delegate.serializeAsOmittedElement(bean, gen, prov);
         }
 
         @Override
         public void depositSchemaProperty(JsonObjectFormatVisitor v,
-                SerializerProvider provider) throws JsonMappingException
+                SerializerProvider provider)
         {
             if (_inView(provider.getActiveView())) {
                 super.depositSchemaProperty(v, provider);

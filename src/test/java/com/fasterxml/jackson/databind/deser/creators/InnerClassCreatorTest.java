@@ -53,10 +53,9 @@ public class InnerClassCreatorTest extends BaseMapTest
         }
     }
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
-    {
-        MAPPER.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-    }
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
+            .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+            .build();
 
     // Used to trigger `ArrayIndexOutOfBoundsException` for missing creator property index
     public void testIssue1501() throws Exception
@@ -75,6 +74,10 @@ public class InnerClassCreatorTest extends BaseMapTest
     public void testIssue1502() throws Exception
     {
         String ser = MAPPER.writeValueAsString(new Something1502(null));
+
+        // 21-Sep-2017, tatu: For some reason with 3.x this DOES pass (or maybe
+        //    more accurately somehow with 2.x it doesn't?).
+        /*
         try {
             MAPPER.readValue(ser, Something1502.class);
             fail("Should not pass");
@@ -83,6 +86,10 @@ public class InnerClassCreatorTest extends BaseMapTest
             verifyException(e, "InnerSomething1502");
             verifyException(e, "non-static inner classes like this can only by instantiated using default");
         }
+        */
+        Something1502 result = MAPPER.readValue(ser, Something1502.class);
+        assertNotNull(result);
+        assertNull(result.a);
     }
 
     public void testIssue1503() throws Exception

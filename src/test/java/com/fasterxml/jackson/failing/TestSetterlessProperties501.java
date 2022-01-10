@@ -51,14 +51,13 @@ public class TestSetterlessProperties501
     public void testSetterlessWithPolymorphic() throws Exception
     {
         Issue501Bean input = new Issue501Bean("a", new Poly(13));
-        ObjectMapper m = new ObjectMapper();
-        assertTrue(m.isEnabled(MapperFeature.USE_GETTERS_AS_SETTERS));
-        m.activateDefaultTyping(NoCheckSubTypeValidator.instance,
-                ObjectMapper.DefaultTyping.NON_FINAL);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.NON_FINAL)
+                .build();
+        String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(input);
 
-        String json = m.writerWithDefaultPrettyPrinter().writeValueAsString(input);
-
-        Issue501Bean output = m.readValue(json, Issue501Bean.class);
+        Issue501Bean output = mapper.readValue(json, Issue501Bean.class);
         assertNotNull(output);
 
         assertEquals(1, output.l.size());

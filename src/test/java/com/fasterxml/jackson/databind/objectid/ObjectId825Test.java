@@ -27,7 +27,7 @@ public class ObjectId825Test extends BaseMapTest
 
     private final ObjectMapper DEF_TYPING_MAPPER = jsonMapperBuilder()
             .activateDefaultTyping(NoCheckSubTypeValidator.instance,
-                    ObjectMapper.DefaultTyping.NON_FINAL)
+                    DefaultTyping.NON_FINAL)
             .build();
 
     public void testDeserialize() throws Exception {

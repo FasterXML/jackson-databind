@@ -6,6 +6,7 @@ import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 public class UUIDSerializationTest extends BaseMapTest
 {
@@ -73,10 +74,10 @@ public class UUIDSerializationTest extends BaseMapTest
                 MAPPER.writeValueAsString(new UUIDWrapperVanilla(nullUUID)));
         
         // but can also override by type
-        final ObjectMapper m = jsonMapperBuilder()
+        ObjectMapper m = JsonMapper.builder()
                 .withConfigOverride(UUID.class,
                         cfg -> cfg.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.BINARY))
-                )
+                        )
                 .build();
         assertEquals("{\"uuid\":\"AAAAAAAAAAAAAAAAAAAAAA==\"}",
                 m.writeValueAsString(new UUIDWrapperVanilla(nullUUID)));

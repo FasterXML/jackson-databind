@@ -3,6 +3,7 @@ package perf;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
@@ -22,10 +23,9 @@ public class ManualReadPerfUntypedReader extends ObjectReaderTestBase
         boolean doIntern = true;
 
         JsonFactory f = JsonFactory.builder()
-                .configure(JsonFactory.Feature.CANONICALIZE_FIELD_NAMES, doIntern)
-                .configure(JsonFactory.Feature.INTERN_FIELD_NAMES, doIntern)
-                .build();
-        
+            .configure(JsonFactory.Feature.CANONICALIZE_PROPERTY_NAMES, doIntern)
+            .configure(JsonFactory.Feature.INTERN_PROPERTY_NAMES, doIntern)
+            .build();
         JsonMapper m = new JsonMapper(f);
         Object input1 = m.readValue(data, Object.class);
         JsonNode input2 = m.readTree(data);
@@ -52,9 +52,8 @@ public class ManualReadPerfUntypedReader extends ObjectReaderTestBase
     protected final double _testRawDeser(int reps, String json, ObjectReader reader) throws IOException
     {
         long start = System.nanoTime();
-        final JsonFactory f = reader.getFactory();
         while (--reps >= 0) {
-            JsonParser p = f.createParser(json);
+            JsonParser p = reader.createParser(json);
             JsonToken t;
             while ((t = p.nextToken()) != null) {
                 if (t == JsonToken.VALUE_STRING) {
@@ -66,7 +65,7 @@ public class ManualReadPerfUntypedReader extends ObjectReaderTestBase
             }
             p.close();
         }
-        hash = f.hashCode();
+        hash = (int) start;
         return _msecsFromNanos(System.nanoTime() - start);
     }
 }

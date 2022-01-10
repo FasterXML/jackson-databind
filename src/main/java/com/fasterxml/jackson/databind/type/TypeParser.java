@@ -12,25 +12,16 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 public class TypeParser
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 3L;
 
-    protected final TypeFactory _factory;
-        
-    public TypeParser(TypeFactory f) {
-        _factory = f;
-    }
+    public final static TypeParser instance = new TypeParser();
+    
+    public TypeParser() { }
 
-    /**
-     * @since 2.6.2
-     */
-    public TypeParser withFactory(TypeFactory f) {
-        return (f == _factory) ? this : new TypeParser(f);
-    }
-
-    public JavaType parse(String canonical) throws IllegalArgumentException
+    public JavaType parse(TypeFactory tf, String canonical) throws IllegalArgumentException
     {
         MyTokenizer tokens = new MyTokenizer(canonical.trim());
-        JavaType type = parseType(tokens);
+        JavaType type = parseType(tf, tokens);
         // must be end, now
         if (tokens.hasMoreTokens()) {
             throw _problem(tokens, "Unexpected tokens after complete type");
@@ -38,34 +29,34 @@ public class TypeParser
         return type;
     }
 
-    protected JavaType parseType(MyTokenizer tokens)
+    protected JavaType parseType(TypeFactory tf, MyTokenizer tokens)
         throws IllegalArgumentException
     {
         if (!tokens.hasMoreTokens()) {
             throw _problem(tokens, "Unexpected end-of-string");
         }
-        Class<?> base = findClass(tokens.nextToken(), tokens);
+        Class<?> base = findClass(tf, tokens.nextToken(), tokens);
 
         // either end (ok, non generic type), or generics
         if (tokens.hasMoreTokens()) {
             String token = tokens.nextToken();
             if ("<".equals(token)) {
-                List<JavaType> parameterTypes = parseTypes(tokens);
+                List<JavaType> parameterTypes = parseTypes(tf, tokens);
                 TypeBindings b = TypeBindings.create(base, parameterTypes);
-                return _factory._fromClass(null, base, b);
+                return tf._fromClass(null, base, b);
             }
             // can be comma that separates types, or closing '>'
             tokens.pushBack(token);
         }
-        return _factory._fromClass(null, base, TypeBindings.emptyBindings());
+        return tf._fromClass(null, base, TypeBindings.emptyBindings());
     }
 
-    protected List<JavaType> parseTypes(MyTokenizer tokens)
+    protected List<JavaType> parseTypes(TypeFactory tf, MyTokenizer tokens)
         throws IllegalArgumentException
     {
         ArrayList<JavaType> types = new ArrayList<JavaType>();
         while (tokens.hasMoreTokens()) {
-            types.add(parseType(tokens));
+            types.add(parseType(tf, tokens));
             if (!tokens.hasMoreTokens()) break;
             String token = tokens.nextToken();
             if (">".equals(token)) return types;
@@ -76,10 +67,10 @@ public class TypeParser
         throw _problem(tokens, "Unexpected end-of-string");
     }
 
-    protected Class<?> findClass(String className, MyTokenizer tokens)
+    protected Class<?> findClass(TypeFactory tf, String className, MyTokenizer tokens)
     {
         try {
-            return _factory.findClass(className);
+            return tf.findClass(className);
         } catch (Exception e) {
             ClassUtil.throwIfRTE(e);
             throw _problem(tokens, "Cannot locate class '"+className+"', problem: "+e.getMessage());

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 // [databind#2795]: Regression in 2.11.0, no mix-ins for JDK collections
 public class MixinForCreators2795Test extends BaseMapTest
@@ -21,9 +22,9 @@ public class MixinForCreators2795Test extends BaseMapTest
         ObjectMapper mapper = JsonMapper.builder()
                 .addMixIn(Collections.unmodifiableCollection(Collections.emptyList()).getClass(),
                         UnmodifiableCollectionMixin.class)
+                .activateDefaultTypingAsProperty(new NoCheckSubTypeValidator(),
+                        DefaultTyping.NON_FINAL, "@class")
                 .build();
-        mapper.activateDefaultTypingAsProperty(mapper.getPolymorphicTypeValidator(),
-                ObjectMapper.DefaultTyping.NON_FINAL, "@class");
 
         final List<String> strings = Arrays.asList("1", "2");
         final Collection<String> unmodifiableCollection = Collections.unmodifiableCollection(strings);

@@ -1,16 +1,25 @@
 package com.fasterxml.jackson.databind.util;
 
+import com.fasterxml.jackson.core.util.Snapshottable;
+
 /**
- * An interface describing the required API for the Jackson-databind Type cache.
+ * An interface describing the required API for the Jackson-Databind Type cache.
  *<p>
  * Note that while interface itself does not specify synchronization requirements for
  * implementations, specific use cases do. Typically implementations are
  * expected to be thread-safe, that is, to handle synchronization.
  *
- * @since 2.12 (for forwards-compatiblity with 3.0)
+ * @see com.fasterxml.jackson.databind.type.TypeFactory#withCache
+ * @see SimpleLookupCache
  */
 public interface LookupCache <K,V>
+    extends Snapshottable<LookupCache<K,V>>
 {
+    // 17-Sep-2019, tatu: There is one usage, by `ReadOnlyClassToSerializerMap`, so
+    //    for now NOT exposed, but can reconsider if it proves generally useful
+    
+//    void contents(BiConsumer<K,V> consumer);
+
     /**
      * @return Number of entries currently in cache: may be approximate, only
      *    to be used for diagnostics, metrics reporting

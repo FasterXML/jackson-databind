@@ -4,7 +4,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.BeanDescription;
+
 import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -13,8 +13,6 @@ import com.fasterxml.jackson.databind.jsontype.NamedType;
 
 public class TypeNameIdResolver extends TypeIdResolverBase
 {
-    protected final MapperConfig<?> _config;
-
     /**
      * Mappings from class name to type id, used for serialization.
      *<p>
@@ -30,20 +28,17 @@ public class TypeNameIdResolver extends TypeIdResolverBase
      */
     protected final Map<String, JavaType> _idToType;
 
-    /**
-     * @since 2.11
-     */
     protected final boolean _caseInsensitive;
 
-    protected TypeNameIdResolver(MapperConfig<?> config, JavaType baseType,
+    protected TypeNameIdResolver(JavaType baseType,
             ConcurrentHashMap<String, String> typeToId,
-            HashMap<String, JavaType> idToType)
+            HashMap<String, JavaType> idToType,
+            boolean caseInsensitive)
     {
-        super(baseType, config.getTypeFactory());
-        _config = config;
+        super(baseType);
         _typeToId = typeToId;
         _idToType = idToType;
-        _caseInsensitive = config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_VALUES);
+        _caseInsensitive = caseInsensitive;
     }
 
     public static TypeNameIdResolver construct(MapperConfig<?> config, JavaType baseType,
@@ -95,36 +90,43 @@ public class TypeNameIdResolver extends TypeIdResolverBase
                 }
             }
         }
-        return new TypeNameIdResolver(config, baseType, typeToId, idToType);
+        return new TypeNameIdResolver(baseType, typeToId, idToType, caseInsensitive);
     }
 
     @Override
     public JsonTypeInfo.Id getMechanism() { return JsonTypeInfo.Id.NAME; }
 
     @Override
-    public String idFromValue(Object value) {
-        return idFromClass(value.getClass());
+    public String idFromValue(DatabindContext ctxt, Object value) {
+        return idFromClass(ctxt, value.getClass());
     }
 
-    protected String idFromClass(Class<?> clazz)
+    protected String idFromClass(DatabindContext ctxt, Class<?> cls)
     {
-        if (clazz == null) {
+        if (cls == null) {
             return null;
         }
-        // NOTE: although we may need to let `TypeModifier` change actual type to use
-        // for id, we can use original type as key for more efficient lookup:
-        final String key = clazz.getName();
+        // 12-Oct-2019, tatu: This looked weird; was done in 2.x to force application
+        //   of `TypeModifier`. But that just... does not seem right, at least not in
+        //   the sense that raw class would be changed (intent for modifier is to change
+        //   `JavaType` being resolved, not underlying class. Hence commented out in
+        //   3.x. There should be better way to support whatever the use case is.
+
+        // 29-Nov-2019, tatu: Looking at 2.x, test in `TestTypeModifierNameResolution` suggested
+        //   that use of `TypeModifier` was used for demoting some types (from impl class to
+        //   interface. For what that's worth. Still not supported for 3.x until proven necessary
+
+//        cls = _typeFactory.constructType(cls).getRawClass();
+
+        final String key = cls.getName();
         String name = _typeToId.get(key);
 
         if (name == null) {
-            // 29-Nov-2019, tatu: As per test in `TestTypeModifierNameResolution` somehow
-            //    we need to do this odd piece here which seems unnecessary but isn't.
-            Class<?> cls = _typeFactory.constructType(clazz).getRawClass();                
             // 24-Feb-2011, tatu: As per [JACKSON-498], may need to dynamically look up name
             // can either throw an exception, or use default name...
-            if (_config.isAnnotationProcessingEnabled()) {
-                BeanDescription beanDesc = _config.introspectClassAnnotations(cls);
-                name = _config.getAnnotationIntrospector().findTypeName(beanDesc.getClassInfo());
+            if (ctxt.isAnnotationProcessingEnabled()) {
+                name = ctxt.getAnnotationIntrospector().findTypeName(ctxt.getConfig(),
+                        ctxt.introspectClassAnnotations(cls));
             }
             if (name == null) {
                 // And if still not found, let's choose default?
@@ -136,13 +138,13 @@ public class TypeNameIdResolver extends TypeIdResolverBase
     }
 
     @Override
-    public String idFromValueAndType(Object value, Class<?> type) {
+    public String idFromValueAndType(DatabindContext ctxt, Object value, Class<?> type) {
         // 18-Jan-2013, tatu: We may be called with null value occasionally
         //   it seems; nothing much we can figure out that way.
         if (value == null) {
-            return idFromClass(type);
+            return idFromClass(ctxt, type);
         }
-        return idFromValue(value);
+        return idFromValue(ctxt, value);
     }
 
     @Override
@@ -175,15 +177,17 @@ public class TypeNameIdResolver extends TypeIdResolverBase
         return ids.toString();
     }
 
+    /*
     @Override
     public String toString() {
         return String.format("[%s; id-to-type=%s]", getClass().getName(), _idToType);
     }
+    */
 
     /*
-    /*********************************************************
+    /**********************************************************************
     /* Helper methods
-    /*********************************************************
+    /**********************************************************************
      */
     
     /**

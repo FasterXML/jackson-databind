@@ -3,9 +3,9 @@ package com.fasterxml.jackson.databind.jsontype;
 import java.util.*;
 import java.util.regex.Pattern;
 
+import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.DeserializationContext;
 
 /**
  * Standard {@link BasicPolymorphicTypeValidator} implementation that users may want
@@ -18,41 +18,41 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
  * For example:
  *<pre>
  *</pre>
- *
- * @since 2.10
  */
 public class BasicPolymorphicTypeValidator
     extends PolymorphicTypeValidator.Base
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 3L;
 
     /*
-    /**********************************************************
-    /* Helper classes: matchers
-    /**********************************************************
+    /**********************************************************************
+    /* Helper types: matchers
+    /**********************************************************************
      */
 
     /**
      * General matcher interface (predicate) for validating class values
      * (base type or resolved subtype)
      */
-    public abstract static class TypeMatcher { // note: public since 2.11
-        public abstract boolean match(MapperConfig<?> config, Class<?> clazz);
+    @FunctionalInterface
+    public interface TypeMatcher {
+        public abstract boolean match(DatabindContext ctxt, Class<?> clazz);
     }
 
     /**
      * General matcher interface (predicate) for validating unresolved
      * subclass class name.
      */
-    public abstract static class NameMatcher { // note: public since 2.11
-        public abstract boolean match(MapperConfig<?> config, String clazzName);
+    @FunctionalInterface
+    public interface NameMatcher {
+        public abstract boolean match(DatabindContext ctxt, String clazzName);
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Builder class for configuring instances
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -104,7 +104,7 @@ public class BasicPolymorphicTypeValidator
         public Builder allowIfBaseType(final Class<?> baseOfBase) {
             return _appendBaseMatcher(new TypeMatcher() {
                 @Override
-                public boolean match(MapperConfig<?> config, Class<?> clazz) {
+                public boolean match(DatabindContext ctxt, Class<?> clazz) {
                     return baseOfBase.isAssignableFrom(clazz);
                 }
             });
@@ -130,7 +130,7 @@ public class BasicPolymorphicTypeValidator
         public Builder allowIfBaseType(final Pattern patternForBase) {
             return _appendBaseMatcher(new TypeMatcher() {
                 @Override
-                public boolean match(MapperConfig<?> config, Class<?> clazz) {
+                public boolean match(DatabindContext ctxt, Class<?> clazz) {
                     return patternForBase.matcher(clazz.getName()).matches();
                 }
             });
@@ -150,7 +150,7 @@ public class BasicPolymorphicTypeValidator
         public Builder allowIfBaseType(final String prefixForBase) {
             return _appendBaseMatcher(new TypeMatcher() {
                 @Override
-                public boolean match(MapperConfig<?> config, Class<?> clazz) {
+                public boolean match(DatabindContext ctxt, Class<?> clazz) {
                     return clazz.getName().startsWith(prefixForBase);
                 }
             });
@@ -164,8 +164,6 @@ public class BasicPolymorphicTypeValidator
          * @param matcher Custom matcher to apply to base type
          *
          * @return This Builder to allow call chaining
-         *
-         * @since 2.11
          */
         public Builder allowIfBaseType(final TypeMatcher matcher) {
             return _appendBaseMatcher(matcher);
@@ -207,7 +205,7 @@ public class BasicPolymorphicTypeValidator
         public Builder allowIfSubType(final Class<?> subTypeBase) {
             return _appendSubClassMatcher(new TypeMatcher() {
                 @Override
-                public boolean match(MapperConfig<?> config, Class<?> clazz) {
+                public boolean match(DatabindContext ctxt, Class<?> clazz) {
                     return subTypeBase.isAssignableFrom(clazz);
                 }
             });
@@ -232,7 +230,7 @@ public class BasicPolymorphicTypeValidator
         public Builder allowIfSubType(final Pattern patternForSubType) {
             return _appendSubNameMatcher(new NameMatcher() {
                 @Override
-                public boolean match(MapperConfig<?> config, String clazzName) {
+                public boolean match(DatabindContext ctxt, String clazzName) {
                     return patternForSubType.matcher(clazzName).matches();
                 }
             });
@@ -252,7 +250,7 @@ public class BasicPolymorphicTypeValidator
         public Builder allowIfSubType(final String prefixForSubType) {
             return _appendSubNameMatcher(new NameMatcher() {
                 @Override
-                public boolean match(MapperConfig<?> config, String clazzName) {
+                public boolean match(DatabindContext ctxt, String clazzName) {
                     return clazzName.startsWith(prefixForSubType);
                 }
             });
@@ -266,8 +264,6 @@ public class BasicPolymorphicTypeValidator
          * @param matcher Custom matcher to apply to resolved subtype
          *
          * @return This Builder to allow call chaining
-         *
-         * @since 2.11
          */
         public Builder allowIfSubType(final TypeMatcher matcher) {
             return _appendSubClassMatcher(matcher);
@@ -284,36 +280,43 @@ public class BasicPolymorphicTypeValidator
          * NOTE: not used with other Java collection types ({@link java.util.List}s,
          *    {@link java.util.Collection}s), mostly since use of generic types as polymorphic
          *    values is not (well) supported.
-         *
-         * @since 2.11
          */
         public Builder allowIfSubTypeIsArray() {
             return _appendSubClassMatcher(new TypeMatcher() {
                 @Override
-                public boolean match(MapperConfig<?> config, Class<?> clazz) {
+                public boolean match(DatabindContext ctxt, Class<?> clazz) {
                     return clazz.isArray();
                 }
             });
         }
 
-        // 18-Nov-2019, tatu: alas, [databind#2539] can not be implemented with 2.x due
-        //    to (in hindsight) obvious design flaw: instead `MapperConfig`, `DatabindContext`
-        //    must be available to check what deserializers are registered.
-        /*
+        /**
+         * Method for appending matcher that will allow all subtypes for which a
+         * {@link com.fasterxml.jackson.databind.ValueDeserializer})
+         * is explicitly provided by either {@code jackson-databind} itself or one of registered
+         * {@link com.fasterxml.jackson.databind.JacksonModule}s.
+         * Determination is implementation by calling
+         * {@link com.fasterxml.jackson.databind.deser.DeserializerFactory#hasExplicitDeserializerFor}.
+         *<p>
+         * In practice this matcher should remove the need to register any standard Jackson-supported
+         * JDK types, as well as most if not all 3rd party types; leaving only POJOs and those 3rd party
+         * types that are not supported by relevant modules. In turn this should not open security
+         * holes to "gadget" types since insecure types should not be supported by datatype modules.
+         * For highest security cases (where input is untrusted) it is still preferable to add
+         * more specific allow-rules, if possible.
+         *<p>
+         * NOTE: Modules need to provide support for detection so if 3rd party types do not seem to
+         * be supported, Module in question may need to be updated to indicate existence of explicit
+         * deserializers.
+         */
         public Builder allowSubTypesWithExplicitDeserializer() {
             return _appendSubClassMatcher(new TypeMatcher() {
                 @Override
-                public boolean match(MapperConfig<?> config, Class<?> clazz) {
-                    // First things first: "peel off" array type
-                    while (clazz.isArray()) {
-                        clazz = clazz.getComponentType();
-                    }
-                    DeserializerFactory df = ((DeserializationConfig) config).getDes
-                    return clazz.isArray();
+                public boolean match(DatabindContext ctxt, Class<?> valueType) {
+                    return ((DeserializationContext) ctxt).hasExplicitDeserializerFor(valueType);
                 }
             });
         }
-         */
 
         public BasicPolymorphicTypeValidator build() {
             return new BasicPolymorphicTypeValidator(_invalidBaseTypes,
@@ -349,9 +352,9 @@ public class BasicPolymorphicTypeValidator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Actual implementation
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -393,8 +396,8 @@ public class BasicPolymorphicTypeValidator
     }
 
     @Override
-    public Validity validateBaseType(MapperConfig<?> ctxt, JavaType baseType) {
-//System.err.println("validateBaseType("+baseType+")");
+    public Validity validateBaseType(DatabindContext ctxt, JavaType baseType)
+    {
         final Class<?> rawBase = baseType.getRawClass();
         if (_invalidBaseTypes != null) {
             if (_invalidBaseTypes.contains(rawBase)) {
@@ -412,9 +415,8 @@ public class BasicPolymorphicTypeValidator
     }
 
     @Override
-    public Validity validateSubClassName(MapperConfig<?> ctxt, JavaType baseType,
+    public Validity validateSubClassName(DatabindContext ctxt, JavaType baseType,
             String subClassName)
-        throws JsonMappingException
     {
 //System.err.println("validateSubClassName('"+subClassName+"')");
         if (_subTypeNameMatchers != null)  {
@@ -429,10 +431,8 @@ public class BasicPolymorphicTypeValidator
     }
 
     @Override
-    public Validity validateSubType(MapperConfig<?> ctxt, JavaType baseType, JavaType subType)
-            throws JsonMappingException
+    public Validity validateSubType(DatabindContext ctxt, JavaType baseType, JavaType subType)
     {
-//System.err.println("validateSubType("+subType+")");
         if (_subClassMatchers != null)  {
             final Class<?> subClass = subType.getRawClass();
             for (TypeMatcher m : _subClassMatchers) {

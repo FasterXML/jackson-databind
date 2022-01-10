@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
@@ -41,7 +41,7 @@ public final class SetterlessProperty
         _getter = method.getAnnotated();
     }
 
-    protected SetterlessProperty(SetterlessProperty src, JsonDeserializer<?> deser,
+    protected SetterlessProperty(SetterlessProperty src, ValueDeserializer<?> deser,
             NullValueProvider nva) {
         super(src, deser, nva);
         _annotated = src._annotated;
@@ -60,7 +60,7 @@ public final class SetterlessProperty
     }
 
     @Override
-    public SettableBeanProperty withValueDeserializer(JsonDeserializer<?> deser) {
+    public SettableBeanProperty withValueDeserializer(ValueDeserializer<?> deser) {
         if (_valueDeserializer == deser) {
             return this;
         }
@@ -101,9 +101,10 @@ public final class SetterlessProperty
     
     @Override
     public final void deserializeAndSet(JsonParser p, DeserializationContext ctxt,
-            Object instance) throws IOException
+            Object instance) throws JacksonException
     {
-        if (p.hasToken(JsonToken.VALUE_NULL)) {
+        JsonToken t = p.currentToken();
+        if (t == JsonToken.VALUE_NULL) {
             // Hmmh. Is this a problem? We won't be setting anything, so it's
             // equivalent of empty Collection/Map in this case
             return;
@@ -120,7 +121,7 @@ public final class SetterlessProperty
         try {
             toModify = _getter.invoke(instance, (Object[]) null);
         } catch (Exception e) {
-            _throwAsIOE(p, e);
+            _throwAsJacksonE(p, e);
             return; // never gets here
         }
         // Note: null won't work, since we can't then inject anything in. At least
@@ -136,19 +137,19 @@ public final class SetterlessProperty
 
     @Override
     public Object deserializeSetAndReturn(JsonParser p,
-    		DeserializationContext ctxt, Object instance) throws IOException
+    		DeserializationContext ctxt, Object instance) throws JacksonException
     {
         deserializeAndSet(p, ctxt, instance);
         return instance;
     }
 
     @Override
-    public final void set(Object instance, Object value) throws IOException {
+    public final void set(Object instance, Object value) {
         throw new UnsupportedOperationException("Should never call `set()` on setterless property ('"+getName()+"')");
     }
 
     @Override
-    public Object setAndReturn(Object instance, Object value) throws IOException
+    public Object setAndReturn(Object instance, Object value)
     {
         set(instance, value);
         return instance;

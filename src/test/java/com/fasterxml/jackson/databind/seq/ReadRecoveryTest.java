@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.seq;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 
 /**
  * Tests to verify aspects of error recover for reading using
@@ -15,9 +16,9 @@ public class ReadRecoveryTest extends BaseMapTest
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Unit tests; root-level value sequences via Mapper
-    /**********************************************************
+    /**********************************************************************
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
@@ -34,8 +35,8 @@ public class ReadRecoveryTest extends BaseMapTest
         try {
             bean = it.nextValue();
             fail("Should not have succeeded");
-        } catch (DatabindException e) {
-            verifyException(e, "Unrecognized field \"x\"");
+        } catch (UnrecognizedPropertyException e) {
+            verifyException(e, "Unrecognized property \"x\"");
         }
         // 21-May-2015, tatu: With [databind#734], recovery, we now know there's no more data!
         assertFalse(it.hasNextValue());
@@ -59,8 +60,8 @@ public class ReadRecoveryTest extends BaseMapTest
         // second one problematic
         try {
             it.nextValue();
-        } catch (DatabindException e) {
-            verifyException(e, "Unrecognized field \"foo\"");
+        } catch (UnrecognizedPropertyException e) {
+            verifyException(e, "Unrecognized property \"foo\"");
         }
 
         // but should recover nicely
@@ -88,8 +89,8 @@ public class ReadRecoveryTest extends BaseMapTest
         // second one problematic
         try {
             it.nextValue();
-        } catch (DatabindException e) {
-            verifyException(e, "Unrecognized field \"foo\"");
+        } catch (UnrecognizedPropertyException e) {
+            verifyException(e, "Unrecognized property \"foo\"");
         }
 
         // but should recover nicely

@@ -27,7 +27,7 @@ public class AnnotatedMemberEqualityTest extends BaseMapTest
 
  // [databind#3187]
     public void testAnnotatedConstructorEquality() {
-        DeserializationConfig context = MAPPER.getDeserializationConfig();
+        DeserializationConfig context = MAPPER.deserializationConfig();
         JavaType beanType = MAPPER.constructType(SomeBean.class);
 
         AnnotatedClass instance1 = AnnotatedClassResolver.resolve(context, beanType, context);
@@ -44,7 +44,7 @@ public class AnnotatedMemberEqualityTest extends BaseMapTest
 
     // [databind#3187]
     public void testAnnotatedMethodEquality() {
-        DeserializationConfig context = MAPPER.getDeserializationConfig();
+        DeserializationConfig context = MAPPER.deserializationConfig();
         JavaType beanType = MAPPER.constructType(SomeBean.class);
 
         AnnotatedClass instance1 = AnnotatedClassResolver.resolve(context, beanType, context);
@@ -63,7 +63,7 @@ public class AnnotatedMemberEqualityTest extends BaseMapTest
 
     // [databind#3187]
     public void testAnnotatedFieldEquality() {
-        DeserializationConfig context = MAPPER.getDeserializationConfig();
+        DeserializationConfig context = MAPPER.deserializationConfig();
         JavaType beanType = MAPPER.constructType(SomeBean.class);
 
         AnnotatedClass instance1 = AnnotatedClassResolver.resolve(context, beanType, context);

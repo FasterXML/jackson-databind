@@ -6,6 +6,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
@@ -13,12 +14,11 @@ import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 public class SingleArgCreatorTest extends BaseMapTest
 {
     // [databind#430]: single arg BUT named; should not delegate
-
     static class SingleNamedStringBean {
         final String _ss;
 
         @JsonCreator
-        public SingleNamedStringBean(@JsonProperty("") String ss){
+        public SingleNamedStringBean(@JsonProperty("value") String ss){
             this._ss = ss;
         }
 
@@ -42,7 +42,7 @@ public class SingleArgCreatorTest extends BaseMapTest
     {
         public final String value;
 
-        private StringyBean(String value) { this.value = value; }
+        protected StringyBean(String value) { this.value = value; }
 
         public String getValue() {
             return value;
@@ -69,7 +69,7 @@ public class SingleArgCreatorTest extends BaseMapTest
         public MyParamIntrospector(String n) { name = n; }
         
         @Override
-        public String findImplicitPropertyName(AnnotatedMember param) {
+        public String findImplicitPropertyName(MapperConfig<?> config, AnnotatedMember param) {
             if (param instanceof AnnotatedParameter) {
                 AnnotatedParameter ap = (AnnotatedParameter) param;
                 switch (ap.getIndex()) {
@@ -77,7 +77,7 @@ public class SingleArgCreatorTest extends BaseMapTest
                 }
                 return "param"+ap.getIndex();
             }
-            return super.findImplicitPropertyName(param);
+            return super.findImplicitPropertyName(config, param);
         }
     }
 
@@ -164,15 +164,16 @@ public class SingleArgCreatorTest extends BaseMapTest
 
     public void testNamedSingleArg() throws Exception
     {
-        SingleNamedStringBean bean = MAPPER.readValue(q("foobar"),
+        SingleNamedStringBean bean = MAPPER.readValue(a2q("{'value':'foobar'}"),
                 SingleNamedStringBean.class);
         assertEquals("foobar", bean._ss);
     }
 
     public void testSingleStringArgWithImplicitName() throws Exception
     {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.setAnnotationIntrospector(new MyParamIntrospector("value"));
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .annotationIntrospector(new MyParamIntrospector("value"))
+                .build();
         StringyBean bean = mapper.readValue(q("foobar"), StringyBean.class);
         assertEquals("foobar", bean.getValue());
     }    
@@ -180,8 +181,9 @@ public class SingleArgCreatorTest extends BaseMapTest
     // [databind#714]
     public void testSingleImplicitlyNamedNotDelegating() throws Exception
     {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.setAnnotationIntrospector(new MyParamIntrospector("value"));
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .annotationIntrospector(new MyParamIntrospector("value"))
+                .build();
         StringyBeanWithProps bean = mapper.readValue("{\"value\":\"x\"}", StringyBeanWithProps.class);
         assertEquals("x", bean.getValue());
     }    
@@ -213,8 +215,9 @@ public class SingleArgCreatorTest extends BaseMapTest
     // [databind#1383]
     public void testSingleImplicitDelegating() throws Exception
     {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.setAnnotationIntrospector(new MyParamIntrospector("value"));
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .annotationIntrospector(new MyParamIntrospector("value"))
+                .build();
         SingleArgWithImplicit bean = mapper.readValue(a2q("{'x':1,'y':2}"),
                 SingleArgWithImplicit.class);
         XY v = bean.getFoobar();

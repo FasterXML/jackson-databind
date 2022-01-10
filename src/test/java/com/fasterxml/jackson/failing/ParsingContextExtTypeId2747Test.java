@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.failing;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.core.*;
@@ -32,10 +30,10 @@ public class ParsingContextExtTypeId2747Test extends BaseMapTest
         Location(String v) { value = v; }
    }
    
-   static class LocationDeserializer extends JsonDeserializer<Location>
+   static class LocationDeserializer extends ValueDeserializer<Location>
    {
         @Override
-        public Location deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+        public Location deserialize(JsonParser p, DeserializationContext ctxt)
         {
             p.skipChildren();
             return new Location(getCurrentLocationAsString(p));
@@ -45,7 +43,7 @@ public class ParsingContextExtTypeId2747Test extends BaseMapTest
    static String getCurrentLocationAsString(JsonParser p)
    {
        // This suffices to give actual path
-       return p.getParsingContext().pathAsPointer().toString();
+       return p.streamReadContext().pathAsPointer().toString();
    }   
 
    // [databind#2747]

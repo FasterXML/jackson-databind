@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 // Tests for External type id, one that exists at same level as typed Object,
 // that is, property is not within typed object but a member of its parent.
@@ -33,13 +34,16 @@ public class ExternalTypeId96Test extends BaseMapTest
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Unit tests, deserialization
-    /**********************************************************
+    /**********************************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
-
+    // Note: 3.0 PTV is too strict, need to reconfig:
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
+            .polymorphicTypeValidator(NoCheckSubTypeValidator.instance)
+            .build();
+    
     // For [databind#96]: should allow use of default impl, if property missing
     /* 18-Jan-2013, tatu: Unfortunately this collides with [databind#118], and I don't
      *   know what the best resolution is. For now at least 

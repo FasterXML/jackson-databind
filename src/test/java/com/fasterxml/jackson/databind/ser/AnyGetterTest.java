@@ -1,13 +1,15 @@
 package com.fasterxml.jackson.databind.ser;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.core.JsonGenerator;
+
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.ser.impl.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.std.SimpleFilterProvider;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
@@ -79,22 +81,20 @@ public class AnyGetterTest extends BaseMapTest
         }
     }
 
-    @SuppressWarnings("serial")
     static class Issue705Serializer extends StdSerializer<Object>
     {
         public Issue705Serializer() {
-            super(Map.class, false);
+            super(Map.class);
         }
 
         @Override
-        public void serialize(Object value, JsonGenerator jgen,
-                SerializerProvider provider) throws IOException
+        public void serialize(Object value, JsonGenerator g, SerializerProvider ctxt)
         {
             StringBuilder sb = new StringBuilder();
             for (Map.Entry<?,?> entry : ((Map<?,?>) value).entrySet()) {
                 sb.append('[').append(entry.getKey()).append('/').append(entry.getValue()).append(']');
             }
-            jgen.writeStringField("stuff", sb.toString());
+            g.writeStringProperty("stuff", sb.toString());
         }
     }
 
@@ -120,14 +120,13 @@ public class AnyGetterTest extends BaseMapTest
     }
 
     // [databind#1124]
-    @SuppressWarnings("serial")
     static class MyUCSerializer extends StdScalarSerializer<String>
     {
         public MyUCSerializer() { super(String.class); }
 
         @Override
         public void serialize(String value, JsonGenerator gen,
-                SerializerProvider provider) throws IOException {
+                SerializerProvider provider) {
             gen.writeString(value.toUpperCase());
         }
     }
@@ -215,15 +214,15 @@ public class AnyGetterTest extends BaseMapTest
         ObjectMapper m;
 
         // First, with normal fail settings:
-        m = new ObjectMapper();
-        m.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, true);
-        String json = serializeAsString(m, new AnyOnlyBean());
-        assertEquals("{\"a\":3}", json);
+        m = jsonMapperBuilder()
+                .enable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+                .build();
+        assertEquals("{\"a\":3}", m.writeValueAsString(new AnyOnlyBean()));
 
         // then without fail
-        m = new ObjectMapper();
-        m.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        json = serializeAsString(m, new AnyOnlyBean());
+        String json = m.writer()
+                .without(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+                .writeValueAsString(new AnyOnlyBean());
         assertEquals("{\"a\":3}", json);
     }
 
@@ -262,8 +261,11 @@ public class AnyGetterTest extends BaseMapTest
     // [databind#2592]
     public void testAnyGetterWithMapperDefaultIncludeNonEmpty() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper()
-                .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .changeDefaultPropertyInclusion(incl -> incl
+                        .withValueInclusion(JsonInclude.Include.NON_EMPTY)
+                        .withContentInclusion(JsonInclude.Include.NON_EMPTY))
+                .build();
         Bean2592NoAnnotations input = new Bean2592NoAnnotations();
         input.add("non-empty", "property");
         input.add("empty", "");
@@ -277,9 +279,12 @@ public class AnyGetterTest extends BaseMapTest
     {
         FilterProvider filters = new SimpleFilterProvider()
                 .addFilter("Bean2592", SimpleBeanPropertyFilter.serializeAllExcept("something"));
-        ObjectMapper mapper = new ObjectMapper()
-                .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
-                .setFilterProvider(filters);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .changeDefaultPropertyInclusion(incl -> incl
+                        .withValueInclusion(JsonInclude.Include.NON_EMPTY)
+                        .withContentInclusion(JsonInclude.Include.NON_EMPTY))
+                .filterProvider(filters)
+                .build();
         Bean2592WithFilter input = new Bean2592WithFilter();
         input.add("non-empty", "property");
         input.add("empty", "");
@@ -304,7 +309,7 @@ public class AnyGetterTest extends BaseMapTest
     // [databind#2592]
     public void testAnyGetterConfigIncludeNonEmpty() throws Exception
     {
-        final ObjectMapper mapper = jsonMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .withConfigOverride(Map.class, incl -> incl.setInclude(
                     JsonInclude.Value.construct(JsonInclude.Include.USE_DEFAULTS,
                     JsonInclude.Include.NON_EMPTY)))

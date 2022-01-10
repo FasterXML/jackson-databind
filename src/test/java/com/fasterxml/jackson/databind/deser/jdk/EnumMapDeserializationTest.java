@@ -187,10 +187,19 @@ public class EnumMapDeserializationTest extends BaseMapTest
         enumMap.put(Enum1859.B, "stuff");
         Pojo1859 input = new Pojo1859(enumMap);
 
-        ObjectMapper mapper = JsonMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTypingAsProperty(NoCheckSubTypeValidator.instance,
-                        ObjectMapper.DefaultTyping.NON_FINAL, "@type")
+                        DefaultTyping.NON_FINAL, "@type")
                 .build();
+
+        // 05-Mar-2018, tatu: Original issue had this; should not make difference:
+         /*
+        TypeResolverBuilder<?> mapTyperAsPropertyType = new ObjectMapper.DefaultTypeResolverBuilder(NoCheckSubTypeValidator.instance,
+            ObjectMapper.DefaultTyping.NON_FINAL);
+        mapTyperAsPropertyType.init(JsonTypeInfo.Id.CLASS, null);
+        mapTyperAsPropertyType.inclusion(JsonTypeInfo.As.PROPERTY);
+        mapper.setDefaultTyping(mapTyperAsPropertyType);
+         */
 
         String json = mapper.writeValueAsString(input);
         Pojo1859 result = mapper.readValue(json, Pojo1859.class);
@@ -239,10 +248,9 @@ public class EnumMapDeserializationTest extends BaseMapTest
                 .readerFor(new TypeReference<Map<TestEnumWithDefault,String>>() { })
                 .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
                 .readValue("{\"unknown\":\"value\"}");
-        // 04-Jan-2017, tatu: Not sure if this is weird or not, but since `null`s are typically
-        //    ok for "regular" JDK Maps...
-        assertEquals(1, value2.size());
-        assertEquals("value", value2.get(null));
+        // 25-Jan-2018, tatu: as per [databind#1883], we upgrade it to `EnumMap`, which won't accept nulls...
+        assertEquals(0, value2.size());
+        assertEquals(EnumMap.class, value2.getClass());
     }
 
     // [databind#2457]

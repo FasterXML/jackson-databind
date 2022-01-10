@@ -2,6 +2,7 @@ package com.fasterxml.jackson.failing;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 
 public class TestUnwrappedWithUnknown650 extends BaseMapTest
 {
@@ -23,9 +24,9 @@ public class TestUnwrappedWithUnknown650 extends BaseMapTest
         final String JSON = "{'field': 'value', 'bad':'bad value'}";
         try {
             MAPPER.readValue(a2q(JSON), A.class);
-            fail("Exception was not thrown on unkown property");
-        } catch (DatabindException e) {
-            verifyException(e, "Unrecognized field");
+            fail("Exception was not thrown on unknown property");
+        } catch (UnrecognizedPropertyException e) {
+            verifyException(e, "Unrecognized property");
         }
     }
 }

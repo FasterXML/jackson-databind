@@ -7,7 +7,6 @@ import java.util.Set;
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
 
 /**
  * Helper class used to encapsulate rules that determine subtypes that
@@ -150,7 +149,7 @@ public class SubTypeValidator
         s.add("javax.swing.JEditorPane");
         s.add("javax.swing.JTextPane");
 
-        // [databind#2648], [databind#2653]: shire-core
+        // [databind#2648], [databind#2653]: shiro-core
         s.add("org.apache.shiro.realm.jndi.JndiRealmFactory");
         s.add("org.apache.shiro.jndi.JndiObjectFactory");
 
@@ -257,7 +256,7 @@ public class SubTypeValidator
     public static SubTypeValidator instance() { return instance; }
 
     public void validateSubType(DeserializationContext ctxt, JavaType type,
-            BeanDescription beanDesc) throws JsonMappingException
+            BeanDescription beanDesc)
     {
         // There are certain nasty classes that could cause problems, mostly
         // via default typing -- catch them here.

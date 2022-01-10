@@ -9,8 +9,6 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 /**
  * Interface that defines API used by members (like {@link AnnotatedMethod})
  * to dynamically resolve types they have.
- *
- * @since 2.7
  */
 public interface TypeResolutionContext {
     public JavaType resolveType(Type t);

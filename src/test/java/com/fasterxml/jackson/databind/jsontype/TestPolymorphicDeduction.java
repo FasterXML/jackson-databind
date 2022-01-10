@@ -183,9 +183,9 @@ public class TestPolymorphicDeduction extends BaseMapTest {
   }
 
   public void testIgnoreProperties() throws Exception {
-    Cat cat = MAPPER.reader()
+    Cat cat = MAPPER.readerFor(Cat.class)
       .without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-      .readValue(luckyCatJson, Cat.class);
+      .readValue(luckyCatJson);
     assertTrue(cat instanceof LiveCat);
     assertSame(cat.getClass(), LiveCat.class);
     assertEquals("Felix", cat.name);

@@ -19,32 +19,21 @@ import com.fasterxml.jackson.core.io.NumberInput;
  * In particular, {@code ParsePosition} argument of {@link #parse(String, ParsePosition)}
  * and {@link #format(Date, StringBuffer, FieldPosition)} methods is fully ignored;
  * Jackson itself never calls these methods.
- *<p>
  * For serialization defaults to using
- * an ISO-8601 compliant format (format String "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+ * an ISO-8601 compliant format (format String "yyyy-MM-dd'T'HH:mm:ss.SSSX")
  * and for deserialization, both ISO-8601 and RFC-1123.
  *<br>
- * Note that `Z` in format String refers to ISO-8601 time offset notation which produces
- * values like "-08:00" -- that is, full minute/hour combo without colon, and not using `Z`
+ * Note that `X` in format String refers to ISO-8601 timezone offset notation which produces
+ * values like "-08:00" -- that is, full minute/hour combo without colon, not using `Z`
  * as alias for "+00:00".
- * Inclusion of colon as separator, as default setting, started in Jackson 2.11:
- * prior versions omitted it.
- * Note that it is possible to enable/disable use of colon in time offset by using method
- * {@link #withColonInTimeZone} for creating new differently configured format instance,
- * and configuring {@code ObjectMapper} with it.
  *<p>
- * TODO: in Jackson 2.14 or later, should change behavior to fail if {@link ParsePosition}
- * is specified by caller (at least with non-0 offset).
+ * Note also that to enable use of colon in timezone offset is possible by using method
+ * {@link #withColonInTimeZone} for creating new differently configured format instance.
  */
 @SuppressWarnings("serial")
 public class StdDateFormat
     extends DateFormat
 {
-    /* 24-Jun-2017, tatu: Finally rewrote deserialization to use basic Regex
-     *   instead of SimpleDateFormat; partly for better concurrency, partly
-     *   for easier enforcing of specific rules. Heavy lifting done by Calendar,
-     *   anyway.
-     */
     protected final static String PATTERN_PLAIN_STR = "\\d\\d\\d\\d[-]\\d\\d[-]\\d\\d";
 
     protected final static Pattern PATTERN_PLAIN = Pattern.compile(PATTERN_PLAIN_STR);
@@ -94,12 +83,11 @@ public class StdDateFormat
     };
 
     /**
-     * By default we use UTC for everything, with Jackson 2.7 and later
-     * (2.6 and earlier relied on GMT)
+     * By default we use UTC for everything
      */
     protected final static TimeZone DEFAULT_TIMEZONE;
     static {
-        DEFAULT_TIMEZONE = TimeZone.getTimeZone("UTC"); // since 2.7
+        DEFAULT_TIMEZONE = TimeZone.getTimeZone("UTC");
     }
 
     protected final static Locale DEFAULT_LOCALE = Locale.US;
@@ -126,8 +114,6 @@ public class StdDateFormat
      * Blueprint "Calendar" instance for use during formatting. Cannot be used as is,
      * due to thread-safety issues, but can be used for constructing actual instances 
      * more cheaply by cloning.
-     *
-     * @since 2.9.1
      */
     protected static final Calendar CALENDAR = new GregorianCalendar(DEFAULT_TIMEZONE, DEFAULT_LOCALE);
 
@@ -144,15 +130,11 @@ public class StdDateFormat
      *<p>
      * Cannot be `final` because {@link #setLenient(boolean)} returns
      * `void`.
-     *
-     * @since 2.7
      */
     protected Boolean _lenient;
 
     /**
      * Lazily instantiated calendar used by this instance for serialization ({@link #format(Date)}).
-     *
-     * @since 2.9.1
      */
     private transient Calendar _calendar;
 
@@ -161,36 +143,20 @@ public class StdDateFormat
     /** 
      * Whether the TZ offset must be formatted with a colon between hours and minutes ({@code HH:mm} format)
      *<p>
-     * Defaults to {@code true} since 2.11: earlier versions defaulted to {@code false}
-     * for backwards compatibility reasons
-     *
-     * @since 2.9.1
+     * NOTE: default changed to `true` in Jackson 3.0; was `false` earlier.
      */
-    private boolean _tzSerializedWithColon = true;
+    protected boolean _tzSerializedWithColon = true;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life cycle, accessing singleton "standard" formats
-    /**********************************************************
+    /**********************************************************************
      */
 
     public StdDateFormat() {
         _locale = DEFAULT_LOCALE;
     }
 
-    @Deprecated // since 2.7
-    public StdDateFormat(TimeZone tz, Locale loc) {
-        _timezone = tz;
-        _locale = loc;
-    }
-
-    protected StdDateFormat(TimeZone tz, Locale loc, Boolean lenient) {
-        this(tz, loc, lenient, false);
-    }
-
-    /**
-     * @since 2.9.1
-     */
     protected StdDateFormat(TimeZone tz, Locale loc, Boolean lenient,
             boolean formatTzOffsetWithColon) {
         _timezone = tz;
@@ -234,8 +200,6 @@ public class StdDateFormat
      * "Mutant factory" method that will return an instance that has specified leniency
      * setting: either {@code this} instance (if setting would not change), or newly
      * constructed instance.
-     *
-     * @since 2.9
      */
     public StdDateFormat withLenient(Boolean b) {
         if (_equals(b, _lenient)) {
@@ -254,8 +218,6 @@ public class StdDateFormat
      * NOTE: does NOT affect deserialization as colon is optional accepted
      * but not required -- put another way, either serialization is accepted
      * by this class.
-     *
-     * @since 2.9.1
      */
     public StdDateFormat withColonInTimeZone(boolean b) {
         if (_tzSerializedWithColon == b) {
@@ -271,44 +233,13 @@ public class StdDateFormat
         return new StdDateFormat(_timezone, _locale, _lenient, _tzSerializedWithColon);
     }
 
-    /**
-     * Method for getting a non-shared DateFormat instance
-     * that uses specified timezone and can handle simple ISO-8601
-     * compliant date format.
-     * 
-     * @since 2.4
-     *
-     * @deprecated Since 2.9
-     */
-    @Deprecated // since 2.9
-    public static DateFormat getISO8601Format(TimeZone tz, Locale loc) {
-        DateFormat df = new SimpleDateFormat(DATE_FORMAT_STR_ISO8601, loc);
-        df.setTimeZone(DEFAULT_TIMEZONE);
-        return df;
-    }
-
-    /**
-     * Method for getting a non-shared DateFormat instance
-     * that uses specific timezone and can handle RFC-1123
-     * compliant date format.
-     * 
-     * @since 2.4
-     *
-     * @deprecated Since 2.9
-     */
-    @Deprecated // since 2.9
-    public static DateFormat getRFC1123Format(TimeZone tz, Locale loc) {
-        return _cloneFormat(DATE_FORMAT_RFC1123, DATE_FORMAT_STR_RFC1123,
-                tz, loc, null);
-    }
-
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
-    @Override // since 2.6
+    @Override
     public TimeZone getTimeZone() {
         return _timezone;
     }
@@ -329,7 +260,7 @@ public class StdDateFormat
      * and not via underlying {@link Calendar} instance like base class
      * does.
      */
-    @Override // since 2.7
+    @Override
     public void setLenient(boolean enabled) {
         Boolean newValue = Boolean.valueOf(enabled);
         if (!_equals(newValue, _lenient)) {
@@ -339,7 +270,7 @@ public class StdDateFormat
         }
     }
 
-    @Override // since 2.7
+    @Override
     public boolean isLenient() {
         // default is, I believe, true
         return (_lenient == null) || _lenient.booleanValue();
@@ -356,17 +287,15 @@ public class StdDateFormat
      *
      * @return {@code true} if a colon is to be inserted between the hours and minutes 
      * of the TZ offset when serializing as String; otherwise {@code false}
-     *
-     * @since 2.9.1
      */
     public boolean isColonIncludedInTimeZone() {
         return _tzSerializedWithColon;
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, parsing
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -431,9 +360,9 @@ public class StdDateFormat
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, writing
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override
@@ -494,16 +423,9 @@ public class StdDateFormat
             }
             pad2(buffer, minutes);
         } else {
-            // 24-Jun-2017, tatu: While `Z` would be conveniently short, older specs
-            //   mandate use of full `+0000`
-            // 06-Mar-2020, tatu: Actually statement should read "for compatibility reasons"
-            //   and not standards (unless it is wrt RFC-1123). This will change in 3.0 at latest
-//            formatted.append('Z');
-            if( _tzSerializedWithColon ) {
-                buffer.append("+00:00");
-            } else {
-                buffer.append("+0000");
-            }
+            // 06-Mar-2020, tatu: Jackson versions 2.x forced use of numeric offset even
+            //    for Zulu; for 3.0 `Z` is used.
+            buffer.append('Z');
         }
     }
 
@@ -558,11 +480,11 @@ public class StdDateFormat
         }
         pad2(buffer, value);
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Std overrides
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -585,20 +507,20 @@ public class StdDateFormat
         return sb.toString();
     }
 
-    @Override // since 2.7[.2], as per [databind#1130]
+    @Override
     public boolean equals(Object o) {
         return (o == this);
     }
 
-    @Override // since 2.7[.2], as per [databind#1130]
+    @Override
     public int hashCode() {
         return System.identityHashCode(this);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods, parsing
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -775,9 +697,9 @@ public class StdDateFormat
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods, other
-    /**********************************************************
+    /**********************************************************************
      */
 
     private final static DateFormat _cloneFormat(DateFormat df, String format,

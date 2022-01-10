@@ -2,6 +2,8 @@ package com.fasterxml.jackson.databind;
 
 import java.util.*;
 
+import com.fasterxml.jackson.core.util.Snapshottable;
+
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
@@ -9,6 +11,7 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * "inject" during deserialization. An instance of this object
  */
 public abstract class InjectableValues
+    implements Snapshottable<InjectableValues>
 {
     /**
      * Method called to find value identified by id <code>valueId</code> to
@@ -25,7 +28,7 @@ public abstract class InjectableValues
      *    if available; null if bean has not yet been constructed.
      */
     public abstract Object findInjectableValue(Object valueId, DeserializationContext ctxt,
-            BeanProperty forProperty, Object beanInstance) throws JsonMappingException;
+            BeanProperty forProperty, Object beanInstance);
 
     /*
     /**********************************************************
@@ -46,7 +49,7 @@ public abstract class InjectableValues
         protected final Map<String,Object> _values;
         
         public Std() {
-            this(new HashMap<String,Object>());
+            this(new HashMap<>());
         }
 
         public Std(Map<String,Object> values) {
@@ -62,10 +65,18 @@ public abstract class InjectableValues
             _values.put(classKey.getName(), value);
             return this;
         }
-        
+
+        @Override
+        public Std snapshot() {
+            if (_values.isEmpty()) {
+                return new Std();
+            }
+            return new Std(new HashMap<>(_values));
+        }
+
         @Override
         public Object findInjectableValue(Object valueId, DeserializationContext ctxt,
-                BeanProperty forProperty, Object beanInstance) throws JsonMappingException
+                BeanProperty forProperty, Object beanInstance)
         {
             if (!(valueId instanceof String)) {
                 ctxt.reportBadDefinition(ClassUtil.classOf(valueId),

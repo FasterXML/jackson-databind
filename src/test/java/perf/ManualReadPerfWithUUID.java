@@ -1,6 +1,5 @@
 package perf;
 
-import java.io.IOException;
 import java.util.UUID;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -18,15 +17,13 @@ public class ManualReadPerfWithUUID extends ObjectReaderTestBase
 
     @Override
     protected int targetSizeMegs() { return 8; }
-    
-    @SuppressWarnings("serial")
+
     static class SlowDeser extends FromStringDeserializer<UUID>
     {
         public SlowDeser() { super(UUID.class); }
 
         @Override
         protected UUID _deserialize(String id, DeserializationContext ctxt)
-            throws IOException
         {
             return UUID.fromString(id);
         }

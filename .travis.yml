@@ -4,14 +4,16 @@ git:
   quiet: true
   submodules: false
 
-# 08-Jul-2020, tatu: can not yet enable JDK14 due to new Record tests failing
+# Jackson 3.x only compiles on Java 8 and above so...
 jdk:
   - openjdk8
   - openjdk11
 
+# whitelist
 branches:
   only:
     - master
-    - "2.13"
+    - "3.0"
 
+# 2021-06-25, tatu: Stop snapshot builds via Travis, only check for fails
 script: mvn -B clean verify

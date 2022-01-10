@@ -1,9 +1,7 @@
 package com.fasterxml.jackson.databind.exc;
 
-import java.io.*;
-
 import com.fasterxml.jackson.core.*;
-
+import com.fasterxml.jackson.core.exc.WrappedIOException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.BrokenStringReader;
 
@@ -26,7 +24,7 @@ public class DeserExceptionTypeTest
         public int x;
 
         // Constructor that is not detectable as Creator
-        public NoCreatorsBean(boolean foo, int foo2) { }
+        protected NoCreatorsBean(boolean foo, int foo2) { }
     }
     
     /*
@@ -76,10 +74,10 @@ public class DeserExceptionTypeTest
             @SuppressWarnings("unused")
             Object ob = MAPPER.readValue(p, Object.class);
             fail("Should have gotten an exception");
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             // For "bona fide" IO problems (due to low-level problem,
             // thrown by reader/stream), IOException must be thrown
-            verifyException(e, IOException.class, "TEST");
+            verifyException(e, WrappedIOException.class, "TEST");
         }
     }
 
@@ -94,7 +92,7 @@ public class DeserExceptionTypeTest
         try {
             I = MAPPER.readValue(p, Integer.class);
             fail("Should have gotten an exception");
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             verifyException(e, MismatchedInputException.class, "No content");
         }
         // also: should have no current token after end-of-input
@@ -113,23 +111,6 @@ public class DeserExceptionTypeTest
             fail("Should not succeed, got: "+b);
         } catch (InvalidDefinitionException e) {
             verifyException(e, InvalidDefinitionException.class, "no Creators");
-        }
-    }
-
-    /*
-    /**********************************************************
-    /* Helper methods
-    /**********************************************************
-     */
-
-    void verifyException(Exception e, Class<?> expType, String expMsg)
-        throws Exception
-    {
-        if (e.getClass() != expType) {
-            fail("Expected exception of type "+expType.getName()+", got "+e.getClass().getName());
-        }
-        if (expMsg != null) {
-            verifyException(e, expMsg);
         }
     }
 }

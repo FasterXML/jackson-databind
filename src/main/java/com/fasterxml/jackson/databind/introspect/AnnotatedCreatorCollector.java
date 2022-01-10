@@ -9,66 +9,58 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass.Creators;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Helper class used to contain details of how Creators (annotated constructors
  * and static methods) are discovered to be accessed by and via {@link AnnotatedClass}.
- *
- * @since 2.9
  */
 final class AnnotatedCreatorCollector
     extends CollectorBase
 {
     // // // Configuration
 
+    private final JavaType _primaryType;
     private final TypeResolutionContext _typeContext;
 
-    /**
-     * @since 2.11
-     */
     private final boolean _collectAnnotations;
 
     // // // Collected state
 
     private AnnotatedConstructor _defaultConstructor;
 
-    AnnotatedCreatorCollector(AnnotationIntrospector intr,
+    AnnotatedCreatorCollector(MapperConfig<?> config, JavaType type,
             TypeResolutionContext tc, boolean collectAnnotations)
     {
-        super(intr);
+        super(config);
+        _primaryType = type;
         _typeContext = tc;
         _collectAnnotations = collectAnnotations;
     }
 
-    /**
-     * @since 2.11.3
-     */
-    public static Creators collectCreators(AnnotationIntrospector intr,
-            TypeFactory typeFactory, TypeResolutionContext tc,
+    public static Creators collectCreators(MapperConfig<?> config,
+            TypeResolutionContext tc, 
             JavaType type, Class<?> primaryMixIn, boolean collectAnnotations)
     {
         // 30-Sep-2020, tatu: [databind#2795] Even if annotations not otherwise
         //  requested (for JDK collections), force change if mix-in in use
         collectAnnotations |= (primaryMixIn != null);
-
         // Constructor also always members of resolved class, parent == resolution context
-        return new AnnotatedCreatorCollector(intr, tc, collectAnnotations)
-                .collect(typeFactory, type, primaryMixIn);
+        return new AnnotatedCreatorCollector(config, type, tc, collectAnnotations)
+                .collect(primaryMixIn);
     }
 
-    Creators collect(TypeFactory typeFactory, JavaType type, Class<?> primaryMixIn)
+    Creators collect(Class<?> primaryMixIn)
     {
     // 30-Apr-2016, tatu: [databind#1215]: Actually, while true, this does
     //   NOT apply to context since sub-class may have type bindings
 //        TypeResolutionContext typeContext = new TypeResolutionContext.Basic(_typeFactory, _type.getBindings());
 
-        List<AnnotatedConstructor> constructors = _findPotentialConstructors(type, primaryMixIn);
-        List<AnnotatedMethod> factories = _findPotentialFactories(typeFactory, type, primaryMixIn);
+        List<AnnotatedConstructor> constructors = _findPotentialConstructors(_primaryType, primaryMixIn);
+        List<AnnotatedMethod> factories = _findPotentialFactories(_primaryType, primaryMixIn);
 
         /* And then... let's remove all constructors that are deemed
          * ignorable after all annotations have been properly collapsed.
@@ -76,18 +68,18 @@ final class AnnotatedCreatorCollector
         // AnnotationIntrospector is null if annotations not enabled; if so, can skip:
         if (_collectAnnotations) {
             if (_defaultConstructor != null) {
-                if (_intr.hasIgnoreMarker(_defaultConstructor)) {
+                if (_intr.hasIgnoreMarker(_config, _defaultConstructor)) {
                     _defaultConstructor = null;
                 }
             }
             // count down to allow safe removal
             for (int i = constructors.size(); --i >= 0; ) {
-                if (_intr.hasIgnoreMarker(constructors.get(i))) {
+                if (_intr.hasIgnoreMarker(_config, constructors.get(i))) {
                     constructors.remove(i);
                 }
             }
             for (int i = factories.size(); --i >= 0; ) {
-                if (_intr.hasIgnoreMarker(factories.get(i))) {
+                if (_intr.hasIgnoreMarker(_config, factories.get(i))) {
                     factories.remove(i);
                 }
             }
@@ -188,8 +180,8 @@ final class AnnotatedCreatorCollector
         return result;
     }
 
-    private List<AnnotatedMethod> _findPotentialFactories(TypeFactory typeFactory,
-            JavaType type, Class<?> primaryMixIn)
+    private List<AnnotatedMethod> _findPotentialFactories(JavaType type,
+            Class<?> primaryMixIn)
     {
         List<Method> candidates = null;
 
@@ -214,7 +206,7 @@ final class AnnotatedCreatorCollector
         //   passing that should not break things, it appears to... Regardless,
         //   it should not be needed or useful as those bindings are only available
         //   to non-static members
-//        final TypeResolutionContext typeResCtxt = new TypeResolutionContext.Empty(typeFactory);
+//        final TypeResolutionContext typeResCtxt = new TypeResolutionContext.Empty(_config.getTypeFactory());
 
         // 27-Oct-2020, tatu: SIGH. As per [databind#2894] there is widespread use of
         //   incorrect bindings in the wild -- not supported (no tests) but used
@@ -222,7 +214,7 @@ final class AnnotatedCreatorCollector
 //        
 
         // 03-Nov-2020, ckozak: Implement generic JsonCreator TypeVariable handling [databind#2895]
-//        final TypeResolutionContext emptyTypeResCtxt = new TypeResolutionContext.Empty(typeFactory);
+//        final TypeResolutionContext emptyTypeResCtxt = new TypeResolutionContext.Empty(_config.getTypeFactory());
 
         // 23-Aug-2021, tatu: Double-d'oh! As per [databind#3220], we must revert to
         //   the Incorrect Illogical But Used By Users Bindings... for 2.x at least.
@@ -267,7 +259,7 @@ final class AnnotatedCreatorCollector
                 //   (if generic types involved)
                 // 23-Aug-2021, tatu: ... is this still needed, wrt un-fix in [databind#3220]?
                 TypeResolutionContext typeResCtxt = MethodGenericTypeResolver.narrowMethodTypeParameters(
-                        candidate, type, typeFactory, initialTypeResCtxt);
+                        candidate, type, _config.getTypeFactory(), initialTypeResCtxt);
                 result.set(i,
                         constructFactoryCreator(candidate, typeResCtxt, null));
             }

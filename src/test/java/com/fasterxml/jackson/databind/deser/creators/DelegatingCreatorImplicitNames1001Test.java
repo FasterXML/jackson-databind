@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.deser.creators;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
@@ -51,7 +52,7 @@ public class DelegatingCreatorImplicitNames1001Test extends BaseMapTest
         private static final long serialVersionUID = 1L;
 
         @Override
-        public String findImplicitPropertyName(AnnotatedMember member) {
+        public String findImplicitPropertyName(MapperConfig<?> config, AnnotatedMember member) {
             if (member instanceof AnnotatedParameter) {
                 AnnotatedParameter p = (AnnotatedParameter) member;
                 AnnotatedWithParams owner = p.getOwner();
@@ -61,7 +62,7 @@ public class DelegatingCreatorImplicitNames1001Test extends BaseMapTest
                     }
                 }
             }
-            return super.findImplicitPropertyName(member);
+            return super.findImplicitPropertyName(config, member);
         }
     }
 
@@ -82,8 +83,9 @@ public class DelegatingCreatorImplicitNames1001Test extends BaseMapTest
     // And then case that fails with [databind#1001]
     public void testWithNamedParameters() throws Exception
     {
-        ObjectMapper sut = new ObjectMapper()
-            .setAnnotationIntrospector(new CreatorNameIntrospector());
+        ObjectMapper sut = jsonMapperBuilder()
+            .annotationIntrospector(new CreatorNameIntrospector())
+            .build();
 
         D d = D.make("abc:def");
 

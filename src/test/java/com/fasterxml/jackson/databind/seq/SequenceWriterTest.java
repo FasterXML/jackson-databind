@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.io.SerializedString;
 
 import com.fasterxml.jackson.databind.*;
@@ -109,14 +108,12 @@ public class SequenceWriterTest extends BaseMapTest
                 strw.toString());
 
         strw = new StringWriter();
-        JsonGenerator gen = WRITER.createGenerator(strw);
         w = WRITER
                 .withRootValueSeparator(new SerializedString("/"))
-                .writeValues(gen);
+                .writeValues(strw);
         w.write(new Bean(1))
             .write(new Bean(2));
         w.close();
-        gen.close();
         assertEquals(a2q("{'a':1}/{'a':2}"),
                 strw.toString());
     }
@@ -150,14 +147,12 @@ public class SequenceWriterTest extends BaseMapTest
                 strw.toString());
 
         strw = new StringWriter();
-        JsonGenerator gen = WRITER.createGenerator(strw);
-        w = WRITER.writeValuesAsArray(gen);
+        w = WRITER.writeValuesAsArray(strw);
         Collection<Bean> bean = Collections.singleton(new Bean(3));
         w.write(new Bean(1))
             .write(null)
             .writeAll((Iterable<Bean>) bean);
         w.close();
-        gen.close();
         assertEquals(a2q("[{'a':1},null,{'a':3}]"),
                 strw.toString());
     }

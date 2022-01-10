@@ -5,7 +5,6 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 
 /**
  * Unit tests for checking extended auto-detect configuration,
@@ -70,10 +69,10 @@ public class TestAutoDetectForSer
 
     public void testPrivateUsingGlobals() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        VisibilityChecker<?> vc = m.getVisibilityChecker();
-        vc = vc.withFieldVisibility(JsonAutoDetect.Visibility.ANY);
-        m.setVisibility(vc);
+        ObjectMapper m = jsonMapperBuilder()
+                .changeDefaultVisibility(vc ->
+                    vc.withFieldVisibility(JsonAutoDetect.Visibility.ANY))
+                .build();
         
         Map<String,Object> result = writeAndMap(m, new FieldBean());
         assertEquals(3, result.size());
@@ -81,10 +80,11 @@ public class TestAutoDetectForSer
         assertEquals("protected", result.get("p2"));
         assertEquals("private", result.get("p3"));
 
-        m = new ObjectMapper();
-        vc = m.getVisibilityChecker();
-        vc = vc.withGetterVisibility(JsonAutoDetect.Visibility.ANY);
-        m.setVisibility(vc);
+        m = jsonMapperBuilder()
+                .changeDefaultVisibility(vc ->
+                    vc.withGetterVisibility(JsonAutoDetect.Visibility.ANY)
+                    )
+                .build();
         result = writeAndMap(m, new MethodBean());
         assertEquals(3, result.size());
         assertEquals("a", result.get("a"));
@@ -94,12 +94,11 @@ public class TestAutoDetectForSer
 
     public void testBasicSetup() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        VisibilityChecker<?> vc = m.getVisibilityChecker();
-        vc = vc.with(JsonAutoDetect.Visibility.ANY);
-        m.setVisibility(vc);
-
-        Map<String,Object> result = writeAndMap(m, new FieldBean());
+        ObjectMapper mapper = jsonMapperBuilder()
+                .changeDefaultVisibility(vc ->
+                    vc.with(JsonAutoDetect.Visibility.ANY))
+                .build();
+        Map<String,Object> result = writeAndMap(mapper, new FieldBean());
         assertEquals(3, result.size());
         assertEquals("public", result.get("p1"));
         assertEquals("protected", result.get("p2"));
@@ -108,10 +107,12 @@ public class TestAutoDetectForSer
 
     public void testMapperShortcutMethods() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .changeDefaultVisibility(vc -> vc
+                        .withVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY))
+                .build();
 
-        Map<String,Object> result = writeAndMap(m, new FieldBean());
+        Map<String,Object> result = writeAndMap(mapper, new FieldBean());
         assertEquals(3, result.size());
         assertEquals("public", result.get("p1"));
         assertEquals("protected", result.get("p2"));

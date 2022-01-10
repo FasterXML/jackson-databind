@@ -3,14 +3,13 @@ package com.fasterxml.jackson.databind.node;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.util.RawValue;
 
 /**
  * Interface that defines common "creator" functionality implemented
  * both by {@link JsonNodeFactory} and {@link ContainerNode} (that is,
  * JSON Object and Array nodes).
- *
- * @since 2.3
  */
 public interface JsonNodeCreator
 {
@@ -19,10 +18,15 @@ public interface JsonNodeCreator
     public ValueNode booleanNode(boolean v);
     public ValueNode nullNode();
 
-// Not yet in 2.10, will be added in 3.0    
-//    public JsonNode missingNode();
+    /**
+     * @since 3.0
+     */
+    public JsonNode missingNode();
     
-    // Numeric types
+    // Numeric types.
+    //
+    // note! Can not return `NumericNode` when passed wrapper since `null` will
+    // return `NullNode` which is NOT a `NumericNode`!
 
     public ValueNode numberNode(byte v);
     public ValueNode numberNode(Byte value);
@@ -57,8 +61,6 @@ public interface JsonNodeCreator
      * Note that the concept may not work with all backends, and since
      * no translation of any kinds is done it will not work when converting
      * between data formats.
-     *
-     * @since 2.6
      */
     public ValueNode rawValueNode(RawValue value);
 
@@ -69,8 +71,6 @@ public interface JsonNodeCreator
 
     /**
      * Factory method for constructing a JSON Array node with an initial capacity
-     *
-     * @since 2.8
      */
     public ArrayNode arrayNode(int capacity);
 

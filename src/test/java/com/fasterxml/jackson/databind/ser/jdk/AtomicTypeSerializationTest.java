@@ -113,8 +113,10 @@ public class AtomicTypeSerializationTest
     {
         SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd");
         df.setTimeZone(TimeZone.getTimeZone("UTC"));
-        final ObjectMapper mapper = objectMapper();
-        mapper.setDateFormat(df);
+
+        ObjectMapper mapper = jsonMapperBuilder()
+                .defaultDateFormat(df)
+                .build();
         ContextualOptionals input = new ContextualOptionals();
         input.date = new AtomicReference<>(new Date(0L));
         input.date1 = new AtomicReference<>(new Date(0L));

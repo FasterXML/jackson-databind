@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.deser.merge;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonMerge;
-import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.databind.*;
 
@@ -51,10 +50,10 @@ public class MapMergeTest extends BaseMapTest
             .disable(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE)
             .build();
 
-    private final ObjectMapper MAPPER_SKIP_NULLS = newJsonMapper()
-            .setDefaultSetterInfo(JsonSetter.Value.forContentNulls(Nulls.SKIP));
-    ;
-    
+    private final ObjectMapper MAPPER_SKIP_NULLS = jsonMapperBuilder()
+            .changeDefaultNullHandling(n -> n.withContentNulls(Nulls.SKIP))
+            .build();
+
     public void testShallowMapMerging() throws Exception
     {
         final String JSON = a2q("{'values':{'c':'y','d':null}}");
@@ -166,9 +165,10 @@ public class MapMergeTest extends BaseMapTest
 
     public void testDisabledMergeViaGlobal() throws Exception
     {
-        ObjectMapper mapper = newJsonMapper();
         // disable merging, globally; does not affect main level
-        mapper.setDefaultMergeable(false);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .defaultMergeable(false)
+                .build();
 
         HashMap<String,Object> input = new HashMap<>();
         input.put("list", new ArrayList<>(Arrays.asList("a")));
@@ -183,10 +183,11 @@ public class MapMergeTest extends BaseMapTest
 
     public void testDisabledMergeByType() throws Exception
     {
-        ObjectMapper mapper = newJsonMapper();
         // disable merging for "untyped", that is, `Object.class`
-        mapper.configOverride(Object.class)
-            .setMergeable(false);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .withConfigOverride(Object.class,
+                        o -> o.setMergeable(false))
+                .build();
 
         HashMap<String,Object> input = new HashMap<>();
         input.put("list", new ArrayList<>(Arrays.asList("a")));
@@ -199,11 +200,11 @@ public class MapMergeTest extends BaseMapTest
         // and for extra points, disable by default but ENABLE for type,
         // which should once again allow merging
 
-        mapper = newJsonMapper();
-        mapper.setDefaultMergeable(false);
-        mapper.configOverride(Object.class)
-            .setMergeable(true);
-
+        mapper = jsonMapperBuilder()
+                .withConfigOverride(Object.class,
+                        o -> o.setMergeable(true))
+                .defaultMergeable(Boolean.FALSE)
+                .build();
         input = new HashMap<>();
         input.put("list", new ArrayList<>(Arrays.asList("x")));
 

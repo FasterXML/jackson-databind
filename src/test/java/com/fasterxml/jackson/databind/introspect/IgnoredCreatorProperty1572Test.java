@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 
 public class IgnoredCreatorProperty1572Test extends BaseMapTest
 {
@@ -32,7 +33,7 @@ public class IgnoredCreatorProperty1572Test extends BaseMapTest
         private static final long serialVersionUID = 1L;
 
         @Override
-        public String findImplicitPropertyName(AnnotatedMember member) {
+        public String findImplicitPropertyName(MapperConfig<?> config, AnnotatedMember member) {
             if (member instanceof AnnotatedParameter) {
                 // A placeholder for legitimate property name detection
                 // such as what the JDK8 module provides
@@ -58,8 +59,9 @@ public class IgnoredCreatorProperty1572Test extends BaseMapTest
     // [databind#1572]
     public void testIgnoredCtorParam() throws Exception
     {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.setAnnotationIntrospector(new ImplicitNames());
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .annotationIntrospector(new ImplicitNames())
+                .build();
         String JSON = a2q("{'innerTest': {\n"
                 +"'str':'str',\n"
                 +"'otherStr': 'otherStr'\n"

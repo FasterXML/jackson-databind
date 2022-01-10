@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ext;
 
-import java.io.IOException;
 import java.util.*;
 
 import javax.xml.datatype.*;
@@ -9,7 +8,6 @@ import javax.xml.namespace.QName;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.Deserializers;
 import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;
 
 /**
@@ -17,7 +15,7 @@ import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;
  * JDK 1.5. Types are directly needed by JAXB, but may be unavailable on some
  * limited platforms; hence separate out from basic deserializer factory.
  */
-public class CoreXMLDeserializers extends Deserializers.Base
+public class CoreXMLDeserializers
 {
     /**
      * Data type factories are thread-safe after instantiation (and
@@ -33,9 +31,8 @@ public class CoreXMLDeserializers extends Deserializers.Base
         }
     }
 
-    @Override
-    public JsonDeserializer<?> findBeanDeserializer(JavaType type,
-        DeserializationConfig config, BeanDescription beanDesc)
+    public static ValueDeserializer<?> findBeanDeserializer(DeserializationConfig config,
+            JavaType type)
     {
         Class<?> raw = type.getRawClass();
         if (raw == QName.class) {
@@ -50,8 +47,7 @@ public class CoreXMLDeserializers extends Deserializers.Base
         return null;
     }
 
-    @Override // since 2.11
-    public boolean hasDeserializerFor(DeserializationConfig config, Class<?> valueType) {
+    public static boolean hasDeserializerFor(Class<?> valueType) {
         return (valueType == QName.class)
                 || (valueType == XMLGregorianCalendar.class)
                 || (valueType == Duration.class)
@@ -59,9 +55,9 @@ public class CoreXMLDeserializers extends Deserializers.Base
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Concrete deserializers
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected final static int TYPE_DURATION = 1;
@@ -73,13 +69,9 @@ public class CoreXMLDeserializers extends Deserializers.Base
      * javax.xml types {@link QName}, {@link Duration} and {@link XMLGregorianCalendar}.
      * Combined into a single class to eliminate bunch of one-off implementation
      * classes, to reduce resulting jar size (mostly).
-     *
-     * @since 2.4
      */
     public static class Std extends FromStringDeserializer<Object>
     {
-        private static final long serialVersionUID = 1L;
-
         protected final int _kind;
 
         public Std(Class<?> raw, int kind) {
@@ -89,7 +81,7 @@ public class CoreXMLDeserializers extends Deserializers.Base
 
         @Override
         public Object deserialize(JsonParser p, DeserializationContext ctxt)
-            throws IOException
+            throws JacksonException
         {
             // For most types, use super impl; but GregorianCalendar also allows
             // integer value (timestamp), which needs separate handling
@@ -103,7 +95,7 @@ public class CoreXMLDeserializers extends Deserializers.Base
 
         @Override
         protected Object _deserialize(String value, DeserializationContext ctxt)
-            throws IOException
+            throws JacksonException
         {
             switch (_kind) {
             case TYPE_DURATION:
@@ -114,8 +106,7 @@ public class CoreXMLDeserializers extends Deserializers.Base
                 Date d;
                 try {
                     d = _parseDate(value, ctxt);
-                }
-                catch (JsonMappingException e) {
+                } catch (DatabindException e) {
                     // try to parse from native XML Schema 1.0 lexical representation String,
                     // which includes time-only formats not handled by parseXMLGregorianCalendarFromJacksonFormat(...)
                     return _dataTypeFactory.newXMLGregorianCalendar(value);

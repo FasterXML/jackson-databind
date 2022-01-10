@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.util.StdConverter;
@@ -103,7 +104,7 @@ public class TestBeanConversions
         public static final NullBean NULL_INSTANCE = new NullBean();
     }
     
-    static class NullBeanDeserializer extends JsonDeserializer<NullBean> {
+    static class NullBeanDeserializer extends ValueDeserializer<NullBean> {
         @Override
         public NullBean getNullValue(final DeserializationContext context) {
             return NullBean.NULL_INSTANCE;
@@ -166,23 +167,26 @@ public class TestBeanConversions
     // should work regardless of wrapping...
     public void testWrapping() throws Exception
     {
-        ObjectMapper wrappingMapper = new ObjectMapper();
-        wrappingMapper.enable(DeserializationFeature.UNWRAP_ROOT_VALUE);
-        wrappingMapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
+        ObjectMapper wrappingMapper = jsonMapperBuilder()
+                .enable(DeserializationFeature.UNWRAP_ROOT_VALUE)
+                .enable(SerializationFeature.WRAP_ROOT_VALUE)
+                .build();
 
         // conversion is ok, even if it's bogus one
         _convertAndVerifyPoint(wrappingMapper);
 
         // also: ok to have mismatched settings, since as per [JACKSON-710], should
         // not actually use wrapping internally in these cases
-        wrappingMapper = new ObjectMapper();
-        wrappingMapper.enable(DeserializationFeature.UNWRAP_ROOT_VALUE);
-        wrappingMapper.disable(SerializationFeature.WRAP_ROOT_VALUE);
+        wrappingMapper = jsonMapperBuilder()
+            .enable(DeserializationFeature.UNWRAP_ROOT_VALUE)
+            .disable(SerializationFeature.WRAP_ROOT_VALUE)
+            .build();
         _convertAndVerifyPoint(wrappingMapper);
 
-        wrappingMapper = new ObjectMapper();
-        wrappingMapper.disable(DeserializationFeature.UNWRAP_ROOT_VALUE);
-        wrappingMapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
+        wrappingMapper = jsonMapperBuilder()
+                .disable(DeserializationFeature.UNWRAP_ROOT_VALUE)
+                .enable(SerializationFeature.WRAP_ROOT_VALUE)
+                .build();
         _convertAndVerifyPoint(wrappingMapper);
     }
 
@@ -206,7 +210,8 @@ public class TestBeanConversions
     }
 
     /**
-     * Need to test "shortcuts" introduced by [databind#11]
+     * Need to test "shortcuts" introduced by [databind#11] -- but
+     * removed with [databind#2220]
      */
     public void testIssue11() throws Exception
     {
@@ -237,14 +242,16 @@ public class TestBeanConversions
         try {
             m = MAPPER.convertValue(plaino, Map.class);
             fail("Conversion should have failed");
-        } catch (IllegalArgumentException e) {
+        } catch (InvalidDefinitionException e) {
             verifyException(e, "no properties discovered");
         }
-        
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+
+        ObjectMapper mapper = jsonMapperBuilder()
+                .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+                .build();
         try {
-            assertEquals("{}", mapper.writeValueAsString(plaino));
+            assertEquals("{}", mapper.writer()
+                    .writeValueAsString(plaino));
         } catch (Exception e) {
             throw (Exception) e.getCause();
         }

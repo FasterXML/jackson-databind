@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser.creators;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
@@ -16,11 +17,11 @@ public class ImplicitNameMatch792Test extends BaseMapTest
         private static final long serialVersionUID = 1L;
 
         @Override
-        public String findImplicitPropertyName(AnnotatedMember member) {
+        public String findImplicitPropertyName(MapperConfig<?> config, AnnotatedMember member) {
             if (member instanceof AnnotatedParameter) {
                 return String.format("ctor%d", ((AnnotatedParameter) member).getIndex());
             }
-            return super.findImplicitPropertyName(member);
+            return super.findImplicitPropertyName(config, member);
         }
     }
     
@@ -54,11 +55,14 @@ public class ImplicitNameMatch792Test extends BaseMapTest
     {
         private int value;
 
-        ReadWriteBean(@JsonProperty(value="value",
+        // 22-Sep-2017, tatu: Note that must be either `public`; annotated with JsonCreator,
+        //    or visibility min level for creator auto-detection needs to be raised
+        public ReadWriteBean(@JsonProperty(value="value",
                 access=JsonProperty.Access.READ_WRITE) int v) {
             value = v;
         }
 
+        @JsonProperty("value")
         public int testValue() { return value; }
 
         // Let's also add setter to ensure conflict resolution works
@@ -93,8 +97,9 @@ public class ImplicitNameMatch792Test extends BaseMapTest
     
     public void testBindingOfImplicitCreatorNames() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.setAnnotationIntrospector(new ConstructorNameAI());
+        ObjectMapper m = jsonMapperBuilder()
+                .annotationIntrospector(new ConstructorNameAI())
+                .build();
         String json = m.writeValueAsString(new Issue792Bean("a", "b"));
         assertEquals(a2q("{'first':'a','other':3}"), json);
     }

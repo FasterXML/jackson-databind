@@ -49,8 +49,9 @@ public class InjectableWithoutDeser962Test extends BaseMapTest
     public void testInjected() throws Exception
     {
         InjectMe im = new InjectMe(true);
-        ObjectMapper mapper = new ObjectMapper()
-            .setInjectableValues(new InjectableValues.Std().addValue(InjectMe.class, im));
+        ObjectMapper mapper = jsonMapperBuilder()
+                .injectableValues(new InjectableValues.Std().addValue(InjectMe.class, im))
+                .build();
         String test = "{\"b\":\"bbb\"}";
 
         Injectee actual = mapper.readValue(test, Injectee.class);

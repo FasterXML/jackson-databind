@@ -1,21 +1,17 @@
 package com.fasterxml.jackson.databind.module;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.*;
 
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
+import com.fasterxml.jackson.databind.deser.ValueDeserializerModifier;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
-import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
+import com.fasterxml.jackson.databind.ser.ValueSerializerModifier;
+import com.fasterxml.jackson.databind.util.UniqueId;
 
 /**
- * Vanilla {@link Module} implementation that allows registration
+ * Vanilla {@link JacksonModule} implementation that allows registration
  * of serializers and deserializers, bean serializer
  * and deserializer modifiers, registration of subtypes and mix-ins
  * as well as some other commonly
@@ -27,7 +23,7 @@ import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
  * to do so they MUST call {@code super.setupModule(context);}
  * to ensure that registration works as expected.
  *<p>
- * WARNING: when registering {@link JsonSerializer}s and {@link JsonDeserializer}s,
+ * WARNING: when registering {@link ValueSerializer}s and {@link ValueDeserializer}s,
  * only type erased {@code Class} is compared: this means that usually you should
  * NOT use this implementation for registering structured types such as
  * {@link java.util.Collection}s or {@link java.util.Map}s: this because parametric
@@ -38,28 +34,24 @@ import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
  * signatures (with {@link JavaType}).
  */
 public class SimpleModule
-    extends com.fasterxml.jackson.databind.Module
+    extends JacksonModule
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = 1L; // 2.5.0
-
-    // 16-Jun-2021, tatu: For [databind#3110], generate actual unique ids
-    //   for SimpleModule instances (System.identityHashCode(...) is close
-    //   but not quite it...
-    private static final AtomicInteger MODULE_ID_SEQ = new AtomicInteger(1);
+    private static final long serialVersionUID = 3L;
 
     protected final String _name;
     protected final Version _version;
 
     /**
-     * Flag that indicates whether module was given an explicit name
-     * or not. Distinction is used to determine whether method
-     * {@link #getTypeId()} should return name (yes, if explicit) or
-     * {@code null} (if no explicit name was passed).
+     * Unique id generated to avoid instances from ever matching so all
+     * registrations succeed.
+     *<p>
+     * NOTE! If serialization of SimpleModule instance needed, should be
+     * {@link java.io.Serializable}.
      *
-     * @since 2.13
+     * @since 3.0
      */
-    protected final boolean _hasExplicitName;
+    protected final Object _id;
 
     protected SimpleSerializers _serializers = null;
     protected SimpleDeserializers _deserializers = null;
@@ -67,6 +59,9 @@ public class SimpleModule
     protected SimpleSerializers _keySerializers = null;
     protected SimpleKeyDeserializers _keyDeserializers = null;
 
+    protected ValueSerializer<?> _defaultNullKeySerializer = null;
+    protected ValueSerializer<?> _defaultNullValueSerializer = null;
+    
     /**
      * Lazily-constructed resolver used for storing mappings from
      * abstract classes to more specific implementing classes
@@ -81,15 +76,9 @@ public class SimpleModule
      */
     protected SimpleValueInstantiators _valueInstantiators = null;
 
-    /**
-     * @since 2.2
-     */
-    protected BeanDeserializerModifier _deserializerModifier = null;
+    protected ValueDeserializerModifier _deserializerModifier = null;
 
-    /**
-     * @since 2.2
-     */
-    protected BeanSerializerModifier _serializerModifier = null;
+    protected ValueSerializerModifier _serializerModifier = null;
 
     /**
      * Lazily-constructed map that contains mix-in definitions, indexed
@@ -102,15 +91,12 @@ public class SimpleModule
      */
     protected LinkedHashSet<NamedType> _subtypes = null;
 
-    /**
-     * @since 2.3
-     */
     protected PropertyNamingStrategy _namingStrategy = null;
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle: creation
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -118,17 +104,9 @@ public class SimpleModule
      * convenience modules used by app code: "real" modules should
      * use actual name and version number information.
      */
-    public SimpleModule() {
-        // can't chain when making reference to 'this'
-        // note: generate different name for direct instantiation, sub-classing;
-        // this to avoid collision in former case while still addressing
-        // [databind#3110]
-        _name = (getClass() == SimpleModule.class)
-                ? "SimpleModule-"+MODULE_ID_SEQ.getAndIncrement()
-                : getClass().getName();
-        _version = Version.unknownVersion();
-        // 07-Jun-2021, tatu: [databind#3110] Not passed explicitly so...
-        _hasExplicitName = false;
+    public SimpleModule()
+    {
+        this(null, Version.unknownVersion());
     }
 
     /**
@@ -141,12 +119,12 @@ public class SimpleModule
 
     /**
      * Convenience constructor that will use specified Version,
-     * including name from {@link Version#getArtifactId()}.
+     * including name from {@link Version#getArtifactId()}
      */
     public SimpleModule(Version version) {
         this(version.getArtifactId(), version);
     }
-
+    
     /**
      * Constructor to use for actual reusable modules.
      * ObjectMapper may use name as identifier to notice attempts
@@ -157,46 +135,41 @@ public class SimpleModule
      * @param version Version of the module
      */
     public SimpleModule(String name, Version version) {
+        this(name, version, null);
+    }
+
+    public SimpleModule(String name, Version version, Object registrationId) {
+        if (name == null) {
+            // So: if constructing plain `SimpleModule`, instances assumed to be
+            // distinct, not same, so generate unique id. But if sub-class,
+            // class name assumed.
+            if (getClass() == SimpleModule.class) {
+                if (registrationId == null) {
+                    registrationId = UniqueId.create("SimpleModule-");
+                }
+                name = "SimpleModule-"+registrationId;
+            } else {
+                name = getClass().getName();
+                if (registrationId == null) {
+                    registrationId = name;
+                }
+            }
+        } else if (registrationId == null) {
+            registrationId = name;
+        }
         _name = name;
         _version = version;
-        // 07-Jun-2021, tatu: [databind#3110] Is passed explicitly (may be `null`)
-        _hasExplicitName = true;
+        _id = registrationId;
     }
 
-    /**
-     * @since 2.1
+    /*
+    /**********************************************************************
+    /* Simple accessors
+    /**********************************************************************
      */
-    public SimpleModule(String name, Version version,
-            Map<Class<?>,JsonDeserializer<?>> deserializers) {
-        this(name, version, deserializers, null);
-    }
-
-    /**
-     * @since 2.1
-     */
-    public SimpleModule(String name, Version version,
-            List<JsonSerializer<?>> serializers) {
-        this(name, version, null, serializers);
-    }
     
-    /**
-     * @since 2.1
-     */
-    public SimpleModule(String name, Version version,
-            Map<Class<?>,JsonDeserializer<?>> deserializers,
-            List<JsonSerializer<?>> serializers)
-    {
-        _name = name;
-        // 07-Jun-2021, tatu: [databind#3110] Is passed explicitly (may be `null`)
-        _hasExplicitName = true;
-        _version = version;
-        if (deserializers != null) {
-            _deserializers = new SimpleDeserializers(deserializers);
-        }
-        if (serializers != null) {
-            _serializers = new SimpleSerializers(serializers);
-        }
-    }
+    @Override
+    public Version version() { return _version; }
 
     /**
      * Since instances are likely to be custom, implementation returns
@@ -204,113 +177,104 @@ public class SimpleModule
      * but class name (default impl) for sub-classes.
      */
     @Override
-    public Object getTypeId()
-    {
-        // 07-Jun-2021, tatu: [databind#3110] Return Type Id if name was
-        //    explicitly given
-        if (_hasExplicitName) {
-            return _name;
-        }
-        // Otherwise behavior same as with 2.12: no registration id for "throw-away"
-        // instances (to avoid bogus conflicts if user just instantiates SimpleModule)
-
-        // Note: actually... always returning `supet.getTypeId()` should be fine since
-        // that would return generated id? Let's do that actually.
-        if (getClass() == SimpleModule.class) {
-            return _name;
-        }
-        // And for what it is worth, this should usually do the same and we could
-        // in fact always just return `_name`. But leaving as-is for now.
-        return super.getTypeId();
+    public Object getRegistrationId() {
+        return _id;
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Simple setters to allow overriding
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
      * Resets all currently configured serializers.
      */
-    public void setSerializers(SimpleSerializers s) {
+    public SimpleModule setSerializers(SimpleSerializers s) {
         _serializers = s;
+        return this;
     }
 
     /**
      * Resets all currently configured deserializers.
      */
-    public void setDeserializers(SimpleDeserializers d) {
+    public SimpleModule setDeserializers(SimpleDeserializers d) {
         _deserializers = d;
+        return this;
     }
 
     /**
      * Resets all currently configured key serializers.
      */
-    public void setKeySerializers(SimpleSerializers ks) {
+    public SimpleModule setKeySerializers(SimpleSerializers ks) {
         _keySerializers = ks;
+        return this;
     }
 
     /**
      * Resets all currently configured key deserializers.
      */
-    public void setKeyDeserializers(SimpleKeyDeserializers kd) {
+    public SimpleModule setKeyDeserializers(SimpleKeyDeserializers kd) {
         _keyDeserializers = kd;
+        return this;
+    }
+
+    public SimpleModule setDefaultNullKeySerializer(ValueSerializer<?> ser) {
+        _defaultNullKeySerializer = ser;
+        return this;
+    }
+
+    public SimpleModule setDefaultNullValueSerializer(ValueSerializer<?> ser) {
+        _defaultNullValueSerializer = ser;
+        return this;
     }
 
     /**
      * Resets currently configured abstract type mappings
      */
-    public void setAbstractTypes(SimpleAbstractTypeResolver atr) {
+    public SimpleModule setAbstractTypes(SimpleAbstractTypeResolver atr) {
         _abstractTypes = atr;        
+        return this;
     }
 
     /**
      * Resets all currently configured value instantiators
      */
-    public void setValueInstantiators(SimpleValueInstantiators svi) {
+    public SimpleModule setValueInstantiators(SimpleValueInstantiators svi) {
         _valueInstantiators = svi;
+        return this;
     }
 
-    /**
-     * @since 2.2
-     */
-    public SimpleModule setDeserializerModifier(BeanDeserializerModifier mod) {
+    public SimpleModule setDeserializerModifier(ValueDeserializerModifier mod) {
         _deserializerModifier = mod;
         return this;
     }
 
-    /**
-     * @since 2.2
-     */
-    public SimpleModule setSerializerModifier(BeanSerializerModifier mod) {
+    public SimpleModule setSerializerModifier(ValueSerializerModifier mod) {
         _serializerModifier = mod;
         return this;
     }
 
-    /**
-     * @since 2.3
-     */
     protected SimpleModule setNamingStrategy(PropertyNamingStrategy naming) {
         _namingStrategy = naming;
         return this;
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration methods, adding serializers
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
      * Method for adding serializer to handle type that the serializer claims to handle
-     * (see {@link JsonSerializer#handledType()}).
+     * (see {@link ValueSerializer#handledType()}).
      *<p>
      * WARNING! Type matching only uses type-erased {@code Class} and should NOT
      * be used when registering serializers for generic types like
      * {@link java.util.Collection} and {@link java.util.Map}.
      */
-    public SimpleModule addSerializer(JsonSerializer<?> ser)
+    public SimpleModule addSerializer(ValueSerializer<?> ser)
     {
         _checkNotNull(ser, "serializer");
         if (_serializers == null) {
@@ -327,7 +291,7 @@ public class SimpleModule
      * be used when registering serializers for generic types like
      * {@link java.util.Collection} and {@link java.util.Map}.
      */
-    public <T> SimpleModule addSerializer(Class<? extends T> type, JsonSerializer<T> ser)
+    public <T> SimpleModule addSerializer(Class<? extends T> type, ValueSerializer<T> ser)
     {
         _checkNotNull(type, "type to register serializer for");
         _checkNotNull(ser, "serializer");
@@ -338,7 +302,7 @@ public class SimpleModule
         return this;
     }
 
-    public <T> SimpleModule addKeySerializer(Class<? extends T> type, JsonSerializer<T> ser)
+    public <T> SimpleModule addKeySerializer(Class<? extends T> type, ValueSerializer<T> ser)
     {
         _checkNotNull(type, "type to register key serializer for");
         _checkNotNull(ser, "key serializer");
@@ -350,11 +314,11 @@ public class SimpleModule
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration methods, adding deserializers
-    /**********************************************************
+    /**********************************************************************
      */
-    
+
     /**
      * Method for adding deserializer to handle specified type.
      *<p>
@@ -362,7 +326,7 @@ public class SimpleModule
      * be used when registering serializers for generic types like
      * {@link java.util.Collection} and {@link java.util.Map}.
      */
-    public <T> SimpleModule addDeserializer(Class<T> type, JsonDeserializer<? extends T> deser)
+    public <T> SimpleModule addDeserializer(Class<T> type, ValueDeserializer<? extends T> deser)
     {
         _checkNotNull(type, "type to register deserializer for");
         _checkNotNull(deser, "deserializer");
@@ -385,9 +349,9 @@ public class SimpleModule
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration methods, type mapping
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -446,8 +410,6 @@ public class SimpleModule
      * Method for adding set of subtypes (along with type name to use) to be registered with
      * {@link ObjectMapper}
      * this is an alternative to using annotations in super type to indicate subtypes.
-     *
-     * @since 2.9
      */
     public SimpleModule registerSubtypes(Collection<Class<?>> subtypes)
     {
@@ -462,9 +424,9 @@ public class SimpleModule
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration methods, add other handlers
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -505,9 +467,9 @@ public class SimpleModule
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Module impl
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override
@@ -544,36 +506,33 @@ public class SimpleModule
             context.addValueInstantiators(_valueInstantiators);
         }
         if (_deserializerModifier != null) {
-            context.addBeanDeserializerModifier(_deserializerModifier);
+            context.addDeserializerModifier(_deserializerModifier);
         }
         if (_serializerModifier != null) {
-            context.addBeanSerializerModifier(_serializerModifier);
+            context.addSerializerModifier(_serializerModifier);
+        }
+        if (_defaultNullKeySerializer != null) {
+            context.overrideDefaultNullKeySerializer(_defaultNullKeySerializer);
+        }
+        if (_defaultNullValueSerializer != null) {
+            context.overrideDefaultNullValueSerializer(_defaultNullValueSerializer);
         }
         if (_subtypes != null && _subtypes.size() > 0) {
-            context.registerSubtypes(_subtypes.toArray(new NamedType[_subtypes.size()]));
-        }
-        if (_namingStrategy != null) {
-            context.setNamingStrategy(_namingStrategy);
+            context.registerSubtypes(_subtypes.toArray(new NamedType[0]));
         }
         if (_mixins != null) {
             for (Map.Entry<Class<?>,Class<?>> entry : _mixins.entrySet()) {
-                context.setMixInAnnotations(entry.getKey(), entry.getValue());
+                context.setMixIn(entry.getKey(), entry.getValue());
             }
         }
     }
 
-    @Override
-    public Version version() { return _version; }
-
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods
-    /**********************************************************
+    /**********************************************************************
      */
 
-    /**
-     * @since 2.9
-     */
     protected void _checkNotNull(Object thingy, String type)
     {
         if (thingy == null) {

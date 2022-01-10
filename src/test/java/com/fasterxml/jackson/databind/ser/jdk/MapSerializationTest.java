@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
@@ -26,11 +25,11 @@ public class MapSerializationTest extends BaseMapTest
         }
     }
 
-    static class PseudoMapSerializer extends JsonSerializer<Map<String,String>>
+    static class PseudoMapSerializer extends ValueSerializer<Map<String,String>>
     {
         @Override
         public void serialize(Map<String,String> value,
-                JsonGenerator gen, SerializerProvider provider) throws IOException
+                JsonGenerator gen, SerializerProvider provider)
         {
             // just use standard Map.toString(), output as JSON String
             gen.writeString(value.toString());
@@ -187,12 +186,14 @@ public class MapSerializationTest extends BaseMapTest
         assertEquals(a2q("[{'answer':42}]"), json);
 
         // and maybe with bit of extra typing?
-        ObjectMapper mapper = new ObjectMapper().activateDefaultTyping(NoCheckSubTypeValidator.instance,
-                DefaultTyping.NON_FINAL);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.NON_FINAL)
+                .build();
         json = mapper.writeValueAsString(input);
         assertEquals(a2q("['"+StringIntMapEntry.class.getName()+"',{'answer':42}]"),
                 json);
-    }        
+    }
 
     public void testMapEntryWrapper() throws IOException
     {
@@ -218,9 +219,10 @@ public class MapSerializationTest extends BaseMapTest
     public void testNullJsonInTypedMap691() throws Exception {
         Map<String, String> map = new HashMap<String, String>();
         map.put("NULL", null);
-    
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.addMixIn(Object.class, Mixin691.class);
+
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addMixIn(Object.class, Mixin691.class)
+                .build();
         String json = mapper.writeValueAsString(map);
         assertEquals("{\"@class\":\"java.util.HashMap\",\"NULL\":null}", json);
     }

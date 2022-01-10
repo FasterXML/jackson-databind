@@ -140,7 +140,7 @@ public class SerializationOrderTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     private final ObjectMapper ALPHA_MAPPER = jsonMapperBuilder()
-            .configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true)
+            .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
             .build();
 
     public void testImplicitOrderByCreator() throws Exception {
@@ -160,11 +160,11 @@ public class SerializationOrderTest
 
     public void testOrderWithMixins() throws Exception
     {
-        ObjectMapper m = jsonMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .addMixIn(BeanWithOrder.class, OrderMixIn.class)
                 .build();
         assertEquals("{\"b\":2,\"a\":1,\"c\":3,\"d\":4}",
-                serializeAsString(m, new BeanWithOrder(1, 2, 3, 4)));
+                mapper.writeValueAsString(new BeanWithOrder(1, 2, 3, 4)));
     }
 
     public void testOrderWrt268() throws Exception

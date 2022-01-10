@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
@@ -30,10 +30,7 @@ public final class MethodProperty
      */
     protected final transient Method _setter;
 
-    /**
-     * @since 2.9
-     */
-    final protected boolean _skipNulls;
+    protected final boolean _skipNulls;
     
     public MethodProperty(BeanPropertyDefinition propDef,
             JavaType type, TypeDeserializer typeDeser,
@@ -45,7 +42,7 @@ public final class MethodProperty
         _skipNulls = NullsConstantProvider.isSkipper(_nullProvider);
     }
 
-    protected MethodProperty(MethodProperty src, JsonDeserializer<?> deser,
+    protected MethodProperty(MethodProperty src, ValueDeserializer<?> deser,
             NullValueProvider nva) {
         super(src, deser, nva);
         _annotated = src._annotated;
@@ -76,7 +73,7 @@ public final class MethodProperty
     }
     
     @Override
-    public SettableBeanProperty withValueDeserializer(JsonDeserializer<?> deser) {
+    public SettableBeanProperty withValueDeserializer(ValueDeserializer<?> deser) {
         if (_valueDeserializer == deser) {
             return this;
         }
@@ -117,7 +114,7 @@ public final class MethodProperty
 
     @Override
     public void deserializeAndSet(JsonParser p, DeserializationContext ctxt,
-            Object instance) throws IOException
+            Object instance) throws JacksonException
     {
         Object value;
         if (p.hasToken(JsonToken.VALUE_NULL)) {
@@ -140,13 +137,13 @@ public final class MethodProperty
         try {
             _setter.invoke(instance, value);
         } catch (Exception e) {
-            _throwAsIOE(p, e, value);
+            _throwAsJacksonE(p, e, value);
         }
     }
 
     @Override
     public Object deserializeSetAndReturn(JsonParser p,
-    		DeserializationContext ctxt, Object instance) throws IOException
+    		DeserializationContext ctxt, Object instance) throws JacksonException
     {
         Object value;
         if (p.hasToken(JsonToken.VALUE_NULL)) {
@@ -170,31 +167,31 @@ public final class MethodProperty
             Object result = _setter.invoke(instance, value);
             return (result == null) ? instance : result;
         } catch (Exception e) {
-            _throwAsIOE(p, e, value);
+            _throwAsJacksonE(p, e, value);
             return null;
         }
     }
 
     @Override
-    public final void set(Object instance, Object value) throws IOException
+    public final void set(Object instance, Object value) throws JacksonException
     {
         try {
             _setter.invoke(instance, value);
         } catch (Exception e) {
             // 15-Sep-2015, tatu: How could we get a ref to JsonParser?
-            _throwAsIOE(e, value);
+            _throwAsJacksonE(e, value);
         }
     }
 
     @Override
-    public Object setAndReturn(Object instance, Object value) throws IOException
+    public Object setAndReturn(Object instance, Object value) throws JacksonException
     {
         try {
             Object result = _setter.invoke(instance, value);
             return (result == null) ? instance : result;
         } catch (Exception e) {
             // 15-Sep-2015, tatu: How could we get a ref to JsonParser?
-            _throwAsIOE(e, value);
+            _throwAsJacksonE(e, value);
             return null;
         }
     }

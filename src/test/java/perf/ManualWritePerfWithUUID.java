@@ -1,6 +1,5 @@
 package perf;
 
-import java.io.IOException;
 import java.util.UUID;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -47,14 +46,13 @@ class UUIDSlow
     public UUIDSlow(UUID[] v) { values = v; }
 }
 
-@SuppressWarnings("serial")
 class SlowSer extends StdScalarSerializer<UUID>
 {
     public SlowSer() { super(UUID.class); }
 
     @Override
     public void serialize(UUID value, JsonGenerator jgen,
-            SerializerProvider provider) throws IOException {
+            SerializerProvider provider) {
         jgen.writeString(value.toString());
     }
 }

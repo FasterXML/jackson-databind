@@ -28,7 +28,7 @@ public class TestScalaLikeImplicitProperties extends BaseMapTest
         private static final long serialVersionUID = 1L;
 
         @Override
-        public String findImplicitPropertyName(AnnotatedMember member) {
+        public String findImplicitPropertyName(MapperConfig<?> config, AnnotatedMember member) {
             String name = null;
             if (member instanceof AnnotatedField) {
                 name = member.getName();
@@ -184,8 +184,9 @@ public class TestScalaLikeImplicitProperties extends BaseMapTest
     
     private ObjectMapper manglingMapper()
     {
-        ObjectMapper m = new ObjectMapper();
-        m.setAnnotationIntrospector(new NameMangler());
+        ObjectMapper m = jsonMapperBuilder()
+                .annotationIntrospector(new NameMangler())
+                .build();
         return m;
     }
 }

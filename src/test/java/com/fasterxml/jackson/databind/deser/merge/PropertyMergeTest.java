@@ -138,8 +138,10 @@ public class PropertyMergeTest extends BaseMapTest
         assertEquals(0, config.loc.b); // not passed, nor merge from original
 
         // but with type-overrides
-        ObjectMapper mapper = newJsonMapper();
-        mapper.configOverride(AB.class).setMergeable(true);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .withConfigOverride(AB.class,
+                        o -> o.setMergeable(true))
+                .build();
         config = mapper.readValue(a2q("{'loc':{'a':3}}"), NonMergeConfig.class);
         assertEquals(3, config.loc.a);
         assertEquals(2, config.loc.b); // original, merged
@@ -148,8 +150,9 @@ public class PropertyMergeTest extends BaseMapTest
     public void testBeanMergingViaGlobal() throws Exception
     {
         // but with type-overrides
-        ObjectMapper mapper = newJsonMapper()
-                .setDefaultMergeable(true);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .defaultMergeable(true)
+                .build();
         NonMergeConfig config = mapper.readValue(a2q("{'loc':{'a':3}}"), NonMergeConfig.class);
         assertEquals(3, config.loc.a);
         assertEquals(2, config.loc.b); // original, merged
@@ -183,7 +186,9 @@ public class PropertyMergeTest extends BaseMapTest
     public void testBeanMergeUsingConstructors() throws Exception {
         ConstructorArgsPojo input = new ConstructorArgsPojo(new ConstructorArgsPojo.MergeablePojo("foo", "bar"));
 
-        ConstructorArgsPojo result = MAPPER.setDefaultMergeable(true)
+        ConstructorArgsPojo result = jsonMapperBuilder()
+                .defaultMergeable(true)
+                .build()
                 .readerForUpdating(input)
                 .readValue(a2q("{'mergeableBean': {'foo': 'newFoo'}}"));
 

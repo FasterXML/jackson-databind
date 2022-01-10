@@ -73,7 +73,7 @@ public class TestCustomTypeIdResolver extends BaseMapTest
 
         @Override public Id getMechanism() { return Id.CUSTOM; }
 
-        @Override public String idFromValue(Object value) {
+        @Override public String idFromValue(DatabindContext ctxt, Object value) {
             if (superType.isAssignableFrom(value.getClass())) {
                 return "*";
             }
@@ -81,8 +81,8 @@ public class TestCustomTypeIdResolver extends BaseMapTest
         }
 
         @Override
-        public String idFromValueAndType(Object value, Class<?> type) {
-            return idFromValue(value);
+        public String idFromValueAndType(DatabindContext ctxt, Object value, Class<?> type) {
+            return idFromValue(ctxt, value);
         }
 
         @Override
@@ -98,7 +98,7 @@ public class TestCustomTypeIdResolver extends BaseMapTest
         }
 
         @Override
-        public String idFromBaseType() {
+        public String idFromBaseType(DatabindContext ctxt) {
             return "xxx";
         }
     }
@@ -130,7 +130,7 @@ public class TestCustomTypeIdResolver extends BaseMapTest
         public void init(JavaType baseType) { }
      
         @Override
-        public String idFromValue(Object value) {
+        public String idFromValue(DatabindContext ctxt, Object value) {
             if (value.getClass() == Base1270.class) {
                 return "poly1";
             }
@@ -138,12 +138,12 @@ public class TestCustomTypeIdResolver extends BaseMapTest
         }
 
         @Override
-        public String idFromValueAndType(Object value, Class<?> suggestedType) {
-            return idFromValue(value);
+        public String idFromValueAndType(DatabindContext ctxt, Object value, Class<?> suggestedType) {
+            return idFromValue(ctxt, value);
         }
 
         @Override
-        public String idFromBaseType() {
+        public String idFromBaseType(DatabindContext ctxt) {
             return null;
         }
 

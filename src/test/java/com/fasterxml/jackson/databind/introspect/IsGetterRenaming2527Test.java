@@ -6,7 +6,6 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
-import com.fasterxml.jackson.databind.util.BeanUtil;
 
 // [databind#2527] Support Kotlin-style "is" properties
 public class IsGetterRenaming2527Test extends BaseMapTest
@@ -54,7 +53,7 @@ public class IsGetterRenaming2527Test extends BaseMapTest
         {
             final String origSimple = implName.getSimpleName();
             if (origSimple.startsWith("is")) {
-                String mangledName = BeanUtil.stdManglePropertyName(origSimple, 2);
+                String mangledName = stdManglePropertyName(origSimple, 2);
                 // Needs to be valid ("is" -> null), and different from original
                 if ((mangledName != null) && !mangledName.equals(origSimple)) {
                     return PropertyName.construct(mangledName);
@@ -62,8 +61,28 @@ public class IsGetterRenaming2527Test extends BaseMapTest
             }
             return null;
         }
+
+        protected String stdManglePropertyName(final String basename, final int offset)
+        {
+            final int end = basename.length();
+            // first: if it doesn't start with capital, return as-is
+            char c0 = basename.charAt(offset);
+            char c1 = Character.toLowerCase(c0);
+            if (c0 == c1) {
+                return basename.substring(offset);
+            }
+            if ((offset + 1) < end) {
+                if (Character.isUpperCase(basename.charAt(offset+1))) {
+                    return basename.substring(offset);
+                }
+            }
+            StringBuilder sb = new StringBuilder(end - offset);
+            sb.append(c1);
+            sb.append(basename, offset+1, end);
+            return sb.toString();
+        }
     }
-    
+
     private final ObjectMapper MAPPER = jsonMapperBuilder()
             .annotationIntrospector(new MyIntrospector())
             .build();

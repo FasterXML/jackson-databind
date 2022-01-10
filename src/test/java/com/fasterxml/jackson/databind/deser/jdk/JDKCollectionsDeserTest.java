@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.deser.jdk;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.*;
@@ -52,9 +51,8 @@ public class JDKCollectionsDeserTest extends BaseMapTest
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
-                        ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
+                        DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
                 .build();
-
         Set<String> theSet = Collections.unmodifiableSet(Collections.singleton("a"));
         String json = mapper.writeValueAsString(theSet);
 

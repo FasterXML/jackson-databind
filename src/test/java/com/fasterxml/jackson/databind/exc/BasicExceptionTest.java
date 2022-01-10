@@ -21,36 +21,35 @@ public class BasicExceptionTest extends BaseMapTest
     }
 
     private final ObjectMapper MAPPER = newJsonMapper();
-    private final JsonFactory JSON_F = MAPPER.getFactory();
 
     public void testBadDefinition() throws Exception
     {
         JavaType t = TypeFactory.defaultInstance().constructType(String.class);
-        JsonParser p = JSON_F.createParser("[]");
+        JsonParser p = MAPPER.createParser("[]");
         InvalidDefinitionException e = new InvalidDefinitionException(p,
                "Testing", t);
         assertEquals("Testing", e.getOriginalMessage());
         assertEquals(String.class, e.getType().getRawClass());
         assertNull(e.getBeanDescription());
         assertNull(e.getProperty());
-        assertSame(p, e.getProcessor());
+        assertSame(p, e.processor());
         p.close();
 
         // and via factory method:
-        BeanDescription beanDef = MAPPER.getSerializationConfig().introspectClassAnnotations(getClass());
+        BeanDescription beanDef = ObjectMapperTestAccess.beanDescriptionForSer(MAPPER, getClass());
         e = InvalidDefinitionException.from(p, "Testing",
                 beanDef, (BeanPropertyDefinition) null);
         assertEquals(beanDef.getType(), e.getType());
         assertNotNull(e);
-        
+
         // and the other constructor too
-        JsonGenerator g = JSON_F.createGenerator(new StringWriter());
         e = new InvalidDefinitionException(p,
                 "Testing", t);
         assertEquals("Testing", e.getOriginalMessage());
         assertEquals(String.class, e.getType().getRawClass());
 
         // and factory
+        JsonGenerator g = MAPPER.createGenerator(new StringWriter());
         e = InvalidDefinitionException.from(g, "Testing",
                 beanDef, (BeanPropertyDefinition) null);
         assertEquals(beanDef.getType(), e.getType());
@@ -59,27 +58,10 @@ public class BasicExceptionTest extends BaseMapTest
         g.close();
     }
 
-    @SuppressWarnings("deprecation")
-    public void testInvalidFormat() throws Exception
-    {
-        // deprecated methods should still work:
-        InvalidFormatException e = new InvalidFormatException("Testing", Boolean.TRUE,
-                String.class);
-        assertSame(Boolean.TRUE, e.getValue());
-        assertNull(e.getProcessor());
-        assertNotNull(e);
-
-        e = new InvalidFormatException("Testing", JsonLocation.NA,
-                Boolean.TRUE, String.class);
-        assertSame(Boolean.TRUE, e.getValue());
-        assertNull(e.getProcessor());
-        assertNotNull(e);
-    }
-
     public void testIgnoredProperty() throws Exception
     {
         // first just construct valid instance with some variations
-        JsonParser p = JSON_F.createParser("{ }");
+        JsonParser p = MAPPER.createParser("{ }");
         IgnoredPropertyException e = IgnoredPropertyException.from(p,
                 this, // to get class from
                 "testProp", Collections.<Object>singletonList("x"));
@@ -103,7 +85,7 @@ public class BasicExceptionTest extends BaseMapTest
 
     public void testUnrecognizedProperty() throws Exception
     {
-        JsonParser p = JSON_F.createParser("{ }");
+        JsonParser p = MAPPER.createParser("{ }");
         UnrecognizedPropertyException e = UnrecognizedPropertyException.from(p, this,
                 "testProp", Collections.<Object>singletonList("y"));
         assertNotNull(e);

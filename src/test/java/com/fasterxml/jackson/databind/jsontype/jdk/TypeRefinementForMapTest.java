@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.jsontype.jdk;
 
-import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -9,8 +8,10 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
+@SuppressWarnings("serial")
 public class TypeRefinementForMapTest extends BaseMapTest
 {
     interface HasUniqueId<K> {
@@ -37,7 +38,6 @@ public class TypeRefinementForMapTest extends BaseMapTest
 //        public MyHashMap<String, Item> items;
     }
 
-    @SuppressWarnings("serial")
     static class MyHashMap<K, V extends HasUniqueId<K>>
         extends LinkedHashMap<K, V>
     {
@@ -85,10 +85,11 @@ public class TypeRefinementForMapTest extends BaseMapTest
         }
     }
 
-    static class CompoundKeySerializer extends JsonSerializer<CompoundKey> {
+    static class CompoundKeySerializer extends StdSerializer<CompoundKey> {
+        public CompoundKeySerializer() { super(CompoundKey.class); }
         @Override
-        public void serialize(CompoundKey compoundKey, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-            jsonGenerator.writeFieldName(compoundKey.getPart0() + '|' + compoundKey.getPart1());
+        public void serialize(CompoundKey compoundKey, JsonGenerator g, SerializerProvider serializerProvider) {
+            g.writeName(compoundKey.getPart0() + '|' + compoundKey.getPart1());
         }
     }
 
@@ -98,7 +99,7 @@ public class TypeRefinementForMapTest extends BaseMapTest
     /*******************************************************
      */
 
-    public void testMapRefinement() throws Exception
+    public void testMapRefinement()
     {
         String ID1 = "3a6383d4-8123-4c43-8b8d-7cedf3e59404";
         String ID2 = "81c3d978-90c4-4b00-8da1-1c39ffcab02c";
@@ -117,15 +118,14 @@ public class TypeRefinementForMapTest extends BaseMapTest
     }
 
     // for [databind#1384]
-    public void testMapKeyRefinement1384() throws Exception
+    public void testMapKeyRefinement1384()
     {
         final String TEST_INSTANCE_SERIALIZED =
                 "{\"mapProperty\":[\"java.util.HashMap\",{\"Compound|Key\":\"Value\"}]}";
         ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
-                        ObjectMapper.DefaultTyping.NON_FINAL)
+                        DefaultTyping.NON_FINAL)
                 .build();
-
         TestClass testInstance = mapper.readValue(TEST_INSTANCE_SERIALIZED, TestClass.class);
         assertEquals(1, testInstance.mapProperty.size());
         Object key = testInstance.mapProperty.keySet().iterator().next();

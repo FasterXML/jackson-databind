@@ -16,9 +16,9 @@ import com.fasterxml.jackson.databind.cfg.ConfigFeature;
 public enum SerializationFeature implements ConfigFeature
 {
     /*
-    /******************************************************
+    /**********************************************************************
     /* Generic output features
-    /******************************************************
+    /**********************************************************************
      */
 
     /**
@@ -49,9 +49,9 @@ public enum SerializationFeature implements ConfigFeature
     INDENT_OUTPUT(false),
 
     /*
-    /******************************************************
+    /**********************************************************************
     /* Error handling features
-    /******************************************************
+    /**********************************************************************
      */
 
     /**
@@ -74,12 +74,10 @@ public enum SerializationFeature implements ConfigFeature
     /**
      * Feature that determines what happens when a direct self-reference
      * is detected by a POJO (and no Object Id handling is enabled for it):
-     * either a {@link JsonMappingException} is
+     * either a {@link DatabindException} is
      * thrown (if true), or reference is normally processed (false).
      *<p>
      * Feature is enabled by default.
-     *
-     * @since 2.4
      */
     FAIL_ON_SELF_REFERENCES(true),
 
@@ -110,8 +108,6 @@ public enum SerializationFeature implements ConfigFeature
      * object will be unwrapped and the type information discarded.
      *<p>
      * Feature is enabled by default.
-     *
-     * @since 2.4
      */
     FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS(true),
 
@@ -123,15 +119,13 @@ public enum SerializationFeature implements ConfigFeature
      * But if {@link SerializationFeature#FAIL_ON_SELF_REFERENCES} is enabled. this property is ignored.
      * <p>
      * Feature is disabled by default.
-     *
-     * @since 2.11
      */
     WRITE_SELF_REFERENCES_AS_NULL(false),
 
     /*
-    /******************************************************
+    /**********************************************************************
     /* Output life cycle features
-    /******************************************************
+    /**********************************************************************
      */
 
      /**
@@ -167,9 +161,9 @@ public enum SerializationFeature implements ConfigFeature
     FLUSH_AFTER_WRITE_VALUE(true),
 
     /*
-    /******************************************************
+    /**********************************************************************
     /* Datatype-specific serialization configuration
-    /******************************************************
+    /**********************************************************************
      */
 
     /**
@@ -226,8 +220,6 @@ public enum SerializationFeature implements ConfigFeature
      * Feature is disabled by default, so that zone id is NOT included; rather, timezone
      * offset is used for ISO-8601 compatibility (if any timezone information is
      * included in value).
-     * 
-     * @since 2.6
      */
     WRITE_DATES_WITH_ZONE_ID(false), 
 
@@ -264,8 +256,6 @@ public enum SerializationFeature implements ConfigFeature
      *<p>
      * Feature is enabled by default, so that period/duration are by default
      * serialized as timestamps.
-     * 
-     * @since 2.5
      */
     WRITE_DURATIONS_AS_TIMESTAMPS(true),
     
@@ -318,27 +308,8 @@ public enum SerializationFeature implements ConfigFeature
      * {@link Enum}s as regular values.
      *<p>
      * Feature is disabled by default.
-     * 
-     * @since 2.10
      */
     WRITE_ENUM_KEYS_USING_INDEX(false),
-    
-    /**
-     * Feature that determines whether Map entries with null values are
-     * to be serialized (true) or not (false).
-     *<p>
-     * NOTE: unlike other {@link SerializationFeature}s, this feature <b>cannot</b> be
-     * dynamically changed on per-call basis, because its effect is considered during
-     * construction of serializers and property handlers.
-     *<p>
-     * Feature is enabled by default.
-     *
-     * @deprecated Since 2.9 there are better mechanism for specifying filtering; specifically
-     *   using {@link com.fasterxml.jackson.annotation.JsonInclude} or configuration overrides
-     *   (see {@link ObjectMapper#configOverride(Class)}}).
-     */
-    @Deprecated // since 2.9
-    WRITE_NULL_MAP_VALUES(true),
 
     /**
      * Feature that determines whether Container properties (POJO properties
@@ -385,25 +356,6 @@ public enum SerializationFeature implements ConfigFeature
     WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED(false),
 
     /**
-     * Feature that determines whether {@link java.math.BigDecimal} entries are
-     * serialized using {@link java.math.BigDecimal#toPlainString()} to prevent
-     * values to be written using scientific notation.
-     *<p>
-     * NOTE: since this feature typically requires use of
-     * {@link com.fasterxml.jackson.core.JsonGenerator#writeNumber(String)}
-     * it may cause compatibility problems since not all {@link com.fasterxml.jackson.core.JsonGenerator}
-     * implementations support such mode of output: usually only text-based formats
-     * support it.
-     *<p>
-     * Feature is disabled by default.
-     * 
-     * @deprecated Since 2.5: use {@link com.fasterxml.jackson.core.JsonGenerator.Feature#WRITE_BIGDECIMAL_AS_PLAIN} instead
-     *    (using {@link ObjectWriter#with(com.fasterxml.jackson.core.JsonGenerator.Feature)}).
-     */
-    @Deprecated // since 2.5
-    WRITE_BIGDECIMAL_AS_PLAIN(false),
-
-    /**
      * Feature that controls whether numeric timestamp values are
      * to be written using nanosecond timestamps (enabled) or not (disabled);
      * <b>if and only if</b> datatype supports such resolution.
@@ -415,8 +367,6 @@ public enum SerializationFeature implements ConfigFeature
      * This is the counterpart to {@link DeserializationFeature#READ_DATE_TIMESTAMPS_AS_NANOSECONDS}.
      *<p>
      * Feature is enabled by default, to support most accurate time values possible.
-     *
-     * @since 2.2
      */
     WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS(true),
 
@@ -431,14 +381,14 @@ public enum SerializationFeature implements ConfigFeature
     ORDER_MAP_ENTRIES_BY_KEYS(false),
 
     /*
-    /******************************************************
+    /**********************************************************************
     /* Other
-    /******************************************************
+    /**********************************************************************
      */
 
     /**
      * Feature that determines whether {@link ObjectWriter} should
-     * try to eagerly fetch necessary {@link JsonSerializer} when
+     * try to eagerly fetch necessary {@link ValueSerializer} when
      * possible. This improves performance in cases where similarly
      * configured {@link ObjectWriter} instance is used multiple
      * times; and should not significantly affect single-use cases.
@@ -447,8 +397,6 @@ public enum SerializationFeature implements ConfigFeature
      * feature: only consider that if there are actual perceived problems.
      *<p>
      * Feature is enabled by default.
-     *
-     * @since 2.1
      */
     EAGER_SERIALIZER_FETCH(true),
 
@@ -468,8 +416,6 @@ public enum SerializationFeature implements ConfigFeature
      *<p>
      * Feature is disabled by default; meaning that strict identity is used, not
      * <code>equals()</code>
-     *
-     * @since 2.3
      */
     USE_EQUALITY_FOR_OBJECT_ID(false)
     ;

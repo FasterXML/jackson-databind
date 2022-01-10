@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.failing;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -40,9 +39,9 @@ public class NoTypeInfo1654Test extends BaseMapTest
         }
     }
 
-    static class Value1654Deserializer extends JsonDeserializer<Value1654> {
+    static class Value1654Deserializer extends ValueDeserializer<Value1654> {
         @Override
-        public Value1654 deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+        public Value1654 deserialize(JsonParser p, DeserializationContext ctxt) {
             p.skipChildren();
             return new Value1654(13);
         }

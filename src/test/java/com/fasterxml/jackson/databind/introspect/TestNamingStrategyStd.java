@@ -8,8 +8,8 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.TestNamingStrategyCustom.PersonBean;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
@@ -54,7 +54,7 @@ public class TestNamingStrategyStd extends BaseMapTest
             this._x = _x;
         }
     }
-
+    
     @JsonPropertyOrder({"results", "user", "__", "$_user"})
     static class OtherNonStandardNames
     {
@@ -62,7 +62,7 @@ public class TestNamingStrategyStd extends BaseMapTest
         public String _User;
         public String ___;
         public String $User;
-
+        
         public OtherNonStandardNames() {this(null, null, null, null);}
         public OtherNonStandardNames(String Results, String _User, String ___, String $User)
         {
@@ -88,7 +88,7 @@ public class TestNamingStrategyStd extends BaseMapTest
     public static class ClassWithObjectNodeField {
         public String id;
         public ObjectNode json;
-    }
+    }    
 
     static class ExplicitBean {
         @JsonProperty("firstName")
@@ -122,12 +122,12 @@ public class TestNamingStrategyStd extends BaseMapTest
     static class ParamNameIntrospector extends JacksonAnnotationIntrospector
     {
         @Override
-        public String findImplicitPropertyName(AnnotatedMember param) {
+        public String findImplicitPropertyName(MapperConfig<?> config, AnnotatedMember param) {
             Name nameAnn = param.getAnnotation(Name.class);
             if (nameAnn != null) {
                 return nameAnn.value();
             }
-            return super.findImplicitPropertyName(param);
+            return super.findImplicitPropertyName(config, param);
         }
     }
 
@@ -144,9 +144,9 @@ public class TestNamingStrategyStd extends BaseMapTest
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Set up
-    /**********************************************************
+    /**********************************************************************
      */
 
     final static List<Object[]> SNAKE_CASE_NAME_TRANSLATIONS = Arrays.asList(new Object[][] {
@@ -261,20 +261,18 @@ public class TestNamingStrategyStd extends BaseMapTest
         {"xCoordinate", "X_COORDINATE" },
     });
 
-    private final ObjectMapper VANILLA_MAPPER = newJsonMapper();
+    private final static ObjectMapper _lcWithUnderscoreMapper = jsonMapperBuilder()
+        .propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
+        .build();
 
-    private final ObjectMapper _lcWithUnderscoreMapper = JsonMapper.builder()
-            .propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
-            .build();
-
-    private final ObjectMapper _ucWithUnderscoreMapper = JsonMapper.builder()
+    private final static ObjectMapper _ucWithUnderscoreMapper = jsonMapperBuilder()
         .propertyNamingStrategy(PropertyNamingStrategies.UPPER_SNAKE_CASE)
         .build();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods for SNAKE_CASE
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -303,7 +301,7 @@ public class TestNamingStrategyStd extends BaseMapTest
         assertEquals("Sixpack", result.lastName);
         assertEquals(42, result.age);
     }
-
+    
     public void testLowerCaseAcronymsTranslations() throws Exception
     {
         // First serialize
@@ -336,7 +334,7 @@ public class TestNamingStrategyStd extends BaseMapTest
         // First serialize
         String json = _lcWithUnderscoreMapper.writeValueAsString(new UnchangedNames("from_user", "_user", "from$user", "from7user", "_x"));
         assertEquals("{\"from_user\":\"from_user\",\"user\":\"_user\",\"from$user\":\"from$user\",\"from7user\":\"from7user\",\"x\":\"_x\"}", json);
-
+        
         // then deserialize
         UnchangedNames result = _lcWithUnderscoreMapper.readValue(json, UnchangedNames.class);
         assertEquals("from_user", result.from_user);
@@ -347,9 +345,9 @@ public class TestNamingStrategyStd extends BaseMapTest
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods for UPPER_SNAKE_CASE
-    /**********************************************************
+    /**********************************************************************
      */
 
     public void testUpperSnakeCaseStrategyStandAlone()
@@ -375,11 +373,10 @@ public class TestNamingStrategyStd extends BaseMapTest
         assertEquals(42, result.age);
     }
 
-
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods for UPPER_CAMEL_CASE
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -401,8 +398,9 @@ public class TestNamingStrategyStd extends BaseMapTest
     // [databind#428]
     public void testIssue428PascalWithOverrides() throws Exception
     {
-        String json = new ObjectMapper()
-                .setPropertyNamingStrategy(PropertyNamingStrategies.UPPER_CAMEL_CASE)
+        String json = jsonMapperBuilder()
+                .propertyNamingStrategy(PropertyNamingStrategies.UPPER_CAMEL_CASE)
+                .build()
                 .writeValueAsString(new Bean428());
         if (!json.contains(q("fooBar"))) {
             fail("Should use name 'fooBar', does not: "+json);
@@ -410,9 +408,9 @@ public class TestNamingStrategyStd extends BaseMapTest
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods for LOWER_CASE
-    /**********************************************************
+    /**********************************************************************
      */
 
     // For [databind#461]
@@ -426,11 +424,11 @@ public class TestNamingStrategyStd extends BaseMapTest
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods for KEBAB_CASE
-    /**********************************************************
+    /**********************************************************************
      */
-
+    
     public void testKebabCaseStrategyStandAlone()
     {
         assertEquals("some-value",
@@ -444,24 +442,23 @@ public class TestNamingStrategyStd extends BaseMapTest
         assertEquals("some-url-stuff",
                 PropertyNamingStrategies.KEBAB_CASE.nameForField(null, null, "SomeURLStuff"));
     }
-
+    
     public void testSimpleKebabCase() throws Exception
     {
         final FirstNameBean input = new FirstNameBean("Bob");
-        ObjectMapper m = new ObjectMapper()
-                .setPropertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE);
-
+        ObjectMapper m = jsonMapperBuilder()
+                .propertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE)
+                .build();
         assertEquals(a2q("{'first-name':'Bob'}"), m.writeValueAsString(input));
 
         FirstNameBean result = m.readValue(a2q("{'first-name':'Billy'}"),
                 FirstNameBean.class);
         assertEquals("Billy", result.firstName);
     }
-
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods for LOWER_DOT_CASE
-    /**********************************************************
+    /**********************************************************************
      */
 
     public void testLowerCaseWithDotsStrategyStandAlone()
@@ -493,18 +490,19 @@ public class TestNamingStrategyStd extends BaseMapTest
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods, other
-    /**********************************************************
+    /**********************************************************************
      */
-
+    
     /**
      * Test [databind#815], problems with ObjectNode, naming strategy
      */
     public void testNamingWithObjectNode() throws Exception
     {
-        ObjectMapper m = new ObjectMapper()
-            .setPropertyNamingStrategy(PropertyNamingStrategies.LOWER_CASE);
+        ObjectMapper m = jsonMapperBuilder()
+                .propertyNamingStrategy(PropertyNamingStrategies.LOWER_CASE)
+                .build();
         ClassWithObjectNodeField result =
             m.readValue(
                 "{ \"id\": \"1\", \"json\": { \"foo\": \"bar\", \"baz\": \"bing\" } }",
@@ -519,8 +517,8 @@ public class TestNamingStrategyStd extends BaseMapTest
     public void testExplicitRename() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
-                .propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
                 .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+                .propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)
                 .build();
         // by default, renaming will not take place on explicitly named fields
         assertEquals(a2q("{'firstName':'Peter','lastName':'Venkman','user_age':'35'}"),
@@ -549,8 +547,9 @@ public class TestNamingStrategyStd extends BaseMapTest
     // Also verify that "no naming strategy" should be ok
     public void testExplicitNoNaming() throws Exception
     {
-        assertEquals(a2q("{'someValue':3}"),
-                VANILLA_MAPPER.writeValueAsString(new DefaultNaming()));
+        ObjectMapper mapper = objectMapper();
+        String json = mapper.writeValueAsString(new DefaultNaming());
+        assertEquals(a2q("{'someValue':3}"), json);
     }
 
     // Try to reproduce [databind#3102] but with regular POJO. Oddly,

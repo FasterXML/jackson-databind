@@ -14,7 +14,6 @@ import com.fasterxml.jackson.databind.util.*;
  */
 public class PropertyBuilder
 {
-    // @since 2.7
     private final static Object NO_DEFAULT_MARKER = Boolean.FALSE;
 
     final protected SerializationConfig _config;
@@ -44,8 +43,6 @@ public class PropertyBuilder
     /**
      * Marker flag used to indicate that "real" default values are to be used
      * for properties, as per per-type value inclusion of type <code>NON_DEFAULT</code>
-     *
-     * @since 2.8
      */
     final protected boolean _useRealPropertyDefaults;
 
@@ -74,9 +71,9 @@ public class PropertyBuilder
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API
-    /**********************************************************
+    /**********************************************************************
      */
 
     public Annotations getClassAnnotations() {
@@ -88,21 +85,20 @@ public class PropertyBuilder
      *    to use for contained values (only used for properties that are
      *    of container type)
      */
-    protected BeanPropertyWriter buildWriter(SerializerProvider prov,
-            BeanPropertyDefinition propDef, JavaType declaredType, JsonSerializer<?> ser,
+    protected BeanPropertyWriter buildWriter(SerializerProvider ctxt,
+            BeanPropertyDefinition propDef, JavaType declaredType, ValueSerializer<?> ser,
             TypeSerializer typeSer, TypeSerializer contentTypeSer,
             AnnotatedMember am, boolean defaultUseStaticTyping)
-        throws JsonMappingException
     {
         // do we have annotation that forces type to use (to declared type or its super type)?
         JavaType serializationType;
         try {
             serializationType = findSerializationType(am, defaultUseStaticTyping, declaredType);
-        } catch (JsonMappingException e) {
+        } catch (DatabindException e) {
             if (propDef == null) {
-                return prov.reportBadDefinition(declaredType, ClassUtil.exceptionMessage(e));
+                return ctxt.reportBadDefinition(declaredType, ClassUtil.exceptionMessage(e));
             }
-            return prov.reportBadPropertyDefinition(_beanDesc, propDef, ClassUtil.exceptionMessage(e));
+            return ctxt.reportBadPropertyDefinition(_beanDesc, propDef, ClassUtil.exceptionMessage(e));
         }
 
         // Container types can have separate type serializers for content (value / element) type
@@ -117,7 +113,7 @@ public class PropertyBuilder
             JavaType ct = serializationType.getContentType();
             // Not exactly sure why, but this used to occur; better check explicitly:
             if (ct == null) {
-                prov.reportBadPropertyDefinition(_beanDesc, propDef,
+                ctxt.reportBadPropertyDefinition(_beanDesc, propDef,
                         "serialization type "+serializationType+" has no content");
             }
             serializationType = serializationType.withContentTypeHandler(contentTypeSer);
@@ -134,7 +130,7 @@ public class PropertyBuilder
         AnnotatedMember accessor = propDef.getAccessor(); // lgtm [java/dereferenced-value-may-be-null]
         if (accessor == null) {
             // neither Setter nor ConstructorParameter are expected here
-            return prov.reportBadPropertyDefinition(_beanDesc, propDef,
+            return ctxt.reportBadPropertyDefinition(_beanDesc, propDef,
                     "could not determine property type");
         }
         Class<?> rawPropertyType = accessor.getRawType();
@@ -168,7 +164,7 @@ public class PropertyBuilder
             //    (as per [databind#1417]
             if (_useRealPropertyDefaults && (defaultBean = getDefaultBean()) != null) {
                 // 07-Sep-2016, tatu: may also need to front-load access forcing now
-                if (prov.isEnabled(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS)) {
+                if (ctxt.isEnabled(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS)) {
                     am.fixAccess(_config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
                 }
                 try {
@@ -203,11 +199,11 @@ public class PropertyBuilder
             valueToSuppress = BeanPropertyWriter.MARKER_FOR_EMPTY;
             break;
         case CUSTOM: // new with 2.9
-            valueToSuppress = prov.includeFilterInstance(propDef, inclV.getValueFilter());
+            valueToSuppress = ctxt.includeFilterInstance(propDef, inclV.getValueFilter());
             if (valueToSuppress == null) { // is this legal?
                 suppressNulls = true;
             } else {
-                suppressNulls = prov.includeFilterSuppressNulls(valueToSuppress);
+                suppressNulls = ctxt.includeFilterSuppressNulls(valueToSuppress);
             }
             break;
         case NON_NULL:
@@ -232,12 +228,12 @@ public class PropertyBuilder
                 ser, typeSer, serializationType, suppressNulls, valueToSuppress, views);
 
         // How about custom null serializer?
-        Object serDef = _annotationIntrospector.findNullSerializer(am);
+        Object serDef = _annotationIntrospector.findNullSerializer(_config, am);
         if (serDef != null) {
-            bpw.assignNullSerializer(prov.serializerInstance(am, serDef));
+            bpw.assignNullSerializer(ctxt.serializerInstance(am, serDef));
         }
         // And then, handling of unwrapping
-        NameTransformer unwrapper = _annotationIntrospector.findUnwrappingNameTransformer(am);
+        NameTransformer unwrapper = _annotationIntrospector.findUnwrappingNameTransformer(_config, am);
         if (unwrapper != null) {
             bpw = bpw.unwrappingWriter(unwrapper);
         }
@@ -247,16 +243,13 @@ public class PropertyBuilder
     /**
      * Overridable factory method for actual construction of {@link BeanPropertyWriter};
      * often needed if subclassing {@link #buildWriter} method.
-     *
-     * @since 2.12
      */
     protected BeanPropertyWriter _constructPropertyWriter(BeanPropertyDefinition propDef,
             AnnotatedMember member, Annotations contextAnnotations,
             JavaType declaredType,
-            JsonSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
+            ValueSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
             boolean suppressNulls, Object suppressableValue,
             Class<?>[] includeInViews)
-        throws JsonMappingException
     {
         return new BeanPropertyWriter(propDef,
                 member, contextAnnotations, declaredType,
@@ -264,9 +257,9 @@ public class PropertyBuilder
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods; annotation access
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -276,7 +269,6 @@ public class PropertyBuilder
      * If neither can be used (no annotations, dynamic typing), returns null.
      */
     protected JavaType findSerializationType(Annotated a, boolean useStaticTyping, JavaType declaredType)
-        throws JsonMappingException
     {
         JavaType secondary = _annotationIntrospector.refineSerializationType(_config, a, declaredType);
 
@@ -307,7 +299,7 @@ public class PropertyBuilder
             declaredType = secondary;
         }
         // If using static typing, declared type is known to be the type...
-        JsonSerialize.Typing typing = _annotationIntrospector.findSerializationTyping(a);
+        JsonSerialize.Typing typing = _annotationIntrospector.findSerializationTyping(_config, a);
         if ((typing != null) && (typing != JsonSerialize.Typing.DEFAULT_TYPING)) {
             useStaticTyping = (typing == JsonSerialize.Typing.STATIC);
         }
@@ -320,9 +312,9 @@ public class PropertyBuilder
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods for default value handling
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected Object getDefaultBean()
@@ -348,48 +340,10 @@ public class PropertyBuilder
         return (def == NO_DEFAULT_MARKER) ? null : _defaultBean;
     }
 
-    /**
-     * Accessor used to find out "default value" for given property, to use for
-     * comparing values to serialize, to determine whether to exclude value from serialization with
-     * inclusion type of {@link com.fasterxml.jackson.annotation.JsonInclude.Include#NON_DEFAULT}.
-     * This method is called when we specifically want to know default value within context
-     * of a POJO, when annotation is within containing class, and not for property or
-     * defined as global baseline.
-     *<p>
-     * Note that returning of pseudo-type
-     * {@link com.fasterxml.jackson.annotation.JsonInclude.Include#NON_EMPTY} requires special handling.
-     *
-     * @since 2.7
-     * @deprecated Since 2.9 since this will not allow determining difference between "no default instance"
-     *    case and default being `null`.
-     */
-    @Deprecated // since 2.9
-    protected Object getPropertyDefaultValue(String name, AnnotatedMember member,
-            JavaType type)
-    {
-        Object defaultBean = getDefaultBean();
-        if (defaultBean == null) {
-            return getDefaultValue(type);
-        }
-        try {
-            return member.getValue(defaultBean);
-        } catch (Exception e) {
-            return _throwWrapped(e, name, defaultBean);
-        }
-    }
-
-    /**
-     * @deprecated Since 2.9
-     */
-    @Deprecated // since 2.9
-    protected Object getDefaultValue(JavaType type) {
-        return BeanUtil.getDefaultValue(type);
-    }
-
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods for exception handling
-    /**********************************************************
+    /**********************************************************************
      */
     
     protected Object _throwWrapped(Exception e, String propName, Object defaultBean)

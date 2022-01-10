@@ -446,10 +446,10 @@ public class GenericTypeSerializationTest extends BaseMapTest
     /**********************************************************
      */
 
-    final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @SuppressWarnings("unchecked")
-    public void testIssue468a() throws Exception
+    public void testIssue468a()
     {
         Person1 p1 = new Person1("John");
         p1.setAccount(new Key<Account>(new Account("something", 42L)));
@@ -471,7 +471,7 @@ public class GenericTypeSerializationTest extends BaseMapTest
     }
 
     @SuppressWarnings("unchecked")
-    public void testIssue468b() throws Exception
+    public void testIssue468b()
     {
         Person2 p2 = new Person2("John");
         List<Key<Account>> accounts = new ArrayList<Key<Account>>();
@@ -497,14 +497,14 @@ public class GenericTypeSerializationTest extends BaseMapTest
      * Test related to unbound type variables, usually resulting
      * from inner classes of generic classes (like Sets).
      */
-    public void testUnboundTypes() throws Exception
+    public void testUnboundTypes()
     {
         GenericBogusWrapper<Integer> list = new GenericBogusWrapper<Integer>(Integer.valueOf(7));
         String json = MAPPER.writeValueAsString(list);
         assertEquals("{\"wrapped\":{\"value\":7}}", json);
     }
 
-    public void testRootTypeForCollections727() throws Exception
+    public void testRootTypeForCollections727()
     {
         List<Base727> input = new ArrayList<Base727>();
         input.add(new Impl727(1, 2));
@@ -521,7 +521,7 @@ public class GenericTypeSerializationTest extends BaseMapTest
 
     // For [databind#2821]
     @SuppressWarnings("unchecked")
-    public void testTypeResolution2821() throws Exception
+    public void testTypeResolution2821()
     {
         Entity2821<String> entity = new Entity2821<>(new Attributes2821("id"), "hello");
         List<Entity2821<?>> list;
@@ -531,13 +531,13 @@ public class GenericTypeSerializationTest extends BaseMapTest
             list = (List<Entity2821<?>>) (List<?>) foo;
         }
         Wrapper2821 val = new Wrapper2821(list);
-        // Was failing with exception "Strange Map
-        // type java.util.Map: cannot determine type parameters (through reference chain: ---)"
+        // Was failing with "...Exception": Strange Map
+        // type java.util.Map: cannot determine type parameters (through reference chain: ---)
         String json = MAPPER.writeValueAsString(val);
         assertNotNull(json);
     }
 
-    public void testStaticDelegateDeserialization() throws Exception
+    public void testStaticDelegateDeserialization()
     {
         GenericWrapper<Account, String> wrapper = MAPPER.readValue(
                 "{\"first\":{\"id\":1,\"name\":\"name\"},\"second\":\"str\"}",
@@ -548,7 +548,7 @@ public class GenericTypeSerializationTest extends BaseMapTest
         assertEquals("str", second);
     }
 
-    public void testStaticDelegateDeserialization_factoryProvidesSpecificity0() throws Exception
+    public void testStaticDelegateDeserialization_factoryProvidesSpecificity0()
     {
         GenericSpecificityWrapper0<Object, Account> wrapper = MAPPER.readValue(
                 "{\"first\":\"1\",\"second\":{\"id\":1,\"name\":\"name\"}}",
@@ -559,7 +559,7 @@ public class GenericTypeSerializationTest extends BaseMapTest
         assertEquals(new Account("name", 1L), second);
     }
 
-    public void testStaticDelegateDeserialization_factoryProvidesSpecificity1() throws Exception
+    public void testStaticDelegateDeserialization_factoryProvidesSpecificity1()
     {
         GenericSpecificityWrapper1<StringStub, Account> wrapper = MAPPER.readValue(
                 "{\"first\":\"1\",\"second\":{\"id\":1,\"name\":\"name\"}}",
@@ -570,7 +570,7 @@ public class GenericTypeSerializationTest extends BaseMapTest
         assertEquals(new Account("name", 1L), second);
     }
 
-    public void testStaticDelegateDeserialization_factoryProvidesSpecificity2() throws Exception
+    public void testStaticDelegateDeserialization_factoryProvidesSpecificity2()
     {
         GenericSpecificityWrapper2<Stub<Object>, Account> wrapper = MAPPER.readValue(
                 "{\"first\":\"1\",\"second\":{\"id\":1,\"name\":\"name\"}}",
@@ -582,7 +582,7 @@ public class GenericTypeSerializationTest extends BaseMapTest
         assertEquals(new Account("name", 1L), second);
     }
 
-    public void testStaticDelegateDeserialization_wildcardInResult() throws Exception
+    public void testStaticDelegateDeserialization_wildcardInResult()
     {
         WildcardWrapperImpl<Account, Account> wrapper = MAPPER.readValue(
                 "{\"first\":{\"id\":1,\"name\":\"name1\"},\"second\":{\"id\":2,\"name\":\"name2\"}}",
@@ -593,7 +593,7 @@ public class GenericTypeSerializationTest extends BaseMapTest
         assertEquals(new Account("name2", 2L), account2);
     }
 
-    public void testSimpleStaticJsonCreator() throws Exception
+    public void testSimpleStaticJsonCreator()
     {
         SimpleWrapper<Account> wrapper = MAPPER.readValue("{\"object\":{\"id\":1,\"name\":\"name1\"}}",
                 new TypeReference<SimpleWrapper<Account>>() {});
@@ -601,7 +601,7 @@ public class GenericTypeSerializationTest extends BaseMapTest
         assertEquals(new Account("name1", 1L), account);
     }
 
-    public void testIndexedListExample() throws Exception
+    public void testIndexedListExample()
     {
         UUID uuid = UUID.randomUUID();
         IndexedList<TestIndexed, String> value = MAPPER.readValue(String.format("[\"%s\"]", uuid.toString()),

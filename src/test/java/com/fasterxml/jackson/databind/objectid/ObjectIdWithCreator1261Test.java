@@ -67,8 +67,8 @@ public class ObjectIdWithCreator1261Test
     {
          ObjectMapper mapper = jsonMapperBuilder()
                  .enable(SerializationFeature.INDENT_OUTPUT)
-             .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
-             .build();
+                 .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+                 .build();
 
          Answer initialAnswer = createInitialAnswer();
          String initialAnswerString = mapper.writeValueAsString(initialAnswer);

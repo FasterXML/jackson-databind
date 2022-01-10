@@ -9,8 +9,6 @@ import com.fasterxml.jackson.databind.JavaType;
  * that is, values that can be dereferenced to another value (or null),
  * of different type.
  * Referenced type is accessible using {@link #getContentType()}.
- * 
- * @since 2.6
  */
 public class ReferenceType extends SimpleType
 {
@@ -23,8 +21,6 @@ public class ReferenceType extends SimpleType
      * referencing type with polymorphic handling. Typically initialized when
      * a {@link SimpleType} is upgraded into reference type, but NOT changed
      * if being sub-classed.
-     *
-     * @since 2.8
      */
     protected final JavaType _anchorType;
 
@@ -43,8 +39,6 @@ public class ReferenceType extends SimpleType
      * Constructor used when upgrading into this type (via {@link #upgradeFrom},
      * the usual way for {@link ReferenceType}s to come into existence.
      * Sets up what is considered the "base" reference type
-     *
-     * @since 2.7
      */
     protected ReferenceType(TypeBase base, JavaType refType)
     {
@@ -75,21 +69,11 @@ public class ReferenceType extends SimpleType
         throw new IllegalArgumentException("Cannot upgrade from an instance of "+baseType.getClass());
     }
 
-    /**
-     * @since 2.7
-     */
     public static ReferenceType construct(Class<?> cls, TypeBindings bindings,
             JavaType superClass, JavaType[] superInts, JavaType refType)
     {
         return new ReferenceType(cls, bindings, superClass, superInts,
                 refType, null, null, null, false);
-    }
-
-    @Deprecated // since 2.7
-    public static ReferenceType construct(Class<?> cls, JavaType refType) {
-        return new ReferenceType(cls, TypeBindings.emptyBindings(),
-                // !!! TODO: missing supertypes
-                null, null, null, refType, null, null, false);
     }
 
     @Override
@@ -114,7 +98,7 @@ public class ReferenceType extends SimpleType
     @Override
     public ReferenceType withContentTypeHandler(Object h)
     {
-        if (h == _referencedType.<Object>getTypeHandler()) {
+        if (h == _referencedType.getTypeHandler()) {
             return this;
         }
         return new ReferenceType(_class, _bindings, _superClass, _superInterfaces,
@@ -134,7 +118,7 @@ public class ReferenceType extends SimpleType
 
     @Override
     public ReferenceType withContentValueHandler(Object h) {
-        if (h == _referencedType.<Object>getValueHandler()) {
+        if (h == _referencedType.getValueHandler()) {
             return this;
         }
         JavaType refdType = _referencedType.withValueHandler(h);
@@ -172,22 +156,6 @@ public class ReferenceType extends SimpleType
             sb.append('>');
         }
         return sb.toString();
-    }
-
-    /*
-    /**********************************************************
-    /* Narrow/widen
-    /**********************************************************
-     */
-
-    @Override
-    @Deprecated // since 2.7
-    protected JavaType _narrow(Class<?> subclass)
-    {
-        // Should we check that there is a sub-class relationship?
-        return new ReferenceType(subclass, _bindings,
-                _superClass, _superInterfaces, _referencedType, _anchorType,
-                _valueHandler, _typeHandler, _asStatic);
     }
 
     /*

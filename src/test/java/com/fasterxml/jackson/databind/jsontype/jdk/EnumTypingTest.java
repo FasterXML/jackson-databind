@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 @SuppressWarnings("serial")
 public class EnumTypingTest extends BaseMapTest
@@ -30,7 +31,7 @@ public class EnumTypingTest extends BaseMapTest
     
     static class UntypedEnumBean
     {
-       @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="__type")
+        @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="__type")
         public Object value;
 
         public UntypedEnumBean() { }
@@ -114,8 +115,11 @@ public class EnumTypingTest extends BaseMapTest
 
     public void testUntypedEnum() throws Exception
     {
-        String str = MAPPER.writeValueAsString(new UntypedEnumBean(TestEnum.B));
-        UntypedEnumBean result = MAPPER.readValue(str, UntypedEnumBean.class);
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .polymorphicTypeValidator(new NoCheckSubTypeValidator())
+                .build();
+        String str = mapper.writeValueAsString(new UntypedEnumBean(TestEnum.B));
+        UntypedEnumBean result = mapper.readValue(str, UntypedEnumBean.class);
         assertNotNull(result);
         assertNotNull(result.value);
         Object ob = result.value;

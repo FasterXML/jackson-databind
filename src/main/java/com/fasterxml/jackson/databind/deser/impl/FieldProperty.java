@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
@@ -49,7 +49,7 @@ public final class FieldProperty
         _skipNulls = NullsConstantProvider.isSkipper(_nullProvider);
     }
 
-    protected FieldProperty(FieldProperty src, JsonDeserializer<?> deser,
+    protected FieldProperty(FieldProperty src, ValueDeserializer<?> deser,
             NullValueProvider nva) {
         super(src, deser, nva);
         _annotated = src._annotated;
@@ -85,7 +85,7 @@ public final class FieldProperty
     }
 
     @Override
-    public SettableBeanProperty withValueDeserializer(JsonDeserializer<?> deser) {
+    public SettableBeanProperty withValueDeserializer(ValueDeserializer<?> deser) {
         if (_valueDeserializer == deser) {
             return this;
         }
@@ -126,7 +126,7 @@ public final class FieldProperty
 
     @Override
     public void deserializeAndSet(JsonParser p,
-    		DeserializationContext ctxt, Object instance) throws IOException
+    		DeserializationContext ctxt, Object instance) throws JacksonException
     {
         Object value;
         if (p.hasToken(JsonToken.VALUE_NULL)) {
@@ -149,13 +149,13 @@ public final class FieldProperty
         try {
             _field.set(instance, value);
         } catch (Exception e) {
-            _throwAsIOE(p, e, value);
+            _throwAsJacksonE(p, e, value);
         }
     }
 
     @Override
     public Object deserializeSetAndReturn(JsonParser p,
-    		DeserializationContext ctxt, Object instance) throws IOException
+    		DeserializationContext ctxt, Object instance) throws JacksonException
     {
         Object value;
         if (p.hasToken(JsonToken.VALUE_NULL)) {
@@ -178,30 +178,30 @@ public final class FieldProperty
         try {
             _field.set(instance, value);
         } catch (Exception e) {
-            _throwAsIOE(p, e, value);
+            _throwAsJacksonE(p, e, value);
         }
         return instance;
     }
 
     @Override
-    public void set(Object instance, Object value) throws IOException
+    public void set(Object instance, Object value)
     {
         try {
             _field.set(instance, value);
         } catch (Exception e) {
             // 15-Sep-2015, tatu: How could we get a ref to JsonParser?
-            _throwAsIOE(e, value);
+            _throwAsJacksonE(e, value);
         }
     }
 
     @Override
-    public Object setAndReturn(Object instance, Object value) throws IOException
+    public Object setAndReturn(Object instance, Object value)
     {
         try {
             _field.set(instance, value);
         } catch (Exception e) {
             // 15-Sep-2015, tatu: How could we get a ref to JsonParser?
-            _throwAsIOE(e, value);
+            _throwAsJacksonE(e, value);
         }
         return instance;
     }

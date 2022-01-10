@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.*;
 public class TestObjectIdWithEquals extends BaseMapTest
 {
     @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id", scope=Foo.class)
+    @JsonPropertyOrder({ "id", "bars", "otherBars" })
     static class Foo {
         public int id;
 
@@ -80,10 +81,10 @@ public class TestObjectIdWithEquals extends BaseMapTest
 
     public void testSimpleEquals() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        // Verify default state too
-        assertFalse(mapper.isEnabled(SerializationFeature.USE_EQUALITY_FOR_OBJECT_ID));
-        mapper.enable(SerializationFeature.USE_EQUALITY_FOR_OBJECT_ID);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(SerializationFeature.USE_EQUALITY_FOR_OBJECT_ID)
+                .configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true)
+                .build();
 
         Foo foo = new Foo(1);
 
@@ -123,8 +124,9 @@ public class TestObjectIdWithEquals extends BaseMapTest
 //        Element[] input = new Element[] { element, element2 };
         List<Element> input = Arrays.asList(element, element2);
 
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(SerializationFeature.USE_EQUALITY_FOR_OBJECT_ID);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(SerializationFeature.USE_EQUALITY_FOR_OBJECT_ID)
+                .build();
 
 //        String json = mapper.writeValueAsString(input);
         String json = mapper.writerFor(new TypeReference<List<Element>>() { })

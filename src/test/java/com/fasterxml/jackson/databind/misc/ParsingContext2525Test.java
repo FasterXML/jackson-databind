@@ -115,41 +115,41 @@ public class ParsingContext2525Test extends BaseMapTest
     
     private void _testSimpleArrayUsingPathAsPointer(JsonParser p) throws Exception
     {
-        assertSame(JsonPointer.empty(), p.getParsingContext().pathAsPointer());
-        assertTrue(p.getParsingContext().inRoot());
+        assertSame(JsonPointer.empty(), p.streamReadContext().pathAsPointer());
+        assertTrue(p.streamReadContext().inRoot());
 
         assertToken(JsonToken.START_ARRAY, p.nextToken());
-        assertSame(JsonPointer.empty(), p.getParsingContext().pathAsPointer());
-        assertTrue(p.getParsingContext().inArray());
+        assertSame(JsonPointer.empty(), p.streamReadContext().pathAsPointer());
+        assertTrue(p.streamReadContext().inArray());
 
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertEquals("/0", p.getParsingContext().pathAsPointer().toString());
+        assertEquals("/0", p.streamReadContext().pathAsPointer().toString());
         
         assertToken(JsonToken.END_ARRAY, p.nextToken());
-        assertSame(JsonPointer.empty(), p.getParsingContext().pathAsPointer());
-        assertTrue(p.getParsingContext().inRoot());
+        assertSame(JsonPointer.empty(), p.streamReadContext().pathAsPointer());
+        assertTrue(p.streamReadContext().inRoot());
 
         assertNull(p.nextToken());
     }
 
     private void _testSimpleObjectUsingPathAsPointer(JsonParser p) throws Exception
     {
-        assertSame(JsonPointer.empty(), p.getParsingContext().pathAsPointer());
-        assertTrue(p.getParsingContext().inRoot());
+        assertSame(JsonPointer.empty(), p.streamReadContext().pathAsPointer());
+        assertTrue(p.streamReadContext().inRoot());
 
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertSame(JsonPointer.empty(), p.getParsingContext().pathAsPointer());
-        assertTrue(p.getParsingContext().inObject());
+        assertSame(JsonPointer.empty(), p.streamReadContext().pathAsPointer());
+        assertTrue(p.streamReadContext().inObject());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken());
-        assertEquals("/answer", p.getParsingContext().pathAsPointer().toString());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken());
+        assertEquals("/answer", p.streamReadContext().pathAsPointer().toString());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(42, p.getIntValue());
-        assertEquals("/answer", p.getParsingContext().pathAsPointer().toString());
+        assertEquals("/answer", p.streamReadContext().pathAsPointer().toString());
         
         assertToken(JsonToken.END_OBJECT, p.nextToken());
-        assertSame(JsonPointer.empty(), p.getParsingContext().pathAsPointer());
-        assertTrue(p.getParsingContext().inRoot());
+        assertSame(JsonPointer.empty(), p.streamReadContext().pathAsPointer());
+        assertTrue(p.streamReadContext().inRoot());
 
         assertNull(p.nextToken());
     }
@@ -157,82 +157,82 @@ public class ParsingContext2525Test extends BaseMapTest
     private void _testFullDocUsingPathAsPointer(JsonParser p) throws Exception
     {
         // by default should just get "empty"
-        assertSame(JsonPointer.empty(), p.getParsingContext().pathAsPointer());
-        assertTrue(p.getParsingContext().inRoot());
+        assertSame(JsonPointer.empty(), p.streamReadContext().pathAsPointer());
+        assertTrue(p.streamReadContext().inRoot());
 
         // let's just traverse, then:
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertSame(JsonPointer.empty(), p.getParsingContext().pathAsPointer());
-        assertTrue(p.getParsingContext().inObject());
+        assertSame(JsonPointer.empty(), p.streamReadContext().pathAsPointer());
+        assertTrue(p.streamReadContext().inObject());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // a
-        assertEquals("/a", p.getParsingContext().pathAsPointer().toString());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // a
+        assertEquals("/a", p.streamReadContext().pathAsPointer().toString());
 
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
-        assertEquals("/a", p.getParsingContext().pathAsPointer().toString());
+        assertEquals("/a", p.streamReadContext().pathAsPointer().toString());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // array
-        assertEquals("/array", p.getParsingContext().pathAsPointer().toString());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // array
+        assertEquals("/array", p.streamReadContext().pathAsPointer().toString());
         assertToken(JsonToken.START_ARRAY, p.nextToken());
-        assertEquals("/array", p.getParsingContext().pathAsPointer().toString());
+        assertEquals("/array", p.streamReadContext().pathAsPointer().toString());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken()); // 1
-        assertEquals("/array/0", p.getParsingContext().pathAsPointer().toString());
+        assertEquals("/array/0", p.streamReadContext().pathAsPointer().toString());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken()); // 2
-        assertEquals("/array/1", p.getParsingContext().pathAsPointer().toString());
+        assertEquals("/array/1", p.streamReadContext().pathAsPointer().toString());
         assertToken(JsonToken.START_ARRAY, p.nextToken());
-        assertEquals("/array/2", p.getParsingContext().pathAsPointer().toString());
+        assertEquals("/array/2", p.streamReadContext().pathAsPointer().toString());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken()); // 3
-        assertEquals("/array/2/0", p.getParsingContext().pathAsPointer().toString());
+        assertEquals("/array/2/0", p.streamReadContext().pathAsPointer().toString());
         assertToken(JsonToken.END_ARRAY, p.nextToken());
-        assertEquals("/array/2", p.getParsingContext().pathAsPointer().toString());
+        assertEquals("/array/2", p.streamReadContext().pathAsPointer().toString());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken()); // 5
-        assertEquals("/array/3", p.getParsingContext().pathAsPointer().toString());
+        assertEquals("/array/3", p.streamReadContext().pathAsPointer().toString());
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertEquals("/array/4", p.getParsingContext().pathAsPointer().toString());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // obInArray
-        assertEquals("/array/4/obInArray", p.getParsingContext().pathAsPointer().toString());
+        assertEquals("/array/4", p.streamReadContext().pathAsPointer().toString());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // obInArray
+        assertEquals("/array/4/obInArray", p.streamReadContext().pathAsPointer().toString());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken()); // 4
-        assertEquals("/array/4/obInArray", p.getParsingContext().pathAsPointer().toString());
+        assertEquals("/array/4/obInArray", p.streamReadContext().pathAsPointer().toString());
         assertToken(JsonToken.END_OBJECT, p.nextToken());
-        assertEquals("/array/4", p.getParsingContext().pathAsPointer().toString());
+        assertEquals("/array/4", p.streamReadContext().pathAsPointer().toString());
         assertToken(JsonToken.END_ARRAY, p.nextToken()); // /array
-        assertEquals("/array", p.getParsingContext().pathAsPointer().toString());
+        assertEquals("/array", p.streamReadContext().pathAsPointer().toString());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // ob
-        assertEquals("/ob", p.getParsingContext().pathAsPointer().toString());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // ob
+        assertEquals("/ob", p.streamReadContext().pathAsPointer().toString());
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertEquals("/ob", p.getParsingContext().pathAsPointer().toString());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // first
-        assertEquals("/ob/first", p.getParsingContext().pathAsPointer().toString());
+        assertEquals("/ob", p.streamReadContext().pathAsPointer().toString());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // first
+        assertEquals("/ob/first", p.streamReadContext().pathAsPointer().toString());
         assertToken(JsonToken.START_ARRAY, p.nextToken());
-        assertEquals("/ob/first", p.getParsingContext().pathAsPointer().toString());
+        assertEquals("/ob/first", p.streamReadContext().pathAsPointer().toString());
         assertToken(JsonToken.VALUE_FALSE, p.nextToken());
-        assertEquals("/ob/first/0", p.getParsingContext().pathAsPointer().toString());
+        assertEquals("/ob/first/0", p.streamReadContext().pathAsPointer().toString());
         assertToken(JsonToken.VALUE_TRUE, p.nextToken());
-        assertEquals("/ob/first/1", p.getParsingContext().pathAsPointer().toString());
+        assertEquals("/ob/first/1", p.streamReadContext().pathAsPointer().toString());
         assertToken(JsonToken.END_ARRAY, p.nextToken());
-        assertEquals("/ob/first", p.getParsingContext().pathAsPointer().toString());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // second
-        assertEquals("/ob/second", p.getParsingContext().pathAsPointer().toString());
+        assertEquals("/ob/first", p.streamReadContext().pathAsPointer().toString());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // second
+        assertEquals("/ob/second", p.streamReadContext().pathAsPointer().toString());
         assertToken(JsonToken.START_OBJECT, p.nextToken());
-        assertEquals("/ob/second", p.getParsingContext().pathAsPointer().toString());
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // sub
-        assertEquals("/ob/second/sub", p.getParsingContext().pathAsPointer().toString());
+        assertEquals("/ob/second", p.streamReadContext().pathAsPointer().toString());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // sub
+        assertEquals("/ob/second/sub", p.streamReadContext().pathAsPointer().toString());
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken()); // 37
-        assertEquals("/ob/second/sub", p.getParsingContext().pathAsPointer().toString());
+        assertEquals("/ob/second/sub", p.streamReadContext().pathAsPointer().toString());
         assertToken(JsonToken.END_OBJECT, p.nextToken());
-        assertEquals("/ob/second", p.getParsingContext().pathAsPointer().toString());
+        assertEquals("/ob/second", p.streamReadContext().pathAsPointer().toString());
         assertToken(JsonToken.END_OBJECT, p.nextToken()); // /ob
-        assertEquals("/ob", p.getParsingContext().pathAsPointer().toString());
+        assertEquals("/ob", p.streamReadContext().pathAsPointer().toString());
 
-        assertToken(JsonToken.FIELD_NAME, p.nextToken()); // b
-        assertEquals("/b", p.getParsingContext().pathAsPointer().toString());
+        assertToken(JsonToken.PROPERTY_NAME, p.nextToken()); // b
+        assertEquals("/b", p.streamReadContext().pathAsPointer().toString());
         assertToken(JsonToken.VALUE_TRUE, p.nextToken());
-        assertEquals("/b", p.getParsingContext().pathAsPointer().toString());
+        assertEquals("/b", p.streamReadContext().pathAsPointer().toString());
 
         assertToken(JsonToken.END_OBJECT, p.nextToken());
-        assertSame(JsonPointer.empty(), p.getParsingContext().pathAsPointer());
-        assertTrue(p.getParsingContext().inRoot());
+        assertSame(JsonPointer.empty(), p.streamReadContext().pathAsPointer());
+        assertTrue(p.streamReadContext().inRoot());
 
         assertNull(p.nextToken());
     }

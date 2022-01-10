@@ -3,8 +3,6 @@ package com.fasterxml.jackson.databind.jsontype.jdk;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
-import static org.junit.Assert.assertArrayEquals;
-
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
@@ -102,11 +100,12 @@ public class TypedArrayDeserTest
 
     public void testLongArray() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
         // use class name, WRAPPER_OBJECT
-        m.addMixIn(long[].class, WrapperMixIn.class);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addMixIn(long[].class, WrapperMixIn.class)
+                .build();
         String JSON = "{\""+long[].class.getName()+"\":[5, 6, 7]}";
-        long[] value = m.readValue(JSON, long[].class);
+        long[] value = mapper.readValue(JSON, long[].class);
         assertNotNull(value);
         assertEquals(3, value.length);
         assertArrayEquals(new long[] { 5L, 6L, 7L} , value);

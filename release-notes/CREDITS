@@ -1,0 +1,21 @@
+Here are people who have contributed to the development of Jackson JSON processor
+databind core component, version 3.x
+Version numbers in brackets indicate release in which the problem was fixed
+
+(note: for older credits, see `CREDITS-2.x` instead)
+
+Tatu Saloranta, tatu.saloranta@iki.fi: author
+
+Alexander Koshman (akoshman@github)
+ * Requested #1600: Serializing locale with underscore, not standard hyphen	
+  [3.0.0]
+
+XakepSDK@github
+ * Requested #2013: Allow use of `java.nio.file.Path` for `readValue()`, `writeValue()`
+  [3.0.0]
+ * Requested #2411: `valueToTree()` during serialization (via `SerializerProvider()`)
+  [3.0.0]
+
+Sven Döring (sdoeringNew@github)
+ * Contributed #2013: Allow use of `java.nio.file.Path` for `readValue()`, `writeValue()`
+  [3.0.0]

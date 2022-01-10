@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.introspect;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Member;
-import java.util.Collections;
 
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
@@ -14,23 +13,14 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  */
 public abstract class AnnotatedMember
     extends Annotated
-    implements java.io.Serializable
 {
-    private static final long serialVersionUID = 1L; // since 2.5
-
-    // 19-Dec-2014, tatu: Similarly, assumed NOT to be needed in cases where
-    //    owning object (ObjectMapper or relatives) is being JDK-serialized
     /**
      * Context object needed for resolving generic type associated with this
      * member (method parameter or return value, or field type).
-     *
-     * @since 2.7
      */
-    protected final transient TypeResolutionContext _typeContext;
+    protected final TypeResolutionContext _typeContext;
 
-    // Transient since information not needed after construction, so
-    // no need to persist
-    protected final transient AnnotationMap _annotations;
+    protected final AnnotationMap _annotations;
 
     protected AnnotatedMember(TypeResolutionContext ctxt, AnnotationMap annotations) {
         super();
@@ -40,8 +30,6 @@ public abstract class AnnotatedMember
 
     /**
      * Copy-constructor.
-     *
-     * @since 2.5
      */
     protected AnnotatedMember(AnnotatedMember base) {
         _typeContext = base._typeContext;
@@ -51,8 +39,6 @@ public abstract class AnnotatedMember
     /**
      * Fluent factory method that will construct a new instance that uses specified
      * instance annotations instead of currently configured ones.
-     *
-     * @since 2.9 (promoted from `Annotated`)
      */
     public abstract Annotated withAnnotations(AnnotationMap fallback);
 
@@ -65,19 +51,6 @@ public abstract class AnnotatedMember
 
     public String getFullName() {
         return getDeclaringClass().getName() + "#" + getName();
-    }
-
-    /**
-     * Accessor for {@link TypeResolutionContext} that is used for resolving
-     * full generic type of this member.
-     * 
-     * @since 2.7
-     *
-     * @deprecated Since 2.9
-     */
-    @Deprecated
-    public TypeResolutionContext getTypeContext() {
-        return _typeContext;
     }
 
     @Override
@@ -104,19 +77,10 @@ public abstract class AnnotatedMember
         return _annotations.hasOneOf(annoClasses);
     }
 
-    @Override
-    @Deprecated
-    public Iterable<Annotation> annotations() {
-        if (_annotations == null) {
-            return Collections.emptyList();
-        }
-        return _annotations.annotations();
-    }
-
     /**
-     *<p>
-     * NOTE: promoted in 2.9 from `Annotated` up
+     * @deprecated Since 3.0
      */
+    @Deprecated
     public AnnotationMap getAllAnnotations() { // alas, used by at least one module, hence public
         return _annotations;
     }
@@ -130,8 +94,6 @@ public abstract class AnnotatedMember
      * {@link com.fasterxml.jackson.databind.MapperFeature#CAN_OVERRIDE_ACCESS_MODIFIERS}
      * is enabled before calling this method; as well as pass
      * <code>force</code> flag appropriately.
-     * 
-     * @since 2.7
      */
     public final void fixAccess(boolean force) {
         Member m = getMember();

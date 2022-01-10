@@ -3,14 +3,11 @@ package com.fasterxml.jackson.databind;
 import java.io.*;
 import java.util.*;
 
-import static org.junit.Assert.*;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
@@ -20,9 +17,9 @@ public abstract class BaseMapTest
     private final static Object SINGLETON_OBJECT = new Object();
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Shared helper classes
-    /**********************************************************
+    /**********************************************************************
      */
 
     public static class BogusSchema implements FormatSchema {
@@ -79,11 +76,13 @@ public abstract class BaseMapTest
 
     protected static class ObjectWrapper {
         final Object object;
-        protected ObjectWrapper(final Object object) {
+
+        public ObjectWrapper(final Object object) {
             this.object = object;
         }
         public Object getObject() { return object; }
-        @JsonCreator
+
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
         static ObjectWrapper jsonValue(final Object object) {
             return new ObjectWrapper(object);
         }
@@ -163,94 +162,56 @@ public abstract class BaseMapTest
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Shared serializers
-    /**********************************************************
+    /**********************************************************************
      */
 
-    @SuppressWarnings("serial")
     public static class UpperCasingSerializer extends StdScalarSerializer<String>
     {
         public UpperCasingSerializer() { super(String.class); }
 
         @Override
         public void serialize(String value, JsonGenerator gen,
-                SerializerProvider provider) throws IOException {
+                SerializerProvider provider) {
             gen.writeString(value.toUpperCase());
         }
     }
 
-    @SuppressWarnings("serial")
     public static class LowerCasingDeserializer extends StdScalarDeserializer<String>
     {
         public LowerCasingDeserializer() { super(String.class); }
 
         @Override
-        public String deserialize(JsonParser p, DeserializationContext ctxt)
-                throws IOException {
+        public String deserialize(JsonParser p, DeserializationContext ctxt) {
             return p.getText().toLowerCase();
         }
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Construction
-    /**********************************************************
+    /**********************************************************************
      */
     
     protected BaseMapTest() { super(); }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory methods
-    /**********************************************************
+    /**********************************************************************
      */
-
-    private static ObjectMapper SHARED_MAPPER;
-
-    protected ObjectMapper sharedMapper() {
-        if (SHARED_MAPPER == null) {
-            SHARED_MAPPER = newJsonMapper();
-        }
-        return SHARED_MAPPER;
-    }
-
-    protected ObjectMapper objectMapper() {
-        return sharedMapper();
-    }
-
-    protected ObjectWriter objectWriter() {
-        return sharedMapper().writer();
-    }
-
-    protected ObjectReader objectReader() {
-        return sharedMapper().reader();
-    }
-    
-    protected ObjectReader objectReader(Class<?> cls) {
-        return sharedMapper().readerFor(cls);
-    }
-
-    // @since 2.10
-    protected static ObjectMapper newJsonMapper() {
-        return new JsonMapper();
-    }
-
-    // @since 2.10
-    protected static JsonMapper.Builder jsonMapperBuilder() {
-        return JsonMapper.builder();
-    }
 
     // @since 2.7
     protected TypeFactory newTypeFactory() {
         // this is a work-around; no null modifier added
         return TypeFactory.defaultInstance().withModifier(null);
     }
-
+    
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Additional assert methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected void assertEquals(int[] exp, int[] act)
@@ -278,9 +239,9 @@ public abstract class BaseMapTest
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods, serialization
-    /**********************************************************
+    /**********************************************************************
      */
 
     @SuppressWarnings("unchecked")
@@ -290,45 +251,17 @@ public abstract class BaseMapTest
         String str = m.writeValueAsString(value);
         return (Map<String,Object>) m.readValue(str, LinkedHashMap.class);
     }
-    
-    protected String serializeAsString(ObjectMapper m, Object value)
-        throws IOException
-    {
-        return m.writeValueAsString(value);
-    }
-
-    protected String serializeAsString(Object value)
-        throws IOException
-    {
-        return serializeAsString(sharedMapper(), value);
-    }
-
-    protected String asJSONObjectValueString(Object... args)
-        throws IOException
-    {
-        return asJSONObjectValueString(sharedMapper(), args);
-    }
-
-    protected String asJSONObjectValueString(ObjectMapper m, Object... args)
-        throws IOException
-    {
-        LinkedHashMap<Object,Object> map = new LinkedHashMap<Object,Object>();
-        for (int i = 0, len = args.length; i < len; i += 2) {
-            map.put(args[i], args[i+1]);
-        }
-        return m.writeValueAsString(map);
-    }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods, deserialization
-    /**********************************************************
+    /**********************************************************************
      */
     
     protected <T> T readAndMapFromString(String input, Class<T> cls)
         throws IOException
     {
-        return readAndMapFromString(sharedMapper(), input, cls);
+        return readAndMapFromString(objectMapper(), input, cls);
     }
 
     protected <T> T readAndMapFromString(ObjectMapper m, String input, Class<T> cls) throws IOException

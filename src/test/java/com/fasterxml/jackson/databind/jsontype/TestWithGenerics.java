@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.jsontype;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
@@ -9,8 +8,6 @@ import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.ser.BeanSerializerFactory;
-import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 public class TestWithGenerics extends BaseMapTest
@@ -68,52 +65,31 @@ public class TestWithGenerics extends BaseMapTest
         public String someValue = UUID.randomUUID().toString();
     }
     
-    // Beans for [JACKSON-430]
-    
-    static class CustomJsonSerializer extends JsonSerializer<Object>
-        implements ResolvableSerializer
+    static class CustomValueSerializer extends ValueSerializer<Object>
     {
-        private final JsonSerializer<Object> beanSerializer;
+        private final ValueSerializer<Object> beanSerializer;
     
-        public CustomJsonSerializer( JsonSerializer<Object> beanSerializer ) { this.beanSerializer = beanSerializer; }
+        public CustomValueSerializer( ValueSerializer<Object> beanSerializer ) { this.beanSerializer = beanSerializer; }
     
         @Override
-        public void serialize( Object value, JsonGenerator jgen, SerializerProvider provider )
-            throws IOException
+        public void serialize( Object value, JsonGenerator g, SerializerProvider provider )
         {
-            beanSerializer.serialize( value, jgen, provider );
+            beanSerializer.serialize(value, g, provider);
         }
     
         @Override
-        public Class<Object> handledType() { return beanSerializer.handledType(); }
+        public Class<?> handledType() { return beanSerializer.handledType(); }
     
         @Override
-        public void serializeWithType( Object value, JsonGenerator jgen, SerializerProvider provider, TypeSerializer typeSer )
-            throws IOException
+        public void serializeWithType( Object value, JsonGenerator g, SerializerProvider provider, TypeSerializer typeSer )
         {
-            beanSerializer.serializeWithType( value, jgen, provider, typeSer );
+            beanSerializer.serializeWithType(value, g, provider, typeSer);
         }
 
         @Override
-        public void resolve(SerializerProvider provider) throws JsonMappingException
+        public void resolve(SerializerProvider provider)
         {
-            if (beanSerializer instanceof ResolvableSerializer) {
-                ((ResolvableSerializer) beanSerializer).resolve(provider);
-            }
-        }
-    }
-    
-    @SuppressWarnings("serial")
-    protected static class CustomJsonSerializerFactory extends BeanSerializerFactory
-    {
-        public CustomJsonSerializerFactory() { super(null); }
-
-        @Override
-        protected JsonSerializer<Object> constructBeanOrAddOnSerializer(SerializerProvider prov,
-                JavaType type, BeanDescription beanDesc, boolean staticTyping)
-            throws JsonMappingException
-        {                
-            return new CustomJsonSerializer(super.constructBeanOrAddOnSerializer(prov, type, beanDesc, staticTyping) );
+            beanSerializer.resolve(provider);
         }
     }
 
@@ -166,11 +142,12 @@ public class TestWithGenerics extends BaseMapTest
     
     public void testJackson387() throws Exception
     {
-        ObjectMapper om = new ObjectMapper();
-        om.activateDefaultTyping(NoCheckSubTypeValidator.instance,
-                ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, JsonTypeInfo.As.PROPERTY );
-        om.setSerializationInclusion(JsonInclude.Include.NON_NULL );
-        om.enable( SerializationFeature.INDENT_OUTPUT);
+        ObjectMapper om = jsonMapperBuilder()
+                .enable( SerializationFeature.INDENT_OUTPUT)
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.JAVA_LANG_OBJECT, JsonTypeInfo.As.PROPERTY)
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
+                .build();
 
         MyClass mc = new MyClass();
 
@@ -200,24 +177,7 @@ public class TestWithGenerics extends BaseMapTest
         assertEquals(4, mc2.params.size());
     }
 
-    public void testJackson430() throws Exception
-    {
-        ObjectMapper om = new ObjectMapper();
-//        om.getSerializationConfig().setSerializationInclusion( Inclusion.NON_NULL );
-        om.setSerializerFactory( new CustomJsonSerializerFactory() );
-        MyClass mc = new MyClass();
-        mc.params.add(new MyParam<Integer>(1));
-
-        String str = om.writeValueAsString( mc );
-//        System.out.println( str );
-        
-        MyClass mc2 = om.readValue( str, MyClass.class );
-        assertNotNull(mc2);
-        assertNotNull(mc2.params);
-        assertEquals(1, mc2.params.size());
-    }
-
-    // [Issue#543]
+    // [databind#543]
     public void testValueWithMoreGenericParameters() throws Exception
     {
         WrappedContainerWithField wrappedContainerWithField = new WrappedContainerWithField();

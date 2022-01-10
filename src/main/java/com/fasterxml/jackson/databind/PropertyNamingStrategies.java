@@ -8,11 +8,6 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 /**
  * Container for standard {@link PropertyNamingStrategy} implementations
  * and singleton instances.
- *<p>
- * Added in Jackson 2.12 to resolve issue
- * <a href="https://github.com/FasterXML/jackson-databind/issues/2715">databind#2715</a>.
- *
- * @since 2.12
  */
 public abstract class PropertyNamingStrategies
     implements java.io.Serializable

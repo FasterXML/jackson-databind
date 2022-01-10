@@ -21,41 +21,36 @@ public class VoidProperties2675Test extends BaseMapTest
     /**********************************************************************
      */
 
-    private final ObjectMapper DEFAULT_MAPPER = sharedMapper();
+    private final ObjectMapper VOID_MAPPER = sharedMapper();
 
-    private final ObjectMapper VOID_MAPPER = jsonMapperBuilder()
-            .enable(MapperFeature.ALLOW_VOID_VALUED_PROPERTIES)
+    private final ObjectMapper NO_VOID_MAPPER = jsonMapperBuilder()
+            .disable(MapperFeature.ALLOW_VOID_VALUED_PROPERTIES)
             .build();
 
     public void testVoidBeanSerialization() throws Exception
     {
-        // By default (2.x), not enabled:
+        // with 3.x enabled by default, but may disable
+        assertEquals("{\"value\":null}", VOID_MAPPER.writeValueAsString(new VoidBean()));
         try {
-            DEFAULT_MAPPER.writeValueAsString(new VoidBean());
+            NO_VOID_MAPPER.writeValueAsString(new VoidBean());
             fail("Should not pass");
         } catch (InvalidDefinitionException e) {
             verifyException(e, "no properties discovered");
         }
-
-        // but when enabled
-        assertEquals("{\"value\":null}", VOID_MAPPER.writeValueAsString(new VoidBean()));
     }
 
     public void testVoidBeanDeserialization() throws Exception {
         final String DOC = "{\"value\":null}";
-        VoidBean result;
+        VoidBean result = VOID_MAPPER.readValue(DOC, VoidBean.class);
+        assertNotNull(result);
+        assertNull(result.getValue());
 
         // By default (2.x), not enabled:
         try {
-            result = DEFAULT_MAPPER.readValue(DOC, VoidBean.class);
+            result = NO_VOID_MAPPER.readValue(DOC, VoidBean.class);
             fail("Should not pass");
         } catch (UnrecognizedPropertyException e) {
-            verifyException(e, "Unrecognized field \"value\"");
+            verifyException(e, "Unrecognized property \"value\"");
         }
-
-        // but when enabled
-        result = VOID_MAPPER.readValue(DOC, VoidBean.class);
-        assertNotNull(result);
-        assertNull(result.getValue());
     }
 }

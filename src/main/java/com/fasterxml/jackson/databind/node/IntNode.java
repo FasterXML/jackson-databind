@@ -1,21 +1,19 @@
 package com.fasterxml.jackson.databind.node;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.io.NumberOutput;
 import com.fasterxml.jackson.databind.SerializerProvider;
-
 
 /**
  * Numeric node that contains simple 32-bit integer values.
  */
-@SuppressWarnings("serial")
 public class IntNode
     extends NumericNode
 {
+    private static final long serialVersionUID = 3L;
+
     // // // Let's cache small set of common value
 
     final static int MIN_CANONICAL = -1;
@@ -35,11 +33,11 @@ public class IntNode
      */
     protected final int _value;
 
-    /* 
-    ************************************************
-    * Construction
-    ************************************************
-    */
+    /*
+    /**********************************************************************
+    /* Construction
+    /**********************************************************************
+     */
 
     public IntNode(int v) { _value = v; }
 
@@ -49,9 +47,9 @@ public class IntNode
     }
 
     /* 
-    /**********************************************************
+    /**********************************************************************
     /* BaseJsonNode extended API
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override public JsonToken asToken() { return JsonToken.VALUE_NUMBER_INT; }
@@ -60,9 +58,9 @@ public class IntNode
     public JsonParser.NumberType numberType() { return JsonParser.NumberType.INT; }
 
     /* 
-    /**********************************************************
+    /**********************************************************************
     /* Overrridden JsonNode methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -103,7 +101,7 @@ public class IntNode
 
     @Override
     public String asText() {
-        return NumberOutput.toString(_value);
+        return String.valueOf(_value);
     }
 
     @Override
@@ -113,7 +111,7 @@ public class IntNode
     
     @Override
     public final void serialize(JsonGenerator g, SerializerProvider provider)
-        throws IOException
+        throws JacksonException
     {
         g.writeNumber(_value);
     }

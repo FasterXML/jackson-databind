@@ -1,11 +1,8 @@
 package com.fasterxml.jackson.databind.node;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
-
 
 /**
  * This singleton value class is used to contain explicit JSON null
@@ -14,24 +11,20 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 public class NullNode
     extends ValueNode
 {
-    // // Just need a fly-weight singleton
+    private static final long serialVersionUID = 3L;
 
-    private static final long serialVersionUID = 1L;
+    // // Just need a fly-weight singleton
 
     public final static NullNode instance = new NullNode();
 
-    /**
-     *<p>
-     * NOTE: visibility raised to `protected` in 2.9.3 to allow custom subtypes.
-     */
     protected NullNode() { }
+
+    public static NullNode getInstance() { return instance; }
 
     // To support JDK serialization, recovery of Singleton instance
     protected Object readResolve() {
         return instance;
     }
-    
-    public static NullNode getInstance() { return instance; }
 
     @Override
     public JsonNodeType getNodeType() {
@@ -60,9 +53,9 @@ public class NullNode
     
     @Override
     public final void serialize(JsonGenerator g, SerializerProvider provider)
-        throws IOException
+        throws JacksonException
     {
-        provider.defaultSerializeNull(g);
+        provider.defaultSerializeNullValue(g);
     }
 
     @Override

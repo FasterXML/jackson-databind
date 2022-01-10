@@ -5,9 +5,11 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import com.fasterxml.jackson.databind.deser.impl.BeanPropertyMap;
-import com.fasterxml.jackson.databind.deser.impl.ObjectIdValueProperty;
+import com.fasterxml.jackson.databind.deser.bean.BeanDeserializer;
+import com.fasterxml.jackson.databind.deser.bean.BeanPropertyMap;
+import com.fasterxml.jackson.databind.deser.bean.BuilderBasedDeserializer;
 import com.fasterxml.jackson.databind.deser.impl.ObjectIdReader;
+import com.fasterxml.jackson.databind.deser.impl.ObjectIdValueProperty;
 import com.fasterxml.jackson.databind.deser.impl.ValueInjector;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.util.Annotations;
@@ -16,45 +18,42 @@ import com.fasterxml.jackson.databind.util.IgnorePropertiesUtil;
 
 /**
  * Builder class used for aggregating deserialization information about
- * a POJO, in order to build a {@link JsonDeserializer} for deserializing
- * instances.
+ * a property-based POJO, in order to build a {@link ValueDeserializer}
+ * for deserializing POJO instances.
  */
 public class BeanDeserializerBuilder
 {
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration
-    /**********************************************************
+    /**********************************************************************
      */
 
-    final protected DeserializationConfig _config;
+    protected final DeserializationConfig _config;
 
-    /**
-     * @since 2.9
-     */
-    final protected DeserializationContext _context;
+    protected final DeserializationContext _context;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* General information about POJO
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
      * Introspected information about POJO for deserializer to handle
      */
-    final protected BeanDescription _beanDesc;
+    protected final BeanDescription _beanDesc;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Accumulated information about properties
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
      * Properties to deserialize collected so far.
      */
-    final protected Map<String, SettableBeanProperty> _properties
+    protected final Map<String, SettableBeanProperty> _properties
         = new LinkedHashMap<String, SettableBeanProperty>();
 
     /**
@@ -115,9 +114,9 @@ public class BeanDeserializerBuilder
     protected JsonPOJOBuilder.Value _builderConfig;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle: construction
-    /**********************************************************
+    /**********************************************************************
      */
 
     public BeanDeserializerBuilder(BeanDescription beanDesc,
@@ -165,9 +164,9 @@ public class BeanDeserializerBuilder
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle: state modification (adders, setters)
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -297,9 +296,9 @@ public class BeanDeserializerBuilder
     }
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public accessors
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -350,66 +349,40 @@ public class BeanDeserializerBuilder
         return _builderConfig;
     }
 
-    /**
-     * @since 2.9.4
-     */
     public boolean hasIgnorable(String name) {
         return IgnorePropertiesUtil.shouldIgnore(name, _ignorableProps, _includableProps);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Build method(s)
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
      * Method for constructing a {@link BeanDeserializer}, given all
      * information collected.
      */
-    public JsonDeserializer<?> build()
+    public ValueDeserializer<?> build()
     {
         Collection<SettableBeanProperty> props = _properties.values();
         _fixAccess(props);
-        BeanPropertyMap propertyMap = BeanPropertyMap.construct(_config, props,
-                _collectAliases(props),
-                _findCaseInsensitivity());
-        propertyMap.assignIndexes();
-
-        // view processing must be enabled if:
-        // (a) fields are not included by default (when deserializing with view), OR
-        // (b) one of properties has view(s) to included in defined
-        boolean anyViews = !_config.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION);
-        if (!anyViews) {
-            for (SettableBeanProperty prop : props) {
-                if (prop.hasViews()) {
-                    anyViews = true;
-                    break;
-                }
-            }
-        }
-
-        // one more thing: may need to create virtual ObjectId property:
         if (_objectIdReader != null) {
-            /* 18-Nov-2012, tatu: May or may not have annotations for id property;
-             *   but no easy access. But hard to see id property being optional,
-             *   so let's consider required at this point.
-             */
-            ObjectIdValueProperty prop = new ObjectIdValueProperty(_objectIdReader, PropertyMetadata.STD_REQUIRED);
-            propertyMap = propertyMap.withProperty(prop);
+            // 18-Nov-2012, tatu: May or may not have annotations for id property;
+            //   but no easy access. But hard to see id property being optional,
+            //   so let's consider required at this point.
+            props = _addIdProp(_properties,
+                    new ObjectIdValueProperty(_objectIdReader, PropertyMetadata.STD_REQUIRED));
         }
-
         return new BeanDeserializer(this,
-                _beanDesc, propertyMap, _backRefProperties, _ignorableProps, _ignoreAllUnknown, _includableProps,
-                anyViews);
+                _beanDesc, _constructPropMap(props), _backRefProperties, _ignorableProps, _ignoreAllUnknown, _includableProps,
+                _anyViews(props));
     }
 
     /**
      * Alternate build method used when we must be using some form of
      * abstract resolution, usually by using addition Type Id
      * ("polymorphic deserialization")
-     * 
-     * @since 2.0
      */
     public AbstractDeserializer buildAbstract() {
         return new AbstractDeserializer(this, _beanDesc, _backRefProperties, _properties);
@@ -419,8 +392,7 @@ public class BeanDeserializerBuilder
      * Method for constructing a specialized deserializer that uses
      * additional external Builder object during data binding.
      */
-    public JsonDeserializer<?> buildBuilderBased(JavaType valueType, String expBuildMethodName)
-        throws JsonMappingException
+    public ValueDeserializer<?> buildBuilderBased(JavaType valueType, String expBuildMethodName)
     {
         // First: validation; must have build method that returns compatible type
         if (_buildMethod == null) {
@@ -445,42 +417,25 @@ public class BeanDeserializerBuilder
                         ClassUtil.getTypeDescription(valueType)));
             }
         }
+        _fixAccess(_properties.values());
         // And if so, we can try building the deserializer
-        Collection<SettableBeanProperty> props = _properties.values();
-        _fixAccess(props);
-        BeanPropertyMap propertyMap = BeanPropertyMap.construct(_config, props,
-                _collectAliases(props),
-                _findCaseInsensitivity());
-        propertyMap.assignIndexes();
-
-        boolean anyViews = !_config.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION);
-
-        if (!anyViews) {
-            for (SettableBeanProperty prop : props) {
-                if (prop.hasViews()) {
-                    anyViews = true;
-                    break;
-                }
-            }
-        }
-
+        Collection<SettableBeanProperty> props;
         if (_objectIdReader != null) {
             // May or may not have annotations for id property; but no easy access.
             // But hard to see id property being optional, so let's consider required at this point.
-            ObjectIdValueProperty prop = new ObjectIdValueProperty(_objectIdReader,
-                    PropertyMetadata.STD_REQUIRED);
-            propertyMap = propertyMap.withProperty(prop);
+            props = _addIdProp(_properties,
+                    new ObjectIdValueProperty(_objectIdReader, PropertyMetadata.STD_REQUIRED));
+        } else {
+            props = _properties.values();
         }
-
-        return createBuilderBasedDeserializer(valueType, propertyMap, anyViews);
+        return createBuilderBasedDeserializer(valueType, _constructPropMap(props),
+                _anyViews(props));
     }
 
     /**
      * Extension point for overriding the actual creation of the builder deserializer.
-     *
-     * @since 2.11
      */
-    protected JsonDeserializer<?> createBuilderBasedDeserializer(JavaType valueType,
+    protected ValueDeserializer<?> createBuilderBasedDeserializer(JavaType valueType,
             BeanPropertyMap propertyMap, boolean anyViews) {
         return new BuilderBasedDeserializer(this,
                 _beanDesc, valueType, propertyMap, _backRefProperties, _ignorableProps, _ignoreAllUnknown,
@@ -488,9 +443,9 @@ public class BeanDeserializerBuilder
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal helper method(s)
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected void _fixAccess(Collection<SettableBeanProperty> mainProps)
@@ -545,36 +500,78 @@ public class BeanDeserializerBuilder
         }
     }
 
-    protected Map<String,List<PropertyName>> _collectAliases(Collection<SettableBeanProperty> props)
+    protected Collection<SettableBeanProperty> _addIdProp(Map<String, SettableBeanProperty> props,
+            SettableBeanProperty idProp)
     {
-        Map<String,List<PropertyName>> mapping = null;
-        AnnotationIntrospector intr = _config.getAnnotationIntrospector();
-        if (intr != null) {
-            for (SettableBeanProperty prop : props) {
-                List<PropertyName> aliases = intr.findPropertyAliases(prop.getMember());
-                if ((aliases == null) || aliases.isEmpty()) {
-                    continue;
+        String name = idProp.getName();
+        ArrayList<SettableBeanProperty> result = new ArrayList<>(props.values());
+        if (!props.containsKey(name)) {
+            result.add(idProp);
+        } else {
+            // Otherwise need to replace; couple of ways to go about it
+            ListIterator<SettableBeanProperty> it = result.listIterator();
+            while (true) { // no need to check, we must bump into it
+                if (it.next().getName().equals(name)) {
+                    it.set(idProp);
+                    break;
                 }
-                if (mapping == null) {
-                    mapping = new HashMap<>();
-                }
-                mapping.put(prop.getName(), aliases);
             }
         }
-        if (mapping == null) {
-            return Collections.emptyMap();
-        }
-        return mapping;
+        return result;
     }
 
-    // @since 2.12
-    protected boolean _findCaseInsensitivity() {
+    protected boolean _anyViews(Collection<SettableBeanProperty> props)
+    {
+        // view processing must be enabled if:
+        // (a) fields are not included by default (when deserializing with view), OR
+        // (b) one of properties has view(s) to included in defined
+        if (!_config.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION)) {
+            return true;
+        }
+        for (SettableBeanProperty prop : props) {
+            if (prop.hasViews()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected BeanPropertyMap _constructPropMap(Collection<SettableBeanProperty> props)
+    {
         // 07-May-2020, tatu: First find combination of per-type config overrides (higher
         //   precedence) and per-type annotations (lower):
         JsonFormat.Value format = _beanDesc.findExpectedFormat(null);
         // and see if any of those has explicit definition; if not, use global baseline default
         Boolean B = format.getFeature(JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
-        return (B == null) ? _config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
+        boolean caseInsensitive = (B == null)
+                ? _config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
                 : B.booleanValue();
+
+        return BeanPropertyMap.construct(_config, props, _collectAliases(props), caseInsensitive);
+    }
+
+    protected PropertyName[][] _collectAliases(Collection<SettableBeanProperty> props)
+    {
+        PropertyName[][] result = null;
+        AnnotationIntrospector intr = _config.getAnnotationIntrospector();
+        if (intr != null) {
+            int i = -1;
+            for (SettableBeanProperty prop : props) {
+                ++i;
+                AnnotatedMember member = prop.getMember();
+                if (member == null) {
+                    continue;
+                }
+                List<PropertyName> aliases = intr.findPropertyAliases(_config, member);
+                if ((aliases == null) || aliases.isEmpty()) {
+                    continue;
+                }
+                if (result == null) {
+                    result = new PropertyName[props.size()][];
+                }
+                result[i] = aliases.toArray(new PropertyName[0]);
+            }
+        }
+        return result;
     }
 }

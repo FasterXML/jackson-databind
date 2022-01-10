@@ -3,10 +3,8 @@ package com.fasterxml.jackson.databind.jsontype;
 import java.util.Collection;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
-import com.fasterxml.jackson.databind.DeserializationConfig;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.SerializationConfig;
+
+import com.fasterxml.jackson.databind.*;
 
 /**
  * Interface that defines builders that are configured based on
@@ -15,8 +13,7 @@ import com.fasterxml.jackson.databind.SerializationConfig;
  * handling type information embedded in JSON to allow for safe
  * polymorphic type handling.
  *<p>
- * Builder is first initialized by calling {@link #init} method, and then
- * configured using 'set' methods like {@link #inclusion}.
+ * Builder is first initialized by calling {@link #init} method.
  * Finally, after calling all configuration methods,
  * {@link #buildTypeSerializer} or {@link #buildTypeDeserializer}
  * will be called to get actual type resolver constructed
@@ -40,9 +37,9 @@ import com.fasterxml.jackson.databind.SerializationConfig;
 public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
 {
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Accessors
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -53,9 +50,9 @@ public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
     public Class<?> getDefaultImpl();
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Actual builder methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -65,7 +62,7 @@ public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
      * @param baseType Base type that constructed resolver will
      *    handle; super type of all types it will be used for.
      */
-    public TypeSerializer buildTypeSerializer(SerializationConfig config,
+    public TypeSerializer buildTypeSerializer(SerializerProvider ctxt,
             JavaType baseType, Collection<NamedType> subtypes);
 
     /**
@@ -76,101 +73,43 @@ public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
      *    handle; super type of all types it will be used for.
      * @param subtypes Known subtypes of the base type.
      */
-    public TypeDeserializer buildTypeDeserializer(DeserializationConfig config,
+    public TypeDeserializer buildTypeDeserializer(DeserializationContext ctxt,
             JavaType baseType, Collection<NamedType> subtypes);
-    
+
     /*
-    /**********************************************************
-    /* Initialization method(s) that must be called before other
-    /* configuration
-    /**********************************************************
+    /**********************************************************************
+    /* Initialization method(s) that must be called before other configuration
+    /**********************************************************************
      */
 
     /**
      * Initialization method that is called right after constructing
-     * the builder instance.
+     * the builder instance, in cases where information could not be
+     * passed directly (for example when instantiated for an annotation)
      *
-     * @param idType Which type metadata is used
-     * @param res (optional) Custom type id resolver used, if any
+     * @param settings Configuration settings to apply.
      * 
      * @return Resulting builder instance (usually this builder,
      *   but not necessarily)
      */
-    public T init(JsonTypeInfo.Id idType, TypeIdResolver res);
+    public T init(JsonTypeInfo.Value settings, TypeIdResolver res);
 
     /*
-    /**********************************************************
-    /* Methods for configuring resolver to build 
-    /**********************************************************
+    /**********************************************************************
+    /* Mutant factories
+    /**********************************************************************
      */
-    
-    /**
-     * Method for specifying mechanism to use for including type metadata
-     * in JSON.
-     * If not explicitly called, setting defaults to
-     * {@link As#PROPERTY}.
-     * 
-     * @param includeAs Mechanism used for including type metadata in JSON
-     * 
-     * @return Resulting builder instance (usually this builder,
-     *   but may be a newly constructed instance for immutable builders}
-     */
-    public T inclusion(As includeAs);
 
     /**
-     * Method for specifying name of property used for including type
-     * information. Not used for all inclusion mechanisms;
-     * usually only used with {@link As#PROPERTY}.
-     *<p>
-     * If not explicitly called, name of property to use is based on
-     * defaults for {@link com.fasterxml.jackson.annotation.JsonTypeInfo.Id} configured.
-     * 
-     * @param propName Name of JSON property to use for including
-     *    type information
-     * 
-     * @return Resulting builder instance (usually this builder,
-     *   but may be a newly constructed instance for immutable builders}
-     */
-    public T typeProperty(String propName);
-
-    /**
-     * Method for specifying default implementation to use if type id 
+     * "Mutant factory" method for creating a new instance with different
+     * default implementation to use if type id 
      * is either not available, or cannot be resolved.
-     *
-     * @return Resulting builder instance (usually this builder,
-     *   but may be a newly constructed instance for immutable builders}
-     */
-    public T defaultImpl(Class<?> defaultImpl);
-
-    /**
-     * Method for specifying whether type id should be visible to
-     * {@link com.fasterxml.jackson.databind.JsonDeserializer}s or not.
-     * 
-     * @return Resulting builder instance (usually this builder,
-     *   but may be a newly constructed instance for immutable builders}
-     * 
-     * @since 2.0
-     */
-    public T typeIdVisibility(boolean isVisible);
-
-    /*
-    /**********************************************************************
-    /* Mutant factories (2.13+)
-    /**********************************************************************
-     */
-
-    /**
-     * "Mutant factory" method for creating a new instance with different default
-     * implementation.
-     *
-     * @since 2.13
+     *<p>
+     * In Jackson 2.x there was instead method {@code defaultImpl()} which
+     * was a mutator: this method MUST NOT change the underlying state. 
      *
      * @return Either this instance (if nothing changed) or a new instance with
      *    different default implementation
      */
-    public default T withDefaultImpl(Class<?> defaultImpl) {
-        // 18-Sep-2021, tatu: Not sure if this should be left failing, or use
-        //    possibly unsafe variant
-        return defaultImpl(defaultImpl);
-    }
+    public T withDefaultImpl(Class<?> defaultImpl);
 }

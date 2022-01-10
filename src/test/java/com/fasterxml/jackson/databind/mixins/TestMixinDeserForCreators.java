@@ -111,44 +111,47 @@ public class TestMixinDeserForCreators
 
     public void testForConstructor() throws IOException
     {
-        ObjectMapper m = new ObjectMapper();
-        m.addMixIn(BaseClassWithPrivateCtor.class, MixInForPrivate.class);
-        BaseClassWithPrivateCtor result = m.readValue("\"?\"", BaseClassWithPrivateCtor.class);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addMixIn(BaseClassWithPrivateCtor.class, MixInForPrivate.class)
+                .build();
+        BaseClassWithPrivateCtor result = mapper.readValue("\"?\"", BaseClassWithPrivateCtor.class);
         assertEquals("?...", result._a);
     }
 
     public void testForFactoryAndCtor() throws IOException
     {
-        ObjectMapper m = new ObjectMapper();
         BaseClass result;
 
         // First: test default behavior: should use constructor
-        result = m.readValue("\"string\"", BaseClass.class);
+        result = new ObjectMapper().readValue("\"string\"", BaseClass.class);
         assertEquals("string...", result._a);
 
         // Then with simple mix-in: should change to use the factory method
-        m = new ObjectMapper();
-        m.addMixIn(BaseClass.class, MixIn.class);
-        result = m.readValue("\"string\"", BaseClass.class);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addMixIn(BaseClass.class, MixIn.class)
+                .build();
+        result = mapper.readValue("\"string\"", BaseClass.class);
         assertEquals("stringX", result._a);
     }
 
     public void testFactoryDelegateMixIn() throws IOException
     {
-        ObjectMapper m = new ObjectMapper();
-        m.addMixIn(StringWrapper.class, StringWrapperMixIn.class);
-        StringWrapper result = m.readValue("\"a\"", StringWrapper.class);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addMixIn(StringWrapper.class, StringWrapperMixIn.class)
+                .build();
+        StringWrapper result = mapper.readValue("\"a\"", StringWrapper.class);
         assertEquals("a", result._value);
     }
 
     // [databind#2020]
     public void testFactoryPropertyMixin() throws Exception
     {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.addMixIn(Pair2020.class, MyPairMixIn8.class);
+        ObjectMapper mapper = jsonMapperBuilder()
+            .addMixIn(Pair2020.class, MyPairMixIn8.class)
+            .build();
 
         String doc = a2q( "{'value0' : 456, 'value1' : 789}");
-        Pair2020 pair2 = objectMapper.readValue(doc, Pair2020.class);
+        Pair2020 pair2 = mapper.readValue(doc, Pair2020.class);
         assertEquals(456, pair2.x);
         assertEquals(789, pair2.y);
     }

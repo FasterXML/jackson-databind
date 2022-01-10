@@ -44,7 +44,7 @@ public class MapInclusion2573Test extends BaseMapTest
     {
                 
         ObjectMapper mapper = JsonMapper.builder()
-                .defaultPropertyInclusion(BOTH_NON_NULL)
+                .changeDefaultPropertyInclusion(incl -> BOTH_NON_NULL)
                 .build();
         assertEquals(a2q("{'Speed':100}"),
                 mapper.writeValueAsString(CAR_PROPERTIES));
@@ -56,11 +56,11 @@ public class MapInclusion2573Test extends BaseMapTest
     public void test2572MapOverrideUseDefaults() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder()
-                .defaultPropertyInclusion(BOTH_NON_NULL)
+                .changeDefaultPropertyInclusion(incl -> BOTH_NON_NULL)
+                .withConfigOverride(Map.class, 
+                        o -> o.setInclude(JsonInclude.Value.construct(JsonInclude.Include.USE_DEFAULTS,
+                        JsonInclude.Include.USE_DEFAULTS)))
                 .build();
-        mapper.configOverride(Map.class)
-            .setInclude(JsonInclude.Value.construct(JsonInclude.Include.USE_DEFAULTS,
-                    JsonInclude.Include.USE_DEFAULTS));
         assertEquals(a2q("{'Speed':100}"),
                 mapper.writeValueAsString(CAR_PROPERTIES));
         assertEquals(a2q("{'model':'F60','properties':{'Speed':100}}"),
@@ -71,11 +71,11 @@ public class MapInclusion2573Test extends BaseMapTest
     public void test2572MapOverrideInclAlways() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder()
-                .defaultPropertyInclusion(BOTH_NON_NULL)
+                .changeDefaultPropertyInclusion(incl -> BOTH_NON_NULL)
+                .withConfigOverride(Map.class,
+                        o -> o.setInclude(JsonInclude.Value.construct(JsonInclude.Include.ALWAYS,
+                        JsonInclude.Include.ALWAYS)))
                 .build();
-        mapper.configOverride(Map.class)
-            .setInclude(JsonInclude.Value.construct(JsonInclude.Include.ALWAYS,
-                    JsonInclude.Include.ALWAYS));
         assertEquals(a2q("{'Speed':100,'Weight':null}"),
                 mapper.writeValueAsString(CAR_PROPERTIES));
         assertEquals(a2q("{'model':'F60','properties':{'Speed':100,'Weight':null}}"),

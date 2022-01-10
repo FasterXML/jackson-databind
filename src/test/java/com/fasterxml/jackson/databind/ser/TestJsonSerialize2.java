@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 
 import com.fasterxml.jackson.databind.*;
@@ -36,19 +37,19 @@ public class TestJsonSerialize2
         public ActualValue(String str) { super(str); }
     }
 
-    static class SimpleKeySerializer extends JsonSerializer<SimpleKey> {
+    static class SimpleKeySerializer extends ValueSerializer<SimpleKey> {
         @Override
-        public void serialize(SimpleKey key, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException {
-            jgen.writeFieldName("key "+key.key);
+        public void serialize(SimpleKey key, JsonGenerator g, SerializerProvider provider)
+        {
+            g.writeName("key "+key.key);
         }
     }
 
-    static class SimpleValueSerializer extends JsonSerializer<SimpleValue> {
+    static class SimpleValueSerializer extends ValueSerializer<SimpleValue> {
         @Override
-        public void serialize(SimpleValue value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException {
-            jgen.writeString("value "+value.value);
+        public void serialize(SimpleValue value, JsonGenerator g, SerializerProvider provider)
+        {
+            g.writeString("value "+value.value);
         }
     }
 
@@ -178,7 +179,9 @@ public class TestJsonSerialize2
     public void testEmptyInclusionContainers() throws IOException
     {
         ObjectMapper defMapper = MAPPER;
-        ObjectMapper inclMapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        ObjectMapper inclMapper = jsonMapperBuilder()
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY))
+                .build();
 
         ListWrapper<String> list = new ListWrapper<String>();
         assertEquals("{\"list\":[]}", defMapper.writeValueAsString(list));
@@ -198,7 +201,6 @@ public class TestJsonSerialize2
 
     public void testNullSerializer() throws Exception
     {
-        String json = MAPPER.writeValueAsString(new NullBean());
-        assertEquals("{\"value\":null}", json);
+        assertEquals("{\"value\":null}", MAPPER.writeValueAsString(new NullBean()));
     }
 }

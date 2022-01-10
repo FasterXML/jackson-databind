@@ -16,12 +16,6 @@ import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 public class FieldSerializationTest
     extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Annotated helper classes
-    /**********************************************************
-     */
-
     static class SimpleFieldBean
     {
         public int x, y;
@@ -213,18 +207,16 @@ public class FieldSerializationTest
     /**********************************************************
      */
 
-    public void testFailureDueToDups() throws Exception
+    public void testFailureDueToDupField1() throws Exception
     {
         try {
-            String json = MAPPER.writeValueAsString(new DupFieldBean());
+            final String json = MAPPER.writeValueAsString(new DupFieldBean());
             fail("Should not pass, got: "+json);
         } catch (InvalidDefinitionException e) {
             verifyException(e, "Multiple fields representing");
         }
     }
 
-    // 21-Jan-2021, tatu: Resolvable as of 2.13 (and much earlier) since explicitly
-    //    annotated one takes precedence
     public void testResolvedDuplicate() throws Exception
     {
         String json = MAPPER.writeValueAsString(new DupFieldBean2());

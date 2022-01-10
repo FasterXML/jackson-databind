@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
@@ -58,23 +58,25 @@ public final class ManagedReferenceProperty
 
     @Override
     public void deserializeAndSet(JsonParser p, DeserializationContext ctxt, Object instance)
-            throws IOException {
+            throws JacksonException
+    {
         set(instance, delegate.deserialize(p, ctxt));
     }
 
     @Override
     public Object deserializeSetAndReturn(JsonParser p, DeserializationContext ctxt, Object instance)
-            throws IOException {
+            throws JacksonException
+    {
         return setAndReturn(instance, deserialize(p, ctxt));
     }
     
     @Override
-    public final void set(Object instance, Object value) throws IOException {
+    public final void set(Object instance, Object value) {
         setAndReturn(instance, value);
     }
 
     @Override
-    public Object setAndReturn(Object instance, Object value) throws IOException
+    public Object setAndReturn(Object instance, Object value)
     {
         /* 04-Feb-2014, tatu: As per [#390], it may be necessary to switch the
          *   ordering of forward/backward references, and start with back ref.

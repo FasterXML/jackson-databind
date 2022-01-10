@@ -30,10 +30,12 @@ public class RequireSetterForGetter736Test extends BaseMapTest
     public void testNeedForSetters() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
-                .visibility(PropertyAccessor.ALL, Visibility.NONE)
-                .visibility(PropertyAccessor.FIELD, Visibility.NONE)
-                .visibility(PropertyAccessor.GETTER, Visibility.PUBLIC_ONLY)
-                .visibility(PropertyAccessor.SETTER, Visibility.PUBLIC_ONLY)
+                .changeDefaultVisibility(vc -> vc
+                        .withVisibility(PropertyAccessor.ALL, Visibility.NONE)
+                        .withVisibility(PropertyAccessor.FIELD, Visibility.NONE)
+                        .withVisibility(PropertyAccessor.GETTER, Visibility.PUBLIC_ONLY)
+                        .withVisibility(PropertyAccessor.SETTER, Visibility.PUBLIC_ONLY)
+                )
                 .enable(MapperFeature.REQUIRE_SETTERS_FOR_GETTERS)
                 .build();
         DataB dataB = new DataB();

@@ -1,9 +1,8 @@
 package com.fasterxml.jackson.databind;
 
-import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.StringWriter;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -26,14 +25,14 @@ public class ObjectWriterTest
         public int x;
 
         public boolean closed;
-        
+
         @Override
         public void close() throws IOException {
             closed = true;
         }
     }
 
-    final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
     static class PolyBase {
@@ -42,14 +41,14 @@ public class ObjectWriterTest
     @JsonTypeName("A")
     static class ImplA extends PolyBase {
         public int value;
-        
+
         public ImplA(int v) { value = v; }
     }
 
     @JsonTypeName("B")
     static class ImplB extends PolyBase {
         public int b;
-        
+
         public ImplB(int v) { b = v; }
     }
 
@@ -64,7 +63,7 @@ public class ObjectWriterTest
         ObjectWriter writer = MAPPER.writer();
         HashMap<String, Integer> data = new HashMap<String,Integer>();
         data.put("a", 1);
-        
+
         // default: no indentation
         assertEquals("{\"a\":1}", writer.writeValueAsString(data));
 
@@ -91,12 +90,12 @@ public class ObjectWriterTest
     public void testObjectWriterFeatures() throws Exception
     {
         ObjectWriter writer = MAPPER.writer()
-                .without(JsonWriteFeature.QUOTE_FIELD_NAMES);                
+                .without(JsonWriteFeature.QUOTE_PROPERTY_NAMES);
         Map<String,Integer> map = new HashMap<String,Integer>();
         map.put("a", 1);
         assertEquals("{a:1}", writer.writeValueAsString(map));
         // but can also reconfigure
-        assertEquals("{\"a\":1}", writer.with(JsonWriteFeature.QUOTE_FIELD_NAMES)
+        assertEquals("{\"a\":1}", writer.with(JsonWriteFeature.QUOTE_PROPERTY_NAMES)
                 .writeValueAsString(map));
     }
 
@@ -118,12 +117,6 @@ public class ObjectWriterTest
         assertEquals(a2q("{'type':'A','value':3}"), json);
         json = writer.writeValueAsString(new ImplB(-5));
         assertEquals(a2q("{'type':'B','b':-5}"), json);
-    }
-
-    public void testCanSerialize() throws Exception
-    {
-        assertTrue(MAPPER.writer().canSerialize(String.class));
-        assertTrue(MAPPER.writer().canSerialize(String.class, null));
     }
 
     public void testNoPrefetch() throws Exception
@@ -165,25 +158,33 @@ public class ObjectWriterTest
         assertNotSame(w, newW);
         assertSame(newW, newW.withView(String.class));
 
-        newW = w.with(Locale.CANADA);
+        // Avoid using the default Locale so that a new ObjectWriter will be
+        // created when calling `with(Locale)`.
+        Locale newLocale = notTheDefaultLocale();
+
+        newW = w.with(newLocale);
         assertNotSame(w, newW);
-        assertSame(newW, newW.with(Locale.CANADA));
+        assertSame(newW, newW.with(newLocale));
+    }
+
+    private Locale notTheDefaultLocale() {
+        return Arrays.stream(Locale.getAvailableLocales())
+                .filter(locale -> !locale.equals(Locale.getDefault()))
+                .findAny()
+                .get();
     }
 
     public void testMiscSettings() throws Exception
     {
         ObjectWriter w = MAPPER.writer();
-        assertSame(MAPPER.getFactory(), w.getFactory());
+        assertSame(MAPPER.tokenStreamFactory(), w.generatorFactory());
         assertFalse(w.hasPrefetchedSerializer());
-        assertNotNull(w.getTypeFactory());
+        assertNotNull(w.typeFactory());
 
-        JsonFactory f = new JsonFactory();
-        w = w.with(f);
-        assertSame(f, w.getFactory());
         ObjectWriter newW = w.with(Base64Variants.MODIFIED_FOR_URL);
         assertNotSame(w, newW);
         assertSame(newW, newW.with(Base64Variants.MODIFIED_FOR_URL));
-        
+
         w = w.withAttributes(Collections.emptyMap());
         w = w.withAttribute("a", "b");
         assertEquals("b", w.getAttributes().getAttribute("a"));
@@ -202,7 +203,7 @@ public class ObjectWriterTest
     public void testRootValueSettings() throws Exception
     {
         ObjectWriter w = MAPPER.writer();
-        
+
         // First, root name:
         ObjectWriter newW = w.withRootName("foo");
         assertNotSame(w, newW);
@@ -233,9 +234,7 @@ public class ObjectWriterTest
     {
         ObjectWriter w = MAPPER.writer();
         assertFalse(w.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
-        assertFalse(w.isEnabled(JsonGenerator.Feature.STRICT_DUPLICATE_DETECTION));
         assertFalse(w.isEnabled(StreamWriteFeature.STRICT_DUPLICATE_DETECTION));
-
         ObjectWriter newW = w.with(SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS,
                 SerializationFeature.INDENT_OUTPUT);
         assertNotSame(w, newW);
@@ -260,18 +259,15 @@ public class ObjectWriterTest
                 SerializationFeature.EAGER_SERIALIZER_FETCH));
     }
 
-    public void testGeneratorFeatures() throws Exception
+    public void testStreamWriteFeatures() throws Exception
     {
         ObjectWriter w = MAPPER.writer();
         assertNotSame(w, w.with(JsonWriteFeature.ESCAPE_NON_ASCII));
         assertNotSame(w, w.withFeatures(JsonWriteFeature.ESCAPE_NON_ASCII));
 
-        assertTrue(w.isEnabled(JsonGenerator.Feature.AUTO_CLOSE_TARGET));
-        assertNotSame(w, w.without(JsonGenerator.Feature.AUTO_CLOSE_TARGET));
-        assertNotSame(w, w.withoutFeatures(JsonGenerator.Feature.AUTO_CLOSE_TARGET));
-
-        assertFalse(w.isEnabled(StreamWriteFeature.STRICT_DUPLICATE_DETECTION));
-        assertNotSame(w, w.with(StreamWriteFeature.STRICT_DUPLICATE_DETECTION));
+        assertTrue(w.isEnabled(StreamWriteFeature.AUTO_CLOSE_TARGET));
+        assertNotSame(w, w.without(StreamWriteFeature.AUTO_CLOSE_TARGET));
+        assertNotSame(w, w.withoutFeatures(StreamWriteFeature.AUTO_CLOSE_TARGET));
     }
 
     /*
@@ -300,6 +296,338 @@ public class ObjectWriterTest
             fail("Should not pass");
         } catch (IllegalArgumentException e) {
             verifyException(e, "Cannot use FormatSchema");
+        }
+    }
+
+    public void test_createGenerator_OutputStream() throws Exception
+    {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        JsonGenerator jsonGenerator = MAPPER.writer().createGenerator(outputStream);
+
+        jsonGenerator.writeString("value");
+        jsonGenerator.close();
+
+        assertEquals(new String(outputStream.toByteArray(), StandardCharsets.UTF_8), "\"value\"");
+
+        // the stream has not been closed by close
+        outputStream.write(1);
+    }
+
+    public void test_createGenerator_File() throws Exception
+    {
+        Path path = Files.createTempFile("", "");
+        JsonGenerator jsonGenerator = MAPPER.writer().createGenerator(path.toFile(), JsonEncoding.UTF8);
+
+        jsonGenerator.writeString("value");
+        jsonGenerator.close();
+
+        assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "\"value\"");
+    }
+
+    public void test_createGenerator_Path() throws Exception
+    {
+        Path path = Files.createTempFile("", "");
+        JsonGenerator jsonGenerator = MAPPER.writer().createGenerator(path, JsonEncoding.UTF8);
+
+        jsonGenerator.writeString("value");
+        jsonGenerator.close();
+
+        assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "\"value\"");
+    }
+
+    public void test_createGenerator_Writer() throws Exception
+    {
+        Writer writer = new StringWriter();
+        JsonGenerator jsonGenerator = MAPPER.writer().createGenerator(writer);
+
+        jsonGenerator.writeString("value");
+        jsonGenerator.close();
+
+        assertEquals(writer.toString(), "\"value\"");
+
+        // the writer has not been closed by close
+        writer.append('1');
+    }
+
+    public void test_createGenerator_DataOutput() throws Exception
+    {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        DataOutput dataOutput = new DataOutputStream(outputStream);
+        JsonGenerator jsonGenerator = MAPPER.writer().createGenerator(dataOutput);
+
+        jsonGenerator.writeString("value");
+        jsonGenerator.close();
+
+        assertEquals(new String(outputStream.toByteArray(), StandardCharsets.UTF_8), "\"value\"");
+
+        // the data output has not been closed by close
+        dataOutput.write(1);
+    }
+
+    public void test_createGenerator_failsIfArgumentIsNull() throws Exception
+    {
+        ObjectWriter objectWriter = MAPPER.writer();
+        test_method_failsIfArgumentIsNull(() -> objectWriter.createGenerator((OutputStream) null));
+        test_method_failsIfArgumentIsNull(() -> objectWriter.createGenerator((OutputStream) null, null));
+        test_method_failsIfArgumentIsNull(() -> objectWriter.createGenerator((DataOutput) null));
+        test_method_failsIfArgumentIsNull(() -> objectWriter.createGenerator((Path) null, null));
+        test_method_failsIfArgumentIsNull(() -> objectWriter.createGenerator((File) null, null));
+        test_method_failsIfArgumentIsNull(() -> objectWriter.createGenerator((Writer) null));
+    }
+
+    public void test_writeValue_OutputStream() throws Exception
+    {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        MAPPER.writer().writeValue(outputStream, "value");
+
+        assertEquals(new String(outputStream.toByteArray(), StandardCharsets.UTF_8), "\"value\"");
+
+        // the stream has not been closed by close
+        outputStream.write(1);
+    }
+
+    public void test_writeValue_File() throws Exception
+    {
+        Path path = Files.createTempFile("", "");
+        MAPPER.writer().writeValue(path.toFile(), "value");
+
+        assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "\"value\"");
+    }
+
+    public void test_writeValue_Path() throws Exception
+    {
+        Path path = Files.createTempFile("", "");
+        MAPPER.writer().writeValue(path, "value");
+
+        assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "\"value\"");
+    }
+
+    public void test_writeValue_Writer() throws Exception
+    {
+        Writer writer = new StringWriter();
+        MAPPER.writer().writeValue(writer, "value");
+
+        assertEquals(writer.toString(), "\"value\"");
+
+        // the writer has not been closed by close
+        writer.append('1');
+    }
+
+    public void test_writeValue_DataOutput() throws Exception
+    {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        DataOutput dataOutput = new DataOutputStream(outputStream);
+        MAPPER.writer().writeValue(dataOutput, "value");
+
+        assertEquals(new String(outputStream.toByteArray(), StandardCharsets.UTF_8), "\"value\"");
+
+        // the data output has not been closed by close
+        dataOutput.write(1);
+    }
+
+    public void test_writeValue_JsonGenerator() throws Exception
+    {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        JsonGenerator jsonGenerator = MAPPER.createGenerator(outputStream);
+        MAPPER.writer().writeValue(jsonGenerator, "value");
+
+        assertEquals(new String(outputStream.toByteArray(), StandardCharsets.UTF_8), "\"value\"");
+
+        // the output stream has not been closed by close
+        outputStream.write(1);
+    }
+
+    public void test_writeValue_failsIfArgumentIsNull() throws Exception
+    {
+        ObjectMapper objectMapper = MAPPER;
+        test_method_failsIfArgumentIsNull(() -> objectMapper.writer().writeValue((OutputStream) null, null));
+        test_method_failsIfArgumentIsNull(() -> objectMapper.writer().writeValue((DataOutput) null, null));
+        test_method_failsIfArgumentIsNull(() -> objectMapper.writer().writeValue((Path) null, null));
+        test_method_failsIfArgumentIsNull(() -> objectMapper.writer().writeValue((File) null, null));
+        test_method_failsIfArgumentIsNull(() -> objectMapper.writer().writeValue((Writer) null, null));
+        test_method_failsIfArgumentIsNull(() -> objectMapper.writer().writeValue((JsonGenerator) null, null));
+    }
+
+    public void test_writeValues_OutputStream() throws Exception
+    {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        SequenceWriter sequenceWriter = MAPPER.writer().writeValues(outputStream);
+        sequenceWriter.write("value");
+
+        assertEquals(new String(outputStream.toByteArray(), StandardCharsets.UTF_8), "\"value\"");
+
+        // the stream has not been closed by close
+        outputStream.write(1);
+    }
+
+    public void test_writeValues_File() throws Exception
+    {
+        Path path = Files.createTempFile("", "");
+        SequenceWriter sequenceWriter = MAPPER.writer().writeValues(path.toFile());
+        sequenceWriter.write("value");
+
+        assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "\"value\"");
+    }
+
+    public void test_writeValues_Path() throws Exception
+    {
+        Path path = Files.createTempFile("", "");
+        SequenceWriter sequenceWriter = MAPPER.writer().writeValues(path);
+        sequenceWriter.write("value");
+
+        assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "\"value\"");
+    }
+
+    public void test_writeValues_Writer() throws Exception
+    {
+        Writer writer = new StringWriter();
+        SequenceWriter sequenceWriter = MAPPER.writer().writeValues(writer);
+        sequenceWriter.write("value");
+
+        assertEquals(writer.toString(), "\"value\"");
+
+        // the writer has not been closed by close
+        writer.append('1');
+    }
+
+    public void test_writeValues_DataOutput() throws Exception
+    {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        DataOutput dataOutput = new DataOutputStream(outputStream);
+        SequenceWriter sequenceWriter = MAPPER.writer().writeValues(dataOutput);
+        sequenceWriter.write("value");
+
+        assertEquals(new String(outputStream.toByteArray(), StandardCharsets.UTF_8), "\"value\"");
+
+        // the data output has not been closed by close
+        dataOutput.write(1);
+    }
+
+    public void test_writeValues_JsonGenerator() throws Exception
+    {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        JsonGenerator jsonGenerator = MAPPER.createGenerator(outputStream);
+        SequenceWriter sequenceWriter = MAPPER.writer().writeValues(jsonGenerator);
+        sequenceWriter.write("value");
+
+        assertEquals(new String(outputStream.toByteArray(), StandardCharsets.UTF_8), "\"value\"");
+
+        // the data output has not been closed by close
+        outputStream.write(1);
+    }
+
+    public void test_writeValues_failsIfArgumentIsNull() throws Exception
+    {
+        ObjectMapper objectMapper = MAPPER;
+        test_method_failsIfArgumentIsNull(() -> objectMapper.writer().writeValues((OutputStream) null));
+        test_method_failsIfArgumentIsNull(() -> objectMapper.writer().writeValues((DataOutput) null));
+        test_method_failsIfArgumentIsNull(() -> objectMapper.writer().writeValues((Path) null));
+        test_method_failsIfArgumentIsNull(() -> objectMapper.writer().writeValues((File) null));
+        test_method_failsIfArgumentIsNull(() -> objectMapper.writer().writeValues((Writer) null));
+        test_method_failsIfArgumentIsNull(() -> objectMapper.writer().writeValues((JsonGenerator) null));
+    }
+
+    public void test_writeValuesAsArray_OutputStream() throws Exception
+    {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        SequenceWriter sequenceWriter = MAPPER.writer().writeValuesAsArray(outputStream);
+        sequenceWriter.write("value");
+        sequenceWriter.flush();
+        sequenceWriter.close();
+
+        assertEquals(new String(outputStream.toByteArray(), StandardCharsets.UTF_8), "[\"value\"]");
+
+        // the stream has not been closed by close
+        outputStream.write(1);
+    }
+
+    public void test_writeValuesAsArray_File() throws Exception
+    {
+        Path path = Files.createTempFile("", "");
+        SequenceWriter sequenceWriter = MAPPER.writer().writeValuesAsArray(path.toFile());
+        sequenceWriter.write("value");
+        sequenceWriter.flush();
+        sequenceWriter.close();
+
+        assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "[\"value\"]");
+    }
+
+    public void test_writeValuesAsArray_Path() throws Exception
+    {
+        Path path = Files.createTempFile("", "");
+        SequenceWriter sequenceWriter = MAPPER.writer().writeValuesAsArray(path);
+        sequenceWriter.write("value");
+        sequenceWriter.flush();
+        sequenceWriter.close();
+
+        assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "[\"value\"]");
+    }
+
+    public void test_writeValuesAsArray_Writer() throws Exception
+    {
+        Writer writer = new StringWriter();
+        SequenceWriter sequenceWriter = MAPPER.writer().writeValuesAsArray(writer);
+        sequenceWriter.write("value");
+        sequenceWriter.flush();
+        sequenceWriter.close();
+
+        assertEquals(writer.toString(), "[\"value\"]");
+
+        // the writer has not been closed by close
+        writer.append('1');
+    }
+
+    public void test_writeValuesAsArray_DataOutput() throws Exception
+    {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        DataOutput dataOutput = new DataOutputStream(outputStream);
+        SequenceWriter sequenceWriter = MAPPER.writer().writeValuesAsArray(dataOutput);
+        sequenceWriter.write("value");
+        sequenceWriter.flush();
+        sequenceWriter.close();
+
+        assertEquals(new String(outputStream.toByteArray(), StandardCharsets.UTF_8), "[\"value\"]");
+
+        // the data output has not been closed by close
+        dataOutput.write(1);
+    }
+
+    public void test_writeValuesAsArray_JsonGenerator() throws Exception
+    {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        JsonGenerator jsonGenerator = MAPPER.createGenerator(outputStream);
+        SequenceWriter sequenceWriter = MAPPER.writer().writeValuesAsArray(jsonGenerator);
+        sequenceWriter.write("value");
+        sequenceWriter.flush();
+        sequenceWriter.close();
+        jsonGenerator.flush();
+        jsonGenerator.close();
+
+        assertEquals(new String(outputStream.toByteArray(), StandardCharsets.UTF_8), "[\"value\"]");
+
+        // the data output has not been closed by close
+        outputStream.write(1);
+    }
+
+    public void test_writeValuesAsArray_failsIfArgumentIsNull() throws Exception
+    {
+        ObjectMapper objectMapper = MAPPER;
+        test_method_failsIfArgumentIsNull(() -> objectMapper.writer().writeValuesAsArray((OutputStream) null));
+        test_method_failsIfArgumentIsNull(() -> objectMapper.writer().writeValuesAsArray((DataOutput) null));
+        test_method_failsIfArgumentIsNull(() -> objectMapper.writer().writeValuesAsArray((Path) null));
+        test_method_failsIfArgumentIsNull(() -> objectMapper.writer().writeValuesAsArray((File) null));
+        test_method_failsIfArgumentIsNull(() -> objectMapper.writer().writeValuesAsArray((Writer) null));
+        test_method_failsIfArgumentIsNull(() -> objectMapper.writer().writeValuesAsArray((JsonGenerator) null));
+    }
+
+    private static void test_method_failsIfArgumentIsNull(Runnable runnable) throws Exception
+    {
+        try {
+            runnable.run();
+            fail("IllegalArgumentException expected.");
+        } catch (IllegalArgumentException expected) {
+            verifyException(expected, "Argument \"");
+            verifyException(expected, "\" is null");
         }
     }
 }

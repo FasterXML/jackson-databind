@@ -2,8 +2,6 @@ package com.fasterxml.jackson.databind.jsontype.deftyping;
 
 import java.util.*;
 
-import static org.junit.Assert.*;
-
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
@@ -39,14 +37,14 @@ public class TestDefaultForScalars
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     private final ObjectMapper DEFAULT_TYPING_MAPPER = jsonMapperBuilder()
-        .activateDefaultTyping(NoCheckSubTypeValidator.instance)
-        .build();
+                    .activateDefaultTyping(NoCheckSubTypeValidator.instance)
+                    .build();
 
     /**
      * Unit test to verify that limited number of core types do NOT include
@@ -94,21 +92,22 @@ public class TestDefaultForScalars
      */
     public void testScalarArrays() throws Exception
     {
-        ObjectMapper m = jsonMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
-                        ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT)
+                        DefaultTyping.JAVA_LANG_OBJECT)
                 .build();
         Object[] input = new Object[] {
                 "abc", new Date(1234567), null, Integer.valueOf(456)
         };
-        String json = m.writeValueAsString(input);
+        String json = mapper.writeValueAsString(input);
         assertEquals("[\"abc\",[\"java.util.Date\",1234567],null,456]", json);
 
         // and should deserialize back as well:
-        Object[] output = m.readValue(json, Object[].class);
+        Object[] output = mapper.readValue(json, Object[].class);
         assertArrayEquals(input, output);
     }
 
+    // Loosely scalar
     public void test417() throws Exception
     {
         Jackson417Bean input = new Jackson417Bean();
@@ -128,13 +127,12 @@ public class TestDefaultForScalars
         mapData.put("longAsField", data);
 
         // Configure Jackson to preserve types
-        StdTypeResolverBuilder resolver = new StdTypeResolverBuilder();
-        resolver.init(JsonTypeInfo.Id.CLASS, null);
-        resolver.inclusion(JsonTypeInfo.As.PROPERTY);
-        resolver.typeProperty("__t");
+        StdTypeResolverBuilder resolver = new StdTypeResolverBuilder(JsonTypeInfo.Id.CLASS,
+                JsonTypeInfo.As.PROPERTY, "__t");
         ObjectMapper mapper = jsonMapperBuilder()
-                .setDefaultTyping(resolver)
                 .enable(SerializationFeature.INDENT_OUTPUT)
+                .polymorphicTypeValidator(new NoCheckSubTypeValidator())
+                .setDefaultTyping(resolver)
                 .build();
 
         // Serialize

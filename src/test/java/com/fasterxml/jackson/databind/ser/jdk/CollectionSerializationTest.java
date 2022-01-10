@@ -6,8 +6,8 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 public class CollectionSerializationTest
@@ -48,18 +48,18 @@ public class CollectionSerializationTest
         }
     }
 
-    static class ListSerializer extends JsonSerializer<List<String>>
+    static class ListSerializer extends StdSerializer<List<String>>
     {
+        public ListSerializer() { super(List.class); }
+
         @Override
         public void serialize(List<String> value, JsonGenerator gen, SerializerProvider provider)
-            throws IOException
         {
             // just use standard List.toString(), output as JSON String
             gen.writeString(value.toString());
         }
     }
 
-    // for [JACKSON-254], suppression of empty collections
     static class EmptyListBean {
         public List<String> empty = new ArrayList<String>();
     }
@@ -124,14 +124,14 @@ public class CollectionSerializationTest
             String json = MAPPER.writeValueAsString(value);
             
             // and then need to verify:
-            JsonParser jp = new JsonFactory().createParser(json);
-            assertToken(JsonToken.START_ARRAY, jp.nextToken());
+            JsonParser p = MAPPER.createParser(json);
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
             for (int i = 0; i < entryLen; ++i) {
-                assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-                assertEquals(i, jp.getIntValue());
+                assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+                assertEquals(i, p.getIntValue());
             }
-            assertToken(JsonToken.END_ARRAY, jp.nextToken());
-            jp.close();
+            assertToken(JsonToken.END_ARRAY, p.nextToken());
+            p.close();
         }
     }
 
@@ -145,37 +145,37 @@ public class CollectionSerializationTest
         }
         // Let's test using 3 main variants...
         for (int mode = 0; mode < 3; ++mode) {
-            JsonParser jp = null;
+            JsonParser p = null;
             switch (mode) {
             case 0:
                 {
                     byte[] data = MAPPER.writeValueAsBytes(value);
-                    jp = new JsonFactory().createParser(data);
+                    p = MAPPER.createParser(data);
                 }
                 break;
             case 1:
                 {
                     StringWriter sw = new StringWriter(value.size());
                     MAPPER.writeValue(sw, value);
-                    jp = createParserUsingReader(sw.toString());
+                    p = createParserUsingReader(sw.toString());
                 }
                 break;
             case 2:
                 {
                     String str = MAPPER.writeValueAsString(value);
-                    jp = createParserUsingReader(str);
+                    p = createParserUsingReader(str);
                 }
                 break;
             }
 
             // and verify
-            assertToken(JsonToken.START_ARRAY, jp.nextToken());
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
             for (int i = 0; i <= COUNT; ++i) {
-                assertEquals(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-                assertEquals(i, jp.getIntValue());
+                assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+                assertEquals(i, p.getIntValue());
             }
-            assertToken(JsonToken.END_ARRAY, jp.nextToken());
-            jp.close();
+            assertToken(JsonToken.END_ARRAY, p.nextToken());
+            p.close();
         }
     }
 
@@ -260,8 +260,9 @@ public class CollectionSerializationTest
         assertEquals("{\"empty\":[]}", MAPPER.writeValueAsString(array));
 
         // note: value of setting may be cached when constructing serializer, need a new instance
-        ObjectMapper m = new ObjectMapper();
-        m.configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, false);
+        ObjectMapper m = jsonMapperBuilder()
+                .configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, false)
+                .build();
         assertEquals("{}", m.writeValueAsString(list));
         assertEquals("{}", m.writeValueAsString(array));
     }
@@ -274,8 +275,9 @@ public class CollectionSerializationTest
         assertEquals(a2q("{'list':['a','b','c']}"), json);
 
         // but then with default typing
-        ObjectMapper mapper = jsonMapperBuilder()
-                .activateDefaultTyping(NoCheckSubTypeValidator.instance, DefaultTyping.NON_FINAL)
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.NON_FINAL)
                 .build();
         json = mapper.writeValueAsString(w);
         assertEquals(a2q(String.format("['%s',{'list':['%s',['a','b','c']]}]",

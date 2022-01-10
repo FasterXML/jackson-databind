@@ -8,8 +8,9 @@ import java.util.TreeMap;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.impl.DefaultTypeResolverBuilder;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 public class DefaultTypeAbstractMapping3235Test extends BaseMapTest
 {
@@ -38,10 +39,9 @@ public class DefaultTypeAbstractMapping3235Test extends BaseMapTest
                 )
                 .registerSubtypes(TreeMap.class, LinkedList.class, ChildOfParentWithoutDefault.class)
                 .setDefaultTyping(
-                        new ObjectMapper.DefaultTypeResolverBuilder(
-                                ObjectMapper.DefaultTyping.NON_FINAL, LaissezFaireSubTypeValidator.instance
-                        ).init(JsonTypeInfo.Id.CLASS, null
-                        ).inclusion(JsonTypeInfo.As.PROPERTY)
+                        new DefaultTypeResolverBuilder( NoCheckSubTypeValidator.instance,
+                                DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY,
+                                JsonTypeInfo.Id.CLASS, "foo")
                 )
                 .build();
         String doc = a2q(

@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser;
 
-import java.io.*;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
@@ -24,7 +23,7 @@ public class TestAnnotationUsing
      */
 
     /**
-     * Class for testing {@link JsonDeserializer} annotation
+     * Class for testing {@link ValueDeserializer} annotation
      * for class itself.
      */
     @JsonDeserialize(using=ValueDeserializer.class)
@@ -40,7 +39,7 @@ public class TestAnnotationUsing
     }
 
     /**
-     * Class for testing {@link JsonDeserializer} annotation
+     * Class for testing {@link ValueDeserializer} annotation
      * for a method
      */
     final static class MethodBean {
@@ -89,11 +88,11 @@ public class TestAnnotationUsing
     static class ValueDeserializer extends StdDeserializer<ValueClass>
     {
         public ValueDeserializer() { super(ValueClass.class); }
+
         @Override
-        public ValueClass deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException
+        public ValueClass deserialize(JsonParser p, DeserializationContext ctxt)
         {
-            int i = jp.getIntValue();
+            int i = p.getIntValue();
             return new ValueClass(i, i);
         }
     }
@@ -101,11 +100,11 @@ public class TestAnnotationUsing
     private final static class IntsDeserializer extends StdDeserializer<int[]>
     {
         public IntsDeserializer() { super(int[].class); }
+
         @Override
-        public int[] deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException
+        public int[] deserialize(JsonParser p, DeserializationContext ctxt)
         {
-            return new int[] { jp.getIntValue() };
+            return new int[] { p.getIntValue() };
         }
     }
 

@@ -112,7 +112,7 @@ public class BuilderErrorHandling extends BaseMapTest
             MAPPER.readValue(json, ValueClassXY.class);
             fail("Should not pass");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Unrecognized field");
+            verifyException(e, "Unrecognized property ");
         }
         // but pass if ok to ignore
         ValueClassXY result = MAPPER.readerFor(ValueClassXY.class)

@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.databind.jsontype.impl;
 
-import java.io.IOException;
 import java.util.*;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
@@ -25,32 +25,30 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  * the absence of child fields infers a parent type. That is, every deducible subtype
  * MUST have some unique fields and the input data MUST contain said unique fields
  * to provide a <i>positive match</i>.
- *
- * @since 2.12
  */
 public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
 {
-    private static final long serialVersionUID = 1L;
-
     // 03-May-2021, tatu: for [databind#3139], support for "empty" type
     private static final BitSet EMPTY_CLASS_FINGERPRINT = new BitSet(0);
+    // Property name -> bitmap-index of every Property discovered, across all subtypes
+    private final Map<String, Integer> propertyBitIndex;
+    // Bitmap of available properties in each subtype (including its parents)
 
-    // Fieldname -> bitmap-index of every field discovered, across all subtypes
-    private final Map<String, Integer> fieldBitIndex;
-    // Bitmap of available fields in each subtype (including its parents)
     private final Map<BitSet, String> subtypeFingerprints;
 
-    public AsDeductionTypeDeserializer(JavaType bt, TypeIdResolver idRes, JavaType defaultImpl,
-            DeserializationConfig config, Collection<NamedType> subtypes)
+    public AsDeductionTypeDeserializer(DeserializationContext ctxt,
+            JavaType bt, TypeIdResolver idRes, JavaType defaultImpl,
+            Collection<NamedType> subtypes)
     {
         super(bt, idRes, null, false, defaultImpl, null);
-        fieldBitIndex = new HashMap<>();
-        subtypeFingerprints = buildFingerprints(config, subtypes);
+        propertyBitIndex = new HashMap<>();
+        subtypeFingerprints = buildFingerprints(ctxt, subtypes);
     }
 
-    public AsDeductionTypeDeserializer(AsDeductionTypeDeserializer src, BeanProperty property) {
+    public AsDeductionTypeDeserializer(AsDeductionTypeDeserializer src, BeanProperty property)
+    {
         super(src, property);
-        fieldBitIndex = src.fieldBitIndex;
+        propertyBitIndex = src.propertyBitIndex;
         subtypeFingerprints = src.subtypeFingerprints;
     }
 
@@ -59,24 +57,26 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
         return (prop == _property) ? this : new AsDeductionTypeDeserializer(this, prop);
     }
 
-    protected Map<BitSet, String> buildFingerprints(DeserializationConfig config, Collection<NamedType> subtypes) {
-        boolean ignoreCase = config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
+    protected Map<BitSet, String> buildFingerprints(DeserializationContext ctxt,
+            Collection<NamedType> subtypes)
+    {
+        boolean ignoreCase = ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
 
-        int nextField = 0;
+        int nextProperty = 0;
         Map<BitSet, String> fingerprints = new HashMap<>();
 
         for (NamedType subtype : subtypes) {
-            JavaType subtyped = config.getTypeFactory().constructType(subtype.getType());
-            List<BeanPropertyDefinition> properties = config.introspect(subtyped).findProperties();
+            JavaType subtyped = ctxt.constructType(subtype.getType());
+            List<BeanPropertyDefinition> properties = ctxt.introspectBeanDescription(subtyped).findProperties();
 
-            BitSet fingerprint = new BitSet(nextField + properties.size());
+            BitSet fingerprint = new BitSet(nextProperty + properties.size());
             for (BeanPropertyDefinition property : properties) {
                 String name = property.getName();
                 if (ignoreCase) name = name.toLowerCase();
-                Integer bitIndex = fieldBitIndex.get(name);
+                Integer bitIndex = propertyBitIndex.get(name);
                 if (bitIndex == null) {
-                    bitIndex = nextField;
-                    fieldBitIndex.put(name, nextField++);
+                    bitIndex = nextProperty;
+                    propertyBitIndex.put(name, nextProperty++);
                 }
                 fingerprint.set(bitIndex);
             }
@@ -94,12 +94,13 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
     }
 
     @Override
-    public Object deserializeTypedFromObject(JsonParser p, DeserializationContext ctxt) throws IOException {
-
+    public Object deserializeTypedFromObject(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
+    {
         JsonToken t = p.currentToken();
         if (t == JsonToken.START_OBJECT) {
             t = p.nextToken();
-        } else if (/*t == JsonToken.START_ARRAY ||*/ t != JsonToken.FIELD_NAME) {
+        } else if (/*t == JsonToken.START_ARRAY ||*/ t != JsonToken.PROPERTY_NAME) {
             /* This is most likely due to the fact that not all Java types are
              * serialized as JSON Objects; so if "as-property" inclusion is requested,
              * serialization of things like Lists must be instead handled as if
@@ -122,22 +123,22 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
 
         // Keep track of processed tokens as we must rewind once after deducing
         // the deserializer to use
-        @SuppressWarnings("resource")
         final TokenBuffer tb = ctxt.bufferForInputBuffering(p);
         boolean ignoreCase = ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
 
-        for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
+        for (; t == JsonToken.PROPERTY_NAME; t = p.nextToken()) {
             String name = p.currentName();
             if (ignoreCase) name = name.toLowerCase();
 
             tb.copyCurrentStructure(p);
 
-            Integer bit = fieldBitIndex.get(name);
+            Integer bit = propertyBitIndex.get(name);
             if (bit != null) {
-                // field is known by at least one subtype
+                // Property is known by at least one subtype
                 prune(candidates, bit);
                 if (candidates.size() == 1) {
-                    return _deserializeTypedForId(p, ctxt, tb, subtypeFingerprints.get(candidates.get(0)));
+                    return _deserializeTypedForId(p, ctxt, tb,
+                            subtypeFingerprints.get(candidates.get(0)));
                 }
             }
         }
@@ -147,7 +148,7 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
         return _deserializeTypedUsingDefaultImpl(p, ctxt, tb, msgToReportIfDefaultImplFailsToo);
     }
 
-    // Keep only fingerprints containing this field
+    // Keep only fingerprints containing this property
     private static void prune(List<BitSet> candidates, int bit) {
         for (Iterator<BitSet> iter = candidates.iterator(); iter.hasNext(); ) {
             if (!iter.next().get(bit)) {

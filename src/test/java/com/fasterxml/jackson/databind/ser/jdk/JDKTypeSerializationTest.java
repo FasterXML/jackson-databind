@@ -10,7 +10,8 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.StreamWriteFeature;
+import com.fasterxml.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.databind.*;
 
 /**
@@ -44,9 +45,9 @@ public class JDKTypeSerializationTest
     
     public void testBigDecimalAsPlainString() throws Exception
     {
-        final ObjectMapper mapper = new ObjectMapper();
-
-        mapper.enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN);
+        final ObjectMapper mapper = new ObjectMapper(JsonFactory.builder()
+                .enable(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN)
+                .build());
         Map<String, Object> map = new HashMap<String, Object>();
         String PI_STR = "3.00000000";
         map.put("pi", new BigDecimal(PI_STR));
@@ -83,10 +84,11 @@ public class JDKTypeSerializationTest
     public void testLocale() throws IOException
     {
         assertEquals(q("en"), MAPPER.writeValueAsString(new Locale("en")));
-        assertEquals(q("es_ES"), MAPPER.writeValueAsString(new Locale("es", "ES")));
-        assertEquals(q("fi_FI_savo"), MAPPER.writeValueAsString(new Locale("FI", "fi", "savo")));
+        assertEquals(q("es-ES"), MAPPER.writeValueAsString(new Locale("es", "ES")));
+        // 15-Feb-2017, tatu: wrt [databind#1600], can only assume this is expected...
+        assertEquals(q("fi-FI-x-lvariant-savo"), MAPPER.writeValueAsString(new Locale("FI", "fi", "savo")));
 
-        assertEquals(q("en_US"), MAPPER.writeValueAsString(Locale.US));
+        assertEquals(q("en-US"), MAPPER.writeValueAsString(Locale.US));
 
         // [databind#1123]
         assertEquals(q(""), MAPPER.writeValueAsString(Locale.ROOT));
@@ -98,9 +100,10 @@ public class JDKTypeSerializationTest
         InetAddress input = InetAddress.getByName("google.com");
         assertEquals(q("google.com"), MAPPER.writeValueAsString(input));
 
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configOverride(InetAddress.class)
-            .setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.NUMBER));
+        ObjectMapper mapper = jsonMapperBuilder()
+                .withConfigOverride(InetAddress.class,
+                        o -> o.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.NUMBER)))
+                .build();
         String json = mapper.writeValueAsString(input);
         assertEquals(q(input.getHostAddress()), json);
 

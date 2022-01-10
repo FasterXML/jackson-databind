@@ -4,12 +4,14 @@ import com.fasterxml.jackson.annotation.*;
 
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonStreamContext;
+import com.fasterxml.jackson.core.TokenStreamContext;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.PropertyWriter;
-import com.fasterxml.jackson.databind.ser.impl.*;
+import com.fasterxml.jackson.databind.ser.std.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.std.SimpleFilterProvider;
 
 /**
  * Tests for verifying that bean property filtering using JsonFilter
@@ -42,15 +44,15 @@ public class TestJsonFilter extends BaseMapTest
 
     static class CheckSiblingContextFilter extends SimpleBeanPropertyFilter {
         @Override
-        public void serializeAsField(Object bean, JsonGenerator jgen, SerializerProvider prov, PropertyWriter writer) throws Exception {
-            JsonStreamContext sc = jgen.getOutputContext();
+        public void serializeAsProperty(Object bean, JsonGenerator jgen, SerializerProvider prov, PropertyWriter writer) throws Exception {
+            TokenStreamContext sc = jgen.streamWriteContext();
 
             if (writer.getName() != null && writer.getName().equals("c")) {
                 //This assertion is failing as sc.getParent() incorrectly returns 'a'. If you comment out the member 'a'
                 // in the CheckSiblingContextBean, you'll see that the sc.getParent() correctly returns 'b'
-                assertEquals("b", sc.getParent().getCurrentName());
+                assertEquals("b", sc.getParent().currentName());
             }
-            writer.serializeAsField(bean, jgen, prov);
+            writer.serializeAsProperty(bean, jgen, prov);
         }
     }
 
@@ -58,13 +60,14 @@ public class TestJsonFilter extends BaseMapTest
         FilterProvider prov = new SimpleFilterProvider().addFilter("checkSiblingContextFilter",
                 new CheckSiblingContextFilter());
 
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setFilterProvider(prov);
-        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .filterProvider(prov)
+                .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+                .build();
         mapper.valueToTree(new CheckSiblingContextBean());
     }
 
-    // [Issue#89]
+    // [databind#89]
     static class Pod
     {
         protected String username;
@@ -92,7 +95,7 @@ public class TestJsonFilter extends BaseMapTest
         }
     }    
 
-    // [Issue#306]: JsonFilter for properties, too!
+    // [databind#306]: JsonFilter for properties, too!
 
     @JsonPropertyOrder(alphabetic=true)
     static class FilteredProps
@@ -119,9 +122,9 @@ public class TestJsonFilter extends BaseMapTest
                 SimpleBeanPropertyFilter.filterOutAllExcept("a"));
         assertEquals("{\"a\":\"a\"}", MAPPER.writer(prov).writeValueAsString(new Bean()));
 
-        // [JACKSON-504]: also verify it works via mapper
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setFilterProvider(prov);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .filterProvider(prov)
+                .build();
         assertEquals("{\"a\":\"a\"}", mapper.writeValueAsString(new Bean()));
     }
 
@@ -152,13 +155,13 @@ public class TestJsonFilter extends BaseMapTest
         
         // but when changing behavior, should work difference
         SimpleFilterProvider fp = new SimpleFilterProvider().setFailOnUnknownId(false);
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setFilterProvider(fp);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .filterProvider(fp)
+                .build();
         String json = mapper.writeValueAsString(new Bean());
         assertEquals("{\"a\":\"a\",\"b\":\"b\"}", json);
     }
-    
-    // defaulting, as per [JACKSON-449]
+
     public void testDefaultFilter() throws Exception
     {
         FilterProvider prov = new SimpleFilterProvider().setDefaultFilter(SimpleBeanPropertyFilter.filterOutAllExcept("b"));

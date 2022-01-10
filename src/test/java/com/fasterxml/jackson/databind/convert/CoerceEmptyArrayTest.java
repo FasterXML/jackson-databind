@@ -131,7 +131,7 @@ public class CoerceEmptyArrayTest extends BaseMapTest
 
     public void testEnumMapFromEmptyArray() throws Exception
     {
-        final JavaType targetType = DEFAULT_READER.getTypeFactory()
+        final JavaType targetType = DEFAULT_READER.typeFactory()
                 .constructType(new TypeReference<EnumMap<ABC,String>>() { });
 
         assertNull(MAPPER_TO_NULL.readerFor(targetType).readValue(EMPTY_ARRAY));

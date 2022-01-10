@@ -87,23 +87,25 @@ public class TestAbstractTypes extends BaseMapTest
 
     public void testCollectionDefaulting() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
         // let's ensure we get hierarchic mapping
         mod.addAbstractTypeMapping(Collection.class, List.class);
         mod.addAbstractTypeMapping(List.class, LinkedList.class);
-        mapper.registerModule(mod);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(mod)
+                .build();
         Collection<?> result = mapper.readValue("[]", Collection.class);
         assertEquals(LinkedList.class, result.getClass());
     }
 
     public void testMapDefaultingBasic() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
         // default is HashMap, so:
         mod.addAbstractTypeMapping(Map.class, TreeMap.class);
-        mapper.registerModule(mod);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(mod)
+                .build();
         Map<?,?> result = mapper.readValue("{}", Map.class);
         assertEquals(TreeMap.class, result.getClass());
     }
@@ -111,14 +113,15 @@ public class TestAbstractTypes extends BaseMapTest
     // [databind#700]
     public void testDefaultingRecursive() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
 
         // defaults: LinkedHashMap, ArrayList
         mod.addAbstractTypeMapping(Map.class, TreeMap.class);
         mod.addAbstractTypeMapping(List.class, LinkedList.class);
 
-        mapper.registerModule(mod);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(mod)
+                .build();
         Object result;
 
         result = mapper.readValue("[ {} ]", Object.class);
@@ -139,11 +142,12 @@ public class TestAbstractTypes extends BaseMapTest
 
     public void testInterfaceDefaulting() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
         // let's ensure we get hierarchic mapping
         mod.addAbstractTypeMapping(CharSequence.class, MyString.class);
-        mapper.registerModule(mod);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(mod)
+                .build();
         Object result = mapper.readValue(q("abc"), CharSequence.class);
         assertEquals(MyString.class, result.getClass());
         assertEquals("abc", ((MyString) result).value);
@@ -151,8 +155,9 @@ public class TestAbstractTypes extends BaseMapTest
         // and ditto for POJOs
         mod = new SimpleModule();
         mod.addAbstractTypeMapping(Abstract.class, AbstractImpl.class);
-        mapper = new ObjectMapper()
-                .registerModule(mod);
+        mapper = jsonMapperBuilder()
+                .addModule(mod)
+                .build();
         Abstract a = mapper.readValue("{}", Abstract.class);
         assertNotNull(a);
     }
@@ -160,13 +165,15 @@ public class TestAbstractTypes extends BaseMapTest
     // [databind#2019]: mappings from multiple modules
     public void testAbstractMappingsFromTwoModules() throws Exception
     {
-        ObjectMapper mapper = newJsonMapper();
         SimpleModule module1 = new SimpleModule("module1");
         module1.addAbstractTypeMapping(Datatype1.class, SimpleDatatype1.class);
 
         SimpleModule module2 = new SimpleModule("module2");
         module2.addAbstractTypeMapping(Datatype2.class, SimpleDatatype2.class);
-        mapper.registerModules(module1, module2);
+
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModules(module1, module2)
+                .build();
 
         final String JSON_EXAMPLE = "{\"value\": \"aaa\"}";
         Datatype1 value1 = mapper.readValue(JSON_EXAMPLE, Datatype1.class);

@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.deser.impl;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
-// Simple placeholder
 public class PropertyBasedObjectIdGenerator
 	extends ObjectIdGenerators.PropertyGenerator
 {

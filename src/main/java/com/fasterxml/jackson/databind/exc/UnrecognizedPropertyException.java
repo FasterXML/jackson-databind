@@ -4,10 +4,9 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.JsonMappingException;
 
 /**
- * Specialized {@link JsonMappingException} sub-class specifically used
+ * Specialized {@link PropertyBindingException} sub-class specifically used
  * to indicate problems due to encountering a JSON property that could
  * not be mapped to an Object property (via getter, constructor argument
  * or field).
@@ -22,17 +21,6 @@ public class UnrecognizedPropertyException
             Collection<Object> propertyIds)
     {
         super(p, msg, loc, referringClass, propName, propertyIds);
-    }
-
-    /**
-     * @deprecated Since 2.7
-     */
-    @Deprecated // since 2.7
-    public UnrecognizedPropertyException(String msg, JsonLocation loc,
-            Class<?> referringClass, String propName,
-            Collection<Object> propertyIds)
-    {
-        super(msg, loc, referringClass, propName, propertyIds);
     }
 
     /**
@@ -55,10 +43,12 @@ public class UnrecognizedPropertyException
         } else {
             ref = fromObjectOrClass.getClass();
         }
-        String msg = String.format("Unrecognized field \"%s\" (class %s), not marked as ignorable",
+        // 06-May-2020, tatu: 2.x said "Unrecognized field" but we call them "properties"
+        //    everywhere else so...
+        String msg = String.format("Unrecognized property \"%s\" (class %s), not marked as ignorable",
                 propertyName, ref.getName());
         UnrecognizedPropertyException e = new UnrecognizedPropertyException(p, msg,
-                p.getCurrentLocation(), ref, propertyName, propertyIds);
+                p.currentLocation(), ref, propertyName, propertyIds);
         // but let's also ensure path includes this last (missing) segment
         e.prependPath(fromObjectOrClass, propertyName);
         return e;

@@ -3,22 +3,20 @@ package com.fasterxml.jackson.databind.exc;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.BeanDescription;
+import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 
 /**
- * Intermediate exception type used as the base class for all {@link JsonMappingException}s
+ * Intermediate exception type used as the base class for all {@link DatabindException}s
  * that are due to problems with target type definition; usually a problem with
  * annotations used on a class or its properties.
  * This is in contrast to {@link MismatchedInputException} which
  * signals a problem with input to map.
- *
- * @since 2.9
  */
 @SuppressWarnings("serial")
 public class InvalidDefinitionException
-    extends JsonMappingException
+    extends DatabindException
 {
     protected final JavaType _type;
 

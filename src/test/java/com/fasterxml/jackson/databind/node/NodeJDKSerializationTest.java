@@ -59,19 +59,16 @@ public class NodeJDKSerializationTest extends BaseMapTest
         int ix = 0;
         try (JsonGenerator g = MAPPER.createGenerator(out)) {
             g.writeStartArray();
-
             do {
                 g.writeStartObject();
-                g.writeNumberField("index", ix++);
-                g.writeStringField("extra", "none#"+ix);
+                g.writeNumberProperty("index", ix++);
+                g.writeStringProperty("extra", "none#"+ix);
                 g.writeEndObject();
             } while (out.size() < expSize);
-            
             g.writeEndArray();
         }
 
         JsonNode root = MAPPER.readTree(out.toByteArray());
-
         testNodeRoundtrip(root);
     }
 

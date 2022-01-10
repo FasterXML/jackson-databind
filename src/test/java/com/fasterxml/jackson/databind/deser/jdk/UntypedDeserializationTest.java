@@ -11,8 +11,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -22,7 +20,6 @@ import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
  * Unit tests for verifying "raw" (or "untyped") data binding from JSON to JDK objects;
  * one that only uses core JDK types; wrappers, Maps and Lists.
  */
-@SuppressWarnings("serial")
 public class UntypedDeserializationTest
     extends BaseMapTest
 {
@@ -32,7 +29,7 @@ public class UntypedDeserializationTest
         public UCStringDeserializer() { super(String.class); }
 
         @Override
-        public String deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+        public String deserialize(JsonParser p, DeserializationContext ctxt) {
             return p.getText().toUpperCase();
         }
     }
@@ -48,20 +45,18 @@ public class UntypedDeserializationTest
         }
 
         @Override
-        public Number deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+        public Number deserialize(JsonParser p, DeserializationContext ctxt) {
             return value;
         }
     }
 
     // Let's make this Contextual, to tease out cyclic resolution issues, if any
     static class ListDeserializer extends StdDeserializer<List<Object>>
-        implements ContextualDeserializer
     {
         public ListDeserializer() { super(List.class); }
 
         @Override
         public List<Object> deserialize(JsonParser p, DeserializationContext ctxt)
-            throws IOException
         {
             ArrayList<Object> list = new ArrayList<Object>();
             while (p.nextValue() != JsonToken.END_ARRAY) {
@@ -71,12 +66,12 @@ public class UntypedDeserializationTest
         }
 
         @Override
-        public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
-                BeanProperty property) throws JsonMappingException
+        public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
+                BeanProperty property)
         {
             // For now, we just need to access "untyped" deserializer; not use it.
             
-            /*JsonDeserializer<Object> ob = */
+            /*ValueDeserializer<Object> ob = */
             ctxt.findContextualValueDeserializer(ctxt.constructType(Object.class), property);
             return this;
         }
@@ -88,7 +83,6 @@ public class UntypedDeserializationTest
 
         @Override
         public Map<String,Object> deserialize(JsonParser p, DeserializationContext ctxt)
-            throws IOException
         {
             Map<String,Object> map = new LinkedHashMap<String,Object>();
             while (p.nextValue() != JsonToken.END_OBJECT) {
@@ -115,6 +109,7 @@ public class UntypedDeserializationTest
         public WrappedPolymorphicUntyped(Object o) { value = o; }
     }
 
+    // [databind#1460]
     static class WrappedUntyped1460 {
         public Object value;
     }
@@ -131,7 +126,7 @@ public class UntypedDeserializationTest
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
-    
+
     @SuppressWarnings("unchecked")
     public void testSampleDoc() throws Exception
     {
@@ -186,7 +181,6 @@ public class UntypedDeserializationTest
         // and that's all folks!
     }
 
-    @SuppressWarnings({"unlikely-arg-type", "CollectionIncompatibleType"})
     public void testUntypedMap() throws Exception
     {
         // to get "untyped" default map-to-map, pass Object.class
@@ -194,7 +188,7 @@ public class UntypedDeserializationTest
 
         // Not a guaranteed cast theoretically, but will work:
         @SuppressWarnings("unchecked")
-        Map<String,Object> result = (Map<String,Object>)MAPPER.readValue(JSON, Object.class);
+        Map<Object,Object> result = (Map<Object,Object>)MAPPER.readValue(JSON, Object.class);
         assertNotNull(result);
         assertTrue(result instanceof Map<?,?>);
 
@@ -246,8 +240,9 @@ public class UntypedDeserializationTest
         SimpleModule m = new SimpleModule("test-module");
         m.addDeserializer(String.class, new UCStringDeserializer());
         m.addDeserializer(Number.class, new CustomNumberDeserializer(13));
-        final ObjectMapper mapper = new ObjectMapper()
-            .registerModule(m);
+        final ObjectMapper mapper = jsonMapperBuilder()
+            .addModule(m)
+            .build();
 
         Object ob = mapper.readValue("{\"a\":\"b\", \"nr\":1 }", Object.class);
         assertTrue(ob instanceof Map);
@@ -267,9 +262,10 @@ public class UntypedDeserializationTest
     {
         SimpleModule m = new SimpleModule("test-module");
         m.addDeserializer(String.class, new UCStringDeserializer());
-        final ObjectMapper mapper = new ObjectMapper()
-            .registerModule(m);
-
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .polymorphicTypeValidator(new NoCheckSubTypeValidator())
+                .addModule(m)
+                .build();
         // Also: since this is now non-vanilla variant, try more alternatives
         List<?> l = (List<?>) mapper.readValue("[ true, false, 7, 0.5, \"foo\"]", Object.class);
         assertEquals(5, l.size());
@@ -289,9 +285,9 @@ public class UntypedDeserializationTest
     {
         SimpleModule m = new SimpleModule("test-module");
         m.addDeserializer(List.class, new ListDeserializer());
-        final ObjectMapper mapper = new ObjectMapper()
-            .registerModule(m);
-
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(m)
+                .build();
         // And then list...
         Object ob = mapper.readValue("[1, 2, true]", Object.class);
         assertTrue(ob instanceof List<?>);
@@ -306,9 +302,9 @@ public class UntypedDeserializationTest
     {
         SimpleModule m = new SimpleModule("test-module");
         m.addDeserializer(Map.class, new YMapDeserializer());
-        final ObjectMapper mapper = new ObjectMapper()
-            .registerModule(m);
-
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(m)
+                .build();
         // And then list...
         Object ob = mapper.readValue("{\"a\":true}", Object.class);
         assertTrue(ob instanceof Map<?,?>);
@@ -340,9 +336,10 @@ public class UntypedDeserializationTest
         assertTrue(ob instanceof List<?>);
 
         // but can change to produce Object[]:
-        ob = MAPPER.readerFor(Object.class)
-            .with(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY)
-            .readValue("[1]");
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY)
+                .build();
+        ob = mapper.readValue("[1]", Object.class);
         assertEquals(Object[].class, ob.getClass());
     }
 
@@ -411,9 +408,10 @@ public class UntypedDeserializationTest
     {
         SimpleModule m = new SimpleModule("test-module")
                 .addDeserializer(String.class, new UCStringDeserializer());
-        final ObjectMapper customMapper = newJsonMapper()
-            .registerModule(m);
-        
+        final ObjectMapper customMapper = jsonMapperBuilder()
+                .addModule(m)
+                .build();
+
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("a", 42);
 
@@ -444,9 +442,10 @@ public class UntypedDeserializationTest
     // Allow 'upgrade' of big integers into Long, BigInteger
     public void testObjectSerializeWithLong() throws IOException
     {
-        final ObjectMapper mapper = newJsonMapper();
-        mapper.activateDefaultTyping(NoCheckSubTypeValidator.instance,
-                DefaultTyping.JAVA_LANG_OBJECT, As.PROPERTY);
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.JAVA_LANG_OBJECT, As.PROPERTY)
+                .build();
         final long VALUE = 1337800584532L;
 
         String serialized = "{\"timestamp\":"+VALUE+"}";
@@ -463,7 +462,10 @@ public class UntypedDeserializationTest
 
     public void testPolymorphicUntypedVanilla() throws IOException
     {
-        ObjectReader rDefault = MAPPER.readerFor(WrappedPolymorphicUntyped.class);
+        ObjectReader rDefault = jsonMapperBuilder()
+                .polymorphicTypeValidator(new NoCheckSubTypeValidator())
+                .build()
+                .readerFor(WrappedPolymorphicUntyped.class);
         ObjectReader rAlt = rDefault
                 .with(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS,
                         DeserializationFeature.USE_BIG_INTEGER_FOR_INTS);
@@ -502,8 +504,10 @@ public class UntypedDeserializationTest
         // register module just to override one deserializer, to prevent use of Vanilla deser
         SimpleModule m = new SimpleModule("test-module")
                 .addDeserializer(String.class, new UCStringDeserializer());
-        final ObjectMapper customMapper = newJsonMapper()
-            .registerModule(m);
+        final ObjectMapper customMapper = jsonMapperBuilder()
+                .addModule(m)
+                .polymorphicTypeValidator(new NoCheckSubTypeValidator())
+                .build();
         ObjectReader rDefault = customMapper.readerFor(WrappedPolymorphicUntyped.class);
 
         WrappedPolymorphicUntyped w = rDefault.readValue(a2q("{'value':10}"));

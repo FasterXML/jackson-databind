@@ -80,18 +80,9 @@ public class SetterConflictTest extends BaseMapTest
     // [databind#3125]
     public void testDuplicateSetterResolutionOk() throws Exception
     {
-        POJOPropertiesCollector coll = collector(MAPPER, DupSetter3125Bean.class,
-                false);
-        final List<BeanPropertyDefinition> props = coll.getProperties();
-        assertEquals(1, props.size());
-        POJOPropertyBuilder prop = (POJOPropertyBuilder) props.get(0);
-        assertEquals("value", prop.getName());
-        // but this failed
-        AnnotatedMethod m = prop.getSetter();
-        assertNotNull(m);
-        assertEquals(String.class, m.getRawParameterType(0));
+        // 11-May-2021, tatu: 2.x tested underlying `POJOPropertiesCollector`
+        //   but access not as easy in 3.x so removed; just test actual usage:
 
-        // and then actual usage too
         DupSetter3125Bean value = MAPPER.readValue(a2q("{'value':'foo'}"),
                 DupSetter3125Bean.class);
         assertEquals("foo", value.str);
@@ -107,24 +98,5 @@ public class SetterConflictTest extends BaseMapTest
         } catch (InvalidDefinitionException e) {
             verifyException(e, "Conflicting setter definitions for property \"value\"");
         }
-    }
-
-    /*
-    /**********************************************************************
-    /* Helper methods
-    /**********************************************************************
-     */
-
-    protected POJOPropertiesCollector collector(ObjectMapper m0,
-            Class<?> cls, boolean forSerialization)
-    {
-        BasicClassIntrospector bci = new BasicClassIntrospector();
-        // no real difference between serialization, deserialization, at least here
-        if (forSerialization) {
-            return bci.collectProperties(m0.getSerializationConfig(),
-                    m0.constructType(cls), null, true);
-        }
-        return bci.collectProperties(m0.getDeserializationConfig(),
-                m0.constructType(cls), null, false);
     }
 }

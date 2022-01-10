@@ -59,7 +59,7 @@ public class TestRootName extends BaseMapTest
             mapper.readValue(a2q("[{'rudy':{'a':3}}]"), Bean.class);
             fail("Should not pass");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Unexpected token (START_ARRAY");
+            verifyException(e, "Unexpected token (`JsonToken.START_ARRAY`");
         }
 
         // Third: empty Object
@@ -67,7 +67,7 @@ public class TestRootName extends BaseMapTest
             mapper.readValue(a2q("{}]"), Bean.class);
             fail("Should not pass");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Current token not FIELD_NAME");
+            verifyException(e, "Current token not `JsonToken.PROPERTY_NAME`");
         }
 
         // Fourth, stuff after wrapped
@@ -76,7 +76,7 @@ public class TestRootName extends BaseMapTest
             fail("Should not pass");
         } catch (MismatchedInputException e) {
             verifyException(e, "Unexpected token");
-            verifyException(e, "Current token not END_OBJECT (to match wrapper");
+            verifyException(e, "Current token not `JsonToken.END_OBJECT` (to match wrapper");
         }
     }
 
@@ -96,7 +96,7 @@ public class TestRootName extends BaseMapTest
             reader.readValue(a2q("[{'rudy':{'a':3}}]"));
             fail("Should not pass");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Unexpected token (START_ARRAY");
+            verifyException(e, "Unexpected token (`JsonToken.START_ARRAY`");
         }
 
         // Third: empty Object
@@ -104,7 +104,7 @@ public class TestRootName extends BaseMapTest
             reader.readValue(a2q("{}]"));
             fail("Should not pass");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Current token not FIELD_NAME");
+            verifyException(e, "Current token not `JsonToken.PROPERTY_NAME`");
         }
 
         // Fourth, stuff after wrapped
@@ -113,7 +113,7 @@ public class TestRootName extends BaseMapTest
             fail("Should not pass");
         } catch (MismatchedInputException e) {
             verifyException(e, "Unexpected token");
-            verifyException(e, "Current token not END_OBJECT (to match wrapper");
+            verifyException(e, "Current token not `JsonToken.END_OBJECT` (to match wrapper");
         }
     }
 

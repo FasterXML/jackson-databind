@@ -36,12 +36,13 @@ public class ExternalTypeId2588Test extends BaseMapTest
 
     static class AnimalTypeIdResolver extends TypeIdResolverBase {
         @Override
-        public String idFromValue(Object value) {
-            return idFromValueAndType(value, value.getClass());
+        public String idFromValue(DatabindContext context, Object value) {
+            return idFromValueAndType(context, value, value.getClass());
         }
 
         @Override
-        public String idFromValueAndType(Object value, Class<?> suggestedType) {
+        public String idFromValueAndType(DatabindContext context,
+                Object value, Class<?> suggestedType) {
             if (suggestedType.isAssignableFrom(Cat.class)) {
                 return "cat";
             } else if (suggestedType.isAssignableFrom(Dog.class)) {

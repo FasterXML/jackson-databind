@@ -141,10 +141,10 @@ public class TestViewSerialization
 
         // but can also change (but not necessarily on the fly...)
         ObjectMapper mapper = jsonMapperBuilder()
-                .configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false)
+                .disable(MapperFeature.DEFAULT_VIEW_INCLUSION)
                 .build();
 
-        // with this setting, only explicit inclusions count:
+                // with this setting, only explicit inclusions count:
         json = mapper.writerWithView(ViewA.class).writeValueAsString(bean);
         map = mapper.readValue(json, Map.class);
         assertEquals(1, map.size());
@@ -181,9 +181,10 @@ public class TestViewSerialization
     // [JACKSON-868]
     public void test868() throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-        String json = mapper.writerWithView(OtherView.class).writeValueAsString(new Foo());
-        assertEquals(json, "{}");
+        ObjectMapper mapper = jsonMapperBuilder()
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_DEFAULT))
+                .build();
+        assertEquals("{}",
+                mapper.writerWithView(OtherView.class).writeValueAsString(new Foo()));
     }    
 }

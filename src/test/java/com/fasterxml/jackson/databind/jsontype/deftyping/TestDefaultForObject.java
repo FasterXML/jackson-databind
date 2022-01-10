@@ -7,7 +7,6 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
@@ -91,7 +90,7 @@ public class TestDefaultForObject
     static class BlockAllPTV extends PolymorphicTypeValidator.Base
     {
         @Override
-        public Validity validateBaseType(MapperConfig<?> config, JavaType baseType) {
+        public Validity validateBaseType(DatabindContext ctxt, JavaType baseType) {
             return Validity.DENIED;
         }
     }
@@ -109,16 +108,16 @@ public class TestDefaultForObject
      */
     public void testBeanAsObject() throws Exception
     {
-        ObjectMapper m = JsonMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance)
                 .build();
         // note: need to wrap, to get declared as Object
-        String str = m.writeValueAsString(new Object[] { new StringBean("abc") });
+        String str = mapper.writeValueAsString(new Object[] { new StringBean("abc") });
 
         _verifySerializationAsMap(str);
         
         // Ok: serialization seems to work as expected. Now deserialize:
-        Object ob = m.readValue(str, Object[].class);
+        Object ob = mapper.readValue(str, Object[].class);
         assertNotNull(ob);
         Object[] result = (Object[]) ob;
         assertNotNull(result[0]);
@@ -129,16 +128,15 @@ public class TestDefaultForObject
     // with 2.5, another test to check that "as-property" is valid option
     public void testBeanAsObjectUsingAsProperty() throws Exception
     {
-        ObjectMapper m = JsonMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTypingAsProperty(NoCheckSubTypeValidator.instance,
-                        ObjectMapper.DefaultTyping.NON_FINAL,
-                        ".hype")
+                        DefaultTyping.NON_FINAL, ".hype")
                 .build();
         // note: need to wrap, to get declared as Object
-        String json = m.writeValueAsString(new StringBean("abc"));
+        String json = mapper.writeValueAsString(new StringBean("abc"));
         
         // Ok: serialization seems to work as expected. Now deserialize:
-        Object result = m.readValue(json, Object.class);
+        Object result = mapper.readValue(json, Object.class);
         assertNotNull(result);
         assertEquals(StringBean.class, result.getClass());
         assertEquals("abc", ((StringBean) result).name);
@@ -148,7 +146,7 @@ public class TestDefaultForObject
     public void testAsPropertyWithPTV() throws Exception {
         ObjectMapper m = JsonMapper.builder()
                 .activateDefaultTypingAsProperty(new BlockAllPTV(),
-                        ObjectMapper.DefaultTyping.NON_FINAL,
+                        DefaultTyping.NON_FINAL,
                         "@classy")
                 .build();
         String json = m.writeValueAsString(new StringBean("abc"));
@@ -178,9 +176,9 @@ public class TestDefaultForObject
             verifyException(e, "cannot construct instance of");
         }
         // and then that we will succeed with default type info
-        m = JsonMapper.builder()
+        m = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
-                        ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE)
+                        DefaultTyping.OBJECT_AND_NON_CONCRETE)
                 .build();
         serial = m.writeValueAsString(input);
         AbstractBean[] beans = m.readValue(serial, AbstractBean[].class);
@@ -195,17 +193,17 @@ public class TestDefaultForObject
      */
     public void testNonFinalBean() throws Exception
     {
-        ObjectMapper m = JsonMapper.builder()
-                // first: use "object or abstract" typing: should produce no type info:
+        // first: use "object or abstract" typing: should produce no type info:        
+        ObjectMapper m = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
-                        ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE)
+                        DefaultTyping.OBJECT_AND_NON_CONCRETE)
                 .build();
         StringBean bean = new StringBean("x");
         assertEquals("{\"name\":\"x\"}", m.writeValueAsString(bean));
         // then non-final, and voila:
-        m = JsonMapper.builder()
+        m = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
-                        ObjectMapper.DefaultTyping.NON_FINAL)
+                        DefaultTyping.NON_FINAL)
                 .build();
         assertEquals("[\""+StringBean.class.getName()+"\",{\"name\":\"x\"}]",
             m.writeValueAsString(bean));
@@ -213,9 +211,9 @@ public class TestDefaultForObject
 
     public void testNullValue() throws Exception
     {
-        ObjectMapper m = JsonMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
-                        ObjectMapper.DefaultTyping.NON_FINAL)
+                        DefaultTyping.NON_FINAL)
                 .build();
         BeanHolder h = new BeanHolder();
         String json = m.writeValueAsString(h);
@@ -227,18 +225,19 @@ public class TestDefaultForObject
     
     public void testEnumAsObject() throws Exception
     {
+        final ObjectMapper vanillaMapper = objectMapper();
+        
         // wrapping to be declared as object
         Object[] input = new Object[] { Choice.YES };
         Object[] input2 = new Object[] { ComplexChoice.MAYBE};
         // first, without type info:
-        assertEquals("[\"YES\"]", serializeAsString(input));
-        assertEquals("[\"MAYBE\"]", serializeAsString(input2));
+        assertEquals("[\"YES\"]", vanillaMapper.writeValueAsString(input));
+        assertEquals("[\"MAYBE\"]", vanillaMapper.writeValueAsString(input2));
 
         // and then with it
-        ObjectMapper m = JsonMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance)
                 .build();
-
         String json = m.writeValueAsString(input);
         assertEquals("[[\""+Choice.class.getName()+"\",\"YES\"]]", json);
 
@@ -260,7 +259,7 @@ public class TestDefaultForObject
     {
         EnumSet<Choice> set = EnumSet.of(Choice.NO);
         Object[] input = new Object[] { set };
-        ObjectMapper m = JsonMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance)
                 .build();
         String json = m.writeValueAsString(input);
@@ -280,7 +279,7 @@ public class TestDefaultForObject
         EnumMap<Choice,String> map = new EnumMap<Choice,String>(Choice.class);
         map.put(Choice.NO, "maybe");
         Object[] input = new Object[] { map };
-        ObjectMapper m = JsonMapper.builder()
+        ObjectMapper m = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance)
                 .build();
         String json = m.writeValueAsString(input);
@@ -296,9 +295,9 @@ public class TestDefaultForObject
 
     public void testJackson311() throws Exception
     {
-        ObjectMapper mapper = JsonMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
-                        ObjectMapper.DefaultTyping.NON_FINAL)
+                        DefaultTyping.NON_FINAL)
                 .build();
         String json = mapper.writeValueAsString(new PolymorphicType("hello", 2));
         PolymorphicType value = mapper.readValue(json, PolymorphicType.class);
@@ -309,23 +308,22 @@ public class TestDefaultForObject
     // Also, let's ensure TokenBuffer gets properly handled
     public void testTokenBuffer() throws Exception
     {
-        ObjectMapper mapper = JsonMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
-                        ObjectMapper.DefaultTyping.NON_FINAL)
+                        DefaultTyping.NON_FINAL)
                 .build();
-
         // Ok, first test JSON Object containing buffer:
-        TokenBuffer buf = new TokenBuffer(mapper, false);
+        TokenBuffer buf = TokenBuffer.forGeneration();
         buf.writeStartObject();
-        buf.writeNumberField("num", 42);
+        buf.writeNumberProperty("num", 42);
         buf.writeEndObject();
         String json = mapper.writeValueAsString(new ObjectHolder(buf));
         ObjectHolder holder = mapper.readValue(json, ObjectHolder.class);
         assertNotNull(holder.value);
         assertSame(TokenBuffer.class, holder.value.getClass());
-        JsonParser jp = ((TokenBuffer) holder.value).asParser();
+        JsonParser jp = ((TokenBuffer) holder.value).asParser(ObjectReadContext.empty());
         assertToken(JsonToken.START_OBJECT, jp.nextToken());
-        assertToken(JsonToken.FIELD_NAME, jp.nextToken());
+        assertToken(JsonToken.PROPERTY_NAME, jp.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
         assertToken(JsonToken.END_OBJECT, jp.nextToken());
         assertNull(jp.nextToken());
@@ -333,7 +331,7 @@ public class TestDefaultForObject
         buf.close();
 
         // then as an array:
-        buf = new TokenBuffer(mapper, false);
+        buf = TokenBuffer.forGeneration();
         buf.writeStartArray();
         buf.writeBoolean(true);
         buf.writeEndArray();
@@ -341,7 +339,7 @@ public class TestDefaultForObject
         holder = mapper.readValue(json, ObjectHolder.class);
         assertNotNull(holder.value);
         assertSame(TokenBuffer.class, holder.value.getClass());
-        jp = ((TokenBuffer) holder.value).asParser();
+        jp = ((TokenBuffer) holder.value).asParser(ObjectReadContext.empty());
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertToken(JsonToken.VALUE_TRUE, jp.nextToken());
         assertToken(JsonToken.END_ARRAY, jp.nextToken());
@@ -350,13 +348,13 @@ public class TestDefaultForObject
         buf.close();
 
         // and finally as scalar
-        buf = new TokenBuffer(mapper, false);
+        buf = TokenBuffer.forGeneration();
         buf.writeNumber(321);
         json = mapper.writeValueAsString(new ObjectHolder(buf));
         holder = mapper.readValue(json, ObjectHolder.class);
         assertNotNull(holder.value);
         assertSame(TokenBuffer.class, holder.value.getClass());
-        jp = ((TokenBuffer) holder.value).asParser();
+        jp = ((TokenBuffer) holder.value).asParser(ObjectReadContext.empty());
         assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
         assertEquals(321, jp.getIntValue());
         assertNull(jp.nextToken());
@@ -366,9 +364,9 @@ public class TestDefaultForObject
 
     public void testIssue352() throws Exception
     {
-        ObjectMapper mapper = JsonMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
-                        ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE, JsonTypeInfo.As.PROPERTY)
+                        DefaultTyping.OBJECT_AND_NON_CONCRETE, JsonTypeInfo.As.PROPERTY)
                 .build();
         DiscussBean d1 = new DiscussBean();
         d1.subject = "mouse";
@@ -386,9 +384,9 @@ public class TestDefaultForObject
     // Test to ensure we can also use "As.PROPERTY" inclusion and custom property name
     public void testFeature432() throws Exception
     {
-        ObjectMapper mapper = JsonMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTypingAsProperty(NoCheckSubTypeValidator.instance,
-                        ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE, "*CLASS*")
+                        DefaultTyping.OBJECT_AND_NON_CONCRETE, "*CLASS*")
                 .build();
         String json = mapper.writeValueAsString(new BeanHolder(new StringBean("punny")));
         assertEquals("{\"bean\":{\"*CLASS*\":\"com.fasterxml.jackson.databind.jsontype.deftyping.TestDefaultForObject$StringBean\",\"name\":\"punny\"}}", json);
@@ -397,10 +395,9 @@ public class TestDefaultForObject
     public void testNoGoWithExternalProperty() throws Exception
     {
         try {
-            /*ObjectMapper mapper =*/ JsonMapper.builder()
+            /*ObjectMapper mapper =*/ jsonMapperBuilder()
                     .activateDefaultTyping(NoCheckSubTypeValidator.instance,
-                        ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT,
-                        JsonTypeInfo.As.EXTERNAL_PROPERTY)
+                            DefaultTyping.JAVA_LANG_OBJECT, JsonTypeInfo.As.EXTERNAL_PROPERTY)
                     .build();
             fail("Should not have passed");
         } catch (IllegalArgumentException e) {
@@ -412,16 +409,16 @@ public class TestDefaultForObject
     public void testWithFinalClass() throws Exception
     {
         // First: type info NOT included
-        ObjectMapper mapper = JsonMapper.builder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
-                        ObjectMapper.DefaultTyping.NON_FINAL)
+                        DefaultTyping.NON_FINAL)
                 .build();
         assertEquals(a2q("{'name':'abc'}"),
                 mapper.writeValueAsString(new FinalStringBean("abc")));
 
-        mapper = JsonMapper.builder()
+        mapper = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
-                        ObjectMapper.DefaultTyping.EVERYTHING)
+                        DefaultTyping.EVERYTHING)
                 .build();
         assertEquals(a2q("['"+FinalStringBean.class.getName()+"',{'name':'abc'}]"),
                 mapper.writeValueAsString(new FinalStringBean("abc")));

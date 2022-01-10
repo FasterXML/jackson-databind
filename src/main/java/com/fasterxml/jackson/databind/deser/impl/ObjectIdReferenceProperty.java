@@ -1,14 +1,14 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.UnresolvedForwardReference;
-import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId.Referring;
+import com.fasterxml.jackson.databind.deser.ReadableObjectId.Referring;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 
@@ -25,7 +25,7 @@ public class ObjectIdReferenceProperty extends SettableBeanProperty
         _objectIdInfo = objectIdInfo;
     }
 
-    public ObjectIdReferenceProperty(ObjectIdReferenceProperty src, JsonDeserializer<?> deser,
+    public ObjectIdReferenceProperty(ObjectIdReferenceProperty src, ValueDeserializer<?> deser,
             NullValueProvider nva)
     {
         super(src, deser, nva);
@@ -46,7 +46,7 @@ public class ObjectIdReferenceProperty extends SettableBeanProperty
     }
 
     @Override
-    public SettableBeanProperty withValueDeserializer(JsonDeserializer<?> deser) {
+    public SettableBeanProperty withValueDeserializer(ValueDeserializer<?> deser) {
         if (_valueDeserializer == deser) {
             return this;
         }
@@ -83,19 +83,21 @@ public class ObjectIdReferenceProperty extends SettableBeanProperty
     }
 
     @Override
-    public void deserializeAndSet(JsonParser p, DeserializationContext ctxt, Object instance) throws IOException {
+    public void deserializeAndSet(JsonParser p, DeserializationContext ctxt, Object instance) throws JacksonException {
         deserializeSetAndReturn(p, ctxt, instance);
     }
 
     @Override
-    public Object deserializeSetAndReturn(JsonParser p, DeserializationContext ctxt, Object instance) throws IOException
+    public Object deserializeSetAndReturn(JsonParser p, DeserializationContext ctxt,
+            Object instance) throws JacksonException
     {
         try {
             return setAndReturn(instance, deserialize(p, ctxt));
         } catch (UnresolvedForwardReference reference) {
-            boolean usingIdentityInfo = (_objectIdInfo != null) || (_valueDeserializer.getObjectIdReader() != null);
+            boolean usingIdentityInfo = (_objectIdInfo != null)
+                    || (_valueDeserializer.getObjectIdReader(ctxt) != null);
             if (!usingIdentityInfo) {
-                throw JsonMappingException.from(p, "Unresolved forward reference but no identity info", reference);
+                throw DatabindException.from(p, "Unresolved forward reference but no identity info", reference);
             }
             reference.getRoid().appendReferring(new PropertyReferring(this, reference, _type.getRawClass(), instance));
             return null;
@@ -103,12 +105,12 @@ public class ObjectIdReferenceProperty extends SettableBeanProperty
     }
 
     @Override
-    public void set(Object instance, Object value) throws IOException {
+    public void set(Object instance, Object value) throws JacksonException {
         _forward.set(instance, value);
     }
 
     @Override
-    public Object setAndReturn(Object instance, Object value) throws IOException {
+    public Object setAndReturn(Object instance, Object value) throws JacksonException {
         return _forward.setAndReturn(instance, value);
     }
 
@@ -125,7 +127,7 @@ public class ObjectIdReferenceProperty extends SettableBeanProperty
         }
 
         @Override
-        public void handleResolvedForwardReference(Object id, Object value) throws IOException
+        public void handleResolvedForwardReference(Object id, Object value) throws JacksonException
         {
             if (!hasId(id)) {
                 throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id

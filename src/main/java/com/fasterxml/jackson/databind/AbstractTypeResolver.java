@@ -32,23 +32,6 @@ public abstract class AbstractTypeResolver
     }
 
     /**
-     * Older variant of {@link #resolveAbstractType(DeserializationConfig, BeanDescription)};
-     * obsoleted in 2.7
-     *
-     * @deprecated since 2.8 (may be removed from 2.9 or later)
-     *
-     * @param config Configuration in use
-     * @param type Type to resolve
-     *
-     * @return Resolved concrete type
-     */
-    @Deprecated
-    public JavaType resolveAbstractType(DeserializationConfig config,
-            JavaType type) {
-        return null;
-    }
-
-    /**
      * Method called to try to resolve an abstract type into
      * concrete type (usually for purposes of deserializing),
      * when no concrete implementation was found.
@@ -61,8 +44,6 @@ public abstract class AbstractTypeResolver
      * @return Resolved concrete type (which should retain generic
      *    type parameters of input type, if any), if resolution succeeds;
      *    null if resolver does not know how to resolve given type
-     *
-     * @since 2.7
      */
     public JavaType resolveAbstractType(DeserializationConfig config,
             BeanDescription typeDesc) {

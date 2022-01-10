@@ -4,12 +4,9 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
 
-import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
-import com.fasterxml.jackson.databind.introspect.ClassIntrospector.MixInResolver;
 import com.fasterxml.jackson.databind.type.TypeBindings;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.Annotations;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
@@ -27,21 +24,22 @@ public final class AnnotatedClass
     /**********************************************************
      */
 
+    final protected MapperConfig<?> _config;
+
     /**
-     * @since 2.7
+     * Resolved Java type for which information is collected: also works as
+     * context for resolving possible generic type of accessors declared in this
+     * type.
      */
     final protected JavaType _type;
 
     /**
-     * Class for which annotations apply, and that owns other
-     * components (constructors, methods)
+     * Type erased {@link Class} matching {@code _type}.
      */
     final protected Class<?> _class;
 
     /**
      * Type bindings to use for members of {@link #_class}.
-     *
-     * @since 2.7
      */
     final protected TypeBindings _bindings;
 
@@ -51,18 +49,6 @@ public final class AnnotatedClass
      */
     final protected List<JavaType> _superTypes;
 
-    /**
-     * Filter used to determine which annotations to gather; used
-     * to optimize things so that unnecessary annotations are
-     * ignored.
-     */
-    final protected AnnotationIntrospector _annotationIntrospector;
-
-    /**
-     * @since 2.7
-     */
-    final protected TypeFactory _typeFactory;
-    
     /**
      * Object that knows mapping of mix-in classes (ones that contain
      * annotations to add) with their target classes (ones that
@@ -79,15 +65,13 @@ public final class AnnotatedClass
     /**
      * Flag that indicates whether (fulll) annotation resolution should
      * occur: starting with 2.11 is disabled for JDK container types.
-     *
-     * @since 2.11
      */
     final protected boolean _collectAnnotations;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Gathered information
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -96,9 +80,6 @@ public final class AnnotatedClass
      */
     final protected Annotations _classAnnotations;
 
-    /**
-     * @since 2.9
-     */
     protected Creators _creators;
 
     /**
@@ -116,15 +97,13 @@ public final class AnnotatedClass
     /**
      * Lazily determined property to see if this is a non-static inner
      * class.
-     *
-     * @since 2.8.7
      */
     protected transient Boolean _nonStaticInnerClass;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -135,90 +114,35 @@ public final class AnnotatedClass
      *    methods are to be accessed
      * @param rawType Type-erased class; pass if no `type` needed or available
      */
-    AnnotatedClass(JavaType type, Class<?> rawType, List<JavaType> superTypes,
+    AnnotatedClass(MapperConfig<?> config, JavaType type, Class<?> rawType, List<JavaType> superTypes,
             Class<?> primaryMixIn, Annotations classAnnotations, TypeBindings bindings, 
-            AnnotationIntrospector aintr, MixInResolver mir, TypeFactory tf,
-            boolean collectAnnotations)
+            MixInResolver mir, boolean collectAnnotations)
     {
+        _config = config;
         _type = type;
         _class = rawType;
         _superTypes = superTypes;
         _primaryMixIn = primaryMixIn;
         _classAnnotations = classAnnotations;
         _bindings = bindings;
-        _annotationIntrospector = aintr;
         _mixInResolver = mir;
-        _typeFactory = tf;
         _collectAnnotations = collectAnnotations;
-    }
-
-    @Deprecated // since 2.10
-    AnnotatedClass(JavaType type, Class<?> rawType, List<JavaType> superTypes,
-            Class<?> primaryMixIn, Annotations classAnnotations, TypeBindings bindings, 
-            AnnotationIntrospector aintr, MixInResolver mir, TypeFactory tf)
-    {
-        this(type, rawType, superTypes, primaryMixIn, classAnnotations, bindings,
-                aintr, mir, tf, true);
     }
 
     /**
      * Constructor (only) used for creating primordial simple types (during bootstrapping)
      * and array type placeholders where no fields or methods are needed.
-     *
-     * @since 2.9
      */
     AnnotatedClass(Class<?> rawType) {
+        _config = null;
         _type = null;
         _class = rawType;
         _superTypes = Collections.emptyList();
         _primaryMixIn = null;
         _classAnnotations = AnnotationCollector.emptyAnnotations();
         _bindings = TypeBindings.emptyBindings();
-        _annotationIntrospector = null;
         _mixInResolver = null;
-        _typeFactory = null;
         _collectAnnotations = false;
-    }
-
-    /**
-     * @deprecated Since 2.9, use methods in {@link AnnotatedClassResolver} instead.
-     */
-    @Deprecated
-    public static AnnotatedClass construct(JavaType type, MapperConfig<?> config) {
-        return construct(type, config, (MixInResolver) config);
-    }
-
-    /**
-     * @deprecated Since 2.9, use methods in {@link AnnotatedClassResolver} instead.
-     */
-    @Deprecated
-    public static AnnotatedClass construct(JavaType type, MapperConfig<?> config,
-            MixInResolver mir)
-    {
-        return AnnotatedClassResolver.resolve(config, type, mir);
-    }
-
-    /**
-     * Method similar to {@link #construct}, but that will NOT include
-     * information from supertypes; only class itself and any direct
-     * mix-ins it may have.
-     */
-    /**
-     * @deprecated Since 2.9, use methods in {@link AnnotatedClassResolver} instead.
-     */
-    @Deprecated
-    public static AnnotatedClass constructWithoutSuperTypes(Class<?> raw, MapperConfig<?> config) {
-        return constructWithoutSuperTypes(raw, config, config);
-    }
-
-    /**
-     * @deprecated Since 2.9, use methods in {@link AnnotatedClassResolver} instead.
-     */
-    @Deprecated
-    public static AnnotatedClass constructWithoutSuperTypes(Class<?> raw, MapperConfig<?> config,
-            MixInResolver mir)
-    {
-        return AnnotatedClassResolver.resolveWithoutSuperTypes(config, raw, mir);
     }
 
     /*
@@ -229,15 +153,13 @@ public final class AnnotatedClass
 
     @Override
     public JavaType resolveType(Type type) {
-        // 06-Sep-2020, tatu: Careful wrt [databind#2846][databind#2821],
-        //     call new method added in 2.12
-        return _typeFactory.resolveMemberType(type, _bindings);
+        return _config.getTypeFactory().resolveMemberType(type, _bindings);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Annotated impl 
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -270,26 +192,14 @@ public final class AnnotatedClass
     }
 
     @Override
-    @Deprecated
-    public Iterable<Annotation> annotations() {
-        if (_classAnnotations instanceof AnnotationMap) {
-            return ((AnnotationMap) _classAnnotations).annotations();
-        } else if (_classAnnotations instanceof AnnotationCollector.OneAnnotation ||
-           _classAnnotations instanceof AnnotationCollector.TwoAnnotations) {
-            throw new UnsupportedOperationException("please use getAnnotations/ hasAnnotation to check for Annotations");
-        }
-        return Collections.emptyList();
-    }
-
-    @Override
     public JavaType getType() {
         return _type;
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, generic accessors
-    /**********************************************************
+    /**********************************************************************
      */
 
     public Annotations getAnnotations() {
@@ -308,19 +218,8 @@ public final class AnnotatedClass
         return _creators().constructors;
     }
 
-    /**
-     * @since 2.9
-     */
     public List<AnnotatedMethod> getFactoryMethods() {
         return _creators().creatorMethods;
-    }
-
-    /**
-     * @deprecated Since 2.9; use {@link #getFactoryMethods} instead.
-     */
-    @Deprecated
-    public List<AnnotatedMethod> getStaticMethods() {
-        return getFactoryMethods();
     }
 
     public Iterable<AnnotatedMethod> memberMethods() {
@@ -343,9 +242,6 @@ public final class AnnotatedClass
         return _fields();
     }
 
-    /**
-     * @since 2.9
-     */
     public boolean isNonStaticInnerClass()
     {
         Boolean B = _nonStaticInnerClass;
@@ -356,9 +252,9 @@ public final class AnnotatedClass
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Lazily-operating accessors
-    /**********************************************************
+    /**********************************************************************
      */
 
     private final List<AnnotatedField> _fields() {
@@ -368,8 +264,9 @@ public final class AnnotatedClass
             if (_type == null) {
                 f = Collections.emptyList();
             } else {
-                f = AnnotatedFieldCollector.collectFields(_annotationIntrospector,
-                        this, _mixInResolver, _typeFactory, _type, _collectAnnotations);
+                f = AnnotatedFieldCollector.collectFields(_config,
+                        this, _mixInResolver,
+                        _type, _primaryMixIn, _collectAnnotations);
             }
             _fields = f;
         }
@@ -384,9 +281,8 @@ public final class AnnotatedClass
             if (_type == null) {
                 m = new AnnotatedMethodMap();
             } else {
-                m = AnnotatedMethodCollector.collectMethods(_annotationIntrospector,
-                        this,
-                        _mixInResolver, _typeFactory,
+                m = AnnotatedMethodCollector.collectMethods(_config,
+                        this, _mixInResolver,
                         _type, _superTypes, _primaryMixIn, _collectAnnotations);
             }
             _memberMethods = m;
@@ -400,8 +296,7 @@ public final class AnnotatedClass
             if (_type == null) {
                 c = NO_CREATORS;
             } else {
-                c = AnnotatedCreatorCollector.collectCreators(_annotationIntrospector,
-                        _typeFactory,
+                c = AnnotatedCreatorCollector.collectCreators(_config,
                         this, _type, _primaryMixIn, _collectAnnotations);
             }
             _creators = c;
@@ -410,9 +305,9 @@ public final class AnnotatedClass
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Standard method overrides
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -435,9 +330,9 @@ public final class AnnotatedClass
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper classes
-    /**********************************************************
+    /**********************************************************************
      */
 
     public static final class Creators

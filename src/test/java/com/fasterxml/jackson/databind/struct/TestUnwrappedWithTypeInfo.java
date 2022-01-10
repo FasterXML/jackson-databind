@@ -4,10 +4,9 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 
-// Tests for [#81]
+// Tests for [databind#81]
 public class TestUnwrappedWithTypeInfo extends BaseMapTest
 {
-
 	@JsonTypeInfo(use=JsonTypeInfo.Id.NAME, property="@type")
 	@JsonTypeName("OuterType")
 	static class Outer {
@@ -37,12 +36,12 @@ public class TestUnwrappedWithTypeInfo extends BaseMapTest
 	}
     
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Tests, serialization
-    /**********************************************************
+    /**********************************************************************
      */
 
-	// [databind#81]
+	// [Issue#81]
 	public void testDefaultUnwrappedWithTypeInfo() throws Exception
 	{
 	    Outer outer = new Outer();
@@ -73,7 +72,7 @@ public class TestUnwrappedWithTypeInfo extends BaseMapTest
 
 		ObjectMapper mapper = jsonMapperBuilder()
 		        .disable(SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS)
-		        .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+                .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
 		        .build();
 
 		String json = mapper.writeValueAsString(outer);

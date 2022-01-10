@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.jsontype.ext;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -46,22 +45,22 @@ public class ExternalTypeIdWithEnum1328Test extends BaseMapTest
         public void init(JavaType bt) { }
 
         @Override
-        public String idFromValue(Object value) {
+        public String idFromValue(DatabindContext ctxt, Object value) {
             return null;
         }
 
         @Override
-        public String idFromValueAndType(Object value, Class<?> suggestedType) {
+        public String idFromValueAndType(DatabindContext ctxt, Object value, Class<?> suggestedType) {
             return null;
         }
 
         @Override
-        public String idFromBaseType() {
+        public String idFromBaseType(DatabindContext ctxt) {
             throw new UnsupportedOperationException("Missing action type information - Can not construct");
         }
 
         @Override
-        public JavaType typeFromId(DatabindContext context, String id) throws IOException {
+        public JavaType typeFromId(DatabindContext context, String id) {
             if (AnimalType.Dog.toString().equals(id)) {
                 return context.constructType(Dog.class);
             }

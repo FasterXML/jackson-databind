@@ -9,8 +9,8 @@ import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
 
 /**
  * Builder class used for aggregating deserialization information about
- * a POJO, in order to build a {@link JsonSerializer} for serializing
- * intances.
+ * a POJO, in order to build a {@link ValueSerializer} for serializing
+ * instances.
  * Main reason for using separate builder class is that this makes it easier
  * to make actual serializer class fully immutable.
  */
@@ -94,8 +94,6 @@ public class BeanSerializerBuilder
      *<p>
      * Note: ideally should be passed in constructor, but for backwards
      * compatibility, needed to add a setter instead
-     * 
-     * @since 2.1
      */
     protected void setConfig(SerializationConfig config) {
         _config = config;
@@ -179,17 +177,17 @@ public class BeanSerializerBuilder
      * all accumulated information. Will construct a serializer if we
      * have enough information, or return null if not.
      */
-    public JsonSerializer<?> build()
+    public ValueSerializer<?> build()
     {
         // [databind#2789]: There can be a case wherein `_typeId` is used, but
-        // nothing else. Rare but has happened; so force access.
+        // nothing else. Rare but has happened; so force access early.
+        if (_anyGetter != null) {
+            _anyGetter.fixAccess(_config);
+        }
         if (_typeId != null) {
             if (_config.isEnabled(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS)) {
                 _typeId.fixAccess(_config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
             }
-        }
-        if (_anyGetter != null) {
-            _anyGetter.fixAccess(_config);
         }
 
         BeanPropertyWriter[] properties;
@@ -202,7 +200,7 @@ public class BeanSerializerBuilder
             }
             properties = NO_PROPERTIES;
         } else {
-            properties = _properties.toArray(new BeanPropertyWriter[_properties.size()]);
+            properties = _properties.toArray(NO_PROPERTIES);
             if (_config.isEnabled(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS)) {
                 for (int i = 0, end = properties.length; i < end; ++i) {
                     properties[i].fixAccess(_config);
@@ -216,6 +214,12 @@ public class BeanSerializerBuilder
 "Mismatch between `properties` size (%d), `filteredProperties` (%s): should have as many (or `null` for latter)",
 _properties.size(), _filteredProperties.length));
             }
+        }
+        ValueSerializer<?> ser = UnrolledBeanSerializer.tryConstruct(
+                    _beanDesc.getType(), this,
+                    properties, _filteredProperties);
+        if (ser != null) {
+            return ser;
         }
         return new BeanSerializer(_beanDesc.getType(), this,
                 properties, _filteredProperties);
@@ -231,4 +235,3 @@ _properties.size(), _filteredProperties.length));
         return BeanSerializer.createDummy(_beanDesc.getType(), this);
     }
 }
-

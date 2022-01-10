@@ -31,9 +31,11 @@ public class Base64DecodingTest extends BaseMapTest
             MAPPER.readValue(q(value), byte[].class);
             fail("Should not pass");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Failed to decode");
-            verifyException(e, "as base64");
+            // 16-Jan-2021, tatu: Message changed for 3.0 a bit
+//            verifyException(e, "Failed to decode");
+            verifyException(e, "Cannot deserialize value of type `byte[]` from String");
             verifyException(e, "Illegal character '!'");
+            verifyException(e, "in base64 content");
         }
 
         // and then tree model

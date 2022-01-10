@@ -5,7 +5,6 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 
 /**
@@ -42,14 +41,6 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
             }
         }
     }
-
-    /**
-     * Note: <code>NoClass</code> here has special meaning, of mapping invalid
-     * types into null instances.
-     */
-    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type",
-            defaultImpl = NoClass.class)
-    public static class DefaultWithNoClass { }
 
     /**
      * Also another variant to verify that from 2.5 on, can use non-deprecated
@@ -178,17 +169,10 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
     }
 
     // [databind#148]
-    public void testDefaultAsNoClass() throws Exception
-    {
-        Object ob = MAPPER.readerFor(DefaultWithNoClass.class).readValue("{ }");
-        assertNull(ob);
-        ob = MAPPER.readerFor(DefaultWithNoClass.class).readValue("{ \"bogus\":3 }");
-        assertNull(ob);
-    }
-
-    // same, with 2.5 and Void.class
     public void testDefaultAsVoid() throws Exception
     {
+        // 07-Mar-2018, tatu: Specifically, use of `Void` should infer that unknown type
+        //   values should become `null`s
         Object ob = MAPPER.readerFor(DefaultWithVoidAsDefault.class).readValue("{ }");
         assertNull(ob);
         ob = MAPPER.readerFor(DefaultWithVoidAsDefault.class).readValue("{ \"bogus\":3 }");
@@ -249,8 +233,9 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
 
     public void testUnknownClassAsSubtype() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false)
+                .build();
         BaseWrapper w = mapper.readValue(a2q
                 ("{'value':{'clazz':'com.foobar.Nothing'}}'"),
                 BaseWrapper.class);

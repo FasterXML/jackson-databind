@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.jsonFormatVisitors;
 
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
 /**
@@ -15,19 +14,18 @@ public interface JsonObjectFormatVisitor extends JsonFormatVisitorWithSerializer
     /**
      * Callback method called when a POJO property is being traversed.
      */
-    public void property(BeanProperty writer) throws JsonMappingException;
+    public void property(BeanProperty writer);
 
     /**
      * Callback method called when a non-POJO property (typically something
      * like an Enum entry of {@link java.util.EnumMap} type) is being
      * traversed. With POJOs, {@link #property(BeanProperty)} is called instead.
      */
-    public void property(String name, JsonFormatVisitable handler, JavaType propertyTypeHint) throws JsonMappingException;
+    public void property(String name, JsonFormatVisitable handler, JavaType propertyTypeHint);
 
-    public void optionalProperty(BeanProperty writer) throws JsonMappingException;
+    public void optionalProperty(BeanProperty writer);
     public void optionalProperty(String name, JsonFormatVisitable handler,
-            JavaType propertyTypeHint)
-        throws JsonMappingException;
+            JavaType propertyTypeHint);
 
     /**
      * Default "empty" implementation, useful as the base to start on;
@@ -49,17 +47,17 @@ public interface JsonObjectFormatVisitor extends JsonFormatVisitorWithSerializer
         public void setProvider(SerializerProvider p) { _provider = p; }
 
         @Override
-        public void property(BeanProperty prop) throws JsonMappingException { }
+        public void property(BeanProperty prop) { }
 
         @Override
         public void property(String name, JsonFormatVisitable handler,
-                JavaType propertyTypeHint) throws JsonMappingException { }
+                JavaType propertyTypeHint) { }
 
         @Override
-        public void optionalProperty(BeanProperty prop) throws JsonMappingException { }
+        public void optionalProperty(BeanProperty prop) { }
 
         @Override
         public void optionalProperty(String name, JsonFormatVisitable handler,
-                JavaType propertyTypeHint) throws JsonMappingException { }
+                JavaType propertyTypeHint) { }
     }
 }

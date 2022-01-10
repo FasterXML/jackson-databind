@@ -1,10 +1,9 @@
 package com.fasterxml.jackson.databind.mixins;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.MapperBuilder;
 
 public class MapperMixinsCopy1998Test extends BaseMapTest
 {
@@ -88,43 +87,56 @@ public class MapperMixinsCopy1998Test extends BaseMapTest
         }
     }
 
-    @SuppressWarnings("deprecation")
-    public void testB_KO() throws Exception
+    // [databind#1998]: leakage of state via ObjectMapper.copy() (2.x) and similar (3.x)
+    public void testSharedBuilder() throws Exception
     {
-        final ObjectMapper DEFAULT = defaultMapper();
+        final MapperBuilder<?,?> B = defaultMapper();
         MyModelRoot myModelInstance = new MyModelRoot();
         myModelInstance.setChild(new MyChildB("testB"));
 
-        ObjectMapper myObjectMapper = DEFAULT.copy();
+        ObjectMapper mapper = B.build();
 
-        String postResult = getString(myModelInstance, myObjectMapper);
+        String postResult = mapper.writeValueAsString(myModelInstance);
         assertEquals(FULLMODEL, postResult);
-//        System.out.println("postResult: "+postResult);
 
-        myObjectMapper = DEFAULT.copy();
-//        myObjectMapper = defaultMapper();
-        myObjectMapper.addMixIn(MyModelRoot.class, MixinConfig.MyModelRoot.class)
+        mapper = B
+                .addMixIn(MyModelRoot.class, MixinConfig.MyModelRoot.class)
                 .addMixIn(MyModelChildBase.class, MixinConfig.MyModelChildBase.class)
                 .disable(MapperFeature.DEFAULT_VIEW_INCLUSION)
-                .setConfig(myObjectMapper.getSerializationConfig().withView(MyModelView.class));
-
-        String result = getString(myModelInstance, myObjectMapper);
-        assertEquals(EXPECTED, result);
-
-    }
-
-    private String getString(MyModelRoot myModelInstance, ObjectMapper myObjectMapper) throws IOException {
-        return myObjectMapper.writerFor(MyModelRoot.class).writeValueAsString(myModelInstance);
-    }
-
-    private ObjectMapper defaultMapper()
-    {
-        return jsonMapperBuilder()
-                .defaultPropertyInclusion(JsonInclude.Value.construct(JsonInclude.Include.NON_EMPTY,
-                        JsonInclude.Include.NON_EMPTY))
-                .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-                .configure(MapperFeature.ALLOW_COERCION_OF_SCALARS, false)
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true)
                 .build();
+        String result = mapper
+                .writerWithView(MyModelView.class)
+                .writeValueAsString(myModelInstance);
+        assertEquals(EXPECTED, result);
+    }
+
+    // [databind#1998]: leakage of state via ObjectMapper.copy() (2.x) and similar (3.x)
+    public void testSharingViaRebuild() throws Exception
+    {
+        final MapperBuilder<?,?> B = defaultMapper();
+        MyModelRoot myModelInstance = new MyModelRoot();
+        myModelInstance.setChild(new MyChildB("testB"));
+
+        ObjectMapper mapper = B.build();
+
+        String postResult = mapper.writeValueAsString(myModelInstance);
+        assertEquals(FULLMODEL, postResult);
+
+        mapper = mapper.rebuild()
+                .addMixIn(MyModelRoot.class, MixinConfig.MyModelRoot.class)
+                .addMixIn(MyModelChildBase.class, MixinConfig.MyModelChildBase.class)
+                .disable(MapperFeature.DEFAULT_VIEW_INCLUSION)
+                .build();
+        String result = mapper
+                .writerWithView(MyModelView.class)
+                .writeValueAsString(myModelInstance);
+        assertEquals(EXPECTED, result);
+    }
+
+    private MapperBuilder<?,?> defaultMapper()
+    {
+        return jsonMapperBuilder().changeDefaultPropertyInclusion(incl ->
+            incl.withValueInclusion(JsonInclude.Include.NON_EMPTY))
+        ;
     }
 }

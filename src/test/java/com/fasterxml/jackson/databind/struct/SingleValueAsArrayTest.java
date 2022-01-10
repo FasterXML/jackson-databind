@@ -64,10 +64,9 @@ public class SingleValueAsArrayTest extends BaseMapTest
     /**********************************************************
      */
     
-    private final ObjectMapper MAPPER = new ObjectMapper();
-    {
-        MAPPER.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
-    }
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
+            .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+            .build();
 
     public void testSuccessfulDeserializationOfObjectWithChainedArrayCreators() throws IOException
     {

@@ -11,8 +11,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.PropertyWriter;
-import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import com.fasterxml.jackson.databind.ser.std.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.std.SimpleFilterProvider;
 
 /**
  * Unit tests for ensuring that entries accessible via "any filter"
@@ -70,11 +70,11 @@ public class TestAnyGetterFiltering extends BaseMapTest
 
     static class CustomFilter extends SimpleBeanPropertyFilter {
          @Override
-         public void serializeAsField(Object pojo, JsonGenerator gen, SerializerProvider provider,
+         public void serializeAsProperty(Object pojo, JsonGenerator gen, SerializerProvider provider,
                  PropertyWriter writer) throws Exception
          {
              if (pojo instanceof OuterObject) {
-                 writer.serializeAsField(pojo, gen, provider);
+                 writer.serializeAsProperty(pojo, gen, provider);
               }
          }
     }

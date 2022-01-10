@@ -5,7 +5,6 @@ import java.util.Set;
 
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.jdk14.JDK14Util;
@@ -13,8 +12,6 @@ import com.fasterxml.jackson.databind.jdk14.JDK14Util;
 /**
  * Default {@link AccessorNamingStrategy} used by Jackson: to be used either as-is,
  * or as base-class with overrides.
- *
- * @since 2.12
  */
 public class DefaultAccessorNamingStrategy
     extends AccessorNamingStrategy
@@ -38,8 +35,6 @@ public class DefaultAccessorNamingStrategy
      */
     protected final BaseNameValidator _baseNameValidator;
 
-    protected final boolean _stdBeanNaming;
-
     protected final String _getterPrefix;
     protected final String _isGetterPrefix;
 
@@ -56,7 +51,6 @@ public class DefaultAccessorNamingStrategy
         _config = config;
         _forClass = forClass;
 
-        _stdBeanNaming = config.isEnabled(MapperFeature.USE_STD_BEAN_NAMING);
         _mutatorPrefix = mutatorPrefix;
         _getterPrefix = getterPrefix;
         _isGetterPrefix = isGetterPrefix;
@@ -69,10 +63,8 @@ public class DefaultAccessorNamingStrategy
         if (_isGetterPrefix != null) {
             final Class<?> rt = am.getRawType();
             if (rt == Boolean.class || rt == Boolean.TYPE) {
-                if (name.startsWith(_isGetterPrefix)) {
-                    return _stdBeanNaming
-                            ? stdManglePropertyName(name, 2)
-                            : legacyManglePropertyName(name, 2);
+                if (name.startsWith(_isGetterPrefix)) { // plus, must return a boolean
+                    return stdManglePropertyName(name, 2);
                 }
             }
         }
@@ -87,19 +79,21 @@ public class DefaultAccessorNamingStrategy
             // method "getCallbacks". Not sure of exact safe criteria to get decent
             // coverage without false matches; but for now let's assume there is
             // no reason to use any such getter from CGLib.
+
+            // 05-Oct-2020, tatu: Removed from Jackson 3.0
+            /*
             if ("getCallbacks".equals(name)) {
                 if (_isCglibGetCallbacks(am)) {
                     return null;
                 }
-            } else if ("getMetaClass".equals(name)) {
+            } else */
+            if ("getMetaClass".equals(name)) {
                 // 30-Apr-2009, tatu: Need to suppress serialization of a cyclic reference
                 if (_isGroovyMetaClassGetter(am)) {
                     return null;
                 }
             }
-            return _stdBeanNaming
-                    ? stdManglePropertyName(name, _getterPrefix.length())
-                    : legacyManglePropertyName(name, _getterPrefix.length());
+            return stdManglePropertyName(name, _getterPrefix.length());
         }
         return null;
     }
@@ -108,9 +102,7 @@ public class DefaultAccessorNamingStrategy
     public String findNameForMutator(AnnotatedMethod am, String name)
     {
         if ((_mutatorPrefix != null) && name.startsWith(_mutatorPrefix)) {
-            return _stdBeanNaming
-                    ? stdManglePropertyName(name, _mutatorPrefix.length())
-                    : legacyManglePropertyName(name, _mutatorPrefix.length());
+            return stdManglePropertyName(name, _mutatorPrefix.length());
         }
         return null;
     }
@@ -127,50 +119,9 @@ public class DefaultAccessorNamingStrategy
     /**********************************************************************
      */
 
-    /**
-     * Method called to figure out name of the property, given 
-     * corresponding suggested name based on a method or field name.
-     *
-     * @param basename Name of accessor/mutator method, not including prefix
-     *  ("get"/"is"/"set")
-     */
-    protected String legacyManglePropertyName(final String basename, final int offset)
-    {
-        final int end = basename.length();
-        if (end == offset) { // empty name, nope
-            return null;
-        }
-        char c = basename.charAt(offset);
-        // 12-Oct-2020, tatu: Additional configurability; allow checking that
-        //    base name is acceptable (currently just by checking first character)
-        if (_baseNameValidator != null) {
-            if (!_baseNameValidator.accept(c, basename, offset)) {
-                return null;
-            }
-        }
-
-        // next check: is the first character upper case? If not, return as is
-        char d = Character.toLowerCase(c);
-        
-        if (c == d) {
-            return basename.substring(offset);
-        }
-        // otherwise, lower case initial chars. Common case first, just one char
-        StringBuilder sb = new StringBuilder(end - offset);
-        sb.append(d);
-        int i = offset+1;
-        for (; i < end; ++i) {
-            c = basename.charAt(i);
-            d = Character.toLowerCase(c);
-            if (c == d) {
-                sb.append(basename, i, end);
-                break;
-            }
-            sb.append(d);
-        }
-        return sb.toString();
-    }
-
+    // 24-Sep-2017, tatu: note that "std" here refers to earlier (1.x, 2.x) distinction
+    //   between "legacy" (slightly non-conforming) and "std" (fully conforming): with 3.x
+    //   only latter exists.
     protected String stdManglePropertyName(final String basename, final int offset)
     {
         final int end = basename.length();
@@ -216,6 +167,9 @@ public class DefaultAccessorNamingStrategy
     // At this point caller has detected a potential getter method with
     // name "getCallbacks" and we need to determine if it is indeed injected
     // by Cglib. We do this by verifying that the  result type is "net.sf.cglib.proxy.Callback[]"
+
+    // 05-Oct-2020, tatu: Removed from 3.0
+    /*
     protected boolean _isCglibGetCallbacks(AnnotatedMethod am)
     {
         Class<?> rt = am.getRawType();
@@ -238,7 +192,9 @@ public class DefaultAccessorNamingStrategy
         }
         return false;
     }
+    */
 
+    // 05-Oct-2020, tatu: Left in 3.0 for now
     // Another helper method to deal with Groovy's problematic metadata accessors
     protected boolean _isGroovyMetaClassGetter(AnnotatedMethod am) {
         return am.getRawType().getName().startsWith("groovy.lang");
@@ -435,7 +391,7 @@ public class DefaultAccessorNamingStrategy
                 AnnotatedClass builderClass, BeanDescription valueTypeDesc)
         {
             AnnotationIntrospector ai = config.isAnnotationProcessingEnabled() ? config.getAnnotationIntrospector() : null;
-            JsonPOJOBuilder.Value builderConfig = (ai == null) ? null : ai.findPOJOBuilderConfig(builderClass);
+            JsonPOJOBuilder.Value builderConfig = (ai == null) ? null : ai.findPOJOBuilderConfig(config, builderClass);
             String mutatorPrefix = (builderConfig == null) ? _withPrefix : builderConfig.withPrefix;
             return new DefaultAccessorNamingStrategy(config, builderClass,
                     mutatorPrefix, _getterPrefix, _isGetterPrefix,

@@ -32,7 +32,6 @@ public class CollectionDeserTest
 
         @Override
         public CustomList deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException
         {
             CustomList result = new CustomList();
             result.add(jp.getText());
@@ -77,8 +76,7 @@ public class CollectionDeserTest
         public SomeObjectDeserializer() { super(SomeObject.class); }
 
         @Override
-        public SomeObject deserialize(JsonParser p, DeserializationContext ctxt)
-                throws IOException {
+        public SomeObject deserialize(JsonParser p, DeserializationContext ctxt) {
             throw new RuntimeException("I want to catch this exception");
         }
     }
@@ -173,8 +171,9 @@ public class CollectionDeserTest
     public void testImplicitArrays() throws Exception
     {
         // can't share mapper, custom configs (could create ObjectWriter tho)
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+                .build();
 
         // first with simple scalar types (numbers), with collections
         List<Integer> ints = mapper.readValue("4", List.class);
@@ -282,11 +281,11 @@ public class CollectionDeserTest
             assertEquals(2, e.getPath().size());
             // Bean has no index, but has name:
             assertEquals(-1, e.getPath().get(0).getIndex());
-            assertEquals("keys", e.getPath().get(0).getFieldName());
+            assertEquals("keys", e.getPath().get(0).getPropertyName());
 
             // and for List, reverse:
             assertEquals(1, e.getPath().get(1).getIndex());
-            assertNull(e.getPath().get(1).getFieldName());
+            assertNull(e.getPath().get(1).getPropertyName());
         }
     }
 
@@ -337,9 +336,9 @@ public class CollectionDeserTest
     {
         final SimpleModule module = new SimpleModule("SimpleModule", Version.unknownVersion())
                 .addDeserializer(MyContainerModel.class,
-                        new JsonDeserializer<MyContainerModel>() {
+                        new ValueDeserializer<MyContainerModel>() {
                     @Override
-                    public MyContainerModel deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+                    public MyContainerModel deserialize(JsonParser p, DeserializationContext ctxt) {
                         throw new CustomException("Custom message");
                     }
                 });
@@ -369,7 +368,7 @@ public class CollectionDeserTest
             fail("Should not pass");
         } catch (JacksonException e) {
             verifyException(e, "Custom message");
-            assertEquals(JsonMappingException.class, e.getClass());
+            assertEquals(DatabindException.class, e.getClass());
             Throwable rootC = e.getCause();
             assertNotNull(rootC);
             assertEquals(CustomException.class, rootC.getClass());

@@ -1,13 +1,13 @@
 package com.fasterxml.jackson.databind.jsontype.impl;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+import com.fasterxml.jackson.core.JacksonException;
+
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
@@ -22,26 +22,14 @@ public class ClassNameIdResolver
 
     protected final PolymorphicTypeValidator _subTypeValidator;
 
-    /**
-     * @deprecated Since 2.10 use variant that takes {@link PolymorphicTypeValidator}
-     */
-    @Deprecated
-    protected ClassNameIdResolver(JavaType baseType, TypeFactory typeFactory) {
-        this(baseType, typeFactory, LaissezFaireSubTypeValidator.instance);
-    }
-
-    /**
-     * @since 2.10
-     */
-    public ClassNameIdResolver(JavaType baseType, TypeFactory typeFactory,
-            PolymorphicTypeValidator ptv) {
-        super(baseType, typeFactory);
+    public ClassNameIdResolver(JavaType baseType, PolymorphicTypeValidator ptv) {
+        super(baseType);
         _subTypeValidator = ptv;
     }
 
-    public static ClassNameIdResolver construct(JavaType baseType, MapperConfig<?> config,
+    public static ClassNameIdResolver construct(JavaType baseType,
             PolymorphicTypeValidator ptv) {
-        return new ClassNameIdResolver(baseType, config.getTypeFactory(), ptv);
+        return new ClassNameIdResolver(baseType, ptv);
     }
 
     @Override
@@ -52,21 +40,21 @@ public class ClassNameIdResolver
     }
 
     @Override
-    public String idFromValue(Object value) {
-        return _idFrom(value, value.getClass(), _typeFactory);
+    public String idFromValue(DatabindContext ctxt, Object value) {
+        return _idFrom(ctxt, value, value.getClass());
     }
 
     @Override
-    public String idFromValueAndType(Object value, Class<?> type) {
-        return _idFrom(value, type, _typeFactory);
+    public String idFromValueAndType(DatabindContext ctxt, Object value, Class<?> type) {
+        return _idFrom(ctxt, value, type);
     }
 
     @Override
-    public JavaType typeFromId(DatabindContext context, String id) throws IOException {
-        return _typeFromId(id, context);
+    public JavaType typeFromId(DatabindContext ctxt, String id) throws JacksonException {
+        return _typeFromId(ctxt, id);
     }
 
-    protected JavaType _typeFromId(String id, DatabindContext ctxt) throws IOException
+    protected JavaType _typeFromId(DatabindContext ctxt, String id) throws JacksonException
     {
         // 24-Apr-2019, tatu: [databind#2195] validate as well as resolve:
         JavaType t = ctxt.resolveAndValidateSubType(_baseType, id, _subTypeValidator);
@@ -81,12 +69,12 @@ public class ClassNameIdResolver
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods
-    /**********************************************************
+    /**********************************************************************
      */
 
-    protected String _idFrom(Object value, Class<?> cls, TypeFactory typeFactory)
+    protected String _idFrom(DatabindContext ctxt, Object value, Class<?> cls)
     {
         // Need to ensure that "enum subtypes" work too
         if (ClassUtil.isEnumType(cls)) {
@@ -110,23 +98,28 @@ public class ClassNameIdResolver
             if (value instanceof EnumSet<?>) { // Regular- and JumboEnumSet...
                 Class<?> enumClass = ClassUtil.findEnumType((EnumSet<?>) value);
                 // not optimal: but EnumSet is not a customizable type so this is sort of ok
-               str = typeFactory.constructCollectionType(EnumSet.class, enumClass).toCanonical();
+               str = ctxt.getTypeFactory().constructCollectionType(EnumSet.class, enumClass).toCanonical();
             } else if (value instanceof EnumMap<?,?>) {
                 Class<?> enumClass = ClassUtil.findEnumType((EnumMap<?,?>) value);
                 Class<?> valueClass = Object.class;
                 // not optimal: but EnumMap is not a customizable type so this is sort of ok
-                str = typeFactory.constructMapType(EnumMap.class, enumClass, valueClass).toCanonical();
+                str = ctxt.getTypeFactory().constructMapType(EnumMap.class, enumClass, valueClass).toCanonical();
             }
             // 10-Jan-2018, tatu: Up until 2.9.4 we used to have other conversions for `Collections.xxx()`
             //    and `Arrays.asList(...)`; but it was changed to be handled on receiving end instead
-        } else if (str.indexOf('$') >= 0) {
-            /* Other special handling may be needed for inner classes,
-             * The best way to handle would be to find 'hidden' constructor; pass parent
-             * value etc (which is actually done for non-anonymous static classes!),
-             * but that is just not possible due to various things. So, we will instead
-             * try to generalize type into something we will be more likely to be able
-             * construct.
-             */
+        }
+        // 04-Sep-2020, tatu: 2.x used to have weird work-around for inner classes,
+        //   for some... "interesting" usage. Since it was added in 1.x for some now
+        //   unknown issue, remove it from 3.x; may be re-added but only with better
+        //   understanding of all the complexities.
+
+        /*
+        else if (str.indexOf('$') >= 0) {
+            // Other special handling may be needed for inner classes,
+            // The best way to handle would be to find 'hidden' constructor; pass parent
+            // value etc (which is actually done for non-anonymous static classes!),
+            // but that is just not possible due to various things. So, we will instead
+            // try to generalize type into something we will be more likely to be able construct.
             Class<?> outer = ClassUtil.getOuterClass(cls);
             if (outer != null) {
                 // one more check: let's actually not worry if the declared static type is
@@ -139,11 +132,13 @@ public class ClassNameIdResolver
                 }
             }
         }
+        */
+
         return str;
     }
 
     @Override
     public String getDescForKnownTypeIds() {
-        return "class name used as type id";
+        return "{class name used as type id}";
     }
 }

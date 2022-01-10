@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
-import java.io.IOException;
-
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 
@@ -28,25 +27,14 @@ public class ValueInjector
         _valueId = valueId;
     }
 
-    /**
-     * @deprecated in 2.9 (remove from 3.0)
-     */
-    @Deprecated // see [databind#1835]
-    public ValueInjector(PropertyName propName, JavaType type,
-            com.fasterxml.jackson.databind.util.Annotations contextAnnotations, // removed from later versions
-            AnnotatedMember mutator, Object valueId)
-    {
-        this(propName, type, mutator, valueId);
-    }
-
     public Object findValue(DeserializationContext context, Object beanInstance)
-        throws JsonMappingException
+        throws JacksonException
     {
         return context.findInjectableValue(_valueId, this, beanInstance);
     }
 
     public void inject(DeserializationContext context, Object beanInstance)
-        throws IOException
+        throws JacksonException
     {
         _member.setValue(beanInstance, findValue(context, beanInstance));
     }

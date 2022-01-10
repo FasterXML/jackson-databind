@@ -115,8 +115,8 @@ public class CaseInsensitiveDeserTest extends BaseMapTest
     /* Test methods
     /********************************************************
      */
-
     private final ObjectMapper MAPPER = newJsonMapper();
+
     private final ObjectMapper INSENSITIVE_MAPPER = jsonMapperBuilder()
             .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
             .build();
@@ -134,7 +134,7 @@ public class CaseInsensitiveDeserTest extends BaseMapTest
             
             fail("Should not accept improper case properties by default");
         } catch (UnrecognizedPropertyException e) {
-            verifyException(e, "Unrecognized field");
+            verifyException(e, "Unrecognized property");
             assertValidLocation(e.getLocation());
         }
 
@@ -177,10 +177,11 @@ public class CaseInsensitiveDeserTest extends BaseMapTest
     // And allow config overrides too
     public void testCaseInsensitiveViaConfigOverride() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configOverride(Role.class)
-            .setFormat(JsonFormat.Value.empty()
-                    .withFeature(JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
+        ObjectMapper mapper = jsonMapperBuilder()
+                .withConfigOverride(Role.class,
+                        o -> o.setFormat(JsonFormat.Value.empty()
+                                .withFeature(JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)))
+                .build();
         Role role = mapper.readValue
                 (a2q("{'id':'12','name':'Foo'}"),
                         Role.class);

@@ -114,7 +114,6 @@ public class MapKeyDeserializationTest extends BaseMapTest
     {
         TypeReference<MapWrapper<Boolean, String>> type = new TypeReference<MapWrapper<Boolean, String>>() { };
         MapWrapper<?,?> result = MAPPER.readValue(a2q("{'map':{'true':'foobar'}}"), type);
-                
         assertEquals(1, result.map.size());
         Assert.assertEquals(Boolean.TRUE, result.map.entrySet().iterator().next().getKey());
 

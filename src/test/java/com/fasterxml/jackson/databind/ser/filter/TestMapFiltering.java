@@ -8,13 +8,13 @@ import java.util.concurrent.atomic.AtomicReference;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.*;
-import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
-import com.fasterxml.jackson.databind.ser.std.MapProperty;
+import com.fasterxml.jackson.databind.ser.jdk.MapProperty;
+import com.fasterxml.jackson.databind.ser.std.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.std.SimpleFilterProvider;
 
 @SuppressWarnings("serial")
 public class TestMapFiltering extends BaseMapTest
@@ -57,7 +57,12 @@ public class TestMapFiltering extends BaseMapTest
     static class TestMapFilter implements PropertyFilter
     {
         @Override
-        public void serializeAsField(Object bean, JsonGenerator g,
+        public PropertyFilter snapshot() {
+            return this;
+        }
+        
+        @Override
+        public void serializeAsProperty(Object bean, JsonGenerator g,
                 SerializerProvider provider, PropertyWriter writer)
             throws Exception
         {
@@ -79,7 +84,7 @@ public class TestMapFiltering extends BaseMapTest
             Integer old = (Integer) prop.getValue();
             prop.setValue(Integer.valueOf(offset + old.intValue()));
 
-            writer.serializeAsField(bean, g, provider);
+            writer.serializeAsProperty(bean, g, provider);
         }
 
         @Override
@@ -90,11 +95,7 @@ public class TestMapFiltering extends BaseMapTest
         }
 
         @Override
-        @Deprecated
-        public void depositSchemaProperty(PropertyWriter writer,
-                ObjectNode propertiesNode, SerializerProvider provider) { }
 
-        @Override
         public void depositSchemaProperty(PropertyWriter writer,
                 JsonObjectFormatVisitor objectVisitor,
                 SerializerProvider provider) { }
@@ -160,8 +161,8 @@ public class TestMapFiltering extends BaseMapTest
     /**********************************************************
      */
 
-    final ObjectMapper MAPPER = objectMapper();
-    
+    final ObjectMapper MAPPER = newJsonMapper();
+
     public void testMapFilteringViaProps() throws Exception
     {
         FilterProvider prov = new SimpleFilterProvider().addFilter("filterX",
@@ -235,21 +236,6 @@ public class TestMapFiltering extends BaseMapTest
         assertEquals(a2q("{'a':'foo'}"), json);
     }
 
-    @SuppressWarnings("deprecation")
-    public void testMapNullSerialization() throws IOException
-    {
-        ObjectMapper m = new ObjectMapper();
-        Map<String,String> map = new HashMap<String,String>();
-        map.put("a", null);
-        // by default, should output null-valued entries:
-        assertEquals("{\"a\":null}", m.writeValueAsString(map));
-        // but not if explicitly asked not to (note: config value is dynamic here)
-
-        m = new ObjectMapper();        
-        m.disable(SerializationFeature.WRITE_NULL_MAP_VALUES);
-        assertEquals("{}", m.writeValueAsString(map));
-    }
-
     // [databind#527]
     public void testMapWithOnlyEmptyValues() throws IOException
     {
@@ -270,9 +256,10 @@ public class TestMapFiltering extends BaseMapTest
     public void testMapViaGlobalNonEmpty() throws Exception
     {
         // basic Map<String,String> subclass:
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setDefaultPropertyInclusion(JsonInclude.Value.empty()
-                .withContentInclusion(JsonInclude.Include.NON_EMPTY));
+        ObjectMapper mapper = jsonMapperBuilder()
+                .changeDefaultPropertyInclusion(incl -> incl
+                        .withContentInclusion(JsonInclude.Include.NON_EMPTY))
+                .build();
         assertEquals(a2q("{'a':'b'}"), mapper.writeValueAsString(
                 new StringMap497()
                     .add("x", "")
@@ -283,10 +270,11 @@ public class TestMapFiltering extends BaseMapTest
     public void testMapViaTypeOverride() throws Exception
     {
         // basic Map<String,String> subclass:
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configOverride(Map.class)
-            .setInclude(JsonInclude.Value.empty()
-                .withContentInclusion(JsonInclude.Include.NON_EMPTY));
+        ObjectMapper mapper = jsonMapperBuilder()
+                .withConfigOverride(Map.class,
+                        o -> o.setInclude(JsonInclude.Value.empty()
+                                .withContentInclusion(JsonInclude.Include.NON_EMPTY)))
+                .build();
         assertEquals(a2q("{'a':'b'}"), mapper.writeValueAsString(
                 new StringMap497()
                     .add("foo", "")

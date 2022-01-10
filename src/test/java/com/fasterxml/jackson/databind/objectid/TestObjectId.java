@@ -17,35 +17,33 @@ public class TestObjectId extends BaseMapTest
     
     @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="@id")
     static class ColumnMetadata {
-      private final String name;
-      private final String type;
-      private final String comment;
+        private final String name;
+        private final String type;
+        private final String comment;
 
-      @JsonCreator
-      public ColumnMetadata(
-        @JsonProperty("name") String name,
-        @JsonProperty("type") String type,
-        @JsonProperty("comment") String comment
-      ) {
-        this.name = name;
-        this.type = type;
-        this.comment = comment;
-      }
+        @JsonCreator
+        public ColumnMetadata(@JsonProperty("name") String name,
+                @JsonProperty("type") String type,
+                @JsonProperty("comment") String comment) {
+            this.name = name;
+            this.type = type;
+            this.comment = comment;
+        }
 
-      @JsonProperty("name")
-      public String getName() {
-        return name;
-      }
+        @JsonProperty("name")
+        public String getName() {
+            return name;
+        }
 
-      @JsonProperty("type")
-      public String getType() {
-        return type;
-      }
+        @JsonProperty("type")
+        public String getType() {
+            return type;
+        }
 
-      @JsonProperty("comment")
-      public String getComment() {
-        return comment;
-      }    
+        @JsonProperty("comment")
+        public String getComment() {
+            return comment;
+        }
     }
 
     /* Problem in which always-as-id reference may prevent initial

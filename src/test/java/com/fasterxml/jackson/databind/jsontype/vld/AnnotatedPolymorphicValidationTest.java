@@ -5,14 +5,13 @@ import java.io.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.jsontype.DefaultBaseTypeLimitingValidator;
 
 /**
  * Unit tests for verifying that "unsafe" base type(s) for polymorphic deserialization
- * are correctly handled wrt {@link MapperFeature#BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES}.
+ * are correctly handled
  */
 public class AnnotatedPolymorphicValidationTest
     extends BaseMapTest
@@ -36,17 +35,17 @@ public class AnnotatedPolymorphicValidationTest
         private static final long serialVersionUID = 1L;
 
         @Override
-        protected boolean isUnsafeBaseType(MapperConfig<?> config, JavaType baseType)
+        protected boolean isUnsafeBaseType(DatabindContext ctxt, JavaType baseType)
         {
             // only override handling for `Object`
             if (baseType.hasRawClass(Object.class)) {
                 return false;
             }
-            return super.isUnsafeBaseType(config, baseType);
+            return super.isUnsafeBaseType(ctxt, baseType);
         }
 
         @Override
-        protected boolean isSafeSubType(MapperConfig<?> config,
+        protected boolean isSafeSubType(DatabindContext ctxt,
                 JavaType baseType, JavaType subType) {
             return baseType.isTypeOrSubTypeOf(Number.class);
         }
@@ -58,9 +57,7 @@ public class AnnotatedPolymorphicValidationTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = jsonMapperBuilder()
-            .enable(MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES)
-            .build();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     public void testPolymorphicWithUnsafeBaseType() throws IOException
     {
@@ -76,7 +73,6 @@ public class AnnotatedPolymorphicValidationTest
 
         // but may with proper validator
         ObjectMapper customMapper = JsonMapper.builder()
-                .enable(MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES)
                 .polymorphicTypeValidator(new NumbersAreOkValidator())
                 .build();
         
@@ -93,5 +89,6 @@ public class AnnotatedPolymorphicValidationTest
             verifyException(e, "all subtypes of base type");
             verifyException(e, "java.io.Serializable");
         }
+
     }
 }

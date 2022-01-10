@@ -1,11 +1,11 @@
 package com.fasterxml.jackson.databind.jsontype.impl;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.BeanProperty;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
@@ -24,7 +24,8 @@ public class AsWrapperTypeSerializer extends TypeSerializerBase
     }
 
     @Override
-    public AsWrapperTypeSerializer forProperty(BeanProperty prop) {
+    public AsWrapperTypeSerializer forProperty(SerializerProvider ctxt, BeanProperty prop)
+    {
         return (_property == prop) ? this : new AsWrapperTypeSerializer(_idResolver, prop);
     }
     
@@ -32,23 +33,21 @@ public class AsWrapperTypeSerializer extends TypeSerializerBase
     public As getTypeInclusion() { return As.WRAPPER_OBJECT; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal helper methods
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
      * Helper method used to ensure that intended type id is output as something that is valid:
      * currently only used to ensure that `null` output is converted to an empty String.
-     *
-     * @since 2.6
      */
     protected String _validTypeId(String typeId) {
         return ClassUtil.nonNullString(typeId);
     }
 
-    // @since 2.9
-    protected final void _writeTypeId(JsonGenerator g, String typeId) throws IOException
+    protected final void _writeTypeId(JsonGenerator g, String typeId)
+        throws JacksonException
     {
         if (typeId != null) {
             g.writeTypeId(typeId);

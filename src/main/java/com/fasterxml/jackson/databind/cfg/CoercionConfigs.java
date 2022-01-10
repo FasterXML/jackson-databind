@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.cfg;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.fasterxml.jackson.core.util.Snapshottable;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -12,9 +13,10 @@ import com.fasterxml.jackson.databind.type.LogicalType;
  * @since 2.12
  */
 public class CoercionConfigs
-    implements java.io.Serializable
+    implements Snapshottable<CoercionConfigs>,
+        java.io.Serializable // needed in 3.0 too, still
 {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 3L;
 
     private final static int TARGET_TYPE_COUNT = LogicalType.values().length;
 
@@ -68,7 +70,8 @@ public class CoercionConfigs
      *
      * @return A non-shared copy of configuration settings
      */
-    public CoercionConfigs copy()
+    @Override
+    public CoercionConfigs snapshot()
     {
         MutableCoercionConfig[] newPerType;
         if (_perTypeCoercions == null) {

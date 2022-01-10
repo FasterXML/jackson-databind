@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.jsontype;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 import java.io.IOException;
 import java.util.*;
@@ -76,7 +77,9 @@ public class TestPolymorphicDeserialization676 extends BaseMapTest
      * deserialization will fail at complex type.
      */
     public void testDeSerFail() throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .polymorphicTypeValidator(new NoCheckSubTypeValidator())
+                .build();
 
         MapContainer deserMapBad = createDeSerMapContainer(originMap, mapper);
         assertEquals(originMap, deserMapBad);
@@ -85,8 +88,10 @@ public class TestPolymorphicDeserialization676 extends BaseMapTest
     }
 
     public void testDeSerCorrect() throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .polymorphicTypeValidator(new NoCheckSubTypeValidator())
+                .enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)
+                .build();
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("1", 1);
         // commenting out the following statement will fail the test

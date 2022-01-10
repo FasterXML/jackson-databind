@@ -23,7 +23,9 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 public class JDKScalarsDeserTest
     extends BaseMapTest
 {
-    final static String NAN_STRING = "NaN";
+    private final ObjectMapper MAPPER = newJsonMapper();
+
+    private final static String NAN_STRING = "NaN";
 
     final static class BooleanBean {
         boolean _v;
@@ -51,7 +53,7 @@ public class JDKScalarsDeserTest
         long _v;
         void setV(long v) { _v = v; }
     }
-
+    
     final static class DoubleBean {
         double _v;
         void setV(double v) { _v = v; }
@@ -95,7 +97,8 @@ public class JDKScalarsDeserTest
         public float floatValue = 0.25f;
         public double doubleValue = -1.0;
 
-        public void setLongValue(long l) { longValue = l; }
+        public void setIntValue(int v) { intValue = v; }
+        public void setLongValue(long v) { longValue = v; }
         public void setDoubleValue(double v) { doubleValue = v; }
     }
 
@@ -126,8 +129,6 @@ public class JDKScalarsDeserTest
     static class VoidBean {
         public Void value;
     }
-
-    private final ObjectMapper MAPPER = newJsonMapper();
 
     /*
     /**********************************************************
@@ -259,6 +260,43 @@ public class JDKScalarsDeserTest
         assertNotNull(array);
         assertEquals(1, array.length);
         assertEquals(0, array[0]);
+
+        // [databind#381]
+        try {
+            MAPPER.readerFor(IntBean.class)
+                .without(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+                .readValue("{\"v\":[3]}");
+            fail("Did not throw exception when reading a value from a single value array with the UNWRAP_SINGLE_VALUE_ARRAYS feature disabled");
+        } catch (MismatchedInputException exp) {
+            //Correctly threw exception
+        }
+
+        ObjectReader unwrappingR = MAPPER.readerFor(IntBean.class)
+                .with(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+
+        result = unwrappingR.readValue("{\"v\":[3]}");
+        assertEquals(3, result._v);
+        
+        result = unwrappingR.readValue("[{\"v\":[3]}]");
+        assertEquals(3, result._v);
+        
+        try {
+            unwrappingR.readValue("[{\"v\":[3,3]}]");
+            fail("Did not throw exception while reading a value from a multi value array with UNWRAP_SINGLE_VALUE_ARRAY feature enabled");
+        } catch (MismatchedInputException exp) {
+            //threw exception as required
+        }
+        
+        result = unwrappingR.readValue("{\"v\":[null]}");
+        assertNotNull(result);
+        assertEquals(0, result._v);
+
+        array = MAPPER.readerFor(int[].class)
+                .with(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+                .readValue("[ [ null ] ]");
+        assertNotNull(array);
+        assertEquals(1, array.length);
+        assertEquals(0, array[0]);
     }
 
     public void testLongWrapper() throws Exception
@@ -285,6 +323,43 @@ public class JDKScalarsDeserTest
 
         // should work with arrays too..
         long[] array = MAPPER.readValue("[ null ]", long[].class);
+        assertNotNull(array);
+        assertEquals(1, array.length);
+        assertEquals(0, array[0]);
+
+        // [databind#381]
+        try {
+            MAPPER.readerFor(LongBean.class)
+                .without(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+                .readValue("{\"v\":[3]}");
+            fail("Did not throw exception when reading a value from a single value array with the UNWRAP_SINGLE_VALUE_ARRAYS feature disabled");
+        } catch (MismatchedInputException exp) {
+            //Correctly threw exception
+        }
+
+        ObjectReader unwrappingR = MAPPER.readerFor(LongBean.class)
+                .with(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+        
+        result = unwrappingR.readValue("{\"v\":[3]}");
+        assertEquals(3, result._v);
+        
+        result = unwrappingR.readValue("[{\"v\":[3]}]");
+        assertEquals(3, result._v);
+        
+        try {
+            unwrappingR.readValue("[{\"v\":[3,3]}]");
+            fail("Did not throw exception while reading a value from a multi value array with UNWRAP_SINGLE_VALUE_ARRAY feature enabled");
+        } catch (MismatchedInputException exp) {
+            //threw exception as required
+        }
+        
+        result = unwrappingR.readValue("{\"v\":[null]}");
+        assertNotNull(result);
+        assertEquals(0, result._v);
+
+        array = MAPPER.readerFor(long[].class)
+                .with(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+                .readValue("[ [ null ] ]");
         assertNotNull(array);
         assertEquals(1, array.length);
         assertEquals(0, array[0]);
@@ -375,6 +450,45 @@ public class JDKScalarsDeserTest
         }
     }
 
+    public void testDoubleAsArray() throws Exception
+    {
+        final double value = 0.016;
+        try {
+            MAPPER.readerFor(DoubleBean.class)
+                .without(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+                .readValue("{\"v\":[" + value + "]}");
+            fail("Did not throw exception when reading a value from a single value array with the UNWRAP_SINGLE_VALUE_ARRAYS feature disabled");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "value of type `double` from Array value");
+        }
+
+        ObjectReader unwrappingR = MAPPER.readerFor(DoubleBean.class)
+                .with(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+
+        DoubleBean result = unwrappingR.readValue("{\"v\":[" + value + "]}");
+        assertEquals(value, result._v);
+        
+        result = unwrappingR.readValue("[{\"v\":[" + value + "]}]");
+        assertEquals(value, result._v);
+        
+        try {
+            unwrappingR.readValue("[{\"v\":[" + value + "," + value + "]}]");
+            fail("Did not throw exception while reading a value from a multi value array with UNWRAP_SINGLE_VALUE_ARRAY feature enabled");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Unexpected token (`JsonToken.VALUE_NUMBER_FLOAT`)");
+        }
+        
+        result = unwrappingR.readValue("{\"v\":[null]}");
+        assertNotNull(result);
+        assertEquals(0d, result._v);
+
+        double[] array = unwrappingR.forType(double[].class)
+                .readValue("[ [ null ] ]");
+        assertNotNull(array);
+        assertEquals(1, array.length);
+        assertEquals(0d, array[0]);
+    }
+
     /*
     /**********************************************************
     /* Scalar tests, other
@@ -426,12 +540,12 @@ public class JDKScalarsDeserTest
             sb.append(" ");
             sb.append(i);
         }
-        JsonParser jp = MAPPER.createParser(sb.toString());
+        JsonParser p = MAPPER.createParser(sb.toString());
         for (int i = 0; i < NR_OF_INTS; ++i) {
-            Integer result = MAPPER.readValue(jp, Integer.class);
+            Integer result = MAPPER.readValue(p, Integer.class);
             assertEquals(Integer.valueOf(i), result);
         }
-        jp.close();
+        p.close();
     }
 
     /*
@@ -615,7 +729,7 @@ public class JDKScalarsDeserTest
 
     private void verifyPath(MismatchedInputException e, String propName) {
         assertEquals(1, e.getPath().size());
-        assertEquals(propName, e.getPath().get(0).getFieldName());
+        assertEquals(propName, e.getPath().get(0).getPropertyName());
     }
 
     public void testNullForPrimitiveArrays() throws IOException

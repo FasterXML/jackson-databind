@@ -6,7 +6,6 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.ObjectCodec;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
@@ -53,7 +52,7 @@ public class DateJava8FallbacksTest extends BaseMapTest
     {
         OffsetDateTime time = OffsetDateTime.ofInstant(Instant.now(),
                 ZoneId.of("Z"));
-        try (TokenBuffer tb = new TokenBuffer((ObjectCodec) null, false)) {
+        try (TokenBuffer tb = new TokenBuffer(false)) {
             tb.writeEmbeddedObject(time);
 
             try (JsonParser p = tb.asParser()) {
@@ -63,7 +62,7 @@ public class DateJava8FallbacksTest extends BaseMapTest
         }
 
         // but also try deser into an array
-        try (TokenBuffer tb = new TokenBuffer((ObjectCodec) null, false)) {
+        try (TokenBuffer tb = new TokenBuffer(false)) {
             tb.writeStartArray();
             tb.writeEmbeddedObject(time);
             tb.writeEndArray();

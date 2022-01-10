@@ -234,8 +234,7 @@ public class CoerceJDKScalarsTest extends BaseMapTest
             verifyException(e, " to `");
             verifyException(e, "` value");
 
-            assertNotNull(e.getProcessor());
-            assertSame(p, e.getProcessor());
+            assertSame(p, e.processor());
 
             assertToken(JsonToken.VALUE_STRING, p.currentToken());
             assertEquals(unquotedValue, p.getText());

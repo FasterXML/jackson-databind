@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser.creators;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +23,9 @@ public class TestValueInstantiator extends BaseMapTest
     {
         String _secret;
 
-        public MyBean(String s, boolean bogus) {
+        // 20-Sep-2017, tatu: Must NOT be public for 3.x because we do auto-detect
+        //   public ctors....
+        protected MyBean(String s, boolean bogus) {
             _secret = s;
         }
     }
@@ -324,7 +325,7 @@ public class TestValueInstantiator extends BaseMapTest
         }
         
         @Override
-        public Object createUsingDelegate(DeserializationContext ctxt, Object delegate) throws IOException {
+        public Object createUsingDelegate(DeserializationContext ctxt, Object delegate) {
             return new AnnotatedBeanDelegating(delegate, false);
         }
     }
@@ -339,8 +340,9 @@ public class TestValueInstantiator extends BaseMapTest
     
     public void testCustomBeanInstantiator() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new MyModule(MyBean.class, new MyBeanInstantiator()));
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new MyModule(MyBean.class, new MyBeanInstantiator()))
+                .build();
         MyBean bean = mapper.readValue("{}", MyBean.class);
         assertNotNull(bean);
         assertEquals("secret!", bean._secret);
@@ -348,8 +350,9 @@ public class TestValueInstantiator extends BaseMapTest
 
     public void testCustomListInstantiator() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new MyModule(MyList.class, new MyListInstantiator()));
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new MyModule(MyList.class, new MyListInstantiator()))
+                .build();
         MyList result = mapper.readValue("[]", MyList.class);
         assertNotNull(result);
         assertEquals(MyList.class, result.getClass());
@@ -358,8 +361,9 @@ public class TestValueInstantiator extends BaseMapTest
 
     public void testCustomMapInstantiator() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new MyModule(MyMap.class, new MyMapInstantiator()));
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new MyModule(MyMap.class, new MyMapInstantiator()))
+                .build();
         MyMap result = mapper.readValue("{ \"a\":\"b\" }", MyMap.class);
         assertNotNull(result);
         assertEquals(MyMap.class, result.getClass());
@@ -374,8 +378,9 @@ public class TestValueInstantiator extends BaseMapTest
 
     public void testDelegateBeanInstantiator() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new MyModule(MyBean.class, new MyDelegateBeanInstantiator()));
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new MyModule(MyBean.class, new MyDelegateBeanInstantiator()))
+                .build();
         MyBean bean = mapper.readValue("123", MyBean.class);
         assertNotNull(bean);
         assertEquals("123", bean._secret);
@@ -383,8 +388,9 @@ public class TestValueInstantiator extends BaseMapTest
 
     public void testDelegateListInstantiator() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new MyModule(MyList.class, new MyDelegateListInstantiator()));
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new MyModule(MyList.class, new MyDelegateListInstantiator()))
+                .build();
         MyList result = mapper.readValue("123", MyList.class);
         assertNotNull(result);
         assertEquals(1, result.size());
@@ -393,8 +399,9 @@ public class TestValueInstantiator extends BaseMapTest
     
     public void testDelegateMapInstantiator() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new MyModule(MyMap.class, new MyDelegateMapInstantiator()));
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new MyModule(MyMap.class, new MyDelegateMapInstantiator()))
+                .build();
         MyMap result = mapper.readValue("123", MyMap.class);
         assertNotNull(result);
         assertEquals(1, result.size());
@@ -418,8 +425,8 @@ public class TestValueInstantiator extends BaseMapTest
 
     public void testPropertyBasedBeanInstantiator() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new MyModule(CreatorBean.class,
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new MyModule(CreatorBean.class,
                 new InstantiatorBase() {
                     @Override
                     public boolean canCreateFromObjectWith() { return true; }
@@ -437,7 +444,8 @@ public class TestValueInstantiator extends BaseMapTest
                     public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) {
                         return new CreatorBean((String) args[0]);
                     }
-        }));
+                }))
+                .build();
         CreatorBean bean = mapper.readValue("{\"secret\":123,\"value\":37}", CreatorBean.class);
         assertNotNull(bean);
         assertEquals("123", bean._secret);
@@ -445,8 +453,9 @@ public class TestValueInstantiator extends BaseMapTest
 
     public void testPropertyBasedMapInstantiator() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new MyModule(MyMap.class, new CreatorMapInstantiator()));
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new MyModule(MyMap.class, new CreatorMapInstantiator()))
+                .build();
         MyMap result = mapper.readValue("{\"name\":\"bob\", \"x\":\"y\"}", MyMap.class);
         assertNotNull(result);
         assertEquals(2, result.size());
@@ -462,8 +471,8 @@ public class TestValueInstantiator extends BaseMapTest
 
     public void testBeanFromString() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new MyModule(MysteryBean.class,
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new MyModule(MysteryBean.class,
                 new InstantiatorBase() {
                     @Override
                     public boolean canCreateFromString() { return true; }
@@ -472,7 +481,8 @@ public class TestValueInstantiator extends BaseMapTest
                     public Object createFromString(DeserializationContext ctxt, String value) {
                         return new MysteryBean(value);
                     }
-        }));
+                }))
+                .build();
         MysteryBean result = mapper.readValue(q("abc"), MysteryBean.class);
         assertNotNull(result);
         assertEquals("abc", result.value);
@@ -480,8 +490,8 @@ public class TestValueInstantiator extends BaseMapTest
 
     public void testBeanFromInt() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new MyModule(MysteryBean.class,
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new MyModule(MysteryBean.class,
                 new InstantiatorBase() {
                     @Override
                     public boolean canCreateFromInt() { return true; }
@@ -490,7 +500,8 @@ public class TestValueInstantiator extends BaseMapTest
                     public Object createFromInt(DeserializationContext ctxt, int value) {
                         return new MysteryBean(value+1);
                     }
-        }));
+                }))
+                .build();
         MysteryBean result = mapper.readValue("37", MysteryBean.class);
         assertNotNull(result);
         assertEquals(Integer.valueOf(38), result.value);
@@ -498,8 +509,8 @@ public class TestValueInstantiator extends BaseMapTest
 
     public void testBeanFromLong() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new MyModule(MysteryBean.class,
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new MyModule(MysteryBean.class,
                 new InstantiatorBase() {
                     @Override
                     public boolean canCreateFromLong() { return true; }
@@ -508,7 +519,8 @@ public class TestValueInstantiator extends BaseMapTest
                     public Object createFromLong(DeserializationContext ctxt, long value) {
                         return new MysteryBean(value+1L);
                     }
-        }));
+                }))
+                .build();
         MysteryBean result = mapper.readValue("9876543210", MysteryBean.class);
         assertNotNull(result);
         assertEquals(Long.valueOf(9876543211L), result.value);
@@ -516,8 +528,8 @@ public class TestValueInstantiator extends BaseMapTest
 
     public void testBeanFromDouble() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new MyModule(MysteryBean.class,
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new MyModule(MysteryBean.class,
                 new InstantiatorBase() {
                     @Override
                     public boolean canCreateFromDouble() { return true; }
@@ -526,7 +538,8 @@ public class TestValueInstantiator extends BaseMapTest
                     public Object createFromDouble(DeserializationContext ctxt, double value) {
                         return new MysteryBean(2.0 * value);
                     }
-        }));
+                }))
+                .build();
         MysteryBean result = mapper.readValue("0.25", MysteryBean.class);
         assertNotNull(result);
         assertEquals(Double.valueOf(0.5), result.value);
@@ -534,8 +547,8 @@ public class TestValueInstantiator extends BaseMapTest
 
     public void testBeanFromBoolean() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new MyModule(MysteryBean.class,
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new MyModule(MysteryBean.class,
                 new InstantiatorBase() {
                     @Override
                     public boolean canCreateFromBoolean() { return true; }
@@ -544,7 +557,8 @@ public class TestValueInstantiator extends BaseMapTest
                     public Object createFromBoolean(DeserializationContext ctxt, boolean value) {
                         return new MysteryBean(Boolean.valueOf(value));
                     }
-        }));
+                }))
+                .build();
         MysteryBean result = mapper.readValue("true", MysteryBean.class);
         assertNotNull(result);
         assertEquals(Boolean.TRUE, result.value);
@@ -562,8 +576,9 @@ public class TestValueInstantiator extends BaseMapTest
      */
     public void testPolymorphicCreatorBean() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new MyModule(PolymorphicBeanBase.class, new PolymorphicBeanInstantiator()));
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new MyModule(PolymorphicBeanBase.class, new PolymorphicBeanInstantiator()))
+                .build();
         String JSON = "{\"type\":"+q(PolymorphicBean.class.getName())+",\"name\":\"Axel\"}";
         PolymorphicBeanBase result = mapper.readValue(JSON, PolymorphicBeanBase.class);
         assertNotNull(result);

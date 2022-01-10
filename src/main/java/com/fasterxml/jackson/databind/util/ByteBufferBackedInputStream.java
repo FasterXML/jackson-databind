@@ -14,7 +14,9 @@ public class ByteBufferBackedInputStream extends InputStream {
     public ByteBufferBackedInputStream(ByteBuffer buf) { _b = buf; }
 
     @Override public int available() { return _b.remaining(); }
-    
+
+    @Override public void close() { } // to remove IOException
+
     @Override
     public int read() throws IOException { return _b.hasRemaining() ? (_b.get() & 0xFF) : -1; }
 

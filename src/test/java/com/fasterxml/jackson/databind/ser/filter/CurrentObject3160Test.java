@@ -3,13 +3,14 @@ package com.fasterxml.jackson.databind.ser.filter;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonStreamContext;
+import com.fasterxml.jackson.core.TokenStreamContext;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.fasterxml.jackson.databind.ser.PropertyWriter;
-import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.std.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.std.SimpleFilterProvider;
 
 // [databind#3160]
 public class CurrentObject3160Test extends BaseMapTest
@@ -44,16 +45,22 @@ public class CurrentObject3160Test extends BaseMapTest
     // from [databind#2475] test/filter
     static class MyFilter3160 extends SimpleBeanPropertyFilter {
         @Override
-        public void serializeAsField(Object pojo, JsonGenerator jgen, SerializerProvider provider, PropertyWriter writer) throws Exception {
+        public void serializeAsProperty(Object pojo, JsonGenerator g, SerializerProvider provider, PropertyWriter writer)
+            throws JacksonException
+        {
             // Ensure that "current value" remains pojo
-            final JsonStreamContext ctx = jgen.getOutputContext();
-            final Object curr = ctx.getCurrentValue();
+            final TokenStreamContext ctx = g.streamWriteContext();
+            final Object curr = ctx.currentValue();
 
             if (!(curr instanceof Item3160)) {
                 throw new RuntimeException("Field '"+writer.getName()
                     +"', context not that of `Item3160` instance but: "+curr.getClass().getName());
             }
-            super.serializeAsField(pojo, jgen, provider, writer);
+            try {
+                super.serializeAsProperty(pojo, g, provider, writer);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 

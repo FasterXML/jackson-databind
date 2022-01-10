@@ -119,8 +119,10 @@ public class TestIgnoredTypes extends BaseMapTest
 
     public void testIgnoreUsingConfigOverride() throws Exception
     {
-        final ObjectMapper mapper = newJsonMapper();
-        mapper.configOverride(Wrapped.class).setIsIgnoredType(true);
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .withConfigOverride(Wrapped.class,
+                        o -> o.setIsIgnoredType(true))
+                .build();
 
         // serialize , first
         String json = mapper.writeValueAsString(new Wrapper());

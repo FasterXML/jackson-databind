@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.jsonFormatVisitors;
 
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
 /**
@@ -16,42 +15,42 @@ public interface JsonFormatVisitorWrapper extends JsonFormatVisitorWithSerialize
     /**
      * @param type Declared type of visited property (or List element) in Java
      */
-    public JsonObjectFormatVisitor expectObjectFormat(JavaType type) throws JsonMappingException;
+    public JsonObjectFormatVisitor expectObjectFormat(JavaType type);
 
     /**
      * @param type Declared type of visited property (or List element) in Java
      */
-    public JsonArrayFormatVisitor expectArrayFormat(JavaType type) throws JsonMappingException;
+    public JsonArrayFormatVisitor expectArrayFormat(JavaType type);
 
     /**
      * @param type Declared type of visited property (or List element) in Java
      */
-    public JsonStringFormatVisitor expectStringFormat(JavaType type) throws JsonMappingException;
+    public JsonStringFormatVisitor expectStringFormat(JavaType type);
 
     /**
      * @param type Declared type of visited property (or List element) in Java
      */
-    public JsonNumberFormatVisitor expectNumberFormat(JavaType type) throws JsonMappingException;
+    public JsonNumberFormatVisitor expectNumberFormat(JavaType type);
 
     /**
      * @param type Declared type of visited property (or List element) in Java
      */
-    public JsonIntegerFormatVisitor expectIntegerFormat(JavaType type) throws JsonMappingException;
+    public JsonIntegerFormatVisitor expectIntegerFormat(JavaType type);
 
     /**
      * @param type Declared type of visited property (or List element) in Java
      */
-    public JsonBooleanFormatVisitor expectBooleanFormat(JavaType type) throws JsonMappingException;
+    public JsonBooleanFormatVisitor expectBooleanFormat(JavaType type);
 
     /**
      * @param type Declared type of visited property (or List element) in Java
      */
-    public JsonNullFormatVisitor expectNullFormat(JavaType type) throws JsonMappingException;
+    public JsonNullFormatVisitor expectNullFormat(JavaType type);
 
     /**
      * @param type Declared type of visited property (or List element) in Java
      */
-    public JsonAnyFormatVisitor expectAnyFormat(JavaType type) throws JsonMappingException;
+    public JsonAnyFormatVisitor expectAnyFormat(JavaType type);
 
     /**
      * Method called when type is of Java {@link java.util.Map} type, and will
@@ -59,7 +58,7 @@ public interface JsonFormatVisitorWrapper extends JsonFormatVisitorWithSerialize
      * 
      * @since 2.2
      */
-    public JsonMapFormatVisitor expectMapFormat(JavaType type) throws JsonMappingException;
+    public JsonMapFormatVisitor expectMapFormat(JavaType type);
 
     /**
      * Empty "no-op" implementation of {@link JsonFormatVisitorWrapper}, suitable for
@@ -89,56 +88,47 @@ public interface JsonFormatVisitorWrapper extends JsonFormatVisitorWithSerialize
         }
 
         @Override
-        public JsonObjectFormatVisitor expectObjectFormat(JavaType type)
-                throws JsonMappingException {
+        public JsonObjectFormatVisitor expectObjectFormat(JavaType type) {
             return null;
         }
 
         @Override
-        public JsonArrayFormatVisitor expectArrayFormat(JavaType type)
-                  throws JsonMappingException {
+        public JsonArrayFormatVisitor expectArrayFormat(JavaType type) {
             return null;
         }
 
         @Override
-        public JsonStringFormatVisitor expectStringFormat(JavaType type)
-                throws JsonMappingException {
+        public JsonStringFormatVisitor expectStringFormat(JavaType type) {
             return null;
         }
 
         @Override
-        public JsonNumberFormatVisitor expectNumberFormat(JavaType type)
-                throws JsonMappingException {
+        public JsonNumberFormatVisitor expectNumberFormat(JavaType type) {
             return null;
         }
 
         @Override
-        public JsonIntegerFormatVisitor expectIntegerFormat(JavaType type)
-                throws JsonMappingException {
+        public JsonIntegerFormatVisitor expectIntegerFormat(JavaType type) {
             return null;
         }
 
         @Override
-        public JsonBooleanFormatVisitor expectBooleanFormat(JavaType type)
-                throws JsonMappingException {
+        public JsonBooleanFormatVisitor expectBooleanFormat(JavaType type) {
             return null;
         }
 
         @Override
-        public JsonNullFormatVisitor expectNullFormat(JavaType type)
-                throws JsonMappingException {
+        public JsonNullFormatVisitor expectNullFormat(JavaType type) {
             return null;
         }
 
         @Override
-        public JsonAnyFormatVisitor expectAnyFormat(JavaType type)
-                throws JsonMappingException {
+        public JsonAnyFormatVisitor expectAnyFormat(JavaType type) {
             return null;
         }
 
         @Override
-        public JsonMapFormatVisitor expectMapFormat(JavaType type)
-                throws JsonMappingException {
+        public JsonMapFormatVisitor expectMapFormat(JavaType type) {
             return null;
         }
    }

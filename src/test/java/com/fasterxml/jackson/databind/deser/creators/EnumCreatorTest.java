@@ -15,7 +15,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.Deserializers;
-import com.fasterxml.jackson.databind.deser.std.EnumDeserializer;
+import com.fasterxml.jackson.databind.deser.jdk.EnumDeserializer;
 import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -108,7 +108,7 @@ public class EnumCreatorTest extends BaseMapTest
     static class DelegatingDeserializers extends Deserializers.Base
     {
         @Override
-        public JsonDeserializer<?> findEnumDeserializer(final Class<?> type, final DeserializationConfig config, final BeanDescription beanDesc)
+        public ValueDeserializer<?> findEnumDeserializer(final Class<?> type, final DeserializationConfig config, final BeanDescription beanDesc)
         {
             final Collection<AnnotatedMethod> factoryMethods = beanDesc.getFactoryMethods();
             if (factoryMethods != null) {
@@ -120,6 +120,12 @@ public class EnumCreatorTest extends BaseMapTest
                 }
             }
             return null;
+        }
+
+        @Override
+        public boolean hasDeserializerFor(DeserializationConfig config,
+                Class<?> valueType) {
+            return false;
         }
     }
 
@@ -289,8 +295,9 @@ public class EnumCreatorTest extends BaseMapTest
     // [databind#745]
     public void testDeserializerForCreatorWithEnumMaps() throws Exception
     {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new DelegatingDeserializersModule());
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new DelegatingDeserializersModule())
+                .build();
         EnumMap<EnumWithCreator,String> value = mapper.readValue("{\"enumA\":\"value\"}",
                 new TypeReference<EnumMap<EnumWithCreator,String>>() {});
         assertEquals("value", value.get(EnumWithCreator.A));

@@ -18,20 +18,20 @@ public class TestArraySerialization
         }
         String str = sb.toString();
         byte[] data = MAPPER.writeValueAsBytes(new String[] { "abc", str, null, str });
-        JsonParser jp = MAPPER.createParser(data);
-        assertToken(JsonToken.START_ARRAY, jp.nextToken());
-        assertToken(JsonToken.VALUE_STRING, jp.nextToken());
-        assertEquals("abc", jp.getText());
-        assertToken(JsonToken.VALUE_STRING, jp.nextToken());
-        String actual = jp.getText();
+        JsonParser p = MAPPER.createParser(data);
+        assertToken(JsonToken.START_ARRAY, p.nextToken());
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        assertEquals("abc", p.getText());
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        String actual = p.getText();
         assertEquals(str.length(), actual.length());
         assertEquals(str, actual);
-        assertToken(JsonToken.VALUE_NULL, jp.nextToken());
-        assertToken(JsonToken.VALUE_STRING, jp.nextToken());
-        assertEquals(str, jp.getText());
-        assertToken(JsonToken.END_ARRAY, jp.nextToken());
-        assertNull(jp.nextToken());
-        jp.close();
+        assertToken(JsonToken.VALUE_NULL, p.nextToken());
+        assertToken(JsonToken.VALUE_STRING, p.nextToken());
+        assertEquals(str, p.getText());
+        assertToken(JsonToken.END_ARRAY, p.nextToken());
+        assertNull(p.nextToken());
+        p.close();
     }
     
     public void testIntArray() throws Exception
@@ -53,14 +53,14 @@ public class TestArraySerialization
         // with 'writeAsBytes()')
         for (int round = 0; round < 3; ++round) {
             byte[] data = MAPPER.writeValueAsBytes(ints);
-            JsonParser jp = MAPPER.createParser(data);
-            assertToken(JsonToken.START_ARRAY, jp.nextToken());
+            JsonParser p = MAPPER.createParser(data);
+            assertToken(JsonToken.START_ARRAY, p.nextToken());
             for (int i = 0; i < SIZE; ++i) {
-                assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
-                assertEquals(i, jp.getIntValue());
+                assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
+                assertEquals(i, p.getIntValue());
             }
-            assertToken(JsonToken.END_ARRAY, jp.nextToken());
-            jp.close();
+            assertToken(JsonToken.END_ARRAY, p.nextToken());
+            p.close();
         }
     }
     

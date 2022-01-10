@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
@@ -12,7 +11,6 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.ObjectIdReader;
 import com.fasterxml.jackson.databind.deser.impl.PropertyBasedObjectIdGenerator;
-import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -26,12 +24,8 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * pass such resolver will result in an error.
  */
 public class AbstractDeserializer
-    extends JsonDeserializer<Object>
-    implements ContextualDeserializer, // since 2.9
-        java.io.Serializable
+    extends ValueDeserializer<Object>
 {
-    private static final long serialVersionUID = 1L;
-
     protected final JavaType _baseType;
 
     protected final ObjectIdReader _objectIdReader;
@@ -48,14 +42,12 @@ public class AbstractDeserializer
     protected final boolean _acceptDouble;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life cycle
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
-     * @since 2.9
-     *
      * @param props Regular properties: currently only needed to support property-annotated
      *    Object Id handling with property inclusion (needed for determining type of Object Id
      *    to bind)
@@ -75,12 +67,6 @@ public class AbstractDeserializer
         _acceptDouble = (cls == Double.TYPE) || cls.isAssignableFrom(Double.class);
     }
 
-    @Deprecated // since 2.9
-    public AbstractDeserializer(BeanDeserializerBuilder builder,
-            BeanDescription beanDesc, Map<String, SettableBeanProperty> backRefProps) {
-        this(builder, beanDesc, backRefProps, null);
-    }
-
     protected AbstractDeserializer(BeanDescription beanDesc)
     {
         _baseType = beanDesc.getType();
@@ -93,9 +79,6 @@ public class AbstractDeserializer
         _acceptDouble = (cls == Double.TYPE) || cls.isAssignableFrom(Double.class);
     }
 
-    /**
-     * @since 2.9
-     */
     protected AbstractDeserializer(AbstractDeserializer base,
             ObjectIdReader objectIdReader, Map<String, SettableBeanProperty> props)
     {
@@ -113,22 +96,20 @@ public class AbstractDeserializer
     /**
      * Factory method used when constructing instances for non-POJO types, like
      * {@link java.util.Map}s.
-     * 
-     * @since 2.3
      */
     public static AbstractDeserializer constructForNonPOJO(BeanDescription beanDesc) {
         return new AbstractDeserializer(beanDesc);
     }
 
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
-            BeanProperty property) throws JsonMappingException
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
+            BeanProperty property)
     {
         final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         if (property != null && intr != null) {
             final AnnotatedMember accessor = property.getMember();
             if (accessor != null) {
-                ObjectIdInfo objectIdInfo = intr.findObjectIdInfo(accessor);
+                ObjectIdInfo objectIdInfo = intr.findObjectIdInfo(ctxt.getConfig(), accessor);
                 if (objectIdInfo != null) { // some code duplication here as well (from BeanDeserializerFactory)
                     JavaType idType;
                     ObjectIdGenerator<?> idGen;
@@ -136,7 +117,7 @@ public class AbstractDeserializer
                     ObjectIdResolver resolver = ctxt.objectIdResolverInstance(accessor, objectIdInfo);
 
                     // 2.1: allow modifications by "id ref" annotations as well:
-                    objectIdInfo = intr.findObjectReferenceInfo(accessor, objectIdInfo);
+                    objectIdInfo = intr.findObjectReferenceInfo(ctxt.getConfig(), accessor, objectIdInfo);
                     Class<?> implClass = objectIdInfo.getGeneratorType();
 
                     if (implClass == ObjectIdGenerators.PropertyGenerator.class) {
@@ -161,7 +142,7 @@ handledType().getName()));
                         idType = ctxt.getTypeFactory().findTypeParameters(type, ObjectIdGenerator.class)[0];
                         idGen = ctxt.objectIdGeneratorInstance(accessor, objectIdInfo);
                     }
-                    JsonDeserializer<?> deser = ctxt.findRootValueDeserializer(idType);
+                    ValueDeserializer<?> deser = ctxt.findRootValueDeserializer(idType);
                     ObjectIdReader oir = ObjectIdReader.construct(idType, objectIdInfo.getPropertyName(),
                              idGen, deser, idProp, resolver);
                     return new AbstractDeserializer(this, oir, null);
@@ -176,9 +157,9 @@ handledType().getName()));
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public accessors
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -212,7 +193,7 @@ handledType().getName()));
      * (either via value type or referring property).
      */
     @Override
-    public ObjectIdReader getObjectIdReader() {
+    public ObjectIdReader getObjectIdReader(DeserializationContext ctxt) {
         return _objectIdReader;
     }
 
@@ -224,17 +205,17 @@ handledType().getName()));
     public SettableBeanProperty findBackReference(String logicalName) {
         return (_backRefProperties == null) ? null : _backRefProperties.get(logicalName);
     }
-    
+
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Deserializer implementation
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
-        throws IOException
+        throws JacksonException
     {
         // Hmmh. One tricky question; for scalar, is it an Object Id, or "Natural" type?
         // for now, prefer Object Id:
@@ -249,7 +230,7 @@ handledType().getName()));
                 if (t == JsonToken.START_OBJECT) {
                     t = p.nextToken();
                 }
-                if ((t == JsonToken.FIELD_NAME) && _objectIdReader.maySerializeAsObject()
+                if ((t == JsonToken.PROPERTY_NAME) && _objectIdReader.maySerializeAsObject()
                         && _objectIdReader.isValidReferencePropertyName(p.currentName(), p)) {
                     return _deserializeFromObjectId(p, ctxt);
                 }
@@ -265,7 +246,7 @@ handledType().getName()));
 
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+        throws JacksonException
     {
         // 16-Oct-2016, tatu: Let's pass non-null value instantiator so that we will
         //    get proper exception type; needed to establish there are no creators
@@ -276,12 +257,13 @@ handledType().getName()));
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods
-    /**********************************************************
+    /**********************************************************************
      */
 
-    protected Object _deserializeIfNatural(JsonParser p, DeserializationContext ctxt) throws IOException
+    protected Object _deserializeIfNatural(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
     {
         /* There is a chance we might be "natural" types
          * (String, Boolean, Integer, Double), which do not include any type information...
@@ -323,7 +305,8 @@ handledType().getName()));
      * Method called in cases where it looks like we got an Object Id
      * to parse and use as a reference.
      */
-    protected Object _deserializeFromObjectId(JsonParser p, DeserializationContext ctxt) throws IOException
+    protected Object _deserializeFromObjectId(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
     {
         Object id = _objectIdReader.readObjectReference(p, ctxt);
         ReadableObjectId roid = ctxt.findObjectId(id, _objectIdReader.generator, _objectIdReader.resolver);
@@ -331,7 +314,7 @@ handledType().getName()));
         Object pojo = roid.resolve();
         if (pojo == null) { // not yet; should wait...
             throw new UnresolvedForwardReference(p,
-                    "Could not resolve Object Id ["+id+"] -- unresolved forward-reference?", p.getCurrentLocation(), roid);
+                    "Could not resolve Object Id ["+id+"] -- unresolved forward-reference?", p.currentLocation(), roid);
         }
         return pojo;
     }

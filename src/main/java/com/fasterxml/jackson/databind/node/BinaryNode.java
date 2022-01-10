@@ -1,11 +1,10 @@
 package com.fasterxml.jackson.databind.node;
 
-import java.io.IOException;
 import java.util.Arrays;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.databind.SerializerProvider;
 
+import com.fasterxml.jackson.databind.SerializerProvider;
 
 /**
  * Value node that contains Base64 encoded binary value, which will be
@@ -14,7 +13,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 public class BinaryNode
     extends ValueNode
 {
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 3L;
 
     final static BinaryNode EMPTY_BINARY_NODE = new BinaryNode(new byte[0]);
 
@@ -30,8 +29,7 @@ public class BinaryNode
         if (offset == 0 && length == data.length) {
             _data = data;
         } else {
-            _data = new byte[length];
-            System.arraycopy(data, offset, _data, 0, length);
+            _data = Arrays.copyOfRange(data, offset, offset + length);
         }
     }
 
@@ -90,10 +88,10 @@ public class BinaryNode
     }
 
     @Override
-    public final void serialize(JsonGenerator jg, SerializerProvider provider)
-        throws IOException
+    public final void serialize(JsonGenerator g, SerializerProvider provider)
+        throws JacksonException
     {
-        jg.writeBinary(provider.getConfig().getBase64Variant(),
+        g.writeBinary(provider.getConfig().getBase64Variant(),
                 _data, 0, _data.length);
     }
 

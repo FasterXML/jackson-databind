@@ -5,9 +5,8 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
-import com.fasterxml.jackson.databind.introspect.SimpleMixInResolver;
-import com.fasterxml.jackson.databind.introspect.ClassIntrospector.MixInResolver;
+import com.fasterxml.jackson.databind.introspect.MixInHandler;
+import com.fasterxml.jackson.databind.introspect.MixInResolver;
 
 public class TestMixinSerForMethods
     extends BaseMapTest
@@ -110,8 +109,9 @@ public class TestMixinSerForMethods
         assertEquals("b2", result.get("b"));
 
         // then with leaf-level mix-in
-        mapper = new ObjectMapper();
-        mapper.addMixIn(BaseClass.class, MixIn.class);
+        mapper = jsonMapperBuilder()
+                .addMixIn(BaseClass.class, MixIn.class)
+                .build();
         result = writeAndMap(mapper, bean);
         assertEquals(2, result.size());
         assertEquals("b2", result.get("b2"));
@@ -125,11 +125,12 @@ public class TestMixinSerForMethods
      */
     public void testIntermediateMixin() throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper();
         Map<String,Object> result;
         LeafClass bean = new LeafClass("XXX", "b2");
 
-        mapper.addMixIn(BaseClass.class, MixIn.class);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addMixIn(BaseClass.class, MixIn.class)
+                .build();
         result = writeAndMap(mapper, bean);
         assertEquals(1, result.size());
         assertEquals("XXX", result.get("a"));
@@ -141,15 +142,16 @@ public class TestMixinSerForMethods
      */
     public void testIntermediateMixin2() throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.addMixIn(EmptyBean.class, MixInForSimple.class);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addMixIn(EmptyBean.class, MixInForSimple.class)
+                .build();
         Map<String,Object> result = writeAndMap(mapper, new SimpleBean());
         assertEquals(1, result.size());
         assertEquals(Integer.valueOf(42), result.get("x"));
     }
 
     public void testSimpleMixInResolverHasMixins() {
-        SimpleMixInResolver simple = new SimpleMixInResolver(null);
+        MixInHandler simple = new MixInHandler(null);
         assertFalse(simple.hasMixIns());
         simple.addLocalDefinition(String.class, Number.class);
         assertTrue(simple.hasMixIns());
@@ -158,8 +160,7 @@ public class TestMixinSerForMethods
     // [databind#688]
     public void testCustomResolver() throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper();
-        MixInResolver res = new ClassIntrospector.MixInResolver() {
+        final MixInResolver res = new MixInResolver() {
             @Override
             public Class<?> findMixInClassFor(Class<?> target) {
                 if (target == EmptyBean.class) {
@@ -167,18 +168,26 @@ public class TestMixinSerForMethods
                 }
                 return null;
             }
-
+        
             @Override
-            public MixInResolver copy() {
+            public MixInResolver snapshot() {
                 return this;
             }
+
+            @Override
+            public boolean hasMixIns() {
+                return true;
+            }
         };
-        mapper.setMixInResolver(res);
+
+        ObjectMapper mapper = jsonMapperBuilder()
+                .mixInOverrides(res)
+                .build();
         Map<String,Object> result = writeAndMap(mapper, new SimpleBean());
         assertEquals(1, result.size());
         assertEquals(Integer.valueOf(42), result.get("x"));
 
-        SimpleMixInResolver simple = new SimpleMixInResolver(res);
+        MixInHandler simple = new MixInHandler(res);
         assertTrue(simple.hasMixIns());
     }
 }

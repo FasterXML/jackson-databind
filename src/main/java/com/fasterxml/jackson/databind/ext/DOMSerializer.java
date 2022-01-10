@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ext;
 
-import java.io.IOException;
 import java.io.StringWriter;
 
 import javax.xml.XMLConstants;
@@ -10,15 +9,13 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Node;
 
-import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
-@SuppressWarnings("serial")
 public class DOMSerializer extends StdSerializer<Node>
 {
     protected final TransformerFactory transformerFactory;
@@ -35,7 +32,7 @@ public class DOMSerializer extends StdSerializer<Node>
 
     @Override
     public void serialize(Node value, JsonGenerator g, SerializerProvider provider)
-        throws IOException
+        throws JacksonException
     {
         try {
             Transformer transformer = transformerFactory.newTransformer();
@@ -52,13 +49,7 @@ public class DOMSerializer extends StdSerializer<Node>
     }
 
     @Override
-    public JsonNode getSchema(SerializerProvider provider, java.lang.reflect.Type typeHint) {
-        // Well... it is serialized as String
-        return createSchemaNode("string", true);
-    }
-
-    @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException {
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) {
         if (visitor != null) visitor.expectAnyFormat(typeHint);
     }
 }

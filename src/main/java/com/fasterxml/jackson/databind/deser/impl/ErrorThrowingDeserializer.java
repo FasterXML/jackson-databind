@@ -1,10 +1,8 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.ValueDeserializer;
 
 /**
  * A deserializer that stores an {@link Error} caught during constructing
@@ -14,7 +12,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
  * 
  * @since 2.9 Note: prior to this version was named <code>NoClassDefFoundDeserializer</code>
  */
-public class ErrorThrowingDeserializer extends JsonDeserializer<Object>
+public class ErrorThrowingDeserializer extends ValueDeserializer<Object>
 {
     private final Error _cause;
 
@@ -23,7 +21,7 @@ public class ErrorThrowingDeserializer extends JsonDeserializer<Object>
     }
 
     @Override
-    public Object deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+    public Object deserialize(JsonParser jp, DeserializationContext ctxt) {
         throw _cause;
     }
 }

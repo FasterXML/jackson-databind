@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.databind.deser.filter;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
@@ -19,7 +17,6 @@ public class ProblemHandler2973Test extends BaseMapTest
         public Object handleUnexpectedToken(DeserializationContext ctxt,
                 JavaType targetType, JsonToken t, JsonParser p,
                 String failureMsg)
-            throws IOException
         {
             String result = p.currentToken().toString();
             p.skipChildren();

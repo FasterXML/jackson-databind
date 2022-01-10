@@ -4,39 +4,24 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.JsonMappingException;
+
+import com.fasterxml.jackson.databind.DatabindException;
 
 /**
- * Specialized {@link JsonMappingException} sub-class used to indicate
+ * Specialized {@link DatabindException} sub-class used to indicate
  * case where an explicitly ignored property is encountered, and mapper
  * is configured to consider this an error.
- * 
- * @since 2.3
  */
 public class IgnoredPropertyException
     extends PropertyBindingException
 {
     private static final long serialVersionUID = 1L;
 
-    /**
-     * @since 2.7
-     */
     public IgnoredPropertyException(JsonParser p, String msg, JsonLocation loc,
             Class<?> referringClass, String propName,
             Collection<Object> propertyIds)
     {
         super(p, msg, loc, referringClass, propName, propertyIds);
-    }
-
-    /**
-     * @deprecated Since 2.7
-     */
-    @Deprecated
-    public IgnoredPropertyException(String msg, JsonLocation loc,
-            Class<?> referringClass, String propName,
-            Collection<Object> propertyIds)
-    {
-        super(msg, loc, referringClass, propName, propertyIds);
     }
 
     /**
@@ -62,7 +47,7 @@ public class IgnoredPropertyException
         String msg = String.format("Ignored field \"%s\" (class %s) encountered; mapper configured not to allow this",
                 propertyName, ref.getName());
         IgnoredPropertyException e = new IgnoredPropertyException(p, msg,
-                p.getCurrentLocation(), ref, propertyName, propertyIds);
+                p.currentLocation(), ref, propertyName, propertyIds);
         // but let's also ensure path includes this last (missing) segment
         e.prependPath(fromObjectOrClass, propertyName);
         return e;

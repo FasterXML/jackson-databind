@@ -14,8 +14,6 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
 /**
  * Intermediate {@link BeanProperty} class shared by concrete readable- and
  * writable property implementations for sharing common functionality.
- *
- * @since 2.7
  */
 public abstract class ConcreteBeanPropertyBase
     implements BeanProperty, java.io.Serializable
@@ -24,14 +22,9 @@ public abstract class ConcreteBeanPropertyBase
 
     /**
      * Additional information about property
-     *
-     * @since 2.3
      */
     protected final PropertyMetadata _metadata;
 
-    /**
-     * @since 2.9
-     */
     protected transient List<PropertyName> _aliases;
 
     protected ConcreteBeanPropertyBase(PropertyMetadata md) {
@@ -52,33 +45,22 @@ public abstract class ConcreteBeanPropertyBase
     public boolean isVirtual() { return false; }
 
     @Override
-    @Deprecated
-    public final JsonFormat.Value findFormatOverrides(AnnotationIntrospector intr) {
-        JsonFormat.Value f = null;
+    public JsonFormat.Value findFormatOverrides(MapperConfig<?> config) {
+        AnnotationIntrospector intr = config.getAnnotationIntrospector();
         if (intr != null) {
             AnnotatedMember member = getMember();
             if (member != null) {
-                f = intr.findFormat(member);
+                return intr.findFormat(config, member);
             }
         }
-        if (f == null) {
-            f = EMPTY_FORMAT;
-        }
-        return f;
+        return null;
     }
 
     @Override
     public JsonFormat.Value findPropertyFormat(MapperConfig<?> config, Class<?> baseType)
     {
         JsonFormat.Value v1 = config.getDefaultPropertyFormat(baseType);
-        JsonFormat.Value v2 = null;
-        AnnotationIntrospector intr = config.getAnnotationIntrospector();
-        if (intr != null) {
-            AnnotatedMember member = getMember();
-            if (member != null) {
-                v2 = intr.findFormat(member);
-            }
-        }
+        JsonFormat.Value v2 = findFormatOverrides(config);
         if (v1 == null) {
             return (v2 == null) ? EMPTY_FORMAT : v2;
         }
@@ -98,7 +80,7 @@ public abstract class ConcreteBeanPropertyBase
         if (intr == null) {
             return v0;
         }
-        JsonInclude.Value v = intr.findPropertyInclusion(member);
+        JsonInclude.Value v = intr.findPropertyInclusion(config, member);
         if (v0 == null) {
             return v;
         }
@@ -114,7 +96,7 @@ public abstract class ConcreteBeanPropertyBase
             if (intr != null) {
                 final AnnotatedMember member = getMember();
                 if (member != null) {
-                    aliases = intr.findPropertyAliases(member);
+                    aliases = intr.findPropertyAliases(config, member);
                 }
             }
             if (aliases == null) {

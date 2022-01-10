@@ -1,8 +1,7 @@
 package com.fasterxml.jackson.databind.util;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.util.JsonpCharacterEscapes;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -15,7 +14,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  * @see com.fasterxml.jackson.databind.util.JSONWrappedObject
  */
 public class JSONPObject
-    implements JsonSerializable
+    implements JacksonSerializable
 {
     /**
      * JSONP function name to use for serialization
@@ -47,14 +46,14 @@ public class JSONPObject
     }
     
     /*
-    /**********************************************************
-    /* JsonSerializable(WithType) implementation
-    /**********************************************************
+    /**********************************************************************
+    /* JacksonSerializable implementation
+    /**********************************************************************
      */
 
     @Override
     public void serializeWithType(JsonGenerator gen, SerializerProvider provider, TypeSerializer typeSer)
-            throws IOException
+        throws JacksonException
     {
         // No type for JSONP wrapping: value serializer will handle typing for value:
         serialize(gen, provider);
@@ -62,14 +61,14 @@ public class JSONPObject
 
     @Override
     public void serialize(JsonGenerator gen, SerializerProvider provider)
-            throws IOException
+        throws JacksonException
     {
         // First, wrapping:
         gen.writeRaw(_function);
         gen.writeRaw('(');
 
         if (_value == null) {
-            provider.defaultSerializeNull(gen);
+            provider.defaultSerializeNullValue(gen);
         } else {
             // NOTE: Escape line-separator characters that break JSONP only if no custom character escapes are set.
             // If custom escapes are in place JSONP-breaking characters will not be escaped and it is recommended to
@@ -81,9 +80,9 @@ public class JSONPObject
 
             try {
                 if (_serializationType != null) {
-                    provider.findTypedValueSerializer(_serializationType, true, null).serialize(_value, gen, provider);
+                    provider.findTypedValueSerializer(_serializationType, true).serialize(_value, gen, provider);
                 } else {
-                    provider.findTypedValueSerializer(_value.getClass(), true, null).serialize(_value, gen, provider);
+                    provider.findTypedValueSerializer(_value.getClass(), true).serialize(_value, gen, provider);
                 }
             } finally {
                 if (override) {
@@ -95,9 +94,9 @@ public class JSONPObject
     }
 
     /*
-    /**************************************************************
+    /**********************************************************************
     /* Accessors
-    /**************************************************************
+    /**********************************************************************
      */
     
     public String getFunction() { return _function; }

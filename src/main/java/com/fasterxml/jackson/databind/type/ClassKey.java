@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.type;
 /**
  * Key class, used as an efficient and accurate key
  * for locating per-class values, such as
- * {@link com.fasterxml.jackson.databind.JsonSerializer}s.
+ * {@link com.fasterxml.jackson.databind.ValueSerializer}s.
  *<p>
  * The reason for having a separate key class instead of
  * directly using {@link Class} as key is mostly

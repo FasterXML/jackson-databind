@@ -1,15 +1,14 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
-import com.fasterxml.jackson.databind.util.ClassUtil;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 
 /**
  * Default {@link ValueInstantiator} implementation, which supports
@@ -19,19 +18,13 @@ import java.math.BigInteger;
 @JacksonStdImpl
 public class StdValueInstantiator
     extends ValueInstantiator
-    implements java.io.Serializable
 {
-    private static final long serialVersionUID = 1L;
-
     /**
      * Type of values that are instantiated; used
      * for error reporting purposes.
      */
     protected final String _valueTypeDesc;
 
-    /**
-     * @since 2.8
-     */
     protected final Class<?> _valueClass;
 
     // // // Default (no-args) construction
@@ -70,23 +63,19 @@ public class StdValueInstantiator
     protected AnnotatedWithParams _fromBooleanCreator;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Life-cycle
-    /**********************************************************
+    /**********************************************************************
      */
-
-    /**
-     * @deprecated Since 2.7 use constructor that takes {@link JavaType} instead
-     */
-    @Deprecated
-    public StdValueInstantiator(DeserializationConfig config, Class<?> valueType) {
-        _valueTypeDesc = ClassUtil.nameOf(valueType);
-        _valueClass = (valueType == null) ? Object.class : valueType;
-    }
 
     public StdValueInstantiator(DeserializationConfig config, JavaType valueType) {
-        _valueTypeDesc = (valueType == null) ? "UNKNOWN TYPE" : valueType.toString();
-        _valueClass = (valueType == null) ? Object.class : valueType.getRawClass();
+        if (valueType == null) {
+            _valueTypeDesc = "UNKNOWN TYPE";
+            _valueClass = Object.class;
+        } else {
+            _valueTypeDesc = valueType.toString();
+            _valueClass = valueType.getRawClass();
+        }
     }
 
     /**
@@ -118,6 +107,13 @@ public class StdValueInstantiator
         _fromDoubleCreator = src._fromDoubleCreator;
         _fromBigDecimalCreator = src._fromBigDecimalCreator;
         _fromBooleanCreator = src._fromBooleanCreator;
+    }
+
+    @Override
+    public ValueInstantiator createContextual(DeserializationContext ctxt,
+            BeanDescription beanDesc)
+    {
+        return this;
     }
 
     /**
@@ -172,9 +168,9 @@ public class StdValueInstantiator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API implementation; metadata
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -263,13 +259,13 @@ public class StdValueInstantiator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API implementation; instantiation from JSON Object
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
-    public Object createUsingDefault(DeserializationContext ctxt) throws IOException
+    public Object createUsingDefault(DeserializationContext ctxt) throws JacksonException
     {
         if (_defaultCreator == null) { // sanity-check; caller should check
             return super.createUsingDefault(ctxt);
@@ -282,7 +278,7 @@ public class StdValueInstantiator
     }
 
     @Override
-    public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) throws IOException
+    public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) throws JacksonException
     {
         if (_withArgsCreator == null) { // sanity-check; caller should check
             return super.createFromObjectWith(ctxt, args);
@@ -295,7 +291,7 @@ public class StdValueInstantiator
     }
 
     @Override
-    public Object createUsingDelegate(DeserializationContext ctxt, Object delegate) throws IOException
+    public Object createUsingDelegate(DeserializationContext ctxt, Object delegate) throws JacksonException
     {
         // 04-Oct-2016, tatu: Need delegation to work around [databind#1392]...
         if (_delegateCreator == null) {
@@ -307,7 +303,7 @@ public class StdValueInstantiator
     }
 
     @Override
-    public Object createUsingArrayDelegate(DeserializationContext ctxt, Object delegate) throws IOException
+    public Object createUsingArrayDelegate(DeserializationContext ctxt, Object delegate) throws JacksonException
     {
         if (_arrayDelegateCreator == null) {
             if (_delegateCreator != null) { // sanity-check; caller should check
@@ -319,13 +315,13 @@ public class StdValueInstantiator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API implementation; instantiation from JSON scalars
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
-    public Object createFromString(DeserializationContext ctxt, String value) throws IOException
+    public Object createFromString(DeserializationContext ctxt, String value) throws JacksonException
     {
         if (_fromStringCreator != null) {
             try {
@@ -339,7 +335,7 @@ public class StdValueInstantiator
     }
 
     @Override
-    public Object createFromInt(DeserializationContext ctxt, int value) throws IOException
+    public Object createFromInt(DeserializationContext ctxt, int value) throws JacksonException
     {
         // First: "native" int methods work best:
         if (_fromIntCreator != null) {
@@ -377,7 +373,7 @@ public class StdValueInstantiator
     }
 
     @Override
-    public Object createFromLong(DeserializationContext ctxt, long value) throws IOException
+    public Object createFromLong(DeserializationContext ctxt, long value) throws JacksonException
     {
         if (_fromLongCreator != null) {
             Long arg = Long.valueOf(value);
@@ -405,7 +401,7 @@ public class StdValueInstantiator
     }
 
     @Override
-    public Object createFromBigInteger(DeserializationContext ctxt, BigInteger value) throws IOException
+    public Object createFromBigInteger(DeserializationContext ctxt, BigInteger value) throws JacksonException
     {
         if (_fromBigIntegerCreator != null) {
             try {
@@ -421,7 +417,7 @@ public class StdValueInstantiator
     }
 
     @Override
-    public Object createFromDouble(DeserializationContext ctxt, double value) throws IOException
+    public Object createFromDouble(DeserializationContext ctxt, double value) throws JacksonException
     {
         if(_fromDoubleCreator != null) {
             Double arg = Double.valueOf(value);
@@ -447,7 +443,7 @@ public class StdValueInstantiator
     }
 
     @Override
-    public Object createFromBigDecimal(DeserializationContext ctxt, BigDecimal value) throws IOException
+    public Object createFromBigDecimal(DeserializationContext ctxt, BigDecimal value) throws JacksonException
     {
         if (_fromBigDecimalCreator != null) {
             try {
@@ -488,7 +484,7 @@ public class StdValueInstantiator
     }
 
     @Override
-    public Object createFromBoolean(DeserializationContext ctxt, boolean value) throws IOException
+    public Object createFromBoolean(DeserializationContext ctxt, boolean value) throws JacksonException
     {
         if (_fromBooleanCreator == null) {
             return super.createFromBoolean(ctxt, value);
@@ -503,9 +499,9 @@ public class StdValueInstantiator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Extended API: configuration mutators, accessors
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -529,60 +525,23 @@ public class StdValueInstantiator
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods
-    /**********************************************************
+    /**********************************************************************
      */
-
-    /**
-     * @deprecated Since 2.7 call either {@link #rewrapCtorProblem} or
-     *  {@link #wrapAsJsonMappingException}
-     */
-    @Deprecated // since 2.7
-    protected JsonMappingException wrapException(Throwable t)
-    {
-        // 05-Nov-2015, tatu: This used to always unwrap the whole exception, but now only
-        //   does so if and until `JsonMappingException` is found.
-        for (Throwable curr = t; curr != null; curr = curr.getCause()) {
-            if (curr instanceof JsonMappingException) {
-                return (JsonMappingException) curr;
-            }
-        }
-        return new JsonMappingException(null,
-                "Instantiation of "+getValueTypeDesc()+" value failed: "+ClassUtil.exceptionMessage(t), t);
-    }
-
-    /**
-     * @deprecated Since 2.7 call either {@link #rewrapCtorProblem} or
-     *  {@link #wrapAsJsonMappingException}
-     */
-    @Deprecated // since 2.10
-    protected JsonMappingException unwrapAndWrapException(DeserializationContext ctxt, Throwable t)
-    {
-        // 05-Nov-2015, tatu: This used to always unwrap the whole exception, but now only
-        //   does so if and until `JsonMappingException` is found.
-        for (Throwable curr = t; curr != null; curr = curr.getCause()) {
-            if (curr instanceof JsonMappingException) {
-                return (JsonMappingException) curr;
-            }
-        }
-        return ctxt.instantiationException(getValueClass(), t);
-    }
 
     /**
      * Helper method that will return given {@link Throwable} case as
-     * a {@link JsonMappingException} (if it is of that type), or call
+     * a {@link DatabindException} (if it is of that type), or call
      * {@link DeserializationContext#instantiationException(Class, Throwable)} to
-     * produce and return suitable {@link JsonMappingException}.
-     *
-     * @since 2.7
+     * produce and return suitable {@link DatabindException}.
      */
-    protected JsonMappingException wrapAsJsonMappingException(DeserializationContext ctxt,
+    protected DatabindException wrapAsDatabindException(DeserializationContext ctxt,
             Throwable t)
     {
-        // 05-Nov-2015, tatu: Only avoid wrapping if already a JsonMappingException
-        if (t instanceof JsonMappingException) {
-            return (JsonMappingException) t;
+        // 05-Nov-2015, tatu: Only avoid wrapping if already a DatabindException
+        if (t instanceof DatabindException) {
+            return (DatabindException) t;
         }
         return ctxt.instantiationException(getValueClass(), t);
     }
@@ -590,11 +549,9 @@ public class StdValueInstantiator
     /**
      * Method that subclasses may call for standard handling of an exception thrown when
      * calling constructor or factory method. Will unwrap {@link ExceptionInInitializerError}
-     * and {@link InvocationTargetException}s, then call {@link #wrapAsJsonMappingException}.
-     *
-     * @since 2.7
+     * and {@link InvocationTargetException}s, then call {@link #wrapAsDatabindException}.
      */
-    protected JsonMappingException rewrapCtorProblem(DeserializationContext ctxt,
+    protected DatabindException rewrapCtorProblem(DeserializationContext ctxt,
             Throwable t)
     {
         // 05-Nov-2015, tatu: Seems like there are really only 2 useless wrapper errors/exceptions,
@@ -607,20 +564,19 @@ public class StdValueInstantiator
                 t = cause;
             }
         }
-        return wrapAsJsonMappingException(ctxt, t);
+        return wrapAsDatabindException(ctxt, t);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     private Object _createUsingDelegate(AnnotatedWithParams delegateCreator,
             SettableBeanProperty[] delegateArguments,
-            DeserializationContext ctxt,
-            Object delegate)
-            throws IOException
+            DeserializationContext ctxt, Object delegate)
+        throws JacksonException
     {
         if (delegateCreator == null) { // sanity-check; caller should check
             throw new IllegalStateException("No delegate constructor for "+getValueTypeDesc());

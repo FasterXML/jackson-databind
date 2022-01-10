@@ -36,8 +36,6 @@ public class TypeBindings
 
     /**
      * Names of potentially unresolved type variables.
-     *
-     * @since 2.3
      */
     private final String[] _unboundVariables;
     

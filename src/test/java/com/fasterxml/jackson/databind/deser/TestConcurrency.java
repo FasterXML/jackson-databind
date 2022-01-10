@@ -1,43 +1,42 @@
 package com.fasterxml.jackson.databind.deser;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.core.JsonParser;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 /**
- * Testing for NPE due to race condition.
+ * Testing for a NPE due to race condition
  */
 public class TestConcurrency extends BaseMapTest
 {
-    @JsonDeserialize(using=CustomBeanDeserializer.class)
+    @JsonDeserialize(using=TestBeanDeserializer.class)
     static class Bean
     {
         public int value = 42;
     }
 
     /*
-    /**********************************************
+    /**********************************************************************
     /* Helper classes
-    /**********************************************
+    /**********************************************************************
      */
     
     /**
      * Dummy deserializer used for verifying that partially handled (i.e. not yet
      * resolved) deserializers are not allowed to be used.
      */
-    static class CustomBeanDeserializer
-        extends JsonDeserializer<Bean>
-        implements ResolvableDeserializer
+    static class TestBeanDeserializer
+        extends ValueDeserializer<Bean>
     {
         protected volatile boolean resolved = false;
         
         @Override
-        public Bean deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
+        public Bean deserialize(JsonParser p, DeserializationContext ctxt)
         {
             if (!resolved) {
-                throw new IOException("Deserializer not yet completely resolved");
+                ctxt.reportInputMismatch(Bean.class,
+                        "Deserializer not yet completely resolved");
             }
             Bean b = new Bean();
             b.value = 13;
@@ -55,16 +54,15 @@ public class TestConcurrency extends BaseMapTest
     }
 
     /*
-    /**********************************************
-    /* Unit tests
-    /**********************************************
+    /**********************************************************************
+    /* Test methods
+    /**********************************************************************
      */
 
     public void testDeserializerResolution() throws Exception
     {
-        /* Let's repeat couple of times, just to be sure; thread timing is not
-         * exact science; plus caching plays a role too
-         */
+        // Let's repeat couple of times, just to be sure; thread timing is not
+        // exact science; plus caching plays a role too
         final String JSON = "{\"value\":42}";
         
         for (int i = 0; i < 5; ++i) {

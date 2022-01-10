@@ -1,12 +1,14 @@
 package com.fasterxml.jackson.databind.deser;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidNullException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -14,10 +16,10 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 
 public class NullHandlingTest extends BaseMapTest
 {
-    static class FunnyNullDeserializer extends JsonDeserializer<String>
+    static class FunnyNullDeserializer extends ValueDeserializer<String>
     {
         @Override
-        public String deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+        public String deserialize(JsonParser jp, DeserializationContext ctxt) {
             return "text";
         }
 
@@ -84,9 +86,9 @@ public class NullHandlingTest extends BaseMapTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     private final ObjectMapper CONTENT_NULL_FAIL_MAPPER = JsonMapper.builder()
-            .defaultSetterInfo(JsonSetter.Value.construct(Nulls.AS_EMPTY, Nulls.FAIL))
+            .changeDefaultNullHandling(n -> n.withContentNulls(Nulls.FAIL))
             .build();
-    
+
     /*
     /**********************************************************************
     /* Test methods
@@ -98,13 +100,23 @@ public class NullHandlingTest extends BaseMapTest
         // null doesn't really have a type, fake by assuming Object
         Object result = MAPPER.readValue("   null", Object.class);
         assertNull(result);
-    }  
-    
+
+        // although nominal type CAN matter
+        String str = MAPPER.readValue("null", String.class);
+        assertNull(str);
+
+        StringWrapper w = MAPPER.readValue(a2q("{'str': null}"),
+                StringWrapper.class);
+        assertNotNull(w);
+        assertNull(w.str);
+    }
+
     public void testAnySetterNulls() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addDeserializer(String.class, new FunnyNullDeserializer());
-        mapper.registerModule(module);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
 
         String fieldName = "fieldName";
         String nullValue = "{\""+fieldName+"\":null}";
@@ -127,10 +139,11 @@ public class NullHandlingTest extends BaseMapTest
 
     public void testCustomRootNulls() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addDeserializer(String.class, new FunnyNullDeserializer());
-        mapper.registerModule(module);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
 
         // should get non-default null directly:
         String str = mapper.readValue("null", String.class);
@@ -147,10 +160,11 @@ public class NullHandlingTest extends BaseMapTest
     // [databind#407]
     public void testListOfNulls() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addDeserializer(String.class, new FunnyNullDeserializer());
-        mapper.registerModule(module);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
 
         List<String> list = Arrays.asList("funny");
         JavaType type = mapper.getTypeFactory().constructCollectionType(List.class, String.class);
@@ -172,10 +186,11 @@ public class NullHandlingTest extends BaseMapTest
     // Test for [#407]
     public void testMapOfNulls() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addDeserializer(String.class, new FunnyNullDeserializer());
-        mapper.registerModule(module);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
 
         JavaType type = mapper.getTypeFactory().constructMapType(Map.class, String.class, String.class);
         // should get non-default null directly:

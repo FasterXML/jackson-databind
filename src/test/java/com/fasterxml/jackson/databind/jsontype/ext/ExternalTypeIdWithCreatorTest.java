@@ -57,21 +57,20 @@ public class ExternalTypeIdWithCreatorTest extends BaseMapTest
     public static abstract class Attack {
         public String side;
 
-        @JsonCreator
-        public Attack(String side) {
+        protected Attack(String side) {
             this.side = side;
         }
     }
 
     public static class Kick extends Attack {
-        @JsonCreator
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
         public Kick(String side) {
             super(side);
         }
     }
 
     public static class Punch extends Attack {
-        @JsonCreator
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
         public Punch(String side) {
             super(side);
         }
@@ -103,7 +102,7 @@ public class ExternalTypeIdWithCreatorTest extends BaseMapTest
     }
 
     // [databind#1198]
-    public void testFails() throws Exception {
+    public void test1198Fails() throws Exception {
         String json = "{ \"name\": \"foo\", \"attack\":\"right\" } }";
 
         Character character = MAPPER.readValue(json, Character.class);
@@ -114,7 +113,7 @@ public class ExternalTypeIdWithCreatorTest extends BaseMapTest
     }
 
     // [databind#1198]
-    public void testWorks() throws Exception {
+    public void test1198Works() throws Exception {
         String json = "{ \"name\": \"foo\", \"preferredAttack\": \"KICK\", \"attack\":\"right\" } }";
 
         Character character = MAPPER.readValue(json, Character.class);

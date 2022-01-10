@@ -14,7 +14,8 @@ public class NodeMergeTest extends BaseMapTest
             // 15-Feb-2021, tatu: slightly related to [databind#3056],
             //   ensure that dup detection will not trip handling here
             .enable(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY)
-            .build();
+            .build()
+    ;
 
     static class ObjectNodeWrapper {
         @JsonMerge
@@ -125,7 +126,7 @@ public class NodeMergeTest extends BaseMapTest
         JsonNode update = MAPPER.readTree(a2q("{'test':null}"));
 
         ObjectNode result = MAPPER.readerForUpdating(src)
-            .readValue(update, ObjectNode.class);
+            .readValue(update);
 
         assertEquals(a2q("{'test':null}"), result.toString());
     }
@@ -136,7 +137,7 @@ public class NodeMergeTest extends BaseMapTest
         JsonNode update = MAPPER.readTree(a2q("{'test':123}"));
 
         ObjectNode result = MAPPER.readerForUpdating(src)
-            .readValue(update, ObjectNode.class);
+            .readValue(update);
 
         assertEquals(a2q("{'test':123}"), result.toString());
     }
@@ -147,7 +148,7 @@ public class NodeMergeTest extends BaseMapTest
         JsonNode update = MAPPER.readTree(a2q("{'test':null}"));
 
         ObjectNode result = MAPPER.readerForUpdating(src)
-            .readValue(update, ObjectNode.class);
+            .readValue(update);
 
         assertEquals(a2q("{'test':null}"), result.toString());
     }
@@ -158,7 +159,7 @@ public class NodeMergeTest extends BaseMapTest
         JsonNode update = MAPPER.readTree(a2q("{'test':'n/a'}"));
 
         ObjectNode result = MAPPER.readerForUpdating(src)
-            .readValue(update, ObjectNode.class);
+            .readValue(update);
 
         assertEquals(a2q("{'test':'n/a'}"), result.toString());
     }

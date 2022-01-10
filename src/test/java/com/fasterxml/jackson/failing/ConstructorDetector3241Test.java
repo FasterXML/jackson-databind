@@ -2,7 +2,6 @@ package com.fasterxml.jackson.failing;
 
 import java.lang.annotation.*;
 
-import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 
 import com.fasterxml.jackson.databind.*;
@@ -27,7 +26,7 @@ public class ConstructorDetector3241Test extends BaseMapTest
     static class CtorNameIntrospector extends JacksonAnnotationIntrospector
     {
         @Override
-        public String findImplicitPropertyName(//MapperConfig<?> config,
+        public String findImplicitPropertyName(MapperConfig<?> config,
                 AnnotatedMember member) {
             final ImplicitName ann = member.getAnnotation(ImplicitName.class);
             return (ann == null) ? null : ann.value();
@@ -56,7 +55,7 @@ public class ConstructorDetector3241Test extends BaseMapTest
     {
         ObjectMapper mapper = mapperBuilder()
                 .constructorDetector(ConstructorDetector.USE_PROPERTIES_BASED) // new!
-                .defaultSetterInfo(JsonSetter.Value.construct(Nulls.FAIL, Nulls.FAIL))
+                .changeDefaultNullHandling(n -> n.withValueNulls(Nulls.FAIL))
                 .build();
 
         try {

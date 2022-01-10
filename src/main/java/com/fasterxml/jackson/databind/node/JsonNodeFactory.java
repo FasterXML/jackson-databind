@@ -14,10 +14,9 @@ import com.fasterxml.jackson.databind.util.RawValue;
  * to behavior of node types, mostly) is needed.
  */
 public class JsonNodeFactory
-    implements java.io.Serializable, // since 2.1
-        JsonNodeCreator // since 2.3
+    implements java.io.Serializable,
+        JsonNodeCreator
 {
-    // with 2.2
     private static final long serialVersionUID = 1L;
 
     private final boolean _cfgBigDecimalExact;
@@ -102,6 +101,9 @@ public class JsonNodeFactory
         return v ? BooleanNode.getTrue() : BooleanNode.getFalse();
     }
 
+    @Override
+    public JsonNode missingNode() { return MissingNode.getInstance(); }
+
     /**
      * Factory method for getting an instance of JSON null node (which
      * represents literal null value)
@@ -109,10 +111,6 @@ public class JsonNodeFactory
     @Override
     public NullNode nullNode() { return NullNode.getInstance(); }
 
-    public JsonNode missingNode() {
-        return MissingNode.getInstance();
-    }
-    
     /*
     /**********************************************************
     /* Factory methods for numeric values

@@ -20,7 +20,7 @@ public class MapFormatShapeTest extends BaseMapTest
         public int extra = 13;
     }
 
-    @JsonFormat(shape=JsonFormat.Shape.OBJECT)
+    @JsonFormat(shape=JsonFormat.Shape.POJO)
     static class Map476AsPOJO extends Map476Base { }
 
     @JsonPropertyOrder({ "a", "b", "c" })
@@ -29,7 +29,7 @@ public class MapFormatShapeTest extends BaseMapTest
     {
         public Map476AsPOJO a;
         public Map476Base b;
-        @JsonFormat(shape=JsonFormat.Shape.OBJECT)
+        @JsonFormat(shape=JsonFormat.Shape.POJO)
         public Map476Base c;
 
         public Bean476Container(int forA, int forB, int forC) {
@@ -60,7 +60,7 @@ public class MapFormatShapeTest extends BaseMapTest
     }
 
     // from [databind#1540]
-    @JsonFormat(shape = JsonFormat.Shape.OBJECT)
+    @JsonFormat(shape = JsonFormat.Shape.POJO)
     @JsonPropertyOrder({ "property", "map" })
     static class Map1540Implementation implements Map<Integer, Integer> {
         public int property;
@@ -152,24 +152,6 @@ public class MapFormatShapeTest extends BaseMapTest
         assertEquals(a2q("{'a':{'extra':13,'empty':false},'b':{'value':2}}"),
                 result);
     }
-
-    // Can't yet use per-property overrides at all, see [databind#1419]
-    
-    /*
-    public void testSerializeAsPOJOViaProperty() throws Exception
-    {
-        String result = MAPPER.writeValueAsString(new Bean476Container(1,0,3));
-        assertEquals(a2q("{'a':{'extra':13,'empty':false},'c':{'empty':false,'value':3}}"),
-                result);
-    }
-
-    public void testSerializeNaturalViaOverride() throws Exception
-    {
-        String result = MAPPER.writeValueAsString(new Bean476Override(123));
-        assertEquals(a2q("{'stuff':{'value':123}}"),
-                result);
-    }
-    */
 
     /*
     /**********************************************************

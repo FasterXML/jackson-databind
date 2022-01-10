@@ -5,9 +5,7 @@ import java.util.*;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.util.LRUMap;
-import com.fasterxml.jackson.databind.util.LookupCache;
-import com.fasterxml.jackson.databind.util.UnlimitedLookupCache;
+import com.fasterxml.jackson.databind.util.SimpleLookupCache;
 
 // for [databind#1415]
 public class ContainerTypesTest extends BaseMapTest
@@ -44,16 +42,7 @@ public class ContainerTypesTest extends BaseMapTest
     // [databind#1725]
     public void testMissingCollectionType() throws Exception
     {
-        TypeFactory tf = MAPPER.getTypeFactory().withCache((LookupCache<Object,JavaType>)new LRUMap<Object,JavaType>(4, 8));
-        JavaType t = tf.constructParametricType(List.class, HashMap.class);
-        assertEquals(CollectionType.class, t.getClass());
-        assertEquals(List.class, t.getRawClass());
-        assertEquals(HashMap.class, t.getContentType().getRawClass());
-    }
-
-    public void testCustomLookupCache() throws Exception
-    {
-        TypeFactory tf = MAPPER.getTypeFactory().withCache(new UnlimitedLookupCache<Object, JavaType>(0));
+        TypeFactory tf = MAPPER.getTypeFactory().withCache(new SimpleLookupCache<Object,JavaType>(4, 8));
         JavaType t = tf.constructParametricType(List.class, HashMap.class);
         assertEquals(CollectionType.class, t.getClass());
         assertEquals(List.class, t.getRawClass());

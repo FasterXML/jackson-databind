@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
-import java.io.IOException;
-
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -16,15 +15,11 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
  * but can not support easily (or support known to be added via extension
  * module).
  *<p>
- * NOTE: starting with 2.13, does allow deserialization from
+ * NOTE:does allow deserialization from
  * {@code JsonToken.VALUE_EMBEDDED_OBJECT} if type matches (or is {@code null}).
- *
- * @since 2.12
  */
 public class UnsupportedTypeDeserializer extends StdDeserializer<Object>
 {
-    private static final long serialVersionUID = 1L;
-
     protected final JavaType _type;
 
     protected final String _message;
@@ -36,7 +31,7 @@ public class UnsupportedTypeDeserializer extends StdDeserializer<Object>
     }
     
     @Override
-    public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+    public Object deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
         // 26-May-2021, tatu: For [databind#3091], do allow reads from embedded values
         if (p.currentToken() == JsonToken.VALUE_EMBEDDED_OBJECT) {

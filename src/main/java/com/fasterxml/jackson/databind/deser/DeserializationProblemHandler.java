@@ -2,13 +2,11 @@ package com.fasterxml.jackson.databind.deser;
 
 import java.io.IOException;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationConfig;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 
 /**
@@ -35,8 +33,6 @@ public abstract class DeserializationProblemHandler
     /**
      * Marker value returned by some handler methods to indicate that
      * they could not handle problem and produce replacement value.
-     *
-     * @since 2.7
      */
     public final static Object NOT_HANDLED = new Object();
     
@@ -68,8 +64,8 @@ public abstract class DeserializationProblemHandler
      *  depending on configuration.
      */
     public boolean handleUnknownProperty(DeserializationContext ctxt, JsonParser p,
-            JsonDeserializer<?> deserializer, Object beanOrClass, String propertyName)
-        throws IOException
+            ValueDeserializer<?> deserializer, Object beanOrClass, String propertyName)
+        throws JacksonException
     {
         return false;
     }
@@ -95,13 +91,11 @@ public abstract class DeserializationProblemHandler
      * @return Either {@link #NOT_HANDLED} to indicate that handler does not know
      *    what to do (and exception may be thrown), or value to use as key (possibly
      *    <code>null</code>
-     *
-     * @since 2.8
      */
     public Object handleWeirdKey(DeserializationContext ctxt,
             Class<?> rawKeyType, String keyValue,
             String failureMsg)
-        throws IOException
+        throws JacksonException
     {
         return NOT_HANDLED;
     }
@@ -129,13 +123,11 @@ public abstract class DeserializationProblemHandler
      * @return Either {@link #NOT_HANDLED} to indicate that handler does not know
      *    what to do (and exception may be thrown), or value to use as (possibly
      *    <code>null</code>)
-     *
-     * @since 2.8
      */
     public Object handleWeirdStringValue(DeserializationContext ctxt,
             Class<?> targetType, String valueToConvert,
             String failureMsg)
-        throws IOException
+        throws JacksonException
     {
         return NOT_HANDLED;
     }
@@ -163,12 +155,10 @@ public abstract class DeserializationProblemHandler
      * @return Either {@link #NOT_HANDLED} to indicate that handler does not know
      *    what to do (and exception may be thrown), or value to use as (possibly
      *    <code>null</code>)
-     *
-     * @since 2.8
      */
     public Object handleWeirdNumberValue(DeserializationContext ctxt,
             Class<?> targetType, Number valueToConvert, String failureMsg)
-        throws IOException
+        throws JacksonException
     {
         return NOT_HANDLED;
     }
@@ -191,29 +181,10 @@ public abstract class DeserializationProblemHandler
      * @return Either {@link #NOT_HANDLED} to indicate that handler does not know
      *    what to do (and exception may be thrown), or value to use (possibly
      *    <code>null</code>)
-     *
-     * @since 2.9
      */
     public Object handleWeirdNativeValue(DeserializationContext ctxt,
             JavaType targetType, Object valueToConvert, JsonParser p)
-        throws IOException
-    {
-        return NOT_HANDLED;
-    }
-
-    /**
-     * Deprecated variant of
-     * {@link #handleUnexpectedToken(DeserializationContext, JavaType, JsonToken, JsonParser, String)}
-     *
-     * @since 2.8
-     *
-     * @deprecated Since 2.10
-     */
-    @Deprecated
-    public Object handleUnexpectedToken(DeserializationContext ctxt,
-            Class<?> targetType, JsonToken t, JsonParser p,
-            String failureMsg)
-        throws IOException
+        throws JacksonException
     {
         return NOT_HANDLED;
     }
@@ -242,16 +213,13 @@ public abstract class DeserializationProblemHandler
      * @return Either {@link #NOT_HANDLED} to indicate that handler does not know
      *    what to do (and exception may be thrown), or value to use (possibly
      *    <code>null</code>
-     *
-     * @since 2.10
      */
     public Object handleUnexpectedToken(DeserializationContext ctxt,
             JavaType targetType, JsonToken t, JsonParser p,
             String failureMsg)
-        throws IOException
+        throws JacksonException
     {
-        // Calling class-version handler for backward compatibility, as of 2.10
-        return handleUnexpectedToken(ctxt, targetType.getRawClass(), t, p, failureMsg);
+        return NOT_HANDLED;
     }
 
     /**
@@ -278,12 +246,10 @@ public abstract class DeserializationProblemHandler
      * @return Either {@link #NOT_HANDLED} to indicate that handler does not know
      *    what to do (and exception may be thrown), or value to use (possibly
      *    <code>null</code>
-     *
-     * @since 2.8
      */
     public Object handleInstantiationProblem(DeserializationContext ctxt,
             Class<?> instClass, Object argument, Throwable t)
-        throws IOException
+        throws JacksonException
     {
         return NOT_HANDLED;
     }
@@ -311,17 +277,13 @@ public abstract class DeserializationProblemHandler
      * @return Either {@link #NOT_HANDLED} to indicate that handler does not know
      *    what to do (and exception may be thrown), or value to use (possibly
      *    <code>null</code>
-     *
-     * @since 2.9
      */
     public Object handleMissingInstantiator(DeserializationContext ctxt,
             Class<?> instClass, ValueInstantiator valueInsta, JsonParser p,
             String msg)
-        throws IOException
+        throws JacksonException
     {
-        // 16-Oct-2016, tatu: Need to delegate to deprecated method from 2.8;
-        //   remove redirect from later versions (post-2.9)
-        return handleMissingInstantiator(ctxt, instClass, p, msg);
+        return NOT_HANDLED;
     }
 
     /**
@@ -351,13 +313,11 @@ public abstract class DeserializationProblemHandler
      * @return Actual type to use, if resolved; `null` if handler does not know what
      *     to do; or `Void.class` to indicate that nothing should be deserialized for
      *     type with the id (which caller may choose to do... or not)
-     *
-     * @since 2.8
      */
     public JavaType handleUnknownTypeId(DeserializationContext ctxt,
             JavaType baseType, String subTypeId, TypeIdResolver idResolver,
             String failureMsg)
-        throws IOException
+        throws JacksonException
     {
         return null;
     }
@@ -387,32 +347,12 @@ public abstract class DeserializationProblemHandler
      * @return Actual type to use, if resolved; `null` if handler does not know what
      *     to do; or `Void.class` to indicate that nothing should be deserialized for
      *     type with the id (which caller may choose to do... or not)
-     *
-     * @since 2.9
      */
     public JavaType handleMissingTypeId(DeserializationContext ctxt,
             JavaType baseType, TypeIdResolver idResolver,
             String failureMsg)
-        throws IOException
+        throws JacksonException
     {
         return null;
-    }
-
-    /*
-    /**********************************************************
-    /* Deprecated
-    /**********************************************************
-     */
-
-    /**
-     * @since 2.8
-     * @deprecated Since 2.9: use variant that takes {@link ValueInstantiator}
-     */
-    @Deprecated
-    public Object handleMissingInstantiator(DeserializationContext ctxt,
-            Class<?> instClass, JsonParser p, String msg)
-        throws IOException
-    {
-        return NOT_HANDLED;
     }
 }

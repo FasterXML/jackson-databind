@@ -48,7 +48,8 @@ public final class EnumValues
         if (enumValues == null) {
             throw new IllegalArgumentException("Cannot determine enum constants for Class "+enumClass.getName());
         }
-        String[] names = config.getAnnotationIntrospector().findEnumValues(enumCls, enumValues, new String[enumValues.length]);
+        String[] names = config.getAnnotationIntrospector().findEnumValues(config,
+                enumCls, enumValues, new String[enumValues.length]);
         SerializableString[] textual = new SerializableString[enumValues.length];
         for (int i = 0, len = enumValues.length; i < len; ++i) {
             Enum<?> en = enumValues[i];

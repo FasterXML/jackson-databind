@@ -5,10 +5,12 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 
 public class MultiArgConstructorTest extends BaseMapTest
 {
@@ -43,7 +45,7 @@ public class MultiArgConstructorTest extends BaseMapTest
     static class MyParamIntrospector extends JacksonAnnotationIntrospector
     {
         @Override
-        public String findImplicitPropertyName(AnnotatedMember param) {
+        public String findImplicitPropertyName(MapperConfig<?> config, AnnotatedMember param) {
             if (param instanceof AnnotatedParameter) {
                 AnnotatedParameter ap = (AnnotatedParameter) param;
                 switch (ap.getIndex()) {
@@ -53,7 +55,7 @@ public class MultiArgConstructorTest extends BaseMapTest
                     return "param"+ap.getIndex();
                 }
             }
-            return super.findImplicitPropertyName(param);
+            return super.findImplicitPropertyName(config, param);
         }
     }
     
@@ -65,8 +67,9 @@ public class MultiArgConstructorTest extends BaseMapTest
 
     public void testMultiArgVisible() throws Exception
     {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.setAnnotationIntrospector(new MyParamIntrospector());
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .annotationIntrospector(new MyParamIntrospector())
+                .build();
         MultiArgCtorBean bean = mapper.readValue(a2q("{'b':13, 'c':2, 'a':-99}"),
                 MultiArgCtorBean.class);
         assertNotNull(bean);
@@ -78,8 +81,9 @@ public class MultiArgConstructorTest extends BaseMapTest
     // But besides visibility, also allow overrides
     public void testMultiArgWithPartialOverride() throws Exception
     {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.setAnnotationIntrospector(new MyParamIntrospector());
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .annotationIntrospector(new MyParamIntrospector())
+                .build();
         MultiArgCtorBeanWithAnnotations bean = mapper.readValue(a2q("{'b2':7, 'c':222, 'a':-99}"),
                 MultiArgCtorBeanWithAnnotations.class);
         assertNotNull(bean);
@@ -87,16 +91,17 @@ public class MultiArgConstructorTest extends BaseMapTest
         assertEquals(-99, bean._a);
         assertEquals(222, bean.c);
     }
-    
+
     // but let's also ensure that it is possible to prevent use of that constructor
     // with different visibility
     public void testMultiArgNotVisible() throws Exception
     {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.setAnnotationIntrospector(new MyParamIntrospector());
-        mapper.setDefaultVisibility(
-                JsonAutoDetect.Value.noOverrides()
-                    .withCreatorVisibility(Visibility.NONE));
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .annotationIntrospector(new MyParamIntrospector())
+                .changeDefaultVisibility(vc -> VisibilityChecker.construct
+                        (JsonAutoDetect.Value.noOverrides()
+                        .withCreatorVisibility(Visibility.NONE)))
+                .build();
         try {
             /*MultiArgCtorBean bean =*/ mapper.readValue(a2q("{'b':13,  'a':-99}"),
                 MultiArgCtorBean.class);

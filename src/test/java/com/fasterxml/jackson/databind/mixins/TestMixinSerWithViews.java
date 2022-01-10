@@ -175,33 +175,29 @@ public class TestMixinSerWithViews
 
         // Property SerializationConfig.SerializationFeature.DEFAULT_VIEW_INCLUSION set to false
         ObjectMapper mapper = jsonMapperBuilder()
-            .configure(MapperFeature.DEFAULT_VIEW_INCLUSION, Boolean.FALSE)
-            .addMixIn(A.class, AMixInAnnotation.class)
-            .build();
+                .disable(MapperFeature.DEFAULT_VIEW_INCLUSION)
+                .addMixIn(A.class, AMixInAnnotation.class)
+                .build();
         String json = mapper.writerWithView(AView.class).writeValueAsString(a);
-
         assertTrue(json.indexOf("\"name\"") > 0);
     }
-    
+
     /*
     /**********************************************************
     /* Helper methods
     /**********************************************************
      */
-    
+
     private ObjectMapper createObjectMapper()
     {
-        ObjectMapper objectMapper = jsonMapperBuilder()
-                .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false )
-                .serializationInclusion(JsonInclude.Include.NON_NULL )
-                .configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false )
-                .build();
-    
         Map<Class<?>, Class<?>> sourceMixins = new HashMap<Class<?>, Class<?>>( );
         sourceMixins.put( SimpleTestData.class, TestDataJAXBMixin.class );
         sourceMixins.put( ComplexTestData.class, TestComplexDataJAXBMixin.class );
-
-        objectMapper.setMixIns(sourceMixins);
-        return objectMapper;
+        return jsonMapperBuilder()
+                .changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_NULL))
+                .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
+                .disable(MapperFeature.DEFAULT_VIEW_INCLUSION)
+                .addMixIns(sourceMixins)
+                .build();
     }
 }

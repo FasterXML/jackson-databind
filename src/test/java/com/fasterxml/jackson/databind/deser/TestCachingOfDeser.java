@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -11,7 +10,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 
-@SuppressWarnings("serial")
 public class TestCachingOfDeser extends BaseMapTest
 {
     // For [databind#735]
@@ -41,7 +39,7 @@ public class TestCachingOfDeser extends BaseMapTest
         }
 
         @Override
-        public Integer deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+        public Integer deserialize(JsonParser p, DeserializationContext ctxt) {
             return 100 * p.getValueAsInt();
         }
     }

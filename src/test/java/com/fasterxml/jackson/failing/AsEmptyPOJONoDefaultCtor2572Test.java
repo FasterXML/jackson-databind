@@ -30,8 +30,9 @@ public class AsEmptyPOJONoDefaultCtor2572Test extends BaseMapTest
     }
 
     public void testJackson() throws Exception {
-        ObjectMapper mapper = new ObjectMapper()
-                .setDefaultSetterInfo(JsonSetter.Value.construct(Nulls.AS_EMPTY, Nulls.AS_EMPTY));
+        ObjectMapper mapper = jsonMapperBuilder()
+                .changeDefaultNullHandling(h -> h.withOverrides(JsonSetter.Value.construct(Nulls.AS_EMPTY, Nulls.AS_EMPTY)))
+                .build();
         final String json = mapper.writeValueAsString(new Outer(new Inner("inner")));
         mapper.readValue(json, Outer.class);
     }

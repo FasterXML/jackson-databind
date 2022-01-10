@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.node;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -11,10 +10,11 @@ import com.fasterxml.jackson.databind.*;
  * Numeric node that contains values that do not fit in simple
  * integer (int, long) or floating point (double) values.
  */
-@SuppressWarnings("serial")
 public class DecimalNode
     extends NumericNode
 {
+    private static final long serialVersionUID = 3L;
+
     public static final DecimalNode ZERO = new DecimalNode(BigDecimal.ZERO);
 
     private final static BigDecimal MIN_INTEGER = BigDecimal.valueOf(Integer.MIN_VALUE);
@@ -25,9 +25,9 @@ public class DecimalNode
     final protected BigDecimal _value;
 
     /* 
-    /**********************************************************
+    /**********************************************************************
     /* Construction
-    /**********************************************************
+    /**********************************************************************
      */
 
     public DecimalNode(BigDecimal v) { _value = v; }
@@ -35,9 +35,9 @@ public class DecimalNode
     public static DecimalNode valueOf(BigDecimal d) { return new DecimalNode(d); }
 
     /* 
-    /**********************************************************
+    /**********************************************************************
     /* BaseJsonNode extended API
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override public JsonToken asToken() { return JsonToken.VALUE_NUMBER_FLOAT; }
@@ -45,10 +45,10 @@ public class DecimalNode
     @Override
     public JsonParser.NumberType numberType() { return JsonParser.NumberType.BIG_DECIMAL; }
 
-    /* 
-    /**********************************************************
-    /* Overrridden JsonNode methods
-    /**********************************************************
+    /*
+    /**********************************************************************
+    /* Overridden JsonNode methods
+    /**********************************************************************
      */
 
     @Override
@@ -102,20 +102,10 @@ public class DecimalNode
     }
 
     @Override
-    public final void serialize(JsonGenerator jgen, SerializerProvider provider)
-        throws IOException
+    public final void serialize(JsonGenerator g, SerializerProvider provider)
+            throws JacksonException
     {
-        // 07-Jul-2013, tatu: Should be handled by propagating setting to JsonGenerator
-        //    so this should not be needed:
-        /*
-        if (provider.isEnabled(SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN)) {
-            if (!(jgen instanceof TokenBuffer)) { // [Issue#232]
-                jgen.writeNumber(((BigDecimal) _value).toPlainString());
-                return;
-            }
-        }
-        */
-        jgen.writeNumber(_value);
+        g.writeNumber(_value);
     }
 
     @Override

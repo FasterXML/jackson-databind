@@ -32,7 +32,7 @@ public class ArrayNodeTest
         
         assertStandardEquals(n);
         assertFalse(n.elements().hasNext());
-        assertFalse(n.fieldNames().hasNext());
+        assertFalse(n.propertyNames().hasNext());
         assertTrue(n.isEmpty());
         TextNode text = TextNode.valueOf("x");
         n.add(text);
@@ -41,7 +41,7 @@ public class ArrayNodeTest
         assertFalse(0 == n.hashCode());
         assertTrue(n.elements().hasNext());
         // no field names for arrays
-        assertFalse(n.fieldNames().hasNext());
+        assertFalse(n.propertyNames().hasNext());
         assertNull(n.get("x")); // not used with arrays
         assertTrue(n.path("x").isMissingNode());
         assertSame(text, n.get(0));
@@ -355,20 +355,19 @@ public class ArrayNodeTest
         ArrayNode n = new ArrayNode(JsonNodeFactory.instance);
         n.add(123);
         TreeTraversingParser p = new TreeTraversingParser(n, null);
-        p.setCodec(null);
-        assertNull(p.getCodec());
-        assertNotNull(p.getParsingContext());
-        assertTrue(p.getParsingContext().inRoot());
-        assertNotNull(p.getTokenLocation());
-        assertNotNull(p.getCurrentLocation());
+        assertNull(p.objectReadContext());
+        assertNotNull(p.streamReadContext());
+        assertTrue(p.streamReadContext().inRoot());
+        assertNotNull(p.currentTokenLocation());
+        assertNotNull(p.currentLocation());
         assertNull(p.getEmbeddedObject());
         assertNull(p.currentNode());
 
         //assertNull(p.getNumberType());
 
         assertToken(JsonToken.START_ARRAY, p.nextToken());
-        assertNotNull(p.getParsingContext());
-        assertTrue(p.getParsingContext().inArray());
+        assertNotNull(p.streamReadContext());
+        assertTrue(p.streamReadContext().inArray());
         p.skipChildren();
         assertToken(JsonToken.END_ARRAY, p.currentToken());
         p.close();

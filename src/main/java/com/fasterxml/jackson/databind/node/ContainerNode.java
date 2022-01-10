@@ -15,7 +15,7 @@ public abstract class ContainerNode<T extends ContainerNode<T>>
     extends BaseJsonNode
     implements JsonNodeCreator
 {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 3L;
 
     /**
      * We will keep a reference to the Object (usually TreeMapper)
@@ -40,9 +40,9 @@ public abstract class ContainerNode<T extends ContainerNode<T>>
     public String asText() { return ""; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Methods reset as abstract to force real implementation
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -55,14 +55,15 @@ public abstract class ContainerNode<T extends ContainerNode<T>>
     public abstract JsonNode get(String fieldName);
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* JsonNodeCreator implementation, Enumerated/singleton types
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
     public final BooleanNode booleanNode(boolean v) { return _nodeFactory.booleanNode(v); }
 
+    @Override
     public JsonNode missingNode() {
         return _nodeFactory.missingNode();
     }
@@ -71,9 +72,9 @@ public abstract class ContainerNode<T extends ContainerNode<T>>
     public final NullNode nullNode() { return _nodeFactory.nullNode(); }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* JsonNodeCreator implementation, just dispatch to real creator
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -148,9 +149,9 @@ public abstract class ContainerNode<T extends ContainerNode<T>>
     public final ValueNode rawValueNode(RawValue value) { return _nodeFactory.rawValueNode(value); }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Common mutators
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

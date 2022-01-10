@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.contextual;
 
-import java.io.IOException;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -8,11 +7,12 @@ import java.lang.annotation.Target;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.Version;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
  * that can use contextual information (like field/method
  * annotations) for configuration.
  */
-@SuppressWarnings("serial")
 public class TestContextualDeserialization extends BaseMapTest
 {
     @Target({ElementType.FIELD, ElementType.PARAMETER, ElementType.TYPE})
@@ -88,8 +87,7 @@ public class TestContextualDeserialization extends BaseMapTest
     }
     
     static class MyContextualDeserializer
-        extends JsonDeserializer<StringValue>
-        implements ContextualDeserializer
+        extends ValueDeserializer<StringValue>
     {
         protected final String _fieldName;
         
@@ -99,13 +97,13 @@ public class TestContextualDeserialization extends BaseMapTest
         }
 
         @Override
-        public StringValue deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
+        public StringValue deserialize(JsonParser jp, DeserializationContext ctxt)
         {
             return new StringValue(""+_fieldName+"="+jp.getText());
         }
 
         @Override
-        public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
+        public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
                 BeanProperty property)
         {
             String name = (property == null) ? "NULL" : property.getName();
@@ -117,8 +115,7 @@ public class TestContextualDeserialization extends BaseMapTest
      * Alternative that uses annotation for choosing name to use
      */
     static class AnnotatedContextualDeserializer
-        extends JsonDeserializer<StringValue>
-        implements ContextualDeserializer
+        extends ValueDeserializer<StringValue>
     {
         protected final String _fieldName;
         
@@ -128,13 +125,13 @@ public class TestContextualDeserialization extends BaseMapTest
         }
     
         @Override
-        public StringValue deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
+        public StringValue deserialize(JsonParser jp, DeserializationContext ctxt)
         {
             return new StringValue(""+_fieldName+"="+jp.getText());
         }
     
         @Override
-        public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
+        public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
                 BeanProperty property)
         {
             Name ann = property.getAnnotation(Name.class);
@@ -148,7 +145,6 @@ public class TestContextualDeserialization extends BaseMapTest
 
     static class GenericStringDeserializer
         extends StdScalarDeserializer<Object>
-        implements ContextualDeserializer
     {
         final String _value;
 
@@ -159,7 +155,7 @@ public class TestContextualDeserialization extends BaseMapTest
         }
 
         @Override
-        public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) {
+        public ValueDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) {
             return new GenericStringDeserializer(String.valueOf(ctxt.getContextualType().getRawClass().getSimpleName()));
         }
 
@@ -188,10 +184,11 @@ public class TestContextualDeserialization extends BaseMapTest
     
     public void testSimple() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addDeserializer(StringValue.class, new MyContextualDeserializer());
-        mapper.registerModule(module);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
         ContextualBean bean = mapper.readValue("{\"a\":\"1\",\"b\":\"2\"}", ContextualBean.class);
         assertEquals("a=1", bean.a.value);
         assertEquals("b=2", bean.b.value);

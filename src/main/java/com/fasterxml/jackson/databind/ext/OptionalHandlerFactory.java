@@ -2,81 +2,36 @@ package com.fasterxml.jackson.databind.ext;
 
 import java.util.HashMap;
 import java.util.Map;
+import javax.xml.datatype.Duration;
+import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.namespace.QName;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.Deserializers;
-import com.fasterxml.jackson.databind.ser.Serializers;
-import com.fasterxml.jackson.databind.ser.std.DateSerializer;
+import com.fasterxml.jackson.databind.ser.jdk.JavaUtilDateSerializer;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Helper class used for isolating details of handling optional+external types
  * (javax.xml classes) from standard factories that offer them.
  *<p>
- * Note that 2.7 changed handling to slightly less dynamic, to avoid having to
- * traverse class hierarchy, which turned to be a performance issue in
- * certain cases. Since DOM classes are assumed to exist on all Java 1.6
- * environments (yes, even on Android/GAE), this part could be simplified by
- * slightly less dynamic lookups.
- *<p>
- * Also with 2.7 we are supporting JDK 1.7/Java 7 type(s).
+ * Note that with 3.0 need for separate class has been reduced somewhat
+ * and this class may be eliminated.
  */
-public class OptionalHandlerFactory implements java.io.Serializable
+public class OptionalHandlerFactory
 {
-    private static final long serialVersionUID = 1;
-
     /* To make 2 main "optional" handler groups (javax.xml.stream)
      * more dynamic, we better only figure out handlers completely dynamically, if and
      * when they are needed. To do this we need to assume package prefixes.
      */
     private final static String PACKAGE_PREFIX_JAVAX_XML = "javax.xml.";
 
-    private final static String SERIALIZERS_FOR_JAVAX_XML = "com.fasterxml.jackson.databind.ext.CoreXMLSerializers";
-    private final static String DESERIALIZERS_FOR_JAVAX_XML = "com.fasterxml.jackson.databind.ext.CoreXMLDeserializers";
-
-    // Plus we also have a single serializer for DOM Node:
-//    private final static String CLASS_NAME_DOM_NODE = "org.w3c.dom.Node";
-//    private final static String CLASS_NAME_DOM_DOCUMENT = "org.w3c.dom.Document";
-    private final static String SERIALIZER_FOR_DOM_NODE = "com.fasterxml.jackson.databind.ext.DOMSerializer";
-    private final static String DESERIALIZER_FOR_DOM_DOCUMENT = "com.fasterxml.jackson.databind.ext.DOMDeserializer$DocumentDeserializer";
-    private final static String DESERIALIZER_FOR_DOM_NODE = "com.fasterxml.jackson.databind.ext.DOMDeserializer$NodeDeserializer";
-
     // // Since 2.7, we will assume DOM classes are always found, both due to JDK 1.6 minimum
     // // and because Android (and presumably GAE) have these classes
 
-    // // 02-Nov-2020, Xakep_SDK: java.xml module classes may be missing
-    // // in actual runtime, if module java.xml is not present
-    private final static Class<?> CLASS_DOM_NODE;
-    private final static Class<?> CLASS_DOM_DOCUMENT;
+    private final static Class<?> CLASS_DOM_NODE = org.w3c.dom.Node.class;
+    private final static Class<?> CLASS_DOM_DOCUMENT = org.w3c.dom.Document.class;
 
-    static {
-        Class<?> doc = null, node = null;
-        try {
-            node = org.w3c.dom.Node.class;
-            doc = org.w3c.dom.Document.class;
-        } catch (Throwable e) {
-            // not optimal but will do
-            // 02-Nov-2020, Xakep_SDK: Remove java.logging module dependency
-//            Logger.getLogger(OptionalHandlerFactory.class.getName())
-//                .log(Level.INFO, "Could not load DOM `Node` and/or `Document` classes: no DOM support");
-        }
-        CLASS_DOM_NODE = node;
-        CLASS_DOM_DOCUMENT = doc;
-    }
-
-    // // But Java7 type(s) may or may not be; dynamic lookup should be fine, still
-    // // (note: also assume it comes from JDK so that ClassLoader issues with OSGi
-    // // can, I hope, be avoided?)
-
-    private static final Java7Handlers _jdk7Helper;
-    static {
-        Java7Handlers x = null;
-        try {
-            x = Java7Handlers.instance();
-        } catch (Throwable t) { }
-        _jdk7Helper = x;
-    }
-    
     public final static OptionalHandlerFactory instance = new OptionalHandlerFactory();
 
     // classes from java.sql module, this module may or may not be present at runtime
@@ -93,9 +48,9 @@ public class OptionalHandlerFactory implements java.io.Serializable
     protected OptionalHandlerFactory() {
         _sqlDeserializers = new HashMap<>();
         _sqlDeserializers.put(CLS_NAME_JAVA_SQL_DATE,
-                "com.fasterxml.jackson.databind.deser.std.DateDeserializers$SqlDateDeserializer");
+                "com.fasterxml.jackson.databind.ext.sql.JavaSqlDateDeserializer");
         _sqlDeserializers.put(CLS_NAME_JAVA_SQL_TIMESTAMP,
-                "com.fasterxml.jackson.databind.deser.std.DateDeserializers$TimestampDeserializer");
+                "com.fasterxml.jackson.databind.ext.sql.JavaSqlTimestampDeserializer");
         // 09-Nov-2020, tatu: No deserializer for `java.sql.Blob` yet; would require additional
         //    dependency and not yet requested by anyone. Add if requested
 
@@ -104,100 +59,71 @@ public class OptionalHandlerFactory implements java.io.Serializable
         //   of some environments missing `java.sql.` types
 
         // note: timestamps are very similar to java.util.Date, thus serialized as such
-        _sqlSerializers.put(CLS_NAME_JAVA_SQL_TIMESTAMP, DateSerializer.instance);
-        _sqlSerializers.put(CLS_NAME_JAVA_SQL_DATE, "com.fasterxml.jackson.databind.ser.std.SqlDateSerializer");
-        _sqlSerializers.put(CLS_NAME_JAVA_SQL_TIME, "com.fasterxml.jackson.databind.ser.std.SqlTimeSerializer");
+        _sqlSerializers.put(CLS_NAME_JAVA_SQL_TIMESTAMP, JavaUtilDateSerializer.instance);
+        _sqlSerializers.put(CLS_NAME_JAVA_SQL_DATE, "com.fasterxml.jackson.databind.ext.sql.JavaSqlDateSerializer");
+        _sqlSerializers.put(CLS_NAME_JAVA_SQL_TIME, "com.fasterxml.jackson.databind.ext.sql.JavaSqlTimeSerializer");
 
         // 09-Nov-2020, tatu: Not really optimal way to deal with these, problem  being that
         //   Blob is interface and actual instance we get is usually different. So may
         //   need to improve if we reported bugs. But for now, do this
         
-        _sqlSerializers.put(CLS_NAME_JAVA_SQL_BLOB, "com.fasterxml.jackson.databind.ext.SqlBlobSerializer");
-        _sqlSerializers.put(CLS_NAME_JAVA_SQL_SERIALBLOB, "com.fasterxml.jackson.databind.ext.SqlBlobSerializer");
+        _sqlSerializers.put(CLS_NAME_JAVA_SQL_BLOB, "com.fasterxml.jackson.databind.ext.sql.JavaSqlBlobSerializer");
+        _sqlSerializers.put(CLS_NAME_JAVA_SQL_SERIALBLOB, "com.fasterxml.jackson.databind.ext.sql.JavaSqlBlobSerializer");
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API
-    /**********************************************************
+    /**********************************************************************
      */
-    
-    public JsonSerializer<?> findSerializer(SerializationConfig config, JavaType type,
-            BeanDescription beanDesc)
+
+    public ValueSerializer<?> findSerializer(SerializationConfig config, JavaType type)
     {
         final Class<?> rawType = type.getRawClass();
-
         if (_IsXOfY(rawType, CLASS_DOM_NODE)) {
-            return (JsonSerializer<?>) instantiate(SERIALIZER_FOR_DOM_NODE, type);
-        }
-
-        if (_jdk7Helper != null) {
-            JsonSerializer<?> ser = _jdk7Helper.getSerializerForJavaNioFilePath(rawType);
-            if (ser != null) {
-                return ser;
-            }
+            return new DOMSerializer();
         }
 
         String className = rawType.getName();
         Object sqlHandler = _sqlSerializers.get(className);
 
         if (sqlHandler != null) {
-            if (sqlHandler instanceof JsonSerializer<?>) {
-                return (JsonSerializer<?>) sqlHandler;
+            if (sqlHandler instanceof ValueSerializer<?>) {
+                return (ValueSerializer<?>) sqlHandler;
             }
             // must be class name otherwise
-            return (JsonSerializer<?>) instantiate((String) sqlHandler, type);
+            return (ValueSerializer<?>) instantiate((String) sqlHandler, type);
         }
-
-        String factoryName;
         if (className.startsWith(PACKAGE_PREFIX_JAVAX_XML) || hasSuperClassStartingWith(rawType, PACKAGE_PREFIX_JAVAX_XML)) {
-            factoryName = SERIALIZERS_FOR_JAVAX_XML;
-        } else {
-            return null;
-        }
-
-        Object ob = instantiate(factoryName, type);
-        if (ob == null) { // could warn, if we had logging system (j.u.l?)
-            return null;
-        }
-        return ((Serializers) ob).findSerializer(config, type, beanDesc);
-    }
-
-    public JsonDeserializer<?> findDeserializer(JavaType type, DeserializationConfig config,
-            BeanDescription beanDesc)
-        throws JsonMappingException
-    {
-        final Class<?> rawType = type.getRawClass();
-
-        if (_jdk7Helper != null) {
-            JsonDeserializer<?> deser = _jdk7Helper.getDeserializerForJavaNioFilePath(rawType);
-            if (deser != null) {
-                return deser;
+            if (Duration.class.isAssignableFrom(rawType) || QName.class.isAssignableFrom(rawType)) {
+                return ToStringSerializer.instance;
+            }
+            if (XMLGregorianCalendar.class.isAssignableFrom(rawType)) {
+                return XMLGregorianCalendarSerializer.instance;
             }
         }
+        return null;
+    }
+
+    public ValueDeserializer<?> findDeserializer(DeserializationConfig config, JavaType type)
+    {
+        final Class<?> rawType = type.getRawClass();
         if (_IsXOfY(rawType, CLASS_DOM_NODE)) {
-            return (JsonDeserializer<?>) instantiate(DESERIALIZER_FOR_DOM_NODE, type);
+            return new DOMDeserializer.NodeDeserializer();
         }
         if (_IsXOfY(rawType, CLASS_DOM_DOCUMENT)) {
-            return (JsonDeserializer<?>) instantiate(DESERIALIZER_FOR_DOM_DOCUMENT, type);
+            return new DOMDeserializer.DocumentDeserializer();
         }
         String className = rawType.getName();
         final String deserName = _sqlDeserializers.get(className);
         if (deserName != null) {
-            return (JsonDeserializer<?>) instantiate(deserName, type);
+            return (ValueDeserializer<?>) instantiate(deserName, type);
         }
-        String factoryName;
         if (className.startsWith(PACKAGE_PREFIX_JAVAX_XML)
                 || hasSuperClassStartingWith(rawType, PACKAGE_PREFIX_JAVAX_XML)) {
-            factoryName = DESERIALIZERS_FOR_JAVAX_XML;
-        } else {
-            return null;
+            return CoreXMLDeserializers.findBeanDeserializer(config, type);
         }
-        Object ob = instantiate(factoryName, type);
-        if (ob == null) { // could warn, if we had logging system (j.u.l?)
-            return null;
-        }
-        return ((Deserializers) ob).findBeanDeserializer(type, config, beanDesc);
+        return null;
     }
 
     public boolean hasDeserializerFor(Class<?> valueType) {
@@ -208,23 +134,23 @@ public class OptionalHandlerFactory implements java.io.Serializable
             return true;
         }
         String className = valueType.getName();
+
         if (className.startsWith(PACKAGE_PREFIX_JAVAX_XML)
                 || hasSuperClassStartingWith(valueType, PACKAGE_PREFIX_JAVAX_XML)) {
-            return true;
+            return CoreXMLDeserializers.hasDeserializerFor(valueType);
         }
         // 06-Nov-2020, tatu: One of "java.sql" types?
         return _sqlDeserializers.containsKey(className);
     }
 
-    // @since 2.12.1
     private boolean _IsXOfY(Class<?> valueType, Class<?> expType) {
         return (expType != null) && expType.isAssignableFrom(valueType);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal helper methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     private Object instantiate(String className, JavaType valueType)
@@ -253,9 +179,7 @@ public class OptionalHandlerFactory implements java.io.Serializable
      * Since 2.7 we only need to check for class extension, as all implemented
      * types are classes, not interfaces. This has performance implications for
      * some cases, as we do not need to go over interfaces implemented, just
-     * superclasses
-     * 
-     * @since 2.7
+     * super classes
      */
     private boolean hasSuperClassStartingWith(Class<?> rawType, String prefix)
     {

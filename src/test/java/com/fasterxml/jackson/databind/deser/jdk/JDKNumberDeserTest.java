@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser.jdk;
 
-import java.io.IOException;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -82,11 +81,10 @@ public class JDKNumberDeserTest extends BaseMapTest
     /**********************************************************************
      */
     
-    static class MyBeanDeserializer extends JsonDeserializer<MyBeanValue>
+    static class MyBeanDeserializer extends ValueDeserializer<MyBeanValue>
     {
         @Override
         public MyBeanValue deserialize(JsonParser jp, DeserializationContext ctxt)
-                throws IOException
         {
             return new MyBeanValue(jp.getDecimalValue());
         }
@@ -99,7 +97,7 @@ public class JDKNumberDeserTest extends BaseMapTest
      */
 
     final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     public void testNaN() throws Exception
     {
         Float result = MAPPER.readValue(" \"NaN\"", Float.class);

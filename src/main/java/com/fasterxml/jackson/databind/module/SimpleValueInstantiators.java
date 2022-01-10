@@ -40,9 +40,8 @@ public class SimpleValueInstantiators
     
     @Override
     public ValueInstantiator findValueInstantiator(DeserializationConfig config,
-            BeanDescription beanDesc, ValueInstantiator defaultInstantiator)
+            BeanDescription beanDesc)
     {
-        ValueInstantiator inst = _classMappings.get(new ClassKey(beanDesc.getBeanClass()));
-        return (inst == null) ? defaultInstantiator : inst;
+        return _classMappings.get(new ClassKey(beanDesc.getBeanClass()));
     }
 }

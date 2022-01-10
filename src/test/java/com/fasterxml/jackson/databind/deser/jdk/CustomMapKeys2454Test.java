@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser.jdk;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 
@@ -29,11 +28,11 @@ public class CustomMapKeys2454Test extends BaseMapTest
         }
     }
 
-    static class Key2454Serializer extends JsonSerializer<Key2454> {
+    static class Key2454Serializer extends ValueSerializer<Key2454> {
         @Override
         public void serialize(Key2454 value, JsonGenerator gen,
-                SerializerProvider serializers) throws IOException {
-            gen.writeFieldName("id="+value.id);
+                SerializerProvider serializers) {
+            gen.writeName("id="+value.id);
         }
     }
 

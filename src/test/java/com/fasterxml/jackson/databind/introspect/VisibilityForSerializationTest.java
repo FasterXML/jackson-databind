@@ -91,7 +91,8 @@ public class VisibilityForSerializationTest
         // Then auto-detection disabled. But note: we MUST create a new
         // mapper, since old version of serializer may be cached by now
         m = jsonMapperBuilder()
-                .configure(MapperFeature.AUTO_DETECT_GETTERS, false)
+                .changeDefaultVisibility(vc ->
+                    vc.withVisibility(PropertyAccessor.GETTER, Visibility.NONE))
                 .build();
         result = writeAndMap(m, new GetterClass());
         assertEquals(1, result.size());
@@ -108,8 +109,10 @@ public class VisibilityForSerializationTest
 
         // And then class-level auto-detection enabling, should override defaults
         m = jsonMapperBuilder()
-                .configure(MapperFeature.AUTO_DETECT_GETTERS, true)
+                .changeDefaultVisibility(vc ->
+                    vc.withVisibility(PropertyAccessor.GETTER, Visibility.PUBLIC_ONLY))
                 .build();
+
         result = writeAndMap(m, new EnabledGetterClass());
         assertEquals(2, result.size());
         assertTrue(result.containsKey("x"));
@@ -119,45 +122,28 @@ public class VisibilityForSerializationTest
     public void testPerClassAutoDetectionForIsGetter() throws IOException
     {
         ObjectMapper m = jsonMapperBuilder()
+                .changeDefaultVisibility(vc ->
         // class level should override
-                .configure(MapperFeature.AUTO_DETECT_GETTERS, true)
-                .configure(MapperFeature.AUTO_DETECT_IS_GETTERS, false)
+                vc.withVisibility(PropertyAccessor.GETTER, Visibility.PUBLIC_ONLY)
+                    .withVisibility(PropertyAccessor.IS_GETTER, Visibility.NONE))
                 .build();
+
         Map<String,Object> result = writeAndMap(m, new EnabledIsGetterClass());
         assertEquals(0, result.size());
         assertFalse(result.containsKey("ok"));
     }
 
-    // Simple test verifying that chainable methods work ok...
-    public void testConfigChainability()
-    {
-        ObjectMapper m = new ObjectMapper();
-        assertTrue(m.isEnabled(MapperFeature.AUTO_DETECT_SETTERS));
-        assertTrue(m.isEnabled(MapperFeature.AUTO_DETECT_GETTERS));
-        m = jsonMapperBuilder()
-                .configure(MapperFeature.AUTO_DETECT_SETTERS, false)
-                .configure(MapperFeature.AUTO_DETECT_GETTERS, false)
-                .build();
-        assertFalse(m.isEnabled(MapperFeature.AUTO_DETECT_SETTERS));
-        assertFalse(m.isEnabled(MapperFeature.AUTO_DETECT_GETTERS));
-    }
-
     public void testVisibilityFeatures() throws Exception
     {
-        ObjectMapper om = jsonMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
+                .disable(MapperFeature.USE_GETTERS_AS_SETTERS, MapperFeature.INFER_PROPERTY_MUTATORS)
+                .enable(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS, MapperFeature.USE_ANNOTATIONS)
+                .changeDefaultVisibility(vc ->
+                    vc.withVisibility(PropertyAccessor.ALL, Visibility.NONE))
+                .build();
         // Only use explicitly specified values to be serialized/deserialized (i.e., JSONProperty).
-                .configure(MapperFeature.AUTO_DETECT_FIELDS, false)
-                .configure(MapperFeature.AUTO_DETECT_GETTERS, false)
-            .configure(MapperFeature.AUTO_DETECT_SETTERS, false)
-            .configure(MapperFeature.AUTO_DETECT_IS_GETTERS, false)
-            .configure(MapperFeature.USE_GETTERS_AS_SETTERS, false)
-            .configure(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS, true)
-            .configure(MapperFeature.INFER_PROPERTY_MUTATORS, false)
-            .configure(MapperFeature.USE_ANNOTATIONS, true)
-            .build();
-
-        JavaType javaType = om.getTypeFactory().constructType(TCls.class);        
-        BeanDescription desc = (BeanDescription) om.getSerializationConfig().introspect(javaType);
+        
+        BeanDescription desc = ObjectMapperTestAccess.beanDescriptionForSer(mapper, TCls.class);
         List<BeanPropertyDefinition> props = desc.findProperties();
         if (props.size() != 1) {
             fail("Should find 1 property, not "+props.size()+"; properties = "+props);

@@ -18,9 +18,10 @@ public class DateFormatTest extends BaseMapTest
 
     public void testTypeDefaults() throws Exception
     {
-        ObjectMapper mapper = newJsonMapper();
-        mapper.configOverride(Date.class)
-            .setFormat(JsonFormat.Value.forPattern("yyyy.dd.MM"));
+        ObjectMapper mapper = jsonMapperBuilder()
+                .withConfigOverride(Date.class,
+                        o -> o.setFormat(JsonFormat.Value.forPattern("yyyy.dd.MM")))
+                .build();
         // First serialize, should result in this (in UTC):
         String json = mapper.writeValueAsString(new DateWrapper(0L));
         assertEquals(a2q("{'value':'1970.01.01'}"), json);

@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.databind.deser;
 
-import java.io.*;
-
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.core.*;
@@ -14,7 +12,6 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
  * bean deserialization; ones that indicate (non-constructor)
  * method types, explicit deserializer annotations.
  */
-@SuppressWarnings("serial")
 public class TestBasicAnnotations
     extends BaseMapTest
 {
@@ -110,10 +107,9 @@ public class TestBasicAnnotations
     {
         public IntsDeserializer() { super(int[].class); }
         @Override
-        public int[] deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException
+        public int[] deserialize(JsonParser p, DeserializationContext ctxt)
         {
-            return new int[] { jp.getIntValue() };
+            return new int[] { p.getIntValue() };
         }
     }
 
@@ -190,13 +186,13 @@ public class TestBasicAnnotations
     public void testAnnotationsDisabled() throws Exception
     {
         // first: verify that annotation introspection is enabled by default
-        assertTrue(MAPPER.getDeserializationConfig().isEnabled(MapperFeature.USE_ANNOTATIONS));
+        assertTrue(MAPPER.deserializationConfig().isEnabled(MapperFeature.USE_ANNOTATIONS));
         // with annotations, property is renamed
         AnnoBean bean = MAPPER.readValue("{ \"y\" : 0 }", AnnoBean.class);
         assertEquals(0, bean.value);
 
         ObjectMapper m = jsonMapperBuilder()
-                .configure(MapperFeature.USE_ANNOTATIONS, false)
+                .disable(MapperFeature.USE_ANNOTATIONS)
                 .build();
         // without annotations, should default to default bean-based name...
         bean = m.readValue("{ \"x\" : 0 }", AnnoBean.class);
@@ -209,7 +205,7 @@ public class TestBasicAnnotations
         assertEquals(Alpha.B, m.readValue(q("B"), Alpha.class));
 
         m = jsonMapperBuilder()
-                .configure(MapperFeature.USE_ANNOTATIONS, false)
+                .disable(MapperFeature.USE_ANNOTATIONS)
                 .build();
         // should still use the basic name handling here
         assertEquals(Alpha.B, m.readValue(q("B"), Alpha.class));

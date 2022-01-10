@@ -59,8 +59,9 @@ public class TestMixinDeserForClass
 
         // Then with leaf-level mix-in; without (method) auto-detect,
         // should use field
-        m = new ObjectMapper();
-        m.addMixIn(LeafClass.class, MixIn.class);
+        m = jsonMapperBuilder()
+                .addMixIn(LeafClass.class, MixIn.class)
+                .build();
         result = m.readValue("{\"a\":\"value\"}", LeafClass.class);
         assertEquals("value", result.a);
     }
@@ -69,8 +70,9 @@ public class TestMixinDeserForClass
     // when deserializing leaf (but will if deserializing base class)
     public void testClassMixInsMidLevel() throws IOException
     {
-        ObjectMapper m = new ObjectMapper();
-        m.addMixIn(BaseClass.class, MixIn.class);
+        ObjectMapper m = jsonMapperBuilder()
+                .addMixIn(BaseClass.class, MixIn.class)
+                .build();
         {
             BaseClass result = m.readValue("{\"a\":\"value\"}", BaseClass.class);
             assertEquals("value", result.a);
@@ -88,8 +90,9 @@ public class TestMixinDeserForClass
      */
     public void testClassMixInsForObjectClass() throws IOException
     {
-        ObjectMapper m = new ObjectMapper();
-        m.addMixIn(Object.class, MixIn.class);
+        ObjectMapper m = jsonMapperBuilder()
+                .addMixIn(Object.class, MixIn.class)
+                .build();
         // will be seen for BaseClass
         {
             BaseClass result = m.readValue("{\"a\":\"\"}", BaseClass.class);
@@ -106,8 +109,9 @@ public class TestMixinDeserForClass
     // [databind#1990]: can apply mix-in to `Object#hashCode()` to force serialization
     public void testHashCodeViaObject() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper()
-                .addMixIn(Object.class, HashCodeMixIn.class);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addMixIn(Object.class, HashCodeMixIn.class)
+                .build();
 
         // First, with something that overrides hashCode()
         assertEquals( "{\"hashCode\":13}",

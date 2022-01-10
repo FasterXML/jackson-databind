@@ -18,35 +18,58 @@ import org.junit.BeforeClass;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(TypeFactory.class)
 
-public class TestTypeFactoryWithClassLoader {
-  @Mock
-  private TypeModifier typeModifier;
-  private static ClassLoader classLoader;
-  private static ClassLoader threadClassLoader;
-  private static String aClassName;
-  private ObjectMapper mapper;
+public class TestTypeFactoryWithClassLoader
+{
+    public static class AClass
+    {
+        private String _foo, _bar;
+        protected final static Class<?> thisClass = new Object() {
+        }.getClass().getEnclosingClass();
 
-  @BeforeClass
-  public static void beforeClass() {
+        public AClass() { }
+        public AClass(String foo, String bar) {
+            _foo = foo;
+            _bar = bar;
+        }
+        public String getFoo() { return _foo; }
+        public String getBar() { return _bar; }
+
+        public void setFoo(String foo) { _foo = foo; }
+        public void setBar(String bar) { _bar = bar; }
+        public static String getStaticClassName() {
+            return thisClass.getCanonicalName().replace("."+thisClass.getSimpleName(), "$"+thisClass.getSimpleName());
+        }
+    }
+
+    @Mock
+    private TypeModifier typeModifier;
+
+    private static ClassLoader classLoader;
+    private static ClassLoader threadClassLoader;
+    private static String aClassName;
+    private ObjectMapper mapper;
+
+    @BeforeClass
+    public static void beforeClass() {
 	  classLoader = AClass.class.getClassLoader();
 	  aClassName = AClass.getStaticClassName();
 	  threadClassLoader = Thread.currentThread().getContextClassLoader();
 	  Assert.assertNotNull(threadClassLoader);
-  }
+    }
   
-  @Before
-  public void before() {
-      mapper = new ObjectMapper();
-  }
+    @Before
+    public void before() {
+        mapper = new ObjectMapper();
+    }
 
-  @After
-  public void after() {
-	Thread.currentThread().setContextClassLoader(threadClassLoader);
-	mapper = null;
-  }
+    @After
+    public void after() {
+        Thread.currentThread().setContextClassLoader(threadClassLoader);
+        mapper = null;
+    }
 
-  @Test
-  public void testUsesCorrectClassLoaderWhenThreadClassLoaderIsNull() throws ClassNotFoundException {
+    @Test
+    public void testUsesCorrectClassLoaderWhenThreadClassLoaderIsNull() throws ClassNotFoundException {
 	Thread.currentThread().setContextClassLoader(null);
 	TypeFactory spySut = spy(mapper.getTypeFactory().withModifier(typeModifier).withClassLoader(classLoader));
 	Class<?> clazz = spySut.findClass(aClassName);
@@ -124,24 +147,4 @@ public void testUsesFallBackClassLoaderIfNoThreadClassLoaderAndNoWithClassLoader
 	verify(spySut).classForName(any(String.class));
 }
 
-    public static class AClass
-    {
-        private String _foo, _bar;
-        protected final static Class<?> thisClass = new Object() {
-        }.getClass().getEnclosingClass();
-
-        public AClass() { }
-        public AClass(String foo, String bar) {
-            _foo = foo;
-            _bar = bar;
-        }
-        public String getFoo() { return _foo; }
-        public String getBar() { return _bar; }
-
-        public void setFoo(String foo) { _foo = foo; }
-        public void setBar(String bar) { _bar = bar; }
-        public static String getStaticClassName() {
-            return thisClass.getCanonicalName().replace("."+thisClass.getSimpleName(), "$"+thisClass.getSimpleName());
-        }
-    }
 }

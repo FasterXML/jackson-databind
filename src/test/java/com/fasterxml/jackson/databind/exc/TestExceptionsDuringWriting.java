@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.testutil.BrokenStringWriter;
@@ -27,7 +28,7 @@ public class TestExceptionsDuringWriting
     }
 
     static class SerializerWithErrors
-        extends JsonSerializer<Bean>
+        extends ValueSerializer<Bean>
     {
         @Override
         public void serialize(Bean value, JsonGenerator jgen, SerializerProvider provider)
@@ -49,21 +50,20 @@ public class TestExceptionsDuringWriting
     public void testCatchAndRethrow()
         throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test-exceptions", Version.unknownVersion());
         module.addSerializer(Bean.class, new SerializerWithErrors());
-        mapper.registerModule(module);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
         try {
             StringWriter sw = new StringWriter();
-            /* And just to make things more interesting, let's create
-             * a nested data struct...
-             */
+            // And just to make things more interesting, let's create a nested data struct...
             Bean[] b = { new Bean() };
             List<Bean[]> l = new ArrayList<Bean[]>();
             l.add(b);
             mapper.writeValue(sw, l);
             fail("Should have gotten an exception");
-        } catch (IOException e) {
+        } catch (DatabindException e) { // too generic but will do for now
             // should contain original message somewhere
             verifyException(e, "test string");
             Throwable root = e.getCause();
@@ -79,41 +79,23 @@ public class TestExceptionsDuringWriting
      * Unit test for verifying that regular IOExceptions are not wrapped
      * but are passed through as is.
      */
+    @SuppressWarnings("resource")
     public void testExceptionWithSimpleMapper()
         throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        try (BrokenStringWriter sw = new BrokenStringWriter("TEST")) {
+        ObjectMapper mapper = newJsonMapper();
+        try {
+            BrokenStringWriter sw = new BrokenStringWriter("TEST");
             mapper.writeValue(sw, createLongObject());
             fail("Should have gotten an exception");
-        } catch (IOException e) {
-            verifyException(e, IOException.class, "TEST");
-        }
-    }
+        } catch (DatabindException e) {
+            verifyException(e, "TEST");
+            Throwable root = e.getCause();
+            assertNotNull(root);
 
-    public void testExceptionWithMapperAndGenerator()
-        throws Exception
-    {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonFactory f = new MappingJsonFactory();
-        BrokenStringWriter sw = new BrokenStringWriter("TEST");
-        try (JsonGenerator jg = f.createGenerator(sw)) {
-            mapper.writeValue(jg, createLongObject());
-            fail("Should have gotten an exception");
-        } catch (IOException e) {
-            verifyException(e, IOException.class, "TEST");
-        }
-    }
-
-    public void testExceptionWithGeneratorMapping()
-        throws Exception
-    {
-        JsonFactory f = new MappingJsonFactory();
-        try (JsonGenerator jg = f.createGenerator(new BrokenStringWriter("TEST"))) {
-            jg.writeObject(createLongObject());
-            fail("Should have gotten an exception");
-        } catch (Exception e) {
-            verifyException(e, IOException.class, "TEST");
+            if (!(root instanceof IOException)) {
+                fail("Wrapped exception not IOException, but "+root.getClass());
+            }
         }
     }
 
@@ -122,17 +104,6 @@ public class TestExceptionsDuringWriting
     /* Helper methods
     /**********************************************************
      */
-
-    void verifyException(Exception e, Class<?> expType, String expMsg)
-        throws Exception
-    {
-        if (e.getClass() != expType) {
-            fail("Expected exception of type "+expType.getName()+", got "+e.getClass().getName());
-        }
-        if (expMsg != null) {
-            verifyException(e, expMsg);
-        }
-    }
 
     Object createLongObject()
     {

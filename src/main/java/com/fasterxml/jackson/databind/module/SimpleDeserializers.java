@@ -23,12 +23,10 @@ public class SimpleDeserializers
 {
     private static final long serialVersionUID = 1L;
 
-    protected HashMap<ClassKey,JsonDeserializer<?>> _classMappings = null;
+    protected HashMap<ClassKey,ValueDeserializer<?>> _classMappings = null;
 
     /**
      * Flag to help find "generic" enum deserializer, if one has been registered.
-     * 
-     * @since 2.3
      */
     protected boolean _hasEnumDeserializer = false;
     
@@ -40,38 +38,34 @@ public class SimpleDeserializers
     
     public SimpleDeserializers() { }
 
-    /**
-     * @since 2.1
-     */
-    public SimpleDeserializers(Map<Class<?>,JsonDeserializer<?>> desers) {
+    public SimpleDeserializers(Map<Class<?>,ValueDeserializer<?>> desers) {
         addDeserializers(desers);
     }
     
-    public <T> void addDeserializer(Class<T> forClass, JsonDeserializer<? extends T> deser)
+    public <T> SimpleDeserializers addDeserializer(Class<T> forClass, ValueDeserializer<? extends T> deser)
     {
         ClassKey key = new ClassKey(forClass);
         if (_classMappings == null) {
-            _classMappings = new HashMap<ClassKey,JsonDeserializer<?>>();
+            _classMappings = new HashMap<ClassKey,ValueDeserializer<?>>();
         }
         _classMappings.put(key, deser);
         // [Issue#227]: generic Enum deserializer?
         if (forClass == Enum.class) {
             _hasEnumDeserializer = true;
         }
+        return this;
     }
 
-    /**
-     * @since 2.1
-     */
     @SuppressWarnings("unchecked")
-    public void addDeserializers(Map<Class<?>,JsonDeserializer<?>> desers)
+    public SimpleDeserializers addDeserializers(Map<Class<?>,ValueDeserializer<?>> desers)
     {
-        for (Map.Entry<Class<?>,JsonDeserializer<?>> entry : desers.entrySet()) {
+        for (Map.Entry<Class<?>,ValueDeserializer<?>> entry : desers.entrySet()) {
             Class<?> cls = entry.getKey();
             // what a mess... nominal generics safety...
-            JsonDeserializer<Object> deser = (JsonDeserializer<Object>) entry.getValue();
+            ValueDeserializer<Object> deser = (ValueDeserializer<Object>) entry.getValue();
             addDeserializer((Class<Object>) cls, deser);
         }
+        return this;
     }
     
     /*
@@ -81,51 +75,46 @@ public class SimpleDeserializers
      */
 
     @Override
-    public JsonDeserializer<?> findArrayDeserializer(ArrayType type,
+    public ValueDeserializer<?> findArrayDeserializer(ArrayType type,
             DeserializationConfig config, BeanDescription beanDesc,
-            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
-        throws JsonMappingException
+            TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer)
     {
         return _find(type);
     }
 
     @Override
-    public JsonDeserializer<?> findBeanDeserializer(JavaType type,
+    public ValueDeserializer<?> findBeanDeserializer(JavaType type,
             DeserializationConfig config, BeanDescription beanDesc)
-        throws JsonMappingException
     {
         return _find(type);
     }
 
     @Override
-    public JsonDeserializer<?> findCollectionDeserializer(CollectionType type,
+    public ValueDeserializer<?> findCollectionDeserializer(CollectionType type,
             DeserializationConfig config, BeanDescription beanDesc,
             TypeDeserializer elementTypeDeserializer,
-            JsonDeserializer<?> elementDeserializer)
-        throws JsonMappingException
+            ValueDeserializer<?> elementDeserializer)
     {
         return _find(type);
     }
 
     @Override
-    public JsonDeserializer<?> findCollectionLikeDeserializer(CollectionLikeType type,
+    public ValueDeserializer<?> findCollectionLikeDeserializer(CollectionLikeType type,
             DeserializationConfig config, BeanDescription beanDesc,
             TypeDeserializer elementTypeDeserializer,
-            JsonDeserializer<?> elementDeserializer)
-        throws JsonMappingException
+            ValueDeserializer<?> elementDeserializer)
     {
         return _find(type);
     }
     
     @Override
-    public JsonDeserializer<?> findEnumDeserializer(Class<?> type,
+    public ValueDeserializer<?> findEnumDeserializer(Class<?> type,
             DeserializationConfig config, BeanDescription beanDesc)
-        throws JsonMappingException
     {
         if (_classMappings == null) {
             return null;
         }
-        JsonDeserializer<?> deser = _classMappings.get(new ClassKey(type));
+        ValueDeserializer<?> deser = _classMappings.get(new ClassKey(type));
         if (deser == null) {
             // 29-Sep-2019, tatu: Not 100% sure this is workable logic but leaving
             //   as is (wrt [databind#2457]. Probably works ok since this covers direct
@@ -139,9 +128,8 @@ public class SimpleDeserializers
     }
 
     @Override
-    public JsonDeserializer<?> findTreeNodeDeserializer(Class<? extends JsonNode> nodeType,
+    public ValueDeserializer<?> findTreeNodeDeserializer(Class<? extends JsonNode> nodeType,
             DeserializationConfig config, BeanDescription beanDesc)
-        throws JsonMappingException
     {
         if (_classMappings == null) {
             return null;
@@ -150,45 +138,45 @@ public class SimpleDeserializers
     }
 
     @Override
-    public JsonDeserializer<?> findReferenceDeserializer(ReferenceType refType,
+    public ValueDeserializer<?> findReferenceDeserializer(ReferenceType refType,
             DeserializationConfig config, BeanDescription beanDesc,
-            TypeDeserializer contentTypeDeserializer, JsonDeserializer<?> contentDeserializer)
-        throws JsonMappingException {
+            TypeDeserializer contentTypeDeserializer, ValueDeserializer<?> contentDeserializer)
+    {
         // 21-Oct-2015, tatu: Unlikely this will really get used (reference types need more
         //    work, simple registration probably not sufficient). But whatever.
         return _find(refType);
     }
 
     @Override
-    public JsonDeserializer<?> findMapDeserializer(MapType type,
+    public ValueDeserializer<?> findMapDeserializer(MapType type,
             DeserializationConfig config, BeanDescription beanDesc,
             KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer,
-            JsonDeserializer<?> elementDeserializer)
-        throws JsonMappingException
+            ValueDeserializer<?> elementDeserializer)
     {
         return _find(type);
     }
 
     @Override
-    public JsonDeserializer<?> findMapLikeDeserializer(MapLikeType type,
+    public ValueDeserializer<?> findMapLikeDeserializer(MapLikeType type,
             DeserializationConfig config, BeanDescription beanDesc,
             KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer,
-            JsonDeserializer<?> elementDeserializer)
-        throws JsonMappingException
+            ValueDeserializer<?> elementDeserializer)
     {
         return _find(type);
     }
 
-    @Override // since 2.11
+    @Override
     public boolean hasDeserializerFor(DeserializationConfig config,
-            Class<?> valueType) {
+            Class<?> valueType)
+    {
         return (_classMappings != null)
                 && _classMappings.containsKey(new ClassKey(valueType));
     }
 
-    private final JsonDeserializer<?> _find(JavaType type) {
+    private final ValueDeserializer<?> _find(JavaType type)
+    {
         if (_classMappings == null) {
             return null;
         }

@@ -27,7 +27,8 @@ public class MapDeserializationTest
         extends HashMap<Object,Object>
     {
         // No default ctor, nor @JsonCreators
-        public BrokenMap(boolean dummy, boolean dummy2) { super(); }
+//        public BrokenMap(boolean dummy, boolean dummy2) { super(); }
+        public BrokenMap(Object dummy) { super(); }
     }
 
     @JsonDeserialize(using=CustomMapDeserializer.class)
@@ -38,7 +39,6 @@ public class MapDeserializationTest
         public CustomMapDeserializer() { super(CustomMap.class); }
         @Override
         public CustomMap deserialize(JsonParser p, DeserializationContext ctxt)
-            throws IOException
         {
             CustomMap result = new CustomMap();
             result.put("x", p.getText());
@@ -79,7 +79,9 @@ public class MapDeserializationTest
     }
 
     static class ClassStringMap extends HashMap<Class<?>,String> { }
-    
+
+    static class ObjectWrapperMap extends HashMap<String, ObjectWrapper> { }
+
     static class AbstractMapWrapper {
         public AbstractMap<String, Integer> values;
     }
@@ -157,14 +159,12 @@ public class MapDeserializationTest
             "{ \"double\":42.0, \"string\":\"string\","
             +"\"boolean\":true, \"list\":[\"list0\"],"
             +"\"null\":null }";
-    
-    static class ObjectWrapperMap extends HashMap<String, ObjectWrapper> { }
-    
+
     public void testSpecialMap() throws IOException
     {
-       final ObjectWrapperMap map = MAPPER.readValue(UNTYPED_MAP_JSON, ObjectWrapperMap.class);
-       assertNotNull(map);
-       _doTestUntyped(map);
+        final ObjectWrapperMap map = MAPPER.readValue(UNTYPED_MAP_JSON, ObjectWrapperMap.class);
+        assertNotNull(map);
+        _doTestUntyped(map);
     }
 
     public void testGenericMap() throws IOException
@@ -187,12 +187,12 @@ public class MapDeserializationTest
         assertNull(map.get("null"));
         assertEquals(5, map.size());
     }
-    
-    // [JACKSON-620]: allow "" to mean 'null' for Maps
+
     public void testFromEmptyString() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+        ObjectMapper m = jsonMapperBuilder()
+                .configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true)
+                .build();
         Map<?,?> result = m.readValue(q(""), Map.class);
         assertNull(result);
     }
@@ -229,9 +229,8 @@ public class MapDeserializationTest
     {
         // to get typing, must use type reference
         String JSON = "{ \"1\" : true, \"-1\" : false }";
-        Map<?,Object> result = MAPPER.readValue
-            (JSON, new TypeReference<HashMap<Integer,Object>>() { });
-
+        Map<?,?> result = MAPPER.readValue
+            (JSON, new TypeReference<HashMap<Integer,Boolean>>() { });
         assertNotNull(result);
         assertEquals(HashMap.class, result.getClass());
         assertEquals(2, result.size());
@@ -246,7 +245,7 @@ public class MapDeserializationTest
     {
         // to get typing, must use type reference
         String JSON = "{ \"a\" : \"b\" }";
-        TreeMap<String,String> result = MAPPER.readValue
+        Map<String,String> result = MAPPER.readValue
             (JSON, new TypeReference<TreeMap<String,String>>() { });
 
         assertNotNull(result);
@@ -322,8 +321,7 @@ public class MapDeserializationTest
         String JSON = "{ \"KEY2\" : \"WHATEVER\" }";
 
         // to get typing, must use type reference
-        Map<Key,Key> result = MAPPER.readValue
-            (JSON, new TypeReference<Map<Key,Key>>() { });
+        Map<?,?> result = MAPPER.readValue(JSON, new TypeReference<Map<Key,Key>>() { });
 
         assertNotNull(result);
         assertTrue(result instanceof Map<?,?>);
@@ -359,6 +357,7 @@ public class MapDeserializationTest
     /* Test methods, maps with Date
     /**********************************************************
      */
+
     public void testDateMap() throws Exception
     {
     	 Date date1=new Date(123456000L);
@@ -388,7 +387,7 @@ public class MapDeserializationTest
     public void testCalendarMap() throws Exception
     {
         // 18-Jun-2015, tatu: Should be safest to use default timezone that mapper would use
-        TimeZone tz = MAPPER.getSerializationConfig().getTimeZone();        
+        TimeZone tz = MAPPER.serializationConfig().getTimeZone();
         Calendar c = Calendar.getInstance(tz);
 
         c.setTimeInMillis(123456000L);
@@ -419,19 +418,6 @@ public class MapDeserializationTest
          assertNotNull(ob);
          assertEquals(UUID.class, ob.getClass());
          assertEquals(key, ob);
-    }
-
-    public void testLocaleKeyMap() throws Exception {
-        Locale key = Locale.CHINA;
-        String JSON = "{ \"" + key + "\":4}";
-        Map<Locale, Object> result = MAPPER.readValue(JSON, new TypeReference<Map<Locale, Object>>() {
-        });
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        Object ob = result.keySet().iterator().next();
-        assertNotNull(ob);
-        assertEquals(Locale.class, ob.getClass());
-        assertEquals(key, ob);
     }
 
     public void testCurrencyKeyMap() throws Exception {
@@ -513,9 +499,8 @@ public class MapDeserializationTest
     public void testNoCtorMap() throws Exception
     {
         try {
-            BrokenMap result = MAPPER.readValue("{ \"a\" : 3 }", BrokenMap.class);
-            // should never get here; assert added to remove compiler warning
-            assertNull(result);
+            /*BrokenMap result =*/ MAPPER.readValue("{ \"a\" : 3 }", BrokenMap.class);
+            fail("Should not pass");
         } catch (InvalidDefinitionException e) {
             // instead, should get this exception:
             verifyException(e, "no default constructor found");

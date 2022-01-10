@@ -1,14 +1,12 @@
 package com.fasterxml.jackson.databind.deser.creators;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.deser.ValueInstantiators;
-import com.fasterxml.jackson.databind.deser.impl.PropertyValueBuffer;
+import com.fasterxml.jackson.databind.deser.bean.PropertyValueBuffer;
 import com.fasterxml.jackson.databind.deser.std.StdValueInstantiator;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
@@ -122,7 +120,6 @@ public class TestCustomValueInstDefaults
         @Override
         public Object createFromObjectWith(DeserializationContext ctxt,
                 SettableBeanProperty[] props, PropertyValueBuffer buffer)
-            throws IOException
         {
             int a = Bucket.DEFAULT_A;
             int b = Bucket.DEFAULT_B;
@@ -155,7 +152,6 @@ public class TestCustomValueInstDefaults
         @Override
         public Object createFromObjectWith(DeserializationContext ctxt,
                 SettableBeanProperty[] props, PropertyValueBuffer buffer)
-            throws IOException
         {
             int i01 = BigBucket.DEFAULT_I;
             int i02 = BigBucket.DEFAULT_I;
@@ -236,10 +232,10 @@ public class TestCustomValueInstDefaults
         }
     }
 
-    static class BucketInstantiators implements ValueInstantiators
+    static class BucketInstantiators extends ValueInstantiators.Base
     {
         @Override
-        public ValueInstantiator findValueInstantiator(
+        public ValueInstantiator modifyValueInstantiator(
                 DeserializationConfig config,
                 BeanDescription beanDesc,
                 ValueInstantiator defaultInstantiator)
@@ -336,7 +332,8 @@ public class TestCustomValueInstDefaults
         }
 
         @Override
-        public Object createFromObjectWith(DeserializationContext ctxt, SettableBeanProperty[] props, PropertyValueBuffer buffer) throws IOException {
+        public Object createFromObjectWith(DeserializationContext ctxt, SettableBeanProperty[] props, PropertyValueBuffer buffer)
+        {
             for (SettableBeanProperty prop : props) {
                 assertTrue("prop " + prop.getName() + " was expected to have buffer.hasParameter(prop) be true but was false", buffer.hasParameter(prop));
             }
@@ -355,7 +352,7 @@ public class TestCustomValueInstDefaults
         public void setupModule(SetupContext context) {
             context.addValueInstantiators(new ValueInstantiators.Base() {
                 @Override
-                public ValueInstantiator findValueInstantiator(DeserializationConfig config,
+                public ValueInstantiator modifyValueInstantiator(DeserializationConfig config,
                         BeanDescription beanDesc, ValueInstantiator defaultInstantiator) {
                     if (beanDesc.getBeanClass() == ClassWith32Props.class) {
                         return new VerifyingValueInstantiator((StdValueInstantiator)
@@ -376,9 +373,9 @@ public class TestCustomValueInstDefaults
     // When all values are in the source, no defaults should be used.
     public void testAllPresent() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new BucketModule());
-
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new BucketModule())
+                .build();
         Bucket allPresent = mapper.readValue(
                 "{\"a\":8,\"b\":9,\"c\":\"y\",\"d\":\"z\"}",
                 Bucket.class);
@@ -392,9 +389,9 @@ public class TestCustomValueInstDefaults
     // When no values are in the source, all defaults should be used.
     public void testAllAbsent() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new BucketModule());
-
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new BucketModule())
+                .build();
         Bucket allAbsent = mapper.readValue(
                 "{}",
                 Bucket.class);
@@ -409,9 +406,9 @@ public class TestCustomValueInstDefaults
     // be used for the missing values.
     public void testMixedPresentAndAbsent() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new BucketModule());
-
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new BucketModule())
+                .build();
         Bucket aAbsent = mapper.readValue(
                 "{\"b\":9,\"c\":\"y\",\"d\":\"z\"}",
                 Bucket.class);
@@ -452,9 +449,9 @@ public class TestCustomValueInstDefaults
     // Ensure that 0 is not mistaken for a missing int value.
     public void testPresentZeroPrimitive() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new BucketModule());
-
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new BucketModule())
+                .build();
         Bucket aZeroRestAbsent = mapper.readValue(
                 "{\"a\":0}",
                 Bucket.class);
@@ -468,9 +465,9 @@ public class TestCustomValueInstDefaults
     // Ensure that null is not mistaken for a missing String value.
     public void testPresentNullReference() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new BucketModule());
-
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new BucketModule())
+                .build();
         Bucket cNullRestAbsent = mapper.readValue(
                 "{\"c\":null}",
                 Bucket.class);
@@ -486,9 +483,9 @@ public class TestCustomValueInstDefaults
     // has seen.  Ensure that nothing breaks in that case.
     public void testMoreThan32CreatorParams() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new BucketModule());
-
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new BucketModule())
+                .build();
         BigBucket big = mapper.readValue(
                 "{\"i03\":0,\"i11\":1,\"s05\":null,\"s08\":\"x\"}",
                 BigBucket.class);
@@ -541,8 +538,9 @@ public class TestCustomValueInstDefaults
         }
         sb.append("\n}\n");
         String json = sb.toString();
-        ObjectMapper mapper = new ObjectMapper()
-                .registerModule(new ClassWith32Module());
+        ObjectMapper mapper = jsonMapperBuilder()
+            .addModule(new ClassWith32Module())
+            .build();
         ClassWith32Props result = mapper.readValue(json, ClassWith32Props.class);
         // let's assume couple of first, last ones suffice
         assertEquals("NotNull1", result.p1);

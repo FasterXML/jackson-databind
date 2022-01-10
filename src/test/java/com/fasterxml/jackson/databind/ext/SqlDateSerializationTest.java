@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ext;
 
-import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -30,18 +29,17 @@ public class SqlDateSerializationTest extends BaseMapTest
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods
-    /**********************************************************
+    /**********************************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
-    @SuppressWarnings("deprecation")
-    public void testSqlDate() throws IOException
+    public void testSqlDate()
     {
         // use date 1999-04-01 (note: months are 0-based, use constant)
-        final java.sql.Date date99 = new java.sql.Date(99, Calendar.APRIL, 1);
+        final java.sql.Date date99 = javaSqlDate(1999, Calendar.APRIL, 1);
         final java.sql.Date date0 = new java.sql.Date(0);
 
         // 11-Oct-2016, tatu: As per [databind#219] we really should use global
@@ -59,14 +57,16 @@ public class SqlDateSerializationTest extends BaseMapTest
 
         // And also should be able to use String output as need be:
         ObjectWriter w = MAPPER.writer().without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-               
-        assertEquals(q("1999-04-01"), w.writeValueAsString(date99));
-        assertEquals(q(date0.toString()), w.writeValueAsString(date0));
-        assertEquals(a2q("{'date':'"+date0.toString()+"'}"),
+
+        // 03-Feb-2021, tatu: As per [databind#2405], changed to include time part by
+        //   default
+        assertEquals(q("1999-04-01T00:00:00.000Z"), w.writeValueAsString(date99));
+        assertEquals(q("1970-01-01T00:00:00.000Z"), w.writeValueAsString(date0));
+        assertEquals(a2q("{'date':'1970-01-01T00:00:00.000Z'}"),
                 w.writeValueAsString(new SqlDateAsDefaultBean(0L)));
     }
 
-    public void testSqlTime() throws IOException
+    public void testSqlTime()
     {
         java.sql.Time time = new java.sql.Time(0L);
         // not 100% sure what we should expect wrt timezone, but what serializes
@@ -74,7 +74,7 @@ public class SqlDateSerializationTest extends BaseMapTest
         assertEquals(q(time.toString()), MAPPER.writeValueAsString(time));
     }
 
-    public void testSqlTimestamp() throws IOException
+    public void testSqlTimestamp()
     {
         java.sql.Timestamp input = new java.sql.Timestamp(0L);
         // just should produce same output as standard `java.util.Date`:
@@ -83,11 +83,12 @@ public class SqlDateSerializationTest extends BaseMapTest
                 MAPPER.writeValueAsString(input));
     }
     
-    public void testPatternWithSqlDate() throws Exception
+    public void testPatternWithSqlDate()
     {
-        ObjectMapper mapper = new ObjectMapper();
         // `java.sql.Date` applies system default zone (and not UTC)
-        mapper.setTimeZone(TimeZone.getDefault());
+        ObjectMapper mapper = jsonMapperBuilder()
+                .defaultTimeZone(TimeZone.getDefault())
+                .build();
 
         Person i = new Person();
         i.dateOfBirth = java.sql.Date.valueOf("1980-04-14");
@@ -96,13 +97,24 @@ public class SqlDateSerializationTest extends BaseMapTest
     }
 
     // [databind#2064]
-    public void testSqlDateConfigOverride() throws Exception
+    public void testSqlDateConfigOverride()
     {
-        ObjectMapper mapper = newJsonMapper();
-        mapper.setTimeZone(TimeZone.getDefault());
-        mapper.configOverride(java.sql.Date.class)
-            .setFormat(JsonFormat.Value.forPattern("yyyy+MM+dd"));        
+        // `java.sql.Date` applies system default zone (and not UTC)
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .defaultTimeZone(TimeZone.getDefault())
+                .withConfigOverride(java.sql.Date.class,
+                        o -> o.setFormat(JsonFormat.Value.forPattern("yyyy+MM+dd")))
+                .build();
         assertEquals("\"1980+04+14\"",
             mapper.writeValueAsString(java.sql.Date.valueOf("1980-04-14")));
+    }
+
+    private static java.sql.Date javaSqlDate(int year, int monthConstant, int day)
+    {
+        Calendar cal = Calendar.getInstance();
+        cal.set(year, monthConstant, day, 0, 0, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        cal.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return new java.sql.Date(cal.getTime().getTime());
     }
 }

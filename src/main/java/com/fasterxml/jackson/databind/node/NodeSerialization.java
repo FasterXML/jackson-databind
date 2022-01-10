@@ -4,12 +4,14 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import com.fasterxml.jackson.core.JacksonException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 
 /**
  * Helper value class only used during JDK serialization: contains JSON as `byte[]`
- *
- * @since 2.10
  */
 class NodeSerialization implements java.io.Serializable,
     java.io.Externalizable
@@ -19,6 +21,9 @@ class NodeSerialization implements java.io.Serializable,
 
     private static final long serialVersionUID = 1L;
 
+    private static final JsonMapper JSON_MAPPER = JsonMapper.shared();
+    private static final ObjectReader NODE_READER = JSON_MAPPER.readerFor(JsonNode.class);
+    
     public byte[] json;
 
     public NodeSerialization() { }
@@ -27,18 +32,14 @@ class NodeSerialization implements java.io.Serializable,
 
     protected Object readResolve() {
         try {
-            return InternalNodeMapper.bytesToNode(json);
-        } catch (IOException e) {
+            return bytesToNode(json);
+        } catch (JacksonException e) {
             throw new IllegalArgumentException("Failed to JDK deserialize `JsonNode` value: "+e.getMessage(), e);
         }
     }    
 
     public static NodeSerialization from(Object o) {
-        try {
-            return new NodeSerialization(InternalNodeMapper.valueToBytes(o));
-        } catch (IOException e) {
-            throw new IllegalArgumentException("Failed to JDK serialize `"+o.getClass().getSimpleName()+"` value: "+e.getMessage(), e);
-        }
+        return new NodeSerialization(valueToBytes(o));
     }
 
     @Override
@@ -81,5 +82,13 @@ class NodeSerialization implements java.io.Serializable,
                 }
             }
         }
+    }
+
+    private static byte[] valueToBytes(Object value) throws JacksonException {
+        return JSON_MAPPER.writeValueAsBytes(value);
+    }
+
+    private static JsonNode bytesToNode(byte[] json) throws JacksonException {
+        return NODE_READER.readValue(json);
     }
 }

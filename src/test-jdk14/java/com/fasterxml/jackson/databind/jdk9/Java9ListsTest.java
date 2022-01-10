@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.DefaultTyping;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
@@ -15,8 +16,8 @@ public class Java9ListsTest extends BaseMapTest
 {
     private final ObjectMapper MAPPER = JsonMapper.builder()
             .activateDefaultTypingAsProperty(
-                 new NoCheckSubTypeValidator(),
-                 ObjectMapper.DefaultTyping.EVERYTHING,
+                    NoCheckSubTypeValidator.instance,
+                    DefaultTyping.EVERYTHING,
                  "@class"
             ).build();
 

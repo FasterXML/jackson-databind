@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.contextual;
 
-import java.io.IOException;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -10,7 +9,6 @@ import com.fasterxml.jackson.annotation.JacksonAnnotation;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 
 public class TestContextualWithAnnDeserializer extends BaseMapTest
 {
@@ -35,8 +33,7 @@ public class TestContextualWithAnnDeserializer extends BaseMapTest
     }
     
     static class AnnotatedContextualDeserializer
-        extends JsonDeserializer<StringValue>
-        implements ContextualDeserializer
+        extends ValueDeserializer<StringValue>
     {
         protected final String _fieldName;
         
@@ -46,13 +43,13 @@ public class TestContextualWithAnnDeserializer extends BaseMapTest
         }
 
         @Override
-        public StringValue deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+        public StringValue deserialize(JsonParser p, DeserializationContext ctxt)
         {
             return new StringValue(""+_fieldName+"="+p.getText());
         }
 
         @Override
-        public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
+        public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
                 BeanProperty property)
         {
             Name ann = property.getAnnotation(Name.class);

@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.testutil;
 
+import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 
 /**
@@ -16,18 +16,18 @@ public final class NoCheckSubTypeValidator
     public final static NoCheckSubTypeValidator instance = new NoCheckSubTypeValidator(); 
 
     @Override
-    public Validity validateBaseType(MapperConfig<?> config, JavaType baseType) {
+    public Validity validateBaseType(DatabindContext ctxt, JavaType baseType) {
         return Validity.INDETERMINATE;
     }
 
     @Override
-    public Validity validateSubClassName(MapperConfig<?> config,
+    public Validity validateSubClassName(DatabindContext ctxt,
             JavaType baseType, String subClassName) {
         return Validity.ALLOWED;
     }
 
     @Override
-    public Validity validateSubType(MapperConfig<?> config, JavaType baseType,
+    public Validity validateSubType(DatabindContext ctxt, JavaType baseType,
             JavaType subType) {
         return Validity.ALLOWED;
     }

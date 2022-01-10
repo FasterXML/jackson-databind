@@ -16,19 +16,12 @@ public class BeanNamingTest extends BaseMapTest
             return 3;
         }
     }
-    
-    public void testSimple() throws Exception
-    {
-        ObjectMapper mapper = new ObjectMapper();
-        assertFalse(mapper.isEnabled(MapperFeature.USE_STD_BEAN_NAMING));
-        assertEquals(a2q("{'url':'http://foo'}"),
-                mapper.writeValueAsString(new URLBean()));
-        assertEquals(a2q("{'a':3}"),
-                mapper.writeValueAsString(new ABean()));
 
-        mapper = jsonMapperBuilder()
-                .enable(MapperFeature.USE_STD_BEAN_NAMING)
-                .build();
+    // 24-Sep-2017, tatu: Used to test for `MapperFeature.USE_STD_BEAN_NAMING`, but with 3.x
+    //    that is always enabled.
+    public void testMultipleLeadingCapitalLetters() throws Exception
+    {
+        ObjectMapper mapper = objectMapper();
         assertEquals(a2q("{'URL':'http://foo'}"),
                 mapper.writeValueAsString(new URLBean()));
         assertEquals(a2q("{'a':3}"),

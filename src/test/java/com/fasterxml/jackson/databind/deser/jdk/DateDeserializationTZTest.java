@@ -24,6 +24,9 @@ public class DateDeserializationTZTest
     private static final String LOCAL_TZ = "GMT+2";
 
     private static final DateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+    static {
+        FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
+    }
 
     static class Annot_TimeZone {
         @JsonFormat(timezone="GMT+4")
@@ -54,20 +57,15 @@ public class DateDeserializationTZTest
         public Date date;
     }
 
-    private ObjectMapper MAPPER;
-
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-
+    private final static ObjectMapper MAPPER;
+    static {
         // Create an ObjectMapper with its timezone set to something other than the default (UTC).
         // This way we can verify that serialization and deserialization actually consider the time
         // zone set on the mapper.
-        ObjectMapper m = new ObjectMapper();
-        m.setTimeZone(TimeZone.getTimeZone(LOCAL_TZ));
+        ObjectMapper m = jsonMapperBuilder()
+                .defaultTimeZone(TimeZone.getTimeZone(LOCAL_TZ))
+                .build();
         MAPPER = m;
-        
-        FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
     /*
@@ -378,8 +376,10 @@ public class DateDeserializationTZTest
     {
         // Change the default locale set on the ObjectMapper to something else than the default.
         // This way we know if the default is correctly taken into account
-        ObjectMapper mapper = MAPPER.copy();
-        mapper.setLocale( Locale.ITALY );
+        ObjectMapper mapper = jsonMapperBuilder()
+                .defaultTimeZone(TimeZone.getTimeZone(LOCAL_TZ))
+                .defaultLocale(Locale.ITALY)
+                .build();
 
         // Build the JSON string. This is a mixed of ITALIAN and FRENCH (no ENGLISH because this 
         // would be the default).
@@ -447,9 +447,10 @@ public class DateDeserializationTZTest
             DateFormat df = new SimpleDateFormat("yyyy-MM-dd'X'HH:mm:ss");
             df.setTimeZone( TimeZone.getTimeZone("GMT+4") );    // TZ different from mapper's default
             
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.setTimeZone( TimeZone.getTimeZone(LOCAL_TZ) );
-            mapper.setDateFormat(df);
+            ObjectMapper mapper = jsonMapperBuilder()
+                    .defaultDateFormat(df)
+                    .defaultTimeZone(TimeZone.getTimeZone(LOCAL_TZ))
+                    .build();
             
             // The mapper's default TZ is used...
             verify(mapper, "2000-01-02X04:00:00", judate(2000, 1, 2, 4, 00, 00, 00, LOCAL_TZ));
@@ -463,8 +464,9 @@ public class DateDeserializationTZTest
             DateFormat df = new SimpleDateFormat("yyyy-MM-dd'X'HH:mm:ss");
             df.setTimeZone( TimeZone.getTimeZone("GMT+4") );    // TZ different from mapper's default
             
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.setDateFormat(df);
+            ObjectMapper mapper = jsonMapperBuilder()
+                    .defaultDateFormat(df)
+                    .build();
             
             // FIXME mapper's default TZ should have been used
             verify(mapper, "2000-01-02X04:00:00", judate(2000, 1, 2, 4, 00, 00, 00, "GMT+4"));
@@ -478,10 +480,11 @@ public class DateDeserializationTZTest
      */
     public void testDateUtil_customDateFormat_withTZ() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'X'HH:mm:ssZ");
         df.setTimeZone(TimeZone.getTimeZone("GMT+4"));    // use a timezone different than the ObjectMapper and the system default
-        mapper.setDateFormat(df);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .defaultDateFormat(df)
+                .build();
 
         verify(mapper, "2000-01-02X03:04:05+0300", judate(2000, 1, 2, 3, 4, 5, 00, "GMT+3"));
     }

@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
@@ -29,7 +29,7 @@ public final class ObjectIdValueProperty
         _objectIdReader = objectIdReader;
     }
 
-    protected ObjectIdValueProperty(ObjectIdValueProperty src, JsonDeserializer<?> deser,
+    protected ObjectIdValueProperty(ObjectIdValueProperty src, ValueDeserializer<?> deser,
             NullValueProvider nva)
     {
         super(src, deser, nva);
@@ -47,7 +47,7 @@ public final class ObjectIdValueProperty
     }
 
     @Override
-    public SettableBeanProperty withValueDeserializer(JsonDeserializer<?> deser) {
+    public SettableBeanProperty withValueDeserializer(ValueDeserializer<?> deser) {
         if (_valueDeserializer == deser) {
             return this;
         }
@@ -78,14 +78,14 @@ public final class ObjectIdValueProperty
 
     @Override
     public void deserializeAndSet(JsonParser p, DeserializationContext ctxt,
-            Object instance) throws IOException
+            Object instance) throws JacksonException
     {
         deserializeSetAndReturn(p, ctxt, instance);
     }
 
     @Override
     public Object deserializeSetAndReturn(JsonParser p,
-    		DeserializationContext ctxt, Object instance) throws IOException
+    		DeserializationContext ctxt, Object instance) throws JacksonException
     {
         /* 02-Apr-2015, tatu: Actually, as per [databind#742], let it be;
          *  missing or null id is needed for some cases, such as cases where id
@@ -108,12 +108,12 @@ public final class ObjectIdValueProperty
     }
 
     @Override
-    public void set(Object instance, Object value) throws IOException {
+    public void set(Object instance, Object value) {
         setAndReturn(instance, value);
     }
 
     @Override
-    public Object setAndReturn(Object instance, Object value) throws IOException
+    public Object setAndReturn(Object instance, Object value)
     {
         SettableBeanProperty idProp = _objectIdReader.idProperty;
         if (idProp == null) {

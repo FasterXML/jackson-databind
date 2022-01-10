@@ -1,13 +1,12 @@
 package com.fasterxml.jackson.databind.jsontype.impl;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+import com.fasterxml.jackson.core.JacksonException;
+
 import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 
 public class MinimalClassNameIdResolver
     extends ClassNameIdResolver
@@ -24,10 +23,10 @@ public class MinimalClassNameIdResolver
      */
     protected final String _basePackagePrefix;
 
-    protected MinimalClassNameIdResolver(JavaType baseType, TypeFactory typeFactory,
+    protected MinimalClassNameIdResolver(JavaType baseType,
             PolymorphicTypeValidator ptv)
     {
-        super(baseType, typeFactory, ptv);
+        super(baseType, ptv);
         String base = baseType.getRawClass().getName();
         int ix = base.lastIndexOf('.');
         if (ix < 0) { // can this ever occur?
@@ -39,16 +38,16 @@ public class MinimalClassNameIdResolver
         }
     }
 
-    public static MinimalClassNameIdResolver construct(JavaType baseType, MapperConfig<?> config,
+    public static MinimalClassNameIdResolver construct(JavaType baseType,
             PolymorphicTypeValidator ptv) {
-        return new MinimalClassNameIdResolver(baseType, config.getTypeFactory(), ptv);
+        return new MinimalClassNameIdResolver(baseType, ptv);
     }
 
     @Override
     public JsonTypeInfo.Id getMechanism() { return JsonTypeInfo.Id.MINIMAL_CLASS; }
     
     @Override
-    public String idFromValue(Object value)
+    public String idFromValue(DatabindContext ctxt, Object value)
     {
         String n = value.getClass().getName();
         if (n.startsWith(_basePackagePrefix)) {
@@ -59,7 +58,7 @@ public class MinimalClassNameIdResolver
     }
 
     @Override
-    protected JavaType _typeFromId(String id, DatabindContext ctxt) throws IOException
+    protected JavaType _typeFromId(DatabindContext ctxt, String id) throws JacksonException
     {
         if (id.startsWith(".")) {
             StringBuilder sb = new StringBuilder(id.length() + _basePackageName.length());
@@ -72,6 +71,6 @@ public class MinimalClassNameIdResolver
             }
             id = sb.toString();
         }
-        return super._typeFromId(id, ctxt);
+        return super._typeFromId(ctxt, id);
     }
 }

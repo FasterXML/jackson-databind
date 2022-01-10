@@ -1,14 +1,14 @@
 package com.fasterxml.jackson.databind.introspect;
 
-import java.io.IOException;
 import java.lang.annotation.*;
 
 import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.core.JsonParser;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 @SuppressWarnings("serial")
@@ -33,10 +33,10 @@ public class CustomAnnotationIntrospector1756Test extends BaseMapTest
     /**
      * Custom String deserializer.
      */
-    private static class CustomStringDeserializer extends JsonDeserializer<String> {
+    private static class CustomStringDeserializer extends ValueDeserializer<String> {
 
       @Override
-      public String deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+      public String deserialize(JsonParser p, DeserializationContext ctxt) {
         return p.getText();
       }
     }
@@ -73,7 +73,7 @@ public class CustomAnnotationIntrospector1756Test extends BaseMapTest
     public static class FoobarAnnotationIntrospector extends NopAnnotationIntrospector {
 
       @Override
-      public String findImplicitPropertyName(final AnnotatedMember member) {
+      public String findImplicitPropertyName(MapperConfig<?> config, final AnnotatedMember member) {
         // Constructor parameter
         if (member instanceof AnnotatedParameter) {
           final Field1756 field = member.getAnnotation(Field1756.class);
@@ -90,12 +90,11 @@ public class CustomAnnotationIntrospector1756Test extends BaseMapTest
       }
 
       @Override
-      public JsonCreator.Mode findCreatorAnnotation(MapperConfig<?> config, Annotated ann) {
-          final AnnotatedConstructor ctor = (AnnotatedConstructor) ann;
-          if (ctor.getParameterCount() > 0) {
-              if (ctor.getParameter(0).getAnnotation(Field1756.class) != null) {
-                  return JsonCreator.Mode.PROPERTIES;
-              }
+      public JsonCreator.Mode findCreatorAnnotation(MapperConfig<?> config, Annotated a) {
+          final AnnotatedConstructor ctor = (AnnotatedConstructor) a;
+          if ((ctor.getParameterCount() > 0)
+                  && (ctor.getParameter(0).getAnnotation(Field1756.class) != null)) {
+              return JsonCreator.Mode.PROPERTIES;
           }
           return null;
       }
@@ -113,10 +112,9 @@ public class CustomAnnotationIntrospector1756Test extends BaseMapTest
     {
         Issue1756Module m = new Issue1756Module();
         m.addAbstractTypeMapping(Foobar.class, FoobarImpl.class);
-        final ObjectMapper mapper = JsonMapper.builder()
+        final ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(m)
                 .build();
-
         final Foobar foobar = mapper.readValue(a2q("{'bar':'bar', 'foo':'foo'}"),
                 Foobar.class);
         assertNotNull(foobar);

@@ -1,13 +1,14 @@
 package com.fasterxml.jackson.databind.jsontype.impl;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
-
 import com.fasterxml.jackson.core.type.WritableTypeId;
+
 import com.fasterxml.jackson.databind.BeanProperty;
+import com.fasterxml.jackson.databind.DatabindContext;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
@@ -39,34 +40,32 @@ public abstract class TypeSerializerBase extends TypeSerializer
     public TypeIdResolver getTypeIdResolver() { return _idResolver; }
 
     @Override
-    public WritableTypeId writeTypePrefix(JsonGenerator g,
-            WritableTypeId idMetadata) throws IOException
+    public WritableTypeId writeTypePrefix(JsonGenerator g, SerializerProvider ctxt,
+            WritableTypeId idMetadata) throws JacksonException
     {
-        _generateTypeId(idMetadata);
+        _generateTypeId(ctxt, idMetadata);
         return g.writeTypePrefix(idMetadata);
     }
 
     @Override
-    public WritableTypeId writeTypeSuffix(JsonGenerator g,
-            WritableTypeId idMetadata) throws IOException
+    public WritableTypeId writeTypeSuffix(JsonGenerator g, SerializerProvider ctxt,
+            WritableTypeId idMetadata) throws JacksonException
     {
         return g.writeTypeSuffix(idMetadata);
     }
 
     /**
      * Helper method that will generate type id to use, if not already passed.
-     *
-     * @since 2.9
      */
-    protected void _generateTypeId(WritableTypeId idMetadata) {
+    protected void _generateTypeId(DatabindContext ctxt, WritableTypeId idMetadata) {
         Object id = idMetadata.id;
         if (id == null) {
             final Object value = idMetadata.forValue;
             Class<?> typeForId = idMetadata.forValueType;
             if (typeForId == null) {
-                id = idFromValue(value);
+                id = idFromValue(ctxt, value);
             } else {
-                id = idFromValueAndType(value, typeForId);
+                id = idFromValueAndType(ctxt, value, typeForId);
             }
             idMetadata.id = id;
         }
@@ -78,16 +77,16 @@ public abstract class TypeSerializerBase extends TypeSerializer
     /**********************************************************
      */
 
-    protected String idFromValue(Object value) {
-        String id = _idResolver.idFromValue(value);
+    protected String idFromValue(DatabindContext ctxt, Object value) {
+        String id = _idResolver.idFromValue(ctxt, value);
         if (id == null) {
             handleMissingId(value);
         }
         return id;
     }
 
-    protected String idFromValueAndType(Object value, Class<?> type) {
-        String id = _idResolver.idFromValueAndType(value, type);
+    protected String idFromValueAndType(DatabindContext ctxt, Object value, Class<?> type) {
+        String id = _idResolver.idFromValueAndType(ctxt, value, type);
         if (id == null) {
             handleMissingId(value);
         }

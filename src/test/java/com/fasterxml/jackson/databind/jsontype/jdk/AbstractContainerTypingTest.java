@@ -18,7 +18,7 @@ public class AbstractContainerTypingTest extends BaseMapTest
         @JsonSubTypes.Type(value = MapWrapper.class, name = "wrapper"),
     })
     static class MapWrapper {
-        public  IDataValueMap map = new DataValueMap();     // This does NOT work
+        public IDataValueMap map = new DataValueMap();     // This does NOT work
     }
 
     @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=JsonTypeInfo.As.PROPERTY, property="_type_")

@@ -1,10 +1,10 @@
 package com.fasterxml.jackson.databind.jsontype.impl;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.JsonParserSequence;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
@@ -19,13 +19,7 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  */
 public class AsArrayTypeDeserializer
     extends TypeDeserializerBase
-    implements java.io.Serializable
 {
-    private static final long serialVersionUID = 1L;
-
-    /**
-     * @since 2.8
-     */
     public AsArrayTypeDeserializer(JavaType bt, TypeIdResolver idRes,
             String typePropertyName, boolean typeIdVisible, JavaType defaultImpl)
     {
@@ -49,26 +43,26 @@ public class AsArrayTypeDeserializer
      * Method called when actual object is serialized as JSON Array.
      */
     @Override
-    public Object deserializeTypedFromArray(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        return _deserialize(jp, ctxt);
+    public Object deserializeTypedFromArray(JsonParser p, DeserializationContext ctxt) throws JacksonException {
+        return _deserialize(p, ctxt);
     }
 
     /**
      * Method called when actual object is serialized as JSON Object
      */
     @Override
-    public Object deserializeTypedFromObject(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        return _deserialize(jp, ctxt);
+    public Object deserializeTypedFromObject(JsonParser p, DeserializationContext ctxt) throws JacksonException {
+        return _deserialize(p, ctxt);
     }
     
     @Override
-    public Object deserializeTypedFromScalar(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        return _deserialize(jp, ctxt);
+    public Object deserializeTypedFromScalar(JsonParser p, DeserializationContext ctxt) throws JacksonException {
+        return _deserialize(p, ctxt);
     }    
 
     @Override
-    public Object deserializeTypedFromAny(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        return _deserialize(jp, ctxt);
+    public Object deserializeTypedFromAny(JsonParser p, DeserializationContext ctxt) throws JacksonException {
+        return _deserialize(p, ctxt);
     }    
     
     /*
@@ -83,7 +77,8 @@ public class AsArrayTypeDeserializer
      * deserialization.
      */
     @SuppressWarnings("resource")
-    protected Object _deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+    protected Object _deserialize(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
     {
         // 02-Aug-2013, tatu: May need to use native type ids
         if (p.canReadTypeId()) {
@@ -94,23 +89,23 @@ public class AsArrayTypeDeserializer
         }
         boolean hadStartArray = p.isExpectedStartArrayToken();
         String typeId = _locateTypeId(p, ctxt);
-        JsonDeserializer<Object> deser = _findDeserializer(ctxt, typeId);
+        ValueDeserializer<Object> deser = _findDeserializer(ctxt, typeId);
         // Minor complication: we may need to merge type id in?
         if (_typeIdVisible
                 // 06-Oct-2014, tatu: To fix [databind#408], must distinguish between
                 //   internal and external properties
                 //  TODO: but does it need to be injected in external case? Why not?
                 && !_usesExternalId()
-                && p.hasToken(JsonToken.START_OBJECT)) {
+                && p.isExpectedStartObjectToken()) {
             // but what if there's nowhere to add it in? Error? Or skip? For now, skip.
             TokenBuffer tb = ctxt.bufferForInputBuffering(p);
             tb.writeStartObject(); // recreate START_OBJECT
-            tb.writeFieldName(_typePropertyName);
+            tb.writeName(_typePropertyName);
             tb.writeString(typeId);
-            // 02-Jul-2016, tatu: Depending on for JsonParserSequence is initialized it may
+            // 02-Jul-2016, tatu: Depending on how JsonParserSequence is initialized it may
             //   try to access current token; ensure there isn't one
             p.clearCurrentToken();
-            p = JsonParserSequence.createFlattened(false, tb.asParser(p), p);
+            p = JsonParserSequence.createFlattened(false, tb.asParser(ctxt, p), p);
             p.nextToken();
         }
         // [databind#2467] (2.10): Allow missing value to be taken as "just use null value"
@@ -130,13 +125,13 @@ public class AsArrayTypeDeserializer
         return value;
     }    
     
-    protected String _locateTypeId(JsonParser p, DeserializationContext ctxt) throws IOException
+    protected String _locateTypeId(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
         if (!p.isExpectedStartArrayToken()) {
             // Need to allow even more customized handling, if something unexpected seen...
             // but should there be a way to limit this to likely success cases?
             if (_defaultImpl != null) {
-                return _idResolver.idFromBaseType();
+                return _idResolver.idFromBaseType(ctxt);
             }
              ctxt.reportWrongTokenException(baseType(), JsonToken.START_ARRAY,
                      "need JSON Array to contain As.WRAPPER_ARRAY type information for class "+baseTypeName());
@@ -155,7 +150,7 @@ public class AsArrayTypeDeserializer
         //    in 2.12.0
 /*        if (_defaultImpl != null) {
             p.nextToken();
-            return _idResolver.idFromBaseType();
+            return _idResolver.idFromBaseType(ctxt);
         }
         */
 
@@ -166,9 +161,6 @@ public class AsArrayTypeDeserializer
         return null;
     }
 
-    /**
-     * @since 2.5
-     */
     protected boolean _usesExternalId() {
         return false;
     }

@@ -4,18 +4,16 @@ import java.text.DateFormat;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+
 import com.fasterxml.jackson.core.Base64Variant;
+import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
-import com.fasterxml.jackson.databind.introspect.ClassIntrospector.MixInResolver;
-import com.fasterxml.jackson.databind.introspect.AccessorNamingStrategy;
-import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
-import com.fasterxml.jackson.databind.introspect.SimpleMixInResolver;
-import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
+import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
+import com.fasterxml.jackson.databind.jsontype.TypeResolverProvider;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.RootNameLookup;
@@ -26,37 +24,27 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     extends MapperConfig<T>
     implements java.io.Serializable
 {
-    /**
-     * @since 2.9
-     */
     protected final static ConfigOverride EMPTY_OVERRIDE = ConfigOverride.empty();
 
-    private final static long DEFAULT_MAPPER_FEATURES = MapperFeature.collectLongDefaults();
-
-    /**
-     * @since 2.9
-     */
-    private final static long AUTO_DETECT_MASK =
-            MapperFeature.AUTO_DETECT_FIELDS.getLongMask()
-            | MapperFeature.AUTO_DETECT_GETTERS.getLongMask()
-            | MapperFeature.AUTO_DETECT_IS_GETTERS.getLongMask()
-            | MapperFeature.AUTO_DETECT_SETTERS.getLongMask()
-            | MapperFeature.AUTO_DETECT_CREATORS.getLongMask()
-            ;
-
     /*
-    /**********************************************************
-    /* Immutable config
-    /**********************************************************
+    /**********************************************************************
+    /* Immutable config, factories
+    /**********************************************************************
      */
 
     /**
-     * Mix-in annotation mappings to use, if any: immutable,
-     * cannot be changed once defined.
-     * 
-     * @since 2.6
+     * Specific factory used for creating {@link JavaType} instances;
+     * needed to allow modules to add more custom type handling
+     * (mostly to support types of non-Java JVM languages)
      */
-    protected final SimpleMixInResolver _mixIns;
+    protected final TypeFactory _typeFactory;
+
+    protected final ClassIntrospector _classIntrospector;
+
+    /**
+     * @since 3.0
+     */
+    protected final TypeResolverProvider _typeResolverProvider;
 
     /**
      * Registered concrete subtypes that can be used instead of (or
@@ -67,6 +55,17 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      */
     protected final SubtypeResolver _subtypeResolver;
 
+    /**
+     * Mix-in annotation mappings to use, if any.
+     */
+    protected final MixInHandler _mixIns;
+
+    /*
+    /**********************************************************************
+    /* Immutable config, factories
+    /**********************************************************************
+     */
+    
     /**
      * Explicitly defined root name to use, if any; if empty
      * String, will disable root-name wrapping; if null, will
@@ -85,8 +84,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /**
      * Contextual attributes accessible (get and set) during processing,
      * on per-call basis.
-     * 
-     * @since 2.3
      */
     protected final ContextAttributes _attributes;
 
@@ -96,64 +93,41 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      *<p>
      * Note that instances are stateful (for caching) and as such may need to be copied,
      * and may NOT be demoted down to {@link BaseSettings}.
-     *
-     * @since 2.6
      */
     protected final RootNameLookup _rootNames;
 
     /**
      * Configuration overrides to apply, keyed by type of property.
-     *
-     * @since 2.8
      */
     protected final ConfigOverrides _configOverrides;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Construction
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
      * Constructor used when creating a new instance (compared to
      * that of creating fluent copies)
-     *
-     * @since 2.8
      */
-    protected MapperConfigBase(BaseSettings base,
-            SubtypeResolver str, SimpleMixInResolver mixins, RootNameLookup rootNames,
-            ConfigOverrides configOverrides)
+    protected MapperConfigBase(MapperBuilder<?,?> b, long mapperFeatures,
+            TypeFactory tf, ClassIntrospector classIntr, MixInHandler mixins, SubtypeResolver str,
+            ConfigOverrides configOverrides, ContextAttributes defaultAttrs,
+            RootNameLookup rootNames)
     {
-        super(base, DEFAULT_MAPPER_FEATURES);
-        _mixIns = mixins;
+        super(b.baseSettings(), mapperFeatures);
+
+        _typeFactory = tf;
+        _classIntrospector = classIntr;
+        _typeResolverProvider = b.typeResolverProvider();
         _subtypeResolver = str;
+
+        _mixIns = mixins;
         _rootNames = rootNames;
         _rootName = null;
         _view = null;
-        // default to "no attributes"
-        _attributes = ContextAttributes.getEmpty();
-        _configOverrides = configOverrides;
-    }
-
-    /**
-     * Copy constructor usually called to make a copy for use by
-     * ObjectMapper that is copied.
-     *
-     * @since 2.11.2
-     */
-    protected MapperConfigBase(MapperConfigBase<CFG,T> src,
-            SubtypeResolver str, SimpleMixInResolver mixins, RootNameLookup rootNames,
-            ConfigOverrides configOverrides)
-    {
-        // 18-Apr-2018, tatu: [databind#1898] need to force copying of `ClassIntrospector`
-        //    (to clear its cache) to avoid leakage
-        super(src, src._base.copy());
-        _mixIns = mixins;
-        _subtypeResolver = str;
-        _rootNames = rootNames;
-        _rootName = src._rootName;
-        _view = src._view;
-        _attributes = src._attributes;
+        _attributes = defaultAttrs;
         _configOverrides = configOverrides;
     }
 
@@ -164,8 +138,12 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     protected MapperConfigBase(MapperConfigBase<CFG,T> src)
     {
         super(src);
-        _mixIns = src._mixIns;
+        _typeFactory = src._typeFactory;
+        _classIntrospector = src._classIntrospector;
+        _typeResolverProvider = src._typeResolverProvider;
         _subtypeResolver = src._subtypeResolver;
+
+        _mixIns = src._mixIns;
         _rootNames = src._rootNames;
         _rootName = src._rootName;
         _view = src._view;
@@ -176,31 +154,12 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, BaseSettings base)
     {
         super(src, base);
-        _mixIns = src._mixIns;
+        _typeFactory = src._typeFactory;
+        _classIntrospector = src._classIntrospector;
+        _typeResolverProvider = src._typeResolverProvider;
         _subtypeResolver = src._subtypeResolver;
-        _rootNames = src._rootNames;
-        _rootName = src._rootName;
-        _view = src._view;
-        _attributes = src._attributes;
-        _configOverrides = src._configOverrides;
-    }
-    
-    protected MapperConfigBase(MapperConfigBase<CFG,T> src, long mapperFeatures)
-    {
-        super(src, mapperFeatures);
-        _mixIns = src._mixIns;
-        _subtypeResolver = src._subtypeResolver;
-        _rootNames = src._rootNames;
-        _rootName = src._rootName;
-        _view = src._view;
-        _attributes = src._attributes;
-        _configOverrides = src._configOverrides;
-    }
 
-    protected MapperConfigBase(MapperConfigBase<CFG,T> src, SubtypeResolver str) {
-        super(src);
         _mixIns = src._mixIns;
-        _subtypeResolver = str;
         _rootNames = src._rootNames;
         _rootName = src._rootName;
         _view = src._view;
@@ -210,8 +169,12 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
 
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, PropertyName rootName) {
         super(src);
-        _mixIns = src._mixIns;
+        _typeFactory = src._typeFactory;
+        _classIntrospector = src._classIntrospector;
+        _typeResolverProvider = src._typeResolverProvider;
         _subtypeResolver = src._subtypeResolver;
+
+        _mixIns = src._mixIns;
         _rootNames = src._rootNames;
         _rootName = rootName;
         _view = src._view;
@@ -222,8 +185,12 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, Class<?> view)
     {
         super(src);
-        _mixIns = src._mixIns;
+        _typeFactory = src._typeFactory;
+        _classIntrospector = src._classIntrospector;
+        _typeResolverProvider = src._typeResolverProvider;
         _subtypeResolver = src._subtypeResolver;
+
+        _mixIns = src._mixIns;
         _rootNames = src._rootNames;
         _rootName = src._rootName;
         _view = view;
@@ -231,29 +198,15 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _configOverrides = src._configOverrides;
     }
 
-    /**
-     * @since 2.1
-     */
-    protected MapperConfigBase(MapperConfigBase<CFG,T> src, SimpleMixInResolver mixins)
-    {
-        super(src);
-        _mixIns = mixins;
-        _subtypeResolver = src._subtypeResolver;
-        _rootNames = src._rootNames;
-        _rootName = src._rootName;
-        _view = src._view;
-        _attributes = src._attributes;
-        _configOverrides = src._configOverrides;
-    }
-
-    /**
-     * @since 2.3
-     */
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, ContextAttributes attr)
     {
         super(src);
-        _mixIns = src._mixIns;
+        _typeFactory = src._typeFactory;
+        _classIntrospector = src._classIntrospector;
+        _typeResolverProvider = src._typeResolverProvider;
         _subtypeResolver = src._subtypeResolver;
+
+        _mixIns = src._mixIns;
         _rootNames = src._rootNames;
         _rootName = src._rootName;
         _view = src._view;
@@ -262,143 +215,28 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Abstract fluent factory methods to be implemented by subtypes
-    /**********************************************************
+    /**********************************************************************
      */
 
-    /**
-     * @since 2.9 (in this case, demoted from sub-classes)
-     */
     protected abstract T _withBase(BaseSettings newBase);
 
-    /**
-     * @since 2.9 (in this case, demoted from sub-classes)
-     */
-    protected abstract T _withMapperFeatures(long mapperFeatures);
-
     /*
-    /**********************************************************
-    /* Additional shared fluent factory methods; features
-    /**********************************************************
-     */
-    
-    /**
-     * Fluent factory method that will construct and return a new configuration
-     * object instance with specified features enabled.
-     */
-    @SuppressWarnings("unchecked")
-    @Override
-    public final T with(MapperFeature... features)
-    {
-        long newMapperFlags = _mapperFeatures;
-        for (MapperFeature f : features) {
-            newMapperFlags |= f.getLongMask();
-        }
-        if (newMapperFlags == _mapperFeatures) {
-            return (T) this;
-        }
-        return _withMapperFeatures(newMapperFlags);
-    }
-
-    /**
-     * Fluent factory method that will construct and return a new configuration
-     * object instance with specified features disabled.
-     */
-    @SuppressWarnings("unchecked")
-    @Override
-    public final T without(MapperFeature... features)
-    {
-        long newMapperFlags = _mapperFeatures;
-        for (MapperFeature f : features) {
-             newMapperFlags &= ~f.getLongMask();
-        }
-        if (newMapperFlags == _mapperFeatures) {
-            return (T) this;
-        }
-        return _withMapperFeatures(newMapperFlags);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public final T with(MapperFeature feature, boolean state)
-    {
-        long newMapperFlags;
-        if (state) {
-            newMapperFlags = _mapperFeatures | feature.getLongMask();
-        } else {
-            newMapperFlags = _mapperFeatures & ~feature.getLongMask();
-        }
-        if (newMapperFlags == _mapperFeatures) {
-            return (T) this;
-        }
-        return _withMapperFeatures(newMapperFlags);
-    }
-
-    /*
-    /**********************************************************
-    /* Additional shared fluent factory methods; introspectors
-    /**********************************************************
-     */
-    
-    /**
-     * Method for constructing and returning a new instance with different
-     * {@link AnnotationIntrospector} to use (replacing old one).
-     *<p>
-     * NOTE: make sure to register new instance with <code>ObjectMapper</code>
-     * if directly calling this method.
-     */
-    public final T with(AnnotationIntrospector ai) {
-        return _withBase(_base.withAnnotationIntrospector(ai));
-    }
-
-    /**
-     * Method for constructing and returning a new instance with additional
-     * {@link AnnotationIntrospector} appended (as the lowest priority one)
-     */
-    public final T withAppendedAnnotationIntrospector(AnnotationIntrospector ai) {
-        return _withBase(_base.withAppendedAnnotationIntrospector(ai));
-    }
-
-    /**
-     * Method for constructing and returning a new instance with additional
-     * {@link AnnotationIntrospector} inserted (as the highest priority one)
-     */
-    public final T withInsertedAnnotationIntrospector(AnnotationIntrospector ai) {
-        return _withBase(_base.withInsertedAnnotationIntrospector(ai));
-    }
-    
-    /**
-     * Method for constructing and returning a new instance with different
-     * {@link ClassIntrospector}
-     * to use.
-     *<p>
-     * NOTE: make sure to register new instance with <code>ObjectMapper</code>
-     * if directly calling this method.
-     */
-    public final T with(ClassIntrospector ci) {
-        return _withBase(_base.withClassIntrospector(ci));
-    }
-
-    /*
-    /**********************************************************
+    /**********************************************************************
     /* Additional shared fluent factory methods; attributes
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
      * Method for constructing an instance that has specified
      * contextual attributes.
-     * 
-     * @since 2.3
      */
     public abstract T with(ContextAttributes attrs);
 
     /**
      * Method for constructing an instance that has only specified
      * attributes, removing any attributes that exist before the call.
-     * 
-     * @since 2.3
      */
     public T withAttributes(Map<?,?> attributes) {
         return with(getAttributes().withSharedAttributes(attributes));
@@ -407,8 +245,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /**
      * Method for constructing an instance that has specified
      * value for attribute for given key.
-     * 
-     * @since 2.3
      */
     public T withAttribute(Object key, Object value) {
         return with(getAttributes().withSharedAttribute(key, value));
@@ -417,76 +253,38 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /**
      * Method for constructing an instance that has no
      * value for attribute for given key.
-     * 
-     * @since 2.3
      */
     public T withoutAttribute(Object key) {
         return with(getAttributes().withoutSharedAttribute(key));
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Additional shared fluent factory methods; factories
-    /**********************************************************
+    /**********************************************************************
      */
-
-    /**
-     * Method for constructing and returning a new instance with different
-     * {@link TypeFactory}
-     * to use.
-     */
-    public final T with(TypeFactory tf) {
-        return _withBase( _base.withTypeFactory(tf));
-    }
 
     /**
      * Method for constructing and returning a new instance with different
      * {@link TypeResolverBuilder} to use.
      */
     public final T with(TypeResolverBuilder<?> trb) {
-        return _withBase(_base.withTypeResolverBuilder(trb));
-    }
-
-    /**
-     * Method for constructing and returning a new instance with different
-     * {@link PropertyNamingStrategy}
-     * to use.
-     *<p>
-     * NOTE: make sure to register new instance with <code>ObjectMapper</code>
-     * if directly calling this method.
-     */
-    public final T with(PropertyNamingStrategy pns) {
-        return _withBase(_base.withPropertyNamingStrategy(pns));
-    }
-
-    /**
-     * Method for constructing and returning a new instance with different
-     * {@link PropertyNamingStrategy}
-     * to use.
-     *
-     * @since 2.12
-     */
-    public final T with(AccessorNamingStrategy.Provider p) {
-        return _withBase(_base.withAccessorNaming(p));
-    }
-
-    /**
-     * Method for constructing and returning a new instance with different
-     * {@link HandlerInstantiator}
-     * to use.
-     *<p>
-     * NOTE: make sure to register new instance with <code>ObjectMapper</code>
-     * if directly calling this method.
-     */
-    public final T with(HandlerInstantiator hi) {
-        return _withBase(_base.withHandlerInstantiator(hi));
+        return _withBase(_base.with(trb));
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Additional shared fluent factory methods; other
-    /**********************************************************
+    /**********************************************************************
      */
+
+    /**
+     * Fluent factory method that will construct a new instance with
+     * specified {@link JsonNodeFactory}.
+     */
+    public final T with(JsonNodeFactory f) {
+        return _withBase(_base.with(f));
+    }
 
     /**
      * Method for constructing and returning a new instance with different
@@ -504,7 +302,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * NOTE: non-final since <code>SerializationConfig</code> needs to override this
      */
     public T with(DateFormat df) {
-        return _withBase(_base.withDateFormat(df));
+        return _withBase(_base.with(df));
     }
 
     /**
@@ -536,8 +334,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * @param rootName to use: if null, means "use default" (clear setting);
      *   if empty String ("") means that no root name wrapping is used;
      *   otherwise defines root name to use.
-     *   
-     * @since 2.6
      */
     public abstract T withRootName(PropertyName rootName);
 
@@ -547,16 +343,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         }
         return withRootName(PropertyName.construct(rootName));
     }
-    
-    /**
-     * Method for constructing and returning a new instance with different
-     * {@link SubtypeResolver}
-     * to use.
-     *<p>
-     * NOTE: make sure to register new instance with <code>ObjectMapper</code>
-     * if directly calling this method.
-     */
-    public abstract T with(SubtypeResolver str);
 
     /**
      * Method for constructing and returning a new instance with different
@@ -565,10 +351,25 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     public abstract T withView(Class<?> view);
 
     /*
-    /**********************************************************
-    /* Simple accessors
-    /**********************************************************
+    /**********************************************************************
+    /* Simple factory access, related
+    /**********************************************************************
      */
+
+    @Override
+    public final TypeFactory getTypeFactory() {
+        return _typeFactory;
+    }
+
+    @Override
+    public ClassIntrospector classIntrospectorInstance() {
+        return _classIntrospector.forOperation(this);
+    }
+
+    @Override
+    public TypeResolverProvider getTypeResolverProvider() {
+        return _typeResolverProvider;
+    }
 
     /**
      * Accessor for object used for finding out all reachable subtypes
@@ -580,17 +381,22 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         return _subtypeResolver;
     }
 
-    /**
-     * @deprecated Since 2.6 use {@link #getFullRootName} instead.
-     */
-    @Deprecated // since 2.6
-    public final String getRootName() {
-        return (_rootName == null) ? null : _rootName.getSimpleName();
+    @Override
+    public final JavaType constructType(Class<?> cls) {
+        return _typeFactory.constructType(cls);
     }
 
-    /**
-     * @since 2.6
+    @Override
+    public final JavaType constructType(TypeReference<?> valueTypeRef) {
+        return _typeFactory.constructType(valueTypeRef.getType());
+    }
+
+    /*
+    /**********************************************************************
+    /* Simple config property access
+    /**********************************************************************
      */
+
     public final PropertyName getFullRootName() {
         return _rootName;
     }
@@ -606,9 +412,9 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration access; default/overrides
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -687,47 +493,27 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     }
 
     @Override
-    public final VisibilityChecker<?> getDefaultVisibilityChecker()
+    public final VisibilityChecker getDefaultVisibilityChecker()
     {
-        VisibilityChecker<?> vchecker = _configOverrides.getDefaultVisibility();
-        // then global overrides (disabling)
-        // 05-Mar-2018, tatu: As per [databind#1947], need to see if any disabled
-        if ((_mapperFeatures & AUTO_DETECT_MASK) != AUTO_DETECT_MASK) {
-            if (!isEnabled(MapperFeature.AUTO_DETECT_FIELDS)) {
-                vchecker = vchecker.withFieldVisibility(Visibility.NONE);
-            }
-            if (!isEnabled(MapperFeature.AUTO_DETECT_GETTERS)) {
-                vchecker = vchecker.withGetterVisibility(Visibility.NONE);
-            }
-            if (!isEnabled(MapperFeature.AUTO_DETECT_IS_GETTERS)) {
-                vchecker = vchecker.withIsGetterVisibility(Visibility.NONE);
-            }
-            if (!isEnabled(MapperFeature.AUTO_DETECT_SETTERS)) {
-                vchecker = vchecker.withSetterVisibility(Visibility.NONE);
-            }
-            if (!isEnabled(MapperFeature.AUTO_DETECT_CREATORS)) {
-                vchecker = vchecker.withCreatorVisibility(Visibility.NONE);
-            }
-        }
-        return vchecker;
+        return _configOverrides.getDefaultVisibility();
     }
 
-    @Override // since 2.9
-    public final VisibilityChecker<?> getDefaultVisibilityChecker(Class<?> baseType,
+    @Override
+    public final VisibilityChecker getDefaultVisibilityChecker(Class<?> baseType,
             AnnotatedClass actualClass)
     {
         // 14-Apr-2021, tatu: [databind#3117] JDK types should be limited
         //    to "public-only" regardless of settings for other types
-        VisibilityChecker<?> vc;
+        VisibilityChecker vc;
 
         if (ClassUtil.isJDKClass(baseType)) {
-            vc = VisibilityChecker.Std.allPublicInstance();
+            vc = VisibilityChecker.allPublicInstance();
         } else {
             vc = getDefaultVisibilityChecker();
         }
         AnnotationIntrospector intr = getAnnotationIntrospector();
         if (intr != null) {
-            vc = intr.findAutoDetectVisibility(actualClass, vc);
+            vc = intr.findAutoDetectVisibility(this, actualClass, vc);
         }
         ConfigOverride overrides = _configOverrides.findOverride(baseType);
         if (overrides != null) {
@@ -737,8 +523,8 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     }
 
     @Override
-    public final JsonSetter.Value getDefaultSetterInfo() {
-        return _configOverrides.getDefaultSetterInfo();
+    public final JsonSetter.Value getDefaultNullHandling() {
+        return _configOverrides.getDefaultNullHandling();
     }
 
     @Override
@@ -760,31 +546,31 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Other config access
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
-    public PropertyName findRootName(JavaType rootType) {
+    public PropertyName findRootName(DatabindContext ctxt, JavaType rootType) {
         if (_rootName != null) {
             return _rootName;
         }
-        return _rootNames.findRootName(rootType, this);
+        return _rootNames.findRootName(ctxt, rootType);
     }
 
     @Override
-    public PropertyName findRootName(Class<?> rawRootType) {
+    public PropertyName findRootName(DatabindContext ctxt, Class<?> rawRootType) {
         if (_rootName != null) {
             return _rootName;
         }
-        return _rootNames.findRootName(rawRootType, this);
+        return _rootNames.findRootName(ctxt, rawRootType);
     }
 
     /*
-    /**********************************************************
-    /* ClassIntrospector.MixInResolver impl:
-    /**********************************************************
+    /**********************************************************************
+    /* MixInResolver impl:
+    /**********************************************************************
      */
 
     /**
@@ -796,9 +582,14 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         return _mixIns.findMixInClassFor(cls);
     }
 
+    @Override
+    public boolean hasMixIns() {
+        return _mixIns.hasMixIns();
+    }
+    
     // Not really relevant here (should not get called)
     @Override
-    public MixInResolver copy() {
+    public MixInResolver snapshot() {
         throw new UnsupportedOperationException();
     }
     

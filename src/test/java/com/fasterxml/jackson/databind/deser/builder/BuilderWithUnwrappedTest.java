@@ -69,7 +69,7 @@ public class BuilderWithUnwrappedTest extends BaseMapTest
             int age;
             boolean alive;
 
-            Builder(@JsonProperty("person_id") long id) {
+            public Builder(@JsonProperty("person_id") long id) {
                 this.id = id;
             }
 
@@ -131,7 +131,7 @@ public class BuilderWithUnwrappedTest extends BaseMapTest
             int age;
             final boolean alive;
 
-            Builder(
+            public Builder(
                     @JsonProperty("animal_id") long id,
                     @JsonProperty("living") boolean alive
             ) {

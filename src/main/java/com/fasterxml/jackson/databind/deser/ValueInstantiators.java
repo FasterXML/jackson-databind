@@ -14,6 +14,23 @@ public interface ValueInstantiators
     /**
      * Method called to find the {@link ValueInstantiator} to use for creating
      * instances of specified type during deserialization.
+     *<p>
+     * Note that unlike with 2.0, no default instantiator is passed at this point:
+     * there is a separate method, {@link #modifyValueInstantiator} if you want
+     * to use or modify that.
+     * 
+     * @param config Deserialization configuration in use
+     * @param beanDesc Additional information about POJO type to be instantiated
+     *   
+     * @return Instantiator to use if custom one wanted, or {@code null} to indicate
+     *    "use default instantiator".
+     */
+    public ValueInstantiator findValueInstantiator(DeserializationConfig config,
+            BeanDescription beanDesc);
+
+    /**
+     * Method called to find the {@link ValueInstantiator} to use for creating
+     * instances of specified type during deserialization.
      * Note that a default value instantiator is always created first and passed;
      * if an implementation does not want to modify or replace it, it has to return
      * passed instance as is (returning null is an error)
@@ -28,8 +45,10 @@ public interface ValueInstantiators
      * @return Instantiator to use; either <code>defaultInstantiator</code> that was passed,
      *   or a custom variant; cannot be null.
      */
-    public ValueInstantiator findValueInstantiator(DeserializationConfig config,
-            BeanDescription beanDesc, ValueInstantiator defaultInstantiator);
+    default ValueInstantiator modifyValueInstantiator(DeserializationConfig config,
+            BeanDescription beanDesc, ValueInstantiator defaultInstantiator) {
+        return defaultInstantiator;
+    }
 
     /**
      * Basic "NOP" implementation that can be used as the base class for custom implementations.
@@ -40,8 +59,8 @@ public interface ValueInstantiators
     {
         @Override
         public ValueInstantiator findValueInstantiator(DeserializationConfig config,
-                BeanDescription beanDesc, ValueInstantiator defaultInstantiator) {
-            return defaultInstantiator;
+                BeanDescription beanDesc) {
+            return null;
         }
     }
 }

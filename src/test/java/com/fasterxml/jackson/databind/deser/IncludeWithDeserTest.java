@@ -142,7 +142,7 @@ public class IncludeWithDeserTest
             r.readValue(a2q("{'y': 3, 'z':2 }"));
             fail("Should fail");
         } catch (UnrecognizedPropertyException e) {
-            verifyException(e, "Unrecognized field");
+            verifyException(e, "Unrecognized property \"z\"");
         }
 
         // or success with the both settings disabled.

@@ -26,7 +26,7 @@ public class ConstructorDetector1498Test extends BaseMapTest
     static class CtorNameIntrospector extends JacksonAnnotationIntrospector
     {
         @Override
-        public String findImplicitPropertyName(//MapperConfig<?> config,
+        public String findImplicitPropertyName(MapperConfig<?> config,
                 AnnotatedMember member) {
             final ImplicitName ann = member.getAnnotation(ImplicitName.class);
             return (ann == null) ? null : ann.value();

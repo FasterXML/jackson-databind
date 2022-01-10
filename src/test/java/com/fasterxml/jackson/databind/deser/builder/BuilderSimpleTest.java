@@ -243,7 +243,7 @@ public class BuilderSimpleTest extends BaseMapTest
         }
     }
 
-    protected static class NopModule1557 extends com.fasterxml.jackson.databind.Module
+    protected static class NopModule1557 extends com.fasterxml.jackson.databind.JacksonModule
     {
         @Override
         public String getModuleName() {
@@ -327,7 +327,7 @@ public class BuilderSimpleTest extends BaseMapTest
             fail("Should not pass");
         } catch (UnrecognizedPropertyException e) {
             assertEquals("z", e.getPropertyName());
-            verifyException(e, "Unrecognized field \"z\"");
+            verifyException(e, "Unrecognized property \"z\"");
         }
 
         // but with config overrides should pass
@@ -343,7 +343,7 @@ public class BuilderSimpleTest extends BaseMapTest
         assertEquals(value._x, 2);
         assertEquals(value._y, 3);
     }
-    
+
     public void testMultiAccess() throws Exception
     {
         String json = a2q("{'c':3,'a':2,'b':-9}");
@@ -418,9 +418,10 @@ public class BuilderSimpleTest extends BaseMapTest
 
     public void testPOJOConfigResolution1557() throws Exception
     {
-        final String json = "{\"value\":1}";
-        MAPPER.registerModule(new NopModule1557());
-        ValueFoo value = MAPPER.readValue(json, ValueFoo.class);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(new NopModule1557())
+                .build();
+        ValueFoo value = mapper.readValue("{\"value\":1}", ValueFoo.class);
         assertEquals(1, value.value);
     }
 

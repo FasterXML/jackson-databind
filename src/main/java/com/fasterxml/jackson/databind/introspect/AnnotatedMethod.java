@@ -7,28 +7,17 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 
 public final class AnnotatedMethod
     extends AnnotatedWithParams
-    implements java.io.Serializable
 {
-    private static final long serialVersionUID = 1L;
-
     final protected transient Method _method;
 
     // // Simple lazy-caching:
 
     protected Class<?>[] _paramClasses;
 
-    /**
-     * Field that is used to make JDK serialization work with this
-     * object.
-     * 
-     * @since 2.1
-     */
-    protected Serialization _serialization;
-    
     /*
-    /*****************************************************
+    /**********************************************************************
     /* Life-cycle
-    /*****************************************************
+    /**********************************************************************
      */
 
     public AnnotatedMethod(TypeResolutionContext ctxt, Method method,
@@ -39,17 +28,6 @@ public final class AnnotatedMethod
             throw new IllegalArgumentException("Cannot construct AnnotatedMethod with null Method");
         }
         _method = method;
-    }
-
-    /**
-     * Method used for JDK serialization support
-     * @since 2.1
-     */
-    protected AnnotatedMethod(Serialization ser)
-    {
-        super(null, null, null);
-        _method = null;
-        _serialization = ser;
     }
 
     @Override
@@ -87,9 +65,9 @@ public final class AnnotatedMethod
     }
 
     /*
-    /*****************************************************
+    /**********************************************************************
     /* AnnotatedWithParams
-    /*****************************************************
+    /**********************************************************************
      */
     
     @Override
@@ -118,9 +96,9 @@ public final class AnnotatedMethod
     }
 
     /*
-    /********************************************************
+    /**********************************************************************
     /* AnnotatedMember impl
-    /********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -145,15 +123,10 @@ public final class AnnotatedMethod
     }
 
     @Override
-    @Deprecated // since 2.7
-    public Type getGenericParameterType(int index) {
-        Type[] types = getGenericParameterTypes();
-        if (index >= types.length) {
-            return null;
-        }
-        return types[index];
+    public Parameter[] getNativeParameters() {
+        return _method.getParameters();
     }
-    
+
     @Override
     public Class<?> getDeclaringClass() { return _method.getDeclaringClass(); }
 
@@ -183,9 +156,9 @@ public final class AnnotatedMethod
     }
 
     /*
-    /*****************************************************
+    /**********************************************************************
     /* Extended API, generic
-    /*****************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -209,35 +182,14 @@ public final class AnnotatedMethod
         return _paramClasses;
     }
 
-    @Deprecated // since 2.7
-    public Type[] getGenericParameterTypes() {
-        return _method.getGenericParameterTypes();
-    }
-
     public Class<?> getRawReturnType() {
         return _method.getReturnType();
     }
 
-    /**
-     * Helper method that can be used to check whether method returns
-     * a value or not; if return type declared as <code>void</code>, returns
-     * false, otherwise true
-     * 
-     * @since 2.4
-     *
-     * @deprecated Since 2.12 (related to [databind#2675]), needs to be configurable
-     */
-    @Deprecated
-    public boolean hasReturnType() {
-        Class<?> rt = getRawReturnType();
-        // also, as per [databind#2675], only consider `void` to be real "No return type"
-        return (rt != Void.TYPE);
-    }
-
     /*
-    /********************************************************
+    /**********************************************************************
     /* Other
-    /********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -262,52 +214,6 @@ public final class AnnotatedMethod
             return _method == null;
         } else {
             return other._method.equals(_method);
-        }
-    }
-
-    /*
-    /**********************************************************
-    /* JDK serialization handling
-    /**********************************************************
-     */
-
-    Object writeReplace() {
-        return new AnnotatedMethod(new Serialization(_method));
-    }
-
-    Object readResolve() {
-        Class<?> clazz = _serialization.clazz;
-        try {
-            Method m = clazz.getDeclaredMethod(_serialization.name,
-                    _serialization.args);
-            // 06-Oct-2012, tatu: Has "lost" its security override, may need to force back
-            if (!m.isAccessible()) {
-                ClassUtil.checkAndFixAccess(m, false);
-            }
-            return new AnnotatedMethod(null, m, null, null);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Could not find method '"+_serialization.name
-                        +"' from Class '"+clazz.getName());
-        }
-    }
-    
-    /**
-     * Helper class that is used as the workaround to persist
-     * Field references. It basically just stores declaring class
-     * and field name.
-     */
-    private final static class Serialization
-        implements java.io.Serializable
-    {
-        private static final long serialVersionUID = 1L;
-        protected Class<?> clazz;
-        protected String name;
-        protected Class<?>[] args;
-
-        public Serialization(Method setter) {
-            clazz = setter.getDeclaringClass();
-            name = setter.getName();
-            args = setter.getParameterTypes();
         }
     }
 }

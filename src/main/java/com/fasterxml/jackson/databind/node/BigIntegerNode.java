@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.node;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -10,10 +9,11 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 /**
  * Numeric node that contains simple 64-bit integer values.
  */
-@SuppressWarnings("serial")
 public class BigIntegerNode
     extends NumericNode
 {
+    private static final long serialVersionUID = 3L;
+
     private final static BigInteger MIN_INTEGER = BigInteger.valueOf(Integer.MIN_VALUE);
     private final static BigInteger MAX_INTEGER = BigInteger.valueOf(Integer.MAX_VALUE);
     private final static BigInteger MIN_LONG = BigInteger.valueOf(Long.MIN_VALUE);
@@ -100,7 +100,7 @@ public class BigIntegerNode
     
     @Override
     public final void serialize(JsonGenerator g, SerializerProvider provider)
-        throws IOException
+        throws JacksonException
     {
         g.writeNumber(_value);
     }

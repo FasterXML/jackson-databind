@@ -4,8 +4,7 @@ import java.util.Arrays;
 
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ValueSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
 /**
@@ -19,19 +18,17 @@ import com.fasterxml.jackson.databind.SerializerProvider;
  * is important to ensure correct multi-threaded access.
  */
 public abstract class PropertySerializerMap
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 3L;
+
     /**
      * Configuration setting that determines what happens when maximum
      * size (currently 8) is reached: if true, will "start from beginning";
      * if false, will simply stop adding new entries.
-     *
-     * @since 2.5
      */
     protected final boolean _resetWhenFull;
 
-    /**
-     * @since 2.5
-     */
     protected PropertySerializerMap(boolean resetWhenFull) {
         _resetWhenFull = resetWhenFull;
     }
@@ -45,31 +42,18 @@ public abstract class PropertySerializerMap
      * place where parameterization is fixed such that there cannot be
      * type-parametric variations.
      */
-    public abstract JsonSerializer<Object> serializerFor(Class<?> type);
+    public abstract ValueSerializer<Object> serializerFor(Class<?> type);
 
     /**
      * Method called if initial lookup fails, when looking for a primary
      * serializer (one that is directly attached to a property).
      * Will both find serializer
      * and construct new map instance if warranted, and return both.
-     * 
-     * @since 2.3
-     * 
-     * @throws JsonMappingException 
      */
-    public final SerializerAndMapResult findAndAddPrimarySerializer(Class<?> type,
-            SerializerProvider provider, BeanProperty property)
-        throws JsonMappingException
-    {
-        JsonSerializer<Object> serializer = provider.findPrimaryPropertySerializer(type, property);
-        return new SerializerAndMapResult(serializer, newWith(type, serializer));
-    }
-
     public final SerializerAndMapResult findAndAddPrimarySerializer(JavaType type,
             SerializerProvider provider, BeanProperty property)
-        throws JsonMappingException
     {
-        JsonSerializer<Object> serializer = provider.findPrimaryPropertySerializer(type, property);
+        ValueSerializer<Object> serializer = provider.findPrimaryPropertySerializer(type, property);
         return new SerializerAndMapResult(serializer, newWith(type.getRawClass(), serializer));
     }
 
@@ -78,24 +62,18 @@ public abstract class PropertySerializerMap
      * serializer (one that is not directly attached to a property).
      * Will both find serializer
      * and construct new map instance if warranted, and return both.
-     * 
-     * @since 2.3
-     * 
-     * @throws JsonMappingException 
      */
     public final SerializerAndMapResult findAndAddSecondarySerializer(Class<?> type,
             SerializerProvider provider, BeanProperty property)
-        throws JsonMappingException
     {
-        JsonSerializer<Object> serializer = provider.findContentValueSerializer(type, property);
+        ValueSerializer<Object> serializer = provider.findContentValueSerializer(type, property);
         return new SerializerAndMapResult(serializer, newWith(type, serializer));
     }
 
     public final SerializerAndMapResult findAndAddSecondarySerializer(JavaType type,
             SerializerProvider provider, BeanProperty property)
-        throws JsonMappingException
     {
-        JsonSerializer<Object> serializer = provider.findContentValueSerializer(type, property);
+        ValueSerializer<Object> serializer = provider.findContentValueSerializer(type, property);
         return new SerializerAndMapResult(serializer, newWith(type.getRawClass(), serializer));
     }
 
@@ -105,27 +83,18 @@ public abstract class PropertySerializerMap
      * have {@link com.fasterxml.jackson.databind.jsontype.TypeSerializer} wrapped
      * around it. Will both find the serializer
      * and construct new map instance if warranted, and return both.
-     * 
-     * @since 2.5
-     * 
-     * @throws JsonMappingException 
      */
     public final SerializerAndMapResult findAndAddRootValueSerializer(Class<?> type,
             SerializerProvider provider)
-        throws JsonMappingException
     {
-        JsonSerializer<Object> serializer = provider.findTypedValueSerializer(type, false, null);
+        ValueSerializer<Object> serializer = provider.findTypedValueSerializer(type, false);
         return new SerializerAndMapResult(serializer, newWith(type, serializer));
     }
 
-    /**
-     * @since 2.5
-     */
     public final SerializerAndMapResult findAndAddRootValueSerializer(JavaType type,
             SerializerProvider provider)
-        throws JsonMappingException
     {
-        JsonSerializer<Object> serializer = provider.findTypedValueSerializer(type, false, null);
+        ValueSerializer<Object> serializer = provider.findTypedValueSerializer(type, false);
         return new SerializerAndMapResult(serializer, newWith(type.getRawClass(), serializer));
     }
 
@@ -134,54 +103,40 @@ public abstract class PropertySerializerMap
      * serializer (possible attached indirectly to a property)
      * Will both find serializer
      * and construct new map instance if warranted, and return both.
-     * 
-     * @since 2.7
      */
     public final SerializerAndMapResult findAndAddKeySerializer(Class<?> type,
             SerializerProvider provider, BeanProperty property)
-        throws JsonMappingException
     {
-        JsonSerializer<Object> serializer = provider.findKeySerializer(type, property);
+        ValueSerializer<Object> serializer = provider.findKeySerializer(type, property);
         return new SerializerAndMapResult(serializer, newWith(type, serializer));
     }
     
     /**
      * Method that can be used to 'register' a serializer that caller has resolved
      * without help of this map.
-     * 
-     * @since 2.5
      */
-    public final SerializerAndMapResult addSerializer(Class<?> type, JsonSerializer<Object> serializer) {
+    public final SerializerAndMapResult addSerializer(Class<?> type, ValueSerializer<Object> serializer) {
         return new SerializerAndMapResult(serializer, newWith(type, serializer));
     }
 
-    /**
-     * @since 2.5
-     */
-    public final SerializerAndMapResult addSerializer(JavaType type, JsonSerializer<Object> serializer) {
+    public final SerializerAndMapResult addSerializer(JavaType type, ValueSerializer<Object> serializer) {
         return new SerializerAndMapResult(serializer, newWith(type.getRawClass(), serializer));
     }
 
-    public abstract PropertySerializerMap newWith(Class<?> type, JsonSerializer<Object> serializer);
+    public abstract PropertySerializerMap newWith(Class<?> type, ValueSerializer<Object> serializer);
 
-    /**
-     * @since 2.5
-     */
     public static PropertySerializerMap emptyForProperties() {
         return Empty.FOR_PROPERTIES;
     }
 
-    /**
-     * @since 2.5
-     */
     public static PropertySerializerMap emptyForRootValues() {
         return Empty.FOR_ROOT_VALUES;
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper classes
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -190,10 +145,10 @@ public abstract class PropertySerializerMap
      */
     public final static class SerializerAndMapResult
     {
-        public final JsonSerializer<Object> serializer;
+        public final ValueSerializer<Object> serializer;
         public final PropertySerializerMap map;
         
-        public SerializerAndMapResult(JsonSerializer<Object> serializer,
+        public SerializerAndMapResult(ValueSerializer<Object> serializer,
                 PropertySerializerMap map)
         {
             this.serializer = serializer;
@@ -207,18 +162,18 @@ public abstract class PropertySerializerMap
     private final static class TypeAndSerializer
     {
         public final Class<?> type;
-        public final JsonSerializer<Object> serializer;
+        public final ValueSerializer<Object> serializer;
 
-        public TypeAndSerializer(Class<?> type, JsonSerializer<Object> serializer) {
+        public TypeAndSerializer(Class<?> type, ValueSerializer<Object> serializer) {
             this.type = type;
             this.serializer = serializer;
         }
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Implementations
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -226,7 +181,10 @@ public abstract class PropertySerializerMap
      * map with new serializers.
      */
     private final static class Empty extends PropertySerializerMap
+        implements java.io.Serializable // since 3.0
     {
+        private static final long serialVersionUID = 3L;
+
         // No root serializers; do not reset when full
         public final static Empty FOR_PROPERTIES = new Empty(false);
 
@@ -236,14 +194,23 @@ public abstract class PropertySerializerMap
         protected Empty(boolean resetWhenFull) {
             super(resetWhenFull);
         }
+
+        // @since 3.0
+        public static Empty emptyFor(PropertySerializerMap src) {
+            return (src._resetWhenFull) ? FOR_ROOT_VALUES : FOR_PROPERTIES;
+        }
         
+        Object readResolve() { // for JDK serialization (since 3.0)
+            return emptyFor(this);
+        }
+
         @Override
-        public JsonSerializer<Object> serializerFor(Class<?> type) {
+        public ValueSerializer<Object> serializerFor(Class<?> type) {
             return null; // empty, nothing to find
         }        
 
         @Override
-        public PropertySerializerMap newWith(Class<?> type, JsonSerializer<Object> serializer) {
+        public PropertySerializerMap newWith(Class<?> type, ValueSerializer<Object> serializer) {
             return new Single(this, type, serializer);
         }
     }
@@ -255,18 +222,25 @@ public abstract class PropertySerializerMap
      * actual type.
      */
     private final static class Single extends PropertySerializerMap
+        implements java.io.Serializable // since 3.0
     {
-        private final Class<?> _type;
-        private final JsonSerializer<Object> _serializer;
+        private static final long serialVersionUID = 3L;
 
-        public Single(PropertySerializerMap base, Class<?> type, JsonSerializer<Object> serializer) {
+        private final Class<?> _type;
+        private final ValueSerializer<Object> _serializer;
+
+        public Single(PropertySerializerMap base, Class<?> type, ValueSerializer<Object> serializer) {
             super(base);
             _type = type;
             _serializer = serializer;
         }
 
+        Object writeReplace() { // for JDK serialization (since 3.0)
+            return Empty.emptyFor(this);
+        }
+
         @Override
-        public JsonSerializer<Object> serializerFor(Class<?> type)
+        public ValueSerializer<Object> serializerFor(Class<?> type)
         {
             if (type == _type) {
                 return _serializer;
@@ -275,19 +249,22 @@ public abstract class PropertySerializerMap
         }
 
         @Override
-        public PropertySerializerMap newWith(Class<?> type, JsonSerializer<Object> serializer) {
+        public PropertySerializerMap newWith(Class<?> type, ValueSerializer<Object> serializer) {
             return new Double(this, _type, _serializer, type, serializer);
         }
     }
 
     private final static class Double extends PropertySerializerMap
+        implements java.io.Serializable // since 3.0
     {
+        private static final long serialVersionUID = 3L;
+
         private final Class<?> _type1, _type2;
-        private final JsonSerializer<Object> _serializer1, _serializer2;
+        private final ValueSerializer<Object> _serializer1, _serializer2;
 
         public Double(PropertySerializerMap base,
-                Class<?> type1, JsonSerializer<Object> serializer1,
-                Class<?> type2, JsonSerializer<Object> serializer2)
+                Class<?> type1, ValueSerializer<Object> serializer1,
+                Class<?> type2, ValueSerializer<Object> serializer2)
         {
             super(base);
             _type1 = type1;
@@ -296,8 +273,12 @@ public abstract class PropertySerializerMap
             _serializer2 = serializer2;
         }
 
+        Object writeReplace() { // for JDK serialization (since 3.0)
+            return Empty.emptyFor(this);
+        }
+
         @Override
-        public JsonSerializer<Object> serializerFor(Class<?> type)
+        public ValueSerializer<Object> serializerFor(Class<?> type)
         {
             if (type == _type1) {
                 return _serializer1;
@@ -309,7 +290,7 @@ public abstract class PropertySerializerMap
         }        
 
         @Override
-        public PropertySerializerMap newWith(Class<?> type, JsonSerializer<Object> serializer) {
+        public PropertySerializerMap newWith(Class<?> type, ValueSerializer<Object> serializer) {
             // Ok: let's just create generic one
             TypeAndSerializer[] ts = new TypeAndSerializer[3];
             ts[0] = new TypeAndSerializer(_type1, _serializer1);
@@ -320,7 +301,10 @@ public abstract class PropertySerializerMap
     }
     
     private final static class Multi extends PropertySerializerMap
+        implements java.io.Serializable // since 3.0
     {
+        private static final long serialVersionUID = 3L;
+
         /**
          * Let's limit number of serializers we actually cache; linear
          * lookup won't scale too well beyond smallish number, and if
@@ -338,8 +322,12 @@ public abstract class PropertySerializerMap
             _entries = entries;
         }
 
+        Object writeReplace() { // for JDK serialization (since 3.0)
+            return Empty.emptyFor(this);
+        }
+
         @Override
-        public JsonSerializer<Object> serializerFor(Class<?> type)
+        public ValueSerializer<Object> serializerFor(Class<?> type)
         {
             // Always have first 3 populated so
             TypeAndSerializer entry;
@@ -372,7 +360,7 @@ public abstract class PropertySerializerMap
         }
 
         @Override
-        public PropertySerializerMap newWith(Class<?> type, JsonSerializer<Object> serializer)
+        public PropertySerializerMap newWith(Class<?> type, ValueSerializer<Object> serializer)
         {
             int len = _entries.length;
             // Will only grow up to N entries. We could consider couple of alternatives after

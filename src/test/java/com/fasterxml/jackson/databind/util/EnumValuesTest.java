@@ -26,7 +26,7 @@ public class EnumValuesTest extends BaseMapTest
 
     @SuppressWarnings("unchecked")
     public void testConstructFromName() {
-        SerializationConfig cfg = MAPPER.getSerializationConfig()
+        SerializationConfig cfg = MAPPER.serializationConfig()
                 .without(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
         Class<Enum<?>> enumClass = (Class<Enum<?>>)(Class<?>) ABC.class;
         EnumValues values = EnumValues.construct(cfg, enumClass);
@@ -39,7 +39,7 @@ public class EnumValuesTest extends BaseMapTest
 
     @SuppressWarnings("unchecked")
     public void testConstructWithToString() {
-        SerializationConfig cfg = MAPPER.getSerializationConfig()
+        SerializationConfig cfg = MAPPER.serializationConfig()
                 .with(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
         Class<Enum<?>> enumClass = (Class<Enum<?>>)(Class<?>) ABC.class;
         EnumValues values = EnumValues.construct(cfg, enumClass);
@@ -52,7 +52,7 @@ public class EnumValuesTest extends BaseMapTest
 
     public void testEnumResolver()
     {
-        EnumResolver enumRes = EnumResolver.constructUsingToString(MAPPER.getDeserializationConfig(),
+       EnumResolver enumRes = EnumResolver.constructUsingToString(MAPPER.deserializationConfig(),
                 ABC.class);
         assertEquals(ABC.B, enumRes.getEnum(1));
         assertNull(enumRes.getEnum(-1));

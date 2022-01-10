@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.jsontype;
 
+import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
@@ -79,7 +80,7 @@ public class TestTypedDeserialization
         }
     }
 
-    static class NullAnimalDeserializer extends JsonDeserializer<NullAnimal> {
+    static class NullAnimalDeserializer extends ValueDeserializer<NullAnimal> {
         @Override
         public NullAnimal getNullValue(final DeserializationContext context) {
             return NullAnimal.NULL_INSTANCE;
@@ -131,15 +132,17 @@ public class TestTypedDeserialization
     /* Unit tests
     /**********************************************************
      */
-    
+
+    private final ObjectMapper MAPPER = newJsonMapper();
+
     /**
      * First things first, let's ensure we can serialize using
      * class name, written as main-level property name
      */
     public void testSimpleClassAsProperty() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        Animal a = m.readValue(asJSONObjectValueString("@classy", Cat.class.getName(),
+        Animal a = MAPPER.readValue(asJSONObjectValueString(MAPPER,
+                "@classy", Cat.class.getName(),
                 "furColor", "tabby", "name", "Garfield"), Animal.class);
         assertNotNull(a);
         assertEquals(Cat.class, a.getClass());
@@ -151,8 +154,9 @@ public class TestTypedDeserialization
     // Test inclusion using wrapper style
     public void testTypeAsWrapper() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.addMixIn(Animal.class, TypeWithWrapper.class);
+        ObjectMapper m = jsonMapperBuilder()
+                .addMixIn(Animal.class, TypeWithWrapper.class)
+                .build();
         String JSON = "{\".TestTypedDeserialization$Dog\" : "
             +asJSONObjectValueString(m, "name", "Scooby", "boneCount", "6")+" }";
         Animal a = m.readValue(JSON, Animal.class);
@@ -166,8 +170,9 @@ public class TestTypedDeserialization
     // Test inclusion using 2-element array
     public void testTypeAsArray() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.addMixIn(Animal.class, TypeWithArray.class);
+        ObjectMapper m = jsonMapperBuilder()
+                .addMixIn(Animal.class, TypeWithArray.class)
+                .build();
         // hmmh. Not good idea to rely on exact output, order may change. But...
         String JSON = "[\""+Dog.class.getName()+"\", "
             +asJSONObjectValueString(m, "name", "Martti", "boneCount", "11")+" ]";
@@ -181,23 +186,24 @@ public class TestTypedDeserialization
     // Use basic Animal as contents of a regular List
     public void testListAsArray() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
         // This time using PROPERTY style (default) again
         String JSON = "[\n"
-            +asJSONObjectValueString(m, "@classy", Cat.class.getName(), "name", "Hello", "furColor", "white")
-            +",\n"
-            // let's shuffle doggy's fields a bit for testing
-            +asJSONObjectValueString(m,
-                                     "boneCount", Integer.valueOf(1),
-                                     "@classy", Dog.class.getName(),
-                                     "name", "Bob"
-                                     )
-            +",\n"
-            +asJSONObjectValueString(m, "@classy", Fish.class.getName())
-            +", null\n]";
+                +asJSONObjectValueString(MAPPER,
+                        "@classy", Cat.class.getName(), "name", "Hello", "furColor", "white")
+                +",\n"
+                // let's shuffle doggy's fields a bit for testing
+                +asJSONObjectValueString(MAPPER,
+                        "boneCount", Integer.valueOf(1),
+                        "@classy", Dog.class.getName(),
+                        "name", "Bob"
+                        )
+                +",\n"
+                +asJSONObjectValueString(MAPPER,
+                        "@classy", Fish.class.getName())
+                +", null\n]";
         
         JavaType expType = TypeFactory.defaultInstance().constructCollectionType(ArrayList.class, Animal.class);
-        List<Animal> animals = m.readValue(JSON, expType);
+        List<Animal> animals = MAPPER.readValue(JSON, expType);
         assertNotNull(animals);
         assertEquals(4, animals.size());
         Cat c = (Cat) animals.get(0);
@@ -213,11 +219,11 @@ public class TestTypedDeserialization
 
     public void testCagedAnimal() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        String jsonCat = asJSONObjectValueString(m, "@classy", Cat.class.getName(), "name", "Nilson", "furColor", "black");
+        String jsonCat = asJSONObjectValueString(MAPPER,
+                "@classy", Cat.class.getName(), "name", "Nilson", "furColor", "black");
         String JSON = "{\"animal\":"+jsonCat+"}";
 
-        AnimalContainer cont = m.readValue(JSON, AnimalContainer.class);
+        AnimalContainer cont = MAPPER.readValue(JSON, AnimalContainer.class);
         assertNotNull(cont);
         Animal a = cont.animal;
         assertNotNull(a);
@@ -245,10 +251,9 @@ public class TestTypedDeserialization
         Issue506DateBean input = new Issue506DateBean();
         input.date = new Date(1234L);
 
-        ObjectMapper mapper = new ObjectMapper();
-        String json = mapper.writeValueAsString(input);
+        String json = MAPPER.writeValueAsString(input);
 
-        Issue506DateBean output = mapper.readValue(json, Issue506DateBean.class);
+        Issue506DateBean output = MAPPER.readValue(json, Issue506DateBean.class);
         assertEquals(input.date, output.date);
     }
     
@@ -258,18 +263,27 @@ public class TestTypedDeserialization
         Issue506NumberBean input = new Issue506NumberBean();
         input.number = Long.valueOf(4567L);
 
-        ObjectMapper mapper = new ObjectMapper();
-        String json = mapper.writeValueAsString(input);
+        String json = MAPPER.writeValueAsString(input);
 
-        Issue506NumberBean output = mapper.readValue(json, Issue506NumberBean.class);
+        Issue506NumberBean output = MAPPER.readValue(json, Issue506NumberBean.class);
         assertEquals(input.number, output.number);
+    }
+
+    private String asJSONObjectValueString(ObjectMapper mapper, Object... args) throws IOException
+    {
+        LinkedHashMap<Object,Object> map = new LinkedHashMap<Object,Object>();
+        for (int i = 0, len = args.length; i < len; i += 2) {
+            map.put(args[i], args[i+1]);
+        }
+        return mapper.writeValueAsString(map);
     }
 
     // [databind#2467]: Allow missing "content" for as-array deserialization
     public void testTypeAsArrayWithNullableType() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.addMixIn(Animal.class, TypeWithArray.class);
+        ObjectMapper m = jsonMapperBuilder()
+                .addMixIn(Animal.class, TypeWithArray.class)
+                .build();
         Animal a = m.readValue(
                 "[\""+Fish.class.getName()+"\"]", Animal.class);
         assertNull(a);
@@ -278,8 +292,9 @@ public class TestTypedDeserialization
     // [databind#2467]
     public void testTypeAsArrayWithCustomDeserializer() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.addMixIn(Animal.class, TypeWithArray.class);
+        ObjectMapper m = jsonMapperBuilder()
+                .addMixIn(Animal.class, TypeWithArray.class)
+                .build();
         Animal a = m.readValue(
                 "[\""+NullAnimal.class.getName()+"\"]", Animal.class);
         assertNotNull(a);
@@ -288,5 +303,3 @@ public class TestTypedDeserialization
         assertNull(c.name);
     }
 }
-
-

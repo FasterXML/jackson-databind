@@ -12,7 +12,6 @@ import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.*;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 /**
  * Basic tests to exercise low-level support added for JSON Schema module and
@@ -115,7 +114,7 @@ public class NewSchemaTest extends BaseMapTest
         public JsonObjectFormatVisitor expectObjectFormat(JavaType type) {
             return new JsonObjectFormatVisitor.Base(getProvider()) {
                 @Override
-                public void property(BeanProperty prop) throws JsonMappingException {
+                public void property(BeanProperty prop) {
                     _visit(prop);
                 }
 
@@ -124,7 +123,7 @@ public class NewSchemaTest extends BaseMapTest
                         JavaType propertyTypeHint) { }
 
                 @Override
-                public void optionalProperty(BeanProperty prop) throws JsonMappingException {
+                public void optionalProperty(BeanProperty prop) {
                     _visit(prop);
                 }
 
@@ -132,23 +131,19 @@ public class NewSchemaTest extends BaseMapTest
                 public void optionalProperty(String name, JsonFormatVisitable handler,
                         JavaType propertyTypeHint) { }
 
-                private void _visit(BeanProperty prop) throws JsonMappingException
+                private void _visit(BeanProperty prop)
                 {
                     if (!(prop instanceof BeanPropertyWriter)) {
                         return;
                     }
                     BeanPropertyWriter bpw = (BeanPropertyWriter) prop;
-                    JsonSerializer<?> ser = bpw.getSerializer();
+                    ValueSerializer<?> ser = bpw.getSerializer();
                     final SerializerProvider prov = getProvider();
                     if (ser == null) {
                         if (prov == null) {
                             throw new Error("SerializerProvider missing");
                         }
-                        ser = prov.findValueSerializer(prop.getType(), prop);
-                    }
-                    // and this just for bit of extra coverage...
-                    if (ser instanceof StdSerializer) {
-                        assertNotNull(((StdSerializer<?>) ser).getSchema(prov, prop.getType()));
+                        ser = prov.findPrimaryPropertySerializer(prop.getType(), prop);
                     }
                     JsonFormatVisitorWrapper visitor = new JsonFormatVisitorWrapper.Base(getProvider());
                     ser.acceptJsonFormatVisitor(visitor, prop.getType());
@@ -301,16 +296,16 @@ public class NewSchemaTest extends BaseMapTest
             public JsonObjectFormatVisitor expectObjectFormat(final JavaType type) {
                 return new JsonObjectFormatVisitor.Base(getProvider()) {
                     @Override
-                    public void optionalProperty(BeanProperty prop) throws JsonMappingException {
+                    public void optionalProperty(BeanProperty prop) {
                         sb.append("[optProp ").append(prop.getName()).append("(");
-                        JsonSerializer<Object> ser = null;
+                        ValueSerializer<Object> ser = null;
                         if (prop instanceof BeanPropertyWriter) {
                             BeanPropertyWriter bpw = (BeanPropertyWriter) prop;
                             ser = bpw.getSerializer();
                         }
                         final SerializerProvider prov = getProvider();
                         if (ser == null) {
-                            ser = prov.findValueSerializer(prop.getType(), prop);
+                            ser = prov.findPrimaryPropertySerializer(prop.getType(), prop);
                         }
                         ser.acceptJsonFormatVisitor(new JsonFormatVisitorWrapper.Base() {
                             @Override

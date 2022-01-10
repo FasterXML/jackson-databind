@@ -1,14 +1,11 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.io.IOException;
-import java.lang.reflect.Type;
-
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.WritableTypeId;
+
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -18,15 +15,12 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  * as well as for custom subtypes that want to add processing for converting from
  * value to output into its {@code String} representation (whereas standard version
  * simply calls value object's {@code toString()} method).
- *
- * @since 2.10
  */
-@SuppressWarnings("serial")
 public abstract class ToStringSerializerBase
     extends StdSerializer<Object>
 {
     public ToStringSerializerBase(Class<?> handledType) {
-        super(handledType, false);
+        super(handledType);
     }
 
     @Override
@@ -36,7 +30,7 @@ public abstract class ToStringSerializerBase
 
     @Override
     public void serialize(Object value, JsonGenerator gen, SerializerProvider provider)
-        throws IOException
+        throws JacksonException
     {
         gen.writeString(valueToString(value));
     }
@@ -49,23 +43,18 @@ public abstract class ToStringSerializerBase
      * change this behavior.
      */
     @Override
-    public void serializeWithType(Object value, JsonGenerator g, SerializerProvider provider,
+    public void serializeWithType(Object value, JsonGenerator g, SerializerProvider ctxt,
             TypeSerializer typeSer)
-        throws IOException
+        throws JacksonException
     {
-        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
+        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
                 typeSer.typeId(value, JsonToken.VALUE_STRING));
-        serialize(value, g, provider);
-        typeSer.writeTypeSuffix(g, typeIdDef);
+        serialize(value, g, ctxt);
+        typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 
     @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint) throws JsonMappingException {
-        return createSchemaNode("string", true);
-    }
-
-    @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
     {
         visitStringFormat(visitor, typeHint);
     }

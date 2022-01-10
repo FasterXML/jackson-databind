@@ -106,23 +106,6 @@ public class TestJavaType
         assertEquals("Lcom/fasterxml/jackson/databind/type/TestJavaType$BaseType;", baseType.getErasedSignature());
     }
 
-    @SuppressWarnings("deprecation")
-    public void testDeprecated()
-    {
-        TypeFactory tf = TypeFactory.defaultInstance();
-        JavaType baseType = tf.constructType(BaseType.class);
-        assertTrue(baseType.hasRawClass(BaseType.class));
-        assertNull(baseType.getParameterSource());
-        assertNull(baseType.getContentTypeHandler());
-        assertNull(baseType.getContentValueHandler());
-        assertFalse(baseType.hasValueHandler());
-        assertFalse(baseType.hasHandlers());
-
-        assertSame(baseType, baseType.forcedNarrowBy(BaseType.class));
-        JavaType sub = baseType.forcedNarrowBy(SubType.class);
-        assertTrue(sub.hasRawClass(SubType.class));
-    }
-    
     public void testArrayType()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -204,10 +187,13 @@ public class TestJavaType
     public void testClassKey()
     {
         ClassKey key = new ClassKey(String.class);
-        assertEquals(0, key.compareTo(key));
+        ClassKey keyToo = key;
+        int selfComparisonResult = key.compareTo(keyToo);
+        assertEquals(0, selfComparisonResult);
         assertTrue(key.equals(key));
         assertFalse(key.equals(null));
-        assertFalse(key.equals("foo"));
+        Object bogus = "foo";
+        assertFalse(key.equals(bogus));
         assertFalse(key.equals(new ClassKey(Integer.class)));
         assertEquals(String.class.getName(), key.toString());
     }

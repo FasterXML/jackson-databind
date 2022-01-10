@@ -4,8 +4,7 @@ import java.net.URL;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.DefaultTyping;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
@@ -48,13 +47,8 @@ public class CustomPTVMatchersTest extends BaseMapTest
     public void testCustomBaseMatchers() throws Exception
     {
         PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
-                .allowIfBaseType(new BasicPolymorphicTypeValidator.TypeMatcher() {
-                    @Override
-                    public boolean match(MapperConfig<?> ctxt, Class<?> base) {
-                        // Allow types within our packages
-                        return base.getName().startsWith("com.fasterxml.");
-                    }
-                })
+                // Allow types within our packages
+                .allowIfBaseType((ctxt, base) -> base.getName().startsWith("com.fasterxml." ))
                 .build();
         ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(ptv, DefaultTyping.EVERYTHING)
@@ -80,13 +74,8 @@ public class CustomPTVMatchersTest extends BaseMapTest
     public void testCustomSubtypeMatchers() throws Exception
     {
         PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
-                .allowIfSubType(new BasicPolymorphicTypeValidator.TypeMatcher() {
-                    @Override
-                    public boolean match(MapperConfig<?> ctxt, Class<?> clazz) {
-                        // Allow anything that looks "Good" :)
-                        return clazz.getSimpleName().endsWith("Good");
-                    }
-                })
+                // Allow anything that looks "Good" :)
+                .allowIfSubType((ctxt, sub) -> sub.getSimpleName().endsWith("Good") )
                 .build();
         ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(ptv, DefaultTyping.NON_FINAL)

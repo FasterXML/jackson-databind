@@ -20,14 +20,13 @@ public class ArrayDelegatorCreatorForCollectionTest extends BaseMapTest
 
     public void testUnmodifiable() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         Class<?> unmodSetType = Collections.unmodifiableSet(Collections.<String>emptySet()).getClass();
-        mapper.addMixIn(unmodSetType, UnmodifiableSetMixin.class);
-        mapper.activateDefaultTyping(NoCheckSubTypeValidator.instance,
-                ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
-
+        ObjectMapper mapper = jsonMapperBuilder()
+                .activateDefaultTyping(NoCheckSubTypeValidator.instance,
+                        DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
+                .addMixIn(unmodSetType, UnmodifiableSetMixin.class)
+                .build();
         final String EXPECTED_JSON = "[\""+unmodSetType.getName()+"\",[]]";
-
         Set<?> foo = mapper.readValue(EXPECTED_JSON, Set.class);
         assertTrue(foo.isEmpty());
     }

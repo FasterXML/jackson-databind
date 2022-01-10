@@ -123,9 +123,10 @@ public class IgnorePropertyOnDeserTest extends BaseMapTest
 
     public void testIgnoreViaConfigOverride1217() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configOverride(Point.class)
-            .setIgnorals(JsonIgnoreProperties.Value.forIgnoredProperties("y"));
+        ObjectMapper mapper = jsonMapperBuilder()
+                .withConfigOverride(Point.class,
+                        o -> o.setIgnorals(JsonIgnoreProperties.Value.forIgnoredProperties("y")))
+                .build();
         Point p = mapper.readValue(a2q("{'x':1,'y':2}"), Point.class);
         // bind 'x', but ignore 'y'
         assertEquals(1, p.x);

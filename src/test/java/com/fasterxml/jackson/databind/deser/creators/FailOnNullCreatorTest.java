@@ -36,7 +36,7 @@ public class FailOnNullCreatorTest extends BaseMapTest
 
         // Second: fine if feature is enabled but default value is not null
         ObjectReader r = POINT_READER.with(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES);
-        p = POINT_READER.readValue(a2q("{'name':'John', 'age': null}"));
+        p = r.readValue(a2q("{'name':'John', 'age': null}"));
         assertEquals("John", p.name);
         assertEquals(Integer.valueOf(0), p.age);
 
@@ -56,6 +56,4 @@ public class FailOnNullCreatorTest extends BaseMapTest
             verifyException(e, "Null value for creator property 'name'");
         }
     }
-
-
 }

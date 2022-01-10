@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.contextual;
 
-import java.io.IOException;
 import java.lang.annotation.*;
 import java.util.*;
 
@@ -10,8 +9,6 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.ser.ContextualSerializer;
-import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
 
 /**
  * Test cases to verify that it is possible to define serializers
@@ -116,8 +113,7 @@ public class TestContextualSerialization extends BaseMapTest
      * Annotation-based contextual serializer that simply prepends piece of text.
      */
     static class AnnotatedContextualSerializer
-        extends JsonSerializer<String>
-        implements ContextualSerializer
+        extends ValueSerializer<String>
     {
         protected final String _prefix;
         
@@ -127,13 +123,13 @@ public class TestContextualSerialization extends BaseMapTest
         }
 
         @Override
-        public void serialize(String value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+        public void serialize(String value, JsonGenerator g, SerializerProvider provider)
         {
-            jgen.writeString(_prefix + value);
+            g.writeString(_prefix + value);
         }
 
         @Override
-        public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
+        public ValueSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
         {
             String prefix = "UNKNOWN";
             Prefix ann = null;
@@ -151,8 +147,7 @@ public class TestContextualSerialization extends BaseMapTest
     }
 
     static class ContextualAndResolvable
-        extends JsonSerializer<String>
-        implements ContextualSerializer, ResolvableSerializer
+        extends ValueSerializer<String>
     {
         protected int isContextual;
         protected int isResolved;
@@ -166,13 +161,13 @@ public class TestContextualSerialization extends BaseMapTest
         }
 
         @Override
-        public void serialize(String value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+        public void serialize(String value, JsonGenerator g, SerializerProvider provider)
         {
-            jgen.writeString("contextual="+isContextual+",resolved="+isResolved);
+            g.writeString("contextual="+isContextual+",resolved="+isResolved);
         }
 
         @Override
-        public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
+        public ValueSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
         {
             return new ContextualAndResolvable(isResolved, isContextual+1);
         }
@@ -184,25 +179,24 @@ public class TestContextualSerialization extends BaseMapTest
     }
 
     static class AccumulatingContextual
-        extends JsonSerializer<String>
-        implements ContextualSerializer
+        extends ValueSerializer<String>
     {
         protected String desc;
-    
+
         public AccumulatingContextual() { this(""); }
-    
+
         public AccumulatingContextual(String newDesc) {
             desc = newDesc;
         }
-    
+
         @Override
-        public void serialize(String value, JsonGenerator g, SerializerProvider provider) throws IOException
+        public void serialize(String value, JsonGenerator g, SerializerProvider provider)
         {
             g.writeString(desc+"/"+value);
         }
-    
+
         @Override
-        public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
+        public ValueSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
         {
             if (property == null) {
                 return new AccumulatingContextual(desc+"/ROOT");
@@ -221,10 +215,11 @@ public class TestContextualSerialization extends BaseMapTest
     // (method, field) annotations.
     public void testMethodAnnotations() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addSerializer(String.class, new AnnotatedContextualSerializer());
-        mapper.registerModule(module);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
         assertEquals("{\"value\":\"see:foobar\"}", mapper.writeValueAsString(new ContextualBean("foobar")));
     }
 
@@ -232,29 +227,32 @@ public class TestContextualSerialization extends BaseMapTest
     // for enclosing class.
     public void testClassAnnotations() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addSerializer(String.class, new AnnotatedContextualSerializer());
-        mapper.registerModule(module);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
         assertEquals("{\"value\":\"Voila->xyz\"}", mapper.writeValueAsString(new BeanWithClassConfig("xyz")));
     }
 
     public void testWrappedBean() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addSerializer(String.class, new AnnotatedContextualSerializer());
-        mapper.registerModule(module);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
         assertEquals("{\"wrapped\":{\"value\":\"see:xyz\"}}", mapper.writeValueAsString(new ContextualBeanWrapper("xyz")));
     }
     
     // Serializer should get passed property context even if contained in an array.
     public void testMethodAnnotationInArray() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addSerializer(String.class, new AnnotatedContextualSerializer());
-        mapper.registerModule(module);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
         ContextualArrayBean beans = new ContextualArrayBean("123");
         assertEquals("{\"beans\":[\"array->123\"]}", mapper.writeValueAsString(beans));
     }
@@ -262,10 +260,11 @@ public class TestContextualSerialization extends BaseMapTest
     // Serializer should get passed property context even if contained in a Collection.
     public void testMethodAnnotationInList() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addSerializer(String.class, new AnnotatedContextualSerializer());
-        mapper.registerModule(module);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
         ContextualListBean beans = new ContextualListBean("abc");
         assertEquals("{\"beans\":[\"list->abc\"]}", mapper.writeValueAsString(beans));
     }
@@ -273,10 +272,11 @@ public class TestContextualSerialization extends BaseMapTest
     // Serializer should get passed property context even if contained in a Collection.
     public void testMethodAnnotationInMap() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addSerializer(String.class, new AnnotatedContextualSerializer());
-        mapper.registerModule(module);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addModule(module)
+                .build();
         ContextualMapBean map = new ContextualMapBean();
         map.beans.put("first", "In Map");
         assertEquals("{\"beans\":{\"first\":\"map->In Map\"}}", mapper.writeValueAsString(map));
@@ -284,7 +284,7 @@ public class TestContextualSerialization extends BaseMapTest
 
     public void testContextualViaAnnotation() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = newJsonMapper();
         AnnotatedContextualBean bean = new AnnotatedContextualBean("abc");
         assertEquals("{\"value\":\"prefix->abc\"}", mapper.writeValueAsString(bean));
     }

@@ -1,8 +1,5 @@
 package com.fasterxml.jackson.databind.type;
 
-import java.lang.reflect.TypeVariable;
-import java.util.Collection;
-
 import com.fasterxml.jackson.databind.JavaType;
 
 /**
@@ -45,9 +42,6 @@ public class CollectionLikeType extends TypeBase
         _elementType = elemT;
     }
 
-    /**
-     * @since 2.7
-     */
     public static CollectionLikeType construct(Class<?> rawType, TypeBindings bindings,
             JavaType superClass, JavaType[] superInts, JavaType elemT) {
         return new CollectionLikeType(rawType, bindings, superClass, superInts, elemT,
@@ -55,30 +49,8 @@ public class CollectionLikeType extends TypeBase
     }
 
     /**
-     * @deprecated Since 2.7, use {@link #upgradeFrom} for constructing instances, given
-     *    pre-resolved {@link SimpleType}.
-     */
-    @Deprecated // since 2.7
-    public static CollectionLikeType construct(Class<?> rawType, JavaType elemT) {
-        // First: may need to fabricate TypeBindings (needed for refining into
-        // concrete collection types, as per [databind#1102])
-        TypeVariable<?>[] vars = rawType.getTypeParameters();
-        TypeBindings bindings;
-        if ((vars == null) || (vars.length != 1)) {
-            bindings = TypeBindings.emptyBindings();
-        } else {
-            bindings = TypeBindings.create(rawType, elemT);
-        }
-        return new CollectionLikeType(rawType, bindings,
-                _bogusSuperClass(rawType), null,
-                elemT, null, null, false);
-    }
-
-    /**
      * Factory method that can be used to "upgrade" a basic type into collection-like
      * one; usually done via {@link TypeModifier}
-     *
-     * @since 2.7
      */
     public static CollectionLikeType upgradeFrom(JavaType baseType, JavaType elementType) {
         // 19-Oct-2015, tatu: Not sure if and how other types could be used as base;
@@ -87,14 +59,6 @@ public class CollectionLikeType extends TypeBase
             return new CollectionLikeType((TypeBase) baseType, elementType);
         }
         throw new IllegalArgumentException("Cannot upgrade from an instance of "+baseType.getClass());
-    }
-
-    @Override
-    @Deprecated // since 2.7
-    protected JavaType _narrow(Class<?> subclass) {
-        return new CollectionLikeType(subclass, _bindings,
-                _superClass, _superInterfaces, _elementType,
-                _valueHandler, _typeHandler, _asStatic);
     }
 
     @Override
@@ -223,28 +187,9 @@ public class CollectionLikeType extends TypeBase
     }
 
     /*
-    /**********************************************************
-    /* Extended API
-    /**********************************************************
-     */
-
-    /**
-     * Method that can be used for checking whether this type is a
-     * "real" Collection type; meaning whether it represents a parameterized
-     * subtype of {@link java.util.Collection} or just something that acts
-     * like one.
-     *
-     * @deprecated Since 2.12 just use instanceof 
-     */
-    @Deprecated // since 2.12 use assignment checks
-    public boolean isTrueCollectionType() {
-        return Collection.class.isAssignableFrom(_class);
-    }
-
-    /*
-    /**********************************************************
+    /**********************************************************************
     /* Standard methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override

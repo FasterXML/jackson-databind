@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.node;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -8,21 +7,21 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.NumberOutput;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
-
 /**
  * Numeric node that contains 64-bit ("double precision")
  * floating point values simple 32-bit integer values.
  */
-@SuppressWarnings("serial")
 public class DoubleNode
     extends NumericNode
 {
+    private static final long serialVersionUID = 3L;
+
     protected final double _value;
 
     /* 
-    /**********************************************************
+    /**********************************************************************
     /* Construction
-    /**********************************************************
+    /**********************************************************************
      */
 
     public DoubleNode(double v) { _value = v; }
@@ -30,9 +29,9 @@ public class DoubleNode
     public static DoubleNode valueOf(double v) { return new DoubleNode(v); }
 
     /* 
-    /**********************************************************
+    /**********************************************************************
     /* BaseJsonNode extended API
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override public JsonToken asToken() { return JsonToken.VALUE_NUMBER_FLOAT; }
@@ -41,9 +40,9 @@ public class DoubleNode
     public JsonParser.NumberType numberType() { return JsonParser.NumberType.DOUBLE; }
 
     /* 
-    /**********************************************************
+    /**********************************************************************
     /* Overrridden JsonNode methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -95,17 +94,17 @@ public class DoubleNode
 
     @Override
     public String asText() {
-        return NumberOutput.toString(_value);
+        return String.valueOf(_value);
     }
 
-    // @since 2.9
     @Override
     public boolean isNaN() {
-        return Double.isNaN(_value) || Double.isInfinite(_value);
+        return NumberOutput.notFinite(_value);
     }
 
     @Override
-    public final void serialize(JsonGenerator g, SerializerProvider provider) throws IOException {
+    public final void serialize(JsonGenerator g, SerializerProvider provider)
+            throws JacksonException {
         g.writeNumber(_value);
     }
 

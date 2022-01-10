@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ser;
 
-import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
@@ -9,20 +8,16 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 /**
  * This unit test suite tests use of @JsonClass Annotation
  * with bean serialization.
  */
+@SuppressWarnings("serial")
 public class TestJsonSerialize
     extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Annotated helper classes
-    /**********************************************************
-     */
-
     interface ValueInterface {
         public int getX();
     }
@@ -81,14 +76,10 @@ public class TestJsonSerialize
         }
     }
 
-    @SuppressWarnings("serial")
     static class ValueMap extends HashMap<String,ValueInterface> { }
-    @SuppressWarnings("serial")
     static class ValueList extends ArrayList<ValueInterface> { }
-    @SuppressWarnings("serial")
     static class ValueLinkedList extends LinkedList<ValueInterface> { }
-    
-    // Classes for [JACKSON-294]
+
     static class Foo294
     {
         @JsonProperty private String id;
@@ -115,13 +106,14 @@ public class TestJsonSerialize
         public String getName() { return name; }
     }
 
-    static class Bar294Serializer extends JsonSerializer<Bar294>
+    static class Bar294Serializer extends StdSerializer<Bar294>
     {
+        public Bar294Serializer() { super(Bar294.class); }
         @Override
-        public void serialize(Bar294 bar, JsonGenerator jgen,
-            SerializerProvider provider) throws IOException
+        public void serialize(Bar294 bar, JsonGenerator g,
+            SerializerProvider provider)
         {
-            jgen.writeString(bar.id);
+            g.writeString(bar.id);
         }
     }
 
@@ -132,6 +124,10 @@ public class TestJsonSerialize
      */
 
     final ObjectMapper MAPPER = objectMapper();
+
+    private final ObjectMapper STATIC_MAPPER = jsonMapperBuilder()
+            .enable(MapperFeature.USE_STATIC_TYPING)
+            .build();
     
     @SuppressWarnings("unchecked")
     public void testSimpleValueDefinition() throws Exception
@@ -148,7 +144,7 @@ public class TestJsonSerialize
     public void testBrokenAnnotation() throws Exception
     {
         try {
-            serializeAsString(MAPPER, new BrokenClass());
+            MAPPER.writeValueAsString(new BrokenClass());
             fail("Should not succeed");
         } catch (Exception e) {
             verifyException(e, "types not related");
@@ -189,41 +185,29 @@ public class TestJsonSerialize
 
     public void testStaticTypingWithMap() throws Exception
     {
-        ObjectMapper m = jsonMapperBuilder()
-                .configure(MapperFeature.USE_STATIC_TYPING, true)
-                .build();
         ValueMap map = new ValueMap();
         map.put("a", new ValueClass());
-        assertEquals("{\"a\":{\"x\":3}}", serializeAsString(m, map));
+        assertEquals("{\"a\":{\"x\":3}}", STATIC_MAPPER.writeValueAsString(map));
     }
 
     public void testStaticTypingWithArrayList() throws Exception
     {
-        ObjectMapper m = jsonMapperBuilder()
-                .configure(MapperFeature.USE_STATIC_TYPING, true)
-                .build();
         ValueList list = new ValueList();
         list.add(new ValueClass());
-        assertEquals("[{\"x\":3}]", m.writeValueAsString(list));
+        assertEquals("[{\"x\":3}]", STATIC_MAPPER.writeValueAsString(list));
     }
 
     public void testStaticTypingWithLinkedList() throws Exception
     {
-        ObjectMapper m = jsonMapperBuilder()
-                .configure(MapperFeature.USE_STATIC_TYPING, true)
-                .build();
         ValueLinkedList list = new ValueLinkedList();
         list.add(new ValueClass());
-        assertEquals("[{\"x\":3}]", serializeAsString(m, list));
+        assertEquals("[{\"x\":3}]", STATIC_MAPPER.writeValueAsString(list));
     }
     
     public void testStaticTypingWithArray() throws Exception
     {
-        ObjectMapper m = jsonMapperBuilder()
-                .configure(MapperFeature.USE_STATIC_TYPING, true)
-                .build();
         ValueInterface[] array = new ValueInterface[] { new ValueClass() };
-        assertEquals("[{\"x\":3}]", serializeAsString(m, array));
+        assertEquals("[{\"x\":3}]", STATIC_MAPPER.writeValueAsString(array));
     }
 
     public void testIssue294() throws Exception
@@ -243,13 +227,15 @@ public class TestJsonSerialize
 
     public void testWithIsGetter() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.setVisibility(PropertyAccessor.GETTER, Visibility.NONE)
-        .setVisibility(PropertyAccessor.FIELD, Visibility.ANY)
-        .setVisibility(PropertyAccessor.CREATOR, Visibility.NONE)
-        .setVisibility(PropertyAccessor.IS_GETTER, Visibility.NONE)
-        .setVisibility(PropertyAccessor.SETTER, Visibility.NONE);        
-        final String JSON = m.writeValueAsString(new Response());
-        assertEquals(a2q("{'a':'x','something':true}"), JSON);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .changeDefaultVisibility(vc -> vc
+                        .withVisibility(PropertyAccessor.GETTER, Visibility.NONE)
+                        .withVisibility(PropertyAccessor.FIELD, Visibility.ANY)
+                        .withVisibility(PropertyAccessor.CREATOR, Visibility.NONE)
+                        .withVisibility(PropertyAccessor.IS_GETTER, Visibility.NONE)
+                        .withVisibility(PropertyAccessor.SETTER, Visibility.NONE))
+                .build();
+        assertEquals(a2q("{'a':'x','something':true}"),
+                mapper.writeValueAsString(new Response()));
     }
 }

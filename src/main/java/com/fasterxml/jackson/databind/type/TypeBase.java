@@ -1,12 +1,11 @@
 package com.fasterxml.jackson.databind.type;
 
-import java.io.IOException;
 import java.lang.reflect.TypeVariable;
 import java.util.*;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonToken;
-
 import com.fasterxml.jackson.core.type.WritableTypeId;
 
 import com.fasterxml.jackson.databind.*;
@@ -14,7 +13,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
 public abstract class TypeBase
     extends JavaType
-    implements JsonSerializable
+    implements JacksonSerializable
 {
     private static final long serialVersionUID = 1;
 
@@ -27,10 +26,7 @@ public abstract class TypeBase
     
     /**
      * Bindings in effect for this type instance; possibly empty.
-     * Needed when resolving types declared in members of this type
-     * (if any).
-     *
-     * @since 2.7
+     * Needed when resolving types declared in members of this type (if any).
      */
     protected final TypeBindings _bindings;
     
@@ -54,8 +50,6 @@ public abstract class TypeBase
 
     /**
      * Copy-constructor used when refining/upgrading type instances.
-     *
-     * @since 2.7
      */
     protected TypeBase(TypeBase base) {
         super(base);
@@ -97,12 +91,6 @@ public abstract class TypeBase
     @Override
     public JavaType containedType(int index) {
         return _bindings.getBoundType(index);
-    }
-
-    @Override
-    @Deprecated
-    public String containedTypeName(int index) {
-        return _bindings.getBoundName(index);
     }
 
     @Override
@@ -161,24 +149,24 @@ public abstract class TypeBase
     
     /*
     /**********************************************************
-    /* JsonSerializable base implementation
+    /* JacksonSerializable base implementation
     /**********************************************************
      */
 
     @Override
-    public void serializeWithType(JsonGenerator g, SerializerProvider provider,
+    public void serializeWithType(JsonGenerator g, SerializerProvider ctxt,
             TypeSerializer typeSer)
-        throws IOException
+        throws JacksonException
     {
         WritableTypeId typeIdDef = new WritableTypeId(this, JsonToken.VALUE_STRING);
-        typeSer.writeTypePrefix(g, typeIdDef);
-        this.serialize(g, provider);
-        typeSer.writeTypeSuffix(g, typeIdDef);
+        typeSer.writeTypePrefix(g, ctxt, typeIdDef);
+        this.serialize(g, ctxt);
+        typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 
     @Override
     public void serialize(JsonGenerator gen, SerializerProvider provider)
-        throws IOException
+            throws JacksonException
     {
         gen.writeString(toCanonical());
     } 
@@ -238,23 +226,6 @@ public abstract class TypeBase
             }
         }
         return sb;
-    }
-
-    /**
-     * Internal helper method used to figure out nominal super-class for
-     * deprecated factory methods / constructors, where we are not given
-     * properly resolved supertype hierarchy.
-     * Will basically give `JavaType` for `java.lang.Object` for classes
-     * other than `java.lafgn.Object`; null for others.
-     *
-     * @since 2.7
-     */
-    protected static JavaType _bogusSuperClass(Class<?> cls) {
-        Class<?> parent = cls.getSuperclass();
-        if (parent == null) {
-            return null;
-        }
-        return TypeFactory.unknownType();
     }
 
     protected boolean _hasNTypeParameters(int count) {

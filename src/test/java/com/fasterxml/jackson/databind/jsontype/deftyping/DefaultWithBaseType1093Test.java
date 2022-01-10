@@ -26,7 +26,7 @@ public class DefaultWithBaseType1093Test extends BaseMapTest
     {
         ObjectMapper m = JsonMapper.builder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
-                        ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT)
+                        DefaultTyping.JAVA_LANG_OBJECT)
                 .build();
 
         final Point1093 input = new Point1093(28, 12);

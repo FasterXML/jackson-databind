@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.*;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.deser.JsonIgnoreValidator;
 import com.fasterxml.jackson.databind.ext.Java7Support;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
@@ -1429,6 +1430,15 @@ public class JacksonAnnotationIntrospector
         JsonIgnore ann = _findAnnotation(a, JsonIgnore.class);
         if (ann != null) {
             return ann.value();
+        }
+        JsonIgnoreIf jsonIgnoreIfAnn = _findAnnotation(a, JsonIgnoreIf.class);
+        if(jsonIgnoreIfAnn != null) {
+            try {
+                JsonIgnoreValidator jsonIgnoreValidator = jsonIgnoreIfAnn.value().newInstance();
+                return jsonIgnoreValidator.ignore();
+            } catch (InstantiationException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
         }
         if (_java7Helper != null) {
             Boolean b = _java7Helper.findTransient(a);

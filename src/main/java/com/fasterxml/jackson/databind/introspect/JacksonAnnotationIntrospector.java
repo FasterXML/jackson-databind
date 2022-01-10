@@ -1337,6 +1337,7 @@ public class JacksonAnnotationIntrospector
                 e.printStackTrace();
             }
         }
+        // From JDK 7/java.beans
         if (_javaBeansHelper != null) {
             Boolean b = _javaBeansHelper.findTransient(a);
             if (b != null) {

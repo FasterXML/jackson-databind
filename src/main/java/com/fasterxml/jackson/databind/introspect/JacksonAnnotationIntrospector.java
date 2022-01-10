@@ -1337,13 +1337,10 @@ public class JacksonAnnotationIntrospector
                 e.printStackTrace();
             }
         }
-        if (_java7Helper != null) {
-            Boolean b = _java7Helper.findTransient(a);
-            if (_javaBeansHelper != null) {
-                Boolean b = _javaBeansHelper.findTransient(a);
-                if (b != null) {
-                    return b.booleanValue();
-                }
+        if (_javaBeansHelper != null) {
+            Boolean b = _javaBeansHelper.findTransient(a);
+            if (b != null) {
+                return b.booleanValue();
             }
         }
         return false;

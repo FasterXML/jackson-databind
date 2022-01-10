@@ -17,7 +17,7 @@ import java.lang.annotation.Target;
  * check of {@link com.fasterxml.jackson.databind.deser.JsonIgnoreValidator}
  * returned false.
  */
-@Target({ElementType.ANNOTATION_TYPE, ElementType.FIELD, ElementType.TYPE})
+@Target({ElementType.ANNOTATION_TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.TYPE, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 @com.fasterxml.jackson.annotation.JacksonAnnotation
 public @interface JsonIgnoreIf

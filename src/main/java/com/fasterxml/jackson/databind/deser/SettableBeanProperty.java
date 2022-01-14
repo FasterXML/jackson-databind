@@ -561,12 +561,16 @@ public abstract class SettableBeanProperty
             }
             return _nullProvider.getNullValue(ctxt);
         }
-        // 20-Oct-2016, tatu: Also tricky -- for now, report an error
         if (_valueTypeDeserializer != null) {
-            ctxt.reportBadDefinition(getType(),
-                    String.format("Cannot merge polymorphic property '%s'",
-                            getName()));
-//            return _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
+            // 25-Oct-2021 Added by James to support merging polymorphic property
+            // https://github.com/FasterXML/jackson-databind/issues/2541
+            // Please note we only support merging same type polymorphic property for now,
+            // merging different type is hard and usually doesn't make sense.
+            // Please note you need to configure {@link DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES} as false to
+            // enable this feature otherwise the unknown property exception will be thrown.
+            JavaType subType = ctxt.getTypeFactory().constructType(toUpdate.getClass());
+            JsonDeserializer<Object> subTypeValueDeserializer = ctxt.findContextualValueDeserializer(subType, this);
+            return subTypeValueDeserializer.deserialize(p, ctxt, toUpdate);
         }
         // 04-May-2018, tatu: [databind#2023] Coercion from String (mostly) can give null
         Object value = _valueDeserializer.deserialize(p, ctxt, toUpdate);

@@ -166,7 +166,6 @@ public class EnumDeserializer
             }
             return _fromInteger(p, ctxt, p.getIntValue());
         }
-
         // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
         if (p.isExpectedStartObjectToken()) {
             return _fromString(p, ctxt,

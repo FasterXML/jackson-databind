@@ -14,6 +14,9 @@ No changes since 2.13
 
 #3344: `Set.of()` (Java 9) cannot be deserialized with polymorphic handling
  (reported by Sam K)
+#3369: Deserialization ignores other Object fields when Object or Array
+  value used for enum
+ (reported by Krishna G)
 
 2.13.1 (19-Dec-2021)
 

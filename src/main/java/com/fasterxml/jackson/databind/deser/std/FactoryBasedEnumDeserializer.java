@@ -148,7 +148,16 @@ ClassUtil.getTypeDescription(targetType), _factory, p.currentToken());
 
             // 12-Oct-2021, tatu: We really should only get here if and when String
             //    value is expected; otherwise Deserializer should have been used earlier
-            value = p.getValueAsString();
+            // 14-Jan-2022, tatu: as per [databind#3369] need to consider structured
+            //    value types (Object, Array) as well.
+            JsonToken t = p.currentToken();
+            if ((t != null) && !t.isScalarValue()) {
+                // Could argue we should throw an exception but...
+                value = "";
+                p.skipChildren();
+            } else {
+                value = p.getValueAsString();
+            }
         } else { // zero-args; just skip whatever value there may be
             p.skipChildren();
             try {

@@ -6,7 +6,8 @@ Project: jackson-databind
 
 2.14.0 (not yet released)
 
-No changes since 2.13
+#3373: Change `TypeSerializerBase` to skip `generator.writeTypePrefix()`
+  for `null` typeId
 
 2.13.2 (not yet released)
 

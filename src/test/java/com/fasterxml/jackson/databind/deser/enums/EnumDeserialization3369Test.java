@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.deser.jdk;
+package com.fasterxml.jackson.databind.deser.enums;
 
 import com.fasterxml.jackson.annotation.*;
 

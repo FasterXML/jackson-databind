@@ -51,8 +51,6 @@ public abstract class PropertyNamingStrategies
     /**
      * Naming convention in which the words are in upper-case letters, separated by underscores.
      * See {@link UpperSnakeCaseStrategy} for details.
-     * @since 2.13
-     * <p>
      */
     public static final PropertyNamingStrategy UPPER_SNAKE_CASE = new UpperSnakeCaseStrategy();
 
@@ -258,9 +256,10 @@ public abstract class PropertyNamingStrategies
      * A {@link PropertyNamingStrategy} that translates an input to the equivalent upper case snake
      * case. The class extends {@link PropertyNamingStrategies.SnakeCaseStrategy} to retain the
      * snake case conversion functionality offered by the strategy.
-     * @since 2.13
      */
-    public static class UpperSnakeCaseStrategy extends SnakeCaseStrategy {
+    public static class UpperSnakeCaseStrategy extends SnakeCaseStrategy
+    {
+        private static final long serialVersionUID = 2L;
 
         @Override
         public String translate(String input) {

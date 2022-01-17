@@ -44,6 +44,12 @@ public abstract class TypeSerializerBase extends TypeSerializer
             WritableTypeId idMetadata) throws JacksonException
     {
         _generateTypeId(ctxt, idMetadata);
+        // 16-Jan-2022, tatu: As per [databind#3373], skip for null typeId.
+        //    And return "null" so that matching "writeTypeSuffix" call should
+        //    be avoided as well.
+        if (idMetadata.id == null) {
+            return null;
+        }
         return g.writeTypePrefix(idMetadata);
     }
 
@@ -51,6 +57,10 @@ public abstract class TypeSerializerBase extends TypeSerializer
     public WritableTypeId writeTypeSuffix(JsonGenerator g, SerializerProvider ctxt,
             WritableTypeId idMetadata) throws JacksonException
     {
+        // 16-Jan-2022, tatu: As per [databind#3373], skip for null:
+        if (idMetadata == null) {
+            return null;
+        }
         return g.writeTypeSuffix(idMetadata);
     }
 

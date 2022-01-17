@@ -6,12 +6,16 @@ Project: jackson-databind
 
 2.14.0 (not yet released)
 
-No changes since 2.13
+#3373: Change `TypeSerializerBase` to skip `generator.writeTypePrefix()`
+  for `null` typeId
 
 2.13.2 (not yet released)
 
 #3344: `Set.of()` (Java 9) cannot be deserialized with polymorphic handling
  (reported by Sam K)
+#3369: Deserialization ignores other Object fields when Object or Array
+  value used for enum
+ (reported by Krishna G)
 
 2.13.1 (19-Dec-2021)
 

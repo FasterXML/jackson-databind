@@ -38,6 +38,24 @@ public class MergePolymorphicTest extends BaseMapTest {
         assertEquals("I'm child A", ((ChildA) root.child).name);
     }
 
+    public void testPolymorphicFromNullToNewObject() throws JsonProcessingException {
+        Root root = new Root();
+        ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        mapper.readerForUpdating(root).readValue("{\"child\": { \"@type\": \"ChildA\", \"name\": \"I'm the new name\" }}");
+        assertTrue(root.child instanceof ChildA);
+        assertEquals("I'm the new name", ((ChildA) root.child).name);
+    }
+
+    public void testPolymorphicFromObjectToNull() throws JsonProcessingException {
+        Root root = new Root();
+        ChildA childA = new ChildA();
+        childA.name = "I'm child A";
+        root.child = childA;
+        ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        mapper.readerForUpdating(root).readValue("{\"child\": null }");
+        assertTrue(root.child == null);
+    }
+
     public void testPolymorphicPropertyCanBeMerged() throws JsonProcessingException {
         Root root = new Root();
         ChildA childA = new ChildA();

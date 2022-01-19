@@ -446,17 +446,18 @@ public class POJOPropertiesCollector
             property.mergeAnnotations(_forSerialization);
         }
 
+        // And use custom naming strategy, if applicable...
+        // 18-Jan-2021, tatu: To be done before trimming, to resolve
+        //   [databind#3368]
+        PropertyNamingStrategy naming = _findNamingStrategy();
+        if (naming != null) {
+            _renameUsing(props, naming);
+        }
+
         // Sort by visibility (explicit over implicit); drop all but first of member
         // type (getter, setter etc) if there is visibility difference
         for (POJOPropertyBuilder property : props.values()) {
             property.trimByVisibility();
-        }
-
-        // And use custom naming strategy, if applicable...
-        // As per [databind#2979], should be AFTER trimming
-        PropertyNamingStrategy naming = _findNamingStrategy();
-        if (naming != null) {
-            _renameUsing(props, naming);
         }
 
         // and, if required, apply wrapper name: note, MUST be done after

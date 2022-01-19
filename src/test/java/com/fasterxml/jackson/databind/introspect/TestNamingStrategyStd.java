@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.introspect;
 import java.lang.annotation.*;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.*;
 
@@ -140,6 +141,34 @@ public class TestNamingStrategyStd extends BaseMapTest
                 @Name("fullName") String fn) {
             _id = id;
             _fullName = fn;
+        }
+    }
+
+    @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+    static class Value3368 {
+        private String timeZone;
+        private String utcZone;
+
+        @JsonProperty("time_zone")
+        void unpackTimeZone(Map<String, String> timeZone) {
+            this.setTimeZone(timeZone.get("name"));
+            this.setUtcZone(timeZone.get("utc_zone"));
+        }
+
+        public String getTimeZone() {
+            return this.timeZone;
+        }
+
+        public String getUtcZone() {
+            return this.utcZone;
+        }
+
+        public void setTimeZone(String timeZone) {
+            this.timeZone = timeZone;
+        }
+
+        public void setUtcZone(String utcZone) {
+            this.utcZone = utcZone;
         }
     }
 
@@ -344,6 +373,20 @@ public class TestNamingStrategyStd extends BaseMapTest
         assertEquals("from$user", result.from$user);
         assertEquals("from7user", result.from7user);
         assertEquals("_x", result._x);
+    }
+
+    // [databind#3368]
+    public void testSnakeCase3368() throws Exception
+    {
+        String test = "    {\n" +
+"      \"time_zone\": {\n" +
+"        \"name\": \"XXX\",\n" +
+"        \"utc_zone\": \"ZZZ\"\n" +
+"      }\n" +
+"    }";
+        Value3368 res = sharedMapper().readerFor(Value3368.class).readValue(test);
+        assertEquals("XXX", res.getTimeZone());
+        assertEquals("ZZZ", res.getUtcZone());
     }
 
     /*

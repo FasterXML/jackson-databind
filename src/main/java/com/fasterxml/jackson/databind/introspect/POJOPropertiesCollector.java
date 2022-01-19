@@ -1043,15 +1043,15 @@ public class POJOPropertiesCollector
                     }
                 } else {
                     if (prop.hasSetter()) {
-                        rename = naming.nameForSetterMethod(_config, prop.getSetter(), fullName.getSimpleName());
+                        rename = naming.nameForSetterMethod(_config, prop.getSetterUnchecked(), fullName.getSimpleName());
                     } else if (prop.hasConstructorParameter()) {
                         rename = naming.nameForConstructorParameter(_config, prop.getConstructorParameter(), fullName.getSimpleName());
                     } else if (prop.hasField()) {
-                        rename = naming.nameForField(_config, prop.getField(), fullName.getSimpleName());
+                        rename = naming.nameForField(_config, prop.getFieldUnchecked(), fullName.getSimpleName());
                     } else if (prop.hasGetter()) {
                         // Plus, when getter-as-setter is used, need to convert that too..
                         // (should we verify that's enabled? For now, assume it's ok always)
-                        rename = naming.nameForGetterMethod(_config, prop.getGetter(), fullName.getSimpleName());
+                        rename = naming.nameForGetterMethod(_config, prop.getGetterUnchecked(), fullName.getSimpleName());
                     }
                 }
             }

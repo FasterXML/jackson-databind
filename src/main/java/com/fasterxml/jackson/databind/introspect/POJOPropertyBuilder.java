@@ -452,7 +452,20 @@ public class POJOPropertyBuilder
         _getters = curr.withoutNext();
         return curr.value;
     }
-    
+
+    /**
+     * Variant of {@link #getGetter} that does NOT trigger pruning of
+     * getter candidates.
+     */
+    protected AnnotatedMethod getGetterUnchecked()
+    {
+        Linked<AnnotatedMethod> curr = _getters;
+        if (curr == null) {
+            return null;
+        }
+        return curr.value;
+    }
+
     @Override
     public AnnotatedMethod getSetter()
     {
@@ -481,6 +494,19 @@ public class POJOPropertyBuilder
 
         // One more thing; to avoid having to do it again...
         _setters = curr.withoutNext();
+        return curr.value;
+    }
+
+    /**
+     * Variant of {@link #getSetter} that does NOT trigger pruning of
+     * setter candidates.
+     */
+    protected AnnotatedMethod getSetterUnchecked()
+    {
+        Linked<AnnotatedMethod> curr = _setters;
+        if (curr == null) {
+            return null;
+        }
         return curr.value;
     }
 
@@ -601,6 +627,19 @@ public class POJOPropertyBuilder
                     +field.getFullName()+" vs "+nextField.getFullName());
         }
         return field;
+    }
+
+    /**
+     * Variant of {@link #getField} that does NOT trigger pruning of
+     * Field candidates.
+     */
+    protected AnnotatedField getFieldUnchecked()
+    {
+        Linked<AnnotatedField> curr = _fields;
+        if (curr == null) {
+            return null;
+        }
+        return curr.value;
     }
 
     @Override

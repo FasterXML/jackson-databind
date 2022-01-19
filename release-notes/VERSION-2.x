@@ -13,6 +13,9 @@ Project: jackson-databind
 
 #3344: `Set.of()` (Java 9) cannot be deserialized with polymorphic handling
  (reported by Sam K)
+#3368: `SnakeCaseStrategy` causes unexpected `MismatchedInputException` during
+  deserialization
+ (reported by sszuev@github)
 #3369: Deserialization ignores other Object fields when Object or Array
   value used for enum
  (reported by Krishna G)

@@ -11,6 +11,8 @@ Project: jackson-databind
 
 2.13.2 (not yet released)
 
+#3293: Use Method.getParameterCount() where possible
+ (suggested by Christoph D)
 #3344: `Set.of()` (Java 9) cannot be deserialized with polymorphic handling
  (reported by Sam K)
 #3368: `SnakeCaseStrategy` causes unexpected `MismatchedInputException` during

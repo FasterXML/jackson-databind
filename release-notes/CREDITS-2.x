@@ -1420,6 +1420,10 @@ Krishna Ghimire (Krishnaghimir@github)
   value used for enum
   (2.13.2)
 
+Christoph Dreis (dreis2211@github)
+  * Suggested #3293: Use Method.getParameterCount() where possible
+  (2.13.2)
+
 ZeyuCai@github:
   * Contributed #3314: Four Flaky Tests Detected in 2.14
   (2.14.0)

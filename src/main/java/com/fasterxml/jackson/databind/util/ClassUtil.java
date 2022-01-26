@@ -1448,7 +1448,7 @@ cls.getName(), rootCause.getClass().getName(), rootCause.getMessage()),
         public int getParamCount() {
             int c = _paramCount;
             if (c < 0) {
-                c = _ctor.getParameterTypes().length;
+                c = _ctor.getParameterCount();
                 _paramCount = c;
             }
             return c;

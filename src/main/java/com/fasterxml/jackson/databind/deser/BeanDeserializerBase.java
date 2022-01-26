@@ -961,8 +961,8 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
                 // and is inner class of the bean class...
                 if ((enclosing != null) && (enclosing == _beanType.getRawClass())) {
                     for (Constructor<?> ctor : valueClass.getConstructors()) {
-                        Class<?>[] paramTypes = ctor.getParameterTypes();
-                        if (paramTypes.length == 1) {
+                        if (ctor.getParameterCount() == 1) {
+                            Class<?>[] paramTypes = ctor.getParameterTypes();
                             if (enclosing.equals(paramTypes[0])) {
                                 if (ctxt.canOverrideAccessModifiers()) {
                                     ClassUtil.checkAndFixAccess(ctor, ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));

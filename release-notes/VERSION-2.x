@@ -21,6 +21,7 @@ Project: jackson-databind
 #3369: Deserialization ignores other Object fields when Object or Array
   value used for enum
  (reported by Krishna G)
+#3380: `module-info.java` is in `META-INF/versions/11` instead of `META-INF/versions/9`
 
 2.13.1 (19-Dec-2021)
 

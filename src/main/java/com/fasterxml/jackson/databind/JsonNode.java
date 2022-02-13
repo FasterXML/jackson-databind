@@ -562,7 +562,7 @@ public abstract class JsonNode
     public BigDecimal decimalValue() { return BigDecimal.ZERO; }
 
     /**
-     * Returns integer value for this node (as {@link BigDecimal}), <b>if and only if</b>
+     * Returns integer value for this node (as {@link BigInteger}), <b>if and only if</b>
      * this node is numeric ({@link #isNumber} returns true). For other
      * types returns <code>BigInteger.ZERO</code>.
      *

@@ -6,6 +6,8 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.*;
 
 // [databind#2816] wrt "untyped" (Maps, Lists)
+//
+// (note: [databind#3397] covers solved issue wrt JsonNodeDeserializer)
 public class DeepNestingUntypedDeser2816Test extends BaseMapTest
 {
     // 28-Mar-2021, tatu: Currently 3000 fails for untyped/Object,

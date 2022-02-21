@@ -293,7 +293,7 @@ public class ObjectWriter
     
     /**
      * Method for constructing a new instance that is configured
-     * with specified feature enabled.
+     * with specified feature disabled.
      */
     public ObjectWriter without(SerializationFeature feature) {
         return _new(this, _config.without(feature));
@@ -301,7 +301,7 @@ public class ObjectWriter
 
     /**
      * Method for constructing a new instance that is configured
-     * with specified features enabled.
+     * with specified features disabled.
      */
     public ObjectWriter without(SerializationFeature first, SerializationFeature... other) {
         return _new(this, _config.without(first, other));
@@ -309,7 +309,7 @@ public class ObjectWriter
 
     /**
      * Method for constructing a new instance that is configured
-     * with specified features enabled.
+     * with specified features disabled.
      */
     public ObjectWriter withoutFeatures(SerializationFeature... features) {
         return _new(this, _config.withoutFeatures(features));

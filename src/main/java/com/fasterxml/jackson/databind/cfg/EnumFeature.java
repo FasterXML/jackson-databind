@@ -1,10 +1,10 @@
 package com.fasterxml.jackson.databind.cfg;
 
-public enum EnumFeature implements DataTypeFeature
+public enum EnumFeature implements DatatypeFeature
 {
     BOGUS_FEATURE(false);
 
-    private final static int FEATURE_INDEX = DataTypeFeatures.FEATURE_INDEX_ENUM;
+    private final static int FEATURE_INDEX = DatatypeFeatures.FEATURE_INDEX_ENUM;
 
     /**
      * Whether feature is enabled or disabled by default.

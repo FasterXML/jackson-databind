@@ -5,11 +5,11 @@ import com.fasterxml.jackson.core.util.VersionUtil;
 
 /**
  * Immutable value class that contains settings for multiple
- * {@link DataTypeFeature} enumerations.
+ * {@link DatatypeFeature} enumerations.
  *
  * @since 2.14
  */
-public class DataTypeFeatures
+public class DatatypeFeatures
 {
     protected final static int FEATURE_INDEX_ENUM = 0;
     protected final static int FEATURE_INDEX_JSON_NODE = 1;
@@ -18,7 +18,7 @@ public class DataTypeFeatures
 
     private final int _explicitFor1, _explicitFor2;
 
-    protected DataTypeFeatures(int enabledFor1, int explicitFor1,
+    protected DatatypeFeatures(int enabledFor1, int explicitFor1,
             int enabledFor2, int explicitFor2)  {
         _enabledFor1 = enabledFor1;
         _explicitFor1 = explicitFor1;
@@ -26,17 +26,17 @@ public class DataTypeFeatures
         _explicitFor2 = explicitFor2;
     }
 
-    public static DataTypeFeatures defaultFeatures() {
+    public static DatatypeFeatures defaultFeatures() {
         return DefaultHolder.getDefault();
     }
 
-    private DataTypeFeatures _with(int enabledFor1, int explicitFor1,
+    private DatatypeFeatures _with(int enabledFor1, int explicitFor1,
             int enabledFor2, int explicitFor2) {
         if ((_enabledFor1 == enabledFor1) && (_explicitFor1 == explicitFor1)
                 && (_enabledFor2 == enabledFor2) && (_explicitFor2 == explicitFor2)) {
             return this;
         }
-        return new DataTypeFeatures(enabledFor1, explicitFor1,
+        return new DatatypeFeatures(enabledFor1, explicitFor1,
                 enabledFor2, explicitFor2);
     }
 
@@ -44,12 +44,12 @@ public class DataTypeFeatures
      * Mutant factory method that returns an instance with given Feature
      * explicitly enabled.
      *
-     * @param f {@link DataTypeFeature} to explicitly enable in this set
+     * @param f {@link DatatypeFeature} to explicitly enable in this set
      *
      * @return Existing instance if there is no change (feature was already explicitly set),
      *    or a new instance with feature explicitly set (if it was not).
      */
-    public DataTypeFeatures with(DataTypeFeature f) {
+    public DatatypeFeatures with(DatatypeFeature f) {
         final int mask = f.getMask();
         switch (f.featureIndex()) {
         case 0:
@@ -67,14 +67,14 @@ public class DataTypeFeatures
     /**
      * Accessor for getting value of specified feature in this set, regardless of
      * whether explicit defined or not (if not explicitly enabled/disabled returns
-     * default value, {@link DataTypeFeature#enabledByDefault()}.
+     * default value, {@link DatatypeFeature#enabledByDefault()}.
      *
      * @param f Feature to check
      *
      * @return True if the specified Feature is enabled in this set either explicitly
      *    or by having enabled by default (if not explicit enabled or disabled).
      */
-    public boolean isEnabled(DataTypeFeature f) {
+    public boolean isEnabled(DatatypeFeature f) {
         switch (f.featureIndex()) {
         case 0:
             return f.enabledIn(_enabledFor1);
@@ -95,7 +95,7 @@ public class DataTypeFeatures
      * @return Whether given feature has been explicitly set (enabled or disabled)
      *   in this set or not.
      */
-    public boolean isExplicitlySet(DataTypeFeature f) {
+    public boolean isExplicitlySet(DatatypeFeature f) {
         switch (f.featureIndex()) {
         case 0:
             return f.enabledIn(_explicitFor1);
@@ -117,7 +117,7 @@ public class DataTypeFeatures
      *    {@code Boolean.FALSE} if Feature has been explicitly disabled in this set; or
      *    {@code null} if Feature still has its default value.
      */
-    public Boolean getExplicitState(DataTypeFeature f) {
+    public Boolean getExplicitState(DatatypeFeature f) {
         switch (f.featureIndex()) {
         case 0:
             if (f.enabledIn(_explicitFor1)) {
@@ -143,13 +143,13 @@ public class DataTypeFeatures
 
     /**
      * Helper class to avoid cyclic dependencies when initializing default
-     * instance for {@link DataTypeFeatures}.
+     * instance for {@link DatatypeFeatures}.
      */
     private static class DefaultHolder
     {
-        private static final DataTypeFeatures DEFAULT_FEATURES;
+        private static final DatatypeFeatures DEFAULT_FEATURES;
         static {
-            DEFAULT_FEATURES = new DataTypeFeatures(
+            DEFAULT_FEATURES = new DatatypeFeatures(
                     collectDefaults(EnumFeature.values()), 0,
                     collectDefaults(JsonNodeFeature.values()), 0
                     );
@@ -166,7 +166,7 @@ public class DataTypeFeatures
             return flags;
         }
 
-        public static DataTypeFeatures getDefault() {
+        public static DatatypeFeatures getDefault() {
             return DEFAULT_FEATURES;
         }
     }

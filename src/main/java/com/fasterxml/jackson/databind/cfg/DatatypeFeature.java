@@ -8,7 +8,7 @@ import com.fasterxml.jackson.core.util.JacksonFeature;
  *
  * @since 2.14
  */
-public interface DataTypeFeature extends JacksonFeature
+public interface DatatypeFeature extends JacksonFeature
 {
     /**
      * Internal index used for efficient storage and index; no

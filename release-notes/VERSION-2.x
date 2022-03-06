@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.13.2 (not yet released)
+2.13.2 (06-Mar-2022)
 
 #3293: Use Method.getParameterCount() where possible
  (suggested by Christoph D)

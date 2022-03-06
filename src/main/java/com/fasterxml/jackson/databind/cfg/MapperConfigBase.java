@@ -277,12 +277,22 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      */
     protected abstract T _withMapperFeatures(long mapperFeatures);
 
-    /*
-    /**********************************************************
-    /* Additional shared fluent factory methods; features
-    /**********************************************************
+    /**
+     * @since 2.14
      */
+    protected abstract T _with(DatatypeFeatures dtFeatures);
+
+    /**
+     * @since 2.14
+     */
+    protected abstract DatatypeFeatures _datatypeFeatures();
     
+    /*
+    /**********************************************************************
+    /* Additional shared fluent factory methods; MapperFeatures
+    /**********************************************************************
+     */
+
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified features enabled.
@@ -333,6 +343,64 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
             return (T) this;
         }
         return _withMapperFeatures(newMapperFlags);
+    }
+
+    /*
+    /**********************************************************************
+    /* Additional shared fluent factory methods; DatatypeFeatures
+    /**********************************************************************
+     */
+    
+    /**
+     * Fluent factory method that will return a configuration
+     * object instance with specified feature enabled: this may be
+     * {@code this} instance (if no changes effected), or a newly
+     * constructed instance.
+     */
+    public final T with(DatatypeFeature feature) {
+        return _with(_datatypeFeatures().with(feature));
+    }
+
+    /**
+     * Fluent factory method that will return a configuration
+     * object instance with specified features enabled: this may be
+     * {@code this} instance (if no changes effected), or a newly
+     * constructed instance.
+     */
+    public final T withFeatures(DatatypeFeature... features) {
+        return _with(_datatypeFeatures().withFeatures(features));
+    }
+
+    /**
+     * Fluent factory method that will return a configuration
+     * object instance with specified feature disabled: this may be
+     * {@code this} instance (if no changes effected), or a newly
+     * constructed instance.
+     */
+    public final T without(DatatypeFeature feature) {
+        return _with(_datatypeFeatures().without(feature));
+    }
+
+    /**
+     * Fluent factory method that will return a configuration
+     * object instance with specified features disabled: this may be
+     * {@code this} instance (if no changes effected), or a newly
+     * constructed instance.
+     */
+    public final T withoutFeatures(DatatypeFeature... features) {
+        return _with(_datatypeFeatures().withoutFeatures(features));
+    }
+    
+    /**
+     * Fluent factory method that will construct and return a new configuration
+     * object instance with specified features disabled.
+     */
+
+    public final T with(DatatypeFeature feature, boolean state)
+    {
+        DatatypeFeatures features = _datatypeFeatures();
+        features = state ? features.with(feature) : features.without(feature);
+        return _with(features);
     }
 
     /*

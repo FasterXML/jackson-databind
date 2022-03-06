@@ -32,6 +32,9 @@ public enum JsonNodeFeature implements DatatypeFeature
      */
     ALLOW_ARRAY_MERGE(true),
 
+    /**
+     * 
+     */
     ALLOW_OBJECT_MERGE(true),
     ;
 

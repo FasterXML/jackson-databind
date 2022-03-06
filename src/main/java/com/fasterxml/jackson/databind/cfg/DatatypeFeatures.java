@@ -40,14 +40,20 @@ public class DatatypeFeatures
                 enabledFor2, explicitFor2);
     }
 
+    /*
+    /**********************************************************************
+    /* Public Mutant Factory methods
+    /**********************************************************************
+     */
+    
     /**
      * Mutant factory method that returns an instance with given Feature
      * explicitly enabled.
      *
      * @param f {@link DatatypeFeature} to explicitly enable in this set
      *
-     * @return Existing instance if there is no change (feature was already explicitly set),
-     *    or a new instance with feature explicitly set (if it was not).
+     * @return Existing instance if there is no change (feature was already explicitly enabled),
+     *    or a new instance with feature explicitly enabled (if it was not).
      */
     public DatatypeFeatures with(DatatypeFeature f) {
         final int mask = f.getMask();
@@ -64,6 +70,98 @@ public class DatatypeFeatures
         }
     }
 
+    /**
+     * "Bulk" variant of {@link #with(DatatypeFeature)} which allows explicit enabling
+     * of multiple features
+     *
+     * @param features {@link DatatypeFeature}s to explicitly enable in this set
+     *
+     * @return Existing instance if there is no change (features were already explicitly enabled),
+     *    or a new instance with features explicitly enabled (if it was not).
+     */
+    public DatatypeFeatures withFeatures(DatatypeFeature... features) {
+        int mask = _calcMask(features);
+        if (mask == 0) {
+            return this;
+        }
+        switch (features[0].featureIndex()) {
+        case 0:
+            return _with(_enabledFor1 | mask, _explicitFor1 | mask,
+                    _enabledFor2, _explicitFor2);
+        case 1:
+            return _with(_enabledFor1, _explicitFor1,
+                    _enabledFor2 | mask, _explicitFor2 | mask);
+        default:
+            VersionUtil.throwInternal();
+            return this;
+        }
+    }
+    
+    /**
+     * Mutant factory method that returns an instance with given Feature
+     * explicitly disabled.
+     *
+     * @param f {@link DatatypeFeature} to explicitly disable in this set
+     *
+     * @return Existing instance if there is no change (feature was already explicitly disabled),
+     *    or a new instance with feature explicitly disabled (if it was not).
+     */
+    public DatatypeFeatures without(DatatypeFeature f) {
+        final int mask = f.getMask();
+        switch (f.featureIndex()) {
+        case 0:
+            return _with(_enabledFor1 & ~mask, _explicitFor1 | mask,
+                    _enabledFor2, _explicitFor2);
+        case 1:
+            return _with(_enabledFor1, _explicitFor1,
+                    _enabledFor2 & ~mask, _explicitFor2 | mask);
+        default:
+            VersionUtil.throwInternal();
+            return this;
+        }
+    }
+
+    /**
+     * "Bulk" variant of {@link #without(DatatypeFeature)} which allows explicit disabling
+     * of multiple features
+     *
+     * @param features {@link DatatypeFeature}s to explicitly disable in this set
+     *
+     * @return Existing instance if there is no change (features were already explicitly disabled),
+     *    or a new instance with features explicitly disabled (if it was not).
+     */
+    public DatatypeFeatures withoutFeatures(DatatypeFeature... features) {
+        int mask = _calcMask(features);
+        if (mask == 0) {
+            return this;
+        }
+        switch (features[0].featureIndex()) {
+        case 0:
+            return _with(_enabledFor1 & ~mask, _explicitFor1 | mask,
+                    _enabledFor2, _explicitFor2);
+        case 1:
+            return _with(_enabledFor1, _explicitFor1,
+                    _enabledFor2 & ~mask, _explicitFor2 | mask);
+        default:
+            VersionUtil.throwInternal();
+            return this;
+        }
+    }
+
+    private final static int _calcMask(DatatypeFeature... features) {
+        int mask = 0;
+        for (DatatypeFeature f : features) {
+            mask |= f.getMask();
+        }
+        return mask;
+    }
+
+    /*
+    /**********************************************************************
+    /* Public accessors
+    /**********************************************************************
+     */
+    
     /**
      * Accessor for getting value of specified feature in this set, regardless of
      * whether explicit defined or not (if not explicitly enabled/disabled returns

@@ -11,6 +11,12 @@ Project: jackson-databind
 #3373: Change `TypeSerializerBase` to skip `generator.writeTypePrefix()`
   for `null` typeId
 
+2.13.3 (not yet released)
+
+#3412: Version 2.13.2 uses `Method.getParameterCount()` which is not
+  supported on Android before API 26
+ (reported by Matthew F)
+
 2.13.2 (06-Mar-2022)
 
 #3293: Use Method.getParameterCount() where possible

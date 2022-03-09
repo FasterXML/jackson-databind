@@ -125,9 +125,9 @@ public final class AnnotatedMethod
 
     @Override
     public int getParameterCount() {
-        return getRawParameterTypes().length;
+        return _method.getParameterCount();
     }
-    
+
     @Override
     public Class<?> getRawParameterType(int index)
     {

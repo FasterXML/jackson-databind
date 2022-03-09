@@ -1423,3 +1423,8 @@ Krishna Ghimire (Krishnaghimir@github)
 Christoph Dreis (dreis2211@github)
   * Suggested #3293: Use Method.getParameterCount() where possible
   (2.13.2)
+
+Matthieu Finiasz (finiasz@github)
+  * Reported #3412: Version 2.13.2 uses `Method.getParameterCount()` which is not
+   supported on Android before API 26
+  (2.13.2)

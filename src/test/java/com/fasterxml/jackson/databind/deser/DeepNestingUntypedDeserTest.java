@@ -10,8 +10,8 @@ public class DeepNestingUntypedDeserTest extends BaseMapTest
 {
   // 28-Mar-2021, tatu: Currently 3000 fails for untyped/Object,
   //     4000 for untyped/Array
-  private final static int TOO_DEEP_NESTING = 300;
-  private final static int NOT_TOO_DEEP = 250;
+  private final static int TOO_DEEP_NESTING = 4000;
+  private final static int NOT_TOO_DEEP = 1000;
 
   private final ObjectMapper MAPPER = newJsonMapper();
 
@@ -19,7 +19,7 @@ public class DeepNestingUntypedDeserTest extends BaseMapTest
   {
     final String doc = _nestedDoc(TOO_DEEP_NESTING, "[ ", "] ");
     try {
-      Object ob = MAPPER.readValue(doc, Object.class);
+      MAPPER.readValue(doc, Object.class);
       fail("Should have thrown an exception.");
     } catch (JsonParseException jpe) {
       assertTrue(jpe.getMessage().startsWith("JSON is too deeply nested."));
@@ -37,7 +37,7 @@ public class DeepNestingUntypedDeserTest extends BaseMapTest
   {
     final String doc = "{"+_nestedDoc(TOO_DEEP_NESTING, "\"x\":{", "} ") + "}";
     try {
-      Object ob = MAPPER.readValue(doc, Object.class);
+      MAPPER.readValue(doc, Object.class);
       fail("Should have thrown an exception.");
     } catch (JsonParseException jpe) {
       assertTrue(jpe.getMessage().startsWith("JSON is too deeply nested."));

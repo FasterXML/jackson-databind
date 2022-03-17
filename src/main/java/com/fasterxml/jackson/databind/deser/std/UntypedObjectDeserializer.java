@@ -663,7 +663,7 @@ public class UntypedObjectDeserializer
 
         // Arbitrarily chosen.
         // Introduced to resolve CVE-2020-36518 and as a temporary hotfix for #2816
-        private static final int MAX_DEPTH = 256;
+        private static final int MAX_DEPTH = 1000;
 
         public final static Vanilla std = new Vanilla();
 

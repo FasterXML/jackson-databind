@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.deser;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Map;
@@ -10,30 +10,45 @@ public class DeepNestingUntypedDeserTest extends BaseMapTest
 {
   // 28-Mar-2021, tatu: Currently 3000 fails for untyped/Object,
   //     4000 for untyped/Array
-  private final static int TOO_DEEP_NESTING = 4000;
+  private final static int TOO_DEEP_NESTING = 300;
+  private final static int NOT_TOO_DEEP = 250;
 
   private final ObjectMapper MAPPER = newJsonMapper();
 
-  public void testUntypedWithArray() throws Exception
+  public void testTooDeepUntypedWithArray() throws Exception
   {
     final String doc = _nestedDoc(TOO_DEEP_NESTING, "[ ", "] ");
     try {
       Object ob = MAPPER.readValue(doc, Object.class);
-      assertTrue(ob instanceof List<?>);
-    } catch (JsonMappingException jme) {
-      assertEquals("JSON is too deeply nested.", jme.getMessage());
+      fail("Should have thrown an exception.");
+    } catch (JsonParseException jpe) {
+      assertTrue(jpe.getMessage().startsWith("JSON is too deeply nested."));
+    }
+  }
+
+  public void testUntypedWithArray() throws Exception
+  {
+    final String doc = _nestedDoc(NOT_TOO_DEEP, "[ ", "] ");
+    Object ob = MAPPER.readValue(doc, Object.class);
+    assertTrue(ob instanceof List<?>);
+  }
+
+  public void testTooDeepUntypedWithObject() throws Exception
+  {
+    final String doc = "{"+_nestedDoc(TOO_DEEP_NESTING, "\"x\":{", "} ") + "}";
+    try {
+      Object ob = MAPPER.readValue(doc, Object.class);
+      fail("Should have thrown an exception.");
+    } catch (JsonParseException jpe) {
+      assertTrue(jpe.getMessage().startsWith("JSON is too deeply nested."));
     }
   }
 
   public void testUntypedWithObject() throws Exception
   {
-    final String doc = "{"+_nestedDoc(TOO_DEEP_NESTING, "\"x\":{", "} ") + "}";
-    try {
-      Object ob = MAPPER.readValue(doc, Object.class);
-      assertTrue(ob instanceof Map<?, ?>);
-    } catch (JsonMappingException jme) {
-      assertEquals("JSON is too deeply nested.", jme.getMessage());
-    }
+    final String doc = "{"+_nestedDoc(NOT_TOO_DEEP, "\"x\":{", "} ") + "}";
+    Object ob = MAPPER.readValue(doc, Object.class);
+    assertTrue(ob instanceof Map<?, ?>);
   }
 
   private String _nestedDoc(int nesting, String open, String close) {

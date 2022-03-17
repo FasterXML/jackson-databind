@@ -10,6 +10,8 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.cfg.CoercionAction;
+import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
@@ -302,6 +304,21 @@ public final class StringCollectionDeserializer
                 value = (valueDes == null) ? _parseString(p, ctxt) : valueDes.deserialize(p, ctxt);
             } catch (Exception e) {
                 throw JsonMappingException.wrapWithPath(e, result, result.size());
+            }
+        }
+        if (value != null) {
+            // https://github.com/FasterXML/jackson-dataformat-xml/issues/513
+            if (value.isEmpty()) {
+                final CoercionAction act = ctxt.findCoercionAction(logicalType(), handledType(),
+                        CoercionInputShape.EmptyString);
+                return (Collection<String>) _deserializeFromEmptyString(p, ctxt, act, handledType(),
+                        "empty String (\"\")");
+            }
+            if (_isBlank(value)) {
+                final CoercionAction act = ctxt.findCoercionFromBlankString(logicalType(), handledType(),
+                        CoercionAction.Fail);
+                return (Collection<String>) _deserializeFromEmptyString(p, ctxt, act, handledType(),
+                        "blank String (all whitespace)");
             }
         }
         result.add(value);

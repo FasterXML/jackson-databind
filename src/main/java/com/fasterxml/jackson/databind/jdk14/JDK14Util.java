@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.jdk14;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
@@ -13,6 +12,7 @@ import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.introspect.AnnotatedConstructor;
 import com.fasterxml.jackson.databind.util.ClassUtil;
+import com.fasterxml.jackson.databind.util.NativeImageUtil;
 
 /**
  * Helper class to support some of JDK 14 (and later) features
@@ -129,7 +129,7 @@ i, components.length, ClassUtil.nameOf(recordType)), e);
             try {
                 return (Object[]) RECORD_GET_RECORD_COMPONENTS.invoke(recordType);
             } catch (Exception e) {
-                if (isGraalUnsupportedFeatureError(e)) {
+                if (NativeImageUtil.isUnsupportedFeatureError(e)) {
                     return null;
                 }
                 throw new IllegalArgumentException("Failed to access RecordComponents of type "
@@ -137,12 +137,6 @@ i, components.length, ClassUtil.nameOf(recordType)), e);
             }
         }
 
-        private boolean isGraalUnsupportedFeatureError(Throwable e) {
-            if (e instanceof InvocationTargetException) {
-                e = e.getCause();
-            }
-            return e.getClass().getName().equals("com.oracle.svm.core.jdk.UnsupportedFeatureError");
-        }
     }
 
     static class RawTypeName {

@@ -110,13 +110,14 @@ public final class DeserializationConfig
     /**
      * Constructor used by ObjectMapper to create default configuration object instance.
      *
-     * @since 2.12
+     * @since 2.14
      */
     public DeserializationConfig(BaseSettings base,
             SubtypeResolver str, SimpleMixInResolver mixins, RootNameLookup rootNames,
-            ConfigOverrides configOverrides, CoercionConfigs coercionConfigs)
+            ConfigOverrides configOverrides, CoercionConfigs coercionConfigs,
+            DatatypeFeatures datatypeFeatures)
     {
-        super(base, str, mixins, rootNames, configOverrides);
+        super(base, str, mixins, rootNames, configOverrides, datatypeFeatures);
         _deserFeatures = DESER_FEATURE_DEFAULTS;
         _problemHandlers = null;
         _nodeFactory = JsonNodeFactory.instance;
@@ -131,7 +132,7 @@ public final class DeserializationConfig
     /**
      * Copy-constructor used for making a copy used by new {@link ObjectMapper}.
      *
-     * @since 2.12
+     * @since 2.14
      */
     protected DeserializationConfig(DeserializationConfig src,
             SubtypeResolver str, SimpleMixInResolver mixins, RootNameLookup rootNames,
@@ -148,22 +149,6 @@ public final class DeserializationConfig
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
         _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
-    }
-
-    @Deprecated // since 2.12, remove from 2.13 or later
-    public DeserializationConfig(BaseSettings base,
-            SubtypeResolver str, SimpleMixInResolver mixins, RootNameLookup rootNames,
-            ConfigOverrides configOverrides) {
-        this(base, str, mixins, rootNames, configOverrides,
-                new CoercionConfigs());
-    }
-
-    @Deprecated // since 2.11.2, remove from 2.13 or later
-    protected DeserializationConfig(DeserializationConfig src,
-            SimpleMixInResolver mixins, RootNameLookup rootNames,
-            ConfigOverrides configOverrides) {
-        this(src, src._subtypeResolver, mixins, rootNames, configOverrides,
-                new CoercionConfigs());
     }
 
     /*
@@ -322,6 +307,24 @@ public final class DeserializationConfig
         _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
     }
 
+    /**
+     * @since 2.14
+     */
+    protected DeserializationConfig(DeserializationConfig src,
+            DatatypeFeatures datatypeFeatures)
+    {
+        super(src, datatypeFeatures);
+        _deserFeatures = src._deserFeatures;
+        _problemHandlers = src._problemHandlers;
+        _nodeFactory = src._nodeFactory;
+        _coercionConfigs = src._coercionConfigs;
+        _ctorDetector = src._ctorDetector;
+        _parserFeatures = src._parserFeatures;
+        _parserFeaturesToChange = src._parserFeaturesToChange;
+        _formatReadFeatures = src._formatReadFeatures;
+        _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
+    }
+
     // for unit tests only:
     protected BaseSettings getBaseSettings() { return _base; }
 
@@ -341,6 +344,11 @@ public final class DeserializationConfig
         return new DeserializationConfig(this, mapperFeatures, _deserFeatures,
                 _parserFeatures, _parserFeaturesToChange,
                 _formatReadFeatures, _formatReadFeaturesToChange);
+    }
+
+    @Override
+    protected final DeserializationConfig _with(DatatypeFeatures dtFeatures) {
+        return new DeserializationConfig(this, dtFeatures);
     }
 
     /*
@@ -811,8 +819,16 @@ public final class DeserializationConfig
         return isEnabled(DeserializationFeature.UNWRAP_ROOT_VALUE);
     }
 
-    public final boolean isEnabled(DeserializationFeature f) {
-        return (_deserFeatures & f.getMask()) != 0;
+    /**
+     * Accessor for checking whether give {@link DeserializationFeature}
+     * is enabled or not.
+     *
+     * @param feature Feature to check
+     *
+     * @return True if feature is enabled; false otherwise
+     */
+    public final boolean isEnabled(DeserializationFeature feature) {
+        return (_deserFeatures & feature.getMask()) != 0;
     }
 
     public final boolean isEnabled(JsonParser.Feature f, JsonFactory factory) {
@@ -852,7 +868,7 @@ public final class DeserializationConfig
     }
 
     /**
-     * Convenience method equivalant to:
+     * Convenience method equivalent to:
      *<code>
      *   isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
      *</code>
@@ -861,6 +877,20 @@ public final class DeserializationConfig
      */
     public final boolean requiresFullValue() {
         return DeserializationFeature.FAIL_ON_TRAILING_TOKENS.enabledIn(_deserFeatures);
+    }
+
+    /**
+     * Accessor for checking whether give {@link DatatypeFeature}
+     * is enabled or not.
+     *
+     * @param feature Feature to check
+     *
+     * @return True if feature is enabled; false otherwise
+     *
+     * @since 2.14
+     */
+    public final boolean isEnabled(DatatypeFeature feature) {
+        return _datatypeFeatures.isEnabled(feature);
     }
 
     /*

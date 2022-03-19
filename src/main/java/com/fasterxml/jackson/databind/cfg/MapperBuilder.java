@@ -157,6 +157,25 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return _this();
     }
 
+    public B enable(DatatypeFeature... features) {
+        for (DatatypeFeature f : features) {
+            _mapper.configure(f, true);
+        }
+        return _this();
+    }
+
+    public B disable(DatatypeFeature... features) {
+        for (DatatypeFeature f : features) {
+            _mapper.configure(f, false);
+        }
+        return _this();
+    }
+
+    public B configure(DatatypeFeature feature, boolean state) {
+        _mapper.configure(feature, state);
+        return _this();
+    }
+
     /*
     /**********************************************************************
     /* Changing features: parser, generator, pre-2.10

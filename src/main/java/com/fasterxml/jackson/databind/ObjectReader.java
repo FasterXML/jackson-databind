@@ -15,6 +15,7 @@ import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
+import com.fasterxml.jackson.databind.cfg.DatatypeFeature;
 import com.fasterxml.jackson.databind.deser.DataFormatReaders;
 import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
@@ -432,6 +433,52 @@ public class ObjectReader
      * with specified features disabled.
      */
     public ObjectReader withoutFeatures(DeserializationFeature... features) {
+        return _with(_config.withoutFeatures(features));
+    }    
+
+    /*
+    /**********************************************************************
+    /* Life-cycle, fluent factory methods for DatatypeFeatures (2.14+)
+    /**********************************************************************
+     */
+
+    /**
+     * Method for constructing a new reader instance that is configured
+     * with specified feature enabled.
+     *
+     * @since 2.14
+     */
+    public ObjectReader with(DatatypeFeature feature) {
+        return _with(_config.with(feature));
+    }
+
+    /**
+     * Method for constructing a new reader instance that is configured
+     * with specified features enabled.
+     *
+     * @since 2.14
+     */
+    public ObjectReader withFeatures(DatatypeFeature... features) {
+        return _with(_config.withFeatures(features));
+    }    
+
+    /**
+     * Method for constructing a new reader instance that is configured
+     * with specified feature disabled.
+     *
+     * @since 2.14
+     */
+    public ObjectReader without(DatatypeFeature feature) {
+        return _with(_config.without(feature)); 
+    }
+
+    /**
+     * Method for constructing a new reader instance that is configured
+     * with specified features disabled.
+     *
+     * @since 2.14
+     */
+    public ObjectReader withoutFeatures(DatatypeFeature... features) {
         return _with(_config.withoutFeatures(features));
     }    
 
@@ -950,6 +997,13 @@ public class ObjectReader
     }
 
     public boolean isEnabled(MapperFeature f) {
+        return _config.isEnabled(f);
+    }
+
+    /**
+     * @since 2.14
+     */
+    public boolean isEnabled(DatatypeFeature f) {
         return _config.isEnabled(f);
     }
 

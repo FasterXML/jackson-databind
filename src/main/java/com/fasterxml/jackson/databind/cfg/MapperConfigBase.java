@@ -108,6 +108,13 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      */
     protected final ConfigOverrides _configOverrides;
 
+    /**
+     * Set of {@link DatatypeFeature}s enabled.
+     *
+     * @since 2.14
+     */
+    protected final DatatypeFeatures _datatypeFeatures;
+
     /*
     /**********************************************************
     /* Construction
@@ -118,11 +125,11 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * Constructor used when creating a new instance (compared to
      * that of creating fluent copies)
      *
-     * @since 2.8
+     * @since 2.14
      */
     protected MapperConfigBase(BaseSettings base,
             SubtypeResolver str, SimpleMixInResolver mixins, RootNameLookup rootNames,
-            ConfigOverrides configOverrides)
+            ConfigOverrides configOverrides, DatatypeFeatures datatypeFeatures)
     {
         super(base, DEFAULT_MAPPER_FEATURES);
         _mixIns = mixins;
@@ -133,13 +140,14 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         // default to "no attributes"
         _attributes = ContextAttributes.getEmpty();
         _configOverrides = configOverrides;
+        _datatypeFeatures = datatypeFeatures;
     }
 
     /**
      * Copy constructor usually called to make a copy for use by
      * ObjectMapper that is copied.
      *
-     * @since 2.11.2
+     * @since 2.14
      */
     protected MapperConfigBase(MapperConfigBase<CFG,T> src,
             SubtypeResolver str, SimpleMixInResolver mixins, RootNameLookup rootNames,
@@ -155,6 +163,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _view = src._view;
         _attributes = src._attributes;
         _configOverrides = configOverrides;
+        _datatypeFeatures = src._datatypeFeatures;
     }
 
     /**
@@ -171,6 +180,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _view = src._view;
         _attributes = src._attributes;
         _configOverrides = src._configOverrides;
+        _datatypeFeatures = src._datatypeFeatures;
     }
 
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, BaseSettings base)
@@ -183,8 +193,9 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _view = src._view;
         _attributes = src._attributes;
         _configOverrides = src._configOverrides;
+        _datatypeFeatures = src._datatypeFeatures;
     }
-    
+
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, long mapperFeatures)
     {
         super(src, mapperFeatures);
@@ -195,6 +206,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _view = src._view;
         _attributes = src._attributes;
         _configOverrides = src._configOverrides;
+        _datatypeFeatures = src._datatypeFeatures;
     }
 
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, SubtypeResolver str) {
@@ -206,6 +218,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _view = src._view;
         _attributes = src._attributes;
         _configOverrides = src._configOverrides;
+        _datatypeFeatures = src._datatypeFeatures;
     }
 
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, PropertyName rootName) {
@@ -217,6 +230,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _view = src._view;
         _attributes = src._attributes;
         _configOverrides = src._configOverrides;
+        _datatypeFeatures = src._datatypeFeatures;
     }
 
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, Class<?> view)
@@ -229,6 +243,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _view = view;
         _attributes = src._attributes;
         _configOverrides = src._configOverrides;
+        _datatypeFeatures = src._datatypeFeatures;
     }
 
     /**
@@ -244,6 +259,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _view = src._view;
         _attributes = src._attributes;
         _configOverrides = src._configOverrides;
+        _datatypeFeatures = src._datatypeFeatures;
     }
 
     /**
@@ -259,12 +275,29 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _view = src._view;
         _attributes = attr;
         _configOverrides = src._configOverrides;
+        _datatypeFeatures = src._datatypeFeatures;
+    }
+
+    /**
+     * @since 2.14
+     */
+    protected MapperConfigBase(MapperConfigBase<CFG,T> src, DatatypeFeatures datatypeFeatures)
+    {
+        super(src);
+        _mixIns = src._mixIns;
+        _subtypeResolver = src._subtypeResolver;
+        _rootNames = src._rootNames;
+        _rootName = src._rootName;
+        _view = src._view;
+        _attributes = src._attributes;
+        _configOverrides = src._configOverrides;
+        _datatypeFeatures = datatypeFeatures;
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Abstract fluent factory methods to be implemented by subtypes
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -285,8 +318,10 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /**
      * @since 2.14
      */
-    protected abstract DatatypeFeatures _datatypeFeatures();
-    
+    protected DatatypeFeatures _datatypeFeatures() {
+        return _datatypeFeatures;
+    }
+
     /*
     /**********************************************************************
     /* Additional shared fluent factory methods; MapperFeatures
@@ -404,9 +439,9 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Additional shared fluent factory methods; introspectors
-    /**********************************************************
+    /**********************************************************************
      */
     
     /**
@@ -449,9 +484,9 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Additional shared fluent factory methods; attributes
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -493,9 +528,9 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Additional shared fluent factory methods; factories
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -551,9 +586,9 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Additional shared fluent factory methods; other
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -633,9 +668,9 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     public abstract T withView(Class<?> view);
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Simple accessors
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -674,9 +709,9 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration access; default/overrides
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -828,9 +863,9 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Other config access
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -850,9 +885,9 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* ClassIntrospector.MixInResolver impl:
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**

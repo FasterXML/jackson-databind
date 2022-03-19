@@ -10,7 +10,10 @@ import com.fasterxml.jackson.core.util.VersionUtil;
  * @since 2.14
  */
 public class DatatypeFeatures
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     protected final static int FEATURE_INDEX_ENUM = 0;
     protected final static int FEATURE_INDEX_JSON_NODE = 1;
 

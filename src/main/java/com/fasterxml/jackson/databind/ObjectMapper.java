@@ -658,10 +658,12 @@ public class ObjectMapper
         _configOverrides = new ConfigOverrides();
         _coercionConfigs = new CoercionConfigs();
         _serializationConfig = new SerializationConfig(base,
-                    _subtypeResolver, mixins, rootNames, _configOverrides);
+                    _subtypeResolver, mixins, rootNames, _configOverrides,
+                    DatatypeFeatures.defaultFeatures());
         _deserializationConfig = new DeserializationConfig(base,
                     _subtypeResolver, mixins, rootNames, _configOverrides,
-                    _coercionConfigs);
+                    _coercionConfigs,
+                    DatatypeFeatures.defaultFeatures());
 
         // Some overrides we may need
         final boolean needOrder = _jsonFactory.requiresPropertyOrdering();
@@ -880,7 +882,7 @@ public class ObjectMapper
             public boolean isEnabled(DeserializationFeature f) {
                 return ObjectMapper.this.isEnabled(f);
             }
-            
+
             @Override
             public boolean isEnabled(SerializationFeature f) {
                 return ObjectMapper.this.isEnabled(f);
@@ -2569,7 +2571,7 @@ public class ObjectMapper
         _serializationConfig = _serializationConfig.without(first, f);
         return this;
     }
-    
+
     /*
     /**********************************************************
     /* Configuration, simple features: DeserializationFeature
@@ -2612,7 +2614,7 @@ public class ObjectMapper
         _deserializationConfig = _deserializationConfig.with(first, f);
         return this;
     }
-    
+
     /**
      * Method for enabling specified {@link DeserializationConfig} features.
      * Modifies and returns this instance; no new object is created.
@@ -2631,7 +2633,28 @@ public class ObjectMapper
         _deserializationConfig = _deserializationConfig.without(first, f);
         return this;
     }
-    
+
+    /*
+    /**********************************************************
+    /* Configuration, simple features: DatatypeFeature
+    /**********************************************************
+     */
+
+    /**
+     * Method for changing state of an on/off datatype-specific feature for
+     * this object mapper.
+     */
+    public ObjectMapper configure(DatatypeFeature f, boolean state) {
+        if (state) {
+            _deserializationConfig = _deserializationConfig.with(f);
+            _serializationConfig = _serializationConfig.with(f);
+        } else {
+            _deserializationConfig = _deserializationConfig.without(f);
+            _serializationConfig = _serializationConfig.without(f);
+        }
+        return this;
+    }
+
     /*
     /**********************************************************
     /* Configuration, simple features: JsonParser.Feature

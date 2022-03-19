@@ -5,7 +5,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import com.fasterxml.jackson.annotation.*;
-
+import com.fasterxml.jackson.databind.cfg.DatatypeFeature;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.Annotated;
@@ -59,9 +59,9 @@ public abstract class DatabindContext
     /* Access to specific config settings
     /**********************************************************************
      */
-    
+
     /**
-     * Convenience method for checking whether specified serialization
+     * Convenience method for checking whether specified Mapper
      * feature is enabled or not.
      * Shortcut for:
      *<pre>
@@ -73,6 +73,14 @@ public abstract class DatabindContext
     public final boolean isAnnotationProcessingEnabled() {
         return isEnabled(MapperFeature.USE_ANNOTATIONS);
     }
+
+    /**
+     * Method for checking whether specified datatype
+     * feature is enabled or not.
+     *
+     * @since 2.14
+     */
+    public abstract boolean isEnabled(DatatypeFeature feature);
 
     /**
      * Convenience method for accessing serialization view in use (if any); equivalent to:

@@ -101,6 +101,11 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      */
     protected final ConfigOverrides _configOverrides;
 
+    /**
+     * Set of {@link DatatypeFeature}s enabled.
+     */
+    protected final DatatypeFeatures _datatypeFeatures;
+
     /*
     /**********************************************************************
     /* Construction
@@ -122,13 +127,13 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _classIntrospector = classIntr;
         _typeResolverProvider = b.typeResolverProvider();
         _subtypeResolver = str;
-
         _mixIns = mixins;
         _rootNames = rootNames;
         _rootName = null;
         _view = null;
         _attributes = defaultAttrs;
         _configOverrides = configOverrides;
+        _datatypeFeatures = b.datatypeFeatures();
     }
 
     /**
@@ -149,6 +154,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _view = src._view;
         _attributes = src._attributes;
         _configOverrides = src._configOverrides;
+        _datatypeFeatures = src._datatypeFeatures;
     }
 
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, BaseSettings base)
@@ -158,13 +164,13 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _classIntrospector = src._classIntrospector;
         _typeResolverProvider = src._typeResolverProvider;
         _subtypeResolver = src._subtypeResolver;
-
         _mixIns = src._mixIns;
         _rootNames = src._rootNames;
         _rootName = src._rootName;
         _view = src._view;
         _attributes = src._attributes;
         _configOverrides = src._configOverrides;
+        _datatypeFeatures = src._datatypeFeatures;
     }
 
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, PropertyName rootName) {
@@ -180,6 +186,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _view = src._view;
         _attributes = src._attributes;
         _configOverrides = src._configOverrides;
+        _datatypeFeatures = src._datatypeFeatures;
     }
 
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, Class<?> view)
@@ -196,6 +203,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _view = view;
         _attributes = src._attributes;
         _configOverrides = src._configOverrides;
+        _datatypeFeatures = src._datatypeFeatures;
     }
 
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, ContextAttributes attr)
@@ -212,6 +220,25 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _view = src._view;
         _attributes = attr;
         _configOverrides = src._configOverrides;
+        _datatypeFeatures = src._datatypeFeatures;
+    }
+
+    protected MapperConfigBase(MapperConfigBase<CFG,T> src, DatatypeFeatures datatypeFeatures)
+    {
+        super(src);
+        _typeFactory = src._typeFactory;
+        _classIntrospector = src._classIntrospector;
+        _typeResolverProvider = src._typeResolverProvider;
+        _subtypeResolver = src._subtypeResolver;
+
+        _mixIns = src._mixIns;
+        _rootNames = src._rootNames;
+        _rootName = src._rootName;
+        _view = src._view;
+        _attributes = src._attributes;
+        _configOverrides = src._configOverrides;
+
+        _datatypeFeatures = datatypeFeatures;
     }
 
     /*
@@ -221,6 +248,70 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      */
 
     protected abstract T _withBase(BaseSettings newBase);
+
+    protected abstract T _with(DatatypeFeatures dtFeatures);
+
+    protected DatatypeFeatures _datatypeFeatures() {
+        return _datatypeFeatures;
+    }
+
+    /*
+    /**********************************************************************
+    /* Additional shared fluent factory methods; DatatypeFeatures
+    /**********************************************************************
+     */
+    
+    /**
+     * Fluent factory method that will return a configuration
+     * object instance with specified feature enabled: this may be
+     * {@code this} instance (if no changes effected), or a newly
+     * constructed instance.
+     */
+    public final T with(DatatypeFeature feature) {
+        return _with(_datatypeFeatures().with(feature));
+    }
+
+    /**
+     * Fluent factory method that will return a configuration
+     * object instance with specified features enabled: this may be
+     * {@code this} instance (if no changes effected), or a newly
+     * constructed instance.
+     */
+    public final T withFeatures(DatatypeFeature... features) {
+        return _with(_datatypeFeatures().withFeatures(features));
+    }
+
+    /**
+     * Fluent factory method that will return a configuration
+     * object instance with specified feature disabled: this may be
+     * {@code this} instance (if no changes effected), or a newly
+     * constructed instance.
+     */
+    public final T without(DatatypeFeature feature) {
+        return _with(_datatypeFeatures().without(feature));
+    }
+
+    /**
+     * Fluent factory method that will return a configuration
+     * object instance with specified features disabled: this may be
+     * {@code this} instance (if no changes effected), or a newly
+     * constructed instance.
+     */
+    public final T withoutFeatures(DatatypeFeature... features) {
+        return _with(_datatypeFeatures().withoutFeatures(features));
+    }
+    
+    /**
+     * Fluent factory method that will construct and return a new configuration
+     * object instance with specified features disabled.
+     */
+
+    public final T with(DatatypeFeature feature, boolean state)
+    {
+        DatatypeFeatures features = _datatypeFeatures();
+        features = state ? features.with(feature) : features.without(feature);
+        return _with(features);
+    }
 
     /*
     /**********************************************************************

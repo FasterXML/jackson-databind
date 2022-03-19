@@ -17,6 +17,7 @@ import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
+import com.fasterxml.jackson.databind.cfg.DatatypeFeature;
 import com.fasterxml.jackson.databind.cfg.DeserializationContexts;
 import com.fasterxml.jackson.databind.deser.DeserializationContextExt;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
@@ -375,8 +376,46 @@ public class ObjectReader
 
     /*
     /**********************************************************************
-    /* Life-cycle, fluent factory methods for StreamReadFeatures
+    /* Life-cycle, fluent factory methods for DatatypeFeatures
     /**********************************************************************
+     */
+
+    /**
+     * Method for constructing a new reader instance that is configured
+     * with specified feature enabled.
+     */
+    public ObjectReader with(DatatypeFeature feature) {
+        return _with(_config.with(feature));
+    }
+
+    /**
+     * Method for constructing a new reader instance that is configured
+     * with specified features enabled.
+     */
+    public ObjectReader withFeatures(DatatypeFeature... features) {
+        return _with(_config.withFeatures(features));
+    }
+
+    /**
+     * Method for constructing a new reader instance that is configured
+     * with specified feature disabled.
+     */
+    public ObjectReader without(DatatypeFeature feature) {
+        return _with(_config.without(feature)); 
+    }
+
+    /**
+     * Method for constructing a new reader instance that is configured
+     * with specified features disabled.
+     */
+    public ObjectReader withoutFeatures(DatatypeFeature... features) {
+        return _with(_config.withoutFeatures(features));
+    }    
+
+    /*
+    /**********************************************************
+    /* Life-cycle, fluent factory methods for StreamReadFeatures
+    /**********************************************************
      */
 
     /**
@@ -709,6 +748,10 @@ public class ObjectReader
     }
 
     public boolean isEnabled(MapperFeature f) {
+        return _config.isEnabled(f);
+    }
+
+    public boolean isEnabled(DatatypeFeature f) {
         return _config.isEnabled(f);
     }
 

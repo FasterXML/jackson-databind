@@ -56,6 +56,8 @@ public abstract class MapperBuilderState
     protected final int _streamReadFeatures, _streamWriteFeatures;
     protected final int _formatReadFeatures, _formatWriteFeatures;
 
+    protected final DatatypeFeatures _datatypeFeatures;
+
     /*
     /**********************************************************************
     /* Modules
@@ -140,6 +142,7 @@ public abstract class MapperBuilderState
         _mapperFeatures = src._mapperFeatures;
         _serFeatures = src._serFeatures;
         _deserFeatures = src._deserFeatures;
+        _datatypeFeatures = src._datatypeFeatures;
         _streamReadFeatures = src._streamReadFeatures;
         _streamWriteFeatures = src._streamWriteFeatures;
         _formatReadFeatures = src._formatReadFeatures;

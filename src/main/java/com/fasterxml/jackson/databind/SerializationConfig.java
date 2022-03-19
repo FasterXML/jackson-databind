@@ -173,6 +173,16 @@ public final class SerializationConfig
         _formatWriteFeatures = src._formatWriteFeatures;
     }
 
+    protected SerializationConfig(SerializationConfig src, DatatypeFeatures dtFeatures)
+    {
+        super(src, dtFeatures);
+        _serFeatures = src._serFeatures;
+        _filterProvider = src._filterProvider;
+        _defaultPrettyPrinter = src._defaultPrettyPrinter;
+        _streamWriteFeatures = src._streamWriteFeatures;
+        _formatWriteFeatures = src._formatWriteFeatures;
+    }
+
     /*
     /**********************************************************************
     /* Life-cycle, factory methods from MapperConfig(Base)
@@ -182,6 +192,11 @@ public final class SerializationConfig
     @Override
     protected final SerializationConfig _withBase(BaseSettings newBase) {
         return (_base == newBase) ? this : new SerializationConfig(this, newBase);
+    }
+
+    @Override
+    protected final SerializationConfig _with(DatatypeFeatures dtFeatures) {
+        return new SerializationConfig(this, dtFeatures);
     }
 
     @Override
@@ -498,9 +513,17 @@ public final class SerializationConfig
         }
         return isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
     }
-    
-    public final boolean isEnabled(SerializationFeature f) {
-        return (_serFeatures & f.getMask()) != 0;
+
+    /**
+     * Accessor for checking whether give {@link SerializationFeature}
+     * is enabled or not.
+     *
+     * @param feature Feature to check
+     *
+     * @return True if feature is enabled; false otherwise
+     */
+    public final boolean isEnabled(SerializationFeature feature) {
+        return (_serFeatures & feature.getMask()) != 0;
     }
 
     /**
@@ -526,6 +549,18 @@ public final class SerializationConfig
 
     public final int getSerializationFeatures() {
         return _serFeatures;
+    }
+
+    /**
+     * Accessor for checking whether give {@link DatatypeFeature}
+     * is enabled or not.
+     *
+     * @param feature Feature to check
+     *
+     * @return True if feature is enabled; false otherwise
+     */
+    public final boolean isEnabled(DatatypeFeature feature) {
+        return _datatypeFeatures.isEnabled(feature);
     }
 
     /**

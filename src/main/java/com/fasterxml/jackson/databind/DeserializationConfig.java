@@ -189,6 +189,18 @@ public final class DeserializationConfig
         _ctorDetector = src._ctorDetector;
     }
 
+    protected DeserializationConfig(DeserializationConfig src, DatatypeFeatures dtFeatures)
+    {
+        super(src, dtFeatures);
+        _deserFeatures = src._deserFeatures;
+        _problemHandlers = src._problemHandlers;
+        _coercionConfigs = src._coercionConfigs;
+        _streamReadFeatures = src._streamReadFeatures;
+        _formatReadFeatures = src._formatReadFeatures;
+        _abstractTypeResolvers = src._abstractTypeResolvers;
+        _ctorDetector = src._ctorDetector;
+    }
+
     // for unit tests only:
     protected BaseSettings getBaseSettings() { return _base; }
 
@@ -201,6 +213,11 @@ public final class DeserializationConfig
     @Override
     protected final DeserializationConfig _withBase(BaseSettings newBase) {
         return (_base == newBase) ? this : new DeserializationConfig(this, newBase);
+    }
+
+    @Override
+    protected final DeserializationConfig _with(DatatypeFeatures dtFeatures) {
+        return new DeserializationConfig(this, dtFeatures);
     }
 
     /*
@@ -541,6 +558,10 @@ public final class DeserializationConfig
      */
     public final int getDeserializationFeatures() {
         return _deserFeatures;
+    }
+
+    public final boolean isEnabled(DatatypeFeature feature) {
+        return _datatypeFeatures.isEnabled(feature);
     }
 
     /**

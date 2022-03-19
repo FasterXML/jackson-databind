@@ -17,6 +17,7 @@ import com.fasterxml.jackson.core.util.JacksonFeatureSet;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
+import com.fasterxml.jackson.databind.cfg.DatatypeFeature;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.deser.impl.ObjectIdReader;
 import com.fasterxml.jackson.databind.deser.impl.TypeWrappedDeserializer;
@@ -196,6 +197,11 @@ public abstract class DeserializationContext
 
     @Override
     public final boolean isEnabled(MapperFeature feature) {
+        return _config.isEnabled(feature);
+    }
+
+    @Override // @since 2.14
+    public final boolean isEnabled(DatatypeFeature feature) {
         return _config.isEnabled(feature);
     }
 

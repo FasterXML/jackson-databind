@@ -15,6 +15,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.*;
 
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
+import com.fasterxml.jackson.databind.cfg.DatatypeFeature;
 import com.fasterxml.jackson.databind.cfg.GeneratorSettings;
 import com.fasterxml.jackson.databind.cfg.SerializationContexts;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
@@ -277,8 +278,45 @@ public class ObjectWriter
 
     /*
     /**********************************************************************
-    /* Life-cycle, fluent factories for StreamWriteFeature
+    /* Life-cycle, fluent factories for DatatypeFeature
     /**********************************************************************
+     */
+
+    /**
+     * Method for constructing a new instance that is configured
+     * with specified feature enabled.
+     */
+    public ObjectWriter with(DatatypeFeature feature)  {
+        return _new(this,  _config.with(feature));
+    }
+
+    /**
+     * Method for constructing a new instance that is configured
+     * with specified features enabled.
+     */
+    public ObjectWriter withFeatures(DatatypeFeature... features) {
+        return _new(this, _config.withFeatures(features));
+    }
+
+    /**
+     * Method for constructing a new instance that is configured
+     * with specified feature disabled.
+     */
+    public ObjectWriter without(DatatypeFeature feature) {
+        return _new(this, _config.without(feature));
+    }
+
+    /**
+     * Method for constructing a new instance that is configured
+     * with specified features disabled.
+     */
+    public ObjectWriter withoutFeatures(DatatypeFeature... features) {
+        return _new(this, _config.withoutFeatures(features));
+    }
+
+    /*
+    /**********************************************************
+    /* Life-cycle, fluent factories for StreamWriteFeature
      */
 
     public ObjectWriter with(StreamWriteFeature feature)  {
@@ -848,6 +886,10 @@ public class ObjectWriter
     }
 
     public boolean isEnabled(MapperFeature f) {
+        return _config.isEnabled(f);
+    }
+
+    public boolean isEnabled(DatatypeFeature f) {
         return _config.isEnabled(f);
     }
 

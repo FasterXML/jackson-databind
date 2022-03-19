@@ -214,6 +214,8 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      */
     protected int _deserFeatures;
 
+    protected DatatypeFeatures _datatypeFeatures;
+
     /*
     /**********************************************************************
     /* Feature flags: generation, parsing
@@ -280,6 +282,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         }
         _deserFeatures = DEFAULT_DESER_FEATURES;
         _serFeatures = DEFAULT_SER_FEATURES;
+        _datatypeFeatures = DatatypeFeatures.defaultFeatures();
 
         _typeFactory = null;
         _classIntrospector = null;
@@ -320,6 +323,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _mapperFeatures = state._mapperFeatures;
         _deserFeatures = state._deserFeatures;
         _serFeatures = state._serFeatures;
+        _datatypeFeatures = state._datatypeFeatures;
 
         // Handlers, introspection
         _typeFactory = Snapshottable.takeSnapshot(state._typeFactory);
@@ -373,6 +377,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _stremWriteFeatures = base._stremWriteFeatures;
         _formatReadFeatures = base._formatReadFeatures;
         _formatWriteFeatures = base._formatWriteFeatures;
+        _datatypeFeatures = base._datatypeFeatures;
 
         _typeFactory = base._typeFactory;
         _classIntrospector = base._classIntrospector;
@@ -480,12 +485,19 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     public boolean isEnabled(SerializationFeature f) {
         return f.enabledIn(_serFeatures);
     }
+    public boolean isEnabled(DatatypeFeature f) {
+        return _datatypeFeatures.isEnabled(f);
+    }
 
     public boolean isEnabled(StreamReadFeature f) {
         return f.enabledIn(_streamReadFeatures);
     }
     public boolean isEnabled(StreamWriteFeature f) {
         return f.enabledIn(_streamWriteFeatures);
+    }
+
+    public DatatypeFeatures datatypeFeatures() {
+        return _datatypeFeatures;
     }
 
     /*
@@ -766,6 +778,25 @@ public abstract class MapperBuilder<M extends ObjectMapper,
             _deserFeatures |= feature.getMask();
         } else {
             _deserFeatures &= ~feature.getMask();
+        }
+        return _this();
+    }
+
+    public B enable(DatatypeFeature... features) {
+        _datatypeFeatures = _datatypeFeatures.withFeatures(features);
+        return _this();
+    }
+
+    public B disable(DatatypeFeature... features) {
+        _datatypeFeatures = _datatypeFeatures.withoutFeatures(features);
+        return _this();
+    }
+
+    public B configure(DatatypeFeature feature, boolean state) {
+        if (state) {
+            _datatypeFeatures = _datatypeFeatures.with(feature);
+        } else {
+            _datatypeFeatures = _datatypeFeatures.without(feature);
         }
         return _this();
     }

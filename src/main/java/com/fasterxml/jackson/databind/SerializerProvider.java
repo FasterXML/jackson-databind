@@ -16,6 +16,7 @@ import com.fasterxml.jackson.core.tree.ObjectTreeNode;
 import com.fasterxml.jackson.core.util.JacksonFeatureSet;
 
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
+import com.fasterxml.jackson.databind.cfg.DatatypeFeature;
 import com.fasterxml.jackson.databind.cfg.GeneratorSettings;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
@@ -340,6 +341,11 @@ public abstract class SerializerProvider
 
     @Override
     public final boolean isEnabled(MapperFeature feature) {
+        return _config.isEnabled(feature);
+    }
+
+    @Override // @since 2.14
+    public final boolean isEnabled(DatatypeFeature feature) {
         return _config.isEnabled(feature);
     }
 

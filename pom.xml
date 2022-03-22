@@ -72,12 +72,6 @@
       <artifactId>jackson-core</artifactId>
       <version>${jackson.version.core}</version>
     </dependency>
-    <dependency>
-      <groupId>org.graalvm.sdk</groupId>
-      <artifactId>graal-sdk</artifactId>
-      <version>22.0.0.2</version>
-      <scope>provided</scope>
-    </dependency>
 
     <!-- and for testing we need a few libraries
          libs for which we use reflection for code, but direct dep for testing

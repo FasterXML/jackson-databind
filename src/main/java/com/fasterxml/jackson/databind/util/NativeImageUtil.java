@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.databind.util;
 
-import org.graalvm.nativeimage.ImageInfo;
-
 import java.lang.reflect.InvocationTargetException;
 
 /**
@@ -11,15 +9,7 @@ public class NativeImageUtil {
     private static final boolean RUNNING_IN_SVM;
 
     static {
-        boolean runningInSvm;
-        try {
-            // check whether ImageInfo is available
-            ImageInfo.inImageCode();
-            runningInSvm = true;
-        } catch (NoClassDefFoundError ignored) {
-            runningInSvm = false;
-        }
-        RUNNING_IN_SVM = runningInSvm;
+        RUNNING_IN_SVM = System.getProperty("org.graalvm.nativeimage.imagecode") != null;
     }
 
     private NativeImageUtil() {
@@ -30,7 +20,7 @@ public class NativeImageUtil {
      * the static initializer may run early during build time
      */
     private static boolean isRunningInNativeImage() {
-        return RUNNING_IN_SVM && ImageInfo.inImageRuntimeCode();
+        return RUNNING_IN_SVM && System.getProperty("org.graalvm.nativeimage.imagecode").equals("runtime");
     }
 
     /**

@@ -876,13 +876,14 @@ public class UntypedObjectDeserializer
 
         protected Object mapArray(JsonParser p, DeserializationContext ctxt, int depth) throws IOException
         {
-            Object value = deserialize(p, ctxt, depth + 1);
+            ++depth;
+            Object value = deserialize(p, ctxt, depth);
             if (p.nextToken()  == JsonToken.END_ARRAY) {
                 ArrayList<Object> l = new ArrayList<Object>(2);
                 l.add(value);
                 return l;
             }
-            Object value2 = deserialize(p, ctxt, depth + 1);
+            Object value2 = deserialize(p, ctxt, depth);
             if (p.nextToken()  == JsonToken.END_ARRAY) {
                 ArrayList<Object> l = new ArrayList<Object>(2);
                 l.add(value);
@@ -896,7 +897,7 @@ public class UntypedObjectDeserializer
             values[ptr++] = value2;
             int totalSize = ptr;
             do {
-                value = deserialize(p, ctxt, depth + 1);
+                value = deserialize(p, ctxt, depth);
                 ++totalSize;
                 if (ptr >= values.length) {
                     values = buffer.appendCompletedChunk(values);
@@ -914,11 +915,12 @@ public class UntypedObjectDeserializer
          * Method called to map a JSON Array into a Java Object array (Object[]).
          */
         protected Object[] mapArrayToArray(JsonParser p, DeserializationContext ctxt, int depth) throws IOException {
+            ++depth;
             ObjectBuffer buffer = ctxt.leaseObjectBuffer();
             Object[] values = buffer.resetAndStart();
             int ptr = 0;
             do {
-                Object value = deserialize(p, ctxt, depth + 1);
+                Object value = deserialize(p, ctxt, depth);
                 if (ptr >= values.length) {
                     values = buffer.appendCompletedChunk(values);
                     ptr = 0;
@@ -933,11 +935,12 @@ public class UntypedObjectDeserializer
          */
         protected Object mapObject(JsonParser p, DeserializationContext ctxt, int depth) throws IOException
         {
+            ++depth;
             // will point to FIELD_NAME at this point, guaranteed
             // 19-Jul-2021, tatu: Was incorrectly using "getText()" before 2.13, fixed for 2.13.0
             String key1 = p.currentName();
             p.nextToken();
-            Object value1 = deserialize(p, ctxt, depth + 1);
+            Object value1 = deserialize(p, ctxt, depth);
 
             String key2 = p.nextFieldName();
             if (key2 == null) { // single entry; but we want modifiable
@@ -946,7 +949,7 @@ public class UntypedObjectDeserializer
                 return result;
             }
             p.nextToken();
-            Object value2 = deserialize(p, ctxt, depth + 1);
+            Object value2 = deserialize(p, ctxt, depth);
 
             String key = p.nextFieldName();
             if (key == null) {
@@ -968,7 +971,7 @@ public class UntypedObjectDeserializer
 
             do {
                 p.nextToken();
-                final Object newValue = deserialize(p, ctxt, depth + 1);
+                final Object newValue = deserialize(p, ctxt, depth);
                 final Object oldValue = result.put(key, newValue);
                 if (oldValue != null) {
                     return _mapObjectWithDups(p, ctxt, result, key, oldValue, newValue,

@@ -6,6 +6,8 @@ Project: jackson-databind
 
 2.13.3 (not yet released)
 
+#2816: Optimize UntypedObjectDeserializer wrt recursion
+ (contributed by Taylor S, Spence N)
 #3412: Version 2.13.2 uses `Method.getParameterCount()` which is not
   supported on Android before API 26
  (reported by Matthew F)

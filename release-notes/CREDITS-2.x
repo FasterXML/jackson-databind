@@ -1428,3 +1428,11 @@ Matthieu Finiasz (finiasz@github)
   * Reported #3412: Version 2.13.2 uses `Method.getParameterCount()` which is not
    supported on Android before API 26
   (2.13.2)
+
+Taylor S Marks (TaylorSMarks@github)
+  * Contributed fix for #2816: Optimize UntypedObjectDeserializer wrt recursion
+  (2.13.3)
+
+Spence Nace (???@github)
+  * Contributed fix for #2816: Optimize UntypedObjectDeserializer wrt recursion
+  (2.13.3)

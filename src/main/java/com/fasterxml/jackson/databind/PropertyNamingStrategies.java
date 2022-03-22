@@ -265,7 +265,9 @@ public abstract class PropertyNamingStrategies
      * snake case conversion functionality offered by the strategy.
      * @since 2.13
      */
-    public static class UpperSnakeCaseStrategy extends SnakeCaseStrategy {
+    public static class UpperSnakeCaseStrategy extends SnakeCaseStrategy
+    {
+        private static final long serialVersionUID = 2L;
 
         @Override
         public String translate(String input) {

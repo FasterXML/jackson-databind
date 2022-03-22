@@ -97,4 +97,14 @@ public class UnresolvedForwardReference extends JsonMappingException {
         sb.append('.');
         return sb.toString();
     }
+
+    @Override
+    public synchronized UnresolvedForwardReference fillInStackTrace() {
+        return this;
+    }
+
+    public synchronized UnresolvedForwardReference _fillInStackTrace() {
+        super.fillInStackTrace();
+        return this;
+    }
 }

@@ -5,6 +5,7 @@ import java.util.Arrays;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.JsonNodeFeature;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.node.*;
@@ -400,6 +401,10 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
                 value = nodeFactory.booleanNode(false);
                 break;
             case JsonTokenId.ID_NULL:
+                // 20-Mar-2022, tatu: [databind#3421] Allow skipping `null`s from JSON
+                if (!ctxt.isEnabled(JsonNodeFeature.READ_NULL_PROPERTIES)) {
+                    continue;
+                }
                 value = nodeFactory.nullNode();
                 break;
             default:
@@ -482,6 +487,10 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
                         value = nodeFactory.booleanNode(false);
                         break;
                     case JsonTokenId.ID_NULL:
+                        // 20-Mar-2022, tatu: [databind#3421] Allow skipping `null`s from JSON
+                        if (!ctxt.isEnabled(JsonNodeFeature.READ_NULL_PROPERTIES)) {
+                            continue;
+                        }
                         value = nodeFactory.nullNode();
                         break;
                     default:

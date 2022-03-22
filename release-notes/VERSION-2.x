@@ -10,6 +10,9 @@ Project: jackson-databind
 
 #3373: Change `TypeSerializerBase` to skip `generator.writeTypePrefix()`
   for `null` typeId
+#3405: Create DataTypeFeature abstraction (for JSTEP-7) with placeholder features
+#3421: Implement `JsonNodeFeature.READ_NULL_PROPERTIES` to allow skipping of
+  JSON `null` values on reading
 
 2.13.3 (not yet released)
 

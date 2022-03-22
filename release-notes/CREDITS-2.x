@@ -1432,3 +1432,8 @@ Matthieu Finiasz (finiasz@github)
 ZeyuCai@github:
   * Contributed #3314: Four Flaky Tests Detected in 2.14
   (2.14.0)
+
+Gary Morgan (morganga@github)
+  * Contributed #3419: Improve performance of `UnresolvedForwardReference` for
+    forward reference resolution
+  (2.14.0)

@@ -1429,6 +1429,14 @@ Matthieu Finiasz (finiasz@github)
    supported on Android before API 26
   (2.13.3)
 
+Taylor S Marks (TaylorSMarks@github)
+  * Contributed fix for #2816: Optimize UntypedObjectDeserializer wrt recursion
+  (2.13.3)
+
+Spence Nace (???@github)
+  * Contributed fix for #2816: Optimize UntypedObjectDeserializer wrt recursion
+  (2.13.3)
+
 ZeyuCai@github:
   * Contributed #3314: Four Flaky Tests Detected in 2.14
   (2.14.0)

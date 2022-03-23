@@ -1433,6 +1433,6 @@ Taylor S Marks (TaylorSMarks@github)
   * Contributed fix for #2816: Optimize UntypedObjectDeserializer wrt recursion
   (2.13.3)
 
-Spence Nace (???@github)
+Spence Nace (snace98@github)
   * Contributed fix for #2816: Optimize UntypedObjectDeserializer wrt recursion
   (2.13.3)

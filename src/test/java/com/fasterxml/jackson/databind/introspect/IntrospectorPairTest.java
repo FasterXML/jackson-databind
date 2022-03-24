@@ -482,7 +482,7 @@ public class IntrospectorPairTest extends BaseMapTest
     public void testFindDeserializer() throws Exception
     {
         final JsonDeserializer<?> deserString = StringDeserializer.instance;
-        final JsonDeserializer<?> deserObject = UntypedObjectDeserializer.Vanilla.std;
+        final JsonDeserializer<?> deserObject = new UntypedObjectDeserializer(null, null);
 
         AnnotationIntrospector intr1 = new IntrospectorWithHandlers(deserString, null);
         AnnotationIntrospector intr2 = new IntrospectorWithHandlers(deserObject, null);

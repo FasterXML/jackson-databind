@@ -4,6 +4,10 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.13.3 (not yet released)
+
+...
+
 2.13.2.1 (24-Mar-2022)
 
 #2816: Optimize UntypedObjectDeserializer wrt recursion

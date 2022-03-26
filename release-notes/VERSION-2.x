@@ -4,6 +4,10 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.12.6.1 (26-Mar-2022)
+
+#2816: Optimize UntypedObjectDeserializer wrt recursion [CVE-2020-36518]
+
 2.12.6 (15-Dec-2021)
 
 #3280: Can not deserialize json to enum value with Object-/Array-valued input,

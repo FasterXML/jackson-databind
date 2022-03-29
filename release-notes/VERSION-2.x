@@ -8,6 +8,10 @@ Project: jackson-databind
 
 ...
 
+2.13.2 (28-Mar-2022)
+
+No changes since 2.13.2.1 but fixed Gradle Module Metadata ("module.json")
+
 2.13.2.1 (24-Mar-2022)
 
 #2816: Optimize UntypedObjectDeserializer wrt recursion

@@ -300,25 +300,27 @@ public final class StringCollectionDeserializer
             }
             value = (String) _nullProvider.getNullValue(ctxt);
         } else {
+            if (p.hasToken(JsonToken.VALUE_STRING)) {
+                String textValue = p.getText();
+                // https://github.com/FasterXML/jackson-dataformat-xml/issues/513
+                if (textValue.isEmpty()) {
+                    final CoercionAction act = ctxt.findCoercionAction(logicalType(), handledType(),
+                            CoercionInputShape.EmptyString);
+                    return (Collection<String>) _deserializeFromEmptyString(p, ctxt, act, handledType(),
+                            "empty String (\"\")");
+                }
+                if (_isBlank(textValue)) {
+                    final CoercionAction act = ctxt.findCoercionFromBlankString(logicalType(), handledType(),
+                            CoercionAction.Fail);
+                    return (Collection<String>) _deserializeFromEmptyString(p, ctxt, act, handledType(),
+                            "blank String (all whitespace)");
+                }
+            }
+
             try {
                 value = (valueDes == null) ? _parseString(p, ctxt) : valueDes.deserialize(p, ctxt);
             } catch (Exception e) {
                 throw JsonMappingException.wrapWithPath(e, result, result.size());
-            }
-        }
-        if (value != null) {
-            // https://github.com/FasterXML/jackson-dataformat-xml/issues/513
-            if (value.isEmpty()) {
-                final CoercionAction act = ctxt.findCoercionAction(logicalType(), handledType(),
-                        CoercionInputShape.EmptyString);
-                return (Collection<String>) _deserializeFromEmptyString(p, ctxt, act, handledType(),
-                        "empty String (\"\")");
-            }
-            if (_isBlank(value)) {
-                final CoercionAction act = ctxt.findCoercionFromBlankString(logicalType(), handledType(),
-                        CoercionAction.Fail);
-                return (Collection<String>) _deserializeFromEmptyString(p, ctxt, act, handledType(),
-                        "blank String (all whitespace)");
             }
         }
         result.add(value);

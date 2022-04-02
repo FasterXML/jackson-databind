@@ -33,7 +33,7 @@ public class BigIntegerNode
 
     /* 
     /**********************************************************
-    /* Overrridden JsonNode methods
+    /* Overridden JsonNode methods
     /**********************************************************
      */
 

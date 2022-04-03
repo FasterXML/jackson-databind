@@ -12,7 +12,7 @@ public class DeepNestingUntypedDeser2816Test extends BaseMapTest
 {
     // 28-Mar-2021, tatu: Currently 3000 fails for untyped/Object,
     //     4000 for untyped/Array
-    private final static int TOO_DEEP_NESTING = 4000;
+    private final static int TOO_DEEP_NESTING = 100000;
 
     private final ObjectMapper MAPPER = newJsonMapper();
 

@@ -10,10 +10,12 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.ResolvableDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.ObjectBuffer;
+import sun.tools.jstat.Token;
 
 /**
  * Deserializer implementation that is used if it is necessary to bind content of
@@ -27,8 +29,8 @@ import com.fasterxml.jackson.databind.util.ObjectBuffer;
  */
 @JacksonStdImpl
 public class UntypedObjectDeserializer
-    extends StdDeserializer<Object>
-    implements ResolvableDeserializer, ContextualDeserializer
+        extends StdDeserializer<Object>
+        implements ResolvableDeserializer, ContextualDeserializer
 {
     private static final long serialVersionUID = 1L;
 
@@ -68,7 +70,7 @@ public class UntypedObjectDeserializer
      * @since 2.9
      */
     protected final boolean _nonMerging;
-    
+
     /**
      * @deprecated Since 2.6 use variant takes type arguments
      */
@@ -86,8 +88,8 @@ public class UntypedObjectDeserializer
 
     @SuppressWarnings("unchecked")
     public UntypedObjectDeserializer(UntypedObjectDeserializer base,
-            JsonDeserializer<?> mapDeser, JsonDeserializer<?> listDeser,
-            JsonDeserializer<?> stringDeser, JsonDeserializer<?> numberDeser)
+                                     JsonDeserializer<?> mapDeser, JsonDeserializer<?> listDeser,
+                                     JsonDeserializer<?> stringDeser, JsonDeserializer<?> numberDeser)
     {
         super(Object.class);
         _mapDeserializer = (JsonDeserializer<Object>) mapDeser;
@@ -103,7 +105,7 @@ public class UntypedObjectDeserializer
      * @since 2.9
      */
     protected UntypedObjectDeserializer(UntypedObjectDeserializer base,
-            boolean nonMerging)
+                                        boolean nonMerging)
     {
         super(Object.class);
         _mapDeserializer = base._mapDeserializer;
@@ -169,7 +171,7 @@ public class UntypedObjectDeserializer
     }
 
     protected JsonDeserializer<Object> _findCustomDeser(DeserializationContext ctxt, JavaType type)
-        throws JsonMappingException
+            throws JsonMappingException
     {
         // Since we are calling from `resolve`, we should NOT try to contextualize yet;
         // contextualization will only occur at a later point
@@ -186,7 +188,7 @@ public class UntypedObjectDeserializer
      */
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
-            BeanProperty property) throws JsonMappingException
+                                                BeanProperty property) throws JsonMappingException
     {
         // 14-Jun-2017, tatu: [databind#1625]: may want to block merging, for root value
         boolean preventMerge = (property == null)
@@ -239,117 +241,117 @@ public class UntypedObjectDeserializer
     public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
         switch (p.currentTokenId()) {
-        case JsonTokenId.ID_START_OBJECT:
-        case JsonTokenId.ID_FIELD_NAME:
-            // 28-Oct-2015, tatu: [databind#989] We may also be given END_OBJECT (similar to FIELD_NAME),
-            //    if caller has advanced to the first token of Object, but for empty Object
-        case JsonTokenId.ID_END_OBJECT:
-            if (_mapDeserializer != null) {
-                return _mapDeserializer.deserialize(p, ctxt);
-            }
-            return mapObject(p, ctxt);
-        case JsonTokenId.ID_START_ARRAY:
-            if (ctxt.isEnabled(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY)) {
-                return mapArrayToArray(p, ctxt);
-            }
-            if (_listDeserializer != null) {
-                return _listDeserializer.deserialize(p, ctxt);
-            }
-            return mapArray(p, ctxt);
-        case JsonTokenId.ID_EMBEDDED_OBJECT:
-            return p.getEmbeddedObject();
-        case JsonTokenId.ID_STRING:
-            if (_stringDeserializer != null) {
-                return _stringDeserializer.deserialize(p, ctxt);
-            }
-            return p.getText();
+            case JsonTokenId.ID_START_OBJECT:
+            case JsonTokenId.ID_FIELD_NAME:
+                // 28-Oct-2015, tatu: [databind#989] We may also be given END_OBJECT (similar to FIELD_NAME),
+                //    if caller has advanced to the first token of Object, but for empty Object
+            case JsonTokenId.ID_END_OBJECT:
+                if (_mapDeserializer != null) {
+                    return _mapDeserializer.deserialize(p, ctxt);
+                }
+                return mapObject(p, ctxt);
+            case JsonTokenId.ID_START_ARRAY:
+                if (ctxt.isEnabled(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY)) {
+                    return mapArrayToArray(p, ctxt);
+                }
+                if (_listDeserializer != null) {
+                    return _listDeserializer.deserialize(p, ctxt);
+                }
+                return mapArray(p, ctxt);
+            case JsonTokenId.ID_EMBEDDED_OBJECT:
+                return p.getEmbeddedObject();
+            case JsonTokenId.ID_STRING:
+                if (_stringDeserializer != null) {
+                    return _stringDeserializer.deserialize(p, ctxt);
+                }
+                return p.getText();
 
-        case JsonTokenId.ID_NUMBER_INT:
-            if (_numberDeserializer != null) {
-                return _numberDeserializer.deserialize(p, ctxt);
-            }
-            // Caller may want to get all integral values returned as {@link java.math.BigInteger},
-            // or {@link java.lang.Long} for consistency
-            if (ctxt.hasSomeOfFeatures(F_MASK_INT_COERCIONS)) {
-                return _coerceIntegral(p, ctxt);
-            }
-            return p.getNumberValue(); // should be optimal, whatever it is
+            case JsonTokenId.ID_NUMBER_INT:
+                if (_numberDeserializer != null) {
+                    return _numberDeserializer.deserialize(p, ctxt);
+                }
+                // Caller may want to get all integral values returned as {@link java.math.BigInteger},
+                // or {@link java.lang.Long} for consistency
+                if (ctxt.hasSomeOfFeatures(F_MASK_INT_COERCIONS)) {
+                    return _coerceIntegral(p, ctxt);
+                }
+                return p.getNumberValue(); // should be optimal, whatever it is
 
-        case JsonTokenId.ID_NUMBER_FLOAT:
-            if (_numberDeserializer != null) {
-                return _numberDeserializer.deserialize(p, ctxt);
-            }
-            // Need to allow overriding the behavior regarding which type to use
-            if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
-                return p.getDecimalValue();
-            }
-            // as per [databind#1453] should not assume Double but:
-            return p.getNumberValue();
+            case JsonTokenId.ID_NUMBER_FLOAT:
+                if (_numberDeserializer != null) {
+                    return _numberDeserializer.deserialize(p, ctxt);
+                }
+                // Need to allow overriding the behavior regarding which type to use
+                if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
+                    return p.getDecimalValue();
+                }
+                // as per [databind#1453] should not assume Double but:
+                return p.getNumberValue();
 
-        case JsonTokenId.ID_TRUE:
-            return Boolean.TRUE;
-        case JsonTokenId.ID_FALSE:
-            return Boolean.FALSE;
+            case JsonTokenId.ID_TRUE:
+                return Boolean.TRUE;
+            case JsonTokenId.ID_FALSE:
+                return Boolean.FALSE;
 
-        case JsonTokenId.ID_NULL: // 08-Nov-2016, tatu: yes, occurs
-            return null;
+            case JsonTokenId.ID_NULL: // 08-Nov-2016, tatu: yes, occurs
+                return null;
 
 //        case JsonTokenId.ID_END_ARRAY: // invalid
-        default:
+            default:
         }
         return ctxt.handleUnexpectedToken(Object.class, p);
     }
 
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
-            TypeDeserializer typeDeserializer) throws IOException
+                                      TypeDeserializer typeDeserializer) throws IOException
     {
         switch (p.currentTokenId()) {
-        // First: does it look like we had type id wrapping of some kind?
-        case JsonTokenId.ID_START_ARRAY:
-        case JsonTokenId.ID_START_OBJECT:
-        case JsonTokenId.ID_FIELD_NAME:
-            // Output can be as JSON Object, Array or scalar: no way to know at this point:
-            return typeDeserializer.deserializeTypedFromAny(p, ctxt);
+            // First: does it look like we had type id wrapping of some kind?
+            case JsonTokenId.ID_START_ARRAY:
+            case JsonTokenId.ID_START_OBJECT:
+            case JsonTokenId.ID_FIELD_NAME:
+                // Output can be as JSON Object, Array or scalar: no way to know at this point:
+                return typeDeserializer.deserializeTypedFromAny(p, ctxt);
 
-        case JsonTokenId.ID_EMBEDDED_OBJECT:
-            return p.getEmbeddedObject();
+            case JsonTokenId.ID_EMBEDDED_OBJECT:
+                return p.getEmbeddedObject();
 
-        // Otherwise we probably got a "native" type (ones that map
-        // naturally and thus do not need or use type ids)
-        case JsonTokenId.ID_STRING:
-            if (_stringDeserializer != null) {
-                return _stringDeserializer.deserialize(p, ctxt);
-            }
-            return p.getText();
+            // Otherwise we probably got a "native" type (ones that map
+            // naturally and thus do not need or use type ids)
+            case JsonTokenId.ID_STRING:
+                if (_stringDeserializer != null) {
+                    return _stringDeserializer.deserialize(p, ctxt);
+                }
+                return p.getText();
 
-        case JsonTokenId.ID_NUMBER_INT:
-            if (_numberDeserializer != null) {
-                return _numberDeserializer.deserialize(p, ctxt);
-            }
-            // May need coercion to "bigger" types:
-            if (ctxt.hasSomeOfFeatures(F_MASK_INT_COERCIONS)) {
-                return _coerceIntegral(p, ctxt);
-            }
-            return p.getNumberValue(); // should be optimal, whatever it is
+            case JsonTokenId.ID_NUMBER_INT:
+                if (_numberDeserializer != null) {
+                    return _numberDeserializer.deserialize(p, ctxt);
+                }
+                // May need coercion to "bigger" types:
+                if (ctxt.hasSomeOfFeatures(F_MASK_INT_COERCIONS)) {
+                    return _coerceIntegral(p, ctxt);
+                }
+                return p.getNumberValue(); // should be optimal, whatever it is
 
-        case JsonTokenId.ID_NUMBER_FLOAT:
-            if (_numberDeserializer != null) {
-                return _numberDeserializer.deserialize(p, ctxt);
-            }
-            if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
-                return p.getDecimalValue();
-            }
-            return p.getNumberValue();
+            case JsonTokenId.ID_NUMBER_FLOAT:
+                if (_numberDeserializer != null) {
+                    return _numberDeserializer.deserialize(p, ctxt);
+                }
+                if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
+                    return p.getDecimalValue();
+                }
+                return p.getNumberValue();
 
-        case JsonTokenId.ID_TRUE:
-            return Boolean.TRUE;
-        case JsonTokenId.ID_FALSE:
-            return Boolean.FALSE;
+            case JsonTokenId.ID_TRUE:
+                return Boolean.TRUE;
+            case JsonTokenId.ID_FALSE:
+                return Boolean.FALSE;
 
-        case JsonTokenId.ID_NULL: // should not get this far really but...
-            return null;
-        default:
+            case JsonTokenId.ID_NULL: // should not get this far really but...
+                return null;
+            default:
         }
         return ctxt.handleUnexpectedToken(Object.class, p);
     }
@@ -357,70 +359,70 @@ public class UntypedObjectDeserializer
     @SuppressWarnings("unchecked")
     @Override // since 2.9 (to support deep merge)
     public Object deserialize(JsonParser p, DeserializationContext ctxt, Object intoValue)
-        throws IOException
+            throws IOException
     {
         if (_nonMerging) {
             return deserialize(p, ctxt);
         }
 
         switch (p.currentTokenId()) {
-        case JsonTokenId.ID_START_OBJECT:
-        case JsonTokenId.ID_FIELD_NAME:
-            // We may also be given END_OBJECT (similar to FIELD_NAME),
-            // if caller has advanced to the first token of Object, but for empty Object
-        case JsonTokenId.ID_END_OBJECT:
-            if (_mapDeserializer != null) {
-                return _mapDeserializer.deserialize(p, ctxt, intoValue);
-            }
-            if (intoValue instanceof Map<?,?>) {
-                return mapObject(p, ctxt, (Map<Object,Object>) intoValue);
-            }
-            return mapObject(p, ctxt);
-        case JsonTokenId.ID_START_ARRAY:
-            if (_listDeserializer != null) {
-                return _listDeserializer.deserialize(p, ctxt, intoValue);
-            }
-            if (intoValue instanceof Collection<?>) {
-                return mapArray(p, ctxt, (Collection<Object>) intoValue);
-            }
-            if (ctxt.isEnabled(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY)) {
-                return mapArrayToArray(p, ctxt);
-            }
-            return mapArray(p, ctxt);
-        case JsonTokenId.ID_EMBEDDED_OBJECT:
-            return p.getEmbeddedObject();
-        case JsonTokenId.ID_STRING:
-            if (_stringDeserializer != null) {
-                return _stringDeserializer.deserialize(p, ctxt, intoValue);
-            }
-            return p.getText();
+            case JsonTokenId.ID_START_OBJECT:
+            case JsonTokenId.ID_FIELD_NAME:
+                // We may also be given END_OBJECT (similar to FIELD_NAME),
+                // if caller has advanced to the first token of Object, but for empty Object
+            case JsonTokenId.ID_END_OBJECT:
+                if (_mapDeserializer != null) {
+                    return _mapDeserializer.deserialize(p, ctxt, intoValue);
+                }
+                if (intoValue instanceof Map<?,?>) {
+                    return mapObject(p, ctxt, (Map<Object,Object>) intoValue);
+                }
+                return mapObject(p, ctxt);
+            case JsonTokenId.ID_START_ARRAY:
+                if (_listDeserializer != null) {
+                    return _listDeserializer.deserialize(p, ctxt, intoValue);
+                }
+                if (intoValue instanceof Collection<?>) {
+                    return mapArray(p, ctxt, (Collection<Object>) intoValue);
+                }
+                if (ctxt.isEnabled(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY)) {
+                    return mapArrayToArray(p, ctxt);
+                }
+                return mapArray(p, ctxt);
+            case JsonTokenId.ID_EMBEDDED_OBJECT:
+                return p.getEmbeddedObject();
+            case JsonTokenId.ID_STRING:
+                if (_stringDeserializer != null) {
+                    return _stringDeserializer.deserialize(p, ctxt, intoValue);
+                }
+                return p.getText();
 
-        case JsonTokenId.ID_NUMBER_INT:
-            if (_numberDeserializer != null) {
-                return _numberDeserializer.deserialize(p, ctxt, intoValue);
-            }
-            if (ctxt.hasSomeOfFeatures(F_MASK_INT_COERCIONS)) {
-                return _coerceIntegral(p, ctxt);
-            }
-            return p.getNumberValue();
+            case JsonTokenId.ID_NUMBER_INT:
+                if (_numberDeserializer != null) {
+                    return _numberDeserializer.deserialize(p, ctxt, intoValue);
+                }
+                if (ctxt.hasSomeOfFeatures(F_MASK_INT_COERCIONS)) {
+                    return _coerceIntegral(p, ctxt);
+                }
+                return p.getNumberValue();
 
-        case JsonTokenId.ID_NUMBER_FLOAT:
-            if (_numberDeserializer != null) {
-                return _numberDeserializer.deserialize(p, ctxt, intoValue);
-            }
-            if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
-                return p.getDecimalValue();
-            }
-            return p.getNumberValue();
-        case JsonTokenId.ID_TRUE:
-            return Boolean.TRUE;
-        case JsonTokenId.ID_FALSE:
-            return Boolean.FALSE;
+            case JsonTokenId.ID_NUMBER_FLOAT:
+                if (_numberDeserializer != null) {
+                    return _numberDeserializer.deserialize(p, ctxt, intoValue);
+                }
+                if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
+                    return p.getDecimalValue();
+                }
+                return p.getNumberValue();
+            case JsonTokenId.ID_TRUE:
+                return Boolean.TRUE;
+            case JsonTokenId.ID_FALSE:
+                return Boolean.FALSE;
 
-        case JsonTokenId.ID_NULL:
-            // 21-Apr-2017, tatu: May need to consider "skip nulls" at some point but...
-            return null;
-        default:
+            case JsonTokenId.ID_NULL:
+                // 21-Apr-2017, tatu: May need to consider "skip nulls" at some point but...
+                return null;
+            default:
         }
         // easiest to just delegate to "dumb" version for the rest?
         return deserialize(p, ctxt);
@@ -476,7 +478,7 @@ public class UntypedObjectDeserializer
     }
 
     protected Object mapArray(JsonParser p, DeserializationContext ctxt,
-            Collection<Object> result) throws IOException
+                              Collection<Object> result) throws IOException
     {
         // we start by pointing to START_ARRAY. Also, no real merging; array/Collection
         // just appends always
@@ -493,7 +495,7 @@ public class UntypedObjectDeserializer
     {
         String key1;
         JsonToken t = p.currentToken();
-        
+
         if (t == JsonToken.START_OBJECT) {
             key1 = p.nextFieldName();
         } else if (t == JsonToken.FIELD_NAME) {
@@ -555,8 +557,8 @@ public class UntypedObjectDeserializer
 
     // @since 2.12 (wrt [databind#2733]
     protected Object _mapObjectWithDups(JsonParser p, DeserializationContext ctxt,
-            final Map<String, Object> result, String key,
-            Object oldValue, Object newValue, String nextKey) throws IOException
+                                        final Map<String, Object> result, String key,
+                                        Object oldValue, Object newValue, String nextKey) throws IOException
     {
         final boolean squashDups = ctxt.isEnabled(StreamReadCapability.DUPLICATE_PROPERTIES);
 
@@ -579,7 +581,7 @@ public class UntypedObjectDeserializer
 
     @SuppressWarnings("unchecked")
     private void _squashDups(final Map<String, Object> result, String key,
-            Object oldValue, Object newValue)
+                             Object oldValue, Object newValue)
     {
         if (oldValue instanceof List<?>) {
             ((List<Object>) oldValue).add(newValue);
@@ -616,7 +618,7 @@ public class UntypedObjectDeserializer
     }
 
     protected Object mapObject(JsonParser p, DeserializationContext ctxt,
-            Map<Object,Object> m) throws IOException
+                               Map<Object,Object> m) throws IOException
     {
         JsonToken t = p.currentToken();
         if (t == JsonToken.START_OBJECT) {
@@ -657,7 +659,7 @@ public class UntypedObjectDeserializer
      */
     @JacksonStdImpl
     public static class Vanilla
-        extends StdDeserializer<Object>
+            extends StdDeserializer<Object>
     {
         private static final long serialVersionUID = 1L;
 
@@ -665,7 +667,7 @@ public class UntypedObjectDeserializer
 
         // @since 2.9
         protected final boolean _nonMerging;
-        
+
         public Vanilla() { this(false); }
 
         protected Vanilla(boolean nonMerging) {
@@ -695,62 +697,66 @@ public class UntypedObjectDeserializer
         @Override
         public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
+            System.out.println("hello mate");
+            System.out.println(p.currentTokenId());
             switch (p.currentTokenId()) {
-            case JsonTokenId.ID_START_OBJECT:
-                {
-                    JsonToken t = p.nextToken();
-                    if (t == JsonToken.END_OBJECT) {
-                        return new LinkedHashMap<String,Object>(2);
-                    }
+                case JsonTokenId.ID_START_OBJECT: {
+                    return _deserializeWithNoRecursion(p, ctxt, new LinkedHashMap<String, Object>());
                 }
-            case JsonTokenId.ID_FIELD_NAME:
-                return mapObject(p, ctxt);
-            case JsonTokenId.ID_START_ARRAY:
-                {
-                    JsonToken t = p.nextToken();
-                    if (t == JsonToken.END_ARRAY) { // and empty one too
-                        if (ctxt.isEnabled(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY)) {
-                            return NO_OBJECTS;
+                case JsonTokenId.ID_START_ARRAY: {
+                    if (ctxt.isEnabled(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY)) {
+                        {
+                            JsonToken t = p.nextToken();
+                            if (t == JsonToken.END_ARRAY) { // and empty one too
+                                if (ctxt.isEnabled(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY)) {
+                                    return NO_OBJECTS;
+                                }
+                                return new ArrayList<Object>(2);
+                            }
                         }
-                        return new ArrayList<Object>(2);
+                        return mapArrayToArray(p, ctxt);
                     }
+                    return _deserializeWithNoRecursion(p, ctxt, new ArrayList<Object>());
                 }
-                if (ctxt.isEnabled(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY)) {
-                    return mapArrayToArray(p, ctxt);
-                }
-                return mapArray(p, ctxt);
-            case JsonTokenId.ID_EMBEDDED_OBJECT:
-                return p.getEmbeddedObject();
-            case JsonTokenId.ID_STRING:
-                return p.getText();
+                case JsonTokenId.ID_FIELD_NAME:
+                    LinkedHashMap<String, Object> first = new LinkedHashMap<>();
+                    String name = p.currentName();
+                    p.nextFieldName();
+                    Object next = _deserializeWithNoRecursion(p, ctxt, new LinkedHashMap<String, Object>());
+                    first.put(name, next);
+                    return first;
+                case JsonTokenId.ID_EMBEDDED_OBJECT:
+                    return p.getEmbeddedObject();
+                case JsonTokenId.ID_STRING:
+                    return p.getText();
 
-            case JsonTokenId.ID_NUMBER_INT:
-                if (ctxt.hasSomeOfFeatures(F_MASK_INT_COERCIONS)) {
-                    return _coerceIntegral(p, ctxt);
-                }
-                return p.getNumberValue(); // should be optimal, whatever it is
+                case JsonTokenId.ID_NUMBER_INT:
+                    if (ctxt.hasSomeOfFeatures(F_MASK_INT_COERCIONS)) {
+                        return _coerceIntegral(p, ctxt);
+                    }
+                    return p.getNumberValue(); // should be optimal, whatever it is
 
-            case JsonTokenId.ID_NUMBER_FLOAT:
-                if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
-                    return p.getDecimalValue();
-                }
-                return p.getNumberValue();
+                case JsonTokenId.ID_NUMBER_FLOAT:
+                    if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
+                        return p.getDecimalValue();
+                    }
+                    return p.getNumberValue();
 
-            case JsonTokenId.ID_TRUE:
-                return Boolean.TRUE;
-            case JsonTokenId.ID_FALSE:
-                return Boolean.FALSE;
+                case JsonTokenId.ID_TRUE:
+                    return Boolean.TRUE;
+                case JsonTokenId.ID_FALSE:
+                    return Boolean.FALSE;
 
-            case JsonTokenId.ID_END_OBJECT:
-                // 28-Oct-2015, tatu: [databind#989] We may also be given END_OBJECT (similar to FIELD_NAME),
-                //    if caller has advanced to the first token of Object, but for empty Object
-                return new LinkedHashMap<String,Object>(2);
+                case JsonTokenId.ID_END_OBJECT:
+                    // 28-Oct-2015, tatu: [databind#989] We may also be given END_OBJECT (similar to FIELD_NAME),
+                    //    if caller has advanced to the first token of Object, but for empty Object
+                    return new LinkedHashMap<String,Object>(2);
 
-            case JsonTokenId.ID_NULL: // 08-Nov-2016, tatu: yes, occurs
-                return null;
+                case JsonTokenId.ID_NULL: // 08-Nov-2016, tatu: yes, occurs
+                    return null;
 
-            //case JsonTokenId.ID_END_ARRAY: // invalid
-            default:
+                //case JsonTokenId.ID_END_ARRAY: // invalid
+                default:
             }
             return ctxt.handleUnexpectedToken(Object.class, p);
         }
@@ -759,36 +765,36 @@ public class UntypedObjectDeserializer
         public Object deserializeWithType(JsonParser p, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException
         {
             switch (p.currentTokenId()) {
-            case JsonTokenId.ID_START_ARRAY:
-            case JsonTokenId.ID_START_OBJECT:
-            case JsonTokenId.ID_FIELD_NAME:
-                return typeDeserializer.deserializeTypedFromAny(p, ctxt);
+                case JsonTokenId.ID_START_ARRAY:
+                case JsonTokenId.ID_START_OBJECT:
+                case JsonTokenId.ID_FIELD_NAME:
+                    return typeDeserializer.deserializeTypedFromAny(p, ctxt);
 
-            case JsonTokenId.ID_STRING:
-                return p.getText();
+                case JsonTokenId.ID_STRING:
+                    return p.getText();
 
-            case JsonTokenId.ID_NUMBER_INT:
-                if (ctxt.isEnabled(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS)) {
-                    return p.getBigIntegerValue();
-                }
-                return p.getNumberValue();
+                case JsonTokenId.ID_NUMBER_INT:
+                    if (ctxt.isEnabled(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS)) {
+                        return p.getBigIntegerValue();
+                    }
+                    return p.getNumberValue();
 
-            case JsonTokenId.ID_NUMBER_FLOAT:
-                if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
-                    return p.getDecimalValue();
-                }
-                return p.getNumberValue();
+                case JsonTokenId.ID_NUMBER_FLOAT:
+                    if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
+                        return p.getDecimalValue();
+                    }
+                    return p.getNumberValue();
 
-            case JsonTokenId.ID_TRUE:
-                return Boolean.TRUE;
-            case JsonTokenId.ID_FALSE:
-                return Boolean.FALSE;
-            case JsonTokenId.ID_EMBEDDED_OBJECT:
-                return p.getEmbeddedObject();
+                case JsonTokenId.ID_TRUE:
+                    return Boolean.TRUE;
+                case JsonTokenId.ID_FALSE:
+                    return Boolean.FALSE;
+                case JsonTokenId.ID_EMBEDDED_OBJECT:
+                    return p.getEmbeddedObject();
 
-            case JsonTokenId.ID_NULL: // should not get this far really but...
-                return null;
-            default:
+                case JsonTokenId.ID_NULL: // should not get this far really but...
+                    return null;
+                default:
             }
             return ctxt.handleUnexpectedToken(Object.class, p);
         }
@@ -796,45 +802,45 @@ public class UntypedObjectDeserializer
         @SuppressWarnings("unchecked")
         @Override // since 2.9 (to support deep merge)
         public Object deserialize(JsonParser p, DeserializationContext ctxt, Object intoValue)
-            throws IOException
+                throws IOException
         {
             if (_nonMerging) {
                 return deserialize(p, ctxt);
             }
             switch (p.currentTokenId()) {
-            case JsonTokenId.ID_END_OBJECT:
-            case JsonTokenId.ID_END_ARRAY:
-                return intoValue;
-            case JsonTokenId.ID_START_OBJECT:
+                case JsonTokenId.ID_END_OBJECT:
+                case JsonTokenId.ID_END_ARRAY:
+                    return intoValue;
+                case JsonTokenId.ID_START_OBJECT:
                 {
                     JsonToken t = p.nextToken(); // to get to FIELD_NAME or END_OBJECT
                     if (t == JsonToken.END_OBJECT) {
                         return intoValue;
                     }
                 }
-            case JsonTokenId.ID_FIELD_NAME:
-                if (intoValue instanceof Map<?,?>) {
-                    Map<Object,Object> m = (Map<Object,Object>) intoValue;
-                    // NOTE: we are guaranteed to point to FIELD_NAME
-                    String key = p.currentName();
-                    do {
-                        p.nextToken();
-                        // and possibly recursive merge here
-                        Object old = m.get(key);
-                        Object newV;
-                        if (old != null) {
-                            newV = deserialize(p, ctxt, old);
-                        } else {
-                            newV = deserialize(p, ctxt);
-                        }
-                        if (newV != old) {
-                            m.put(key, newV);
-                        }
-                    } while ((key = p.nextFieldName()) != null);
-                    return intoValue;
-                }
-                break;
-            case JsonTokenId.ID_START_ARRAY:
+                case JsonTokenId.ID_FIELD_NAME:
+                    if (intoValue instanceof Map<?,?>) {
+                        Map<Object,Object> m = (Map<Object,Object>) intoValue;
+                        // NOTE: we are guaranteed to point to FIELD_NAME
+                        String key = p.currentName();
+                        do {
+                            p.nextToken();
+                            // and possibly recursive merge here
+                            Object old = m.get(key);
+                            Object newV;
+                            if (old != null) {
+                                newV = deserialize(p, ctxt, old);
+                            } else {
+                                newV = deserialize(p, ctxt);
+                            }
+                            if (newV != old) {
+                                m.put(key, newV);
+                            }
+                        } while ((key = p.nextFieldName()) != null);
+                        return intoValue;
+                    }
+                    break;
+                case JsonTokenId.ID_START_ARRAY:
                 {
                     JsonToken t = p.nextToken(); // to get to FIELD_NAME or END_OBJECT
                     if (t == JsonToken.END_ARRAY) {
@@ -862,7 +868,7 @@ public class UntypedObjectDeserializer
         {
             Object value = deserialize(p, ctxt);
             if (p.nextToken()  == JsonToken.END_ARRAY) {
-                ArrayList<Object> l = new ArrayList<Object>(2);
+                    ArrayList<Object> l = new ArrayList<Object>(2);
                 l.add(value);
                 return l;
             }
@@ -962,11 +968,156 @@ public class UntypedObjectDeserializer
             return result;
         }
 
+        @SuppressWarnings("unchecked")
+        protected final Object _deserializeWithNoRecursion(JsonParser p, DeserializationContext ctxt, Object root) throws IOException {
+            //if(p.currentTokenId() == JsonTokenId.ID_START_OBJECT) root = new LinkedHashMap<String, Object>();
+            //else if (p.currentTokenId() == JsonTokenId.ID_START_ARRAY) root = new ArrayList<>(); //TODO: fix this
+
+            Object curr = root;
+            int currentNode = p.currentTokenId();
+            ArrayDeque<Object> stack = new ArrayDeque<>();
+            //ContainerNode<?> root = p.currentToken();
+            System.out.println("hello world it is Siraj");
+            System.out.println(p.currentTokenId());
+            outer_loop:
+            do {
+                if (curr instanceof LinkedHashMap) {
+                    LinkedHashMap<String, Object> currObject = (LinkedHashMap<String, Object>) curr;
+                    String propName = p.nextFieldName();
+                    objectLoop:
+                    for (; propName != null; propName = p.nextFieldName()) {
+                        Object value = null;
+                        JsonToken t = p.nextToken();
+                        if (t == null) { // unexpected end-of-input (or bad buffering?)
+                            t = JsonToken.NOT_AVAILABLE; // to trigger an exception
+                        }
+                        switch (t.id()) {
+                            case JsonTokenId.ID_START_OBJECT:
+                            {
+                                LinkedHashMap<String, Object> newOb = new LinkedHashMap<String, Object>();
+                                Object old = currObject.put(propName, newOb);
+                                //if (old != null) {
+                                //  _handleDuplicateField(p, ctxt, nodeFactory,
+                                //        propName, currObject, old, newOb);
+                                //}
+                                stack.push((LinkedHashMap<String, Object>) curr);
+                                curr = currObject = newOb;
+                                // We can actually take a short-cut with nested Objects...
+                                continue objectLoop;
+                            }
+                            case JsonTokenId.ID_START_ARRAY:
+                            {
+                                //ObjectBuffer buffer = ctxt.leaseObjectBuffer();
+                                //Object[] values = buffer.resetAndStart();
+                                ArrayList<Object> newOb = new ArrayList<Object>();
+                                currObject.put(propName, newOb);
+                                stack.push(curr);
+                                curr = newOb;
+                            }
+                            continue outer_loop;
+                            case JsonTokenId.ID_EMBEDDED_OBJECT:
+                                value = p.getEmbeddedObject();
+                                break;
+                            case JsonTokenId.ID_STRING:
+                                value = p.getText();
+                                break;
+
+                            case JsonTokenId.ID_NUMBER_INT:
+                                if (ctxt.hasSomeOfFeatures(F_MASK_INT_COERCIONS)) {
+                                    value = _coerceIntegral(p, ctxt);
+                                } else {
+                                    value = p.getNumberValue(); // should be optimal, whatever it is
+                                }
+                                break;
+
+                            case JsonTokenId.ID_NUMBER_FLOAT:
+                                if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
+                                    value = p.getDecimalValue();
+                                } else {
+                                    value = p.getNumberValue();
+                                }
+                                break;
+
+                            case JsonTokenId.ID_TRUE:
+                                value = Boolean.TRUE;
+                                break;
+                            case JsonTokenId.ID_FALSE:
+                                value =  Boolean.FALSE;
+                                break;
+                        }
+                        currObject.put(propName, value);
+                        //if (old != null) {
+                        //  _handleDuplicateField(p, ctxt, nodeFactory,
+                        //        propName, currObject, old, value);
+                        //}
+                    }
+                    // reached not-property-name, should be END_OBJECT (verify?)
+                } else if (curr instanceof ArrayList) {
+                    ArrayList<Object> currArray = (ArrayList<Object>) curr;
+                    arrayLoop:
+                    while (true) {
+                        JsonToken t = p.nextToken();
+                        //System.out.println("id: " + t.id());
+                        if (t == null) { // unexpected end-of-input (or bad buffering?)
+                            t = JsonToken.NOT_AVAILABLE; // to trigger an exception
+                        }
+                        switch (t.id()) {
+                            case JsonTokenId.ID_START_OBJECT:
+                                stack.push(curr);
+                                curr = new LinkedHashMap<String, Object>();
+                                currArray.add(curr);
+                                continue outer_loop;
+                            case JsonTokenId.ID_START_ARRAY:
+                                stack.push(curr);
+                                curr = new ArrayList<Object>();
+                                currArray.add(curr);
+                                continue outer_loop;
+                            case JsonTokenId.ID_END_ARRAY:
+                                break arrayLoop;
+                            case JsonTokenId.ID_STRING:
+                                currArray.add(p.getText());
+                                continue arrayLoop;
+
+                            case JsonTokenId.ID_NUMBER_INT:
+                                if (ctxt.hasSomeOfFeatures(F_MASK_INT_COERCIONS)) {
+                                    currArray.add(_coerceIntegral(p, ctxt));
+                                } else {
+                                    currArray.add(p.getNumberValue()); // should be optimal, whatever it is
+                                }
+                                continue arrayLoop;
+
+                            case JsonTokenId.ID_NUMBER_FLOAT:
+                                if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
+                                    currArray.add(p.getDecimalValue());
+                                } else {
+                                    currArray.add(p.getNumberValue());
+                                }
+                                continue arrayLoop;
+
+                            case JsonTokenId.ID_TRUE:
+                                currArray.add(Boolean.TRUE);
+                                continue arrayLoop;
+                            case JsonTokenId.ID_FALSE:
+                                currArray.add(Boolean.FALSE);
+                                continue arrayLoop;
+                            case JsonTokenId.ID_NULL:
+                                currArray.add(null);
+                                continue arrayLoop;
+                        }
+                    }
+                }
+                // Either way, Object or Array ended, return up nesting level:
+                if(stack.peekFirst() == null ) curr = null;
+                else curr = stack.pop();
+            } while (curr != null);
+            return root;
+        }
+
         // NOTE: copied from above (alas, no easy way to share/reuse)
         // @since 2.12 (wrt [databind#2733]
         protected Object _mapObjectWithDups(JsonParser p, DeserializationContext ctxt,
-                final Map<String, Object> result, String initialKey,
-                Object oldValue, Object newValue, String nextKey) throws IOException
+                                            final Map<String, Object> result, String initialKey,
+                                            Object oldValue, Object newValue, String nextKey) throws IOException
         {
             final boolean squashDups = ctxt.isEnabled(StreamReadCapability.DUPLICATE_PROPERTIES);
 
@@ -990,7 +1141,7 @@ public class UntypedObjectDeserializer
         // NOTE: copied from above (alas, no easy way to share/reuse)
         @SuppressWarnings("unchecked")
         private void _squashDups(final Map<String, Object> result, String key,
-                Object oldValue, Object newValue)
+                                 Object oldValue, Object newValue)
         {
             if (oldValue instanceof List<?>) {
                 ((List<Object>) oldValue).add(newValue);

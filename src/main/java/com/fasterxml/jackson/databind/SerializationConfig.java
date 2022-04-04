@@ -109,13 +109,14 @@ public final class SerializationConfig
     /**
      * Constructor used by ObjectMapper to create default configuration object instance.
      *
-     * @since 2.9
+     * @since 2.14
      */
     public SerializationConfig(BaseSettings base,
             SubtypeResolver str, SimpleMixInResolver mixins, RootNameLookup rootNames,
-            ConfigOverrides configOverrides)
+            ConfigOverrides configOverrides,
+            DatatypeFeatures datatypeFeatures)
     {
-        super(base, str, mixins, rootNames, configOverrides);
+        super(base, str, mixins, rootNames, configOverrides, datatypeFeatures);
         _serFeatures = SER_FEATURE_DEFAULTS;
         _filterProvider = null;
         _defaultPrettyPrinter = DEFAULT_PRETTY_PRINTER;
@@ -126,9 +127,21 @@ public final class SerializationConfig
     }
 
     /**
+     * @deprecated since 2.14
+     */
+    @Deprecated // since 2.14
+    public SerializationConfig(BaseSettings base,
+            SubtypeResolver str, SimpleMixInResolver mixins, RootNameLookup rootNames,
+            ConfigOverrides configOverrides)
+    {
+        this(base, str, mixins, rootNames, configOverrides,
+                DatatypeFeatures.defaultFeatures());
+    }
+
+    /**
      * Copy-constructor used for making a copy to be used by new {@link ObjectMapper}.
      *
-     * @since 2.11.2
+     * @since 2.14
      */
     protected SerializationConfig(SerializationConfig src,
             SubtypeResolver str, SimpleMixInResolver mixins, RootNameLookup rootNames,
@@ -142,18 +155,6 @@ public final class SerializationConfig
         _generatorFeaturesToChange = src._generatorFeaturesToChange;
         _formatWriteFeatures = src._formatWriteFeatures;
         _formatWriteFeaturesToChange = src._formatWriteFeaturesToChange;
-    }
-
-    /**
-     * @since 2.9
-     * @deprecated since 2.11.2
-     */
-    @Deprecated
-    protected SerializationConfig(SerializationConfig src,
-            SimpleMixInResolver mixins, RootNameLookup rootNames,
-            ConfigOverrides configOverrides)
-    {
-        this(src, src._subtypeResolver, mixins, rootNames, configOverrides);
     }
 
     /*
@@ -267,7 +268,7 @@ public final class SerializationConfig
         _formatWriteFeatures = src._formatWriteFeatures;
         _formatWriteFeaturesToChange = src._formatWriteFeaturesToChange;
     }
-    
+
     /**
      * @since 2.6
      */
@@ -277,6 +278,21 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _filterProvider = src._filterProvider;
         _defaultPrettyPrinter = defaultPP;
+        _generatorFeatures = src._generatorFeatures;
+        _generatorFeaturesToChange = src._generatorFeaturesToChange;
+        _formatWriteFeatures = src._formatWriteFeatures;
+        _formatWriteFeaturesToChange = src._formatWriteFeaturesToChange;
+    }
+
+    /**
+     * @since 2.14
+     */
+    protected SerializationConfig(SerializationConfig src, DatatypeFeatures dtFeatures)
+    {
+        super(src, dtFeatures);
+        _serFeatures = src._serFeatures;
+        _filterProvider = src._filterProvider;
+        _defaultPrettyPrinter = src._defaultPrettyPrinter;
         _generatorFeatures = src._generatorFeatures;
         _generatorFeaturesToChange = src._generatorFeaturesToChange;
         _formatWriteFeatures = src._formatWriteFeatures;
@@ -299,6 +315,11 @@ public final class SerializationConfig
         return new SerializationConfig(this, mapperFeatures, _serFeatures,
                         _generatorFeatures, _generatorFeaturesToChange,
                         _formatWriteFeatures, _formatWriteFeaturesToChange);
+    }
+
+    @Override
+    protected final SerializationConfig _with(DatatypeFeatures dtFeatures) {
+        return new SerializationConfig(this, dtFeatures);
     }
 
     @Override
@@ -790,9 +811,17 @@ public final class SerializationConfig
         }
         return isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
     }
-    
-    public final boolean isEnabled(SerializationFeature f) {
-        return (_serFeatures & f.getMask()) != 0;
+
+    /**
+     * Accessor for checking whether give {@link SerializationFeature}
+     * is enabled or not.
+     *
+     * @param feature Feature to check
+     *
+     * @return True if feature is enabled; false otherwise
+     */
+    public final boolean isEnabled(SerializationFeature feature) {
+        return (_serFeatures & feature.getMask()) != 0;
     }
 
     /**
@@ -822,6 +851,20 @@ public final class SerializationConfig
 
     public final int getSerializationFeatures() {
         return _serFeatures;
+    }
+
+    /**
+     * Accessor for checking whether give {@link DatatypeFeature}
+     * is enabled or not.
+     *
+     * @param feature Feature to check
+     *
+     * @return True if feature is enabled; false otherwise
+     *
+     * @since 2.14
+     */
+    public final boolean isEnabled(DatatypeFeature feature) {
+        return _datatypeFeatures.isEnabled(feature);
     }
 
     /**

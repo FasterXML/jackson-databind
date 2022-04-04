@@ -1429,6 +1429,19 @@ Matthieu Finiasz (finiasz@github)
    supported on Android before API 26
   (2.13.3)
 
+Taylor S Marks (TaylorSMarks@github)
+  * Contributed fix for #2816: Optimize UntypedObjectDeserializer wrt recursion
+  (2.13.3)
+
+Spence Nace (snace98@github)
+  * Contributed fix for #2816: Optimize UntypedObjectDeserializer wrt recursion
+  (2.13.3)
+
 ZeyuCai@github:
   * Contributed #3314: Four Flaky Tests Detected in 2.14
+  (2.14.0)
+
+Gary Morgan (morganga@github)
+  * Contributed #3419: Improve performance of `UnresolvedForwardReference` for
+    forward reference resolution
   (2.14.0)

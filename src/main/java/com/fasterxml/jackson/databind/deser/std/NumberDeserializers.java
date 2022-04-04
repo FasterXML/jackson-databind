@@ -6,6 +6,7 @@ import java.math.BigInteger;
 import java.util.HashSet;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.io.BigDecimalParser;
 import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
@@ -828,7 +829,7 @@ public class NumberDeserializers
             try {
                 if (!_isIntNumber(text)) {
                     if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
-                        return new BigDecimal(text);
+                        return BigDecimalParser.parse(text);
                     }
                     return Double.valueOf(text);
                 }
@@ -1005,7 +1006,7 @@ public class NumberDeserializers
                 return getNullValue(ctxt);
             }
             try {
-                return new BigDecimal(text);
+                return BigDecimalParser.parse(text);
             } catch (IllegalArgumentException iae) { }
             return (BigDecimal) ctxt.handleWeirdStringValue(_valueClass, text,
                     "not a valid representation");

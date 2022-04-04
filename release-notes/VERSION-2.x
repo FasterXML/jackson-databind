@@ -8,9 +8,21 @@ Project: jackson-databind
 
 #3373: Change `TypeSerializerBase` to skip `generator.writeTypePrefix()`
   for `null` typeId
+#3405: Create DataTypeFeature abstraction (for JSTEP-7) with placeholder features
+#3419: Improve performance of `UnresolvedForwardReference` for forward reference
+ resolution
+(contributed by Gary M)
+#3421: Implement `JsonNodeFeature.READ_NULL_PROPERTIES` to allow skipping of
+  JSON `null` values on reading
 
 2.13.3 (not yet released)
 
+...
+
+2.13.2.1 (24-Mar-2022)
+
+#2816: Optimize UntypedObjectDeserializer wrt recursion
+ (contributed by Taylor S, Spence N)
 #3412: Version 2.13.2 uses `Method.getParameterCount()` which is not
   supported on Android before API 26
  (reported by Matthew F)

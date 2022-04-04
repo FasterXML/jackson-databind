@@ -37,24 +37,6 @@ public class UnresolvedForwardReference extends JsonMappingException {
         _unresolvedIds = new ArrayList<UnresolvedId>();
     }
 
-    /**
-     * @deprecated Since 2.7
-     */
-    @Deprecated // since 2.7
-    public UnresolvedForwardReference(String msg, JsonLocation loc, ReadableObjectId roid) {
-        super(msg, loc);
-        _roid = roid;
-    }
-
-    /**
-     * @deprecated Since 2.7
-     */
-    @Deprecated // since 2.7
-    public UnresolvedForwardReference(String msg) {
-        super(msg);
-        _unresolvedIds = new ArrayList<UnresolvedId>();
-    }
-
     /*
     /**********************************************************
     /* Accessor methods
@@ -96,5 +78,30 @@ public class UnresolvedForwardReference extends JsonMappingException {
         }
         sb.append('.');
         return sb.toString();
+    }
+
+    /**
+     * This method is overridden to prevent filling of the stack trace when
+     * constructors are called (unfortunately alternative constructors can
+     * not be used due to historical reasons).
+     * To explicitly fill in stack traces method {@link #withStackTrace()}
+     * needs to be called after construction.
+     *
+     * @since 2.14
+     */
+    @Override
+    public synchronized UnresolvedForwardReference fillInStackTrace() {
+        return this;
+    }
+
+    /**
+     * "Mutant" factory method for filling in stack trace; needed since the default
+     * constructors will not fill in stack trace.
+     *
+     * @since 2.14
+     */
+    public UnresolvedForwardReference withStackTrace() {
+        super.fillInStackTrace();
+        return this;
     }
 }

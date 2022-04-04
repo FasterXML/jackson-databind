@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.ObjectBuffer;
+import jdk.internal.org.jline.reader.Parser;
 import sun.tools.jstat.Token;
 
 /**
@@ -563,7 +564,7 @@ public class UntypedObjectDeserializer
         final boolean squashDups = ctxt.isEnabled(StreamReadCapability.DUPLICATE_PROPERTIES);
 
         if (squashDups) {
-            _squashDups(result, key, oldValue, newValue);
+            _squashDups(result, key, oldValue, newValue, ctxt);
         }
 
         while (nextKey != null) {
@@ -571,7 +572,7 @@ public class UntypedObjectDeserializer
             newValue = deserialize(p, ctxt);
             oldValue = result.put(nextKey, newValue);
             if ((oldValue != null) && squashDups) {
-                _squashDups(result, key, oldValue, newValue);
+                _squashDups(result, key, oldValue, newValue, ctxt);
             }
             nextKey = p.nextFieldName();
         }
@@ -581,8 +582,10 @@ public class UntypedObjectDeserializer
 
     @SuppressWarnings("unchecked")
     private void _squashDups(final Map<String, Object> result, String key,
-                             Object oldValue, Object newValue)
+                             Object oldValue, Object newValue, DeserializationContext ctxt)
     {
+        if(ctxt.isEnabled(StreamReadCapability.DUPLICATE_PROPERTIES)) return;
+
         if (oldValue instanceof List<?>) {
             ((List<Object>) oldValue).add(newValue);
             result.put(key, oldValue);
@@ -697,22 +700,18 @@ public class UntypedObjectDeserializer
         @Override
         public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
-            System.out.println("hello mate");
-            System.out.println(p.currentTokenId());
             switch (p.currentTokenId()) {
                 case JsonTokenId.ID_START_OBJECT: {
                     return _deserializeWithNoRecursion(p, ctxt, new LinkedHashMap<String, Object>());
                 }
                 case JsonTokenId.ID_START_ARRAY: {
                     if (ctxt.isEnabled(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY)) {
-                        {
-                            JsonToken t = p.nextToken();
-                            if (t == JsonToken.END_ARRAY) { // and empty one too
-                                if (ctxt.isEnabled(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY)) {
-                                    return NO_OBJECTS;
-                                }
-                                return new ArrayList<Object>(2);
+                        JsonToken t = p.nextToken();
+                        if (t == JsonToken.END_ARRAY) { // and empty one too
+                            if (ctxt.isEnabled(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY)) {
+                                return NO_OBJECTS;
                             }
+                            return new ArrayList<Object>(2);
                         }
                         return mapArrayToArray(p, ctxt);
                     }
@@ -829,6 +828,7 @@ public class UntypedObjectDeserializer
                             Object old = m.get(key);
                             Object newV;
                             if (old != null) {
+                                //TODO: Here there remains some recursion
                                 newV = deserialize(p, ctxt, old);
                             } else {
                                 newV = deserialize(p, ctxt);
@@ -863,46 +863,10 @@ public class UntypedObjectDeserializer
             // Easiest handling for the rest, delegate. Only (?) question: how about nulls?
             return deserialize(p, ctxt);
         }
-
-        protected Object mapArray(JsonParser p, DeserializationContext ctxt) throws IOException
-        {
-            Object value = deserialize(p, ctxt);
-            if (p.nextToken()  == JsonToken.END_ARRAY) {
-                    ArrayList<Object> l = new ArrayList<Object>(2);
-                l.add(value);
-                return l;
-            }
-            Object value2 = deserialize(p, ctxt);
-            if (p.nextToken()  == JsonToken.END_ARRAY) {
-                ArrayList<Object> l = new ArrayList<Object>(2);
-                l.add(value);
-                l.add(value2);
-                return l;
-            }
-            ObjectBuffer buffer = ctxt.leaseObjectBuffer();
-            Object[] values = buffer.resetAndStart();
-            int ptr = 0;
-            values[ptr++] = value;
-            values[ptr++] = value2;
-            int totalSize = ptr;
-            do {
-                value = deserialize(p, ctxt);
-                ++totalSize;
-                if (ptr >= values.length) {
-                    values = buffer.appendCompletedChunk(values);
-                    ptr = 0;
-                }
-                values[ptr++] = value;
-            } while (p.nextToken() != JsonToken.END_ARRAY);
-            // let's create full array then
-            ArrayList<Object> result = new ArrayList<Object>(totalSize);
-            buffer.completeAndClearBuffer(values, ptr, result);
-            return result;
-        }
-
         /**
          * Method called to map a JSON Array into a Java Object array (Object[]).
          */
+        //TODO: Remove this because it can lead to recursion and therefore same issue as before
         protected Object[] mapArrayToArray(JsonParser p, DeserializationContext ctxt) throws IOException {
             ObjectBuffer buffer = ctxt.leaseObjectBuffer();
             Object[] values = buffer.resetAndStart();
@@ -918,67 +882,11 @@ public class UntypedObjectDeserializer
             return buffer.completeAndClearBuffer(values, ptr);
         }
 
-        /**
-         * Method called to map a JSON Object into a Java value.
-         */
-        protected Object mapObject(JsonParser p, DeserializationContext ctxt) throws IOException
-        {
-            // will point to FIELD_NAME at this point, guaranteed
-            // 19-Jul-2021, tatu: Was incorrectly using "getText()" before 2.13, fixed for 2.13.0
-            String key1 = p.currentName();
-            p.nextToken();
-            Object value1 = deserialize(p, ctxt);
-
-            String key2 = p.nextFieldName();
-            if (key2 == null) { // single entry; but we want modifiable
-                LinkedHashMap<String, Object> result = new LinkedHashMap<String, Object>(2);
-                result.put(key1, value1);
-                return result;
-            }
-            p.nextToken();
-            Object value2 = deserialize(p, ctxt);
-
-            String key = p.nextFieldName();
-            if (key == null) {
-                LinkedHashMap<String, Object> result = new LinkedHashMap<String, Object>(4);
-                result.put(key1, value1);
-                if (result.put(key2, value2) != null) {
-                    // 22-May-2020, tatu: [databind#2733] may need extra handling
-                    return _mapObjectWithDups(p, ctxt, result, key1, value1, value2, key);
-                }
-                return result;
-            }
-            // And then the general case; default map size is 16
-            LinkedHashMap<String, Object> result = new LinkedHashMap<String, Object>();
-            result.put(key1, value1);
-            if (result.put(key2, value2) != null) {
-                // 22-May-2020, tatu: [databind#2733] may need extra handling
-                return _mapObjectWithDups(p, ctxt, result, key1, value1, value2, key);
-            }
-
-            do {
-                p.nextToken();
-                final Object newValue = deserialize(p, ctxt);
-                final Object oldValue = result.put(key, newValue);
-                if (oldValue != null) {
-                    return _mapObjectWithDups(p, ctxt, result, key, oldValue, newValue,
-                            p.nextFieldName());
-                }
-            } while ((key = p.nextFieldName()) != null);
-            return result;
-        }
 
         @SuppressWarnings("unchecked")
         protected final Object _deserializeWithNoRecursion(JsonParser p, DeserializationContext ctxt, Object root) throws IOException {
-            //if(p.currentTokenId() == JsonTokenId.ID_START_OBJECT) root = new LinkedHashMap<String, Object>();
-            //else if (p.currentTokenId() == JsonTokenId.ID_START_ARRAY) root = new ArrayList<>(); //TODO: fix this
-
             Object curr = root;
-            int currentNode = p.currentTokenId();
             ArrayDeque<Object> stack = new ArrayDeque<>();
-            //ContainerNode<?> root = p.currentToken();
-            System.out.println("hello world it is Siraj");
-            System.out.println(p.currentTokenId());
             outer_loop:
             do {
                 if (curr instanceof LinkedHashMap) {
@@ -995,20 +903,18 @@ public class UntypedObjectDeserializer
                             case JsonTokenId.ID_START_OBJECT:
                             {
                                 LinkedHashMap<String, Object> newOb = new LinkedHashMap<String, Object>();
-                                Object old = currObject.put(propName, newOb);
-                                //if (old != null) {
-                                //  _handleDuplicateField(p, ctxt, nodeFactory,
-                                //        propName, currObject, old, newOb);
-                                //}
-                                stack.push((LinkedHashMap<String, Object>) curr);
+                                Object oldOb = currObject.put(propName, newOb);
+                                if (oldOb != null) {
+                                    // 22-May-2020, tatu: [databind#2733] may need extra handling
+                                    _squashDups(currObject, propName, oldOb, newOb, ctxt);
+                                }
+                                stack.push(curr);
                                 curr = currObject = newOb;
                                 // We can actually take a short-cut with nested Objects...
                                 continue objectLoop;
                             }
                             case JsonTokenId.ID_START_ARRAY:
                             {
-                                //ObjectBuffer buffer = ctxt.leaseObjectBuffer();
-                                //Object[] values = buffer.resetAndStart();
                                 ArrayList<Object> newOb = new ArrayList<Object>();
                                 currObject.put(propName, newOb);
                                 stack.push(curr);
@@ -1045,11 +951,11 @@ public class UntypedObjectDeserializer
                                 value =  Boolean.FALSE;
                                 break;
                         }
-                        currObject.put(propName, value);
-                        //if (old != null) {
-                        //  _handleDuplicateField(p, ctxt, nodeFactory,
-                        //        propName, currObject, old, value);
-                        //}
+                        Object oldOb = currObject.put(propName, value);
+                        if (oldOb != null) {
+                            // 22-May-2020, tatu: [databind#2733] may need extra handling
+                            _squashDups(currObject, propName, oldOb, value, ctxt);
+                        }
                     }
                     // reached not-property-name, should be END_OBJECT (verify?)
                 } else if (curr instanceof ArrayList) {
@@ -1057,7 +963,6 @@ public class UntypedObjectDeserializer
                     arrayLoop:
                     while (true) {
                         JsonToken t = p.nextToken();
-                        //System.out.println("id: " + t.id());
                         if (t == null) { // unexpected end-of-input (or bad buffering?)
                             t = JsonToken.NOT_AVAILABLE; // to trigger an exception
                         }
@@ -1107,6 +1012,7 @@ public class UntypedObjectDeserializer
                     }
                 }
                 // Either way, Object or Array ended, return up nesting level:
+                //TODO: Below is needed to avoid null-pointer exception but perhaps is inefficient
                 if(stack.peekFirst() == null ) curr = null;
                 else curr = stack.pop();
             } while (curr != null);
@@ -1115,34 +1021,13 @@ public class UntypedObjectDeserializer
 
         // NOTE: copied from above (alas, no easy way to share/reuse)
         // @since 2.12 (wrt [databind#2733]
-        protected Object _mapObjectWithDups(JsonParser p, DeserializationContext ctxt,
-                                            final Map<String, Object> result, String initialKey,
-                                            Object oldValue, Object newValue, String nextKey) throws IOException
-        {
-            final boolean squashDups = ctxt.isEnabled(StreamReadCapability.DUPLICATE_PROPERTIES);
-
-            if (squashDups) {
-                _squashDups(result, initialKey, oldValue, newValue);
-            }
-
-            while (nextKey != null) {
-                p.nextToken();
-                newValue = deserialize(p, ctxt);
-                oldValue = result.put(nextKey, newValue);
-                if ((oldValue != null) && squashDups) {
-                    _squashDups(result, nextKey, oldValue, newValue);
-                }
-                nextKey = p.nextFieldName();
-            }
-
-            return result;
-        }
 
         // NOTE: copied from above (alas, no easy way to share/reuse)
         @SuppressWarnings("unchecked")
         private void _squashDups(final Map<String, Object> result, String key,
-                                 Object oldValue, Object newValue)
+                                 Object oldValue, Object newValue,DeserializationContext ctxt)
         {
+            if(!ctxt.isEnabled(StreamReadCapability.DUPLICATE_PROPERTIES)) return;
             if (oldValue instanceof List<?>) {
                 ((List<Object>) oldValue).add(newValue);
                 result.put(key, oldValue);

@@ -19,6 +19,9 @@ Project: jackson-databind
 
 2.13.3 (not yet released)
 
+#3419: Improve performance of `UnresolvedForwardReference` for forward
+ reference resolution
+(contributed by Gary M)
 #3446: `java.lang.StringBuffer` cannot be deserialized
  (reported by Lolf1010@github)
 

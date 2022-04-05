@@ -579,7 +579,7 @@ public class UntypedObjectDeserializer
 
     @SuppressWarnings("unchecked")
     private void _squashDups(final Map<String, Object> result, String key,
-                             Object oldValue, Object newValue, DeserializationContext ctxt)
+            Object oldValue, Object newValue, DeserializationContext ctxt)
     {
         if (ctxt.isEnabled(StreamReadCapability.DUPLICATE_PROPERTIES)) return;
 

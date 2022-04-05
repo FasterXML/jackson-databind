@@ -10,13 +10,10 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.ResolvableDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.ObjectBuffer;
-import jdk.internal.org.jline.reader.Parser;
-import sun.tools.jstat.Token;
 
 /**
  * Deserializer implementation that is used if it is necessary to bind content of
@@ -31,8 +28,7 @@ import sun.tools.jstat.Token;
 @JacksonStdImpl
 public class UntypedObjectDeserializer
         extends StdDeserializer<Object>
-        implements ResolvableDeserializer, ContextualDeserializer
-{
+        implements ResolvableDeserializer, ContextualDeserializer {
     private static final long serialVersionUID = 1L;
 
     protected final static Object[] NO_OBJECTS = new Object[0];
@@ -90,8 +86,7 @@ public class UntypedObjectDeserializer
     @SuppressWarnings("unchecked")
     public UntypedObjectDeserializer(UntypedObjectDeserializer base,
                                      JsonDeserializer<?> mapDeser, JsonDeserializer<?> listDeser,
-                                     JsonDeserializer<?> stringDeser, JsonDeserializer<?> numberDeser)
-    {
+                                     JsonDeserializer<?> stringDeser, JsonDeserializer<?> numberDeser) {
         super(Object.class);
         _mapDeserializer = (JsonDeserializer<Object>) mapDeser;
         _listDeserializer = (JsonDeserializer<Object>) listDeser;
@@ -106,8 +101,7 @@ public class UntypedObjectDeserializer
      * @since 2.9
      */
     protected UntypedObjectDeserializer(UntypedObjectDeserializer base,
-                                        boolean nonMerging)
-    {
+                                        boolean nonMerging) {
         super(Object.class);
         _mapDeserializer = base._mapDeserializer;
         _listDeserializer = base._listDeserializer;
@@ -131,8 +125,7 @@ public class UntypedObjectDeserializer
      */
     @SuppressWarnings("unchecked")
     @Override
-    public void resolve(DeserializationContext ctxt) throws JsonMappingException
-    {
+    public void resolve(DeserializationContext ctxt) throws JsonMappingException {
         JavaType obType = ctxt.constructType(Object.class);
         JavaType stringType = ctxt.constructType(String.class);
         TypeFactory tf = ctxt.getTypeFactory();
@@ -172,8 +165,7 @@ public class UntypedObjectDeserializer
     }
 
     protected JsonDeserializer<Object> _findCustomDeser(DeserializationContext ctxt, JavaType type)
-            throws JsonMappingException
-    {
+            throws JsonMappingException {
         // Since we are calling from `resolve`, we should NOT try to contextualize yet;
         // contextualization will only occur at a later point
         return ctxt.findNonContextualValueDeserializer(type);
@@ -189,8 +181,7 @@ public class UntypedObjectDeserializer
      */
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
-                                                BeanProperty property) throws JsonMappingException
-    {
+                                                BeanProperty property) throws JsonMappingException {
         // 14-Jun-2017, tatu: [databind#1625]: may want to block merging, for root value
         boolean preventMerge = (property == null)
                 && Boolean.FALSE.equals(ctxt.getConfig().getDefaultMergeable(Object.class));
@@ -198,7 +189,7 @@ public class UntypedObjectDeserializer
         //     simpler and can avoid some of delegation
         if ((_stringDeserializer == null) && (_numberDeserializer == null)
                 && (_mapDeserializer == null) && (_listDeserializer == null)
-                &&  getClass() == UntypedObjectDeserializer.class) {
+                && getClass() == UntypedObjectDeserializer.class) {
             return Vanilla.instance(preventMerge);
         }
 
@@ -239,8 +230,7 @@ public class UntypedObjectDeserializer
     }
 
     @Override
-    public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
-    {
+    public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         switch (p.currentTokenId()) {
             case JsonTokenId.ID_START_OBJECT:
             case JsonTokenId.ID_FIELD_NAME:
@@ -305,8 +295,7 @@ public class UntypedObjectDeserializer
 
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
-                                      TypeDeserializer typeDeserializer) throws IOException
-    {
+                                      TypeDeserializer typeDeserializer) throws IOException {
         switch (p.currentTokenId()) {
             // First: does it look like we had type id wrapping of some kind?
             case JsonTokenId.ID_START_ARRAY:
@@ -360,8 +349,7 @@ public class UntypedObjectDeserializer
     @SuppressWarnings("unchecked")
     @Override // since 2.9 (to support deep merge)
     public Object deserialize(JsonParser p, DeserializationContext ctxt, Object intoValue)
-            throws IOException
-    {
+            throws IOException {
         if (_nonMerging) {
             return deserialize(p, ctxt);
         }
@@ -375,8 +363,8 @@ public class UntypedObjectDeserializer
                 if (_mapDeserializer != null) {
                     return _mapDeserializer.deserialize(p, ctxt, intoValue);
                 }
-                if (intoValue instanceof Map<?,?>) {
-                    return mapObject(p, ctxt, (Map<Object,Object>) intoValue);
+                if (intoValue instanceof Map<?, ?>) {
+                    return mapObject(p, ctxt, (Map<Object, Object>) intoValue);
                 }
                 return mapObject(p, ctxt);
             case JsonTokenId.ID_START_ARRAY:
@@ -438,20 +426,19 @@ public class UntypedObjectDeserializer
     /**
      * Method called to map a JSON Array into a Java value.
      */
-    protected Object mapArray(JsonParser p, DeserializationContext ctxt) throws IOException
-    {
+    protected Object mapArray(JsonParser p, DeserializationContext ctxt) throws IOException {
         // Minor optimization to handle small lists (default size for ArrayList is 10)
-        if (p.nextToken()  == JsonToken.END_ARRAY) {
+        if (p.nextToken() == JsonToken.END_ARRAY) {
             return new ArrayList<Object>(2);
         }
         Object value = deserialize(p, ctxt);
-        if (p.nextToken()  == JsonToken.END_ARRAY) {
+        if (p.nextToken() == JsonToken.END_ARRAY) {
             ArrayList<Object> l = new ArrayList<Object>(2);
             l.add(value);
             return l;
         }
         Object value2 = deserialize(p, ctxt);
-        if (p.nextToken()  == JsonToken.END_ARRAY) {
+        if (p.nextToken() == JsonToken.END_ARRAY) {
             ArrayList<Object> l = new ArrayList<Object>(2);
             l.add(value);
             l.add(value2);
@@ -479,8 +466,7 @@ public class UntypedObjectDeserializer
     }
 
     protected Object mapArray(JsonParser p, DeserializationContext ctxt,
-                              Collection<Object> result) throws IOException
-    {
+                              Collection<Object> result) throws IOException {
         // we start by pointing to START_ARRAY. Also, no real merging; array/Collection
         // just appends always
         while (p.nextToken() != JsonToken.END_ARRAY) {
@@ -492,8 +478,7 @@ public class UntypedObjectDeserializer
     /**
      * Method called to map a JSON Object into a Java value.
      */
-    protected Object mapObject(JsonParser p, DeserializationContext ctxt) throws IOException
-    {
+    protected Object mapObject(JsonParser p, DeserializationContext ctxt) throws IOException {
         String key1;
         JsonToken t = p.currentToken();
 
@@ -559,8 +544,7 @@ public class UntypedObjectDeserializer
     // @since 2.12 (wrt [databind#2733]
     protected Object _mapObjectWithDups(JsonParser p, DeserializationContext ctxt,
                                         final Map<String, Object> result, String key,
-                                        Object oldValue, Object newValue, String nextKey) throws IOException
-    {
+                                        Object oldValue, Object newValue, String nextKey) throws IOException {
         final boolean squashDups = ctxt.isEnabled(StreamReadCapability.DUPLICATE_PROPERTIES);
 
         if (squashDups) {
@@ -582,9 +566,8 @@ public class UntypedObjectDeserializer
 
     @SuppressWarnings("unchecked")
     private void _squashDups(final Map<String, Object> result, String key,
-                             Object oldValue, Object newValue, DeserializationContext ctxt)
-    {
-        if(ctxt.isEnabled(StreamReadCapability.DUPLICATE_PROPERTIES)) return;
+                             Object oldValue, Object newValue, DeserializationContext ctxt) {
+        if (ctxt.isEnabled(StreamReadCapability.DUPLICATE_PROPERTIES)) return;
 
         if (oldValue instanceof List<?>) {
             ((List<Object>) oldValue).add(newValue);
@@ -600,10 +583,9 @@ public class UntypedObjectDeserializer
     /**
      * Method called to map a JSON Array into a Java Object array (Object[]).
      */
-    protected Object[] mapArrayToArray(JsonParser p, DeserializationContext ctxt) throws IOException
-    {
+    protected Object[] mapArrayToArray(JsonParser p, DeserializationContext ctxt) throws IOException {
         // Minor optimization to handle small lists (default size for ArrayList is 10)
-        if (p.nextToken()  == JsonToken.END_ARRAY) {
+        if (p.nextToken() == JsonToken.END_ARRAY) {
             return NO_OBJECTS;
         }
         ObjectBuffer buffer = ctxt.leaseObjectBuffer();
@@ -621,8 +603,7 @@ public class UntypedObjectDeserializer
     }
 
     protected Object mapObject(JsonParser p, DeserializationContext ctxt,
-                               Map<Object,Object> m) throws IOException
-    {
+                               Map<Object, Object> m) throws IOException {
         JsonToken t = p.currentToken();
         if (t == JsonToken.START_OBJECT) {
             t = p.nextToken();
@@ -662,8 +643,7 @@ public class UntypedObjectDeserializer
      */
     @JacksonStdImpl
     public static class Vanilla
-            extends StdDeserializer<Object>
-    {
+            extends StdDeserializer<Object> {
         private static final long serialVersionUID = 1L;
 
         public final static Vanilla std = new Vanilla();
@@ -671,7 +651,9 @@ public class UntypedObjectDeserializer
         // @since 2.9
         protected final boolean _nonMerging;
 
-        public Vanilla() { this(false); }
+        public Vanilla() {
+            this(false);
+        }
 
         protected Vanilla(boolean nonMerging) {
             super(Object.class);
@@ -698,8 +680,7 @@ public class UntypedObjectDeserializer
         }
 
         @Override
-        public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
-        {
+        public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             switch (p.currentTokenId()) {
                 case JsonTokenId.ID_START_OBJECT: {
                     return _deserializeWithNoRecursion(p, ctxt, new LinkedHashMap<String, Object>());
@@ -749,7 +730,7 @@ public class UntypedObjectDeserializer
                 case JsonTokenId.ID_END_OBJECT:
                     // 28-Oct-2015, tatu: [databind#989] We may also be given END_OBJECT (similar to FIELD_NAME),
                     //    if caller has advanced to the first token of Object, but for empty Object
-                    return new LinkedHashMap<String,Object>(2);
+                    return new LinkedHashMap<String, Object>(2);
 
                 case JsonTokenId.ID_NULL: // 08-Nov-2016, tatu: yes, occurs
                     return null;
@@ -761,8 +742,7 @@ public class UntypedObjectDeserializer
         }
 
         @Override
-        public Object deserializeWithType(JsonParser p, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException
-        {
+        public Object deserializeWithType(JsonParser p, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {
             switch (p.currentTokenId()) {
                 case JsonTokenId.ID_START_ARRAY:
                 case JsonTokenId.ID_START_OBJECT:
@@ -801,8 +781,7 @@ public class UntypedObjectDeserializer
         @SuppressWarnings("unchecked")
         @Override // since 2.9 (to support deep merge)
         public Object deserialize(JsonParser p, DeserializationContext ctxt, Object intoValue)
-                throws IOException
-        {
+                throws IOException {
             if (_nonMerging) {
                 return deserialize(p, ctxt);
             }
@@ -810,16 +789,15 @@ public class UntypedObjectDeserializer
                 case JsonTokenId.ID_END_OBJECT:
                 case JsonTokenId.ID_END_ARRAY:
                     return intoValue;
-                case JsonTokenId.ID_START_OBJECT:
-                {
+                case JsonTokenId.ID_START_OBJECT: {
                     JsonToken t = p.nextToken(); // to get to FIELD_NAME or END_OBJECT
                     if (t == JsonToken.END_OBJECT) {
                         return intoValue;
                     }
                 }
                 case JsonTokenId.ID_FIELD_NAME:
-                    if (intoValue instanceof Map<?,?>) {
-                        Map<Object,Object> m = (Map<Object,Object>) intoValue;
+                    if (intoValue instanceof Map<?, ?>) {
+                        Map<Object, Object> m = (Map<Object, Object>) intoValue;
                         // NOTE: we are guaranteed to point to FIELD_NAME
                         String key = p.currentName();
                         do {
@@ -840,8 +818,7 @@ public class UntypedObjectDeserializer
                         return intoValue;
                     }
                     break;
-                case JsonTokenId.ID_START_ARRAY:
-                {
+                case JsonTokenId.ID_START_ARRAY: {
                     JsonToken t = p.nextToken(); // to get to FIELD_NAME or END_OBJECT
                     if (t == JsonToken.END_ARRAY) {
                         return intoValue;
@@ -863,6 +840,7 @@ public class UntypedObjectDeserializer
             // Easiest handling for the rest, delegate. Only (?) question: how about nulls?
             return deserialize(p, ctxt);
         }
+
         /**
          * Method called to map a JSON Array into a Java Object array (Object[]).
          */
@@ -900,8 +878,7 @@ public class UntypedObjectDeserializer
                             t = JsonToken.NOT_AVAILABLE; // to trigger an exception
                         }
                         switch (t.id()) {
-                            case JsonTokenId.ID_START_OBJECT:
-                            {
+                            case JsonTokenId.ID_START_OBJECT: {
                                 LinkedHashMap<String, Object> newOb = new LinkedHashMap<String, Object>();
                                 Object oldOb = currObject.put(propName, newOb);
                                 if (oldOb != null) {
@@ -913,8 +890,7 @@ public class UntypedObjectDeserializer
                                 // We can actually take a short-cut with nested Objects...
                                 continue objectLoop;
                             }
-                            case JsonTokenId.ID_START_ARRAY:
-                            {
+                            case JsonTokenId.ID_START_ARRAY: {
                                 ArrayList<Object> newOb = new ArrayList<Object>();
                                 currObject.put(propName, newOb);
                                 stack.push(curr);
@@ -948,7 +924,7 @@ public class UntypedObjectDeserializer
                                 value = Boolean.TRUE;
                                 break;
                             case JsonTokenId.ID_FALSE:
-                                value =  Boolean.FALSE;
+                                value = Boolean.FALSE;
                                 break;
                         }
                         Object oldOb = currObject.put(propName, value);
@@ -1013,7 +989,7 @@ public class UntypedObjectDeserializer
                 }
                 // Either way, Object or Array ended, return up nesting level:
                 //TODO: Below is needed to avoid null-pointer exception but perhaps is inefficient
-                if(stack.peekFirst() == null ) curr = null;
+                if (stack.peekFirst() == null) curr = null;
                 else curr = stack.pop();
             } while (curr != null);
             return root;
@@ -1025,9 +1001,8 @@ public class UntypedObjectDeserializer
         // NOTE: copied from above (alas, no easy way to share/reuse)
         @SuppressWarnings("unchecked")
         private void _squashDups(final Map<String, Object> result, String key,
-                                 Object oldValue, Object newValue,DeserializationContext ctxt)
-        {
-            if(!ctxt.isEnabled(StreamReadCapability.DUPLICATE_PROPERTIES)) return;
+                                 Object oldValue, Object newValue, DeserializationContext ctxt) {
+            if (!ctxt.isEnabled(StreamReadCapability.DUPLICATE_PROPERTIES)) return;
             if (oldValue instanceof List<?>) {
                 ((List<Object>) oldValue).add(newValue);
                 result.put(key, oldValue);

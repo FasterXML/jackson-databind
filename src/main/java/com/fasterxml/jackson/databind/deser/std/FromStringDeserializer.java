@@ -74,6 +74,7 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
 
             // Special impl:
             StringBuilder.class,
+            StringBuffer.class, // since 2.13.3
         };
     }
 
@@ -120,6 +121,8 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             kind = Std.STD_INET_SOCKET_ADDRESS;
         } else if (rawType == StringBuilder.class) {
             return new StringBuilderDeserializer();
+        } else if (rawType == StringBuffer.class) { // since 2.13.3
+            return new StringBufferDeserializer();
         } else {
             return null;
         }
@@ -465,9 +468,8 @@ _coercedTypeDesc());
             }
         }
     }
-
+   
     // @since 2.12 to simplify logic a bit: should not use coercions when reading
-    //   String Values
     static class StringBuilderDeserializer extends FromStringDeserializer<Object>
     {
         public StringBuilderDeserializer() {
@@ -501,6 +503,37 @@ _coercedTypeDesc());
             throws IOException
         {
             return new StringBuilder(value);
+        }
+    }
+
+    // @since 2.13.3: duplicated code but for only 2 impls base class seems unnecessary
+    static class StringBufferDeserializer extends FromStringDeserializer<Object>
+    {
+        public StringBufferDeserializer() { super(StringBuffer.class); }
+
+        @Override
+        public LogicalType logicalType() { return LogicalType.Textual; }
+
+        @Override
+        public Object getEmptyValue(DeserializationContext ctxt) {
+            return new StringBuffer();
+        }
+
+        @Override
+        public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+        {
+            String text = p.getValueAsString();
+            if (text != null) {
+                return _deserialize(text, ctxt);
+            }
+            return super.deserialize(p, ctxt);
+        }
+
+        @Override
+        protected Object _deserialize(String value, DeserializationContext ctxt)
+            throws IOException
+        {
+            return new StringBuffer(value);
         }
     }
 }

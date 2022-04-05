@@ -85,6 +85,7 @@ public class JDKFromStringDeserializer
             InetSocketAddress.class,
 
             // Special impl:
+            StringBuffer.class,
             StringBuilder.class,
         };
     }
@@ -137,6 +138,8 @@ public class JDKFromStringDeserializer
             kind = STD_INET_SOCKET_ADDRESS;
         } else if (rawType == StringBuilder.class) {
             return new StringBuilderDeserializer();
+        } else if (rawType == StringBuffer.class) {
+            return new StringBufferDeserializer();
         } else {
             return null;
         }
@@ -281,19 +284,13 @@ public class JDKFromStringDeserializer
 
     static class StringBuilderDeserializer extends JDKFromStringDeserializer
     {
-        public StringBuilderDeserializer() {
-            super(StringBuilder.class, -1);
-        }
+        public StringBuilderDeserializer() { super(StringBuilder.class, -1); }
 
         @Override
-        public LogicalType logicalType() {
-            return LogicalType.Textual;
-        }
+        public LogicalType logicalType() { return LogicalType.Textual;}
 
         @Override
-        public Object getEmptyValue(DeserializationContext ctxt) {
-            return new StringBuilder();
-        }
+        public Object getEmptyValue(DeserializationContext ctxt) { return new StringBuilder(); }
 
         @Override
         public Object deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
@@ -306,9 +303,34 @@ public class JDKFromStringDeserializer
         }
 
         @Override
-        public Object _deserialize(String value, DeserializationContext ctxt)
-        {
+        public Object _deserialize(String value, DeserializationContext ctxt) {
             return new StringBuilder(value);
+        }
+    }
+
+    static class StringBufferDeserializer extends JDKFromStringDeserializer
+    {
+        public StringBufferDeserializer() { super(StringBuffer.class, -1); }
+
+        @Override
+        public LogicalType logicalType() { return LogicalType.Textual;}
+
+        @Override
+        public Object getEmptyValue(DeserializationContext ctxt) { return new StringBuffer(); }
+
+        @Override
+        public Object deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
+        {
+            String text = p.getValueAsString();
+            if (text != null) {
+                return _deserialize(text, ctxt);
+            }
+            return super.deserialize(p, ctxt);
+        }
+
+        @Override
+        public Object _deserialize(String value, DeserializationContext ctxt) {
+            return new StringBuffer(value);
         }
     }
 

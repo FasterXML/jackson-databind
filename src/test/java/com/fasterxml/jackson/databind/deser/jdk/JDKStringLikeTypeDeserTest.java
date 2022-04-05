@@ -245,6 +245,12 @@ public class JDKStringLikeTypeDeserTest extends BaseMapTest
         assertEquals("abc", sb.toString());
     }
 
+    public void testStringBuffer() throws Exception
+    {
+        StringBuffer sb = MAPPER.readValue(q("abc"), StringBuffer.class);
+        assertEquals("abc", sb.toString());
+    }
+
     public void testURI() throws Exception
     {
         final ObjectReader reader = MAPPER.readerFor(URI.class);

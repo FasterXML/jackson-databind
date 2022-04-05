@@ -19,7 +19,12 @@ Project: jackson-databind
 
 2.13.3 (not yet released)
 
-...
+#3446: `java.lang.StringBuffer` cannot be deserialized
+ (reported by Lolf1010@github)
+
+2.13.2.2 (28-Mar-2022)
+
+No changes since 2.13.2.1 but fixed Gradle Module Metadata ("module.json")
 
 2.13.2.1 (24-Mar-2022)
 

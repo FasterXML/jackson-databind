@@ -105,14 +105,6 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
     protected final static SimpleType CORE_TYPE_ENUM = new SimpleType(CLS_ENUM);
 
     /**
-     * Cache {@link Class} because it is nominally parametric, but has no really
-     * useful information.
-     *
-     * @since 2.7
-     */
-    protected final static SimpleType CORE_TYPE_CLASS = new SimpleType(CLS_CLASS);
-
-    /**
      * Cache {@link JsonNode} because it is no critical path of simple tree model
      * reading and does not have things to override
      *
@@ -1593,9 +1585,6 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
         }
         if (rawType == CLS_COMPARABLE) {
             return CORE_TYPE_COMPARABLE;
-        }
-        if (rawType == CLS_CLASS) {
-            return CORE_TYPE_CLASS;
         }
 
         // First: what is the actual base type? One odd thing is that 'getRawType'

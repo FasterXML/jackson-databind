@@ -14,6 +14,8 @@ Project: jackson-databind
 (contributed by Gary M)
 #3421: Implement `JsonNodeFeature.READ_NULL_PROPERTIES` to allow skipping of
   JSON `null` values on reading
+#3445: Do not strip generic type from `Class<C>` when resolving `JavaType`
+ (contributed by Jan J)
 
 2.13.3 (not yet released)
 

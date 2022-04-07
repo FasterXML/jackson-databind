@@ -31,6 +31,33 @@ import com.fasterxml.jackson.databind.util.LookupCache;
  *<pre>
  *   JavaType stringCollection = mapper.getTypeFactory().constructCollectionType(List.class, String.class);
  *</pre>
+ *<p>
+ * Note on optimizations: generic type parameters are resolved for all types, with following
+ * exceptions:
+ *<ul>
+ *  <li>For optimization purposes, type resolution is skipped for following commonly seen
+ * types that do have type parameters, but ones that are rarely needed:
+ *     <ul>
+ *       <li>{@link java.lang.Enum}: Self-referential type reference is simply dropped and
+ *       Class is exposed as a simple, non-parameterized {@link SimpleType}
+ *        </li>
+ *       <li>{@link java.lang.Comparable}: Type parameter is simply dropped and and
+ *       interface is exposed as a simple, non-parameterized {@link SimpleType}
+ *        </li>
+ *       <li>Up until Jackson 2.13, {@link java.lang.Class} type parameter was dropped; resolution
+ *         was added back in Jackson 2.14.
+ *        </li>
+ *     </ul>
+ *   </li>
+ *  <li>For {@link java.util.Collection} subtypes, resolved type is ALWAYS the parameter for
+ *     {link java.util.Collection} and not that of actually resolved subtype.
+ *     This is usually (but not always) same parameter.
+ *   </li>
+ *  <li>For {@link java.util.Map} subtypes, resolved type is ALWAYS the parameter for
+ *     {link java.util.Map} and not that of actually resolved subtype.
+ *     These are usually (but not always) same parameters.
+ *   </li>
+ *</ul>
  */
 @SuppressWarnings({"rawtypes" })
 public class TypeFactory // note: was final in 2.9, removed from 2.10
@@ -63,7 +90,6 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
     private final static Class<?> CLS_OBJECT = Object.class;
 
     private final static Class<?> CLS_COMPARABLE = Comparable.class;
-    private final static Class<?> CLS_CLASS = Class.class;
     private final static Class<?> CLS_ENUM = Enum.class;
     private final static Class<?> CLS_JSON_NODE = JsonNode.class; // since 2.10
 

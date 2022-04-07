@@ -634,4 +634,15 @@ public class TestTypeFactory
         assertNotNull(type);
         assertEquals(Wrapper1297.class, type.getRawClass());
     }
+
+    // for [databind#3443]
+    public void testParameterizedClassType() {
+        TypeFactory tf = TypeFactory.defaultInstance();
+
+        JavaType t = tf.constructType(new TypeReference<Class<? extends CharSequence>>() { });
+
+        assertEquals(SimpleType.class, t.getClass());
+        assertEquals(1, t.containedTypeCount());
+        assertEquals(CharSequence.class, t.containedType(0).getRawClass());
+    }
 }

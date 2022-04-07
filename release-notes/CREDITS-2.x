@@ -1445,3 +1445,7 @@ Gary Morgan (morganga@github)
   * Contributed #3419: Improve performance of `UnresolvedForwardReference` for
     forward reference resolution
   (2.14.0)
+
+Jan Judas (kostislav@github)
+  * Contributed #3445: Do not strip generic type from `Class<C>` when resolving `JavaType`
+  (2.14.0)

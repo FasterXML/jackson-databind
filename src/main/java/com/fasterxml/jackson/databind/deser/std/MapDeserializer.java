@@ -239,7 +239,7 @@ public class MapDeserializer
     }
 
     public void setIgnorableProperties(Set<String> ignorable) {
-        _ignorableProperties = (ignorable == null || ignorable.size() == 0) ?
+        _ignorableProperties = (ignorable == null || ignorable.isEmpty()) ?
                 null : ignorable;
         _inclusionChecker = IgnorePropertiesUtil.buildCheckerIfNeeded(_ignorableProperties, _includableProperties);
     }

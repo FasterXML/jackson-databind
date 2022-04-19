@@ -216,7 +216,7 @@ public class TestCustomSerializers extends BaseMapTest
             public void serialize(Collection value, JsonGenerator gen, SerializerProvider provider)
                     throws IOException
             {
-                if (value.size() != 0) {
+                if (!value.isEmpty()) {
                     collectionSerializer.serialize(value, gen, provider);
                 } else {
                     gen.writeNull();

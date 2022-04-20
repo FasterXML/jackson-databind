@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.databind.deser.filter;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -9,13 +7,11 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 public class ProblemHandler3450Test extends BaseMapTest
 {
     // [databind#3450]
-
     static class LenientDeserializationProblemHandler extends DeserializationProblemHandler {
-
         @Override
         public Object handleWeirdStringValue(DeserializationContext ctxt, Class<?> targetType, String valueToConvert,
-            String failureMsg) throws IOException {
-
+            String failureMsg)
+        {
             // I just want to ignore badly formatted value
             return null;
         }
@@ -32,6 +28,7 @@ public class ProblemHandler3450Test extends BaseMapTest
     private final ObjectMapper LENIENT_MAPPER =
             JsonMapper.builder().addHandler(new LenientDeserializationProblemHandler()).build();
 
+    // [databind#3450]
     public void testIntegerCoercion3450() throws Exception
     {
         TestPojo3450Int pojo;

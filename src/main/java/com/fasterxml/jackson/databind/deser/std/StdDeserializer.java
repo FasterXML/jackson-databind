@@ -762,10 +762,7 @@ public abstract class StdDeserializer<T>
         return _parseInteger(ctxt, text);
     }
 
-    /**
-     * @since 2.14
-     */
-    protected final Integer _parseInteger(DeserializationContext ctxt, String text) throws IOException
+    protected final Integer _parseInteger(DeserializationContext ctxt, String text)
     {
         try {
             if (text.length() > 9) {
@@ -902,10 +899,7 @@ public abstract class StdDeserializer<T>
         return _parseLong(ctxt, text);
     }
 
-    /**
-     * @since 2.14
-     */
-    protected final Long _parseLong(DeserializationContext ctxt, String text) throws IOException
+    protected final Long _parseLong(DeserializationContext ctxt, String text)
     {
         try {
             return NumberInput.parseLong(text);

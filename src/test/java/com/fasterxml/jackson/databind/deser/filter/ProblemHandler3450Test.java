@@ -9,8 +9,8 @@ public class ProblemHandler3450Test extends BaseMapTest
     // [databind#3450]
     static class LenientDeserializationProblemHandler extends DeserializationProblemHandler {
         @Override
-        public Object handleWeirdStringValue(DeserializationContext ctxt, Class<?> targetType, String valueToConvert,
-            String failureMsg)
+        public Object handleWeirdStringValue(DeserializationContext ctxt, Class<?> targetType,
+                String valueToConvert, String failureMsg)
         {
             // I just want to ignore badly formatted value
             return null;

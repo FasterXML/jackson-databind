@@ -695,6 +695,7 @@ public abstract class StdDeserializer<T>
     {
         try {
             if (text.length() > 9) {
+                // NOTE! Can NOT call "NumberInput.parseLong()" due to lack of validation there
                 long l = Long.parseLong(text);
                 if (_intOverflow(l)) {
                     Number v = (Number) ctxt.handleWeirdStringValue(Integer.TYPE, text,
@@ -758,7 +759,29 @@ public abstract class StdDeserializer<T>
         if (_checkTextualNull(ctxt, text)) {
             return (Integer) getNullValue(ctxt);
         }
-        return _parseIntPrimitive(ctxt, text);
+        return _parseInteger(ctxt, text);
+    }
+
+    /**
+     * @since 2.14
+     */
+    protected final Integer _parseInteger(DeserializationContext ctxt, String text) throws IOException
+    {
+        try {
+            if (text.length() > 9) {
+                long l = NumberInput.parseLong(text);
+                if (_intOverflow(l)) {
+                    return (Integer) ctxt.handleWeirdStringValue(Integer.class, text,
+                        "Overflow: numeric value (%s) out of range of `java.lang.Integer` (%d -%d)",
+                        text, Integer.MIN_VALUE, Integer.MAX_VALUE);
+                }
+                return Integer.valueOf((int) l);
+            }
+            return NumberInput.parseInt(text);
+        } catch (IllegalArgumentException iae) {
+            return(Integer) ctxt.handleWeirdStringValue(Integer.class, text,
+                    "not a valid `java.lang.Integer` value");
+        }
     }
 
     protected final long _parseLongPrimitive(JsonParser p, DeserializationContext ctxt)
@@ -876,7 +899,19 @@ public abstract class StdDeserializer<T>
             return (Long) getNullValue(ctxt);
         }
         // let's allow Strings to be converted too
-        return _parseLongPrimitive(ctxt, text);
+        return _parseLong(ctxt, text);
+    }
+
+    /**
+     * @since 2.14
+     */
+    protected final Long _parseLong(DeserializationContext ctxt, String text) throws IOException
+    {
+        try {
+            return NumberInput.parseLong(text);
+        } catch (IllegalArgumentException iae) { }
+        return (Long) ctxt.handleWeirdStringValue(Long.class, text,
+                "not a valid `java.lang.Long` value");
     }
 
     protected final float _parseFloatPrimitive(JsonParser p, DeserializationContext ctxt)
@@ -1061,11 +1096,7 @@ public abstract class StdDeserializer<T>
      */
     protected final static double _parseDouble(String numStr) throws NumberFormatException
     {
-        // avoid some nasty float representations... but should it be MIN_NORMAL or MIN_VALUE?
-        if (NumberInput.NASTY_SMALL_DOUBLE.equals(numStr)) {
-            return Double.MIN_NORMAL; // since 2.7; was MIN_VALUE prior
-        }
-        return Double.parseDouble(numStr);
+        return NumberInput.parseDouble(numStr);
     }
 
     /**

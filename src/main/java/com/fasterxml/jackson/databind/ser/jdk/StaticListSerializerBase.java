@@ -88,7 +88,7 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
 
     @Override
     public boolean isEmpty(SerializerProvider provider, T value) {
-        return (value == null) || (value.size() == 0);
+        return (value == null) || (value.isEmpty());
     }
 
     @Override

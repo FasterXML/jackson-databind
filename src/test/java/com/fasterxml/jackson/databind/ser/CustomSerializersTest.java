@@ -218,7 +218,7 @@ public class CustomSerializersTest extends BaseMapTest
             @Override
             public void serialize(Collection value, JsonGenerator gen, SerializerProvider provider)
             {
-                if (value.size() != 0) {
+                if (!value.isEmpty()) {
                     collectionSerializer.serialize(value, gen, provider);
                 } else {
                     gen.writeNull();

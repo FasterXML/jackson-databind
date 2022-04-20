@@ -1126,11 +1126,7 @@ public abstract class StdDeserializer<T>
      */
     protected final static double _parseDouble(String numStr) throws NumberFormatException
     {
-        // avoid some nasty float representations... but should it be MIN_NORMAL or MIN_VALUE?
-        if (NumberInput.NASTY_SMALL_DOUBLE.equals(numStr)) {
-            return Double.MIN_NORMAL; // since 2.7; was MIN_VALUE prior
-        }
-        return Double.parseDouble(numStr);
+        return NumberInput.parseDouble(numStr);
     }
 
     /**

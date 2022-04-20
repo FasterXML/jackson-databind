@@ -251,11 +251,11 @@ public class StdKeyDeserializer extends KeyDeserializer
      */
 
     protected int _parseInt(String key) throws IllegalArgumentException {
-        return Integer.parseInt(key);
+        return NumberInput.parseInt(key);
     }
 
     protected long _parseLong(String key) throws IllegalArgumentException {
-        return Long.parseLong(key);
+        return NumberInput.parseLong(key);
     }
 
     protected double _parseDouble(String key) throws IllegalArgumentException {

@@ -7,6 +7,7 @@ import java.util.TreeMap;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.base.ParserMinimalBase;
+import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.core.json.JsonWriteContext;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.fasterxml.jackson.core.util.JacksonFeatureSet;
@@ -1844,9 +1845,9 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             if (value instanceof String) {
                 String str = (String) value;
                 if (str.indexOf('.') >= 0) {
-                    return Double.parseDouble(str);
+                    return NumberInput.parseDouble(str);
                 }
-                return Long.parseLong(str);
+                return NumberInput.parseLong(str);
             }
             if (value == null) {
                 return null;

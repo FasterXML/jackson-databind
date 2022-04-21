@@ -16,9 +16,6 @@ Project: jackson-databind
   JSON `null` values on reading
 #3445: Do not strip generic type from `Class<C>` when resolving `JavaType`
  (contributed by Jan J)
-#3450: DeserializationProblemHandler is not working with wrapper type
-  when returning null
- (reported by LJeanneau@github)
 
 2.13.3 (not yet released)
 
@@ -27,6 +24,9 @@ Project: jackson-databind
 (contributed by Gary M)
 #3446: `java.lang.StringBuffer` cannot be deserialized
  (reported by Lolf1010@github)
+#3450: DeserializationProblemHandler is not working with wrapper type
+  when returning null
+ (reported by LJeanneau@github)
 
 2.13.2.2 (28-Mar-2022)
 

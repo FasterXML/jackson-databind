@@ -695,8 +695,7 @@ public abstract class StdDeserializer<T>
     {
         try {
             if (text.length() > 9) {
-                // NOTE! Can NOT call "NumberInput.parseLong()" due to lack of validation there
-                long l = Long.parseLong(text);
+                long l = NumberInput.parseLong(text);
                 if (_intOverflow(l)) {
                     Number v = (Number) ctxt.handleWeirdStringValue(Integer.TYPE, text,
                         "Overflow: numeric value (%s) out of range of int (%d -%d)",

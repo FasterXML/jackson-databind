@@ -10,11 +10,13 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.base.ParserMinimalBase;
 import com.fasterxml.jackson.core.exc.InputCoercionException;
 import com.fasterxml.jackson.core.exc.StreamWriteException;
+import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.core.io.NumberOutput;
 import com.fasterxml.jackson.core.sym.PropertyNameMatcher;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.fasterxml.jackson.core.util.JacksonFeatureSet;
 import com.fasterxml.jackson.core.util.SimpleStreamWriteContext;
+
 import com.fasterxml.jackson.databind.*;
 
 /**
@@ -1779,9 +1781,9 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             if (value instanceof String) {
                 String str = (String) value;
                 if (str.indexOf('.') >= 0) {
-                    return Double.parseDouble(str);
+                    return NumberInput.parseDouble(str);
                 }
-                return Long.parseLong(str);
+                return NumberInput.parseLong(str);
             }
             if (value == null) {
                 return null;

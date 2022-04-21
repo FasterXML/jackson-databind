@@ -6,8 +6,8 @@ import java.util.HashSet;
 
 import com.fasterxml.jackson.core.*;
 
-import com.fasterxml.jackson.core.io.BigDecimalParser;
 import com.fasterxml.jackson.core.io.NumberInput;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
@@ -802,14 +802,14 @@ public class NumberDeserializers
             try {
                 if (!_isIntNumber(text)) {
                     if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
-                        return BigDecimalParser.parse(text);
+                        return NumberInput.parseBigDecimal(text);
                     }
                     return Double.valueOf(text);
                 }
                 if (ctxt.isEnabled(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS)) {
                     return new BigInteger(text);
                 }
-                long value = Long.parseLong(text);
+                long value = NumberInput.parseLong(text);
                 if (!ctxt.isEnabled(DeserializationFeature.USE_LONG_FOR_INTS)) {
                     if (value <= Integer.MAX_VALUE && value >= Integer.MIN_VALUE) {
                         return Integer.valueOf((int) value);
@@ -977,7 +977,7 @@ public class NumberDeserializers
                 return (BigDecimal) getNullValue(ctxt);
             }
             try {
-                return BigDecimalParser.parse(text);
+                return NumberInput.parseBigDecimal(text);
             } catch (IllegalArgumentException iae) { }
             return (BigDecimal) ctxt.handleWeirdStringValue(_valueClass, text,
                     "not a valid representation");

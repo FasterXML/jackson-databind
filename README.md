@@ -18,7 +18,7 @@ Naming of classes uses word 'JSON' in many places even though there is no actual
 | Artifact | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-databind/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-databind) |
 | OSS Sponsorship | [![Tidelift](https://tidelift.com/badges/package/maven/com.fasterxml.jackson.core:jackson-databind)](https://tidelift.com/subscription/pkg/maven-com-fasterxml-jackson-core-jackson-databind?utm_source=maven-com-fasterxml-jackson-core-jackson-databind&utm_medium=referral&utm_campaign=readme) |
 | Javadocs | [![Javadoc](https://javadoc.io/badge/com.fasterxml.jackson.core/jackson-databind.svg)](http://www.javadoc.io/doc/com.fasterxml.jackson.core/jackson-databind) |
-| Code coverage (2.13) | [![codecov.io](https://codecov.io/github/FasterXML/jackson-databind/coverage.svg?branch=2.13)](https://codecov.io/github/FasterXML/jackson-databind?branch=2.13) |
+| Code coverage (2.14) | [![codecov.io](https://codecov.io/github/FasterXML/jackson-databind/coverage.svg?branch=2.14)](https://codecov.io/github/FasterXML/jackson-databind?branch=2.14) |
 | CodeQ (LGTM.com) | [![LGTM alerts](https://img.shields.io/lgtm/alerts/g/FasterXML/jackson-databind.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/FasterXML/jackson-databind/alerts/) [![Language grade: Java](https://img.shields.io/lgtm/grade/java/g/FasterXML/jackson-databind.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/FasterXML/jackson-databind/context:java) |
 
 
@@ -510,9 +510,9 @@ usually a Jackson module.
 `master` branch is for developing the next major Jackson version -- 3.0 -- but there
 are active maintenance branches in which much of development happens:
 
-* `2.13` is the branch for "next" minor version to release (as of July 2021)
-* `2.12` is the current stable minor 2.x version
-* `2.11` is for selected backported fixes
+* `2.14` is the branch for "next" minor version to release (as of April 2022)
+* `2.13` is the current stable minor 2.x version
+* `2.12` is for selected backported fixes
 
 Older branches are usually not maintained after being declared as closed
 on [Jackson Releases](https://github.com/FasterXML/jackson/wiki/Jackson-Releases) page,

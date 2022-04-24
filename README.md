@@ -510,9 +510,9 @@ usually a Jackson module.
 `master` branch is for developing the next major Jackson version -- 3.0 -- but there
 are active maintenance branches in which much of development happens:
 
-* `2.13` is the branch for "next" minor version to release (as of July 2021)
-* `2.12` is the current stable minor 2.x version
-* `2.11` is for selected backported fixes
+* `2.14` is the branch for "next" minor version to release (as of April 2022)
+* `2.13` is the current stable minor 2.x version
+* `2.12` is for selected backported fixes
 
 Older branches are usually not maintained after being declared as closed
 on [Jackson Releases](https://github.com/FasterXML/jackson/wiki/Jackson-Releases) page,

@@ -26,7 +26,7 @@ public class TestArrayOfFloats extends BaseMapTest
         assertEquals(4, floats.length);
         assertEquals(7.038531e-26f, floats[0]);
         assertEquals(1.1999999f, floats[1]);
-        assertEquals(3.4028235677973366e38f, floats[2]);
-        assertEquals(7.006492321624086e-46f, floats[3]);
+        assertEquals(3.4028235e38f, floats[2]);
+        assertEquals("1.4E-45", Float.toString(floats[3])); //this assertion fails unless toString is used
     }
 }

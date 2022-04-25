@@ -1040,7 +1040,7 @@ public abstract class StdDeserializer<T>
         throws IOException
     {
         try {
-            return Float.parseFloat(text);
+            return NumberInput.parseFloat(text);
         } catch (IllegalArgumentException iae) { }
         Number v = (Number) ctxt.handleWeirdStringValue(Float.TYPE, text,
                 "not a valid `float` value");

@@ -645,7 +645,7 @@ public class NumberDeserializers
                 return (Float) getNullValue(ctxt);
             }
             try {
-                return Float.parseFloat(text);
+                return NumberInput.parseFloat(text);
             } catch (IllegalArgumentException iae) { }
             return (Float) ctxt.handleWeirdStringValue(_valueClass, text,
                     "not a valid `Float` value");

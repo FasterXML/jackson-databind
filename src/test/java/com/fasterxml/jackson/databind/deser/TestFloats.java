@@ -3,6 +3,10 @@ package com.fasterxml.jackson.databind.deser;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+
 public class TestFloats extends BaseMapTest
 {
 
@@ -49,6 +53,28 @@ public class TestFloats extends BaseMapTest
         assertEquals(3.4028235e38f, floats[2]);
         assertEquals("1.4E-45", Float.toString(floats[3])); //this assertion fails unless toString is used
     }
+
+    public void testBigArrayOfFloatPrimitives() throws Exception {
+        StringBuilder sb = new StringBuilder(1024);
+        ObjectMapper mapper = new ObjectMapper();
+        try (
+                InputStream stream = TestFloats.class.getResourceAsStream("/data/float-array.txt");
+                InputStreamReader isr = new InputStreamReader(stream, StandardCharsets.UTF_8)
+        ) {
+            char[] chars = new char[1024];
+            int n;
+            while ((n = isr.read(chars)) != -1) {
+                sb.append(chars, 0, n);
+            }
+        }
+        float[] floats = mapper.readValue(sb.toString(), float[].class);
+        assertEquals(1004, floats.length);
+        assertEquals(7.038531e-26f, floats[0]);
+        assertEquals(1.1999999f, floats[1]);
+        assertEquals(3.4028235e38f, floats[2]);
+        assertEquals("1.4E-45", Float.toString(floats[3])); //this assertion fails unless toString is used
+    }
+
 
     public void testArrayOfFloats() throws Exception
     {

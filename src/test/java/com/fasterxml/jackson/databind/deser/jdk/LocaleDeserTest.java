@@ -240,9 +240,18 @@ public class LocaleDeserTest extends BaseMapTest
 
     // https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=47034
     // @since 2.14
-    public void testStringBoundsIssue() throws Exception
+    public void testLocaleFuzz47034() throws Exception
     {
         Locale loc = MAPPER.readValue(getClass().getResourceAsStream("/fuzz/oss-fuzz-47034.json"),
+                Locale.class);
+        assertNotNull(loc);
+    }
+
+    // https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=47036
+    // @since 2.14
+    public void testLocaleFuzz47036() throws Exception
+    {
+        Locale loc = MAPPER.readValue(getClass().getResourceAsStream("/fuzz/oss-fuzz-47036.json"),
                 Locale.class);
         assertNotNull(loc);
     }

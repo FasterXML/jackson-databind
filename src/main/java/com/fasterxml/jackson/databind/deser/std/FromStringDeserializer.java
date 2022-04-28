@@ -460,12 +460,16 @@ _coercedTypeDesc());
                             .setExtension(value.charAt(0), value.substring(hyphenIx + 1))
                             .build();
                 }
-                return new Locale.Builder().setLanguage(first)
+                final int len = value.length();
+                Locale.Builder b = new Locale.Builder()
+                        .setLanguage(first)
                         .setRegion(second).setVariant(third)
-                        .setScript(value.substring(0, underscoreIx))
-                        .setExtension(value.charAt(underscoreIx + 1),
-                                value.substring(Math.min(value.length(), underscoreIx + 3)))
-                        .build();
+                        .setScript(value.substring(0, underscoreIx));
+                if ((underscoreIx + 1) < len) {
+                    b = b.setExtension(value.charAt(underscoreIx + 1),
+                                value.substring(Math.min(len, underscoreIx + 3)));
+                }
+                return b.build();
             } catch (IllformedLocaleException ex) {
                 // should we really just swallow the exception?
                 return new Locale(first, second, third);

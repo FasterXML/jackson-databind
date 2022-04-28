@@ -237,4 +237,13 @@ public class LocaleDeserTest extends BaseMapTest
         assertEquals(expected.getExtension('x'), actual.getExtension('x'));
         assertEquals(expected.getScript(), actual.getScript());
     }
+
+    // https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=47034
+    // @since 2.14
+    public void testStringBoundsIssue() throws Exception
+    {
+        Locale loc = MAPPER.readValue(getClass().getResourceAsStream("/fuzz/oss-fuzz-47034.json"),
+                Locale.class);
+        assertNotNull(loc);
+    }
 }

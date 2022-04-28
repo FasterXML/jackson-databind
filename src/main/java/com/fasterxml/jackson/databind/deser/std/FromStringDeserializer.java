@@ -445,22 +445,26 @@ _coercedTypeDesc());
                 }
                 value = value.substring(extMarkerIx + 2);
 
-                if (value.indexOf('_') < 0 && value.indexOf('-') < 0) {
-                    return new Locale.Builder().setLanguage(first)
-                            .setRegion(second).setVariant(third).setScript(value).build();
-                }
-                if (value.indexOf('_') < 0) {
-                    ix = value.indexOf('-');
+                int underscoreIx = value.indexOf('_');
+                if (underscoreIx < 0) {
+                    int hyphenIx = value.indexOf('-');
+                    if (hyphenIx < 0) {
+                        return new Locale.Builder().setLanguage(first)
+                                .setRegion(second)
+                                .setVariant(third)
+                                .setScript(value)
+                                .build();
+                    }
                     return new Locale.Builder().setLanguage(first)
                             .setRegion(second).setVariant(third)
-                            .setExtension(value.charAt(0), value.substring(ix + 1))
+                            .setExtension(value.charAt(0), value.substring(hyphenIx + 1))
                             .build();
                 }
-                ix = value.indexOf('_');
                 return new Locale.Builder().setLanguage(first)
                         .setRegion(second).setVariant(third)
-                        .setScript(value.substring(0, ix))
-                        .setExtension(value.charAt(ix + 1), value.substring(ix + 3))
+                        .setScript(value.substring(0, underscoreIx))
+                        .setExtension(value.charAt(underscoreIx + 1),
+                                value.substring(Math.min(value.length(), underscoreIx + 3)))
                         .build();
             } catch (IllformedLocaleException ex) {
                 // should we really just swallow the exception?

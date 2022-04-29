@@ -874,6 +874,11 @@ public class UntypedObjectDeserializer
             return deserialize(p, ctxt);
         }
 
+        @Deprecated // @since 2.13.3
+        protected Object mapArray(JsonParser p, DeserializationContext ctxt) throws IOException {
+            return mapArray(p, ctxt, 0);
+        }
+
         protected Object mapArray(JsonParser p, DeserializationContext ctxt, int depth) throws IOException
         {
             ++depth;
@@ -911,6 +916,11 @@ public class UntypedObjectDeserializer
             return result;
         }
 
+        @Deprecated // @since 2.13.3
+        protected Object[] mapArrayToArray(JsonParser p, DeserializationContext ctxt) throws IOException {
+            return mapArrayToArray(p, ctxt, 0);
+        }
+
         /**
          * Method called to map a JSON Array into a Java Object array (Object[]).
          */
@@ -928,6 +938,11 @@ public class UntypedObjectDeserializer
                 values[ptr++] = value;
             } while (p.nextToken() != JsonToken.END_ARRAY);
             return buffer.completeAndClearBuffer(values, ptr);
+        }
+
+        @Deprecated // @since 2.13.3
+        protected Object mapObject(JsonParser p, DeserializationContext ctxt) throws IOException {
+            return mapObject(p, ctxt, 0);
         }
 
         /**

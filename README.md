@@ -483,27 +483,24 @@ Overall, Jackson library is very powerful in deserializing objects using builder
 # Contribute!
 
 We would love to get your contribution, whether it's in form of bug reports, Requests for Enhancement (RFE), documentation, or code patches.
-The primary mechanism for all of above is [GitHub Issues system](https://github.com/FasterXML/jackson-databind/issues).
 
-## Basic rules for Code Contributions
+See [CONTRIBUTING](https://github.com/FasterXML/jackson/blob/master/CONTRIBUTING.md) for details on things like:
 
-There is really just one main rule, which is that to accept any code contribution, we need to get a filled Contributor License Agreement (CLA) from the author. One CLA is enough for any number of contributions, but we need one. Or, rather, companies that use our code want it. It keeps their lawyers less unhappy about Open Source usage.
+* Community, ways to interact (mailing lists, gitter)
+* Issue tracking ([GitHub Issues](https://github.com/FasterXML/jackson-databind/issues))
+* Paperwork: CLA (just once before the first merged contribution)
 
 ## Limitation on Dependencies by Core Components
 
 One additional limitation exists for so-called core components (streaming api, jackson-annotations and jackson-databind): no additional dependencies are allowed beyond:
 
 * Core components may rely on any methods included in the supported JDK
-    * Minimum Java version was Java 5 until (and including) version 2.3
-    * Minimum Java version was Java 6 for Jackson 2.4 - 2.7 (inclusive) for all core components
-        * Minimum is still Java 6 for `jackson-annotations` and `jackson-core`, for all remaining Jackson 2.x versions
     * Minimum Java version is Java 7 for Jackson 2.7 - 2.12 of `jackson-databind` and most non-core components
     * Minimum Java version is Java 8 for Jackson 2.13 and later
 * Jackson-databind (this package) depends on the other two (annotations, streaming).
 
 This means that anything that has to rely on additional APIs or libraries needs to be built as an extension,
 usually a Jackson module.
-
 
 ## Branches
 

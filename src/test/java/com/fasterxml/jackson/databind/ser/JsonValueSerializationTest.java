@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
  * annotation with bean serialization.
  */
 @SuppressWarnings("serial")
-public class JsonValueTest
+public class JsonValueSerializationTest
     extends BaseMapTest
 {
     static class ValueClass<T>
@@ -220,9 +220,9 @@ public class JsonValueTest
     }
     
     /*
-    /*********************************************************
+    /**********************************************************************
     /* Test cases
-    /*********************************************************
+    /**********************************************************************
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();

@@ -196,6 +196,21 @@ public class JsonValueSerializationTest
         }
     }
 
+    // [databind#1806]
+    static class Bean1806 {
+        @JsonValue public List<Elem1806> getThings() {
+            return Collections.singletonList(new Elem1806.Impl());
+        }
+    }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
+    @JsonSubTypes(@JsonSubTypes.Type(value = Elem1806.Impl.class, name = "impl"))
+    interface Elem1806 {
+        final class Impl implements Elem1806 {
+            public int value = 1;
+        }
+    }
+
     // [databind#2822]
     @JsonPropertyOrder({ "description", "b" })
     static class A2822 {
@@ -320,6 +335,13 @@ public class JsonValueSerializationTest
             .addSerializer(Bean838.class, new Bean838Serializer())
             );
         assertEquals("42", mapper.writeValueAsString(INPUT));
+    }
+
+    // [databind#1806]
+    public void testCollectionViaJsonValue() throws Exception
+    {
+        assertEquals("[{\"impl\":{\"value\":1}}]",
+                MAPPER.writeValueAsString(new Bean1806()));
     }
 
     // [databind#2822]

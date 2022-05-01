@@ -1338,6 +1338,11 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
             return ctxt.handleMissingInstantiator(raw, null, p,
 "non-static inner classes like this can only by instantiated using default, no-argument constructor");
         }
+        // 01-May-2022, tatu: [databind#3417] special handling for (Graal) native images
+        if (NativeImageUtil.needsReflectionConfiguration(raw)) {
+            return ctxt.handleMissingInstantiator(raw, null, p,
+                    "cannot deserialize from Object value (no delegate- or property-based Creator): this appears to be a native image, in which case you may need to configure reflection for the class that is to be deserialized");
+        }
         return ctxt.handleMissingInstantiator(raw, getValueInstantiator(), p,
 "cannot deserialize from Object value (no delegate- or property-based Creator)");
     }

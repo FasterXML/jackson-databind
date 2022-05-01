@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.introspect.AnnotatedConstructor;
 import com.fasterxml.jackson.databind.util.ClassUtil;
+import com.fasterxml.jackson.databind.util.NativeImageUtil;
 
 /**
  * Helper class to support some of JDK 14 (and later) features
@@ -76,6 +77,10 @@ e.getClass().getName(), e.getMessage()), e);
         public String[] getRecordFieldNames(Class<?> recordType) throws IllegalArgumentException
         {
             final Object[] components = recordComponents(recordType);
+            if (components == null) {
+                // not a record, or no reflective access on native image
+                return null;
+            }
             final String[] names = new String[components.length];
             for (int i = 0; i < components.length; i++) {
                 try {
@@ -92,6 +97,10 @@ i, components.length, ClassUtil.nameOf(recordType)), e);
         public RawTypeName[] getRecordFields(Class<?> recordType) throws IllegalArgumentException
         {
             final Object[] components = recordComponents(recordType);
+            if (components == null) {
+                // not a record, or no reflective access on native image
+                return null;
+            }
             final RawTypeName[] results = new RawTypeName[components.length];
             for (int i = 0; i < components.length; i++) {
                 String name;
@@ -120,10 +129,14 @@ i, components.length, ClassUtil.nameOf(recordType)), e);
             try {
                 return (Object[]) RECORD_GET_RECORD_COMPONENTS.invoke(recordType);
             } catch (Exception e) {
+                if (NativeImageUtil.isUnsupportedFeatureError(e)) {
+                    return null;
+                }
                 throw new IllegalArgumentException("Failed to access RecordComponents of type "
                         +ClassUtil.nameOf(recordType));
             }
         }
+
     }
 
     static class RawTypeName {
@@ -153,37 +166,43 @@ i, components.length, ClassUtil.nameOf(recordType)), e);
             _config = ctxt.getConfig();
 
             _recordFields = RecordAccessor.instance().getRecordFields(beanDesc.getBeanClass());
-            final int argCount = _recordFields.length;
-
-            // And then locate the canonical constructor; must be found, if not, fail
-            // altogether (so we can figure out what went wrong)
-            AnnotatedConstructor primary = null;
-
-            // One special case: empty Records, empty constructor is separate case
-            if (argCount == 0) {
-                primary = beanDesc.findDefaultConstructor();
-                _constructors = Collections.singletonList(primary);
-            } else {
+            if (_recordFields == null) {
+                // not a record, or no reflective access on native image
                 _constructors = beanDesc.getConstructors();
-                main_loop:
-                for (AnnotatedConstructor ctor : _constructors) {
-                    if (ctor.getParameterCount() != argCount) {
-                        continue;
-                    }
-                    for (int i = 0; i < argCount; ++i) {
-                        if (!ctor.getRawParameterType(i).equals(_recordFields[i].rawType)) {
-                            continue main_loop;
+                _primaryConstructor = null;
+            } else {
+                final int argCount = _recordFields.length;
+
+                // And then locate the canonical constructor; must be found, if not, fail
+                // altogether (so we can figure out what went wrong)
+                AnnotatedConstructor primary = null;
+
+                // One special case: empty Records, empty constructor is separate case
+                if (argCount == 0) {
+                    primary = beanDesc.findDefaultConstructor();
+                    _constructors = Collections.singletonList(primary);
+                } else {
+                    _constructors = beanDesc.getConstructors();
+                    main_loop:
+                    for (AnnotatedConstructor ctor : _constructors) {
+                        if (ctor.getParameterCount() != argCount) {
+                            continue;
                         }
+                        for (int i = 0; i < argCount; ++i) {
+                            if (!ctor.getRawParameterType(i).equals(_recordFields[i].rawType)) {
+                                continue main_loop;
+                            }
+                        }
+                        primary = ctor;
+                        break;
                     }
-                    primary = ctor;
-                    break;
                 }
+                if (primary == null) {
+                    throw new IllegalArgumentException("Failed to find the canonical Record constructor of type "
+                            +ClassUtil.getTypeDescription(_beanDesc.getType()));
+                }
+                _primaryConstructor = primary;
             }
-            if (primary == null) {
-                throw new IllegalArgumentException("Failed to find the canonical Record constructor of type "
-                        +ClassUtil.getTypeDescription(_beanDesc.getType()));
-            }
-            _primaryConstructor = primary;
         }
 
         public AnnotatedConstructor locate(List<String> names)
@@ -203,6 +222,11 @@ i, components.length, ClassUtil.nameOf(recordType)), e);
                 if (ctor != _primaryConstructor) {
                     return null;
                 }
+            }
+
+            if (_recordFields == null) {
+                // not a record, or no reflective access on native image
+                return null;
             }
 
             // By now we have established that the canonical constructor is the one to use

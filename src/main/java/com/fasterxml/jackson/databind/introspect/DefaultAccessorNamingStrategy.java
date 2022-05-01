@@ -530,6 +530,7 @@ public class DefaultAccessorNamingStrategy
                     // we also allow getter discovery? For now let's do so
                     "get", "is", null);
             String[] recordFieldNames = JDK14Util.getRecordFieldNames(forClass.getRawType());
+            // 01-May-2022, tatu: Due to [databind#3417] may return null when no info available
             _fieldNames = recordFieldNames == null ?
                     Collections.emptySet() :
                     new HashSet<>(Arrays.asList(recordFieldNames));

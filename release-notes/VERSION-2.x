@@ -9,6 +9,9 @@ Project: jackson-databind
 #3373: Change `TypeSerializerBase` to skip `generator.writeTypePrefix()`
   for `null` typeId
 #3405: Create DataTypeFeature abstraction (for JSTEP-7) with placeholder features
+#3417: Allow (de)serializing records using Bean(De)SerializerModifier even when
+  reflection is unavailable
+ (contributed by Jonas K)
 #3419: Improve performance of `UnresolvedForwardReference` for forward reference
  resolution
 (contributed by Gary M)

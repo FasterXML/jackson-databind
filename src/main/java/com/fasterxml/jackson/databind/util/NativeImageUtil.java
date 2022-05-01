@@ -3,7 +3,10 @@ package com.fasterxml.jackson.databind.util;
 import java.lang.reflect.InvocationTargetException;
 
 /**
- * Utilities for graal native image support.
+ * Utilities for graal native image support; mostly to improve error message handling
+ * in case of missing information for native image.
+ *
+ * @since 2.14
  */
 public class NativeImageUtil {
     private static final boolean RUNNING_IN_SVM;
@@ -20,7 +23,7 @@ public class NativeImageUtil {
      * the static initializer may run early during build time
      */
     private static boolean isRunningInNativeImage() {
-        return RUNNING_IN_SVM && System.getProperty("org.graalvm.nativeimage.imagecode").equals("runtime");
+        return RUNNING_IN_SVM && "runtime".equals(System.getProperty("org.graalvm.nativeimage.imagecode"));
     }
 
     /**

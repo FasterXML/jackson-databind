@@ -477,9 +477,9 @@ public class BeanSerializerFactory
         }
         if (ser == null) { // Means that no properties were found
             // 21-Aug-2020, tatu: Empty Records should be fine tho
-            // 18-Mar-2022, yawkat: Record will also appear empty when missing reflection info.
-            // needsReflectionConfiguration will check that a constructor is present, else we fall back to the empty
-            // bean error msg
+            // 18-Mar-2022, yawkat: [databind#3417] Record will also appear empty when missing
+            // reflection info. needsReflectionConfiguration will check that a constructor is present,
+            // else we fall back to the empty bean error msg
             if (type.isRecordType() && !NativeImageUtil.needsReflectionConfiguration(type.getRawClass())) {
                 return builder.createDummy();
             }

@@ -406,6 +406,9 @@ Thomas Mortagne (tmortagne@github)
 Jonas Konrad (yawkat@github)
   * Suggested #905: Add support for `@ConstructorProperties`
    (2.7.0)
+  * Contributed #3417: Allow (de)serializing records using Bean(De)SerializerModifier
+    even when reflection is unavailable
+   (2.14.0)
 
 Jirka Kremser (Jiri-Kremser@github)
   * Suggested #924: SequenceWriter.writeAll() could accept Iterable

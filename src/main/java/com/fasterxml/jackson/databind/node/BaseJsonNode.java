@@ -121,7 +121,7 @@ public abstract class BaseJsonNode
      * Method called to serialize node instances using given generator.
      */
     @Override
-    public abstract void serialize(JsonGenerator jgen, SerializerProvider provider)
+    public abstract void serialize(JsonGenerator jgen, SerializerProvider ctxt)
         throws JacksonException;
 
     /**
@@ -129,7 +129,7 @@ public abstract class BaseJsonNode
      * since they may be mixed with other types.
      */
     @Override
-    public abstract void serializeWithType(JsonGenerator jgen, SerializerProvider provider,
+    public abstract void serializeWithType(JsonGenerator jgen, SerializerProvider ctxt,
             TypeSerializer typeSer)
         throws JacksonException;
 

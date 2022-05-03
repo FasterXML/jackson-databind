@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.tree.ObjectTreeNode;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.JsonNodeFeature;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.util.RawValue;
 
@@ -296,59 +297,90 @@ public class ObjectNode
      * Method that can be called to serialize this node and
      * all of its descendants using specified JSON generator.
      */
+    @SuppressWarnings("deprecation")
     @Override
-    public void serialize(JsonGenerator g, SerializerProvider provider)
+    public void serialize(JsonGenerator g, SerializerProvider ctxt)
         throws JacksonException
     {
-        @SuppressWarnings("deprecation")
-        boolean trimEmptyArray = (provider != null) &&
-                !provider.isEnabled(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS);
+        final int len = _children.size();
+
+        if (len == 0) { // minor optimization
+            g.writeStartObject(this, 0);
+            g.writeEndObject();
+            return;
+        }
+        if (ctxt != null) {
+            boolean trimEmptyArray = !ctxt.isEnabled(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS);
+            boolean skipNulls = !ctxt.isEnabled(JsonNodeFeature.WRITE_NULL_PROPERTIES);
+            if (trimEmptyArray || skipNulls) {
+                g.writeStartObject(this, _children.size());
+                serializeFilteredContents(g, ctxt, trimEmptyArray, skipNulls);
+                g.writeEndObject();
+                return;
+            }
+        }
         g.writeStartObject(this, _children.size());
         for (Map.Entry<String, JsonNode> en : _children.entrySet()) {
-            /* 17-Feb-2009, tatu: Can we trust that all nodes will always
-             *   extend BaseJsonNode? Or if not, at least implement
-             *   JacksonSerializable? Let's start with former, change if
-             *   we must.
-             */
-            BaseJsonNode value = (BaseJsonNode) en.getValue();
-
-            // as per [databind#867], see if WRITE_EMPTY_JSON_ARRAYS feature is disabled,
-            // if the feature is disabled, then should not write an empty array
-            // to the output, so continue to the next element in the iteration
-            if (trimEmptyArray && value.isArray() && value.isEmpty(provider)) {
-            	continue;
-            }
             g.writeName(en.getKey());
-            value.serialize(g, provider);
+            en.getValue().serialize(g, ctxt);
         }
         g.writeEndObject();
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void serializeWithType(JsonGenerator g, SerializerProvider ctxt,
             TypeSerializer typeSer)
         throws JacksonException
     {
-        @SuppressWarnings("deprecation")
-        boolean trimEmptyArray = (ctxt != null) &&
-                !ctxt.isEnabled(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS);
+        boolean trimEmptyArray = false;
+        boolean skipNulls = false;
+        if (ctxt != null) {
+            trimEmptyArray = !ctxt.isEnabled(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS);
+            skipNulls = !ctxt.isEnabled(JsonNodeFeature.WRITE_NULL_PROPERTIES);
+        }
 
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
                 typeSer.typeId(this, JsonToken.START_OBJECT));
+
+        if (trimEmptyArray || skipNulls) {
+            serializeFilteredContents(g, ctxt, trimEmptyArray, skipNulls);
+        } else {
+            for (Map.Entry<String, JsonNode> en : _children.entrySet()) {
+                g.writeName(en.getKey());
+                en.getValue().serialize(g, ctxt);
+            }
+        }
+        typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
+    }
+
+    /**
+     * Helper method shared and called by {@link #serialize} and {@link #serializeWithType}
+     * in cases where actual filtering is needed based on configuration.
+     */
+    protected void serializeFilteredContents(final JsonGenerator g, final SerializerProvider ctxt,
+            final boolean trimEmptyArray, final boolean skipNulls)
+        throws JacksonException
+    {
         for (Map.Entry<String, JsonNode> en : _children.entrySet()) {
+            // 17-Feb-2009, tatu: Can we trust that all nodes will always
+            //   extend BaseJsonNode? Or if not, at least implement
+            //   JsonSerializable? Let's start with former, change if
+            //   we must.
             BaseJsonNode value = (BaseJsonNode) en.getValue();
 
-            // check if WRITE_EMPTY_JSON_ARRAYS feature is disabled,
+            // as per [databind#867], see if WRITE_EMPTY_JSON_ARRAYS feature is disabled,
             // if the feature is disabled, then should not write an empty array
             // to the output, so continue to the next element in the iteration
             if (trimEmptyArray && value.isArray() && value.isEmpty(ctxt)) {
                 continue;
             }
-            
+            if (skipNulls && value.isNull()) {
+                continue;
+            }
             g.writeName(en.getKey());
             value.serialize(g, ctxt);
         }
-        typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 
     /*

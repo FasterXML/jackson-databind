@@ -1,6 +1,8 @@
 package com.fasterxml.jackson.databind.node;
 
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 
@@ -58,7 +60,9 @@ final class InternalNodeMapper {
 
     /**
      * Intermediate serializer we need to implement non-recursive serialization of
-     * {@link BaseJsonNode}
+     * {@link BaseJsonNode}.
+     *<p>
+     * NOTE: not designed as thread-safe; instances must NOT be shared or reused.
      *
      * @since 2.14
      */
@@ -67,22 +71,52 @@ final class InternalNodeMapper {
     {
         protected final BaseJsonNode _root;
 
+        // Non-final as passed when `serialize()` is called
+        protected SerializerProvider _context;
+
         public WrapperForSerializer(BaseJsonNode root) {
             _root = root;
         }
 
         @Override
-        public void serialize(JsonGenerator gen, SerializerProvider serializers) throws IOException {
-            // !!! TODO: placeholder
-            _root.serialize(gen, serializers);
+        public void serialize(JsonGenerator g, SerializerProvider ctxt) throws IOException {
+            _context = ctxt;
+            _serializeNonRecursive(g, _root);
         }
 
         @Override
-        public void serializeWithType(JsonGenerator gen, SerializerProvider serializers, TypeSerializer typeSer)
+        public void serializeWithType(JsonGenerator g, SerializerProvider ctxt, TypeSerializer typeSer)
             throws IOException
         {
             // Should not really be called given usage, so
-            serialize(gen, serializers);
+            serialize(g, ctxt);
+        }
+
+    
+        protected void _serializeNonRecursive(JsonGenerator g, JsonNode node) throws IOException
+        {
+            if (node instanceof ObjectNode) {
+                g.writeStartObject(this);
+                Iterator<Map.Entry<String, JsonNode>> it = node.fields();
+                while (it.hasNext()) {
+                    Map.Entry<String, JsonNode> en = it.next();
+                    JsonNode value = en.getValue();
+                    g.writeFieldName(en.getKey());
+                    value.serialize(g, _context);
+                }
+                g.writeEndObject();
+            } else if (node instanceof ArrayNode) {
+                g.writeStartArray(this, node.size());
+                Iterator<JsonNode> it = node.elements();
+                while (it.hasNext()) {
+                    // For now, assuming it's either BaseJsonNode, JsonSerializable
+                    JsonNode value = it.next();
+                    value.serialize(g, _context);
+                }
+                g.writeEndArray();
+            } else {
+                node.serialize(g, _context);
+            }
         }
     }
 }

@@ -141,13 +141,11 @@ public abstract class BaseJsonNode
 
    @Override
    public String toString() {
-       return JsonMapper.shared().writeValueAsString(this);
+       return InternalNodeSerializer.toString(this);
    }
 
    @Override
    public String toPrettyString() {
-       return JsonMapper.shared()
-               .writerWithDefaultPrettyPrinter()
-               .writeValueAsString(this);
+       return InternalNodeSerializer.toPrettyString(this);
    }
 }

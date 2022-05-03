@@ -2,13 +2,14 @@ package com.fasterxml.jackson.databind.node;
 
 import java.io.IOException;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.core.JsonGenerator;
+
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
 /**
- * Helper class used to implement <code>toString()</code> method for
+ * Helper class used to implement {@code toString()} method for
  * {@link BaseJsonNode}, by embedding a private instance of
  * {@link JsonMapper}, only to be used for node serialization.
  *
@@ -27,7 +28,7 @@ final class InternalNodeMapper {
     
     public static String nodeToString(BaseJsonNode n) {
         try {
-            return STD_WRITER.writeValueAsString(n);
+            return STD_WRITER.writeValueAsString(_wrapper(n));
         } catch (IOException e) { // should never occur
             throw new RuntimeException(e);
         }
@@ -35,7 +36,7 @@ final class InternalNodeMapper {
 
     public static String nodeToPrettyString(BaseJsonNode n) {
         try {
-            return PRETTY_WRITER.writeValueAsString(n);
+            return PRETTY_WRITER.writeValueAsString(_wrapper(n));
         } catch (IOException e) { // should never occur
             throw new RuntimeException(e);
         }
@@ -49,5 +50,39 @@ final class InternalNodeMapper {
 
     public static JsonNode bytesToNode(byte[] json) throws IOException {
         return NODE_READER.readValue(json);
+    }
+
+    private static JsonSerializable _wrapper(BaseJsonNode root) {
+        return new WrapperForSerializer(root);
+    }
+
+    /**
+     * Intermediate serializer we need to implement non-recursive serialization of
+     * {@link BaseJsonNode}
+     *
+     * @since 2.14
+     */
+    protected static class WrapperForSerializer
+        extends JsonSerializable.Base
+    {
+        protected final BaseJsonNode _root;
+
+        public WrapperForSerializer(BaseJsonNode root) {
+            _root = root;
+        }
+
+        @Override
+        public void serialize(JsonGenerator gen, SerializerProvider serializers) throws IOException {
+            // !!! TODO: placeholder
+            _root.serialize(gen, serializers);
+        }
+
+        @Override
+        public void serializeWithType(JsonGenerator gen, SerializerProvider serializers, TypeSerializer typeSer)
+            throws IOException
+        {
+            // Should not really be called given usage, so
+            serialize(gen, serializers);
+        }
     }
 }

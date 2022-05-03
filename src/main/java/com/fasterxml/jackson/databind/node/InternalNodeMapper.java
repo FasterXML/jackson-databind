@@ -25,7 +25,7 @@ final class InternalNodeMapper {
 
     // // // Methods for `JsonNode.toString()` and `JsonNode.toPrettyString()`
     
-    public static String nodeToString(JsonNode n) {
+    public static String nodeToString(BaseJsonNode n) {
         try {
             return STD_WRITER.writeValueAsString(n);
         } catch (IOException e) { // should never occur
@@ -33,7 +33,7 @@ final class InternalNodeMapper {
         }
     }
 
-    public static String nodeToPrettyString(JsonNode n) {
+    public static String nodeToPrettyString(BaseJsonNode n) {
         try {
             return PRETTY_WRITER.writeValueAsString(n);
         } catch (IOException e) { // should never occur

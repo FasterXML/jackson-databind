@@ -1452,3 +1452,7 @@ Gary Morgan (morganga@github)
 Jan Judas (kostislav@github)
   * Contributed #3445: Do not strip generic type from `Class<C>` when resolving `JavaType`
   (2.14.0)
+
+Deniz Husaj (denizhusaj@github)
+  * Reported #3447: Deeply nested JsonNode throws StackOverflowError for toString()
+  (2.14.0)

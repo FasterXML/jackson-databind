@@ -62,9 +62,9 @@ public class ArrayNode
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Overrides for JacksonSerializable.Base
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -73,9 +73,9 @@ public class ArrayNode
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Implementation of core JsonNode API
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -156,24 +156,22 @@ public class ArrayNode
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, serialization
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
-    public void serialize(JsonGenerator f, SerializerProvider provider)
+    public void serialize(JsonGenerator g, SerializerProvider provider)
         throws JacksonException
     {
         final List<JsonNode> c = _children;
         final int size = c.size();
-        f.writeStartArray(this, size);
+        g.writeStartArray(this, size);
         for (int i = 0; i < size; ++i) { // we'll typically have array list
-            // For now, assuming it's either BaseJsonNode, JacksonSerializable
-            JsonNode n = c.get(i);
-            ((BaseJsonNode) n).serialize(f, provider);
+            c.get(i).serialize(g, provider);
         }
-        f.writeEndArray();
+        g.writeEndArray();
     }
 
     @Override
@@ -183,15 +181,15 @@ public class ArrayNode
         WritableTypeId typeIdDef = typeSer.writeTypePrefix(g, ctxt,
                 typeSer.typeId(this, JsonToken.START_ARRAY));
         for (JsonNode n : _children) {
-            ((BaseJsonNode)n).serialize(g, ctxt);
+            n.serialize(g, ctxt);
         }
         typeSer.writeTypeSuffix(g, ctxt, typeIdDef);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Public API, finding value nodes
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -246,9 +244,9 @@ public class ArrayNode
     }
 
     /*
-    /**********************************************************
-    /* Extended ObjectNode API, accessors
-    /**********************************************************
+    /**********************************************************************
+    /* Extended ArrayNode API, accessors
+    /**********************************************************************
      */
 
     /**
@@ -388,9 +386,9 @@ public class ArrayNode
     }
 
     /*
-    /**********************************************************
-    /* Extended ObjectNode API, mutators, generic; addXxx()/insertXxx()/setXxx()
-    /**********************************************************
+    /**********************************************************************
+    /* Extended ArrayNode API, mutators, generic; addXxx()/insertXxx()/setXxx()
+    /**********************************************************************
      */
 
     /**
@@ -673,8 +671,6 @@ public class ArrayNode
      * with auto-unboxing.
      *
      * @return This array node, to allow chaining
-     *
-     * @since 2.13
      */
     public ArrayNode insert(int index, Short value) {
         return _insert(index, (value == null) ? nullNode() : numberNode(value.shortValue()));
@@ -831,8 +827,6 @@ public class ArrayNode
 
     /**
      * @return This node (to allow chaining)
-     *
-     * @since 2.13
      */
     public ArrayNode setNull(int index) {
         return _set(index, nullNode());
@@ -840,8 +834,6 @@ public class ArrayNode
 
     /**
      * @return This array node, to allow chaining
-     *
-     * @since 2.13
      */
     public ArrayNode setPOJO(int index, Object pojo) {
         return _set(index, (pojo == null) ? nullNode() : pojoNode(pojo));
@@ -849,17 +841,13 @@ public class ArrayNode
 
     /**
      * @return This array node, to allow chaining
-     *
-     * @since 2.13
      */
     public ArrayNode setRawValue(int index, RawValue raw) {
         return _set(index, (raw == null) ? nullNode() : rawValueNode(raw));
     }
 
     /**
-     * @return This node (to allow chaining)
-     *
-     * @since 2.13
+     * @return This array node (to allow chaining)
      */
     public ArrayNode set(int index, short v) {
         return _set(index, numberNode(v));
@@ -870,8 +858,6 @@ public class ArrayNode
      * with auto-unboxing.
      *
      * @return This node (to allow chaining)
-     *
-     * @since 2.13
      */
     public ArrayNode set(int index, Short v) {
         return _set(index, (v == null) ? nullNode() : numberNode(v.shortValue()));
@@ -879,8 +865,6 @@ public class ArrayNode
 
     /**
      * @return This node (to allow chaining)
-     *
-     * @since 2.13
      */
     public ArrayNode set(int index, int v) {
         return _set(index, numberNode(v));
@@ -891,8 +875,6 @@ public class ArrayNode
      * with auto-unboxing.
      *
      * @return This node (to allow chaining)
-     *
-     * @since 2.13
      */
     public ArrayNode set(int index, Integer v) {
         return _set(index, (v == null) ? nullNode() : numberNode(v.intValue()));
@@ -900,8 +882,6 @@ public class ArrayNode
 
     /**
      * @return This node (to allow chaining)
-     *
-     * @since 2.13
      */
     public ArrayNode set(int index, long v) {
         return _set(index, numberNode(v));
@@ -909,8 +889,6 @@ public class ArrayNode
 
     /**
      * @return This node (to allow chaining)
-     *
-     * @since 2.13
      */
     public ArrayNode set(int index, Long v) {
         return _set(index, (v == null) ? nullNode() : numberNode(v.longValue()));
@@ -920,8 +898,6 @@ public class ArrayNode
      * Method for setting value of a field to specified numeric value.
      *
      * @return This node (to allow chaining)
-     *
-     * @since 2.13
      */
     public ArrayNode set(int index, float v) {
         return _set(index, numberNode(v));
@@ -932,8 +908,6 @@ public class ArrayNode
      * with auto-unboxing.
      *
      * @return This node (to allow chaining)
-     *
-     * @since 2.13
      */
     public ArrayNode set(int index, Float v) {
         return _set(index, (v == null) ? nullNode() : numberNode(v.floatValue()));
@@ -943,8 +917,6 @@ public class ArrayNode
      * Method for setting value of a field to specified numeric value.
      *
      * @return This node (to allow chaining)
-     *
-     * @since 2.13
      */
     public ArrayNode set(int index, double v) {
         return _set(index, numberNode(v));
@@ -955,8 +927,6 @@ public class ArrayNode
      * with auto-unboxing.
      *
      * @return This node (to allow chaining)
-     *
-     * @since 2.13
      */
     public ArrayNode set(int index, Double v) {
         return _set(index, (v == null) ? nullNode() : numberNode(v.doubleValue()));
@@ -966,8 +936,6 @@ public class ArrayNode
      * Method for setting value of a field to specified numeric value.
      *
      * @return This node (to allow chaining)
-     *
-     * @since 2.13
      */
     public ArrayNode set(int index, BigDecimal v) {
         return _set(index, (v == null) ? nullNode() : numberNode(v));
@@ -977,8 +945,6 @@ public class ArrayNode
      * Method for setting value of a field to specified numeric value.
      *
      * @return This node (to allow chaining)
-     *
-     * @since 2.13
      */
     public ArrayNode set(int index, BigInteger v) {
         return _set(index, (v == null) ? nullNode() : numberNode(v));
@@ -988,8 +954,6 @@ public class ArrayNode
      * Method for setting value of a field to specified String value.
      *
      * @return This node (to allow chaining)
-     *
-     * @since 2.13
      */
     public ArrayNode set(int index, String v) {
         return _set(index, (v == null) ? nullNode() : textNode(v));
@@ -999,8 +963,6 @@ public class ArrayNode
      * Method for setting value of a field to specified String value.
      *
      * @return This node (to allow chaining)
-     *
-     * @since 2.13
      */
     public ArrayNode set(int index, boolean v) {
         return _set(index, booleanNode(v));
@@ -1011,8 +973,6 @@ public class ArrayNode
      * with auto-unboxing.
      *
      * @return This node (to allow chaining)
-     *
-     * @since 2.13
      */
     public ArrayNode set(int index, Boolean v) {
         return _set(index, (v == null) ? nullNode() : booleanNode(v.booleanValue()));
@@ -1022,17 +982,15 @@ public class ArrayNode
      * Method for setting value of a field to specified binary value
      *
      * @return This node (to allow chaining)
-     *
-     * @since 2.13
      */
     public ArrayNode set(int index, byte[] v) {
         return _set(index, (v == null) ? nullNode() : binaryNode(v));
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Standard methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -1046,9 +1004,6 @@ public class ArrayNode
         return false;
     }
 
-    /**
-     * @since 2.3
-     */
     protected boolean _childrenEqual(ArrayNode other) {
         return _children.equals(other._children);
     }
@@ -1059,9 +1014,9 @@ public class ArrayNode
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Internal methods (overridable)
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected ArrayNode _set(int index, JsonNode node) {

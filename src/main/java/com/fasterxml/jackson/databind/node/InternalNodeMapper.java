@@ -1,8 +1,10 @@
 package com.fasterxml.jackson.databind.node;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 
@@ -92,31 +94,100 @@ final class InternalNodeMapper {
             serialize(g, ctxt);
         }
 
-    
         protected void _serializeNonRecursive(JsonGenerator g, JsonNode node) throws IOException
         {
             if (node instanceof ObjectNode) {
-                g.writeStartObject(this);
-                Iterator<Map.Entry<String, JsonNode>> it = node.fields();
-                while (it.hasNext()) {
-                    Map.Entry<String, JsonNode> en = it.next();
-                    JsonNode value = en.getValue();
-                    g.writeFieldName(en.getKey());
-                    value.serialize(g, _context);
-                }
-                g.writeEndObject();
+                g.writeStartObject(this, node.size());
+                _serializeNonRecursive(g, new IteratorStack(), node.fields());
             } else if (node instanceof ArrayNode) {
                 g.writeStartArray(this, node.size());
-                Iterator<JsonNode> it = node.elements();
-                while (it.hasNext()) {
-                    // For now, assuming it's either BaseJsonNode, JsonSerializable
-                    JsonNode value = it.next();
-                    value.serialize(g, _context);
-                }
-                g.writeEndArray();
+                _serializeNonRecursive(g, new IteratorStack(), node.elements());
             } else {
                 node.serialize(g, _context);
             }
+        }
+
+        protected void _serializeNonRecursive(JsonGenerator g, IteratorStack stack,
+                final Iterator<?> rootIterator)
+            throws IOException
+        {
+            Iterator<?> currIt = rootIterator;
+            while (true) {
+                // First: any more elements from the current iterator?
+                while (currIt.hasNext()) {
+                    JsonNode value;
+
+                    // Otherwise we do have another Map or Array element to handle
+                    Object elem = currIt.next();
+                    if (elem instanceof Map.Entry<?,?>) {
+                        @SuppressWarnings("unchecked")
+                        Map.Entry<String, JsonNode> en = (Map.Entry<String, JsonNode>) elem;
+                        g.writeFieldName(en.getKey());
+                        value = en.getValue();
+                    } else {
+                        value = (JsonNode) elem;
+                    }
+                    if (value instanceof ObjectNode) {
+                        stack.push(currIt);
+                        currIt = value.fields();
+                        g.writeStartObject(value, value.size());
+                    } else if (value instanceof ArrayNode) {
+                        stack.push(currIt);
+                        currIt = value.elements();
+                        g.writeStartArray(value, value.size());
+                    } else {
+                        value.serialize(g, _context);
+                    }
+                }
+                if (g.getOutputContext().inArray()) {
+                    g.writeEndArray();
+                } else {
+                    g.writeEndObject();
+                }
+                currIt = stack.popOrNull();
+                if (currIt == null) {
+                    return;
+                }
+            }
+        }
+    }
+
+    /**
+     * Optimized variant similar in functionality to (a subset of)
+     * {@link java.util.ArrayDeque}; used to hold enclosing Array/Object
+     * nodes during recursion-as-iteration.
+     */
+    final static class IteratorStack
+    {
+        private Iterator<?>[] _stack;
+        private int _top, _end;
+
+        public IteratorStack() { }
+
+        public void push(Iterator<?> it)
+        {
+            if (_top < _end) {
+                _stack[_top++] = it; // lgtm [java/dereferenced-value-may-be-null]
+                return;
+            }
+            if (_stack == null) {
+                _end = 10;
+                _stack = new Iterator<?>[_end];
+            } else {
+                // grow by 50%, for most part
+                _end += Math.min(4000, Math.max(20, _end>>1));
+                _stack = Arrays.copyOf(_stack, _end);
+            }
+            _stack[_top++] = it;
+        }
+
+        public Iterator<?> popOrNull() {
+            if (_top == 0) {
+                return null;
+            }
+            // note: could clean up stack but due to usage pattern, should not make
+            // much difference since the whole stack is discarded after serialization done
+            return _stack[--_top];
         }
     }
 }

@@ -19,6 +19,8 @@ Project: jackson-databind
   JSON `null` values on reading
 #3443: Do not strip generic type from `Class<C>` when resolving `JavaType`
  (contributed by Jan J)
+#3447: Deeply nested JsonNode throws StackOverflowError for toString()
+ (reported by Deniz H)
 #3476: Implement `JsonNodeFeature.WRITE_NULL_PROPERTIES` to allow skipping
   JSON `null` values on writing
 

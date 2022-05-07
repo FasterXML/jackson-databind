@@ -118,6 +118,10 @@ public class JsonIncludeCustomTest extends BaseMapTest
 
         // but beyond initial extra call, as expected
         assertEquals(3, CountingFooFilter.counter.get());
+
+        // except filter will NOT be called again for `null`s, as per [databind#3481]
+        assertEquals(a2q("{'value':null}"), MAPPER.writeValueAsString(new CountingFooBean(null)));
+        assertEquals(3, CountingFooFilter.counter.get());
     }
 
     /*

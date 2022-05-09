@@ -307,6 +307,29 @@ public class ReadValuesTest extends BaseMapTest
         assertEquals(2, map.size());
         assertFalse(iterator.hasNext());
     }
+
+    public void testObjectReaderWithFastDoubleParser() throws Exception
+    {
+        String JSON = "[{ \"val1\": 1.23456, \"val2\": 5 }, { \"val1\": 3.14, \"val2\": -6.5 }]";
+        final MappingIterator<Map<String, Double>> iterator = MAPPER
+                .reader()
+                .forType(new TypeReference<Map<String, Double>>(){})
+                .withFeatures(JsonParser.Feature.USE_FAST_DOUBLE_PARSER)
+                .readValues(JSON);
+
+        Map<String, Double> map;
+        assertTrue(iterator.hasNext());
+        map = iterator.nextValue();
+        assertEquals(2, map.size());
+        assertEquals(Double.valueOf(1.23456), map.get("val1"));
+        assertEquals(Double.valueOf(5), map.get("val2"));
+        assertTrue(iterator.hasNext());
+        map = iterator.nextValue();
+        assertEquals(Double.valueOf(3.14), map.get("val1"));
+        assertEquals(Double.valueOf(-6.5), map.get("val2"));
+        assertEquals(2, map.size());
+        assertFalse(iterator.hasNext());
+    }
     
     public void testNonRootArraysUsingParser() throws Exception
     {

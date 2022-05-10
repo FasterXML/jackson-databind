@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
@@ -308,29 +309,26 @@ public class ReadValuesTest extends BaseMapTest
         assertFalse(iterator.hasNext());
     }
 
-    public void testObjectReaderWithFastDoubleParser() throws Exception
+    public void testObjectReaderWithJsonParserFastDoubleParser() throws Exception
     {
-        String JSON = "[{ \"val1\": 1.23456, \"val2\": 5 }, { \"val1\": 3.14, \"val2\": -6.5 }]";
-        final MappingIterator<Map<String, Double>> iterator = MAPPER
-                .reader()
-                .forType(new TypeReference<Map<String, Double>>(){})
-                .withFeatures(JsonParser.Feature.USE_FAST_DOUBLE_PARSER)
-                .readValues(JSON);
-
-        Map<String, Double> map;
-        assertTrue(iterator.hasNext());
-        map = iterator.nextValue();
-        assertEquals(2, map.size());
-        assertEquals(Double.valueOf(1.23456), map.get("val1"));
-        assertEquals(Double.valueOf(5), map.get("val2"));
-        assertTrue(iterator.hasNext());
-        map = iterator.nextValue();
-        assertEquals(Double.valueOf(3.14), map.get("val1"));
-        assertEquals(Double.valueOf(-6.5), map.get("val2"));
-        assertEquals(2, map.size());
-        assertFalse(iterator.hasNext());
+        testObjectReaderWithFastDoubleParser(true);
     }
-    
+
+    public void testObjectReaderWithJsonReadFeatureFastDoubleParser() throws Exception
+    {
+        testObjectReaderWithFastDoubleParser(false);
+    }
+
+    public void testObjectReaderWithJsonParserFastFloatParser() throws Exception
+    {
+        testObjectReaderWithFastFloatParser(true);
+    }
+
+    public void testObjectReaderWithJsonReadFeatureFastFloatParser() throws Exception
+    {
+        testObjectReaderWithFastFloatParser(false);
+    }
+
     public void testNonRootArraysUsingParser() throws Exception
     {
         final String JSON = "[[1],[3]]";
@@ -364,5 +362,55 @@ public class ReadValuesTest extends BaseMapTest
         assertFalse(empty.hasNextValue());
 
         empty.close();
+    }
+
+    private void testObjectReaderWithFastDoubleParser(final boolean useParserFeature) throws Exception
+    {
+        final String JSON = "[{ \"val1\": 1.23456, \"val2\": 5 }, { \"val1\": 3.14, \"val2\": -6.5 }]";
+        final ObjectReader reader = MAPPER.reader().forType(new TypeReference<Map<String, Double>>(){});
+        if (useParserFeature) {
+            reader.with(JsonParser.Feature.USE_FAST_DOUBLE_PARSER);
+        } else {
+            reader.with(JsonReadFeature.USE_FAST_DOUBLE_PARSER);
+        }
+        final MappingIterator<Map<String, Double>> iterator = reader.readValues(JSON);
+
+        Map<String, Double> map;
+        assertTrue(iterator.hasNext());
+        map = iterator.nextValue();
+        assertEquals(2, map.size());
+        assertEquals(Double.valueOf(1.23456), map.get("val1"));
+        assertEquals(Double.valueOf(5), map.get("val2"));
+        assertTrue(iterator.hasNext());
+        map = iterator.nextValue();
+        assertEquals(Double.valueOf(3.14), map.get("val1"));
+        assertEquals(Double.valueOf(-6.5), map.get("val2"));
+        assertEquals(2, map.size());
+        assertFalse(iterator.hasNext());
+    }
+
+    private void testObjectReaderWithFastFloatParser(final boolean useParserFeature) throws Exception
+    {
+        final String JSON = "[{ \"val1\": 1.23456, \"val2\": 5 }, { \"val1\": 3.14, \"val2\": -6.5 }]";
+        final ObjectReader reader = MAPPER.reader().forType(new TypeReference<Map<String, Float>>(){});
+        if (useParserFeature) {
+            reader.with(JsonParser.Feature.USE_FAST_DOUBLE_PARSER);
+        } else {
+            reader.with(JsonReadFeature.USE_FAST_DOUBLE_PARSER);
+        }
+        final MappingIterator<Map<String, Float>> iterator = reader.readValues(JSON);
+
+        Map<String, Float> map;
+        assertTrue(iterator.hasNext());
+        map = iterator.nextValue();
+        assertEquals(2, map.size());
+        assertEquals(Float.valueOf(1.23456f), map.get("val1"));
+        assertEquals(Float.valueOf(5), map.get("val2"));
+        assertTrue(iterator.hasNext());
+        map = iterator.nextValue();
+        assertEquals(Float.valueOf(3.14f), map.get("val1"));
+        assertEquals(Float.valueOf(-6.5f), map.get("val2"));
+        assertEquals(2, map.size());
+        assertFalse(iterator.hasNext());
     }
 }

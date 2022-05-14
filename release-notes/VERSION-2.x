@@ -4,8 +4,10 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.13.3 (not yet released)
+2.13.3 (14-May-2022)
 
+#3412: Version 2.13.2 uses `Method.getParameterCount()` which is not supported on
+  Android before API 26
 #3419: Improve performance of `UnresolvedForwardReference` for forward
  reference resolution
 (contributed by Gary M)

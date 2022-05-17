@@ -76,6 +76,32 @@ public class JDKNumberDeserTest extends BaseMapTest
         public BigDecimalHolder2784 holder;
     }
 
+    static class NumberFormatHolder2934 {
+        @JsonFormat(shape = JsonFormat.Shape.STRING, locale = "de")
+        public double deLocalePrimitive;
+
+        @JsonFormat(locale = "de")
+        public double deLocaleWithNoShapePrimitive;
+
+        @JsonFormat(shape = JsonFormat.Shape.STRING, locale = "en")
+        public double enLocalePrimitive;
+
+        public double enDoubleNoAnnotatedPrimitive;
+
+        @JsonFormat(shape = JsonFormat.Shape.STRING)
+        public double noLocaleEnDoublePrimitive;
+
+        @JsonFormat(shape = JsonFormat.Shape.STRING, locale = "de")
+        public double deLocaleEnDoublePrimitive;
+
+        @JsonFormat(shape = JsonFormat.Shape.STRING, locale = "de")
+        public Double deLocaleClass;
+
+        @JsonProperty("value")
+        @JsonFormat(shape = JsonFormat.Shape.STRING, locale = "de")
+        public Double deLocaleWithPropertyClass;
+    }
+
     /*
     /**********************************************************************
     /* Helper classes, serializers/deserializers/resolvers
@@ -361,5 +387,29 @@ public class JDKNumberDeserTest extends BaseMapTest
         final String JSON = "{\"value\": 5.00}";
         NestedBigDecimalHolder2784 result = mapper.readValue(JSON, NestedBigDecimalHolder2784.class);
         assertEquals(new BigDecimal("5.00"), result.holder.value);
+    }
+
+
+    // [databind#2934]
+    public void testNumberFormat() throws Exception
+    {
+        final ObjectMapper mapper = newJsonMapper();
+        final String json = "{\"deLocalePrimitive\": \"60,1013\", " +
+                "\"deLocaleWithNoShapePrimitive\": \"89,0315\", " +
+                "\"enLocalePrimitive\": \"65.0628\", " +
+                "\"enDoubleNoAnnotatedPrimitive\": \"91.0405\", " +
+                "\"noLocaleEnDoublePrimitive\": \"60.1013\", " +
+                "\"deLocaleEnDoublePrimitive\": \"60.1013\", " +
+                "\"deLocaleClass\": \"60,1013\", " +
+                "\"value\": \"89,0315\"}";
+        NumberFormatHolder2934 result = mapper.readValue(json, NumberFormatHolder2934.class);
+        assertEquals(60.1013, result.deLocalePrimitive);
+        assertEquals(89.0315, result.deLocaleWithNoShapePrimitive);
+        assertEquals(65.0628, result.enLocalePrimitive);
+        assertEquals(91.0405, result.enDoubleNoAnnotatedPrimitive);
+        assertEquals(60.1013, result.noLocaleEnDoublePrimitive);
+        assertEquals(601013.0, result.deLocaleEnDoublePrimitive);
+        assertEquals(60.1013, result.deLocaleClass);
+        assertEquals(89.0315, result.deLocaleWithPropertyClass);
     }
 }

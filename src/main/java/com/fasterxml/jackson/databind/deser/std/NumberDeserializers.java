@@ -3,14 +3,20 @@ package com.fasterxml.jackson.databind.deser.std;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.ParseException;
 import java.util.HashSet;
+import java.util.Locale;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
+import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.AccessPattern;
@@ -655,18 +661,54 @@ public class NumberDeserializers
     @JacksonStdImpl
     public static class DoubleDeserializer
         extends PrimitiveOrWrapperDeserializer<Double>
+        implements ContextualDeserializer
     {
         private static final long serialVersionUID = 1L;
+        protected final JsonFormat.Value _jsonFormat;
+        protected final DecimalFormat _decimalFormat;
 
         final static DoubleDeserializer primitiveInstance = new DoubleDeserializer(Double.TYPE, 0.d);
         final static DoubleDeserializer wrapperInstance = new DoubleDeserializer(Double.class, null);
-        
+
         public DoubleDeserializer(Class<Double> cls, Double nvl) {
             super(cls, LogicalType.Float, nvl, 0.d);
+            _jsonFormat = null;
+            _decimalFormat = null;
+        }
+
+        protected DoubleDeserializer(Class<Double> cls, Double nvl, JsonFormat.Value format) {
+            super(cls, LogicalType.Float, nvl, 0.d);
+            _jsonFormat = format;
+
+            Locale locale = _jsonFormat.getLocale();
+            if (locale == null) {
+                locale = Locale.getDefault();
+            }
+            _decimalFormat = new DecimalFormat("", new DecimalFormatSymbols(locale));
+        }
+
+        @Override
+        public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
+                throws JsonMappingException
+        {
+            final JsonFormat.Value format = findFormatOverrides(ctxt, property, handledType());
+            if (format != null) {
+                if (_primitive) {
+                    return new DoubleDeserializer(Double.TYPE, 0.d, format);
+                }
+                return new DoubleDeserializer(Double.class, null, format);
+            }
+            return this;
         }
 
         @Override
         public Double deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+            if (_jsonFormat != null) {
+                Double result = _parseDoubleFormat(p, ctxt);
+                if (result != null) {
+                    return result;
+                }
+            }
             if (p.hasToken(JsonToken.VALUE_NUMBER_FLOAT)) {
                 return p.getDoubleValue();
             }
@@ -740,6 +782,24 @@ public class NumberDeserializers
             } catch (IllegalArgumentException iae) { }
             return (Double) ctxt.handleWeirdStringValue(_valueClass, text,
                     "not a valid `Double` value");
+        }
+
+        protected final Double _parseDoubleFormat(JsonParser p, DeserializationContext ctxt) throws IOException {
+            if (!p.hasToken(JsonToken.VALUE_STRING)) {
+                return null;
+            }
+            String str = p.getText().trim();
+            if (str.isEmpty()) {
+                return null;
+            }
+            synchronized (_decimalFormat) {
+                try {
+                    return _decimalFormat.parse(str).doubleValue();
+                } catch (ParseException e) {
+                    // TODO exception handler
+                }
+            }
+            return null;
         }
     }
 

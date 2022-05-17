@@ -6,6 +6,8 @@ Project: jackson-databind
 
 2.14.0 (not yet released)
 
+#3357: `@JsonIgnore` does not if together with `@JsonProperty` or `@JsonFormat`
+ (reported by lizongbo@github)
 #3373: Change `TypeSerializerBase` to skip `generator.writeTypePrefix()`
   for `null` typeId
 #3405: Create DataTypeFeature abstraction (for JSTEP-7) with placeholder features

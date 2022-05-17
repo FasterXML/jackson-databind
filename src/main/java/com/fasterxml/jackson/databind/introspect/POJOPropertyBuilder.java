@@ -1120,7 +1120,7 @@ public class POJOPropertyBuilder
         }
         return false;
     }
-    
+
     public boolean anyIgnorals() {
         return _anyIgnorals(_fields)
             || _anyIgnorals(_getters)
@@ -1134,6 +1134,37 @@ public class POJOPropertyBuilder
         for (; n != null; n = n.next) {
             if (n.isMarkedIgnored) {
                 return true;
+            }
+        }
+        return false;
+    }
+
+    // @since 2.14
+    public boolean anyExplicitsWithoutIgnoral() {
+        return _anyExplicitsWithoutIgnoral(_fields)
+                || _anyExplicitsWithoutIgnoral(_getters)
+                || _anyExplicitsWithoutIgnoral(_setters)
+                // as per [databind#1317], constructor names are special...
+                || _anyExplicitNamesWithoutIgnoral(_ctorParameters);
+    }
+
+    // For accessors other than constructor parameters
+    private <T> boolean _anyExplicitsWithoutIgnoral(Linked<T> n) {
+        for (; n != null; n = n.next) {
+            if (!n.isMarkedIgnored
+                && (n.name != null && n.name.hasSimpleName())) {
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    // For constructor parameters
+    private <T> boolean _anyExplicitNamesWithoutIgnoral(Linked<T> n) {
+        for (; n != null; n = n.next) {
+            if (!n.isMarkedIgnored
+                && (n.name != null && n.isNameExplicit)) {
+                    return true;
             }
         }
         return false;
@@ -1218,7 +1249,7 @@ public class POJOPropertyBuilder
             }
         }
     }
-    
+
     private Set<PropertyName> _findExplicitNames(Linked<? extends AnnotatedMember> node,
             Set<PropertyName> renamed)
     {
@@ -1239,7 +1270,7 @@ public class POJOPropertyBuilder
         }
         return renamed;
     }
-    
+
     // For trouble-shooting
     @Override
     public String toString()
@@ -1254,7 +1285,7 @@ public class POJOPropertyBuilder
         sb.append("]");
         return sb.toString();
     }
-    
+
     /*
     /**********************************************************
     /* Helper methods

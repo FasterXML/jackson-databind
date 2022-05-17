@@ -199,7 +199,7 @@ public class JsonIncludeTest
     /**********************************************************
      */
 
-    final private ObjectMapper MAPPER = new ObjectMapper();
+    final private ObjectMapper MAPPER = newJsonMapper();
 
     public void testGlobal() throws IOException
     {

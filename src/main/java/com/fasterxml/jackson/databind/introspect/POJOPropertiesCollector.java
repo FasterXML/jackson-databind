@@ -826,7 +826,9 @@ public class POJOPropertiesCollector
             // Otherwise, check ignorals
             if (prop.anyIgnorals()) {
                 // first: if one or more ignorals, and no explicit markers, remove the whole thing
-                if (!prop.isExplicitlyIncluded()) {
+                // 16-May-2022, tatu: NOTE! As per [databind#3357] need to consider
+                //    only explicit inclusion by accessors OTHER than ones with ignoral marker
+                if (!prop.anyExplicitsWithoutIgnoral()) {
                     it.remove();
                     _collectIgnorals(prop.getName());
                     continue;

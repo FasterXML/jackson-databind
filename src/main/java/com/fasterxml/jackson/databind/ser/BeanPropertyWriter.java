@@ -689,7 +689,10 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
                 : _accessorMethod.invoke(bean, (Object[]) null);
 
         // Null handling is bit different, check that first
-        if (value == null) {
+        if (value == null ) {
+            if(_suppressableValue != null && _suppressableValue.equals(value)) {
+                return;
+            }
             if (_nullSerializer != null) {
                 gen.writeFieldName(_name);
                 _nullSerializer.serialize(null, gen, prov);

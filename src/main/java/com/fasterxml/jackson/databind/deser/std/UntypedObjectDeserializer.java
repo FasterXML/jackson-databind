@@ -756,6 +756,11 @@ public class UntypedObjectDeserializer
         }
 
         @Override
+        public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+            return new Object();
+        }
+
+        @Override
         public Object deserializeWithType(JsonParser p, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException
         {
             switch (p.currentTokenId()) {

@@ -427,7 +427,7 @@ ClassUtil.name(propName)));
         AnnotatedMethod am = beanDesc.findMethod("initCause", INIT_CAUSE_PARAMS);
         if (am != null) { // should never be null
             SimpleBeanPropertyDefinition propDef = SimpleBeanPropertyDefinition.construct(ctxt.getConfig(), am,
-                    new PropertyName("cause"));
+                    new PropertyName(getThrowableCausePropertyName(builder)));
             SettableBeanProperty prop = constructSettableProperty(ctxt, beanDesc, propDef,
                     am.getParameterType(0));
             if (prop != null) {
@@ -475,6 +475,15 @@ ClassUtil.name(propName)));
     /* Helper methods for Bean deserializer construction
     /**********************************************************
      */
+     
+    private String getThrowableCausePropertyName(BeanDeserializerBuilder builder) {
+        String propertyName = "cause";
+        if(builder._properties.containsKey("Cause")) {
+            propertyName = "Cause";
+        }
+        return propertyName;
+    }
+
 
     /**
      * Overridable method that constructs a {@link BeanDeserializerBuilder}

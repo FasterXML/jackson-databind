@@ -1436,3 +1436,9 @@ Taylor S Marks (TaylorSMarks@github)
 Spence Nace (snace98@github)
   * Contributed fix for #2816: Optimize UntypedObjectDeserializer wrt recursion
   (2.13.3)
+
+Jason Harper (jsharper@github)
+  * Reported #3275: JDK 16 Illegal reflective access for `Throwable.setCause()` with
+   `PropertyNamingStrategy.UPPER_CAMEL_CASE`
+  (2.13.4)
+

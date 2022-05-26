@@ -4,6 +4,12 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.13.4 (not yet released)
+
+#3275: JDK 16 Illegal reflective access for `Throwable.setCause()` with
+  `PropertyNamingStrategy.UPPER_CAMEL_CASE`
+ (reported by Jason H)
+
 2.13.3 (14-May-2022)
 
 #3412: Version 2.13.2 uses `Method.getParameterCount()` which is not supported on

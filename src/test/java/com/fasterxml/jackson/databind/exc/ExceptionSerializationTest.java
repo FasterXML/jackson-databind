@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 /**
  * Unit tests for verifying that simple exceptions can be serialized.
@@ -134,5 +135,16 @@ public class ExceptionSerializationTest
         if (!msg.toLowerCase().contains(MATCH)) {
             fail("Exception should contain '"+MATCH+"', does not: '"+msg+"'");
         }
+    }
+
+    // [databind#3275]
+    public void testSerializeWithNamingStrategy() throws IOException {
+        final ObjectMapper mapper = JsonMapper.builder()
+                .propertyNamingStrategy(PropertyNamingStrategies.UPPER_CAMEL_CASE)
+                .build();
+        String json = mapper.writeValueAsString(new Exception("message!"));
+        Map<?,?> map = mapper.readValue(json, Map.class);
+        assertEquals(new HashSet<>(Arrays.asList("Cause", "StackTrace", "Message", "Suppressed", "LocalizedMessage")),
+                map.keySet());
     }
 }

@@ -2125,7 +2125,7 @@ factory.toString()));
         if (deser != null) {
             return deser;
         }
-        return JdkDeserializers.find(rawType, clsName);
+        return JdkDeserializers.find(ctxt, rawType, clsName);
     }
 
     protected JavaType _findRemappedType(DeserializationConfig config, Class<?> rawType) throws JsonMappingException {

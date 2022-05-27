@@ -30,7 +30,22 @@ public class JdkDeserializers
         for (Class<?> cls : FromStringDeserializer.types()) { _classNames.add(cls.getName()); }
     }
 
+    /**
+     * @deprecated Since 2.14 use the variant that takes one more argument
+     */
+    @Deprecated // since 2.14
     public static JsonDeserializer<?> find(Class<?> rawType, String clsName)
+        throws JsonMappingException
+    {
+        return find(null, rawType, clsName);
+    }
+
+    /**
+     * @since 2.14
+     */
+    public static JsonDeserializer<?> find(DeserializationContext ctxt,
+            Class<?> rawType, String clsName)
+        throws JsonMappingException
     {
         if (_classNames.contains(clsName)) {
             JsonDeserializer<?> d = FromStringDeserializer.findDeserializer(rawType);
@@ -41,7 +56,7 @@ public class JdkDeserializers
                 return new UUIDDeserializer();
             }
             if (rawType == StackTraceElement.class) {
-                return new StackTraceElementDeserializer();
+                return StackTraceElementDeserializer.construct(ctxt);
             }
             if (rawType == AtomicBoolean.class) {
                 return new AtomicBooleanDeserializer();

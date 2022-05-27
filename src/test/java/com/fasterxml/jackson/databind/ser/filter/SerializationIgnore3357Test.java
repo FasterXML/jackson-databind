@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.ser.filter;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;

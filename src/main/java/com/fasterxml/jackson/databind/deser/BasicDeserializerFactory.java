@@ -2014,7 +2014,7 @@ factory.toString()));
         if (deser != null) {
             return deser;
         }
-        return JDKMiscDeserializers.find(rawType, clsName);
+        return JDKMiscDeserializers.find(ctxt, rawType, clsName);
     }
 
     private JavaType _findRemappedType(DeserializationConfig config, Class<?> rawType)

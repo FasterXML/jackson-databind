@@ -31,7 +31,8 @@ public class JDKMiscDeserializers
         }
     }
 
-    public static ValueDeserializer<?> find(Class<?> rawType, String clsName)
+    public static ValueDeserializer<?> find(DeserializationContext ctxt,
+            Class<?> rawType, String clsName)
     {
         if (_classNames.contains(clsName)) {
             ValueDeserializer<?> d = JDKFromStringDeserializer.findDeserializer(rawType);
@@ -42,7 +43,7 @@ public class JDKMiscDeserializers
                 return new UUIDDeserializer();
             }
             if (rawType == StackTraceElement.class) {
-                return new StackTraceElementDeserializer();
+                return StackTraceElementDeserializer.construct(ctxt);
             }
             if (rawType == AtomicBoolean.class) {
                 return new AtomicBooleanDeserializer();

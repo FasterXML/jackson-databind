@@ -6,73 +6,43 @@ import com.fasterxml.jackson.core.JsonToken;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ValueDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 
 public class StackTraceElementDeserializer
     extends StdScalarDeserializer<StackTraceElement>
 {
-    public StackTraceElementDeserializer() { super(StackTraceElement.class); }
+    protected final ValueDeserializer<?> _adapterDeserializer;
+
+    protected StackTraceElementDeserializer(ValueDeserializer<?> ad)
+    {
+        super(StackTraceElement.class);
+        _adapterDeserializer = ad;
+    }
+
+    public static ValueDeserializer<?> construct(DeserializationContext ctxt) {
+        // 27-May-2022, tatu: MUST contextualize, alas, for optimized bean property
+        //    matching to work
+        ValueDeserializer<?> adapterDeser = ctxt.findRootValueDeserializer(ctxt.constructType(Adapter.class));
+        return new StackTraceElementDeserializer(adapterDeser);
+    }
 
     @Override
     public StackTraceElement deserialize(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
         JsonToken t = p.currentToken();
+
         // Must get an Object
-        if (t == JsonToken.START_OBJECT) {
-            String className = "", methodName = "", fileName = "";
-            // Java 9 adds couple more things
-            String moduleName = null, moduleVersion = null;
-            String classLoaderName = null;
-            int lineNumber = -1;
-
-            while ((t = p.nextValue()) != JsonToken.END_OBJECT) {
-                String propName = p.currentName();
-
-                switch (propName) {
-                case "className":
-                    className = p.getText();
-                    break;
-                case "classLoaderName":
-                    classLoaderName = p.getText();
-                    break;
-                case "fileName":
-                    fileName = p.getText();
-                    break;
-                case "lineNumber":
-                    if (t.isNumeric()) {
-                        lineNumber = p.getIntValue();
-                    } else {
-                        lineNumber = _parseIntPrimitive(p, ctxt);
-                    }
-                    break;
-                case "methodName":
-                    methodName = p.getText();
-                    break;
-                case "moduleName":
-                    moduleName = p.getText();
-                    break;
-                case "moduleVersion":
-                    moduleVersion = p.getText();
-                    break;
-
-                    // and then fluff we can't use:
-                
-                case "nativeMethod":
-                    // no setter, not passed via constructor: ignore
-                case "declaringClass":
-                    // 01-Nov-2017: [databind#1794] Not sure if we should but... let's prune it for now
-                case "format":
-                    // 02-Feb-2018, tatu: Java 9 apparently adds "format" somehow...
-                    break;
-                
-                default:
-                    handleUnknownProperty(p, ctxt, _valueClass, propName);
-                }
-                p.skipChildren(); // just in case we might get structured values
+        if (t == JsonToken.START_OBJECT || t == JsonToken.PROPERTY_NAME) {
+            Adapter adapted;
+            // 26-May-2022, tatu: for legacy use, need to do this:
+            if (_adapterDeserializer == null) {
+                adapted = ctxt.readValue(p, Adapter.class);
+            } else {
+                adapted = (Adapter) _adapterDeserializer.deserialize(p, ctxt);
             }
-            return constructValue(ctxt, className, methodName, fileName, lineNumber,
-                    moduleName, moduleVersion, classLoaderName);
+            return constructValue(ctxt, adapted);
         } else if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
             p.nextToken();
             final StackTraceElement value = deserialize(p, ctxt);
@@ -84,6 +54,15 @@ public class StackTraceElementDeserializer
         return (StackTraceElement) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 
+    protected StackTraceElement constructValue(DeserializationContext ctxt,
+            Adapter adapted)
+    {
+        return constructValue(ctxt, adapted.className, adapted.methodName,
+                adapted.fileName, adapted.lineNumber,
+                adapted.moduleName, adapted.moduleVersion,
+                adapted.classLoaderName);
+    }
+
     /**
      * Overridable factory method used for constructing {@link StackTraceElement}s.
      */
@@ -91,8 +70,22 @@ public class StackTraceElementDeserializer
             String className, String methodName, String fileName, int lineNumber,
             String moduleName, String moduleVersion, String classLoaderName)
     {
-        // 21-May-2016, tatu: With Java 9, need to use different constructor, probably
+        // 21-May-2016, tatu: With Java 9, could use different constructor, probably
         //   via different module, and throw exception here if extra args passed
         return new StackTraceElement(className, methodName, fileName, lineNumber);
+    }
+
+    /**
+     * Intermediate class used both for convenience of binding and
+     * to support {@code PropertyNamingStrategy}.
+     */
+    public final static class Adapter {
+        // NOTE: some String fields must not be nulls
+        public String className = "", classLoaderName;
+        public String declaringClass, format;
+        public String fileName = "", methodName = "";
+        public int lineNumber = -1;
+        public String moduleName, moduleVersion;
+        public boolean nativeMethod;
     }
 }

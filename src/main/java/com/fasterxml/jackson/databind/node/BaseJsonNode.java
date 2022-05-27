@@ -1,10 +1,10 @@
 package com.fasterxml.jackson.databind.node;
 
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JacksonSerializable;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
 /**

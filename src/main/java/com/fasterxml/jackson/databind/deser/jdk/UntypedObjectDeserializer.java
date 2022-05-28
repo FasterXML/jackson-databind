@@ -450,6 +450,7 @@ public class UntypedObjectDeserializer
         // let's create full array then
         ArrayList<Object> result = new ArrayList<Object>(totalSize);
         buffer.completeAndClearBuffer(values, ptr, result);
+        ctxt.returnObjectBuffer(buffer);
         return result;
     }
 
@@ -588,7 +589,9 @@ public class UntypedObjectDeserializer
             }
             values[ptr++] = value;
         } while (p.nextToken() != JsonToken.END_ARRAY);
-        return buffer.completeAndClearBuffer(values, ptr);
+        final Object[] result = buffer.completeAndClearBuffer(values, ptr);
+        ctxt.returnObjectBuffer(buffer);
+        return result;
     }
 
     protected Object mapObject(JsonParser p, DeserializationContext ctxt,
@@ -865,6 +868,7 @@ public class UntypedObjectDeserializer
             // let's create full array then
             ArrayList<Object> result = new ArrayList<Object>(totalSize);
             buffer.completeAndClearBuffer(values, ptr, result);
+            ctxt.returnObjectBuffer(buffer);
             return result;
         }
 
@@ -883,7 +887,9 @@ public class UntypedObjectDeserializer
                 }
                 values[ptr++] = value;
             } while (p.nextToken() != JsonToken.END_ARRAY);
-            return buffer.completeAndClearBuffer(values, ptr);
+            Object[] result = buffer.completeAndClearBuffer(values, ptr);
+            ctxt.returnObjectBuffer(buffer);
+            return result;
         }
 
         /**

@@ -768,9 +768,8 @@ public abstract class DeserializationContext
      */
     public final void returnObjectBuffer(ObjectBuffer buf)
     {
-        /* Already have a reusable buffer? Let's retain bigger one
-         * (or if equal, favor newer one, shorter life-cycle)
-         */
+        // Already have a reusable buffer? Let's retain bigger one
+        // (or if equal, favor newer one, shorter life-cycle)
         if (_objectBuffer == null
             || buf.initialCapacity() >= _objectBuffer.initialCapacity()) {
             _objectBuffer = buf;

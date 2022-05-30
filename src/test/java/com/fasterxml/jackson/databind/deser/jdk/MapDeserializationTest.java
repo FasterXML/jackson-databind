@@ -106,6 +106,9 @@ public class MapDeserializationTest
         }
         String json = MAPPER.writeValueAsString(map);
         Object bound = MAPPER.readValue(json, Object.class);
+
+        assertTrue(bound instanceof Map<?,?>);
+        assertEquals(map.size(), ((Map<?,?>) bound).size());
         assertEquals(map, bound);
     }
     

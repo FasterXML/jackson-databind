@@ -22,7 +22,7 @@ public class TestTreeSerialization
     }
 
     @SuppressWarnings("unchecked")
-	public void testSimpleViaObjectMapper()
+    public void testSimpleViaObjectMapper()
         throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -44,6 +44,7 @@ public class TestTreeSerialization
         Map<String,Object> ob = (Map<String,Object>) result.get("ob");
         assertEquals(1, ob.size());
         List<Object> list = (List<Object>) ob.get("arr");
+        assertNotNull(list);
         assertEquals(0, list.size());
         jg.close();
     }

@@ -90,7 +90,7 @@ public class MapDeserializationTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     public void testBigUntypedMap() throws Exception
     {

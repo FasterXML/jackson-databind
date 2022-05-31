@@ -28,8 +28,7 @@ public class ThrowableDeserializer
     /**********************************************************************
      */
 
-    @Deprecated // since 2.14
-    public ThrowableDeserializer(BeanDeserializer baseDeserializer) {
+    protected ThrowableDeserializer(BeanDeserializer baseDeserializer) {
         super(baseDeserializer);
         // need to disable this, since we do post-processing
         _vanillaProcessing = false;

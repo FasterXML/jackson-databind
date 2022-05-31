@@ -14,8 +14,8 @@ import com.fasterxml.jackson.core.Version;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.deser.jdk.NumberDeserializers;
 import com.fasterxml.jackson.databind.deser.jdk.StringDeserializer;
-import com.fasterxml.jackson.databind.deser.jdk.UntypedObjectDeserializer;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.ser.jdk.StringSerializer;
@@ -460,16 +460,16 @@ public class IntrospectorPairTest extends BaseMapTest
     public void testFindDeserializer() throws Exception
     {
         final ValueDeserializer<?> deserString = StringDeserializer.instance;
-        final ValueDeserializer<?> deserObject = UntypedObjectDeserializer.Vanilla.std;
+        final ValueDeserializer<?> deserBoolean = NumberDeserializers.find(Boolean.TYPE);
 
         AnnotationIntrospector intr1 = new IntrospectorWithHandlers(deserString, null);
-        AnnotationIntrospector intr2 = new IntrospectorWithHandlers(deserObject, null);
+        AnnotationIntrospector intr2 = new IntrospectorWithHandlers(deserBoolean, null);
         AnnotationIntrospector nop = AnnotationIntrospector.nopInstance();
         AnnotationIntrospector nop2 = new IntrospectorWithHandlers(ValueDeserializer.None.class, null);
 
         assertSame(deserString,
                 new AnnotationIntrospectorPair(intr1, intr2).findDeserializer(null, null));
-        assertSame(deserObject,
+        assertSame(deserBoolean,
                 new AnnotationIntrospectorPair(intr2, intr1).findDeserializer(null, null));
         // also: no-op instance should not block real one, regardless
         assertSame(deserString,

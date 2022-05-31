@@ -4,55 +4,40 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-// For [databind#2816]
+// For [databind#2816] / [databind#3473]
 public class DeepNestingUntypedDeserTest extends BaseMapTest
 {
     // 28-Mar-2021, tatu: Currently 3000 fails for untyped/Object,
     //     4000 for untyped/Array
-    private final static int TOO_DEEP_NESTING = 4000;
-    private final static int NOT_TOO_DEEP = 1000;
+    // 31-May-2022, tatu: But no more! Can handle much much larger
+    //   nesting levels, bounded by memory usage not stack. Tested with
+    //   1 million (!) nesting levels, but to keep tests fast use 100k
+    private final static int TOO_DEEP_NESTING = 100_000;
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    public void testUntypedWithArray() throws Exception
+    public void testFormerlyTooDeepUntypedWithArray() throws Exception
     {
-        final String doc = _nestedDoc(NOT_TOO_DEEP, "[ ", "] ");
+        final String doc = _nestedDoc(TOO_DEEP_NESTING, "[ ", "] ");
         Object ob = MAPPER.readValue(doc, Object.class);
         assertTrue(ob instanceof List<?>);
+
+        // ... but also work with Java array
+        ob = MAPPER.readerFor(Object.class)
+                .with(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY)
+                .readValue(doc);
+        assertTrue(ob instanceof Object[]);
     }
 
-    public void testUntypedWithObject() throws Exception
+    public void testFormerlyTooDeepUntypedWithObject() throws Exception
     {
-        final String doc = "{"+_nestedDoc(NOT_TOO_DEEP, "\"x\":{", "} ") + "}";
+        final String doc = "{"+_nestedDoc(TOO_DEEP_NESTING, "\"x\":{", "} ") + "}";
         Object ob = MAPPER.readValue(doc, Object.class);
         assertTrue(ob instanceof Map<?, ?>);
     }
-
-    /*// Until #2816 equivalent implemented for 2.14
-    public void testTooDeepUntypedWithArray() throws Exception
-    {
-        final String doc = _nestedDoc(TOO_DEEP_NESTING, "[ ", "] ");
-        try {
-            MAPPER.readValue(doc, Object.class);
-            fail("Should have thrown an exception.");
-        } catch (StreamReadException e) {
-            verifyException(e, "JSON is too deeply nested.");
-        }
-    }
-
-    public void testTooDeepUntypedWithObject() throws Exception
-    {
-        final String doc = "{"+_nestedDoc(TOO_DEEP_NESTING, "\"x\":{", "} ") + "}";
-        try {
-            MAPPER.readValue(doc, Object.class);
-            fail("Should have thrown an exception.");
-        } catch (StreamReadException e) {
-            verifyException(e, "JSON is too deeply nested.");
-        }
-    }
-    */
 
     private String _nestedDoc(int nesting, String open, String close) {
         StringBuilder sb = new StringBuilder(nesting * (open.length() + close.length()));

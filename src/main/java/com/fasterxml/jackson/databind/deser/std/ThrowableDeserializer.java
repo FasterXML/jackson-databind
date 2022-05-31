@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
-import java.util.Iterator;
 
 import com.fasterxml.jackson.core.*;
 

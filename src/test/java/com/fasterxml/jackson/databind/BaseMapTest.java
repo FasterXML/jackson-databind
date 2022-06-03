@@ -57,6 +57,13 @@ public abstract class BaseMapTest
         public LongWrapper(long value) { l = value; }
     }
 
+    protected static class FloatWrapper {
+        public float f;
+
+        public FloatWrapper() { }
+        public FloatWrapper(float value) { f = value; }
+    }
+
     protected static class DoubleWrapper {
         public double d;
 

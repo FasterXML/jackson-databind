@@ -560,7 +560,7 @@ public abstract class SettableBeanProperty
             // Please note you need to configure {@link DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES} as false to
             // enable this feature otherwise the unknown property exception will be thrown.
             JavaType subType = ctxt.getTypeFactory().constructType(toUpdate.getClass());
-            JsonDeserializer<Object> subTypeValueDeserializer = ctxt.findContextualValueDeserializer(subType, this);
+            ValueDeserializer<Object> subTypeValueDeserializer = ctxt.findContextualValueDeserializer(subType, this);
             return subTypeValueDeserializer.deserialize(p, ctxt, toUpdate);
         }
         // 04-May-2018, tatu: [databind#2023] Coercion from String (mostly) can give null

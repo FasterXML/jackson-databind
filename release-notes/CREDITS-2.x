@@ -1461,3 +1461,11 @@ Jan Judas (kostislav@github)
 Deniz Husaj (denizhusaj@github)
   * Reported #3447: Deeply nested JsonNode throws StackOverflowError for toString()
   (2.14.0)
+
+Matthew Altman (matthew-altman@github)
+  * Reported #2541: Cannot merge polymorphic objects
+  (2.14.0)
+
+James Wang (jameswangz@github)
+  * Contributed fix for #2541: Cannot merge polymorphic objects
+  (2.14.0)

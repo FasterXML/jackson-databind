@@ -3,10 +3,11 @@ package com.fasterxml.jackson.databind.deser;
 import com.fasterxml.jackson.annotation.JsonMerge;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.core.JsonProcessingException;
+
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 public class MergePolymorphicTest extends BaseMapTest {
 
@@ -31,49 +32,48 @@ public class MergePolymorphicTest extends BaseMapTest {
         public String code;
     }
 
-    public void testPolymorphicNewObject() throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        Root root = mapper.readValue("{\"child\": { \"@type\": \"ChildA\", \"name\": \"I'm child A\" }}", Root.class);
+    private final ObjectMapper MAPPER = JsonMapper.builder()
+            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            .build();
+    
+    public void testPolymorphicNewObject() throws Exception {
+        Root root = MAPPER.readValue("{\"child\": { \"@type\": \"ChildA\", \"name\": \"I'm child A\" }}", Root.class);
         assertTrue(root.child instanceof ChildA);
         assertEquals("I'm child A", ((ChildA) root.child).name);
     }
 
-    public void testPolymorphicFromNullToNewObject() throws JsonProcessingException {
+    public void testPolymorphicFromNullToNewObject() throws Exception {
         Root root = new Root();
-        ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        mapper.readerForUpdating(root).readValue("{\"child\": { \"@type\": \"ChildA\", \"name\": \"I'm the new name\" }}");
+        MAPPER.readerForUpdating(root).readValue("{\"child\": { \"@type\": \"ChildA\", \"name\": \"I'm the new name\" }}");
         assertTrue(root.child instanceof ChildA);
         assertEquals("I'm the new name", ((ChildA) root.child).name);
     }
 
-    public void testPolymorphicFromObjectToNull() throws JsonProcessingException {
+    public void testPolymorphicFromObjectToNull() throws Exception {
         Root root = new Root();
         ChildA childA = new ChildA();
         childA.name = "I'm child A";
         root.child = childA;
-        ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        mapper.readerForUpdating(root).readValue("{\"child\": null }");
+        MAPPER.readerForUpdating(root).readValue("{\"child\": null }");
         assertTrue(root.child == null);
     }
 
-    public void testPolymorphicPropertyCanBeMerged() throws JsonProcessingException {
+    public void testPolymorphicPropertyCanBeMerged() throws Exception {
         Root root = new Root();
         ChildA childA = new ChildA();
         childA.name = "I'm child A";
         root.child = childA;
-        ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        mapper.readerForUpdating(root).readValue("{\"child\": { \"@type\": \"ChildA\", \"name\": \"I'm the new name\" }}");
+        MAPPER.readerForUpdating(root).readValue("{\"child\": { \"@type\": \"ChildA\", \"name\": \"I'm the new name\" }}");
         assertTrue(root.child instanceof ChildA);
         assertEquals("I'm the new name", ((ChildA) root.child).name);
     }
 
-    public void testPolymorphicPropertyTypeCanNotBeChanged() throws JsonProcessingException {
+    public void testPolymorphicPropertyTypeCanNotBeChanged() throws Exception {
         Root root = new Root();
         ChildA childA = new ChildA();
         childA.name = "I'm child A";
         root.child = childA;
-        ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        mapper.readerForUpdating(root).readValue("{\"child\": { \"@type\": \"ChildB\", \"code\": \"I'm the code\" }}");
+        MAPPER.readerForUpdating(root).readValue("{\"child\": { \"@type\": \"ChildB\", \"code\": \"I'm the code\" }}");
         // The polymorphic type can't be changed
         assertTrue(root.child instanceof ChildA);
         assertEquals("I'm child A", ((ChildA) root.child).name);

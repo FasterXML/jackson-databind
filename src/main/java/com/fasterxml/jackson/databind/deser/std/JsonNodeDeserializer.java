@@ -180,7 +180,7 @@ public class JsonNodeDeserializer
         }
 
         /**
-         * Variant needed to support both root-level `updateValue()` and merging.
+         * Variant needed to support both root-level {@code updateValue()} and merging.
          */
         @Override
         public ArrayNode deserialize(JsonParser p, DeserializationContext ctxt,

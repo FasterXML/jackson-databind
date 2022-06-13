@@ -125,7 +125,7 @@ public class SerializationContextExt
             return true;
         }
         // should let filter decide what to do with nulls:
-        // But just case, let's handle unexpected (from our perspective) problems explicitly
+        // But just in case, let's handle unexpected (from our perspective) problems explicitly
         try {
             return filter.equals(null);
         } catch (Throwable t) {

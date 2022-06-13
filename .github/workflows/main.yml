@@ -18,6 +18,9 @@ on:
     paths-ignore:
     - "README.md"
     - "release-notes/*"
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ${{ matrix.os }}

@@ -9,6 +9,8 @@ Project: jackson-databind
 #2541: Cannot merge polymorphic objects
  (reported by Matthew A)
  (fix contributed by James W)
+#3338: `configOverride.setMergeable(false)` not supported by `ArrayNode`
+ (requested by Ernst-Jan vdL)
 #3357: `@JsonIgnore` does not if together with `@JsonProperty` or `@JsonFormat`
  (reported by lizongbo@github)
 #3373: Change `TypeSerializerBase` to skip `generator.writeTypePrefix()`

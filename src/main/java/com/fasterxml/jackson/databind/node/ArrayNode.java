@@ -169,17 +169,16 @@ public class ArrayNode
      */
 
     @Override
-    public void serialize(JsonGenerator f, SerializerProvider provider) throws IOException
+    public void serialize(JsonGenerator g, SerializerProvider provider) throws IOException
     {
         final List<JsonNode> c = _children;
         final int size = c.size();
-        f.writeStartArray(this, size);
+        g.writeStartArray(this, size);
         for (int i = 0; i < size; ++i) { // we'll typically have array list
-            // For now, assuming it's either BaseJsonNode, JsonSerializable
-            JsonNode n = c.get(i);
-            ((BaseJsonNode) n).serialize(f, provider);
+            JsonNode value = c.get(i);
+            value.serialize(g, provider);
         }
-        f.writeEndArray();
+        g.writeEndArray();
     }
 
     @Override

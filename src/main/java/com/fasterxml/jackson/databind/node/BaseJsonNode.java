@@ -113,15 +113,15 @@ public abstract class BaseJsonNode
      * Method called to serialize node instances using given generator.
      */
     @Override
-    public abstract void serialize(JsonGenerator jgen, SerializerProvider provider)
+    public abstract void serialize(JsonGenerator g, SerializerProvider ctxt)
         throws IOException;
 
     /**
      * Type information is needed, even if JsonNode instances are "plain" JSON,
      * since they may be mixed with other types.
      */
-   @Override
-    public abstract void serializeWithType(JsonGenerator jgen, SerializerProvider provider,
+    @Override
+    public abstract void serializeWithType(JsonGenerator g, SerializerProvider ctxt,
             TypeSerializer typeSer)
         throws IOException;
 

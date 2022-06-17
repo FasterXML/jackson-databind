@@ -22,7 +22,7 @@ public class TestTreeSerialization
     }
 
     @SuppressWarnings("unchecked")
-	public void testSimpleViaObjectMapper()
+    public void testSimpleViaObjectMapper()
         throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -37,13 +37,15 @@ public class TestTreeSerialization
         mapper.writeTree(jg, n);
 
         Map<String,Object> result = (Map<String,Object>) mapper.readValue(sw.toString(), Map.class);
-
         assertEquals(3, result.size());
         assertEquals("abc", result.get("string"));
         assertEquals(Integer.valueOf(15), result.get("number"));
         Map<String,Object> ob = (Map<String,Object>) result.get("ob");
         assertEquals(1, ob.size());
         List<Object> list = (List<Object>) ob.get("arr");
+        if (list == null) {
+            fail("Missing entry 'arr': "+ob);
+        }
         assertEquals(0, list.size());
         jg.close();
     }

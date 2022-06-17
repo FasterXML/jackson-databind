@@ -14,12 +14,14 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * override some aspects like instance construction.
  */
 public class ThrowableDeserializer
-    extends BeanDeserializer
+    extends BeanDeserializer // not the greatest idea but...
 {
     private static final long serialVersionUID = 1L;
 
     protected final static String PROP_NAME_MESSAGE = "message";
     protected final static String PROP_NAME_SUPPRESSED = "suppressed";
+
+    protected final static String PROP_NAME_LOCALIZED_MESSAGE = "localizedMessage";
 
     /*
     /**********************************************************************
@@ -27,12 +29,28 @@ public class ThrowableDeserializer
     /**********************************************************************
      */
 
+    @Deprecated // since 2.14
     public ThrowableDeserializer(BeanDeserializer baseDeserializer) {
         super(baseDeserializer);
         // need to disable this, since we do post-processing
         _vanillaProcessing = false;
     }
 
+    public static ThrowableDeserializer construct(DeserializationContext ctxt,
+            BeanDeserializer baseDeserializer)
+    {
+        // 27-May-2022, tatu: TODO -- handle actual renaming of fields to support
+        //    strategies like kebab- and snake-case where there are changes beyond
+        //    simple upper-/lower-casing
+        /*
+        PropertyNamingStrategy pts = ctxt.getConfig().getPropertyNamingStrategy();
+        if (pts != null) {
+        }
+        */
+        return new ThrowableDeserializer(baseDeserializer);
+    }
+    
+    
     /**
      * Alternative constructor used when creating "unwrapping" deserializers
      */
@@ -106,14 +124,16 @@ public class ThrowableDeserializer
             }
 
             // Maybe it's "message"?
-            if (PROP_NAME_MESSAGE.equals(propName)) {
+
+            // 26-May-2022, tatu: [databind#3497] To support property naming strategies,
+            //    should ideally mangle property names. But for now let's cheat; works
+            //    for case-changing although not for kebab/snake cases and "localizedMessage"
+            if (PROP_NAME_MESSAGE.equalsIgnoreCase(propName)) {
                 if (hasStringCreator) {
                     throwable = (Throwable) _valueInstantiator.createFromString(ctxt, p.getValueAsString());
                     continue;
                 }
-            } else if (PROP_NAME_SUPPRESSED.equals(propName)) { // or "suppressed"?
-                suppressed = ctxt.readValue(p, Throwable[].class);
-                continue;
+                // fall through
             }
 
             // Things marked as ignorable should not be passed to any setter
@@ -121,10 +141,19 @@ public class ThrowableDeserializer
                 p.skipChildren();
                 continue;
             }
+            if (PROP_NAME_SUPPRESSED.equalsIgnoreCase(propName)) { // or "suppressed"?
+                suppressed = ctxt.readValue(p, Throwable[].class);
+                continue;
+            }
+            if (PROP_NAME_LOCALIZED_MESSAGE.equalsIgnoreCase(propName)) {
+                p.skipChildren();
+                continue;
+            }
             if (_anySetter != null) {
                 _anySetter.deserializeAndSet(p, ctxt, throwable, propName);
                 continue;
             }
+
             // 23-Jan-2018, tatu: One concern would be `message`, but without any-setter or single-String-ctor
             //   (or explicit constructor). We could just ignore it but for now, let it fail
 

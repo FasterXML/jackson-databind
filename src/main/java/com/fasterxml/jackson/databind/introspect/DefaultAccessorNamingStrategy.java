@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.introspect;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -527,10 +529,11 @@ public class DefaultAccessorNamingStrategy
                     // trickier: regular fields are ok (handled differently), but should
                     // we also allow getter discovery? For now let's do so
                     "get", "is", null);
-            _fieldNames = new HashSet<>();
-            for (String name : JDK14Util.getRecordFieldNames(forClass.getRawType())) {
-                _fieldNames.add(name);
-            }
+            String[] recordFieldNames = JDK14Util.getRecordFieldNames(forClass.getRawType());
+            // 01-May-2022, tatu: Due to [databind#3417] may return null when no info available
+            _fieldNames = recordFieldNames == null ?
+                    Collections.emptySet() :
+                    new HashSet<>(Arrays.asList(recordFieldNames));
         }
 
         @Override

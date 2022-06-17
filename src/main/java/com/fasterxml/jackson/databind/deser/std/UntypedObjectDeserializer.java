@@ -196,7 +196,7 @@ public class UntypedObjectDeserializer
         if ((_stringDeserializer == null) && (_numberDeserializer == null)
                 && (_mapDeserializer == null) && (_listDeserializer == null)
                 &&  getClass() == UntypedObjectDeserializer.class) {
-            return Vanilla.instance(preventMerge);
+            return UntypedObjectDeserializerNR.instance(preventMerge);
         }
 
         if (preventMerge != _nonMerging) {
@@ -472,6 +472,7 @@ public class UntypedObjectDeserializer
         // let's create full array then
         ArrayList<Object> result = new ArrayList<Object>(totalSize);
         buffer.completeAndClearBuffer(values, ptr, result);
+        ctxt.returnObjectBuffer(buffer);
         return result;
     }
 
@@ -612,7 +613,9 @@ public class UntypedObjectDeserializer
             }
             values[ptr++] = value;
         } while (p.nextToken() != JsonToken.END_ARRAY);
-        return buffer.completeAndClearBuffer(values, ptr);
+        final Object[] result = buffer.completeAndClearBuffer(values, ptr);
+        ctxt.returnObjectBuffer(buffer);
+        return result;
     }
 
     protected Object mapObject(JsonParser p, DeserializationContext ctxt,
@@ -656,6 +659,7 @@ public class UntypedObjectDeserializer
      * is only used when no custom deserializer overrides are applied.
      */
     @JacksonStdImpl
+    @Deprecated // since 2.14, to be removed in near future
     public static class Vanilla
         extends StdDeserializer<Object>
     {
@@ -866,18 +870,10 @@ public class UntypedObjectDeserializer
                 l.add(value);
                 return l;
             }
-            Object value2 = deserialize(p, ctxt);
-            if (p.nextToken()  == JsonToken.END_ARRAY) {
-                ArrayList<Object> l = new ArrayList<Object>(2);
-                l.add(value);
-                l.add(value2);
-                return l;
-            }
             ObjectBuffer buffer = ctxt.leaseObjectBuffer();
             Object[] values = buffer.resetAndStart();
             int ptr = 0;
             values[ptr++] = value;
-            values[ptr++] = value2;
             int totalSize = ptr;
             do {
                 value = deserialize(p, ctxt);
@@ -891,12 +887,10 @@ public class UntypedObjectDeserializer
             // let's create full array then
             ArrayList<Object> result = new ArrayList<Object>(totalSize);
             buffer.completeAndClearBuffer(values, ptr, result);
+            ctxt.returnObjectBuffer(buffer);
             return result;
         }
 
-        /**
-         * Method called to map a JSON Array into a Java Object array (Object[]).
-         */
         protected Object[] mapArrayToArray(JsonParser p, DeserializationContext ctxt) throws IOException {
             ObjectBuffer buffer = ctxt.leaseObjectBuffer();
             Object[] values = buffer.resetAndStart();
@@ -909,12 +903,11 @@ public class UntypedObjectDeserializer
                 }
                 values[ptr++] = value;
             } while (p.nextToken() != JsonToken.END_ARRAY);
-            return buffer.completeAndClearBuffer(values, ptr);
+            Object[] result = buffer.completeAndClearBuffer(values, ptr);
+            ctxt.returnObjectBuffer(buffer);
+            return result;
         }
 
-        /**
-         * Method called to map a JSON Object into a Java value.
-         */
         protected Object mapObject(JsonParser p, DeserializationContext ctxt) throws IOException
         {
             // will point to FIELD_NAME at this point, guaranteed
@@ -923,33 +916,15 @@ public class UntypedObjectDeserializer
             p.nextToken();
             Object value1 = deserialize(p, ctxt);
 
-            String key2 = p.nextFieldName();
-            if (key2 == null) { // single entry; but we want modifiable
+            String key = p.nextFieldName();
+            if (key == null) { // single entry; but we want modifiable
                 LinkedHashMap<String, Object> result = new LinkedHashMap<String, Object>(2);
                 result.put(key1, value1);
-                return result;
-            }
-            p.nextToken();
-            Object value2 = deserialize(p, ctxt);
-
-            String key = p.nextFieldName();
-            if (key == null) {
-                LinkedHashMap<String, Object> result = new LinkedHashMap<String, Object>(4);
-                result.put(key1, value1);
-                if (result.put(key2, value2) != null) {
-                    // 22-May-2020, tatu: [databind#2733] may need extra handling
-                    return _mapObjectWithDups(p, ctxt, result, key1, value1, value2, key);
-                }
                 return result;
             }
             // And then the general case; default map size is 16
             LinkedHashMap<String, Object> result = new LinkedHashMap<String, Object>();
             result.put(key1, value1);
-            if (result.put(key2, value2) != null) {
-                // 22-May-2020, tatu: [databind#2733] may need extra handling
-                return _mapObjectWithDups(p, ctxt, result, key1, value1, value2, key);
-            }
-
             do {
                 p.nextToken();
                 final Object newValue = deserialize(p, ctxt);

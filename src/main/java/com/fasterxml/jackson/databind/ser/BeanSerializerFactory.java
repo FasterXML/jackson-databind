@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.util.BeanUtil;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
 import com.fasterxml.jackson.databind.util.IgnorePropertiesUtil;
+import com.fasterxml.jackson.databind.util.NativeImageUtil;
 
 /**
  * Factory class that can provide serializers for any regular Java beans
@@ -476,7 +477,10 @@ public class BeanSerializerFactory
         }
         if (ser == null) { // Means that no properties were found
             // 21-Aug-2020, tatu: Empty Records should be fine tho
-            if (type.isRecordType()) {
+            // 18-Mar-2022, yawkat: [databind#3417] Record will also appear empty when missing
+            // reflection info. needsReflectionConfiguration will check that a constructor is present,
+            // else we fall back to the empty bean error msg
+            if (type.isRecordType() && !NativeImageUtil.needsReflectionConfiguration(type.getRawClass())) {
                 return builder.createDummy();
             }
 

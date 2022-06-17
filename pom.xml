@@ -53,7 +53,7 @@
     <packageVersion.dir>com/fasterxml/jackson/databind/cfg</packageVersion.dir>
     <packageVersion.package>com.fasterxml.jackson.databind.cfg</packageVersion.package>
 
-    <version.powermock>2.0.0</version.powermock>
+    <version.powermock>2.0.9</version.powermock>
   </properties>
 
   <dependencies>

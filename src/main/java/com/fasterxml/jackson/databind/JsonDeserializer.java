@@ -435,7 +435,7 @@ public abstract class JsonDeserializer<T>
      *<p>
      * Information gathered is typically used to either prevent merging update for
      * property (either by skipping, if based on global defaults; or by exception during
-     * deserialization construction if explicit attempt made) if {@link Boolean#FALSE}
+     * deserializer construction if explicit attempt made) if {@link Boolean#FALSE}
      * returned, or inclusion if {@link Boolean#TRUE} is specified. If "unknown" case
      * (<code>null</code> returned) behavior is to exclude property if global defaults
      * used; or to allow if explicit per-type or property merging is defined.

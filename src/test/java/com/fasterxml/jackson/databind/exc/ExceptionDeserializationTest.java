@@ -73,8 +73,13 @@ public class ExceptionDeserializationTest
         MyException result = MAPPER.readValue(json, MyException.class);
         assertEquals(MSG, result.getMessage());
         assertEquals(3, result.value);
-        assertEquals(1, result.stuff.size());
+
+        // 27-May-2022, tatu: With [databind#3497] we actually get 3, not 1
+        //    "extra" things exposed
+        assertEquals(3, result.stuff.size());
         assertEquals(result.getFoo(), result.stuff.get("foo"));
+        assertEquals("the message", result.stuff.get("localizedMessage"));
+        assertTrue(result.stuff.containsKey("suppressed"));
     }
 
     public void testWithNullMessage() throws IOException
@@ -235,7 +240,7 @@ public class ExceptionDeserializationTest
         assertNotNull(exc);
     }
 
-    // [databind#1842]:
+    // [databind#1842]
     public void testNullAsMessage() throws IOException
     {
         Exception exc = MAPPER.readValue(a2q(
@@ -244,5 +249,33 @@ public class ExceptionDeserializationTest
         assertNotNull(exc);
         assertNull(exc.getMessage());
         assertNull(exc.getLocalizedMessage());
+    }
+
+    // [databind#3497]: round-trip with naming strategy
+    public void testRoundtripWithoutNamingStrategy() throws Exception
+    {
+        _testRoundtripWith(MAPPER);
+    }
+
+    public void testRoundtripWithNamingStrategy() throws Exception
+    {
+        final ObjectMapper renamingMapper = JsonMapper.builder()
+                .propertyNamingStrategy(PropertyNamingStrategies.UPPER_CAMEL_CASE)
+                .build();
+        _testRoundtripWith(renamingMapper);
+    }
+
+    private void _testRoundtripWith(ObjectMapper mapper) throws Exception
+    {
+        Exception root = new Exception("Root cause");
+        Exception leaf = new Exception("Leaf message", root);
+
+        final String json = mapper.writerWithDefaultPrettyPrinter()
+                .writeValueAsString(leaf);
+        Exception result = mapper.readValue(json, Exception.class);
+
+        assertEquals(leaf.getMessage(), result.getMessage());
+        assertNotNull(result.getCause());
+        assertEquals(root.getMessage(), result.getCause().getMessage());
     }
 }

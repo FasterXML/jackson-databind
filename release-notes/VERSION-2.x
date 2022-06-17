@@ -6,9 +6,19 @@ Project: jackson-databind
 
 2.14.0 (not yet released)
 
+#2541: Cannot merge polymorphic objects
+ (reported by Matthew A)
+ (fix contributed by James W)
+#3338: `configOverride.setMergeable(false)` not supported by `ArrayNode`
+ (requested by Ernst-Jan vdL)
+#3357: `@JsonIgnore` does not if together with `@JsonProperty` or `@JsonFormat`
+ (reported by lizongbo@github)
 #3373: Change `TypeSerializerBase` to skip `generator.writeTypePrefix()`
   for `null` typeId
 #3405: Create DataTypeFeature abstraction (for JSTEP-7) with placeholder features
+#3417: Allow (de)serializing records using Bean(De)SerializerModifier even when
+  reflection is unavailable
+ (contributed by Jonas K)
 #3419: Improve performance of `UnresolvedForwardReference` for forward reference
  resolution
 (contributed by Gary M)
@@ -16,9 +26,22 @@ Project: jackson-databind
   JSON `null` values on reading
 #3443: Do not strip generic type from `Class<C>` when resolving `JavaType`
  (contributed by Jan J)
+#3447: Deeply nested JsonNode throws StackOverflowError for toString()
+ (reported by Deniz H)
+#3476: Implement `JsonNodeFeature.WRITE_NULL_PROPERTIES` to allow skipping
+  JSON `null` values on writing
+#3497: Deserialization of Throwables with PropertyNamingStrategy does not work
 
-2.13.3 (not yet released)
+2.13.4 (not yet released)
 
+#3275: JDK 16 Illegal reflective access for `Throwable.setCause()` with
+  `PropertyNamingStrategy.UPPER_CAMEL_CASE`
+ (reported by Jason H)
+
+2.13.3 (14-May-2022)
+
+#3412: Version 2.13.2 uses `Method.getParameterCount()` which is not supported on
+  Android before API 26
 #3419: Improve performance of `UnresolvedForwardReference` for forward
  reference resolution
 (contributed by Gary M)
@@ -159,6 +182,10 @@ No changes since 2.13.2.1 but fixed Gradle Module Metadata ("module.json")
 - Extend handling of `FAIL_ON_NULL_FOR_PRIMITIVES` to cover coercion from (Empty) String
   via `AsNull`
 - Add `mvnw` wrapper
+
+2.12.7 (26-May-2022)
+
+#2816: Optimize UntypedObjectDeserializer wrt recursion [CVE-2020-36518]
 
 2.12.6 (15-Dec-2021)
 

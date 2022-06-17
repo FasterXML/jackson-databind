@@ -446,7 +446,7 @@ public class GenericTypeSerializationTest extends BaseMapTest
     /**********************************************************
      */
 
-    final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @SuppressWarnings("unchecked")
     public void testIssue468a() throws Exception

@@ -90,7 +90,7 @@ public class MapDeserializationTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     public void testBigUntypedMap() throws Exception
     {
@@ -106,6 +106,9 @@ public class MapDeserializationTest
         }
         String json = MAPPER.writeValueAsString(map);
         Object bound = MAPPER.readValue(json, Object.class);
+
+        assertTrue(bound instanceof Map<?,?>);
+        assertEquals(map.size(), ((Map<?,?>) bound).size());
         assertEquals(map, bound);
     }
     

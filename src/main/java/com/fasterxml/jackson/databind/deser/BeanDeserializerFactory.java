@@ -424,10 +424,27 @@ ClassUtil.name(propName)));
 
         // But then let's decorate things a bit
         // Need to add "initCause" as setter for exceptions (sub-classes of Throwable).
+        // 26-May-2022, tatu: [databind#3275] Looks like JDK 12 added "setCause()"
+        //    which can wreak havoc, at least with NamingStrategy
+        Iterator<SettableBeanProperty> it = builder.getProperties();
+        while (it.hasNext()) {
+            SettableBeanProperty prop = it.next();
+            if ("setCause".equals(prop.getMember().getName())) {
+                // For now this is allowed as we are returned "live" Iterator...
+                it.remove();
+                break;
+            }
+        }
         AnnotatedMethod am = beanDesc.findMethod("initCause", INIT_CAUSE_PARAMS);
         if (am != null) { // should never be null
+            // [databind#3497]: must consider possible PropertyNamingStrategy
+            String name = "cause";
+            PropertyNamingStrategy pts = config.getPropertyNamingStrategy();
+            if (pts != null) {
+                name = pts.nameForSetterMethod(config, am, "cause");
+            }
             SimpleBeanPropertyDefinition propDef = SimpleBeanPropertyDefinition.construct(ctxt.getConfig(), am,
-                    new PropertyName("cause"));
+                    new PropertyName(name));
             SettableBeanProperty prop = constructSettableProperty(ctxt, beanDesc, propDef,
                     am.getParameterType(0));
             if (prop != null) {
@@ -436,16 +453,6 @@ ClassUtil.name(propName)));
                 builder.addOrReplaceProperty(prop, true);
             }
         }
-
-        // And also need to ignore "localizedMessage"
-        builder.addIgnorable("localizedMessage");
-        // Java 7 also added "getSuppressed", skip if we have such data:
-        builder.addIgnorable("suppressed");
-        // As well as "message": it will be passed via constructor,
-        // as there's no 'setMessage()' method
-        // 23-Jan-2018, tatu: ... although there MAY be Creator Property... which is problematic
-//        builder.addIgnorable("message");
-
         // update builder now that all information is in?
         if (_factoryConfig.hasDeserializerModifiers()) {
             for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
@@ -453,12 +460,11 @@ ClassUtil.name(propName)));
             }
         }
         JsonDeserializer<?> deserializer = builder.build();
-        
-        /* At this point it ought to be a BeanDeserializer; if not, must assume
-         * it's some other thing that can handle deserialization ok...
-         */
+
+        // At this point it ought to be a BeanDeserializer; if not, must assume
+        // it's some other thing that can handle deserialization ok...
         if (deserializer instanceof BeanDeserializer) {
-            deserializer = new ThrowableDeserializer((BeanDeserializer) deserializer);
+            deserializer = ThrowableDeserializer.construct(ctxt, (BeanDeserializer) deserializer);
         }
 
         // may have modifier(s) that wants to modify or replace serializer we just built:

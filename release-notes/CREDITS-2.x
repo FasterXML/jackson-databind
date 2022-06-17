@@ -406,6 +406,9 @@ Thomas Mortagne (tmortagne@github)
 Jonas Konrad (yawkat@github)
   * Suggested #905: Add support for `@ConstructorProperties`
    (2.7.0)
+  * Contributed #3417: Allow (de)serializing records using Bean(De)SerializerModifier
+    even when reflection is unavailable
+   (2.14.0)
 
 Jirka Kremser (Jiri-Kremser@github)
   * Suggested #924: SequenceWriter.writeAll() could accept Iterable
@@ -1437,8 +1440,17 @@ Spence Nace (snace98@github)
   * Contributed fix for #2816: Optimize UntypedObjectDeserializer wrt recursion
   (2.13.3)
 
+Jason Harper (jsharper@github)
+  * Reported #3275: JDK 16 Illegal reflective access for `Throwable.setCause()` with
+   `PropertyNamingStrategy.UPPER_CAMEL_CASE`
+  (2.13.4)
+
 ZeyuCai@github:
   * Contributed #3314: Four Flaky Tests Detected in 2.14
+  (2.14.0)
+
+Ernst-Jan van der Laan (ejl888@github)
+  * Reported #3338: `configOverride.setMergeable(false)` not supported by `ArrayNode`
   (2.14.0)
 
 Gary Morgan (morganga@github)
@@ -1448,4 +1460,16 @@ Gary Morgan (morganga@github)
 
 Jan Judas (kostislav@github)
   * Contributed #3445: Do not strip generic type from `Class<C>` when resolving `JavaType`
+  (2.14.0)
+
+Deniz Husaj (denizhusaj@github)
+  * Reported #3447: Deeply nested JsonNode throws StackOverflowError for toString()
+  (2.14.0)
+
+Matthew Altman (matthew-altman@github)
+  * Reported #2541: Cannot merge polymorphic objects
+  (2.14.0)
+
+James Wang (jameswangz@github)
+  * Contributed fix for #2541: Cannot merge polymorphic objects
   (2.14.0)

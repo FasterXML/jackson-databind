@@ -445,23 +445,31 @@ _coercedTypeDesc());
                 }
                 value = value.substring(extMarkerIx + 2);
 
-                if (value.indexOf('_') < 0 && value.indexOf('-') < 0) {
-                    return new Locale.Builder().setLanguage(first)
-                            .setRegion(second).setVariant(third).setScript(value).build();
-                }
-                if (value.indexOf('_') < 0) {
-                    ix = value.indexOf('-');
+                int underscoreIx = value.indexOf('_');
+                if (underscoreIx < 0) {
+                    int hyphenIx = value.indexOf('-');
+                    if (hyphenIx < 0) {
+                        return new Locale.Builder().setLanguage(first)
+                                .setRegion(second)
+                                .setVariant(third)
+                                .setScript(value)
+                                .build();
+                    }
                     return new Locale.Builder().setLanguage(first)
                             .setRegion(second).setVariant(third)
-                            .setExtension(value.charAt(0), value.substring(ix + 1))
+                            .setExtension(value.charAt(0), value.substring(hyphenIx + 1))
                             .build();
                 }
-                ix = value.indexOf('_');
-                return new Locale.Builder().setLanguage(first)
+                final int len = value.length();
+                Locale.Builder b = new Locale.Builder()
+                        .setLanguage(first)
                         .setRegion(second).setVariant(third)
-                        .setScript(value.substring(0, ix))
-                        .setExtension(value.charAt(ix + 1), value.substring(ix + 3))
-                        .build();
+                        .setScript(value.substring(0, underscoreIx));
+                if ((underscoreIx + 1) < len) {
+                    b = b.setExtension(value.charAt(underscoreIx + 1),
+                                value.substring(Math.min(len, underscoreIx + 3)));
+                }
+                return b.build();
             } catch (IllformedLocaleException ex) {
                 // should we really just swallow the exception?
                 return new Locale(first, second, third);

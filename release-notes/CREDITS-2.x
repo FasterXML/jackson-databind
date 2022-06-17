@@ -1449,6 +1449,10 @@ ZeyuCai@github:
   * Contributed #3314: Four Flaky Tests Detected in 2.14
   (2.14.0)
 
+Ernst-Jan van der Laan (ejl888@github)
+  * Reported #3338: `configOverride.setMergeable(false)` not supported by `ArrayNode`
+  (2.14.0)
+
 Gary Morgan (morganga@github)
   * Contributed #3419: Improve performance of `UnresolvedForwardReference` for
     forward reference resolution

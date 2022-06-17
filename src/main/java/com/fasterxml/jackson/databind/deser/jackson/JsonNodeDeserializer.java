@@ -35,10 +35,21 @@ public class JsonNodeDeserializer
         super(JsonNode.class, null);
     }
 
+    protected JsonNodeDeserializer(JsonNodeDeserializer base,
+            boolean mergeArrays, boolean mergeObjects) {
+        super(base, mergeArrays, mergeObjects);
+    }
+
+    @Override
+    protected BaseNodeDeserializer<?> _createWithMerge(boolean mergeArrays,
+            boolean mergeObjects) {
+        return new JsonNodeDeserializer(this, mergeArrays, mergeObjects);
+    }
+
     /**
      * Factory method for accessing deserializer for specific node type
      */
-    public static ValueDeserializer<? extends JsonNode> getDeserializer(Class<?> nodeClass)
+    public static BaseNodeDeserializer<?> getDeserializer(Class<?> nodeClass)
     {
         if (nodeClass == ObjectNode.class) {
             return ObjectDeserializer.getInstance();
@@ -98,6 +109,11 @@ public class JsonNodeDeserializer
         return _deserializeAnyScalar(p, ctxt);
     }
 
+    @Override
+    public Boolean supportsUpdate(DeserializationConfig config) {
+        return _supportsUpdates;
+    }
+
     /*
     /**********************************************************************
     /* Specific instances for more accurate types
@@ -115,6 +131,17 @@ public class JsonNodeDeserializer
         protected ObjectDeserializer() { super(ObjectNode.class, true); }
 
         public static ObjectDeserializer getInstance() { return _instance; }
+
+        protected ObjectDeserializer(ObjectDeserializer base,
+                boolean mergeArrays, boolean mergeObjects) {
+            super(base, mergeArrays, mergeObjects);
+        }
+
+        @Override
+        protected BaseNodeDeserializer<?> _createWithMerge(boolean mergeArrays,
+                boolean mergeObjects) {
+            return new ObjectDeserializer(this, mergeArrays, mergeObjects);
+        }
 
         @Override
         public ObjectNode deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
@@ -163,6 +190,17 @@ public class JsonNodeDeserializer
 
         public static ArrayDeserializer getInstance() { return _instance; }
 
+        protected ArrayDeserializer(ArrayDeserializer base,
+                boolean mergeArrays, boolean mergeObjects) {
+            super(base, mergeArrays, mergeObjects);
+        }
+
+        @Override
+        protected BaseNodeDeserializer<?> _createWithMerge(boolean mergeArrays,
+                boolean mergeObjects) {
+            return new ArrayDeserializer(this, mergeArrays, mergeObjects);
+        }
+
         @Override
         public ArrayNode deserialize(JsonParser p, DeserializationContext ctxt)
             throws JacksonException
@@ -205,9 +243,23 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
 {
     protected final Boolean _supportsUpdates;
 
+    protected final boolean _mergeArrays;
+    protected final boolean _mergeObjects;
+
     public BaseNodeDeserializer(Class<T> vc, Boolean supportsUpdates) {
         super(vc);
         _supportsUpdates = supportsUpdates;
+        _mergeArrays = true;
+        _mergeObjects = true;
+    }
+
+    protected BaseNodeDeserializer(BaseNodeDeserializer<?> base,
+        boolean mergeArrays, boolean mergeObjects)
+    {
+        super(base);
+        _supportsUpdates = base._supportsUpdates;
+        _mergeArrays = mergeArrays;
+        _mergeObjects = mergeObjects;
     }
 
     @Override
@@ -234,6 +286,42 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     public Boolean supportsUpdate(DeserializationConfig config) {
         return _supportsUpdates;
     }
+
+    @Override // @since 2.14
+    public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
+            BeanProperty property)
+    {
+        // 13-Jun-2022, tatu: Should we care about property? For now, let's not yet.
+        //   (merge info there accessible via "property.getMetadata().getMergeInfo()")
+        final DeserializationConfig cfg = ctxt.getConfig();
+        Boolean mergeArr = cfg.getDefaultMergeable(ArrayNode.class);
+        Boolean mergeObj = cfg.getDefaultMergeable(ObjectNode.class);
+        Boolean mergeNode = cfg.getDefaultMergeable(JsonNode.class);
+
+        final boolean mergeArrays = _shouldMerge(mergeArr, mergeNode);
+        final boolean mergeObjects = _shouldMerge(mergeObj, mergeNode);
+
+        if ((mergeArrays != _mergeArrays)
+                || (mergeObjects != _mergeObjects)) {
+            return _createWithMerge(mergeArrays, mergeObjects);
+        }
+
+        return this;
+    }
+
+    private static boolean _shouldMerge(Boolean specificMerge, Boolean generalMerge) {
+        if (specificMerge != null) {
+            return specificMerge.booleanValue();
+        }
+        if (generalMerge != null) {
+            return generalMerge.booleanValue();
+        }
+        return true;
+    }
+
+    // @since 2.14
+    protected abstract BaseNodeDeserializer<?> _createWithMerge(boolean mergeArrays,
+            boolean mergeObjects);
 
     /*
     /**********************************************************************
@@ -356,7 +444,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
                 if (old instanceof ObjectNode) {
                     // [databind#3056]: merging only if had Object and
                     // getting an Object
-                    if (t == JsonToken.START_OBJECT) {
+                    if ((t == JsonToken.START_OBJECT) && _mergeObjects) {
                         JsonNode newValue = updateObject(p, ctxt, (ObjectNode) old, stack);
                         if (newValue != old) {
                             node.set(key, newValue);
@@ -366,7 +454,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
                 } else if (old instanceof ArrayNode) {
                     // [databind#3056]: related to Object handling, ensure
                     // Array values also match for mergeability
-                    if (t == JsonToken.START_ARRAY) {
+                    if ((t == JsonToken.START_ARRAY) && _mergeArrays) {
                         // 28-Mar-2021, tatu: We'll only append entries so not very different
                         //    from "regular" deserializeArray...
                         _deserializeContainerNoRecursion(p, ctxt, nodeFactory,

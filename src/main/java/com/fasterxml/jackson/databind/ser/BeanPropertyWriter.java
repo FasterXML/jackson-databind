@@ -689,8 +689,10 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
                 : _accessorMethod.invoke(bean, (Object[]) null);
 
         // Null handling is bit different, check that first
-        if (value == null ) {
-            if(_suppressableValue != null && _suppressableValue.equals(value)) {
+        if (value == null) {
+            // 20-Jun-2022, tatu: Defer checking of null, see [databind#3481]
+            if((_suppressableValue != null)
+                    && prov.includeFilterSuppressNulls(_suppressableValue)) {
                 return;
             }
             if (_nullSerializer != null) {

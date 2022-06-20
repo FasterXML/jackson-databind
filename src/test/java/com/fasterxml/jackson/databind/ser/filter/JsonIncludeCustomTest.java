@@ -132,7 +132,9 @@ public class JsonIncludeCustomTest extends BaseMapTest
             String json = MAPPER.writeValueAsString(new BrokenBean(null));
             fail("Should not pass, produced: "+json);
         } catch (JsonMappingException e) {
-            verifyException(e, "while trying to invoke the method java.lang.Object.toString() of a null object loaded from local variable 'other'");
+            // 20-Jun-2022, tatu: Actual message seems to vary across JDKs...
+            verifyException(e, "Problem determining whether filter");
+            verifyException(e, "should filter out `null` values");
         }
     }
 }

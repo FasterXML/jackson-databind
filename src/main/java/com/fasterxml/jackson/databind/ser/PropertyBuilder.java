@@ -200,11 +200,6 @@ public class PropertyBuilder
             break;
         case CUSTOM: // new with 2.9
             valueToSuppress = ctxt.includeFilterInstance(propDef, inclV.getValueFilter());
-            if (valueToSuppress == null) { // is this legal?
-                suppressNulls = true;
-            } else {
-                suppressNulls = ctxt.includeFilterSuppressNulls(valueToSuppress);
-            }
             break;
         case NON_NULL:
             suppressNulls = true;

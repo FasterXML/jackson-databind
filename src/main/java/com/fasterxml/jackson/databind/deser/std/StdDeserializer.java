@@ -1086,10 +1086,24 @@ public abstract class StdDeserializer<T>
     /**
      * Helper method for encapsulating calls to low-level double value parsing; single place
      * just because we need a work-around that must be applied to all calls.
+     * Does not use the new <code>useFastParser</code> support.
+     *
+     * @see #_parseDouble(String, boolean)
      */
-    protected final static double _parseDouble(String numStr) throws NumberFormatException
+    protected final static double _parseDouble(final String numStr) throws NumberFormatException
     {
-        return NumberInput.parseDouble(numStr);
+        return _parseDouble(numStr, false);
+    }
+
+    /**
+     * Helper method for encapsulating calls to low-level double value parsing; single place
+     * just because we need a work-around that must be applied to all calls.
+     *
+     * @since 2.14
+     */
+    protected final static double _parseDouble(final String numStr, final boolean useFastParser) throws NumberFormatException
+    {
+        return NumberInput.parseDouble(numStr, useFastParser);
     }
 
     /**

@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 @SuppressWarnings("resource")
 public class ReadValuesTest extends BaseMapTest
@@ -291,7 +292,27 @@ public class ReadValuesTest extends BaseMapTest
         assertEquals(2, map.size());
         assertFalse(iterator.hasNext());
     }
-    
+
+    public void testObjectReaderWithJsonParserFastDoubleParser() throws Exception
+    {
+        testObjectReaderWithFastDoubleParser(true);
+    }
+
+    public void testObjectReaderWithJsonReadFeatureFastDoubleParser() throws Exception
+    {
+        testObjectReaderWithFastDoubleParser(false);
+    }
+
+    public void testObjectReaderWithJsonParserFastFloatParser() throws Exception
+    {
+        testObjectReaderWithFastFloatParser(true);
+    }
+
+    public void testObjectReaderWithJsonReadFeatureFastFloatParser() throws Exception
+    {
+        testObjectReaderWithFastFloatParser(false);
+    }
+
     public void testNonRootArraysUsingParser() throws Exception
     {
         final String JSON = "[[1],[3]]";
@@ -325,5 +346,60 @@ public class ReadValuesTest extends BaseMapTest
         assertFalse(empty.hasNextValue());
 
         empty.close();
+    }
+
+    private void testObjectReaderWithFastDoubleParser(final boolean useParserFeature) throws Exception
+    {
+        final String JSON = "[{ \"val1\": 1.23456, \"val2\": 5 }, { \"val1\": 3.14, \"val2\": -6.5 }]";
+        final ObjectMapper mapper;
+        if (useParserFeature) {
+            JsonFactory factory = new JsonFactory();
+            factory.enable(JsonParser.Feature.USE_FAST_DOUBLE_PARSER);
+            mapper = JsonMapper.builder(factory).build();
+        } else {
+            mapper = JsonMapper.builder().enable(StreamReadFeature.USE_FAST_DOUBLE_PARSER).build();
+        }
+
+        final MappingIterator<Map<String, Double>> iterator = mapper.reader().forType(new TypeReference<Map<String, Double>>(){}).readValues(JSON);
+
+        Map<String, Double> map;
+        assertTrue(iterator.hasNext());
+        map = iterator.nextValue();
+        assertEquals(2, map.size());
+        assertEquals(Double.valueOf(1.23456), map.get("val1"));
+        assertEquals(Double.valueOf(5), map.get("val2"));
+        assertTrue(iterator.hasNext());
+        map = iterator.nextValue();
+        assertEquals(Double.valueOf(3.14), map.get("val1"));
+        assertEquals(Double.valueOf(-6.5), map.get("val2"));
+        assertEquals(2, map.size());
+        assertFalse(iterator.hasNext());
+    }
+
+    private void testObjectReaderWithFastFloatParser(final boolean useParserFeature) throws Exception
+    {
+        final String JSON = "[{ \"val1\": 1.23456, \"val2\": 5 }, { \"val1\": 3.14, \"val2\": -6.5 }]";
+        final ObjectMapper mapper;
+        if (useParserFeature) {
+            JsonFactory factory = new JsonFactory();
+            factory.enable(JsonParser.Feature.USE_FAST_DOUBLE_PARSER);
+            mapper = JsonMapper.builder(factory).build();
+        } else {
+            mapper = JsonMapper.builder().enable(StreamReadFeature.USE_FAST_DOUBLE_PARSER).build();
+        }
+        final MappingIterator<Map<String, Float>> iterator = mapper.reader().forType(new TypeReference<Map<String, Float>>(){}).readValues(JSON);
+
+        Map<String, Float> map;
+        assertTrue(iterator.hasNext());
+        map = iterator.nextValue();
+        assertEquals(2, map.size());
+        assertEquals(Float.valueOf(1.23456f), map.get("val1"));
+        assertEquals(Float.valueOf(5), map.get("val2"));
+        assertTrue(iterator.hasNext());
+        map = iterator.nextValue();
+        assertEquals(Float.valueOf(3.14f), map.get("val1"));
+        assertEquals(Float.valueOf(-6.5f), map.get("val2"));
+        assertEquals(2, map.size());
+        assertFalse(iterator.hasNext());
     }
 }

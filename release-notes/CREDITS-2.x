@@ -1445,6 +1445,14 @@ Jason Harper (jsharper@github)
    `PropertyNamingStrategy.UPPER_CAMEL_CASE`
   (2.13.4)
 
+Matthew Altman (matthew-altman@github)
+  * Reported #2541: Cannot merge polymorphic objects
+  (2.14.0)
+
+James Wang (jameswangz@github)
+  * Contributed fix for #2541: Cannot merge polymorphic objects
+  (2.14.0)
+
 ZeyuCai@github:
   * Contributed #3314: Four Flaky Tests Detected in 2.14
   (2.14.0)
@@ -1466,10 +1474,6 @@ Deniz Husaj (denizhusaj@github)
   * Reported #3447: Deeply nested JsonNode throws StackOverflowError for toString()
   (2.14.0)
 
-Matthew Altman (matthew-altman@github)
-  * Reported #2541: Cannot merge polymorphic objects
-  (2.14.0)
-
-James Wang (jameswangz@github)
-  * Contributed fix for #2541: Cannot merge polymorphic objects
+PJ Fanning (pjfanning@github)
+  * Contributed #3475: Support use of fast double parse
   (2.14.0)

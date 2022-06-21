@@ -28,6 +28,8 @@ Project: jackson-databind
  (contributed by Jan J)
 #3447: Deeply nested JsonNode throws StackOverflowError for toString()
  (reported by Deniz H)
+#3475: Support use of fast double parse
+ (contributed by PJ Fanning)
 #3476: Implement `JsonNodeFeature.WRITE_NULL_PROPERTIES` to allow skipping
   JSON `null` values on writing
 #3481: Filter method only got called once if the field is null when using

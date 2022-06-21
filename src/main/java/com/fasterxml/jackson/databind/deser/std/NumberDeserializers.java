@@ -645,7 +645,7 @@ public class NumberDeserializers
                 return (Float) getNullValue(ctxt);
             }
             try {
-                return NumberInput.parseFloat(text);
+                return NumberInput.parseFloat(text, p.isEnabled(JsonParser.Feature.USE_FAST_DOUBLE_PARSER));
             } catch (IllegalArgumentException iae) { }
             return (Float) ctxt.handleWeirdStringValue(_valueClass, text,
                     "not a valid `Float` value");
@@ -736,7 +736,7 @@ public class NumberDeserializers
                 return (Double) getNullValue(ctxt);
             }
             try {
-                return _parseDouble(text);
+                return _parseDouble(text, p.isEnabled(JsonParser.Feature.USE_FAST_DOUBLE_PARSER));
             } catch (IllegalArgumentException iae) { }
             return (Double) ctxt.handleWeirdStringValue(_valueClass, text,
                     "not a valid `Double` value");

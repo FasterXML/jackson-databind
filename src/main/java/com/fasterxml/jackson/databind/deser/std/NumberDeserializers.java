@@ -645,7 +645,7 @@ public class NumberDeserializers
                 return (Float) getNullValue(ctxt);
             }
             try {
-                return NumberInput.parseFloat(text);
+                return NumberInput.parseFloat(text, p.isEnabled(JsonParser.Feature.USE_FAST_DOUBLE_PARSER));
             } catch (IllegalArgumentException iae) { }
             return (Float) ctxt.handleWeirdStringValue(_valueClass, text,
                     "not a valid `Float` value");

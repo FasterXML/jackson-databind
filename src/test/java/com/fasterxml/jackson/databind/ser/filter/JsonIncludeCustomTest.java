@@ -7,8 +7,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 
 // Tests for [databind#888]
 public class JsonIncludeCustomTest extends BaseMapTest
@@ -110,16 +110,12 @@ public class JsonIncludeCustomTest extends BaseMapTest
 
         assertEquals(a2q("{'value':'x'}"),
                 MAPPER.writeValueAsString(new CountingFooBean("x")));
+        assertEquals(1, CountingFooFilter.counter.get());
 
-        // 06-May-2022, tatu: Maybe surprisingly, we get TWO calls; first one to
-        //    see if `null`s are to be filtered, second time for "real" call        
-        assertEquals(2, CountingFooFilter.counter.get());
         assertEquals("{}", MAPPER.writeValueAsString(new CountingFooBean("foo")));
+        assertEquals(2, CountingFooFilter.counter.get());
 
-        // but beyond initial extra call, as expected
-        assertEquals(3, CountingFooFilter.counter.get());
-
-        // except filter will NOT be called again for `null`s, as per [databind#3481]
+        // except filter will be called again for `null`s, as per [databind#3481]
         assertEquals(a2q("{'value':null}"), MAPPER.writeValueAsString(new CountingFooBean(null)));
         assertEquals(3, CountingFooFilter.counter.get());
     }
@@ -133,11 +129,12 @@ public class JsonIncludeCustomTest extends BaseMapTest
     public void testBrokenFilter() throws Exception
     {
         try {
-            String json = MAPPER.writeValueAsString(new BrokenBean("foo"));
+            String json = MAPPER.writeValueAsString(new BrokenBean(null));
             fail("Should not pass, produced: "+json);
-        } catch (InvalidDefinitionException e) {
-            verifyException(e, "Problem determining whether filter of type");
-            verifyException(e, "filter out `null`");
+        } catch (JsonMappingException e) {
+            // 20-Jun-2022, tatu: Actual message seems to vary across JDKs...
+            verifyException(e, "Problem determining whether filter");
+            verifyException(e, "should filter out `null` values");
         }
     }
 }

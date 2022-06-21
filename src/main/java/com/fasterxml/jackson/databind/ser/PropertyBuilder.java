@@ -204,11 +204,6 @@ public class PropertyBuilder
             break;
         case CUSTOM: // new with 2.9
             valueToSuppress = prov.includeFilterInstance(propDef, inclV.getValueFilter());
-            if (valueToSuppress == null) { // is this legal?
-                suppressNulls = true;
-            } else {
-                suppressNulls = prov.includeFilterSuppressNulls(valueToSuppress);
-            }
             break;
         case NON_NULL:
             suppressNulls = true;

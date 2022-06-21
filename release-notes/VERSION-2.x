@@ -30,6 +30,9 @@ Project: jackson-databind
  (reported by Deniz H)
 #3476: Implement `JsonNodeFeature.WRITE_NULL_PROPERTIES` to allow skipping
   JSON `null` values on writing
+#3481: Filter method only got called once if the field is null when using
+  `@JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = SomeFieldFilter.class)`
+ (contributed by AmiDavidW@github)
 #3497: Deserialization of Throwables with PropertyNamingStrategy does not work
 
 2.13.4 (not yet released)

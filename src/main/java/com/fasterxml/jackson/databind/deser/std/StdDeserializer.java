@@ -962,17 +962,14 @@ public abstract class StdDeserializer<T>
             _verifyNullForPrimitiveCoercion(ctxt, text);
             return  0.0f;
         }
-        return _parseFloatPrimitive(ctxt, text);
+        return _parseFloatPrimitive(p, ctxt, text);
     }
 
-    /**
-     * @since 2.9
-     */
-    protected final float _parseFloatPrimitive(DeserializationContext ctxt, String text)
+    protected final float _parseFloatPrimitive(JsonParser p, DeserializationContext ctxt, String text)
         throws JacksonException
     {
         try {
-            return NumberInput.parseFloat(text);
+            return NumberInput.parseFloat(text, p.isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
         } catch (IllegalArgumentException iae) { }
         Number v = (Number) ctxt.handleWeirdStringValue(Float.TYPE, text,
                 "not a valid `float` value");
@@ -988,8 +985,6 @@ public abstract class StdDeserializer<T>
      *
      * @return One of {@link Float} constants referring to special value decoded,
      *   if value matched; {@code null} otherwise.
-     *
-     * @since 2.12
      */
     protected Float _checkFloatSpecialValue(String text)
     {
@@ -1069,14 +1064,14 @@ public abstract class StdDeserializer<T>
             _verifyNullForPrimitiveCoercion(ctxt, text);
             return  0.0;
         }
-        return _parseDoublePrimitive(ctxt, text);
+        return _parseDoublePrimitive(p, ctxt, text);
     }
 
-    protected final double _parseDoublePrimitive(DeserializationContext ctxt, String text)
+    protected final double _parseDoublePrimitive(JsonParser p, DeserializationContext ctxt, String text)
         throws JacksonException
     {
         try {
-            return _parseDouble(text);
+            return _parseDouble(text, p.isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
         } catch (IllegalArgumentException iae) { }
         Number v = (Number) ctxt.handleWeirdStringValue(Double.TYPE, text,
                 "not a valid `double` value (as String to convert)");
@@ -1098,8 +1093,6 @@ public abstract class StdDeserializer<T>
     /**
      * Helper method for encapsulating calls to low-level double value parsing; single place
      * just because we need a work-around that must be applied to all calls.
-     *
-     * @since 2.14
      */
     protected final static double _parseDouble(final String numStr, final boolean useFastParser) throws NumberFormatException
     {
@@ -1115,8 +1108,6 @@ public abstract class StdDeserializer<T>
      *
      * @return One of {@link Double} constants referring to special value decoded,
      *   if value matched; {@code null} otherwise.
-     *
-     * @since 2.12
      */
     protected Double _checkDoubleSpecialValue(String text)
     {

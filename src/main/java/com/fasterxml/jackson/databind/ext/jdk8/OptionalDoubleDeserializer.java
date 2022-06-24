@@ -53,7 +53,7 @@ public class OptionalDoubleDeserializer extends BaseScalarOptionalDeserializer<O
                 if (_checkTextualNull(ctxt, text)) {
                     return _empty;
                 }
-                return OptionalDouble.of(_parseDoublePrimitive(ctxt, text));
+                return OptionalDouble.of(_parseDoublePrimitive(p, ctxt, text));
             }
         case JsonTokenId.ID_NUMBER_INT: // coercion here should be fine
             return OptionalDouble.of(p.getDoubleValue());

@@ -1781,7 +1781,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             if (value instanceof String) {
                 String str = (String) value;
                 if (str.indexOf('.') >= 0) {
-                    return NumberInput.parseDouble(str);
+                    return NumberInput.parseDouble(str, isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
                 }
                 return NumberInput.parseLong(str);
             }

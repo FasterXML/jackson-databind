@@ -14,7 +14,7 @@ import com.fasterxml.jackson.core.util.JsonParserSequence;
 import com.fasterxml.jackson.databind.*;
 
 @SuppressWarnings("resource")
-public class TestTokenBuffer extends BaseMapTest
+public class TokenBufferTest extends BaseMapTest
 {
     private final ObjectMapper MAPPER = objectMapper();
 

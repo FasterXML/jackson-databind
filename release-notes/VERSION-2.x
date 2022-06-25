@@ -36,6 +36,8 @@ Project: jackson-databind
   `@JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = SomeFieldFilter.class)`
  (contributed by AmiDavidW@github)
 #3497: Deserialization of Throwables with PropertyNamingStrategy does not work
+#3528: `TokenBuffer` defaults for parser/stream-read features neither passed
+  from parser nor use real defaults
 
 2.13.4 (not yet released)
 

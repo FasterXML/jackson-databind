@@ -1498,7 +1498,10 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 boolean hasNativeTypeIds, boolean hasNativeObjectIds,
                 JsonStreamContext parentContext)
         {
-            super(0);
+            // 25-Jun-2022, tatu: Ideally would pass parser flags along (as
+            //    per [databund#3528]) but for now make sure not to clear the flags
+            //    but let defaults be used
+            super();
             _segment = firstSeg;
             _segmentPtr = -1; // not yet read
             _codec = codec;

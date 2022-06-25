@@ -47,6 +47,17 @@ public class TokenBufferTest extends BaseMapTest
         assertTrue(buf.isClosed());
     }
 
+    // for [databind#3528]
+    public void testParserFeatureDefaults() throws IOException
+    {
+        TokenBuffer buf = new TokenBuffer(false);
+        try (JsonParser p = buf.asParser()) {
+            for (StreamReadFeature feat : StreamReadFeature.values()) {
+                assertEquals("Feature "+feat, feat.enabledByDefault(), p.isEnabled(feat));
+            }
+        }
+    }
+
     /**
      * Test writing of individual simple values
      */

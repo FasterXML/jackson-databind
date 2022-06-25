@@ -1422,7 +1422,10 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 Segment firstSeg, boolean hasNativeTypeIds, boolean hasNativeObjectIds,
                 TokenStreamContext parentContext)
         {
-            super(readCtxt, 0);
+            // 25-Jun-2022, tatu: This should pass stream read features as
+            //    per [databund#3528]) but for now at very least should get
+            //    sane defaults
+            super(readCtxt);
             _source = source;
             _segment = firstSeg;
             _segmentPtr = -1; // not yet read

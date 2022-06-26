@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.fasterxml.jackson.databind.concurrentlinkedhashmap;
+package com.fasterxml.jackson.databind.util.concurrentlinkedhashmap;
 
 import java.util.AbstractCollection;
 import java.util.Collection;

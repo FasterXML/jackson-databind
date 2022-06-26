@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.fasterxml.jackson.databind.concurrentlinkedhashmap;
+package com.fasterxml.jackson.databind.util.concurrentlinkedhashmap;
 
-import static com.fasterxml.jackson.databind.concurrentlinkedhashmap.ConcurrentLinkedHashMap.checkNotNull;
+import static com.fasterxml.jackson.databind.util.concurrentlinkedhashmap.ConcurrentLinkedHashMap.checkNotNull;
 
 import java.io.Serializable;
 import java.util.Collection;

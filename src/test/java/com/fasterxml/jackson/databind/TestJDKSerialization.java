@@ -197,14 +197,17 @@ public class TestJDKSerialization extends BaseMapTest
     {
         LRUMap<String,Integer> map = new LRUMap<String,Integer>(32, 32);
         map.put("a", 1);
+        assertEquals(1, map.size());
 
         byte[] bytes = jdkSerialize(map);
         LRUMap<String,Integer> result = jdkDeserialize(bytes);
         // transient implementation, will be read as empty
+        assertNull(result.get("a"));
         assertEquals(0, result.size());
 
         // but should be possible to re-populate
-        result.put("a", 2);
+        assertNull(result.put("a", 2));
+        assertEquals(Integer.valueOf(2), result.get("a"));
         assertEquals(1, result.size());
     }
 

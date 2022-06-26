@@ -72,6 +72,12 @@
       <artifactId>jackson-core</artifactId>
       <version>${jackson.version.core}</version>
     </dependency>
+    <dependency>
+      <groupId>com.google.code.findbugs</groupId>
+      <artifactId>jsr305</artifactId>
+      <version>3.0.2</version>
+      <scope>provided</scope>
+    </dependency>
 
     <!-- and for testing we need a few libraries
          libs for which we use reflection for code, but direct dep for testing

@@ -21,8 +21,6 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import javax.annotation.concurrent.NotThreadSafe;
-
 /**
  * Linked list implementation of the {@link Deque} interface where the link
  * pointers are tightly integrated with the element. Linked deques have no
@@ -45,7 +43,6 @@ import javax.annotation.concurrent.NotThreadSafe;
  * @see <a href="http://code.google.com/p/concurrentlinkedhashmap/">
  *      http://code.google.com/p/concurrentlinkedhashmap/</a>
  */
-@NotThreadSafe
 final class LinkedDeque<E extends Linked<E>> extends AbstractCollection<E> implements Deque<E> {
 
     // This class provides a doubly-linked list that is optimized for the virtual

@@ -15,8 +15,6 @@
  */
 package com.fasterxml.jackson.databind.util.concurrentlinkedhashmap;
 
-import javax.annotation.concurrent.ThreadSafe;
-
 /**
  * A class that can determine the weight of an entry. The total weight threshold
  * is used to determine when an eviction is required.
@@ -25,7 +23,6 @@ import javax.annotation.concurrent.ThreadSafe;
  * @see <a href="http://code.google.com/p/concurrentlinkedhashmap/">
  *      http://code.google.com/p/concurrentlinkedhashmap/</a>
  */
-@ThreadSafe
 interface EntryWeigher<K, V> {
 
     /**

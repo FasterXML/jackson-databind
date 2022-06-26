@@ -15,8 +15,6 @@
  */
 package com.fasterxml.jackson.databind.util.concurrentlinkedhashmap;
 
-import javax.annotation.concurrent.ThreadSafe;
-
 /**
  * A listener registered for notification when an entry is evicted. An instance
  * may be called concurrently by multiple threads to process entries. An
@@ -35,7 +33,6 @@ import javax.annotation.concurrent.ThreadSafe;
  * @see <a href="http://code.google.com/p/concurrentlinkedhashmap/">
  *      http://code.google.com/p/concurrentlinkedhashmap/</a>
  */
-@ThreadSafe
 interface EvictionListener<K, V> {
 
     /**

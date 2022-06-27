@@ -1362,7 +1362,7 @@ public class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V> implements
 
         @Override
         public boolean add(Entry<K, V> entry) {
-            return (map.putIfAbsent(entry.getKey(), entry.getValue()) == null);
+            throw new UnsupportedOperationException("ConcurrentLinkedHashMap does not allow add to be called on entrySet()");
         }
 
         @Override

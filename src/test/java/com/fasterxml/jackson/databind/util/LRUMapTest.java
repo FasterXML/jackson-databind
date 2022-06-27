@@ -46,7 +46,7 @@ public class LRUMapTest extends BaseTest {
         assertEquals(Integer.valueOf(105), m.get("k6"));
     }
 
-    public void testLRUMap() throws Exception
+    public void testJDKSerialization() throws Exception
     {
         final int maxEntries = 32;
         LRUMap<String,Integer> map = new LRUMap<String,Integer>(16, maxEntries);

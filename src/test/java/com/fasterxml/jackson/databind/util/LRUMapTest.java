@@ -2,6 +2,9 @@ package com.fasterxml.jackson.databind.util;
 
 import com.fasterxml.jackson.databind.BaseTest;
 
+import static com.fasterxml.jackson.databind.TestJDKSerialization.jdkDeserialize;
+import static com.fasterxml.jackson.databind.TestJDKSerialization.jdkSerialize;
+
 public class LRUMapTest extends BaseTest {
 
     public void testPutGet() {
@@ -41,5 +44,25 @@ public class LRUMapTest extends BaseTest {
 
         assertNull(m.get("k3"));
         assertEquals(Integer.valueOf(105), m.get("k6"));
+    }
+
+    public void testLRUMap() throws Exception
+    {
+        final int maxEntries = 32;
+        LRUMap<String,Integer> map = new LRUMap<String,Integer>(16, maxEntries);
+        map.put("a", 1);
+        assertEquals(1, map.size());
+
+        byte[] bytes = jdkSerialize(map);
+        LRUMap<String,Integer> result = jdkDeserialize(bytes);
+        // transient implementation, will be read as empty
+        assertNull(result.get("a"));
+        assertEquals(0, result.size());
+        assertEquals(maxEntries, result._map.capacity());
+
+        // but should be possible to re-populate
+        assertNull(result.put("a", 2));
+        assertEquals(Integer.valueOf(2), result.get("a"));
+        assertEquals(1, result.size());
     }
 }

@@ -26,8 +26,6 @@ public class ConcurrentLinkedHashMapStressTest {
         final int maxEntries = 30;
         final int maxKey = 100;
         final Random rnd = new Random();
-        //final com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap<Integer, UUID> clhm =
-        //        new com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap.Builder<Integer, UUID>().maximumWeightedCapacity(maxEntries).build();
         final ConcurrentLinkedHashMap<Integer, UUID> clhm =
                 new ConcurrentLinkedHashMap.Builder<Integer, UUID>().maximumWeightedCapacity(maxEntries).build();
         final Map<Integer, UUID> map = new ConcurrentHashMap<>();
@@ -53,8 +51,9 @@ public class ConcurrentLinkedHashMapStressTest {
             executor.shutdown();
         }
         executor.awaitTermination(waitSeconds, TimeUnit.SECONDS);
-        //clhm.executor.shutdown();
-        //clhm.executor.awaitTermination(waitSeconds, TimeUnit.SECONDS);
+
+        //ConcurrentLinkedHashMap runs evictions in the background using its own ExecutorService
+        //the following code retries the assertions to allow for the evictions to finish
         final long endTime = System.nanoTime() + Duration.of(waitSeconds, ChronoUnit.SECONDS).toNanos();
         boolean assertsFailing = true;
         while(assertsFailing) {

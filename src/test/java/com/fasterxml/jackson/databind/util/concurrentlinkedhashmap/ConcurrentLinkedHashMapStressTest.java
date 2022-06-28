@@ -13,6 +13,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import static org.awaitility.Awaitility.*;
 import static org.junit.Assert.assertEquals;
 
 public class ConcurrentLinkedHashMapStressTest {
@@ -23,7 +24,13 @@ public class ConcurrentLinkedHashMapStressTest {
     private static int waitSeconds = 60;
 
     @Test
-    public void testManyEntries() throws Exception {
+    public void test() throws Exception {
+        for(int i = 0; i < 10; i++) {
+            testManyEntries();
+        }
+    }
+
+    private void testManyEntries() throws Exception {
         final int maxEntries = 30;
         final int maxKey = 100;
         final Random rnd = new Random();
@@ -56,12 +63,19 @@ public class ConcurrentLinkedHashMapStressTest {
         for(Future<?> future : futures) {
             future.get(waitSeconds, TimeUnit.SECONDS);
         }
+        await().atMost(waitSeconds, TimeUnit.SECONDS).until(
+            () -> clhm.size() == maxEntries
+        );
         assertEquals(maxEntries, clhm.size());
         int matched = 0;
         for (int i = 0; i < maxKey; i++) {
             UUID uuid = clhm.get(i);
             if (uuid != null) {
                 matched++;
+                final int key = i;
+                await().atMost(waitSeconds, TimeUnit.SECONDS).until(
+                        () -> uuid == map.get(key)
+                );
                 assertEquals(map.get(i), uuid);
             }
         }

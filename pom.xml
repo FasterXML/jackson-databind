@@ -101,6 +101,12 @@
       <version>31.1-jre</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.awaitility</groupId>
+      <artifactId>awaitility</artifactId>
+      <version>4.2.0</version>
+      <scope>test</scope>
+    </dependency>
     <!-- For testing TestNoClassDefFoundDeserializer -->
     <dependency>
       <groupId>javax.measure</groupId>

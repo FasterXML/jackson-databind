@@ -2,12 +2,15 @@ package com.fasterxml.jackson.databind.util.concurrentlinkedhashmap;
 
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
@@ -27,28 +30,32 @@ public class ConcurrentLinkedHashMapStressTest {
         final ConcurrentLinkedHashMap<Integer, UUID> clhm =
                 new ConcurrentLinkedHashMap.Builder<Integer, UUID>().maximumWeightedCapacity(maxEntries).build();
         final Map<Integer, UUID> map = new ConcurrentHashMap<>();
+        final List<Future<?>> futures = new ArrayList<>();
         final ExecutorService executor = Executors.newFixedThreadPool(threads);
         try {
             for (int i = 0; i < maxKey; i++) {
                 final int key = i;
-                executor.submit(() -> {
+                futures.add(executor.submit(() -> {
                     UUID uuid = UUID.randomUUID();
                     clhm.put(key, uuid);
                     map.put(key, uuid);
-                });
+                }));
             }
             for (int i = 0; i < iterations; i++) {
-                executor.submit(() -> {
+                futures.add(executor.submit(() -> {
                     int key = rnd.nextInt(maxKey);
                     UUID uuid = UUID.randomUUID();
                     clhm.put(key, uuid);
                     map.put(key, uuid);
-                });
+                }));
             }
         } finally {
             executor.shutdown();
         }
         executor.awaitTermination(waitSeconds, TimeUnit.SECONDS);
+        for(Future<?> future : futures) {
+            future.get(waitSeconds, TimeUnit.SECONDS);
+        }
         assertEquals(maxEntries, clhm.size());
         int matched = 0;
         for (int i = 0; i < maxKey; i++) {

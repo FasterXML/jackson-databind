@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.databind.util;
 
-import com.fasterxml.jackson.databind.util.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
+import com.fasterxml.jackson.databind.util.clhm.ConcurrentLinkedHashMap;
 
 /**
  * Helper for simple bounded maps used for reusing lookup values.

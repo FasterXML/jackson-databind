@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.util.concurrentlinkedhashmap;
+package com.fasterxml.jackson.databind.util.clhm;
 
 import junit.framework.Test;
 import junit.framework.TestCase;

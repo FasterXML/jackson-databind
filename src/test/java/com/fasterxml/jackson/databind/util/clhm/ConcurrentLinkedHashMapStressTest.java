@@ -23,12 +23,6 @@ public class ConcurrentLinkedHashMapStressTest {
 
     @Test
     public void testManyEntries() throws Exception {
-        for (int i = 0; i < 20; i++) {
-            _testManyEntries();
-        }
-    }
-
-    public void _testManyEntries() throws Exception {
         final int maxEntries = 30;
         final int maxKey = 100;
         final Random rnd = new Random();

@@ -13,7 +13,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class ConcurrentLinkedHashMapStressTest {
 
@@ -24,6 +23,12 @@ public class ConcurrentLinkedHashMapStressTest {
 
     @Test
     public void testManyEntries() throws Exception {
+        for (int i = 0; i < 20; i++) {
+            _testManyEntries();
+        }
+    }
+
+    public void _testManyEntries() throws Exception {
         final int maxEntries = 30;
         final int maxKey = 100;
         final Random rnd = new Random();
@@ -56,8 +61,9 @@ public class ConcurrentLinkedHashMapStressTest {
         final long endTime = System.nanoTime() + Duration.of(waitSeconds, ChronoUnit.SECONDS).toNanos();
         boolean assertsFailing = true;
         while(assertsFailing) {
+            clhm.drainBuffers();
             try {
-                assertTrue("clhm has at least maxEntries", clhm.size() >= maxEntries);
+                assertEquals(clhm.size(), maxEntries);
                 for (int i = 0; i < maxKey; i++) {
                     UUID uuid = clhm.get(i);
                     if (uuid != null) {

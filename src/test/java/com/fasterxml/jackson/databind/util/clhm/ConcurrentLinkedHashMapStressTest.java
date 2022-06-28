@@ -38,19 +38,23 @@ public class ConcurrentLinkedHashMapStressTest {
         final ExecutorService executor = Executors.newFixedThreadPool(threads);
         try {
             for (int i = 0; i < maxKey; i++) {
-                final int key = i;
+                final Integer key = Integer.valueOf(i);
                 executor.submit(() -> {
                     UUID uuid = UUID.randomUUID();
-                    clhm.put(key, uuid);
-                    map.put(key, uuid);
+                    synchronized (key) {
+                        clhm.put(key, uuid);
+                        map.put(key, uuid);
+                    }
                 });
             }
             for (int i = 0; i < iterations; i++) {
                 executor.submit(() -> {
-                    int key = rnd.nextInt(maxKey);
+                    Integer key = Integer.valueOf(rnd.nextInt(maxKey));
                     UUID uuid = UUID.randomUUID();
-                    clhm.put(key, uuid);
-                    map.put(key, uuid);
+                    synchronized (key) {
+                        clhm.put(key, uuid);
+                        map.put(key, uuid);
+                    }
                 });
             }
         } finally {

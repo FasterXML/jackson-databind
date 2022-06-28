@@ -52,7 +52,7 @@ public class ConcurrentLinkedHashMapStressTest {
         }
         executor.awaitTermination(waitSeconds, TimeUnit.SECONDS);
 
-        //ConcurrentLinkedHashMap runs evictions in the background using its own ExecutorService
+        //ConcurrentLinkedHashMap has its own ExecutorService for some background work
         //the following code retries the assertions to allow for the evictions to finish
         final long endTime = System.nanoTime() + Duration.of(waitSeconds, ChronoUnit.SECONDS).toNanos();
         boolean assertsFailing = true;

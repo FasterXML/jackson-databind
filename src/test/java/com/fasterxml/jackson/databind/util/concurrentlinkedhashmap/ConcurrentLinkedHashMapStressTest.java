@@ -2,6 +2,8 @@ package com.fasterxml.jackson.databind.util.concurrentlinkedhashmap;
 
 import org.junit.Test;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
@@ -51,15 +53,27 @@ public class ConcurrentLinkedHashMapStressTest {
         executor.awaitTermination(waitSeconds, TimeUnit.SECONDS);
         clhm.executor.shutdown();
         clhm.executor.awaitTermination(waitSeconds, TimeUnit.SECONDS);
-        assertEquals(maxEntries, clhm.size());
-        int matched = 0;
-        for (int i = 0; i < maxKey; i++) {
-            UUID uuid = clhm.get(i);
-            if (uuid != null) {
-                matched++;
-                assertEquals(map.get(i), clhm.get(i));
+        final long endTime = System.nanoTime() + Duration.of(waitSeconds, ChronoUnit.SECONDS).toNanos();
+        boolean assertsFailing = true;
+        while(assertsFailing) {
+            try {
+                assertEquals(maxEntries, clhm.size());
+                int matched = 0;
+                for (int i = 0; i < maxKey; i++) {
+                    UUID uuid = clhm.get(i);
+                    if (uuid != null) {
+                        matched++;
+                        assertEquals(map.get(i), clhm.get(i));
+                    }
+                }
+                assertEquals(maxEntries, matched);
+                assertsFailing = false;
+            } catch (Throwable t) {
+                if (System.nanoTime() > endTime) {
+                    throw t;
+                }
+                Thread.sleep(100);
             }
         }
-        assertEquals(maxEntries, matched);
     }
 }

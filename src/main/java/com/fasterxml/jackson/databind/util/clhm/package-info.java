@@ -29,6 +29,11 @@
  * {@link com.fasterxml.jackson.databind.util.clhm.Weighers} class provides
  * utility methods for obtaining the most common kinds of implementations.
  * <p>
+ * {@link com.fasterxml.jackson.databind.util.clhm.EvictionListener} provides the
+ * ability to be notified when an entry is evicted from the map. An eviction
+ * occurs when the entry was automatically removed due to the map exceeding a
+ * capacity threshold. It is not called when an entry was explicitly removed.
+ * <p>
  * The {@link com.fasterxml.jackson.databind.util.clhm.ConcurrentLinkedHashMap}
  * class supplies an efficient, scalable, thread-safe, bounded map. As with the
  * <tt>Java Collections Framework</tt> the "Concurrent" prefix is used to

@@ -9,16 +9,11 @@ import com.fasterxml.jackson.databind.util.internal.PrivateMaxEntriesMap;
  * on assumption that all use cases are for caching where persistence
  * does not make sense. The only thing serialized is the cache size of Map.
  *<p>
- * NOTE: since version 2.4.2, this is <b>NOT</b> an LRU-based at all; reason
- * being that it is not possible to use JDK components that do LRU _AND_ perform
- * well wrt synchronization on multi-core systems. So we choose efficient synchronization
- * over potentially more efficient handling of entries.
+ * NOTE: since Jackson 2.14, the implementation evicts the least recently used
+ * entry when max size is reached.
  *<p>
- * And yes, there are efficient LRU implementations such as
- * <a href="https://code.google.com/p/concurrentlinkedhashmap/">concurrentlinkedhashmap</a>;
- * but at this point we really try to keep external deps to minimum.
- * Plan from Jackson 2.12 is to focus more on pluggability as {@link LookupCache} and
- * let users, frameworks, provide their own cache implementations.
+ * Since Jackson 2.12, there has been pluggable {@link LookupCache} interface which
+ * allows users, frameworks, provide their own cache implementations.
  */
 public class LRUMap<K,V>
     implements LookupCache<K,V>, // since 2.12

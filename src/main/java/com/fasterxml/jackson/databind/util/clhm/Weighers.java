@@ -39,7 +39,7 @@ final class Weighers {
      * @param weigher the weigher to be "wrapped" in an entry weigher.
      * @return A entry weigher view of the specified weigher.
      */
-    public static <K, V> EntryWeigher<K, V> asEntryWeigher(
+    static <K, V> EntryWeigher<K, V> asEntryWeigher(
             final Weigher<? super V> weigher) {
         return (weigher == singleton())
                 ? Weighers.<K, V>entrySingleton()

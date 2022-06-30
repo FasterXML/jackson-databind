@@ -583,7 +583,7 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V>
         final int weightDifference;
         final Node<K, V> node;
 
-        public UpdateTask(Node<K, V> node, int weightDifference) {
+        UpdateTask(Node<K, V> node, int weightDifference) {
             this.weightDifference = weightDifference;
             this.node = node;
         }

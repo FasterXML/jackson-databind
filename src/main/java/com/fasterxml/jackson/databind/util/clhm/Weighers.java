@@ -17,8 +17,6 @@ package com.fasterxml.jackson.databind.util.clhm;
 
 import static com.fasterxml.jackson.databind.util.clhm.ConcurrentLinkedHashMap.checkNotNull;
 
-import java.io.Serializable;
-
 /**
  * A common set of {@link Weigher} and {@link EntryWeigher} implementations.
  *
@@ -70,8 +68,7 @@ final class Weighers {
         return (Weigher<V>) SingletonWeigher.INSTANCE;
     }
 
-    static final class EntryWeigherView<K, V> implements EntryWeigher<K, V>, Serializable {
-        static final long serialVersionUID = 1;
+    static final class EntryWeigherView<K, V> implements EntryWeigher<K, V> {
         final Weigher<? super V> weigher;
 
         EntryWeigherView(Weigher<? super V> weigher) {

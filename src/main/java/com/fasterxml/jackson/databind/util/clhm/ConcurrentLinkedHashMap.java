@@ -22,9 +22,6 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Collections.unmodifiableSet;
 
-import java.io.InvalidObjectException;
-import java.io.ObjectInputStream;
-import java.io.Serializable;
 import java.util.AbstractCollection;
 import java.util.AbstractMap;
 import java.util.AbstractQueue;
@@ -98,7 +95,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 //@ThreadSafe
 public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V>
-        implements ConcurrentMap<K, V>, Serializable {
+        implements ConcurrentMap<K, V> {
 
     /*
      * This class performs a best-effort bounding of a ConcurrentHashMap using a
@@ -1374,8 +1371,7 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V>
     }
 
     /** A weigher that enforces that the weight falls within a valid range. */
-    static final class BoundedEntryWeigher<K, V> implements EntryWeigher<K, V>, Serializable {
-        static final long serialVersionUID = 1;
+    static final class BoundedEntryWeigher<K, V> implements EntryWeigher<K, V> {
         final EntryWeigher<? super K, ? super V> weigher;
 
         BoundedEntryWeigher(EntryWeigher<? super K, ? super V> weigher) {
@@ -1388,10 +1384,6 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V>
             int weight = weigher.weightOf(key, value);
             checkArgument(weight >= 1);
             return weight;
-        }
-
-        Object writeReplace() {
-            return weigher;
         }
     }
 
@@ -1410,51 +1402,6 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V>
         INSTANCE;
 
         @Override public void onEviction(Object key, Object value) {}
-    }
-
-    /* ---------------- Serialization Support -------------- */
-
-    static final long serialVersionUID = 1;
-
-    Object writeReplace() {
-        return new SerializationProxy<K, V>(this);
-    }
-
-    private void readObject(ObjectInputStream stream) throws InvalidObjectException {
-        throw new InvalidObjectException("Proxy required");
-    }
-
-    /**
-     * A proxy that is serialized instead of the map. The page-replacement
-     * algorithm's data structures are not serialized so the deserialized
-     * instance contains only the entries. This is acceptable as caches hold
-     * transient data that is recomputable and serialization would tend to be
-     * used as a fast warm-up process.
-     */
-    static final class SerializationProxy<K, V> implements Serializable {
-        final EntryWeigher<? super K, ? super V> weigher;
-        final EvictionListener<K, V> listener;
-        final Map<K, V> data;
-        final long capacity;
-
-        SerializationProxy(ConcurrentLinkedHashMap<K, V> map) {
-            data = new HashMap<K, V>(map);
-            capacity = map.capacity.get();
-            listener = map.listener;
-            weigher = map.weigher;
-        }
-
-        Object readResolve() {
-            ConcurrentLinkedHashMap<K, V> map = new Builder<K, V>()
-                    .maximumWeightedCapacity(capacity)
-                    .listener(listener)
-                    .weigher(weigher)
-                    .build();
-            map.putAll(data);
-            return map;
-        }
-
-        static final long serialVersionUID = 1;
     }
 
     /* ---------------- Builder -------------- */

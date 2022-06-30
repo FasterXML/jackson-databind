@@ -18,6 +18,10 @@
  * This package contains an implementation of a bounded
  * {@link java.util.concurrent.ConcurrentMap} data structure.
  * <p>
+ * This package is intended only for use internally by Jackson libraries and has
+ * missing features compared to the full <a href="http://code.google.com/p/concurrentlinkedhashmap/">
+ * http://code.google.com/p/concurrentlinkedhashmap/</a> implementation.
+ * <p>
  * {@link com.fasterxml.jackson.databind.util.clhm.Weigher} is a simple interface
  * for determining how many units of capacity an entry consumes. Depending on
  * which concrete Weigher class is used, an entry may consume a different amount

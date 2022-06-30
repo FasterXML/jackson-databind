@@ -61,22 +61,6 @@ import java.util.concurrent.locks.ReentrantLock;
  * modifies its weight requires that an update operation is performed on the
  * map.
  * <p>
- * An {@link EvictionListener} may be supplied for notification when an entry
- * is evicted from the map. This listener is invoked on a caller's thread and
- * will not block other threads from operating on the map. An implementation
- * should be aware that the caller's thread will not expect long execution
- * times or failures as a side effect of the listener being notified. Execution
- * safety and a fast turn around time can be achieved by performing the
- * operation asynchronously, such as by submitting a task to an
- * {@link java.util.concurrent.ExecutorService}.
- * <p>
- * The <tt>concurrency level</tt> determines the number of threads that can
- * concurrently modify the table. Using a significantly higher or lower value
- * than needed can waste space or lead to thread contention, but an estimate
- * within an order of magnitude of the ideal value does not usually have a
- * noticeable impact. Because placement in hash tables is essentially random,
- * the actual concurrency will vary.
- * <p>
  * This class and its views and iterators implement all of the
  * <em>optional</em> methods of the {@link Map} and {@link Iterator}
  * interfaces.
@@ -196,7 +180,6 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V>
 
     // These fields provide support for notifying a listener.
     final Queue<Node<K, V>> pendingNotifications;
-    final EvictionListener<K, V> listener;
 
     transient Set<K> keySet;
     transient Collection<V> values;
@@ -233,10 +216,7 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V>
         }
 
         // The notification queue and listener
-        listener = builder.listener;
-        pendingNotifications = (listener == DiscardingListener.INSTANCE)
-                ? (Queue<Node<K, V>>) DISCARDING_QUEUE
-                : new ConcurrentLinkedQueue<Node<K, V>>();
+        pendingNotifications = (Queue<Node<K, V>>) DISCARDING_QUEUE;
     }
 
     /** Ensures that the object is not null. */
@@ -288,7 +268,6 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V>
         } finally {
             evictionLock.unlock();
         }
-        notifyListener();
     }
 
     /** Determines whether the map has exceeded its capacity. */
@@ -336,7 +315,6 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V>
         final int bufferIndex = readBufferIndex();
         final long writeCount = recordRead(bufferIndex, node);
         drainOnReadIfNeeded(bufferIndex, writeCount);
-        notifyListener();
     }
 
     /** Returns the index to the read buffer to record into. */
@@ -393,7 +371,6 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V>
         writeBuffer.add(task);
         drainStatus.lazySet(REQUIRED);
         tryToDrainBuffers();
-        notifyListener();
     }
 
     /**
@@ -522,14 +499,6 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V>
                 weightedSize.lazySet(weightedSize.get() - Math.abs(current.weight));
                 return;
             }
-        }
-    }
-
-    /** Notifies the listener of entries that were evicted. */
-    void notifyListener() {
-        Node<K, V> node;
-        while ((node = pendingNotifications.poll()) != null) {
-            listener.onEviction(node.key, node.getValue());
         }
     }
 
@@ -1397,13 +1366,6 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V>
         @Override public Iterator<Object> iterator() { return emptyList().iterator(); }
     }
 
-    /** A listener that ignores all notifications. */
-    enum DiscardingListener implements EvictionListener<Object, Object> {
-        INSTANCE;
-
-        @Override public void onEviction(Object key, Object value) {}
-    }
-
     /* ---------------- Builder -------------- */
 
     /**
@@ -1420,7 +1382,6 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V>
     public static final class Builder<K, V> {
         static final int DEFAULT_INITIAL_CAPACITY = 16;
 
-        EvictionListener<K, V> listener;
         EntryWeigher<? super K, ? super V> weigher;
 
         int initialCapacity;
@@ -1431,7 +1392,6 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V>
             capacity = -1;
             weigher = Weighers.entrySingleton();
             initialCapacity = DEFAULT_INITIAL_CAPACITY;
-            listener = (EvictionListener<K, V>) DiscardingListener.INSTANCE;
         }
 
         /**
@@ -1460,19 +1420,6 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V>
         public Builder<K, V> maximumWeightedCapacity(long capacity) {
             checkArgument(capacity >= 0);
             this.capacity = capacity;
-            return this;
-        }
-
-        /**
-         * Specifies an optional listener that is registered for notification when
-         * an entry is evicted.
-         *
-         * @param listener the object to forward evicted entries to
-         * @throws NullPointerException if the listener is null
-         */
-        public Builder<K, V> listener(EvictionListener<K, V> listener) {
-            checkNotNull(listener);
-            this.listener = listener;
             return this;
         }
 

@@ -176,6 +176,7 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V>
 
     // The backing data store holding the key-value associations
     final ConcurrentMap<K, Node<K, V>> data;
+    final int concurrencyLevel;
 
     // These fields provide support to bound the map by a maximum capacity
     //@GuardedBy("evictionLock")
@@ -211,8 +212,9 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V>
     @SuppressWarnings({"unchecked", "cast"})
     private ConcurrentLinkedHashMap(Builder<K, V> builder) {
         // The data store and its maximum capacity
+        concurrencyLevel = builder.concurrencyLevel;
         capacity = new AtomicLong(Math.min(builder.capacity, MAXIMUM_CAPACITY));
-        data = new ConcurrentHashMap<K, Node<K, V>>(builder.initialCapacity, 0.75f);
+        data = new ConcurrentHashMap<K, Node<K, V>>(builder.initialCapacity, 0.75f, concurrencyLevel);
 
         // The eviction support
         weigher = builder.weigher;
@@ -1434,10 +1436,12 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V>
     static final class SerializationProxy<K, V> implements Serializable {
         final EntryWeigher<? super K, ? super V> weigher;
         final EvictionListener<K, V> listener;
+        final int concurrencyLevel;
         final Map<K, V> data;
         final long capacity;
 
         SerializationProxy(ConcurrentLinkedHashMap<K, V> map) {
+            concurrencyLevel = map.concurrencyLevel;
             data = new HashMap<K, V>(map);
             capacity = map.capacity.get();
             listener = map.listener;
@@ -1446,6 +1450,7 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V>
 
         Object readResolve() {
             ConcurrentLinkedHashMap<K, V> map = new Builder<K, V>()
+                    .concurrencyLevel(concurrencyLevel)
                     .maximumWeightedCapacity(capacity)
                     .listener(listener)
                     .weigher(weigher)
@@ -1471,11 +1476,13 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V>
      * }</pre>
      */
     public static final class Builder<K, V> {
+        static final int DEFAULT_CONCURRENCY_LEVEL = 16;
         static final int DEFAULT_INITIAL_CAPACITY = 16;
 
         EvictionListener<K, V> listener;
         EntryWeigher<? super K, ? super V> weigher;
 
+        int concurrencyLevel;
         int initialCapacity;
         long capacity;
 
@@ -1484,6 +1491,7 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V>
             capacity = -1;
             weigher = Weighers.entrySingleton();
             initialCapacity = DEFAULT_INITIAL_CAPACITY;
+            concurrencyLevel = DEFAULT_CONCURRENCY_LEVEL;
             listener = (EvictionListener<K, V>) DiscardingListener.INSTANCE;
         }
 
@@ -1513,6 +1521,22 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V>
         public Builder<K, V> maximumWeightedCapacity(long capacity) {
             checkArgument(capacity >= 0);
             this.capacity = capacity;
+            return this;
+        }
+
+        /**
+         * Specifies the estimated number of concurrently updating threads. The
+         * implementation performs internal sizing to try to accommodate this many
+         * threads (default <tt>16</tt>).
+         *
+         * @param concurrencyLevel the estimated number of concurrently updating
+         *     threads
+         * @throws IllegalArgumentException if the concurrencyLevel is less than or
+         *     equal to zero
+         */
+        public Builder<K, V> concurrencyLevel(int concurrencyLevel) {
+            checkArgument(concurrencyLevel > 0);
+            this.concurrencyLevel = concurrencyLevel;
             return this;
         }
 

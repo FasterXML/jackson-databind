@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.fasterxml.jackson.databind.util.clhm;
+package com.fasterxml.jackson.databind.util.internal;
 
-import static com.fasterxml.jackson.databind.util.clhm.ConcurrentLinkedHashMap.DrainStatus.IDLE;
-import static com.fasterxml.jackson.databind.util.clhm.ConcurrentLinkedHashMap.DrainStatus.PROCESSING;
-import static com.fasterxml.jackson.databind.util.clhm.ConcurrentLinkedHashMap.DrainStatus.REQUIRED;
+import static com.fasterxml.jackson.databind.util.internal.PrivateMaxEntriesMap.DrainStatus.IDLE;
+import static com.fasterxml.jackson.databind.util.internal.PrivateMaxEntriesMap.DrainStatus.PROCESSING;
+import static com.fasterxml.jackson.databind.util.internal.PrivateMaxEntriesMap.DrainStatus.REQUIRED;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Collections.unmodifiableSet;
@@ -97,7 +97,7 @@ import java.util.concurrent.locks.ReentrantLock;
  *      http://code.google.com/p/concurrentlinkedhashmap/</a>
  */
 //@ThreadSafe
-public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V>
+public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
         implements ConcurrentMap<K, V>, Serializable {
 
     /*
@@ -210,7 +210,7 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V>
      * Creates an instance based on the builder's configuration.
      */
     @SuppressWarnings({"unchecked", "cast"})
-    private ConcurrentLinkedHashMap(Builder<K, V> builder) {
+    private PrivateMaxEntriesMap(Builder<K, V> builder) {
         // The data store and its maximum capacity
         concurrencyLevel = builder.concurrencyLevel;
         capacity = new AtomicLong(Math.min(builder.capacity, MAXIMUM_CAPACITY));
@@ -1178,7 +1178,7 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V>
 
     /** An adapter to safely externalize the keys. */
     final class KeySet extends AbstractSet<K> {
-        final ConcurrentLinkedHashMap<K, V> map = ConcurrentLinkedHashMap.this;
+        final PrivateMaxEntriesMap<K, V> map = PrivateMaxEntriesMap.this;
 
         @Override
         public int size() {
@@ -1235,7 +1235,7 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V>
         @Override
         public void remove() {
             checkState(current != null);
-            ConcurrentLinkedHashMap.this.remove(current);
+            PrivateMaxEntriesMap.this.remove(current);
             current = null;
         }
     }
@@ -1245,12 +1245,12 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V>
 
         @Override
         public int size() {
-            return ConcurrentLinkedHashMap.this.size();
+            return PrivateMaxEntriesMap.this.size();
         }
 
         @Override
         public void clear() {
-            ConcurrentLinkedHashMap.this.clear();
+            PrivateMaxEntriesMap.this.clear();
         }
 
         @Override
@@ -1283,14 +1283,14 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V>
         @Override
         public void remove() {
             checkState(current != null);
-            ConcurrentLinkedHashMap.this.remove(current.key);
+            PrivateMaxEntriesMap.this.remove(current.key);
             current = null;
         }
     }
 
     /** An adapter to safely externalize the entries. */
     final class EntrySet extends AbstractSet<Entry<K, V>> {
-        final ConcurrentLinkedHashMap<K, V> map = ConcurrentLinkedHashMap.this;
+        final PrivateMaxEntriesMap<K, V> map = PrivateMaxEntriesMap.this;
 
         @Override
         public int size() {
@@ -1351,7 +1351,7 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V>
         @Override
         public void remove() {
             checkState(current != null);
-            ConcurrentLinkedHashMap.this.remove(current.key);
+            PrivateMaxEntriesMap.this.remove(current.key);
             current = null;
         }
     }
@@ -1440,7 +1440,7 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V>
         final Map<K, V> data;
         final long capacity;
 
-        SerializationProxy(ConcurrentLinkedHashMap<K, V> map) {
+        SerializationProxy(PrivateMaxEntriesMap<K, V> map) {
             concurrencyLevel = map.concurrencyLevel;
             data = new HashMap<K, V>(map);
             capacity = map.capacity.get();
@@ -1449,7 +1449,7 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V>
         }
 
         Object readResolve() {
-            ConcurrentLinkedHashMap<K, V> map = new Builder<K, V>()
+            PrivateMaxEntriesMap<K, V> map = new Builder<K, V>()
                     .concurrencyLevel(concurrencyLevel)
                     .maximumWeightedCapacity(capacity)
                     .listener(listener)
@@ -1465,7 +1465,7 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V>
     /* ---------------- Builder -------------- */
 
     /**
-     * A builder that creates {@link ConcurrentLinkedHashMap} instances. It
+     * A builder that creates {@link PrivateMaxEntriesMap} instances. It
      * provides a flexible approach for constructing customized instances with
      * a named parameter syntax. It can be used in the following manner:
      * <pre>{@code
@@ -1584,14 +1584,14 @@ public final class ConcurrentLinkedHashMap<K, V> extends AbstractMap<K, V>
         }
 
         /**
-         * Creates a new {@link ConcurrentLinkedHashMap} instance.
+         * Creates a new {@link PrivateMaxEntriesMap} instance.
          *
          * @throws IllegalStateException if the maximum weighted capacity was
          *     not set
          */
-        public ConcurrentLinkedHashMap<K, V> build() {
+        public PrivateMaxEntriesMap<K, V> build() {
             checkState(capacity >= 0);
-            return new ConcurrentLinkedHashMap<K, V>(this);
+            return new PrivateMaxEntriesMap<K, V>(this);
         }
     }
 }

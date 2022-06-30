@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.util.clhm;
+package com.fasterxml.jackson.databind.util.internal;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -14,7 +14,7 @@ public final class CLHMTestlibTests extends TestCase {
 
     private static void addCLHMViewTests(TestSuite suite) {
         suite.addTest(MapTestFactory.suite("CLHMView", MapTestFactory.synchronousGenerator(
-                () -> new ConcurrentLinkedHashMap.Builder<String, String>()
+                () -> new PrivateMaxEntriesMap.Builder<String, String>()
                     .maximumWeightedCapacity(10).build()))
         );
     }

@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.util.clhm;
+package com.fasterxml.jackson.databind.util.internal;
 
 import org.junit.Test;
 
@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 
-public class ConcurrentLinkedHashMapStressTest {
+public class PrivateMaxEntriesMapStressTest {
 
     //increase these to increase the stress
     private static int iterations = 100000;
@@ -26,8 +26,8 @@ public class ConcurrentLinkedHashMapStressTest {
         final int maxEntries = 30;
         final int maxKey = 100;
         final Random rnd = new Random();
-        final ConcurrentLinkedHashMap<Integer, UUID> clhm =
-                new ConcurrentLinkedHashMap.Builder<Integer, UUID>().maximumWeightedCapacity(maxEntries).build();
+        final PrivateMaxEntriesMap<Integer, UUID> clhm =
+                new PrivateMaxEntriesMap.Builder<Integer, UUID>().maximumWeightedCapacity(maxEntries).build();
         final Map<Integer, UUID> map = new ConcurrentHashMap<>();
         final ExecutorService executor = Executors.newFixedThreadPool(threads);
         try {

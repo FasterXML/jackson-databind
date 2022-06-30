@@ -16,7 +16,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  ****************************************************************/
-package com.fasterxml.jackson.databind.util.clhm;
+package com.fasterxml.jackson.databind.util.internal;
 
 import org.junit.Test;
 
@@ -24,11 +24,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 //copied from https://github.com/apache/cayenne/blob/b156addac1c8e4079fa88e977fee609210c5da69/cayenne-server/src/test/java/org/apache/cayenne/util/concurrentlinkedhashmap/ConcurrentLinkedHashMapTest.java
-public class ConcurrentLinkedHashMapTest {
+public class PrivateMaxEntriesMapTest {
 
     @Test
     public void testPutGet() {
-        ConcurrentLinkedHashMap<String, Object> m = new ConcurrentLinkedHashMap.Builder<String, Object>()
+        PrivateMaxEntriesMap<String, Object> m = new PrivateMaxEntriesMap.Builder<String, Object>()
                 .maximumWeightedCapacity(10).build();
 
         assertEquals(0, m.size());
@@ -44,7 +44,7 @@ public class ConcurrentLinkedHashMapTest {
 
     @Test
     public void testLRU() {
-        ConcurrentLinkedHashMap<String, Object> m = new ConcurrentLinkedHashMap.Builder<String, Object>()
+        PrivateMaxEntriesMap<String, Object> m = new PrivateMaxEntriesMap.Builder<String, Object>()
                 .maximumWeightedCapacity(5).build();
 
         assertEquals(0, m.size());

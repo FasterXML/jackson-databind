@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.databind.util;
 
-import com.fasterxml.jackson.databind.util.clhm.ConcurrentLinkedHashMap;
+import com.fasterxml.jackson.databind.util.internal.PrivateMaxEntriesMap;
 
 /**
  * Helper for simple bounded maps used for reusing lookup values.
@@ -28,14 +28,14 @@ public class LRUMap<K,V>
 
     protected final int _initialEntries;
     protected final int _maxEntries;
-    protected final transient ConcurrentLinkedHashMap<K,V> _map;
+    protected final transient PrivateMaxEntriesMap<K,V> _map;
 
     public LRUMap(int initialEntries, int maxEntries)
     {
         _initialEntries = initialEntries;
         _maxEntries = maxEntries;
         // We'll use concurrency level of 4, seems reasonable
-        _map = new ConcurrentLinkedHashMap.Builder<K, V>()
+        _map = new PrivateMaxEntriesMap.Builder<K, V>()
                 .initialCapacity(initialEntries)
                 .maximumWeightedCapacity(maxEntries)
                 .concurrencyLevel(4)

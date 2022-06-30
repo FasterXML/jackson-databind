@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.fasterxml.jackson.databind.util.clhm;
+package com.fasterxml.jackson.databind.util.internal;
 
 /**
  * A listener registered for notification when an entry is evicted. An instance
@@ -21,7 +21,7 @@ package com.fasterxml.jackson.databind.util.clhm;
  * implementation should avoid performing blocking calls or synchronizing on
  * shared resources.
  * <p>
- * The listener is invoked by {@link ConcurrentLinkedHashMap} on a caller's
+ * The listener is invoked by {@link PrivateMaxEntriesMap} on a caller's
  * thread and will not block other threads from operating on the map. An
  * implementation should be aware that the caller's thread will not expect
  * long execution times or failures as a side effect of the listener being

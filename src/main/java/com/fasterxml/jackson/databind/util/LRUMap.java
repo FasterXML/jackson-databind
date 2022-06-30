@@ -34,9 +34,11 @@ public class LRUMap<K,V>
     {
         _initialEntries = initialEntries;
         _maxEntries = maxEntries;
+        // We'll use concurrency level of 4, seems reasonable
         _map = new ConcurrentLinkedHashMap.Builder<K, V>()
                 .initialCapacity(initialEntries)
                 .maximumWeightedCapacity(maxEntries)
+                .concurrencyLevel(4)
                 .build();
     }
 

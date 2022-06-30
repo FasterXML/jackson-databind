@@ -37,7 +37,7 @@ public class LRUMap<K,V>
         // We'll use concurrency level of 4, seems reasonable
         _map = new PrivateMaxEntriesMap.Builder<K, V>()
                 .initialCapacity(initialEntries)
-                .maximumWeightedCapacity(maxEntries)
+                .maximumCapacity(maxEntries)
                 .concurrencyLevel(4)
                 .build();
     }

@@ -33,20 +33,6 @@ final class Weighers {
     }
 
     /**
-     * A entry weigher backed by the specified weigher. The weight of the value
-     * determines the weight of the entry.
-     *
-     * @param weigher the weigher to be "wrapped" in an entry weigher.
-     * @return A entry weigher view of the specified weigher.
-     */
-    static <K, V> EntryWeigher<K, V> asEntryWeigher(
-            final Weigher<? super V> weigher) {
-        return (weigher == singleton())
-                ? Weighers.<K, V>entrySingleton()
-                : new EntryWeigherView<K, V>(weigher);
-    }
-
-    /**
      * A weigher where an entry has a weight of <tt>1</tt>. A map bounded with
      * this weigher will evict when the number of key-value pairs exceeds the
      * capacity.
@@ -58,47 +44,11 @@ final class Weighers {
         return (EntryWeigher<K, V>) SingletonEntryWeigher.INSTANCE;
     }
 
-    /**
-     * A weigher where a value has a weight of <tt>1</tt>. A map bounded with
-     * this weigher will evict when the number of key-value pairs exceeds the
-     * capacity.
-     *
-     * @return A weigher where a value takes one unit of capacity.
-     */
-    @SuppressWarnings({"cast", "unchecked"})
-    static <V> Weigher<V> singleton() {
-        return (Weigher<V>) SingletonWeigher.INSTANCE;
-    }
-
-    static final class EntryWeigherView<K, V> implements EntryWeigher<K, V>, Serializable {
-        static final long serialVersionUID = 1;
-        final Weigher<? super V> weigher;
-
-        EntryWeigherView(Weigher<? super V> weigher) {
-            checkNotNull(weigher);
-            this.weigher = weigher;
-        }
-
-        @Override
-        public int weightOf(K key, V value) {
-            return weigher.weightOf(value);
-        }
-    }
-
     enum SingletonEntryWeigher implements EntryWeigher<Object, Object> {
         INSTANCE;
 
         @Override
         public int weightOf(Object key, Object value) {
-            return 1;
-        }
-    }
-
-    enum SingletonWeigher implements Weigher<Object> {
-        INSTANCE;
-
-        @Override
-        public int weightOf(Object value) {
             return 1;
         }
     }

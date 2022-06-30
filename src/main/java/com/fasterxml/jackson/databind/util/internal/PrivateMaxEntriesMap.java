@@ -55,7 +55,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * through a {@link Builder}.
  * <p>
  * An entry is evicted from the map when the <tt>weighted capacity</tt> exceeds
- * its <tt>maximum weighted capacity</tt> threshold. A {@link EntryWeigher}
+ * its <tt>maximum capacity</tt> threshold. A {@link EntryWeigher}
  * determines how many units of capacity that an entry consumes. The default
  * weigher assigns each value a weight of <tt>1</tt> to bound the map by the
  * total number of key-value pairs. A map that holds collections may choose to
@@ -142,7 +142,7 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
     /** The number of CPUs */
     static final int NCPU = Runtime.getRuntime().availableProcessors();
 
-    /** The maximum weighted capacity of the map. */
+    /** The maximum capacity of the map. */
     static final long MAXIMUM_CAPACITY = Long.MAX_VALUE - Integer.MAX_VALUE;
 
     /** The number of read buffers to use. */
@@ -268,19 +268,19 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
     /* ---------------- Eviction Support -------------- */
 
     /**
-     * Retrieves the maximum weighted capacity of the map.
+     * Retrieves the maximum capacity of the map.
      *
-     * @return the maximum weighted capacity
+     * @return the maximum capacity
      */
     public long capacity() {
         return capacity.get();
     }
 
     /**
-     * Sets the maximum weighted capacity of the map and eagerly evicts entries
+     * Sets the maximum capacity of the map and eagerly evicts entries
      * until it shrinks to the appropriate size.
      *
-     * @param capacity the maximum weighted capacity of the map
+     * @param capacity the maximum capacity of the map
      * @throws IllegalArgumentException if the capacity is negative
      */
     public void setCapacity(long capacity) {
@@ -1375,28 +1375,6 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
         }
     }
 
-    /** A weigher that enforces that the weight falls within a valid range. */
-    static final class BoundedEntryWeigher<K, V> implements EntryWeigher<K, V>, Serializable {
-        static final long serialVersionUID = 1;
-        final EntryWeigher<? super K, ? super V> weigher;
-
-        BoundedEntryWeigher(EntryWeigher<? super K, ? super V> weigher) {
-            checkNotNull(weigher);
-            this.weigher = weigher;
-        }
-
-        @Override
-        public int weightOf(K key, V value) {
-            int weight = weigher.weightOf(key, value);
-            checkArgument(weight >= 1);
-            return weight;
-        }
-
-        Object writeReplace() {
-            return weigher;
-        }
-    }
-
     /** A queue that discards all additions and is always empty. */
     static final class DiscardingQueue extends AbstractQueue<Object> {
         @Override public boolean add(Object e) { return true; }
@@ -1450,10 +1428,7 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
 
         Object readResolve() {
             PrivateMaxEntriesMap<K, V> map = new Builder<K, V>()
-                    .concurrencyLevel(concurrencyLevel)
-                    .maximumWeightedCapacity(capacity)
-                    .listener(listener)
-                    .weigher(weigher)
+                    .maximumCapacity(capacity)
                     .build();
             map.putAll(data);
             return map;
@@ -1470,8 +1445,7 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
      * a named parameter syntax. It can be used in the following manner:
      * <pre>{@code
      * ConcurrentMap<Vertex, Set<Edge>> graph = new Builder<Vertex, Set<Edge>>()
-     *     .maximumWeightedCapacity(5000)
-     *     .weigher(Weighers.<Edge>set())
+     *     .maximumCapacity(5000)
      *     .build();
      * }</pre>
      */
@@ -1511,14 +1485,13 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
         }
 
         /**
-         * Specifies the maximum weighted capacity to coerce the map to and may
+         * Specifies the maximum capacity to coerce the map to and may
          * exceed it temporarily.
          *
-         * @param capacity the weighted threshold to bound the map by
-         * @throws IllegalArgumentException if the maximumWeightedCapacity is
-         *     negative
+         * @param capacity the threshold to bound the map by
+         * @throws IllegalArgumentException if the maximumCapacity is negative
          */
-        public Builder<K, V> maximumWeightedCapacity(long capacity) {
+        public Builder<K, V> maximumCapacity(long capacity) {
             checkArgument(capacity >= 0);
             this.capacity = capacity;
             return this;
@@ -1554,39 +1527,9 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
         }
 
         /**
-         * Specifies an algorithm to determine how many the units of capacity a
-         * value consumes. The default algorithm bounds the map by the number of
-         * key-value pairs by giving each entry a weight of <tt>1</tt>.
-         *
-         * @param weigher the algorithm to determine a value's weight
-         * @throws NullPointerException if the weigher is null
-         */
-        public Builder<K, V> weigher(Weigher<? super V> weigher) {
-            this.weigher = (weigher == Weighers.singleton())
-                    ? Weighers.<K, V>entrySingleton()
-                    : new BoundedEntryWeigher<K, V>(Weighers.asEntryWeigher(weigher));
-            return this;
-        }
-
-        /**
-         * Specifies an algorithm to determine how many the units of capacity an
-         * entry consumes. The default algorithm bounds the map by the number of
-         * key-value pairs by giving each entry a weight of <tt>1</tt>.
-         *
-         * @param weigher the algorithm to determine a entry's weight
-         * @throws NullPointerException if the weigher is null
-         */
-        public Builder<K, V> weigher(EntryWeigher<? super K, ? super V> weigher) {
-            this.weigher = (weigher == Weighers.entrySingleton())
-                    ? Weighers.<K, V>entrySingleton()
-                    : new BoundedEntryWeigher<K, V>(weigher);
-            return this;
-        }
-
-        /**
          * Creates a new {@link PrivateMaxEntriesMap} instance.
          *
-         * @throws IllegalStateException if the maximum weighted capacity was
+         * @throws IllegalStateException if the maximum capacity was
          *     not set
          */
         public PrivateMaxEntriesMap<K, V> build() {

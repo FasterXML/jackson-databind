@@ -27,7 +27,7 @@ public class PrivateMaxEntriesMapStressTest {
         final int maxKey = 100;
         final Random rnd = new Random();
         final PrivateMaxEntriesMap<Integer, UUID> clhm =
-                new PrivateMaxEntriesMap.Builder<Integer, UUID>().maximumWeightedCapacity(maxEntries).build();
+                new PrivateMaxEntriesMap.Builder<Integer, UUID>().maximumCapacity(maxEntries).build();
         final Map<Integer, UUID> map = new ConcurrentHashMap<>();
         final ExecutorService executor = Executors.newFixedThreadPool(threads);
         try {

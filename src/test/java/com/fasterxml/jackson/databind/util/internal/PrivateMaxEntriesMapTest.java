@@ -29,7 +29,7 @@ public class PrivateMaxEntriesMapTest {
     @Test
     public void testPutGet() {
         PrivateMaxEntriesMap<String, Object> m = new PrivateMaxEntriesMap.Builder<String, Object>()
-                .maximumWeightedCapacity(10).build();
+                .maximumCapacity(10).build();
 
         assertEquals(0, m.size());
         m.put("k1", 100);
@@ -45,7 +45,7 @@ public class PrivateMaxEntriesMapTest {
     @Test
     public void testLRU() {
         PrivateMaxEntriesMap<String, Object> m = new PrivateMaxEntriesMap.Builder<String, Object>()
-                .maximumWeightedCapacity(5).build();
+                .maximumCapacity(5).build();
 
         assertEquals(0, m.size());
         m.put("k1", 100);

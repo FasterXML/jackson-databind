@@ -15,7 +15,7 @@ public final class CLHMTestlibTests extends TestCase {
     private static void addCLHMViewTests(TestSuite suite) {
         suite.addTest(MapTestFactory.suite("CLHMView", MapTestFactory.synchronousGenerator(
                 () -> new PrivateMaxEntriesMap.Builder<String, String>()
-                    .maximumWeightedCapacity(10).build()))
+                    .maximumCapacity(10).build()))
         );
     }
 }

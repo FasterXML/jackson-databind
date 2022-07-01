@@ -12,7 +12,6 @@ import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.fasterxml.jackson.databind.util.SimpleLookupCache;
 
 /**
  * Tests to verify that most core Jackson components can be serialized
@@ -225,28 +224,13 @@ public class MapperJDKSerializationTest extends BaseMapTest
         assertEquals(JavaType.class, t.getRawClass());
     }
 
-    public void testLRUMap() throws Exception
-    {
-        SimpleLookupCache<String,Integer> map = new SimpleLookupCache<String,Integer>(32, 32);
-        map.put("a", 1);
-
-        byte[] bytes = jdkSerialize(map);
-        SimpleLookupCache<String,Integer> result = jdkDeserialize(bytes);
-        // transient implementation, will be read as empty
-        assertEquals(0, result.size());
-
-        // but should be possible to re-populate
-        result.put("a", 2);
-        assertEquals(1, result.size());
-    }
-
     /*
     /**********************************************************
     /* Helper methods
     /**********************************************************
      */
     
-    protected byte[] jdkSerialize(Object o) throws IOException
+    public static byte[] jdkSerialize(Object o) throws IOException
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream(2000);
         ObjectOutputStream obOut = new ObjectOutputStream(bytes);
@@ -256,7 +240,7 @@ public class MapperJDKSerializationTest extends BaseMapTest
     }
 
     @SuppressWarnings("unchecked")
-    protected <T> T jdkDeserialize(byte[] raw) throws IOException
+    public static <T> T jdkDeserialize(byte[] raw) throws IOException
     {
         ObjectInputStream objIn = new ObjectInputStream(new ByteArrayInputStream(raw));
         try {

@@ -1477,3 +1477,5 @@ Deniz Husaj (denizhusaj@github)
 PJ Fanning (pjfanning@github)
   * Contributed #3475: Support use of fast double parse
   (2.14.0)
+  * Contributed #3530: Change LRUMap to just evict one entry when maxEntries reached
+  (2.14.0)

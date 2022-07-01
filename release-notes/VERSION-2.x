@@ -29,7 +29,7 @@ Project: jackson-databind
 #3447: Deeply nested JsonNode throws StackOverflowError for toString()
  (reported by Deniz H)
 #3475: Support use of fast double parse
- (contributed by PJ Fanning)
+ (contributed by @pjfanning)
 #3476: Implement `JsonNodeFeature.WRITE_NULL_PROPERTIES` to allow skipping
   JSON `null` values on writing
 #3481: Filter method only got called once if the field is null when using
@@ -38,6 +38,8 @@ Project: jackson-databind
 #3497: Deserialization of Throwables with PropertyNamingStrategy does not work
 #3528: `TokenBuffer` defaults for parser/stream-read features neither passed
   from parser nor use real defaults
+#3530: Change LRUMap to just evict one entry when maxEntries reached
+ (contributed by @pjfanning)
 
 2.13.4 (not yet released)
 

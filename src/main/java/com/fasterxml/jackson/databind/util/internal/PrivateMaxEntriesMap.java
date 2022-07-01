@@ -54,15 +54,8 @@ import java.util.concurrent.locks.ReentrantLock;
  * map does not have a publicly visible constructor and instances are created
  * through a {@link Builder}.
  * <p>
- * An entry is evicted from the map when the <tt>weighted capacity</tt> exceeds
- * its <tt>maximum capacity</tt> threshold. A {@link EntryWeigher}
- * determines how many units of capacity that an entry consumes. The default
- * weigher assigns each value a weight of <tt>1</tt> to bound the map by the
- * total number of key-value pairs. A map that holds collections may choose to
- * weigh values by the number of elements in the collection and bound the map
- * by the total number of elements that it contains. A change to a value that
- * modifies its weight requires that an update operation is performed on the
- * map.
+ * An entry is evicted from the map when the entry size exceeds
+ * its <tt>maximum capacity</tt> threshold.
  * <p>
  * An {@link EvictionListener} may be supplied for notification when an entry
  * is evicted from the map. This listener is invoked on a caller's thread and
@@ -196,7 +189,6 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
     final AtomicReference<Node<K, V>>[][] readBuffers;
 
     final AtomicReference<DrainStatus> drainStatus;
-    final EntryWeigher<? super K, ? super V> weigher;
 
     // These fields provide support for notifying a listener.
     final Queue<Node<K, V>> pendingNotifications;
@@ -217,7 +209,6 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
         data = new ConcurrentHashMap<K, Node<K, V>>(builder.initialCapacity, 0.75f, concurrencyLevel);
 
         // The eviction support
-        weigher = builder.weigher;
         evictionLock = new ReentrantLock();
         weightedSize = new AtomicLong();
         evictionDeque = new LinkedDeque<Node<K, V>>();
@@ -713,7 +704,7 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
         checkNotNull(key);
         checkNotNull(value);
 
-        final int weight = weigher.weightOf(key, value);
+        final int weight = 1;
         final WeightedValue<V> weightedValue = new WeightedValue<V>(value, weight);
         final Node<K, V> node = new Node<K, V>(key, weightedValue);
 
@@ -790,7 +781,7 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
         checkNotNull(key);
         checkNotNull(value);
 
-        final int weight = weigher.weightOf(key, value);
+        final int weight = 1;
         final WeightedValue<V> weightedValue = new WeightedValue<V>(value, weight);
 
         final Node<K, V> node = data.get(key);
@@ -820,7 +811,7 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
         checkNotNull(oldValue);
         checkNotNull(newValue);
 
-        final int weight = weigher.weightOf(key, newValue);
+        final int weight = 1;
         final WeightedValue<V> newWeightedValue = new WeightedValue<V>(newValue, weight);
 
         final Node<K, V> node = data.get(key);
@@ -928,9 +919,7 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
         try {
             drainBuffers();
 
-            final int initialCapacity = (weigher == Weighers.entrySingleton())
-                    ? Math.min(limit, (int) weightedSize())
-                    : 16;
+            final int initialCapacity = Math.min(limit, (int) weightedSize());
             final Set<K> keys = new LinkedHashSet<K>(initialCapacity);
             final Iterator<Node<K, V>> iterator = ascending
                     ? evictionDeque.iterator()
@@ -1038,9 +1027,7 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
         try {
             drainBuffers();
 
-            final int initialCapacity = (weigher == Weighers.entrySingleton())
-                    ? Math.min(limit, (int) weightedSize())
-                    : 16;
+            final int initialCapacity = Math.min(limit, (int) weightedSize());
             final Map<K, V> map = new LinkedHashMap<K, V>(initialCapacity);
             final Iterator<Node<K, V>> iterator = ascending
                     ? evictionDeque.iterator()
@@ -1412,7 +1399,6 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
      * used as a fast warm-up process.
      */
     static final class SerializationProxy<K, V> implements Serializable {
-        final EntryWeigher<? super K, ? super V> weigher;
         final EvictionListener<K, V> listener;
         final int concurrencyLevel;
         final Map<K, V> data;
@@ -1423,7 +1409,6 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
             data = new HashMap<K, V>(map);
             capacity = map.capacity.get();
             listener = map.listener;
-            weigher = map.weigher;
         }
 
         Object readResolve() {
@@ -1454,7 +1439,6 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
         static final int DEFAULT_INITIAL_CAPACITY = 16;
 
         EvictionListener<K, V> listener;
-        EntryWeigher<? super K, ? super V> weigher;
 
         int concurrencyLevel;
         int initialCapacity;
@@ -1463,7 +1447,6 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
         @SuppressWarnings("unchecked")
         public Builder() {
             capacity = -1;
-            weigher = Weighers.entrySingleton();
             initialCapacity = DEFAULT_INITIAL_CAPACITY;
             concurrencyLevel = DEFAULT_CONCURRENCY_LEVEL;
             listener = (EvictionListener<K, V>) DiscardingListener.INSTANCE;

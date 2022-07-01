@@ -11,6 +11,9 @@ Project: jackson-databind
 #2541: Cannot merge polymorphic objects
  (reported by Matthew A)
  (fix contributed by James W)
+#3311: Add serializer-cache size limit to avoid Metaspace issues from
+  caching Serializers
+ (requested by mcolemanNOW@github)
 #3338: `configOverride.setMergeable(false)` not supported by `ArrayNode`
  (requested by Ernst-Jan vdL)
 #3357: `@JsonIgnore` does not if together with `@JsonProperty` or `@JsonFormat`

@@ -20,7 +20,7 @@ import static com.fasterxml.jackson.databind.util.internal.PrivateMaxEntriesMap.
 import java.io.Serializable;
 
 /**
- * A common set of {@link Weigher} and {@link EntryWeigher} implementations.
+ * A common set of {@link EntryWeigher} implementations.
  *
  * @author ben.manes@gmail.com (Ben Manes)
  * @see <a href="http://code.google.com/p/concurrentlinkedhashmap/">

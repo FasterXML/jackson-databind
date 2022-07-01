@@ -1,11 +1,5 @@
 package com.fasterxml.jackson.databind.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-
 import com.fasterxml.jackson.databind.BaseTest;
 
 public class SimpleLookupCacheTest extends BaseTest
@@ -67,34 +61,5 @@ public class SimpleLookupCacheTest extends BaseTest
         assertNull(result.put("a", 2));
         assertEquals(Integer.valueOf(2), result.get("a"));
         assertEquals(1, result.size());
-    }
-
-    /*
-    /**********************************************************
-    /* Helper methods
-    /**********************************************************
-     */
-    
-    public static byte[] jdkSerialize(Object o) throws IOException
-    {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream(2000);
-        ObjectOutputStream obOut = new ObjectOutputStream(bytes);
-        obOut.writeObject(o);
-        obOut.close();
-        return bytes.toByteArray();
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T> T jdkDeserialize(byte[] raw) throws IOException
-    {
-        ObjectInputStream objIn = new ObjectInputStream(new ByteArrayInputStream(raw));
-        try {
-            return (T) objIn.readObject();
-        } catch (ClassNotFoundException e) {
-            fail("Missing class: "+e.getMessage());
-            return null;
-        } finally {
-            objIn.close();
-        }
     }
 }

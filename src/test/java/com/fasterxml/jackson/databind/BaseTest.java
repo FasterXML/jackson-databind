@@ -383,6 +383,37 @@ public abstract class BaseTest
 
     /*
     /**********************************************************
+    /* JDK ser/deser
+    /**********************************************************
+     */
+
+    protected final static byte[] jdkSerialize(Object o)
+    {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream(2000);
+        try (ObjectOutputStream obOut = new ObjectOutputStream(bytes)) {
+            obOut.writeObject(o);
+            obOut.close();
+            return bytes.toByteArray();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    protected final static <T> T jdkDeserialize(byte[] raw)
+    {
+        try (ObjectInputStream objIn = new ObjectInputStream(new ByteArrayInputStream(raw))) {
+            return (T) objIn.readObject();
+        } catch (ClassNotFoundException e) {
+            fail("Missing class: "+e.getMessage());
+            return null;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+    
+    /*
+    /**********************************************************
     /* Additional assertion methods
     /**********************************************************
      */

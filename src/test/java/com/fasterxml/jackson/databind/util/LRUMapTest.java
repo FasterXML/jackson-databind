@@ -2,9 +2,6 @@ package com.fasterxml.jackson.databind.util;
 
 import com.fasterxml.jackson.databind.BaseTest;
 
-import static com.fasterxml.jackson.databind.TestJDKSerialization.jdkDeserialize;
-import static com.fasterxml.jackson.databind.TestJDKSerialization.jdkSerialize;
-
 public class LRUMapTest extends BaseTest {
 
     public void testPutGet() {

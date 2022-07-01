@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.convert;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import java.math.BigDecimal;
+
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
@@ -8,7 +9,6 @@ import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.type.LogicalType;
-import java.math.BigDecimal;
 
 public class CoerceIntToFloatTest extends BaseMapTest
 {
@@ -34,17 +34,17 @@ public class CoerceIntToFloatTest extends BaseMapTest
                     cfg.setCoercion(CoercionInputShape.Integer, CoercionAction.AsEmpty))
             .build();
 
-    public void testDefaultIntToFloatCoercion() throws JsonProcessingException
+    public void testDefaultIntToFloatCoercion() throws Exception
     {
         assertSuccessfulIntToFloatConversionsWith(DEFAULT_MAPPER);
     }
 
-    public void testCoerceConfigToConvert() throws JsonProcessingException
+    public void testCoerceConfigToConvert() throws Exception
     {
         assertSuccessfulIntToFloatConversionsWith(MAPPER_TRY_CONVERT);
     }
 
-    public void testCoerceConfigToNull() throws JsonProcessingException
+    public void testCoerceConfigToNull() throws Exception
     {
         assertNull(MAPPER_TO_NULL.readValue("1", Float.class));
         // `null` not possible for primitives, must use empty (aka default) value
@@ -75,7 +75,7 @@ public class CoerceIntToFloatTest extends BaseMapTest
         }
     }
 
-    public void testCoerceConfigToEmpty() throws JsonProcessingException
+    public void testCoerceConfigToEmpty() throws Exception
     {
         assertEquals(0.0f, MAPPER_TO_EMPTY.readValue("3", Float.class));
         assertEquals(0.0f, MAPPER_TO_EMPTY.readValue("-2", Float.TYPE));
@@ -100,7 +100,7 @@ public class CoerceIntToFloatTest extends BaseMapTest
         assertEquals(BigDecimal.valueOf(0), MAPPER_TO_EMPTY.readValue("3643", BigDecimal.class));
     }
 
-    public void testCoerceConfigToFail() throws JsonProcessingException
+    public void testCoerceConfigToFail() throws Exception
     {
         _verifyCoerceFail(MAPPER_TO_FAIL, Float.class, "3");
         _verifyCoerceFail(MAPPER_TO_FAIL, Float.TYPE, "-2");
@@ -122,7 +122,7 @@ public class CoerceIntToFloatTest extends BaseMapTest
      */
 
     private void assertSuccessfulIntToFloatConversionsWith(ObjectMapper objectMapper)
-            throws JsonProcessingException
+            throws Exception
     {
         assertEquals(3.0f, objectMapper.readValue("3", Float.class));
         assertEquals(-2.0f, objectMapper.readValue("-2", Float.TYPE));
@@ -147,19 +147,19 @@ public class CoerceIntToFloatTest extends BaseMapTest
     }
 
     private void _verifyCoerceFail(ObjectMapper m, Class<?> targetType,
-                                   String doc) throws JsonProcessingException
+                                   String doc) throws Exception
     {
         _verifyCoerceFail(m.reader(), targetType, doc, targetType.getName());
     }
 
     private void _verifyCoerceFail(ObjectMapper m, Class<?> targetType,
-                                   String doc, String targetTypeDesc) throws JsonProcessingException
+                                   String doc, String targetTypeDesc) throws Exception
     {
         _verifyCoerceFail(m.reader(), targetType, doc, targetTypeDesc);
     }
 
     private void _verifyCoerceFail(ObjectReader r, Class<?> targetType,
-                                   String doc, String targetTypeDesc) throws JsonProcessingException
+                                   String doc, String targetTypeDesc) throws Exception
     {
         try {
             r.forType(targetType).readValue(doc);

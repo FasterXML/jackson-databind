@@ -1375,12 +1375,9 @@ value, _coercedTypeDesc());
         return act;
     }
 
-    /**
-     * @since 2.14
-     */
     protected CoercionAction _checkIntToFloatCoercion(JsonParser p, DeserializationContext ctxt,
             Class<?> rawTargetType)
-        throws IOException
+        throws JacksonException
     {
         final CoercionAction act = ctxt.findCoercionAction(LogicalType.Float,
                 rawTargetType, CoercionInputShape.Integer);
@@ -1391,9 +1388,6 @@ value, _coercedTypeDesc());
         return act;
     }
 
-    /**
-     * @since 2.12
-     */
     protected Boolean _coerceBooleanFromInt(JsonParser p, DeserializationContext ctxt,
             Class<?> rawTargetType)
         throws JacksonException

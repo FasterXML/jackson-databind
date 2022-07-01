@@ -41,6 +41,8 @@ Project: jackson-databind
   `@JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = SomeFieldFilter.class)`
  (contributed by AmiDavidW@github)
 #3497: Deserialization of Throwables with PropertyNamingStrategy does not work
+#3503: `StdDeserializer` coerces ints to floats even if configured to fail
+ (contributed by Jordi O-A)
 #3528: `TokenBuffer` defaults for parser/stream-read features neither passed
   from parser nor use real defaults
 #3530: Change LRUMap to just evict one entry when maxEntries reached

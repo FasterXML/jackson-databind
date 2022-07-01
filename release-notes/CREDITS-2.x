@@ -1479,3 +1479,7 @@ PJ Fanning (pjfanning@github)
   (2.14.0)
   * Contributed #3530: Change LRUMap to just evict one entry when maxEntries reached
   (2.14.0)
+
+Jordi Ortolá Ankum (Tomasito665@github)
+  * Contributed #3503: `StdDeserializer` coerces ints to floats even if configured to fail
+  (2.14.0)

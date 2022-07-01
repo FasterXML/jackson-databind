@@ -1,5 +1,8 @@
 package com.fasterxml.jackson.databind.util;
 
+import java.util.Map;
+import java.util.function.BiConsumer;
+
 import com.fasterxml.jackson.databind.util.internal.PrivateMaxEntriesMap;
 
 /**
@@ -61,9 +64,21 @@ public class LRUMap<K,V>
     public int size() { return _map.size(); }
 
     /*
-    /**********************************************************
+    /**********************************************************************
+    /* Extended API (2.14)
+    /**********************************************************************
+     */
+
+    public void contents(BiConsumer<K,V> consumer) {
+        for (Map.Entry<K,V> entry : _map.entrySet()) {
+            consumer.accept(entry.getKey(), entry.getValue());
+        }
+    }
+
+    /*
+    /**********************************************************************
     /* Serializable overrides
-    /**********************************************************
+    /**********************************************************************
      */
 
     protected Object readResolve() {

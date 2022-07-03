@@ -303,7 +303,7 @@ public class ObjectNodeTest
     {
         ObjectNode root = MAPPER.createObjectNode();
         assertEquals("{}", MAPPER.writeValueAsString(root));
-        JsonNode child = root.with("prop");
+        JsonNode child = root.withObject("prop");
         assertTrue(child instanceof ObjectNode);
         assertEquals("{\"prop\":{}}", MAPPER.writeValueAsString(root));
     }
@@ -321,7 +321,7 @@ public class ObjectNodeTest
     {
         JsonNode root = MAPPER.createArrayNode();
         try { // should not work for non-ObjectNode nodes:
-            root.with("prop");
+            root.withObject("prop");
             fail("Expected exception");
         } catch (UnsupportedOperationException e) {
             verifyException(e, "not of type ObjectNode");
@@ -330,7 +330,7 @@ public class ObjectNodeTest
         ObjectNode root2 = MAPPER.createObjectNode();
         root2.put("prop", 13);
         try { // should not work for non-ObjectNode nodes:
-            root2.with("prop");
+            root2.withObject("prop");
             fail("Expected exception");
         } catch (UnsupportedOperationException e) {
             verifyException(e, "has value that is not");

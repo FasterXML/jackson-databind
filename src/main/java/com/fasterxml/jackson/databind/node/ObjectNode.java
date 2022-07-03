@@ -150,7 +150,7 @@ public class ObjectNode
 
     @SuppressWarnings("unchecked")
     @Override
-    public ObjectNode with(String propertyName) {
+    public ObjectNode withObject(String propertyName) {
         JsonNode n = _children.get(propertyName);
         if (n != null) {
             if (n instanceof ObjectNode) {

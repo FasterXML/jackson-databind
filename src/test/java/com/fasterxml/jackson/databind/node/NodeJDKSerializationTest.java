@@ -25,7 +25,7 @@ public class NodeJDKSerializationTest extends BaseMapTest
         root.put("answer", 42);
         ArrayNode arr = root.withArray("matrix");
         arr.add(1).add(12345678901L).add(true).add("...");
-        ObjectNode misc = root.with("misc");
+        ObjectNode misc = root.withObject("misc");
         misc.put("value", 0.25);
 
         testNodeRoundtrip(root);

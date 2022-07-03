@@ -47,6 +47,7 @@ Project: jackson-databind
   from parser nor use real defaults
 #3530: Change LRUMap to just evict one entry when maxEntries reached
  (contributed by @pjfanning)
+#3535: Replace `JsonNode.with()` with `JsonNode.withObject()`
 
 2.13.4 (not yet released)
 

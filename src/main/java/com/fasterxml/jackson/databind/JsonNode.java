@@ -1053,12 +1053,18 @@ public abstract class JsonNode
      * If the node method is called on is not Object node,
      * or if property exists and has value that is not Object node,
      * {@link UnsupportedOperationException} is thrown
-     *<p>
-     * NOTE: since 2.10 has had co-variant return type
      */
-    public <T extends JsonNode> T with(String propertyName) {
+    public <T extends JsonNode> T withObject(String propertyName) {
         throw new UnsupportedOperationException("JsonNode not of type ObjectNode (but "
                 +getClass().getName()+"), cannot call with() on it");
+    }
+
+    /**
+     * @deprecated Since 2.14 use {@code withObject} instead
+     */
+    @Deprecated // since 2.14
+    public final <T extends JsonNode> T with(String propertyName) {
+        return withObject(propertyName);
     }
 
     /**
@@ -1068,8 +1074,6 @@ public abstract class JsonNode
      * If the node method is called on is not Object node,
      * or if property exists and has value that is not Array node,
      * {@link UnsupportedOperationException} is thrown
-     *<p>
-     * NOTE: since 2.10 has had co-variant return type
      */
     public <T extends JsonNode> T withArray(String propertyName) {
         throw new UnsupportedOperationException("JsonNode not of type ObjectNode (but "

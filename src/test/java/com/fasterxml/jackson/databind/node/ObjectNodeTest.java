@@ -323,7 +323,7 @@ public class ObjectNodeTest
         try { // should not work for non-ObjectNode nodes:
             root.withObject("prop");
             fail("Expected exception");
-        } catch (UnsupportedOperationException e) {
+        } catch (DatabindException e) {
             verifyException(e, "not of type ObjectNode");
         }
         // also: should fail of we already have non-object property
@@ -332,7 +332,7 @@ public class ObjectNodeTest
         try { // should not work for non-ObjectNode nodes:
             root2.withObject("prop");
             fail("Expected exception");
-        } catch (UnsupportedOperationException e) {
+        } catch (DatabindException e) {
             verifyException(e, "has value that is not");
         }
     }
@@ -343,7 +343,7 @@ public class ObjectNodeTest
         try { // should not work for non-ObjectNode nodes:
             root.withArray("prop");
             fail("Expected exception");
-        } catch (UnsupportedOperationException e) {
+        } catch (DatabindException e) {
             verifyException(e, "not of type ObjectNode");
         }
         // also: should fail of we already have non-Array property
@@ -352,7 +352,7 @@ public class ObjectNodeTest
         try { // should not work for non-ObjectNode nodes:
             root2.withArray("prop");
             fail("Expected exception");
-        } catch (UnsupportedOperationException e) {
+        } catch (DatabindException e) {
             verifyException(e, "has value that is not");
         }
     }

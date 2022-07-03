@@ -1052,19 +1052,12 @@ public abstract class JsonNode
      * add and return such Object node.
      * If the node method is called on is not Object node,
      * or if property exists and has value that is not Object node,
-     * {@link UnsupportedOperationException} is thrown
+     * {@link DatabindException} is thrown
      */
     public <T extends JsonNode> T withObject(String propertyName) {
-        throw new UnsupportedOperationException("JsonNode not of type ObjectNode (but "
+        // !!! TODO: [databind#3536] More specific type
+        throw new DatabindException("JsonNode not of type ObjectNode (but "
                 +getClass().getName()+"), cannot call with() on it");
-    }
-
-    /**
-     * @deprecated Since 2.14 use {@code withObject} instead
-     */
-    @Deprecated // since 2.14
-    public final <T extends JsonNode> T with(String propertyName) {
-        return withObject(propertyName);
     }
 
     /**
@@ -1073,10 +1066,11 @@ public abstract class JsonNode
      * add and return such Array node.
      * If the node method is called on is not Object node,
      * or if property exists and has value that is not Array node,
-     * {@link UnsupportedOperationException} is thrown
+     * {@link DatabindException} is thrown
      */
     public <T extends JsonNode> T withArray(String propertyName) {
-        throw new UnsupportedOperationException("JsonNode not of type ObjectNode (but "
+        // !!! TODO: [databind#3536] More specific type
+        throw new DatabindException("JsonNode not of type ObjectNode (but "
                 +getClass().getName()+"), cannot call withArray() on it");
     }
 
@@ -1162,11 +1156,21 @@ public abstract class JsonNode
     }
 
     /**
-     * Helper method that throws {@link IllegalArgumentException} as a result of
+     * Helper method that throws {@link DatabindException} as a result of
      * violating "required-constraint" for this node (for {@link #required} or related
      * methods).
      */
     protected <T> T _reportRequiredViolation(String msgTemplate, Object...args) {
-        throw new IllegalArgumentException(String.format(msgTemplate, args));
+        // !!! TODO: [databind#3536] More specific type
+        throw new DatabindException(String.format(msgTemplate, args));
+    }
+
+    /**
+     * Helper method that throws {@link DatabindException} as a result of
+     * this node being of wrong type
+     */
+    protected <T> T _reportWrongNodeType(String msgTemplate, Object...args) {
+        // !!! TODO: [databind#3536] More specific type
+        throw new DatabindException(String.format(msgTemplate, args));
     }
 }

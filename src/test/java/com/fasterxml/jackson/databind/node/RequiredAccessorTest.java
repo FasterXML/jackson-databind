@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.node;
 
 import com.fasterxml.jackson.core.JsonPointer;
 import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -61,7 +62,7 @@ public class RequiredAccessorTest
         try {
             JsonNode n = doc.requiredAt(fullPath);
             fail("Should NOT pass: got node ("+n.getClass().getSimpleName()+") -> {"+n+"}");
-        } catch (IllegalArgumentException e) {
+        } catch (DatabindException e) {
             verifyException(e, "No node at '"+fullPath+"' (unmatched part: '"+mismatchPart+"')");
         }
     }
@@ -83,7 +84,7 @@ public class RequiredAccessorTest
         try {
             JsonNode n = TEST_OBJECT.path("data").path("nullable").requireNonNull();
             fail("Should not pass; got: "+n);
-        } catch (IllegalArgumentException e) {
+        } catch (DatabindException e) {
             verifyException(e, "requireNonNull() called on `NullNode`");
         }
     }
@@ -92,14 +93,14 @@ public class RequiredAccessorTest
         try {
             TEST_OBJECT.required("bogus");
             fail("Should not pass");
-        } catch (IllegalArgumentException e) {
+        } catch (DatabindException e) {
             verifyException(e, "No value for property 'bogus'");
         }
 
         try {
             TEST_ARRAY.required("bogus");
             fail("Should not pass");
-        } catch (IllegalArgumentException e) {
+        } catch (DatabindException e) {
             verifyException(e, "Node of type `ArrayNode` has no fields");
         }
     }
@@ -111,7 +112,7 @@ public class RequiredAccessorTest
         try {
             JsonNode match = n.requiredAt("/simple/property");
             fail("Should NOT pass: got node ("+match.getClass().getSimpleName()+") -> {"+match+"}");
-        } catch (IllegalArgumentException e) {
+        } catch (DatabindException e) {
             verifyException(e, "No node at '/simple/property' (unmatched part: '/property')");
         }
     }

@@ -151,9 +151,9 @@ public class ObjectNode
             if (n instanceof ObjectNode) {
                 return (ObjectNode) n;
             }
-            throw new UnsupportedOperationException("Property '" + propertyName
-                + "' has value that is not of type ObjectNode (but " + n
-                .getClass().getName() + ")");
+            return _reportWrongNodeType(
+                    "Property '%s' has value that is not of type `ObjectNode` (but %s)",
+                propertyName, n.getClass().getName());
         }
         ObjectNode result = objectNode();
         _children.put(propertyName, result);
@@ -168,9 +168,9 @@ public class ObjectNode
             if (n instanceof ArrayNode) {
                 return (ArrayNode) n;
             }
-            throw new UnsupportedOperationException("Property '" + propertyName
-                + "' has value that is not of type ArrayNode (but " + n
-                .getClass().getName() + ")");
+            return _reportWrongNodeType(
+                    "Property '%s' has value that is not of type `ArrayNode` (but %s)",
+                propertyName, n.getClass().getName());
         }
         ArrayNode result = arrayNode();
         _children.put(propertyName, result);

@@ -1054,11 +1054,17 @@ public abstract class JsonNode
      * or if property exists and has value that is not Object node,
      * {@link DatabindException} is thrown
      */
-    public <T extends JsonNode> T withObject(String propertyName) {
-        // !!! TODO: [databind#3536] More specific type
-        throw new DatabindException("JsonNode not of type ObjectNode (but "
-                +getClass().getName()+"), cannot call with() on it");
-    }
+    public abstract <T extends JsonNode> T withObject(String propertyName);
+
+    /**
+     * Method that can be called on Object nodes, to access a Object-valued
+     * node pointed to by given {@link JsonPointer}, if such a node exists:
+     * if not, an attempt is made to create it.
+     * If the node method is called on is not Object node,
+     * or if property exists and has value that is not Object node,
+     * {@link DatabindException} is thrown
+     */
+    public abstract <T extends JsonNode> T withObject(JsonPointer ptr);
 
     /**
      * Method that can be called on Object nodes, to access a property
@@ -1161,15 +1167,6 @@ public abstract class JsonNode
      * methods).
      */
     protected <T> T _reportRequiredViolation(String msgTemplate, Object...args) {
-        // !!! TODO: [databind#3536] More specific type
-        throw new DatabindException(String.format(msgTemplate, args));
-    }
-
-    /**
-     * Helper method that throws {@link DatabindException} as a result of
-     * this node being of wrong type
-     */
-    protected <T> T _reportWrongNodeType(String msgTemplate, Object...args) {
         // !!! TODO: [databind#3536] More specific type
         throw new DatabindException(String.format(msgTemplate, args));
     }

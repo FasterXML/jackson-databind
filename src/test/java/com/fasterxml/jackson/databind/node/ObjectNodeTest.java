@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.exc.JsonNodeException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
 /**
@@ -323,8 +324,9 @@ public class ObjectNodeTest
         try { // should not work for non-ObjectNode nodes:
             root.withObject("prop");
             fail("Expected exception");
-        } catch (DatabindException e) {
-            verifyException(e, "not of type ObjectNode");
+        } catch (JsonNodeException e) {
+            verifyException(e, "Can only call `withObject");
+            verifyException(e, "on `ObjectNode`");
         }
         // also: should fail of we already have non-object property
         ObjectNode root2 = MAPPER.createObjectNode();
@@ -332,7 +334,7 @@ public class ObjectNodeTest
         try { // should not work for non-ObjectNode nodes:
             root2.withObject("prop");
             fail("Expected exception");
-        } catch (DatabindException e) {
+        } catch (JsonNodeException e) {
             verifyException(e, "has value that is not");
         }
     }

@@ -20,10 +20,11 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * would have been better name, use of same overlapping name causes nasty issues
  * with IDE auto-completion, so slightly less optimal chosen.
  */
-@SuppressWarnings("serial")
 public class MismatchedInputException
     extends DatabindException
 {
+    private static final long serialVersionUID = 3L;
+
     /**
      * Type of value that was to be deserialized
      */

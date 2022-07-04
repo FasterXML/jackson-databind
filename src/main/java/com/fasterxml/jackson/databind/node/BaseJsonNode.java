@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JacksonSerializable;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.exc.JsonNodeException;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
 /**
@@ -32,9 +33,9 @@ public abstract class BaseJsonNode
     protected BaseJsonNode() { }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Defaulting for introspection
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override
@@ -44,9 +45,9 @@ public abstract class BaseJsonNode
     public boolean isEmbeddedValue() { return false; }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Basic definitions for non-container types
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -81,9 +82,9 @@ public abstract class BaseJsonNode
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Support for traversal-as-stream
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -112,9 +113,38 @@ public abstract class BaseJsonNode
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* JacksonSerializable
-    /**********************************************************
+    /**********************************************************************
+     */
+
+    @Override
+    public <T extends JsonNode> T withObject(String propertyName) {
+        // To avoid abstract method, base implementation just fails
+        return _reportWrongNodeType(
+                "Can only call `withObject(String)` on `ObjectNode`, not `%s`",
+            getClass().getName());
+    }
+
+    @Override
+    public <T extends JsonNode> T withObject(JsonPointer ptr) {
+        if (!isObject()) {
+            // To avoid abstract method, base implementation just fails
+            _reportWrongNodeType("Can only call `withObject(JsonPointer)` on `ObjectNode`, not `%s`",
+                getClass().getName());
+        }
+        return _withObject(ptr, ptr);
+    }
+
+    protected <T extends JsonNode> T _withObject(JsonPointer origPtr,
+            JsonPointer currentPTr)  {
+        return null;
+    }
+
+    /*
+    /**********************************************************************
+    /* JacksonSerializable
+    /**********************************************************************
      */
 
     /**
@@ -134,18 +164,33 @@ public abstract class BaseJsonNode
         throws JacksonException;
 
     /*
-   /**********************************************************
-   /* Standard method overrides
-   /**********************************************************
-    */
+    /**********************************************************************
+    /* Standard method overrides
+    /**********************************************************************
+     */
 
-   @Override
-   public String toString() {
-       return InternalNodeSerializer.toString(this);
-   }
+    @Override
+    public String toString() {
+        return InternalNodeSerializer.toString(this);
+    }
 
-   @Override
-   public String toPrettyString() {
-       return InternalNodeSerializer.toPrettyString(this);
-   }
+    @Override
+    public String toPrettyString() {
+        return InternalNodeSerializer.toPrettyString(this);
+    }
+
+    /*
+    /**********************************************************************
+    /* Other helper methods for subtypes
+    /**********************************************************************
+     */
+
+    /**
+     * Helper method that throws {@link JsonNodeException} as a result of
+     * this node being of wrong type
+     */
+    protected <T> T _reportWrongNodeType(String msgTemplate, Object...args) {
+        // !!! TODO: [databind#3536] More specific type
+        throw JsonNodeException.from(this, String.format(msgTemplate, args));
+    }
 }

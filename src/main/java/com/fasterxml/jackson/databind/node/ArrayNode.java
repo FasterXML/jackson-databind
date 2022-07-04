@@ -61,6 +61,39 @@ public class ArrayNode
         return ret;
     }
 
+    @Override
+    protected ObjectNode _withObjectCreatePath(JsonPointer origPtr,
+            JsonPointer currentPtr)
+    {
+        // With Arrays, bit different; the first entry needs to be index
+        if (!currentPtr.mayMatchElement()) {
+            return _reportWrongNodeType(
+                    "`JsonPointer` path \"%s\" must have index for `ArrayNode`; instead has property \"%s\"",
+                    origPtr.toString(),
+                    getClass().getName(),
+                    currentPtr.getMatchingProperty());
+        }
+
+        // And we know there's no node at given index
+        ObjectNode currentNode = this.objectNode();
+        // One complication: may need to insert nulls
+        final int ix = currentPtr.getMatchingIndex();
+        while (ix >= size()) {
+            add(nullNode());
+        }
+        set(ix, currentNode);
+
+        currentPtr = currentPtr.tail();
+
+        // Otherwise loop same as with ObjectNode
+        while (!currentPtr.matches()) {
+            // Should we try to build Arrays? For now, nope.
+            currentNode = currentNode.putObject(currentPtr.getMatchingProperty());
+            currentPtr = currentPtr.tail();
+        }
+        return currentNode;
+    }
+
     /*
     /**********************************************************************
     /* Overrides for JacksonSerializable.Base

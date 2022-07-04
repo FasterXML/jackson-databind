@@ -5,8 +5,10 @@ import java.math.BigInteger;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.MissingNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
@@ -1054,7 +1056,7 @@ public abstract class JsonNode
      * or if property exists and has value that is not Object node,
      * {@link DatabindException} is thrown
      */
-    public abstract <T extends JsonNode> T withObject(String propertyName);
+    public abstract ObjectNode withObject(String propertyName);
 
     /**
      * Method that can be called on Object nodes, to access a Object-valued
@@ -1064,7 +1066,7 @@ public abstract class JsonNode
      * or if property exists and has value that is not Object node,
      * {@link DatabindException} is thrown
      */
-    public abstract <T extends JsonNode> T withObject(JsonPointer ptr);
+    public abstract ObjectNode withObject(JsonPointer ptr);
 
     /**
      * Method that can be called on Object nodes, to access a property
@@ -1074,11 +1076,7 @@ public abstract class JsonNode
      * or if property exists and has value that is not Array node,
      * {@link DatabindException} is thrown
      */
-    public <T extends JsonNode> T withArray(String propertyName) {
-        // !!! TODO: [databind#3536] More specific type
-        throw new DatabindException("JsonNode not of type ObjectNode (but "
-                +getClass().getName()+"), cannot call withArray() on it");
-    }
+    public abstract ArrayNode withArray(String propertyName);
 
     /*
     /**********************************************************************

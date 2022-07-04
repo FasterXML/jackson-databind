@@ -119,15 +119,14 @@ public abstract class BaseJsonNode
      */
 
     @Override
-    public <T extends JsonNode> T withObject(String propertyName) {
-        // To avoid abstract method, base implementation just fails
+    public ObjectNode withObject(String propertyName) {
         return _reportWrongNodeType(
                 "Can only call `withObject(String)` on `ObjectNode`, not `%s`",
             getClass().getName());
     }
 
     @Override
-    public <T extends JsonNode> T withObject(JsonPointer ptr) {
+    public ObjectNode withObject(JsonPointer ptr) {
         if (!isObject()) {
             // To avoid abstract method, base implementation just fails
             _reportWrongNodeType("Can only call `withObject(JsonPointer)` on `ObjectNode`, not `%s`",
@@ -136,9 +135,45 @@ public abstract class BaseJsonNode
         return _withObject(ptr, ptr);
     }
 
-    protected <T extends JsonNode> T _withObject(JsonPointer origPtr,
-            JsonPointer currentPTr)  {
-        return null;
+    protected ObjectNode _withObject(JsonPointer origPtr,
+            JsonPointer currentPtr)
+    {
+        if (currentPtr.matches()) {
+            if (this.isObject()) {
+                return (ObjectNode) this;
+            }
+            return _reportWrongNodeType(
+                    "`JsonNode` matching `JsonPointer` \"%s\" must be `ObjectNode`, not `%s`",
+                    origPtr.toString(),
+                    getClass().getName());
+        }
+        JsonNode n = _at(currentPtr);
+        if ((n != null) && (n instanceof BaseJsonNode)) {
+            return ((BaseJsonNode) n)._withObject(origPtr, currentPtr.tail());
+        }
+        return _withObjectCreatePath(origPtr, currentPtr);
+    }
+
+    /**
+     * Helper method for constructing specified path under this node, if possible;
+     * or throwing an exception if not. If construction successful, needs to return
+     * the innermost {@code ObjectNode} constructed.
+     */
+    protected ObjectNode _withObjectCreatePath(JsonPointer origPtr,
+            JsonPointer currentPtr)
+    {
+        // Cannot traverse non-container nodes:
+        return _reportWrongNodeType(
+                "`JsonPointer` path \"%s\" cannot traverse non-container node of type `%s`",
+                origPtr.toString(),
+                getClass().getName());
+    }
+
+    @Override
+    public ArrayNode withArray(String propertyName) {
+        return _reportWrongNodeType(
+                "Can only call `withArray(String)` on `ObjectNode`, not `%s`",
+            getClass().getName());
     }
 
     /*

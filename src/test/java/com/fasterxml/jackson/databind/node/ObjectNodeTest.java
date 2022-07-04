@@ -345,8 +345,8 @@ public class ObjectNodeTest
         try { // should not work for non-ObjectNode nodes:
             root.withArray("prop");
             fail("Expected exception");
-        } catch (DatabindException e) {
-            verifyException(e, "not of type ObjectNode");
+        } catch (JsonNodeException e) {
+            verifyException(e, "Can only call");
         }
         // also: should fail of we already have non-Array property
         ObjectNode root2 = MAPPER.createObjectNode();
@@ -354,7 +354,7 @@ public class ObjectNodeTest
         try { // should not work for non-ObjectNode nodes:
             root2.withArray("prop");
             fail("Expected exception");
-        } catch (DatabindException e) {
+        } catch (JsonNodeException e) {
             verifyException(e, "has value that is not");
         }
     }

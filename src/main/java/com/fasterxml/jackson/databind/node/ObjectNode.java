@@ -56,6 +56,19 @@ public class ObjectNode
         return ret;
     }
 
+    @Override
+    protected ObjectNode _withObjectCreatePath(JsonPointer origPtr,
+            JsonPointer currentPtr)
+    {
+        ObjectNode currentNode = this;
+        while (!currentPtr.matches()) {
+            // Should we try to build Arrays? For now, nope.
+            currentNode = currentNode.putObject(currentPtr.getMatchingProperty());
+            currentPtr = currentPtr.tail();
+        }
+        return currentNode;
+    }
+
     /*
     /**********************************************************************
     /* Overrides for JacksonSerializable.Base

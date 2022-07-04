@@ -1091,6 +1091,22 @@ public abstract class JsonNode
     }
 
     /**
+     * Method that can be called on Object nodes, to access a Object-valued
+     * node pointed to by given {@link JsonPointer}, if such a node exists:
+     * if not, an attempt is made to create it.
+     * If the node method is called on is not Object node,
+     * or if property exists and has value that is not Object node,
+     * {@link UnsupportedOperationException} is thrown
+     *
+     * @since 2.14
+     */
+    public <T extends JsonNode> T withObject(JsonPointer ptr) {
+        // To avoid abstract method, base implementation just fails
+        throw new UnsupportedOperationException("`withObject(JsonPointer)` not implemented by "
+                +getClass().getName());
+    }
+
+    /**
      * @deprecated Since 2.14 use {@code withObject} instead
      */
     @Deprecated // since 2.14

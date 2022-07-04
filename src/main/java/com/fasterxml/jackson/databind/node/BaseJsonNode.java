@@ -105,6 +105,27 @@ public abstract class BaseJsonNode
 
     /*
     /**********************************************************
+    /* Other traversal
+    /**********************************************************
+     */
+
+    @Override
+    public <T extends JsonNode> T withObject(JsonPointer ptr) {
+        if (!isObject()) {
+            // To avoid abstract method, base implementation just fails
+            _reportWrongNodeType("Can only call `withObject()` on `ObjectNode`, not `%s`",
+                getClass().getName());
+        }
+        return _withObject(ptr, ptr);
+    }
+
+    protected <T extends JsonNode> T _withObject(JsonPointer origPtr,
+            JsonPointer currentPTr)  {
+        return null;
+    }
+
+    /*
+    /**********************************************************
     /* JsonSerializable
     /**********************************************************
      */
@@ -140,5 +161,18 @@ public abstract class BaseJsonNode
    public String toPrettyString() {
        return InternalNodeMapper.nodeToPrettyString(this);
    }
-}
 
+   /*
+   /**********************************************************
+   /* Other helper methods for subtypes
+   /**********************************************************
+    */
+
+   /**
+    * Helper method that throws {@link UnsupportedOperationException} as a result of
+    * this node being of wrong type
+    */
+   protected <T> T _reportWrongNodeType(String msgTemplate, Object...args) {
+       throw new UnsupportedOperationException(String.format(msgTemplate, args));
+   }
+}

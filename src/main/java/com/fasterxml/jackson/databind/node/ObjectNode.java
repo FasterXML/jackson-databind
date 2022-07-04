@@ -60,6 +60,20 @@ public class ObjectNode
         return ret;
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    protected <T extends JsonNode> T _withObjectCreatePath(JsonPointer origPtr,
+            JsonPointer currentPtr)
+    {
+        ObjectNode currentNode = this;
+        while (!currentPtr.matches()) {
+            // Should we try to build Arrays? For now, nope.
+            currentNode = currentNode.putObject(currentPtr.getMatchingProperty());
+            currentPtr = currentPtr.tail();
+        }
+        return (T) currentNode;
+    }
+
     /*
     /**********************************************************
     /* Overrides for JsonSerializable.Base

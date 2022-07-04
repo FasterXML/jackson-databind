@@ -1087,7 +1087,7 @@ public abstract class JsonNode
      */
     public <T extends JsonNode> T withObject(String propertyName) {
         throw new UnsupportedOperationException("JsonNode not of type ObjectNode (but "
-                +getClass().getName()+"), cannot call with() on it");
+                +getClass().getName()+"), cannot call withObject() on it");
     }
 
     /**

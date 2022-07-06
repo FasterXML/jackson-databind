@@ -60,10 +60,10 @@ public class ObjectNode
         return ret;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    protected <T extends JsonNode> T _withObjectCreatePath(JsonPointer origPtr,
-            JsonPointer currentPtr)
+    protected ObjectNode _withObjectCreatePath(JsonPointer origPtr,
+            JsonPointer currentPtr,
+            OverwriteMode overwriteMode, boolean preferIndex)
     {
         ObjectNode currentNode = this;
         while (!currentPtr.matches()) {
@@ -71,7 +71,7 @@ public class ObjectNode
             currentNode = currentNode.putObject(currentPtr.getMatchingProperty());
             currentPtr = currentPtr.tail();
         }
-        return (T) currentNode;
+        return currentNode;
     }
 
     /*

@@ -110,22 +110,23 @@ public abstract class BaseJsonNode
      */
 
     @Override
-    public <T extends JsonNode> T withObject(JsonPointer ptr) {
+    public ObjectNode withObject(JsonPointer ptr,
+            OverwriteMode overwriteMode, boolean preferIndex) {
         if (!isObject()) {
             // To avoid abstract method, base implementation just fails
             _reportWrongNodeType("Can only call `withObject()` on `ObjectNode`, not `%s`",
                 getClass().getName());
         }
-        return _withObject(ptr, ptr);
+        return _withObject(ptr, ptr, overwriteMode, preferIndex);
     }
 
-    @SuppressWarnings("unchecked")
-    protected <T extends JsonNode> T _withObject(JsonPointer origPtr,
-            JsonPointer currentPtr)
+    protected ObjectNode _withObject(JsonPointer origPtr,
+            JsonPointer currentPtr,
+            OverwriteMode overwriteMode, boolean preferIndex)
     {
         if (currentPtr.matches()) {
-            if (this.isObject()) {
-                return (T) this;
+            if (this instanceof ObjectNode) {
+                return (ObjectNode) this;
             }
             return _reportWrongNodeType(
                     "`JsonNode` matching `JsonPointer` \"%s\" must be `ObjectNode`, not `%s`",
@@ -133,10 +134,12 @@ public abstract class BaseJsonNode
                     getClass().getName());
         }
         JsonNode n = _at(currentPtr);
+        // If there's a path, follow it
         if ((n != null) && (n instanceof BaseJsonNode)) {
-            return ((BaseJsonNode) n)._withObject(origPtr, currentPtr.tail());
+            return ((BaseJsonNode) n)._withObject(origPtr, currentPtr.tail(),
+                    overwriteMode, preferIndex);
         }
-        return _withObjectCreatePath(origPtr, currentPtr);
+        return _withObjectCreatePath(origPtr, currentPtr, overwriteMode, preferIndex);
     }
 
     /**
@@ -144,8 +147,9 @@ public abstract class BaseJsonNode
      * or throwing an exception if not. If construction successful, needs to return
      * the innermost {@code ObjectNode} constructed.
      */
-    protected <T extends JsonNode> T _withObjectCreatePath(JsonPointer origPtr,
-            JsonPointer currentPtr)
+    protected ObjectNode _withObjectCreatePath(JsonPointer origPtr,
+            JsonPointer currentPtr,
+            OverwriteMode overwriteMode, boolean preferIndex)
     {
         // Cannot traverse non-container nodes:
         return _reportWrongNodeType(

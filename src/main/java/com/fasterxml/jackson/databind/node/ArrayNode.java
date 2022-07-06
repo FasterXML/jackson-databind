@@ -63,7 +63,8 @@ public class ArrayNode
 
     @Override
     protected ObjectNode _withObjectCreatePath(JsonPointer origPtr,
-            JsonPointer currentPtr)
+            JsonPointer currentPtr,
+            OverwriteMode overwriteMode, boolean preferIndex)
     {
         // With Arrays, bit different; the first entry needs to be index
         if (!currentPtr.mayMatchElement()) {
@@ -91,7 +92,7 @@ public class ArrayNode
             currentNode = currentNode.putObject(currentPtr.getMatchingProperty());
             currentPtr = currentPtr.tail();
         }
-        return currentNode;
+        return (ObjectNode) currentNode;
     }
 
     /*

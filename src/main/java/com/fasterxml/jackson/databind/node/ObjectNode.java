@@ -58,7 +58,8 @@ public class ObjectNode
 
     @Override
     protected ObjectNode _withObjectCreatePath(JsonPointer origPtr,
-            JsonPointer currentPtr)
+            JsonPointer currentPtr,
+            OverwriteMode overwriteMode, boolean preferIndex)
     {
         ObjectNode currentNode = this;
         while (!currentPtr.matches()) {

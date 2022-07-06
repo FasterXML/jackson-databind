@@ -41,6 +41,45 @@ public abstract class JsonNode
     extends JacksonSerializable.Base // i.e. implements JacksonSerializable
     implements TreeNode, Iterable<JsonNode>
 {
+    /**
+     * Configuration setting used with {@link JsonNode#withObject(JsonPointer)}
+     * method overrides, to indicate which overwrites are acceptable if the
+     * path pointer indicates has incompatible nodes (for example, instead
+     * of Object node a Null node is encountered).
+     * Overwrite means that the existing value is replaced with compatible type,
+     * potentially losing existing values or even sub-trees.
+     *<p>
+     * Default value if {@code NULLS} which only allows Null-value nodes
+     * to be replaced but no other types.
+     *
+     * @since 2.14
+     */
+    public enum OverwriteMode {
+        /**
+         * Mode in which no values may be overwritten, not even {@code NullNode}s;
+         * only compatible paths may be traversed.
+         */
+        NONE,
+
+        /**
+         * Mode in which explicit {@code NullNode}s may be replaced but no other
+         * node types. 
+         */
+        NULLS,
+
+        /**
+         * Mode in which all scalar value nodes may be replaced, but not
+         * Array or Object nodes.
+         */
+        SCALARS,
+
+        /**
+         * Mode in which all incompatible node types may be replaced, including
+         * Array and Object nodes where necessary.
+         */
+        ALL;
+    }
+
     /*
     /**********************************************************************
     /* Construction, related
@@ -1059,14 +1098,41 @@ public abstract class JsonNode
     public abstract ObjectNode withObject(String propertyName);
 
     /**
+     * Same as {@link #withObject(JsonPointer, OverwriteMode, boolean)} but
+     * with defaults of {@code OvewriteMode#NULLS} (overwrite mode)
+     * and {@code true} for {@code preferIndex} (that is, will try to
+     * consider {@link JsonPointer} segments index if at all possible
+     * and only secondarily as property name
+     *
+     * @param ptr Pointer that indicates path to use for Object value to return
+     *   (potentially creating as necessary)
+     *
+     * @return ObjectNode found or created
+     *
+     * @since 2.14
+     */
+    public final ObjectNode withObject(JsonPointer ptr) {
+        return withObject(ptr, OverwriteMode.NULLS, true);
+    }
+
+    /**
      * Method that can be called on Object nodes, to access a Object-valued
      * node pointed to by given {@link JsonPointer}, if such a node exists:
      * if not, an attempt is made to create it.
      * If the node method is called on is not Object node,
      * or if property exists and has value that is not Object node,
      * {@link DatabindException} is thrown
+     *
+     * @param ptr Pointer that indicates path to use for Object value to return
+     *   (potentially creating as necessary)
+     * @param overwriteMode Defines w
      */
-    public abstract ObjectNode withObject(JsonPointer ptr);
+    public ObjectNode withObject(JsonPointer ptr,
+            OverwriteMode overwriteMode, boolean preferIndex) {
+        // To avoid abstract method, base implementation just fails
+        throw new UnsupportedOperationException("`withObject(JsonPointer)` not implemented by "
+                +getClass().getName());
+    }
 
     /**
      * Method that can be called on Object nodes, to access a property

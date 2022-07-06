@@ -114,7 +114,7 @@ public abstract class BaseJsonNode
 
     /*
     /**********************************************************************
-    /* JacksonSerializable
+    /* With-Traversal
     /**********************************************************************
      */
 
@@ -123,23 +123,25 @@ public abstract class BaseJsonNode
         return _reportWrongNodeType(
                 "Can only call `withObject(String)` on `ObjectNode`, not `%s`",
             getClass().getName());
-    }
+    }    
 
     @Override
-    public ObjectNode withObject(JsonPointer ptr) {
+    public ObjectNode withObject(JsonPointer ptr,
+            OverwriteMode overwriteMode, boolean preferIndex) {
         if (!isObject()) {
             // To avoid abstract method, base implementation just fails
             _reportWrongNodeType("Can only call `withObject(JsonPointer)` on `ObjectNode`, not `%s`",
                 getClass().getName());
         }
-        return _withObject(ptr, ptr);
+        return _withObject(ptr, ptr, overwriteMode, preferIndex);
     }
 
     protected ObjectNode _withObject(JsonPointer origPtr,
-            JsonPointer currentPtr)
+            JsonPointer currentPtr,
+            OverwriteMode overwriteMode, boolean preferIndex)
     {
         if (currentPtr.matches()) {
-            if (this.isObject()) {
+            if (this instanceof ObjectNode) {
                 return (ObjectNode) this;
             }
             return _reportWrongNodeType(
@@ -148,10 +150,12 @@ public abstract class BaseJsonNode
                     getClass().getName());
         }
         JsonNode n = _at(currentPtr);
+        // If there's a path, follow it
         if ((n != null) && (n instanceof BaseJsonNode)) {
-            return ((BaseJsonNode) n)._withObject(origPtr, currentPtr.tail());
+            return ((BaseJsonNode) n)._withObject(origPtr, currentPtr.tail(),
+                    overwriteMode, preferIndex);
         }
-        return _withObjectCreatePath(origPtr, currentPtr);
+        return _withObjectCreatePath(origPtr, currentPtr, overwriteMode, preferIndex);
     }
 
     /**
@@ -160,7 +164,8 @@ public abstract class BaseJsonNode
      * the innermost {@code ObjectNode} constructed.
      */
     protected ObjectNode _withObjectCreatePath(JsonPointer origPtr,
-            JsonPointer currentPtr)
+            JsonPointer currentPtr,
+            OverwriteMode overwriteMode, boolean preferIndex)
     {
         // Cannot traverse non-container nodes:
         return _reportWrongNodeType(

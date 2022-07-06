@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.node;
 
 import com.fasterxml.jackson.core.JsonPointer;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.JsonNodeException;
 
 // for [databuind#1980] implementation
 public class WithPathTest extends BaseMapTest
@@ -50,7 +51,7 @@ public class WithPathTest extends BaseMapTest
         try {
             root.withObject(abPath);
             fail("Should not pass");
-        } catch (UnsupportedOperationException e) {
+        } catch (JsonNodeException e) {
             verifyException(e, "cannot traverse non-container");
         }
 

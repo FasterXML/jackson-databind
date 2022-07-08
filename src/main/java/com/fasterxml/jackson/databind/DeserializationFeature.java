@@ -406,10 +406,10 @@ public enum DeserializationFeature implements ConfigFeature
      * Feature that allows unknown Enum values to be parsed as null values. 
      * If disabled, unknown Enum values will throw exceptions.
      *<p>
-     * Note that in some cases this will basically ignore unknown Enum values;
-     * this is the keys for keys of {@link java.util.EnumMap} and values
-     * of {@link java.util.EnumSet} (because nulls are not accepted in these
-     * cases).
+     * Note that in some cases this will in effect ignore unknown Enum values,
+     * e.g. when the unknown values are used as keys of {@link java.util.EnumMap} 
+     * or values of {@link java.util.EnumSet}, given their implementations that
+     * ignore null keys or values.
      *<p>
      * Feature is disabled by default.
      * 

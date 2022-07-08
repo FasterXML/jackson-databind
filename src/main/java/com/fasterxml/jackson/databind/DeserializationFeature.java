@@ -408,8 +408,8 @@ public enum DeserializationFeature implements ConfigFeature
      *<p>
      * Note that in some cases this will in effect ignore unknown Enum values,
      * e.g. when the unknown values are used as keys of {@link java.util.EnumMap} 
-     * or values of {@link java.util.EnumSet}, given their implementations that
-     * ignore null keys or values.
+     * or values of {@link java.util.EnumSet}, given the current deserializer
+     * implementation that ignores entries with null keys.
      *<p>
      * Feature is disabled by default.
      * 

@@ -21,8 +21,8 @@ on:
     paths-ignore:
     - "README.md"
     - "release-notes/*"
-  permissions:
-    contents: read
+permissions:
+  contents: read
 
 jobs:
   analyze:

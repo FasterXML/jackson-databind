@@ -8,9 +8,9 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.io.SerializedString;
-import com.fasterxml.jackson.core.json.JsonWriteFeature;
+import tools.jackson.core.*;
+import tools.jackson.core.io.SerializedString;
+import tools.jackson.core.json.JsonWriteFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**

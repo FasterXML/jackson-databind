@@ -8,8 +8,8 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-import com.fasterxml.jackson.core.Base64Variants;
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.Base64Variants;
+import tools.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;

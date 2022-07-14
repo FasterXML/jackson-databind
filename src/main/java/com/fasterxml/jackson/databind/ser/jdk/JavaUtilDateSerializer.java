@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.ser.jdk;
 import java.text.DateFormat;
 import java.util.*;
 
-import com.fasterxml.jackson.core.*;
+import tools.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 

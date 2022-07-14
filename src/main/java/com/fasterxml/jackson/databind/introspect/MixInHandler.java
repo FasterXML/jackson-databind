@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.introspect;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.fasterxml.jackson.core.util.Snapshottable;
+import tools.jackson.core.util.Snapshottable;
 import com.fasterxml.jackson.databind.type.ClassKey;
 
 /**

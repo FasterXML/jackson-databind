@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.jsontype;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 
 public class PolymorphicList1451SerTest extends BaseMapTest

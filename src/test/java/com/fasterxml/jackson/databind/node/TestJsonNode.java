@@ -2,8 +2,8 @@ package com.fasterxml.jackson.databind.node;
 
 import java.util.Comparator;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.io.SerializedString;
+import tools.jackson.core.*;
+import tools.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 import com.fasterxml.jackson.databind.util.RawValue;

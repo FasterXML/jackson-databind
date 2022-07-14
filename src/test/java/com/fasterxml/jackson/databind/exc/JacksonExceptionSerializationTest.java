@@ -2,7 +2,7 @@ package com.fasterxml.jackson.databind.exc;
 
 import java.util.Map;
 
-import com.fasterxml.jackson.core.JacksonException;
+import tools.jackson.core.JacksonException;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.JsonNode;

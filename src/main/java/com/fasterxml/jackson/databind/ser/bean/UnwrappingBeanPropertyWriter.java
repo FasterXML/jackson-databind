@@ -3,8 +3,8 @@ package com.fasterxml.jackson.databind.ser.bean;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.io.SerializedString;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.io.SerializedString;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;

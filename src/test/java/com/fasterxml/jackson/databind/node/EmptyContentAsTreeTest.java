@@ -4,8 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.TreeNode;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.*;
 
 /**

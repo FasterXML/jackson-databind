@@ -4,7 +4,7 @@ import java.sql.Blob;
 
 import javax.sql.rowset.serial.SerialBlob;
 
-import com.fasterxml.jackson.core.Base64Variants;
+import tools.jackson.core.Base64Variants;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 

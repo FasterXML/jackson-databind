@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.deser.jackson;
 
-import com.fasterxml.jackson.core.JsonLocation;
-import com.fasterxml.jackson.core.io.ContentReference;
+import tools.jackson.core.JsonLocation;
+import tools.jackson.core.io.ContentReference;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;

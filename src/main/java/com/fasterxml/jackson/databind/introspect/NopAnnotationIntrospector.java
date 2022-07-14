@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.databind.introspect;
 
-import com.fasterxml.jackson.core.Version;
+import tools.jackson.core.Version;
 
 import com.fasterxml.jackson.databind.*;
 

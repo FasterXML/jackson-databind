@@ -2,7 +2,7 @@ package com.fasterxml.jackson.databind.module;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.fasterxml.jackson.core.Version;
+import tools.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
 
 public class TestDuplicateRegistration extends BaseMapTest

@@ -2,8 +2,8 @@ package com.fasterxml.jackson.databind.deser.validate;
 
 import java.util.*;
 
-import com.fasterxml.jackson.core.exc.StreamReadException;
-import com.fasterxml.jackson.core.json.JsonReadFeature;
+import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.core.json.JsonReadFeature;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DeserializationFeature;

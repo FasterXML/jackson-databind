@@ -2,7 +2,7 @@ package com.fasterxml.jackson.databind.ext.jdk8;
 
 import java.util.Optional;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.*;
 

@@ -29,7 +29,7 @@ import java.util.NoSuchElementException;
  * concurrent access by multiple threads. Null elements are prohibited.
  * <p>
  * Most <tt>LinkedDeque</tt> operations run in constant time by assuming that
- * the {@link Linked} parameter is associated with the deque instance. Any usage
+ * the {@code Linked} parameter is associated with the deque instance. Any usage
  * that violates this assumption will result in non-deterministic behavior.
  * <p>
  * The iterators returned by this class are <em>not</em> <i>fail-fast</i>: If

@@ -2,7 +2,7 @@ package com.fasterxml.jackson.databind.node;
 
 import java.io.*;
 
-import com.fasterxml.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonGenerator;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.JsonNode;

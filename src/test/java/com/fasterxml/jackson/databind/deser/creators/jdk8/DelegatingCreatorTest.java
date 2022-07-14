@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.deser.creators.jdk8;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.core.type.*;
+import tools.jackson.core.type.*;
 import com.fasterxml.jackson.databind.*;
 
 import org.junit.*;

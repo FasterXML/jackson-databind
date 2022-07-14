@@ -3,8 +3,8 @@ package com.fasterxml.jackson.databind.ext.jdk8;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonParser.NumberType;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.*;
 

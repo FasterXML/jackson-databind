@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.databind.module;
 
-import com.fasterxml.jackson.core.Version;
+import tools.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 

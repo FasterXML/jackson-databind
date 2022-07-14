@@ -2,8 +2,8 @@ package com.fasterxml.jackson.databind.cfg;
 
 import java.util.Collections;
 
-import com.fasterxml.jackson.core.StreamWriteFeature;
-import com.fasterxml.jackson.core.json.JsonWriteFeature;
+import tools.jackson.core.StreamWriteFeature;
+import tools.jackson.core.json.JsonWriteFeature;
 import com.fasterxml.jackson.databind.*;
 
 public class SerConfigTest extends BaseMapTest

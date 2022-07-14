@@ -155,7 +155,7 @@ public enum DeserializationFeature implements ConfigFeature
 
     /**
      * Feature that determines what happens when reading JSON content into tree
-     * ({@link com.fasterxml.jackson.core.TreeNode}) and a duplicate key
+     * ({@link tools.jackson.core.TreeNode}) and a duplicate key
      * is encountered (property name that was already seen for the JSON Object).
      * If enabled, {@link DatabindException} will be thrown; if disabled, no exception
      * is thrown and the new (later) value overwrites the earlier value.
@@ -236,7 +236,7 @@ public enum DeserializationFeature implements ConfigFeature
     /**
      * Feature that determines behaviour for data-binding after binding the root value.
      * If feature is enabled, one more call to
-     * {@link com.fasterxml.jackson.core.JsonParser#nextToken} is made to ensure that
+     * {@link tools.jackson.core.JsonParser#nextToken} is made to ensure that
      * no more tokens are found (and if any is found,
      * {@link com.fasterxml.jackson.databind.exc.MismatchedInputException} is thrown); if
      * disabled, no further checks are made.

@@ -2,7 +2,7 @@ package com.fasterxml.jackson.databind.deser.jdk;
 
 import java.util.Map;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.*;
 

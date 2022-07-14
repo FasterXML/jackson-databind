@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.jsontype.ext;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 
 public class ExternalTypeIdWithIgnoreUnknownTest extends BaseMapTest

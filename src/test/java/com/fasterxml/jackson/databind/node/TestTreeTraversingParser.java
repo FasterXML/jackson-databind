@@ -6,9 +6,9 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.JsonParser.NumberType;
-import com.fasterxml.jackson.core.exc.InputCoercionException;
+import tools.jackson.core.*;
+import tools.jackson.core.JsonParser.NumberType;
+import tools.jackson.core.exc.InputCoercionException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 

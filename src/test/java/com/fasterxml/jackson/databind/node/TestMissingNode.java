@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.node;
 import java.io.StringReader;
 import java.util.Iterator;
 
-import com.fasterxml.jackson.core.JsonToken;
+import tools.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 
 public class TestMissingNode extends NodeTestBase

@@ -10,8 +10,8 @@ import java.nio.file.spi.FileSystemProvider;
 import java.util.*;
 import java.util.regex.Pattern;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.util.VersionUtil;
+import tools.jackson.core.*;
+import tools.jackson.core.util.VersionUtil;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;

@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.ser.jdk;
 import java.util.Collection;
 import java.util.Iterator;
 
-import com.fasterxml.jackson.core.*;
+import tools.jackson.core.*;
 
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JavaType;

@@ -5,11 +5,11 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.UUID;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.JsonParser.NumberType;
-import com.fasterxml.jackson.core.exc.InputCoercionException;
-import com.fasterxml.jackson.core.io.SerializedString;
-import com.fasterxml.jackson.core.util.JsonParserSequence;
+import tools.jackson.core.*;
+import tools.jackson.core.JsonParser.NumberType;
+import tools.jackson.core.exc.InputCoercionException;
+import tools.jackson.core.io.SerializedString;
+import tools.jackson.core.util.JsonParserSequence;
 
 import com.fasterxml.jackson.databind.*;
 

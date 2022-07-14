@@ -2,8 +2,8 @@ package com.fasterxml.jackson.databind.module;
 
 import java.util.Map;
 
-import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.Version;
+import tools.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 
 public class TestKeyDeserializers extends BaseMapTest

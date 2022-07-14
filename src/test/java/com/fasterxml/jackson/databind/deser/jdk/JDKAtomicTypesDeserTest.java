@@ -12,6 +12,8 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import tools.jackson.core.type.TypeReference;
+
 public class JDKAtomicTypesDeserTest
     extends com.fasterxml.jackson.databind.BaseMapTest
 {
@@ -108,9 +110,9 @@ public class JDKAtomicTypesDeserTest
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
@@ -136,7 +138,7 @@ public class JDKAtomicTypesDeserTest
     public void testAtomicReference() throws Exception
     {
         AtomicReference<long[]> value = MAPPER.readValue("[1,2]",
-                new com.fasterxml.jackson.core.type.TypeReference<AtomicReference<long[]>>() { });
+                new TypeReference<AtomicReference<long[]>>() { });
         Object ob = value.get();
         assertNotNull(ob);
         assertEquals(long[].class, ob.getClass());

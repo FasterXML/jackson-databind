@@ -3,8 +3,8 @@ package com.fasterxml.jackson.databind.seq;
 import java.io.*;
 import java.util.*;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.*;
+import tools.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.MappingIterator;

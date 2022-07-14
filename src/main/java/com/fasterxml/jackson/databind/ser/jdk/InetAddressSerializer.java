@@ -3,8 +3,8 @@ package com.fasterxml.jackson.databind.ser.jdk;
 import java.net.InetAddress;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.type.WritableTypeId;
+import tools.jackson.core.*;
+import tools.jackson.core.type.WritableTypeId;
 
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.ValueSerializer;

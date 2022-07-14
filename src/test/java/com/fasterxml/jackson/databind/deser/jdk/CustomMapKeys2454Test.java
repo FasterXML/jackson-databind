@@ -3,8 +3,8 @@ package com.fasterxml.jackson.databind.deser.jdk;
 import java.util.Collections;
 import java.util.Map;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;

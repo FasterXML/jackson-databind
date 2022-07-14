@@ -4,7 +4,7 @@ import java.math.*;
 import java.util.*;
 import java.lang.reflect.Array;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.*;
 

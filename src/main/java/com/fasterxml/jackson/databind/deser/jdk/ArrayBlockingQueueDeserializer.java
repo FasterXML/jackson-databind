@@ -3,8 +3,8 @@ package com.fasterxml.jackson.databind.deser.jdk;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.core.JsonParser;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;

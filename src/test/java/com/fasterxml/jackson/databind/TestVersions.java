@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind;
 
-import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.core.Versioned;
+import tools.jackson.core.Version;
+import tools.jackson.core.Versioned;
 
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.json.JsonMapper;

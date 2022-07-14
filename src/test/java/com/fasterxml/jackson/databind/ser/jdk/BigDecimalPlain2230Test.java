@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import com.fasterxml.jackson.core.StreamWriteFeature;
+import tools.jackson.core.StreamWriteFeature;
 
 import com.fasterxml.jackson.databind.*;
 

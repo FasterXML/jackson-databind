@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.databind.util;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.ObjectReadContext;
-import com.fasterxml.jackson.core.util.JsonParserSequence;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
+import tools.jackson.core.ObjectReadContext;
+import tools.jackson.core.util.JsonParserSequence;
 import com.fasterxml.jackson.databind.BaseMapTest;
 
 public class JsonParserSequenceTest extends BaseMapTest

@@ -3,11 +3,11 @@ package com.fasterxml.jackson.databind;
 import java.io.IOException;
 import java.io.StringReader;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.io.CharacterEscapes;
-import com.fasterxml.jackson.core.io.SerializedString;
-import com.fasterxml.jackson.core.json.JsonFactory;
-import com.fasterxml.jackson.core.json.JsonWriteFeature;
+import tools.jackson.core.*;
+import tools.jackson.core.io.CharacterEscapes;
+import tools.jackson.core.io.SerializedString;
+import tools.jackson.core.json.JsonFactory;
+import tools.jackson.core.json.JsonWriteFeature;
 
 public class MapperViaParserTest extends BaseMapTest
 {

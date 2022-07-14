@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.exc;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.exc.WrappedIOException;
+import tools.jackson.core.*;
+import tools.jackson.core.exc.WrappedIOException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.testutil.BrokenStringReader;
 

@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
-import com.fasterxml.jackson.core.json.JsonFactory;
+import tools.jackson.core.json.JsonFactory;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;

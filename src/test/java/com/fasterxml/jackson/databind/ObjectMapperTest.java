@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.databind;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import java.io.*;
 import java.net.URL;
@@ -10,9 +10,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.ZipOutputStream;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.json.JsonWriteFeature;
-import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
+import tools.jackson.core.*;
+import tools.jackson.core.json.JsonWriteFeature;
+import tools.jackson.core.util.MinimalPrettyPrinter;
 
 import com.fasterxml.jackson.databind.cfg.DeserializationContexts;
 import com.fasterxml.jackson.databind.deser.DeserializerCache;

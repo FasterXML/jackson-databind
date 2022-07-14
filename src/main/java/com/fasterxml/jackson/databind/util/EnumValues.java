@@ -2,7 +2,7 @@ package com.fasterxml.jackson.databind.util;
 
 import java.util.*;
 
-import com.fasterxml.jackson.core.SerializableString;
+import tools.jackson.core.SerializableString;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 

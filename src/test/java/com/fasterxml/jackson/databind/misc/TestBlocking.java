@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.misc;
 import java.io.*;
 
 
-import com.fasterxml.jackson.core.*;
+import tools.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 
 /**

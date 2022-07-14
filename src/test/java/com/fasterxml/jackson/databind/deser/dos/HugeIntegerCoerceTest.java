@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.databind.deser.dos;
 
-import com.fasterxml.jackson.core.exc.InputCoercionException;
+import tools.jackson.core.exc.InputCoercionException;
 import com.fasterxml.jackson.databind.*;
 
 // for [databind#2157]

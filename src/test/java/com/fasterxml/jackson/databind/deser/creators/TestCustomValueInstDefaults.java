@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.deser.creators;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.core.Version;
+import tools.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;

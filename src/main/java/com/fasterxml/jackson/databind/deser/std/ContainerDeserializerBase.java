@@ -2,7 +2,7 @@ package com.fasterxml.jackson.databind.deser.std;
 
 import java.lang.reflect.InvocationTargetException;
 
-import com.fasterxml.jackson.core.JacksonException;
+import tools.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;

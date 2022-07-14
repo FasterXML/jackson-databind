@@ -2,8 +2,8 @@ package com.fasterxml.jackson.databind.cfg;
 
 import java.util.Collections;
 
-import com.fasterxml.jackson.core.StreamReadFeature;
-import com.fasterxml.jackson.core.json.JsonReadFeature;
+import tools.jackson.core.StreamReadFeature;
+import tools.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.databind.*;
 
 public class DeserializationConfigTest extends BaseMapTest

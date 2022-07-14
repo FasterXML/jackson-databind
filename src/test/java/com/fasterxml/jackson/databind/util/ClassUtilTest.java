@@ -3,10 +3,10 @@ package com.fasterxml.jackson.databind.util;
 import java.io.*;
 import java.util.*;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.ObjectWriteContext;
-import com.fasterxml.jackson.core.json.JsonFactory;
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.ObjectWriteContext;
+import tools.jackson.core.json.JsonFactory;
+import tools.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DatabindException;

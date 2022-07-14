@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.databind.ser;
 
-import com.fasterxml.jackson.core.*;
+import tools.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 
 public class TestArraySerialization

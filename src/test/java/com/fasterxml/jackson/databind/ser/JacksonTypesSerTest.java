@@ -3,8 +3,8 @@ package com.fasterxml.jackson.databind.ser;
 import java.io.*;
 import java.util.*;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.io.ContentReference;
+import tools.jackson.core.*;
+import tools.jackson.core.io.ContentReference;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.util.TokenBuffer;

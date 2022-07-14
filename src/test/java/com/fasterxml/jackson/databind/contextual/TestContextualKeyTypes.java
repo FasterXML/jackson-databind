@@ -2,8 +2,8 @@ package com.fasterxml.jackson.databind.contextual;
 
 import java.util.*;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.Version;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.Version;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.ContextualKeyDeserializer;

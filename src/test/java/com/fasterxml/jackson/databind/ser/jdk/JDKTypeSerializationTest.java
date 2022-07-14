@@ -10,8 +10,8 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.core.StreamWriteFeature;
-import com.fasterxml.jackson.core.json.JsonFactory;
+import tools.jackson.core.StreamWriteFeature;
+import tools.jackson.core.json.JsonFactory;
 import com.fasterxml.jackson.databind.*;
 
 /**

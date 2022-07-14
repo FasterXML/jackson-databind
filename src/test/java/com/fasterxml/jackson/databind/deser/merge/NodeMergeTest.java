@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.deser.merge;
 
 import com.fasterxml.jackson.annotation.JsonMerge;
-import com.fasterxml.jackson.core.JsonParser;
+import tools.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;

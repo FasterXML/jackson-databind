@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.databind.jsonFormatVisitors;
 
-import com.fasterxml.jackson.core.JsonParser;
+import tools.jackson.core.JsonParser;
 
 public interface JsonIntegerFormatVisitor extends JsonValueFormatVisitor
 {

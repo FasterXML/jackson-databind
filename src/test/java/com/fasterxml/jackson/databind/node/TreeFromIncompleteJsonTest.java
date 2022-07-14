@@ -2,8 +2,8 @@ package com.fasterxml.jackson.databind.node;
 
 import java.io.IOException;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.exc.UnexpectedEndOfInputException;
+import tools.jackson.core.*;
+import tools.jackson.core.exc.UnexpectedEndOfInputException;
 import com.fasterxml.jackson.databind.*;
 
 public class TreeFromIncompleteJsonTest extends BaseMapTest

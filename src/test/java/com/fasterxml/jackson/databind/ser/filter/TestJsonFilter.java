@@ -3,8 +3,8 @@ package com.fasterxml.jackson.databind.ser.filter;
 import com.fasterxml.jackson.annotation.*;
 
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.TokenStreamContext;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.TokenStreamContext;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;

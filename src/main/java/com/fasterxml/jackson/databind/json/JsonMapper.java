@@ -1,9 +1,10 @@
 package com.fasterxml.jackson.databind.json;
 
-import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.core.json.JsonFactory;
-import com.fasterxml.jackson.core.json.JsonReadFeature;
-import com.fasterxml.jackson.core.json.JsonWriteFeature;
+import tools.jackson.core.Version;
+import tools.jackson.core.json.JsonFactory;
+import tools.jackson.core.json.JsonReadFeature;
+import tools.jackson.core.json.JsonWriteFeature;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.cfg.MapperBuilder;
 import com.fasterxml.jackson.databind.cfg.MapperBuilderState;

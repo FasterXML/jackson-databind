@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.databind.cfg;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.io.CharacterEscapes;
-import com.fasterxml.jackson.core.io.SerializedString;
-import com.fasterxml.jackson.core.util.Instantiatable;
+import tools.jackson.core.*;
+import tools.jackson.core.io.CharacterEscapes;
+import tools.jackson.core.io.SerializedString;
+import tools.jackson.core.util.Instantiatable;
 
 /**
  * Helper class used for containing settings specifically related

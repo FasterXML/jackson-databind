@@ -2,7 +2,7 @@ package com.fasterxml.jackson.databind.cfg;
 
 import java.util.*;
 
-import com.fasterxml.jackson.core.util.Snapshottable;
+import tools.jackson.core.util.Snapshottable;
 
 /**
  * Helper class used for storing and accessing per-call attributes.

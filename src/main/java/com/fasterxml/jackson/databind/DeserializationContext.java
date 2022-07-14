@@ -8,12 +8,13 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdResolver;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.tree.ArrayTreeNode;
-import com.fasterxml.jackson.core.tree.ObjectTreeNode;
-import com.fasterxml.jackson.core.type.ResolvedType;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.core.util.JacksonFeatureSet;
+import tools.jackson.core.*;
+import tools.jackson.core.tree.ArrayTreeNode;
+import tools.jackson.core.tree.ObjectTreeNode;
+import tools.jackson.core.type.ResolvedType;
+import tools.jackson.core.type.TypeReference;
+
+import tools.jackson.core.util.JacksonFeatureSet;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
@@ -1034,7 +1035,7 @@ public abstract class DeserializationContext
 
     /**
      * Method to call in case incoming shape is Object Value (and parser thereby
-     * points to {@link com.fasterxml.jackson.core.JsonToken#START_OBJECT} token),
+     * points to {@link tools.jackson.core.JsonToken#START_OBJECT} token),
      * but a Scalar value (potentially coercible from String value) is expected.
      * This would typically be used to deserializer a Number, Boolean value or some other
      * "simple" unstructured value type.

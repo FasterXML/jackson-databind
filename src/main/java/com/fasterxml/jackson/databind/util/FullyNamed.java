@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.databind.util;
 
-import com.fasterxml.jackson.core.util.Named;
+import tools.jackson.core.util.Named;
 
 import com.fasterxml.jackson.databind.PropertyName;
 

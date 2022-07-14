@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.databind.node;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.io.NumberInput;
-import com.fasterxml.jackson.core.util.ByteArrayBuilder;
+import tools.jackson.core.*;
+import tools.jackson.core.io.NumberInput;
+import tools.jackson.core.util.ByteArrayBuilder;
 
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;

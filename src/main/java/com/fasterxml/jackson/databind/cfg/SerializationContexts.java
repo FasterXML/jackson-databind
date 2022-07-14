@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.cfg;
 
-import com.fasterxml.jackson.core.TokenStreamFactory;
+import tools.jackson.core.TokenStreamFactory;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.ser.SerializationContextExt;

@@ -3,8 +3,9 @@ package com.fasterxml.jackson.databind.deser;
 import java.lang.annotation.Annotation;
 
 import com.fasterxml.jackson.annotation.JacksonInject;
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.core.JsonParser;
+
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;

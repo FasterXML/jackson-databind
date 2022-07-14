@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.databind.util;
 
-import com.fasterxml.jackson.core.util.Snapshottable;
+import tools.jackson.core.util.Snapshottable;
 
 /**
  * An interface describing the required API for the Jackson-Databind Type cache.

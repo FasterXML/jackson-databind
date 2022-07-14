@@ -5,8 +5,8 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
 
-import com.fasterxml.jackson.core.Base64Variant;
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.Base64Variant;
+import tools.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.*;

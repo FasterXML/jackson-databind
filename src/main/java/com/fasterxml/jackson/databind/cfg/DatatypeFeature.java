@@ -1,12 +1,10 @@
 package com.fasterxml.jackson.databind.cfg;
 
-import com.fasterxml.jackson.core.util.JacksonFeature;
+import tools.jackson.core.util.JacksonFeature;
 
 /**
  * Interface that defines interaction with data type specific configuration
  * features.
- *
- * @since 2.14
  */
 public interface DatatypeFeature extends JacksonFeature
 {

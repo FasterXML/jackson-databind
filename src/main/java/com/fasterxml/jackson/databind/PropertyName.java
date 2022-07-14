@@ -1,8 +1,9 @@
 package com.fasterxml.jackson.databind;
 
-import com.fasterxml.jackson.core.SerializableString;
-import com.fasterxml.jackson.core.io.SerializedString;
-import com.fasterxml.jackson.core.util.InternCache;
+import tools.jackson.core.SerializableString;
+import tools.jackson.core.io.SerializedString;
+import tools.jackson.core.util.InternCache;
+
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.FullyNamed;

@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
-import com.fasterxml.jackson.core.util.Snapshottable;
+import tools.jackson.core.util.Snapshottable;
 
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 

@@ -2,7 +2,8 @@ package com.fasterxml.jackson.databind.ser;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.fasterxml.jackson.core.util.Snapshottable;
+import tools.jackson.core.util.Snapshottable;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.impl.ReadOnlyClassToSerializerMap;
 import com.fasterxml.jackson.databind.util.SimpleLookupCache;

@@ -4,9 +4,10 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.tree.ObjectTreeNode;
-import com.fasterxml.jackson.core.type.WritableTypeId;
+import tools.jackson.core.*;
+import tools.jackson.core.tree.ObjectTreeNode;
+import tools.jackson.core.type.WritableTypeId;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.JsonNodeFeature;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;

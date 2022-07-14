@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.databind.util;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.io.ContentReference;
-import com.fasterxml.jackson.core.json.JsonReadContext;
+import tools.jackson.core.*;
+import tools.jackson.core.io.ContentReference;
+import tools.jackson.core.json.JsonReadContext;
 
 /**
  * Implementation of {@link TokenStreamContext} used by {@link TokenBuffer}

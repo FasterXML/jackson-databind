@@ -5,7 +5,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 
-import com.fasterxml.jackson.core.*;
+import tools.jackson.core.*;
 
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;

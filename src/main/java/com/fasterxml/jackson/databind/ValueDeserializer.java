@@ -2,7 +2,7 @@ package com.fasterxml.jackson.databind;
 
 import java.util.Collection;
 
-import com.fasterxml.jackson.core.*;
+import tools.jackson.core.*;
 
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.deser.impl.ObjectIdReader;

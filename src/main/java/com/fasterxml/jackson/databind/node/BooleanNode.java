@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.databind.node;
 
-import com.fasterxml.jackson.core.*;
+import tools.jackson.core.*;
 
 import com.fasterxml.jackson.databind.SerializerProvider;
 

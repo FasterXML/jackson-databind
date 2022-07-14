@@ -2,8 +2,8 @@ package com.fasterxml.jackson.databind;
 
 import java.text.DateFormat;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.util.Instantiatable;
+import tools.jackson.core.*;
+import tools.jackson.core.util.Instantiatable;
 
 import com.fasterxml.jackson.databind.cfg.*;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
@@ -61,12 +61,12 @@ public final class SerializationConfig
     protected final int _serFeatures;
 
     /**
-     * States of {@link com.fasterxml.jackson.core.StreamWriteFeature}s to enable/disable.
+     * States of {@link tools.jackson.core.StreamWriteFeature}s to enable/disable.
      */
     protected final int _streamWriteFeatures;
 
     /**
-     * States of {@link com.fasterxml.jackson.core.FormatFeature}s to enable/disable.
+     * States of {@link tools.jackson.core.FormatFeature}s to enable/disable.
      */
     protected final int _formatWriteFeatures;
 

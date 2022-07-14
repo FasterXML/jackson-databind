@@ -6,16 +6,16 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.TreeMap;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.base.ParserMinimalBase;
-import com.fasterxml.jackson.core.exc.InputCoercionException;
-import com.fasterxml.jackson.core.exc.StreamWriteException;
-import com.fasterxml.jackson.core.io.NumberInput;
-import com.fasterxml.jackson.core.io.NumberOutput;
-import com.fasterxml.jackson.core.sym.PropertyNameMatcher;
-import com.fasterxml.jackson.core.util.ByteArrayBuilder;
-import com.fasterxml.jackson.core.util.JacksonFeatureSet;
-import com.fasterxml.jackson.core.util.SimpleStreamWriteContext;
+import tools.jackson.core.*;
+import tools.jackson.core.base.ParserMinimalBase;
+import tools.jackson.core.exc.InputCoercionException;
+import tools.jackson.core.exc.StreamWriteException;
+import tools.jackson.core.io.NumberInput;
+import tools.jackson.core.io.NumberOutput;
+import tools.jackson.core.sym.PropertyNameMatcher;
+import tools.jackson.core.util.ByteArrayBuilder;
+import tools.jackson.core.util.JacksonFeatureSet;
+import tools.jackson.core.util.SimpleStreamWriteContext;
 
 import com.fasterxml.jackson.databind.*;
 

@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.jsontype;
 
-import com.fasterxml.jackson.core.*;
+import tools.jackson.core.*;
+
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;

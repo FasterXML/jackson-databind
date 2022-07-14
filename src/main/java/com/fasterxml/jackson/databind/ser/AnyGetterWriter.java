@@ -2,7 +2,8 @@ package com.fasterxml.jackson.databind.ser;
 
 import java.util.Map;
 
-import com.fasterxml.jackson.core.*;
+import tools.jackson.core.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.ser.jdk.MapSerializer;

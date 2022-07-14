@@ -1,13 +1,11 @@
 package com.fasterxml.jackson.databind.cfg;
 
-import com.fasterxml.jackson.core.util.JacksonFeature;
-import com.fasterxml.jackson.core.util.VersionUtil;
+import tools.jackson.core.util.JacksonFeature;
+import tools.jackson.core.util.VersionUtil;
 
 /**
  * Immutable value class that contains settings for multiple
  * {@link DatatypeFeature} enumerations.
- *
- * @since 2.14
  */
 public class DatatypeFeatures
     implements java.io.Serializable

@@ -41,7 +41,7 @@ public enum SerializationFeature implements ConfigFeature
      * {@link ObjectWriter}s created from mapper).
      *<p>
      * Note that the default pretty printer is only used if
-     * no explicit {@link com.fasterxml.jackson.core.PrettyPrinter} has been configured
+     * no explicit {@link tools.jackson.core.PrettyPrinter} has been configured
      * for the generator or {@link ObjectWriter}.
      *<p>
      * Feature is disabled by default.

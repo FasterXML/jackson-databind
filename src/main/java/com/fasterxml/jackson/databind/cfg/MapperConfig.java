@@ -6,10 +6,10 @@ import java.util.TimeZone;
 
 import com.fasterxml.jackson.annotation.*;
 
-import com.fasterxml.jackson.core.Base64Variant;
-import com.fasterxml.jackson.core.SerializableString;
-import com.fasterxml.jackson.core.io.SerializedString;
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.Base64Variant;
+import tools.jackson.core.SerializableString;
+import tools.jackson.core.io.SerializedString;
+import tools.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.*;

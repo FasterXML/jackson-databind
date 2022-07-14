@@ -2,7 +2,7 @@ package com.fasterxml.jackson.databind.ser.std;
 
 import java.util.*;
 
-import com.fasterxml.jackson.core.util.Snapshottable;
+import tools.jackson.core.util.Snapshottable;
 
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.*;

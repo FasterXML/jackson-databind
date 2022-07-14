@@ -7,14 +7,14 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.exc.WrappedIOException;
-import com.fasterxml.jackson.core.filter.FilteringParserDelegate;
-import com.fasterxml.jackson.core.filter.JsonPointerBasedFilter;
-import com.fasterxml.jackson.core.filter.TokenFilter;
-import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
-import com.fasterxml.jackson.core.type.ResolvedType;
-import com.fasterxml.jackson.core.type.TypeReference;
+import tools.jackson.core.*;
+import tools.jackson.core.exc.WrappedIOException;
+import tools.jackson.core.filter.FilteringParserDelegate;
+import tools.jackson.core.filter.JsonPointerBasedFilter;
+import tools.jackson.core.filter.TokenFilter;
+import tools.jackson.core.filter.TokenFilter.Inclusion;
+import tools.jackson.core.type.ResolvedType;
+import tools.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.cfg.DatatypeFeature;

@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.databind;
 
-import com.fasterxml.jackson.core.TreeNode;
+import tools.jackson.core.TreeNode;
 
 /**
  * Enumeration used with <code>JsonMapper.defaultTyping()</code> methods

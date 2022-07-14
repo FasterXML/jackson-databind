@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.databind.util;
 
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.SerializableString;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.SerializableString;
 
 import com.fasterxml.jackson.databind.JacksonSerializable;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 /**
  * Helper class used to encapsulate "raw values", pre-encoded textual content
  * that can be output as opaque value with no quoting/escaping, using
- * {@link com.fasterxml.jackson.core.JsonGenerator#writeRawValue(String)}.
+ * {@link tools.jackson.core.JsonGenerator#writeRawValue(String)}.
  * It may be stored in {@link TokenBuffer}, as well as in Tree Model
  * ({@link com.fasterxml.jackson.databind.JsonNode})
  */

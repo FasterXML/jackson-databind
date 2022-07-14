@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import com.fasterxml.jackson.core.*;
+import tools.jackson.core.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;

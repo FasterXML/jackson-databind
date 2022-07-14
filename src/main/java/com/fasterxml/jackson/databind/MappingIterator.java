@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind;
 import java.io.Closeable;
 import java.util.*;
 
-import com.fasterxml.jackson.core.*;
+import tools.jackson.core.*;
 
 /**
  * Iterator exposed by {@link ObjectMapper} when binding sequence of

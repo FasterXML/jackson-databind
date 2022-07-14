@@ -4,9 +4,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
-import com.fasterxml.jackson.core.PrettyPrinter;
-import com.fasterxml.jackson.core.TokenStreamFactory;
-import com.fasterxml.jackson.core.util.Snapshottable;
+import tools.jackson.core.PrettyPrinter;
+import tools.jackson.core.TokenStreamFactory;
+import tools.jackson.core.util.Snapshottable;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;

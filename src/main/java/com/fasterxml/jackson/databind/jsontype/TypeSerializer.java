@@ -1,8 +1,9 @@
 package com.fasterxml.jackson.databind.jsontype;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.type.WritableTypeId;
-import com.fasterxml.jackson.core.util.VersionUtil;
+import tools.jackson.core.*;
+import tools.jackson.core.type.WritableTypeId;
+import tools.jackson.core.util.VersionUtil;
+
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;

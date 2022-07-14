@@ -4,8 +4,9 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.Collection;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.exc.WrappedIOException;
+import tools.jackson.core.*;
+import tools.jackson.core.exc.WrappedIOException;
+
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.SerializationContextExt;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;

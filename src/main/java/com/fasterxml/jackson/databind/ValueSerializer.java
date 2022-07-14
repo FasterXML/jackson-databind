@@ -3,7 +3,8 @@ package com.fasterxml.jackson.databind;
 import java.util.Iterator;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.core.*;
+
+import tools.jackson.core.*;
 
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;

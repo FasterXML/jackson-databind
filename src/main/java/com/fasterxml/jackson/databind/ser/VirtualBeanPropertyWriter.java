@@ -2,7 +2,7 @@ package com.fasterxml.jackson.databind.ser;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import com.fasterxml.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonGenerator;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;

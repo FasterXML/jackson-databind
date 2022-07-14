@@ -11,8 +11,8 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.io.CharacterEscapes;
+import tools.jackson.core.*;
+import tools.jackson.core.io.CharacterEscapes;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;

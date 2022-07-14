@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.databind;
 
-import com.fasterxml.jackson.core.JacksonException;
+import tools.jackson.core.JacksonException;
 
 /**
  * Abstract class that defines API used for deserializing JSON content

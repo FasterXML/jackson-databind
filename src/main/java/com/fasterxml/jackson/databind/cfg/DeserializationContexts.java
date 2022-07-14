@@ -1,7 +1,8 @@
 package com.fasterxml.jackson.databind.cfg;
 
-import com.fasterxml.jackson.core.FormatSchema;
-import com.fasterxml.jackson.core.TokenStreamFactory;
+import tools.jackson.core.FormatSchema;
+import tools.jackson.core.TokenStreamFactory;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.DeserializationContextExt;
 import com.fasterxml.jackson.databind.deser.DeserializerCache;

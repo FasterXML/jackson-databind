@@ -9,7 +9,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.fasterxml.jackson.core.io.NumberInput;
+import tools.jackson.core.io.NumberInput;
 
 /**
  * Jackson's internal {@link DateFormat} implementation used by standard Date

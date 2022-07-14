@@ -9,11 +9,11 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.io.CharacterEscapes;
-import com.fasterxml.jackson.core.tree.ArrayTreeNode;
-import com.fasterxml.jackson.core.tree.ObjectTreeNode;
-import com.fasterxml.jackson.core.util.JacksonFeatureSet;
+import tools.jackson.core.*;
+import tools.jackson.core.io.CharacterEscapes;
+import tools.jackson.core.tree.ArrayTreeNode;
+import tools.jackson.core.tree.ObjectTreeNode;
+import tools.jackson.core.util.JacksonFeatureSet;
 
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.cfg.DatatypeFeature;

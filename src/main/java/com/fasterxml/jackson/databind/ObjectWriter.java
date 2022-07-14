@@ -7,12 +7,12 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.exc.WrappedIOException;
-import com.fasterxml.jackson.core.io.CharacterEscapes;
-import com.fasterxml.jackson.core.io.SegmentedStringWriter;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.core.util.*;
+import tools.jackson.core.*;
+import tools.jackson.core.exc.WrappedIOException;
+import tools.jackson.core.io.CharacterEscapes;
+import tools.jackson.core.io.SegmentedStringWriter;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.core.util.*;
 
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.cfg.DatatypeFeature;

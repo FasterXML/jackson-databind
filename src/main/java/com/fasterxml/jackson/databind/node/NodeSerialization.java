@@ -4,11 +4,12 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import com.fasterxml.jackson.core.JacksonException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.util.ByteArrayBuilder;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 
 /**
  * Helper value class only used during JDK serialization: contains JSON as `byte[]`

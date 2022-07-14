@@ -2,7 +2,7 @@ package com.fasterxml.jackson.databind.deser;
 
 import java.lang.annotation.Annotation;
 
-import com.fasterxml.jackson.core.*;
+import tools.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.bean.BeanDeserializer;

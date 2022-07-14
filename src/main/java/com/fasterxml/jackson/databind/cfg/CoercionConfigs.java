@@ -3,7 +3,8 @@ package com.fasterxml.jackson.databind.cfg;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.fasterxml.jackson.core.util.Snapshottable;
+import tools.jackson.core.util.Snapshottable;
+
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;

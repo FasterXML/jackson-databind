@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.fasterxml.jackson.core.JsonLocation;
-import com.fasterxml.jackson.core.JsonParser;
+import tools.jackson.core.JsonLocation;
+import tools.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.DatabindException;
 

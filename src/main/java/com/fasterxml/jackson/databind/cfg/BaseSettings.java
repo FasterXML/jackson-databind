@@ -4,7 +4,7 @@ import java.text.DateFormat;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import com.fasterxml.jackson.core.Base64Variant;
+import tools.jackson.core.Base64Variant;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AccessorNamingStrategy;

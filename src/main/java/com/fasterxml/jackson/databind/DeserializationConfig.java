@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.databind;
 
-import com.fasterxml.jackson.core.*;
+import tools.jackson.core.*;
 
 import com.fasterxml.jackson.databind.cfg.*;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
@@ -39,12 +39,12 @@ public final class DeserializationConfig
     protected final int _deserFeatures;
 
     /**
-     * States of {@link com.fasterxml.jackson.core.StreamReadFeature}s to enable/disable.
+     * States of {@link tools.jackson.core.StreamReadFeature}s to enable/disable.
      */
     protected final int _streamReadFeatures;
 
     /**
-     * States of {@link com.fasterxml.jackson.core.FormatFeature}s to enable/disable.
+     * States of {@link tools.jackson.core.FormatFeature}s to enable/disable.
      */
     protected final int _formatReadFeatures;
 

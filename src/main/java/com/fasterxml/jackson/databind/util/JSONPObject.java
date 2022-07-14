@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.util;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.util.JsonpCharacterEscapes;
+import tools.jackson.core.*;
+import tools.jackson.core.util.JsonpCharacterEscapes;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;

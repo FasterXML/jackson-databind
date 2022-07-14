@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.databind.ser;
 
-import com.fasterxml.jackson.core.util.Snapshottable;
+import tools.jackson.core.util.Snapshottable;
 
 import com.fasterxml.jackson.databind.SerializerProvider;
 

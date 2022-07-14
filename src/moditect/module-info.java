@@ -17,7 +17,7 @@ module com.fasterxml.jackson.databind {
     // but we probably do want to expose streaming, annotations
     // as transitive dependencies streaming types at least part of API
     requires transitive com.fasterxml.jackson.annotation;
-    requires transitive com.fasterxml.jackson.core;
+    requires transitive tools.jackson.core;
 
     exports com.fasterxml.jackson.databind;
     exports com.fasterxml.jackson.databind.annotation;

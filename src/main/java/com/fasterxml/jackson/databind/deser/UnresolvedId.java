@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.deser;
 
-import com.fasterxml.jackson.core.JsonLocation;
+import tools.jackson.core.JsonLocation;
+
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**

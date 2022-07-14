@@ -1,10 +1,10 @@
 package com.fasterxml.jackson.failing;
 
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
-import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
-import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
-import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.MapperConfig;
+import tools.jackson.databind.introspect.AnnotatedMember;
+import tools.jackson.databind.introspect.AnnotatedParameter;
+import tools.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
 public class ImplicitParamsForCreator806Test extends BaseMapTest
 {

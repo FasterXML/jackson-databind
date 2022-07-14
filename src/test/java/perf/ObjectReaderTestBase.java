@@ -2,7 +2,7 @@ package perf;
 
 import java.io.*;
 
-import com.fasterxml.jackson.databind.*;
+import tools.jackson.databind.*;
 
 abstract class ObjectReaderTestBase
 {

@@ -2,7 +2,7 @@ package com.fasterxml.jackson.databind.records;
 
 import java.util.Collections;
 
-import com.fasterxml.jackson.databind.*;
+import tools.jackson.databind.*;
 
 public class RecordUpdate3079Test extends BaseMapTest
 {

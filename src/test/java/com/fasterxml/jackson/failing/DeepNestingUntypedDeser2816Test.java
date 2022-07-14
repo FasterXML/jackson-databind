@@ -3,7 +3,7 @@ package com.fasterxml.jackson.failing;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.databind.*;
+import tools.jackson.databind.*;
 
 // [databind#2816] wrt "untyped" (Maps, Lists)
 //

@@ -3,8 +3,9 @@ package com.fasterxml.jackson.failing;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
+
+import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 // for [databind#1391]: should allow disabling of default typing
 // via explicit {@link JsonTypeInfo}

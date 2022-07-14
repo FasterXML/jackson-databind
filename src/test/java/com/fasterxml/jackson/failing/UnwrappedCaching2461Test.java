@@ -1,7 +1,8 @@
 package com.fasterxml.jackson.failing;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
-import com.fasterxml.jackson.databind.*;
+
+import tools.jackson.databind.*;
 
 public class UnwrappedCaching2461Test extends BaseMapTest
 {

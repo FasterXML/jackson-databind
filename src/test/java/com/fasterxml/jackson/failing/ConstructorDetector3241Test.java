@@ -4,12 +4,12 @@ import java.lang.annotation.*;
 
 import com.fasterxml.jackson.annotation.Nulls;
 
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.cfg.*;
-import com.fasterxml.jackson.databind.exc.InvalidNullException;
-import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
-import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
-import com.fasterxml.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.*;
+import tools.jackson.databind.exc.InvalidNullException;
+import tools.jackson.databind.introspect.AnnotatedMember;
+import tools.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import tools.jackson.databind.json.JsonMapper;
 
 // Tests for [databind#1498] (Jackson 2.12)
 public class ConstructorDetector3241Test extends BaseMapTest

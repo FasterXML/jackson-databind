@@ -4,8 +4,8 @@ import java.io.*;
 import java.util.*;
 
 import tools.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.*;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Variant that uses hard-coded input but compares cost of generic type

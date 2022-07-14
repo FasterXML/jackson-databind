@@ -4,7 +4,8 @@ import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.*;
+
+import tools.jackson.databind.*;
 
 public class MapInclusion1649Test extends BaseMapTest
 {

@@ -1,7 +1,8 @@
 package com.fasterxml.jackson.failing;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.databind.*;
+
+import tools.jackson.databind.*;
 
 // This is probably impossible to handle, in general case, since
 // there is a cycle for Parent2/Child2... unless special handling

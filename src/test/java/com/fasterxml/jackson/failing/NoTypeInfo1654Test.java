@@ -4,8 +4,8 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import tools.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 public class NoTypeInfo1654Test extends BaseMapTest
 {

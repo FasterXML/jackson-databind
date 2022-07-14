@@ -2,12 +2,12 @@ package com.fasterxml.jackson.failing;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.cfg.ConstructorDetector;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
-import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
-import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
-import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.ConstructorDetector;
+import tools.jackson.databind.cfg.MapperConfig;
+import tools.jackson.databind.introspect.AnnotatedMember;
+import tools.jackson.databind.introspect.AnnotatedParameter;
+import tools.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
 public class CreatorNullPrimitives2977Test extends BaseMapTest
 {

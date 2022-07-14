@@ -2,7 +2,7 @@ package com.fasterxml.jackson.failing;
 
 import java.time.LocalDateTime;
 
-import com.fasterxml.jackson.databind.*;
+import tools.jackson.databind.*;
 
 // [databind#3262]: not sure what could be done here
 public class POJONode3262Test extends BaseMapTest

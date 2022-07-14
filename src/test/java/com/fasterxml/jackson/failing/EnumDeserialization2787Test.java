@@ -2,7 +2,7 @@ package com.fasterxml.jackson.failing;
 
 import com.fasterxml.jackson.annotation.*;
 
-import com.fasterxml.jackson.databind.*;
+import tools.jackson.databind.*;
 
 public class EnumDeserialization2787Test extends BaseMapTest
 {

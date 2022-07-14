@@ -5,7 +5,8 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.databind.*;
+
+import tools.jackson.databind.*;
 
 @SuppressWarnings("serial")
 public class MapFormatShape1419Test extends BaseMapTest

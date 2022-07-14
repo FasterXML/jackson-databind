@@ -6,12 +6,11 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
-import com.fasterxml.jackson.databind.*;
-
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
-import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
+import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonPOJOBuilder;
+import tools.jackson.databind.annotation.JsonTypeIdResolver;
+import tools.jackson.databind.jsontype.impl.TypeIdResolverBase;
 
 // 31-Jan-2020, tatu: Seems to have regression in 3.0, but this is so
 //    fucking complicated case that my head hurts. Regression only

@@ -14,7 +14,7 @@
     <version>3.0.0-SNAPSHOT</version>
   </parent>
 
-  <groupId>com.fasterxml.jackson.core</groupId>
+  <groupId>tools.jackson.core</groupId>
   <artifactId>jackson-databind</artifactId>
   <version>3.0.0-SNAPSHOT</version>
   <name>jackson-databind</name>
@@ -39,7 +39,7 @@
 
   <properties>
     <!-- Can not use default, since group id != Java package name here -->
-    <osgi.export>com.fasterxml.jackson.databind.*;version=${project.version}</osgi.export>
+    <osgi.export>tools.jackson.databind.*;version=${project.version}</osgi.export>
     <!-- fix for databind#2299: using jackson-databind in an OSGi environment under Android -->
     <osgi.import>
       org.w3c.dom.bootstrap;resolution:=optional,
@@ -47,8 +47,8 @@
     </osgi.import>
 
     <!-- Generate PackageVersion.java into this directory. -->
-    <packageVersion.dir>com/fasterxml/jackson/databind/cfg</packageVersion.dir>
-    <packageVersion.package>com.fasterxml.jackson.databind.cfg</packageVersion.package>
+    <packageVersion.dir>tools/jackson/databind/cfg</packageVersion.dir>
+    <packageVersion.package>tools.jackson.databind.cfg</packageVersion.package>
 
     <version.powermock>2.0.0</version.powermock>
   </properties>
@@ -56,6 +56,7 @@
   <dependencies>
     <!-- Builds on core streaming API; also needs core annotations -->
     <dependency>
+      <!-- 14-Jul-2022, tatu: Note! Annotations remain at Jackson 2.x group id -->
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
       <!-- 06-Mar-2017, tatu: Although bom provides for dependencies, some legacy

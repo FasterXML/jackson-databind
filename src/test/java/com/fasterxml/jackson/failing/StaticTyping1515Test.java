@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
+import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 public class StaticTyping1515Test extends BaseMapTest
 {

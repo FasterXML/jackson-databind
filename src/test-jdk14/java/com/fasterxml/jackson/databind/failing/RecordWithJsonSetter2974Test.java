@@ -5,10 +5,11 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.exc.InvalidNullException;
+
+import tools.jackson.databind.BaseMapTest;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectReader;
+import tools.jackson.databind.exc.InvalidNullException;
 
 public class RecordWithJsonSetter2974Test extends BaseMapTest
 {

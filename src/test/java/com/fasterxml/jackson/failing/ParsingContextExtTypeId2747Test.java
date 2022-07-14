@@ -3,9 +3,8 @@ package com.fasterxml.jackson.failing;
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.core.*;
-
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 public class ParsingContextExtTypeId2747Test extends BaseMapTest
 {

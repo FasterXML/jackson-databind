@@ -4,8 +4,8 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
 
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
+import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 public class TestSetterlessProperties501
     extends BaseMapTest

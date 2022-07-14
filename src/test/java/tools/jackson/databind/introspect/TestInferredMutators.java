@@ -1,0 +1,64 @@
+package tools.jackson.databind.introspect;
+
+import tools.jackson.databind.BaseMapTest;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.exc.UnrecognizedPropertyException;
+
+public class TestInferredMutators extends BaseMapTest
+{
+    public static class Point {
+        protected int x;
+        
+        public int getX() { return x; }
+    }
+
+    public static class FixedPoint {
+        protected final int x;
+
+        public FixedPoint() { x = 0; }
+
+        public int getX() { return x; }
+    }
+
+    /*
+    /**********************************************************
+    /* Unit tests
+    /**********************************************************
+     */
+
+    public void testFinalFieldIgnoral() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .disable(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS)
+                .build();
+        try {
+            /*p =*/ mapper.readValue("{\"x\":2}", FixedPoint.class);
+            fail("Should not try to use final field");
+        } catch (UnrecognizedPropertyException e) {
+            verifyException(e, "Unrecognized property \"x\"");
+        }
+    }
+    
+    // for #195
+    public void testDeserializationInference() throws Exception
+    {
+        final String JSON = "{\"x\":2}";
+        ObjectMapper mapper = new ObjectMapper();
+        // First: default case, inference enabled:
+        assertTrue(mapper.isEnabled(MapperFeature.INFER_PROPERTY_MUTATORS));
+        Point p = mapper.readValue(JSON,  Point.class);
+        assertEquals(2, p.x);
+
+        // but without it, should fail:
+        mapper = jsonMapperBuilder()
+                .disable(MapperFeature.INFER_PROPERTY_MUTATORS)
+                .build();
+        try {
+            p = mapper.readValue(JSON,  Point.class);
+            fail("Should not succeeed");
+        } catch (UnrecognizedPropertyException e) {
+            verifyException(e, "Unrecognized property \"x\"");
+        }
+    }
+}

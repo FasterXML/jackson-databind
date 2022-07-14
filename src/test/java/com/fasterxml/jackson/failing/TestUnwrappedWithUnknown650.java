@@ -1,8 +1,9 @@
 package com.fasterxml.jackson.failing;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
+
+import tools.jackson.databind.*;
+import tools.jackson.databind.exc.UnrecognizedPropertyException;
 
 public class TestUnwrappedWithUnknown650 extends BaseMapTest
 {

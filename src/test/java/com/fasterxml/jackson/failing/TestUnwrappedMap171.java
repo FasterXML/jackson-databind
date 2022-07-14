@@ -4,8 +4,9 @@ import java.util.Collections;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
+import tools.jackson.databind.BaseMapTest;
+import tools.jackson.databind.ObjectMapper;
 
 // Tests for [#171]
 public class TestUnwrappedMap171 extends BaseMapTest

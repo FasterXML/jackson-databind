@@ -418,7 +418,7 @@ public class EnumDeserializationTest
              MAPPER.readValue("{\"map\":{\"NO-SUCH-VALUE\":\"val\"}}", ClassWithEnumMapKey.class);
              fail("Expected an exception for bogus enum value...");
          } catch (InvalidFormatException jex) {
-             verifyException(jex, "Cannot deserialize Map key of type `com.fasterxml.jackson.databind.deser");
+             verifyException(jex, "Cannot deserialize Map key of type `tools.jackson.databind.deser");
              verifyException(jex, "EnumDeserializationTest$TestEnum`");
          }
     }
@@ -631,7 +631,7 @@ public class EnumDeserializationTest
         try {
             MAPPER.readValue("{\"map\":{\"JACkson\":\"val\"}}", ClassWithEnumMapKey.class);
         } catch (InvalidFormatException e) {
-            verifyException(e, "Cannot deserialize Map key of type `com.fasterxml.jackson.databind.deser.");
+            verifyException(e, "Cannot deserialize Map key of type `tools.jackson.databind.deser.");
             verifyException(e, "EnumDeserializationTest$TestEnum");
         }
     }

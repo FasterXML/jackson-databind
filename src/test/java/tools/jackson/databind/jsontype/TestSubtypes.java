@@ -285,7 +285,7 @@ public class TestSubtypes extends BaseMapTest
             .activateDefaultTyping(NoCheckSubTypeValidator.instance, DefaultTyping.NON_FINAL)
             .build();
         json = mapper.writeValueAsString(new EmptyNonFinal());
-        assertEquals("[\"com.fasterxml.jackson.databind.jsontype.TestSubtypes$EmptyNonFinal\",{}]", json);
+        assertEquals("[\"tools.jackson.databind.jsontype.TestSubtypes$EmptyNonFinal\",{}]", json);
     }
 
     public void testErrorMessage() throws Exception {

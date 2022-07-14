@@ -4,8 +4,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 
-import com.fasterxml.jackson.core.JsonLocation;
-import com.fasterxml.jackson.core.JsonParser;
+import tools.jackson.core.JsonLocation;
+import tools.jackson.core.JsonParser;
 
 /**
  * Base class for {@link MismatchedInputException}s that are specifically related

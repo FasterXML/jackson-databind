@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind;
 import java.util.Collection;
 import java.util.function.UnaryOperator;
 
-import com.fasterxml.jackson.core.*;
+import tools.jackson.core.*;
 
 import com.fasterxml.jackson.databind.cfg.MapperBuilder;
 import com.fasterxml.jackson.databind.cfg.MutableConfigOverride;

@@ -2,8 +2,8 @@ package com.fasterxml.jackson.databind.jsontype.impl;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.util.JsonParserSequence;
+import tools.jackson.core.*;
+import tools.jackson.core.util.JsonParserSequence;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;

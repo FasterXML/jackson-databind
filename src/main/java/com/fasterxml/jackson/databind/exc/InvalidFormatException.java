@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.databind.exc;
 
-import com.fasterxml.jackson.core.JsonParser;
+import tools.jackson.core.JsonParser;
 
 /**
  * Specialized sub-class of {@link MismatchedInputException}

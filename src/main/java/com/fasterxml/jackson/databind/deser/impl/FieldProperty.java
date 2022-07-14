@@ -3,9 +3,9 @@ package com.fasterxml.jackson.databind.deser.impl;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.core.JsonToken;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;

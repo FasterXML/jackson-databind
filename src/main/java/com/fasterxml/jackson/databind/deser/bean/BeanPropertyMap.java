@@ -2,10 +2,10 @@ package com.fasterxml.jackson.databind.deser.bean;
 
 import java.util.*;
 
-import com.fasterxml.jackson.core.TokenStreamFactory;
-import com.fasterxml.jackson.core.sym.PropertyNameMatcher;
-import com.fasterxml.jackson.core.util.InternCache;
-import com.fasterxml.jackson.core.util.Named;
+import tools.jackson.core.TokenStreamFactory;
+import tools.jackson.core.sym.PropertyNameMatcher;
+import tools.jackson.core.util.InternCache;
+import tools.jackson.core.util.Named;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ValueDeserializer;

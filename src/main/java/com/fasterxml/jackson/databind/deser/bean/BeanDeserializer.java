@@ -2,8 +2,8 @@ package com.fasterxml.jackson.databind.deser.bean;
 
 import java.util.*;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.sym.PropertyNameMatcher;
+import tools.jackson.core.*;
+import tools.jackson.core.sym.PropertyNameMatcher;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;

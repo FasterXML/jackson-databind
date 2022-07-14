@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.databind.ser.jdk;
 
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.WritableTypeId;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonToken;
+import tools.jackson.core.type.WritableTypeId;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.SerializerProvider;

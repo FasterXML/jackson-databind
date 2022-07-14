@@ -1,7 +1,8 @@
 package com.fasterxml.jackson.databind.exc;
 
-import com.fasterxml.jackson.core.JsonLocation;
-import com.fasterxml.jackson.core.JsonParser;
+import tools.jackson.core.JsonLocation;
+import tools.jackson.core.JsonParser;
+
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.util.ClassUtil;

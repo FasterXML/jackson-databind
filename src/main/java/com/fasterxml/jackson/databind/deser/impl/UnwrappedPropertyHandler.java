@@ -2,8 +2,9 @@ package com.fasterxml.jackson.databind.deser.impl;
 
 import java.util.*;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.util.InternCache;
+import tools.jackson.core.*;
+import tools.jackson.core.util.InternCache;
+
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ValueDeserializer;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;

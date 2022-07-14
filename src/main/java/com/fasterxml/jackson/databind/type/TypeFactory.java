@@ -4,8 +4,9 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.lang.reflect.*;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.core.util.Snapshottable;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.core.util.Snapshottable;
+
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;

@@ -2,7 +2,7 @@ package com.fasterxml.jackson.databind.jsontype.impl;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import com.fasterxml.jackson.core.JacksonException;
+import tools.jackson.core.JacksonException;
 
 import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.JavaType;

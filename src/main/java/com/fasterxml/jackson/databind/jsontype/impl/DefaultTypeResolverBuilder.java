@@ -4,7 +4,7 @@ import java.util.Collection;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import com.fasterxml.jackson.core.TreeNode;
+import tools.jackson.core.TreeNode;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.NamedType;

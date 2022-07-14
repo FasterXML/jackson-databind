@@ -2,9 +2,9 @@ package com.fasterxml.jackson.databind.jsontype.impl;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.type.WritableTypeId;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.type.WritableTypeId;
 
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DatabindContext;

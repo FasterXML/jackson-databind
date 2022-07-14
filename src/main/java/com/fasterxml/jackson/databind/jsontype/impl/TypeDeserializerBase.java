@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import com.fasterxml.jackson.core.*;
+import tools.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.std.NullifyingDeserializer;

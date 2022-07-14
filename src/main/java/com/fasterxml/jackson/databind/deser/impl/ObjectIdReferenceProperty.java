@@ -2,8 +2,9 @@ package com.fasterxml.jackson.databind.deser.impl;
 
 import java.lang.annotation.Annotation;
 
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.core.JsonParser;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;

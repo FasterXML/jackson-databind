@@ -3,7 +3,6 @@ package tools.jackson.databind.deser;
 import java.util.*;
 
 import tools.jackson.databind.*;
-import tools.jackson.databind.deser.DeserializationContextExt;
 
 // Tests for [databind#2539] for checking whether given (raw) type has explicit
 // deserializer associated

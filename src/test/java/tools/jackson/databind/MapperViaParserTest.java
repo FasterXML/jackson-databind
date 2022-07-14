@@ -8,7 +8,6 @@ import tools.jackson.core.io.CharacterEscapes;
 import tools.jackson.core.io.SerializedString;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonWriteFeature;
-import tools.jackson.databind.ObjectMapper;
 
 public class MapperViaParserTest extends BaseMapTest
 {

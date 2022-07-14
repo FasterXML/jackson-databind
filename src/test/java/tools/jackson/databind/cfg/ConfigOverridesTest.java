@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 
 import tools.jackson.databind.*;
-import tools.jackson.databind.cfg.ConfigOverrides;
 
 public class ConfigOverridesTest extends BaseMapTest
 {

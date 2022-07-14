@@ -3,7 +3,6 @@ package tools.jackson.databind.node;
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.JsonNodeFeature;
 import tools.jackson.databind.json.JsonMapper;
-import tools.jackson.databind.node.ObjectNode;
 
 // Tests for new (2.14) `JsonNodeFeature`
 public class NodeFeaturesTest extends BaseMapTest

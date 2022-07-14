@@ -19,7 +19,7 @@ import static org.junit.Assert.assertTrue;
 public abstract class StreamTestBase
     // 19-Sep-2017, tatu: For some reason doing this will break `ExpectedException` rule.
     //    Typical auto-magic that I hate -- but this code came as contribution.
-    //extends com.fasterxml.jackson.databind.BaseMapTest
+    //extends tools.jackson.databind.BaseMapTest
 {
     @Rule
     public final ExpectedException expectedException = ExpectedException.none();

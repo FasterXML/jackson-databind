@@ -40,7 +40,7 @@ public class BasicPTVKnownTypesTest extends BaseMapTest
             DEFAULTING_MAPPER.readValue(json, Object.class);
             fail("Should not pass");
         } catch (InvalidTypeIdException e) {
-            verifyException(e, "Could not resolve type id 'com.fasterxml.jackson.");
+            verifyException(e, "Could not resolve type id 'tools.jackson.");
             verifyException(e, "as a subtype of");
         }
 
@@ -52,7 +52,7 @@ public class BasicPTVKnownTypesTest extends BaseMapTest
             DEFAULTING_MAPPER.readValue(json, Object.class);
             fail("Should not pass");
         } catch (InvalidTypeIdException e) {
-            verifyException(e, "Could not resolve type id '[Lcom.fasterxml.jackson.");
+            verifyException(e, "Could not resolve type id '[Ltools.jackson.");
             verifyException(e, "as a subtype of");
         }
     }

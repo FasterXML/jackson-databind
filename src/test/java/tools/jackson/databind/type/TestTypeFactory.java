@@ -238,7 +238,7 @@ public class TestTypeFactory
         // And then EnumMap (actual use case for us)
         t = tf.constructMapType(EnumMap.class, EnumForCanonical.class, String.class);
         can = t.toCanonical();
-        assertEquals("java.util.EnumMap<com.fasterxml.jackson.databind.type.TestTypeFactory$EnumForCanonical,java.lang.String>",
+        assertEquals("java.util.EnumMap<tools.jackson.databind.type.TestTypeFactory$EnumForCanonical,java.lang.String>",
                 can);
         assertEquals(t, tf.constructFromCanonical(can));
 

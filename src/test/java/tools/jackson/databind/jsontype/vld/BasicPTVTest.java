@@ -115,7 +115,7 @@ public class BasicPTVTest extends BaseMapTest
     // Then subtype-prefix
     public void testAllowByBaseClassPrefix() throws Exception {
         final PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
-                .allowIfBaseType("com.fasterxml.")
+                .allowIfBaseType("tools.jackson.")
                 .build();
         ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(ptv, DefaultTyping.NON_FINAL)
@@ -140,7 +140,7 @@ public class BasicPTVTest extends BaseMapTest
     // Then subtype-pattern
     public void testAllowByBaseClassPattern() throws Exception {
         final PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
-                .allowIfBaseType(Pattern.compile("\\w+\\.fasterxml\\..+"))
+                .allowIfBaseType(Pattern.compile("\\w+\\.jackson\\..+"))
                 .build();
         ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(ptv, DefaultTyping.NON_FINAL)
@@ -209,7 +209,7 @@ public class BasicPTVTest extends BaseMapTest
                     BaseValueWrapper.class);
             fail("Should not pass");
         } catch (InvalidTypeIdException e) {
-            verifyException(e, "Could not resolve type id 'com.fasterxml.jackson.");
+            verifyException(e, "Could not resolve type id 'tools.jackson.");
             verifyException(e, "as a subtype of");
         }
     }
@@ -233,7 +233,7 @@ public class BasicPTVTest extends BaseMapTest
                     BaseValueWrapper.class);
             fail("Should not pass");
         } catch (InvalidTypeIdException e) {
-            verifyException(e, "Could not resolve type id 'com.fasterxml.jackson.");
+            verifyException(e, "Could not resolve type id 'tools.jackson.");
             verifyException(e, "as a subtype of");
         }
     }
@@ -257,7 +257,7 @@ public class BasicPTVTest extends BaseMapTest
                     BaseValueWrapper.class);
             fail("Should not pass");
         } catch (InvalidTypeIdException e) {
-            verifyException(e, "Could not resolve type id 'com.fasterxml.jackson.");
+            verifyException(e, "Could not resolve type id 'tools.jackson.");
             verifyException(e, "as a subtype of");
         }
     }

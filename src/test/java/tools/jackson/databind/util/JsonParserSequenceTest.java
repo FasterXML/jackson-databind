@@ -4,8 +4,8 @@ import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 import tools.jackson.core.ObjectReadContext;
 import tools.jackson.core.util.JsonParserSequence;
+
 import tools.jackson.databind.BaseMapTest;
-import tools.jackson.databind.util.TokenBuffer;
 
 public class JsonParserSequenceTest extends BaseMapTest
 {

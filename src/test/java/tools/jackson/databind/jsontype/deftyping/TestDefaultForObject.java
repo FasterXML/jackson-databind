@@ -388,7 +388,7 @@ public class TestDefaultForObject
                         DefaultTyping.OBJECT_AND_NON_CONCRETE, "*CLASS*")
                 .build();
         String json = mapper.writeValueAsString(new BeanHolder(new StringBean("punny")));
-        assertEquals("{\"bean\":{\"*CLASS*\":\"com.fasterxml.jackson.databind.jsontype.deftyping.TestDefaultForObject$StringBean\",\"name\":\"punny\"}}", json);
+        assertEquals("{\"bean\":{\"*CLASS*\":\"tools.jackson.databind.jsontype.deftyping.TestDefaultForObject$StringBean\",\"name\":\"punny\"}}", json);
     }
 
     public void testNoGoWithExternalProperty() throws Exception
@@ -437,7 +437,7 @@ public class TestDefaultForObject
         // "[["org.codehaus.jackson.map.jsontype.TestDefaultForObject$StringBean",{"name":"abc"}]]")
 
         // note: must have default mapper, default typer NOT enabled (to get 'plain' map)
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = newJsonMapper();
         List<Object> list = m.readValue(str, List.class);
         assertEquals(1, list.size()); // no type for main List, just single entry
         Object entryOb = list.get(0);

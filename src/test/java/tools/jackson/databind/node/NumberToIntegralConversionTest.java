@@ -3,7 +3,6 @@ package tools.jackson.databind.node;
 import java.math.BigDecimal;
 
 import tools.jackson.databind.*;
-import tools.jackson.databind.node.JsonNodeFactory;
 
 // for [databind#2885]
 public class NumberToIntegralConversionTest extends BaseMapTest

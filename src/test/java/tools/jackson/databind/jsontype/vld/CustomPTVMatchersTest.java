@@ -48,7 +48,7 @@ public class CustomPTVMatchersTest extends BaseMapTest
     {
         PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 // Allow types within our packages
-                .allowIfBaseType((ctxt, base) -> base.getName().startsWith("com.fasterxml." ))
+                .allowIfBaseType((ctxt, base) -> base.getName().startsWith("tools.jackson." ))
                 .build();
         ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(ptv, DefaultTyping.EVERYTHING)
@@ -94,7 +94,7 @@ public class CustomPTVMatchersTest extends BaseMapTest
             mapper.readValue(badJson, ObjectWrapper.class);
             fail("Should not pass");
         } catch (InvalidTypeIdException e) {
-            verifyException(e, "Could not resolve type id 'com.fasterxml.jackson.");
+            verifyException(e, "Could not resolve type id 'tools.jackson.");
             verifyException(e, "as a subtype of");
         }
     }

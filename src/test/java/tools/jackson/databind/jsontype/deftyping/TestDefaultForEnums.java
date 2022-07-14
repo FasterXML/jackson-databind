@@ -57,7 +57,7 @@ public class TestDefaultForEnums
     {
         // Typing is needed for enums
         String json = DEFTYPING_MAPPER.writeValueAsString(new Object[] { TestEnum.A });
-        assertEquals("[[\"com.fasterxml.jackson.databind.jsontype.deftyping.TestDefaultForEnums$TestEnum\",\"A\"]]", json);
+        assertEquals("[[\"tools.jackson.databind.jsontype.deftyping.TestDefaultForEnums$TestEnum\",\"A\"]]", json);
 
         // and let's verify we get it back ok as well:
         Object[] value = DEFTYPING_MAPPER.readValue(json, Object[].class);
@@ -68,7 +68,7 @@ public class TestDefaultForEnums
     public void testSimpleEnumsAsField() throws Exception
     {
         String json = DEFTYPING_MAPPER.writeValueAsString(new EnumHolder(TestEnum.B));
-        assertEquals("{\"value\":[\"com.fasterxml.jackson.databind.jsontype.deftyping.TestDefaultForEnums$TestEnum\",\"B\"]}", json);
+        assertEquals("{\"value\":[\"tools.jackson.databind.jsontype.deftyping.TestDefaultForEnums$TestEnum\",\"B\"]}", json);
         EnumHolder holder = DEFTYPING_MAPPER.readValue(json, EnumHolder.class);
         assertSame(TestEnum.B, holder.value);
     }

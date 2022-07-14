@@ -3,7 +3,6 @@ package tools.jackson.databind.util.internal;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import tools.jackson.databind.util.internal.PrivateMaxEntriesMap;
 
 public final class CLHMTestlibTests extends TestCase {
 

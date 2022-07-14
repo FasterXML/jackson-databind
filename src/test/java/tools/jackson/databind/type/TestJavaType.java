@@ -102,8 +102,8 @@ public class TestJavaType
         assertNull(baseType.getKeyType());
         assertNull(baseType.getValueHandler());
 
-        assertEquals("Lcom/fasterxml/jackson/databind/type/TestJavaType$BaseType;", baseType.getGenericSignature());
-        assertEquals("Lcom/fasterxml/jackson/databind/type/TestJavaType$BaseType;", baseType.getErasedSignature());
+        assertEquals("Ltools/jackson/databind/type/TestJavaType$BaseType;", baseType.getGenericSignature());
+        assertEquals("Ltools/jackson/databind/type/TestJavaType$BaseType;", baseType.getErasedSignature());
     }
 
     public void testArrayType()
@@ -164,8 +164,8 @@ public class TestJavaType
         assertNull(enumT.containedType(3));
         assertTrue(enumT.containedTypeOrUnknown(3).isJavaLangObject());
 
-        assertEquals("Lcom/fasterxml/jackson/databind/type/TestJavaType$MyEnum;", enumT.getGenericSignature());
-        assertEquals("Lcom/fasterxml/jackson/databind/type/TestJavaType$MyEnum;", enumT.getErasedSignature());
+        assertEquals("Ltools/jackson/databind/type/TestJavaType$MyEnum;", enumT.getGenericSignature());
+        assertEquals("Ltools/jackson/databind/type/TestJavaType$MyEnum;", enumT.getErasedSignature());
 
         assertTrue(tf.constructType(MyEnum2.class).isEnumType());
         assertTrue(tf.constructType(MyEnum.A.getClass()).isEnumType());

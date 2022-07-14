@@ -7,14 +7,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.type.TypeFactory;
-import tools.jackson.databind.util.BeanUtil;
 
 public class BeanUtilTest extends BaseMapTest
 {
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     public void testGetDefaultValue()

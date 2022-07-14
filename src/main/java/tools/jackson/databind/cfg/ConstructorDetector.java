@@ -52,7 +52,7 @@ public final class ConstructorDetector
 
         /**
          * Refuse to decide implicit mode and instead throw a
-         * {@link com.fasterxml.jackson.databind.exc.InvalidDefinitionException}
+         * {@link tools.jackson.databind.exc.InvalidDefinitionException}
          * in ambiguous case.
          */
         REQUIRE_MODE;

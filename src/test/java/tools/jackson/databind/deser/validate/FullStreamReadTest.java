@@ -77,7 +77,7 @@ public class FullStreamReadTest extends BaseMapTest
             fail("Should not have passed");
         } catch (MismatchedInputException e) {
             verifyException(e, "Trailing token (of type START_ARRAY)");
-            verifyException(e, "value (bound as `com.fasterxml.jackson.databind.JsonNode`)");
+            verifyException(e, "value (bound as `tools.jackson.databind.JsonNode`)");
         }
 
         try {
@@ -128,7 +128,7 @@ public class FullStreamReadTest extends BaseMapTest
             fail("Should not have passed");
         } catch (MismatchedInputException e) {
             verifyException(e, "Trailing token (of type VALUE_FALSE)");
-            verifyException(e, "value (bound as `com.fasterxml.jackson.databind.JsonNode`)");
+            verifyException(e, "value (bound as `tools.jackson.databind.JsonNode`)");
         }
 
         try {
@@ -201,7 +201,7 @@ public class FullStreamReadTest extends BaseMapTest
             fail("Should not have passed");
         } catch (MismatchedInputException e) {
             verifyException(e, "Trailing token (of type START_ARRAY)");
-            verifyException(e, "value (bound as `com.fasterxml.jackson.databind.JsonNode`)");
+            verifyException(e, "value (bound as `tools.jackson.databind.JsonNode`)");
         }
 
         // ... also verify that same happens with "value to update"
@@ -260,7 +260,7 @@ public class FullStreamReadTest extends BaseMapTest
             fail("Should not have passed");
         } catch (MismatchedInputException e) {
             verifyException(e, "Trailing token (of type VALUE_FALSE)");
-            verifyException(e, "value (bound as `com.fasterxml.jackson.databind.JsonNode`)");
+            verifyException(e, "value (bound as `tools.jackson.databind.JsonNode`)");
         }
 
         // others conditionally: will fail on comments unless enabled

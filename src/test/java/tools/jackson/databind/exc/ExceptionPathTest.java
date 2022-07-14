@@ -3,7 +3,6 @@ package tools.jackson.databind.exc;
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
-import tools.jackson.databind.exc.ValueInstantiationException;
 
 public class ExceptionPathTest extends BaseMapTest
 {

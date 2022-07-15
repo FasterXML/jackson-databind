@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.failing;
 
-import com.fasterxml.jackson.databind.*;
+import tools.jackson.databind.*;
 
 /**
  * Basic tests for {@link JsonNode} implementations that

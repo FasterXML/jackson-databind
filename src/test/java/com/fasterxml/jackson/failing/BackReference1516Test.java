@@ -4,8 +4,8 @@ import java.beans.ConstructorProperties;
 
 import com.fasterxml.jackson.annotation.*;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.BaseMapTest;
+import tools.jackson.databind.ObjectMapper;
 
 public class BackReference1516Test extends BaseMapTest
 {

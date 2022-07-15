@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import com.fasterxml.jackson.databind.*;
+import tools.jackson.databind.*;
 
 public class RecursiveIgnoreProperties1755Test extends BaseMapTest
 {

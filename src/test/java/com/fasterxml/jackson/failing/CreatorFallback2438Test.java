@@ -3,7 +3,7 @@ package com.fasterxml.jackson.failing;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import com.fasterxml.jackson.databind.*;
+import tools.jackson.databind.*;
 
 // for [databind#2438]
 public class CreatorFallback2438Test extends BaseMapTest

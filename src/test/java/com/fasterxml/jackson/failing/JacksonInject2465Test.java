@@ -2,7 +2,7 @@ package com.fasterxml.jackson.failing;
 
 import com.fasterxml.jackson.annotation.*;
 
-import com.fasterxml.jackson.databind.*;
+import tools.jackson.databind.*;
 
 // [databind#2465]
 // NOTE: passes for Jackson 3.0, for reasons unknown

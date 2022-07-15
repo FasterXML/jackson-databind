@@ -4,7 +4,7 @@ import java.beans.ConstructorProperties;
 
 import com.fasterxml.jackson.annotation.*;
 
-import com.fasterxml.jackson.databind.*;
+import tools.jackson.databind.*;
 
 public class Creator2008Test extends BaseMapTest
 {

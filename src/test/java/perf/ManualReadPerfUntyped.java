@@ -2,9 +2,9 @@ package perf;
 
 import java.util.Map;
 
-import com.fasterxml.jackson.core.json.JsonFactory;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.json.JsonMapper;
+import tools.jackson.core.json.JsonFactory;
+import tools.jackson.databind.*;
+import tools.jackson.databind.json.JsonMapper;
 
 public class ManualReadPerfUntyped extends ObjectReaderTestBase
 {

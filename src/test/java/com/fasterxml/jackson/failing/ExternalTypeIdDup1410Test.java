@@ -2,7 +2,7 @@ package com.fasterxml.jackson.failing;
 
 import com.fasterxml.jackson.annotation.*;
 
-import com.fasterxml.jackson.databind.*;
+import tools.jackson.databind.*;
 
 // [databind#1410]
 // Problem with External Type Id, existing regular property: should not write

@@ -3,7 +3,8 @@ package com.fasterxml.jackson.failing;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.*;
+
+import tools.jackson.databind.*;
 
 // for [databind#1419]
 public class MapEntryFormat1419Test extends BaseMapTest

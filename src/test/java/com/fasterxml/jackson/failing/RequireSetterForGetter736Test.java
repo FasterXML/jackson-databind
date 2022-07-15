@@ -1,8 +1,10 @@
 package com.fasterxml.jackson.failing;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+
+import tools.jackson.databind.*;
+
 import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.databind.*;
 
 public class RequireSetterForGetter736Test extends BaseMapTest
 {

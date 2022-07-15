@@ -1,6 +1,6 @@
 package perf;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 public class ManualWritePerfWithRecord
     extends ObjectWriterTestBase<Record, RecordAsArray>

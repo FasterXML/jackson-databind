@@ -2,12 +2,11 @@ package perf;
 
 import java.util.UUID;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.ser.std.StdScalarSerializer;
 
 public class ManualWritePerfWithUUID
     extends ObjectWriterTestBase<UUIDFast, UUIDSlow>

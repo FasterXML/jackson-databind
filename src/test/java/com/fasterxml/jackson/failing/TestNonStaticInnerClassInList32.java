@@ -3,7 +3,7 @@ package com.fasterxml.jackson.failing;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.databind.*;
+import tools.jackson.databind.*;
 
 public class TestNonStaticInnerClassInList32 extends BaseMapTest
 {

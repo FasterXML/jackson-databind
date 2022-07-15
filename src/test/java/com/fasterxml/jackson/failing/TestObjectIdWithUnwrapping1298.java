@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.core.StreamWriteFeature;
-import com.fasterxml.jackson.core.json.JsonFactory;
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.StreamWriteFeature;
+import tools.jackson.core.json.JsonFactory;
+import tools.jackson.databind.BaseMapTest;
+import tools.jackson.databind.ObjectMapper;
 
 // Test case for https://github.com/FasterXML/jackson-databind/issues/1298
 public class TestObjectIdWithUnwrapping1298 extends BaseMapTest

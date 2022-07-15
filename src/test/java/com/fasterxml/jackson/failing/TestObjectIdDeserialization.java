@@ -5,10 +5,11 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.objectid.TestObjectId.Employee;
 import com.fasterxml.jackson.failing.TestObjectIdDeserialization.EnumMapCompany.FooEnum;
+
+import tools.jackson.databind.BaseMapTest;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.objectid.TestObjectId.Employee;
 
 /**
  * Unit test to verify handling of Object Id deserialization.

@@ -1,5 +1,5 @@
 // Generated 14-Mar-2019 using Moditect maven plugin
-module com.fasterxml.jackson.databind {
+module tools.jackson.databind {
     // required for
     // java.beans.ConstructorProperties
     // java.beans.Transient
@@ -17,39 +17,40 @@ module com.fasterxml.jackson.databind {
     // but we probably do want to expose streaming, annotations
     // as transitive dependencies streaming types at least part of API
     requires transitive com.fasterxml.jackson.annotation;
-    requires transitive com.fasterxml.jackson.core;
 
-    exports com.fasterxml.jackson.databind;
-    exports com.fasterxml.jackson.databind.annotation;
-    exports com.fasterxml.jackson.databind.cfg;
-    exports com.fasterxml.jackson.databind.deser;
-    exports com.fasterxml.jackson.databind.deser.bean;
-//    exports com.fasterxml.jackson.databind.deser.impl;
-    exports com.fasterxml.jackson.databind.deser.jackson;
-    exports com.fasterxml.jackson.databind.deser.jdk;
-    exports com.fasterxml.jackson.databind.deser.std;
-    exports com.fasterxml.jackson.databind.exc;
+    requires transitive tools.jackson.core;
+
+    exports tools.jackson.databind;
+    exports tools.jackson.databind.annotation;
+    exports tools.jackson.databind.cfg;
+    exports tools.jackson.databind.deser;
+    exports tools.jackson.databind.deser.bean;
+//    exports tools.jackson.databind.deser.impl;
+    exports tools.jackson.databind.deser.jackson;
+    exports tools.jackson.databind.deser.jdk;
+    exports tools.jackson.databind.deser.std;
+    exports tools.jackson.databind.exc;
     // No need to expose these handlers?
-//    exports com.fasterxml.jackson.databind.ext;
-    exports com.fasterxml.jackson.databind.introspect;
-    exports com.fasterxml.jackson.databind.json;
-    exports com.fasterxml.jackson.databind.jsonFormatVisitors;
-    exports com.fasterxml.jackson.databind.jsontype;
-    exports com.fasterxml.jackson.databind.jsontype.impl;
-    exports com.fasterxml.jackson.databind.module;
-    exports com.fasterxml.jackson.databind.node;
-    exports com.fasterxml.jackson.databind.ser;
-    exports com.fasterxml.jackson.databind.ser.bean;
-//    exports com.fasterxml.jackson.databind.ser.impl;
-    exports com.fasterxml.jackson.databind.ser.jackson;
-    exports com.fasterxml.jackson.databind.ser.jdk;
-    exports com.fasterxml.jackson.databind.ser.std;
-    exports com.fasterxml.jackson.databind.type;
-    exports com.fasterxml.jackson.databind.util;
+//    exports tools.jackson.databind.ext;
+    exports tools.jackson.databind.introspect;
+    exports tools.jackson.databind.json;
+    exports tools.jackson.databind.jsonFormatVisitors;
+    exports tools.jackson.databind.jsontype;
+    exports tools.jackson.databind.jsontype.impl;
+    exports tools.jackson.databind.module;
+    exports tools.jackson.databind.node;
+    exports tools.jackson.databind.ser;
+    exports tools.jackson.databind.ser.bean;
+//    exports tools.jackson.databind.ser.impl;
+    exports tools.jackson.databind.ser.jackson;
+    exports tools.jackson.databind.ser.jdk;
+    exports tools.jackson.databind.ser.std;
+    exports tools.jackson.databind.type;
+    exports tools.jackson.databind.util;
 
     // [databind#2485]: prevent warning for "unused" with self-use
-    uses com.fasterxml.jackson.databind.JacksonModule;
+    uses tools.jackson.databind.JacksonModule;
 
-    provides com.fasterxml.jackson.databind.ObjectMapper with
-        com.fasterxml.jackson.databind.json.JsonMapper;
+    provides tools.jackson.databind.ObjectMapper with
+        tools.jackson.databind.json.JsonMapper;
 }

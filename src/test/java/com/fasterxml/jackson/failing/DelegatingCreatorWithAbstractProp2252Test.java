@@ -3,7 +3,8 @@ package com.fasterxml.jackson.failing;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.databind.*;
+
+import tools.jackson.databind.*;
 
 public class DelegatingCreatorWithAbstractProp2252Test extends BaseMapTest
 {

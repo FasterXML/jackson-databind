@@ -1,6 +1,6 @@
 package perf;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Simple manually run micro-benchmark for checking effects of (de)serializer

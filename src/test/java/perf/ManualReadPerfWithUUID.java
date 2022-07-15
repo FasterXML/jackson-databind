@@ -2,10 +2,10 @@ package perf;
 
 import java.util.UUID;
 
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;
-import com.fasterxml.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.deser.std.FromStringDeserializer;
+import tools.jackson.databind.json.JsonMapper;
 
 public class ManualReadPerfWithUUID extends ObjectReaderTestBase
 {

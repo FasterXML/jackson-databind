@@ -3,8 +3,9 @@ package com.fasterxml.jackson.failing;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.*;
+
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.*;
 
 /**
  * NOTE: not assumed to be actual bug -- real numbers are not coerced into

@@ -1,0 +1,183 @@
+package tools.jackson.databind.jsontype;
+
+import tools.jackson.core.*;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.ValueDeserializer;
+
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+
+/**
+ * Interface for deserializing type information from JSON content, to
+ * type-safely deserialize data into correct polymorphic instance
+ * (when type inclusion has been enabled for type handled).
+ *<p>
+ * Separate deserialization methods are needed because serialized
+ * form for inclusion mechanism {@link As#PROPERTY}
+ * is slightly different if value is not expressed as JSON Object:
+ * and as such both type deserializer and serializer need to
+ * JSON Object form (array, object or other (== scalar)) being used.
+ */
+public abstract class TypeDeserializer
+{
+    /*
+    /**********************************************************
+    /* Initialization
+    /**********************************************************
+     */
+
+    /**
+     * Method called to create contextual version, to be used for
+     * values of given property. This may be the type itself
+     * (as is the case for bean properties), or values contained
+     * (for {@link java.util.Collection} or {@link java.util.Map}
+     * valued properties).
+     */
+    public abstract TypeDeserializer forProperty(BeanProperty prop);
+
+    /*
+    /**********************************************************
+    /* Introspection
+    /**********************************************************
+     */
+
+    /**
+     * Accessor for type information inclusion method
+     * that deserializer uses; indicates how type information
+     * is (expected to be) embedded in JSON input.
+     */
+    public abstract As getTypeInclusion();
+
+    /**
+     * Name of property that contains type information, if
+     * property-based inclusion is used.
+     */
+    public abstract String getPropertyName();
+
+    /**
+     * Accessor for object that handles conversions between
+     * types and matching type ids.
+     */
+    public abstract TypeIdResolver getTypeIdResolver();
+
+    /**
+     * Accessor for "default implementation" type; optionally defined
+     * class to use in cases where type id is not
+     * accessible for some reason (either missing, or cannot be
+     * resolved)
+     */
+    public abstract Class<?> getDefaultImpl();
+
+    /**
+     * @since 2.12
+     */
+    public boolean hasDefaultImpl() { return getDefaultImpl() != null; }
+
+    /*
+    /**********************************************************
+    /* Type deserialization methods
+    /**********************************************************
+     */
+
+    /**
+     * Method called to let this type deserializer handle 
+     * deserialization of "typed" object, when value itself
+     * is serialized as JSON Object (regardless of Java type).
+     * Method needs to figure out intended
+     * polymorphic type, locate {@link ValueDeserializer} to use, and
+     * call it with JSON data to deserializer (which does not contain
+     * type information).
+     */
+    public abstract Object deserializeTypedFromObject(JsonParser p,
+            DeserializationContext ctxt) throws JacksonException;
+
+    /**
+     * Method called to let this type deserializer handle 
+     * deserialization of "typed" object, when value itself
+     * is serialized as JSON Array (regardless of Java type).
+     * Method needs to figure out intended
+     * polymorphic type, locate {@link ValueDeserializer} to use, and
+     * call it with JSON data to deserializer (which does not contain
+     * type information).
+     */
+    public abstract Object deserializeTypedFromArray(JsonParser p, DeserializationContext ctxt) throws JacksonException;
+
+    /**
+     * Method called to let this type deserializer handle 
+     * deserialization of "typed" object, when value itself
+     * is serialized as a scalar JSON value (something other
+     * than Array or Object), regardless of Java type.
+     * Method needs to figure out intended
+     * polymorphic type, locate {@link ValueDeserializer} to use, and
+     * call it with JSON data to deserializer (which does not contain
+     * type information).
+     */
+    public abstract Object deserializeTypedFromScalar(JsonParser p, DeserializationContext ctxt) throws JacksonException;
+
+    /**
+     * Method called to let this type deserializer handle 
+     * deserialization of "typed" object, when value itself
+     * may have been serialized using any kind of JSON value
+     * (Array, Object, scalar). Should only be called if JSON
+     * serialization is polymorphic (not Java type); for example when
+     * using JSON node representation, or "untyped" Java object
+     * (which may be Map, Collection, wrapper/primitive etc).
+     */
+    public abstract Object deserializeTypedFromAny(JsonParser p, DeserializationContext ctxt) throws JacksonException;
+
+    /*
+    /**********************************************************
+    /* Shared helper methods
+    /**********************************************************
+     */
+
+    /**
+     * Helper method used to check if given parser might be pointing to
+     * a "natural" value, and one that would be acceptable as the
+     * result value (compatible with declared base type)
+     */
+    public static Object deserializeIfNatural(JsonParser p, DeserializationContext ctxt, JavaType baseType) throws JacksonException {
+        return deserializeIfNatural(p, ctxt, baseType.getRawClass());
+    }
+
+    @SuppressWarnings("incomplete-switch")
+    public static Object deserializeIfNatural(JsonParser p, DeserializationContext ctxt,
+            Class<?> base) throws JacksonException
+    {
+        JsonToken t = p.currentToken();
+        if (t == null) {
+            return null;
+        }
+        switch (t) {
+        case VALUE_STRING:
+            if (base.isAssignableFrom(String.class)) {
+                return p.getText();
+            }
+            break;
+        case VALUE_NUMBER_INT:
+            if (base.isAssignableFrom(Integer.class)) {
+                return p.getIntValue();
+            }
+            break;
+
+        case VALUE_NUMBER_FLOAT:
+            if (base.isAssignableFrom(Double.class)) {
+                return Double.valueOf(p.getDoubleValue());
+            }
+            break;
+        case VALUE_TRUE:
+            if (base.isAssignableFrom(Boolean.class)) {
+                return Boolean.TRUE;
+            }
+            break;
+        case VALUE_FALSE:
+            if (base.isAssignableFrom(Boolean.class)) {
+                return Boolean.FALSE;
+            }
+            break;
+        }
+        return null;
+    }
+}
+    

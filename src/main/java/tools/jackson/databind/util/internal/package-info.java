@@ -22,11 +22,11 @@
  * missing features compared to the full <a href="http://code.google.com/p/concurrentlinkedhashmap/">
  * http://code.google.com/p/concurrentlinkedhashmap/</a> implementation.
  * <p>
- * {@link com.fasterxml.jackson.databind.util.internal.Weigher} is a simple interface
+ * {@link tools.jackson.databind.util.internal.Weigher} is a simple interface
  * for determining how many units of capacity an entry consumes. Depending on
  * which concrete Weigher class is used, an entry may consume a different amount
  * of space within the cache. The
- * {@link com.fasterxml.jackson.databind.util.internal.Weighers} class provides
+ * {@link tools.jackson.databind.util.internal.Weighers} class provides
  * utility methods for obtaining the most common kinds of implementations.
  * <p>
  * {@link tools.jackson.databind.util.internal.EvictionListener} provides the

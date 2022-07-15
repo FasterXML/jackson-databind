@@ -13,7 +13,7 @@ import tools.jackson.databind.util.ClassUtil;
  * and as keys for deserializers.
  *<p>
  * Instances can (only) be constructed by
- * <code>com.fasterxml.jackson.databind.type.TypeFactory</code>.
+ * {@link tools.jackson.databind.type.TypeFactory}.
  */
 public abstract class JavaType
     extends ResolvedType

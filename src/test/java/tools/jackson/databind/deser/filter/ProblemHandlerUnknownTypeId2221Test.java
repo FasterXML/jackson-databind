@@ -72,7 +72,7 @@ public class ProblemHandlerUnknownTypeId2221Test extends BaseMapTest
 "                              }\n" +
 "                         ],\n" +
 "                         [\n" +
-"                              \"com.fasterxml.jackson.databind.deser.NoSuchClass$AnInventedClassBeingNotOnTheClasspath\",\n" +
+"                              \"tools.jackson.databind.deser.NoSuchClass$AnInventedClassBeingNotOnTheClasspath\",\n" +
 "                              {\n" +
 "                                   \"aField\":\"some value\"\n" +
 "                              }\n" +

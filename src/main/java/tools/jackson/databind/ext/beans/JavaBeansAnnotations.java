@@ -17,7 +17,7 @@ public abstract class JavaBeansAnnotations
     static {
         JavaBeansAnnotations impl = null;
         try {
-            Class<?> cls = Class.forName("com.fasterxml.jackson.databind.ext.beans.JavaBeansAnnotationsImpl");
+            Class<?> cls = Class.forName("tools.jackson.databind.ext.beans.JavaBeansAnnotationsImpl");
             impl = (JavaBeansAnnotations) ClassUtil.createInstance(cls, false);
         } catch (Throwable t) {
             // 09-Sep-2019, tatu: Used to log earlier, but with 2.10.0 let's not log

@@ -176,7 +176,7 @@ public enum SerializationFeature implements ConfigFeature
      * globally configured {@link java.text.DateFormat}.
      *<p>
      * For "classic" JDK date types ({@link java.util.Date}, {@link java.util.Calendar})
-     * the default formatting is provided by {@link com.fasterxml.jackson.databind.util.StdDateFormat},
+     * the default formatting is provided by {@link tools.jackson.databind.util.StdDateFormat},
      * and corresponds to format String of "yyyy-MM-dd'T'HH:mm:ss.SSSX"
      * (see {@link java.text.DateFormat} for details of format Strings).
      * Whether this feature affects handling of other date-related

@@ -48,9 +48,9 @@ public class OptionalHandlerFactory
     protected OptionalHandlerFactory() {
         _sqlDeserializers = new HashMap<>();
         _sqlDeserializers.put(CLS_NAME_JAVA_SQL_DATE,
-                "com.fasterxml.jackson.databind.ext.sql.JavaSqlDateDeserializer");
+                "tools.jackson.databind.ext.sql.JavaSqlDateDeserializer");
         _sqlDeserializers.put(CLS_NAME_JAVA_SQL_TIMESTAMP,
-                "com.fasterxml.jackson.databind.ext.sql.JavaSqlTimestampDeserializer");
+                "tools.jackson.databind.ext.sql.JavaSqlTimestampDeserializer");
         // 09-Nov-2020, tatu: No deserializer for `java.sql.Blob` yet; would require additional
         //    dependency and not yet requested by anyone. Add if requested
 
@@ -60,15 +60,15 @@ public class OptionalHandlerFactory
 
         // note: timestamps are very similar to java.util.Date, thus serialized as such
         _sqlSerializers.put(CLS_NAME_JAVA_SQL_TIMESTAMP, JavaUtilDateSerializer.instance);
-        _sqlSerializers.put(CLS_NAME_JAVA_SQL_DATE, "com.fasterxml.jackson.databind.ext.sql.JavaSqlDateSerializer");
-        _sqlSerializers.put(CLS_NAME_JAVA_SQL_TIME, "com.fasterxml.jackson.databind.ext.sql.JavaSqlTimeSerializer");
+        _sqlSerializers.put(CLS_NAME_JAVA_SQL_DATE, "tools.jackson.databind.ext.sql.JavaSqlDateSerializer");
+        _sqlSerializers.put(CLS_NAME_JAVA_SQL_TIME, "tools.jackson.databind.ext.sql.JavaSqlTimeSerializer");
 
         // 09-Nov-2020, tatu: Not really optimal way to deal with these, problem  being that
         //   Blob is interface and actual instance we get is usually different. So may
         //   need to improve if we reported bugs. But for now, do this
         
-        _sqlSerializers.put(CLS_NAME_JAVA_SQL_BLOB, "com.fasterxml.jackson.databind.ext.sql.JavaSqlBlobSerializer");
-        _sqlSerializers.put(CLS_NAME_JAVA_SQL_SERIALBLOB, "com.fasterxml.jackson.databind.ext.sql.JavaSqlBlobSerializer");
+        _sqlSerializers.put(CLS_NAME_JAVA_SQL_BLOB, "tools.jackson.databind.ext.sql.JavaSqlBlobSerializer");
+        _sqlSerializers.put(CLS_NAME_JAVA_SQL_SERIALBLOB, "tools.jackson.databind.ext.sql.JavaSqlBlobSerializer");
     }
 
     /*

@@ -270,7 +270,7 @@ public class TestCreators2 extends BaseMapTest
             fail("Should have caught duplicate creator parameters");
         } catch (InvalidDefinitionException e) {
             verifyException(e, "duplicate creator property \"bar\"");
-            verifyException(e, "for type `com.fasterxml.jackson.databind.");
+            verifyException(e, "for type `tools.jackson.databind.");
             verifyException(e, "$BrokenCreatorBean`");
         }
     }

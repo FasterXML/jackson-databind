@@ -29,10 +29,10 @@ of reading/writing, mapper contains additional functionality such as:
 <ul>
  <li>Value conversions using {@link tools.jackson.databind.ObjectMapper#convertValue(Object, Class)},
   {@link tools.jackson.databind.ObjectMapper#valueToTree(Object)} and
-  {@link tools.jackson.databind.ObjectMapper#treeToValue(com.fasterxml.jackson.core.TreeNode, Class)} methods.
+  {@link tools.jackson.databind.ObjectMapper#treeToValue(tools.jackson.core.TreeNode, Class)} methods.
   </li>
  <li>Type introspection needed for things like generation of Schemas (like JSON Schema, Avro Schema, or protoc
-   definitions), using {@link tools.jackson.databind.ObjectMapper#acceptJsonFormatVisitor(Class, com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper)}
+   definitions), using {@link tools.jackson.databind.ObjectMapper#acceptJsonFormatVisitor(Class, tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper)}
    (note: actual handles are usually provided by various Jackson modules: mapper simply initiates calling of
    callbacks, based on serializers registered)
   </li>
@@ -50,7 +50,7 @@ Simplest usage is of form:
 
   // Or if you prefer JSON Tree representation:
   JsonNode root = mapper.readTree(newState);
-  // and find values by, for example, using a {@link com.fasterxml.jackson.core.JsonPointer} expression:
+  // and find values by, for example, using a {@link tools.jackson.core.JsonPointer} expression:
   int age = root.at("/personal/age").getValueAsInt(); 
 </pre>
 <p>

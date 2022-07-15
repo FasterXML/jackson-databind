@@ -8,13 +8,12 @@ import tools.jackson.databind.ObjectMapper;
 
 public class TestTypedRootValueSerialization extends BaseMapTest
 {
-    // [JACKSON-822]
     static interface Issue822Interface {
         public int getA();
     }
 
     // If this annotation is added, things will work:
-    //@com.fasterxml.jackson.databind.annotation.JsonSerialize(as=Issue822Interface.class)
+    //@tools.jackson.databind.annotation.JsonSerialize(as=Issue822Interface.class)
     // but it should not be necessary when root type is passed
     static class Issue822Impl implements Issue822Interface {
         @Override

@@ -75,7 +75,7 @@ public class SimpleSerializers
         if (cls == null || cls == Object.class) {
             throw new IllegalArgumentException("`ValueSerializer` of type `"+ser.getClass().getName()
                     +"` does not define valid handledType() -- must either register with method that takes type argument "
-                    +" or make serializer extend 'com.fasterxml.jackson.databind.ser.std.StdSerializer'"); 
+                    +" or make serializer extend 'tools.jackson.databind.ser.std.StdSerializer'"); 
         }
         _addSerializer(cls, ser);
         return this;
@@ -95,9 +95,9 @@ public class SimpleSerializers
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Serializers implementation
-    /**********************************************************
+    /**********************************************************************
      */
     
     @Override

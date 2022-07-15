@@ -465,7 +465,7 @@ public abstract class BasicSerializerFactory
     /**
      * Helper method called to check if a class or method
      * has an annotation
-     * (@link com.fasterxml.jackson.databind.annotation.JsonSerialize#using)
+     * (@link tools.jackson.databind.annotation.JsonSerialize#using)
      * that tells the class to use for serialization.
      * Returns null if no such annotation found.
      */

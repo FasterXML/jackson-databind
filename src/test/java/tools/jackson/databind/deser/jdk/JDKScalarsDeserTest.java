@@ -772,8 +772,6 @@ public class JDKScalarsDeserTest
             ob = readerCoerceOk.forType(cls).readValue(EMPTY_STRING_JSON);
             assertEquals(1, Array.getLength(ob));
             assertEquals(defValue, Array.get(ob, 0));
-
-            // Note: coercion tests moved to under "com.fasterxml.jackson.databind.convert"
         }
     }
 

@@ -5,8 +5,8 @@
  * This means that they are not merely implementation
  * details, but part of developer-public interface where project
  * tries to maintain backwards compatibility at higher level
- * than for implementation types under {@code com.fasterxml.jackson.databind.deser.impl}
- * and {@code com.fasterxml.jackson.databind.deser.jdk} packages (although not
+ * than for implementation types under {@code tools.jackson.databind.deser.impl}
+ * and {@code tools.jackson.databind.deser.jdk} packages (although not
  * quite as fully user-facing API like that of {@code ObjectMapper}).
  */
 package tools.jackson.databind.deser.std;

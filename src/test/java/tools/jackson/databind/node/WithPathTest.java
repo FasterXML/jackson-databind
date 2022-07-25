@@ -3,9 +3,8 @@ package tools.jackson.databind.node;
 import tools.jackson.core.JsonPointer;
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.JsonNodeException;
-import tools.jackson.databind.node.ObjectNode;
 
-// for [databuind#1980] implementation
+// for [databind#1980] implementation
 public class WithPathTest extends BaseMapTest
 {
     /*

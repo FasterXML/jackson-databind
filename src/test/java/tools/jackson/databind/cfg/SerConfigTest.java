@@ -5,8 +5,6 @@ import java.util.Collections;
 import tools.jackson.core.StreamWriteFeature;
 import tools.jackson.core.json.JsonWriteFeature;
 import tools.jackson.databind.*;
-import tools.jackson.databind.cfg.ConfigOverrides;
-import tools.jackson.databind.cfg.ContextAttributes;
 
 public class SerConfigTest extends BaseMapTest
 {

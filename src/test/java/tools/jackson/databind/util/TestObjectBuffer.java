@@ -3,7 +3,6 @@ package tools.jackson.databind.util;
 import java.util.*;
 
 import tools.jackson.databind.BaseMapTest;
-import tools.jackson.databind.util.ObjectBuffer;
 
 public class TestObjectBuffer
     extends BaseMapTest

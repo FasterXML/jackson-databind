@@ -5,7 +5,6 @@ import java.util.Iterator;
 
 import tools.jackson.core.JsonToken;
 import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.node.MissingNode;
 
 public class TestMissingNode extends NodeTestBase
 {

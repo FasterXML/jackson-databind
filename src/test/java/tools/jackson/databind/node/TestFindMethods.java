@@ -4,7 +4,6 @@ import java.util.*;
 
 import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.node.ObjectNode;
 
 public class TestFindMethods
     extends BaseMapTest

@@ -2,8 +2,8 @@ package tools.jackson.databind.jsontype;
 
 import tools.jackson.core.*;
 import tools.jackson.core.json.JsonFactory;
+
 import tools.jackson.databind.*;
-import tools.jackson.databind.jsontype.TypeDeserializer;
 
 public class TypeDeserializerUtilMethodsTest extends BaseMapTest
 {

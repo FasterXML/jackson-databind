@@ -2,7 +2,6 @@ package tools.jackson.databind.util;
 
 import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.JacksonSerializable;
-import tools.jackson.databind.util.RawValue;
 
 public class RawValueTest extends BaseMapTest
 {

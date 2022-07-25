@@ -7,9 +7,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.module.SimpleModule;
-import tools.jackson.databind.ser.BeanPropertyWriter;
-import tools.jackson.databind.ser.BeanSerializerBuilder;
-import tools.jackson.databind.ser.ValueSerializerModifier;
 
 public class ValueSerializerModifier1612Test extends BaseMapTest
 {

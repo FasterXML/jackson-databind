@@ -3,7 +3,6 @@ package tools.jackson.databind.type;
 import java.util.*;
 
 import tools.jackson.databind.*;
-import tools.jackson.databind.type.TypeFactory;
 
 public class RecursiveTypeTest extends BaseMapTest
 {

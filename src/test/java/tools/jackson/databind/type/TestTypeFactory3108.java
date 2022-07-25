@@ -5,7 +5,6 @@ import java.util.HashMap;
 
 import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.JavaType;
-import tools.jackson.databind.type.TypeFactory;
 
 // [databind#3108]: canonical type description for non-generic subtypes
 @SuppressWarnings("serial")

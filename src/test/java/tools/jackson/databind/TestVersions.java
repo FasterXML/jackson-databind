@@ -2,7 +2,7 @@ package tools.jackson.databind;
 
 import tools.jackson.core.Version;
 import tools.jackson.core.Versioned;
-import tools.jackson.databind.ObjectMapper;
+
 import tools.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import tools.jackson.databind.json.JsonMapper;
 

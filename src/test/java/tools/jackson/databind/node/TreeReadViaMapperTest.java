@@ -4,9 +4,8 @@ import java.io.*;
 import java.util.*;
 
 import tools.jackson.core.*;
+
 import tools.jackson.databind.*;
-import tools.jackson.databind.node.ArrayNode;
-import tools.jackson.databind.node.ObjectNode;
 import tools.jackson.databind.node.TestTreeDeserialization.Bean;
 
 /**

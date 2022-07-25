@@ -3,7 +3,6 @@ package tools.jackson.databind.module;
 import tools.jackson.core.Version;
 import tools.jackson.databind.*;
 import tools.jackson.databind.jsontype.NamedType;
-import tools.jackson.databind.module.SimpleModule;
 
 public class SimpleModuleArgCheckTest extends BaseMapTest
 {

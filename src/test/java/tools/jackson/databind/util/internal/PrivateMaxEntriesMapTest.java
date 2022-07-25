@@ -20,8 +20,6 @@ package tools.jackson.databind.util.internal;
 
 import org.junit.Test;
 
-import tools.jackson.databind.util.internal.PrivateMaxEntriesMap;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 

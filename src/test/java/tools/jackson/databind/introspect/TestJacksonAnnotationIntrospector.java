@@ -9,11 +9,11 @@ import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.JsonParser;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.*;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.deser.std.StdDeserializer;
-import tools.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
 public class TestJacksonAnnotationIntrospector
     extends BaseMapTest

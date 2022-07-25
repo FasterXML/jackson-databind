@@ -1,7 +1,5 @@
 package tools.jackson.databind.node;
 
-import tools.jackson.databind.node.TextNode;
-
 public class TextNodeTest extends NodeTestBase
 {
     public void testText()

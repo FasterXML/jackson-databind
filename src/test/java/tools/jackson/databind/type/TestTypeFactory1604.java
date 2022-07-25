@@ -3,9 +3,9 @@ package tools.jackson.databind.type;
 import java.util.*;
 
 import tools.jackson.core.type.TypeReference;
+
 import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.JavaType;
-import tools.jackson.databind.type.TypeFactory;
 
 // for [databind#1604], [databind#2577]
 public class TestTypeFactory1604 extends BaseMapTest

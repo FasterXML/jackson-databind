@@ -3,13 +3,14 @@ package tools.jackson.databind.ser;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import tools.jackson.core.JsonGenerator;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonAppend;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.AnnotatedClass;
 import tools.jackson.databind.introspect.BeanPropertyDefinition;
-import tools.jackson.databind.ser.VirtualBeanPropertyWriter;
 import tools.jackson.databind.util.Annotations;
 
 /**

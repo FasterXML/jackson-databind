@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 
 import tools.jackson.databind.*;
-import tools.jackson.databind.introspect.BeanPropertyDefinition;
 
 /**
  * Unit tests for checking handling of some of {@link MapperFeature}s

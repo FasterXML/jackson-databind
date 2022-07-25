@@ -1,7 +1,6 @@
 package tools.jackson.databind.util;
 
 import tools.jackson.databind.BaseTest;
-import tools.jackson.databind.util.SimpleLookupCache;
 
 public class SimpleLookupCacheTest extends BaseTest
 {

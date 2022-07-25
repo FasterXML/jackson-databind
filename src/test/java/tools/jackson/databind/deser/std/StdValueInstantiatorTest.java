@@ -3,7 +3,6 @@ package tools.jackson.databind.deser.std;
 import java.math.BigDecimal;
 
 import tools.jackson.databind.BaseMapTest;
-import tools.jackson.databind.deser.std.StdValueInstantiator;
 
 // [databind#2978]
 public class StdValueInstantiatorTest extends BaseMapTest

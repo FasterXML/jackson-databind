@@ -2,15 +2,15 @@ package tools.jackson.databind.jsontype;
 
 import java.util.*;
 
-import tools.jackson.core.*;
-import tools.jackson.databind.*;
-import tools.jackson.databind.jsontype.TypeSerializer;
-import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
-
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+
+import tools.jackson.core.*;
+
+import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 public class TestWithGenerics extends BaseMapTest
 {

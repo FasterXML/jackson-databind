@@ -4,8 +4,8 @@ import java.util.Map;
 
 import tools.jackson.core.Version;
 import tools.jackson.core.type.TypeReference;
+
 import tools.jackson.databind.*;
-import tools.jackson.databind.module.SimpleModule;
 
 public class TestKeyDeserializers extends BaseMapTest
 {

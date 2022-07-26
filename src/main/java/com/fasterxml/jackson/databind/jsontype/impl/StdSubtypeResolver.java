@@ -2,9 +2,9 @@ package com.fasterxml.jackson.databind.jsontype.impl;
 
 import java.lang.reflect.Modifier;
 import java.util.*;
-
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
@@ -109,7 +109,9 @@ public class StdSubtypeResolver
         
         // then annotated types for property itself
         if (property != null) {
-            Collection<NamedType> st = ai.findSubtypes(property);
+            Collection<NamedType> st = ai.findSubtypesByAnnotations(property);
+            if(st == null && config.isEnabled(MapperFeature.DETECT_SEALED_CLASS_PERMITTED_SUBCLASSES))
+                st = ai.findSubtypesByPermittedSubclasses(rawBase);
             if (st != null) {
                 for (NamedType nt : st) {
                     AnnotatedClass ac = AnnotatedClassResolver.resolveWithoutSuperTypes(config,
@@ -178,7 +180,9 @@ public class StdSubtypeResolver
         
         // then with definitions from property
         if (property != null) {
-            Collection<NamedType> st = ai.findSubtypes(property);
+            Collection<NamedType> st = ai.findSubtypesByAnnotations(property);
+            if(st == null && config.isEnabled(MapperFeature.DETECT_SEALED_CLASS_PERMITTED_SUBCLASSES) && baseType.hasContentType())
+                st = ai.findSubtypesByPermittedSubclasses(rawBase);
             if (st != null) {
                 for (NamedType nt : st) {
                     ac = AnnotatedClassResolver.resolveWithoutSuperTypes(config, nt.getType());
@@ -262,7 +266,9 @@ public class StdSubtypeResolver
         }
         // if it wasn't, add and check subtypes recursively
         collectedSubtypes.put(typeOnlyNamedType, namedType);
-        Collection<NamedType> st = ai.findSubtypes(annotatedType);
+        Collection<NamedType> st = ai.findSubtypesByAnnotations(annotatedType);
+        if(st == null && config.isEnabled(MapperFeature.DETECT_SEALED_CLASS_PERMITTED_SUBCLASSES))
+            st = ai.findSubtypesByPermittedSubclasses(annotatedType.getRawType());
         if (st != null && !st.isEmpty()) {
             for (NamedType subtype : st) {
                 AnnotatedClass subtypeClass = AnnotatedClassResolver.resolveWithoutSuperTypes(config,
@@ -293,7 +299,9 @@ public class StdSubtypeResolver
 
         // only check subtypes if this type hadn't yet been handled
         if (typesHandled.add(namedType.getType())) {
-            Collection<NamedType> st = ai.findSubtypes(annotatedType);
+            Collection<NamedType> st = ai.findSubtypesByAnnotations(annotatedType);
+            if(st == null && config.isEnabled(MapperFeature.DETECT_SEALED_CLASS_PERMITTED_SUBCLASSES))
+                st = ai.findSubtypesByPermittedSubclasses(annotatedType.getRawType());
             if (st != null && !st.isEmpty()) {
                 for (NamedType subtype : st) {
                     AnnotatedClass subtypeClass = AnnotatedClassResolver.resolveWithoutSuperTypes(config,

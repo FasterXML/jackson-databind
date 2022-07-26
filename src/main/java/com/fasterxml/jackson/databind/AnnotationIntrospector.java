@@ -475,7 +475,7 @@ public abstract class AnnotationIntrospector
      * This includes not only
      * instantiating resolver builder, but also configuring it based on
      * relevant annotations (not including ones checked with a call to
-     * {@link #findSubtypes}
+     * {@link #findSubtypesByAnnotations}
      *
      * @param config Configuration settings in effect (for serialization or deserialization)
      * @param ac Annotated class to check for annotations
@@ -494,7 +494,7 @@ public abstract class AnnotationIntrospector
      * This includes not only
      * instantiating resolver builder, but also configuring it based on
      * relevant annotations (not including ones checked with a call to
-     * {@link #findSubtypes}
+     * {@link #findSubtypesByAnnotations}
      * 
      * @param config Configuration settings in effect (for serialization or deserialization)
      * @param am Annotated member (field or method) to check for annotations
@@ -516,7 +516,7 @@ public abstract class AnnotationIntrospector
      * This includes not only
      * instantiating resolver builder, but also configuring it based on
      * relevant annotations (not including ones checked with a call to
-     * {@link #findSubtypes}
+     * {@link #findSubtypesByAnnotations}
      * 
      * @param config Configuration settings in effect (for serialization or deserialization)
      * @param am Annotated member (field or method) to check for annotations
@@ -529,6 +529,11 @@ public abstract class AnnotationIntrospector
             AnnotatedMember am, JavaType containerType) {
         return null;
     }
+    
+    /**
+     * @deprecated Use {@link #findSubtypesByAnnotations(Annotated)} instead.
+     */
+    public List<NamedType> findSubtypes(Annotated a) { return findSubtypesByAnnotations(a); }
 
     /**
      * Method for locating annotation-specified subtypes related to annotated
@@ -541,7 +546,20 @@ public abstract class AnnotationIntrospector
      *
      * @return List of subtype definitions found if any; {@code null} if none
      */
-    public List<NamedType> findSubtypes(Annotated a) { return null; }
+    public List<NamedType> findSubtypesByAnnotations(Annotated a) { return null; }
+
+    /**
+     * Method for locating the permitted subclasses specified by a sealed class.
+     * Note that this is only guaranteed to be a list of direct subtypes, no
+     * recursive processing is guaranteed (i.e., caller has to do it if/as
+     * necessary). Note that invoking this method may implicitly load all Jackson
+     * Java 17 integrations and features.
+     * 
+     * @param klass A Java content type {@link Class}
+     *
+     * @return List of subtype definitions found if any; {@code null} if none
+     */
+    public List<NamedType> findSubtypesByPermittedSubclasses(Class<?> klass) { return null; }
 
     /**
      * Method for checking if specified type has explicit name.

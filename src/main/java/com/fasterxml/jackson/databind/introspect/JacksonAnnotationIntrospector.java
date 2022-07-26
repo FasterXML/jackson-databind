@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.annotation.*;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.ext.Java7Support;
+import com.fasterxml.jackson.databind.jdk17.JDK17Util;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
@@ -614,10 +615,9 @@ public class JacksonAnnotationIntrospector
         }
         return _findTypeResolver(config, am, containerType);
     }
-    
+
     @Override
-    public List<NamedType> findSubtypes(Annotated a)
-    {
+    public List<NamedType> findSubtypesByAnnotations(Annotated a) {
         JsonSubTypes t = _findAnnotation(a, JsonSubTypes.class);
         if (t == null) return null;
         JsonSubTypes.Type[] types = t.value();
@@ -630,6 +630,18 @@ public class JacksonAnnotationIntrospector
             }
         }
         return result;
+    }
+
+    @Override
+    public List<NamedType> findSubtypesByPermittedSubclasses(Class<?> klass) {
+        boolean sealed = Optional.ofNullable(JDK17Util.isSealed(klass)).orElse(false);
+        if (sealed) {
+            Class<?>[] permittedSubclasses = JDK17Util.getPermittedSubclasses(klass);
+            if (permittedSubclasses != null && permittedSubclasses.length > 0) {
+                return Arrays.stream(permittedSubclasses).map(NamedType::new).toList();
+            }
+        }
+        return null;
     }
 
     @Override        

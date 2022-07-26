@@ -45,7 +45,7 @@ public class OptionalLongDeserializer extends BaseScalarOptionalDeserializer<Opt
             if (_checkTextualNull(ctxt, text)) {
                 return (OptionalLong) getNullValue(ctxt);
             }
-            return OptionalLong.of(_parseLongPrimitive(ctxt, text));
+            return OptionalLong.of(_parseLongPrimitive(p, ctxt, text));
         case JsonTokenId.ID_NUMBER_FLOAT:
             act = _checkFloatToIntCoercion(p, ctxt, _valueClass);
             if (act == CoercionAction.AsNull) {

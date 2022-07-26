@@ -628,11 +628,8 @@ public class NumberDeserializers
             if (_checkTextualNull(ctxt, text)) {
                 return (Float) getNullValue(ctxt);
             }
-            try {
-                return NumberInput.parseFloat(text, p.isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
-            } catch (IllegalArgumentException iae) { }
-            return (Float) ctxt.handleWeirdStringValue(_valueClass, text,
-                    "not a valid `Float` value");
+            // No separate "_parseFloat()" so just call this (nulls handled above)
+            return _parseFloatPrimitive(p, ctxt, text);
         }
     }
 
@@ -725,11 +722,8 @@ public class NumberDeserializers
             if (_checkTextualNull(ctxt, text)) {
                 return (Double) getNullValue(ctxt);
             }
-            try {
-                return _parseDouble(text, p.isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
-            } catch (IllegalArgumentException iae) { }
-            return (Double) ctxt.handleWeirdStringValue(_valueClass, text,
-                    "not a valid `Double` value");
+            // No separate "_parseDouble()" so just call this (as nulls are handled)
+            return _parseDoublePrimitive(p, ctxt, text);
         }
     }
 

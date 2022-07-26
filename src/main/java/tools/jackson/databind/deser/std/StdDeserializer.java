@@ -236,13 +236,13 @@ public abstract class StdDeserializer<T>
             if (inst.canCreateFromInt()) {
                 if (ctxt.findCoercionAction(LogicalType.Integer, Integer.class,
                         CoercionInputShape.String) == CoercionAction.TryConvert) {
-                    return (T) inst.createFromInt(ctxt, _parseIntPrimitive(ctxt, value));
+                    return (T) inst.createFromInt(ctxt, _parseIntPrimitive(p, ctxt, value));
                 }
             }
             if (inst.canCreateFromLong()) {
                 if (ctxt.findCoercionAction(LogicalType.Integer, Long.class,
                         CoercionInputShape.String) == CoercionAction.TryConvert) {
-                    return (T) inst.createFromLong(ctxt, _parseLongPrimitive(ctxt, value));
+                    return (T) inst.createFromLong(ctxt, _parseLongPrimitive(p, ctxt, value));
                 }
             }
             if (inst.canCreateFromBoolean()) {
@@ -687,10 +687,11 @@ public abstract class StdDeserializer<T>
             _verifyNullForPrimitiveCoercion(ctxt, text);
             return 0;
         }
-        return _parseIntPrimitive(ctxt, text);
+        return _parseIntPrimitive(p, ctxt, text);
     }
 
-    protected final int _parseIntPrimitive(DeserializationContext ctxt, String text) throws JacksonException
+    protected final int _parseIntPrimitive(JsonParser p, DeserializationContext ctxt,
+            String text) throws JacksonException
     {
         try {
             if (text.length() > 9) {
@@ -757,10 +758,11 @@ public abstract class StdDeserializer<T>
         if (_checkTextualNull(ctxt, text)) {
             return (Integer) getNullValue(ctxt);
         }
-        return _parseInteger(ctxt, text);
+        return _parseInteger(p, ctxt, text);
     }
 
-    protected final Integer _parseInteger(DeserializationContext ctxt, String text)
+    protected final Integer _parseInteger(JsonParser p, DeserializationContext ctxt,
+            String text)
     {
         try {
             if (text.length() > 9) {
@@ -832,10 +834,11 @@ public abstract class StdDeserializer<T>
             _verifyNullForPrimitiveCoercion(ctxt, text);
             return 0L;
         }
-        return _parseLongPrimitive(ctxt, text);
+        return _parseLongPrimitive(p, ctxt, text);
     }
 
-    protected final long _parseLongPrimitive(DeserializationContext ctxt, String text) throws JacksonException
+    protected final long _parseLongPrimitive(JsonParser p, DeserializationContext ctxt,
+            String text) throws JacksonException
     {
         try {
             return NumberInput.parseLong(text);
@@ -1091,18 +1094,6 @@ public abstract class StdDeserializer<T>
         Number v = (Number) ctxt.handleWeirdStringValue(Double.TYPE, text,
                 "not a valid `double` value (as String to convert)");
         return _nonNullNumber(v).doubleValue();
-    }
-
-    /**
-     * Helper method for encapsulating calls to low-level double value parsing; single place
-     * just because we need a work-around that must be applied to all calls.
-     * Does not use the new <code>useFastParser</code> support.
-     *
-     * @see #_parseDouble(String, boolean)
-     */
-    protected final static double _parseDouble(final String numStr) throws NumberFormatException
-    {
-        return _parseDouble(numStr, false);
     }
 
     /**

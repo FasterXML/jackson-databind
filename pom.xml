@@ -20,12 +20,12 @@
   <name>jackson-databind</name>
   <packaging>bundle</packaging>
   <description>General data-binding functionality for Jackson: works on core streaming API</description>
-  <url>http://github.com/FasterXML/jackson</url>
+  <url>https://github.com/FasterXML/jackson</url>
   <inceptionYear>2008</inceptionYear>
   <licenses>
     <license>
       <name>The Apache Software License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
@@ -33,7 +33,7 @@
   <scm>
     <connection>scm:git:git@github.com:FasterXML/jackson-databind.git</connection>
     <developerConnection>scm:git:git@github.com:FasterXML/jackson-databind.git</developerConnection>
-    <url>http://github.com/FasterXML/jackson-databind</url>
+    <url>https://github.com/FasterXML/jackson-databind</url>
     <tag>HEAD</tag>
   </scm>
 
@@ -180,8 +180,8 @@
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
           <links combine.children="append">
-            <link>http://fasterxml.github.io/jackson-annotations/javadoc/3.0.2021-01</link>
-            <link>http://fasterxml.github.io/jackson-core/javadoc/3.0.2021-01</link>
+            <link>https://fasterxml.github.io/jackson-annotations/javadoc/3.0.2021-01</link>
+            <link>https://fasterxml.github.io/jackson-core/javadoc/3.0.2021-01</link>
           </links>
         </configuration>
       </plugin>

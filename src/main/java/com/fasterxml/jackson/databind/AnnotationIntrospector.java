@@ -533,7 +533,7 @@ public abstract class AnnotationIntrospector
     /**
      * @deprecated Use {@link #findSubtypesByAnnotations(Annotated)} instead.
      */
-    @Deprecated(since="2.14")
+    @Deprecated
     public List<NamedType> findSubtypes(Annotated a) { return findSubtypesByAnnotations(a); }
 
     /**

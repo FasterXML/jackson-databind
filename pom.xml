@@ -312,7 +312,16 @@
               <release>17</release>
               <compilerArgs>
                 <arg>-parameters</arg>
+                <arg>--add-opens=java.base/java.lang=ALL-UNNAMED</arg>
+                <arg>--add-opens=java.base/java.util=ALL-UNNAMED</arg>
               </compilerArgs>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <argLine>--add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED</argLine>
             </configuration>
           </plugin>
         </plugins>

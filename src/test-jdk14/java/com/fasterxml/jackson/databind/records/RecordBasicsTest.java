@@ -1,7 +1,10 @@
 package com.fasterxml.jackson.databind.records;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.databind.annotation.*;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;

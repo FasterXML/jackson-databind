@@ -181,7 +181,7 @@ public class StdSubtypeResolver
         // then with definitions from property
         if (property != null) {
             Collection<NamedType> st = ai.findSubtypesByAnnotations(property);
-            if(st == null && config.isEnabled(MapperFeature.DETECT_SEALED_CLASS_PERMITTED_SUBCLASSES) && baseType.hasContentType())
+            if(st == null && config.isEnabled(MapperFeature.DETECT_SEALED_CLASS_PERMITTED_SUBCLASSES))
                 st = ai.findSubtypesByPermittedSubclasses(rawBase);
             if (st != null) {
                 for (NamedType nt : st) {

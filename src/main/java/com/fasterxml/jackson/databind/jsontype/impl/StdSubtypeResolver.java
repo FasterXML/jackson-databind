@@ -110,7 +110,7 @@ public class StdSubtypeResolver
         // then annotated types for property itself
         if (property != null) {
             Collection<NamedType> st = ai.findSubtypesByAnnotations(property);
-            if(st == null && config.isEnabled(MapperFeature.DETECT_SEALED_CLASS_PERMITTED_SUBCLASSES))
+            if(st == null && config.isEnabled(MapperFeature.DISCOVER_SEALED_CLASS_PERMITTED_SUBCLASSES))
                 st = ai.findSubtypesByPermittedSubclasses(rawBase);
             if (st != null) {
                 for (NamedType nt : st) {
@@ -181,7 +181,7 @@ public class StdSubtypeResolver
         // then with definitions from property
         if (property != null) {
             Collection<NamedType> st = ai.findSubtypesByAnnotations(property);
-            if(st == null && config.isEnabled(MapperFeature.DETECT_SEALED_CLASS_PERMITTED_SUBCLASSES))
+            if(st == null && config.isEnabled(MapperFeature.DISCOVER_SEALED_CLASS_PERMITTED_SUBCLASSES))
                 st = ai.findSubtypesByPermittedSubclasses(rawBase);
             if (st != null) {
                 for (NamedType nt : st) {
@@ -267,7 +267,7 @@ public class StdSubtypeResolver
         // if it wasn't, add and check subtypes recursively
         collectedSubtypes.put(typeOnlyNamedType, namedType);
         Collection<NamedType> st = ai.findSubtypesByAnnotations(annotatedType);
-        if(st == null && config.isEnabled(MapperFeature.DETECT_SEALED_CLASS_PERMITTED_SUBCLASSES))
+        if(st == null && config.isEnabled(MapperFeature.DISCOVER_SEALED_CLASS_PERMITTED_SUBCLASSES))
             st = ai.findSubtypesByPermittedSubclasses(annotatedType.getRawType());
         if (st != null && !st.isEmpty()) {
             for (NamedType subtype : st) {
@@ -300,7 +300,7 @@ public class StdSubtypeResolver
         // only check subtypes if this type hadn't yet been handled
         if (typesHandled.add(namedType.getType())) {
             Collection<NamedType> st = ai.findSubtypesByAnnotations(annotatedType);
-            if(st == null && config.isEnabled(MapperFeature.DETECT_SEALED_CLASS_PERMITTED_SUBCLASSES))
+            if(st == null && config.isEnabled(MapperFeature.DISCOVER_SEALED_CLASS_PERMITTED_SUBCLASSES))
                 st = ai.findSubtypesByPermittedSubclasses(annotatedType.getRawType());
             if (st != null && !st.isEmpty()) {
                 for (NamedType subtype : st) {

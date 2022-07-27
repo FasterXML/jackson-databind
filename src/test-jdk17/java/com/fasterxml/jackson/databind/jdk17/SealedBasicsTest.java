@@ -19,7 +19,7 @@ public class SealedBasicsTest {
    */
   @SuppressWarnings("deprecation")
   public static final ObjectMapper MAPPER =
-      new ObjectMapper().configure(MapperFeature.DETECT_SEALED_CLASS_PERMITTED_SUBCLASSES, true);
+      new ObjectMapper().configure(MapperFeature.DISCOVER_SEALED_CLASS_PERMITTED_SUBCLASSES, true);
 
   /**
    * The "ExampleOne" objects test serialization of sealed classes without a JsonSubTypes
@@ -159,7 +159,7 @@ public class SealedBasicsTest {
   public void oneAlphaSerializationTestDiscoveryDisabled() throws IOException {
     final String bravo = "blueberry";
     final String serialized =
-        new ObjectMapper().configure(MapperFeature.DETECT_SEALED_CLASS_PERMITTED_SUBCLASSES, false)
+        new ObjectMapper().configure(MapperFeature.DISCOVER_SEALED_CLASS_PERMITTED_SUBCLASSES, false)
             .writeValueAsString(new BravoExampleOne(bravo));
     assertThat(serialized,
         is("{\"type\":\"SealedBasicsTest$BravoExampleOne\",\"bravo\":\"" + bravo + "\"}"));
@@ -171,7 +171,7 @@ public class SealedBasicsTest {
   @SuppressWarnings("deprecation")
   @Test(expected = InvalidTypeIdException.class)
   public void oneAlphaDeserializationTestDiscoveryDisabled() throws IOException {
-    new ObjectMapper().configure(MapperFeature.DETECT_SEALED_CLASS_PERMITTED_SUBCLASSES, false)
+    new ObjectMapper().configure(MapperFeature.DISCOVER_SEALED_CLASS_PERMITTED_SUBCLASSES, false)
         .readValue("{\"type\":\"alpha\",\"alpha\":\"apple\"}", ExampleOne.class);
   }
 

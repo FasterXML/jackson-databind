@@ -585,12 +585,12 @@ public enum MapperFeature implements ConfigFeature
     APPLY_DEFAULT_VALUES(true),
     
     /**
-     * Feature that determines whether subtypes can be discovered automatically from permitted
-     * subclasses in sealed classes, new in JDK 17.
+     * Feature that determines whether subtypes are discovered from sealed class permitted
+     * subclasses automatically.
      * 
      * @since 2.14
      */
-    DETECT_SEALED_CLASS_PERMITTED_SUBCLASSES(true)    
+    DISCOVER_SEALED_CLASS_PERMITTED_SUBCLASSES(true)    
     ;
 
     private final boolean _defaultState;

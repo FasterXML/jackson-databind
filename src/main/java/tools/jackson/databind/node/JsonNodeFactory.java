@@ -19,6 +19,12 @@ public class JsonNodeFactory
 {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Constant that defines maximum {@code JsonPointer} element index we
+     * use for inserts.
+     */
+    protected final static int MAX_ELEMENT_INDEX_FOR_INSERT = 9999;
+    
     private final boolean _cfgBigDecimalExact;
 
     private static final JsonNodeFactory decimalsNormalized
@@ -84,6 +90,16 @@ public class JsonNodeFactory
     public static JsonNodeFactory withExactBigDecimals(boolean bigDecimalExact)
     {
         return bigDecimalExact ? decimalsAsIs : decimalsNormalized;
+    }
+
+    /*
+    /**********************************************************
+    /* Metadata/config access
+    /**********************************************************
+     */
+
+    public int getMaxElementIndexForInsert() {
+        return MAX_ELEMENT_INDEX_FOR_INSERT;
     }
 
     /*

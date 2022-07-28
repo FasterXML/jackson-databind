@@ -101,7 +101,7 @@ public class RequiredAccessorTest
             TEST_ARRAY.required("bogus");
             fail("Should not pass");
         } catch (DatabindException e) {
-            verifyException(e, "Node of type `ArrayNode` has no fields");
+            verifyException(e, "Node of type `tools.jackson.databind.node.ArrayNode` has no fields");
         }
     }
 

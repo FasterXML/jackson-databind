@@ -447,7 +447,7 @@ public class TreeBuildingGenerator
      */
     @Override
     public int writeBinary(Base64Variant b64variant, InputStream data, int dataLength) {
-        throw new UnsupportedOperationException();
+        return _reportUnsupportedOperation();
     }
 
     /*
@@ -468,12 +468,12 @@ public class TreeBuildingGenerator
 
     @Override
     public void writeTypeId(Object id) {
-        throw new UnsupportedOperationException();
+        _reportUnsupportedOperation();
     }
 
     @Override
     public void writeObjectId(Object id) {
-        throw new UnsupportedOperationException();
+        _reportUnsupportedOperation();
     }
 
     @Override

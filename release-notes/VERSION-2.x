@@ -8,6 +8,8 @@ Project: jackson-databind
 
 2.14.0 (not yet released)
 
+#1980: Add method(s) in `JsonNode` that works like combination of `at()`
+  and `with()`: `withObject(...)` and `withArray(...)`
 #2541: Cannot merge polymorphic objects
  (reported by Matthew A)
  (fix contributed by James W)

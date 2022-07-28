@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import tools.jackson.core.*;
+
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.util.RawValue;
 
@@ -53,6 +54,11 @@ public abstract class ContainerNode<T extends ContainerNode<T>>
 
     @Override
     public abstract JsonNode get(String fieldName);
+
+    @Override
+    protected abstract ObjectNode _withObject(JsonPointer origPtr,
+            JsonPointer currentPtr,
+            OverwriteMode overwriteMode, boolean preferIndex);
 
     /*
     /**********************************************************************

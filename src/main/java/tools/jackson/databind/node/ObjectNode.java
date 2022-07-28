@@ -7,9 +7,11 @@ import java.util.*;
 import tools.jackson.core.*;
 import tools.jackson.core.tree.ObjectTreeNode;
 import tools.jackson.core.type.WritableTypeId;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.JsonNodeFeature;
 import tools.jackson.databind.jsontype.TypeSerializer;
+import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.RawValue;
 
 /**
@@ -56,20 +58,96 @@ public class ObjectNode
         return ret;
     }
 
+    /*
+    /**********************************************************
+    /* Support for withArray()/withObject()
+    /**********************************************************
+     */
+
     @Override
-    protected ObjectNode _withObjectCreatePath(JsonPointer origPtr,
+    protected ObjectNode _withObject(JsonPointer origPtr,
             JsonPointer currentPtr,
             OverwriteMode overwriteMode, boolean preferIndex)
     {
-        ObjectNode currentNode = this;
-        while (!currentPtr.matches()) {
-            // Should we try to build Arrays? For now, nope.
-            currentNode = currentNode.putObject(currentPtr.getMatchingProperty());
-            currentPtr = currentPtr.tail();
+        if (currentPtr.matches()) {
+            return this;
         }
-        return currentNode;
+
+        JsonNode n = _at(currentPtr);
+        // If there's a path, follow it
+        if ((n != null) && (n instanceof BaseJsonNode)) {
+            ObjectNode found = ((BaseJsonNode) n)._withObject(origPtr, currentPtr.tail(),
+                    overwriteMode, preferIndex);
+            if (found != null) {
+                return found;
+            }
+            // Ok no; must replace if allowed to
+            _withXxxVerifyReplace(origPtr, currentPtr, overwriteMode, preferIndex, n);
+        }
+        // Either way; must replace or add a new property
+        return _withObjectAddTailProperty(currentPtr, preferIndex);
     }
 
+    @Override
+    protected ArrayNode _withArray(JsonPointer origPtr,
+            JsonPointer currentPtr,
+            OverwriteMode overwriteMode, boolean preferIndex)
+    {
+        if (currentPtr.matches()) {
+            // Cannot return, not an ArrayNode so:
+            return null;
+        }
+
+        JsonNode n = _at(currentPtr);
+        // If there's a path, follow it
+        if ((n != null) && (n instanceof BaseJsonNode)) {
+            ArrayNode found = ((BaseJsonNode) n)._withArray(origPtr, currentPtr.tail(),
+                    overwriteMode, preferIndex);
+            if (found != null) {
+                return found;
+            }
+            // Ok no; must replace if allowed to
+            _withXxxVerifyReplace(origPtr, currentPtr, overwriteMode, preferIndex, n);
+        }
+        // Either way; must replace or add a new property
+        return _withArrayAddTailProperty(currentPtr, preferIndex);
+    }
+
+    protected ObjectNode _withObjectAddTailProperty(JsonPointer tail, boolean preferIndex)
+    {
+        final String propName = tail.getMatchingProperty();
+        tail = tail.tail();
+
+        // First: did we complete traversal? If so, easy, we got our result
+        if (tail.matches()) {
+            return putObject(propName);
+        }
+
+        // Otherwise, do we want Array or Object
+        if (preferIndex && tail.mayMatchElement()) { // array!
+            return putArray(propName)._withObjectAddTailElement(tail, preferIndex);
+        }
+        return putObject(propName)._withObjectAddTailProperty(tail, preferIndex);
+    }
+
+    protected ArrayNode _withArrayAddTailProperty(JsonPointer tail, boolean preferIndex)
+    {
+        final String propName = tail.getMatchingProperty();
+        tail = tail.tail();
+
+        // First: did we complete traversal? If so, easy, we got our result
+        if (tail.matches()) {
+            return putArray(propName);
+        }
+
+        // Otherwise, do we want Array or Object
+        if (preferIndex && tail.mayMatchElement()) { // array!
+            return putArray(propName)._withArrayAddTailElement(tail, preferIndex);
+        }
+        return putObject(propName)._withArrayAddTailProperty(tail, preferIndex);
+    }
+
+    
     /*
     /**********************************************************************
     /* Overrides for JacksonSerializable.Base
@@ -167,7 +245,7 @@ public class ObjectNode
             }
             return _reportWrongNodeType(
                     "Property '%s' has value that is not of type `ObjectNode` (but %s)",
-                propertyName, n.getClass().getName());
+                propertyName, ClassUtil.nameOf(n.getClass()));
         }
         ObjectNode result = objectNode();
         _children.put(propertyName, result);
@@ -184,7 +262,7 @@ public class ObjectNode
             }
             return _reportWrongNodeType(
                     "Property '%s' has value that is not of type `ArrayNode` (but %s)",
-                propertyName, n.getClass().getName());
+                propertyName, ClassUtil.nameOf(n.getClass()));
         }
         ArrayNode result = arrayNode();
         _children.put(propertyName, result);

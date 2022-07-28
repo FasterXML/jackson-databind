@@ -19,6 +19,12 @@ public class JsonNodeException
         return new JsonNodeException(node, message);
     }
 
+    public static JsonNodeException from(JsonNode node,
+            String message, Object... args) {
+        return new JsonNodeException(node,
+                String.format(message, args));
+    }
+    
     public JsonNode getNode() {
         return _node;
     }

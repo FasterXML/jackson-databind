@@ -326,8 +326,7 @@ public class ObjectNodeTest
             root.withObject("prop");
             fail("Expected exception");
         } catch (JsonNodeException e) {
-            verifyException(e, "Can only call `withObject");
-            verifyException(e, "on `ObjectNode`");
+            verifyException(e, "Can only call `withObject(String)` on `ObjectNode`");
         }
         // also: should fail of we already have non-object property
         ObjectNode root2 = MAPPER.createObjectNode();
@@ -347,7 +346,7 @@ public class ObjectNodeTest
             root.withArray("prop");
             fail("Expected exception");
         } catch (JsonNodeException e) {
-            verifyException(e, "Can only call");
+            verifyException(e, "Can only call `withArray(String)` on `ObjectNode`");
         }
         // also: should fail of we already have non-Array property
         ObjectNode root2 = MAPPER.createObjectNode();

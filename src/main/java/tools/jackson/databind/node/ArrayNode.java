@@ -7,8 +7,10 @@ import java.util.*;
 import tools.jackson.core.*;
 import tools.jackson.core.tree.ArrayTreeNode;
 import tools.jackson.core.type.WritableTypeId;
+
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.SerializerProvider;
+import tools.jackson.databind.exc.JsonNodeException;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.util.RawValue;
 
@@ -57,38 +59,119 @@ public class ArrayNode
         return ret;
     }
 
+    /*
+    /**********************************************************
+    /* Support for withArray()/withObject()
+    /**********************************************************
+     */
+
     @Override
-    protected ObjectNode _withObjectCreatePath(JsonPointer origPtr,
+    protected ObjectNode _withObject(JsonPointer origPtr,
             JsonPointer currentPtr,
             OverwriteMode overwriteMode, boolean preferIndex)
     {
-        // With Arrays, bit different; the first entry needs to be index
-        if (!currentPtr.mayMatchElement()) {
-            return _reportWrongNodeType(
-                    "`JsonPointer` path \"%s\" must have index for `ArrayNode`; instead has property \"%s\"",
-                    origPtr.toString(),
-                    getClass().getName(),
-                    currentPtr.getMatchingProperty());
+        if (currentPtr.matches()) {
+            // Cannot return, not an ObjectNode so:
+            return null;
+        }
+        JsonNode n = _at(currentPtr);
+        // If there's a path, follow it
+        if ((n != null) && (n instanceof BaseJsonNode)) {
+            ObjectNode found = ((BaseJsonNode) n)._withObject(origPtr, currentPtr.tail(),
+                    overwriteMode, preferIndex);
+            if (found != null) {
+                return found;
+            }
+            // Ok no; must replace if allowed to
+            _withXxxVerifyReplace(origPtr, currentPtr, overwriteMode, preferIndex, n);
+        }
+        // Either way; must replace or add a new property
+        return _withObjectAddTailElement(currentPtr, preferIndex);
+    }
+
+    @Override
+    protected ArrayNode _withArray(JsonPointer origPtr,
+            JsonPointer currentPtr,
+            OverwriteMode overwriteMode, boolean preferIndex)
+    {
+        if (currentPtr.matches()) {
+            return this;
+        }
+        JsonNode n = _at(currentPtr);
+        // If there's a path, follow it
+        if ((n != null) && (n instanceof BaseJsonNode)) {
+            ArrayNode found = ((BaseJsonNode) n)._withArray(origPtr, currentPtr.tail(),
+                    overwriteMode, preferIndex);
+            if (found != null) {
+                return found;
+            }
+            // Ok no; must replace if allowed to
+            _withXxxVerifyReplace(origPtr, currentPtr, overwriteMode, preferIndex, n);
+        }
+        // Either way; must replace or add a new property
+        return _withArrayAddTailElement(currentPtr, preferIndex);
+    }
+
+    protected ObjectNode _withObjectAddTailElement(JsonPointer tail, boolean preferIndex)
+    {
+        final int index = tail.getMatchingIndex();
+        tail = tail.tail();
+
+        // First: did we complete traversal? If so, easy, we got our result
+        if (tail.matches()) {
+            ObjectNode result = this.objectNode();
+            _withXxxSetArrayElement(index, result);
+            return result;
         }
 
-        // And we know there's no node at given index
-        ObjectNode currentNode = this.objectNode();
-        // One complication: may need to insert nulls
-        final int ix = currentPtr.getMatchingIndex();
-        while (ix >= size()) {
-            add(nullNode());
+        // Otherwise, do we want Array or Object
+        if (preferIndex && tail.mayMatchElement()) { // array!
+            ArrayNode next = this.arrayNode();
+            _withXxxSetArrayElement(index, next);
+            return next._withObjectAddTailElement(tail, preferIndex);
         }
-        set(ix, currentNode);
+        ObjectNode next = this.objectNode();
+        _withXxxSetArrayElement(index, next);
+        return next._withObjectAddTailProperty(tail, preferIndex);
+    }
 
-        currentPtr = currentPtr.tail();
+    protected ArrayNode _withArrayAddTailElement(JsonPointer tail, boolean preferIndex)
+    {
+        final int index = tail.getMatchingIndex();
+        tail = tail.tail();
 
-        // Otherwise loop same as with ObjectNode
-        while (!currentPtr.matches()) {
-            // Should we try to build Arrays? For now, nope.
-            currentNode = currentNode.putObject(currentPtr.getMatchingProperty());
-            currentPtr = currentPtr.tail();
+        // First: did we complete traversal? If so, easy, we got our result
+        if (tail.matches()) {
+            ArrayNode result = this.arrayNode();
+            _withXxxSetArrayElement(index, result);
+            return result;
         }
-        return (ObjectNode) currentNode;
+
+        // Otherwise, do we want Array or Object
+        if (preferIndex && tail.mayMatchElement()) { // array!
+            ArrayNode next = this.arrayNode();
+            _withXxxSetArrayElement(index, next);
+            return next._withArrayAddTailElement(tail, preferIndex);
+        }
+        ArrayNode next = this.arrayNode();
+        _withXxxSetArrayElement(index, next);
+        return next._withArrayAddTailElement(tail, preferIndex);
+    }
+
+    protected void _withXxxSetArrayElement(int index, JsonNode value) {
+        // 27-Jul-2022, tatu: Let's make it less likely anyone OOMs by
+        //    humongous index...
+        if (index >= size()) {
+            final int max = _nodeFactory.getMaxElementIndexForInsert();
+            if (index > max) {
+                _reportUnsupportedOperation("Too big Array index (%d; max %d) to use for insert with `JsonPointer`",
+                        index, max);
+            }
+            while (index >= this.size()) {
+                addNull();
+            }
+        }
+        set(index, value);
     }
 
     /*
@@ -1051,7 +1134,8 @@ public class ArrayNode
 
     protected ArrayNode _set(int index, JsonNode node) {
         if (index < 0 || index >= _children.size()) {
-            throw new IndexOutOfBoundsException("Illegal index "+ index +", array size "+size());
+            throw JsonNodeException.from(this,
+                    "Illegal index %d, array size %d", index, size());
         }
         _children.set(index, node);
         return this;

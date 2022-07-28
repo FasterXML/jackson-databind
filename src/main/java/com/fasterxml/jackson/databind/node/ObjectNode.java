@@ -61,6 +61,12 @@ public class ObjectNode
         return ret;
     }
 
+    /*
+    /**********************************************************
+    /* Support for withArray()/withObject()
+    /**********************************************************
+     */
+
     @Override
     protected ObjectNode _withObject(JsonPointer origPtr,
             JsonPointer currentPtr,
@@ -71,7 +77,6 @@ public class ObjectNode
         }
 
         JsonNode n = _at(currentPtr);
-        
         // If there's a path, follow it
         if ((n != null) && (n instanceof BaseJsonNode)) {
             ObjectNode found = ((BaseJsonNode) n)._withObject(origPtr, currentPtr.tail(),
@@ -80,10 +85,35 @@ public class ObjectNode
                 return found;
             }
             // Ok no; must replace if allowed to
-            _withObjectVerifyReplace(origPtr, currentPtr, overwriteMode, preferIndex, n);
+            _withXxxVerifyReplace(origPtr, currentPtr, overwriteMode, preferIndex, n);
         }
         // Either way; must replace or add a new property
         return _withObjectAddTailProperty(currentPtr, preferIndex);
+    }
+
+    @Override
+    protected ArrayNode _withArray(JsonPointer origPtr,
+            JsonPointer currentPtr,
+            OverwriteMode overwriteMode, boolean preferIndex)
+    {
+        if (currentPtr.matches()) {
+            // Cannot return, not an ArrayNode so:
+            return null;
+        }
+
+        JsonNode n = _at(currentPtr);
+        // If there's a path, follow it
+        if ((n != null) && (n instanceof BaseJsonNode)) {
+            ArrayNode found = ((BaseJsonNode) n)._withArray(origPtr, currentPtr.tail(),
+                    overwriteMode, preferIndex);
+            if (found != null) {
+                return found;
+            }
+            // Ok no; must replace if allowed to
+            _withXxxVerifyReplace(origPtr, currentPtr, overwriteMode, preferIndex, n);
+        }
+        // Either way; must replace or add a new property
+        return _withArrayAddTailProperty(currentPtr, preferIndex);
     }
 
     protected ObjectNode _withObjectAddTailProperty(JsonPointer tail, boolean preferIndex)
@@ -103,6 +133,24 @@ public class ObjectNode
         return putObject(propName)._withObjectAddTailProperty(tail, preferIndex);
     }
 
+    protected ArrayNode _withArrayAddTailProperty(JsonPointer tail, boolean preferIndex)
+    {
+        final String propName = tail.getMatchingProperty();
+        tail = tail.tail();
+
+        // First: did we complete traversal? If so, easy, we got our result
+        if (tail.matches()) {
+            return putArray(propName);
+        }
+
+        // Otherwise, do we want Array or Object
+        if (preferIndex && tail.mayMatchElement()) { // array!
+            return putArray(propName)._withArrayAddTailElement(tail, preferIndex);
+        }
+        return putObject(propName)._withArrayAddTailProperty(tail, preferIndex);
+    }
+
+    
     /*
     /**********************************************************
     /* Overrides for JsonSerializable.Base
@@ -191,7 +239,6 @@ public class ObjectNode
         return _children.entrySet().iterator();
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public ObjectNode withObject(String propertyName) {
         JsonNode n = _children.get(propertyName);

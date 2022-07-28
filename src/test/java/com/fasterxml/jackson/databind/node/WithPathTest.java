@@ -77,7 +77,7 @@ public class WithPathTest extends BaseMapTest
         root.put("a", 13);
 
         // First, without replacement (default) get exception
-        _verifyReplaceFail(root, abPath, null);
+        _verifyObjectReplaceFail(root, abPath, null);
 
         // Except fine via nulls (by default)
         root.putNull("a");
@@ -87,7 +87,7 @@ public class WithPathTest extends BaseMapTest
 
         // but not if prevented
         root = (ObjectNode) MAPPER.readTree(a2q("{'a':null}"));
-        _verifyReplaceFail(root, abPath, OverwriteMode.NONE);
+        _verifyObjectReplaceFail(root, abPath, OverwriteMode.NONE);
     }
 
     public void testValidWithObjectWithArray() throws Exception
@@ -115,15 +115,15 @@ public class WithPathTest extends BaseMapTest
                 root.toString());
 
         // But not if prevented
-        _verifyReplaceFail(root, "/arr/1", OverwriteMode.NONE);
+        _verifyObjectReplaceFail(root, "/arr/1", OverwriteMode.NONE);
 
     }
 
-    private void _verifyReplaceFail(JsonNode doc, String ptrExpr, OverwriteMode mode) {
-        _verifyReplaceFail(doc, JsonPointer.compile(ptrExpr), mode);
+    private void _verifyObjectReplaceFail(JsonNode doc, String ptrExpr, OverwriteMode mode) {
+        _verifyObjectReplaceFail(doc, JsonPointer.compile(ptrExpr), mode);
     }
 
-    private void _verifyReplaceFail(JsonNode doc, JsonPointer ptr, OverwriteMode mode) {
+    private void _verifyObjectReplaceFail(JsonNode doc, JsonPointer ptr, OverwriteMode mode) {
         try {
             if (mode == null) {
                 // default is "NULLS":
@@ -144,5 +144,78 @@ public class WithPathTest extends BaseMapTest
     /* Test methods, withArray()
     /**********************************************************************
      */
+
+    public void testValidWithArrayTrivial() throws Exception
+    {
+        // First, empty path, existing Array
+        ArrayNode root = MAPPER.createArrayNode();
+        ArrayNode match = root.withArray(JsonPointer.empty());
+        assertSame(root, match);
+
+        // Then existing Object, empty Path -> fail
+        ObjectNode rootOb = MAPPER.createObjectNode();
+        try {
+            rootOb.withArray(JsonPointer.empty());
+            fail("Should not pass");
+        } catch (UnsupportedOperationException e) {
+            verifyException(e, "Can only call `withArray()` with empty");
+            verifyException(e, "on `ArrayNode`");
+        }
+    }
+
+    // From Javadoc example
+    public void testValidWithArraySimple() throws Exception
+    {
+        final String DOC_STR = a2q(
+                "{'a':{'b':[1,2],'c':true}}"
+                );
+        JsonNode doc = MAPPER.readTree(DOC_STR);
+
+        {
+            ArrayNode match = doc.withArray(JsonPointer.compile("/a/b"));
+            assertEquals(a2q("[1,2]"), match.toString());
+            // should not modify the doc
+            assertEquals(DOC_STR, doc.toString());
+        }
+        {
+            ArrayNode match = doc.withArray(JsonPointer.compile("/a/x"));
+            assertEquals(a2q("[]"), match.toString());
+            // does modify the doc
+            assertEquals(a2q(
+                    "{'a':{'b':[1,2],'c':true,'x':[]}}"), doc.toString());
+        }
+        // And then replacements: first, fail
+        _verifyArrayReplaceFail(doc, "/a/b/0", null);
+
+        // then acceptable replacement
+        {
+            ArrayNode match = doc.withArray(JsonPointer.compile("/a/b/0"),
+                    OverwriteMode.ALL, true);
+            assertEquals(a2q("[]"), match.toString());
+            // does further modify the doc
+            assertEquals(a2q(
+                    "{'a':{'b':[[],2],'c':true,'x':[]}}"), doc.toString());
+        }
+    }
+
+    private void _verifyArrayReplaceFail(JsonNode doc, String ptrExpr, OverwriteMode mode) {
+        _verifyArrayReplaceFail(doc, JsonPointer.compile(ptrExpr), mode);
+    }
+
+    private void _verifyArrayReplaceFail(JsonNode doc, JsonPointer ptr, OverwriteMode mode) {
+        try {
+            if (mode == null) {
+                // default is "NULLS":
+                mode = OverwriteMode.NULLS;
+                doc.withArray(ptr);
+            } else {
+                doc.withArray(ptr, mode, true);
+            }
+            fail("Should not pass");
+        } catch (UnsupportedOperationException e) {
+            verifyException(e, "Cannot replace `JsonNode` of type ");
+            verifyException(e, "(mode `OverwriteMode."+mode.name()+"`)");
+        }
+    }
 
 }

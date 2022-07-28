@@ -65,6 +65,12 @@ public class ArrayNode
         return ret;
     }
 
+    /*
+    /**********************************************************
+    /* Support for withArray()/withObject()
+    /**********************************************************
+     */
+
     @Override
     protected ObjectNode _withObject(JsonPointer origPtr,
             JsonPointer currentPtr,
@@ -83,12 +89,33 @@ public class ArrayNode
                 return found;
             }
             // Ok no; must replace if allowed to
-            if (!_withObjectMayReplace(n, overwriteMode)) {
-                _withObjectVerifyReplace(origPtr, currentPtr, overwriteMode, preferIndex, n);
-            }
+            _withXxxVerifyReplace(origPtr, currentPtr, overwriteMode, preferIndex, n);
         }
         // Either way; must replace or add a new property
         return _withObjectAddTailElement(currentPtr, preferIndex);
+    }
+
+    @Override
+    protected ArrayNode _withArray(JsonPointer origPtr,
+            JsonPointer currentPtr,
+            OverwriteMode overwriteMode, boolean preferIndex)
+    {
+        if (currentPtr.matches()) {
+            return this;
+        }
+        JsonNode n = _at(currentPtr);
+        // If there's a path, follow it
+        if ((n != null) && (n instanceof BaseJsonNode)) {
+            ArrayNode found = ((BaseJsonNode) n)._withArray(origPtr, currentPtr.tail(),
+                    overwriteMode, preferIndex);
+            if (found != null) {
+                return found;
+            }
+            // Ok no; must replace if allowed to
+            _withXxxVerifyReplace(origPtr, currentPtr, overwriteMode, preferIndex, n);
+        }
+        // Either way; must replace or add a new property
+        return _withArrayAddTailElement(currentPtr, preferIndex);
     }
 
     protected ObjectNode _withObjectAddTailElement(JsonPointer tail, boolean preferIndex)
@@ -99,22 +126,45 @@ public class ArrayNode
         // First: did we complete traversal? If so, easy, we got our result
         if (tail.matches()) {
             ObjectNode result = this.objectNode();
-            _withObjectSetArrayElement(index, result);
+            _withXxxSetArrayElement(index, result);
             return result;
         }
 
         // Otherwise, do we want Array or Object
         if (preferIndex && tail.mayMatchElement()) { // array!
             ArrayNode next = this.arrayNode();
-            _withObjectSetArrayElement(index, next);
+            _withXxxSetArrayElement(index, next);
             return next._withObjectAddTailElement(tail, preferIndex);
         }
         ObjectNode next = this.objectNode();
-        _withObjectSetArrayElement(index, next);
+        _withXxxSetArrayElement(index, next);
         return next._withObjectAddTailProperty(tail, preferIndex);
     }
 
-    protected void _withObjectSetArrayElement(int index, JsonNode value) {
+    protected ArrayNode _withArrayAddTailElement(JsonPointer tail, boolean preferIndex)
+    {
+        final int index = tail.getMatchingIndex();
+        tail = tail.tail();
+
+        // First: did we complete traversal? If so, easy, we got our result
+        if (tail.matches()) {
+            ArrayNode result = this.arrayNode();
+            _withXxxSetArrayElement(index, result);
+            return result;
+        }
+
+        // Otherwise, do we want Array or Object
+        if (preferIndex && tail.mayMatchElement()) { // array!
+            ArrayNode next = this.arrayNode();
+            _withXxxSetArrayElement(index, next);
+            return next._withArrayAddTailElement(tail, preferIndex);
+        }
+        ArrayNode next = this.arrayNode();
+        _withXxxSetArrayElement(index, next);
+        return next._withArrayAddTailElement(tail, preferIndex);
+    }
+
+    protected void _withXxxSetArrayElement(int index, JsonNode value) {
         // 27-Jul-2022, tatu: Let's make it less likely anyone OOMs by
         //    humongous index...
         if (index >= size()) {

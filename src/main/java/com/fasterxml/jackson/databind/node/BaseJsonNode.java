@@ -148,12 +148,12 @@ public abstract class BaseJsonNode
         return null;
     }
 
-    protected void _withObjectVerifyReplace(JsonPointer origPtr,
+    protected void _withXxxVerifyReplace(JsonPointer origPtr,
             JsonPointer currentPtr,
             OverwriteMode overwriteMode, boolean preferIndex,
             JsonNode toReplace)
     {
-        if (!_withObjectMayReplace(toReplace, overwriteMode)) {
+        if (!_withXxxMayReplace(toReplace, overwriteMode)) {
             _reportWrongNodeType(
 "Cannot replace `JsonNode` of type `%s` for property \"%s\" in JSON Pointer \"%s\" (mode `OverwriteMode.%s`)",
                 toReplace.getClass().getName(), currentPtr.getMatchingProperty(),
@@ -161,7 +161,7 @@ public abstract class BaseJsonNode
         }
     }
 
-    protected boolean _withObjectMayReplace(JsonNode node, OverwriteMode overwriteMode) {
+    protected boolean _withXxxMayReplace(JsonNode node, OverwriteMode overwriteMode) {
         switch (overwriteMode) {
         case NONE:
             return false;
@@ -173,6 +173,36 @@ public abstract class BaseJsonNode
         case ALL:
             return true;
         }
+    }
+
+    @Override
+    public ArrayNode withArray(JsonPointer ptr,
+            OverwriteMode overwriteMode, boolean preferIndex)
+    {
+        // Degenerate case of using with "empty" path; ok if ObjectNode
+        if (ptr.matches()) {
+            if (this instanceof ArrayNode) {
+                return (ArrayNode) this;
+            }
+            _reportWrongNodeType("Can only call `withArray()` with empty JSON Pointer on `ArrayNode`, not `%s`",
+                getClass().getName());
+        }
+        // Otherwise check recursively
+        ArrayNode n = _withArray(ptr, ptr, overwriteMode, preferIndex);
+        if (n == null) {
+            _reportWrongNodeType("Cannot replace context node (of type `%s`) using `withArray()` with  JSON Pointer '%s'",
+                    getClass().getName(), ptr);
+        }
+        return n;
+    }
+
+    protected ArrayNode _withArray(JsonPointer origPtr,
+            JsonPointer currentPtr,
+            OverwriteMode overwriteMode, boolean preferIndex)
+    {
+        // Similar logic to "_withObject()" but the default implementation
+        // used for non-container behavior so it'll simply return `null`
+        return null;
     }
 
     /*

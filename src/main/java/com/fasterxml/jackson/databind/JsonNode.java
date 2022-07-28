@@ -6,6 +6,7 @@ import java.math.BigInteger;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.MissingNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -1124,10 +1125,16 @@ public abstract class JsonNode
      * If the node method is called on is not Object node,
      * or if property exists and has value that is not Object node,
      * {@link UnsupportedOperationException} is thrown
+     *
+     * @param propertyName Name of property for the {@link ObjectNode}
+     *
+     * @return {@link ObjectNode} found or created
+     *
+     * @since 2.14
      */
-    public <T extends JsonNode> T withObject(String propertyName) {
-        throw new UnsupportedOperationException("JsonNode not of type ObjectNode (but "
-                +getClass().getName()+"), cannot call withObject() on it");
+    public ObjectNode withObject(String propertyName) {
+        throw new UnsupportedOperationException("`JsonNode` not of type `ObjectNode` (but "
+                +getClass().getName()+"), cannot call `withObject()` on it");
     }
 
     /**
@@ -1137,10 +1144,10 @@ public abstract class JsonNode
      * consider {@link JsonPointer} segments index if at all possible
      * and only secondarily as property name
      *
-     * @param ptr Pointer that indicates path to use for Object value to return
+     * @param ptr {@link JsonPointer} that indicates path to use for Object value to return
      *   (potentially creating as necessary)
      *
-     * @return ObjectNode found or created
+     * @return {@link ObjectNode} found or created
      *
      * @since 2.14
      */
@@ -1149,18 +1156,70 @@ public abstract class JsonNode
     }
 
     /**
-     * Method that can be called on Object nodes, to access a Object-valued
+     * Method that can be called on Object or Array nodes, to access a Object-valued
      * node pointed to by given {@link JsonPointer}, if such a node exists:
-     * if not, an attempt is made to create it.
-     * If the node method is called on is not Object node,
-     * or if property exists and has value that is not Object node,
-     * {@link UnsupportedOperationException} is thrown
+     * or if not, an attempt is made to create one and return it.
+     * For example, on document
+     *<pre>
+     *  { "a" : {
+     *       "b" : {
+     *          "c" : 13
+     *       }
+     *    }
+     *  }
+     *</pre>
+     * calling method with {@link JsonPointer} of {@code /a/b} would return
+     * {@link ObjectNode}
+     *<pre>
+     *  { "c" : 13 }
+     *</pre>
+     *<p>
+     * In cases where path leads to "missing" nodes, a path is created.
+     * So, for example, on above document, and
+     * {@link JsonPointer} of {@code /a/x} an empty {@link ObjectNode} would
+     * be returned and the document would look like:
+     *<pre>
+     *  { "a" : {
+     *       "b" : {
+     *          "c" : 13
+     *       },
+     *       "x" : { }
+     *    }
+     *  }
+     *</pre>
+     * Finally, if the path is incompatible with the document -- there is an existing
+     * {@code JsonNode} through which expression cannot go -- a replacement is
+     * attempted if (and only if) conversion is allowed as per {@code overwriteMode}
+     * passed in. For example, with above document and expression of {@code /a/b/c},
+     * conversion is allowed if passing {@code OverwriteMode.SCALARS} or
+     * {@code OvewriteMode.ALL}, and resulting document would look like:
+     *<pre>
+     *  { "a" : {
+     *       "b" : {
+     *          "c" : { }
+     *       },
+     *       "x" : { }
+     *    }
+     *  }
+     *</pre>
+     * but if different modes ({@code NONE} or {@code NULLS}) is passed, an exception
+     * is thrown instead.
      *
-     * @param ptr Pointer that indicates path to use for Object value to return
-     *   (potentially creating as necessary)
-     * @param overwriteMode Defines w
+     * @param ptr Pointer that indicates path to use for {@link ObjectNode} value to return
+     *   (potentially creating one as necessary)
+     * @param overwriteMode Defines which node types may be converted in case of
+     *    incompatible {@code JsonPointer} expression: if conversion not allowed,
+     *    {@link UnsupportedOperationException} is thrown.
+     * @param preferIndex When creating a path (for empty or replacement), and path
+     *    contains segment that may be an array index (simple integer number like
+     *    {@code 3}), whether to construct an {@link ArrayNode} ({@code true}) or
+     *    {@link ObjectNode} ({@code false}). In latter case matching property with
+     *    quoted number (like {@code "3"}) is used within Object.
      *
-     * @return ObjectNode found or created
+     * @return {@link ObjectNode} found or created
+     *
+     * @throws UnsupportedOperationException if a conversion would be needed for given
+     *    {@code JsonPointer}, document, but was not allowed for the type encountered
      *
      * @since 2.14
      */
@@ -1172,24 +1231,114 @@ public abstract class JsonNode
     }
 
     /**
-     * @deprecated Since 2.14 use {@code withObject} instead
+     * @deprecated Since 2.14 use {@code withObject(String)} instead
      */
+    @SuppressWarnings("unchecked")
     @Deprecated // since 2.14
     public final <T extends JsonNode> T with(String propertyName) {
-        return withObject(propertyName);
+        return (T) withObject(propertyName);
     }
 
     /**
-     * Method that can be called on Object nodes, to access a property
+     * Method that can be called on {@link ObjectNode} nodes, to access a property
      * that has <code>Array</code> value; or if no such property exists, to create,
      * add and return such Array node.
      * If the node method is called on is not Object node,
      * or if property exists and has value that is not Array node,
      * {@link UnsupportedOperationException} is thrown
+     *
+     * @param propertyName Name of property for the {@link ArrayNode}
+     *
+     * @return {@link ArrayNode} found or created
      */
     public <T extends JsonNode> T withArray(String propertyName) {
         throw new UnsupportedOperationException("JsonNode not of type ObjectNode (but "
                 +getClass().getName()+"), cannot call withArray() on it");
+    }
+
+    /**
+     * Same as {@link #withArray(JsonPointer, OverwriteMode, boolean)} but
+     * with defaults of {@code OvewriteMode#NULLS} (overwrite mode)
+     * and {@code true} for {@code preferIndex}.
+     *
+     * @param ptr Pointer that indicates path to use for {@link ArrayNode} to return
+     *   (potentially creating as necessary)
+     *
+     * @return {@link ArrayNode} found or created
+     *
+     * @since 2.14
+     */
+    public final ArrayNode withArray(JsonPointer ptr) {
+        return withArray(ptr, OverwriteMode.NULLS, true);
+    }
+
+    /**
+     * Method that can be called on Object or Array nodes, to access a Array-valued
+     * node pointed to by given {@link JsonPointer}, if such a node exists:
+     * or if not, an attempt is made to create one and return it.
+     * For example, on document
+     *<pre>
+     *  { "a" : {
+     *       "b" : [ 1, 2 ]
+     *    }
+     *  }
+     *</pre>
+     * calling method with {@link JsonPointer} of {@code /a/b} would return
+     * {@code Array}
+     *<pre>
+     *  [ 1, 2 ]
+     *</pre>
+     *<p>
+     * In cases where path leads to "missing" nodes, a path is created.
+     * So, for example, on above document, and
+     * {@link JsonPointer} of {@code /a/x} an empty {@code ArrayNode} would
+     * be returned and the document would look like:
+     *<pre>
+     *  { "a" : {
+     *       "b" : [ 1, 2 ],
+     *       "x" : [ ]
+     *    }
+     *  }
+     *</pre>
+     * Finally, if the path is incompatible with the document -- there is an existing
+     * {@code JsonNode} through which expression cannot go -- a replacement is
+     * attempted if (and only if) conversion is allowed as per {@code overwriteMode}
+     * passed in. For example, with above document and expression of {@code /a/b/0},
+     * conversion is allowed if passing {@code OverwriteMode.SCALARS} or
+     * {@code OvewriteMode.ALL}, and resulting document would look like:
+     *<pre>
+     *  { "a" : {
+     *       "b" : [ [ ], 2 ],
+     *       "x" : [ ]
+     *    }
+     *  }
+     *</pre>
+     * but if different modes ({@code NONE} or {@code NULLS}) is passed, an exception
+     * is thrown instead.
+     *
+     * @param ptr Pointer that indicates path to use for {@link ArrayNode} value to return
+     *   (potentially creating it as necessary)
+     * @param overwriteMode Defines which node types may be converted in case of
+     *    incompatible {@code JsonPointer} expression: if conversion not allowed,
+     *    an exception is thrown.
+     * @param preferIndex When creating a path (for empty or replacement), and path
+     *    contains segment that may be an array index (simple integer number like
+     *    {@code 3}), whether to construct an {@link ArrayNode} ({@code true}) or
+     *    {@link ObjectNode} ({@code false}). In latter case matching property with
+     *    quoted number (like {@code "3"}) is used within Object.
+     *
+     * @return {@link ArrayNode} found or created
+     *
+     * @throws UnsupportedOperationException if a conversion would be needed for given
+     *    {@code JsonPointer}, document, but was not allowed for the type encountered
+     *
+     * @since 2.14
+     */
+    public ArrayNode withArray(JsonPointer ptr,
+            OverwriteMode overwriteMode, boolean preferIndex) {
+        // To avoid abstract method, base implementation just fails
+        throw new UnsupportedOperationException("`withArray(JsonPointer)` not implemented by "
+                +getClass().getName());
     }
 
     /*

@@ -247,8 +247,8 @@ public class ObjectNode
                 return (ObjectNode) n;
             }
             throw new UnsupportedOperationException("Property '" + propertyName
-                + "' has value that is not of type ObjectNode (but " + n
-                .getClass().getName() + ")");
+                + "' has value that is not of type `ObjectNode` (but `" + n
+                .getClass().getName() + "`)");
         }
         ObjectNode result = objectNode();
         _children.put(propertyName, result);
@@ -265,8 +265,8 @@ public class ObjectNode
                 return (ArrayNode) n;
             }
             throw new UnsupportedOperationException("Property '" + propertyName
-                + "' has value that is not of type ArrayNode (but " + n
-                .getClass().getName() + ")");
+                + "' has value that is not of type `ArrayNode` (but `" + n
+                .getClass().getName() + "`)");
         }
         ArrayNode result = arrayNode();
         _children.put(propertyName, result);

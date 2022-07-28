@@ -1226,8 +1226,8 @@ public abstract class JsonNode
     public ObjectNode withObject(JsonPointer ptr,
             OverwriteMode overwriteMode, boolean preferIndex) {
         // To avoid abstract method, base implementation just fails
-        throw new UnsupportedOperationException("`withObject(JsonPointer)` not implemented by "
-                +getClass().getName());
+        throw new UnsupportedOperationException("`withObject(JsonPointer)` not implemented by `"
+                +getClass().getName()+"`");
     }
 
     /**
@@ -1252,8 +1252,8 @@ public abstract class JsonNode
      * @return {@link ArrayNode} found or created
      */
     public <T extends JsonNode> T withArray(String propertyName) {
-        throw new UnsupportedOperationException("JsonNode not of type ObjectNode (but "
-                +getClass().getName()+"), cannot call withArray() on it");
+        throw new UnsupportedOperationException("`JsonNode` not of type `ObjectNode` (but `"
+                +getClass().getName()+")`, cannot call `withArray()` on it");
     }
 
     /**

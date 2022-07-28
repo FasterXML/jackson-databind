@@ -111,51 +111,55 @@ public abstract class BaseJsonNode
 
     @Override
     public ObjectNode withObject(JsonPointer ptr,
-            OverwriteMode overwriteMode, boolean preferIndex) {
-        if (!isObject()) {
-            // To avoid abstract method, base implementation just fails
-            _reportWrongNodeType("Can only call `withObject()` on `ObjectNode`, not `%s`",
+            OverwriteMode overwriteMode, boolean preferIndex)
+    {
+        // Degenerate case of using with "empty" path; ok if ObjectNode
+        if (ptr.matches()) {
+            if (this instanceof ObjectNode) {
+                return (ObjectNode) this;
+            }
+            _reportWrongNodeType("Can only call `withObject()` with empty JSON Pointer on `ObjectNode`, not `%s`",
                 getClass().getName());
         }
-        return _withObject(ptr, ptr, overwriteMode, preferIndex);
+        // Otherwise check recursively
+        ObjectNode n = _withObject(ptr, ptr, overwriteMode, preferIndex);
+        if (n == null) {
+            _reportWrongNodeType("Cannot replace context node (of type `%s`) using `withObject()` with  JSON Pointer '%s'",
+                    getClass().getName(), ptr);
+        }
+        return n;
     }
 
     protected ObjectNode _withObject(JsonPointer origPtr,
             JsonPointer currentPtr,
             OverwriteMode overwriteMode, boolean preferIndex)
     {
-        if (currentPtr.matches()) {
-            if (this instanceof ObjectNode) {
-                return (ObjectNode) this;
-            }
-            return _reportWrongNodeType(
-                    "`JsonNode` matching `JsonPointer` \"%s\" must be `ObjectNode`, not `%s`",
-                    origPtr.toString(),
-                    getClass().getName());
-        }
-        JsonNode n = _at(currentPtr);
-        // If there's a path, follow it
-        if ((n != null) && (n instanceof BaseJsonNode)) {
-            return ((BaseJsonNode) n)._withObject(origPtr, currentPtr.tail(),
-                    overwriteMode, preferIndex);
-        }
-        return _withObjectCreatePath(origPtr, currentPtr, overwriteMode, preferIndex);
+        // Three-part logic:
+        //
+        // 1) If we are at the end of JSON Pointer; if so, return
+        //    `this` if Object node, `null` if not (for caller to handle)
+        // 2) If not at the end, if we can follow next segment, call recursively
+        //    handle non-null (existing Object node, return)
+        //    vs `null` (must replace; may not be allowed to)
+        // 3) Can not follow the segment? Try constructing, adding path
+        //
+        // But the default implementation assumes non-container behavior so
+        // it'll simply return `null`
+        return null;
     }
 
-    /**
-     * Helper method for constructing specified path under this node, if possible;
-     * or throwing an exception if not. If construction successful, needs to return
-     * the innermost {@code ObjectNode} constructed.
-     */
-    protected ObjectNode _withObjectCreatePath(JsonPointer origPtr,
-            JsonPointer currentPtr,
-            OverwriteMode overwriteMode, boolean preferIndex)
-    {
-        // Cannot traverse non-container nodes:
-        return _reportWrongNodeType(
-                "`JsonPointer` path \"%s\" cannot traverse non-container node of type `%s`",
-                origPtr.toString(),
-                getClass().getName());
+    protected boolean _withObjectMayReplace(JsonNode node, OverwriteMode overwriteMode) {
+        switch (overwriteMode) {
+        case NONE:
+            return false;
+        case NULLS:
+            return node.isNull();
+        case SCALARS:
+            return !node.isContainerNode();
+        default:
+        case ALL:
+            return true;
+        }
     }
 
     /*
@@ -207,6 +211,10 @@ public abstract class BaseJsonNode
     * this node being of wrong type
     */
    protected <T> T _reportWrongNodeType(String msgTemplate, Object...args) {
+       throw new UnsupportedOperationException(String.format(msgTemplate, args));
+   }
+
+   protected <T> T _reportWrongNodeOperation(String msgTemplate, Object...args) {
        throw new UnsupportedOperationException(String.format(msgTemplate, args));
    }
 }

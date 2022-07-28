@@ -1,20 +1,17 @@
 package com.fasterxml.jackson.databind.node;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.*;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.util.RawValue;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * Node class that represents Arrays mapped from JSON content.
@@ -69,6 +66,45 @@ public class ArrayNode
     }
 
     @Override
+    protected ObjectNode _withObject(JsonPointer origPtr,
+            JsonPointer currentPtr,
+            OverwriteMode overwriteMode, boolean preferIndex)
+    {
+        if (currentPtr.matches()) {
+            // Cannot return, not an ObjectNode so:
+            return null;
+        }
+        JsonNode n = _at(currentPtr);
+        // If there's a path, follow it
+        if ((n != null) && (n instanceof BaseJsonNode)) {
+            ObjectNode found = ((BaseJsonNode) n)._withObject(origPtr, currentPtr.tail(),
+                    overwriteMode, preferIndex);
+            if (found != null) {
+                return found;
+            }
+            // Ok no; must replace if allowed to
+            if (!_withObjectMayReplace(n, overwriteMode)) {
+                return _reportWrongNodeType(
+                        "Cannot replace `JsonNode` of type `%s` for property \"%s\" in JSON Pointer \"%s\" (mode %s)",
+                        n.getClass().getName(), currentPtr.getMatchingProperty(),
+                        origPtr, overwriteMode);
+            }
+        }
+        // Either way; must replace or add a new property
+        return _withObjectCreateTail(currentPtr, preferIndex);
+    }        
+
+    protected ObjectNode _withObjectCreateTail(JsonPointer tail, boolean preferIndex)
+    {
+        // !!! TBI
+        if (true) {
+            throw new Error("Need to create tail for: "+tail);
+        }
+        return null;
+    }
+
+    /*
+    @Override
     protected ObjectNode _withObjectCreatePath(JsonPointer origPtr,
             JsonPointer currentPtr,
             OverwriteMode overwriteMode, boolean preferIndex)
@@ -101,6 +137,7 @@ public class ArrayNode
         }
         return (ObjectNode) currentNode;
     }
+    */
 
     /*
     /**********************************************************

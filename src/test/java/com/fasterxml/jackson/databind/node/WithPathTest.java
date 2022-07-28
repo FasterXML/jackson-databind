@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.node;
 
 import com.fasterxml.jackson.core.JsonPointer;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.JsonNode.OverwriteMode;
 
 // for [databuind#1980] implementation
 public class WithPathTest extends BaseMapTest
@@ -21,11 +22,30 @@ public class WithPathTest extends BaseMapTest
         assertSame(root, match);
     }
 
-    public void testValidWithObjectSimple() throws Exception
+    public void testValidWithObjectSimpleExisting() throws Exception
+    {
+        final String DOC_STR = a2q("{'a':{'b':42,'c':{'x':1}}}");
+        JsonNode doc = MAPPER.readTree(DOC_STR);
+        ObjectNode match = doc.withObject(JsonPointer.compile("/a"));
+        assertNotNull(match);
+        assertTrue(match.isObject());
+        assertEquals(a2q("{'b':42,'c':{'x':1}}"), match.toString());
+        // should not modify the doc
+        assertEquals(DOC_STR, doc.toString());
+
+        match = doc.withObject(JsonPointer.compile("/a/c"));
+        assertNotNull(match);
+        assertEquals(a2q("{'x':1}"), match.toString());
+        // should not modify the doc
+        assertEquals(DOC_STR, doc.toString());
+    }
+
+    public void testValidWithObjectSimpleCreate() throws Exception
     {
         ObjectNode root = MAPPER.createObjectNode();
         ObjectNode match = root.withObject(JsonPointer.compile("/a/b"));
         assertTrue(match.isObject());
+        assertEquals(a2q("{}"), match.toString());
         match.put("value", 42);
 
         assertEquals(a2q("{'a':{'b':{'value':42}}}"),
@@ -40,6 +60,16 @@ public class WithPathTest extends BaseMapTest
                 root.toString());
     }
 
+    public void testValidWithObjectSimpleModify() throws Exception
+    {
+        final String DOC_STR = a2q("{'a':{'b':42}}");
+        JsonNode doc = MAPPER.readTree(DOC_STR);
+        ObjectNode  match = doc.withObject(JsonPointer.compile("/a/d"));
+        assertNotNull(match);
+        assertEquals("{}", match.toString());
+        assertEquals(a2q("{'a':{'b':42,'d':{}}}"), doc.toString());
+    }
+
     public void testObjectPathWithReplace() throws Exception
     {
         final JsonPointer abPath = JsonPointer.compile("/a/b");
@@ -51,11 +81,11 @@ public class WithPathTest extends BaseMapTest
             root.withObject(abPath);
             fail("Should not pass");
         } catch (UnsupportedOperationException e) {
-            verifyException(e, "cannot traverse non-container");
+            verifyException(e, "Cannot replace `JsonNode` of type ");
+            verifyException(e, "(mode `OverwriteMode.NULLS`)");
         }
 
         // Except fine via nulls (by default)
-        /*
         root.putNull("a");
         root.withObject(abPath).put("value", 42);
         assertEquals(a2q("{'a':{'b':{'value':42}}}"),
@@ -64,12 +94,12 @@ public class WithPathTest extends BaseMapTest
         // but not if prevented
         root = (ObjectNode) MAPPER.readTree(a2q("{'a':null}"));
         try {
-            root.withObject(abPath);
+            root.withObject(abPath, OverwriteMode.NONE, true);
             fail("Should not pass");
         } catch (UnsupportedOperationException e) {
-            verifyException(e, "cannot traverse non-container");
+            verifyException(e, "Cannot replace `JsonNode` of type ");
+            verifyException(e, "(mode `OverwriteMode.NONE`)");
         }
-        */
     }
 
     public void testValidWithObjectWithArray() throws Exception

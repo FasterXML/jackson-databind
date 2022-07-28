@@ -7,6 +7,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.JsonNodeFeature;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -22,6 +23,12 @@ public class ObjectNode
     implements java.io.Serializable
 {
     private static final long serialVersionUID = 1L; // since 2.10
+
+    /**
+     * Constant that defines maximum {@code JsonPointer} element index we
+     * use for inserts.
+     */
+    protected final static int MAX_ELEMENT_INDEX_FOR_INSERT = 9999;
 
     // Note: LinkedHashMap for backwards compatibility
     protected final Map<String, JsonNode> _children;
@@ -61,19 +68,103 @@ public class ObjectNode
     }
 
     @Override
-    protected ObjectNode _withObjectCreatePath(JsonPointer origPtr,
+    protected ObjectNode _withObject(JsonPointer origPtr,
             JsonPointer currentPtr,
             OverwriteMode overwriteMode, boolean preferIndex)
     {
-        ObjectNode currentNode = this;
-        while (!currentPtr.matches()) {
-            // Should we try to build Arrays? For now, nope.
-            currentNode = currentNode.putObject(currentPtr.getMatchingProperty());
-            currentPtr = currentPtr.tail();
+        if (currentPtr.matches()) {
+            return this;
         }
-        return currentNode;
+
+        JsonNode n = _at(currentPtr);
+        
+        // If there's a path, follow it
+        if ((n != null) && (n instanceof BaseJsonNode)) {
+            ObjectNode found = ((BaseJsonNode) n)._withObject(origPtr, currentPtr.tail(),
+                    overwriteMode, preferIndex);
+            if (found != null) {
+                return found;
+            }
+            // Ok no; must replace if allowed to
+            if (!_withObjectMayReplace(n, overwriteMode)) {
+                return _reportWrongNodeType(
+"Cannot replace `JsonNode` of type `%s` for property \"%s\" in JSON Pointer \"%s\" (mode `OverwriteMode.%s`)",
+                        n.getClass().getName(), currentPtr.getMatchingProperty(),
+                        origPtr, overwriteMode);
+            }
+        }
+        // Either way; must replace or add a new property
+        return _withObjectAddTailProperty(currentPtr, preferIndex, this);
     }
 
+    protected ObjectNode _withObjectAddTailProperty(JsonPointer tail, boolean preferIndex,
+            ObjectNode currObject)
+    {
+        final String propName = tail.getMatchingProperty();
+        tail = tail.tail();
+
+        // First: did we complete traversal? If so, easy, we got our result
+        if (tail.matches()) {
+            return currObject.putObject(propName);
+        }
+
+        // Otherwise, do we want Array or Object
+        if (_withObjectChooseArray(tail, preferIndex)) { // array!
+            return _withObjectAddTailElement(tail, preferIndex,
+                    currObject.putArray(propName));
+        }
+        return _withObjectAddTailProperty(tail, preferIndex,
+                currObject.putObject(propName));
+    }
+
+    protected ObjectNode _withObjectAddTailElement(JsonPointer tail, boolean preferIndex,
+            ArrayNode currArray)
+    {
+        final int index = tail.getMatchingIndex();
+        tail = tail.tail();
+
+        // First: did we complete traversal? If so, easy, we got our result
+        if (tail.matches()) {
+            ObjectNode result = currArray.objectNode();
+            _withObjectSetArrayElement(currArray, index, result);
+            return result;
+        }
+
+        // Otherwise, do we want Array or Object
+        if (_withObjectChooseArray(tail, preferIndex)) { // array!
+            ArrayNode next = currArray.arrayNode();
+            _withObjectSetArrayElement(currArray, index, next);
+            return _withObjectAddTailElement(tail, preferIndex, next);
+        }
+        ObjectNode next = currArray.objectNode();
+        _withObjectSetArrayElement(currArray, index, next);
+        return _withObjectAddTailProperty(tail, preferIndex, next);
+    }
+
+    protected boolean _withObjectChooseArray(JsonPointer ptr, boolean preferIndex)
+    {
+        if (preferIndex) {
+            final int ix = ptr.getMatchingIndex();
+            if (ix >= 0) {
+                // 27-Jul-2022, tatu: Let's make it less likely anyone OOMs by
+                //    humongous index...
+                if (ix <= MAX_ELEMENT_INDEX_FOR_INSERT) {
+                    return true;
+                }
+                _reportWrongNodeOperation("Too big Array index (%d; max %d) to use for insert with `JsonPointer`",
+                        ix, MAX_ELEMENT_INDEX_FOR_INSERT, ptr);
+            }
+        }
+        return false;
+    }
+
+    protected void _withObjectSetArrayElement(ArrayNode array, int index, JsonNode value) {
+        while (index >= array.size()) {
+            array.addNull();
+        }
+        array.set(index, value);
+    }
+    
     /*
     /**********************************************************
     /* Overrides for JsonSerializable.Base

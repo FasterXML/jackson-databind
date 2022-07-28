@@ -7,13 +7,13 @@ import com.fasterxml.jackson.databind.JsonNode.OverwriteMode;
 // for [databuind#1980] implementation
 public class WithPathTest extends BaseMapTest
 {
+    private final ObjectMapper MAPPER = sharedMapper();
+
     /*
     /**********************************************************************
-    /* Test methods
+    /* Test methods, withObject()
     /**********************************************************************
      */
-
-    private final ObjectMapper MAPPER = sharedMapper();
 
     public void testValidWithObjectTrivial() throws Exception
     {
@@ -77,13 +77,7 @@ public class WithPathTest extends BaseMapTest
         root.put("a", 13);
 
         // First, without replacement (default) get exception
-        try {
-            root.withObject(abPath);
-            fail("Should not pass");
-        } catch (UnsupportedOperationException e) {
-            verifyException(e, "Cannot replace `JsonNode` of type ");
-            verifyException(e, "(mode `OverwriteMode.NULLS`)");
-        }
+        _verifyReplaceFail(root, abPath, null);
 
         // Except fine via nulls (by default)
         root.putNull("a");
@@ -93,13 +87,7 @@ public class WithPathTest extends BaseMapTest
 
         // but not if prevented
         root = (ObjectNode) MAPPER.readTree(a2q("{'a':null}"));
-        try {
-            root.withObject(abPath, OverwriteMode.NONE, true);
-            fail("Should not pass");
-        } catch (UnsupportedOperationException e) {
-            verifyException(e, "Cannot replace `JsonNode` of type ");
-            verifyException(e, "(mode `OverwriteMode.NONE`)");
-        }
+        _verifyReplaceFail(root, abPath, OverwriteMode.NONE);
     }
 
     public void testValidWithObjectWithArray() throws Exception
@@ -115,10 +103,46 @@ public class WithPathTest extends BaseMapTest
         // But also verify we can match
         ObjectNode match2 = root.withObject(JsonPointer.compile("/arr/2"));
         assertSame(match, match2);
-        match.put("value2", true);
+        match2.put("value2", true);
         assertEquals(a2q("{'arr':[null,null,{'value':42,'value2':true}]}"),
                 root.toString());
 
-        // And even more! `null`s can be replaced
+        // And even more! `null`s can be replaced by default
+        ObjectNode match3 = root.withObject(JsonPointer.compile("/arr/0"));
+        assertEquals("{}", match3.toString());
+        match3.put("value", "bar");
+        assertEquals(a2q("{'arr':[{'value':'bar'},null,{'value':42,'value2':true}]}"),
+                root.toString());
+
+        // But not if prevented
+        _verifyReplaceFail(root, "/arr/1", OverwriteMode.NONE);
+
     }
+
+    private void _verifyReplaceFail(JsonNode doc, String ptrExpr, OverwriteMode mode) {
+        _verifyReplaceFail(doc, JsonPointer.compile(ptrExpr), mode);
+    }
+
+    private void _verifyReplaceFail(JsonNode doc, JsonPointer ptr, OverwriteMode mode) {
+        try {
+            if (mode == null) {
+                // default is "NULLS":
+                mode = OverwriteMode.NULLS;
+                doc.withObject(ptr);
+            } else {
+                doc.withObject(ptr, mode, true);
+            }
+            fail("Should not pass");
+        } catch (UnsupportedOperationException e) {
+            verifyException(e, "Cannot replace `JsonNode` of type ");
+            verifyException(e, "(mode `OverwriteMode."+mode.name()+"`)");
+        }
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods, withArray()
+    /**********************************************************************
+     */
+
 }

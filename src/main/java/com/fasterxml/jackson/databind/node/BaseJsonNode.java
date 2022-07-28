@@ -148,6 +148,19 @@ public abstract class BaseJsonNode
         return null;
     }
 
+    protected void _withObjectVerifyReplace(JsonPointer origPtr,
+            JsonPointer currentPtr,
+            OverwriteMode overwriteMode, boolean preferIndex,
+            JsonNode toReplace)
+    {
+        if (!_withObjectMayReplace(toReplace, overwriteMode)) {
+            _reportWrongNodeType(
+"Cannot replace `JsonNode` of type `%s` for property \"%s\" in JSON Pointer \"%s\" (mode `OverwriteMode.%s`)",
+                toReplace.getClass().getName(), currentPtr.getMatchingProperty(),
+                origPtr, overwriteMode);
+        }
+    }
+
     protected boolean _withObjectMayReplace(JsonNode node, OverwriteMode overwriteMode) {
         switch (overwriteMode) {
         case NONE:

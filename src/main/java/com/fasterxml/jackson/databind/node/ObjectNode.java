@@ -80,12 +80,7 @@ public class ObjectNode
                 return found;
             }
             // Ok no; must replace if allowed to
-            if (!_withObjectMayReplace(n, overwriteMode)) {
-                return _reportWrongNodeType(
-"Cannot replace `JsonNode` of type `%s` for property \"%s\" in JSON Pointer \"%s\" (mode `OverwriteMode.%s`)",
-                        n.getClass().getName(), currentPtr.getMatchingProperty(),
-                        origPtr, overwriteMode);
-            }
+            _withObjectVerifyReplace(origPtr, currentPtr, overwriteMode, preferIndex, n);
         }
         // Either way; must replace or add a new property
         return _withObjectAddTailProperty(currentPtr, preferIndex);

@@ -24,12 +24,6 @@ public class ObjectNode
 {
     private static final long serialVersionUID = 1L; // since 2.10
 
-    /**
-     * Constant that defines maximum {@code JsonPointer} element index we
-     * use for inserts.
-     */
-    protected final static int MAX_ELEMENT_INDEX_FOR_INSERT = 9999;
-
     // Note: LinkedHashMap for backwards compatibility
     protected final Map<String, JsonNode> _children;
 
@@ -94,77 +88,26 @@ public class ObjectNode
             }
         }
         // Either way; must replace or add a new property
-        return _withObjectAddTailProperty(currentPtr, preferIndex, this);
+        return _withObjectAddTailProperty(currentPtr, preferIndex);
     }
 
-    protected ObjectNode _withObjectAddTailProperty(JsonPointer tail, boolean preferIndex,
-            ObjectNode currObject)
+    protected ObjectNode _withObjectAddTailProperty(JsonPointer tail, boolean preferIndex)
     {
         final String propName = tail.getMatchingProperty();
         tail = tail.tail();
 
         // First: did we complete traversal? If so, easy, we got our result
         if (tail.matches()) {
-            return currObject.putObject(propName);
+            return putObject(propName);
         }
 
         // Otherwise, do we want Array or Object
-        if (_withObjectChooseArray(tail, preferIndex)) { // array!
-            return _withObjectAddTailElement(tail, preferIndex,
-                    currObject.putArray(propName));
+        if (preferIndex && tail.mayMatchElement()) { // array!
+            return putArray(propName)._withObjectAddTailElement(tail, preferIndex);
         }
-        return _withObjectAddTailProperty(tail, preferIndex,
-                currObject.putObject(propName));
+        return putObject(propName)._withObjectAddTailProperty(tail, preferIndex);
     }
 
-    protected ObjectNode _withObjectAddTailElement(JsonPointer tail, boolean preferIndex,
-            ArrayNode currArray)
-    {
-        final int index = tail.getMatchingIndex();
-        tail = tail.tail();
-
-        // First: did we complete traversal? If so, easy, we got our result
-        if (tail.matches()) {
-            ObjectNode result = currArray.objectNode();
-            _withObjectSetArrayElement(currArray, index, result);
-            return result;
-        }
-
-        // Otherwise, do we want Array or Object
-        if (_withObjectChooseArray(tail, preferIndex)) { // array!
-            ArrayNode next = currArray.arrayNode();
-            _withObjectSetArrayElement(currArray, index, next);
-            return _withObjectAddTailElement(tail, preferIndex, next);
-        }
-        ObjectNode next = currArray.objectNode();
-        _withObjectSetArrayElement(currArray, index, next);
-        return _withObjectAddTailProperty(tail, preferIndex, next);
-    }
-
-    protected boolean _withObjectChooseArray(JsonPointer ptr, boolean preferIndex)
-    {
-        if (preferIndex) {
-            final int ix = ptr.getMatchingIndex();
-            if (ix >= 0) {
-                // 27-Jul-2022, tatu: Let's make it less likely anyone OOMs by
-                //    humongous index...
-                if (ix <= MAX_ELEMENT_INDEX_FOR_INSERT) {
-                    return true;
-                }
-                _reportWrongNodeOperation("Too big Array index (%d; max %d) to use for insert with `JsonPointer`",
-                        ix, MAX_ELEMENT_INDEX_FOR_INSERT, ptr);
-            }
-        }
-        return false;
-    }
-
-    protected void _withObjectSetArrayElement(ArrayNode array, int index, JsonNode value) {
-        while (index >= array.size()) {
-            array.addNull();
-        }
-        array.set(index, value);
-    }
-    
     /*
     /**********************************************************
     /* Overrides for JsonSerializable.Base

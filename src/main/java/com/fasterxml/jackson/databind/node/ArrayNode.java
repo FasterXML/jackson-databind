@@ -91,53 +91,47 @@ public class ArrayNode
             }
         }
         // Either way; must replace or add a new property
-        return _withObjectCreateTail(currentPtr, preferIndex);
-    }        
-
-    protected ObjectNode _withObjectCreateTail(JsonPointer tail, boolean preferIndex)
-    {
-        // !!! TBI
-        if (true) {
-            throw new Error("Need to create tail for: "+tail);
-        }
-        return null;
+        return _withObjectAddTailElement(currentPtr, preferIndex);
     }
 
-    /*
-    @Override
-    protected ObjectNode _withObjectCreatePath(JsonPointer origPtr,
-            JsonPointer currentPtr,
-            OverwriteMode overwriteMode, boolean preferIndex)
+    protected ObjectNode _withObjectAddTailElement(JsonPointer tail, boolean preferIndex)
     {
-        // With Arrays, bit different; the first entry needs to be index
-        if (!currentPtr.mayMatchElement()) {
-            return _reportWrongNodeType(
-                    "`JsonPointer` path \"%s\" must have index for `ArrayNode`; instead has property \"%s\"",
-                    origPtr.toString(),
-                    getClass().getName(),
-                    currentPtr.getMatchingProperty());
+        final int index = tail.getMatchingIndex();
+        tail = tail.tail();
+
+        // First: did we complete traversal? If so, easy, we got our result
+        if (tail.matches()) {
+            ObjectNode result = this.objectNode();
+            _withObjectSetArrayElement(index, result);
+            return result;
         }
 
-        // And we know there's no node at given index
-        ObjectNode currentNode = this.objectNode();
-        // One complication: may need to insert nulls
-        final int ix = currentPtr.getMatchingIndex();
-        while (ix >= size()) {
-            add(nullNode());
+        // Otherwise, do we want Array or Object
+        if (preferIndex && tail.mayMatchElement()) { // array!
+            ArrayNode next = this.arrayNode();
+            _withObjectSetArrayElement(index, next);
+            return next._withObjectAddTailElement(tail, preferIndex);
         }
-        set(ix, currentNode);
-
-        currentPtr = currentPtr.tail();
-
-        // Otherwise loop same as with ObjectNode
-        while (!currentPtr.matches()) {
-            // Should we try to build Arrays? For now, nope.
-            currentNode = currentNode.putObject(currentPtr.getMatchingProperty());
-            currentPtr = currentPtr.tail();
-        }
-        return (ObjectNode) currentNode;
+        ObjectNode next = this.objectNode();
+        _withObjectSetArrayElement(index, next);
+        return next._withObjectAddTailProperty(tail, preferIndex);
     }
-    */
+
+    protected void _withObjectSetArrayElement(int index, JsonNode value) {
+        // 27-Jul-2022, tatu: Let's make it less likely anyone OOMs by
+        //    humongous index...
+        if (index >= size()) {
+            final int max = _nodeFactory.getMaxElementIndexForInsert();
+            if (index > max) {
+                _reportWrongNodeOperation("Too big Array index (%d; max %d) to use for insert with `JsonPointer`",
+                        index, max);
+            }
+            while (index >= this.size()) {
+                addNull();
+            }
+        }
+        set(index, value);
+    }
 
     /*
     /**********************************************************

@@ -167,66 +167,72 @@ public class TreeBuildingGenerator
      */
 
     @Override
-    public void writeStartArray() {
-        writeStartArray(null);
+    public JsonGenerator writeStartArray() {
+        return writeStartArray(null);
     }
 
     @Override
-    public void writeStartArray(Object forValue) {
+    public JsonGenerator writeStartArray(Object forValue) {
         _tokenWriteContext = _tokenWriteContext.createChildArrayContext(forValue);
+        return this;
     }
 
     @Override
-    public void writeStartArray(Object forValue, int len) {
-        writeStartArray(forValue);
+    public JsonGenerator writeStartArray(Object forValue, int len) {
+        return writeStartArray(forValue);
     }
 
     @Override
-    public void writeEndArray() {
+    public JsonGenerator writeEndArray() {
         if (!_tokenWriteContext.inArray()) {
             _reportError("Current context not Array but "+_tokenWriteContext.typeDesc());
         }
         _tokenWriteContext = _tokenWriteContext.getParent();
+        return this;
     }
 
     @Override
-    public final void writeStartObject() {
-        writeStartObject(null);
+    public JsonGenerator writeStartObject() {
+        return writeStartObject(null);
     }
 
     @Override
-    public void writeStartObject(Object forValue)
+    public JsonGenerator writeStartObject(Object forValue)
     {
         _tokenWriteContext = _tokenWriteContext.createChildObjectContext(forValue);
+        return this;
     }
 
     @Override
-    public void writeStartObject(Object forValue, int size) {
-        writeStartObject(forValue);
+    public JsonGenerator writeStartObject(Object forValue, int size) {
+        return writeStartObject(forValue);
     }
 
     @Override
-    public final void writeEndObject() {
+    public JsonGenerator writeEndObject() {
         if (!_tokenWriteContext.inObject()) {
             _reportError("Current context not Object but "+_tokenWriteContext.typeDesc());
         }
         _tokenWriteContext = _tokenWriteContext.getParent();
+        return this;
     }
 
     @Override
-    public final void writeName(String name) {
+    public JsonGenerator writeName(String name) {
         _tokenWriteContext.writeName(name);
+        return this;
     }
 
     @Override
-    public void writeName(SerializableString name) {
+    public JsonGenerator writeName(SerializableString name) {
         _tokenWriteContext.writeName(name.getValue());
+        return this;
     }
 
     @Override
-    public void writePropertyId(long id) {
+    public JsonGenerator writePropertyId(long id) {
         // Cannot really preserve currently so
-        writeName(Long.toString(id));
+        return writeName(Long.toString(id));
     }
 
     /*
@@ -236,88 +242,91 @@ public class TreeBuildingGenerator
      */
 
     @Override
-    public void writeString(String text) {
+    public JsonGenerator writeString(String text) {
         if (text == null) {
             writeNull();
         } else {
             _tokenWriteContext.writeString(text);
         }
+        return this;
     }
 
     @Override
-    public void writeString(char[] text, int offset, int len) {
-        writeString(new String(text, offset, len));
+    public JsonGenerator writeString(char[] text, int offset, int len) {
+        return writeString(new String(text, offset, len));
     }
 
     @Override
-    public void writeString(SerializableString text) {
+    public JsonGenerator writeString(SerializableString text) {
         if (text == null) {
             writeNull();
         } else {
             _tokenWriteContext.writeString(text.getValue());
         }
+        return this;
     }
 
     // In 3.0 no longer implemented by `JsonGenerator, impl copied:
     @Override
-    public void writeString(Reader reader, int len) {
+    public JsonGenerator writeString(Reader reader, int len) {
         // Let's implement this as "unsupported" to make it easier to add new parser impls
-        _reportUnsupportedOperation();
+        return _reportUnsupportedOperation();
     }
 
     @Override
-    public void writeRawUTF8String(byte[] text, int offset, int length) {
+    public JsonGenerator writeRawUTF8String(byte[] text, int offset, int length) {
         // could add support for buffering if we really want it...
-        _reportUnsupportedOperation();
+        return _reportUnsupportedOperation();
     }
 
     @Override
-    public void writeUTF8String(byte[] text, int offset, int length) {
+    public JsonGenerator writeUTF8String(byte[] text, int offset, int length) {
         // could add support for buffering if we really want it...
-        _reportUnsupportedOperation();
+        return _reportUnsupportedOperation();
     }
 
     @Override
-    public void writeRaw(String text) {
-        _reportUnsupportedOperation();
+    public JsonGenerator writeRaw(String text) {
+        return _reportUnsupportedOperation();
     }
 
     @Override
-    public void writeRaw(String text, int offset, int len) {
-        _reportUnsupportedOperation();
+    public JsonGenerator writeRaw(String text, int offset, int len) {
+        return _reportUnsupportedOperation();
     }
 
     @Override
-    public void writeRaw(SerializableString text) {
-        _reportUnsupportedOperation();
+    public JsonGenerator writeRaw(SerializableString text) {
+        return _reportUnsupportedOperation();
     }
 
     @Override
-    public void writeRaw(char[] text, int offset, int len) {
-        _reportUnsupportedOperation();
+    public JsonGenerator writeRaw(char[] text, int offset, int len) {
+        return _reportUnsupportedOperation();
     }
 
     @Override
-    public void writeRaw(char c) {
-        _reportUnsupportedOperation();
+    public JsonGenerator writeRaw(char c) {
+        return _reportUnsupportedOperation();
     }
 
     @Override
-    public void writeRawValue(String text) {
+    public JsonGenerator writeRawValue(String text) {
         _tokenWriteContext.writeNode(_nodeFactory.rawValueNode(new RawValue(text)));
+        return this;
     }
 
     @Override
-    public void writeRawValue(String text, int offset, int len) {
+    public JsonGenerator writeRawValue(String text, int offset, int len) {
         if (offset > 0 || len != text.length()) {
             text = text.substring(offset, offset+len);
         }
-        writeRawValue(text);
+        return writeRawValue(text);
     }
 
     @Override
-    public void writeRawValue(char[] text, int offset, int len) {
-        writeRawValue(new String(text, offset, len));
+    public JsonGenerator writeRawValue(char[] text, int offset, int len) {
+        return writeRawValue(new String(text, offset, len));
     }
 
     /*
@@ -327,61 +336,70 @@ public class TreeBuildingGenerator
      */
 
     @Override
-    public void writeNumber(short v) {
+    public JsonGenerator writeNumber(short v) {
         _tokenWriteContext.writeNumber(_nodeFactory.numberNode(v));
+        return this;
     }
 
     @Override
-    public void writeNumber(int v) {
+    public JsonGenerator writeNumber(int v) {
         _tokenWriteContext.writeNumber(_nodeFactory.numberNode(v));
+        return this;
     }
 
     @Override
-    public void writeNumber(long v) {
+    public JsonGenerator writeNumber(long v) {
         _tokenWriteContext.writeNumber(_nodeFactory.numberNode(v));
+        return this;
     }
 
     @Override
-    public void writeNumber(double v) {
+    public JsonGenerator writeNumber(double v) {
         _tokenWriteContext.writeNumber(_nodeFactory.numberNode(v));
+        return this;
     }
 
     @Override
-    public void writeNumber(float v) {
+    public JsonGenerator writeNumber(float v) {
         _tokenWriteContext.writeNumber(_nodeFactory.numberNode(v));
+        return this;
     }
 
     @Override
-    public void writeNumber(BigDecimal v) {
+    public JsonGenerator writeNumber(BigDecimal v) {
         if (v == null) {
             writeNull();
         } else {
             _tokenWriteContext.writeNumber(_nodeFactory.numberNode(v));
         }
+        return this;
     }
 
     @Override
-    public void writeNumber(BigInteger v) {
+    public JsonGenerator writeNumber(BigInteger v) {
         if (v == null) {
             writeNull();
         } else {
             _tokenWriteContext.writeNumber(_nodeFactory.numberNode(v));
         }
+        return this;
     }
 
     @Override
-    public void writeNumber(String encodedValue) {
-        writeString(encodedValue);
+    public JsonGenerator writeNumber(String encodedValue) {
+        return writeString(encodedValue);
     }
 
     @Override
-    public void writeBoolean(boolean state) {
+    public JsonGenerator writeBoolean(boolean state) {
         _tokenWriteContext.writeBoolean(state);
+        return this;
     }
 
     @Override
-    public void writeNull() {
+    public JsonGenerator writeNull() {
         _tokenWriteContext.writeNull();
+        return this;
     }
 
     /*
@@ -391,11 +409,10 @@ public class TreeBuildingGenerator
      */
 
     @Override
-    public void writePOJO(Object value)
+    public JsonGenerator writePOJO(Object value)
     {
         if (value == null) {
-            writeNull();
-            return;
+            return writeNull();
         }
         // 02-Mar-2021, tatu: This is bit tricky; probably should be configurable,
         //    but for now let's follow what `TokenBuffer` does and by default
@@ -404,23 +421,24 @@ public class TreeBuildingGenerator
         final Class<?> raw = value.getClass();
         if (raw == byte[].class || (value instanceof RawValue)) {
             _tokenWriteContext.writePOJO(value);
-            return;
+            return this;
         }
         _objectWriteContext.writeValue(this, value);
+        return this;
     }
 
     @Override
-    public void writeTree(TreeNode node)
+    public JsonGenerator writeTree(TreeNode node)
     {
         if (node == null) {
-            writeNull();
-            return;
+            return writeNull();
         }
         if (node instanceof JsonNode) {
             _tokenWriteContext.writeNode((JsonNode) node);
         } else {
             _tokenWriteContext.writePOJO(node);
         }
+        return this;
     }
 
     /*
@@ -430,13 +448,13 @@ public class TreeBuildingGenerator
      */
 
     @Override
-    public void writeBinary(Base64Variant b64variant, byte[] data, int offset, int len)
+    public JsonGenerator writeBinary(Base64Variant b64variant, byte[] data, int offset, int len)
     {
         // 12-Jan-2021, tatu: Should we try to preserve the variant? Depends a
         //   lot on whether this during read (no need to retain probably) or
         //   write (probably important)
         byte[] copy = Arrays.copyOfRange(data, offset, offset + len);
-        writePOJO(copy);
+        return writePOJO(copy);
     }
 
     /**
@@ -467,20 +485,21 @@ public class TreeBuildingGenerator
     }
 
     @Override
-    public void writeTypeId(Object id) {
-        _reportUnsupportedOperation();
+    public JsonGenerator writeTypeId(Object id) {
+        return _reportUnsupportedOperation();
     }
 
     @Override
-    public void writeObjectId(Object id) {
-        _reportUnsupportedOperation();
+    public JsonGenerator writeObjectId(Object id) {
+        return _reportUnsupportedOperation();
     }
 
     @Override
-    public void writeEmbeddedObject(Object object) {
+    public JsonGenerator writeEmbeddedObject(Object object) {
         // 02-Mar-2021, tatu: Bit tricky, this one; should we try to
         //   auto-detect types or something?
         _tokenWriteContext.writePOJO(object);
+        return this;
     }
 
     /*

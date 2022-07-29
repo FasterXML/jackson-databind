@@ -671,77 +671,88 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
      */
 
     @Override
-    public final void writeStartArray()
+    public final JsonGenerator writeStartArray()
     {
         _appendStartMarker(JsonToken.START_ARRAY);
         _tokenWriteContext = _tokenWriteContext.createChildArrayContext(null);
+        return this;
     }
 
     @Override
-    public final void writeStartArray(Object forValue)
+    public final JsonGenerator writeStartArray(Object forValue)
     {
         _appendStartMarker(JsonToken.START_ARRAY);
         _tokenWriteContext = _tokenWriteContext.createChildArrayContext(forValue);
+        return this;
     }
 
     @Override
-    public final void writeStartArray(Object forValue, int len)
+    public final JsonGenerator writeStartArray(Object forValue, int len)
     {
         _appendStartMarker(JsonToken.START_ARRAY);
         _tokenWriteContext = _tokenWriteContext.createChildArrayContext(forValue);
+        return this;
     }
 
     @Override
-    public final void writeEndArray()
+    public final JsonGenerator writeEndArray()
     {
         _appendEndMarker(JsonToken.END_ARRAY);
+        return this;
     }
 
     @Override
-    public final void writeStartObject()
+    public final JsonGenerator writeStartObject()
     {
         _appendStartMarker(JsonToken.START_OBJECT);
         _tokenWriteContext = _tokenWriteContext.createChildObjectContext(null);
+        return this;
     }
 
     @Override
-    public void writeStartObject(Object forValue)
+    public JsonGenerator writeStartObject(Object forValue)
     {
         _appendStartMarker(JsonToken.START_OBJECT);
         _tokenWriteContext = _tokenWriteContext.createChildObjectContext(forValue);
+        return this;
     }
 
     @Override
-    public void writeStartObject(Object forValue, int size)
+    public JsonGenerator writeStartObject(Object forValue, int size)
     {
         _appendStartMarker(JsonToken.START_OBJECT);
         _tokenWriteContext = _tokenWriteContext.createChildObjectContext(forValue);
+        return this;
     }
 
     @Override
-    public final void writeEndObject() {
+    public final JsonGenerator writeEndObject() {
         _appendEndMarker(JsonToken.END_OBJECT);
+        return this;
     }
 
     @Override
-    public final void writeName(String name) {
+    public final JsonGenerator writeName(String name) {
         _tokenWriteContext.writeName(name);
         _appendName(name);
+        return this;
     }
 
     @Override
-    public void writeName(SerializableString name) {
+    public JsonGenerator writeName(SerializableString name) {
         _tokenWriteContext.writeName(name.getValue());
         _appendName(name);
+        return this;
     }
 
     @Override
-    public void writePropertyId(long id) {
+    public JsonGenerator writePropertyId(long id) {
         // 15-Aug-2019, tatu: could and probably should be improved to support
         //    buffering but...
         final String name = Long.toString(id);
         _tokenWriteContext.writeName(name);
         _appendName(name);
+        return this;
     }
 
     /*
@@ -751,88 +762,93 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
      */
 
     @Override
-    public void writeString(String text) {
+    public JsonGenerator writeString(String text) {
         if (text == null) {
             writeNull();
         } else {
             _appendValue(JsonToken.VALUE_STRING, text);
         }
+        return this;
     }
 
     @Override
-    public void writeString(char[] text, int offset, int len) {
-        writeString(new String(text, offset, len));
+    public JsonGenerator writeString(char[] text, int offset, int len) {
+        return writeString(new String(text, offset, len));
     }
 
     @Override
-    public void writeString(SerializableString text) {
+    public JsonGenerator writeString(SerializableString text) {
         if (text == null) {
             writeNull();
         } else {
             _appendValue(JsonToken.VALUE_STRING, text);
         }
+        return this;
     }
 
     // In 3.0 no longer implemented by `JsonGenerator, impl copied:
     @Override
-    public void writeString(Reader reader, int len) {
+    public JsonGenerator writeString(Reader reader, int len) {
         // Let's implement this as "unsupported" to make it easier to add new parser impls
-        _reportUnsupportedOperation();
+        return _reportUnsupportedOperation();
     }
 
     @Override
-    public void writeRawUTF8String(byte[] text, int offset, int length) {
+    public JsonGenerator writeRawUTF8String(byte[] text, int offset, int length) {
         // could add support for buffering if we really want it...
-        _reportUnsupportedOperation();
+        return _reportUnsupportedOperation();
     }
 
     @Override
-    public void writeUTF8String(byte[] text, int offset, int length) {
+    public JsonGenerator writeUTF8String(byte[] text, int offset, int length) {
         // could add support for buffering if we really want it...
-        _reportUnsupportedOperation();
+        return _reportUnsupportedOperation();
     }
 
     @Override
-    public void writeRaw(String text) {
-        _reportUnsupportedOperation();
+    public JsonGenerator writeRaw(String text) {
+        return _reportUnsupportedOperation();
     }
 
     @Override
-    public void writeRaw(String text, int offset, int len) {
-        _reportUnsupportedOperation();
+    public JsonGenerator writeRaw(String text, int offset, int len) {
+        return _reportUnsupportedOperation();
     }
 
     @Override
-    public void writeRaw(SerializableString text) {
-        _reportUnsupportedOperation();
-    }
-    
-    @Override
-    public void writeRaw(char[] text, int offset, int len) {
-        _reportUnsupportedOperation();
+    public JsonGenerator writeRaw(SerializableString text) {
+        return _reportUnsupportedOperation();
     }
 
     @Override
-    public void writeRaw(char c) {
-        _reportUnsupportedOperation();
+    public JsonGenerator writeRaw(char[] text, int offset, int len) {
+        return _reportUnsupportedOperation();
     }
 
     @Override
-    public void writeRawValue(String text) {
+    public JsonGenerator writeRaw(char c) {
+        return _reportUnsupportedOperation();
+    }
+
+    @Override
+    public JsonGenerator writeRawValue(String text) {
         _appendValue(JsonToken.VALUE_EMBEDDED_OBJECT, new RawValue(text));
+        return this;
     }
 
     @Override
-    public void writeRawValue(String text, int offset, int len) {
+    public JsonGenerator writeRawValue(String text, int offset, int len) {
         if (offset > 0 || len != text.length()) {
             text = text.substring(offset, offset+len);
         }
         _appendValue(JsonToken.VALUE_EMBEDDED_OBJECT, new RawValue(text));
+        return this;
     }
 
     @Override
-    public void writeRawValue(char[] text, int offset, int len) {
+    public JsonGenerator writeRawValue(char[] text, int offset, int len) {
         _appendValue(JsonToken.VALUE_EMBEDDED_OBJECT, new String(text, offset, len));
+        return this;
     }
 
     /*
@@ -842,64 +858,74 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
      */
 
     @Override
-    public void writeNumber(short i) {
+    public JsonGenerator writeNumber(short i) {
         _appendValue(JsonToken.VALUE_NUMBER_INT, Short.valueOf(i));
+        return this;
     }
 
     @Override
-    public void writeNumber(int i) {
+    public JsonGenerator writeNumber(int i) {
         _appendValue(JsonToken.VALUE_NUMBER_INT, Integer.valueOf(i));
+        return this;
     }
 
     @Override
-    public void writeNumber(long l) {
+    public JsonGenerator writeNumber(long l) {
         _appendValue(JsonToken.VALUE_NUMBER_INT, Long.valueOf(l));
+        return this;
     }
 
     @Override
-    public void writeNumber(double d) {
+    public JsonGenerator writeNumber(double d) {
         _appendValue(JsonToken.VALUE_NUMBER_FLOAT, Double.valueOf(d));
+        return this;
     }
 
     @Override
-    public void writeNumber(float f) {
+    public JsonGenerator writeNumber(float f) {
         _appendValue(JsonToken.VALUE_NUMBER_FLOAT, Float.valueOf(f));
+        return this;
     }
 
     @Override
-    public void writeNumber(BigDecimal dec) {
+    public JsonGenerator writeNumber(BigDecimal dec) {
         if (dec == null) {
             writeNull();
         } else {
             _appendValue(JsonToken.VALUE_NUMBER_FLOAT, dec);
         }
+        return this;
     }
 
     @Override
-    public void writeNumber(BigInteger v) {
+    public JsonGenerator writeNumber(BigInteger v) {
         if (v == null) {
             writeNull();
         } else {
             _appendValue(JsonToken.VALUE_NUMBER_INT, v);
         }
+        return this;
     }
 
     @Override
-    public void writeNumber(String encodedValue) {
+    public JsonGenerator writeNumber(String encodedValue) {
         /* 03-Dec-2010, tatu: related to [JACKSON-423], should try to keep as numeric
          *   identity as long as possible
          */
         _appendValue(JsonToken.VALUE_NUMBER_FLOAT, encodedValue);
+        return this;
     }
 
     @Override
-    public void writeBoolean(boolean state) {
+    public JsonGenerator writeBoolean(boolean state) {
         _appendValue(state ? JsonToken.VALUE_TRUE : JsonToken.VALUE_FALSE);
+        return this;
     }
 
     @Override
-    public void writeNull() {
+    public JsonGenerator writeNull() {
         _appendValue(JsonToken.VALUE_NULL);
+        return this;
     }
 
     /*
@@ -909,33 +935,33 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
      */
 
     @Override
-    public void writePOJO(Object value)
+    public JsonGenerator writePOJO(Object value)
     {
         if (value == null) {
-            writeNull();
-            return;
+            return writeNull();
         }
         final Class<?> raw = value.getClass();
         if (raw == byte[].class || (value instanceof RawValue)
                 || (_objectWriteContext == null)) {
             _appendValue(JsonToken.VALUE_EMBEDDED_OBJECT, value);
-            return;
+            return this;
         }
         _objectWriteContext.writeValue(this, value);
+        return this;
     }
 
     @Override
-    public void writeTree(TreeNode node)
+    public JsonGenerator writeTree(TreeNode node)
     {
         if (node == null) {
-            writeNull();
-            return;
+            return writeNull();
         }
         if (_objectWriteContext == null) {
             _appendValue(JsonToken.VALUE_EMBEDDED_OBJECT, node);
-            return;
+            return this;
         }
         _objectWriteContext.writeTree(this, node);
+        return this;
     }
 
     /*
@@ -945,13 +971,13 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
      */
 
     @Override
-    public void writeBinary(Base64Variant b64variant, byte[] data, int offset, int len)
+    public JsonGenerator writeBinary(Base64Variant b64variant, byte[] data, int offset, int len)
     {
         // 12-Jan-2021, tatu: Should we try to preserve the variant? Depends a
         //   lot on whether this during read (no need to retain probably) or
         //   write (probably important)
         byte[] copy = Arrays.copyOfRange(data, offset, offset + len);
-        writePOJO(copy);
+        return writePOJO(copy);
     }
 
     /**
@@ -982,20 +1008,23 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     }
     
     @Override
-    public void writeTypeId(Object id) {
+    public JsonGenerator writeTypeId(Object id) {
         _typeId = id;
         _hasNativeId = true;
+        return this;
     }
     
     @Override
-    public void writeObjectId(Object id) {
+    public JsonGenerator writeObjectId(Object id) {
         _objectId = id;
         _hasNativeId = true;
+        return this;
     }
 
     @Override
-    public void writeEmbeddedObject(Object object) {
+    public JsonGenerator writeEmbeddedObject(Object object) {
         _appendValue(JsonToken.VALUE_EMBEDDED_OBJECT, object);
+        return this;
     }
 
     /*

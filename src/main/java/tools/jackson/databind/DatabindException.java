@@ -261,21 +261,29 @@ public class DatabindException
     }
 
     public static DatabindException from(DeserializationContext ctxt, String msg) {
-        return new DatabindException(ctxt.getParser(), msg);
+        return new DatabindException(_parser(ctxt), msg);
     }
 
     public static DatabindException from(DeserializationContext ctxt, String msg, Throwable t) {
-        return new DatabindException(ctxt.getParser(), msg, t);
+        return new DatabindException(_parser(ctxt), msg, t);
+    }
+
+    private static JsonParser _parser(DeserializationContext ctxt) {
+        return (ctxt == null) ? null : ctxt.getParser();
     }
 
     public static DatabindException from(SerializerProvider ctxt, String msg) {
-        return new DatabindException(ctxt.getGenerator(), msg);
+        return new DatabindException(_generator(ctxt), msg);
     }
 
     public static DatabindException from(SerializerProvider ctxt, String msg, Throwable problem) {
         // 17-Aug-2015, tatu: As per [databind#903] this is bit problematic as
         //   SerializerProvider instance does not currently hold on to generator...
-        return new DatabindException(ctxt.getGenerator(), msg, problem);
+        return new DatabindException(_generator(ctxt), msg, problem);
+    }
+
+    private static JsonGenerator _generator(SerializerProvider ctxt) {
+        return (ctxt == null) ? null : ctxt.getGenerator();
     }
 
     /*

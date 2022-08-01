@@ -18,8 +18,6 @@ import tools.jackson.databind.deser.jackson.JsonLocationInstantiator;
  * Container for a set of {@link ValueInstantiator}s used for certain critical
  * JDK value types, either as performance optimization for initialization time observed
  * by profiling, or due to difficulty in otherwise finding constructors.
- *
- * @since 2.10
  */
 public abstract class JDKValueInstantiators
 {

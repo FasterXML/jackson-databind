@@ -1,10 +1,12 @@
 package tools.jackson.databind.deser;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.ReadableObjectId.Referring;
+import tools.jackson.databind.deser.jdk.JDKValueInstantiators;
 import tools.jackson.databind.introspect.AnnotatedField;
 import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.introspect.AnnotatedMethod;
@@ -150,22 +152,44 @@ public class SettableAnyProperty
             if (_setterIsField) {
                 AnnotatedField field = (AnnotatedField) _setter;
                 Map<Object,Object> val = (Map<Object,Object>) field.getValue(instance);
-                /* 01-Jun-2016, tatu: At this point it is not quite clear what to do if
-                 *    field is `null` -- we cannot necessarily count on zero-args
-                 *    constructor except for a small set of types, so for now just
-                 *    ignore if null. May need to figure out something better in future.
-                 */
-                if (val != null) {
-                    // add the property key and value
-                    val.put(propName, value);
+                // 01-Aug-2022, tatu: [databind#3559] Will try to create and assign an
+                //    instance.
+                if (val == null) {
+                    val = _createAndSetMap(null, field, instance, propName);
                 }
+                // add the property key and value
+                val.put(propName, value);
             } else {
                 // note: cannot use 'setValue()' due to taking 2 args
                 ((AnnotatedMethod) _setter).callOnWith(instance, propName, value);
             }
+        } catch (JacksonException e) {
+            throw e;
         } catch (Exception e) {
             _throwAsIOE(e, propName, value);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    protected Map<Object, Object> _createAndSetMap(DeserializationContext ctxt, AnnotatedField field,
+            Object instance, Object propName)
+        throws JacksonException
+    {
+        Class<?> mapType = field.getRawType();
+        // Ideally would be resolved to a concrete type but if not:
+        if (mapType == Map.class) {
+            mapType = LinkedHashMap.class;
+        }
+        // We know that DeserializationContext not actually required:
+        ValueInstantiator vi = JDKValueInstantiators.findStdValueInstantiator(null, mapType);
+        if (vi == null) {
+            throw DatabindException.from(ctxt, String.format(
+                    "Cannot create an instance of %s for use as \"any-setter\" '%s'",
+                    ClassUtil.nameOf(mapType), _property.getName()));
+        }
+        Map<Object,Object> map = (Map<Object,Object>) vi.createUsingDefault(ctxt);
+        field.setValue(instance, map);
+        return map;
     }
 
     /*
@@ -184,7 +208,7 @@ public class SettableAnyProperty
     {
         if (e instanceof IllegalArgumentException) {
             String actType = ClassUtil.classNameOf(value);
-            StringBuilder msg = new StringBuilder("Problem deserializing \"any\" property '").append(propName);
+            StringBuilder msg = new StringBuilder("Problem deserializing \"any-property\" '").append(propName);
             msg.append("' of class "+getClassName()+" (expected type: ").append(_type);
             msg.append("; actual type: ").append(actType).append(")");
             String origMsg = ClassUtil.exceptionMessage(e);

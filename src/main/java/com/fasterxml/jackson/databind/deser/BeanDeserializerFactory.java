@@ -820,15 +820,32 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
         } else if (mutator instanceof AnnotatedField) {
             AnnotatedField af = (AnnotatedField) mutator;
             // get the type from the content type of the map object
-            JavaType mapType = af.getType();
-            mapType = resolveMemberAndTypeAnnotations(ctxt, mutator, mapType);
-            keyType = mapType.getKeyType();
-            valueType = mapType.getContentType();
-            prop = new BeanProperty.Std(PropertyName.construct(mutator.getName()),
-                    mapType, null, mutator, PropertyMetadata.STD_OPTIONAL);
+            JavaType fieldType = af.getType();
+            // 31-Jul-2022, tatu: Not just Maps any more but also JsonNode, so:
+            if (fieldType.isMapLikeType()) {
+                fieldType = resolveMemberAndTypeAnnotations(ctxt, mutator, fieldType);
+                keyType = fieldType.getKeyType();
+                valueType = fieldType.getContentType();
+                prop = new BeanProperty.Std(PropertyName.construct(mutator.getName()),
+                        fieldType, null, mutator, PropertyMetadata.STD_OPTIONAL);
+            } else if (fieldType.isTypeOrSubTypeOf(JsonNode.class)) {
+                fieldType = resolveMemberAndTypeAnnotations(ctxt, mutator, fieldType);
+                keyType = null; // so it's plain old `String`
+                valueType = ctxt.constructType(JsonNode.class);
+                prop = new BeanProperty.Std(PropertyName.construct(mutator.getName()),
+                        fieldType, null, mutator, PropertyMetadata.STD_OPTIONAL);
+
+                // Unlike with more complicated types, here we do not allow any annotation
+                // overrides etc but instead short-cut handling:
+                return new SettableAnyProperty(prop, mutator, valueType,
+                        null, null, null);
+            } else {
+                return ctxt.reportBadDefinition(beanDesc.getType(), String.format(
+                        "Unsupported type for any-setter: %s", ClassUtil.getTypeDescription(fieldType)));
+            }
         } else {
             return ctxt.reportBadDefinition(beanDesc.getType(), String.format(
-                    "Unrecognized mutator type for any setter: %s", mutator.getClass()));
+                    "Unrecognized mutator type for any-setter: %s", ClassUtil.nameOf(mutator.getClass())));
         }
         // First: see if there are explicitly specified 
         // and then possible direct deserializer override on accessor

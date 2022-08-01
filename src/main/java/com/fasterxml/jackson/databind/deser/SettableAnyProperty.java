@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 /**
  * Class that represents a "wildcard" set method which can be used
  * to generically set values of otherwise unmapped (aka "unknown")
- * properties read from Json content.
+ * properties read from JSON content.
  *<p>
  * !!! Note: might make sense to refactor to share some code
  * with {@link SettableBeanProperty}?
@@ -34,10 +34,10 @@ public class SettableAnyProperty
     /**
      * Annotated variant is needed for JDK serialization only
      */
-    final protected AnnotatedMember _setter;
+    protected final AnnotatedMember _setter;
 
-    final boolean _setterIsField;
-    
+    protected final boolean _setterIsField;
+
     protected final JavaType _type;
 
     protected JsonDeserializer<Object> _valueDeserializer;
@@ -68,13 +68,6 @@ public class SettableAnyProperty
         _setterIsField = setter instanceof AnnotatedField;
     }
 
-    @Deprecated // since 2.9
-    public SettableAnyProperty(BeanProperty property, AnnotatedMember setter, JavaType type,
-            JsonDeserializer<Object> valueDeser, TypeDeserializer typeDeser)
-    {
-        this(property, setter, type, null, valueDeser, typeDeser);
-    }
-
     public SettableAnyProperty withValueDeserializer(JsonDeserializer<Object> deser) {
         return new SettableAnyProperty(_property, _setter, _type,
                 _keyDeserializer, deser, _valueTypeDeserializer);
@@ -97,7 +90,7 @@ public class SettableAnyProperty
     Object readResolve() {
         // sanity check...
         if (_setter == null || _setter.getAnnotated() == null) {
-            throw new IllegalArgumentException("Missing method (broken JDK (de)serialization?)");
+            throw new IllegalArgumentException("Missing method/field (broken JDK (de)serialization?)");
         }
         return this;
     }

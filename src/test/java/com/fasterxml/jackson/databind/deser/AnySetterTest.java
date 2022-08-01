@@ -146,7 +146,7 @@ public class AnySetterTest
             props.put(name, value);
         }
     }
-    
+
     static class JsonAnySetterOnMap {
         public int id;
 
@@ -344,20 +344,20 @@ public class AnySetterTest
         assertTrue(ob instanceof Impl);
         assertEquals("xyz", ((Impl) ob).value);
     }
-    
-	public void testJsonAnySetterOnMap() throws Exception {
-		JsonAnySetterOnMap result = MAPPER.readValue("{\"id\":2,\"name\":\"Joe\", \"city\":\"New Jersey\"}",
-		        JsonAnySetterOnMap.class);
-		assertEquals(2, result.id);
-		assertEquals("Joe", result.other.get("name"));
-		assertEquals("New Jersey", result.other.get("city"));
-	}
 
-	public void testJsonAnySetterOnNullMap() throws Exception {
-		JsonAnySetterOnNullMap result = MAPPER.readValue("{\"id\":2,\"name\":\"Joe\", \"city\":\"New Jersey\"}",
-		        JsonAnySetterOnNullMap.class);
-		assertEquals(2, result.id);
-		assertNull(result.other);
+    public void testJsonAnySetterOnMap() throws Exception {
+        JsonAnySetterOnMap result = MAPPER.readValue("{\"id\":2,\"name\":\"Joe\", \"city\":\"New Jersey\"}",
+                JsonAnySetterOnMap.class);
+        assertEquals(2, result.id);
+        assertEquals("Joe", result.other.get("name"));
+        assertEquals("New Jersey", result.other.get("city"));
+    }
+
+    public void testJsonAnySetterOnNullMap() throws Exception {
+        JsonAnySetterOnNullMap result = MAPPER.readValue("{\"id\":2,\"name\":\"Joe\", \"city\":\"New Jersey\"}",
+                JsonAnySetterOnNullMap.class);
+        assertEquals(2, result.id);
+        assertNull(result.other);
     }
 
     final static String UNWRAPPED_JSON_349 = a2q(

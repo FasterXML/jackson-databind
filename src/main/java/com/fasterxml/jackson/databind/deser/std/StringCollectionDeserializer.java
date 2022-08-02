@@ -306,15 +306,19 @@ public final class StringCollectionDeserializer
                 if (textValue.isEmpty()) {
                     final CoercionAction act = ctxt.findCoercionAction(logicalType(), handledType(),
                             CoercionInputShape.EmptyString);
-                    return (Collection<String>) _deserializeFromEmptyString(p, ctxt, act, handledType(),
-                            "empty String (\"\")");
-                }
-                if (_isBlank(textValue)) {
+                    if (act != CoercionAction.Fail) {
+                        return (Collection<String>) _deserializeFromEmptyString(p, ctxt, act, handledType(),
+                                "empty String (\"\")");
+                    }
+                } else if (_isBlank(textValue)) {
                     final CoercionAction act = ctxt.findCoercionFromBlankString(logicalType(), handledType(),
                             CoercionAction.Fail);
-                    return (Collection<String>) _deserializeFromEmptyString(p, ctxt, act, handledType(),
-                            "blank String (all whitespace)");
+                    if (act != CoercionAction.Fail) {
+                        return (Collection<String>) _deserializeFromEmptyString(p, ctxt, act, handledType(),
+                                "blank String (all whitespace)");
+                    }
                 }
+                // if coercion failed, we can still add it to a list
             }
 
             try {

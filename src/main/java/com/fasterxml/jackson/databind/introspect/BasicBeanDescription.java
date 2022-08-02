@@ -322,9 +322,10 @@ anyMethod.getName(), type.getName()));
                 // For now let's require a Map; in future can add support for other
                 // types like perhaps Iterable<Map.Entry>?
                 Class<?> type = anyField.getRawType();
-                if (!Map.class.isAssignableFrom(type)) {
+                if (!Map.class.isAssignableFrom(type)
+                        && !JsonNode.class.isAssignableFrom(type)) {
                     throw new IllegalArgumentException(String.format(
-"Invalid 'any-setter' annotation on field '%s': type is not instance of java.util.Map",
+"Invalid 'any-setter' annotation on field '%s': type is not instance of `java.util.Map` or `JsonNode`",
 anyField.getName()));
                 }
                 return anyField;

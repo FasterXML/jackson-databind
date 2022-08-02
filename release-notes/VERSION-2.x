@@ -22,6 +22,8 @@ Project: jackson-databind
  (reported by lizongbo@github)
 #3373: Change `TypeSerializerBase` to skip `generator.writeTypePrefix()`
   for `null` typeId
+#3394: Allow use of `JsonNode` field for `@JsonAnySetter`
+ (requested by @sixcorners)
 #3405: Create DataTypeFeature abstraction (for JSTEP-7) with placeholder features
 #3417: Allow (de)serializing records using Bean(De)SerializerModifier even when
   reflection is unavailable

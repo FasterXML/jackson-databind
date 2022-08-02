@@ -146,7 +146,7 @@ public class AnySetterTest
             props.put(name, value);
         }
     }
-    
+
     static class JsonAnySetterOnMap {
         public int id;
 
@@ -354,14 +354,14 @@ public class AnySetterTest
         assertTrue(ob instanceof Impl);
         assertEquals("xyz", ((Impl) ob).value);
     }
-    
-	public void testJsonAnySetterOnMap() throws Exception {
+
+    public void testJsonAnySetterOnMap() throws Exception {
 		JsonAnySetterOnMap result = MAPPER.readValue("{\"id\":2,\"name\":\"Joe\", \"city\":\"New Jersey\"}",
 		        JsonAnySetterOnMap.class);
 		assertEquals(2, result.id);
 		assertEquals("Joe", result.other.get("name"));
 		assertEquals("New Jersey", result.other.get("city"));
-	}
+    }
 
     public void testJsonAnySetterOnNullMap() throws Exception {
         final String DOC = a2q("{'id':2,'name':'Joe', 'city':'New Jersey'}");

@@ -169,7 +169,7 @@ public abstract class SettableAnyProperty
      * Method called to deserialize appropriate value, given parser (and
      * context), and set it using appropriate method (a setter method).
      */
-    public final void deserializeAndSet(JsonParser p, DeserializationContext ctxt,
+    public void deserializeAndSet(JsonParser p, DeserializationContext ctxt,
             Object instance, String propName)
         throws IOException
     {
@@ -246,7 +246,7 @@ public abstract class SettableAnyProperty
         throw new JsonMappingException(null, ClassUtil.exceptionMessage(t), t);
     }
 
-    private String getClassName() { return _setter.getDeclaringClass().getName(); }
+    private String getClassName() { return ClassUtil.nameOf(_setter.getDeclaringClass()); }
 
     @Override public String toString() { return "[any property on class "+getClassName()+"]"; }
 
@@ -388,8 +388,29 @@ public abstract class SettableAnyProperty
             _nodeFactory = nodeFactory;
         }
 
+        // Let's override since this is much simpler with JsonNodes
         @Override
-        protected void _set(Object instance, Object propName, Object value) throws Exception
+        public void deserializeAndSet(JsonParser p, DeserializationContext ctxt,
+                Object instance, String propName)
+            throws IOException
+        {
+            setProperty(instance, propName, (JsonNode) deserialize(p, ctxt));
+        }
+
+        // Let's override since this is much simpler with JsonNodes
+        @Override
+        public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+        {
+            return _valueDeserializer.deserialize(p, ctxt);
+        }
+
+        @Override
+        protected void _set(Object instance, Object propName, Object value) throws Exception {
+            setProperty(instance, (String) propName, (JsonNode) value);
+        }
+
+        protected void setProperty(Object instance, String propName, JsonNode value)
+            throws IOException
         {
             AnnotatedField field = (AnnotatedField) _setter;
             Object val0 = field.getValue(instance);
@@ -407,7 +428,7 @@ public abstract class SettableAnyProperty
                 objectNode = (ObjectNode) val0;
             }
             // add the property key and value
-            objectNode.set(String.valueOf(propName), (JsonNode) value);
+            objectNode.set(propName, value);
         }
 
         // Should not get called but...

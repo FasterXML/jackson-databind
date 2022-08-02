@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 
 import java.util.List;
@@ -72,6 +73,28 @@ public class TestMultipleTypeNames extends BaseMapTest
         public MultiTypeName getData() { return data; }
     }
 
+    static class WrapperForNotUniqueNamesTest {
+        List<BaseForNotUniqueNamesTest> base;
+        public List<BaseForNotUniqueNamesTest> getBase() { return base; }
+    }
+
+    static class BaseForNotUniqueNamesTest {
+        private String type;
+        public String getType() { return type; }
+
+        @JsonTypeInfo(
+                use = JsonTypeInfo.Id.NAME,
+                include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
+                property = "type"
+        )
+        @JsonSubTypes(value = {
+                @JsonSubTypes.Type(value = A.class, name = "a"),
+                @JsonSubTypes.Type(value = B.class, names = {"b","a"}),
+        }, failOnRepeatedNames = true)
+        MultiTypeName data;
+        public MultiTypeName getData() { return data; }
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -133,4 +156,17 @@ public class TestMultipleTypeNames extends BaseMapTest
             verifyException(e, "Unrecognized field \"data\"");
         }
     }
+
+    public void testNotUniqueNameAndNames() throws Exception
+    {
+        String json = "{\"base\": [{\"type\":\"a\", \"data\": {\"x\": 5}}, {\"type\":\"b\", \"data\": {\"y\": 3.1}}, {\"type\":\"c\", \"data\": {\"y\": 33.8}}]}";
+
+        try  {
+            MAPPER.readValue(json, WrapperForNotUniqueNamesTest.class);
+            fail("This serialisation should fail because of repeated subtype name");
+        } catch (InvalidDefinitionException e) {
+            verifyException(e, "Annotated type [data] got repeated subtype name [a]");
+        }
+    }
+
 }

@@ -45,6 +45,8 @@ Project: jackson-databind
   `@JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = SomeFieldFilter.class)`
  (contributed by AmiDavidW@github)
 #3497: Deserialization of Throwables with PropertyNamingStrategy does not work
+#3500: Add optional explicit `JsonSubTypes` repeated names check
+ (contributed by Igor S)
 #3503: `StdDeserializer` coerces ints to floats even if configured to fail
  (contributed by Jordi O-A)
 #3528: `TokenBuffer` defaults for parser/stream-read features neither passed

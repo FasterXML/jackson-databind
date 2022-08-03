@@ -312,6 +312,8 @@ _containerType,
                 return (Collection<Object>) _deserializeFromEmptyString(
                         p, ctxt, act, rawTargetType, "empty String (\"\")");
             }
+            // note: `CoercionAction.Fail` falls through because we may need to allow
+            // `ACCEPT_SINGLE_VALUE_AS_ARRAY` handling later on
         }
         // 26-Mar-2021, tatu: Some day is today; as per [dataformat-xml#460],
         //    we do need to support blank String too...
@@ -322,6 +324,8 @@ _containerType,
                 return (Collection<Object>) _deserializeFromEmptyString(
                         p, ctxt, act, rawTargetType, "blank String (all whitespace)");
             }
+            // note: `CoercionAction.Fail` falls through because we may need to allow
+            // `ACCEPT_SINGLE_VALUE_AS_ARRAY` handling later on
         }
         return handleNonArray(p, ctxt, createDefaultInstance(ctxt));
     }

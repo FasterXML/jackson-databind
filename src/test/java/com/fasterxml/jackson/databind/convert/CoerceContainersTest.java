@@ -41,9 +41,7 @@ public class CoerceContainersTest extends BaseMapTest
 //            verifyException(e, "Cannot coerce empty String");
             verifyException(e, "Cannot deserialize value of type");
             verifyException(e, "from String value");
-            e.printStackTrace();
         }
-
         
         List<Double> result = _readWithCoercion(listType);
         assertNotNull(result);

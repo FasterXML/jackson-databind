@@ -297,7 +297,8 @@ public class ExternalTypeHandler
                             "Missing property '%s' for external type id '%s'",
                             prop.getName(), _properties[i].getTypePropertyName());
                 }
-
+                // 03-Aug-2022, tatu: [databind#3533] to handle absent value matching
+                //    present type id
                 values[i] = _deserializeMissingToken(p, ctxt, i, typeId);
             }
 
@@ -358,6 +359,7 @@ public class ExternalTypeHandler
         return _properties[index].getProperty().deserialize(mp, ctxt);
     }
 
+    // 03-Aug-2022, tatu: [databind#3533] to handle absent value matching:
     @SuppressWarnings("resource")
     protected final Object _deserializeMissingToken(JsonParser p, DeserializationContext ctxt,
             int index, String typeId) throws IOException

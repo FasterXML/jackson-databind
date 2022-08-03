@@ -53,6 +53,8 @@ Project: jackson-databind
   from parser nor use real defaults
 #3530: Change LRUMap to just evict one entry when maxEntries reached
  (contributed by @pjfanning)
+#3533: Deserialize missing value of `EXTERNAL_PROPERTY` type using
+  custom `NullValueProvider`
 #3535: Replace `JsonNode.with()` with `JsonNode.withObject()`
 #3559: Support `null`-valued `Map` fields with "any setter"
 

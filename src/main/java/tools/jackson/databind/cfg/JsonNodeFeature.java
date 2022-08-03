@@ -2,17 +2,15 @@ package tools.jackson.databind.cfg;
 
 /**
  * New Datatype-specific configuration options related to handling of
- * {@link com.fasterxml.jackson.databind.JsonNode} types.
- *
- * @since 2.14
+ * {@link tools.jackson.databind.JsonNode} types.
  */
 public enum JsonNodeFeature implements DatatypeFeature
 {
     // // // Direct Read/Write configuration settings
 
     /**
-     * When reading {@link com.fasterxml.jackson.databind.JsonNode}s are null valued properties included as explicit
-     * {@code NullNode}s in resulting {@link com.fasterxml.jackson.databind.node.ObjectNode}
+     * When reading {@link tools.jackson.databind.JsonNode}s are null valued properties included as explicit
+     * {@code NullNode}s in resulting {@link tools.jackson.databind.node.ObjectNode}
      * or skipped?
      *<p>
      * Default value: {@code true}

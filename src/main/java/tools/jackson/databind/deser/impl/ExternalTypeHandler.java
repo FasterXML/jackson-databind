@@ -3,6 +3,7 @@ package tools.jackson.databind.deser.impl;
 import java.util.*;
 
 import tools.jackson.core.*;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.SettableBeanProperty;
 import tools.jackson.databind.deser.bean.BeanPropertyMap;
@@ -361,7 +362,8 @@ public class ExternalTypeHandler
     // 03-Aug-2022, tatu: [databind#3533] to handle absent value matching:
     @SuppressWarnings("resource")
     protected final Object _deserializeMissingToken(JsonParser p, DeserializationContext ctxt,
-            int index, String typeId) throws IOException
+            int index, String typeId)
+        throws JacksonException
     {
         TokenBuffer merged = ctxt.bufferForInputBuffering(p);
         merged.writeStartArray();
@@ -369,7 +371,7 @@ public class ExternalTypeHandler
         merged.writeEndArray();
 
         // needs to point to START_OBJECT (or whatever first token is)
-        JsonParser mp = merged.asParser(p);
+        JsonParser mp = merged.asParser(ctxt, p);
         mp.nextToken();
         return _properties[index].getProperty().deserialize(mp, ctxt);
     }

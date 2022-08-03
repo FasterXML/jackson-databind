@@ -1480,6 +1480,10 @@ PJ Fanning (pjfanning@github)
   * Contributed #3530: Change LRUMap to just evict one entry when maxEntries reached
   (2.14.0)
 
+Igor Shymko (ancane@github)
+  * Contributed #3500: Add optional explicit `JsonSubTypes` repeated names check
+  (2.14.0)
+
 Jordi Ortolá Ankum (Tomasito665@github)
   * Contributed #3503: `StdDeserializer` coerces ints to floats even if configured to fail
   (2.14.0)

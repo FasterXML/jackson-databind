@@ -622,6 +622,8 @@ public class JacksonAnnotationIntrospector
         if (t == null) return null;
         JsonSubTypes.Type[] types = t.value();
 
+        // 02-Aug-2022, tatu: As per [databind#3500], may need to check uniqueness
+        //     of names
         if (t.failOnRepeatedNames()) {
             return findSubtypesCheckRepeatedNames(a.getName(), types);
         } else {
@@ -637,28 +639,28 @@ public class JacksonAnnotationIntrospector
         }
     }
 
+    // @since 2.14
     private List<NamedType> findSubtypesCheckRepeatedNames(String annotatedTypeName, JsonSubTypes.Type[] types)
     {
         ArrayList<NamedType> result = new ArrayList<NamedType>(types.length);
         Set<String> seenNames = new HashSet<>();
         for (JsonSubTypes.Type type : types) {
-            result.add(new NamedType(type.value(), type.name()));
-
-            if (!type.name().isEmpty() && seenNames.contains(type.name())) {
-                throw new IllegalArgumentException("Annotated type [" + annotatedTypeName + "] got repeated subtype name [" + type.name() + "]");
+            final String typeName = type.name();
+            if (!typeName.isEmpty() && seenNames.contains(typeName)) {
+                throw new IllegalArgumentException("Annotated type [" + annotatedTypeName + "] got repeated subtype name [" + typeName + "]");
             } else {
-                seenNames.add(type.name());
+                seenNames.add(typeName);
             }
+            result.add(new NamedType(type.value(), typeName));
 
             // [databind#2761]: alternative set of names to use
-            for (String name : type.names()) {
-                result.add(new NamedType(type.value(), name));
-
-                if (!name.isEmpty() && seenNames.contains(name)) {
-                    throw new IllegalArgumentException("Annotated type [" + annotatedTypeName + "] got repeated subtype name [" + name + "]");
+            for (String altName : type.names()) {
+                if (!altName.isEmpty() && seenNames.contains(altName)) {
+                    throw new IllegalArgumentException("Annotated type [" + annotatedTypeName + "] got repeated subtype name [" + altName + "]");
                 } else {
-                    seenNames.add(name);
+                    seenNames.add(altName);
                 }
+                result.add(new NamedType(type.value(), altName));
             }
         }
 

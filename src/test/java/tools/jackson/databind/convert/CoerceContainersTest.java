@@ -28,7 +28,22 @@ public class CoerceContainersTest extends BaseMapTest
     {
         final JavaType listType = VANILLA_MAPPER.getTypeFactory()
                 .constructType(new TypeReference<List<Double>>() { });
-        _verifyNoCoercion(listType);
+        
+        // 03-Aug-2022, tatu: Due to [databind#3418] message changed; not
+        //    100% sure how it should work but let's try this
+        
+//        _verifyNoCoercion(listType);
+        try {
+            VANILLA_MAPPER.readerFor(listType).readValue(JSON_EMPTY);
+            fail("Should not pass");
+        } catch (DatabindException e) {
+//            verifyException(e, "Cannot coerce empty String");
+            verifyException(e, "Cannot deserialize value of type");
+            verifyException(e, "from String value");
+            e.printStackTrace();
+        }
+
+        
         List<Double> result = _readWithCoercion(listType);
         assertNotNull(result);
         assertEquals(0, result.size());
@@ -158,7 +173,7 @@ public class CoerceContainersTest extends BaseMapTest
         try {
             VANILLA_MAPPER.readerFor(targetType).readValue(JSON_EMPTY);
             fail("Should not pass");
-        } catch (Exception e) {
+        } catch (DatabindException e) {
             // 06-Nov-2020, tatu: tests for failure get rather fragile unfortunately,
             //   but this seems to be what we should be getting
 

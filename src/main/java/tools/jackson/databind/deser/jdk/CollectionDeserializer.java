@@ -295,12 +295,10 @@ _containerType,
         if (value.isEmpty()) {
             CoercionAction act = ctxt.findCoercionAction(logicalType(), rawTargetType,
                     CoercionInputShape.EmptyString);
-            act = _checkCoercionFail(ctxt, act, rawTargetType, value,
-                    "empty String (\"\")");
-            if (act != null) {
-                    // handleNonArray may successfully deserialize the result (if
-                    // ACCEPT_SINGLE_VALUE_AS_ARRAY is enabled, for example) otherwise it
-                    // is capable of failing just as well as _deserializeFromEmptyString.
+            // handleNonArray may successfully deserialize the result (if
+            // ACCEPT_SINGLE_VALUE_AS_ARRAY is enabled, for example) otherwise it
+            // is capable of failing just as well as _deserializeFromEmptyString.
+            if (act != null && act != CoercionAction.Fail) {
                 return (Collection<Object>) _deserializeFromEmptyString(
                         p, ctxt, act, rawTargetType, "empty String (\"\")");
             }
@@ -310,8 +308,10 @@ _containerType,
         else if (_isBlank(value)) {
             final CoercionAction act = ctxt.findCoercionFromBlankString(logicalType(), rawTargetType,
                     CoercionAction.Fail);
-            return (Collection<Object>) _deserializeFromEmptyString(
-                    p, ctxt, act, rawTargetType, "blank String (all whitespace)");
+            if (act != CoercionAction.Fail) {
+                return (Collection<Object>) _deserializeFromEmptyString(
+                        p, ctxt, act, rawTargetType, "blank String (all whitespace)");
+            }
         }
         return handleNonArray(p, ctxt, createDefaultInstance(ctxt));
     }

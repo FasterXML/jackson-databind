@@ -1,5 +1,11 @@
 package com.fasterxml.jackson.databind.cfg;
 
+/**
+ * New Datatype-specific configuration options related to handling of
+ * {@link java.lang.Enum} types.
+ *
+ * @since 2.14
+ */
 public enum EnumFeature implements DatatypeFeature
 {
     BOGUS_FEATURE(false);

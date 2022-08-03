@@ -286,17 +286,19 @@ public class ExternalTypeHandler
                 } else {
                     typeId = extProp.getDefaultTypeId();
                 }
-            } else if (_tokens[i] == null) {
-                SettableBeanProperty prop = extProp.getProperty();
-                if (prop.isRequired() ||
-                        ctxt.isEnabled(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY)) {
+            }
+
+            if (_tokens[i] != null) {
+                values[i] = _deserialize(p, ctxt, i, typeId);
+            } else {
+                if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY)) {
+                    SettableBeanProperty prop = extProp.getProperty();
                     ctxt.reportPropertyInputMismatch(_beanType, prop.getName(),
                             "Missing property '%s' for external type id '%s'",
                             prop.getName(), _properties[i].getTypePropertyName());
                 }
-            }
-            if (_tokens[i] != null) {
-                values[i] = _deserialize(p, ctxt, i, typeId);
+
+                values[i] = _deserializeMissingToken(p, ctxt, i, typeId);
             }
 
             final SettableBeanProperty prop = extProp.getProperty();
@@ -348,6 +350,21 @@ public class ExternalTypeHandler
         merged.writeStartArray();
         merged.writeString(typeId);
         merged.copyCurrentStructure(p2);
+        merged.writeEndArray();
+
+        // needs to point to START_OBJECT (or whatever first token is)
+        JsonParser mp = merged.asParser(p);
+        mp.nextToken();
+        return _properties[index].getProperty().deserialize(mp, ctxt);
+    }
+
+    @SuppressWarnings("resource")
+    protected final Object _deserializeMissingToken(JsonParser p, DeserializationContext ctxt,
+            int index, String typeId) throws IOException
+    {
+        TokenBuffer merged = ctxt.bufferForInputBuffering(p);
+        merged.writeStartArray();
+        merged.writeString(typeId);
         merged.writeEndArray();
 
         // needs to point to START_OBJECT (or whatever first token is)

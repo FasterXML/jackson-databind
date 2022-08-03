@@ -17,12 +17,12 @@
   <name>jackson-databind</name>
   <packaging>bundle</packaging>
   <description>General data-binding functionality for Jackson: works on core streaming API</description>
-  <url>http://github.com/FasterXML/jackson</url>
+  <url>https://github.com/FasterXML/jackson</url>
   <inceptionYear>2008</inceptionYear>
   <licenses>
     <license>
       <name>The Apache Software License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
@@ -30,7 +30,7 @@
   <scm>
     <connection>scm:git:git@github.com:FasterXML/jackson-databind.git</connection>
     <developerConnection>scm:git:git@github.com:FasterXML/jackson-databind.git</developerConnection>
-    <url>http://github.com/FasterXML/jackson-databind</url>
+    <url>https://github.com/FasterXML/jackson-databind</url>
     <tag>HEAD</tag>
   </scm>
 
@@ -166,8 +166,7 @@
             <exclude>javax.measure:jsr-275</exclude>
           </classpathDependencyExcludes>
           <excludes>
-            <exclude>com/fasterxml/jackson/failing/*.java</exclude>
-            <exclude>com/fasterxml/jackson/databind/failing/*.java</exclude>
+            <exclude>**/failing/**/*.java</exclude>
           </excludes>
           <!-- 26-Nov-2019, tatu: moar parallelism! Per-class basis, safe, efficient enough
                   ... although not 100% sure this makes much difference TBH
@@ -183,8 +182,8 @@
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
           <links combine.children="append">
-            <link>http://fasterxml.github.io/jackson-annotations/javadoc/2.14</link>
-            <link>http://fasterxml.github.io/jackson-core/javadoc/2.14</link>
+            <link>https://fasterxml.github.io/jackson-annotations/javadoc/2.14</link>
+            <link>https://fasterxml.github.io/jackson-core/javadoc/2.14</link>
           </links>
         </configuration>
       </plugin>

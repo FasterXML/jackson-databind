@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.impl.SubTypeValidator;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.util.BeanUtil;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.IgnorePropertiesUtil;
@@ -806,6 +807,7 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
         BeanProperty prop;
         JavaType keyType;
         JavaType valueType;
+        final boolean isField = mutator instanceof AnnotatedField;
 
         if (mutator instanceof AnnotatedMethod) {
             // we know it's a 2-arg method, second arg is the value
@@ -817,18 +819,39 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
                     valueType, null, mutator,
                     PropertyMetadata.STD_OPTIONAL);
 
-        } else if (mutator instanceof AnnotatedField) {
+        } else if (isField) {
             AnnotatedField af = (AnnotatedField) mutator;
             // get the type from the content type of the map object
-            JavaType mapType = af.getType();
-            mapType = resolveMemberAndTypeAnnotations(ctxt, mutator, mapType);
-            keyType = mapType.getKeyType();
-            valueType = mapType.getContentType();
-            prop = new BeanProperty.Std(PropertyName.construct(mutator.getName()),
-                    mapType, null, mutator, PropertyMetadata.STD_OPTIONAL);
+            JavaType fieldType = af.getType();
+            // 31-Jul-2022, tatu: Not just Maps any more but also JsonNode, so:
+            if (fieldType.isMapLikeType()) {
+                fieldType = resolveMemberAndTypeAnnotations(ctxt, mutator, fieldType);
+                keyType = fieldType.getKeyType();
+                valueType = fieldType.getContentType();
+                prop = new BeanProperty.Std(PropertyName.construct(mutator.getName()),
+                        fieldType, null, mutator, PropertyMetadata.STD_OPTIONAL);
+            } else if (fieldType.hasRawClass(JsonNode.class)
+                    || fieldType.hasRawClass(ObjectNode.class)) {
+                fieldType = resolveMemberAndTypeAnnotations(ctxt, mutator, fieldType);
+                // Deserialize is individual values of ObjectNode, not full ObjectNode, so:
+                valueType = ctxt.constructType(JsonNode.class);
+                prop = new BeanProperty.Std(PropertyName.construct(mutator.getName()),
+                        fieldType, null, mutator, PropertyMetadata.STD_OPTIONAL);
+
+                // Unlike with more complicated types, here we do not allow any annotation
+                // overrides etc but instead short-cut handling:
+                return SettableAnyProperty.constructForJsonNodeField(ctxt,
+                        prop, mutator, valueType,
+                        ctxt.findRootValueDeserializer(valueType));
+            } else {
+                return ctxt.reportBadDefinition(beanDesc.getType(), String.format(
+                        "Unsupported type for any-setter: %s -- only support `Map`s, `JsonNode` and `ObjectNode` ",
+                        ClassUtil.getTypeDescription(fieldType)));
+            }
         } else {
             return ctxt.reportBadDefinition(beanDesc.getType(), String.format(
-                    "Unrecognized mutator type for any setter: %s", mutator.getClass()));
+                    "Unrecognized mutator type for any-setter: %s",
+                    ClassUtil.nameOf(mutator.getClass())));
         }
         // First: see if there are explicitly specified 
         // and then possible direct deserializer override on accessor
@@ -853,8 +876,12 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
             deser = (JsonDeserializer<Object>) ctxt.handlePrimaryContextualization(deser, prop, valueType);
         }
         TypeDeserializer typeDeser = valueType.getTypeHandler();
-        return new SettableAnyProperty(prop, mutator, valueType,
-                keyDeser, deser, typeDeser);
+        if (isField) {
+            return SettableAnyProperty.constructForMapField(ctxt,
+                    prop, mutator, valueType, keyDeser, deser, typeDeser);
+        }
+        return SettableAnyProperty.constructForMethod(ctxt,
+                prop, mutator, valueType, keyDeser, deser, typeDeser);
     }
 
     /**

@@ -57,7 +57,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * An entry is evicted from the map when the entry size exceeds
  * its <tt>maximum capacity</tt> threshold.
  * <p>
- * An {@link EvictionListener} may be supplied for notification when an entry
+ * An {@code EvictionListener} may be supplied for notification when an entry
  * is evicted from the map. This listener is invoked on a caller's thread and
  * will not block other threads from operating on the map. An implementation
  * should be aware that the caller's thread will not expect long execution

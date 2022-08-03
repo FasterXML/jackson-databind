@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.failing;
 
-import org.junit.Ignore;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;

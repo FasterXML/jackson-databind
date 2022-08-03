@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.introspect;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.*;
-
+import java.util.stream.Collectors;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
@@ -638,7 +638,8 @@ public class JacksonAnnotationIntrospector
         if (sealed) {
             Class<?>[] permittedSubclasses = JDK17Util.getPermittedSubclasses(klass);
             if (permittedSubclasses != null && permittedSubclasses.length > 0) {
-                return Arrays.stream(permittedSubclasses).map(NamedType::new).toList();
+                return Arrays.stream(permittedSubclasses).map(NamedType::new)
+                    .collect(Collectors.toList());
             }
         }
         return null;

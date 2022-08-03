@@ -136,24 +136,6 @@ public class RecordBasicsTest extends BaseMapTest
 
     /*
     /**********************************************************************
-    /* Test methods, naming strategy
-    /**********************************************************************
-     */
-
-    // TODO Ignore this test case
-    // [databind#2992]
-    // [databind#3102]: fails on JDK 16 which finally blocks mutation
-    // of Record fields.
-    // public void testNamingStrategy() throws Exception
-    // {
-    //     SnakeRecord input = new SnakeRecord("123", "value");
-    //     String json = MAPPER.writeValueAsString(input);
-    //     SnakeRecord output = MAPPER.readValue(json, SnakeRecord.class);
-    //     assertEquals(input, output);
-    // }
-
-    /*
-    /**********************************************************************
     /* Internal helper methods
     /**********************************************************************
      */

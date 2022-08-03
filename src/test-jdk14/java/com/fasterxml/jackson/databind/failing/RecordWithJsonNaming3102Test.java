@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 //[databind#3102]: fails on JDK 16 which finally blocks mutation
 //of Record fields.
-@Ignore
 public class RecordWithJsonNaming3102Test extends BaseMapTest
 {
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)

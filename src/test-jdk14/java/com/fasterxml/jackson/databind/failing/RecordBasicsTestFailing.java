@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.databind.failing;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
@@ -12,16 +10,6 @@ import com.fasterxml.jackson.databind.records.RecordBasicsTest;
  * Tests in this class were moved from {@link RecordBasicsTest}.
  */
 public class RecordBasicsTestFailing extends BaseMapTest {
-    record EmptyRecord() { }
-
-    record SimpleRecord(int id, String name) { }
-
-    record RecordOfRecord(SimpleRecord record) { }
-
-    record RecordWithIgnore(int id, @JsonIgnore String name) { }
-
-    record RecordWithRename(int id, @JsonProperty("rename")String name) { }
-
     // [databind#2992]
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     record SnakeRecord(String myId, String myValue){}

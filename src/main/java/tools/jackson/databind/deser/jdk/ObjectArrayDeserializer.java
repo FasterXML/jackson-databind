@@ -7,8 +7,11 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import tools.jackson.core.*;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JacksonStdImpl;
+import tools.jackson.databind.cfg.CoercionAction;
+import tools.jackson.databind.cfg.CoercionInputShape;
 import tools.jackson.databind.deser.NullValueProvider;
 import tools.jackson.databind.deser.std.ContainerDeserializerBase;
 import tools.jackson.databind.jsontype.TypeDeserializer;
@@ -343,10 +346,33 @@ public class ObjectArrayDeserializer
                 return _emptyValue;
             }
             value = _nullProvider.getNullValue(ctxt);
-        } else if (_elementTypeDeserializer == null) {
-            value = _elementDeserializer.deserialize(p, ctxt);
         } else {
-            value = _elementDeserializer.deserializeWithType(p, ctxt, _elementTypeDeserializer);
+            if (p.hasToken(JsonToken.VALUE_STRING)) {
+                String textValue = p.getText();
+                // https://github.com/FasterXML/jackson-dataformat-xml/issues/513
+                if (textValue.isEmpty()) {
+                    final CoercionAction act = ctxt.findCoercionAction(logicalType(), handledType(),
+                            CoercionInputShape.EmptyString);
+                    if (act != CoercionAction.Fail) {
+                        return (Object[]) _deserializeFromEmptyString(p, ctxt, act, handledType(),
+                                "empty String (\"\")");
+                    }
+                } else if (_isBlank(textValue)) {
+                    final CoercionAction act = ctxt.findCoercionFromBlankString(logicalType(), handledType(),
+                            CoercionAction.Fail);
+                    if (act != CoercionAction.Fail) {
+                        return (Object[]) _deserializeFromEmptyString(p, ctxt, act, handledType(),
+                                "blank String (all whitespace)");
+                    }
+                }
+                // if coercion failed, we can still add it to a list
+            }
+
+            if (_elementTypeDeserializer == null) {
+                value = _elementDeserializer.deserialize(p, ctxt);
+            } else {
+                value = _elementDeserializer.deserializeWithType(p, ctxt, _elementTypeDeserializer);
+            }
         }
         // Ok: bit tricky, since we may want T[], not just Object[]
         Object[] result;

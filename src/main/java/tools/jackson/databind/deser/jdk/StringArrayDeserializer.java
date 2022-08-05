@@ -8,6 +8,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JacksonStdImpl;
+import tools.jackson.databind.cfg.CoercionAction;
+import tools.jackson.databind.cfg.CoercionInputShape;
 import tools.jackson.databind.deser.NullValueProvider;
 import tools.jackson.databind.deser.impl.NullsConstantProvider;
 import tools.jackson.databind.deser.std.StdDeserializer;
@@ -300,9 +302,33 @@ public final class StringArrayDeserializer
                 ((_unwrapSingle == null) &&
                         ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY));
         if (canWrap) {
-            String value = p.hasToken(JsonToken.VALUE_NULL)
-                    ? (String) _nullProvider.getNullValue(ctxt)
-                    : _parseString(p, ctxt);
+            String value;
+            if (p.hasToken(JsonToken.VALUE_NULL)) {
+                value = (String) _nullProvider.getNullValue(ctxt);
+            } else {
+                if (p.hasToken(JsonToken.VALUE_STRING)) {
+                    String textValue = p.getText();
+                    // https://github.com/FasterXML/jackson-dataformat-xml/issues/513
+                    if (textValue.isEmpty()) {
+                        final CoercionAction act = ctxt.findCoercionAction(logicalType(), handledType(),
+                                CoercionInputShape.EmptyString);
+                        if (act != CoercionAction.Fail) {
+                            return (String[]) _deserializeFromEmptyString(p, ctxt, act, handledType(),
+                                    "empty String (\"\")");
+                        }
+                    } else if (_isBlank(textValue)) {
+                        final CoercionAction act = ctxt.findCoercionFromBlankString(logicalType(), handledType(),
+                                CoercionAction.Fail);
+                        if (act != CoercionAction.Fail) {
+                            return (String[]) _deserializeFromEmptyString(p, ctxt, act, handledType(),
+                                    "blank String (all whitespace)");
+                        }
+                    }
+                    // if coercion failed, we can still add it to an array
+                }
+
+                value = _parseString(p, ctxt);
+            }
             return new String[] { value };
         }
         if (p.hasToken(JsonToken.VALUE_STRING)) {

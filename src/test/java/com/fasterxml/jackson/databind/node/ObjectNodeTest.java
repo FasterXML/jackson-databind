@@ -299,7 +299,7 @@ public class ObjectNodeTest
         assertEquals("c", ob.get("c").textValue());
     }
 
-    public void testValidWith() throws Exception
+    public void testValidWithObject() throws Exception
     {
         ObjectNode root = MAPPER.createObjectNode();
         assertEquals("{}", MAPPER.writeValueAsString(root));
@@ -317,27 +317,52 @@ public class ObjectNodeTest
         assertEquals("{\"arr\":[]}", MAPPER.writeValueAsString(root));
     }
 
-    public void testInvalidWith() throws Exception
+    public void testInvalidWithObject() throws Exception
     {
         JsonNode root = MAPPER.createArrayNode();
         try { // should not work for non-ObjectNode nodes:
-            root.with("prop");
+            root.withObject("/prop");
             fail("Expected exception");
         } catch (UnsupportedOperationException e) {
-            verifyException(e, "not of type `ObjectNode`");
+            verifyException(e, "Cannot replace context node (of type");
+            verifyException(e, "ArrayNode");
         }
         // also: should fail of we already have non-object property
         ObjectNode root2 = MAPPER.createObjectNode();
         root2.put("prop", 13);
         try { // should not work for non-ObjectNode nodes:
-            root2.with("prop");
+            root2.withObject("/prop");
             fail("Expected exception");
         } catch (UnsupportedOperationException e) {
-            verifyException(e, "has value that is not");
+            verifyException(e, "Cannot replace `JsonNode` of type ");
+            verifyException(e, "IntNode");
         }
     }
 
     public void testInvalidWithArray() throws Exception
+    {
+        JsonNode root = MAPPER.createArrayNode();
+        try { // should not work for non-ObjectNode nodes:
+            root.withArray("/prop");
+            fail("Expected exception");
+        } catch (UnsupportedOperationException e) {
+            verifyException(e, "Cannot replace context node (of type");
+            verifyException(e, "ArrayNode");
+        }
+        // also: should fail of we already have non-Array property
+        ObjectNode root2 = MAPPER.createObjectNode();
+        root2.put("prop", 13);
+        try { // should not work for non-ObjectNode nodes:
+            root2.withArray("/prop");
+            fail("Expected exception");
+        } catch (UnsupportedOperationException e) {
+            verifyException(e, "Cannot replace `JsonNode` of type ");
+            verifyException(e, "IntNode");
+        }
+    }
+
+    // Test for pre-2.14 behavior for "simple property"
+    public void testInvalidWithArrayLegacy() throws Exception
     {
         JsonNode root = MAPPER.createArrayNode();
         try { // should not work for non-ObjectNode nodes:
@@ -356,7 +381,7 @@ public class ObjectNodeTest
             verifyException(e, "has value that is not");
         }
     }
-
+    
     public void testSetAll() throws Exception
     {
         ObjectNode root = MAPPER.createObjectNode();

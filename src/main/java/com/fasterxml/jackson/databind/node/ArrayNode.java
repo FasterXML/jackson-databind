@@ -143,6 +143,10 @@ public class ArrayNode
     protected ObjectNode _withObjectAddTailElement(JsonPointer tail, boolean preferIndex)
     {
         final int index = tail.getMatchingIndex();
+        if (index < 0) {
+            return null;
+        }
+
         tail = tail.tail();
 
         // First: did we complete traversal? If so, easy, we got our result
@@ -166,6 +170,9 @@ public class ArrayNode
     protected ArrayNode _withArrayAddTailElement(JsonPointer tail, boolean preferIndex)
     {
         final int index = tail.getMatchingIndex();
+        if (index < 0) {
+            return null;
+        }
         tail = tail.tail();
 
         // First: did we complete traversal? If so, easy, we got our result

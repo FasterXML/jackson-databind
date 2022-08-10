@@ -67,6 +67,50 @@ public class ObjectNode
     /**********************************************************
      */
 
+    @SuppressWarnings("unchecked")
+    @Deprecated
+    @Override
+    public ObjectNode with(String exprOrProperty) {
+        JsonPointer ptr = _jsonPointerIfValid(exprOrProperty);
+        if (ptr != null) {
+            return withObject(ptr);
+        }
+        JsonNode n = _children.get(exprOrProperty);
+        if (n != null) {
+            if (n instanceof ObjectNode) {
+                return (ObjectNode) n;
+            }
+            throw new UnsupportedOperationException("Property '" + exprOrProperty
+                + "' has value that is not of type `ObjectNode` (but `" + n
+                .getClass().getName() + "`)");
+        }
+        ObjectNode result = objectNode();
+        _children.put(exprOrProperty, result);
+        return result;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public ArrayNode withArray(String exprOrProperty)
+    {
+        JsonPointer ptr = _jsonPointerIfValid(exprOrProperty);
+        if (ptr != null) {
+            return withArray(ptr);
+        }
+        JsonNode n = _children.get(exprOrProperty);
+        if (n != null) {
+            if (n instanceof ArrayNode) {
+                return (ArrayNode) n;
+            }
+            throw new UnsupportedOperationException("Property '" + exprOrProperty
+                + "' has value that is not of type `ArrayNode` (but `" + n
+                .getClass().getName() + "`)");
+        }
+        ArrayNode result = arrayNode();
+        _children.put(exprOrProperty, result);
+        return result;
+    }
+
     @Override
     protected ObjectNode _withObject(JsonPointer origPtr,
             JsonPointer currentPtr,
@@ -237,40 +281,6 @@ public class ObjectNode
     @Override
     public Iterator<Map.Entry<String, JsonNode>> fields() {
         return _children.entrySet().iterator();
-    }
-
-    @Override
-    public ObjectNode withObject(String propertyName) {
-        JsonNode n = _children.get(propertyName);
-        if (n != null) {
-            if (n instanceof ObjectNode) {
-                return (ObjectNode) n;
-            }
-            throw new UnsupportedOperationException("Property '" + propertyName
-                + "' has value that is not of type `ObjectNode` (but `" + n
-                .getClass().getName() + "`)");
-        }
-        ObjectNode result = objectNode();
-        _children.put(propertyName, result);
-        return result;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public ArrayNode withArray(String propertyName)
-    {
-        JsonNode n = _children.get(propertyName);
-        if (n != null) {
-            if (n instanceof ArrayNode) {
-                return (ArrayNode) n;
-            }
-            throw new UnsupportedOperationException("Property '" + propertyName
-                + "' has value that is not of type `ArrayNode` (but `" + n
-                .getClass().getName() + "`)");
-        }
-        ArrayNode result = arrayNode();
-        _children.put(propertyName, result);
-        return result;
     }
 
     @Override

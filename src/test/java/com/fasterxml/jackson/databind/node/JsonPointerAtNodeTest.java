@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.node;
 import com.fasterxml.jackson.core.JsonPointer;
 import com.fasterxml.jackson.databind.*;
 
-public class JsonPointerWithNodeTest
+public class JsonPointerAtNodeTest
     extends BaseMapTest
 {
     private final ObjectMapper MAPPER = newJsonMapper();

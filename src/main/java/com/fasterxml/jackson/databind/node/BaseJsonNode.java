@@ -260,4 +260,13 @@ public abstract class BaseJsonNode
    protected <T> T _reportWrongNodeOperation(String msgTemplate, Object...args) {
        throw new UnsupportedOperationException(String.format(msgTemplate, args));
    }
+
+   // @since 2.14
+   protected JsonPointer _jsonPointerIfValid(String exprOrProperty) {
+       if (exprOrProperty.isEmpty() || exprOrProperty.charAt(0) == '/') {
+           return JsonPointer.compile(exprOrProperty);
+       }
+       return null;
+   }
+
 }

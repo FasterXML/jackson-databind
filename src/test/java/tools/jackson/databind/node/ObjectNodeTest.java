@@ -301,7 +301,7 @@ public class ObjectNodeTest
         assertEquals("c", ob.get("c").textValue());
     }
 
-    public void testValidWith() throws Exception
+    public void testValidWithObject() throws Exception
     {
         ObjectNode root = MAPPER.createObjectNode();
         assertEquals("{}", MAPPER.writeValueAsString(root));
@@ -319,14 +319,15 @@ public class ObjectNodeTest
         assertEquals("{\"arr\":[]}", MAPPER.writeValueAsString(root));
     }
 
-    public void testInvalidWith() throws Exception
+    public void testInvalidWithObject() throws Exception
     {
         JsonNode root = MAPPER.createArrayNode();
         try { // should not work for non-ObjectNode nodes:
             root.withObject("/prop");
             fail("Expected exception");
         } catch (JsonNodeException e) {
-            verifyException(e, "Can only call `withObject(String)` on `ObjectNode`");
+            verifyException(e, "Cannot replace context node (of type");
+            verifyException(e, "ArrayNode");
         }
         // also: should fail of we already have non-object property
         ObjectNode root2 = MAPPER.createObjectNode();
@@ -335,7 +336,8 @@ public class ObjectNodeTest
             root2.withObject("/prop");
             fail("Expected exception");
         } catch (JsonNodeException e) {
-            verifyException(e, "has value that is not");
+            verifyException(e, "Cannot replace `JsonNode` of type ");
+            verifyException(e, "IntNode");
         }
     }
 
@@ -346,7 +348,8 @@ public class ObjectNodeTest
             root.withArray("/prop");
             fail("Expected exception");
         } catch (JsonNodeException e) {
-            verifyException(e, "Can only call `withArray(String)` on `ObjectNode`");
+            verifyException(e, "Cannot replace context node (of type");
+            verifyException(e, "ArrayNode");
         }
         // also: should fail of we already have non-Array property
         ObjectNode root2 = MAPPER.createObjectNode();
@@ -355,7 +358,8 @@ public class ObjectNodeTest
             root2.withArray("/prop");
             fail("Expected exception");
         } catch (JsonNodeException e) {
-            verifyException(e, "has value that is not");
+            verifyException(e, "Cannot replace `JsonNode` of type ");
+            verifyException(e, "IntNode");
         }
     }
 

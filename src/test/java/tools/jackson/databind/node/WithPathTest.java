@@ -30,6 +30,18 @@ public class WithPathTest extends BaseMapTest
         _testValidWithObjectSimpleExisting(false);
     }
 
+    public void testInvalidWithObjectTrivial() throws Exception
+    {
+        ArrayNode root = MAPPER.createArrayNode();
+        try {
+            root.withObject(JsonPointer.compile("/a"));
+            fail("Should not pass");
+        } catch (JsonNodeException e) {
+            verifyException(e, "Cannot replace context node");
+            verifyException(e, "ArrayNode");
+        }
+    }
+
     private void _testValidWithObjectSimpleExisting(boolean compile) throws Exception
     {
         final String DOC_STR = a2q("{'a':{'b':42,'c':{'x':1}}}");
@@ -214,6 +226,18 @@ public class WithPathTest extends BaseMapTest
     public void testValidWithArraySimple() throws Exception {
         _testValidWithArraySimple(true);
         _testValidWithArraySimple(false);
+    }
+
+    public void testInvalidWithArrayTrivial() throws Exception
+    {
+        ArrayNode root = MAPPER.createArrayNode();
+        try {
+            root.withArray(JsonPointer.compile("/a"));
+            fail("Should not pass");
+        } catch (JsonNodeException e) {
+            verifyException(e, "Cannot replace context node");
+            verifyException(e, "ArrayNode");
+        }
     }
 
     private void _testValidWithArraySimple(boolean compile) throws Exception

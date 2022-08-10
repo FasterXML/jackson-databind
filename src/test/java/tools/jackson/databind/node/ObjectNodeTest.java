@@ -305,7 +305,7 @@ public class ObjectNodeTest
     {
         ObjectNode root = MAPPER.createObjectNode();
         assertEquals("{}", MAPPER.writeValueAsString(root));
-        JsonNode child = root.withObject("prop");
+        JsonNode child = root.withObject("/prop");
         assertTrue(child instanceof ObjectNode);
         assertEquals("{\"prop\":{}}", MAPPER.writeValueAsString(root));
     }
@@ -314,7 +314,7 @@ public class ObjectNodeTest
     {
         JsonNode root = MAPPER.createObjectNode();
         assertEquals("{}", MAPPER.writeValueAsString(root));
-        ArrayNode child = root.withArray("arr");
+        ArrayNode child = root.withArray("/arr");
         assertTrue(child instanceof ArrayNode);
         assertEquals("{\"arr\":[]}", MAPPER.writeValueAsString(root));
     }
@@ -323,7 +323,7 @@ public class ObjectNodeTest
     {
         JsonNode root = MAPPER.createArrayNode();
         try { // should not work for non-ObjectNode nodes:
-            root.withObject("prop");
+            root.withObject("/prop");
             fail("Expected exception");
         } catch (JsonNodeException e) {
             verifyException(e, "Can only call `withObject(String)` on `ObjectNode`");
@@ -332,7 +332,7 @@ public class ObjectNodeTest
         ObjectNode root2 = MAPPER.createObjectNode();
         root2.put("prop", 13);
         try { // should not work for non-ObjectNode nodes:
-            root2.withObject("prop");
+            root2.withObject("/prop");
             fail("Expected exception");
         } catch (JsonNodeException e) {
             verifyException(e, "has value that is not");
@@ -343,7 +343,7 @@ public class ObjectNodeTest
     {
         JsonNode root = MAPPER.createArrayNode();
         try { // should not work for non-ObjectNode nodes:
-            root.withArray("prop");
+            root.withArray("/prop");
             fail("Expected exception");
         } catch (JsonNodeException e) {
             verifyException(e, "Can only call `withArray(String)` on `ObjectNode`");
@@ -352,7 +352,7 @@ public class ObjectNodeTest
         ObjectNode root2 = MAPPER.createObjectNode();
         root2.put("prop", 13);
         try { // should not work for non-ObjectNode nodes:
-            root2.withArray("prop");
+            root2.withArray("/prop");
             fail("Expected exception");
         } catch (JsonNodeException e) {
             verifyException(e, "has value that is not");

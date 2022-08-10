@@ -119,13 +119,6 @@ public abstract class BaseJsonNode
      */
 
     @Override
-    public ObjectNode withObject(String propertyName) {
-        return _reportWrongNodeType(
-                "Can only call `withObject(String)` on `ObjectNode`, not %s",
-                ClassUtil.nameOf(getClass()));
-    }    
-
-    @Override
     public ObjectNode withObject(JsonPointer ptr,
             OverwriteMode overwriteMode, boolean preferIndex)
     {
@@ -219,13 +212,6 @@ public abstract class BaseJsonNode
         // Similar logic to "_withObject()" but the default implementation
         // used for non-container behavior so it'll simply return `null`
         return null;
-    }
-
-    @Override
-    public ArrayNode withArray(String propertyName) {
-        return _reportWrongNodeType(
-                "Can only call `withArray(String)` on `ObjectNode`, not %s",
-                ClassUtil.nameOf(getClass()));
     }
 
     /*

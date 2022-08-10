@@ -11,7 +11,6 @@ import tools.jackson.core.type.WritableTypeId;
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.JsonNodeFeature;
 import tools.jackson.databind.jsontype.TypeSerializer;
-import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.RawValue;
 
 /**
@@ -59,9 +58,9 @@ public class ObjectNode
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Support for withArray()/withObject()
-    /**********************************************************
+    /**********************************************************************
      */
 
     @Override
@@ -182,7 +181,7 @@ public class ObjectNode
         return _children.size();
     }
 
-    @Override // since 2.10
+    @Override
     public boolean isEmpty() { return _children.isEmpty(); }
     
     @Override
@@ -234,39 +233,6 @@ public class ObjectNode
     @Override
     public Iterator<Map.Entry<String, JsonNode>> fields() {
         return _children.entrySet().iterator();
-    }
-
-    @Override
-    public ObjectNode withObject(String propertyName) {
-        JsonNode n = _children.get(propertyName);
-        if (n != null) {
-            if (n instanceof ObjectNode) {
-                return (ObjectNode) n;
-            }
-            return _reportWrongNodeType(
-                    "Property '%s' has value that is not of type `ObjectNode` (but %s)",
-                propertyName, ClassUtil.nameOf(n.getClass()));
-        }
-        ObjectNode result = objectNode();
-        _children.put(propertyName, result);
-        return result;
-    }
-
-    @Override
-    public ArrayNode withArray(String propertyName)
-    {
-        JsonNode n = _children.get(propertyName);
-        if (n != null) {
-            if (n instanceof ArrayNode) {
-                return (ArrayNode) n;
-            }
-            return _reportWrongNodeType(
-                    "Property '%s' has value that is not of type `ArrayNode` (but %s)",
-                propertyName, ClassUtil.nameOf(n.getClass()));
-        }
-        ArrayNode result = arrayNode();
-        _children.put(propertyName, result);
-        return result;
     }
 
     @Override

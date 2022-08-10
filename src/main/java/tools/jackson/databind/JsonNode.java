@@ -1087,14 +1087,30 @@ public abstract class JsonNode
      */
 
     /**
-     * Method that can be called on Object nodes, to access a property
-     * that has Object value; or if no such property exists, to create,
-     * add and return such Object node.
-     * If the node method is called on is not Object node,
-     * or if property exists and has value that is not Object node,
-     * {@link JsonNodeException} is thrown
+     * Short-cut equivalent to:
+     *<pre>
+     *   withObject(JsonPointer.compile(expr);
+     *</pre>
+     * see {@link #withObject(JsonPointer)} for full explanation.
+     *
+     * @param expr {@link JsonPointer} expression to use
+     *
+     * @return {@link ObjectNode} found or created
      */
-    public abstract ObjectNode withObject(String propertyName);
+    public final ObjectNode withObject(String expr) {
+        return withObject(JsonPointer.compile(expr));
+    }
+
+    /**
+     * Short-cut equivalent to:
+     *<pre>
+     *  withObject(JsonPointer.compile(expr), overwriteMode, preferIndex);
+     *</pre>
+     */
+    public final ObjectNode withObject(String expr,
+            OverwriteMode overwriteMode, boolean preferIndex) {
+        return withObject(JsonPointer.compile(expr), overwriteMode, preferIndex);
+    }
 
     /**
      * Same as {@link #withObject(JsonPointer, OverwriteMode, boolean)} but
@@ -1187,14 +1203,25 @@ public abstract class JsonNode
     }
 
     /**
-     * Method that can be called on {@link ObjectNode} nodes, to access a property
-     * that has <code>Array</code> value; or if no such property exists, to create,
-     * add and return such Array node.
-     * If the node method is called on is not Object node,
-     * or if property exists and has value that is not Array node,
-     * {@link JsonNodeException} is thrown
+     * Short-cut equivalent to:
+     *<pre>
+     *  withArray(JsonPointer.compile(expr), overwriteMode, preferIndex);
+     *</pre>
      */
-    public abstract ArrayNode withArray(String propertyName);
+    public final ArrayNode withArray(String exprOrProperty) {
+        return withArray(JsonPointer.compile(exprOrProperty));
+    }
+
+    /**
+     * Short-cut equivalent to:
+     *<pre>
+     *  withArray(JsonPointer.compile(expr), overwriteMode, preferIndex);
+     *</pre>
+     */
+    public ArrayNode withArray(String expr,
+            OverwriteMode overwriteMode, boolean preferIndex) {
+        return withArray(JsonPointer.compile(expr), overwriteMode, preferIndex);
+    }
 
     /**
      * Same as {@link #withArray(JsonPointer, OverwriteMode, boolean)} but

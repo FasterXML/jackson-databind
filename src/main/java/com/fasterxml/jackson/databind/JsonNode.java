@@ -1119,22 +1119,33 @@ public abstract class JsonNode
      */
 
     /**
-     * Method that can be called on Object nodes, to access a property
-     * that has Object value; or if no such property exists, to create,
-     * add and return such Object node.
-     * If the node method is called on is not Object node,
-     * or if property exists and has value that is not Object node,
-     * {@link UnsupportedOperationException} is thrown
+     * Short-cut equivalent to:
+     *<pre>
+     *   withObject(JsonPointer.compile(expr);
+     *</pre>
+     * see {@link #withObject(JsonPointer)} for full explanation.
      *
-     * @param propertyName Name of property for the {@link ObjectNode}
+     * @param expr {@link JsonPointer} expression to use
      *
      * @return {@link ObjectNode} found or created
      *
      * @since 2.14
      */
-    public ObjectNode withObject(String propertyName) {
-        throw new UnsupportedOperationException("`JsonNode` not of type `ObjectNode` (but "
-                +getClass().getName()+"), cannot call `withObject()` on it");
+    public final ObjectNode withObject(String expr) {
+        return withObject(JsonPointer.compile(expr));
+    }
+
+    /**
+     * Short-cut equivalent to:
+     *<pre>
+     *  withObject(JsonPointer.compile(expr), overwriteMode, preferIndex);
+     *</pre>
+     *
+     * @since 2.14
+     */
+    public final ObjectNode withObject(String expr,
+            OverwriteMode overwriteMode, boolean preferIndex) {
+        return withObject(JsonPointer.compile(expr), overwriteMode, preferIndex);
     }
 
     /**
@@ -1231,29 +1242,66 @@ public abstract class JsonNode
     }
 
     /**
+     * Method that works in one of possible ways, depending on whether
+     * {@code exprOrProperty} is a valid {@link JsonPointer} expression or
+     * not (valid expression is either empty String {@code ""} or starts
+     * with leading slash {@code /} character).
+     * If it is, works as a short-cut to:
+     *<pre>
+     *  withObject(JsonPointer.compile(exprOrProperty));
+     *</pre>
+     * If it is NOT a valid {@link JsonPointer} expression, value is taken
+     * as a literal Object property name and traversed like a single-segment
+     * {@link JsonPointer}.
+     *<p>
+     * NOTE: before Jackson 2.14 behavior was always that of non-expression usage;
+     * that is, {@code exprOrProperty} was always considered as a simple property name.
+     * 
      * @deprecated Since 2.14 use {@code withObject(String)} instead
      */
-    @SuppressWarnings("unchecked")
     @Deprecated // since 2.14
-    public final <T extends JsonNode> T with(String propertyName) {
-        return (T) withObject(propertyName);
+    public <T extends JsonNode> T with(String exprOrProperty) {
+        throw new UnsupportedOperationException("`JsonNode` not of type `ObjectNode` (but "
+                                +getClass().getName()+"), cannot call `with(String)` on it");
     }
 
     /**
-     * Method that can be called on {@link ObjectNode} nodes, to access a property
-     * that has <code>Array</code> value; or if no such property exists, to create,
-     * add and return such Array node.
-     * If the node method is called on is not Object node,
-     * or if property exists and has value that is not Array node,
-     * {@link UnsupportedOperationException} is thrown
+     * Method that works in one of possible ways, depending on whether
+     * {@code exprOrProperty} is a valid {@link JsonPointer} expression or
+     * not (valid expression is either empty String {@code ""} or starts
+     * with leading slash {@code /} character).
+     * If it is, works as a short-cut to:
+     *<pre>
+     *  withObject(JsonPointer.compile(exprOrProperty));
+     *</pre>
+     * If it is NOT a valid {@link JsonPointer} expression, value is taken
+     * as a literal Object property name and traversed like a single-segment
+     * {@link JsonPointer}.
+     *<p>
+     * NOTE: before Jackson 2.14 behavior was always that of non-expression usage;
+     * that is, {@code exprOrProperty} was always considered as a simple property name.
      *
-     * @param propertyName Name of property for the {@link ArrayNode}
+     * @param exprOrProperty Either {@link JsonPointer} expression for full access (if valid
+     *   pointer expression), or the name of property for the {@link ArrayNode}.
      *
      * @return {@link ArrayNode} found or created
      */
-    public <T extends JsonNode> T withArray(String propertyName) {
+    public <T extends JsonNode> T withArray(String exprOrProperty) {
         throw new UnsupportedOperationException("`JsonNode` not of type `ObjectNode` (but `"
                 +getClass().getName()+")`, cannot call `withArray()` on it");
+    }
+
+    /**
+     * Short-cut equivalent to:
+     *<pre>
+     *  withArray(JsonPointer.compile(expr), overwriteMode, preferIndex);
+     *</pre>
+     *
+     * @since 2.14
+     */
+    public ArrayNode withArray(String expr,
+            OverwriteMode overwriteMode, boolean preferIndex) {
+        return withArray(JsonPointer.compile(expr), overwriteMode, preferIndex);
     }
 
     /**

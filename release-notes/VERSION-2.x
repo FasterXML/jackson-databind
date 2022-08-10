@@ -55,6 +55,8 @@ Project: jackson-databind
   custom `NullValueProvider`
 #3535: Replace `JsonNode.with()` with `JsonNode.withObject()`
 #3559: Support `null`-valued `Map` fields with "any setter"
+#3568: Change `JsonNode.with(String)` and `withArray(String)` to consider
+  argument as `JsonPointer` if valid expression
 
 2.13.4 (not yet released)
 

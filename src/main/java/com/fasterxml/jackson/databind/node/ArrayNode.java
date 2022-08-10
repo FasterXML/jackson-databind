@@ -71,6 +71,28 @@ public class ArrayNode
     /**********************************************************
      */
 
+    @SuppressWarnings("unchecked")
+    @Deprecated
+    @Override
+    public ObjectNode with(String exprOrProperty) {
+        JsonPointer ptr = _jsonPointerIfValid(exprOrProperty);
+        if (ptr != null) {
+            return withObject(ptr);
+        }
+        return super.with(exprOrProperty); // to give failure
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public ArrayNode withArray(String exprOrProperty)
+    {
+        JsonPointer ptr = _jsonPointerIfValid(exprOrProperty);
+        if (ptr != null) {
+            return withArray(ptr);
+        }
+        return super.withArray(exprOrProperty); // to give failure
+    }
+
     @Override
     protected ObjectNode _withObject(JsonPointer origPtr,
             JsonPointer currentPtr,

@@ -1,4 +1,6 @@
-package com.fasterxml.jackson.databind;
+package tools.jackson.databind;
+
+import tools.jackson.core.exc.StreamReadException;
 
 // Tests for verifying [databind#3572]
 public class BoundsChecksForInputTest extends BaseMapTest
@@ -60,17 +62,15 @@ public class BoundsChecksForInputTest extends BaseMapTest
             creator.call(data, offset, len);
             fail("Should not pass");
         } catch (IllegalArgumentException e) {
-            if (data == null) {
-                // If it gets to TokenStreamFactory we'll have:
-                // verifyException(e, "Invalid `byte[]` argument: `null`");
-                // But ObjectMapper/ObjectReader use different exception
-                verifyException(e, "argument \"");
-                verifyException(e, "is null");
-            } else {
-                verifyException(e, "Invalid 'offset'");
-                verifyException(e, "'len'");
-                verifyException(e, "arguments for `byte[]` of length "+data.length);
-            }
+            // If it gets to TokenStreamFactory we'll have:
+            // verifyException(e, "Invalid `byte[]` argument: `null`");
+            // But ObjectMapper/ObjectReader use different exception
+            verifyException(e, "argument \"");
+            verifyException(e, "is null");
+        } catch (StreamReadException e) {
+            verifyException(e, "Invalid 'offset'");
+            verifyException(e, "'len'");
+            verifyException(e, "arguments for `byte[]` of length "+data.length);
         }
     }
 
@@ -108,17 +108,15 @@ public class BoundsChecksForInputTest extends BaseMapTest
             creator.call(data, offset, len);
             fail("Should not pass");
         } catch (IllegalArgumentException e) {
-            if (data == null) {
-                // If it gets to TokenStreamFactory we'll have:
-                // verifyException(e, "Invalid `char[]` argument: `null`");
-                // But ObjectMapper/ObjectReader use different exception
-                verifyException(e, "argument \"");
-                verifyException(e, "is null");
-            } else {
-                verifyException(e, "Invalid 'offset'");
-                verifyException(e, "'len'");
-                verifyException(e, "arguments for `char[]` of length "+data.length);
-            }
+            // If it gets to TokenStreamFactory we'll have:
+            // verifyException(e, "Invalid `char[]` argument: `null`");
+            // But ObjectMapper/ObjectReader use different exception
+            verifyException(e, "argument \"");
+            verifyException(e, "is null");
+        } catch (StreamReadException e) {
+            verifyException(e, "Invalid 'offset'");
+            verifyException(e, "'len'");
+            verifyException(e, "arguments for `char[]` of length "+data.length);
         }
     }
 }

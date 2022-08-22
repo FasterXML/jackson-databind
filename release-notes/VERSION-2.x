@@ -65,6 +65,10 @@ Project: jackson-databind
 #3275: JDK 16 Illegal reflective access for `Throwable.setCause()` with
   `PropertyNamingStrategy.UPPER_CAMEL_CASE`
  (reported by Jason H)
+ (fix suggested by gsinghlulu@github)
+#3565: `Arrays.asList()` value deserialization has changed from mutable to
+  immutable in 2.13
+ (reported by JonasWilms@github)
 
 2.13.3 (14-May-2022)
 

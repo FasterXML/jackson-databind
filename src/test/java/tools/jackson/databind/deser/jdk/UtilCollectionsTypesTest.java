@@ -158,8 +158,12 @@ public class UtilCollectionsTypesTest extends BaseMapTest
         // contents remain the same
         List<String> input = Arrays.asList("a", "bc", "def");
         String json = DEFAULT_MAPPER.writeValueAsString(input);
-        List<?> result = DEFAULT_MAPPER.readValue(json, List.class);
+        @SuppressWarnings("unchecked")
+        List<String> result = (List<String>) DEFAULT_MAPPER.readValue(json, List.class);
         assertEquals(input, result);
+        // 21-Aug-2022, tatu: [databind#3565] should try to NOT make it
+        //   unmodifiable
+        result.set(1, "b");
     }
 
     /*

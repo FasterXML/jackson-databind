@@ -46,7 +46,6 @@ public abstract class JavaUtilCollectionsDeserializers
         if (!clsName.startsWith("java.util.")) {
             return null;
         }
-
         // 10-Jan-2017, tatu: Some types from `java.util.Collections`/`java.util.Arrays`
         //    need a bit of help...
         String localName = _findUtilCollectionsTypeName(clsName);
@@ -82,8 +81,11 @@ public abstract class JavaUtilCollectionsDeserializers
         if ((localName = _findUtilArrayTypeName(clsName)) != null) {
             // Typically ends with "List" but let's just look for it
             if (localName.contains("List")) {
+                // 21-Aug-2022, tatu: [databind#3565] Let's try avoid making "Arrays.asList()"
+                //    unmodifiable tho. Could either match "ArrayList" or just, well,
+                //    default to "any" modifiable List:
                 return new StdDelegatingDeserializer<Object>(
-                        converter(TYPE_UNMODIFIABLE_LIST, type, List.class));
+                        converter(TYPE_AS_LIST, type, List.class));
             }
             return null;
         }

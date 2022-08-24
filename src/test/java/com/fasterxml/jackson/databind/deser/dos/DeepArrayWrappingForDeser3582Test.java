@@ -7,7 +7,7 @@ public class DeepArrayWrappingForDeser3582Test extends BaseMapTest
     // 23-Aug-2022, tatu: Before fix, fails with 5000
     //    (but passes with 2000)
 //    private final static int TOO_DEEP_NESTING = 4999;
-    private final static int TOO_DEEP_NESTING = 1999;
+    private final static int TOO_DEEP_NESTING = 999;
 
     private final ObjectMapper MAPPER = jsonMapperBuilder()
             .enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)

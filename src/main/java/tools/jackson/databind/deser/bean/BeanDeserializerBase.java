@@ -1735,6 +1735,11 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      */
     public DatabindException wrapAndThrow(Throwable t, Object bean, String fieldName, DeserializationContext ctxt)
     {
+        // 23-Aug-2022, tatu: Due to fix to prevent "double-array-wrapping", looks
+        //    like 'fieldName' may occasionally be `null`; hence
+        if (fieldName == null) {
+            fieldName = "";
+        }
         throw DatabindException.wrapWithPath(throwOrReturnThrowable(t, ctxt),
                 bean, fieldName);
     }

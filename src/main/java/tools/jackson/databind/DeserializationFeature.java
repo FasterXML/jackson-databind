@@ -290,8 +290,10 @@ public enum DeserializationFeature implements ConfigFeature
      * values to the corresponding value type.  This is basically the opposite of the {@link #ACCEPT_SINGLE_VALUE_AS_ARRAY}
      * feature.  If more than one value is found in the array, a {@link DatabindException} is thrown.
      * <p>
+     * NOTE: only <b>single</b> wrapper Array is allowed: if multiple attempted, exception
+     * will be thrown.
      * 
-     * Feature is disabled by default
+     * Feature is disabled by default.
      */
     UNWRAP_SINGLE_VALUE_ARRAYS(false),
 

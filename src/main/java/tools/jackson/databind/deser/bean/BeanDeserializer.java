@@ -4,6 +4,7 @@ import java.util.*;
 
 import tools.jackson.core.*;
 import tools.jackson.core.sym.PropertyNameMatcher;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.CoercionAction;
 import tools.jackson.databind.deser.BeanDeserializerBuilder;
@@ -13,6 +14,7 @@ import tools.jackson.databind.deser.ReadableObjectId.Referring;
 import tools.jackson.databind.deser.impl.ExternalTypeHandler;
 import tools.jackson.databind.deser.impl.ObjectIdReader;
 import tools.jackson.databind.deser.impl.UnwrappedPropertyHandler;
+import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.IgnorePropertiesUtil;
 import tools.jackson.databind.util.NameTransformer;
 import tools.jackson.databind.util.TokenBuffer;
@@ -764,6 +766,15 @@ public class BeanDeserializer
                 return ctxt.handleUnexpectedToken(getValueType(ctxt), JsonToken.START_ARRAY, p, null);
             }
             if (unwrap) {
+                // 23-Aug-2022, tatu: To prevent unbounded nested arrays, we better
+                //   check there is NOT another START_ARRAY lurking there..
+                if (p.nextToken() == JsonToken.START_ARRAY) {
+                    JavaType targetType = getValueType(ctxt);
+                    return ctxt.handleUnexpectedToken(targetType, JsonToken.START_ARRAY, p,
+"Cannot deserialize value of type %s from deeply-nested JSON Array: only single wrapper allowed with `%s`",
+                            ClassUtil.getTypeDescription(targetType),
+                                    "DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS");
+                }
                 final Object value = deserialize(p, ctxt);
                 if (p.nextToken() != JsonToken.END_ARRAY) {
                     handleMissingEndArrayForSingle(p, ctxt);

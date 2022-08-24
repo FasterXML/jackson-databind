@@ -13,6 +13,8 @@ Project: jackson-databind
 #3565: `Arrays.asList()` value deserialization has changed from mutable to
   immutable in 2.13
  (reported by JonasWilms@github)
+#3582: Add check in `BeanDeserializer._deserializeFromArray()` to prevent
+  use of deeply nested arrays
 
 2.13.3 (14-May-2022)
 

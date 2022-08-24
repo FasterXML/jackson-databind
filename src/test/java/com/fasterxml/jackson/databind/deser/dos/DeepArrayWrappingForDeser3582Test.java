@@ -1,13 +1,12 @@
 package com.fasterxml.jackson.databind.deser.dos;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
 public class DeepArrayWrappingForDeser3582Test extends BaseMapTest
 {
-    // 23-Aug-2022, tatu: Before fix, fails with 5000
-    //    (but passes with 2000)
-//    private final static int TOO_DEEP_NESTING = 4999;
-    private final static int TOO_DEEP_NESTING = 999;
+    // 23-Aug-2022, tatu: Before fix, failed with 5000
+    private final static int TOO_DEEP_NESTING = 9999;
 
     private final ObjectMapper MAPPER = jsonMapperBuilder()
             .enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
@@ -16,8 +15,14 @@ public class DeepArrayWrappingForDeser3582Test extends BaseMapTest
     public void testArrayWrapping() throws Exception
     {
         final String doc = _nestedDoc(TOO_DEEP_NESTING, "[ ", "] ", "{}");
-        Point p = MAPPER.readValue(doc, Point.class);
-        assertNotNull(p);
+        try {
+            MAPPER.readValue(doc, Point.class);
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Cannot deserialize");
+            verifyException(e, "nested JSON Array");
+            verifyException(e, "only single");
+        }
     }
 
     private String _nestedDoc(int nesting, String open, String close, String content) {

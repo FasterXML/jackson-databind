@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.13.4 (not yet released)
+2.13.4 (03-Sep-2022)
 
 #3275: JDK 16 Illegal reflective access for `Throwable.setCause()` with
   `PropertyNamingStrategy.UPPER_CAMEL_CASE`

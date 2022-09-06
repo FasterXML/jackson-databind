@@ -634,7 +634,7 @@ public class BeanDeserializer
                 if (p.nextToken() == JsonToken.START_ARRAY) {
                     JavaType targetType = getValueType(ctxt);
                     return ctxt.handleUnexpectedToken(targetType, JsonToken.START_ARRAY, p,
-"Cannot deserialize value of type %s from deeply-nested JSON Array: only single wrapper allowed with `%s`",
+"Cannot deserialize value of type %s from deeply-nested Array: only single wrapper allowed with `%s`",
                             ClassUtil.getTypeDescription(targetType),
                                     "DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS");
                 }

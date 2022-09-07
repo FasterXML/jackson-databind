@@ -357,12 +357,8 @@ public abstract class StdDeserializer<T>
         // 23-Mar-2017, tatu: Let's specifically block recursive resolution to avoid
         //   either supporting nested arrays, or to cause infinite looping.
         if (p.hasToken(JsonToken.START_ARRAY)) {
-            String msg = String.format(
-"Cannot deserialize instance of %s out of %s token: nested Arrays not allowed with %s",
-                    ClassUtil.nameOf(_valueClass), JsonToken.START_ARRAY,
-                    "DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS");
             @SuppressWarnings("unchecked")
-            T result = (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p.currentToken(), p, msg);
+            T result = (T) handleNestedArrayForSingle(p, ctxt);
             return result;
         }
         return (T) deserialize(p, ctxt);
@@ -413,7 +409,9 @@ public abstract class StdDeserializer<T>
         case JsonTokenId.ID_START_ARRAY:
             // 12-Jun-2020, tatu: For some reason calling `_deserializeFromArray()` won't work so:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                p.nextToken();
+                if (p.nextToken() == JsonToken.START_ARRAY) {
+                    return (boolean) handleNestedArrayForSingle(p, ctxt);
+                }
                 final boolean parsed = _parseBooleanPrimitive(p, ctxt);
                 _verifyEndArrayForSingle(p, ctxt);
                 return parsed;
@@ -582,7 +580,9 @@ public abstract class StdDeserializer<T>
         case JsonTokenId.ID_START_ARRAY: // unwrapping / from-empty-array coercion?
             // 12-Jun-2020, tatu: For some reason calling `_deserializeFromArray()` won't work so:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                p.nextToken();
+                if (p.nextToken() == JsonToken.START_ARRAY) {
+                    return (byte) handleNestedArrayForSingle(p, ctxt);
+                }
                 final byte parsed = _parseBytePrimitive(p, ctxt);
                 _verifyEndArrayForSingle(p, ctxt);
                 return parsed;
@@ -650,7 +650,9 @@ public abstract class StdDeserializer<T>
         case JsonTokenId.ID_START_ARRAY:
             // 12-Jun-2020, tatu: For some reason calling `_deserializeFromArray()` won't work so:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                p.nextToken();
+                if (p.nextToken() == JsonToken.START_ARRAY) {
+                    return (short) handleNestedArrayForSingle(p, ctxt);
+                }
                 final short parsed = _parseShortPrimitive(p, ctxt);
                 _verifyEndArrayForSingle(p, ctxt);
                 return parsed;
@@ -715,7 +717,9 @@ public abstract class StdDeserializer<T>
             break;
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                p.nextToken();
+                if (p.nextToken() == JsonToken.START_ARRAY) {
+                    return (int) handleNestedArrayForSingle(p, ctxt);
+                }
                 final int parsed = _parseIntPrimitive(p, ctxt);
                 _verifyEndArrayForSingle(p, ctxt);
                 return parsed;
@@ -842,7 +846,9 @@ public abstract class StdDeserializer<T>
             break;
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                p.nextToken();
+                if (p.nextToken() == JsonToken.START_ARRAY) {
+                    return (long) handleNestedArrayForSingle(p, ctxt);
+                }
                 final long parsed = _parseLongPrimitive(p, ctxt);
                 _verifyEndArrayForSingle(p, ctxt);
                 return parsed;
@@ -953,7 +959,9 @@ public abstract class StdDeserializer<T>
             break;
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                p.nextToken();
+                if (p.nextToken() == JsonToken.START_ARRAY) {
+                    return (float) handleNestedArrayForSingle(p, ctxt);
+                }
                 final float parsed = _parseFloatPrimitive(p, ctxt);
                 _verifyEndArrayForSingle(p, ctxt);
                 return parsed;
@@ -1058,7 +1066,9 @@ public abstract class StdDeserializer<T>
             break;
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                p.nextToken();
+                if (p.nextToken() == JsonToken.START_ARRAY) {
+                    return (double) handleNestedArrayForSingle(p, ctxt);
+                }
                 final double parsed = _parseDoublePrimitive(p, ctxt);
                 _verifyEndArrayForSingle(p, ctxt);
                 return parsed;
@@ -1214,6 +1224,9 @@ public abstract class StdDeserializer<T>
                 default:
                 }
             } else if (unwrap) {
+                if (t == JsonToken.START_ARRAY) {
+                    return (java.util.Date) handleNestedArrayForSingle(p, ctxt);
+                }
                 final Date parsed = _parseDate(p, ctxt);
                 _verifyEndArrayForSingle(p, ctxt);
                 return parsed;
@@ -1988,6 +2001,21 @@ inputDesc, _coercedTypeDesc());
 handledType().getName());
         // 05-May-2016, tatu: Should recover somehow (maybe skip until END_ARRAY);
         //     but for now just fall through
+    }
+
+    /**
+     * Helper method called when detecting a deep(er) nesting of Arrays when trying
+     * to unwrap value for {@code DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS}.
+     *
+     * @since 2.14
+     */
+    protected Object handleNestedArrayForSingle(JsonParser p, DeserializationContext ctxt) throws IOException
+    {
+        String msg = String.format(
+"Cannot deserialize instance of %s out of %s token: nested Arrays not allowed with %s",
+                ClassUtil.nameOf(_valueClass), JsonToken.START_ARRAY,
+                "DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS");
+        return ctxt.handleUnexpectedToken(getValueType(ctxt), p.currentToken(), p, msg);
     }
 
     protected void _verifyEndArrayForSingle(JsonParser p, DeserializationContext ctxt) throws IOException

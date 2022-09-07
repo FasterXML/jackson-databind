@@ -4,6 +4,10 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.12.8 (11-Oct-2022)
+#3590: Add check in primitive value deserializers to avoid deep wrapper array
+  nesting wrt `UNWRAP_SINGLE_VALUE_ARRAYS` [CVE-2022-42003]
+
 2.12.7 (26-May-2022)
 
 #2816: Optimize UntypedObjectDeserializer wrt recursion [CVE-2020-36518]

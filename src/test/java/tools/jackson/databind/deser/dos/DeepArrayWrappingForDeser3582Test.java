@@ -20,7 +20,7 @@ public class DeepArrayWrappingForDeser3582Test extends BaseMapTest
             fail("Should not pass");
         } catch (MismatchedInputException e) {
             verifyException(e, "Cannot deserialize");
-            verifyException(e, "nested JSON Array");
+            verifyException(e, "nested Array");
             verifyException(e, "only single");
         }
     }

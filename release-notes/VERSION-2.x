@@ -59,6 +59,8 @@ Project: jackson-databind
 #3559: Support `null`-valued `Map` fields with "any setter"
 #3568: Change `JsonNode.with(String)` and `withArray(String)` to consider
   argument as `JsonPointer` if valid expression
+#3590: Add check in primitive value deserializers to avoid deep wrapper array
+  nesting wrt `UNWRAP_SINGLE_VALUE_ARRAYS`
 
 2.13.4 (03-Sep-2022)
 

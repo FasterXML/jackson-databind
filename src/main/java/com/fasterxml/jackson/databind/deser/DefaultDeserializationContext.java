@@ -316,18 +316,25 @@ public abstract class DefaultDeserializationContext
             JsonDeserializer<Object> deser, Object valueToUpdate)
         throws IOException
     {
+        return readRootValue(p, valueType, deser, valueToUpdate, null);
+    }
+
+    public Object readRootValue(JsonParser p, JavaType valueType,
+            JsonDeserializer<Object> deser, Object valueToUpdate, List<JavaType> elemenTypeList)
+        throws IOException
+    {
         if (_config.useRootWrapping()) {
-            return _unwrapAndDeserialize(p, valueType, deser, valueToUpdate);
+            return _unwrapAndDeserialize(p, valueType, deser, valueToUpdate, elemenTypeList);
         }
         if (valueToUpdate == null) {
-            return deser.deserialize(p, this);
+            return deser.deserializeList(p, this, elemenTypeList);
         }
-        return deser.deserialize(p, this, valueToUpdate);
+        return deser.deserializeList(p, this, valueToUpdate, elemenTypeList);
     }
 
     protected Object _unwrapAndDeserialize(JsonParser p,
             JavaType rootType, JsonDeserializer<Object> deser,
-            Object valueToUpdate)
+            Object valueToUpdate, List<JavaType> elemenTypeList)
         throws IOException
     {
         PropertyName expRootName = _config.findRootName(rootType);
@@ -353,9 +360,9 @@ ClassUtil.name(actualName), ClassUtil.name(expSimpleName), ClassUtil.getTypeDesc
         p.nextToken();
         final Object result;
         if (valueToUpdate == null) {
-            result = deser.deserialize(p, this);
+            result = deser.deserializeList(p, this, elemenTypeList);
         } else {
-            result = deser.deserialize(p, this, valueToUpdate);
+            result = deser.deserializeList(p, this, valueToUpdate, elemenTypeList);
         }
         // and last, verify that we now get matching END_OBJECT
         if (p.nextToken() != JsonToken.END_OBJECT) {

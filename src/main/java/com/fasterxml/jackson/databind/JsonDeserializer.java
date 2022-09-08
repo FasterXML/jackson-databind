@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 
 import com.fasterxml.jackson.core.*;
 
@@ -59,7 +60,7 @@ public abstract class JsonDeserializer<T>
      * Returned instance is to be constructed by method itself.
      *<p>
      * Pre-condition for this method is that the parser points to the
-     * first event that is part of value to deserializer (and which 
+     * first event that is part of value to deserializer (and which
      * is never JSON 'null' literal, more on this below): for simple
      * types it may be the only value; and for structured types the
      * Object start marker or a FIELD_NAME.
@@ -107,6 +108,11 @@ public abstract class JsonDeserializer<T>
     public abstract T deserialize(JsonParser p, DeserializationContext ctxt)
         throws IOException, JacksonException;
 
+    public T deserializeList(JsonParser p, DeserializationContext ctxt, List<JavaType> elemenTypeList)
+        throws IOException, JacksonException {
+        return deserialize(p, ctxt);
+    }
+
     /**
      * Alternate deserialization method (compared to the most commonly
      * used, {@link #deserialize(JsonParser, DeserializationContext)}),
@@ -130,6 +136,13 @@ public abstract class JsonDeserializer<T>
         return deserialize(p, ctxt);
     }
 
+    public T deserializeList(JsonParser p, DeserializationContext ctxt, T intoValue,
+            List<JavaType> elemenTypeList)
+        throws IOException, JacksonException
+    {
+        return deserialize(p, ctxt, intoValue);
+    }
+
     /**
      * Deserialization called when type being deserialized is defined to
      * contain additional type identifier, to allow for correctly
@@ -148,7 +161,7 @@ public abstract class JsonDeserializer<T>
             TypeDeserializer typeDeserializer)
         throws IOException, JacksonException
     {
-        // We could try calling 
+        // We could try calling
         return typeDeserializer.deserializeTypedFromAny(p, ctxt);
     }
 

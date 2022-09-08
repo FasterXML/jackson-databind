@@ -316,15 +316,15 @@ public abstract class DefaultDeserializationContext
             JsonDeserializer<Object> deser, Object valueToUpdate)
         throws IOException
     {
-        return readRootValue(p, valueType, deser, valueToUpdate, null);
+        return readRootValueWithElementTypeList(p, valueType, deser, valueToUpdate, null);
     }
 
-    public Object readRootValue(JsonParser p, JavaType valueType,
+    public Object readRootValueWithElementTypeList(JsonParser p, JavaType valueType,
             JsonDeserializer<Object> deser, Object valueToUpdate, List<JavaType> elemenTypeList)
         throws IOException
     {
         if (_config.useRootWrapping()) {
-            return _unwrapAndDeserialize(p, valueType, deser, valueToUpdate, elemenTypeList);
+            return _unwrapAndDeserializeWithElementTypeList(p, valueType, deser, valueToUpdate, elemenTypeList);
         }
         if (valueToUpdate == null) {
             return deser.deserializeList(p, this, elemenTypeList);
@@ -333,6 +333,14 @@ public abstract class DefaultDeserializationContext
     }
 
     protected Object _unwrapAndDeserialize(JsonParser p,
+            JavaType rootType, JsonDeserializer<Object> deser,
+            Object valueToUpdate)
+        throws IOException
+    {
+        return _unwrapAndDeserializeWithElementTypeList(p, rootType, deser, valueToUpdate, null);
+    }
+
+    protected Object _unwrapAndDeserializeWithElementTypeList(JsonParser p,
             JavaType rootType, JsonDeserializer<Object> deser,
             Object valueToUpdate, List<JavaType> elemenTypeList)
         throws IOException
@@ -359,10 +367,18 @@ ClassUtil.name(actualName), ClassUtil.name(expSimpleName), ClassUtil.getTypeDesc
         // ok, then move to value itself....
         p.nextToken();
         final Object result;
-        if (valueToUpdate == null) {
-            result = deser.deserializeList(p, this, elemenTypeList);
+        if (null == elemenTypeList) {
+            if (valueToUpdate == null) {
+                result = deser.deserialize(p, this);
+            } else {
+                result = deser.deserialize(p, this, valueToUpdate);
+            }
         } else {
-            result = deser.deserializeList(p, this, valueToUpdate, elemenTypeList);
+            if (valueToUpdate == null) {
+                result = deser.deserializeList(p, this, elemenTypeList);
+            } else {
+                result = deser.deserializeList(p, this, valueToUpdate, elemenTypeList);
+            }
         }
         // and last, verify that we now get matching END_OBJECT
         if (p.nextToken() != JsonToken.END_OBJECT) {

@@ -2922,7 +2922,15 @@ public class ObjectMapper
         _assertNotNull("p", p);
         return (T) _readValue(getDeserializationConfig(), p, valueType);
     }
-    
+
+    @SuppressWarnings("unchecked")
+    public List<Object> readValue(JsonParser p, List<JavaType> elementTypeList)
+        throws IOException, StreamReadException, DatabindException
+    {
+        _assertNotNull("p", p);
+        return _readValue(getDeserializationConfig(), p, elementTypeList);
+    }
+
     /**
      * Method to deserialize JSON content as a tree {@link JsonNode}.
      * Returns {@link JsonNode} that represents the root of the resulting tree, if there
@@ -3557,6 +3565,15 @@ public class ObjectMapper
         return (T) _readMapAndClose(_jsonFactory.createParser(src), valueType);
     }
 
+
+    @SuppressWarnings("unchecked")
+    public List<Object> readValue(File src, List<JavaType> elementTypeList)
+        throws IOException, StreamReadException, DatabindException
+    {
+        _assertNotNull("src", src);
+        return _readMapAndClose(_jsonFactory.createParser(src), elementTypeList);
+    }
+
     /**
      * Method to deserialize JSON content from given resource into given Java type.
      *<p>
@@ -3603,6 +3620,14 @@ public class ObjectMapper
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), valueType);
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Object> readValue(URL src, List<JavaType> elementTypeList)
+        throws IOException, StreamReadException, DatabindException
+    {
+        _assertNotNull("src", src);
+        return _readMapAndClose(_jsonFactory.createParser(src), elementTypeList);
     }
 
     /**
@@ -3694,6 +3719,14 @@ public class ObjectMapper
     }
 
     @SuppressWarnings("unchecked")
+    public List<Object> readValue(Reader src, List<JavaType> elementTypeList)
+        throws IOException, StreamReadException, DatabindException
+    {
+        _assertNotNull("src", src);
+        return _readMapAndClose(_jsonFactory.createParser(src), elementTypeList);
+    }
+
+    @SuppressWarnings("unchecked")
     public <T> T readValue(InputStream src, Class<T> valueType)
         throws IOException, StreamReadException, DatabindException
     {
@@ -3715,6 +3748,14 @@ public class ObjectMapper
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), valueType);
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Object> readValue(InputStream src, List<JavaType> elementTypeList)
+        throws IOException, StreamReadException, DatabindException
+    {
+        _assertNotNull("src", src);
+        return _readMapAndClose(_jsonFactory.createParser(src), elementTypeList);
     }
 
     @SuppressWarnings("unchecked")
@@ -3759,11 +3800,27 @@ public class ObjectMapper
     }
 
     @SuppressWarnings("unchecked")
+    public List<Object> readValue(byte[] src, List<JavaType> elementTypeList)
+        throws IOException, StreamReadException, DatabindException
+    {
+        _assertNotNull("src", src);
+        return _readMapAndClose(_jsonFactory.createParser(src), elementTypeList);
+    }
+
+    @SuppressWarnings("unchecked")
     public <T> T readValue(byte[] src, int offset, int len, JavaType valueType)
         throws IOException, StreamReadException, DatabindException
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src, offset, len), valueType);
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Object> readValue(byte[] src, int offset, int len, List<JavaType> elementTypeList)
+        throws IOException, StreamReadException, DatabindException
+    {
+        _assertNotNull("src", src);
+        return _readMapAndClose(_jsonFactory.createParser(src, offset, len), elementTypeList);
     }
 
     @SuppressWarnings("unchecked")
@@ -3779,6 +3836,13 @@ public class ObjectMapper
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), valueType);
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Object> readValue(DataInput src, List<JavaType> elementTypeList) throws IOException
+    {
+        _assertNotNull("src", src);
+        return _readMapAndClose(_jsonFactory.createParser(src), elementTypeList);
     }
 
     /*
@@ -4692,6 +4756,35 @@ public class ObjectMapper
         return result;
     }
 
+    @SuppressWarnings("unchecked")
+    protected List<Object> _readValue(DeserializationConfig cfg, JsonParser p,
+            List<JavaType> elementTypeList)
+        throws IOException
+    {
+        // First: may need to read the next token, to initialize
+        // state (either before first read from parser, or after
+        // previous token has been cleared)
+        final List<Object> result;
+        JavaType valueType = _typeFactory.constructType(List.class);
+        JsonToken t = _initForReading(p, valueType);
+        final DefaultDeserializationContext ctxt = createDeserializationContext(p, cfg);
+        if (t == JsonToken.VALUE_NULL) {
+            // Ask JsonDeserializer what 'null value' to use:
+            result = (List<Object>) _findRootDeserializer(ctxt, valueType).getNullValue(ctxt);
+        } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
+            result = null;
+        } else { // pointing to event other than null
+            result = (List<Object>) ctxt.readRootValueWithElementTypeList(p, valueType,
+                    _findRootDeserializer(ctxt, valueType), null, elementTypeList);
+        }
+        // Need to consume the token too
+        p.clearCurrentToken();
+        if (cfg.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
+            _verifyNoTrailingTokens(p, ctxt, valueType);
+        }
+        return result;
+    }
+
     protected Object _readMapAndClose(JsonParser p0, JavaType valueType)
         throws IOException
     {
@@ -4733,7 +4826,7 @@ public class ObjectMapper
             } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
                 result = null;
             } else {
-                result = (List<Object>) ctxt.readRootValue(p, valueType,
+                result = (List<Object>) ctxt.readRootValueWithElementTypeList(p, valueType,
                         _findRootDeserializer(ctxt, valueType), null, elemenTypeList);
                 ctxt.checkUnresolvedObjectId();
             }

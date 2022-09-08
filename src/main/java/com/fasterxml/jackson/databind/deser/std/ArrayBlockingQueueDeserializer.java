@@ -91,16 +91,25 @@ public class ArrayBlockingQueueDeserializer
             Collection<Object> result0)
         throws IOException
     {
+        return _deserializeFromArrayWithElementTypeList(p, ctxt, result0, null);
+    }
+
+    @Override
+    protected Collection<Object> _deserializeFromArrayWithElementTypeList(JsonParser p,
+            DeserializationContext ctxt,
+            Collection<Object> result0, List<JavaType> elemenTypeList)
+        throws IOException
+    {
         if (result0 == null) { // usual case
             result0 = new ArrayList<>();
         }
-        result0 = super._deserializeFromArray(p, ctxt, result0);
+        result0 = super._deserializeFromArrayWithElementTypeList(p, ctxt, result0, elemenTypeList);
         if (result0.isEmpty()) {
             return new ArrayBlockingQueue<>(1, false);
         }
         return new ArrayBlockingQueue<>(result0.size(), false, result0);
     }
-
+    
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {
         // In future could check current token... for now this should be enough:

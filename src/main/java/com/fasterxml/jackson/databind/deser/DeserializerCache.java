@@ -79,7 +79,7 @@ public final class DeserializerCache
 
     /**
      * Method that can be used to determine how many deserializers this
-     * provider is caching currently 
+     * provider is caching currently
      * (if it does caching: default implementation does)
      * Exact count depends on what kind of deserializers get cached;
      * default implementation caches only dynamically constructed deserializers,
@@ -101,7 +101,7 @@ public final class DeserializerCache
      * configuration changes for mapper than owns the provider.
      */
     public void flushCachedDeserializers() {
-        _cachedDeserializers.clear();       
+        _cachedDeserializers.clear();
     }
 
     /*
@@ -460,7 +460,7 @@ public final class DeserializerCache
             return null;
         }
         return ctxt.converterInstance(a, convDef);
-    }    
+    }
     /**
      * Method called to see if given method has annotations that indicate
      * a more specific type than what the argument specifies.
@@ -503,7 +503,7 @@ public final class DeserializerCache
                         // keyType = type.getKeyType(); // just in case it's used below
                     }
                 }
-            }            
+            }
         }
         JavaType contentType = type.getContentType();
         if (contentType != null) {

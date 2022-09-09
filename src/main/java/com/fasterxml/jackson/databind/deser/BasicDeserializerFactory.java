@@ -716,7 +716,7 @@ nonAnnotatedParamIndex, ctor);
                 }
                 continue;
             }
-            AnnotatedParameter nonAnnotatedParam = null;            
+            AnnotatedParameter nonAnnotatedParam = null;
             SettableBeanProperty[] properties = new SettableBeanProperty[argCount];
             int implicitNameCount = 0;
             int explicitNameCount = 0;
@@ -1474,6 +1474,18 @@ paramIndex, candidate);
         return deser;
     }
 
+    @Override
+    public JsonDeserializer<?> createTupleDeserializer(DeserializationContext ctxt,
+            TupleType type, BeanDescription beanDesc)
+        throws JsonMappingException
+    {
+        CollectionType ct = ctxt.getTypeFactory().constructCollectionType(Collection.class,
+                TypeFactory.unknownType());
+        CollectionDeserializer deser = (CollectionDeserializer) createCollectionDeserializer(ctxt,
+                ct, beanDesc);
+        return new TupleDeserializer(deser, type);
+    }
+
     /*
     /**********************************************************
     /* DeserializerFactory impl: Map(-like) deserializers
@@ -2010,7 +2022,7 @@ factory.toString()));
         throws JsonMappingException
     {
         AnnotationIntrospector ai = config.getAnnotationIntrospector();
-        TypeResolverBuilder<?> b = ai.findPropertyTypeResolver(config, annotated, baseType);        
+        TypeResolverBuilder<?> b = ai.findPropertyTypeResolver(config, annotated, baseType);
         // Defaulting: if no annotations on member, check value class
         if (b == null) {
             return findTypeDeserializer(config, baseType);
@@ -2037,13 +2049,13 @@ factory.toString()));
      * 
      * @param containerType Type of property; must be a container type
      * @param propertyEntity Field or method that contains container property
-     */    
+     */
     public TypeDeserializer findPropertyContentTypeDeserializer(DeserializationConfig config,
             JavaType containerType, AnnotatedMember propertyEntity)
         throws JsonMappingException
     {
         AnnotationIntrospector ai = config.getAnnotationIntrospector();
-        TypeResolverBuilder<?> b = ai.findPropertyContentTypeResolver(config, propertyEntity, containerType);        
+        TypeResolverBuilder<?> b = ai.findPropertyContentTypeResolver(config, propertyEntity, containerType);
         JavaType contentType = containerType.getContentType();
         // Defaulting: if no annotations on member, check class
         if (b == null) {
@@ -2086,13 +2098,17 @@ factory.toString()));
             return StringDeserializer.instance;
         }
         if (rawType == CLASS_ITERABLE) {
-            // [databind#199]: Can and should 'upgrade' to a Collection type:
-            TypeFactory tf = ctxt.getTypeFactory();
-            JavaType[] tps = tf.findTypeParameters(type, CLASS_ITERABLE);
-            JavaType elemType = (tps == null || tps.length != 1) ? TypeFactory.unknownType() : tps[0];
-            CollectionType ct = tf.constructCollectionType(Collection.class, elemType);
-            // Should we re-introspect beanDesc? For now let's not...
-            return createCollectionDeserializer(ctxt, ct, beanDesc);
+            if (type instanceof TupleType) {
+                return createTupleDeserializer(ctxt, (TupleType) type, beanDesc);
+            } else {
+                // [databind#199]: Can and should 'upgrade' to a Collection type:
+                TypeFactory tf = ctxt.getTypeFactory();
+                JavaType[] tps = tf.findTypeParameters(type, CLASS_ITERABLE);
+                // Should we re-introspect beanDesc? For now let's not...
+                JavaType elemType = (tps == null || tps.length != 1) ? TypeFactory.unknownType() : tps[0];
+                CollectionType ct = tf.constructCollectionType(Collection.class, elemType);
+                return createCollectionDeserializer(ctxt, ct, beanDesc);
+            }
         }
         if (rawType == CLASS_MAP_ENTRY) {
             // 28-Apr-2015, tatu: TypeFactory does it all for us already so
@@ -2375,7 +2391,7 @@ factory.toString()));
                 type = type.withContentValueHandler(cd);
             }
             TypeDeserializer contentTypeDeser = findPropertyContentTypeDeserializer(
-                    ctxt.getConfig(), type, (AnnotatedMember) member);            	
+                    ctxt.getConfig(), type, (AnnotatedMember) member);
             if (contentTypeDeser != null) {
                 type = type.withContentTypeHandler(contentTypeDeser);
             }
@@ -2418,7 +2434,7 @@ factory.toString()));
         AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         if (intr != null) {
             JsonCreator.Mode mode = intr.findCreatorAnnotation(ctxt.getConfig(), ann);
-            return (mode != null) && (mode != JsonCreator.Mode.DISABLED); 
+            return (mode != null) && (mode != JsonCreator.Mode.DISABLED);
         }
         return false;
     }

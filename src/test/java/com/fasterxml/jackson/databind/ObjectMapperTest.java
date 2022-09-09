@@ -1,8 +1,18 @@
 package com.fasterxml.jackson.databind;
 
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import java.io.*;
-import java.util.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -10,14 +20,20 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.Nulls;
-import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.StreamReadFeature;
+import com.fasterxml.jackson.core.StreamWriteFeature;
 import com.fasterxml.jackson.core.json.JsonWriteFeature;
 import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
-
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.node.*;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class ObjectMapperTest extends BaseMapTest
 {
@@ -544,4 +560,22 @@ public class ObjectMapperTest extends BaseMapTest
             assertEquals(DEFAULT_TZ, w2.getConfig().getTimeZone());
         }
     }
+
+    public void testReadValueByItemTypes() throws JsonMappingException, JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        JavaType[] elementJavaTypes = new JavaType[] {
+                mapper.getTypeFactory().constructType(Integer.class),
+                mapper.getTypeFactory().constructType(BigDecimal.class),
+                mapper.getTypeFactory().constructType(Long.class),
+                mapper.getTypeFactory().constructType(String.class)
+                };
+        JavaType javaType = mapper.getTypeFactory().constructTupleType(elementJavaTypes);
+        String content = "[1,2,3,null]";
+        List<Object> objectList = mapper.readValue(content, javaType);
+        assertEquals(new Integer(1), objectList.get(0));
+        assertEquals(new BigDecimal("2"), objectList.get(1));
+        assertEquals(new Long(3), objectList.get(2));
+        assertEquals(null, objectList.get(3));
+    }
+
 }

@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.util.LookupCache;
  * as well as many objects it constructs (like
 * {@link com.fasterxml.jackson.databind.DeserializationConfig} and
  * {@link com.fasterxml.jackson.databind.SerializationConfig})),
- * but usually those objects also 
+ * but usually those objects also
  * expose convenience methods (<code>constructType</code>).
  * So, you can do for example:
  *<pre>
@@ -227,7 +227,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      * {@link TypeModifier} added as the first modifier to call (in case there
      * are multiple registered).
      */
-    public TypeFactory withModifier(TypeModifier mod) 
+    public TypeFactory withModifier(TypeModifier mod)
     {
         LookupCache<Object,JavaType> typeCache = _typeCache;
         TypeModifier[] mods;
@@ -699,7 +699,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
     /**
      * @deprecated Since 2.7 resolve raw type first, then find type parameters
      */
-    @Deprecated // since 2.7    
+    @Deprecated // since 2.7
     public JavaType[] findTypeParameters(Class<?> clz, Class<?> expType, TypeBindings bindings) {
         return findTypeParameters(constructType(clz, bindings), expType);
     }
@@ -707,7 +707,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
     /**
      * @deprecated Since 2.7 resolve raw type first, then find type parameters
      */
-    @Deprecated // since 2.7    
+    @Deprecated // since 2.7
     public JavaType[] findTypeParameters(Class<?> clz, Class<?> expType) {
         return findTypeParameters(constructType(clz), expType);
     }
@@ -790,7 +790,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      *
      * @return Fully resolve type
      *
-     * @since 2.12 as replacement for deprecated {@link #constructType(Type, TypeBindings)} 
+     * @since 2.12 as replacement for deprecated {@link #constructType(Type, TypeBindings)}
      */
     public JavaType resolveMemberType(Type type, TypeBindings contextBindings) {
         return _fromAny(null, type, contextBindings);
@@ -1033,6 +1033,10 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
         return _fromClass(null, rawType, TypeBindings.create(rawType, parameterTypes));
     }
 
+    public JavaType constructTupleType(JavaType[] parameterTypes) {
+        return new TupleType((SimpleType) _fromClass(null, Iterable.class, TypeBindings.createTuple(parameterTypes)));
+    }
+
     /**
      * Method for constructing a type instance with specified parameterization.
      *
@@ -1045,7 +1049,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
             JavaType[] parameterTypes)
     {
         return constructSimpleType(rawType, parameterTypes);
-    } 
+    }
 
     /**
      * Method for constructing a {@link ReferenceType} instance with given type parameter
@@ -1066,7 +1070,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
     /**
      * Method that use by core Databind functionality, and that should NOT be called
      * by application code outside databind package.
-     *<p> 
+     *<p>
      * Unchecked here not only means that no checks are made as to whether given class
      * might be non-simple type (like {@link CollectionType}) but also that most of supertype
      * information is not gathered. This means that unless called on primitive types or
@@ -1506,7 +1510,7 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
             }
             // if not, perhaps we are now resolving a well-known class or interface?
             if (result == null) {
-                result = _fromWellKnownClass(context, rawType, bindings, superClass, superInterfaces); 
+                result = _fromWellKnownClass(context, rawType, bindings, superClass, superInterfaces);
                 if (result == null) {
                     result = _fromWellKnownInterface(context, rawType, bindings, superClass, superInterfaces);
                     if (result == null) {
@@ -1615,10 +1619,10 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
 
         // First: what is the actual base type? One odd thing is that 'getRawType'
         // returns Type, not Class<?> as one might expect. But let's assume it is
-        // always of type Class: if not, need to add more code to resolve it to Class.        
+        // always of type Class: if not, need to add more code to resolve it to Class.
         Type[] args = ptype.getActualTypeArguments();
         int paramCount = (args == null) ? 0 : args.length;
-        TypeBindings newBindings;        
+        TypeBindings newBindings;
 
         if (paramCount == 0) {
             newBindings = EMPTY_BINDINGS;
@@ -1661,7 +1665,7 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
         // 15-Jan-2019, tatu: As weird as this looks, apparently on some platforms (Arm CPU, mobile
         //    devices), unsynchronized internal access can lead to issues, see:
         //
-        //  https://vmlens.com/articles/java-lang-reflect-typevariable-getbounds-is-not-thread-safe/  
+        //  https://vmlens.com/articles/java-lang-reflect-typevariable-getbounds-is-not-thread-safe/
         //
         //    No good way to reproduce but since this should not be on critical path, let's add
         //    syncing as it seems potentially necessary.

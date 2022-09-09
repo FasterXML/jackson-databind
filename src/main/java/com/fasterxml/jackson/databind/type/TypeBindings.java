@@ -64,6 +64,18 @@ public class TypeBindings
         _hashCode = h;
     }
 
+    private TypeBindings(String[] names, JavaType[] types)
+    {
+        _names = (names == null) ? NO_STRINGS : names;
+        _types = (types == null) ? NO_TYPES : types;
+        int h = 1;
+        for (int i = 0, len = _types.length; i < len; ++i) {
+            h += _types[i].hashCode();
+        }
+        _unboundVariables = null;
+        _hashCode = h;
+    }
+
     public static TypeBindings emptyBindings() {
         return EMPTY;
     }
@@ -115,6 +127,16 @@ public class TypeBindings
                    +((types.length == 1) ? "" : "s")+": class expects "+names.length);
         }
         return new TypeBindings(names, types, null);
+    }
+
+    public static TypeBindings createTuple(JavaType[] types)
+    {
+        if (types == null) {
+            types = NO_TYPES;
+        }
+        TypeVariable<?>[] vars = Iterable.class.getTypeParameters();
+        String[] names = new String[] { vars[0].getName() };
+        return new TypeBindings(names, types);
     }
 
     public static TypeBindings create(Class<?> erasedType, JavaType typeArg1)
@@ -260,7 +282,7 @@ name, i, t.getRawClass()));
     /**
      * Returns number of bindings contained
      */
-    public int size() { 
+    public int size() {
         return _types.length;
     }
 
@@ -420,7 +442,7 @@ name, i, t.getRawClass()));
                 return VARS_ITERABLE;
             }
             return erasedType.getTypeParameters();
-        }    
+        }
 
         public static TypeVariable<?>[] paramsFor2(Class<?> erasedType)
         {
@@ -434,7 +456,7 @@ name, i, t.getRawClass()));
                 return VARS_LINKED_HASH_MAP;
             }
             return erasedType.getTypeParameters();
-        }    
+        }
     }
 
     /**

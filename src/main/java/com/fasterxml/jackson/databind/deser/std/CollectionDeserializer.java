@@ -243,6 +243,10 @@ _containerType,
         throws IOException
     {
         if (_delegateDeserializer != null) {
+            if (null == elemenTypeList) {
+                return (Collection<Object>) _valueInstantiator.createUsingDelegate(ctxt,
+                        _delegateDeserializer.deserialize(p, ctxt));
+            }
             return (Collection<Object>) _valueInstantiator.createUsingDelegate(ctxt,
                     _delegateDeserializer.deserializeList(p, ctxt, elemenTypeList));
         }

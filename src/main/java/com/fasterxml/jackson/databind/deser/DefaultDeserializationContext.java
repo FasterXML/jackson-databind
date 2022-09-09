@@ -327,7 +327,13 @@ public abstract class DefaultDeserializationContext
             return _unwrapAndDeserializeWithElementTypeList(p, valueType, deser, valueToUpdate, elemenTypeList);
         }
         if (valueToUpdate == null) {
+            if (null == elemenTypeList) {
+                return deser.deserialize(p, this);
+            }
             return deser.deserializeList(p, this, elemenTypeList);
+        }
+        if (null == elemenTypeList) {
+            return deser.deserialize(p, this, valueToUpdate);
         }
         return deser.deserializeList(p, this, valueToUpdate, elemenTypeList);
     }
@@ -367,15 +373,15 @@ ClassUtil.name(actualName), ClassUtil.name(expSimpleName), ClassUtil.getTypeDesc
         // ok, then move to value itself....
         p.nextToken();
         final Object result;
-        if (null == elemenTypeList) {
-            if (valueToUpdate == null) {
+        if (valueToUpdate == null) {
+            if (null == elemenTypeList) {
                 result = deser.deserialize(p, this);
             } else {
-                result = deser.deserialize(p, this, valueToUpdate);
+                result = deser.deserializeList(p, this, elemenTypeList);
             }
         } else {
-            if (valueToUpdate == null) {
-                result = deser.deserializeList(p, this, elemenTypeList);
+            if (null == elemenTypeList) {
+                result = deser.deserialize(p, this, valueToUpdate);
             } else {
                 result = deser.deserializeList(p, this, valueToUpdate, elemenTypeList);
             }

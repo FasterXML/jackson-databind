@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -14,7 +15,6 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
-import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.TupleType;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
@@ -27,12 +27,16 @@ public class TupleDeserializer extends CollectionDeserializer {
 
     private CollectionDeserializer deser;
 
-    private List<JavaType> elementTypeList;
+    private TupleType tupleType;
+    
+    private List<JsonDeserializer<Object>> valueDesList = new ArrayList<>();
+    
+    private List<NullValueProvider> nullerList = new ArrayList<>();
 
     public TupleDeserializer(CollectionDeserializer deser, TupleType tupleType) {
         super(deser);
         this.deser = deser;
-        this.elementTypeList = tupleType.getBindings().getTypeParameters();
+        this.tupleType = tupleType;
     }
 
     public CollectionDeserializer getCollectionDeserializer() {
@@ -47,24 +51,16 @@ public class TupleDeserializer extends CollectionDeserializer {
         // [databind#631]: Assign current value, to be accessible by custom serializers
         p.setCurrentValue(result);
 
-        JsonDeserializer<Object> valueDes = null;
-        final TypeDeserializer typeDeser = _valueTypeDeserializer;
         JsonToken t;
         int idx = -1;
         while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
             try {
                 idx++;
-                valueDes = ctxt.findContextualValueDeserializer(elementTypeList.get(idx), null);
                 Object value;
                 if (t == JsonToken.VALUE_NULL) {
-                    NullValueProvider nuller = findContentNullProvider(ctxt, null, valueDes);
-                    value = nuller.getNullValue(ctxt);
+                    value = nullerList.get(idx).getNullValue(ctxt);
                 } else {
-                    if (typeDeser == null) {
-                        value = valueDes.deserialize(p, ctxt);
-                    } else {
-                        value = valueDes.deserializeWithType(p, ctxt, typeDeser);
-                    }
+                    value = valueDesList.get(idx).deserialize(p, ctxt);
                 }
                 result.add(value);
 
@@ -89,6 +85,12 @@ public class TupleDeserializer extends CollectionDeserializer {
             BeanProperty property) throws JsonMappingException
     {
         this.deser = deser.createContextual(ctxt, property);
+        for (JavaType type : tupleType.getBindings().getTypeParameters()) {
+            JsonDeserializer<Object> valueDes = ctxt.findContextualValueDeserializer(type, property);
+            NullValueProvider nuller = findContentNullProvider(ctxt, property, valueDes);
+            valueDesList.add(valueDes);
+            nullerList.add(nuller);
+        }
         return this;
     }
 }

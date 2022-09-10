@@ -134,9 +134,8 @@ public class TypeBindings
         if (elementTypes == null) {
             elementTypes = NO_TYPES;
         }
-        TypeVariable<?>[] vars = Iterable.class.getTypeParameters();
-        String[] names = new String[] { vars[0].getName() };
-        return new TypeBindings(names, elementTypes);
+        return new TypeBindings(new String[] { TypeParamStash.VARS_ITERABLE[0].getName() },
+                elementTypes);
     }
 
     public static TypeBindings create(Class<?> erasedType, JavaType typeArg1)

@@ -583,9 +583,9 @@ public class ObjectMapperTest extends BaseMapTest
         objectList = mapper.readValue(content, javaType);
         assertEquals(5, objectList.size());
         content = "[1,2,3,null,{\"s\":1.23},"
-                + "[{\"@class\":\"com.fasterxml.jackson.databind.ObjectMapperTest$Circle\","
+                + "[{\"@class\":\"" + getClass().getCanonicalName() + "$Circle\","
                 + "\"radius\":4},"
-                + "{\"@class\":\"com.fasterxml.jackson.databind.ObjectMapperTest$Rectangle\","
+                + "{\"@class\":\"" + getClass().getCanonicalName() + "$Rectangle\","
                 + "\"width\":5,\"height\":6}]]";
         objectList = mapper.readValue(content, javaType);
         assertEquals(new Integer(1), objectList.get(0));

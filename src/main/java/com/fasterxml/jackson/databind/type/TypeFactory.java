@@ -1033,8 +1033,16 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
         return _fromClass(null, rawType, TypeBindings.create(rawType, parameterTypes));
     }
 
-    public JavaType constructTupleType(JavaType[] parameterTypes) {
-        return new TupleType((SimpleType) _fromClass(null, Iterable.class, TypeBindings.createTuple(parameterTypes)));
+    /**
+     * Method for constructing a type instance with fixed element types.
+     * <p>
+     * for example:
+     * first element of "[1,2,3,null]" is Integer, second element is BigDecimal,
+     * third element is Long, fourth element is String.
+     */
+    public JavaType constructTupleType(JavaType[] elementTypes) {
+        return new TupleType((SimpleType) _fromClass(null, Iterable.class,
+                TypeBindings.createTuple(elementTypes)));
     }
 
     /**

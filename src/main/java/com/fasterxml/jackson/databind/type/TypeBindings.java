@@ -64,10 +64,10 @@ public class TypeBindings
         _hashCode = h;
     }
 
-    private TypeBindings(String[] names, JavaType[] types)
+    private TypeBindings(String[] names, JavaType[] elementTypes)
     {
         _names = (names == null) ? NO_STRINGS : names;
-        _types = (types == null) ? NO_TYPES : types;
+        _types = (elementTypes == null) ? NO_TYPES : elementTypes;
         int h = 1;
         for (int i = 0, len = _types.length; i < len; ++i) {
             h += _types[i].hashCode();
@@ -129,14 +129,14 @@ public class TypeBindings
         return new TypeBindings(names, types, null);
     }
 
-    public static TypeBindings createTuple(JavaType[] types)
+    public static TypeBindings createTuple(JavaType[] elementTypes)
     {
-        if (types == null) {
-            types = NO_TYPES;
+        if (elementTypes == null) {
+            elementTypes = NO_TYPES;
         }
         TypeVariable<?>[] vars = Iterable.class.getTypeParameters();
         String[] names = new String[] { vars[0].getName() };
-        return new TypeBindings(names, types);
+        return new TypeBindings(names, elementTypes);
     }
 
     public static TypeBindings create(Class<?> erasedType, JavaType typeArg1)

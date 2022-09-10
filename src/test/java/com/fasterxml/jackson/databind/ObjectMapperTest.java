@@ -561,21 +561,36 @@ public class ObjectMapperTest extends BaseMapTest
         }
     }
 
-    public void testReadValueByItemTypes() throws JsonMappingException, JsonProcessingException {
+    @SuppressWarnings("unchecked")
+    public void testReadValueByFixedElementTypes() throws JsonMappingException, JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
-        JavaType[] elementJavaTypes = new JavaType[] {
+        JavaType[] elementTypes = new JavaType[] {
                 mapper.getTypeFactory().constructType(Integer.class),
                 mapper.getTypeFactory().constructType(BigDecimal.class),
                 mapper.getTypeFactory().constructType(Long.class),
-                mapper.getTypeFactory().constructType(String.class)
+                mapper.getTypeFactory().constructType(String.class),
+                mapper.getTypeFactory().constructParametricType(Generic.class, BigDecimal.class)
                 };
-        JavaType javaType = mapper.getTypeFactory().constructTupleType(elementJavaTypes);
-        String content = "[1,2,3,null]";
+        JavaType javaType = mapper.getTypeFactory().constructTupleType(elementTypes);
+        String content = "[1,2,3,null,{\"t\":1.23}]";
         List<Object> objectList = mapper.readValue(content, javaType);
         assertEquals(new Integer(1), objectList.get(0));
         assertEquals(new BigDecimal("2"), objectList.get(1));
         assertEquals(new Long(3), objectList.get(2));
         assertEquals(null, objectList.get(3));
+        assertEquals(new BigDecimal("1.23"), ((Generic<BigDecimal>) objectList.get(4)).getT());
     }
 
+    private static class Generic<T> {
+        private T t;
+
+        public T getT() {
+            return t;
+        }
+
+        @SuppressWarnings("unused")
+        public void setT(T t) {
+            this.t = t;
+        }
+    }
 }

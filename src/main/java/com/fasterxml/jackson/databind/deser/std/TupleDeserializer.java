@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.deser.NullValueProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.TupleType;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -53,14 +54,12 @@ public class TupleDeserializer extends CollectionDeserializer {
         while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
             try {
                 idx++;
+                valueDes = ctxt.findContextualValueDeserializer(elementTypeList.get(idx), null);
                 Object value;
                 if (t == JsonToken.VALUE_NULL) {
-                    if (_skipNullValues) {
-                        continue;
-                    }
-                    value = this.deser._nullProvider.getNullValue(ctxt);
+                    NullValueProvider nuller = findContentNullProvider(ctxt, null, valueDes);
+                    value = nuller.getNullValue(ctxt);
                 } else {
-                    valueDes = ctxt.findContextualValueDeserializer(elementTypeList.get(idx), null);
                     if (typeDeser == null) {
                         value = valueDes.deserialize(p, ctxt);
                     } else {

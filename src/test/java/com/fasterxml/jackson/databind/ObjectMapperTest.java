@@ -596,6 +596,19 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals(4, ((Circle) ((List<?>) objectList.get(5)).get(0)).getRadius());
         assertEquals(5, ((Rectangle) ((List<?>) objectList.get(5)).get(1)).getWidth());
         assertEquals(6, ((Rectangle) ((List<?>) objectList.get(5)).get(1)).getHeight());
+        Class<?>[] clazzs = new Class<?>[] {
+            Integer.class,
+            BigDecimal.class,
+            Long.class,
+            String.class
+        };
+        javaType = mapper.getTypeFactory().constructTupleType(clazzs);
+        content = "[1,2,3,null]";
+        objectList = mapper.readValue(content, javaType);
+        assertEquals(new Integer(1), objectList.get(0));
+        assertEquals(new BigDecimal("2"), objectList.get(1));
+        assertEquals(new Long(3), objectList.get(2));
+        assertEquals(null, objectList.get(3));
     }
 
     @JsonDeserialize(using = Generic.CustomerDeserializer.class)

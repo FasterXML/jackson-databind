@@ -1045,6 +1045,18 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
                 TypeBindings.createTuple(elementTypes)));
     }
 
+    public JavaType constructTupleType(Class<?>[] elementClazzs) {
+        TypeFactory typeFactory = new TypeFactory();
+        JavaType[] elementTypes = new JavaType[elementClazzs.length];
+        int idx = -1;
+        for (Class<?> clazz : elementClazzs) {
+            idx++;
+            elementTypes[idx] = typeFactory.constructType(clazz);
+        }
+        return new TupleType((SimpleType) _fromClass(null, Iterable.class,
+                TypeBindings.createTuple(elementTypes)));
+    }
+
     /**
      * Method for constructing a type instance with specified parameterization.
      *

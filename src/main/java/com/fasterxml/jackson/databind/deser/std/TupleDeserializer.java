@@ -52,7 +52,6 @@ public class TupleDeserializer extends CollectionDeserializer {
             Collection<Object> result)
         throws IOException
     {
-        // [databind#631]: Assign current value, to be accessible by custom serializers
         p.setCurrentValue(result);
 
         JsonToken t;
@@ -67,12 +66,6 @@ public class TupleDeserializer extends CollectionDeserializer {
                     value = valueDesList.get(idx).deserialize(p, ctxt);
                 }
                 result.add(value);
-
-                /* 17-Dec-2017, tatu: should not occur at this level...
-            } catch (UnresolvedForwardReference reference) {
-                throw JsonMappingException
-                    .from(p, "Unresolved forward reference but no identity info", reference);
-                */
             } catch (Exception e) {
                 boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
                 if (!wrap) {

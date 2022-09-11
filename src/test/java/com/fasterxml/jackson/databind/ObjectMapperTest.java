@@ -1,18 +1,8 @@
 package com.fasterxml.jackson.databind;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInput;
-import java.io.DataInputStream;
-import java.io.DataOutput;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import java.io.*;
+import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -20,23 +10,14 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.Nulls;
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.StreamReadFeature;
-import com.fasterxml.jackson.core.StreamWriteFeature;
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonWriteFeature;
 import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
+
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.*;
 
 public class ObjectMapperTest extends BaseMapTest
 {
@@ -561,146 +542,6 @@ public class ObjectMapperTest extends BaseMapTest
             final ObjectWriter w2 = w.with((TimeZone) null);
             assertFalse(w2.getConfig().hasExplicitTimeZone());
             assertEquals(DEFAULT_TZ, w2.getConfig().getTimeZone());
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    public void testReadValueByFixedElementTypes() throws JsonMappingException, JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        JavaType[] elementTypes = new JavaType[] {
-                mapper.getTypeFactory().constructType(Integer.class),
-                mapper.getTypeFactory().constructType(BigDecimal.class),
-                mapper.getTypeFactory().constructType(Long.class),
-                mapper.getTypeFactory().constructType(String.class),
-                mapper.getTypeFactory().constructParametricType(Generic.class, BigDecimal.class),
-                mapper.getTypeFactory().constructCollectionType(List.class, Shape.class)
-                };
-        JavaType javaType = mapper.getTypeFactory().constructTupleType(elementTypes);
-        String content = "[]";
-        List<Object> objectList = mapper.readValue(content, javaType);
-        assertEquals(0, objectList.size());
-        content = "[null,null,null,null,null]";
-        objectList = mapper.readValue(content, javaType);
-        assertEquals(5, objectList.size());
-        content = "[1,2,3,null,{\"s\":1.23},"
-                + "[{\"@class\":\"" + getClass().getCanonicalName() + "$Circle\","
-                + "\"radius\":4},"
-                + "{\"@class\":\"" + getClass().getCanonicalName() + "$Rectangle\","
-                + "\"width\":5,\"height\":6}]]";
-        objectList = mapper.readValue(content, javaType);
-        assertEquals(new Integer(1), objectList.get(0));
-        assertEquals(new BigDecimal("2"), objectList.get(1));
-        assertEquals(new Long(3), objectList.get(2));
-        assertEquals(null, objectList.get(3));
-        assertEquals(new BigDecimal("1.23"), ((Generic<BigDecimal>) objectList.get(4)).getT());
-        assertEquals(4, ((Circle) ((List<?>) objectList.get(5)).get(0)).getRadius());
-        assertEquals(5, ((Rectangle) ((List<?>) objectList.get(5)).get(1)).getWidth());
-        assertEquals(6, ((Rectangle) ((List<?>) objectList.get(5)).get(1)).getHeight());
-        Class<?>[] clazzs = new Class<?>[] {
-            Integer.class,
-            BigDecimal.class,
-            Long.class,
-            String.class
-        };
-        javaType = mapper.getTypeFactory().constructTupleType(clazzs);
-        content = "[1,2,3,null]";
-        objectList = mapper.readValue(content, javaType);
-        assertEquals(new Integer(1), objectList.get(0));
-        assertEquals(new BigDecimal("2"), objectList.get(1));
-        assertEquals(new Long(3), objectList.get(2));
-        assertEquals(null, objectList.get(3));
-    }
-
-    @JsonDeserialize(using = Generic.CustomerDeserializer.class)
-    private static class Generic<T> {
-        private T t;
-
-        public T getT() {
-            return t;
-        }
-
-        public void setT(T t) {
-            this.t = t;
-        }
-
-        private static class CustomerDeserializer extends JsonDeserializer<Generic<?>>
-                implements ContextualDeserializer {
-
-            private Class<?> tClazz;
-
-            @SuppressWarnings("unused")
-            public CustomerDeserializer() {
-            }
-
-            public CustomerDeserializer(Class<?> tClazz) {
-                this.tClazz = tClazz;
-            }
-
-            @Override
-            public Generic<?> deserialize(JsonParser p, DeserializationContext ctxt)
-                    throws IOException, JacksonException {
-                JsonNode node = ctxt.readTree(p).findValue("s");
-                Generic<Object> g = new Generic<>();
-                Object t = ((ObjectMapper) p.getCodec()).convertValue(node, this.tClazz);
-                g.setT(t);
-                return g;
-            }
-
-            @Override
-            public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
-                    throws JsonMappingException {
-                JavaType currentType = null;
-                if (property == null) {
-                    // current type is root type.
-                    currentType = ctxt.getContextualType();
-                } else {
-                    // current type is wrapped in other type.
-                    currentType = property.getType();
-                }
-                Class<?> tClazz = currentType.getBindings().getBoundType(0).getRawClass();
-                return new CustomerDeserializer(tClazz);
-            }
-        }
-    }
-
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
-    private static class Shape {
-
-    }
-
-    private static class Circle extends Shape {
-        private int radius;
-
-        public int getRadius() {
-            return radius;
-        }
-
-        @SuppressWarnings("unused")
-        public void setRadius(int radius) {
-            this.radius = radius;
-        }
-    }
-
-    private static class Rectangle extends Shape {
-        private int width;
-        private int height;
-
-        public int getWidth() {
-            return width;
-        }
-
-        @SuppressWarnings("unused")
-        public void setWidth(int width) {
-            this.width = width;
-        }
-
-        public int getHeight() {
-            return height;
-        }
-
-        @SuppressWarnings("unused")
-        public void setHeight(int height) {
-            this.height = height;
         }
     }
 }

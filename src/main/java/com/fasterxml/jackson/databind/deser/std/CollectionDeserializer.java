@@ -229,40 +229,27 @@ _containerType,
     /**********************************************************
      */
 
+    @SuppressWarnings("unchecked")
     @Override
     public Collection<Object> deserialize(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
-        return deserializeList(p, ctxt, null);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public Collection<Object> deserializeList(JsonParser p, DeserializationContext ctxt,
-            List<JavaType> elemenTypeList)
-        throws IOException
-    {
         if (_delegateDeserializer != null) {
-            if (null == elemenTypeList) {
-                return (Collection<Object>) _valueInstantiator.createUsingDelegate(ctxt,
-                        _delegateDeserializer.deserialize(p, ctxt));
-            }
             return (Collection<Object>) _valueInstantiator.createUsingDelegate(ctxt,
-                    _delegateDeserializer.deserializeList(p, ctxt, elemenTypeList));
+                    _delegateDeserializer.deserialize(p, ctxt));
         }
         // 16-May-2020, tatu: As per [dataformats-text#199] need to first check for
         //   possible Array-coercion and only after that String coercion
         if (p.isExpectedStartArrayToken()) {
-            return _deserializeFromArrayWithElementTypeList(p, ctxt,
-                    createDefaultInstance(ctxt), elemenTypeList);
+            return _deserializeFromArray(p, ctxt, createDefaultInstance(ctxt));
         }
         // Empty String may be ok; bit tricky to check, however, since
         // there is also possibility of "auto-wrapping" of single-element arrays.
         // Hence we only accept empty String here.
         if (p.hasToken(JsonToken.VALUE_STRING)) {
-            return _deserializeFromStringWithElementTypeList(p, ctxt, p.getText(), elemenTypeList);
+            return _deserializeFromString(p, ctxt, p.getText());
         }
-        return handleNonArrayWithElementTypeList(p, ctxt, createDefaultInstance(ctxt), elemenTypeList);
+        return handleNonArray(p, ctxt, createDefaultInstance(ctxt));
     }
 
     /**
@@ -280,19 +267,11 @@ _containerType,
             Collection<Object> result)
         throws IOException
     {
-        return deserializeList(p, ctxt, result, null);
-    }
-
-    @Override
-    public Collection<Object> deserializeList(JsonParser p, DeserializationContext ctxt,
-            Collection<Object> result, List<JavaType> elemenTypeList)
-        throws IOException
-    {
         // Ok: must point to START_ARRAY (or equivalent)
         if (p.isExpectedStartArrayToken()) {
-            return _deserializeFromArrayWithElementTypeList(p, ctxt, result, elemenTypeList);
+            return _deserializeFromArray(p, ctxt, result);
         }
-        return handleNonArrayWithElementTypeList(p, ctxt, result, elemenTypeList);
+        return handleNonArray(p, ctxt, result);
     }
 
     @Override
@@ -309,17 +288,9 @@ _containerType,
      *
      * @since 2.12
      */
+    @SuppressWarnings("unchecked")
     protected Collection<Object> _deserializeFromString(JsonParser p, DeserializationContext ctxt,
             String value)
-        throws IOException
-    {
-        return _deserializeFromStringWithElementTypeList(p, ctxt, value, null);
-    }
-
-    @SuppressWarnings("unchecked")
-    protected Collection<Object> _deserializeFromStringWithElementTypeList(JsonParser p,
-            DeserializationContext ctxt,
-            String value, List<JavaType> elemenTypeList)
         throws IOException
     {
         final Class<?> rawTargetType = handledType();
@@ -356,7 +327,7 @@ _containerType,
             // note: `CoercionAction.Fail` falls through because we may need to allow
             // `ACCEPT_SINGLE_VALUE_AS_ARRAY` handling later on
         }
-        return handleNonArrayWithElementTypeList(p, ctxt, createDefaultInstance(ctxt), elemenTypeList);
+        return handleNonArray(p, ctxt, createDefaultInstance(ctxt));
     }
 
     /**
@@ -366,47 +337,28 @@ _containerType,
             Collection<Object> result)
         throws IOException
     {
-        return _deserializeFromArrayWithElementTypeList(p, ctxt, result, null);
-    }
-    
-    protected Collection<Object> _deserializeFromArrayWithElementTypeList(JsonParser p,
-            DeserializationContext ctxt,
-            Collection<Object> result, List<JavaType> elemenTypeList)
-        throws IOException
-    {
         // [databind#631]: Assign current value, to be accessible by custom serializers
         p.setCurrentValue(result);
 
-        JsonDeserializer<Object> valueDes = null;
-        if (null == elemenTypeList) {
-            valueDes = _valueDeserializer;
-            // Let's offline handling of values with Object Ids (simplifies code here)
-            if (valueDes.getObjectIdReader() != null) {
-                return _deserializeWithObjectId(p, ctxt, result);
-            }
+        JsonDeserializer<Object> valueDes = _valueDeserializer;
+        // Let's offline handling of values with Object Ids (simplifies code here)
+        if (valueDes.getObjectIdReader() != null) {
+            return _deserializeWithObjectId(p, ctxt, result);
         }
-
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
         JsonToken t;
-        int idx = -1;
         while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
             try {
-                idx++;
                 Object value;
                 if (t == JsonToken.VALUE_NULL) {
                     if (_skipNullValues) {
                         continue;
                     }
                     value = _nullProvider.getNullValue(ctxt);
+                } else if (typeDeser == null) {
+                    value = valueDes.deserialize(p, ctxt);
                 } else {
-                    if (null != elemenTypeList) {
-                        valueDes = ctxt.findContextualValueDeserializer(elemenTypeList.get(idx), null);
-                    }
-                    if (typeDeser == null) {
-                        value = valueDes.deserialize(p, ctxt);
-                    } else {
-                        value = valueDes.deserializeWithType(p, ctxt, typeDeser);
-                    }
+                    value = valueDes.deserializeWithType(p, ctxt, typeDeser);
                 }
                 result.add(value);
 
@@ -431,17 +383,9 @@ _containerType,
      * throw an exception, or try to handle value as if member of implicit
      * array, depending on configuration.
      */
+    @SuppressWarnings("unchecked")
     protected final Collection<Object> handleNonArray(JsonParser p, DeserializationContext ctxt,
             Collection<Object> result)
-        throws IOException
-    {
-        return handleNonArrayWithElementTypeList(p, ctxt, result, null);
-    }
-
-    @SuppressWarnings("unchecked")
-    protected final Collection<Object> handleNonArrayWithElementTypeList(JsonParser p,
-            DeserializationContext ctxt,
-            Collection<Object> result, List<JavaType> elemenTypeList)
         throws IOException
     {
         // Implicit arrays from single values?
@@ -451,12 +395,7 @@ _containerType,
         if (!canWrap) {
             return (Collection<Object>) ctxt.handleUnexpectedToken(_containerType, p);
         }
-        JsonDeserializer<Object> valueDes = null;
-        if (null == elemenTypeList) {
-            valueDes = _valueDeserializer;
-        } else {
-            valueDes = ctxt.findContextualValueDeserializer(elemenTypeList.get(0), null);
-        }
+        JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
 
         Object value;
@@ -586,6 +525,28 @@ _containerType,
             throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id
                     + "] that wasn't previously seen as unresolved.");
         }
+    }
+
+    public Object deserializeFromEmptyString(JsonParser p, DeserializationContext ctxt,
+            CoercionAction act, Class<?> rawTargetType, String desc) throws IOException
+    {
+        return _deserializeFromEmptyString(p, ctxt, act, rawTargetType, desc);
+    }
+
+    public boolean isBlank(String text) {
+        return _isBlank(text);
+    }
+
+    public Boolean getUnwrapSingle() {
+        return _unwrapSingle;
+    }
+
+    public JavaType getContainerType() {
+        return _containerType;
+    }
+
+    public JsonDeserializer<Object> getDelegateDeserializer() {
+        return _delegateDeserializer;
     }
 
     /**

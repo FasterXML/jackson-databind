@@ -2,16 +2,18 @@ package com.fasterxml.jackson.databind;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.math.BigDecimal;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
-
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
+import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
@@ -414,7 +416,7 @@ public class ObjectReaderTest extends BaseMapTest
     public static class Pojo1637 {
         public Set<String> set1;
         public Set<String> set2;
-    }    
+    }
 
     // [databind#2636]
     public void testCanPassResultToOverloadedMethod() throws Exception {
@@ -530,6 +532,148 @@ public class ObjectReaderTest extends BaseMapTest
         @JsonCreator
         private A(@JsonProperty("knownField") String knownField) {
             this.knownField = knownField;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public void testReaderForFixedElementTypes() throws IOException {
+        List<JavaType> elementTypeList = new ArrayList<>();
+        elementTypeList.add(MAPPER.getTypeFactory().constructType(Integer.class));
+        elementTypeList.add(MAPPER.getTypeFactory().constructType(BigDecimal.class));
+        elementTypeList.add(MAPPER.getTypeFactory().constructType(Long.class));
+        elementTypeList.add(MAPPER.getTypeFactory().constructType(String.class));
+        elementTypeList.add(MAPPER.getTypeFactory().constructParametricType(Generic.class, BigDecimal.class));
+        elementTypeList.add(MAPPER.getTypeFactory().constructCollectionType(List.class, Shape.class));
+        String content = "[]";
+        JsonParser p = MAPPER.createParser(content);
+        List<Object> objectList = MAPPER.readerFor(List.class).readValue(p, elementTypeList);
+        p.close();
+        assertEquals(0, objectList.size());
+        content = "[null,null,null,null,null]";
+        p = MAPPER.createParser(content);
+        objectList = MAPPER.readerFor(List.class).readValue(p, elementTypeList);
+        p.close();
+        assertEquals(5, objectList.size());
+        content = "[1,2,3,null,{\"s\":1.23},"
+                + "[{\"@class\":\"" + getClass().getCanonicalName() + "$Circle\","
+                + "\"radius\":4},"
+                + "{\"@class\":\"" + getClass().getCanonicalName() + "$Rectangle\","
+                + "\"width\":5,\"height\":6}]]";
+        p = MAPPER.createParser(content);
+        objectList = MAPPER.readerFor(List.class).readValue(p, elementTypeList);
+        p.close();
+        assertEquals(new Integer(1), objectList.get(0));
+        assertEquals(new BigDecimal("2"), objectList.get(1));
+        assertEquals(new Long(3), objectList.get(2));
+        assertEquals(null, objectList.get(3));
+        assertEquals(new BigDecimal("1.23"), ((Generic<BigDecimal>) objectList.get(4)).getT());
+        assertEquals(4, ((Circle) ((List<?>) objectList.get(5)).get(0)).getRadius());
+        assertEquals(5, ((Rectangle) ((List<?>) objectList.get(5)).get(1)).getWidth());
+        assertEquals(6, ((Rectangle) ((List<?>) objectList.get(5)).get(1)).getHeight());
+        elementTypeList.clear();
+        elementTypeList.add(MAPPER.getTypeFactory().constructType(Integer.class));
+        elementTypeList.add(MAPPER.getTypeFactory().constructType(BigDecimal.class));
+        elementTypeList.add(MAPPER.getTypeFactory().constructType(Long.class));
+        elementTypeList.add(MAPPER.getTypeFactory().constructType(String.class));
+        content = "[1,2,3,null]";
+        p = MAPPER.createParser(content);
+        objectList = MAPPER.readerFor(List.class).readValue(p, elementTypeList);
+        p.close();
+        assertEquals(new Integer(1), objectList.get(0));
+        assertEquals(new BigDecimal("2"), objectList.get(1));
+        assertEquals(new Long(3), objectList.get(2));
+    }
+
+    @JsonDeserialize(using = Generic.CustomerDeserializer.class)
+    private static class Generic<T> {
+        private T t;
+
+        public T getT() {
+            return t;
+        }
+
+        public void setT(T t) {
+            this.t = t;
+        }
+
+        private static class CustomerDeserializer extends JsonDeserializer<Generic<?>>
+                implements ContextualDeserializer {
+
+            private Class<?> tClazz;
+
+            @SuppressWarnings("unused")
+            public CustomerDeserializer() {
+            }
+
+            public CustomerDeserializer(Class<?> tClazz) {
+                this.tClazz = tClazz;
+            }
+
+            @Override
+            public Generic<?> deserialize(JsonParser p, DeserializationContext ctxt)
+                    throws IOException, JacksonException {
+                JsonNode node = ctxt.readTree(p).findValue("s");
+                Generic<Object> g = new Generic<>();
+                Object t = ((ObjectMapper) p.getCodec()).convertValue(node, this.tClazz);
+                g.setT(t);
+                return g;
+            }
+
+            @Override
+            public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
+                    throws JsonMappingException {
+                JavaType currentType = null;
+                if (property == null) {
+                    // current type is root type.
+                    currentType = ctxt.getContextualType();
+                } else {
+                    // current type is wrapped in other type.
+                    currentType = property.getType();
+                }
+                Class<?> tClazz = currentType.getBindings().getBoundType(0).getRawClass();
+                return new CustomerDeserializer(tClazz);
+            }
+        }
+    }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+    private static class Shape {
+
+    }
+
+    private static class Circle extends Shape {
+        private int radius;
+
+        public int getRadius() {
+            return radius;
+        }
+
+        @SuppressWarnings("unused")
+        public void setRadius(int radius) {
+            this.radius = radius;
+        }
+    }
+
+    private static class Rectangle extends Shape {
+        private int width;
+        private int height;
+
+        public int getWidth() {
+            return width;
+        }
+
+        @SuppressWarnings("unused")
+        public void setWidth(int width) {
+            this.width = width;
+        }
+
+        public int getHeight() {
+            return height;
+        }
+
+        @SuppressWarnings("unused")
+        public void setHeight(int height) {
+            this.height = height;
         }
     }
 }

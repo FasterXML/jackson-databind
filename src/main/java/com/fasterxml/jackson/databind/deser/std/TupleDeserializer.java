@@ -34,7 +34,11 @@ public class TupleDeserializer extends CollectionDeserializer {
     private List<NullValueProvider> nullerList = new ArrayList<>();
 
     public TupleDeserializer(CollectionDeserializer deser, TupleType tupleType) {
-        super(deser);
+        // disable unwrapSingle.
+        super(deser._valueType,
+                deser._valueDeserializer, deser._valueTypeDeserializer,
+                deser._valueInstantiator, deser._delegateDeserializer,
+                deser._nullProvider, false);
         this.deser = deser;
         this.tupleType = tupleType;
     }

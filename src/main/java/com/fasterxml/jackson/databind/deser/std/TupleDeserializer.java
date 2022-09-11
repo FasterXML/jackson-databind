@@ -70,15 +70,14 @@ public class TupleDeserializer extends CollectionDeserializer {
         p.setCurrentValue(result);
 
         JsonToken t;
-        int idx = -1;
+        int idx = 0;
         while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
             try {
-                idx++;
                 Object value;
                 if (t == JsonToken.VALUE_NULL) {
-                    value = nullerList.get(idx).getNullValue(ctxt);
+                    value = nullerList.get(idx++).getNullValue(ctxt);
                 } else {
-                    value = valueDesList.get(idx).deserialize(p, ctxt);
+                    value = valueDesList.get(idx++).deserialize(p, ctxt);
                 }
                 result.add(value);
             } catch (Exception e) {

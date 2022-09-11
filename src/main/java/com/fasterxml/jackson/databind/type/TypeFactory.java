@@ -1046,15 +1046,12 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
     }
 
     public JavaType constructTupleType(Class<?>[] elementClazzs) {
-        TypeFactory typeFactory = new TypeFactory();
         JavaType[] elementTypes = new JavaType[elementClazzs.length];
-        int idx = -1;
+        int idx = 0;
         for (Class<?> clazz : elementClazzs) {
-            idx++;
-            elementTypes[idx] = typeFactory.constructType(clazz);
+            elementTypes[idx++] = constructType(clazz);
         }
-        return new TupleType((SimpleType) _fromClass(null, Iterable.class,
-                TypeBindings.createTuple(elementTypes)));
+        return constructTupleType(elementTypes);
     }
 
     /**

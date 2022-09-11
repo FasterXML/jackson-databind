@@ -536,7 +536,7 @@ public class ObjectReaderTest extends BaseMapTest
     }
 
     @SuppressWarnings("unchecked")
-    public void testReaderForFixedElementTypes() throws IOException {
+    public void testReaderForTupleType() throws IOException {
         JavaType[] elementTypes = new JavaType[] {
                 MAPPER.getTypeFactory().constructType(Integer.class),
                 MAPPER.getTypeFactory().constructType(BigDecimal.class),
@@ -545,15 +545,16 @@ public class ObjectReaderTest extends BaseMapTest
                 MAPPER.getTypeFactory().constructParametricType(Generic.class, BigDecimal.class),
                 MAPPER.getTypeFactory().constructCollectionType(List.class, Shape.class)
                 };
-        JavaType javaType = MAPPER.getTypeFactory().constructTupleType(elementTypes);
+        JavaType tupleType = MAPPER.getTypeFactory().constructTupleType(elementTypes);
+        ObjectReader tupleTypeReader = MAPPER.readerFor(tupleType);
         String content = "[]";
         JsonParser p = MAPPER.createParser(content);
-        List<Object> objectList = MAPPER.readerFor(javaType).readValue(p);
+        List<Object> objectList = tupleTypeReader.readValue(p);
         p.close();
         assertEquals(0, objectList.size());
         content = "[null,null,null,null,null]";
         p = MAPPER.createParser(content);
-        objectList = MAPPER.readerFor(javaType).readValue(p);
+        objectList = tupleTypeReader.readValue(p);
         p.close();
         assertEquals(5, objectList.size());
         content = "[1,2,3,null,{\"s\":1.23},"
@@ -562,7 +563,7 @@ public class ObjectReaderTest extends BaseMapTest
                 + "{\"@class\":\"" + getClass().getCanonicalName() + "$Rectangle\","
                 + "\"width\":5,\"height\":6}]]";
         p = MAPPER.createParser(content);
-        objectList = MAPPER.readerFor(javaType).readValue(p);
+        objectList = tupleTypeReader.readValue(p);
         p.close();
         assertEquals(new Integer(1), objectList.get(0));
         assertEquals(new BigDecimal("2"), objectList.get(1));
@@ -572,16 +573,17 @@ public class ObjectReaderTest extends BaseMapTest
         assertEquals(4, ((Circle) ((List<?>) objectList.get(5)).get(0)).getRadius());
         assertEquals(5, ((Rectangle) ((List<?>) objectList.get(5)).get(1)).getWidth());
         assertEquals(6, ((Rectangle) ((List<?>) objectList.get(5)).get(1)).getHeight());
-        Class<?>[] clazzs = new Class<?>[] {
+        Class<?>[] elementClazzs = new Class<?>[] {
             Integer.class,
             BigDecimal.class,
             Long.class,
             String.class
         };
-        javaType = MAPPER.getTypeFactory().constructTupleType(clazzs);
+        tupleType = MAPPER.getTypeFactory().constructTupleType(elementClazzs);
+        tupleTypeReader = MAPPER.readerFor(tupleType);
         content = "[1,2,3,null]";
         p = MAPPER.createParser(content);
-        objectList = MAPPER.readerFor(javaType).readValue(p);
+        objectList = tupleTypeReader.readValue(p);
         p.close();
         assertEquals(new Integer(1), objectList.get(0));
         assertEquals(new BigDecimal("2"), objectList.get(1));

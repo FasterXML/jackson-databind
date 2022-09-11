@@ -78,8 +78,6 @@ public class ObjectReader
      */
     protected final boolean _unwrapRoot;
 
-    protected final JavaType _listType;
-
     /**
      * Filter to be consider for JsonParser.
      * Default value to be null as filter not considered.
@@ -147,6 +145,8 @@ public class ObjectReader
      */
     protected final DataFormatReaders _dataFormatReaders;
 
+    protected final boolean _isListObjectReader;
+
     /*
     /**********************************************************
     /* Caching
@@ -199,7 +199,7 @@ public class ObjectReader
         _dataFormatReaders = null;
         _filter = null;
 
-        _listType = _config.constructType(List.class);
+        _isListObjectReader = List.class.isAssignableFrom(_valueType.getRawClass());
     }
     
     /**
@@ -225,7 +225,7 @@ public class ObjectReader
         _dataFormatReaders = dataFormatReaders;
         _filter = base._filter;
 
-        _listType = _config.constructType(List.class);
+        _isListObjectReader = List.class.isAssignableFrom(_valueType.getRawClass());
     }
 
     /**
@@ -248,7 +248,7 @@ public class ObjectReader
         _dataFormatReaders = base._dataFormatReaders;
         _filter = base._filter;
 
-        _listType = _config.constructType(List.class);
+        _isListObjectReader = List.class.isAssignableFrom(_valueType.getRawClass());
     }
     
     protected ObjectReader(ObjectReader base, JsonFactory f)
@@ -270,7 +270,7 @@ public class ObjectReader
         _dataFormatReaders = base._dataFormatReaders;
         _filter = base._filter;
 
-        _listType = _config.constructType(List.class);
+        _isListObjectReader = List.class.isAssignableFrom(_valueType.getRawClass());
     }
     
     protected ObjectReader(ObjectReader base, TokenFilter filter) {
@@ -287,7 +287,7 @@ public class ObjectReader
         _dataFormatReaders = base._dataFormatReaders;
         _filter = filter;
 
-        _listType = _config.constructType(List.class);
+        _isListObjectReader = List.class.isAssignableFrom(_valueType.getRawClass());
     }
     
     /**
@@ -1310,7 +1310,7 @@ public class ObjectReader
 
     @SuppressWarnings("unchecked")
     public List<Object> readValue(JsonParser p, List<JavaType> elementTypeList) throws IOException {
-        if (!_listType.equals(_valueType)) {
+        if (!_isListObjectReader) {
             return forType(List.class).readValue(p, elementTypeList);
         }
         _assertNotNull("p", p);

@@ -546,12 +546,14 @@ public class ObjectReaderTest extends BaseMapTest
         elementTypeList.add(MAPPER.getTypeFactory().constructCollectionType(List.class, Shape.class));
         String content = "[]";
         JsonParser p = MAPPER.createParser(content);
-        List<Object> objectList = MAPPER.readerFor(List.class).readValue(p, elementTypeList);
+        ObjectReader listObjectReader = MAPPER.readerFor(List.class);
+        List<Object> objectList = listObjectReader.readValue(p, elementTypeList);
         p.close();
         assertEquals(0, objectList.size());
         content = "[null,null,null,null,null]";
         p = MAPPER.createParser(content);
-        objectList = MAPPER.readerFor(List.class).readValue(p, elementTypeList);
+        listObjectReader = MAPPER.readerFor(ArrayList.class);
+        objectList = listObjectReader.readValue(p, elementTypeList);
         p.close();
         assertEquals(5, objectList.size());
         content = "[1,2,3,null,{\"s\":1.23},"
@@ -560,7 +562,7 @@ public class ObjectReaderTest extends BaseMapTest
                 + "{\"@class\":\"" + getClass().getCanonicalName() + "$Rectangle\","
                 + "\"width\":5,\"height\":6}]]";
         p = MAPPER.createParser(content);
-        objectList = MAPPER.readerFor(List.class).readValue(p, elementTypeList);
+        objectList = listObjectReader.readValue(p, elementTypeList);
         p.close();
         assertEquals(new Integer(1), objectList.get(0));
         assertEquals(new BigDecimal("2"), objectList.get(1));
@@ -577,7 +579,7 @@ public class ObjectReaderTest extends BaseMapTest
         elementTypeList.add(MAPPER.getTypeFactory().constructType(String.class));
         content = "[1,2,3,null]";
         p = MAPPER.createParser(content);
-        objectList = MAPPER.readerFor(List.class).readValue(p, elementTypeList);
+        objectList = listObjectReader.readValue(p, elementTypeList);
         p.close();
         assertEquals(new Integer(1), objectList.get(0));
         assertEquals(new BigDecimal("2"), objectList.get(1));

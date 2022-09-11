@@ -197,7 +197,7 @@ public class ObjectReader
         _dataFormatReaders = null;
         _filter = null;
 
-        _isListObjectReader = List.class.isAssignableFrom(_valueType.getRawClass());
+        _isListObjectReader = _valueType != null && List.class.isAssignableFrom(_valueType.getRawClass());
     }
     
     /**
@@ -223,7 +223,7 @@ public class ObjectReader
         _dataFormatReaders = dataFormatReaders;
         _filter = base._filter;
 
-        _isListObjectReader = List.class.isAssignableFrom(_valueType.getRawClass());
+        _isListObjectReader = _valueType != null && List.class.isAssignableFrom(_valueType.getRawClass());
     }
 
     /**
@@ -246,7 +246,7 @@ public class ObjectReader
         _dataFormatReaders = base._dataFormatReaders;
         _filter = base._filter;
 
-        _isListObjectReader = List.class.isAssignableFrom(_valueType.getRawClass());
+        _isListObjectReader = _valueType != null && List.class.isAssignableFrom(_valueType.getRawClass());
     }
     
     protected ObjectReader(ObjectReader base, JsonFactory f)
@@ -268,7 +268,7 @@ public class ObjectReader
         _dataFormatReaders = base._dataFormatReaders;
         _filter = base._filter;
 
-        _isListObjectReader = List.class.isAssignableFrom(_valueType.getRawClass());
+        _isListObjectReader = _valueType != null && List.class.isAssignableFrom(_valueType.getRawClass());
     }
     
     protected ObjectReader(ObjectReader base, TokenFilter filter) {
@@ -285,7 +285,7 @@ public class ObjectReader
         _dataFormatReaders = base._dataFormatReaders;
         _filter = filter;
 
-        _isListObjectReader = List.class.isAssignableFrom(_valueType.getRawClass());
+        _isListObjectReader = _valueType != null && List.class.isAssignableFrom(_valueType.getRawClass());
     }
     
     /**

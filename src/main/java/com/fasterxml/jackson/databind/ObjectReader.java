@@ -143,8 +143,6 @@ public class ObjectReader
      */
     protected final DataFormatReaders _dataFormatReaders;
 
-    protected final boolean _isListObjectReader;
-
     /*
     /**********************************************************
     /* Caching
@@ -196,8 +194,6 @@ public class ObjectReader
         _rootDeserializer = _prefetchRootDeserializer(valueType);
         _dataFormatReaders = null;
         _filter = null;
-
-        _isListObjectReader = _valueType != null && List.class.isAssignableFrom(_valueType.getRawClass());
     }
     
     /**
@@ -222,8 +218,6 @@ public class ObjectReader
         _unwrapRoot = config.useRootWrapping();
         _dataFormatReaders = dataFormatReaders;
         _filter = base._filter;
-
-        _isListObjectReader = _valueType != null && List.class.isAssignableFrom(_valueType.getRawClass());
     }
 
     /**
@@ -245,8 +239,6 @@ public class ObjectReader
         _unwrapRoot = config.useRootWrapping();
         _dataFormatReaders = base._dataFormatReaders;
         _filter = base._filter;
-
-        _isListObjectReader = _valueType != null && List.class.isAssignableFrom(_valueType.getRawClass());
     }
     
     protected ObjectReader(ObjectReader base, JsonFactory f)
@@ -267,8 +259,6 @@ public class ObjectReader
         _unwrapRoot = base._unwrapRoot;
         _dataFormatReaders = base._dataFormatReaders;
         _filter = base._filter;
-
-        _isListObjectReader = _valueType != null && List.class.isAssignableFrom(_valueType.getRawClass());
     }
     
     protected ObjectReader(ObjectReader base, TokenFilter filter) {
@@ -284,8 +274,6 @@ public class ObjectReader
         _unwrapRoot = base._unwrapRoot;
         _dataFormatReaders = base._dataFormatReaders;
         _filter = filter;
-
-        _isListObjectReader = _valueType != null && List.class.isAssignableFrom(_valueType.getRawClass());
     }
     
     /**
@@ -1308,7 +1296,7 @@ public class ObjectReader
 
     @SuppressWarnings("unchecked")
     public List<Object> readValue(JsonParser p, List<JavaType> elementTypeList) throws IOException {
-        if (!_isListObjectReader) {
+        if (_valueType == null || !List.class.isAssignableFrom(_valueType.getRawClass())) {
             return forType(List.class).readValue(p, elementTypeList);
         }
         _assertNotNull("p", p);

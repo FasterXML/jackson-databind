@@ -527,28 +527,6 @@ _containerType,
         }
     }
 
-    public Object deserializeFromEmptyString(JsonParser p, DeserializationContext ctxt,
-            CoercionAction act, Class<?> rawTargetType, String desc) throws IOException
-    {
-        return _deserializeFromEmptyString(p, ctxt, act, rawTargetType, desc);
-    }
-
-    public boolean isBlank(String text) {
-        return _isBlank(text);
-    }
-
-    public Boolean getUnwrapSingle() {
-        return _unwrapSingle;
-    }
-
-    public JavaType getContainerType() {
-        return _containerType;
-    }
-
-    public JsonDeserializer<Object> getDelegateDeserializer() {
-        return _delegateDeserializer;
-    }
-
     /**
      * Helper class to maintain processing order of value. The resolved
      * object associated with {@link #_id} comes before the values in

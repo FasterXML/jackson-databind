@@ -13,8 +13,6 @@ import com.fasterxml.jackson.core.filter.TokenFilter;
 import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.cfg.CoercionAction;
-import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.cfg.DatatypeFeature;
 import com.fasterxml.jackson.databind.deser.DataFormatReaders;
@@ -1389,37 +1387,29 @@ public class ObjectReader
 
     @SuppressWarnings("unchecked")
     protected List<Object> deserializeList(CollectionDeserializer deser, JsonParser p,
-            DeserializationContext ctxt,
-            List<JavaType> elemenTypeList)
+            DeserializationContext ctxt, List<JavaType> elemenTypeList)
         throws IOException
     {
         if (p.isExpectedStartArrayToken()) {
             List<Object> result = (List<Object>) deser.getValueInstantiator().createUsingDefault(ctxt);
             return _deserializeFromArrayWithElementTypeList(p, ctxt, result, elemenTypeList);
         }
-        if (p.hasToken(JsonToken.VALUE_STRING)) {
-            List<Object> result = (List<Object>) deser.getValueInstantiator().createUsingDefault(ctxt);
-            return _deserializeFromStringWithElementTypeList(deser, p, ctxt,
-                    p.getText(), result, elemenTypeList);
-        }
-        List<Object> result = (List<Object>) deser.getValueInstantiator().createUsingDefault(ctxt);
-        return handleNonArrayWithElementTypeList(deser, p, ctxt, result, elemenTypeList);
+        return (List<Object>) ctxt.handleUnexpectedToken(deser.getValueType(), p);
     }
 
+    @SuppressWarnings("unchecked")
     protected List<Object> deserializeList(CollectionDeserializer deser, JsonParser p,
-            DeserializationContext ctxt, List<Object> result,
-            List<JavaType> elemenTypeList)
+            DeserializationContext ctxt, List<Object> result, List<JavaType> elemenTypeList)
         throws IOException
     {
         if (p.isExpectedStartArrayToken()) {
             return _deserializeFromArrayWithElementTypeList(p, ctxt, result, elemenTypeList);
         }
-        return handleNonArrayWithElementTypeList(deser, p, ctxt, result, elemenTypeList);
+        return (List<Object>) ctxt.handleUnexpectedToken(deser.getValueType(), p);
     }
 
     protected List<Object> _deserializeFromArrayWithElementTypeList(JsonParser p,
-            DeserializationContext ctxt,
-            List<Object> result, List<JavaType> elemenTypeList)
+            DeserializationContext ctxt, List<Object> result, List<JavaType> elemenTypeList)
         throws IOException
     {
         p.setCurrentValue(result);
@@ -1446,65 +1436,6 @@ public class ObjectReader
                 throw JsonMappingException.wrapWithPath(e, result, result.size());
             }
         }
-        return result;
-    }
-
-    @SuppressWarnings("unchecked")
-    protected List<Object> _deserializeFromStringWithElementTypeList(CollectionDeserializer deser,
-            JsonParser p, DeserializationContext ctxt,
-            String value, List<Object> result, List<JavaType> elemenTypeList)
-        throws IOException
-    {
-        final Class<?> rawTargetType = deser.handledType();
-        if (value.isEmpty()) {
-            CoercionAction act = ctxt.findCoercionAction(deser.logicalType(), rawTargetType,
-                    CoercionInputShape.EmptyString);
-            if (act != null && act != CoercionAction.Fail) {
-                return (List<Object>) deser.deserializeFromEmptyString(
-                        p, ctxt, act, rawTargetType, "empty String (\"\")");
-            }
-        }
-        else if (deser.isBlank(value)) {
-            final CoercionAction act = ctxt.findCoercionFromBlankString(deser.logicalType(), rawTargetType,
-                    CoercionAction.Fail);
-            if (act != CoercionAction.Fail) {
-                return (List<Object>) deser.deserializeFromEmptyString(
-                        p, ctxt, act, rawTargetType, "blank String (all whitespace)");
-            }
-        }
-        return handleNonArrayWithElementTypeList(deser, p, ctxt, result, elemenTypeList);
-    }
-
-    @SuppressWarnings("unchecked")
-    protected final List<Object> handleNonArrayWithElementTypeList(CollectionDeserializer deser,
-            JsonParser p, DeserializationContext ctxt,
-            List<Object> result, List<JavaType> elemenTypeList)
-        throws IOException
-    {
-        boolean canWrap = (deser.getUnwrapSingle() == Boolean.TRUE) ||
-                ((deser.getUnwrapSingle() == null) &&
-                        ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY));
-        if (!canWrap) {
-            return (List<Object>) ctxt.handleUnexpectedToken(deser.getContainerType(), p);
-        }
-        JsonDeserializer<Object> valueDes = null;
-        valueDes = ctxt.findContextualValueDeserializer(elemenTypeList.get(0), null);
-
-        Object value;
-        try {
-            if (p.hasToken(JsonToken.VALUE_NULL)) {
-                value = null;
-            } else {
-                value = valueDes.deserialize(p, ctxt);
-            }
-        } catch (Exception e) {
-            boolean wrap = ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
-            if (!wrap) {
-                ClassUtil.throwIfRTE(e);
-            }
-            throw JsonMappingException.wrapWithPath(e, Object.class, result.size());
-        }
-        result.add(value);
         return result;
     }
 

@@ -78,6 +78,8 @@ public class ObjectReader
      */
     protected final boolean _unwrapRoot;
 
+    protected final JavaType _listType;
+
     /**
      * Filter to be consider for JsonParser.
      * Default value to be null as filter not considered.
@@ -196,6 +198,8 @@ public class ObjectReader
         _rootDeserializer = _prefetchRootDeserializer(valueType);
         _dataFormatReaders = null;
         _filter = null;
+
+        _listType = _config.constructType(List.class);
     }
     
     /**
@@ -220,6 +224,8 @@ public class ObjectReader
         _unwrapRoot = config.useRootWrapping();
         _dataFormatReaders = dataFormatReaders;
         _filter = base._filter;
+
+        _listType = _config.constructType(List.class);
     }
 
     /**
@@ -241,6 +247,8 @@ public class ObjectReader
         _unwrapRoot = config.useRootWrapping();
         _dataFormatReaders = base._dataFormatReaders;
         _filter = base._filter;
+
+        _listType = _config.constructType(List.class);
     }
     
     protected ObjectReader(ObjectReader base, JsonFactory f)
@@ -261,6 +269,8 @@ public class ObjectReader
         _unwrapRoot = base._unwrapRoot;
         _dataFormatReaders = base._dataFormatReaders;
         _filter = base._filter;
+
+        _listType = _config.constructType(List.class);
     }
     
     protected ObjectReader(ObjectReader base, TokenFilter filter) {
@@ -276,6 +286,8 @@ public class ObjectReader
         _unwrapRoot = base._unwrapRoot;
         _dataFormatReaders = base._dataFormatReaders;
         _filter = filter;
+
+        _listType = _config.constructType(List.class);
     }
     
     /**
@@ -1298,9 +1310,8 @@ public class ObjectReader
 
     @SuppressWarnings("unchecked")
     public List<Object> readValue(JsonParser p, List<JavaType> elementTypeList) throws IOException {
-        JavaType valueType = _config.constructType(List.class);
-        if (!valueType.equals(_valueType)) {
-            return forType(valueType).readValue(p, elementTypeList);
+        if (!_listType.equals(_valueType)) {
+            return forType(List.class).readValue(p, elementTypeList);
         }
         _assertNotNull("p", p);
         _assertNotNull("elementTypeList", elementTypeList);
@@ -1320,7 +1331,7 @@ public class ObjectReader
                     (CollectionDeserializer) ((JsonDeserializer<?>) _findRootDeserializer(ctxt));
             if (_config.useRootWrapping()) {
                 return _unwrapAndDeserializeWithElementTypeList(
-                        p, ctxt, valueType, deser, _valueToUpdate, elementTypeList);
+                        p, ctxt, _valueType, deser, _valueToUpdate, elementTypeList);
             }
             if (_valueToUpdate == null) {
                 return deserializeList(deser, p, ctxt, elementTypeList);

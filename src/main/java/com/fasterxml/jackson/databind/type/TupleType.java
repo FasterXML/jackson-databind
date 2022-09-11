@@ -8,12 +8,14 @@ public class TupleType extends SimpleType {
 
     private SimpleType base;
 
-    protected TupleType(SimpleType base) {
+    protected TupleType(SimpleType base)
+    {
         super(base);
         this.base = base;
     }
 
-    public SimpleType getSimpleType() {
+    public SimpleType getSimpleType()
+    {
         return base;
     }
 

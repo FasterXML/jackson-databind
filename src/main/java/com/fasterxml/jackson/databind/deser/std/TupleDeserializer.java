@@ -15,6 +15,8 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
+import com.fasterxml.jackson.databind.deser.ValueInstantiator;
+import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.TupleType;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
@@ -25,41 +27,38 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 public class TupleDeserializer extends CollectionDeserializer {
     private static final long serialVersionUID = 1L;
 
-    private CollectionDeserializer deser;
-
     private TupleType tupleType;
 
     private List<JsonDeserializer<Object>> valueDesList;
 
     private List<NullValueProvider> nullerList;
 
-    public TupleDeserializer(CollectionDeserializer deser, TupleType tupleType) {
+    public TupleDeserializer(CollectionDeserializer deser, TupleType tupleType)
+    {
         // disable unwrapSingle.
         super(deser._valueType,
                 deser._valueDeserializer, deser._valueTypeDeserializer,
                 deser._valueInstantiator, deser._delegateDeserializer,
                 deser._nullProvider, false);
-        this.deser = deser;
         this.tupleType = tupleType;
         this.valueDesList = new ArrayList<>();
         this.nullerList = new ArrayList<>();
     }
 
-    public TupleDeserializer(CollectionDeserializer deser, TupleType tupleType,
-            List<JsonDeserializer<Object>> valueDesList, List<NullValueProvider> nullerList) {
+    protected TupleDeserializer (JavaType containerType,
+            JsonDeserializer<Object> valueDeser, TypeDeserializer valueTypeDeser,
+            ValueInstantiator valueInstantiator,
+            JsonDeserializer<Object> delegateDeser,
+            NullValueProvider nuller,
+            TupleType tupleType,
+            List<JsonDeserializer<Object>> valueDesList, List<NullValueProvider> nullerList)
+    {
         // disable unwrapSingle.
-        super(deser._valueType,
-                deser._valueDeserializer, deser._valueTypeDeserializer,
-                deser._valueInstantiator, deser._delegateDeserializer,
-                deser._nullProvider, false);
-        this.deser = deser;
+        super(containerType, valueDeser, valueTypeDeser, valueInstantiator, delegateDeser,
+                nuller, false);
         this.tupleType = tupleType;
         this.valueDesList = valueDesList;
         this.nullerList = nullerList;
-    }
-
-    public CollectionDeserializer getCollectionDeserializer() {
-        return deser;
     }
 
     @Override
@@ -95,18 +94,26 @@ public class TupleDeserializer extends CollectionDeserializer {
     public CollectionDeserializer createContextual(DeserializationContext ctxt,
             BeanProperty property) throws JsonMappingException
     {
-        this.valueDesList.clear();
-        this.nullerList.clear();
         for (JavaType type : tupleType.getBindings().getTypeParameters()) {
             JsonDeserializer<Object> valueDes = ctxt.findContextualValueDeserializer(type, property);
             NullValueProvider nuller = findContentNullProvider(ctxt, property, valueDes);
             this.valueDesList.add(valueDes);
             this.nullerList.add(nuller);
         }
-        CollectionDeserializer deser = super.createContextual(ctxt, property);
-        if (deser != this.deser) {
-            return new TupleDeserializer(deser, this.tupleType, this.valueDesList, this.nullerList);
-        }
-        return this;
+        return super.createContextual(ctxt, property);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected TupleDeserializer withResolved(JsonDeserializer<?> dd,
+            JsonDeserializer<?> vd, TypeDeserializer vtd,
+            NullValueProvider nuller, Boolean unwrapSingle)
+    {
+        return new TupleDeserializer(_containerType,
+                (JsonDeserializer<Object>) vd, vtd,
+                _valueInstantiator, (JsonDeserializer<Object>) dd,
+                nuller,
+                this.tupleType,
+                this.valueDesList, this.nullerList);
     }
 }

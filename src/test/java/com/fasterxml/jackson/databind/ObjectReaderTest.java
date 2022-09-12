@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -544,6 +545,7 @@ public class ObjectReaderTest extends BaseMapTest
         elementTypeList.add(MAPPER.getTypeFactory().constructType(String.class));
         elementTypeList.add(MAPPER.getTypeFactory().constructParametricType(Generic.class, BigDecimal.class));
         elementTypeList.add(MAPPER.getTypeFactory().constructCollectionType(List.class, Shape.class));
+        elementTypeList.add(MAPPER.getTypeFactory().constructType(TestBean.class));
         String content = "[]";
         JsonParser p = MAPPER.createParser(content);
         ObjectReader listObjectReader = MAPPER.readerFor(List.class);
@@ -560,7 +562,8 @@ public class ObjectReaderTest extends BaseMapTest
                 + "[{\"@class\":\"" + getClass().getCanonicalName() + "$Circle\","
                 + "\"radius\":4},"
                 + "{\"@class\":\"" + getClass().getCanonicalName() + "$Rectangle\","
-                + "\"width\":5,\"height\":6}]]";
+                + "\"width\":5,\"height\":6}],"
+                + "{\"map1\":{\"a\":1},\"map2\":{\"a\":1}}]";
         p = MAPPER.createParser(content);
         objectList = listObjectReader.readValue(p, elementTypeList);
         p.close();
@@ -572,6 +575,8 @@ public class ObjectReaderTest extends BaseMapTest
         assertEquals(4, ((Circle) ((List<?>) objectList.get(5)).get(0)).getRadius());
         assertEquals(5, ((Rectangle) ((List<?>) objectList.get(5)).get(1)).getWidth());
         assertEquals(6, ((Rectangle) ((List<?>) objectList.get(5)).get(1)).getHeight());
+        assertEquals(100, ((TestBean) objectList.get(6)).getMap1().get("a").intValue());
+        assertEquals(1, ((TestBean) objectList.get(6)).getMap2().get("a").intValue());
         elementTypeList.clear();
         elementTypeList.add(MAPPER.getTypeFactory().constructType(Integer.class));
         elementTypeList.add(MAPPER.getTypeFactory().constructType(BigDecimal.class));
@@ -676,6 +681,47 @@ public class ObjectReaderTest extends BaseMapTest
         @SuppressWarnings("unused")
         public void setHeight(int height) {
             this.height = height;
+        }
+    }
+
+    @SuppressWarnings("unused")
+    private static class TestBean {
+
+        @JsonProperty("map1")
+        @JsonDeserialize(contentUsing = TestBeanCustomDeserializer.class)
+        Map<String, Integer> map1;
+
+        @JsonProperty("map2")
+        Map<String, Integer> map2;
+
+        public Map<String, Integer> getMap1() {
+            return map1;
+        }
+
+        public void setMap1(Map<String, Integer> map1) {
+            this.map1 = map1;
+        }
+
+        public Map<String, Integer> getMap2() {
+            return map2;
+        }
+
+        public void setMap2(Map<String, Integer> map2) {
+            this.map2 = map2;
+        }
+    }
+
+    private static class TestBeanCustomDeserializer extends StdDeserializer<Integer> {
+        private static final long serialVersionUID = 1L;
+
+        public TestBeanCustomDeserializer() {
+            super(Integer.class);
+        }
+
+        @Override
+        public Integer deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+            Integer value = p.readValueAs(Integer.class);
+            return value * 100;
         }
     }
 }

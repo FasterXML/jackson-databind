@@ -29,7 +29,7 @@ public class TupleDeserializer extends CollectionDeserializer {
 
     private TupleType tupleType;
 
-    private List<JsonDeserializer<Object>> valueDesList;
+    private List<JsonDeserializer<Object>> valueDeserList;
 
     private List<NullValueProvider> nullerList;
 
@@ -41,7 +41,7 @@ public class TupleDeserializer extends CollectionDeserializer {
                 deser._valueInstantiator, deser._delegateDeserializer,
                 deser._nullProvider, false);
         this.tupleType = tupleType;
-        this.valueDesList = new ArrayList<>();
+        this.valueDeserList = new ArrayList<>();
         this.nullerList = new ArrayList<>();
     }
 
@@ -51,13 +51,13 @@ public class TupleDeserializer extends CollectionDeserializer {
             JsonDeserializer<Object> delegateDeser,
             NullValueProvider nuller,
             TupleType tupleType,
-            List<JsonDeserializer<Object>> valueDesList, List<NullValueProvider> nullerList)
+            List<JsonDeserializer<Object>> valueDeserList, List<NullValueProvider> nullerList)
     {
         // disable unwrapSingle.
         super(containerType, valueDeser, valueTypeDeser, valueInstantiator, delegateDeser,
                 nuller, false);
         this.tupleType = tupleType;
-        this.valueDesList = valueDesList;
+        this.valueDeserList = valueDeserList;
         this.nullerList = nullerList;
     }
 
@@ -76,7 +76,7 @@ public class TupleDeserializer extends CollectionDeserializer {
                 if (t == JsonToken.VALUE_NULL) {
                     value = nullerList.get(idx++).getNullValue(ctxt);
                 } else {
-                    value = valueDesList.get(idx++).deserialize(p, ctxt);
+                    value = valueDeserList.get(idx++).deserialize(p, ctxt);
                 }
                 result.add(value);
             } catch (Exception e) {
@@ -95,9 +95,9 @@ public class TupleDeserializer extends CollectionDeserializer {
             BeanProperty property) throws JsonMappingException
     {
         for (JavaType type : tupleType.getBindings().getTypeParameters()) {
-            JsonDeserializer<Object> valueDes = ctxt.findContextualValueDeserializer(type, property);
-            NullValueProvider nuller = findContentNullProvider(ctxt, property, valueDes);
-            this.valueDesList.add(valueDes);
+            JsonDeserializer<Object> valueDeser = ctxt.findContextualValueDeserializer(type, property);
+            NullValueProvider nuller = findContentNullProvider(ctxt, property, valueDeser);
+            this.valueDeserList.add(valueDeser);
             this.nullerList.add(nuller);
         }
         return super.createContextual(ctxt, property);
@@ -114,6 +114,6 @@ public class TupleDeserializer extends CollectionDeserializer {
                 _valueInstantiator, (JsonDeserializer<Object>) dd,
                 nuller,
                 this.tupleType,
-                this.valueDesList, this.nullerList);
+                this.valueDeserList, this.nullerList);
     }
 }

@@ -6,17 +6,9 @@ package com.fasterxml.jackson.databind.type;
 public class TupleType extends SimpleType {
     private static final long serialVersionUID = 1L;
 
-    private SimpleType base;
-
     protected TupleType(SimpleType base)
     {
         super(base);
-        this.base = base;
-    }
-
-    public SimpleType getSimpleType()
-    {
-        return base;
     }
 
     @Override

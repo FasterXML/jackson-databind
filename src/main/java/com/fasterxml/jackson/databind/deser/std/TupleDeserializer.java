@@ -95,8 +95,8 @@ public class TupleDeserializer extends CollectionDeserializer {
             BeanProperty property) throws JsonMappingException
     {
         for (JavaType type : tupleType.getBindings().getTypeParameters()) {
-            JsonDeserializer<Object> valueDeser = ctxt.findContextualValueDeserializer(type, property);
-            NullValueProvider nuller = findContentNullProvider(ctxt, property, valueDeser);
+            JsonDeserializer<Object> valueDeser = ctxt.findContextualValueDeserializer(type, null);
+            NullValueProvider nuller = findContentNullProvider(ctxt, null, valueDeser);
             this.valueDeserList.add(valueDeser);
             this.nullerList.add(nuller);
         }

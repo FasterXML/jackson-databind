@@ -185,6 +185,15 @@ public class JDKStringLikeTypeDeserTest extends BaseMapTest
         json = MAPPER.writeValueAsString(exp);
         result = MAPPER.readValue(json, Pattern.class);
         assertEquals(exp.pattern(), result.pattern());
+
+        // [databind#3598]: should also handle invalid pattern serialization
+        // somehwat gracefully
+        try {
+            MAPPER.readValue(q("[abc"), Pattern.class);
+            fail("Should not pass");
+        } catch (InvalidFormatException e) {
+            verifyException(e, "not a valid textual representation, problem: Unclosed character class");
+        }
     }
 
     public void testStackTraceElement() throws Exception

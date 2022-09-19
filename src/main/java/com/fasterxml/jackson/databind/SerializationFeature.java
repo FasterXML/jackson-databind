@@ -268,7 +268,7 @@ public enum SerializationFeature implements ConfigFeature
      * @since 2.5
      */
     WRITE_DURATIONS_AS_TIMESTAMPS(true),
-    
+
     /**
      * Feature that determines how type <code>char[]</code> is serialized:
      * when enabled, will be serialized as an explict JSON array (with
@@ -322,7 +322,7 @@ public enum SerializationFeature implements ConfigFeature
      * @since 2.10
      */
     WRITE_ENUM_KEYS_USING_INDEX(false),
-    
+
     /**
      * Feature that determines whether Map entries with null values are
      * to be serialized (true) or not (false).

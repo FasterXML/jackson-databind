@@ -54,6 +54,9 @@
     <packageVersion.package>com.fasterxml.jackson.databind.cfg</packageVersion.package>
 
     <version.powermock>2.0.9</version.powermock>
+
+    <!-- for Reproducible Builds -->
+    <project.build.outputTimestamp>2022-09-18T00:00:00Z</project.build.outputTimestamp>
   </properties>
 
   <dependencies>

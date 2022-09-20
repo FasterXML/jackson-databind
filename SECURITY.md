@@ -1,6 +1,6 @@
 # Security Policy
 
-Last Updated: 2019-11-26
+Last Updated: 2022-09-20
 
 ## Supported Versions
 
@@ -20,3 +20,13 @@ Alternatively you may also report possible vulnerabilities to `info` at fasterxm
 mailing address. Note that filing an issue to go with report is fine, but if you do that please
 DO NOT include details of security problem in the issue but only in email contact.
 This is important to give us time to provide a patch, if necessary, for the problem.
+
+## Verifying Artifact signatures
+
+(for more in-depth explanation, see [Apache Release Signing](https://infra.apache.org/release-signing#keys-policy) document)
+
+To verify that any given Jackson artifact has been signed with a valid key, have a look at `KEYS` file of the main Jackson repo:
+
+https://github.com/FasterXML/jackson/blob/master/KEYS
+
+which lists all known valid keys in use.

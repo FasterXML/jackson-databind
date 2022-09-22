@@ -42,6 +42,16 @@ public class Jdk8OptionalDeserializer
         return getNullValue(ctxt);
     }
 
+    /**
+     * Let's actually NOT coerce missing Creator parameters into empty value.
+     */
+    @Override
+    public Object getAbsentValue(DeserializationContext ctxt) {
+        // 21-Sep-2022, tatu: [databind#3601] Let's make absent become `null`,
+        //   NOT "null value" (Empty)
+        return null;
+    }
+
     @Override
     public Optional<?> referenceValue(Object contents) {
         return Optional.ofNullable(contents);

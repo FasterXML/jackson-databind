@@ -54,5 +54,6 @@ Versions: 3.x (for earlier see VERSION-2.x)
 #3047: Rename `Bean[De]SerializerModifier` as `Value[De]SerializerModifier`
 #3536: Create new exception type `JsonNodeException` for use by `JsonNode`-related problems
 #3542: Rename "com.fasterxml.jackson" -> "tools.jackson"
+#3601: Change `Optional` deserialization from "absent" value into `null`, from "empty"
 - Remove `MappingJsonFactory`
 - Add context parameter for `TypeSerializer` contextualization (`forProperty()`)

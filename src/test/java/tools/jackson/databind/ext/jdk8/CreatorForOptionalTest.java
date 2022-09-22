@@ -40,9 +40,11 @@ public class CreatorForOptionalTest extends BaseMapTest
                 a2q("{'a':'foo'}"), CreatorWithOptionalStrings.class);
         assertNotNull(bean);
         assertNotNull(bean.a);
-        assertNotNull(bean.b);
         assertTrue(bean.a.isPresent());
-        assertFalse(bean.b.isPresent());
-        assertEquals("foo", bean.a.get());
+
+        // 21-Sep-2022, tatu: [databind#3601] Changed this to now become proper
+        //    `null`. Should probably also check coercion in future.
+        
+        assertNull(bean.b);
     }
 }

@@ -7,10 +7,12 @@ import java.util.List;
 import java.util.concurrent.atomic.*;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class JDKAtomicTypesDeserTest
     extends com.fasterxml.jackson.databind.BaseMapTest
@@ -126,7 +128,16 @@ public class JDKAtomicTypesDeserTest
             _atomic = ref;
         }
     }
-    
+
+    static class AtomicRefWithNodeBean {
+        protected AtomicReference<JsonNode> _atomicNode;
+
+        @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+        public AtomicRefWithNodeBean(@JsonProperty("atomic") AtomicReference<JsonNode> ref) {
+            _atomicNode = ref;
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -354,7 +365,7 @@ public class JDKAtomicTypesDeserTest
         assertNotNull(bean._atomic);
         assertNull(bean._atomic.get());
 
-        // And then absent (missing), VIA Creator method, should become actual null
+        // And then absent (missing), via Creator method, should become actual null
         bean = MAPPER.readValue("{}", AtomicRefBean.class);
         assertNull(bean._atomic);
 
@@ -362,5 +373,22 @@ public class JDKAtomicTypesDeserTest
         AtomicRefBeanWithEmpty bean2 = MAPPER.readValue("{}", AtomicRefBeanWithEmpty.class);
         assertNotNull(bean2._atomic);
         assertNull(bean2._atomic.get());
+    }
+
+    // @since 2.14
+    public void testAtomicRefWithNodeViaCreator() throws Exception
+    {
+        AtomicRefWithNodeBean bean;
+
+        // Somewhat usual, `null` SHOULD become `NullNode`
+        bean = MAPPER.readValue(a2q("{'atomic':null}"), AtomicRefWithNodeBean.class);
+        assertNotNull(bean._atomicNode);
+        assertNotNull(bean._atomicNode.get());
+        JsonNode n = bean._atomicNode.get();
+        assertTrue(n.isNull());
+
+        // And then absent (missing), via Creator method, should become actual null
+        bean = MAPPER.readValue("{}", AtomicRefWithNodeBean.class);
+        assertNull(bean._atomicNode);
     }
 }

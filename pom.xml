@@ -73,7 +73,7 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
-      <version>${jackson.version.core}</version>
+      <version>${project.version}</version>
     </dependency>
 
     <!-- and for testing we need a few libraries

@@ -813,10 +813,11 @@ public class NumberDeserializers
                     if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
                         return NumberInput.parseBigDecimal(text);
                     }
-                    return Double.valueOf(text);
+                    return Double.valueOf(
+                            NumberInput.parseDouble(text, p.isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER)));
                 }
                 if (ctxt.isEnabled(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS)) {
-                    return new BigInteger(text);
+                    return NumberInput.parseBigInteger(text);
                 }
                 long value = NumberInput.parseLong(text);
                 if (!ctxt.isEnabled(DeserializationFeature.USE_LONG_FOR_INTS)) {
@@ -926,7 +927,7 @@ public class NumberDeserializers
                 return (BigInteger) getNullValue(ctxt);
             }
             try {
-                return new BigInteger(text);
+                return NumberInput.parseBigInteger(text);
             } catch (IllegalArgumentException iae) { }
             return (BigInteger) ctxt.handleWeirdStringValue(_valueClass, text,
                     "not a valid representation");

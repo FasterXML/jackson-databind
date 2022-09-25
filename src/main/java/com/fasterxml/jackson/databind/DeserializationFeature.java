@@ -317,8 +317,10 @@ public enum DeserializationFeature implements ConfigFeature
      * values to the corresponding value type.  This is basically the opposite of the {@link #ACCEPT_SINGLE_VALUE_AS_ARRAY}
      * feature.  If more than one value is found in the array, a JsonMappingException is thrown.
      * <p>
+     * NOTE: only <b>single</b> wrapper Array is allowed: if multiple attempted, exception
+     * will be thrown.
      * 
-     * Feature is disabled by default
+     * Feature is disabled by default.
      * @since 2.4
      */
     UNWRAP_SINGLE_VALUE_ARRAYS(false),
@@ -406,10 +408,10 @@ public enum DeserializationFeature implements ConfigFeature
      * Feature that allows unknown Enum values to be parsed as null values. 
      * If disabled, unknown Enum values will throw exceptions.
      *<p>
-     * Note that in some cases this will basically ignore unknown Enum values;
-     * this is the keys for keys of {@link java.util.EnumMap} and values
-     * of {@link java.util.EnumSet} (because nulls are not accepted in these
-     * cases).
+     * Note that in some cases this will in effect ignore unknown {@code Enum} values,
+     * e.g. when the unknown values are used as keys of {@link java.util.EnumMap} 
+     * or values of {@link java.util.EnumSet}: this because these data structures cannot
+     * store {@code null} values.
      *<p>
      * Feature is disabled by default.
      * 

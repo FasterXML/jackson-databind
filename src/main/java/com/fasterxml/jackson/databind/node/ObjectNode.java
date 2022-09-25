@@ -7,6 +7,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.JsonNodeFeature;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -60,6 +61,140 @@ public class ObjectNode
         return ret;
     }
 
+    /*
+    /**********************************************************
+    /* Support for withArray()/withObject()
+    /**********************************************************
+     */
+
+    @SuppressWarnings("unchecked")
+    @Deprecated
+    @Override
+    public ObjectNode with(String exprOrProperty) {
+        JsonPointer ptr = _jsonPointerIfValid(exprOrProperty);
+        if (ptr != null) {
+            return withObject(ptr);
+        }
+        JsonNode n = _children.get(exprOrProperty);
+        if (n != null) {
+            if (n instanceof ObjectNode) {
+                return (ObjectNode) n;
+            }
+            throw new UnsupportedOperationException("Property '" + exprOrProperty
+                + "' has value that is not of type `ObjectNode` (but `" + n
+                .getClass().getName() + "`)");
+        }
+        ObjectNode result = objectNode();
+        _children.put(exprOrProperty, result);
+        return result;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public ArrayNode withArray(String exprOrProperty)
+    {
+        JsonPointer ptr = _jsonPointerIfValid(exprOrProperty);
+        if (ptr != null) {
+            return withArray(ptr);
+        }
+        JsonNode n = _children.get(exprOrProperty);
+        if (n != null) {
+            if (n instanceof ArrayNode) {
+                return (ArrayNode) n;
+            }
+            throw new UnsupportedOperationException("Property '" + exprOrProperty
+                + "' has value that is not of type `ArrayNode` (but `" + n
+                .getClass().getName() + "`)");
+        }
+        ArrayNode result = arrayNode();
+        _children.put(exprOrProperty, result);
+        return result;
+    }
+
+    @Override
+    protected ObjectNode _withObject(JsonPointer origPtr,
+            JsonPointer currentPtr,
+            OverwriteMode overwriteMode, boolean preferIndex)
+    {
+        if (currentPtr.matches()) {
+            return this;
+        }
+
+        JsonNode n = _at(currentPtr);
+        // If there's a path, follow it
+        if ((n != null) && (n instanceof BaseJsonNode)) {
+            ObjectNode found = ((BaseJsonNode) n)._withObject(origPtr, currentPtr.tail(),
+                    overwriteMode, preferIndex);
+            if (found != null) {
+                return found;
+            }
+            // Ok no; must replace if allowed to
+            _withXxxVerifyReplace(origPtr, currentPtr, overwriteMode, preferIndex, n);
+        }
+        // Either way; must replace or add a new property
+        return _withObjectAddTailProperty(currentPtr, preferIndex);
+    }
+
+    @Override
+    protected ArrayNode _withArray(JsonPointer origPtr,
+            JsonPointer currentPtr,
+            OverwriteMode overwriteMode, boolean preferIndex)
+    {
+        if (currentPtr.matches()) {
+            // Cannot return, not an ArrayNode so:
+            return null;
+        }
+
+        JsonNode n = _at(currentPtr);
+        // If there's a path, follow it
+        if ((n != null) && (n instanceof BaseJsonNode)) {
+            ArrayNode found = ((BaseJsonNode) n)._withArray(origPtr, currentPtr.tail(),
+                    overwriteMode, preferIndex);
+            if (found != null) {
+                return found;
+            }
+            // Ok no; must replace if allowed to
+            _withXxxVerifyReplace(origPtr, currentPtr, overwriteMode, preferIndex, n);
+        }
+        // Either way; must replace or add a new property
+        return _withArrayAddTailProperty(currentPtr, preferIndex);
+    }
+
+    protected ObjectNode _withObjectAddTailProperty(JsonPointer tail, boolean preferIndex)
+    {
+        final String propName = tail.getMatchingProperty();
+        tail = tail.tail();
+
+        // First: did we complete traversal? If so, easy, we got our result
+        if (tail.matches()) {
+            return putObject(propName);
+        }
+
+        // Otherwise, do we want Array or Object
+        if (preferIndex && tail.mayMatchElement()) { // array!
+            return putArray(propName)._withObjectAddTailElement(tail, preferIndex);
+        }
+        return putObject(propName)._withObjectAddTailProperty(tail, preferIndex);
+    }
+
+    protected ArrayNode _withArrayAddTailProperty(JsonPointer tail, boolean preferIndex)
+    {
+        final String propName = tail.getMatchingProperty();
+        tail = tail.tail();
+
+        // First: did we complete traversal? If so, easy, we got our result
+        if (tail.matches()) {
+            return putArray(propName);
+        }
+
+        // Otherwise, do we want Array or Object
+        if (preferIndex && tail.mayMatchElement()) { // array!
+            return putArray(propName)._withArrayAddTailElement(tail, preferIndex);
+        }
+        return putObject(propName)._withArrayAddTailProperty(tail, preferIndex);
+    }
+
+    
     /*
     /**********************************************************
     /* Overrides for JsonSerializable.Base
@@ -146,41 +281,6 @@ public class ObjectNode
     @Override
     public Iterator<Map.Entry<String, JsonNode>> fields() {
         return _children.entrySet().iterator();
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public ObjectNode with(String propertyName) {
-        JsonNode n = _children.get(propertyName);
-        if (n != null) {
-            if (n instanceof ObjectNode) {
-                return (ObjectNode) n;
-            }
-            throw new UnsupportedOperationException("Property '" + propertyName
-                + "' has value that is not of type ObjectNode (but " + n
-                .getClass().getName() + ")");
-        }
-        ObjectNode result = objectNode();
-        _children.put(propertyName, result);
-        return result;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public ArrayNode withArray(String propertyName)
-    {
-        JsonNode n = _children.get(propertyName);
-        if (n != null) {
-            if (n instanceof ArrayNode) {
-                return (ArrayNode) n;
-            }
-            throw new UnsupportedOperationException("Property '" + propertyName
-                + "' has value that is not of type ArrayNode (but " + n
-                .getClass().getName() + ")");
-        }
-        ArrayNode result = arrayNode();
-        _children.put(propertyName, result);
-        return result;
     }
 
     @Override

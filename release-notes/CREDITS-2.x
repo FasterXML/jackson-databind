@@ -1445,8 +1445,20 @@ Jason Harper (jsharper@github)
    `PropertyNamingStrategy.UPPER_CAMEL_CASE`
   (2.13.4)
 
+Matthew Altman (matthew-altman@github)
+  * Reported #2541: Cannot merge polymorphic objects
+  (2.14.0)
+
+James Wang (jameswangz@github)
+  * Contributed fix for #2541: Cannot merge polymorphic objects
+  (2.14.0)
+
 ZeyuCai@github:
   * Contributed #3314: Four Flaky Tests Detected in 2.14
+  (2.14.0)
+
+Ernst-Jan van der Laan (ejl888@github)
+  * Reported #3338: `configOverride.setMergeable(false)` not supported by `ArrayNode`
   (2.14.0)
 
 Gary Morgan (morganga@github)
@@ -1460,4 +1472,18 @@ Jan Judas (kostislav@github)
 
 Deniz Husaj (denizhusaj@github)
   * Reported #3447: Deeply nested JsonNode throws StackOverflowError for toString()
+  (2.14.0)
+
+PJ Fanning (pjfanning@github)
+  * Contributed #3475: Support use of fast double parse
+  (2.14.0)
+  * Contributed #3530: Change LRUMap to just evict one entry when maxEntries reached
+  (2.14.0)
+
+Igor Shymko (ancane@github)
+  * Contributed #3500: Add optional explicit `JsonSubTypes` repeated names check
+  (2.14.0)
+
+Jordi Ortolá Ankum (Tomasito665@github)
+  * Contributed #3503: `StdDeserializer` coerces ints to floats even if configured to fail
   (2.14.0)

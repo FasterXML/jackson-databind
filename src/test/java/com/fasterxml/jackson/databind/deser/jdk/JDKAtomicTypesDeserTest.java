@@ -7,10 +7,12 @@ import java.util.List;
 import java.util.concurrent.atomic.*;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class JDKAtomicTypesDeserTest
     extends com.fasterxml.jackson.databind.BaseMapTest
@@ -105,6 +107,35 @@ public class JDKAtomicTypesDeserTest
     static class ListWrapper {
         @JsonMerge
         public AtomicReference<List<String>> list = new AtomicReference<>();
+    }
+
+    static class AtomicRefBean {
+        protected AtomicReference<String> _atomic;
+
+        @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+        public AtomicRefBean(@JsonProperty("atomic") AtomicReference<String> ref) {
+            _atomic = ref;
+        }
+    }
+
+    static class AtomicRefBeanWithEmpty {
+        protected AtomicReference<String> _atomic;
+
+        @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+        public AtomicRefBeanWithEmpty(@JsonProperty("atomic")
+            @JsonSetter(nulls = Nulls.AS_EMPTY)
+            AtomicReference<String> ref) {
+            _atomic = ref;
+        }
+    }
+
+    static class AtomicRefWithNodeBean {
+        protected AtomicReference<JsonNode> _atomicNode;
+
+        @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+        public AtomicRefWithNodeBean(@JsonProperty("atomic") AtomicReference<JsonNode> ref) {
+            _atomicNode = ref;
+        }
     }
 
     /*
@@ -319,5 +350,45 @@ public class JDKAtomicTypesDeserTest
                 .readValue(a2q("{'list':['b']}"));
         assertSame(base, merged);
         assertEquals(Arrays.asList("a", "b"), base.list.get());
+    }
+
+    // Verify expected behavior of AtomicReference wrt nulls, absent
+    // values.
+    //
+    // @since 2.14
+    public void testAbsentAtomicRefViaCreator() throws Exception
+    {
+        AtomicRefBean bean;
+
+        // First: null should become empty, non-null reference
+        bean = MAPPER.readValue(a2q("{'atomic':null}"), AtomicRefBean.class);
+        assertNotNull(bean._atomic);
+        assertNull(bean._atomic.get());
+
+        // And then absent (missing), via Creator method, should become actual null
+        bean = MAPPER.readValue("{}", AtomicRefBean.class);
+        assertNull(bean._atomic);
+
+        // Except that we can override handling to produce empty
+        AtomicRefBeanWithEmpty bean2 = MAPPER.readValue("{}", AtomicRefBeanWithEmpty.class);
+        assertNotNull(bean2._atomic);
+        assertNull(bean2._atomic.get());
+    }
+
+    // @since 2.14
+    public void testAtomicRefWithNodeViaCreator() throws Exception
+    {
+        AtomicRefWithNodeBean bean;
+
+        // Somewhat usual, `null` SHOULD become `NullNode`
+        bean = MAPPER.readValue(a2q("{'atomic':null}"), AtomicRefWithNodeBean.class);
+        assertNotNull(bean._atomicNode);
+        assertNotNull(bean._atomicNode.get());
+        JsonNode n = bean._atomicNode.get();
+        assertTrue(n.isNull());
+
+        // And then absent (missing), via Creator method, should become actual null
+        bean = MAPPER.readValue("{}", AtomicRefWithNodeBean.class);
+        assertNull(bean._atomicNode);
     }
 }

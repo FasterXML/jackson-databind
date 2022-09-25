@@ -1,10 +1,10 @@
 package com.fasterxml.jackson.databind.ser;
 
-import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.impl.ReadOnlyClassToSerializerMap;
+import com.fasterxml.jackson.databind.util.LRUMap;
 import com.fasterxml.jackson.databind.util.TypeKey;
 
 /**
@@ -25,21 +25,33 @@ import com.fasterxml.jackson.databind.util.TypeKey;
 public final class SerializerCache
 {
     /**
+     * By default, allow caching of up to 4000 serializer entries (for possibly up to
+     * 1000 types; but depending access patterns may be as few as half of that).
+     */
+    public final static int DEFAULT_MAX_CACHED = 4000;
+
+    /**
      * Shared, modifiable map; all access needs to be through synchronized blocks.
      *<p>
      * NOTE: keys are of various types (see below for key types), in addition to
      * basic {@link JavaType} used for "untyped" serializers.
      */
-    private final HashMap<TypeKey, JsonSerializer<Object>> _sharedMap
-        = new HashMap<TypeKey, JsonSerializer<Object>>(64);
+    private final LRUMap<TypeKey, JsonSerializer<Object>> _sharedMap;
 
     /**
      * Most recent read-only instance, created from _sharedMap, if any.
      */
-    private final AtomicReference<ReadOnlyClassToSerializerMap> _readOnlyMap
-        = new AtomicReference<ReadOnlyClassToSerializerMap>();
+    private final AtomicReference<ReadOnlyClassToSerializerMap> _readOnlyMap;
 
-    public SerializerCache() { }
+    public SerializerCache() {
+        this(DEFAULT_MAX_CACHED);
+    }
+
+    public SerializerCache(int maxCached) {
+        int initial = Math.min(64, maxCached>>2);
+        _sharedMap = new LRUMap<TypeKey, JsonSerializer<Object>>(initial, maxCached);
+        _readOnlyMap = new AtomicReference<ReadOnlyClassToSerializerMap>();
+    }
 
     /**
      * Method that can be called to get a read-only instance populated from the

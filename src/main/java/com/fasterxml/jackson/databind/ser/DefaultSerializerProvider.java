@@ -162,14 +162,14 @@ public abstract class DefaultSerializerProvider
             return true;
         }
         // should let filter decide what to do with nulls:
-        // But just case, let's handle unexpected (from our perspective) problems explicitly
+        // But just in case, let's handle unexpected (from our perspective) problems explicitly
         try {
             return filter.equals(null);
-        } catch (Throwable t) {
+        } catch (Exception e) {
             String msg = String.format(
 "Problem determining whether filter of type '%s' should filter out `null` values: (%s) %s",
-filter.getClass().getName(), t.getClass().getName(), ClassUtil.exceptionMessage(t));
-            reportBadDefinition(filter.getClass(), msg, t);
+filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(e));
+            reportBadDefinition(filter.getClass(), msg, e);
             return false; // never gets here
         }
     }

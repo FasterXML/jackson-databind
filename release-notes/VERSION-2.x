@@ -6,10 +6,22 @@ Project: jackson-databind
 
 2.14.0 (not yet released)
 
+#1980: Add method(s) in `JsonNode` that works like combination of `at()`
+  and `with()`: `withObject(...)` and `withArray(...)`
+#2541: Cannot merge polymorphic objects
+ (reported by Matthew A)
+ (fix contributed by James W)
+#3311: Add serializer-cache size limit to avoid Metaspace issues from
+  caching Serializers
+ (requested by mcolemanNOW@github)
+#3338: `configOverride.setMergeable(false)` not supported by `ArrayNode`
+ (requested by Ernst-Jan vdL)
 #3357: `@JsonIgnore` does not if together with `@JsonProperty` or `@JsonFormat`
  (reported by lizongbo@github)
 #3373: Change `TypeSerializerBase` to skip `generator.writeTypePrefix()`
   for `null` typeId
+#3394: Allow use of `JsonNode` field for `@JsonAnySetter`
+ (requested by @sixcorners)
 #3405: Create DataTypeFeature abstraction (for JSTEP-7) with placeholder features
 #3417: Allow (de)serializing records using Bean(De)SerializerModifier even when
   reflection is unavailable
@@ -23,15 +35,42 @@ Project: jackson-databind
  (contributed by Jan J)
 #3447: Deeply nested JsonNode throws StackOverflowError for toString()
  (reported by Deniz H)
+#3475: Support use of fast double parse
+ (contributed by @pjfanning)
 #3476: Implement `JsonNodeFeature.WRITE_NULL_PROPERTIES` to allow skipping
   JSON `null` values on writing
+#3481: Filter method only got called once if the field is null when using
+  `@JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = SomeFieldFilter.class)`
+ (contributed by AmiDavidW@github)
 #3497: Deserialization of Throwables with PropertyNamingStrategy does not work
+#3500: Add optional explicit `JsonSubTypes` repeated names check
+ (contributed by Igor S)
+#3503: `StdDeserializer` coerces ints to floats even if configured to fail
+ (contributed by Jordi O-A)
+#3528: `TokenBuffer` defaults for parser/stream-read features neither passed
+  from parser nor use real defaults
+#3530: Change LRUMap to just evict one entry when maxEntries reached
+ (contributed by @pjfanning)
+#3533: Deserialize missing value of `EXTERNAL_PROPERTY` type using
+  custom `NullValueProvider`
+#3535: Replace `JsonNode.with()` with `JsonNode.withObject()`
+#3559: Support `null`-valued `Map` fields with "any setter"
+#3568: Change `JsonNode.with(String)` and `withArray(String)` to consider
+  argument as `JsonPointer` if valid expression
+#3590: Add check in primitive value deserializers to avoid deep wrapper array
+  nesting wrt `UNWRAP_SINGLE_VALUE_ARRAYS`
 
-2.13.4 (not yet released)
+2.13.4 (03-Sep-2022)
 
 #3275: JDK 16 Illegal reflective access for `Throwable.setCause()` with
   `PropertyNamingStrategy.UPPER_CAMEL_CASE`
  (reported by Jason H)
+ (fix suggested by gsinghlulu@github)
+#3565: `Arrays.asList()` value deserialization has changed from mutable to
+  immutable in 2.13
+ (reported by JonasWilms@github)
+#3582: Add check in `BeanDeserializer._deserializeFromArray()` to prevent
+  use of deeply nested arrays
 
 2.13.3 (14-May-2022)
 

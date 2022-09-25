@@ -611,8 +611,16 @@ public class NumberDeserializers
                 break;
             case JsonTokenId.ID_NULL: // null fine for non-primitive
                 return (Float) getNullValue(ctxt);
+            case JsonTokenId.ID_NUMBER_INT:
+                final CoercionAction act = _checkIntToFloatCoercion(p, ctxt, _valueClass);
+                if (act == CoercionAction.AsNull) {
+                    return (Float) getNullValue(ctxt);
+                }
+                if (act == CoercionAction.AsEmpty) {
+                    return (Float) getEmptyValue(ctxt);
+                }
+                // fall through to coerce
             case JsonTokenId.ID_NUMBER_FLOAT:
-            case JsonTokenId.ID_NUMBER_INT: // safe coercion
                 return p.getFloatValue();
             // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
             case JsonTokenId.ID_START_OBJECT:
@@ -645,7 +653,7 @@ public class NumberDeserializers
                 return (Float) getNullValue(ctxt);
             }
             try {
-                return NumberInput.parseFloat(text);
+                return NumberInput.parseFloat(text, p.isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
             } catch (IllegalArgumentException iae) { }
             return (Float) ctxt.handleWeirdStringValue(_valueClass, text,
                     "not a valid `Float` value");
@@ -700,8 +708,16 @@ public class NumberDeserializers
                 break;
             case JsonTokenId.ID_NULL: // null fine for non-primitive
                 return (Double) getNullValue(ctxt);
-            case JsonTokenId.ID_NUMBER_FLOAT:
-            case JsonTokenId.ID_NUMBER_INT: // safe coercion
+            case JsonTokenId.ID_NUMBER_INT:
+                final CoercionAction act = _checkIntToFloatCoercion(p, ctxt, _valueClass);
+                if (act == CoercionAction.AsNull) {
+                    return (Double) getNullValue(ctxt);
+                }
+                if (act == CoercionAction.AsEmpty) {
+                    return (Double) getEmptyValue(ctxt);
+                }
+                // fall through to coerce
+            case JsonTokenId.ID_NUMBER_FLOAT: // safe coercion
                 return p.getDoubleValue();
             // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
             case JsonTokenId.ID_START_OBJECT:
@@ -736,7 +752,7 @@ public class NumberDeserializers
                 return (Double) getNullValue(ctxt);
             }
             try {
-                return _parseDouble(text);
+                return _parseDouble(text, p.isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
             } catch (IllegalArgumentException iae) { }
             return (Double) ctxt.handleWeirdStringValue(_valueClass, text,
                     "not a valid `Double` value");
@@ -830,10 +846,11 @@ public class NumberDeserializers
                     if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
                         return NumberInput.parseBigDecimal(text);
                     }
-                    return Double.valueOf(text);
+                    return Double.valueOf(
+                            NumberInput.parseDouble(text, p.isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER)));
                 }
                 if (ctxt.isEnabled(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS)) {
-                    return new BigInteger(text);
+                    return NumberInput.parseBigInteger(text);
                 }
                 long value = NumberInput.parseLong(text);
                 if (!ctxt.isEnabled(DeserializationFeature.USE_LONG_FOR_INTS)) {
@@ -944,7 +961,7 @@ public class NumberDeserializers
                 return getNullValue(ctxt);
             }
             try {
-                return new BigInteger(text);
+                return NumberInput.parseBigInteger(text);
             } catch (IllegalArgumentException iae) { }
             return (BigInteger) ctxt.handleWeirdStringValue(_valueClass, text,
                     "not a valid representation");
@@ -977,6 +994,14 @@ public class NumberDeserializers
             String text;
             switch (p.currentTokenId()) {
             case JsonTokenId.ID_NUMBER_INT:
+                final CoercionAction act = _checkIntToFloatCoercion(p, ctxt, _valueClass);
+                if (act == CoercionAction.AsNull) {
+                    return (BigDecimal) getNullValue(ctxt);
+                }
+                if (act == CoercionAction.AsEmpty) {
+                    return (BigDecimal) getEmptyValue(ctxt);
+                }
+                // fall through to coerce
             case JsonTokenId.ID_NUMBER_FLOAT:
                 return p.getDecimalValue();
             case JsonTokenId.ID_STRING:

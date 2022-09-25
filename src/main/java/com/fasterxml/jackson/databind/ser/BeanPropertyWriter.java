@@ -690,6 +690,11 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
 
         // Null handling is bit different, check that first
         if (value == null) {
+            // 20-Jun-2022, tatu: Defer checking of null, see [databind#3481]
+            if((_suppressableValue != null)
+                    && prov.includeFilterSuppressNulls(_suppressableValue)) {
+                return;
+            }
             if (_nullSerializer != null) {
                 gen.writeFieldName(_name);
                 _nullSerializer.serialize(null, gen, prov);

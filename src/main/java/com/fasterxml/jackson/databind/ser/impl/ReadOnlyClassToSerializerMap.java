@@ -1,9 +1,8 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
-import java.util.*;
-
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.util.LRUMap;
 import com.fasterxml.jackson.databind.util.TypeKey;
 
 /**
@@ -23,17 +22,15 @@ public final class ReadOnlyClassToSerializerMap
 
     private final int _mask;
 
-    public ReadOnlyClassToSerializerMap(Map<TypeKey,JsonSerializer<Object>> serializers)
+    public ReadOnlyClassToSerializerMap(LRUMap<TypeKey,JsonSerializer<Object>> src)
     {
-        int size = findSize(serializers.size());
-        _size = size;
-        _mask = (size-1);
-        Bucket[] buckets = new Bucket[size];
-        for (Map.Entry<TypeKey,JsonSerializer<Object>> entry : serializers.entrySet()) {
-            TypeKey key = entry.getKey();
+        _size = findSize(src.size());
+        _mask = (_size-1);
+        Bucket[] buckets = new Bucket[_size];
+        src.contents((key, value) -> {
             int index = key.hashCode() & _mask;
-            buckets[index] = new Bucket(buckets[index], key, entry.getValue());
-        }
+            buckets[index] = new Bucket(buckets[index], key, value);
+        });
         _buckets = buckets;
     }
     
@@ -51,7 +48,7 @@ public final class ReadOnlyClassToSerializerMap
     /**
      * Factory method for constructing an instance.
      */
-    public static ReadOnlyClassToSerializerMap from(HashMap<TypeKey, JsonSerializer<Object>> src) {
+    public static ReadOnlyClassToSerializerMap from(LRUMap<TypeKey, JsonSerializer<Object>> src) {
         return new ReadOnlyClassToSerializerMap(src);
     }
 

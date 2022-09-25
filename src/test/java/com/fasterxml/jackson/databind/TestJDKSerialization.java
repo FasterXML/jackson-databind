@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.fasterxml.jackson.databind.util.LRUMap;
 
 /**
  * Tests to verify that most core Jackson components can be serialized
@@ -191,49 +190,5 @@ public class TestJDKSerialization extends BaseMapTest
         assertNotNull(result);
         t = orig.constructType(JavaType.class);
         assertEquals(JavaType.class, t.getRawClass());
-    }
-
-    public void testLRUMap() throws Exception
-    {
-        LRUMap<String,Integer> map = new LRUMap<String,Integer>(32, 32);
-        map.put("a", 1);
-
-        byte[] bytes = jdkSerialize(map);
-        LRUMap<String,Integer> result = jdkDeserialize(bytes);
-        // transient implementation, will be read as empty
-        assertEquals(0, result.size());
-
-        // but should be possible to re-populate
-        result.put("a", 2);
-        assertEquals(1, result.size());
-    }
-
-    /*
-    /**********************************************************
-    /* Helper methods
-    /**********************************************************
-     */
-    
-    protected byte[] jdkSerialize(Object o) throws IOException
-    {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream(2000);
-        ObjectOutputStream obOut = new ObjectOutputStream(bytes);
-        obOut.writeObject(o);
-        obOut.close();
-        return bytes.toByteArray();
-    }
-
-    @SuppressWarnings("unchecked")
-    protected <T> T jdkDeserialize(byte[] raw) throws IOException
-    {
-        ObjectInputStream objIn = new ObjectInputStream(new ByteArrayInputStream(raw));
-        try {
-            return (T) objIn.readObject();
-        } catch (ClassNotFoundException e) {
-            fail("Missing class: "+e.getMessage());
-            return null;
-        } finally {
-            objIn.close();
-        }
     }
 }

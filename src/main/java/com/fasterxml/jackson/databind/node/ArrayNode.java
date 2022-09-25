@@ -1,20 +1,17 @@
 package com.fasterxml.jackson.databind.node;
 
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.*;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.WritableTypeId;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.util.RawValue;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * Node class that represents Arrays mapped from JSON content.
@@ -66,6 +63,150 @@ public class ArrayNode
             ret._children.add(element.deepCopy());
 
         return ret;
+    }
+
+    /*
+    /**********************************************************
+    /* Support for withArray()/withObject()
+    /**********************************************************
+     */
+
+    @SuppressWarnings("unchecked")
+    @Deprecated
+    @Override
+    public ObjectNode with(String exprOrProperty) {
+        JsonPointer ptr = _jsonPointerIfValid(exprOrProperty);
+        if (ptr != null) {
+            return withObject(ptr);
+        }
+        return super.with(exprOrProperty); // to give failure
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public ArrayNode withArray(String exprOrProperty)
+    {
+        JsonPointer ptr = _jsonPointerIfValid(exprOrProperty);
+        if (ptr != null) {
+            return withArray(ptr);
+        }
+        return super.withArray(exprOrProperty); // to give failure
+    }
+
+    @Override
+    protected ObjectNode _withObject(JsonPointer origPtr,
+            JsonPointer currentPtr,
+            OverwriteMode overwriteMode, boolean preferIndex)
+    {
+        if (currentPtr.matches()) {
+            // Cannot return, not an ObjectNode so:
+            return null;
+        }
+        JsonNode n = _at(currentPtr);
+        // If there's a path, follow it
+        if ((n != null) && (n instanceof BaseJsonNode)) {
+            ObjectNode found = ((BaseJsonNode) n)._withObject(origPtr, currentPtr.tail(),
+                    overwriteMode, preferIndex);
+            if (found != null) {
+                return found;
+            }
+            // Ok no; must replace if allowed to
+            _withXxxVerifyReplace(origPtr, currentPtr, overwriteMode, preferIndex, n);
+        }
+        // Either way; must replace or add a new property
+        return _withObjectAddTailElement(currentPtr, preferIndex);
+    }
+
+    @Override
+    protected ArrayNode _withArray(JsonPointer origPtr,
+            JsonPointer currentPtr,
+            OverwriteMode overwriteMode, boolean preferIndex)
+    {
+        if (currentPtr.matches()) {
+            return this;
+        }
+        JsonNode n = _at(currentPtr);
+        // If there's a path, follow it
+        if ((n != null) && (n instanceof BaseJsonNode)) {
+            ArrayNode found = ((BaseJsonNode) n)._withArray(origPtr, currentPtr.tail(),
+                    overwriteMode, preferIndex);
+            if (found != null) {
+                return found;
+            }
+            // Ok no; must replace if allowed to
+            _withXxxVerifyReplace(origPtr, currentPtr, overwriteMode, preferIndex, n);
+        }
+        // Either way; must replace or add a new property
+        return _withArrayAddTailElement(currentPtr, preferIndex);
+    }
+
+    protected ObjectNode _withObjectAddTailElement(JsonPointer tail, boolean preferIndex)
+    {
+        final int index = tail.getMatchingIndex();
+        if (index < 0) {
+            return null;
+        }
+
+        tail = tail.tail();
+
+        // First: did we complete traversal? If so, easy, we got our result
+        if (tail.matches()) {
+            ObjectNode result = this.objectNode();
+            _withXxxSetArrayElement(index, result);
+            return result;
+        }
+
+        // Otherwise, do we want Array or Object
+        if (preferIndex && tail.mayMatchElement()) { // array!
+            ArrayNode next = this.arrayNode();
+            _withXxxSetArrayElement(index, next);
+            return next._withObjectAddTailElement(tail, preferIndex);
+        }
+        ObjectNode next = this.objectNode();
+        _withXxxSetArrayElement(index, next);
+        return next._withObjectAddTailProperty(tail, preferIndex);
+    }
+
+    protected ArrayNode _withArrayAddTailElement(JsonPointer tail, boolean preferIndex)
+    {
+        final int index = tail.getMatchingIndex();
+        if (index < 0) {
+            return null;
+        }
+        tail = tail.tail();
+
+        // First: did we complete traversal? If so, easy, we got our result
+        if (tail.matches()) {
+            ArrayNode result = this.arrayNode();
+            _withXxxSetArrayElement(index, result);
+            return result;
+        }
+
+        // Otherwise, do we want Array or Object
+        if (preferIndex && tail.mayMatchElement()) { // array!
+            ArrayNode next = this.arrayNode();
+            _withXxxSetArrayElement(index, next);
+            return next._withArrayAddTailElement(tail, preferIndex);
+        }
+        ArrayNode next = this.arrayNode();
+        _withXxxSetArrayElement(index, next);
+        return next._withArrayAddTailElement(tail, preferIndex);
+    }
+
+    protected void _withXxxSetArrayElement(int index, JsonNode value) {
+        // 27-Jul-2022, tatu: Let's make it less likely anyone OOMs by
+        //    humongous index...
+        if (index >= size()) {
+            final int max = _nodeFactory.getMaxElementIndexForInsert();
+            if (index > max) {
+                _reportWrongNodeOperation("Too big Array index (%d; max %d) to use for insert with `JsonPointer`",
+                        index, max);
+            }
+            while (index >= this.size()) {
+                addNull();
+            }
+        }
+        set(index, value);
     }
 
     /*

@@ -9,20 +9,20 @@
   <parent>
     <groupId>com.fasterxml.jackson</groupId>
     <artifactId>jackson-base</artifactId>
-    <version>2.14.0-SNAPSHOT</version>
+    <version>2.14.0-rc1-SNAPSHOT</version>
   </parent>
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-databind</artifactId>
-  <version>2.14.0-SNAPSHOT</version>
+  <version>2.14.0-rc1-SNAPSHOT</version>
   <name>jackson-databind</name>
   <packaging>bundle</packaging>
   <description>General data-binding functionality for Jackson: works on core streaming API</description>
-  <url>http://github.com/FasterXML/jackson</url>
+  <url>https://github.com/FasterXML/jackson</url>
   <inceptionYear>2008</inceptionYear>
   <licenses>
     <license>
       <name>The Apache Software License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
@@ -30,7 +30,7 @@
   <scm>
     <connection>scm:git:git@github.com:FasterXML/jackson-databind.git</connection>
     <developerConnection>scm:git:git@github.com:FasterXML/jackson-databind.git</developerConnection>
-    <url>http://github.com/FasterXML/jackson-databind</url>
+    <url>https://github.com/FasterXML/jackson-databind</url>
     <tag>HEAD</tag>
   </scm>
 
@@ -53,7 +53,10 @@
     <packageVersion.dir>com/fasterxml/jackson/databind/cfg</packageVersion.dir>
     <packageVersion.package>com.fasterxml.jackson.databind.cfg</packageVersion.package>
 
-    <version.powermock>2.0.0</version.powermock>
+    <version.powermock>2.0.9</version.powermock>
+
+    <!-- for Reproducible Builds -->
+    <project.build.outputTimestamp>2022-09-18T00:00:00Z</project.build.outputTimestamp>
   </properties>
 
   <dependencies>
@@ -93,6 +96,12 @@
       <groupId>org.powermock</groupId>
       <artifactId>powermock-api-mockito2</artifactId>
       <version>${version.powermock}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava-testlib</artifactId>
+      <version>31.1-jre</version>
       <scope>test</scope>
     </dependency>
     <!-- For testing TestNoClassDefFoundDeserializer -->
@@ -160,7 +169,7 @@
             <exclude>javax.measure:jsr-275</exclude>
           </classpathDependencyExcludes>
           <excludes>
-            <exclude>com/fasterxml/jackson/failing/*.java</exclude>
+            <exclude>**/failing/**/*.java</exclude>
           </excludes>
           <!-- 26-Nov-2019, tatu: moar parallelism! Per-class basis, safe, efficient enough
                   ... although not 100% sure this makes much difference TBH
@@ -176,8 +185,8 @@
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
           <links combine.children="append">
-            <link>http://fasterxml.github.io/jackson-annotations/javadoc/2.14</link>
-            <link>http://fasterxml.github.io/jackson-core/javadoc/2.14</link>
+            <link>https://fasterxml.github.io/jackson-annotations/javadoc/2.14</link>
+            <link>https://fasterxml.github.io/jackson-core/javadoc/2.14</link>
           </links>
         </configuration>
       </plugin>
@@ -306,7 +315,16 @@
               <release>17</release>
               <compilerArgs>
                 <arg>-parameters</arg>
+                <arg>--add-opens=java.base/java.lang=ALL-UNNAMED</arg>
+                <arg>--add-opens=java.base/java.util=ALL-UNNAMED</arg>
               </compilerArgs>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <argLine>--add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED</argLine>
             </configuration>
           </plugin>
         </plugins>

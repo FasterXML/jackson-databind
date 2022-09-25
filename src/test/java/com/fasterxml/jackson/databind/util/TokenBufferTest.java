@@ -14,7 +14,7 @@ import com.fasterxml.jackson.core.util.JsonParserSequence;
 import com.fasterxml.jackson.databind.*;
 
 @SuppressWarnings("resource")
-public class TestTokenBuffer extends BaseMapTest
+public class TokenBufferTest extends BaseMapTest
 {
     private final ObjectMapper MAPPER = objectMapper();
 
@@ -50,6 +50,17 @@ public class TestTokenBuffer extends BaseMapTest
 
         buf.close();
         assertTrue(buf.isClosed());
+    }
+
+    // for [databind#3528]
+    public void testParserFeatureDefaults() throws IOException
+    {
+        TokenBuffer buf = new TokenBuffer(MAPPER, false);
+        try (JsonParser p = buf.asParser()) {
+            for (JsonParser.Feature feat : JsonParser.Feature.values()) {
+                assertEquals("Feature "+feat, feat.enabledByDefault(), p.isEnabled(feat));
+            }
+        }
     }
 
     /**

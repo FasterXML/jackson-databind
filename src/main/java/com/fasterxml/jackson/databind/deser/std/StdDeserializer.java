@@ -1371,7 +1371,9 @@ public abstract class StdDeserializer<T>
      *
      * @since 2.1
      */
-    protected final String _parseString(JsonParser p, DeserializationContext ctxt) throws IOException
+    protected final String _parseString(JsonParser p, DeserializationContext ctxt,
+            NullValueProvider nullProvider)
+        throws IOException
     {
         if (p.hasToken(JsonToken.VALUE_STRING)) {
             return p.getText();
@@ -1393,6 +1395,15 @@ public abstract class StdDeserializer<T>
             return ctxt.extractScalarFromObject(p, this, _valueClass);
         }
 
+        if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
+            final CoercionAction act = _checkIntToStringCoercion(p, ctxt, _valueClass);
+            if (act == CoercionAction.AsNull) {
+                return (String) nullProvider.getNullValue(ctxt);
+            }
+            if (act == CoercionAction.AsEmpty) {
+                return "";
+            }
+        }
         String value = p.getValueAsString();
         if (value != null) {
             return value;
@@ -1499,6 +1510,22 @@ value, _coercedTypeDesc());
         if (act == CoercionAction.Fail) {
             return _checkCoercionFail(ctxt, act, rawTargetType, p.getNumberValue(),
                     "Floating-point value ("+p.getText()+")");
+        }
+        return act;
+    }
+
+    /**
+     * @since 2.14
+     */
+    protected CoercionAction _checkIntToStringCoercion(JsonParser p, DeserializationContext ctxt,
+            Class<?> rawTargetType)
+        throws IOException
+    {
+        final CoercionAction act = ctxt.findCoercionAction(LogicalType.Textual,
+                rawTargetType, CoercionInputShape.Integer);
+        if (act == CoercionAction.Fail) {
+            return _checkCoercionFail(ctxt, act, rawTargetType, p.getNumberValue(),
+                    "Integer value (" + p.getText() + ")");
         }
         return act;
     }

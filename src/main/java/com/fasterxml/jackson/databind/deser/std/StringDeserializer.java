@@ -5,6 +5,7 @@ import java.io.IOException;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.LogicalType;
 
@@ -60,6 +61,15 @@ public class StringDeserializer extends StdScalarDeserializer<String> // non-fin
         // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
         if (t == JsonToken.START_OBJECT) {
             return ctxt.extractScalarFromObject(p, this, _valueClass);
+        }
+        if (t == JsonToken.VALUE_NUMBER_INT) {
+            final CoercionAction act = _checkIntToStringCoercion(p, ctxt, _valueClass);
+            if (act == CoercionAction.AsNull) {
+                return (String) getNullValue(ctxt);
+            }
+            if (act == CoercionAction.AsEmpty) {
+                return (String) getEmptyValue(ctxt);
+            }
         }
         // allow coercions for other scalar types
         // 17-Jan-2018, tatu: Related to [databind#1853] avoid FIELD_NAME by ensuring it's

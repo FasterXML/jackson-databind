@@ -1404,9 +1404,14 @@ public abstract class StdDeserializer<T>
                 return "";
             }
         }
-        String value = p.getValueAsString();
-        if (value != null) {
-            return value;
+        // allow coercions for other scalar types
+        // 17-Jan-2018, tatu: Related to [databind#1853] avoid FIELD_NAME by ensuring it's
+        //   "real" scalar
+        if (p.currentToken().isScalarValue()) {
+            String text = p.getValueAsString();
+            if (text != null) {
+                return text;
+            }
         }
         return (String) ctxt.handleUnexpectedToken(String.class, p);
     }

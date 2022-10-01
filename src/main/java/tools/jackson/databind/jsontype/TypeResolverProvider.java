@@ -54,15 +54,14 @@ public class TypeResolverProvider
         TypeResolverBuilder<?> b = _findTypeResolver(config, classInfo, baseType);
         // Ok: if there is no explicit type info handler, we may want to
         // use a default. If so, config object knows what to use.
-        Collection<NamedType> subtypes = null;
         if (b == null) {
             b = config.getDefaultTyper(baseType);
-        } else {
-            subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByClass(config, classInfo);
+            if (b == null) {
+                return null;
+            }
         }
-        if (b == null) {
-            return null;
-        }
+        Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByClass(config, classInfo);
+
         // 10-Jun-2015, tatu: Since not created for Bean Property, no need for post-processing
         //    wrt EXTERNAL_PROPERTY
         return b.buildTypeSerializer(ctxt, baseType, subtypes);
@@ -76,15 +75,14 @@ public class TypeResolverProvider
 
         // Ok: if there is no explicit type info handler, we may want to
         // use a default. If so, config object knows what to use.
-        Collection<NamedType> subtypes = null;
         if (b == null) {
             b = config.getDefaultTyper(baseType);
             if (b == null) {
                 return null;
             }
-        } else {
-            subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByTypeId(config, classInfo);
         }
+        Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByTypeId(config, classInfo);
+
         // May need to figure out default implementation, if none found yet
         // (note: check for abstract type is not 100% mandatory, more of an optimization)
         if ((b.getDefaultImpl() == null) && baseType.isAbstract()) {

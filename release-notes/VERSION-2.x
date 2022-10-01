@@ -49,6 +49,8 @@ Project: jackson-databind
  (contributed by Igor S)
 #3503: `StdDeserializer` coerces ints to floats even if configured to fail
  (contributed by Jordi O-A)
+#3505: Fix deduction deserializer with DefaultTypeResolverBuilder
+ (contributed by Arnaud S)
 #3528: `TokenBuffer` defaults for parser/stream-read features neither passed
   from parser nor use real defaults
 #3530: Change LRUMap to just evict one entry when maxEntries reached

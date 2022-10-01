@@ -1487,3 +1487,8 @@ Igor Shymko (ancane@github)
 Jordi Ortolá Ankum (Tomasito665@github)
   * Contributed #3503: `StdDeserializer` coerces ints to floats even if configured to fail
   (2.14.0)
+
+Arnaud Solé (Bluexin@github)
+  * Contributed #3505: Fix deduction deserializer with DefaultTypeResolverBuilder
+  (2.14.0)
+ 

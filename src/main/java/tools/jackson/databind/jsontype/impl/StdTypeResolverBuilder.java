@@ -98,7 +98,8 @@ public class StdTypeResolverBuilder
     }
 
     @Override
-    public StdTypeResolverBuilder init(JsonTypeInfo.Value settings, TypeIdResolver idRes)
+    public StdTypeResolverBuilder init(JsonTypeInfo.Value settings,
+            TypeIdResolver idRes)
     {
         _customIdResolver = idRes;
 

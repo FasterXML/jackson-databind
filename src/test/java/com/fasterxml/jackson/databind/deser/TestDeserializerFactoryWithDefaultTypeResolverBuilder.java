@@ -62,7 +62,14 @@ public class TestDeserializerFactoryWithDefaultTypeResolverBuilder extends BaseM
                 .build();
 
         try {
-            mapper.readValue("{ \"one\": \"Hello World\" }", Parent.class);
+            final Parent firstRead = mapper.readValue("{ \"one\": \"Hello World\" }", Parent.class);
+            assertNotNull(firstRead);
+            assertTrue(firstRead instanceof Parent.ChildOne);
+            assertEquals("Hello World", ((Parent.ChildOne) firstRead).one);
+            final Parent secondRead = mapper.readValue("{ \"two\": \"Hello World\" }", Parent.class);
+            assertNotNull(secondRead);
+            assertTrue(secondRead instanceof Parent.ChildTwo);
+            assertEquals("Hello World", ((Parent.ChildTwo) secondRead).two);
         } catch (Exception e) {
             fail("This call should not throw");
         }

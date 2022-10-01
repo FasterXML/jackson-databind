@@ -16,7 +16,6 @@ import java.util.List;
 // Tests for [databind#pending] causing a NPE when setting a DefaultTypeResolverBuilder
 // and registering subtypes through ObjectMapper (no annotations)
 public class TestDeserializerFactoryWithDefaultTypeResolverBuilder extends BaseMapTest {
-    private final ObjectMapper MAPPER = sharedMapper();
 
     private interface Parent {
         class ChildOne implements Parent {
@@ -55,13 +54,15 @@ public class TestDeserializerFactoryWithDefaultTypeResolverBuilder extends BaseM
         }
     }
 
-    public void testDeductionWithDefaultTypeResolverBuilder() throws Exception {
-        MAPPER.registerSubtypes(Parent.ChildOne.class, Parent.ChildTwo.class);
-        MAPPER.setDefaultTyping(new AssertingTypeResolverBuilder()
-                .init(JsonTypeInfo.Id.DEDUCTION, null));
+    public void testDeductionWithDefaultTypeResolverBuilder() {
+        final ObjectMapper mapper = jsonMapperBuilder()
+                .registerSubtypes(Parent.ChildOne.class, Parent.ChildTwo.class)
+                .setDefaultTyping(new AssertingTypeResolverBuilder()
+                        .init(JsonTypeInfo.Id.DEDUCTION, null))
+                .build();
 
         try {
-            MAPPER.readValue("{ \"one\": \"Hello World\" }", Parent.class);
+            mapper.readValue("{ \"one\": \"Hello World\" }", Parent.class);
         } catch (Exception e) {
             fail("This call should not throw");
         }

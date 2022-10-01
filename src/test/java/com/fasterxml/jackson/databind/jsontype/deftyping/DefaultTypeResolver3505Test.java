@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.deser;
+package com.fasterxml.jackson.databind.jsontype.deftyping;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.BaseMapTest;
@@ -13,11 +13,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-// Tests for [databind#pending] causing a NPE when setting a DefaultTypeResolverBuilder
+// Tests for [databind#3505] causing a NPE when setting a DefaultTypeResolverBuilder
 // and registering subtypes through ObjectMapper (no annotations)
-public class TestDeserializerFactoryWithDefaultTypeResolverBuilder extends BaseMapTest {
-
-    private interface Parent {
+public class DefaultTypeResolver3505Test
+    extends BaseMapTest
+{
+    interface Parent {
         class ChildOne implements Parent {
             public String one;
         }
@@ -30,8 +31,10 @@ public class TestDeserializerFactoryWithDefaultTypeResolverBuilder extends BaseM
     // This class is technically not needed for the test to fail without the fix
     // (AsDeductionTypeDeserializer will crash in #buildFingerprints), but was
     // added to have more assertions on the subtypes values
-    private static final class AssertingTypeResolverBuilder extends ObjectMapper.DefaultTypeResolverBuilder {
-
+    @SuppressWarnings("serial")
+    static final class AssertingTypeResolverBuilder
+        extends ObjectMapper.DefaultTypeResolverBuilder
+    {
         public AssertingTypeResolverBuilder() {
             super(ObjectMapper.DefaultTyping.NON_CONCRETE_AND_ARRAYS,
                     BasicPolymorphicTypeValidator.builder().allowIfSubType(Parent.class).build());

@@ -165,7 +165,7 @@ public final class StringArrayDeserializer
                         }
                         value = (String) _nullProvider.getNullValue(ctxt);
                     } else {
-                        value = _parseString(p, ctxt);
+                        value = _parseString(p, ctxt, _nullProvider);
                     }
                 }
                 if (ix >= chunk.length) {
@@ -286,7 +286,7 @@ public final class StringArrayDeserializer
                         }
                         value = (String) _nullProvider.getNullValue(ctxt);
                     } else {
-                        value = _parseString(p, ctxt);
+                        value = _parseString(p, ctxt, _nullProvider);
                     }
                 }
                 if (ix >= chunk.length) {
@@ -335,7 +335,7 @@ public final class StringArrayDeserializer
                     // if coercion failed, we can still add it to an array
                 }
 
-                value = _parseString(p, ctxt);
+                value = _parseString(p, ctxt, _nullProvider);
             }
             return new String[] { value };
         }

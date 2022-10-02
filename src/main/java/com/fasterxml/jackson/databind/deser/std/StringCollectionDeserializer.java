@@ -215,7 +215,7 @@ public final class StringCollectionDeserializer
                     }
                     value = (String) _nullProvider.getNullValue(ctxt);
                 } else {
-                    value = _parseString(p, ctxt);
+                    value = _parseString(p, ctxt, _nullProvider);
                 }
                 result.add(value);
             }
@@ -322,7 +322,7 @@ public final class StringCollectionDeserializer
             }
 
             try {
-                value = (valueDes == null) ? _parseString(p, ctxt) : valueDes.deserialize(p, ctxt);
+                value = (valueDes == null) ? _parseString(p, ctxt, _nullProvider) : valueDes.deserialize(p, ctxt);
             } catch (Exception e) {
                 throw JsonMappingException.wrapWithPath(e, result, result.size());
             }

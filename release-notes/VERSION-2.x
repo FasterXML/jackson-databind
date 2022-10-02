@@ -13,6 +13,9 @@ Project: jackson-databind
 #2541: Cannot merge polymorphic objects
  (reported by Matthew A)
  (fix contributed by James W)
+#3013: Allow disabling Integer to String coercion via `CoercionConfig`
+ (reported by @emilkostadinov)
+ (fix contributed by Jordi O-A)
 #3311: Add serializer-cache size limit to avoid Metaspace issues from
   caching Serializers
  (requested by mcolemanNOW@github)

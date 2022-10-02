@@ -211,7 +211,7 @@ public final class StringCollectionDeserializer
                     }
                     value = (String) _nullProvider.getNullValue(ctxt);
                 } else {
-                    value = _parseString(p, ctxt);
+                    value = _parseString(p, ctxt, _nullProvider);
                 }
                 result.add(value);
             }
@@ -316,8 +316,7 @@ public final class StringCollectionDeserializer
                 }
                 // if coercion failed, we can still add it to a list
             }
-
-            value = (valueDes == null) ? _parseString(p, ctxt) : valueDes.deserialize(p, ctxt);
+            value = (valueDes == null) ? _parseString(p, ctxt, _nullProvider) : valueDes.deserialize(p, ctxt);
         }
         result.add(value);
         return result;

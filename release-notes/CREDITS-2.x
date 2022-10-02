@@ -1485,6 +1485,8 @@ Igor Shymko (ancane@github)
   (2.14.0)
 
 Jordi Ortolá Ankum (Tomasito665@github)
+  * Contributed #3013: Allow disabling Integer to String coercion via `CoercionConfig`
+  (2.14.0)
   * Contributed #3503: `StdDeserializer` coerces ints to floats even if configured to fail
   (2.14.0)
 

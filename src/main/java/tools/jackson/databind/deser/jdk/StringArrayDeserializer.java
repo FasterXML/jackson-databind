@@ -40,7 +40,7 @@ public final class StringArrayDeserializer
     protected ValueDeserializer<String> _elementDeserializer;
 
     /**
-     * Handler we need for dealing with nulls.
+     * Handler we need for dealing with null values as elements
      */
     protected final NullValueProvider _nullProvider;
 
@@ -48,16 +48,12 @@ public final class StringArrayDeserializer
      * Specific override for this instance (from proper, or global per-type overrides)
      * to indicate whether single value may be taken to mean an unwrapped one-element array
      * or not. If null, left to global defaults.
-     *
-     * @since 2.7
      */
     protected final Boolean _unwrapSingle;
 
     /**
      * Marker flag set if the <code>_nullProvider</code> indicates that all null
      * content values should be skipped (instead of being possibly converted).
-     *
-     * @since 2.9
      */
     protected final boolean _skipNullValues;
     
@@ -75,12 +71,12 @@ public final class StringArrayDeserializer
         _skipNullValues = NullsConstantProvider.isSkipper(nuller);
     }
 
-    @Override // since 2.12
+    @Override
     public LogicalType logicalType() {
         return LogicalType.Array;
     }
 
-    @Override // since 2.9
+    @Override
     public Boolean supportsUpdate(DeserializationConfig config) {
         return Boolean.TRUE;
     }
@@ -158,7 +154,7 @@ public final class StringArrayDeserializer
                         }
                         value = (String) _nullProvider.getNullValue(ctxt);
                     } else {
-                        value = _parseString(p, ctxt);
+                        value = _parseString(p, ctxt, _nullProvider);
                     }
                 }
                 if (ix >= chunk.length) {
@@ -278,7 +274,7 @@ public final class StringArrayDeserializer
                         }
                         value = (String) _nullProvider.getNullValue(ctxt);
                     } else {
-                        value = _parseString(p, ctxt);
+                        value = _parseString(p, ctxt, _nullProvider);
                     }
                 }
                 if (ix >= chunk.length) {
@@ -327,7 +323,7 @@ public final class StringArrayDeserializer
                     // if coercion failed, we can still add it to an array
                 }
 
-                value = _parseString(p, ctxt);
+                value = _parseString(p, ctxt, _nullProvider);
             }
             return new String[] { value };
         }

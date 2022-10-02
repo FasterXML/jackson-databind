@@ -36,40 +36,15 @@ public class StringDeserializer extends StdScalarDeserializer<String> // non-fin
     @Override
     public String deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
+        // The critical path: ensure we handle the common case first.
         if (p.hasToken(JsonToken.VALUE_STRING)) {
             return p.getText();
         }
-        JsonToken t = p.currentToken();
         // [databind#381]
-        if (t == JsonToken.START_ARRAY) {
+        if (p.hasToken(JsonToken.START_ARRAY)) {
             return _deserializeFromArray(p, ctxt);
         }
-        // need to gracefully handle byte[] data, as base64
-        if (t == JsonToken.VALUE_EMBEDDED_OBJECT) {
-            Object ob = p.getEmbeddedObject();
-            if (ob == null) {
-                return null;
-            }
-            if (ob instanceof byte[]) {
-                return ctxt.getBase64Variant().encode((byte[]) ob, false);
-            }
-            // otherwise, try conversion using toString()...
-            return ob.toString();
-        }
-        // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
-        if (t == JsonToken.START_OBJECT) {
-            return ctxt.extractScalarFromObject(p, this, _valueClass);
-        }
-        // allow coercions for other scalar types
-        // 17-Jan-2018, tatu: Related to [databind#1853] avoid FIELD_NAME by ensuring it's
-        //   "real" scalar
-        if (t.isScalarValue()) {
-            String text = p.getValueAsString();
-            if (text != null) {
-                return text;
-            }
-        }
-        return (String) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+        return _parseString(p, ctxt, this);
     }
 
     // Since we can never have type info ("natural type"; String, Boolean, Integer, Double):

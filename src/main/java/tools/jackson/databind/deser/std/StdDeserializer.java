@@ -1246,10 +1246,37 @@ public abstract class StdDeserializer<T>
     }
 
     /**
-     * Helper method used for accessing String value, if possible, doing
-     * necessary conversion or throwing exception as necessary.
+     * @since 2.1
+     * @deprecated Since 2.14 (use the non-deprecated overload)
      */
-    protected final String _parseString(JsonParser p, DeserializationContext ctxt) throws JacksonException
+    @Deprecated
+    protected final String _parseString(JsonParser p, DeserializationContext ctxt)
+        throws IOException
+    {
+        return _parseString(p, ctxt,
+                // Note: could consider passing `this`, but since this methods is
+                // often called for values "inside" type we are handling (like
+                // String array or Collection of Strings) that would probably
+                // not match. So default to "nulls as nulls" handler.
+                NullsConstantProvider.nuller());
+    }
+
+    /**
+     * Helper method used for deserializing String value, if possible, doing
+     * necessary conversion or throwing exception as necessary.
+     *<p>
+     * Will check {@code CoercionConfig}
+     * configuration to check whether coercion needed is allowed.
+     *
+     * @param p Currently active parser being iterated over
+     * @param ctxt Deserialization context
+     * @param nullProvider Entity we (only) need for case of secondary value
+     *    type being coerced into {@code null}: if so, provider is asked for
+     *    possible "null replacement" value.
+     */
+    protected final String _parseString(JsonParser p, DeserializationContext ctxt,
+            NullValueProvider nullProvider)
+        throws JacksonException
     {
         if (p.hasToken(JsonToken.VALUE_STRING)) {
             return p.getText();
@@ -1271,11 +1298,25 @@ public abstract class StdDeserializer<T>
             return ctxt.extractScalarFromObject(p, this, _valueClass);
         }
 
-        String value = p.getValueAsString();
-        if (value != null) {
-            return value;
+        if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
+            final CoercionAction act = _checkIntToStringCoercion(p, ctxt, _valueClass);
+            if (act == CoercionAction.AsNull) {
+                return (String) nullProvider.getNullValue(ctxt);
+            }
+            if (act == CoercionAction.AsEmpty) {
+                return "";
+            }
         }
-        return (String) ctxt.handleUnexpectedToken(ctxt.constructType(String.class), p);
+        // allow coercions for other scalar types
+        // 17-Jan-2018, tatu: Related to [databind#1853] avoid FIELD_NAME by ensuring it's
+        //   "real" scalar
+        if (p.currentToken().isScalarValue()) {
+            String text = p.getValueAsString();
+            if (text != null) {
+                return text;
+            }
+        }
+        return (String) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 
     /**
@@ -1310,22 +1351,16 @@ public abstract class StdDeserializer<T>
 
     /*
     /**********************************************************************
-    /* Helper methods for sub-classes, new (2.12+)
+    /* Helper methods for sub-classes, coercion checks
     /**********************************************************************
      */
 
-    /**
-     * @since 2.12
-     */
     protected CoercionAction _checkFromStringCoercion(DeserializationContext ctxt, String value)
         throws JacksonException
     {
         return _checkFromStringCoercion(ctxt, value, logicalType(), handledType());
     }
 
-    /**
-     * @since 2.12
-     */
     protected CoercionAction _checkFromStringCoercion(DeserializationContext ctxt, String value,
             LogicalType logicalType, Class<?> rawTargetType)
         throws JacksonException
@@ -1362,9 +1397,6 @@ value, _coercedTypeDesc());
         return act;
     }
 
-    /**
-     * @since 2.12
-     */
     protected CoercionAction _checkFloatToIntCoercion(JsonParser p, DeserializationContext ctxt,
             Class<?> rawTargetType)
         throws JacksonException
@@ -1374,6 +1406,19 @@ value, _coercedTypeDesc());
         if (act == CoercionAction.Fail) {
             return _checkCoercionFail(ctxt, act, rawTargetType, p.getNumberValue(),
                     "Floating-point value ("+p.getText()+")");
+        }
+        return act;
+    }
+
+    protected CoercionAction _checkIntToStringCoercion(JsonParser p, DeserializationContext ctxt,
+            Class<?> rawTargetType)
+        throws JacksonException
+    {
+        final CoercionAction act = ctxt.findCoercionAction(LogicalType.Textual,
+                rawTargetType, CoercionInputShape.Integer);
+        if (act == CoercionAction.Fail) {
+            return _checkCoercionFail(ctxt, act, rawTargetType, p.getNumberValue(),
+                    "Integer value (" + p.getText() + ")");
         }
         return act;
     }
@@ -1417,9 +1462,6 @@ value, _coercedTypeDesc());
         return !"0".equals(p.getText());
     }
 
-    /**
-     * @since 2.12
-     */
     protected CoercionAction _checkCoercionFail(DeserializationContext ctxt,
             CoercionAction act, Class<?> targetType, Object inputValue,
             String inputDesc)

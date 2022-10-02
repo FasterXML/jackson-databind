@@ -4,17 +4,18 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
+import tools.jackson.databind.BaseMapTest;
+import tools.jackson.databind.DefaultTyping;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 public class Java17CollectionsTest extends BaseMapTest
 {
     private final ObjectMapper MAPPER = JsonMapper.builder()
             .activateDefaultTypingAsProperty(
                  new NoCheckSubTypeValidator(),
-                 ObjectMapper.DefaultTyping.EVERYTHING,
+                 DefaultTyping.EVERYTHING,
                  "@class"
             ).build();
 

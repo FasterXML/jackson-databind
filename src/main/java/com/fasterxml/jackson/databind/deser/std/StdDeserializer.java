@@ -1366,10 +1366,35 @@ public abstract class StdDeserializer<T>
     }
 
     /**
-     * Helper method used for accessing String value, if possible, doing
-     * necessary conversion or throwing exception as necessary.
-     *
      * @since 2.1
+     * @deprecated Since 2.14 (use the non-deprecated overload)
+     */
+    @Deprecated
+    protected final String _parseString(JsonParser p, DeserializationContext ctxt)
+        throws IOException
+    {
+        return _parseString(p, ctxt,
+                // Note: could consider passing `this`, but since this methods is
+                // often called for values "inside" type we are handling (like
+                // String array or Collection of Strings) that would probably
+                // not match. So default to "nulls as nulls" handler.
+                NullsConstantProvider.nuller());
+    }
+
+    /**
+     * Helper method used for deserializing String value, if possible, doing
+     * necessary conversion or throwing exception as necessary.
+     *<p>
+     * Starting with 2.14 will also start checking {@code CoercionConfig}
+     * configuration to check whether coercion needed is allowed.
+     *
+     * @param p Currently active parser being iterated over
+     * @param ctxt Deserialization context
+     * @param nullProvider Entity we (only) need for case of secondary value
+     *    type being coerced into {@code null}: if so, provider is asked for
+     *    possible "null replacement" value.
+     *
+     * @since 2.14 (with this signature)
      */
     protected final String _parseString(JsonParser p, DeserializationContext ctxt,
             NullValueProvider nullProvider)
@@ -1413,7 +1438,7 @@ public abstract class StdDeserializer<T>
                 return text;
             }
         }
-        return (String) ctxt.handleUnexpectedToken(String.class, p);
+        return (String) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 
     /**

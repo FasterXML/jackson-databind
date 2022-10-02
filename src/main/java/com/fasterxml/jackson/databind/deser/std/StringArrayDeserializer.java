@@ -44,7 +44,7 @@ public final class StringArrayDeserializer
     protected JsonDeserializer<String> _elementDeserializer;
 
     /**
-     * Handler we need for dealing with nulls.
+     * Handler we need for dealing with null values as elements
      *
      * @since 2.9
      */

@@ -5,7 +5,6 @@ import java.io.IOException;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.LogicalType;
 
@@ -38,6 +37,7 @@ public class StringDeserializer extends StdScalarDeserializer<String> // non-fin
     @Override
     public String deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
+        // The critical path: ensure we handle the common case first.
         if (p.hasToken(JsonToken.VALUE_STRING)) {
             return p.getText();
         }

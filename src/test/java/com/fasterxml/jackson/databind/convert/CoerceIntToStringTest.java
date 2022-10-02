@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.type.LogicalType;
 
+// [databind#3013] / PR #3608
 public class CoerceIntToStringTest extends BaseMapTest
 {
     private final ObjectMapper DEFAULT_MAPPER = newJsonMapper();

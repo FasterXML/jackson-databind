@@ -2,12 +2,11 @@ package com.fasterxml.jackson.databind.deser.impl;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.NullValueProvider;
-import com.fasterxml.jackson.databind.exc.InvalidNullException;
 import com.fasterxml.jackson.databind.util.AccessPattern;
 
 /**
- * Simple {@link NullValueProvider} that will always throw a
- * {@link InvalidNullException} when a null is encountered.
+ * Simple {@link NullValueProvider} that will return "empty value"
+ * specified by {@link JsonDeserializer} provider is constructed with.
  */
 public class NullsAsEmptyProvider
     implements NullValueProvider, java.io.Serializable

@@ -2,12 +2,11 @@ package tools.jackson.databind.deser.impl;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.NullValueProvider;
-import tools.jackson.databind.exc.InvalidNullException;
 import tools.jackson.databind.util.AccessPattern;
 
 /**
- * Simple {@link NullValueProvider} that will always throw a
- * {@link InvalidNullException} when a null is encountered.
+ * Simple {@link NullValueProvider} that will return "empty value"
+ * specified by {@link ValueDeserializer} provider is constructed with.
  */
 public class NullsAsEmptyProvider
     implements NullValueProvider, java.io.Serializable

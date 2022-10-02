@@ -2,12 +2,14 @@ package tools.jackson.databind.deser.impl;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.NullValueProvider;
-import tools.jackson.databind.exc.InvalidNullException;
 import tools.jackson.databind.util.AccessPattern;
 
 /**
- * Simple {@link NullValueProvider} that will always throw a
- * {@link InvalidNullException} when a null is encountered.
+ * Simple {@link NullValueProvider} that will simply return given
+ * constant value when a null is encountered; or, with a specially
+ * constructed instance (see {@link #skipper}, indicate the need
+ * for special behavior of skipping property altogether (not setting
+ * as anything OR throwing exception).
  */
 public class NullsConstantProvider
     implements NullValueProvider, java.io.Serializable

@@ -69,13 +69,10 @@ public class DefaultAccessorNamingStrategy
     public String findNameForIsGetter(AnnotatedMethod am, String name)
     {
         if (_isGetterPrefix != null) {
-            final Class<?> rt = am.getRawType();
-            if (rt == Boolean.class || rt == Boolean.TYPE) {
-                if (name.startsWith(_isGetterPrefix)) {
-                    return _stdBeanNaming
-                            ? stdManglePropertyName(name, 2)
-                            : legacyManglePropertyName(name, 2);
-                }
+            if (name.startsWith(_isGetterPrefix)) {
+                return _stdBeanNaming
+                        ? stdManglePropertyName(name, 2)
+                        : legacyManglePropertyName(name, 2);
             }
         }
         return null;

@@ -613,7 +613,19 @@ public class MapDeserializer
                 if (useObjectId) {
                     referringAccumulator.put(key, value);
                 } else {
-                    result.put(key, value);
+                    if (result.containsKey(key) && ctxt.isEnabled(StreamReadCapability.DUPLICATE_PROPERTIES)) {
+                        Object oldValue = result.get(key);
+                        if (oldValue instanceof List) {
+                            ((List<Object>) oldValue).add(value);
+                        } else {
+                            List<Object> newValue = new ArrayList<>();
+                            newValue.add(oldValue);
+                            newValue.add(value);
+                            result.put(key, newValue);
+                        }
+                    } else {
+                        result.put(key, value);
+                    }
                 }
             } catch (UnresolvedForwardReference reference) {
                 handleUnresolvedReference(ctxt, referringAccumulator, key, reference);

@@ -1493,4 +1493,8 @@ Jordi Ortolá Ankum (Tomasito665@github)
 Arnaud Solé (Bluexin@github)
   * Contributed #3505: Fix deduction deserializer with DefaultTypeResolverBuilder
   (2.14.0)
- 
+
+Richard Kwasnicki (Richie94@github)
+  * Contributed #3609: Allow non-boolean return type for "is-getters" with
+  `MapperFeature.ALLOW_IS_GETTERS_FOR_NON_BOOLEAN`
+  (2.14.0)

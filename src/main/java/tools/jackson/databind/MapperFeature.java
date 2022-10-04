@@ -348,6 +348,17 @@ public enum MapperFeature
      */
     ALLOW_EXPLICIT_PROPERTY_RENAMING(false),
 
+    /**
+     * Feature that when enabled will allow getters with is-Prefix also for
+     * non-boolean return types; if disabled only methods that return
+     * {@code boolean} or {@code Boolean} qualify as "is getters".
+     * <p>
+     * Feature is disabled by default for backwards compatibility.
+     *
+     * @since 2.14
+     */
+    ALLOW_IS_GETTERS_FOR_NON_BOOLEAN(false),
+
     /*
     /**********************************************************************
     /* Coercion features

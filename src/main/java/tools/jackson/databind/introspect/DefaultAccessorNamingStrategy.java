@@ -7,6 +7,7 @@ import java.util.Set;
 
 import tools.jackson.databind.AnnotationIntrospector;
 import tools.jackson.databind.BeanDescription;
+import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.annotation.JsonPOJOBuilder;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.jdk14.JDK14Util;
@@ -22,8 +23,6 @@ public class DefaultAccessorNamingStrategy
      * Definition of a handler API to use for checking whether given base name
      * (remainder of accessor method name after removing prefix) is acceptable
      * based on various rules.
-     *
-     * @since 2.12
      */
     public interface BaseNameValidator {
         public boolean accept(char firstChar, String basename, int offset);
@@ -37,7 +36,10 @@ public class DefaultAccessorNamingStrategy
      */
     protected final BaseNameValidator _baseNameValidator;
 
+    protected final boolean _isGettersNonBoolean;
+
     protected final String _getterPrefix;
+
     protected final String _isGetterPrefix;
 
     /**
@@ -52,7 +54,7 @@ public class DefaultAccessorNamingStrategy
     {
         _config = config;
         _forClass = forClass;
-
+        _isGettersNonBoolean = config.isEnabled(MapperFeature.ALLOW_IS_GETTERS_FOR_NON_BOOLEAN);
         _mutatorPrefix = mutatorPrefix;
         _getterPrefix = getterPrefix;
         _isGetterPrefix = isGetterPrefix;
@@ -64,7 +66,7 @@ public class DefaultAccessorNamingStrategy
     {
         if (_isGetterPrefix != null) {
             final Class<?> rt = am.getRawType();
-            if (rt == Boolean.class || rt == Boolean.TYPE) {
+            if (_isGettersNonBoolean || rt == Boolean.class || rt == Boolean.TYPE) {
                 if (name.startsWith(_isGetterPrefix)) { // plus, must return a boolean
                     return stdManglePropertyName(name, 2);
                 }

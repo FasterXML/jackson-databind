@@ -487,9 +487,11 @@ public enum MapperFeature implements ConfigFeature
     ALLOW_EXPLICIT_PROPERTY_RENAMING(false),
 
     /**
-     * Feature that when enabled will allow getters with is-Prefix also for non-boolean return types.
+     * Feature that when enabled will allow getters with is-Prefix also for
+     * non-boolean return types; if disabled only methods that return
+     * {@code boolean} or {@code Boolean} qualify as "is getters".
      * <p>
-     * Feature is disabled by default.
+     * Feature is disabled by default for backwards compatibility.
      *
      * @since 2.14
      */

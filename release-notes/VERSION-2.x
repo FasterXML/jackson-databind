@@ -64,6 +64,9 @@ Project: jackson-databind
   argument as `JsonPointer` if valid expression
 #3590: Add check in primitive value deserializers to avoid deep wrapper array
   nesting wrt `UNWRAP_SINGLE_VALUE_ARRAYS`
+#3609: Allow non-boolean return type for "is-getters" with
+  `MapperFeature.ALLOW_IS_GETTERS_FOR_NON_BOOLEAN`
+ (contributed by Richard K)
 
 2.13.4 (03-Sep-2022)
 

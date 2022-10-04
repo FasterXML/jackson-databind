@@ -44,6 +44,10 @@ public class DefaultAccessorNamingStrategy
     protected final boolean _isGettersNonBoolean;
 
     protected final String _getterPrefix;
+
+    /**
+     * @since 2.14
+     */
     protected final String _isGetterPrefix;
 
     /**

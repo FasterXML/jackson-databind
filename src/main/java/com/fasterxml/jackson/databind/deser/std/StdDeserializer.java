@@ -1400,11 +1400,13 @@ public abstract class StdDeserializer<T>
             NullValueProvider nullProvider)
         throws IOException
     {
-        if (p.hasToken(JsonToken.VALUE_STRING)) {
+        CoercionAction act = CoercionAction.TryConvert;
+
+        switch (p.currentTokenId()) {
+        case JsonTokenId.ID_STRING:
             return p.getText();
-        }
         // 07-Nov-2019, tatu: [databind#2535] Need to support byte[]->Base64 same as `StringDeserializer`
-        if (p.hasToken(JsonToken.VALUE_EMBEDDED_OBJECT)) {
+        case JsonTokenId.ID_EMBEDDED_OBJECT:
             Object ob = p.getEmbeddedObject();
             if (ob instanceof byte[]) {
                 return ctxt.getBase64Variant().encode((byte[]) ob, false);
@@ -1414,21 +1416,28 @@ public abstract class StdDeserializer<T>
             }
             // otherwise, try conversion using toString()...
             return ob.toString();
-        }
         // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
-        if (p.hasToken(JsonToken.START_OBJECT)) {
+        case JsonTokenId.ID_START_OBJECT:
             return ctxt.extractScalarFromObject(p, this, _valueClass);
+        case JsonTokenId.ID_NUMBER_INT:
+            act = _checkIntToStringCoercion(p, ctxt, _valueClass);
+            break;
+        case JsonTokenId.ID_NUMBER_FLOAT:
+            act = _checkFloatToStringCoercion(p, ctxt, _valueClass);
+            break;
+        case JsonTokenId.ID_TRUE:
+        case JsonTokenId.ID_FALSE:
+            act = _checkBooleanToStringCoercion(p, ctxt, _valueClass);
+            break;
         }
 
-        if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
-            final CoercionAction act = _checkIntToStringCoercion(p, ctxt, _valueClass);
-            if (act == CoercionAction.AsNull) {
-                return (String) nullProvider.getNullValue(ctxt);
-            }
-            if (act == CoercionAction.AsEmpty) {
-                return "";
-            }
+        if (act == CoercionAction.AsNull) {
+            return (String) nullProvider.getNullValue(ctxt);
         }
+        if (act == CoercionAction.AsEmpty) {
+            return "";
+        }
+
         // allow coercions for other scalar types
         // 17-Jan-2018, tatu: Related to [databind#1853] avoid FIELD_NAME by ensuring it's
         //   "real" scalar
@@ -1551,11 +1560,41 @@ value, _coercedTypeDesc());
             Class<?> rawTargetType)
         throws IOException
     {
+        return _checkToStringCoercion(p, ctxt, rawTargetType, p.getNumberValue(), CoercionInputShape.Integer);
+    }
+
+    /**
+     * @since 2.14
+     */
+    protected CoercionAction _checkFloatToStringCoercion(JsonParser p, DeserializationContext ctxt,
+            Class<?> rawTargetType)
+        throws IOException
+    {
+        return _checkToStringCoercion(p, ctxt, rawTargetType, p.getNumberValue(), CoercionInputShape.Float);
+    }
+
+    /**
+     * @since 2.14
+     */
+    protected CoercionAction _checkBooleanToStringCoercion(JsonParser p, DeserializationContext ctxt,
+            Class<?> rawTargetType)
+        throws IOException
+    {
+        return _checkToStringCoercion(p, ctxt, rawTargetType, p.getBooleanValue(), CoercionInputShape.Boolean);
+    }
+
+    /**
+     * @since 2.14
+     */
+    protected CoercionAction _checkToStringCoercion(JsonParser p, DeserializationContext ctxt,
+            Class<?> rawTargetType, Object inputValue, CoercionInputShape inputShape)
+        throws IOException
+    {
         final CoercionAction act = ctxt.findCoercionAction(LogicalType.Textual,
-                rawTargetType, CoercionInputShape.Integer);
+                rawTargetType, inputShape);
         if (act == CoercionAction.Fail) {
-            return _checkCoercionFail(ctxt, act, rawTargetType, p.getNumberValue(),
-                    "Integer value (" + p.getText() + ")");
+            return _checkCoercionFail(ctxt, act, rawTargetType, inputValue,
+                    inputShape.name() + " value (" + p.getText() + ")");
         }
         return act;
     }

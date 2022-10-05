@@ -65,7 +65,7 @@ Project: jackson-databind
 #3568: Change `JsonNode.with(String)` and `withArray(String)` to consider
   argument as `JsonPointer` if valid expression
 #3590: Add check in primitive value deserializers to avoid deep wrapper array
-  nesting wrt `UNWRAP_SINGLE_VALUE_ARRAYS`
+  nesting wrt `UNWRAP_SINGLE_VALUE_ARRAYS` [CVE-2022-42003]
 #3609: Allow non-boolean return type for "is-getters" with
   `MapperFeature.ALLOW_IS_GETTERS_FOR_NON_BOOLEAN`
  (contributed by Richard K)
@@ -80,7 +80,7 @@ Project: jackson-databind
   immutable in 2.13
  (reported by JonasWilms@github)
 #3582: Add check in `BeanDeserializer._deserializeFromArray()` to prevent
-  use of deeply nested arrays
+  use of deeply nested arrays [CVE-2022-42004]
 
 2.13.3 (14-May-2022)
 

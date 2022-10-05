@@ -6,7 +6,7 @@ Project: jackson-databind
 
 (3.0.x and later changes not included here)
 
-2.14.0-rc1 (25-Sep-2022)
+2.14.0-rc2 (not yet released)
 
 #1980: Add method(s) in `JsonNode` that works like combination of `at()`
   and `with()`: `withObject(...)` and `withArray(...)`
@@ -69,6 +69,8 @@ Project: jackson-databind
 #3609: Allow non-boolean return type for "is-getters" with
   `MapperFeature.ALLOW_IS_GETTERS_FOR_NON_BOOLEAN`
  (contributed by Richard K)
+#3613: Implement `float` and `boolean` to `String` coercion config
+ (fix contributed by Jordi O-A)
 
 2.13.4 (03-Sep-2022)
 

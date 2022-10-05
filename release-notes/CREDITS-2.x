@@ -1489,6 +1489,8 @@ Jordi Ortolá Ankum (Tomasito665@github)
   (2.14.0)
   * Contributed #3503: `StdDeserializer` coerces ints to floats even if configured to fail
   (2.14.0)
+  * Contributed #3613: Implement `float` and `boolean` to `String` coercion config
+  (2.14.0)
 
 Arnaud Solé (Bluexin@github)
   * Contributed #3505: Fix deduction deserializer with DefaultTypeResolverBuilder

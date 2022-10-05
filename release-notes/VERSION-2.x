@@ -14,7 +14,7 @@ Project: jackson-databind
   immutable in 2.13
  (reported by JonasWilms@github)
 #3582: Add check in `BeanDeserializer._deserializeFromArray()` to prevent
-  use of deeply nested arrays
+  use of deeply nested arrays [CVE-2022-42004]
 
 2.13.3 (14-May-2022)
 

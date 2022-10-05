@@ -55,6 +55,12 @@ public class MapDeserializer
     protected boolean _standardStringKey;
 
     /**
+     * Flag used to check, whether the {@link com.fasterxml.jackson.core.StreamReadCapability.DUPLICATE_PROPERTIES} can be applied,
+     * because the Map is of value type Object.
+     */
+    protected boolean _canSquash;
+
+    /**
      * Value deserializer.
      */
     protected final JsonDeserializer<Object> _valueDeserializer;
@@ -120,6 +126,7 @@ public class MapDeserializer
         _delegateDeserializer = null;
         _propertyBasedCreator = null;
         _standardStringKey = _isStdKeyDeser(mapType, keyDeser);
+        _canSquash = mapType.getContentType().hasRawClass(Object.class);
         _inclusionChecker = null;
     }
 
@@ -143,6 +150,7 @@ public class MapDeserializer
         _inclusionChecker = src._inclusionChecker;
 
         _standardStringKey = src._standardStringKey;
+        _canSquash = src._canSquash;
     }
 
     protected MapDeserializer(MapDeserializer src,
@@ -177,6 +185,7 @@ public class MapDeserializer
         _inclusionChecker = IgnorePropertiesUtil.buildCheckerIfNeeded(ignorable, includable);
 
         _standardStringKey = _isStdKeyDeser(_containerType, keyDeser);
+        _canSquash = _containerType.getContentType().hasRawClass(Object.class);
     }
 
     /**
@@ -551,7 +560,10 @@ public class MapDeserializer
                 if (useObjectId) {
                     referringAccumulator.put(key, value);
                 } else {
-                    result.put(key, value);
+                    Object oldValue = result.put(key, value);
+                    if (oldValue != null&& _canSquash && ctxt.isEnabled(StreamReadCapability.DUPLICATE_PROPERTIES)) {
+                        _squashDups(result, key, oldValue, value);
+                    }
                 }
             } catch (UnresolvedForwardReference reference) {
                 handleUnresolvedReference(ctxt, referringAccumulator, key, reference);
@@ -613,18 +625,9 @@ public class MapDeserializer
                 if (useObjectId) {
                     referringAccumulator.put(key, value);
                 } else {
-                    if (result.containsKey(key) && ctxt.isEnabled(StreamReadCapability.DUPLICATE_PROPERTIES)) {
-                        Object oldValue = result.get(key);
-                        if (oldValue instanceof List) {
-                            ((List<Object>) oldValue).add(value);
-                        } else {
-                            List<Object> newValue = new ArrayList<>();
-                            newValue.add(oldValue);
-                            newValue.add(value);
-                            result.put(key, newValue);
-                        }
-                    } else {
-                        result.put(key, value);
+                    Object oldValue = result.put(key, value);
+                    if (oldValue != null&& _canSquash && ctxt.isEnabled(StreamReadCapability.DUPLICATE_PROPERTIES)) {
+                        _squashDups(result, key, oldValue, value);
                     }
                 }
             } catch (UnresolvedForwardReference reference) {
@@ -634,6 +637,21 @@ public class MapDeserializer
             }
         }
         // 23-Mar-2015, tatu: TODO: verify we got END_OBJECT?
+    }
+
+    @SuppressWarnings("unchecked")
+    private void _squashDups(final Map<Object, Object> result, Object key,
+                             Object oldValue, Object newValue)
+    {
+        if (oldValue instanceof List<?>) {
+            ((List<Object>) oldValue).add(newValue);
+            result.put(key, oldValue);
+        } else {
+            ArrayList<Object> l = new ArrayList<>();
+            l.add(oldValue);
+            l.add(newValue);
+            result.put(key, l);
+        }
     }
     
     @SuppressWarnings("unchecked") 
@@ -773,7 +791,10 @@ public class MapDeserializer
                     value = valueDes.deserializeWithType(p, ctxt, typeDeser);
                 }
                 if (value != old) {
-                    result.put(key, value);
+                    Object oldValue = result.put(key, value);
+                    if (oldValue != null&& _canSquash && ctxt.isEnabled(StreamReadCapability.DUPLICATE_PROPERTIES)) {
+                        _squashDups(result, key, oldValue, value);
+                    }
                 }
             } catch (Exception e) {
                 wrapAndThrow(ctxt, e, result, keyStr);
@@ -840,7 +861,10 @@ public class MapDeserializer
                     value = valueDes.deserializeWithType(p, ctxt, typeDeser);
                 }
                 if (value != old) {
-                    result.put(key, value);
+                    Object oldValue = result.put(key, value);
+                    if (oldValue != null&& _canSquash && ctxt.isEnabled(StreamReadCapability.DUPLICATE_PROPERTIES)) {
+                        _squashDups(result, key, oldValue, value);
+                    }
                 }
             } catch (Exception e) {
                 wrapAndThrow(ctxt, e, result, key);

@@ -444,9 +444,9 @@ public class MapDeserializer
             final Map<Object,Object> result = (Map<Object,Object>) _valueInstantiator.createUsingDefault(ctxt);
             if (_standardStringKey) {
                 _readAndBindStringKeyMap(p, ctxt, result);
-                return result;
+            } else {
+                _readAndBind(p, ctxt, result);
             }
-            _readAndBind(p, ctxt, result);
             return result;
         case JsonTokenId.ID_STRING:
             // (empty) String may be ok however; or single-String-arg ctor
@@ -476,9 +476,9 @@ public class MapDeserializer
         // 21-Apr-2017, tatu: Need separate methods to do proper merging
         if (_standardStringKey) {
             _readAndUpdateStringKeyMap(p, ctxt, result);
-            return result;
+        } else {
+            _readAndUpdate(p, ctxt, result);
         }
-        _readAndUpdate(p, ctxt, result);
         return result;
     }
 
@@ -504,19 +504,15 @@ public class MapDeserializer
 
     /*
     /**********************************************************
-    /* Internal methods, non-merging deserialization
+    /* Internal methods, configurable merging deserialization
     /**********************************************************
      */
 
     protected final void _readAndBind(JsonParser p, DeserializationContext ctxt,
             Map<Object,Object> result) throws IOException
     {
-        final KeyDeserializer keyDes = _keyDeserializer;
-        final JsonDeserializer<Object> valueDes = _valueDeserializer;
-        final TypeDeserializer typeDeser = _valueTypeDeserializer;
-        
         MapReferringAccumulator referringAccumulator = null;
-        boolean useObjectId = valueDes.getObjectIdReader() != null;
+        boolean useObjectId = _valueDeserializer.getObjectIdReader() != null;
         if (useObjectId) {
             referringAccumulator = new MapReferringAccumulator(_containerType.getContentType().getRawClass(),
                     result);
@@ -537,39 +533,9 @@ public class MapDeserializer
         }
         
         for (; keyStr != null; keyStr = p.nextFieldName()) {
-            Object key = keyDes.deserializeKey(keyStr, ctxt);
+            Object key = _keyDeserializer.deserializeKey(keyStr, ctxt);
             // And then the value...
-            JsonToken t = p.nextToken();
-            if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(keyStr)) {
-                p.skipChildren();
-                continue;
-            }
-            try {
-                // Note: must handle null explicitly here; value deserializers won't
-                Object value;
-                if (t == JsonToken.VALUE_NULL) {
-                    if (_skipNullValues) {
-                        continue;
-                    }
-                    value = _nullProvider.getNullValue(ctxt);
-                } else if (typeDeser == null) {
-                    value = valueDes.deserialize(p, ctxt);
-                } else {
-                    value = valueDes.deserializeWithType(p, ctxt, typeDeser);
-                }
-                if (useObjectId) {
-                    referringAccumulator.put(key, value);
-                } else {
-                    Object oldValue = result.put(key, value);
-                    if (oldValue != null&& _canSquash && ctxt.isEnabled(StreamReadCapability.DUPLICATE_PROPERTIES)) {
-                        _squashDups(result, key, oldValue, value);
-                    }
-                }
-            } catch (UnresolvedForwardReference reference) {
-                handleUnresolvedReference(ctxt, referringAccumulator, key, reference);
-            } catch (Exception e) {
-                wrapAndThrow(ctxt, e, result, keyStr);
-            }
+            _extractValue(p, ctxt, result, _valueDeserializer, referringAccumulator, useObjectId, keyStr, key);
         }
     }
 
@@ -581,10 +547,8 @@ public class MapDeserializer
     protected final void _readAndBindStringKeyMap(JsonParser p, DeserializationContext ctxt,
             Map<Object,Object> result) throws IOException
     {
-        final JsonDeserializer<Object> valueDes = _valueDeserializer;
-        final TypeDeserializer typeDeser = _valueTypeDeserializer;
         MapReferringAccumulator referringAccumulator = null;
-        boolean useObjectId = (valueDes.getObjectIdReader() != null);
+        boolean useObjectId = (_valueDeserializer.getObjectIdReader() != null);
         if (useObjectId) {
             referringAccumulator = new MapReferringAccumulator(_containerType.getContentType().getRawClass(), result);
         }
@@ -604,39 +568,43 @@ public class MapDeserializer
         }
 
         for (; key != null; key = p.nextFieldName()) {
-            JsonToken t = p.nextToken();
-            if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(key)) {
-                p.skipChildren();
-                continue;
-            }
-            try {
-                // Note: must handle null explicitly here; value deserializers won't
-                Object value;
-                if (t == JsonToken.VALUE_NULL) {
-                    if (_skipNullValues) {
-                        continue;
-                    }
-                    value = _nullProvider.getNullValue(ctxt);
-                } else if (typeDeser == null) {
-                    value = valueDes.deserialize(p, ctxt);
-                } else {
-                    value = valueDes.deserializeWithType(p, ctxt, typeDeser);
-                }
-                if (useObjectId) {
-                    referringAccumulator.put(key, value);
-                } else {
-                    Object oldValue = result.put(key, value);
-                    if (oldValue != null&& _canSquash && ctxt.isEnabled(StreamReadCapability.DUPLICATE_PROPERTIES)) {
-                        _squashDups(result, key, oldValue, value);
-                    }
-                }
-            } catch (UnresolvedForwardReference reference) {
-                handleUnresolvedReference(ctxt, referringAccumulator, key, reference);
-            } catch (Exception e) {
-                wrapAndThrow(ctxt, e, result, key);
-            }
+            _extractValue(p, ctxt, result, _valueDeserializer, referringAccumulator, useObjectId, key, key);
         }
         // 23-Mar-2015, tatu: TODO: verify we got END_OBJECT?
+    }
+
+    private void _extractValue(JsonParser p, DeserializationContext ctxt, Map<Object, Object> result, JsonDeserializer<Object> valueDes, MapReferringAccumulator referringAccumulator, boolean useObjectId, String keyStr, Object key) throws IOException {
+        JsonToken t = p.nextToken();
+        if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(keyStr)) {
+            p.skipChildren();
+            return;
+        }
+        try {
+            // Note: must handle null explicitly here; value deserializers won't
+            Object value;
+            if (t == JsonToken.VALUE_NULL) {
+                if (_skipNullValues) {
+                    return;
+                }
+                value = _nullProvider.getNullValue(ctxt);
+            } else if (_valueTypeDeserializer == null) {
+                value = valueDes.deserialize(p, ctxt);
+            } else {
+                value = valueDes.deserializeWithType(p, ctxt, _valueTypeDeserializer);
+            }
+            if (useObjectId) {
+                referringAccumulator.put(key, value);
+            } else {
+                Object oldValue = result.put(key, value);
+                if (oldValue != null&& _canSquash && ctxt.isEnabled(StreamReadCapability.DUPLICATE_PROPERTIES)) {
+                    _squashDups(result, key, oldValue, value);
+                }
+            }
+        } catch (UnresolvedForwardReference reference) {
+            handleUnresolvedReference(ctxt, referringAccumulator, key, reference);
+        } catch (Exception e) {
+            wrapAndThrow(ctxt, e, result, keyStr);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -739,10 +707,6 @@ public class MapDeserializer
     protected final void _readAndUpdate(JsonParser p, DeserializationContext ctxt,
             Map<Object,Object> result) throws IOException
     {
-        final KeyDeserializer keyDes = _keyDeserializer;
-        final JsonDeserializer<Object> valueDes = _valueDeserializer;
-        final TypeDeserializer typeDeser = _valueTypeDeserializer;
-
         // Note: assumption is that Object Id handling can't really work with merging
         // and thereby we can (and should) just drop that part
 
@@ -761,44 +725,9 @@ public class MapDeserializer
         }
         
         for (; keyStr != null; keyStr = p.nextFieldName()) {
-            Object key = keyDes.deserializeKey(keyStr, ctxt);
+            Object key = _keyDeserializer.deserializeKey(keyStr, ctxt);
             // And then the value...
-            JsonToken t = p.nextToken();
-            if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(keyStr)) {
-                p.skipChildren();
-                continue;
-            }
-            try {
-                // Note: must handle null explicitly here, can't merge etc
-                if (t == JsonToken.VALUE_NULL) {
-                    if (_skipNullValues) {
-                        continue;
-                    }
-                    result.put(key, _nullProvider.getNullValue(ctxt));
-                    continue;
-                }
-                Object old = result.get(key);
-                Object value;
-                if (old != null) {
-                    if (typeDeser == null) {
-                        value = valueDes.deserialize(p, ctxt, old);
-                    } else {
-                        value = valueDes.deserializeWithType(p, ctxt, typeDeser, old);
-                    }
-                } else if (typeDeser == null) {
-                    value = valueDes.deserialize(p, ctxt);
-                } else {
-                    value = valueDes.deserializeWithType(p, ctxt, typeDeser);
-                }
-                if (value != old) {
-                    Object oldValue = result.put(key, value);
-                    if (oldValue != null&& _canSquash && ctxt.isEnabled(StreamReadCapability.DUPLICATE_PROPERTIES)) {
-                        _squashDups(result, key, oldValue, value);
-                    }
-                }
-            } catch (Exception e) {
-                wrapAndThrow(ctxt, e, result, keyStr);
-            }
+            _extractUpdatedValue(p, ctxt, result, _valueDeserializer, _valueTypeDeserializer, keyStr, key);
         }
     }
 
@@ -812,9 +741,6 @@ public class MapDeserializer
     protected final void _readAndUpdateStringKeyMap(JsonParser p, DeserializationContext ctxt,
             Map<Object,Object> result) throws IOException
     {
-        final JsonDeserializer<Object> valueDes = _valueDeserializer;
-        final TypeDeserializer typeDeser = _valueTypeDeserializer;
-
         // Note: assumption is that Object Id handling can't really work with merging
         // and thereby we can (and should) just drop that part
 
@@ -833,42 +759,46 @@ public class MapDeserializer
         }
 
         for (; key != null; key = p.nextFieldName()) {
-            JsonToken t = p.nextToken();
-            if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(key)) {
-                p.skipChildren();
-                continue;
-            }
-            try {
-                // Note: must handle null explicitly here, can't merge etc
-                if (t == JsonToken.VALUE_NULL) {
-                    if (_skipNullValues) {
-                        continue;
-                    }
-                    result.put(key, _nullProvider.getNullValue(ctxt));
-                    continue;
+            _extractUpdatedValue(p, ctxt, result, _valueDeserializer, _valueTypeDeserializer, key, key);
+        }
+    }
+
+    private void _extractUpdatedValue(JsonParser p, DeserializationContext ctxt, Map<Object, Object> result, JsonDeserializer<Object> valueDes, TypeDeserializer typeDeser, String keyStr, Object key) throws IOException {
+        JsonToken t = p.nextToken();
+        if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(keyStr)) {
+            p.skipChildren();
+            return;
+        }
+        try {
+            // Note: must handle null explicitly here, can't merge etc
+            if (t == JsonToken.VALUE_NULL) {
+                if (_skipNullValues) {
+                    return;
                 }
-                Object old = result.get(key);
-                Object value;
-                if (old != null) {
-                    if (typeDeser == null) {
-                        value = valueDes.deserialize(p, ctxt, old);
-                    } else {
-                        value = valueDes.deserializeWithType(p, ctxt, typeDeser, old);
-                    }
-                } else if (typeDeser == null) {
-                    value = valueDes.deserialize(p, ctxt);
+                result.put(key, _nullProvider.getNullValue(ctxt));
+                return;
+            }
+            Object old = result.get(key);
+            Object value;
+            if (old != null) {
+                if (typeDeser == null) {
+                    value = valueDes.deserialize(p, ctxt, old);
                 } else {
-                    value = valueDes.deserializeWithType(p, ctxt, typeDeser);
+                    value = valueDes.deserializeWithType(p, ctxt, typeDeser, old);
                 }
-                if (value != old) {
-                    Object oldValue = result.put(key, value);
-                    if (oldValue != null&& _canSquash && ctxt.isEnabled(StreamReadCapability.DUPLICATE_PROPERTIES)) {
-                        _squashDups(result, key, oldValue, value);
-                    }
-                }
-            } catch (Exception e) {
-                wrapAndThrow(ctxt, e, result, key);
+            } else if (typeDeser == null) {
+                value = valueDes.deserialize(p, ctxt);
+            } else {
+                value = valueDes.deserializeWithType(p, ctxt, typeDeser);
             }
+            if (value != old) {
+                Object oldValue = result.put(key, value);
+                if (oldValue != null&& _canSquash && ctxt.isEnabled(StreamReadCapability.DUPLICATE_PROPERTIES)) {
+                    _squashDups(result, key, oldValue, value);
+                }
+            }
+        } catch (Exception e) {
+            wrapAndThrow(ctxt, e, result, keyStr);
         }
     }
 
@@ -891,13 +821,13 @@ public class MapDeserializer
         reference.getRoid().appendReferring(referring);
     }
 
-    private final static class MapReferringAccumulator {
+    private static final class MapReferringAccumulator {
         private final Class<?> _valueType;
         private Map<Object,Object> _result;
         /**
          * A list of {@link MapReferring} to maintain ordering.
          */
-        private List<MapReferring> _accumulator = new ArrayList<MapReferring>();
+        private List<MapReferring> _accumulator = new ArrayList<>();
 
         public MapReferringAccumulator(Class<?> valueType, Map<Object, Object> result) {
             _valueType = valueType;
@@ -921,8 +851,7 @@ public class MapDeserializer
             return id;
         }
 
-        public void resolveForwardReference(Object id, Object value) throws IOException
-        {
+        public void resolveForwardReference(Object id, Object value) {
             Iterator<MapReferring> iterator = _accumulator.iterator();
             // Resolve ordering after resolution of an id. This means either:
             // 1- adding to the result map in case of the first unresolved id.

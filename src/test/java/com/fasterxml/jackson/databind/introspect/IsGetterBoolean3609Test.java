@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.introspect;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 
 import java.util.Collections;
 import java.util.Map;

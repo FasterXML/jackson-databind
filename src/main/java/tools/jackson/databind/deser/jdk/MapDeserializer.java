@@ -84,17 +84,19 @@ public class MapDeserializer
 
     protected Set<String> _ignorableProperties;
 
-    /**
-     * @since 2.12
-     */
     protected Set<String> _includableProperties;
 
     /**
      * Helper object used for name-based filtering
-     *
-     * @since 2.12
      */
     protected IgnorePropertiesUtil.Checker _inclusionChecker;
+
+
+    /**
+     * Flag used to check, whether the {@link tools.jackson.core.StreamReadCapability#DUPLICATE_PROPERTIES}
+     * can be applied, because the Map has declared value type of {@code java.lang.Object}.
+     */
+    protected boolean _checkDupSquash;
 
     /*
     /**********************************************************************
@@ -116,6 +118,7 @@ public class MapDeserializer
         _propertyBasedCreator = null;
         _standardStringKey = _isStdKeyDeser(mapType, keyDeser);
         _inclusionChecker = null;
+        _checkDupSquash = mapType.getContentType().hasRawClass(Object.class);
     }
 
     /**
@@ -138,6 +141,7 @@ public class MapDeserializer
         _inclusionChecker = src._inclusionChecker;
 
         _standardStringKey = src._standardStringKey;
+        _checkDupSquash = src._checkDupSquash;
     }
 
     protected MapDeserializer(MapDeserializer src,
@@ -172,6 +176,7 @@ public class MapDeserializer
         _inclusionChecker = IgnorePropertiesUtil.buildCheckerIfNeeded(ignorable, includable);
 
         _standardStringKey = _isStdKeyDeser(_containerType, keyDeser);
+        _checkDupSquash = src._checkDupSquash;
     }
 
     /**
@@ -418,11 +423,9 @@ public class MapDeserializer
         case JsonTokenId.ID_PROPERTY_NAME:
             final Map<Object,Object> result = (Map<Object,Object>) _valueInstantiator.createUsingDefault(ctxt);
             if (_standardStringKey) {
-                _readAndBindStringKeyMap(p, ctxt, result);
-                return result;
+                return _readAndBindStringKeyMap(p, ctxt, result);
             }
-            _readAndBind(p, ctxt, result);
-            return result;
+            return _readAndBind(p, ctxt, result);
         case JsonTokenId.ID_STRING:
             // (empty) String may be ok however; or single-String-arg ctor
             return _deserializeFromString(p, ctxt);
@@ -483,7 +486,7 @@ public class MapDeserializer
     /**********************************************************************
      */
 
-    protected final void _readAndBind(JsonParser p, DeserializationContext ctxt,
+    protected final Map<Object,Object> _readAndBind(JsonParser p, DeserializationContext ctxt,
             Map<Object,Object> result) throws JacksonException
     {
         final KeyDeserializer keyDes = _keyDeserializer;
@@ -504,7 +507,7 @@ public class MapDeserializer
             JsonToken t = p.currentToken();
             if (t != JsonToken.PROPERTY_NAME) {
                 if (t == JsonToken.END_OBJECT) {
-                    return;
+                    return result;
                 }
                 ctxt.reportWrongTokenException(this, JsonToken.PROPERTY_NAME, null);
             }
@@ -535,7 +538,10 @@ public class MapDeserializer
                 if (useObjectId) {
                     referringAccumulator.put(key, value);
                 } else {
-                    result.put(key, value);
+                    Object oldValue = result.put(key, value);
+                    if (oldValue != null) {
+                        _squashDups(ctxt, result, key, oldValue, value);
+                    }
                 }
             } catch (UnresolvedForwardReference reference) {
                 handleUnresolvedReference(ctxt, referringAccumulator, key, reference);
@@ -543,6 +549,7 @@ public class MapDeserializer
                 wrapAndThrow(ctxt, e, result, keyStr);
             }
         }
+        return result;
     }
 
     /**
@@ -550,7 +557,7 @@ public class MapDeserializer
      * {@link java.lang.String}s, and there is no custom deserialized
      * specified.
      */
-    protected final void _readAndBindStringKeyMap(JsonParser p, DeserializationContext ctxt,
+    protected final Map<Object,Object> _readAndBindStringKeyMap(JsonParser p, DeserializationContext ctxt,
             Map<Object,Object> result) throws JacksonException
     {
         final ValueDeserializer<Object> valueDes = _valueDeserializer;
@@ -567,7 +574,7 @@ public class MapDeserializer
         } else {
             JsonToken t = p.currentToken();
             if (t == JsonToken.END_OBJECT) {
-                return;
+                return result;
             }
             if (t != JsonToken.PROPERTY_NAME) {
                 ctxt.reportWrongTokenException(this, JsonToken.PROPERTY_NAME, null);
@@ -597,7 +604,10 @@ public class MapDeserializer
                 if (useObjectId) {
                     referringAccumulator.put(key, value);
                 } else {
-                    result.put(key, value);
+                    Object oldValue = result.put(key, value);
+                    if (oldValue != null) {
+                        _squashDups(ctxt, result, key, oldValue, value);
+                    }
                 }
             } catch (UnresolvedForwardReference reference) {
                 handleUnresolvedReference(ctxt, referringAccumulator, key, reference);
@@ -606,6 +616,8 @@ public class MapDeserializer
             }
         }
         // 23-Mar-2015, tatu: TODO: verify we got END_OBJECT?
+
+        return result;
     }
     
     @SuppressWarnings("unchecked") 
@@ -646,8 +658,7 @@ public class MapDeserializer
                     } catch (Exception e) {
                         return wrapAndThrow(ctxt, e, _containerType.getRawClass(), key);
                     }
-                    _readAndBind(p, ctxt, result);
-                    return result;
+                    return _readAndBind(p, ctxt, result);
                 }
                 continue;
             }
@@ -812,6 +823,27 @@ public class MapDeserializer
                 }
             } catch (Exception e) {
                 wrapAndThrow(ctxt, e, result, key);
+            }
+        }
+    }
+
+    /**
+     * @since 2.14
+     */
+    @SuppressWarnings("unchecked")
+    protected void _squashDups(final DeserializationContext ctxt,
+            final Map<Object, Object> result,
+            final Object key, final Object oldValue, final Object newValue)
+    {
+        if (_checkDupSquash && ctxt.isEnabled(StreamReadCapability.DUPLICATE_PROPERTIES)) {
+            if (oldValue instanceof List<?>) {
+                ((List<Object>) oldValue).add(newValue);
+                result.put(key, oldValue);
+            } else {
+                ArrayList<Object> l = new ArrayList<>();
+                l.add(oldValue);
+                l.add(newValue);
+                result.put(key, l);
             }
         }
     }

@@ -45,6 +45,7 @@ Project: jackson-databind
 #3481: Filter method only got called once if the field is null when using
   `@JsonInclude(value = JsonInclude.Include.CUSTOM, valueFilter = SomeFieldFilter.class)`
  (contributed by AmiDavidW@github)
+#3484: Update `MapDeserializer` to support `StreamReadCapability.DUPLICATE_PROPERTIES`
 #3497: Deserialization of Throwables with PropertyNamingStrategy does not work
 #3500: Add optional explicit `JsonSubTypes` repeated names check
  (contributed by Igor S)

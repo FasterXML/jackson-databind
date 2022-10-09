@@ -898,12 +898,14 @@ the order they are declared.</div>
  works); if disabled, order is unspecified (based on what JDK gives
  us, which may be declaration order, but is not guaranteed).
 <p>
- Note that this is just the default behavior, and can be overridden by
+ Note: this is just the default behavior, and can be overridden by
  explicit overrides in classes (for example with
  <a href="http://fasterxml.github.io/jackson-annotations/javadoc/2.13/com/fasterxml/jackson/annotation/JsonPropertyOrder.html?is-external=true" title="class or interface in com.fasterxml.jackson.annotation"><code>JsonPropertyOrder</code></a> annotation)
 <p>
  Note: does <b>not</b> apply to <a href="https://docs.oracle.com/javase/8/docs/api/java/util/Map.html?is-external=true" title="class or interface in java.util"><code>Map</code></a> serialization (since
  entries are not considered Bean/POJO properties.
+<p>
+ Note: Case-sensitive with captial letters taking precedence over lower-cased ones.
 <p>
  Feature is disabled by default.</div>
 </li>

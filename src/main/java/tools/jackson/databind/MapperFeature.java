@@ -256,7 +256,7 @@ public enum MapperFeature
      * works); if disabled, order is unspecified (based on what JDK gives
      * us, which may be declaration order, but is not guaranteed).
      *<p>
-     * Note that this is just the default behavior, and can be overridden by
+     * Note that this is just the default behavior and can be overridden by
      * explicit overrides in classes (for example with
      * {@link com.fasterxml.jackson.annotation.JsonPropertyOrder} annotation)
      *<p>

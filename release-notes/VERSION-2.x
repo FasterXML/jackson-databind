@@ -6,7 +6,7 @@ Project: jackson-databind
 
 (3.0.x and later changes not included here)
 
-2.14.0-rc2 (not yet released)
+2.14.0-rc2 (10-Oct-2022)
 
 #1980: Add method(s) in `JsonNode` that works like combination of `at()`
   and `with()`: `withObject(...)` and `withArray(...)`

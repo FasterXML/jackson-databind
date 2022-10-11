@@ -2056,7 +2056,7 @@ handledType().getName());
      * Helper method called when detecting a deep(er) nesting of Arrays when trying
      * to unwrap value for {@code DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS}.
      *
-     * @since 2.14
+     * @since 2.13.4.1
      */
     protected Object handleNestedArrayForSingle(JsonParser p, DeserializationContext ctxt) throws IOException
     {

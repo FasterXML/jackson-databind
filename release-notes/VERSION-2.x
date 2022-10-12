@@ -71,7 +71,7 @@ Project: jackson-databind
 #3613: Implement `float` and `boolean` to `String` coercion config
  (fix contributed by Jordi O-A)
 
-2.13.4.1 (not yet released)
+2.13.4.1 (12-Oct-2022)
 
 #3590: Add check in primitive value deserializers to avoid deep wrapper array
   nesting wrt `UNWRAP_SINGLE_VALUE_ARRAYS` [CVE-2022-42003]

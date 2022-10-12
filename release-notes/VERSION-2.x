@@ -4,6 +4,11 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.13.4.1 (not yet released)
+
+#3590: Add check in primitive value deserializers to avoid deep wrapper array
+  nesting wrt `UNWRAP_SINGLE_VALUE_ARRAYS` [CVE-2022-42003]
+
 2.13.4 (03-Sep-2022)
 
 #3275: JDK 16 Illegal reflective access for `Throwable.setCause()` with

@@ -77,6 +77,12 @@ Not yet released:
 #3613: Implement `float` and `boolean` to `String` coercion config
  (fix contributed by Jordi O-A)
 
+2.13.4.2 (13-Oct-2022)
+
+#3627: Gradle module metadata for `2.13.4.1` references non-existent
+  jackson-bom `2.13.4.1` (instead of `2.13.4.20221012`)
+  (NOTE: root cause is [jackson-bom#52])
+
 2.13.4.1 (12-Oct-2022)
 
 #3590: Add check in primitive value deserializers to avoid deep wrapper array

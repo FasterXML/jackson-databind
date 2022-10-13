@@ -9,11 +9,11 @@
   <parent>
     <groupId>com.fasterxml.jackson</groupId>
     <artifactId>jackson-base</artifactId>
-    <version>2.13.5-SNAPSHOT</version>
+    <version>2.13.4</version>
   </parent>
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-databind</artifactId>
-  <version>2.13.5-SNAPSHOT</version>
+  <version>2.13.4.2-SNAPSHOT</version>
   <name>jackson-databind</name>
   <packaging>bundle</packaging>
   <description>General data-binding functionality for Jackson: works on core streaming API</description>
@@ -26,7 +26,7 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
-  
+
   <scm>
     <connection>scm:git:git@github.com:FasterXML/jackson-databind.git</connection>
     <developerConnection>scm:git:git@github.com:FasterXML/jackson-databind.git</developerConnection>
@@ -204,6 +204,19 @@
       <plugin>
         <groupId>de.jjohannes</groupId>
         <artifactId>gradle-module-metadata-maven-plugin</artifactId>
+        <!-- 13-Oct-2022, tatu: to resolve
+            https://github.com/FasterXML/jackson-databind/issues/3627
+          will need this locally, for now:
+         -->
+        <configuration>
+          <platformDependencies>
+            <dependency>
+              <groupId>com.fasterxml.jackson</groupId>
+              <artifactId>jackson-bom</artifactId>
+              <version>${project.parent.version}</version>
+            </dependency>
+          </platformDependencies>
+        </configuration>
       </plugin>
      </plugins>
   </build>

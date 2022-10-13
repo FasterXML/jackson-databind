@@ -1141,6 +1141,11 @@ public class ObjectMapper
         return registerModules(findModules());
     }
 
+    public ObjectMapper copyWith(TokenStreamFactory tsf) throws CloneNotSupportedException {
+        MapperBuilder builder = this.rebuild();
+        builder.withStreamFactory(tsf);
+        return new ObjectMapper(builder);
+    }
     /*
     /**********************************************************
     /* Factory methods for creating JsonGenerators (added in 2.11)

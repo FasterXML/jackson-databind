@@ -6,6 +6,12 @@ Project: jackson-databind
 
 (3.0.x and later changes not included here)
 
+Not yet released:
+
+#3624: Legacy `ALLOW_COERCION_OF_SCALARS` interacts poorly with Integer to
+  Float coercion
+(contributed by Carter K)
+
 2.14.0-rc2 (10-Oct-2022)
 
 #1980: Add method(s) in `JsonNode` that works like combination of `at()`
@@ -73,7 +79,7 @@ Project: jackson-databind
 #3613: Implement `float` and `boolean` to `String` coercion config
  (fix contributed by Jordi O-A)
 
-2.13.4.1 (not yet released)
+2.13.4.1 (12-Oct-2022)
 
 #3590: Add check in primitive value deserializers to avoid deep wrapper array
   nesting wrt `UNWRAP_SINGLE_VALUE_ARRAYS` [CVE-2022-42003]
@@ -234,6 +240,13 @@ No changes since 2.13.2.1 but fixed Gradle Module Metadata ("module.json")
 - Extend handling of `FAIL_ON_NULL_FOR_PRIMITIVES` to cover coercion from (Empty) String
   via `AsNull`
 - Add `mvnw` wrapper
+
+2.12.7.1 (12-Oct-2022)
+
+#3582: Add check in `BeanDeserializer._deserializeFromArray()` to prevent
+  use of deeply nested arrays [CVE-2022-42004]
+#3590: Add check in primitive value deserializers to avoid deep wrapper array
+  nesting wrt `UNWRAP_SINGLE_VALUE_ARRAYS` [CVE-2022-42003]
 
 2.12.7 (26-May-2022)
 

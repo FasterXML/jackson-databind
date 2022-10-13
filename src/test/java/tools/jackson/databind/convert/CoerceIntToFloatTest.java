@@ -3,6 +3,7 @@ package tools.jackson.databind.convert;
 import java.math.BigDecimal;
 
 import tools.jackson.databind.BaseMapTest;
+import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.cfg.CoercionAction;
@@ -32,6 +33,10 @@ public class CoerceIntToFloatTest extends BaseMapTest
     private final ObjectMapper MAPPER_TO_EMPTY = jsonMapperBuilder()
             .withCoercionConfig(LogicalType.Float, cfg ->
                     cfg.setCoercion(CoercionInputShape.Integer, CoercionAction.AsEmpty))
+            .build();
+
+    private final ObjectMapper LEGACY_SCALAR_COERCION_FAIL = jsonMapperBuilder()
+            .disable(MapperFeature.ALLOW_COERCION_OF_SCALARS)
             .build();
 
     public void testDefaultIntToFloatCoercion() throws Exception
@@ -115,10 +120,15 @@ public class CoerceIntToFloatTest extends BaseMapTest
         _verifyCoerceFail(MAPPER_TO_FAIL, BigDecimal.class, "73455342");
     }
 
+    public void testLegacyConfiguration() throws Exception
+    {
+        assertSuccessfulIntToFloatConversionsWith(LEGACY_SCALAR_COERCION_FAIL);
+    }
+
     /*
-    /********************************************************
+    /**********************************************************************
     /* Helper methods
-    /********************************************************
+    /**********************************************************************
      */
 
     private void assertSuccessfulIntToFloatConversionsWith(ObjectMapper objectMapper)

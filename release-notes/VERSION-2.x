@@ -4,6 +4,14 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.12.7.1 (not yest released)
+
+#3582: Add check in `BeanDeserializer._deserializeFromArray()` to prevent
+  use of deeply nested arrays [CVE-2022-42004]
+
+#3590: Add check in primitive value deserializers to avoid deep wrapper array
+  nesting wrt `UNWRAP_SINGLE_VALUE_ARRAYS` [CVE-2022-42003]
+
 2.12.7 (26-May-2022)
 
 #2816: Optimize UntypedObjectDeserializer wrt recursion [CVE-2020-36518]
@@ -16,7 +24,7 @@ Project: jackson-databind
 #3305: ObjectMapper serializes `CharSequence` subtypes as POJO instead of
   as String (JDK 15+)
  (reported by stevenupton@github; fix suggested by Sergey C)
-#3328: Possible DoS issue
+#3328: Possible DoS if using JDK serialization to serialize JsonNode
 
 2.12.5 (27-Aug-2021)
 

@@ -4,6 +4,12 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+Not yet released:
+
+#3624: Legacy `ALLOW_COERCION_OF_SCALARS` interacts poorly with Integer to
+  Float coercion
+(contributed by Carter K)
+
 2.14.0-rc2 (10-Oct-2022)
 
 #1980: Add method(s) in `JsonNode` that works like combination of `at()`

@@ -824,6 +824,9 @@ Carter Kozak (carterkozak@github)
    (2.12.0)
   * Contributed #2978: Fix failing `double` JsonCreators in jackson 2.12.0
    (2.12.1)
+  * Contributed #3624: Legacy `ALLOW_COERCION_OF_SCALARS` interacts poorly with Integer to
+   Float coercion
+   (2.14.0)
 
 Reinhard Prechtl (dnno@github)
   * Reported #2034: Serialization problem with type specialization of nested generic types

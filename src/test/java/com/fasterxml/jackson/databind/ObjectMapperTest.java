@@ -204,7 +204,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertNotNull(result);
     }
 
-    public void testcopyWith() throws JsonProcessingException {
+    public void testCopyWith() throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         //configuring some settings to non-defaults
         mapper.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, true);

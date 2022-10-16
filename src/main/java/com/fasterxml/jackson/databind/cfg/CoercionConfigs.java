@@ -217,11 +217,15 @@ public class CoercionConfigs
         // scalar for this particular purpose
         final boolean baseScalar = _isScalarType(targetType);
 
-        if (baseScalar) {
-            // Default for setting in 2.x is true
-            if (!config.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS)) {
-                return CoercionAction.Fail;
-            }
+        if (baseScalar
+                // Default for setting in 2.x is true
+                && !config.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS)
+                // 12-Oct-2022, carterkozak: As per [databind#3624]: Coercion from integer-shaped
+                // data into a floating point type is not banned by the
+                // ALLOW_COERCION_OF_SCALARS feature because '1' is a valid JSON representation of
+                // '1.0' in a way that other types of coercion do not satisfy.
+                && (targetType != LogicalType.Float || inputShape != CoercionInputShape.Integer)) {
+            return CoercionAction.Fail;
         }
 
         if (inputShape == CoercionInputShape.EmptyString) {

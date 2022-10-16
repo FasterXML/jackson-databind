@@ -452,7 +452,7 @@ assertEquals(23, person.getAge().intValue());
 
 If your builder pattern implementation uses other prefixes for methods or uses other names than build() for the builder method Jackson also provide a handy way for you.
 
-For example, if you have a builder class uses the "set" prefix for its methods and use the create() method instead of build() for building the whole class, you have to annotate your class like:
+For example, if you have a builder class that uses the "set" prefix for its methods and use the create() method instead of build() for building the whole class, you have to annotate your class like:
 ```java
 @JsonPOJOBuilder(buildMethodName = "create", withPrefix = "set")
 static class Builder {
@@ -474,6 +474,35 @@ static class Builder {
     } 
 }
 ```
+
+To deserialize JSON fields under a different name than their object counterparts,
+the @JsonProperty annotation can be used within the builder on the appropriate fields.
+
+```java
+@JsonPOJOBuilder(buildMethodName = "create", withPrefix = "set")
+static class Builder {
+    @JsonProperty("known_as")
+    String name;
+    Integer age;
+    //...
+}
+```
+This will deserialize the JSON property `known_as` into the builder field `name`. If a mapping like this is not provided (and further annotations aren't supplied to handle this), an `Unrecognized field "known_as"` exception will be thrown during deserialization if the field is provided anyways.
+
+If you wish to refer to properties with more than one alias for deserialization, the `@JsonAlias` annotation can be used.
+
+```java
+@JsonPOJOBuilder(buildMethodName = "create", withPrefix = "set")
+static class Builder {
+    @JsonProperty("known_as")
+    @JsonAlias({"identifier", "first_name"})
+    String name;
+    Integer age;
+    //...
+}
+```
+This will deserialize JSON fields with `known_as`, as well as `identifer` and `first_name` into `name`. Rather than an array of entries, a single alias can be used by specifying a string as such `JsonAlias("identifier")`.  
+Note: to use the `@JsonAlias` annotation, a `@JsonProperty` annotation must also be used.
 
 
 

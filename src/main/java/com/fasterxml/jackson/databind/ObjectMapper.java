@@ -592,7 +592,12 @@ public class ObjectMapper
      */
     protected ObjectMapper(ObjectMapper src)
     {
-        _jsonFactory = src._jsonFactory.copy();
+        this(src, null);
+    }
+
+    protected ObjectMapper(ObjectMapper src, JsonFactory factory)
+    {
+        _jsonFactory = factory != null ? factory : src._jsonFactory.copy();
         _jsonFactory.setCodec(this);
         _subtypeResolver = src._subtypeResolver.copy();
         _typeFactory = src._typeFactory;
@@ -603,10 +608,10 @@ public class ObjectMapper
 
         RootNameLookup rootNames = new RootNameLookup();
         _serializationConfig = new SerializationConfig(src._serializationConfig,
-                _subtypeResolver, _mixIns, rootNames, _configOverrides);
+        _subtypeResolver, _mixIns, rootNames, _configOverrides);
         _deserializationConfig = new DeserializationConfig(src._deserializationConfig,
-                _subtypeResolver, _mixIns, rootNames, _configOverrides,
-                _coercionConfigs);
+        _subtypeResolver, _mixIns, rootNames, _configOverrides,
+        _coercionConfigs);
         _serializerProvider = src._serializerProvider.copy();
         _deserializationContext = src._deserializationContext.copy();
 
@@ -713,6 +718,11 @@ public class ObjectMapper
     public ObjectMapper copy() {
         _checkInvalidCopy(ObjectMapper.class);
         return new ObjectMapper(this);
+    }
+
+    public ObjectMapper copyWith(JsonFactory factory) {
+        _checkInvalidCopy(ObjectMapper.class);
+        return new ObjectMapper(this, factory);
     }
 
     /**
@@ -1140,6 +1150,7 @@ public class ObjectMapper
     public ObjectMapper findAndRegisterModules() {
         return registerModules(findModules());
     }
+
 
     /*
     /**********************************************************

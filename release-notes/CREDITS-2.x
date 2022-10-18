@@ -1495,6 +1495,10 @@ Jordi Ortolá Ankum (Tomasito665@github)
   * Contributed #3613: Implement `float` and `boolean` to `String` coercion config
   (2.14.0)
 
+Felix Vaughan (FelixVaughan01@github)
+  * Contributed #3212: Add method `ObjectMapper.copyWith(JsonFactory)`
+  (2.14.0)
+
 Arnaud Solé (Bluexin@github)
   * Contributed #3505: Fix deduction deserializer with DefaultTypeResolverBuilder
   (2.14.0)

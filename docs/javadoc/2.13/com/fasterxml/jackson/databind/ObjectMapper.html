@@ -426,6 +426,13 @@ Simplest usage is of form:
 <div class="block">Copy-constructor, mostly used to support <a href="../../../../com/fasterxml/jackson/databind/ObjectMapper.html#copy--"><code>copy()</code></a>.</div>
 </td>
 </tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected </code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/fasterxml/jackson/databind/ObjectMapper.html#ObjectMapper-com.fasterxml.jackson.databind.ObjectMapper-">ObjectMapper</a></span>(<a href="../../../../com/fasterxml/jackson/databind/ObjectMapper.html" title="class in com.fasterxml.jackson.databind">ObjectMapper</a>&nbsp;src, <a href="http://fasterxml.github.io/jackson-core/javadoc/2.13/com/fasterxml/jackson/core/JsonFactory.html?is-external=true" title="class or interface in com.fasterxml.jackson.core">JsonFactory</a>&nbsp;jf)</code>
+<div class="block">Copy-constructor, mostly used to support <a href="../../../../com/fasterxml/jackson/databind/ObjectMapper.html#copyWith--"><code>copyWith()</code></a>.</div>
+</td>
+</tr>
+       
 </table>
 </li>
 </ul>
@@ -2582,6 +2589,20 @@ Simplest usage is of form:
 <a name="ObjectMapper-com.fasterxml.jackson.core.JsonFactory-com.fasterxml.jackson.databind.ser.DefaultSerializerProvider-com.fasterxml.jackson.databind.deser.DefaultDeserializationContext-">
 <!--   -->
 </a>
+<ul class="blockList">
+<li class="blockList">
+<h4>ObjectMapper</h4>
+<pre>protected&nbsp;ObjectMapper(<a href="../../../../com/fasterxml/jackson/databind/ObjectMapper.html" title="class in com.fasterxml.jackson.databind">ObjectMapper</a>&nbsp;src, <a href="http://fasterxml.github.io/jackson-core/javadoc/2.13/com/fasterxml/jackson/core/JsonFactory.html?is-external=true" title="class or interface in com.fasterxml.jackson.core">JsonFactory</a>&nbsp;jf)</pre>
+<div class="block">Copy-constructor, mostly used to support <a href="../../../../com/fasterxml/jackson/databind/ObjectMapper.html#copyWith--"><code>copyWith()</code></a>.</div>
+<dl>
+<dt><span class="simpleTagLabel">Since:</span></dt>
+<dd>2.14</dd>
+</dl>
+</li>
+</ul>
+<a name="ObjectMapper-com.fasterxml.jackson.databind.ObjectMapper-">
+<!--   -->
+</a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>ObjectMapper</h4>
@@ -2649,6 +2670,27 @@ Simplest usage is of form:
 </dl>
 </li>
 </ul>
+
+<a name="copyWith--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>copyWith</h4>
+<pre>public&nbsp;<a href="../../../../com/fasterxml/jackson/databind/ObjectMapper.html" title="class in com.fasterxml.jackson.databind">ObjectMapper</a>&nbsp;copyWith(<a href="http://fasterxml.github.io/jackson-core/javadoc/2.13/com/fasterxml/jackson/core/JsonFactory.html?is-external=true" title="class or interface in com.fasterxml.jackson.core">JsonFactory</a>&nbsp;jf)</pre>
+<div class="block">Method for creating a new <a href="../../../../com/fasterxml/jackson/databind/ObjectMapper.html" title="class in com.fasterxml.jackson.databind"><code>ObjectMapper</code></a> instance that
+ has same initial configuration as the instance but differs from the original in the 
+<a href="http://fasterxml.github.io/jackson-core/javadoc/2.13/com/fasterxml/jackson/core/JsonFactory.html?is-external=true" title="class or interface in com.fasterxml.jackson.core"><code>JsonFactory</code></a>
+used.
+<p>
+</div>
+<dl>
+<dt><span class="simpleTagLabel">Since:</span></dt>
+<dd>2.14</dd>
+</dl>
+</li>
+</ul>
+
 <a name="Z:Z_checkInvalidCopy-java.lang.Class-">
 <!--   -->
 </a>
@@ -2662,6 +2704,7 @@ Simplest usage is of form:
 </dl>
 </li>
 </ul>
+
 <a name="Z:Z_newReader-com.fasterxml.jackson.databind.DeserializationConfig-">
 <!--   -->
 </a>

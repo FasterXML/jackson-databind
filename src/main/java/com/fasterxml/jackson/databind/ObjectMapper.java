@@ -595,6 +595,11 @@ public class ObjectMapper
         this(src, null);
     }
 
+
+    /**
+     * Copy-constructor, mostly used to support {@link #copyWith(JsonFactory)}.
+     * @since 2.14
+     */
     protected ObjectMapper(ObjectMapper src, JsonFactory factory)
     {
         _jsonFactory = factory != null ? factory : src._jsonFactory.copy();
@@ -720,6 +725,14 @@ public class ObjectMapper
         return new ObjectMapper(this);
     }
 
+    /**
+     * Method for creating a new {@link ObjectMapper}. Differs from a regular copy, as a
+     * {@link JsonFactory} to be used can be passed as an argument, which will be used to
+     * create the copy rather than the one present on the object to be copied.
+     * @param factory JsonFactory to be used.
+     * @return ObjectMapper
+     * @since 2.14
+     */
     public ObjectMapper copyWith(JsonFactory factory) {
         _checkInvalidCopy(ObjectMapper.class);
         return new ObjectMapper(this, factory);

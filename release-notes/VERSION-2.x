@@ -6,6 +6,9 @@ Project: jackson-databind
 
 Not yet released:
 
+#3212: Add method `ObjectMapper.copyWith(JsonFactory)`
+ (requested by @quaff)
+ (contributed by Felix V)
 #3624: Legacy `ALLOW_COERCION_OF_SCALARS` interacts poorly with Integer to
   Float coercion
 (contributed by Carter K)

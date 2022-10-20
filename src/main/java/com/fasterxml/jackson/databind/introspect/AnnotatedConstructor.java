@@ -87,7 +87,7 @@ public final class AnnotatedConstructor
 
     @Override
     public int getParameterCount() {
-        return _constructor.getParameterTypes().length;
+        return _constructor.getParameterCount();
     }
 
     @Override

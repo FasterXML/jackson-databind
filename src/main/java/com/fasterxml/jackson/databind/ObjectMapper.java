@@ -595,14 +595,14 @@ public class ObjectMapper
         this(src, null);
     }
 
-
+    
     /**
      * Copy-constructor, mostly used to support {@link #copyWith(JsonFactory)}.
      * @since 2.14
      */
     protected ObjectMapper(ObjectMapper src, JsonFactory factory)
     {
-        _jsonFactory = factory != null ? factory : src._jsonFactory.copy();
+        _jsonFactory = (factory != null) ? factory : src._jsonFactory.copy();
         _jsonFactory.setCodec(this);
         _subtypeResolver = src._subtypeResolver.copy();
         _typeFactory = src._typeFactory;
@@ -613,10 +613,10 @@ public class ObjectMapper
 
         RootNameLookup rootNames = new RootNameLookup();
         _serializationConfig = new SerializationConfig(src._serializationConfig,
-        _subtypeResolver, _mixIns, rootNames, _configOverrides);
+                _subtypeResolver, _mixIns, rootNames, _configOverrides);
         _deserializationConfig = new DeserializationConfig(src._deserializationConfig,
-        _subtypeResolver, _mixIns, rootNames, _configOverrides,
-        _coercionConfigs);
+                _subtypeResolver, _mixIns, rootNames, _configOverrides,
+                _coercionConfigs);
         _serializerProvider = src._serializerProvider.copy();
         _deserializationContext = src._deserializationContext.copy();
 
@@ -668,12 +668,12 @@ public class ObjectMapper
         _configOverrides = new ConfigOverrides();
         _coercionConfigs = new CoercionConfigs();
         _serializationConfig = new SerializationConfig(base,
-                    _subtypeResolver, mixins, rootNames, _configOverrides,
-                    DatatypeFeatures.defaultFeatures());
+                _subtypeResolver, mixins, rootNames, _configOverrides,
+                DatatypeFeatures.defaultFeatures());
         _deserializationConfig = new DeserializationConfig(base,
-                    _subtypeResolver, mixins, rootNames, _configOverrides,
-                    _coercionConfigs,
-                    DatatypeFeatures.defaultFeatures());
+                _subtypeResolver, mixins, rootNames, _configOverrides,
+                _coercionConfigs,
+                DatatypeFeatures.defaultFeatures());
 
         // Some overrides we may need
         final boolean needOrder = _jsonFactory.requiresPropertyOrdering();
@@ -729,6 +729,7 @@ public class ObjectMapper
      * Method for creating a new {@link ObjectMapper}. Differs from a regular copy, as a
      * {@link JsonFactory} to be used can be passed as an argument, which will be used to
      * create the copy rather than the one present on the object to be copied.
+     *
      * @param factory JsonFactory to be used.
      * @return ObjectMapper
      * @since 2.14
@@ -745,8 +746,8 @@ public class ObjectMapper
     {
         if (getClass() != exp) {
             // 10-Nov-2016, tatu: could almost use `ClassUtil.verifyMustOverride()` but not quite
-            throw new IllegalStateException("Failed copy(): "+getClass().getName()
-                    +" (version: "+version()+") does not override copy(); it has to");
+            throw new IllegalStateException("Failed copy()/copyWith(): "+getClass().getName()
+                    +" (version: "+version()+") does not override copy()/copyWith(); it has to");
         }
     }
 

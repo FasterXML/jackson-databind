@@ -595,10 +595,9 @@ public class ObjectMapper
         this(src, null);
     }
 
+    
     /**
-     * Copy constructor with {@link JsonFactory} override: mostly needed
-     * to support {@link #copyWith(JsonFactory)} method.
-     *
+     * Copy-constructor, mostly used to support {@link #copyWith(JsonFactory)}.
      * @since 2.14
      */
     protected ObjectMapper(ObjectMapper src, JsonFactory factory)
@@ -727,18 +726,13 @@ public class ObjectMapper
     }
 
     /**
-     * Method for creating a new {@link ObjectMapper} instance that
-     * has same initial configuration as this instance (similar to how
-     * {@link #copy()} works, with one additional difference: that of
-     * alternate underlying {@link JsonFactory} to use.
-     * instance.
-     * 
+     * Method for creating a new {@link ObjectMapper}. Differs from a regular copy, as a
+     * {@link JsonFactory} to be used can be passed as an argument, which will be used to
+     * create the copy rather than the one present on the object to be copied.
+     *
+     * @param factory JsonFactory to be used.
+     * @return ObjectMapper
      * @since 2.14
-     *
-     * @param factory Token stream factory to use for low-level streaming
-     *    reading (parsing) and writing (generation)
-     *
-     * @return Newly created mapper instance
      */
     public ObjectMapper copyWith(JsonFactory factory) {
         _checkInvalidCopy(ObjectMapper.class);

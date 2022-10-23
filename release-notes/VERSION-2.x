@@ -11,7 +11,9 @@ Not yet released:
  (contributed by Felix V)
 #3624: Legacy `ALLOW_COERCION_OF_SCALARS` interacts poorly with Integer to
   Float coercion
-(contributed by Carter K)
+ (contributed by Carter K)
+#3633: Expose `translate()` method of standard `PropertyNamingStrategy` implementations
+ (requested by Joachim D)
 
 2.14.0-rc2 (10-Oct-2022)
 

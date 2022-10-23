@@ -33,7 +33,7 @@ public abstract class PropertyNamingStrategies
      *<p>
      * Example external property names would be "numberValue", "namingStrategy", "theDefiniteProof".
      */
-    public static final PropertyNamingStrategy LOWER_CAMEL_CASE = new LowerCamelCaseStrategy();
+    public static final PropertyNamingStrategy LOWER_CAMEL_CASE = LowerCamelCaseStrategy.INSTANCE;
 
     /**
      * Naming convention used in languages like Pascal, where all words are capitalized
@@ -42,7 +42,7 @@ public abstract class PropertyNamingStrategies
      *<p>
      * Example external property names would be "NumberValue", "NamingStrategy", "TheDefiniteProof".
      */
-    public static final PropertyNamingStrategy UPPER_CAMEL_CASE = new UpperCamelCaseStrategy();
+    public static final PropertyNamingStrategy UPPER_CAMEL_CASE = UpperCamelCaseStrategy.INSTANCE;
 
     /**
      * Naming convention used in languages like C, where words are in lower-case
@@ -51,7 +51,7 @@ public abstract class PropertyNamingStrategies
      *<p>
      * Example external property names would be "number_value", "naming_strategy", "the_definite_proof".
      */
-    public static final PropertyNamingStrategy SNAKE_CASE = new SnakeCaseStrategy();
+    public static final PropertyNamingStrategy SNAKE_CASE = SnakeCaseStrategy.INSTANCE;
 
     /**
      * Naming convention in which the words are in upper-case letters, separated by underscores.
@@ -59,7 +59,7 @@ public abstract class PropertyNamingStrategies
      * @since 2.13
      * <p>
      */
-    public static final PropertyNamingStrategy UPPER_SNAKE_CASE = new UpperSnakeCaseStrategy();
+    public static final PropertyNamingStrategy UPPER_SNAKE_CASE = UpperSnakeCaseStrategy.INSTANCE;
 
     /**
      * Naming convention in which all words of the logical name are in lower case, and
@@ -68,7 +68,7 @@ public abstract class PropertyNamingStrategies
      *<p>
      * Example external property names would be "numbervalue", "namingstrategy", "thedefiniteproof".
      */
-    public static final PropertyNamingStrategy LOWER_CASE = new LowerCaseStrategy();
+    public static final PropertyNamingStrategy LOWER_CASE = LowerCaseStrategy.INSTANCE;
 
     /**
      * Naming convention used in languages like Lisp, where words are in lower-case
@@ -77,7 +77,7 @@ public abstract class PropertyNamingStrategies
      *<p>
      * Example external property names would be "number-value", "naming-strategy", "the-definite-proof".
      */
-    public static final PropertyNamingStrategy KEBAB_CASE = new KebabCaseStrategy();
+    public static final PropertyNamingStrategy KEBAB_CASE = KebabCaseStrategy.INSTANCE;
 
     /**
      * Naming convention widely used as configuration properties name, where words are in
@@ -86,7 +86,7 @@ public abstract class PropertyNamingStrategies
      *<p>
      * Example external property names would be "number.value", "naming.strategy", "the.definite.proof".
      */
-    public static final PropertyNamingStrategy LOWER_DOT_CASE = new LowerDotCaseStrategy();
+    public static final PropertyNamingStrategy LOWER_DOT_CASE = LowerDotCaseStrategy.INSTANCE;
 
     /*
     /**********************************************************************
@@ -224,6 +224,12 @@ public abstract class PropertyNamingStrategies
     {
         private static final long serialVersionUID = 2L;
 
+        /**
+         * @since 2.14
+         */
+        public final static PropertyNamingStrategies.SnakeCaseStrategy INSTANCE
+            = new PropertyNamingStrategies.SnakeCaseStrategy();
+
         @Override
         public String translate(String input)
         {
@@ -270,6 +276,12 @@ public abstract class PropertyNamingStrategies
     {
         private static final long serialVersionUID = 2L;
 
+        /**
+         * @since 2.14
+         */
+        public final static PropertyNamingStrategies.UpperSnakeCaseStrategy INSTANCE
+            = new PropertyNamingStrategies.UpperSnakeCaseStrategy();
+
         @Override
         public String translate(String input) {
             String output = super.translate(input);
@@ -286,6 +298,12 @@ public abstract class PropertyNamingStrategies
     public static class LowerCamelCaseStrategy extends NamingBase
     {
         private static final long serialVersionUID = 2L;
+
+        /**
+         * @since 2.14
+         */
+        public final static PropertyNamingStrategies.LowerCamelCaseStrategy INSTANCE
+            = new PropertyNamingStrategies.LowerCamelCaseStrategy();
 
         @Override
         public String translate(String input) {
@@ -309,6 +327,12 @@ public abstract class PropertyNamingStrategies
     public static class UpperCamelCaseStrategy extends NamingBase
     {
         private static final long serialVersionUID = 2L;
+
+        /**
+         * @since 2.14
+         */
+        public final static PropertyNamingStrategies.UpperCamelCaseStrategy INSTANCE
+            = new PropertyNamingStrategies.UpperCamelCaseStrategy();
 
         /**
          * Converts camelCase to PascalCase
@@ -346,6 +370,12 @@ public abstract class PropertyNamingStrategies
     {
         private static final long serialVersionUID = 2L;
 
+        /**
+         * @since 2.14
+         */
+        public final static PropertyNamingStrategies.LowerCaseStrategy INSTANCE
+            = new PropertyNamingStrategies.LowerCaseStrategy();
+
         @Override
         public String translate(String input) {
             return input.toLowerCase();
@@ -362,6 +392,12 @@ public abstract class PropertyNamingStrategies
     {
         private static final long serialVersionUID = 2L;
 
+        /**
+         * @since 2.14
+         */
+        public final static PropertyNamingStrategies.KebabCaseStrategy INSTANCE
+            = new PropertyNamingStrategies.KebabCaseStrategy();
+
         @Override
         public String translate(String input) {
             return translateLowerCaseWithSeparator(input, '-');
@@ -373,8 +409,15 @@ public abstract class PropertyNamingStrategies
      * but instead of hyphens
      * as separators, uses dots. Naming convention widely used as configuration properties name.
      */
-    public static class LowerDotCaseStrategy extends NamingBase {
+    public static class LowerDotCaseStrategy extends NamingBase
+    {
         private static final long serialVersionUID = 2L;
+
+        /**
+         * @since 2.14
+         */
+        public final static PropertyNamingStrategies.LowerDotCaseStrategy INSTANCE
+            = new PropertyNamingStrategies.LowerDotCaseStrategy();
 
         @Override
         public String translate(String input){
@@ -382,3 +425,4 @@ public abstract class PropertyNamingStrategies
         }
     }
 }
+

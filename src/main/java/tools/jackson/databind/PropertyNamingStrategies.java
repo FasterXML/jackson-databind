@@ -12,7 +12,7 @@ import tools.jackson.databind.introspect.AnnotatedParameter;
 public abstract class PropertyNamingStrategies
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 3L;
 
     /*
     /**********************************************************************
@@ -93,7 +93,7 @@ public abstract class PropertyNamingStrategies
     public static abstract class NamingBase
         extends PropertyNamingStrategy
     {
-        private static final long serialVersionUID = 2L;
+        private static final long serialVersionUID = 3L;
 
         @Override
         public String nameForField(MapperConfig<?> config, AnnotatedField field, String defaultName) {
@@ -116,7 +116,7 @@ public abstract class PropertyNamingStrategies
             return translate(defaultName);
         }
 
-        public abstract String translate(String propertyName);
+        protected abstract String translate(String propertyName);
 
         /**
          * Helper method to share implementation between snake and dotted case.
@@ -215,10 +215,10 @@ public abstract class PropertyNamingStrategies
      */
     public static class SnakeCaseStrategy extends NamingBase
     {
-        private static final long serialVersionUID = 2L;
+        private static final long serialVersionUID = 3L;
 
         @Override
-        public String translate(String input)
+        protected String translate(String input)
         {
             if (input == null) return input; // garbage in, garbage out
             int length = input.length();
@@ -259,10 +259,10 @@ public abstract class PropertyNamingStrategies
      */
     public static class UpperSnakeCaseStrategy extends SnakeCaseStrategy
     {
-        private static final long serialVersionUID = 2L;
+        private static final long serialVersionUID = 3L;
 
         @Override
-        public String translate(String input) {
+        protected String translate(String input) {
             String output = super.translate(input);
             if (output == null)
                 return null;
@@ -276,10 +276,10 @@ public abstract class PropertyNamingStrategies
      */
     public static class LowerCamelCaseStrategy extends NamingBase
     {
-        private static final long serialVersionUID = 2L;
+        private static final long serialVersionUID = 3L;
 
         @Override
-        public String translate(String input) {
+        protected String translate(String input) {
             return input;
         }
     }
@@ -299,7 +299,7 @@ public abstract class PropertyNamingStrategies
      */
     public static class UpperCamelCaseStrategy extends NamingBase
     {
-        private static final long serialVersionUID = 2L;
+        private static final long serialVersionUID = 3L;
 
         /**
          * Converts camelCase to PascalCase
@@ -311,7 +311,7 @@ public abstract class PropertyNamingStrategies
          * @return input converted to PascalCase format
          */
         @Override
-        public String translate(String input) {
+        protected String translate(String input) {
             if (input == null || input.isEmpty()){
                 return input; // garbage in, garbage out
             }
@@ -335,10 +335,10 @@ public abstract class PropertyNamingStrategies
      */
     public static class LowerCaseStrategy extends NamingBase
     {
-        private static final long serialVersionUID = 2L;
+        private static final long serialVersionUID = 3L;
 
         @Override
-        public String translate(String input) {
+        protected String translate(String input) {
             return input.toLowerCase();
         }
     }
@@ -351,10 +351,10 @@ public abstract class PropertyNamingStrategies
      */
     public static class KebabCaseStrategy extends NamingBase
     {
-        private static final long serialVersionUID = 2L;
+        private static final long serialVersionUID = 3L;
 
         @Override
-        public String translate(String input) {
+        protected String translate(String input) {
             return translateLowerCaseWithSeparator(input, '-');
         }
     }
@@ -365,10 +365,10 @@ public abstract class PropertyNamingStrategies
      * as separators, uses dots. Naming convention widely used as configuration properties name.
      */
     public static class LowerDotCaseStrategy extends NamingBase {
-        private static final long serialVersionUID = 2L;
+        private static final long serialVersionUID = 3L;
 
         @Override
-        public String translate(String input){
+        protected String translate(String input){
             return translateLowerCaseWithSeparator(input, '.');
         }
     }

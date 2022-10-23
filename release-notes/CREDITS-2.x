@@ -1507,3 +1507,8 @@ Richard Kwasnicki (Richie94@github)
   * Contributed #3609: Allow non-boolean return type for "is-getters" with
   `MapperFeature.ALLOW_IS_GETTERS_FOR_NON_BOOLEAN`
   (2.14.0)
+
+Joachim Durchholz (toolforger@github)
+  * Requested #3633: Expose `translate()` method of standard `PropertyNamingStrategy`
+   implementations
+  (2.14.0)

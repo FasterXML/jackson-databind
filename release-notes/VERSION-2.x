@@ -4,18 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-Not yet released:
-
-#3212: Add method `ObjectMapper.copyWith(JsonFactory)`
- (requested by @quaff)
- (contributed by Felix V)
-#3624: Legacy `ALLOW_COERCION_OF_SCALARS` interacts poorly with Integer to
-  Float coercion
- (contributed by Carter K)
-#3633: Expose `translate()` method of standard `PropertyNamingStrategy` implementations
- (requested by Joachim D)
-
-2.14.0-rc2 (10-Oct-2022)
+2.14.0-rc3 (28-Oct-2022)
 
 #1980: Add method(s) in `JsonNode` that works like combination of `at()`
   and `with()`: `withObject(...)` and `withArray(...)`
@@ -25,6 +14,9 @@ Not yet released:
 #3013: Allow disabling Integer to String coercion via `CoercionConfig`
  (reported by @emilkostadinov)
  (fix contributed by Jordi O-A)
+#3212: Add method `ObjectMapper.copyWith(JsonFactory)`
+ (requested by @quaff)
+ (contributed by Felix V)
 #3311: Add serializer-cache size limit to avoid Metaspace issues from
   caching Serializers
  (requested by mcolemanNOW@github)
@@ -81,6 +73,11 @@ Not yet released:
  (contributed by Richard K)
 #3613: Implement `float` and `boolean` to `String` coercion config
  (fix contributed by Jordi O-A)
+#3624: Legacy `ALLOW_COERCION_OF_SCALARS` interacts poorly with Integer to
+  Float coercion
+ (contributed by Carter K)
+#3633: Expose `translate()` method of standard `PropertyNamingStrategy` implementations
+ (requested by Joachim D)
 
 2.13.4.2 (13-Oct-2022)
 

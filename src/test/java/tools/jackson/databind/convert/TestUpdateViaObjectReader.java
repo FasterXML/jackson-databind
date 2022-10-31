@@ -140,6 +140,21 @@ public class TestUpdateViaObjectReader extends BaseMapTest
         assertEquals("b", child.b);
         assertArrayEquals(new int[] { 1, 2, 3 }, child.c);
         assertNull(child.child);
+
+        // 30-Oct-2022, tatu: Also test that `null` is ok for "readerForUpdating()" to
+        //    to remove "to-update" Object
+
+        Bean b2 = MAPPER.readerForUpdating(null)
+                .forType(Bean.class)
+                .readValue(a2q("{'b':'abc'}"));
+        assertEquals("abc", b2.b);
+
+        // and similarly via ObjectReader
+        Bean b3 = MAPPER.readerForUpdating(b2)
+                .withValueToUpdate(null)
+                .readValue(a2q("{'b':'xyz'}"));
+        assertNotSame(b2, b3);
+        assertEquals("xyz", b3.b);
     }
 
     public void testListUpdate() throws Exception

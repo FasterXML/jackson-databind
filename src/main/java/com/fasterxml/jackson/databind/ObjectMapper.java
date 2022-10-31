@@ -4152,7 +4152,8 @@ public class ObjectMapper
      * unless overridden by other factory methods of {@link ObjectReader}
      */
     public ObjectReader readerForUpdating(Object valueToUpdate) {
-        JavaType t = _typeFactory.constructType(valueToUpdate.getClass());
+        JavaType t = (valueToUpdate == null) ? null
+                : _typeFactory.constructType(valueToUpdate.getClass());
         return _newReader(getDeserializationConfig(), t, valueToUpdate,
                 null, _injectableValues);
     }
@@ -4175,7 +4176,8 @@ public class ObjectMapper
      * @since 2.6
      */
     public ObjectReader readerFor(Class<?> type) {
-        return _newReader(getDeserializationConfig(), _typeFactory.constructType(type), null,
+        JavaType t = (type == null) ? null : _typeFactory.constructType(type);
+        return _newReader(getDeserializationConfig(), t, null,
                 null, _injectableValues);
     }
 
@@ -4185,8 +4187,9 @@ public class ObjectMapper
      * 
      * @since 2.6
      */
-    public ObjectReader readerFor(TypeReference<?> type) {
-        return _newReader(getDeserializationConfig(), _typeFactory.constructType(type), null,
+    public ObjectReader readerFor(TypeReference<?> typeRef) {
+        _assertNotNull("type", typeRef);
+        return _newReader(getDeserializationConfig(), _typeFactory.constructType(typeRef), null,
                 null, _injectableValues);
     }
 
@@ -4201,6 +4204,7 @@ public class ObjectMapper
      * @since 2.11
      */
     public ObjectReader readerForArrayOf(Class<?> type) {
+        _assertNotNull("type", type);
         return _newReader(getDeserializationConfig(),
                 _typeFactory.constructArrayType(type), null,
                 null, _injectableValues);
@@ -4217,6 +4221,7 @@ public class ObjectMapper
      * @since 2.11
      */
     public ObjectReader readerForListOf(Class<?> type) {
+        _assertNotNull("type", type);
         return _newReader(getDeserializationConfig(),
                 _typeFactory.constructCollectionType(List.class, type), null,
                 null, _injectableValues);
@@ -4233,6 +4238,7 @@ public class ObjectMapper
      * @since 2.11
      */
     public ObjectReader readerForMapOf(Class<?> type) {
+        _assertNotNull("type", type);
         return _newReader(getDeserializationConfig(),
                 _typeFactory.constructMapType(Map.class, String.class, type), null,
                 null, _injectableValues);
@@ -4242,8 +4248,9 @@ public class ObjectMapper
      * Factory method for constructing {@link ObjectReader} that will
      * use specified {@link JsonNodeFactory} for constructing JSON trees.
      */
-    public ObjectReader reader(JsonNodeFactory f) {
-        return _newReader(getDeserializationConfig()).with(f);
+    public ObjectReader reader(JsonNodeFactory nodeFactory) {
+        _assertNotNull("nodeFactory", nodeFactory);
+        return _newReader(getDeserializationConfig()).with(nodeFactory);
     }
 
     /**
@@ -4254,6 +4261,7 @@ public class ObjectMapper
      * @param schema Schema to pass to parser
      */
     public ObjectReader reader(FormatSchema schema) {
+        // NOTE: ok to have `null` for schema; means none used
         _verifySchemaType(schema);
         return _newReader(getDeserializationConfig(), null, null,
                 schema, _injectableValues);

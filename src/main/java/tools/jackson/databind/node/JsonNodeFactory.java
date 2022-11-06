@@ -36,8 +36,10 @@ public class JsonNodeFactory
      * Default singleton instance that construct "standard" node instances:
      * given that this class is stateless, a globally shared singleton
      * can be used.
+     *<p>
+     * Default for 3.x is to make no changes; no normalization by default.
      */
-    public final static JsonNodeFactory instance = decimalsNormalized;
+    public final static JsonNodeFactory instance = decimalsAsIs;
 
     /**
      * Main constructor

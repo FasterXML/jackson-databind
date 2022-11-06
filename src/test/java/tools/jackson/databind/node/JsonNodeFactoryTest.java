@@ -81,20 +81,17 @@ public class JsonNodeFactoryTest extends NodeTestBase
        final BigDecimal NON_NORMALIZED = new BigDecimal("12.5000");
        final BigDecimal NORMALIZED = NON_NORMALIZED.stripTrailingZeros();
 
-       // By default, 2.x WILL normalize
+       // By default, 2.x WILL normalize but 3.x WON'T
        JsonNode n1 = MAPPER.readTree(String.valueOf(NON_NORMALIZED));
-       assertEquals(NORMALIZED, n1.decimalValue());
+       assertEquals(NON_NORMALIZED, n1.decimalValue());
 
        // But can change
-       JsonNodeFactory nf = JsonNodeFactory.withExactBigDecimals(true);
-       JsonNode n2 = nf.numberNode(NON_NORMALIZED);
-       assertEquals(NON_NORMALIZED, n2.decimalValue());
-
+       JsonNodeFactory nf = JsonNodeFactory.withExactBigDecimals(false);
        ObjectMapper nonNormMapper = JsonMapper.builder()
                .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
                .nodeFactory(nf)
                .build();
        JsonNode n3 = nonNormMapper.readTree(String.valueOf(NON_NORMALIZED));
-       assertEquals(NON_NORMALIZED, n3.decimalValue());
+       assertEquals(NORMALIZED, n3.decimalValue());
    }
 }

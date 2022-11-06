@@ -273,7 +273,6 @@ public class JsonNodeFactory
         if (v == null) {
             return nullNode();
         }
-
         /*
          * If the user wants the exact representation of this big decimal,
          * return the value directly

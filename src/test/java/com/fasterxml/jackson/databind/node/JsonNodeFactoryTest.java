@@ -9,7 +9,9 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 
 public class JsonNodeFactoryTest extends NodeTestBase
 {
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = JsonMapper.builder()
+            .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
+            .build();
 
     static class SortingNodeFactory extends JsonNodeFactory {
         private static final long serialVersionUID = 1L;
@@ -71,5 +73,28 @@ public class JsonNodeFactoryTest extends NodeTestBase
 
        assertEquals(BIGGER_OUTPUT,
                MAPPER.writeValueAsString(mapper.readTree(BIGGER_INPUT)));
+   }
+
+   // 06-Nov-2022, tatu: Wasn't being tests, oddly enough
+   public void testBigDecimalNormalization() throws Exception
+   {
+       final BigDecimal NON_NORMALIZED = new BigDecimal("12.5000");
+       final BigDecimal NORMALIZED = NON_NORMALIZED.stripTrailingZeros();
+
+       // By default, 2.x WILL normalize
+       JsonNode n1 = MAPPER.readTree(String.valueOf(NON_NORMALIZED));
+       assertEquals(NORMALIZED, n1.decimalValue());
+
+       // But can change
+       JsonNodeFactory nf = JsonNodeFactory.withExactBigDecimals(true);
+       JsonNode n2 = nf.numberNode(NON_NORMALIZED);
+       assertEquals(NON_NORMALIZED, n2.decimalValue());
+
+       ObjectMapper nonNormMapper = JsonMapper.builder()
+               .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
+               .nodeFactory(nf)
+               .build();
+       JsonNode n3 = nonNormMapper.readTree(String.valueOf(NON_NORMALIZED));
+       assertEquals(NON_NORMALIZED, n3.decimalValue());
    }
 }

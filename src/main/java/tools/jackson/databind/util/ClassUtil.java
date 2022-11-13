@@ -1171,7 +1171,7 @@ cls.getName(), rootCause.getClass().getName(), rootCause.getMessage()),
             }
             // If not found, indicate with exception
             throw new IllegalStateException(String.format(
-"No field named '%s' in class '%s'", expectedName, fromClass.getTypeName()));
+"No field named '%s' in class '%s'", expectedName, fromClass.getName()));
         }
     }
 

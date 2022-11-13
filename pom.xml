@@ -45,9 +45,9 @@
 
          Baseline compatibility:
 
-         * Jackson 2.13 compatible with Android SDK 19 and up
+         * Jackson 2.13 compatible with Android SDK 24 and up
       -->
-    <version.android.sdk>19</version.android.sdk>
+    <version.android.sdk>24</version.android.sdk>
     <version.android.sdk.signature>0.5.0</version.android.sdk.signature>
 
     <!-- Can not use default, since group id != Java package name here -->
@@ -244,6 +244,16 @@
             <artifactId>gummy-bears-api-${version.android.sdk}</artifactId>
             <version>${version.android.sdk.signature}</version>
           </signature>
+	  <ignores>
+            <!-- These are only accessed (safely) via "Java7SupportImpl.java" so ignore
+              -->
+	    <ignore>java.beans.ConstructorProperties</ignore>
+	    <ignore>java.beans.Transient</ignore>
+	    <ignore>java.nio.file.FileSystemNotFoundException</ignore>
+	    <ignore>java.nio.file.Path</ignore>
+	    <ignore>java.nio.file.Paths</ignore>
+	    <ignore>java.nio.file.spi.FileSystemProvider</ignore>
+	  </ignores>
 	</configuration>
       </plugin>
 

@@ -41,6 +41,15 @@
     <javac.src.version>1.8</javac.src.version>
     <javac.target.version>1.8</javac.target.version>
 
+    <!-- 12-Nov-2022, tatu: [databind#3659] Verify Android SDK compatibility.
+
+         Baseline compatibility:
+
+         * Jackson 2.13 compatible with Android SDK 19 and up
+      -->
+    <version.android.sdk>19</version.android.sdk>
+    <version.android.sdk.signature>0.5.0</version.android.sdk.signature>
+
     <!-- Can not use default, since group id != Java package name here -->
     <osgi.export>com.fasterxml.jackson.databind.*;version=${project.version}</osgi.export>
     <!-- fix for databind#2299: using jackson-databind in an OSGi environment under Android --> 
@@ -118,7 +127,6 @@
 
   <build>
      <plugins>
-
     <plugin>
       <groupId>org.jacoco</groupId>
       <artifactId>jacoco-maven-plugin</artifactId>
@@ -218,6 +226,27 @@
           </platformDependencies>
         </configuration>
       </plugin>
+
+      <!-- 12-Nov-2022, tatu: [databind#3659] add verification of compatibility
+	   wrt Android SDK versions using AnimalSniffer with "gummy bears" signatures.
+
+           To be run from CI, but manually with:
+
+              mvn animal-sniffer:check
+	-->
+      <plugin>
+	<groupId>org.codehaus.mojo</groupId>
+	<artifactId>animal-sniffer-maven-plugin</artifactId>
+	<version>1.22</version>
+	<configuration>
+          <signature>
+            <groupId>com.toasttab.android</groupId>
+            <artifactId>gummy-bears-api-${version.android.sdk}</artifactId>
+            <version>${version.android.sdk.signature}</version>
+          </signature>
+	</configuration>
+      </plugin>
+
      </plugins>
   </build>
 

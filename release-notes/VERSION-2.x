@@ -81,6 +81,11 @@ Project: jackson-databind
 #3633: Expose `translate()` method of standard `PropertyNamingStrategy` implementations
  (requested by Joachim D)
 
+2.13.5 (not yet released)
+
+#3659: Improve testing (likely via CI) to try to ensure compatibility with
+  specific Android SDKs
+
 2.13.4.2 (13-Oct-2022)
 
 #3627: Gradle module metadata for `2.13.4.1` references non-existent

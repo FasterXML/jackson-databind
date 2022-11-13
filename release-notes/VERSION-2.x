@@ -4,10 +4,12 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-(not yet released)
+2.13.5 (not yet released)
 
 #3659: Improve testing (likely via CI) to try to ensure compatibility with
   specific Android SDKs
+#3661: Jackson 2.13 uses Class.getTypeName() that is only available on Android SDK 26
+  (with fix works on ASDK 24)
 
 2.13.4.2 (13-Oct-2022)
 

@@ -644,6 +644,8 @@ public class BeanDeserializer
                 }
                 return value;
             }
+            // 15-Nov-2022, tatu: ... we probably should pass original `JsonToken.START_ARRAY`
+            //     as unexpected token, since `p` now points to `unwrappedToken` instead...
         }
         return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }

@@ -4,7 +4,12 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-(3.0.x and later changes not included here)
+2.14.1 (not yet released)
+
+#3655: `Enum` values can not be read from single-element array even with
+  `DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS`
+ (reported by Andrej M)
+ (fix contributed by Jonas K)
 
 2.14.0 (05-Nov-2022)
 

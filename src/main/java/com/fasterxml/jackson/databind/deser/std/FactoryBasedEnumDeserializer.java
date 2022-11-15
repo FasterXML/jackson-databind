@@ -150,13 +150,25 @@ ClassUtil.getTypeDescription(targetType), _factory, p.currentToken());
             //    value is expected; otherwise Deserializer should have been used earlier
             // 14-Jan-2022, tatu: as per [databind#3369] need to consider structured
             //    value types (Object, Array) as well.
+            // 15-Nov-2022, tatu: Fix for [databind#3655] requires handling of possible
+            //    unwrapping, do it here
             JsonToken t = p.currentToken();
-            if ((t != null) && !t.isScalarValue()) {
+            boolean unwrapping = (t == JsonToken.START_ARRAY)
+                    && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+            if (unwrapping) {
+                t = p.nextToken();
+            }
+            if ((t == null) || !t.isScalarValue()) {
                 // Could argue we should throw an exception but...
                 value = "";
                 p.skipChildren();
             } else {
                 value = p.getValueAsString();
+            }
+            if (unwrapping) {
+                if (p.nextToken() != JsonToken.END_ARRAY) {
+                    handleMissingEndArrayForSingle(p, ctxt);
+                }
             }
         } else { // zero-args; just skip whatever value there may be
             p.skipChildren();

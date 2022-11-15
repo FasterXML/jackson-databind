@@ -409,6 +409,9 @@ Jonas Konrad (yawkat@github)
   * Contributed #3417: Allow (de)serializing records using Bean(De)SerializerModifier
     even when reflection is unavailable
    (2.14.0)
+  * Contributed fix for #3655: `Enum` values can not be read from single-element array even
+    with `DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS`
+   (2.14.1)
 
 Jirka Kremser (Jiri-Kremser@github)
   * Suggested #924: SequenceWriter.writeAll() could accept Iterable
@@ -1512,3 +1515,8 @@ Joachim Durchholz (toolforger@github)
   * Requested #3633: Expose `translate()` method of standard `PropertyNamingStrategy`
    implementations
   (2.14.0)
+
+Andrej Mitrovic (AndrejMitrovic@github)
+  * Reported #3655: `Enum` values can not be read from single-element array even with
+    `DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS`
+  (2.14.1)

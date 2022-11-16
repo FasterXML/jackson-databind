@@ -24,10 +24,8 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.AbstractCollection;
 import java.util.AbstractMap;
-import java.util.AbstractQueue;
 import java.util.AbstractSet;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -155,9 +153,6 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
     /** The maximum number of write operations to perform per amortized drain. */
     static final int WRITE_BUFFER_DRAIN_THRESHOLD = 16;
 
-    /** A queue that discards all entries. */
-    static final Queue<?> DISCARDING_QUEUE = new DiscardingQueue();
-
     static int ceilingNextPowerOfTwo(int x) {
         // From Hacker's Delight, Chapter 3, Harry S. Warren Jr.
         return 1 << (Integer.SIZE - Integer.numberOfLeadingZeros(x - 1));
@@ -185,10 +180,6 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
     final AtomicReference<Node<K, V>>[][] readBuffers;
 
     final AtomicReference<DrainStatus> drainStatus;
-
-    // These fields provide support for notifying a listener.
-    final Queue<Node<K, V>> pendingNotifications;
-    final EvictionListener<K, V> listener;
 
     transient Set<K> keySet;
     transient Collection<V> values;
@@ -223,12 +214,6 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
                 readBuffers[i][j] = new AtomicReference<Node<K, V>>();
             }
         }
-
-        // The notification queue and listener
-        listener = builder.listener;
-        pendingNotifications = (listener == DiscardingListener.INSTANCE)
-                ? (Queue<Node<K, V>>) DISCARDING_QUEUE
-                : new ConcurrentLinkedQueue<Node<K, V>>();
     }
 
     /** Ensures that the object is not null. */
@@ -280,7 +265,6 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
         } finally {
             evictionLock.unlock();
         }
-        notifyListener();
     }
 
     /** Determines whether the map has exceeded its capacity. */
@@ -310,10 +294,7 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
                 return;
             }
 
-            // Notify the listener only if the entry was evicted
-            if (data.remove(node.key, node)) {
-                pendingNotifications.add(node);
-            }
+            data.remove(node.key, node);
 
             makeDead(node);
         }
@@ -328,7 +309,6 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
         final int bufferIndex = readBufferIndex();
         final long writeCount = recordRead(bufferIndex, node);
         drainOnReadIfNeeded(bufferIndex, writeCount);
-        notifyListener();
     }
 
     /** Returns the index to the read buffer to record into. */
@@ -385,7 +365,6 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
         writeBuffer.add(task);
         drainStatus.lazySet(REQUIRED);
         tryToDrainBuffers();
-        notifyListener();
     }
 
     /**
@@ -514,14 +493,6 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
                 weightedSize.lazySet(weightedSize.get() - Math.abs(current.weight));
                 return;
             }
-        }
-    }
-
-    /** Notifies the listener of entries that were evicted. */
-    void notifyListener() {
-        Node<K, V> node;
-        while ((node = pendingNotifications.poll()) != null) {
-            listener.onEviction(node.key, node.getValue());
         }
     }
 
@@ -878,22 +849,6 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
         boolean isAlive() {
             return weight > 0;
         }
-
-        /**
-         * If the entry was removed from the hash-table and is awaiting removal from
-         * the page replacement policy.
-         */
-        boolean isRetired() {
-            return weight < 0;
-        }
-
-        /**
-         * If the entry was removed from the hash-table and the page replacement
-         * policy.
-         */
-        boolean isDead() {
-            return weight == 0;
-        }
     }
 
     /**
@@ -1144,23 +1099,6 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
         }
     }
 
-    /** A queue that discards all additions and is always empty. */
-    static final class DiscardingQueue extends AbstractQueue<Object> {
-        @Override public boolean add(Object e) { return true; }
-        @Override public boolean offer(Object e) { return true; }
-        @Override public Object poll() { return null; }
-        @Override public Object peek() { return null; }
-        @Override public int size() { return 0; }
-        @Override public Iterator<Object> iterator() { return Collections.emptyIterator(); }
-    }
-
-    /** A listener that ignores all notifications. */
-    enum DiscardingListener implements EvictionListener<Object, Object> {
-        INSTANCE;
-
-        @Override public void onEviction(Object key, Object value) {}
-    }
-
     /* ---------------- Serialization Support -------------- */
 
     static final long serialVersionUID = 1;
@@ -1181,7 +1119,6 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
      * used as a fast warm-up process.
      */
     static final class SerializationProxy<K, V> implements Serializable {
-        final EvictionListener<K, V> listener;
         final int concurrencyLevel;
         final Map<K, V> data;
         final long capacity;
@@ -1190,7 +1127,6 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
             concurrencyLevel = map.concurrencyLevel;
             data = new HashMap<K, V>(map);
             capacity = map.capacity.get();
-            listener = map.listener;
         }
 
         Object readResolve() {
@@ -1220,8 +1156,6 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
         static final int DEFAULT_CONCURRENCY_LEVEL = 16;
         static final int DEFAULT_INITIAL_CAPACITY = 16;
 
-        EvictionListener<K, V> listener;
-
         int concurrencyLevel;
         int initialCapacity;
         long capacity;
@@ -1231,7 +1165,6 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
             capacity = -1;
             initialCapacity = DEFAULT_INITIAL_CAPACITY;
             concurrencyLevel = DEFAULT_CONCURRENCY_LEVEL;
-            listener = (EvictionListener<K, V>) DiscardingListener.INSTANCE;
         }
 
         /**
@@ -1275,19 +1208,6 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
         public Builder<K, V> concurrencyLevel(int concurrencyLevel) {
             checkArgument(concurrencyLevel > 0);
             this.concurrencyLevel = concurrencyLevel;
-            return this;
-        }
-
-        /**
-         * Specifies an optional listener that is registered for notification when
-         * an entry is evicted.
-         *
-         * @param listener the object to forward evicted entries to
-         * @throws NullPointerException if the listener is null
-         */
-        public Builder<K, V> listener(EvictionListener<K, V> listener) {
-            checkNotNull(listener);
-            this.listener = listener;
             return this;
         }
 

@@ -363,9 +363,10 @@ public class EnumCreatorTest extends BaseMapTest
     // for [databind#3655]
     public void testEnumsFromIntsUnwrapped() throws Exception
     {
-        Object ob = newJsonMapper()
-                .enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
-                .readValue("[1]", TestEnumFromInt.class);
+        Object ob = MAPPER
+                .readerFor(TestEnumFromInt.class)
+                .with(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+                .readValue("[1]");
         assertEquals(TestEnumFromInt.class, ob.getClass());
         assertSame(TestEnumFromInt.ENUM_A, ob);
     }
@@ -373,9 +374,10 @@ public class EnumCreatorTest extends BaseMapTest
     // for [databind#3655]
     public void testEnumsFromStringUnwrapped() throws Exception
     {
-        Object ob = newJsonMapper()
-                .enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
-                .readValue("[\"ENUM_A\"]", TestEnumFromString.class);
+        Object ob = MAPPER
+                .readerFor(TestEnumFromString.class)
+                .with(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+                .readValue("[\"ENUM_A\"]");
         assertEquals(TestEnumFromString.class, ob.getClass());
         assertSame(TestEnumFromString.ENUM_A, ob);
     }

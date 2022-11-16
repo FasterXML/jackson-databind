@@ -207,10 +207,10 @@ public class TestCreators3 extends BaseMapTest
     }
 
     public void testDeserializationFromWrappedString() throws Exception {
-        assertEquals("DELEG:testProduct",
-                newJsonMapper()
-                        .enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
-                        .readValue("[\"testProduct\"]", Product1853.class).getName());
+        Product1853 result = MAPPER.readerFor(Product1853.class)
+                .with(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
+                .readValue("[\"testProduct\"]");
+        assertEquals("DELEG:testProduct", result.getName());
     }
 }
 

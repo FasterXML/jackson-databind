@@ -36,6 +36,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -183,7 +184,7 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
     final Queue<Runnable> writeBuffer;
     final AtomicLong[] readBufferWriteCount;
     final AtomicLong[] readBufferDrainAtWriteCount;
-    final AtomicReference<Node<K, V>>[][] readBuffers;
+    final AtomicReferenceArray<Node<K, V>>[] readBuffers;
 
     final AtomicReference<DrainStatus> drainStatus;
 
@@ -211,14 +212,12 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
         readBufferReadCount = new long[NUMBER_OF_READ_BUFFERS];
         readBufferWriteCount = new AtomicLong[NUMBER_OF_READ_BUFFERS];
         readBufferDrainAtWriteCount = new AtomicLong[NUMBER_OF_READ_BUFFERS];
-        readBuffers = new AtomicReference[NUMBER_OF_READ_BUFFERS][READ_BUFFER_SIZE];
+        readBuffers = new AtomicReferenceArray[NUMBER_OF_READ_BUFFERS];
         for (int i = 0; i < NUMBER_OF_READ_BUFFERS; i++) {
             readBufferWriteCount[i] = new AtomicLong();
             readBufferDrainAtWriteCount[i] = new AtomicLong();
-            readBuffers[i] = new AtomicReference[READ_BUFFER_SIZE];
-            for (int j = 0; j < READ_BUFFER_SIZE; j++) {
-                readBuffers[i][j] = new AtomicReference<Node<K, V>>();
-            }
+            final Node<K, V>[] nodes = new Node[READ_BUFFER_SIZE];
+            readBuffers[i] = new AtomicReferenceArray(nodes);
         }
     }
 
@@ -341,7 +340,7 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
         counter.lazySet(writeCount + 1);
 
         final int index = (int) (writeCount & READ_BUFFER_INDEX_MASK);
-        readBuffers[bufferIndex][index].lazySet(node);
+        readBuffers[bufferIndex].lazySet(index, node);
 
         return writeCount;
     }
@@ -412,13 +411,12 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
         final long writeCount = readBufferWriteCount[bufferIndex].get();
         for (int i = 0; i < READ_BUFFER_DRAIN_THRESHOLD; i++) {
             final int index = (int) (readBufferReadCount[bufferIndex] & READ_BUFFER_INDEX_MASK);
-            final AtomicReference<Node<K, V>> slot = readBuffers[bufferIndex][index];
-            final Node<K, V> node = slot.get();
+            final Node<K, V> node = readBuffers[bufferIndex].get(index);
             if (node == null) {
                 break;
             }
 
-            slot.lazySet(null);
+            readBuffers[bufferIndex].lazySet(index, null);
             applyRead(node);
             readBufferReadCount[bufferIndex]++;
         }
@@ -585,9 +583,9 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
             }
 
             // Discard all pending reads
-            for (AtomicReference<Node<K, V>>[] buffer : readBuffers) {
-                for (AtomicReference<Node<K, V>> slot : buffer) {
-                    slot.lazySet(null);
+            for (AtomicReferenceArray<Node<K, V>> buffer : readBuffers) {
+                for (int i = 0; i < buffer.length(); i++) {
+                    buffer.lazySet(i, null);
                 }
             }
 

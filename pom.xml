@@ -47,6 +47,7 @@
 
          * Jackson 2.13 compatible with Android SDK 24 and up
          * Jackson 2.14 compatible with Android SDK 26 and up
+         * Jackson 2.15 compatible with Android SDK 26 and up
 
       -->
     <version.android.sdk>26</version.android.sdk>

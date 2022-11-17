@@ -66,6 +66,26 @@ Jackson 2.10 and above include `module-info.class` definitions so the jar is als
 Jackson 2.12 and above include additional Gradle 6 Module Metadata for version alignment with Gradle.
 
 -----
+## Compatibility
+
+### JDK
+
+Jackson-databind package baseline JDK requirements are as follows:
+
+* Versions 2.0 - 2.7 require JDK 6
+* Versions 2.8 - 2.12 require JDK 7 to run (but 2.11 - 2.12 require JDK 8 to build)
+* Versions 2.13 and above require JDK 8
+
+### Android
+
+List is incomplete due to recent addition of compatibility checker.
+
+* 2.13: Android SDK 24+
+* 2.14: Android SDK 26+
+
+for information on Android SDK versions to Android Release names see [https://en.wikipedia.org/wiki/Android_version_history]
+
+-----
 
 # Use It!
 

@@ -18,22 +18,16 @@ package com.fasterxml.jackson.databind.util.internal;
 import static com.fasterxml.jackson.databind.util.internal.PrivateMaxEntriesMap.DrainStatus.IDLE;
 import static com.fasterxml.jackson.databind.util.internal.PrivateMaxEntriesMap.DrainStatus.PROCESSING;
 import static com.fasterxml.jackson.databind.util.internal.PrivateMaxEntriesMap.DrainStatus.REQUIRED;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.unmodifiableMap;
-import static java.util.Collections.unmodifiableSet;
 
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.AbstractCollection;
 import java.util.AbstractMap;
-import java.util.AbstractQueue;
 import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -159,9 +153,6 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
     /** The maximum number of write operations to perform per amortized drain. */
     static final int WRITE_BUFFER_DRAIN_THRESHOLD = 16;
 
-    /** A queue that discards all entries. */
-    static final Queue<?> DISCARDING_QUEUE = new DiscardingQueue();
-
     static int ceilingNextPowerOfTwo(int x) {
         // From Hacker's Delight, Chapter 3, Harry S. Warren Jr.
         return 1 << (Integer.SIZE - Integer.numberOfLeadingZeros(x - 1));
@@ -189,10 +180,6 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
     final AtomicReference<Node<K, V>>[][] readBuffers;
 
     final AtomicReference<DrainStatus> drainStatus;
-
-    // These fields provide support for notifying a listener.
-    final Queue<Node<K, V>> pendingNotifications;
-    final EvictionListener<K, V> listener;
 
     transient Set<K> keySet;
     transient Collection<V> values;
@@ -227,12 +214,6 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
                 readBuffers[i][j] = new AtomicReference<Node<K, V>>();
             }
         }
-
-        // The notification queue and listener
-        listener = builder.listener;
-        pendingNotifications = (listener == DiscardingListener.INSTANCE)
-                ? (Queue<Node<K, V>>) DISCARDING_QUEUE
-                : new ConcurrentLinkedQueue<Node<K, V>>();
     }
 
     /** Ensures that the object is not null. */
@@ -284,7 +265,6 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
         } finally {
             evictionLock.unlock();
         }
-        notifyListener();
     }
 
     /** Determines whether the map has exceeded its capacity. */
@@ -314,10 +294,7 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
                 return;
             }
 
-            // Notify the listener only if the entry was evicted
-            if (data.remove(node.key, node)) {
-                pendingNotifications.add(node);
-            }
+            data.remove(node.key, node);
 
             makeDead(node);
         }
@@ -332,7 +309,6 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
         final int bufferIndex = readBufferIndex();
         final long writeCount = recordRead(bufferIndex, node);
         drainOnReadIfNeeded(bufferIndex, writeCount);
-        notifyListener();
     }
 
     /** Returns the index to the read buffer to record into. */
@@ -389,7 +365,6 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
         writeBuffer.add(task);
         drainStatus.lazySet(REQUIRED);
         tryToDrainBuffers();
-        notifyListener();
     }
 
     /**
@@ -521,14 +496,6 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
         }
     }
 
-    /** Notifies the listener of entries that were evicted. */
-    void notifyListener() {
-        Node<K, V> node;
-        while ((node = pendingNotifications.poll()) != null) {
-            listener.onEviction(node.key, node.getValue());
-        }
-    }
-
     /** Adds the node to the page replacement policy. */
     final class AddTask implements Runnable {
         final Node<K, V> node;
@@ -600,15 +567,6 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
         return data.size();
     }
 
-    /**
-     * Returns the weighted size of this map.
-     *
-     * @return the combined weight of the values in this map
-     */
-    public long weightedSize() {
-        return Math.max(0, weightedSize.get());
-    }
-
     @Override
     public void clear() {
         evictionLock.lock();
@@ -662,22 +620,6 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
         }
         afterRead(node);
         return node.getValue();
-    }
-
-    /**
-     * Returns the value to which the specified key is mapped, or {@code null}
-     * if this map contains no mapping for the key. This method differs from
-     * {@link #get(Object)} in that it does not record the operation with the
-     * page replacement policy.
-     *
-     * @param key the key whose associated value is to be returned
-     * @return the value to which the specified key is mapped, or
-     *     {@code null} if this map contains no mapping for the key
-     * @throws NullPointerException if the specified key is null
-     */
-    public V getQuietly(Object key) {
-        final Node<K, V> node = data.get(key);
-        return (node == null) ? null : node.getValue();
     }
 
     @Override
@@ -841,98 +783,6 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
         return (ks == null) ? (keySet = new KeySet()) : ks;
     }
 
-    /**
-     * Returns a unmodifiable snapshot {@link Set} view of the keys contained in
-     * this map. The set's iterator returns the keys whose order of iteration is
-     * the ascending order in which its entries are considered eligible for
-     * retention, from the least-likely to be retained to the most-likely.
-     * <p>
-     * Beware that, unlike in {@link #keySet()}, obtaining the set is <em>NOT</em>
-     * a constant-time operation. Because of the asynchronous nature of the page
-     * replacement policy, determining the retention ordering requires a traversal
-     * of the keys.
-     *
-     * @return an ascending snapshot view of the keys in this map
-     */
-    public Set<K> ascendingKeySet() {
-        return ascendingKeySetWithLimit(Integer.MAX_VALUE);
-    }
-
-    /**
-     * Returns an unmodifiable snapshot {@link Set} view of the keys contained in
-     * this map. The set's iterator returns the keys whose order of iteration is
-     * the ascending order in which its entries are considered eligible for
-     * retention, from the least-likely to be retained to the most-likely.
-     * <p>
-     * Beware that, unlike in {@link #keySet()}, obtaining the set is <em>NOT</em>
-     * a constant-time operation. Because of the asynchronous nature of the page
-     * replacement policy, determining the retention ordering requires a traversal
-     * of the keys.
-     *
-     * @param limit the maximum size of the returned set
-     * @return a ascending snapshot view of the keys in this map
-     * @throws IllegalArgumentException if the limit is negative
-     */
-    public Set<K> ascendingKeySetWithLimit(int limit) {
-        return orderedKeySet(true, limit);
-    }
-
-    /**
-     * Returns an unmodifiable snapshot {@link Set} view of the keys contained in
-     * this map. The set's iterator returns the keys whose order of iteration is
-     * the descending order in which its entries are considered eligible for
-     * retention, from the most-likely to be retained to the least-likely.
-     * <p>
-     * Beware that, unlike in {@link #keySet()}, obtaining the set is <em>NOT</em>
-     * a constant-time operation. Because of the asynchronous nature of the page
-     * replacement policy, determining the retention ordering requires a traversal
-     * of the keys.
-     *
-     * @return a descending snapshot view of the keys in this map
-     */
-    public Set<K> descendingKeySet() {
-        return descendingKeySetWithLimit(Integer.MAX_VALUE);
-    }
-
-    /**
-     * Returns an unmodifiable snapshot {@link Set} view of the keys contained in
-     * this map. The set's iterator returns the keys whose order of iteration is
-     * the descending order in which its entries are considered eligible for
-     * retention, from the most-likely to be retained to the least-likely.
-     * <p>
-     * Beware that, unlike in {@link #keySet()}, obtaining the set is <em>NOT</em>
-     * a constant-time operation. Because of the asynchronous nature of the page
-     * replacement policy, determining the retention ordering requires a traversal
-     * of the keys.
-     *
-     * @param limit the maximum size of the returned set
-     * @return a descending snapshot view of the keys in this map
-     * @throws IllegalArgumentException if the limit is negative
-     */
-    public Set<K> descendingKeySetWithLimit(int limit) {
-        return orderedKeySet(false, limit);
-    }
-
-    Set<K> orderedKeySet(boolean ascending, int limit) {
-        checkArgument(limit >= 0);
-        evictionLock.lock();
-        try {
-            drainBuffers();
-
-            final int initialCapacity = Math.min(limit, (int) weightedSize());
-            final Set<K> keys = new LinkedHashSet<K>(initialCapacity);
-            final Iterator<Node<K, V>> iterator = ascending
-                    ? evictionDeque.iterator()
-                    : evictionDeque.descendingIterator();
-            while (iterator.hasNext() && (limit > keys.size())) {
-                keys.add(iterator.next().key);
-            }
-            return unmodifiableSet(keys);
-        } finally {
-            evictionLock.unlock();
-        }
-    }
-
     @Override
     public Collection<V> values() {
         final Collection<V> vs = values;
@@ -943,103 +793,6 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
     public Set<Entry<K, V>> entrySet() {
         final Set<Entry<K, V>> es = entrySet;
         return (es == null) ? (entrySet = new EntrySet()) : es;
-    }
-
-    /**
-     * Returns an unmodifiable snapshot {@link Map} view of the mappings contained
-     * in this map. The map's collections return the mappings whose order of
-     * iteration is the ascending order in which its entries are considered
-     * eligible for retention, from the least-likely to be retained to the
-     * most-likely.
-     * <p>
-     * Beware that obtaining the mappings is <em>NOT</em> a constant-time
-     * operation. Because of the asynchronous nature of the page replacement
-     * policy, determining the retention ordering requires a traversal of the
-     * entries.
-     *
-     * @return a ascending snapshot view of this map
-     */
-    public Map<K, V> ascendingMap() {
-        return ascendingMapWithLimit(Integer.MAX_VALUE);
-    }
-
-    /**
-     * Returns an unmodifiable snapshot {@link Map} view of the mappings contained
-     * in this map. The map's collections return the mappings whose order of
-     * iteration is the ascending order in which its entries are considered
-     * eligible for retention, from the least-likely to be retained to the
-     * most-likely.
-     * <p>
-     * Beware that obtaining the mappings is <em>NOT</em> a constant-time
-     * operation. Because of the asynchronous nature of the page replacement
-     * policy, determining the retention ordering requires a traversal of the
-     * entries.
-     *
-     * @param limit the maximum size of the returned map
-     * @return a ascending snapshot view of this map
-     * @throws IllegalArgumentException if the limit is negative
-     */
-    public Map<K, V> ascendingMapWithLimit(int limit) {
-        return orderedMap(true, limit);
-    }
-
-    /**
-     * Returns an unmodifiable snapshot {@link Map} view of the mappings contained
-     * in this map. The map's collections return the mappings whose order of
-     * iteration is the descending order in which its entries are considered
-     * eligible for retention, from the most-likely to be retained to the
-     * least-likely.
-     * <p>
-     * Beware that obtaining the mappings is <em>NOT</em> a constant-time
-     * operation. Because of the asynchronous nature of the page replacement
-     * policy, determining the retention ordering requires a traversal of the
-     * entries.
-     *
-     * @return a descending snapshot view of this map
-     */
-    public Map<K, V> descendingMap() {
-        return descendingMapWithLimit(Integer.MAX_VALUE);
-    }
-
-    /**
-     * Returns an unmodifiable snapshot {@link Map} view of the mappings contained
-     * in this map. The map's collections return the mappings whose order of
-     * iteration is the descending order in which its entries are considered
-     * eligible for retention, from the most-likely to be retained to the
-     * least-likely.
-     * <p>
-     * Beware that obtaining the mappings is <em>NOT</em> a constant-time
-     * operation. Because of the asynchronous nature of the page replacement
-     * policy, determining the retention ordering requires a traversal of the
-     * entries.
-     *
-     * @param limit the maximum size of the returned map
-     * @return a descending snapshot view of this map
-     * @throws IllegalArgumentException if the limit is negative
-     */
-    public Map<K, V> descendingMapWithLimit(int limit) {
-        return orderedMap(false, limit);
-    }
-
-    Map<K, V> orderedMap(boolean ascending, int limit) {
-        checkArgument(limit >= 0);
-        evictionLock.lock();
-        try {
-            drainBuffers();
-
-            final int initialCapacity = Math.min(limit, (int) weightedSize());
-            final Map<K, V> map = new LinkedHashMap<K, V>(initialCapacity);
-            final Iterator<Node<K, V>> iterator = ascending
-                    ? evictionDeque.iterator()
-                    : evictionDeque.descendingIterator();
-            while (iterator.hasNext() && (limit > map.size())) {
-                Node<K, V> node = iterator.next();
-                map.put(node.key, node.getValue());
-            }
-            return unmodifiableMap(map);
-        } finally {
-            evictionLock.unlock();
-        }
     }
 
     /** The draining status of the buffers. */
@@ -1095,22 +848,6 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
          */
         boolean isAlive() {
             return weight > 0;
-        }
-
-        /**
-         * If the entry was removed from the hash-table and is awaiting removal from
-         * the page replacement policy.
-         */
-        boolean isRetired() {
-            return weight < 0;
-        }
-
-        /**
-         * If the entry was removed from the hash-table and the page replacement
-         * policy.
-         */
-        boolean isDead() {
-            return weight == 0;
         }
     }
 
@@ -1362,23 +1099,6 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
         }
     }
 
-    /** A queue that discards all additions and is always empty. */
-    static final class DiscardingQueue extends AbstractQueue<Object> {
-        @Override public boolean add(Object e) { return true; }
-        @Override public boolean offer(Object e) { return true; }
-        @Override public Object poll() { return null; }
-        @Override public Object peek() { return null; }
-        @Override public int size() { return 0; }
-        @Override public Iterator<Object> iterator() { return emptyList().iterator(); }
-    }
-
-    /** A listener that ignores all notifications. */
-    enum DiscardingListener implements EvictionListener<Object, Object> {
-        INSTANCE;
-
-        @Override public void onEviction(Object key, Object value) {}
-    }
-
     /* ---------------- Serialization Support -------------- */
 
     static final long serialVersionUID = 1;
@@ -1399,7 +1119,6 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
      * used as a fast warm-up process.
      */
     static final class SerializationProxy<K, V> implements Serializable {
-        final EvictionListener<K, V> listener;
         final int concurrencyLevel;
         final Map<K, V> data;
         final long capacity;
@@ -1408,7 +1127,6 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
             concurrencyLevel = map.concurrencyLevel;
             data = new HashMap<K, V>(map);
             capacity = map.capacity.get();
-            listener = map.listener;
         }
 
         Object readResolve() {
@@ -1438,8 +1156,6 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
         static final int DEFAULT_CONCURRENCY_LEVEL = 16;
         static final int DEFAULT_INITIAL_CAPACITY = 16;
 
-        EvictionListener<K, V> listener;
-
         int concurrencyLevel;
         int initialCapacity;
         long capacity;
@@ -1449,7 +1165,6 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
             capacity = -1;
             initialCapacity = DEFAULT_INITIAL_CAPACITY;
             concurrencyLevel = DEFAULT_CONCURRENCY_LEVEL;
-            listener = (EvictionListener<K, V>) DiscardingListener.INSTANCE;
         }
 
         /**
@@ -1493,19 +1208,6 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
         public Builder<K, V> concurrencyLevel(int concurrencyLevel) {
             checkArgument(concurrencyLevel > 0);
             this.concurrencyLevel = concurrencyLevel;
-            return this;
-        }
-
-        /**
-         * Specifies an optional listener that is registered for notification when
-         * an entry is evicted.
-         *
-         * @param listener the object to forward evicted entries to
-         * @throws NullPointerException if the listener is null
-         */
-        public Builder<K, V> listener(EvictionListener<K, V> listener) {
-            checkNotNull(listener);
-            this.listener = listener;
             return this;
         }
 

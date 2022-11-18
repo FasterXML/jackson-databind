@@ -143,8 +143,11 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
     /** Mask value for indexing into the read buffers. */
     static final int READ_BUFFERS_MASK = NUMBER_OF_READ_BUFFERS - 1;
 
-    /** The number of pending read operations before attempting to drain. */
-    static final int READ_BUFFER_THRESHOLD = 32;
+    /**
+     * The number of pending read operations before attempting to drain.
+     * The threshold of 4 was introduced due to https://github.com/FasterXML/jackson-databind/issues/3665.
+     */
+    static final int READ_BUFFER_THRESHOLD = 4;
 
     /** The maximum number of read operations to perform per amortized drain. */
     static final int READ_BUFFER_DRAIN_THRESHOLD = 2 * READ_BUFFER_THRESHOLD;

@@ -9,7 +9,7 @@ public class MapperFootprintTest {
     public void testMapperFootprint() {
         // memory footprint limit for the ObjectMapper
         GraphLayout mapperLayout = GraphLayout.parseInstance(new ObjectMapper());
-        Assert.assertTrue(mapperLayout.totalSize() < 130000);
+        Assert.assertTrue(mapperLayout.totalSize() < 50000);
         System.out.println(mapperLayout.toFootprint());
     }
 }

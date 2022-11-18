@@ -1,9 +1,11 @@
 package com.fasterxml.jackson.databind.util;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
-
-import com.fasterxml.jackson.databind.util.internal.PrivateMaxEntriesMap;
 
 /**
  * Helper for simple bounded maps used for reusing lookup values.
@@ -12,36 +14,44 @@ import com.fasterxml.jackson.databind.util.internal.PrivateMaxEntriesMap;
  * on assumption that all use cases are for caching where persistence
  * does not make sense. The only thing serialized is the cache size of Map.
  *<p>
- * NOTE: since Jackson 2.14, the implementation evicts the least recently used
- * entry when max size is reached.
+ * NOTE: since version 2.4.2, this is <b>NOT</b> an LRU-based at all; reason
+ * being that it is not possible to use JDK components that do LRU _AND_ perform
+ * well wrt synchronization on multi-core systems. So we choose efficient synchronization
+ * over potentially more efficient handling of entries.
  *<p>
- * Since Jackson 2.12, there has been pluggable {@link LookupCache} interface which
- * allows users, frameworks, provide their own cache implementations.
+ * And yes, there are efficient LRU implementations such as
+ * <a href="https://code.google.com/p/concurrentlinkedhashmap/">concurrentlinkedhashmap</a>;
+ * but at this point we really try to keep external deps to minimum.
+ * Plan from Jackson 2.12 is to focus more on pluggability as {@link LookupCache} and
+ * let users, frameworks, provide their own cache implementations.
  */
 public class LRUMap<K,V>
     implements LookupCache<K,V>, // since 2.12
         java.io.Serializable
 {
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 1L;
 
-    protected final int _initialEntries;
-    protected final int _maxEntries;
-    protected final transient PrivateMaxEntriesMap<K,V> _map;
+    protected final transient int _maxEntries;
+
+    protected final transient ConcurrentHashMap<K,V> _map;
 
     public LRUMap(int initialEntries, int maxEntries)
     {
-        _initialEntries = initialEntries;
-        _maxEntries = maxEntries;
         // We'll use concurrency level of 4, seems reasonable
-        _map = new PrivateMaxEntriesMap.Builder<K, V>()
-                .initialCapacity(initialEntries)
-                .maximumCapacity(maxEntries)
-                .concurrencyLevel(4)
-                .build();
+        _map = new ConcurrentHashMap<K,V>(initialEntries, 0.8f, 4);
+        _maxEntries = maxEntries;
     }
 
     @Override
     public V put(K key, V value) {
+        if (_map.size() >= _maxEntries) {
+            // double-locking, yes, but safe here; trying to avoid "clear storms"
+            synchronized (this) {
+                if (_map.size() >= _maxEntries) {
+                    clear();
+                }
+            }
+        }
         return _map.put(key, value);
     }
 
@@ -50,12 +60,21 @@ public class LRUMap<K,V>
      */
     @Override
     public V putIfAbsent(K key, V value) {
+        // not 100% optimal semantically, but better from correctness (never exceeds
+        // defined maximum) and close enough all in all:
+        if (_map.size() >= _maxEntries) {
+            synchronized (this) {
+                if (_map.size() >= _maxEntries) {
+                    clear();
+                }
+            }
+        }
         return _map.putIfAbsent(key, value);
     }
-    
+
     // NOTE: key is of type Object only to retain binary backwards-compatibility
     @Override
-    public V get(Object key) { return _map.get(key); }
+    public V get(Object key) {  return _map.get(key); }
 
     @Override
     public void clear() { _map.clear(); }
@@ -64,9 +83,9 @@ public class LRUMap<K,V>
     public int size() { return _map.size(); }
 
     /*
-    /**********************************************************************
+    /**********************************************************
     /* Extended API (2.14)
-    /**********************************************************************
+    /**********************************************************
      */
 
     public void contents(BiConsumer<K,V> consumer) {
@@ -76,12 +95,28 @@ public class LRUMap<K,V>
     }
 
     /*
-    /**********************************************************************
+    /**********************************************************
     /* Serializable overrides
-    /**********************************************************************
+    /**********************************************************
      */
 
+    /**
+     * Ugly hack, to work through the requirement that _value is indeed final,
+     * and that JDK serialization won't call ctor(s) if Serializable is implemented.
+     *
+     * @since 2.1
+     */
+    protected transient int _jdkSerializeMaxEntries;
+
+    private void readObject(ObjectInputStream in) throws IOException {
+        _jdkSerializeMaxEntries = in.readInt();
+    }
+
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        out.writeInt(_jdkSerializeMaxEntries);
+    }
+
     protected Object readResolve() {
-        return new LRUMap<K,V>(_initialEntries, _maxEntries);
+        return new LRUMap<Object,Object>(_jdkSerializeMaxEntries, _jdkSerializeMaxEntries);
     }
 }

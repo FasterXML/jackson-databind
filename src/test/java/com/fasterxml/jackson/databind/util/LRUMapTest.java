@@ -33,11 +33,11 @@ public class LRUMapTest extends BaseTest {
         m.put("k5", 104);
         assertEquals(5, m.size());
         m.put("k6", 105);
-        assertEquals(5, m.size());
+        assertEquals(1, m.size());
         m.put("k7", 106);
-        assertEquals(5, m.size());
+        assertEquals(2, m.size());
         m.put("k8", 107);
-        assertEquals(5, m.size());
+        assertEquals(3, m.size());
 
         assertNull(m.get("k3"));
         assertEquals(Integer.valueOf(105), m.get("k6"));
@@ -55,7 +55,6 @@ public class LRUMapTest extends BaseTest {
         // transient implementation, will be read as empty
         assertNull(result.get("a"));
         assertEquals(0, result.size());
-        assertEquals(maxEntries, result._map.capacity());
 
         // but should be possible to re-populate
         assertNull(result.put("a", 2));

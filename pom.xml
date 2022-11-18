@@ -122,6 +122,13 @@
       <version>0.9.1</version>
       <scope>test</scope>
     </dependency>
+    <!-- For testing memory footprint -->
+    <dependency>
+      <groupId>org.openjdk.jol</groupId>
+      <artifactId>jol-core</artifactId>
+      <version>0.16</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <!-- Alas, need to include snapshot reference since otherwise can not find

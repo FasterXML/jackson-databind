@@ -128,6 +128,13 @@
       <scope>test</scope>
     </dependency>
 
+    <!-- For heap usage testing see https://github.com/FasterXML/jackson-databind/pull/3675 -->
+    <dependency>
+      <groupId>org.openjdk.jol</groupId>
+      <artifactId>jol-core</artifactId>
+      <version>0.16</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <!-- Alas, need to include snapshot reference since otherwise can not find

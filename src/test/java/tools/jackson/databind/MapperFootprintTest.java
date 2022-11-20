@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind;
+package tools.jackson.databind;
 
 import com.google.common.testing.GcFinalization;
 import org.junit.Assert;

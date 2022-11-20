@@ -412,6 +412,9 @@ Jonas Konrad (yawkat@github)
   * Contributed fix for #3655: `Enum` values can not be read from single-element array even
     with `DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS`
    (2.14.1)
+  * Contributed fix for #3655: `ObjectMapper` default heap consumption increased significantly
+    from 2.13.x to 2.14.0
+   (2.14.1)
 
 Jirka Kremser (Jiri-Kremser@github)
   * Suggested #924: SequenceWriter.writeAll() could accept Iterable
@@ -1519,4 +1522,9 @@ Joachim Durchholz (toolforger@github)
 Andrej Mitrovic (AndrejMitrovic@github)
   * Reported #3655: `Enum` values can not be read from single-element array even with
     `DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS`
+  (2.14.1)
+
+Moritz Halbritter (mhalbritter@github)
+  * Reported #3665: `ObjectMapper` default heap consumption increased significantly
+    from 2.13.x to 2.14.0
   (2.14.1)

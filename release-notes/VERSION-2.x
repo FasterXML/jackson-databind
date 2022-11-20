@@ -10,6 +10,9 @@ Project: jackson-databind
   `DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS`
  (reported by Andrej M)
  (fix contributed by Jonas K)
+#3665: `ObjectMapper` default heap consumption increased significantly from 2.13.x to 2.14.0
+ (reported by Moritz H)
+ (fix contributed by Jonas K)
 
 2.14.0 (05-Nov-2022)
 

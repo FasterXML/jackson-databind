@@ -2,11 +2,13 @@ package com.fasterxml.jackson.databind;
 
 import com.google.common.testing.GcFinalization;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openjdk.jol.info.GraphLayout;
 
 public class MapperFootprintTest {
     @Test
+    @Ignore
     public void testMapperFootprint() throws InterruptedException {
         // memory footprint limit for the ObjectMapper
 

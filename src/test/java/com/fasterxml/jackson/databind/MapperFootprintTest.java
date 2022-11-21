@@ -2,13 +2,16 @@ package com.fasterxml.jackson.databind;
 
 import com.google.common.testing.GcFinalization;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openjdk.jol.info.GraphLayout;
 
 public class MapperFootprintTest {
+    /*
+     * Note: this class is run in an isolated execution in surefire. The test is too flaky with all the other tests
+     * running in the same JVM.
+     */
+
     @Test
-    @Ignore
     public void testMapperFootprint() throws InterruptedException {
         // memory footprint limit for the ObjectMapper
 

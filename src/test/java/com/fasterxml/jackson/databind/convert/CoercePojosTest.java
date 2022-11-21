@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.convert;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JacksonException;
 
 import com.fasterxml.jackson.databind.*;
@@ -14,10 +16,19 @@ public class CoercePojosTest extends BaseMapTest
         public String a;
     }
 
-    private final ObjectMapper MAPPER = newJsonMapper();
+    static class BeanWithProp3676 {
+        @JsonCreator
+        public BeanWithProp3676(@JsonProperty("a") String a) {
+            this.a = a;
+        }
+
+        public String a;
+    }
 
     private final String JSON_EMPTY = q("");
     private final String JSON_BLANK = q("    ");
+
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     /*
     /********************************************************
@@ -50,6 +61,22 @@ public class CoercePojosTest extends BaseMapTest
     public void testPOJOFromEmptyPhysicalTypeConfig() throws Exception
     {
         _testPOJOFromEmptyPhysicalTypeConfig(CoercionInputShape.EmptyString, JSON_EMPTY, null);
+    }
+
+    // [databind#3676] Alternative test for "Mode.PROPERTIES" variant where we
+    //  have no "default" constructor
+    public void testPOJOFromEmptyWithProperties() throws Exception
+    {
+        // Then coerce as empty
+        ObjectMapper mapper = jsonMapperBuilder()
+                .withCoercionConfigDefaults(h -> {
+                    h.setCoercion(CoercionInputShape.EmptyString, CoercionAction.AsEmpty);
+                })
+            .build();
+        BeanWithProp3676 b = mapper.readerFor(BeanWithProp3676.class)
+                .readValue(JSON_EMPTY);
+        assertNotNull(b);
+        assertNull(b.a);
     }
 
     /*

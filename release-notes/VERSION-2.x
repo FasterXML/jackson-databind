@@ -9,7 +9,7 @@ Project: jackson-databind
 #3676: Allow use of `@JsonCreator(mode = Mode.PROPERTIES)` creator for POJOs
  with"empty String" coercion
 
-2.14.1 (not yet released)
+2.14.1 (21-Nov-2022)
 
 #3655: `Enum` values can not be read from single-element array even with
   `DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS`

@@ -1000,7 +1000,11 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
 
     @Override
     public Object getEmptyValue(DeserializationContext ctxt) throws JacksonException {
-        return _valueInstantiator.createUsingDefault(ctxt);
+        // 20-Nov-2022, tatu: Ok one more complication; may want to consider
+        //     EITHER default Creator OR properties-one with no args.
+        //     But that is encapsulated by `ValueInstantiator` now
+        // return _valueInstantiator.createUsingDefault(ctxt);
+        return _valueInstantiator.createUsingDefaultOrWithoutArguments(ctxt);
     }
 
     /*

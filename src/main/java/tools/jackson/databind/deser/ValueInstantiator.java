@@ -238,6 +238,16 @@ public abstract class ValueInstantiator
     }
 
     /**
+     * Combination of {@link #createUsingDefault} and {@link #createFromObjectWith(DeserializationContext, Object[])}
+     * which will call former first, if possible; or latter if possible (with {@code null}
+     * arguments); and if neither works throw an exception.
+     */
+    public Object createUsingDefaultOrWithoutArguments(DeserializationContext ctxt) throws JacksonException {
+        return ctxt.handleMissingInstantiator(getValueClass(), this, null,
+                "neither default (no-arguments) nor with-arguments Creator found");
+    }
+
+    /**
      * Method that delegates to
      * {@link #createFromObjectWith(DeserializationContext, Object[])} by
      * default, but can be overridden if the application should have customized

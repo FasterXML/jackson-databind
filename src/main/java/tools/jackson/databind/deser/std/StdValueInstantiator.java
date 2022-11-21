@@ -291,6 +291,17 @@ public class StdValueInstantiator
     }
 
     @Override
+    public Object createUsingDefaultOrWithoutArguments(DeserializationContext ctxt) throws JacksonException {
+        if (_defaultCreator != null) { // sanity-check; caller should check
+            return createUsingDefault(ctxt);
+        }
+        if (_withArgsCreator != null) {
+            return createFromObjectWith(ctxt, new Object[_constructorArguments.length]);
+        }
+        return super.createUsingDefaultOrWithoutArguments(ctxt);
+    }
+
+    @Override
     public Object createUsingDelegate(DeserializationContext ctxt, Object delegate) throws JacksonException
     {
         // 04-Oct-2016, tatu: Need delegation to work around [databind#1392]...

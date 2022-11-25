@@ -55,5 +55,4 @@ public class CollectionFormatShapeTest extends BaseMapTest
         CollectionAsPOJO result = MAPPER.readValue(json, CollectionAsPOJO.class);
         assertEquals(2, result.size());
     }
-
 }

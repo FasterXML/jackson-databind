@@ -950,7 +950,7 @@ public class POJOPropertyBuilder
         case AUTO: // the default case: base it on visibility
             _getters = _removeNonVisible(_getters);
             _ctorParameters = _removeNonVisible(_ctorParameters);
-    
+
             if (!inferMutators || (_getters == null)) {
                 _fields = _removeNonVisible(_fields);
                 _setters = _removeNonVisible(_setters);

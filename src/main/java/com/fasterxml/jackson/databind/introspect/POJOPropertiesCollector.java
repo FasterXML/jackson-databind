@@ -582,9 +582,12 @@ public class POJOPropertiesCollector
                 // 20-May-2016, tatu: as per [databind#1184] explicit annotation should override
                 //    "default" `transient`
                 if (!hasName) {
-                    visible = false;
+                    // 25-Nov-2022, tatu: [databind#3682] Drop transient Fields early;
+                    //     only retain if also have ignoral annotations (for name or ignoral)
                     if (transientAsIgnoral) {
                         ignored = true;
+                    } else {
+                        continue;
                     }
                 }
             }

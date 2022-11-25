@@ -5,6 +5,7 @@ import java.beans.Transient;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 
 /**
  * Tests for both `transient` keyword and JDK 7
@@ -45,6 +46,12 @@ public class TransientTest extends BaseMapTest
         public OverridableTransient(int v) { tValue = v; }
     }
 
+    static class TransientToPrune {
+        public transient int a;
+
+        public int getA() { return a; }
+    }
+
     /*
     /**********************************************************
     /* Unit tests
@@ -82,5 +89,17 @@ public class TransientTest extends BaseMapTest
     {
         assertEquals(a2q("{'tValue':38}"),
                 MAPPER.writeValueAsString(new OverridableTransient(38)));
+    }
+
+    // for [databind#3682]: SHOULD prune `transient` Field, not pull in
+    public void testTransientToPrune() throws Exception
+    {
+        try {
+            TransientToPrune result = MAPPER.readValue("{\"a\":3}",
+                    TransientToPrune.class);
+            fail("Should not pass, got: "+result);
+        } catch (UnrecognizedPropertyException e) {
+            verifyException(e, "Unrecognized", "\"a\"");
+        }
     }
 }

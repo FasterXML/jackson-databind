@@ -47,7 +47,7 @@ public enum MapperFeature
     /**
      * Feature that determines how <code>transient</code> modifier for fields
      * is handled: if disabled, it is only taken to mean exclusion of the field
-     * as accessor; if true, it is taken to imply removal of the whole property.
+     * as an accessor; if true, it is taken to imply removal of the whole property.
      *<p>
      * Feature is disabled by default, meaning that existence of `transient`
      * for a field does not necessarily lead to ignoral of getters or setters

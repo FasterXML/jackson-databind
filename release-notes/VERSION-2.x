@@ -8,6 +8,7 @@ Project: jackson-databind
 
 #3676: Allow use of `@JsonCreator(mode = Mode.PROPERTIES)` creator for POJOs
  with"empty String" coercion
+#3682: Transient `Field`s are not ignored as Mutators if there is visible Getter
 
 2.14.1 (21-Nov-2022)
 

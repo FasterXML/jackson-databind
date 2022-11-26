@@ -317,4 +317,11 @@ public class ClassUtilTest extends BaseMapTest
     static void throwsException() {
         throw new IllegalArgumentException("A custom message");
     }
+
+    public void testJDKChecks() {
+        int version = ClassUtil.getJDKMajorVersion();
+        assertTrue(version > 0);
+
+        assertEquals((version >= 17), ClassUtil.isJDK17OrAbove());
+    }
 }

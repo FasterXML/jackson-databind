@@ -1163,6 +1163,57 @@ se.getClass().getName(), se.getMessage()),
         return clsName.startsWith("java.") || clsName.startsWith("javax.");
     }
 
+    /**
+     * Convenience method for:
+     *<pre>
+     *   return getJDKMajorVersion() >= 17
+     *</pre>
+     * that also catches any possible exceptions so it is safe to call
+     * from static contexts.
+     *
+     * @return {@code True} if we can determine that the code is running on
+     *    JDK 17 or above; {@code false} otherwise.
+     *
+     * @since 2.15
+     */
+    public static boolean isJDK17OrAbove() {
+        try {
+            return getJDKMajorVersion() >= 17;
+        } catch (Throwable t) {
+            System.err.println("Failed to determine JDK major version, assuming pre-JDK-17; problem: "+t);
+            return false;
+        }
+    }
+
+    /**
+     * @return Major version of JDK we are running on
+     *
+     * @throws IllegalStateException If JDK version information cannot be determined
+     *
+     * @since 2.15
+     */
+    public static int getJDKMajorVersion() {
+        String version;
+
+        try {
+            version = System.getProperty("java.version");
+        } catch (SecurityException e) {
+            throw new IllegalStateException("Could not access 'java.version': cannot determine JDK major version");
+        }
+        if (version.startsWith("1.")) {
+            // 25-Nov-2022, tatu: We'll consider JDK 8 to be the baseline since
+            //    Jackson 2.15+ only runs on 8 and above
+            return 8;
+        }
+        int dotIndex = version.indexOf(".");
+        String cleaned = (dotIndex < 0) ? version : version.substring(0, dotIndex);
+        try {
+            return Integer.parseInt(cleaned);
+        } catch (NumberFormatException e) {
+            throw new IllegalStateException("Invalid JDK version String '"+version+"' cannot determine JDK major version");
+        }
+    }
+
     /*
     /**********************************************************
     /* Access to various Class definition aspects; possibly

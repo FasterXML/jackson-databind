@@ -117,7 +117,7 @@ public class TestTypedDeserialization
         @JsonTypeInfo(use = Id.NAME, include = As.PROPERTY, property = "type2")
         public Date date;
     }
-        
+
     static class Issue506NumberBean
     {
         @JsonTypeInfo(use = Id.NAME, include = As.PROPERTY, property = "type3")
@@ -125,12 +125,27 @@ public class TestTypedDeserialization
             @Type(Integer.class) })
         public Number number;
     }
-    
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_ARRAY)
+    @JsonSubTypes({ @Type(value = Issue1751ArrImpl.class, name = "0") })
+    static interface Issue1751ArrBase { }
+
+    static class Issue1751ArrImpl implements Issue1751ArrBase { }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY,
+            property = "type")
+    @JsonSubTypes({ @Type(value = Issue1751PropImpl.class, name = "1") })
+    static interface Issue1751PropBase { }
+
+    static class Issue1751PropImpl implements Issue1751PropBase { }
+
     /*
     /**********************************************************
     /* Unit tests
     /**********************************************************
      */
+
+    private final ObjectMapper MAPPER = newJsonMapper();
     
     /**
      * First things first, let's ensure we can serialize using
@@ -138,8 +153,7 @@ public class TestTypedDeserialization
      */
     public void testSimpleClassAsProperty() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        Animal a = m.readValue(asJSONObjectValueString("@classy", Cat.class.getName(),
+        Animal a = MAPPER.readValue(asJSONObjectValueString("@classy", Cat.class.getName(),
                 "furColor", "tabby", "name", "Garfield"), Animal.class);
         assertNotNull(a);
         assertEquals(Cat.class, a.getClass());
@@ -181,7 +195,7 @@ public class TestTypedDeserialization
     // Use basic Animal as contents of a regular List
     public void testListAsArray() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = MAPPER;
         // This time using PROPERTY style (default) again
         String JSON = "[\n"
             +asJSONObjectValueString(m, "@classy", Cat.class.getName(), "name", "Hello", "furColor", "white")
@@ -213,11 +227,10 @@ public class TestTypedDeserialization
 
     public void testCagedAnimal() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        String jsonCat = asJSONObjectValueString(m, "@classy", Cat.class.getName(), "name", "Nilson", "furColor", "black");
+        String jsonCat = asJSONObjectValueString(MAPPER, "@classy", Cat.class.getName(), "name", "Nilson", "furColor", "black");
         String JSON = "{\"animal\":"+jsonCat+"}";
 
-        AnimalContainer cont = m.readValue(JSON, AnimalContainer.class);
+        AnimalContainer cont = MAPPER.readValue(JSON, AnimalContainer.class);
         assertNotNull(cont);
         Animal a = cont.animal;
         assertNotNull(a);
@@ -232,7 +245,7 @@ public class TestTypedDeserialization
      */
     public void testAbstractEmptyBaseClass() throws Exception
     {
-        DummyBase result = new ObjectMapper().readValue(
+        DummyBase result = MAPPER.readValue(
                 "[\""+DummyImpl.class.getName()+"\",{\"x\":3}]", DummyBase.class);
         assertNotNull(result);
         assertEquals(DummyImpl.class, result.getClass());
@@ -245,10 +258,9 @@ public class TestTypedDeserialization
         Issue506DateBean input = new Issue506DateBean();
         input.date = new Date(1234L);
 
-        ObjectMapper mapper = new ObjectMapper();
-        String json = mapper.writeValueAsString(input);
+        String json = MAPPER.writeValueAsString(input);
 
-        Issue506DateBean output = mapper.readValue(json, Issue506DateBean.class);
+        Issue506DateBean output = MAPPER.readValue(json, Issue506DateBean.class);
         assertEquals(input.date, output.date);
     }
     
@@ -258,11 +270,40 @@ public class TestTypedDeserialization
         Issue506NumberBean input = new Issue506NumberBean();
         input.number = Long.valueOf(4567L);
 
-        ObjectMapper mapper = new ObjectMapper();
-        String json = mapper.writeValueAsString(input);
+        String json = MAPPER.writeValueAsString(input);
 
-        Issue506NumberBean output = mapper.readValue(json, Issue506NumberBean.class);
+        Issue506NumberBean output = MAPPER.readValue(json, Issue506NumberBean.class);
         assertEquals(input.number, output.number);
+    }
+
+    // [databind#1751]: allow ints as ids too
+    public void testIntAsTypeId1751Array() throws Exception
+    {
+        Issue1751ArrBase value;
+
+        // Should allow both String and Int:
+        value = MAPPER.readValue("[0, { }]", Issue1751ArrBase.class);
+        assertNotNull(value);
+        assertEquals(Issue1751ArrImpl.class, value.getClass());
+
+        value = MAPPER.readValue("[\"0\", { }]", Issue1751ArrBase.class);
+        assertNotNull(value);
+        assertEquals(Issue1751ArrImpl.class, value.getClass());
+    }
+
+    // [databind#1751]: allow ints as ids too
+    public void testIntAsTypeId1751Prop() throws Exception
+    {
+        Issue1751PropBase value;
+
+        // Should allow both String and Int:
+        value = MAPPER.readValue("{\"type\" : \"1\"}", Issue1751PropBase.class);
+        assertNotNull(value);
+        assertEquals(Issue1751PropImpl.class, value.getClass());
+
+        value = MAPPER.readValue("{\"type\" : 1}", Issue1751PropBase.class);
+        assertNotNull(value);
+        assertEquals(Issue1751PropImpl.class, value.getClass());
     }
 
     // [databind#2467]: Allow missing "content" for as-array deserialization

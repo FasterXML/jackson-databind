@@ -4,6 +4,11 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.14.2 (not yet released)
+
+#1751: `@JsonTypeInfo` does not work if the Type Id is an Integer value
+ (reported by @marvin-we)
+
 2.14.1 (21-Nov-2022)
 
 #3655: `Enum` values can not be read from single-element array even with

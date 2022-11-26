@@ -144,7 +144,9 @@ public class AsArrayTypeDeserializer
         }
         // And then type id as a String
         JsonToken t = p.nextToken();
-        if (t == JsonToken.VALUE_STRING) {
+        if ((t == JsonToken.VALUE_STRING)
+                // 25-Nov-2022, tatu: [databind#1761] Also accept other scalars
+            || ((t != null) && t.isScalarValue())) {
             String result = p.getText();
             p.nextToken();
             return result;
@@ -162,7 +164,8 @@ public class AsArrayTypeDeserializer
         // 11-Nov-202, tatu: points to wrong place since we don't pass JsonParser
         //   we actually use (which is usually TokenBuffer created)... should fix
         ctxt.reportWrongTokenException(baseType(), JsonToken.VALUE_STRING,
-                "need JSON String that contains type id (for subtype of %s)", baseTypeName());
+                "need JSON String, Number of Boolean that contains type id (for subtype of %s)",
+                baseTypeName());
         return null;
     }
 

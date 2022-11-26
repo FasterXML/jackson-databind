@@ -115,7 +115,7 @@ public class AsArrayTypeDeserializer
         // And then need the closing END_ARRAY
         if (hadStartArray && p.nextToken() != JsonToken.END_ARRAY) {
             ctxt.reportWrongTokenException(baseType(), JsonToken.END_ARRAY,
-                    "expected closing END_ARRAY after type information and deserialized value");
+                    "expected closing `JsonToken.END_ARRAY` after type information and deserialized value");
             // 05-May-2016, tatu: Not 100% what to do if exception is stored for
             //     future, and not thrown immediately: should probably skip until END_ARRAY
 
@@ -133,12 +133,14 @@ public class AsArrayTypeDeserializer
                 return _idResolver.idFromBaseType(ctxt);
             }
              ctxt.reportWrongTokenException(baseType(), JsonToken.START_ARRAY,
-                     "need JSON Array to contain As.WRAPPER_ARRAY type information for class "+baseTypeName());
+                     "need Array value to contain `As.WRAPPER_ARRAY` type information for class "+baseTypeName());
              return null;
         }
         // And then type id as a String
         JsonToken t = p.nextToken();
-        if (t == JsonToken.VALUE_STRING) {
+        if ((t == JsonToken.VALUE_STRING)
+                // 25-Nov-2022, tatu: [databind#1761] Also accept other scalars
+            || ((t != null) && t.isScalarValue())) {
             String result = p.getText();
             p.nextToken();
             return result;
@@ -156,7 +158,8 @@ public class AsArrayTypeDeserializer
         // 11-Nov-202, tatu: points to wrong place since we don't pass JsonParser
         //   we actually use (which is usually TokenBuffer created)... should fix
         ctxt.reportWrongTokenException(baseType(), JsonToken.VALUE_STRING,
-                "need JSON String that contains type id (for subtype of %s)", baseTypeName());
+                "need String, Number of Boolean value that contains type id (for subtype of %s)",
+                baseTypeName());
         return null;
     }
 

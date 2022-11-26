@@ -118,7 +118,7 @@ public class TestTypedDeserialization
         @JsonTypeInfo(use = Id.NAME, include = As.PROPERTY, property = "type2")
         public Date date;
     }
-        
+
     static class Issue506NumberBean
     {
         @JsonTypeInfo(use = Id.NAME, include = As.PROPERTY, property = "type3")
@@ -126,7 +126,20 @@ public class TestTypedDeserialization
             @Type(Integer.class) })
         public Number number;
     }
-    
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_ARRAY)
+    @JsonSubTypes({ @Type(value = Issue1751ArrImpl.class, name = "0") })
+    static interface Issue1751ArrBase { }
+
+    static class Issue1751ArrImpl implements Issue1751ArrBase { }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY,
+            property = "type")
+    @JsonSubTypes({ @Type(value = Issue1751PropImpl.class, name = "1") })
+    static interface Issue1751PropBase { }
+
+    static class Issue1751PropImpl implements Issue1751PropBase { }
+
     /*
     /**********************************************************
     /* Unit tests
@@ -238,7 +251,7 @@ public class TestTypedDeserialization
      */
     public void testAbstractEmptyBaseClass() throws Exception
     {
-        DummyBase result = new ObjectMapper().readValue(
+        DummyBase result = MAPPER.readValue(
                 "[\""+DummyImpl.class.getName()+"\",{\"x\":3}]", DummyBase.class);
         assertNotNull(result);
         assertEquals(DummyImpl.class, result.getClass());
@@ -276,6 +289,36 @@ public class TestTypedDeserialization
             map.put(args[i], args[i+1]);
         }
         return mapper.writeValueAsString(map);
+    }
+
+    // [databind#1751]: allow ints as ids too
+    public void testIntAsTypeId1751Array() throws Exception
+    {
+        Issue1751ArrBase value;
+
+        // Should allow both String and Int:
+        value = MAPPER.readValue("[0, { }]", Issue1751ArrBase.class);
+        assertNotNull(value);
+        assertEquals(Issue1751ArrImpl.class, value.getClass());
+
+        value = MAPPER.readValue("[\"0\", { }]", Issue1751ArrBase.class);
+        assertNotNull(value);
+        assertEquals(Issue1751ArrImpl.class, value.getClass());
+    }
+
+    // [databind#1751]: allow ints as ids too
+    public void testIntAsTypeId1751Prop() throws Exception
+    {
+        Issue1751PropBase value;
+
+        // Should allow both String and Int:
+        value = MAPPER.readValue("{\"type\" : \"1\"}", Issue1751PropBase.class);
+        assertNotNull(value);
+        assertEquals(Issue1751PropImpl.class, value.getClass());
+
+        value = MAPPER.readValue("{\"type\" : 1}", Issue1751PropBase.class);
+        assertNotNull(value);
+        assertEquals(Issue1751PropImpl.class, value.getClass());
     }
 
     // [databind#2467]: Allow missing "content" for as-array deserialization

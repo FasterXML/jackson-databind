@@ -15,7 +15,7 @@
   <artifactId>jackson-databind</artifactId>
   <version>2.15.0-SNAPSHOT</version>
   <name>jackson-databind</name>
-  <packaging>bundle</packaging>
+  <packaging>jar</packaging>
   <description>General data-binding functionality for Jackson: works on core streaming API</description>
   <url>https://github.com/FasterXML/jackson</url>
   <inceptionYear>2008</inceptionYear>
@@ -145,8 +145,33 @@
   </repositories>
 
   <build>
-     <plugins>
-    <plugin>
+    <plugins>
+      <!-- 27-Nov-2022, tatu: [databind#3684] Configure Felix plugin to just produce
+	     MANIFEST.MF for maven-jar-plugin to use
+	-->
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>bundle-manifest</id>
+            <phase>process-classes</phase>
+            <goals>
+              <goal>manifest</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+          </archive>
+        </configuration>
+      </plugin>
+      <plugin>
       <groupId>org.jacoco</groupId>
       <artifactId>jacoco-maven-plugin</artifactId>
       <executions>

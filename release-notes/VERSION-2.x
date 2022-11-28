@@ -8,6 +8,8 @@ Project: jackson-databind
 
 #3676: Allow use of `@JsonCreator(mode = Mode.PROPERTIES)` creator for POJOs
  with"empty String" coercion
+#3680: Timestamp in classes inside jar showing 02/01/1980
+ (fix contributed by Hervé B)
 #3682: Transient `Field`s are not ignored as Mutators if there is visible Getter
 
 2.14.2 (not yet released)

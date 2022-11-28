@@ -68,7 +68,7 @@
     <version.powermock>2.0.9</version.powermock>
 
     <!-- for Reproducible Builds -->
-    <project.build.outputTimestamp>2022-11-05T20:38:47Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2022-11-27T00:00:00Z</project.build.outputTimestamp>
   </properties>
 
   <dependencies>
@@ -146,42 +146,17 @@
 
   <build>
     <plugins>
-      <!-- 27-Nov-2022, tatu: [databind#3684] Configure Felix plugin to just produce
-	     MANIFEST.MF for maven-jar-plugin to use
-	-->
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>bundle-manifest</id>
-            <phase>process-classes</phase>
-            <goals>
-              <goal>manifest</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
-          </archive>
-        </configuration>
-      </plugin>
       <plugin>
       <groupId>org.jacoco</groupId>
       <artifactId>jacoco-maven-plugin</artifactId>
       <executions>
 	<execution>
-	  <goals>
-	    <goal>prepare-agent</goal>
-	    </goals>
-	  </execution>
-	<!-- attached to Maven test phase -->
-	<execution>
+          <goals>
+            <goal>prepare-agent</goal>
+          </goals>
+        </execution>
+        <!-- attached to Maven test phase -->
+        <execution>
 	  <id>report</id>
 	  <phase>test</phase>
 	  <goals>

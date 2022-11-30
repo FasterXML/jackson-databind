@@ -187,6 +187,7 @@
             <exclude>javax.measure:jsr-275</exclude>
           </classpathDependencyExcludes>
           <excludes>
+            <exclude>com.fasterxml.jackson.databind.MapperFootprintTest</exclude>
             <exclude>**/failing/**/*.java</exclude>
           </excludes>
           <!-- 26-Nov-2019, tatu: moar parallelism! Per-class basis, safe, efficient enough

@@ -26,9 +26,12 @@ public class MapperFootprintTest {
         GraphLayout mapperLayout = mapperLayoutA.totalSize() > mapperLayoutB.totalSize() ?
                 mapperLayoutB : mapperLayoutA;
 
+        // 29-Nov-2022, tatu: Should be under 10k, but... flakiness.
         final int maxByteSize = 20_000;
         Assert.assertTrue(
-                "ObjectMapper memory footprint exceeded limit ("+maxByteSize+"). Footprint details: " + mapperLayout.toFootprint(),
+                "ObjectMapper memory footprint ("+mapperLayout.totalSize()
+                +") exceeded limit ("+maxByteSize
+                +"). Footprint details: " + mapperLayout.toFootprint(),
                 mapperLayout.totalSize() < maxByteSize);
     }
 }

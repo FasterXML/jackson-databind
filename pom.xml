@@ -195,6 +195,7 @@
               </excludes>
             </configuration>
           </execution>
+	  <!-- 29-Nov-2022, tatu: Too flaky, alas; do not run
           <execution>
             <id>footprint-test</id>
             <goals>
@@ -206,7 +207,8 @@
                 <include>com.fasterxml.jackson.databind.MapperFootprintTest</include>
               </includes>
             </configuration>
-          </execution>
+            </execution>
+	    -->
         </executions>
         <configuration>
           <classpathDependencyExcludes>

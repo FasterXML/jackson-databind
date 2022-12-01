@@ -1,10 +1,11 @@
-package com.fasterxml.jackson.databind.records;
+package com.fasterxml.jackson.databind.failing;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+// 01-Dec-2022, tatu: Alas, fails on JDK 17
 public class RecordNamingStrategy2992Test extends BaseMapTest
 {
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)

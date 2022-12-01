@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.records;
+package com.fasterxml.jackson.databind.failing;
 
 import com.fasterxml.jackson.annotation.*;
 
@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+// 01-Dec-2022, tatu: Alas, fails on JDK 17
 public class RecordBasicsTest extends BaseMapTest
 {
     record EmptyRecord() { }

@@ -1,9 +1,10 @@
-package com.fasterxml.jackson.databind.records;
+package com.fasterxml.jackson.databind.failing;
 
 import java.util.Collections;
 
 import com.fasterxml.jackson.databind.*;
 
+// 01-Dec-2022, tatu: Alas, fails on JDK 17
 public class RecordUpdate3079Test extends BaseMapTest
 {
     record IdNameRecord(int id, String name) { }

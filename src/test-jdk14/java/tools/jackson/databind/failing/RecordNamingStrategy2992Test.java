@@ -1,10 +1,11 @@
-package tools.jackson.databind.records;
+package tools.jackson.databind.failing;
 
 import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.PropertyNamingStrategies;
 import tools.jackson.databind.annotation.JsonNaming;
 
+// 01-Dec-2022, tatu: Alas, fails on JDK 17
 public class RecordNamingStrategy2992Test extends BaseMapTest
 {
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)

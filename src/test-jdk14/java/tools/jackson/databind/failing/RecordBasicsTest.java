@@ -1,4 +1,4 @@
-package tools.jackson.databind.records;
+package tools.jackson.databind.failing;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -11,6 +11,7 @@ import tools.jackson.databind.annotation.JsonNaming;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.util.ClassUtil;
 
+// 01-Dec-2022, tatu: Alas, fails on JDK 17
 public class RecordBasicsTest extends BaseMapTest
 {
     record EmptyRecord() { }

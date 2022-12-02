@@ -969,14 +969,18 @@ candidate.creator());
                 paramName = candidate.explicitParamName(0);
 
                 // If there's injection or explicit name, should be properties-based
-                useProps = (paramName != null) || (injectId != null);
-                if (!useProps && (paramDef != null)) {
-                    // One more thing: if implicit name matches property with a getter
-                    // or field, we'll consider it property-based as well
+                useProps = (paramName != null);
+                if (!useProps) {
+                    // Otherwise, `@JsonValue` suggests delegation
+                    if (beanDesc.findJsonValueAccessor() != null) {
+                        ;
+                    } else if (injectId != null) {
+                        // But Injection suggests property-based (for legacy reasons?)
+                        useProps = true;
+                    } else if (paramDef != null) {
+                        // One more thing: if implicit name matches property with a getter
+                        // or field, we'll consider it property-based as well
 
-                    // 01-Dec-2022, tatu: [databind#3654] Consider `@JsonValue` to strongly
-                    //    hint at delegation-based
-                    if (beanDesc.findJsonValueAccessor() == null) {
                         // 25-May-2018, tatu: as per [databind#2051], looks like we have to get
                         //    not implicit name, but name with possible strategy-based-rename
         //            paramName = candidate.findImplicitParamName(0);
@@ -1009,9 +1013,8 @@ candidate.creator());
             AnnotationIntrospector intr,
             AnnotatedWithParams creator, BeanPropertyDefinition propDef)
     {
-        // If explicit name, or inject id, property-based
-        if (((propDef != null) && propDef.isExplicitlyNamed())
-                || (intr.findInjectableValue(creator.getParameter(0)) != null)) {
+        // If explicit name, property-based
+        if ((propDef != null) && propDef.isExplicitlyNamed()) {
             return true;
         }
         // 01-Dec-2022, tatu: [databind#3654] Consider `@JsonValue` to strongly
@@ -1020,6 +1023,11 @@ candidate.creator());
             return false;
         }
 
+        // Inject id considered property-based
+        // 01-Dec-2022, tatu: ... but why?
+        if (intr.findInjectableValue(creator.getParameter(0)) != null) {
+            return true;
+        }
         if (propDef != null) {
             // One more thing: if implicit name matches property with a getter
             // or field, we'll consider it property-based as well

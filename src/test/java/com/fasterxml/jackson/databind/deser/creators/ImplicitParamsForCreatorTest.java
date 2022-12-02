@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.deser.creators;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -45,6 +47,21 @@ public class ImplicitParamsForCreatorTest extends BaseMapTest
         }
     }
 
+    // [databind#3654]: infer "DELEGATING" style from `@JsonValue`
+    static class XY3654 {
+        public int paramName0; // has to be public to misdirect
+
+        @JsonCreator
+        public XY3654(int paramName0) {
+            this.paramName0 = paramName0;
+        }
+
+        @JsonValue
+        public int serializedAs() {
+            return paramName0;
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -71,5 +88,16 @@ public class ImplicitParamsForCreatorTest extends BaseMapTest
         assertNotNull(bean);
         assertEquals(1, bean._a);
         assertEquals(2, bean._b);
+    }
+
+    // [databind#3654]
+    public void testDelegatingInferFromJsonValue() throws Exception
+    {
+        // First verify serialization via `@JsonValue`
+        assertEquals("123", MAPPER.writeValueAsString(new XY3654(123)));
+
+        // And then deser, should infer despite existence of "matching" property
+        XY3654 result = MAPPER.readValue("345", XY3654.class);
+        assertEquals(345, result.paramName0);
     }
 }

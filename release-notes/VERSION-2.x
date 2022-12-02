@@ -6,6 +6,7 @@ Project: jackson-databind
 
 2.15.0 (not yet released)
 
+#3654: Infer `@JsonCreator(mode = Mode.DELEGATING)` from use of `@JsonValue`)
 #3676: Allow use of `@JsonCreator(mode = Mode.PROPERTIES)` creator for POJOs
  with"empty String" coercion
 #3680: Timestamp in classes inside jar showing 02/01/1980

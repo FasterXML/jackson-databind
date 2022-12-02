@@ -456,7 +456,8 @@ index, owner, defs[index], propDef);
             // some single-arg factory methods (String, number) are auto-detected
             if (argCount == 1) {
                 final BeanPropertyDefinition propDef = candidate.propertyDef(0);
-                final boolean useProps = preferPropsBased || _checkIfCreatorPropertyBased(ctxt, ctor, propDef);
+                final boolean useProps = preferPropsBased
+                    || _checkIfCreatorPropertyBased(ctxt, beanDesc, ctor, propDef);
 
                 if (useProps) {
                     SettableBeanProperty[] properties = new SettableBeanProperty[1];
@@ -661,7 +662,7 @@ nonAnnotatedParamIndex, ctor);
                 continue; // 2 and more args? Must be explicit, handled earlier
             }
             BeanPropertyDefinition argDef = candidate.propertyDef(0);
-            boolean useProps = _checkIfCreatorPropertyBased(ctxt, factory, argDef);
+            boolean useProps = _checkIfCreatorPropertyBased(ctxt, beanDesc, factory, argDef);
             if (!useProps) { // not property based but delegating
                 /*boolean added=*/ _handleSingleArgumentCreator(creators,
                         factory, false, vchecker.isCreatorVisible(factory));
@@ -897,16 +898,24 @@ candidate.creator());
                 paramName = candidate.explicitParamName(0);
 
                 // If there's injection or explicit name, should be properties-based
-                useProps = (paramName != null) || (injectId != null);
-                if (!useProps && (paramDef != null)) {
-                    // One more thing: if implicit name matches property with a getter
-                    // or field, we'll consider it property-based as well
-        
-                    // 25-May-2018, tatu: as per [databind#2051], looks like we have to get
-                    //    not implicit name, but name with possible strategy-based-rename
+                useProps = (paramName != null);
+                if (!useProps) {
+                    // Otherwise, `@JsonValue` suggests delegation
+                    if (beanDesc.findJsonValueAccessor() != null) {
+                        ;
+                    } else if (injectId != null) {
+                        // But Injection suggests property-based (for legacy reasons?)
+                        useProps = true;
+                    } else if (paramDef != null) {
+                        // One more thing: if implicit name matches property with a getter
+                        // or field, we'll consider it property-based as well
+
+                        // 25-May-2018, tatu: as per [databind#2051], looks like we have to get
+                        //    not implicit name, but name with possible strategy-based-rename
         //            paramName = candidate.findImplicitParamName(0);
-                    paramName = candidate.paramName(0);
-                    useProps = (paramName != null) && paramDef.couldSerialize();
+                        paramName = candidate.paramName(0);
+                        useProps = (paramName != null) && paramDef.couldSerialize();
+                    }
                 }
             }
         }
@@ -936,12 +945,22 @@ candidate.creator());
      */
 
     private boolean _checkIfCreatorPropertyBased(DeserializationContext ctxt,
+            BeanDescription beanDesc,
             AnnotatedWithParams creator, BeanPropertyDefinition propDef)
     {
-        // If explicit name, or inject id, property-based
-        if (((propDef != null) && propDef.isExplicitlyNamed())
-                || (ctxt.getAnnotationIntrospector().findInjectableValue(ctxt.getConfig(),
-                        creator.getParameter(0)) != null)) {
+        // If explicit name, property-based
+        if ((propDef != null) && propDef.isExplicitlyNamed()) {
+            return true;
+        }
+        // 01-Dec-2022, tatu: [databind#3654] Consider `@JsonValue` to strongly
+        //    hint at delegation-based
+        if (beanDesc.findJsonValueAccessor() != null) {
+            return false;
+        }
+        // Inject id considered property-based
+        // 01-Dec-2022, tatu: ... but why?
+        if (ctxt.getAnnotationIntrospector().findInjectableValue(ctxt.getConfig(),
+                creator.getParameter(0)) != null) {
             return true;
         }
         if (propDef != null) {

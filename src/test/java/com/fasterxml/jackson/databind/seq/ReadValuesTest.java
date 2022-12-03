@@ -371,9 +371,13 @@ public class ReadValuesTest extends BaseMapTest
         if (useParserFeature) {
             JsonFactory factory = new JsonFactory();
             factory.enable(JsonParser.Feature.USE_FAST_DOUBLE_PARSER);
+            factory.enable(JsonParser.Feature.USE_FAST_BIG_NUMBER_PARSER);
             mapper = JsonMapper.builder(factory).build();
         } else {
-            mapper = JsonMapper.builder().enable(StreamReadFeature.USE_FAST_DOUBLE_PARSER).build();
+            mapper = JsonMapper.builder()
+                    .enable(StreamReadFeature.USE_FAST_DOUBLE_PARSER)
+                    .enable(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER)
+                    .build();
         }
 
         final MappingIterator<Map<String, Double>> iterator = mapper.reader().forType(new TypeReference<Map<String, Double>>(){}).readValues(JSON);
@@ -399,9 +403,13 @@ public class ReadValuesTest extends BaseMapTest
         if (useParserFeature) {
             JsonFactory factory = new JsonFactory();
             factory.enable(JsonParser.Feature.USE_FAST_DOUBLE_PARSER);
+            factory.enable(JsonParser.Feature.USE_FAST_BIG_NUMBER_PARSER);
             mapper = JsonMapper.builder(factory).build();
         } else {
-            mapper = JsonMapper.builder().enable(StreamReadFeature.USE_FAST_DOUBLE_PARSER).build();
+            mapper = JsonMapper.builder()
+                    .enable(StreamReadFeature.USE_FAST_DOUBLE_PARSER)
+                    .enable(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER)
+                    .build();
         }
         final MappingIterator<Map<String, Float>> iterator = mapper.reader().forType(new TypeReference<Map<String, Float>>(){}).readValues(JSON);
 

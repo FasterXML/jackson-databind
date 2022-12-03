@@ -340,7 +340,11 @@ public class ReadValuesTest extends BaseMapTest
     private void _testObjectReaderWithFastDoubleParser() throws Exception
     {
         final String JSON = "[{ \"val1\": 1.23456, \"val2\": 5 }, { \"val1\": 3.14, \"val2\": -6.5 }]";
-        final ObjectMapper mapper = JsonMapper.builder().enable(StreamReadFeature.USE_FAST_DOUBLE_PARSER).build();
+        final ObjectMapper mapper = JsonMapper.builder()
+                    .enable(StreamReadFeature.USE_FAST_DOUBLE_PARSER)
+                    .enable(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER)
+                    .build();
+
         final MappingIterator<Map<String, Double>> iterator = mapper.reader().forType(new TypeReference<Map<String, Double>>(){}).readValues(JSON);
 
         Map<String, Double> map;
@@ -360,7 +364,10 @@ public class ReadValuesTest extends BaseMapTest
     private void _testObjectReaderWithFastFloatParser() throws Exception
     {
         final String JSON = "[{ \"val1\": 1.23456, \"val2\": 5 }, { \"val1\": 3.14, \"val2\": -6.5 }]";
-        final ObjectMapper mapper = JsonMapper.builder().enable(StreamReadFeature.USE_FAST_DOUBLE_PARSER).build();
+        final ObjectMapper mapper = JsonMapper.builder()
+                    .enable(StreamReadFeature.USE_FAST_DOUBLE_PARSER)
+                    .enable(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER)
+                    .build();
         final MappingIterator<Map<String, Float>> iterator = mapper.reader().forType(new TypeReference<Map<String, Float>>(){}).readValues(JSON);
 
         Map<String, Float> map;

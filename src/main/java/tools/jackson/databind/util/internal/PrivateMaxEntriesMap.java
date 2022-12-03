@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -201,7 +202,7 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
      * Creates an instance based on the builder's configuration.
      */
     @SuppressWarnings({"unchecked", "cast"})
-    private PrivateMaxEntriesMap(Builder<K, V> builder) {
+    PrivateMaxEntriesMap(Builder<K, V> builder) {
         // The data store and its maximum capacity
         concurrencyLevel = builder.concurrencyLevel;
         capacity = new AtomicLong(Math.min(builder.capacity, MAXIMUM_CAPACITY));
@@ -1161,7 +1162,6 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
         int initialCapacity;
         long capacity;
 
-        @SuppressWarnings("unchecked")
         public Builder() {
             capacity = -1;
             initialCapacity = DEFAULT_INITIAL_CAPACITY;

@@ -844,13 +844,14 @@ public class NumberDeserializers
             try {
                 if (!_isIntNumber(text)) {
                     if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
-                        return NumberInput.parseBigDecimal(text);
+                        return NumberInput.parseBigDecimal(
+                                text, p.isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
                     }
                     return Double.valueOf(
                             NumberInput.parseDouble(text, p.isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER)));
                 }
                 if (ctxt.isEnabled(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS)) {
-                    return NumberInput.parseBigInteger(text);
+                    return NumberInput.parseBigInteger(text, p.isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
                 }
                 long value = NumberInput.parseLong(text);
                 if (!ctxt.isEnabled(DeserializationFeature.USE_LONG_FOR_INTS)) {
@@ -961,7 +962,7 @@ public class NumberDeserializers
                 return getNullValue(ctxt);
             }
             try {
-                return NumberInput.parseBigInteger(text);
+                return NumberInput.parseBigInteger(text, p.isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
             } catch (IllegalArgumentException iae) { }
             return (BigInteger) ctxt.handleWeirdStringValue(_valueClass, text,
                     "not a valid representation");
@@ -1030,7 +1031,7 @@ public class NumberDeserializers
                 return getNullValue(ctxt);
             }
             try {
-                return NumberInput.parseBigDecimal(text);
+                return NumberInput.parseBigDecimal(text, p.isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
             } catch (IllegalArgumentException iae) { }
             return (BigDecimal) ctxt.handleWeirdStringValue(_valueClass, text,
                     "not a valid representation");

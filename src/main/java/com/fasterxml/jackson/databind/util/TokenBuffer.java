@@ -1541,6 +1541,13 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             return DEFAULT_READ_CAPABILITIES;
         }
 
+        // 03-Dec-2022, tatu: Not 100% sure what to do here; could probably instead
+        //    pass from somewhere?
+        @Override
+        public StreamReadConstraints streamReadConstraints() {
+            return StreamReadConstraints.defaults();
+        }
+
         /*
         /**********************************************************
         /* Extended API beyond JsonParser

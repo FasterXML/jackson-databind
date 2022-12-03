@@ -171,7 +171,7 @@ public class BeanDeserializer
 
     @Override
     protected void initNameMatcher(DeserializationContext ctxt) {
-        _beanProperties.initMatcher(ctxt.getParserFactory());
+        _beanProperties.initMatcher(ctxt.tokenStreamFactory());
         _propNameMatcher = _beanProperties.getNameMatcher();
         _propsByIndex = _beanProperties.getNameMatcherProperties();
     }

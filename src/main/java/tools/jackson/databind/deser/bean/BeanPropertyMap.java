@@ -184,7 +184,7 @@ public class BeanPropertyMap
 
         // !!! 18-Nov-2017, tatu: Should try recreating PropertyNameMatcher here but...
         return new BeanPropertyMap(newProps, _aliasDefs, _locale, _caseInsensitive, false)
-                .initMatcher(ctxt.getParserFactory());
+                .initMatcher(ctxt.tokenStreamFactory());
     }
 
     private SettableBeanProperty _rename(DeserializationContext ctxt,

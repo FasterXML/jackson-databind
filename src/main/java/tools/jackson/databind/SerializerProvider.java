@@ -209,7 +209,7 @@ public abstract class SerializerProvider
      */
 
     @Override
-    public TokenStreamFactory getGeneratorFactory() {
+    public TokenStreamFactory tokenStreamFactory() {
         return _streamFactory;
     }
 

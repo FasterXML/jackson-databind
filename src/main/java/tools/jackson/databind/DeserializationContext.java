@@ -295,7 +295,7 @@ public abstract class DeserializationContext
      */
 
     @Override
-    public TokenStreamFactory getParserFactory() {
+    public TokenStreamFactory tokenStreamFactory() {
         return _streamFactory;
     }
 

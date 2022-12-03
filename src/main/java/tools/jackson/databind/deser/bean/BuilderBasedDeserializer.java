@@ -145,7 +145,7 @@ public class BuilderBasedDeserializer
 
     @Override
     protected void initNameMatcher(DeserializationContext ctxt) {
-        _beanProperties.initMatcher(ctxt.getParserFactory());
+        _beanProperties.initMatcher(ctxt.tokenStreamFactory());
         _propertyNameMatcher = _beanProperties.getNameMatcher();
         _propertiesByIndex = _beanProperties.getNameMatcherProperties();
     }

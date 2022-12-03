@@ -1451,7 +1451,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 TokenStreamContext parentContext)
         {
             // 25-Jun-2022, tatu: This should pass stream read features as
-            //    per [databund#3528]) but for now at very least should get
+            //    per [databind#3528]) but for now at very least should get
             //    sane defaults
             super(readCtxt);
             _source = source;

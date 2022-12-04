@@ -5,6 +5,7 @@ import java.io.IOException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonPointer;
 import tools.jackson.core.JsonToken;
+import tools.jackson.core.ObjectReadContext;
 import tools.jackson.databind.*;
 import tools.jackson.databind.util.TokenBuffer;
 
@@ -85,7 +86,7 @@ public class ParsingContext2525Test extends BaseMapTest
     public void testSimpleArrayWithTree() throws Exception
     {
         JsonNode root = MAPPER.readTree(MINIMAL_ARRAY_DOC);
-        try (JsonParser p = root.traverse(null)) {
+        try (JsonParser p = root.traverse(ObjectReadContext.empty())) {
             _testSimpleArrayUsingPathAsPointer(p);
         }
     }
@@ -93,7 +94,7 @@ public class ParsingContext2525Test extends BaseMapTest
     public void testSimpleObjectWithTree() throws Exception
     {
         JsonNode root = MAPPER.readTree(MINIMAL_OBJECT_DOC);
-        try (JsonParser p = root.traverse(null)) {
+        try (JsonParser p = root.traverse(ObjectReadContext.empty())) {
             _testSimpleObjectUsingPathAsPointer(p);
         }
     }
@@ -101,7 +102,7 @@ public class ParsingContext2525Test extends BaseMapTest
     public void testFullDocWithTree() throws Exception
     {
         JsonNode root = MAPPER.readTree(FULL_DOC);
-        try (JsonParser p = root.traverse(null)) {
+        try (JsonParser p = root.traverse(ObjectReadContext.empty())) {
             _testFullDocUsingPathAsPointer(p);
         }
     }

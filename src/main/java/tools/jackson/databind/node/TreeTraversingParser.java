@@ -55,7 +55,7 @@ public class TreeTraversingParser
     /**********************************************************************
      */
 
-    public TreeTraversingParser(JsonNode n) { this(n, null); }
+    public TreeTraversingParser(JsonNode n) { this(n, ObjectReadContext.empty()); }
 
     public TreeTraversingParser(JsonNode n, ObjectReadContext readContext)
     {
@@ -80,12 +80,8 @@ public class TreeTraversingParser
         return _source;
     }
 
-    // 03-Dec-2022, tatu: Not 100% sure what to do here; could probably instead
-    //    pass from somewhere? (ObjectReadContext)
-    @Override
-    public StreamReadConstraints streamReadConstraints() {
-        return StreamReadConstraints.defaults();
-    }
+    // Default from base class should be fine:
+    //public StreamReadConstraints streamReadConstraints() {
 
     /*
     /**********************************************************************

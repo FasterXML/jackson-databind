@@ -751,6 +751,7 @@ public class NumberDeserializers
             if (_checkTextualNull(ctxt, text)) {
                 return (Double) getNullValue(ctxt);
             }
+            p.streamReadConstraints().validateFPLength(text.length());
             try {
                 return _parseDouble(text, p.isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
             } catch (IllegalArgumentException iae) { }
@@ -843,6 +844,7 @@ public class NumberDeserializers
             }
             try {
                 if (!_isIntNumber(text)) {
+                    p.streamReadConstraints().validateFPLength(text.length());
                     if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
                         return NumberInput.parseBigDecimal(
                                 text, p.isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
@@ -850,6 +852,7 @@ public class NumberDeserializers
                     return Double.valueOf(
                             NumberInput.parseDouble(text, p.isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER)));
                 }
+                p.streamReadConstraints().validateIntegerLength(text.length());
                 if (ctxt.isEnabled(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS)) {
                     return NumberInput.parseBigInteger(text, p.isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
                 }
@@ -961,6 +964,7 @@ public class NumberDeserializers
                 // note: no need to call `coerce` as this is never primitive
                 return getNullValue(ctxt);
             }
+            p.streamReadConstraints().validateIntegerLength(text.length());
             try {
                 return NumberInput.parseBigInteger(text, p.isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
             } catch (IllegalArgumentException iae) { }
@@ -1030,6 +1034,7 @@ public class NumberDeserializers
                 // note: no need to call `coerce` as this is never primitive
                 return getNullValue(ctxt);
             }
+            p.streamReadConstraints().validateFPLength(text.length());
             try {
                 return NumberInput.parseBigDecimal(text, p.isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
             } catch (IllegalArgumentException iae) { }

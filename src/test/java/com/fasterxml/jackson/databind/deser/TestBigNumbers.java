@@ -8,21 +8,34 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 public class TestBigNumbers extends BaseMapTest
 {
     static class BigDecimalWrapper {
         BigDecimal number;
 
-        public BigDecimalWrapper() {
-
-        }
+        public BigDecimalWrapper() {}
 
         public BigDecimalWrapper(BigDecimal number) {
             this.number = number;
         }
 
         public void setNumber(BigDecimal number) {
+            this.number = number;
+        }
+    }
+
+    static class BigIntegerWrapper {
+        BigInteger number;
+
+        public BigIntegerWrapper() {}
+
+        public BigIntegerWrapper(BigInteger number) {
+            this.number = number;
+        }
+
+        public void setNumber(BigInteger number) {
             this.number = number;
         }
     }
@@ -74,6 +87,24 @@ public class TestBigNumbers extends BaseMapTest
         BigDecimalWrapper bdw =
                 newJsonMapperWithUnlimitedNumberSizeSupport()
                         .readValue(generateJson("number"), BigDecimalWrapper.class);
+        assertNotNull(bdw);
+    }
+
+    public void testBigInteger() throws Exception
+    {
+        try {
+            MAPPER.readValue(generateJson("number"), BigIntegerWrapper.class);
+        } catch (JsonMappingException jsonMappingException) {
+            assertTrue("unexpected exception message: " + jsonMappingException.getMessage(),
+                    jsonMappingException.getMessage().startsWith("Malformed numeric value ([number with 1200 characters])"));
+        }
+    }
+
+    public void testBigIntegerUnlimited() throws Exception
+    {
+        BigIntegerWrapper bdw =
+                newJsonMapperWithUnlimitedNumberSizeSupport()
+                        .readValue(generateJson("number"), BigIntegerWrapper.class);
         assertNotNull(bdw);
     }
 

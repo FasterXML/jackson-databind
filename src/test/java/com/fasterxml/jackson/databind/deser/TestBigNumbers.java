@@ -1,0 +1,92 @@
+package com.fasterxml.jackson.databind.deser;
+
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.StreamReadConstraints;
+import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+
+import java.math.BigDecimal;
+
+public class TestBigNumbers extends BaseMapTest
+{
+    static class BigDecimalWrapper {
+        BigDecimal number;
+
+        public BigDecimalWrapper() {
+
+        }
+
+        public BigDecimalWrapper(BigDecimal number) {
+            this.number = number;
+        }
+
+        public void setNumber(BigDecimal number) {
+            this.number = number;
+        }
+    }
+
+    /*
+    /**********************************************************
+    /* Tests
+    /**********************************************************
+     */
+
+    private final ObjectMapper MAPPER = newJsonMapper();
+
+    private final ObjectMapper newJsonMapperWithUnlimitedNumberSizeSupport() {
+        JsonFactory jsonFactory = JsonFactory.builder()
+                .streamReadConstraints(StreamReadConstraints.builder().maxNumberLength(Integer.MAX_VALUE).build())
+                .build();
+        return JsonMapper.builder(jsonFactory).build();
+    }
+
+    public void testDouble() throws Exception
+    {
+        try {
+            MAPPER.readValue(generateJson("d"), DoubleWrapper.class);
+        } catch (JsonMappingException jsonMappingException) {
+            assertTrue("unexpected exception message: " + jsonMappingException.getMessage(),
+                    jsonMappingException.getMessage().startsWith("Malformed numeric value ([number with 1200 characters])"));
+        }
+    }
+
+    public void testDoubleUnlimited() throws Exception
+    {
+        DoubleWrapper dw =
+            newJsonMapperWithUnlimitedNumberSizeSupport().readValue(generateJson("d"), DoubleWrapper.class);
+        assertNotNull(dw);
+    }
+
+    public void testBigDecimal() throws Exception
+    {
+        try {
+            MAPPER.readValue(generateJson("number"), BigDecimalWrapper.class);
+        } catch (JsonMappingException jsonMappingException) {
+            assertTrue("unexpected exception message: " + jsonMappingException.getMessage(),
+                    jsonMappingException.getMessage().startsWith("Malformed numeric value ([number with 1200 characters])"));
+        }
+    }
+
+    public void testBigDecimalUnlimited() throws Exception
+    {
+        BigDecimalWrapper bdw =
+                newJsonMapperWithUnlimitedNumberSizeSupport()
+                        .readValue(generateJson("number"), BigDecimalWrapper.class);
+        assertNotNull(bdw);
+    }
+
+    private String generateJson(final String fieldName) {
+        final int len = 1200;
+        final StringBuilder sb = new StringBuilder();
+        sb.append("{\"")
+                .append(fieldName)
+                .append("\": ");
+        for (int i = 0; i < len; i++) {
+            sb.append(1);
+        }
+        sb.append("}");
+        return sb.toString();
+    }
+}

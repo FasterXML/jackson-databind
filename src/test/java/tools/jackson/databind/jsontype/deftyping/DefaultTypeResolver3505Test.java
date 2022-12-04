@@ -4,13 +4,11 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.DefaultTyping;
-import tools.jackson.databind.DeserializationConfig;
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import tools.jackson.databind.jsontype.NamedType;
-import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.jsontype.impl.DefaultTypeResolverBuilder;
 

@@ -169,8 +169,8 @@ public class TokenBuffer
 
     // 28-May-2021, tatu: SHOULD take `ObjectReadContext` and not DeserCtxt,
     //     ideally, but for now need to consider one `DeserializationFeature`...
-//    public TokenBuffer(JsonParser p, ObjectReadContext ctxt)
-    public TokenBuffer(JsonParser p, DeserializationContext ctxt)
+//    protected TokenBuffer(JsonParser p, ObjectReadContext ctxt)
+    protected TokenBuffer(JsonParser p, DeserializationContext ctxt)
     {
         _parentContext = p.streamReadContext();
         _streamWriteFeatures = DEFAULT_STREAM_WRITE_FEATURES;
@@ -200,6 +200,16 @@ public class TokenBuffer
     public static TokenBuffer forGeneration()
     {
         return new TokenBuffer(false);
+    }
+
+    /**
+     * Specialized factory method used when we are specifically buffering contents of
+     * a token stream for further processing.
+     *
+     * @since 3.0
+     */
+    public static TokenBuffer forBuffering(JsonParser p, DeserializationContext ctxt) {
+        return new TokenBuffer(p, ctxt);
     }
 
     /*
@@ -263,6 +273,18 @@ public class TokenBuffer
     }
 
     /**
+     * @param src Parser to use for accessing source information
+     *    like location, configured codec
+     */
+    public JsonParser asParser(ObjectReadContext readCtxt, JsonParser src)
+    {
+        Parser p = new Parser(readCtxt, this,
+                _first, _hasNativeTypeIds, _hasNativeObjectIds, _parentContext);
+        p.setLocation(src.currentTokenLocation());
+        return p;
+    }
+
+    /**
      * Same as:
      *<pre>
      *  JsonParser p = asParser();
@@ -276,17 +298,6 @@ public class TokenBuffer
         return p;
     }
 
-    /**
-     * @param src Parser to use for accessing source information
-     *    like location, configured codec
-     */
-    public JsonParser asParser(ObjectReadContext readCtxt, JsonParser src)
-    {
-        Parser p = new Parser(readCtxt, this,
-                _first, _hasNativeTypeIds, _hasNativeObjectIds, _parentContext);
-        p.setLocation(src.currentTokenLocation());
-        return p;
-    }
     /*
     /**********************************************************************
     /* Versioned (mostly since buffer is `JsonGenerator`
@@ -533,12 +544,12 @@ sb.append("NativeTypeIds=").append(_hasNativeTypeIds).append(",");
 sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
 */
         
-        JsonParser jp = asParser();
+        JsonParser p = asParser();
         int count = 0;
         final boolean hasNativeIds = _hasNativeTypeIds || _hasNativeObjectIds;
 
         while (true) {
-            JsonToken t = jp.nextToken();
+            JsonToken t = p.nextToken();
             if (t == null) break;
 
             if (count < MAX_COUNT) {
@@ -551,7 +562,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 sb.append(t.toString());
                 if (t == JsonToken.PROPERTY_NAME) {
                     sb.append('(');
-                    sb.append(jp.currentName());
+                    sb.append(p.currentName());
                     sb.append(')');
                 }
             }

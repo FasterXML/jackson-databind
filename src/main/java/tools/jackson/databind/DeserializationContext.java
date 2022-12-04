@@ -305,6 +305,11 @@ public abstract class DeserializationContext
     }
 
     @Override
+    public StreamReadConstraints streamReadConstraints() {
+        return _streamFactory.streamReadConstraints();
+    }
+
+    @Override
     public int getStreamReadFeatures(int defaults) {
         return _config.getStreamReadFeatures();
     }
@@ -612,7 +617,7 @@ public abstract class DeserializationContext
      * content)
      */
     public TokenBuffer bufferForInputBuffering(JsonParser p) {
-        return new TokenBuffer(p, this);
+        return TokenBuffer.forBuffering(p, this);
     }
 
     /**

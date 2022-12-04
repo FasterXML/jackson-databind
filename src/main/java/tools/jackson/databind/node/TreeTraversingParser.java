@@ -59,7 +59,7 @@ public class TreeTraversingParser
 
     public TreeTraversingParser(JsonNode n, ObjectReadContext readContext)
     {
-        super(readContext, 0);
+        super(readContext);
         _source = n;
         _nodeCursor = new NodeCursor.RootCursor(n, null);
     }

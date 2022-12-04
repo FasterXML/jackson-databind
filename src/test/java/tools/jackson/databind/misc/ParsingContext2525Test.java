@@ -69,7 +69,7 @@ public class ParsingContext2525Test extends BaseMapTest
     {
         try (JsonParser p = MAPPER.createParser(doc)) {
             p.nextToken();
-            try (TokenBuffer tb = new TokenBuffer(p, null)) {
+            try (TokenBuffer tb = TokenBuffer.forBuffering(p, null)) {
                 tb.copyCurrentStructure(p);
                 return tb.overrideParentContext(null);
             }

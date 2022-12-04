@@ -722,8 +722,12 @@ public class NumberDeserializers
             if (_checkTextualNull(ctxt, text)) {
                 return (Double) getNullValue(ctxt);
             }
-            // No separate "_parseDouble()" so just call this (as nulls are handled)
-            return _parseDoublePrimitive(p, ctxt, text);
+            p.streamReadConstraints().validateFPLength(text.length());
+            try {
+                return _parseDouble(text, p.isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
+            } catch (IllegalArgumentException iae) { }
+            return (Double) ctxt.handleWeirdStringValue(_valueClass, text,
+                    "not a valid `Double` value");
         }
     }
 
@@ -810,6 +814,7 @@ public class NumberDeserializers
             }
             try {
                 if (!_isIntNumber(text)) {
+                    p.streamReadConstraints().validateFPLength(text.length());
                     if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
                         return NumberInput.parseBigDecimal(
                                 text, p.isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
@@ -817,6 +822,7 @@ public class NumberDeserializers
                     return Double.valueOf(
                             NumberInput.parseDouble(text, p.isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER)));
                 }
+                p.streamReadConstraints().validateIntegerLength(text.length());
                 if (ctxt.isEnabled(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS)) {
                     return NumberInput.parseBigInteger(text, p.isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
                 }
@@ -829,7 +835,7 @@ public class NumberDeserializers
                 return Long.valueOf(value);
             } catch (IllegalArgumentException iae) {
                 return ctxt.handleWeirdStringValue(_valueClass, text,
-                        "not a valid number");
+                        "not a valid Number");
             }
         }
 
@@ -927,6 +933,7 @@ public class NumberDeserializers
                 // note: no need to call `coerce` as this is never primitive
                 return (BigInteger) getNullValue(ctxt);
             }
+            p.streamReadConstraints().validateIntegerLength(text.length());
             try {
                 return NumberInput.parseBigInteger(text, p.isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
             } catch (IllegalArgumentException iae) { }
@@ -995,6 +1002,7 @@ public class NumberDeserializers
                 // note: no need to call `coerce` as this is never primitive
                 return (BigDecimal) getNullValue(ctxt);
             }
+            p.streamReadConstraints().validateFPLength(text.length());
             try {
                 return NumberInput.parseBigDecimal(text, p.isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
             } catch (IllegalArgumentException iae) { }

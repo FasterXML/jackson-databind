@@ -13,12 +13,12 @@ import com.fasterxml.jackson.core.filter.TokenFilter;
 import com.fasterxml.jackson.core.filter.TokenFilter.Inclusion;
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
-
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.cfg.DatatypeFeature;
 import com.fasterxml.jackson.databind.deser.DataFormatReaders;
 import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
+import com.fasterxml.jackson.databind.deser.std.CollectionDeserializer;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.TreeTraversingParser;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -77,7 +77,7 @@ public class ObjectReader
     protected final boolean _unwrapRoot;
 
     /**
-     * Filter to be consider for JsonParser.  
+     * Filter to be consider for JsonParser.
      * Default value to be null as filter not considered.
      */
     private final TokenFilter _filter;
@@ -192,7 +192,7 @@ public class ObjectReader
         _unwrapRoot = config.useRootWrapping();
 
         _rootDeserializer = _prefetchRootDeserializer(valueType);
-        _dataFormatReaders = null;        
+        _dataFormatReaders = null;
         _filter = null;
     }
     
@@ -401,7 +401,7 @@ public class ObjectReader
             DeserializationFeature... other)
     {
         return _with(_config.with(first, other));
-    }    
+    }
 
     /**
      * Method for constructing a new reader instance that is configured
@@ -409,14 +409,14 @@ public class ObjectReader
      */
     public ObjectReader withFeatures(DeserializationFeature... features) {
         return _with(_config.withFeatures(features));
-    }    
+    }
 
     /**
      * Method for constructing a new reader instance that is configured
      * with specified feature disabled.
      */
     public ObjectReader without(DeserializationFeature feature) {
-        return _with(_config.without(feature)); 
+        return _with(_config.without(feature));
     }
 
     /**
@@ -426,7 +426,7 @@ public class ObjectReader
     public ObjectReader without(DeserializationFeature first,
             DeserializationFeature... other) {
         return _with(_config.without(first, other));
-    }    
+    }
 
     /**
      * Method for constructing a new reader instance that is configured
@@ -434,7 +434,7 @@ public class ObjectReader
      */
     public ObjectReader withoutFeatures(DeserializationFeature... features) {
         return _with(_config.withoutFeatures(features));
-    }    
+    }
 
     /*
     /**********************************************************************
@@ -460,7 +460,7 @@ public class ObjectReader
      */
     public ObjectReader withFeatures(DatatypeFeature... features) {
         return _with(_config.withFeatures(features));
-    }    
+    }
 
     /**
      * Method for constructing a new reader instance that is configured
@@ -469,7 +469,7 @@ public class ObjectReader
      * @since 2.14
      */
     public ObjectReader without(DatatypeFeature feature) {
-        return _with(_config.without(feature)); 
+        return _with(_config.without(feature));
     }
 
     /**
@@ -480,7 +480,7 @@ public class ObjectReader
      */
     public ObjectReader withoutFeatures(DatatypeFeature... features) {
         return _with(_config.withoutFeatures(features));
-    }    
+    }
 
     /*
     /**********************************************************
@@ -511,7 +511,7 @@ public class ObjectReader
      */
     public ObjectReader withFeatures(JsonParser.Feature... features) {
         return _with(_config.withFeatures(features));
-    }    
+    }
 
     /**
      * Method for constructing a new reader instance that is configured
@@ -522,7 +522,7 @@ public class ObjectReader
      * @return Reader instance with specified feature disabled
      */
     public ObjectReader without(JsonParser.Feature feature) {
-        return _with(_config.without(feature)); 
+        return _with(_config.without(feature));
     }
 
     /**
@@ -591,7 +591,7 @@ public class ObjectReader
      */
     public ObjectReader withFeatures(FormatFeature... features) {
         return _with(_config.withFeatures(features));
-    }    
+    }
 
     /**
      * Method for constructing a new reader instance that is configured
@@ -600,7 +600,7 @@ public class ObjectReader
      * @since 2.7
      */
     public ObjectReader without(FormatFeature feature) {
-        return _with(_config.without(feature)); 
+        return _with(_config.without(feature));
     }
 
     /**
@@ -620,8 +620,8 @@ public class ObjectReader
      */
 
     /**
-     * Convenience method to bind from {@link JsonPointer}.  
-     * {@link JsonPointerBasedFilter} is registered and will be used for parsing later. 
+     * Convenience method to bind from {@link JsonPointer}.
+     * {@link JsonPointerBasedFilter} is registered and will be used for parsing later.
      * @since 2.6
      */
     public ObjectReader at(final String pointerExpr) {
@@ -648,7 +648,7 @@ public class ObjectReader
      */
     public ObjectReader with(DeserializationConfig config) {
         return _with(config);
-    }    
+    }
 
     /**
      * Method for constructing a new instance with configuration that uses
@@ -776,7 +776,7 @@ public class ObjectReader
         }
         return _new(this, _config, valueType, rootDeser,
                 _valueToUpdate, _schema, _injectableValues, det);
-    }    
+    }
 
     /**
      * Method for constructing a new reader instance that is configured
@@ -789,7 +789,7 @@ public class ObjectReader
      */
     public ObjectReader forType(Class<?> valueType) {
         return forType(_config.constructType(valueType));
-    }    
+    }
 
     /**
      * Method for constructing a new reader instance that is configured
@@ -802,7 +802,7 @@ public class ObjectReader
      */
     public ObjectReader forType(TypeReference<?> valueTypeRef) {
         return forType(_config.getTypeFactory().constructType(valueTypeRef.getType()));
-    }    
+    }
 
     /**
      * @deprecated since 2.5 Use {@link #forType(JavaType)} instead
@@ -818,7 +818,7 @@ public class ObjectReader
     @Deprecated
     public ObjectReader withType(Class<?> valueType) {
         return forType(_config.constructType(valueType));
-    }    
+    }
 
     /**
      * @deprecated since 2.5 Use {@link #forType(Class)} instead
@@ -834,11 +834,11 @@ public class ObjectReader
     @Deprecated
     public ObjectReader withType(TypeReference<?> valueTypeRef) {
         return forType(_config.getTypeFactory().constructType(valueTypeRef.getType()));
-    }    
+    }
 
     /**
      * Method for constructing a new instance with configuration that
-     * updates passed Object (as root value), instead of constructing 
+     * updates passed Object (as root value), instead of constructing
      * a new value.
      *<p>
      * Note that the method does NOT change state of this reader, but
@@ -1292,6 +1292,139 @@ public class ObjectReader
     public <T> T readValue(JsonParser p, JavaType valueType) throws IOException {
         _assertNotNull("p", p);
         return (T) forType(valueType).readValue(p);
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Object> readValue(JsonParser p, List<JavaType> elementTypeList) throws IOException {
+        if (_valueType == null || !List.class.isAssignableFrom(_valueType.getRawClass())) {
+            return forType(List.class).readValue(p, elementTypeList);
+        }
+        _assertNotNull("p", p);
+        _assertNotNull("elementTypeList", elementTypeList);
+        List<Object> result;
+        final DefaultDeserializationContext ctxt = createDeserializationContext(p);
+        JsonToken t = _initForReading(ctxt, p);
+        if (t == JsonToken.VALUE_NULL) {
+            if (_valueToUpdate == null) {
+                result = (List<Object>) _findRootDeserializer(ctxt).getNullValue(ctxt);
+            } else {
+                result = (List<Object>)_valueToUpdate;
+            }
+        } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
+            result = (List<Object>) _valueToUpdate;
+        } else { // pointing to event other than null
+            CollectionDeserializer deser =
+                    (CollectionDeserializer) ((JsonDeserializer<?>) _findRootDeserializer(ctxt));
+            if (_config.useRootWrapping()) {
+                return _unwrapAndDeserializeWithElementTypeList(
+                        p, ctxt, _valueType, deser, _valueToUpdate, elementTypeList);
+            }
+            if (_valueToUpdate == null) {
+                return deserializeList(deser, p, ctxt, elementTypeList);
+            }
+            return deserializeList(deser, p, ctxt, (List<Object>) _valueToUpdate, elementTypeList);
+        }
+        // Need to consume the token too
+        p.clearCurrentToken();
+        if (_config.isEnabled(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)) {
+            _verifyNoTrailingTokens(p, ctxt, _valueType);
+        }
+        return result;
+    }
+
+    @SuppressWarnings("unchecked")
+    protected List<Object> _unwrapAndDeserializeWithElementTypeList(JsonParser p,
+            DefaultDeserializationContext ctxt,
+            JavaType rootType, CollectionDeserializer deser,
+            Object valueToUpdate, List<JavaType> elementTypeList)
+        throws IOException
+    {
+        PropertyName expRootName = _config.findRootName(rootType);
+        String expSimpleName = expRootName.getSimpleName();
+        if (p.currentToken() != JsonToken.START_OBJECT) {
+            ctxt.reportWrongTokenException(rootType, JsonToken.START_OBJECT,
+                    "Current token not START_OBJECT (needed to unwrap root name %s), but %s",
+                    ClassUtil.name(expSimpleName), p.currentToken());
+        }
+        if (p.nextToken() != JsonToken.FIELD_NAME) {
+            ctxt.reportWrongTokenException(rootType, JsonToken.FIELD_NAME,
+                    "Current token not FIELD_NAME (to contain expected root name %s), but %s",
+                    ClassUtil.name(expSimpleName), p.currentToken());
+        }
+        String actualName = p.currentName();
+        if (!expSimpleName.equals(actualName)) {
+            ctxt.reportPropertyInputMismatch(rootType, actualName,
+                    "Root name (%s) does not match expected (%s) for type %s",
+                    ClassUtil.name(actualName), ClassUtil.name(expSimpleName),
+                    ClassUtil.getTypeDescription(rootType));
+        }
+        p.nextToken();
+        final List<Object> result;
+        if (valueToUpdate == null) {
+            result = deserializeList(deser, p, ctxt, elementTypeList);
+        } else {
+            result = deserializeList(deser, p, ctxt, (List<Object>) valueToUpdate, elementTypeList);
+        }
+        if (p.nextToken() != JsonToken.END_OBJECT) {
+            ctxt.reportWrongTokenException(rootType, JsonToken.END_OBJECT,
+                    "Current token not END_OBJECT (to match wrapper object with root name %s), but %s",
+                    ClassUtil.name(expSimpleName), p.currentToken());
+        }
+        return result;
+    }
+
+    @SuppressWarnings("unchecked")
+    protected List<Object> deserializeList(CollectionDeserializer deser, JsonParser p,
+            DeserializationContext ctxt, List<JavaType> elemenTypeList)
+        throws IOException
+    {
+        if (p.isExpectedStartArrayToken()) {
+            List<Object> result = (List<Object>) deser.getValueInstantiator().createUsingDefault(ctxt);
+            return _deserializeFromArrayWithElementTypeList(p, ctxt, result, elemenTypeList);
+        }
+        return (List<Object>) ctxt.handleUnexpectedToken(deser.getValueType(), p);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected List<Object> deserializeList(CollectionDeserializer deser, JsonParser p,
+            DeserializationContext ctxt, List<Object> result, List<JavaType> elemenTypeList)
+        throws IOException
+    {
+        if (p.isExpectedStartArrayToken()) {
+            return _deserializeFromArrayWithElementTypeList(p, ctxt, result, elemenTypeList);
+        }
+        return (List<Object>) ctxt.handleUnexpectedToken(deser.getValueType(), p);
+    }
+
+    protected List<Object> _deserializeFromArrayWithElementTypeList(JsonParser p,
+            DeserializationContext ctxt, List<Object> result, List<JavaType> elemenTypeList)
+        throws IOException
+    {
+        p.setCurrentValue(result);
+
+        JsonDeserializer<Object> valueDes = null;
+        JsonToken t;
+        int idx = -1;
+        while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
+            try {
+                idx++;
+                valueDes = ctxt.findContextualValueDeserializer(elemenTypeList.get(idx), null);
+                Object value;
+                if (t == JsonToken.VALUE_NULL) {
+                    value = null;
+                } else {
+                    value = valueDes.deserialize(p, ctxt);
+                }
+                result.add(value);
+            } catch (Exception e) {
+                boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
+                if (!wrap) {
+                    ClassUtil.throwIfRTE(e);
+                }
+                throw JsonMappingException.wrapWithPath(e, result, result.size());
+            }
+        }
+        return result;
     }
 
     /**
@@ -2208,7 +2341,7 @@ public class ObjectReader
     }
 
     /**
-     * Consider filter when creating JsonParser.  
+     * Consider filter when creating JsonParser.
      */
     protected JsonParser _considerFilter(final JsonParser p, boolean multiValue) {
         // 26-Mar-2016, tatu: Need to allow multiple-matches at least if we have
@@ -2259,7 +2392,7 @@ public class ObjectReader
             _reportUnkownFormat(_dataFormatReaders, match);
         }
         JsonParser p = match.createParserWithMatch();
-        // One more thing: we Own the input stream now; and while it's 
+        // One more thing: we Own the input stream now; and while it's
         // not super clean way to do it, we must ensure closure so:
         if (forceClosing) {
             p.enable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
@@ -2275,7 +2408,7 @@ public class ObjectReader
             _reportUnkownFormat(_dataFormatReaders, match);
         }
         JsonParser p = match.createParserWithMatch();
-        // One more thing: we Own the input stream now; and while it's 
+        // One more thing: we Own the input stream now; and while it's
         // not super clean way to do it, we must ensure closure so:
         if (forceClosing) {
             p.enable(JsonParser.Feature.AUTO_CLOSE_SOURCE);

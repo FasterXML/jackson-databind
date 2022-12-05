@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.type.*;
  * {@link JsonDeserializer} instances (which are then cached by
  * context and/or dedicated cache).
  *<p>
- * Since there are multiple broad categories of deserializers, there are 
+ * Since there are multiple broad categories of deserializers, there are
  * multiple factory methods:
  *<ul>
  * <li>For JSON "Array" type, we need 2 methods: one to deal with expected
@@ -165,6 +165,10 @@ public abstract class DeserializerFactory
             CollectionLikeType type, BeanDescription beanDesc)
         throws JsonMappingException;
 
+    public abstract JsonDeserializer<?> createTupleDeserializer(DeserializationContext ctxt,
+            TupleType type, BeanDescription beanDesc)
+        throws JsonMappingException;
+
     public abstract JsonDeserializer<?> createMapDeserializer(DeserializationContext ctxt,
             MapType type, BeanDescription beanDesc)
         throws JsonMappingException;
@@ -208,7 +212,7 @@ public abstract class DeserializerFactory
      * given type as opposed to auto-generated "Bean" deserializer. Factory itself will check
      * for known JDK-provided types, but registered {@link com.fasterxml.jackson.databind.Module}s
      * are also called to see if they might provide explicit deserializer.
-     *<p> 
+     *<p>
      * Main use for this method is with Safe Default Typing (and generally Safe Polymorphic
      * Deserialization), during which it is good to be able to check that given raw type
      * is explicitly supported and as such "known type" (as opposed to potentially

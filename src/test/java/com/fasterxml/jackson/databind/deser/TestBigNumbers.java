@@ -48,7 +48,7 @@ public class TestBigNumbers extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    private final ObjectMapper newJsonMapperWithUnlimitedNumberSizeSupport() {
+    private ObjectMapper newJsonMapperWithUnlimitedNumberSizeSupport() {
         JsonFactory jsonFactory = JsonFactory.builder()
                 .streamReadConstraints(StreamReadConstraints.builder().maxNumberLength(Integer.MAX_VALUE).build())
                 .build();
@@ -59,6 +59,7 @@ public class TestBigNumbers extends BaseMapTest
     {
         try {
             MAPPER.readValue(generateJson("d"), DoubleWrapper.class);
+            fail("expected JsonMappingException");
         } catch (JsonMappingException jsonMappingException) {
             assertTrue("unexpected exception message: " + jsonMappingException.getMessage(),
                     jsonMappingException.getMessage().startsWith("Malformed numeric value ([number with 1200 characters])"));
@@ -76,6 +77,7 @@ public class TestBigNumbers extends BaseMapTest
     {
         try {
             MAPPER.readValue(generateJson("number"), BigDecimalWrapper.class);
+            fail("expected JsonMappingException");
         } catch (JsonMappingException jsonMappingException) {
             assertTrue("unexpected exception message: " + jsonMappingException.getMessage(),
                     jsonMappingException.getMessage().startsWith("Malformed numeric value ([number with 1200 characters])"));
@@ -94,6 +96,7 @@ public class TestBigNumbers extends BaseMapTest
     {
         try {
             MAPPER.readValue(generateJson("number"), BigIntegerWrapper.class);
+            fail("expected JsonMappingException");
         } catch (JsonMappingException jsonMappingException) {
             assertTrue("unexpected exception message: " + jsonMappingException.getMessage(),
                     jsonMappingException.getMessage().startsWith("Malformed numeric value ([number with 1200 characters])"));

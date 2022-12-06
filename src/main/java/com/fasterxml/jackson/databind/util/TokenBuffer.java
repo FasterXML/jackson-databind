@@ -58,6 +58,11 @@ public class TokenBuffer
      */
     protected int _generatorFeatures;
 
+    /**
+     * @since 2.15
+     */
+    protected StreamReadConstraints _streamReadConstraints = StreamReadConstraints.defaults();
+
     protected boolean _closed;
 
     /**
@@ -170,6 +175,7 @@ public class TokenBuffer
     public TokenBuffer(JsonParser p, DeserializationContext ctxt)
     {
         _objectCodec = p.getCodec();
+        _streamReadConstraints = p.streamReadConstraints();
         _parentContext = p.getParsingContext();
         _generatorFeatures = DEFAULT_GENERATOR_FEATURES;
         _writeContext = JsonWriteContext.createRootContext(null);
@@ -273,7 +279,7 @@ public class TokenBuffer
      */
     public JsonParser asParser(ObjectCodec codec)
     {
-        return new Parser(_first, codec, _hasNativeTypeIds, _hasNativeObjectIds, _parentContext);
+        return new Parser(_first, codec, _hasNativeTypeIds, _hasNativeObjectIds, _parentContext, _streamReadConstraints);
     }
 
     /**

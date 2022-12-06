@@ -1357,7 +1357,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
             //   but that won't work for default impl (JSON and most dataformats)
             buf.writeObject(rawId);
         }
-        JsonParser bufParser = buf.asParser();
+        JsonParser bufParser = buf.asParser(p.streamReadConstraints());
         bufParser.nextToken();
         return idDeser.deserialize(bufParser, ctxt);
     }
@@ -1746,7 +1746,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
             if (unknownTokens != null) {
                 // need to add END_OBJECT marker first
                 unknownTokens.writeEndObject();
-                JsonParser p2 = unknownTokens.asParser();
+                JsonParser p2 = unknownTokens.asParser(p.streamReadConstraints());
                 p2.nextToken(); // to get to first data field
                 bean = subDeser.deserialize(p2, ctxt, bean);
             }

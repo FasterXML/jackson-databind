@@ -277,8 +277,17 @@ public class TokenBuffer
     }
 
     /**
+     * @param streamReadConstraints constraints for streaming reads
+     * @since v2.15
+     */
+    public JsonParser asParser(StreamReadConstraints streamReadConstraints)
+    {
+        return new Parser(_first, _objectCodec, _hasNativeTypeIds, _hasNativeObjectIds, _parentContext, streamReadConstraints);
+    }
+
+    /**
      * @param src Parser to use for accessing source information
-     *    like location, configured codec
+     *    like location, configured codec, streamReadConstraints
      */
     public JsonParser asParser(JsonParser src)
     {
@@ -1555,7 +1564,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         public JacksonFeatureSet<StreamReadCapability> getReadCapabilities() {
             return DEFAULT_READ_CAPABILITIES;
         }
-        
+
         @Override
         public StreamReadConstraints streamReadConstraints() {
             return _streamReadConstraints;

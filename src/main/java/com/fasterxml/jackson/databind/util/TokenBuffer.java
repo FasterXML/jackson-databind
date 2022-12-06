@@ -282,7 +282,8 @@ public class TokenBuffer
      */
     public JsonParser asParser(JsonParser src)
     {
-        Parser p = new Parser(_first, src.getCodec(), _hasNativeTypeIds, _hasNativeObjectIds, _parentContext);
+        Parser p = new Parser(_first, src.getCodec(), _hasNativeTypeIds, _hasNativeObjectIds,
+                _parentContext, src.streamReadConstraints());
         p.setLocation(src.getTokenLocation());
         return p;
     }
@@ -1442,6 +1443,11 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         protected ObjectCodec _codec;
 
         /**
+         * @since 2.15
+         */
+        protected StreamReadConstraints _streamReadConstraints;
+
+        /**
          * @since 2.3
          */
         protected final boolean _hasNativeTypeIds;
@@ -1493,10 +1499,18 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         {
             this(firstSeg, codec, hasNativeTypeIds, hasNativeObjectIds, null);
         }
-        
+
+        @Deprecated // since 2.15
+        public Parser(Segment firstSeg, ObjectCodec codec,
+                      boolean hasNativeTypeIds, boolean hasNativeObjectIds,
+                      JsonStreamContext parentContext)
+        {
+            this(firstSeg, codec, hasNativeTypeIds, hasNativeObjectIds, parentContext, StreamReadConstraints.defaults());
+        }
+
         public Parser(Segment firstSeg, ObjectCodec codec,
                 boolean hasNativeTypeIds, boolean hasNativeObjectIds,
-                JsonStreamContext parentContext)
+                JsonStreamContext parentContext, StreamReadConstraints streamReadConstraints)
         {
             // 25-Jun-2022, tatu: Ideally would pass parser flags along (as
             //    per [databund#3528]) but for now make sure not to clear the flags
@@ -1505,6 +1519,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             _segment = firstSeg;
             _segmentPtr = -1; // not yet read
             _codec = codec;
+            _streamReadConstraints = streamReadConstraints;
             _parsingContext = TokenBufferReadContext.createRootContext(parentContext);
             _hasNativeTypeIds = hasNativeTypeIds;
             _hasNativeObjectIds = hasNativeObjectIds;
@@ -1540,12 +1555,10 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         public JacksonFeatureSet<StreamReadCapability> getReadCapabilities() {
             return DEFAULT_READ_CAPABILITIES;
         }
-
-        // 03-Dec-2022, tatu: Not 100% sure what to do here; could probably instead
-        //    pass from somewhere?
+        
         @Override
         public StreamReadConstraints streamReadConstraints() {
-            return StreamReadConstraints.defaults();
+            return _streamReadConstraints;
         }
 
         /*

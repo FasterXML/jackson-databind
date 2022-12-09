@@ -101,8 +101,8 @@ public class TestObjectIdWithEquals extends BaseMapTest
         foo.otherBars.add(bar2);
 
         String json = mapper.writeValueAsString(foo);
-        assertEquals("{\"id\":1,\"bars\":[{\"id\":1},{\"id\":2}],\"otherBars\":[1,2]}", json);
-
+        assertTrue(json.equals("{\"id\":1,\"bars\":[{\"id\":1},{\"id\":2}],\"otherBars\":[1,2]}")
+                || json.equals("{\"id\":1,\"otherBars\":[{\"id\":1},{\"id\":2}],\"bars\":[1,2]}"));
         Foo foo2 = mapper.readValue(json, Foo.class);       
         assertNotNull(foo2);
         assertEquals(foo.id, foo2.id);

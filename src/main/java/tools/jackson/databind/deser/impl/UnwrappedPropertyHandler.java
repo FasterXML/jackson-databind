@@ -66,8 +66,7 @@ public class UnwrappedPropertyHandler
     {
         for (int i = 0, len = _properties.size(); i < len; ++i) {
             SettableBeanProperty prop = _properties.get(i);
-            JsonParser p = buffered.asParser(ctxt);
-            p.nextToken();
+            JsonParser p = buffered.asParserOnFirstToken(ctxt);
             prop.deserializeAndSet(p, ctxt, bean);
         }
         return bean;

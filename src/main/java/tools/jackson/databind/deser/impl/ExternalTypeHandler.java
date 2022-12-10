@@ -319,7 +319,7 @@ public class ExternalTypeHandler
                     } else {
                         TokenBuffer tb = ctxt.bufferForInputBuffering(p);
                         tb.writeString(typeId);
-                        v = typeProp.getValueDeserializer().deserialize(tb.asParserOnFirstToken(), ctxt);
+                        v = typeProp.getValueDeserializer().deserialize(tb.asParserOnFirstToken(ctxt), ctxt);
                         tb.close();
                     }
                     buffer.assignParameter(typeProp, v);

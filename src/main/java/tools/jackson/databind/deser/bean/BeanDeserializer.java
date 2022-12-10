@@ -899,7 +899,7 @@ public class BeanDeserializer
             tokens.writeName(propName);
             tokens.append(b2);
             try {
-                _anySetter.deserializeAndSet(b2.asParserOnFirstToken(), ctxt, bean, propName);
+                _anySetter.deserializeAndSet(b2.asParserOnFirstToken(ctxt), ctxt, bean, propName);
             } catch (Exception e) {
                 throw wrapAndThrow(e, bean, propName, ctxt);
             }
@@ -962,7 +962,7 @@ public class BeanDeserializer
                 tokens.writeName(propName);
                 tokens.append(b2);
                 try {
-                    _anySetter.deserializeAndSet(b2.asParserOnFirstToken(), ctxt, bean, propName);
+                    _anySetter.deserializeAndSet(b2.asParserOnFirstToken(ctxt), ctxt, bean, propName);
                 } catch (Exception e) {
                     throw wrapAndThrow(e, bean, propName, ctxt);
                 }
@@ -1062,7 +1062,7 @@ public class BeanDeserializer
                 tokens.append(b2);
                 try {
                     buffer.bufferAnyProperty(_anySetter, propName,
-                            _anySetter.deserialize(b2.asParserOnFirstToken(), ctxt));
+                            _anySetter.deserialize(b2.asParserOnFirstToken(ctxt), ctxt));
                 } catch (Exception e) {
                     throw wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
                 }

@@ -59,6 +59,8 @@ public class TokenBuffer
      */
     protected int _streamWriteFeatures;
 
+    protected final StreamReadConstraints _streamReadConstraints;
+
     protected boolean _closed;
 
     protected boolean _hasNativeTypeIds;
@@ -137,6 +139,7 @@ public class TokenBuffer
      * @param hasNativeIds Whether resulting {@link JsonParser} (if created)
      *   is considered to support native type and object ids
      */
+    @Deprecated
     public TokenBuffer(boolean hasNativeIds)
     {
         _streamWriteFeatures = DEFAULT_STREAM_WRITE_FEATURES;
@@ -146,6 +149,9 @@ public class TokenBuffer
         _appendAt = 0;
         _hasNativeTypeIds = hasNativeIds;
         _hasNativeObjectIds = hasNativeIds;
+
+        // Nothing to base constraints on so:
+        _streamReadConstraints = StreamReadConstraints.defaults();
 
         _mayHaveNativeIds = _hasNativeTypeIds || _hasNativeObjectIds;
     }
@@ -158,6 +164,10 @@ public class TokenBuffer
         _objectWriteContext = writeContext;
         _streamWriteFeatures = DEFAULT_STREAM_WRITE_FEATURES;
         _tokenWriteContext = SimpleStreamWriteContext.createRootContext(null);
+
+        // Nothing to base constraints on so:
+        _streamReadConstraints = StreamReadConstraints.defaults();
+
         // at first we have just one segment
         _first = _last = new Segment();
         _appendAt = 0;
@@ -167,12 +177,12 @@ public class TokenBuffer
         _mayHaveNativeIds = _hasNativeTypeIds || _hasNativeObjectIds;
     }
 
-    // 28-May-2021, tatu: SHOULD take `ObjectReadContext` and not DeserCtxt,
-    //     ideally, but for now need to consider one `DeserializationFeature`...
-//    protected TokenBuffer(JsonParser p, ObjectReadContext ctxt)
-    protected TokenBuffer(JsonParser p, DeserializationContext ctxt)
+    protected TokenBuffer(JsonParser p, ObjectReadContext ctxt)
     {
         _parentContext = p.streamReadContext();
+        // Work-around mostly for unit tests; either should be able to provide
+        // proper values but context preferable.
+        _streamReadConstraints = (ctxt == null) ? p.streamReadConstraints() : ctxt.streamReadConstraints();
         _streamWriteFeatures = DEFAULT_STREAM_WRITE_FEATURES;
         _tokenWriteContext = SimpleStreamWriteContext.createRootContext(null);
         // at first we have just one segment
@@ -181,8 +191,11 @@ public class TokenBuffer
         _hasNativeTypeIds = p.canReadTypeId();
         _hasNativeObjectIds = p.canReadObjectId();
         _mayHaveNativeIds = _hasNativeTypeIds || _hasNativeObjectIds;
-        _forceBigDecimal = (ctxt == null) ? false
-                : ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
+        if (ctxt instanceof DeserializationContext) {
+            _forceBigDecimal = ((DeserializationContext) ctxt).isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
+        } else {
+            _forceBigDecimal = false;
+        }
     }
 
     /*
@@ -208,7 +221,7 @@ public class TokenBuffer
      *
      * @since 3.0
      */
-    public static TokenBuffer forBuffering(JsonParser p, DeserializationContext ctxt) {
+    public static TokenBuffer forBuffering(JsonParser p, ObjectReadContext ctxt) {
         return new TokenBuffer(p, ctxt);
     }
 
@@ -252,7 +265,8 @@ public class TokenBuffer
      */
     public JsonParser asParser() {
         return new Parser(ObjectReadContext.empty(), this,
-                _first, _hasNativeTypeIds, _hasNativeObjectIds, _parentContext);
+                _first, _hasNativeTypeIds, _hasNativeObjectIds, _parentContext,
+                StreamReadConstraints.defaults());
     }
 
     /**
@@ -269,17 +283,19 @@ public class TokenBuffer
     public JsonParser asParser(ObjectReadContext readCtxt)
     {
         return new Parser(readCtxt, this,
-                _first, _hasNativeTypeIds, _hasNativeObjectIds, _parentContext);
+                _first, _hasNativeTypeIds, _hasNativeObjectIds,
+                _parentContext, _streamReadConstraints);
     }
 
     /**
      * @param src Parser to use for accessing source information
-     *    like location, configured codec
+     *    like location, configured codec, streamReadConstraints
      */
     public JsonParser asParser(ObjectReadContext readCtxt, JsonParser src)
     {
         Parser p = new Parser(readCtxt, this,
-                _first, _hasNativeTypeIds, _hasNativeObjectIds, _parentContext);
+                _first, _hasNativeTypeIds, _hasNativeObjectIds,
+                _parentContext, src.streamReadConstraints());
         p.setLocation(src.currentTokenLocation());
         return p;
     }
@@ -287,17 +303,27 @@ public class TokenBuffer
     /**
      * Same as:
      *<pre>
-     *  JsonParser p = asParser();
+     *  JsonParser p = asParser(readCtxt);
      *  p.nextToken();
      *  return p;
      *</pre>
      */
-    public JsonParser asParserOnFirstToken() throws JacksonException {
-        JsonParser p = asParser();
+    public JsonParser asParserOnFirstToken(ObjectReadContext readCtxt)
+        throws JacksonException
+    {
+        JsonParser p = asParser(readCtxt);
         p.nextToken();
         return p;
     }
 
+    public JsonParser asParserOnFirstToken(ObjectReadContext readCtxt,
+            JsonParser src) throws JacksonException
+    {
+        JsonParser p = asParser(readCtxt, src);
+        p.nextToken();
+        return p;
+    }
+    
     /*
     /**********************************************************************
     /* Versioned (mostly since buffer is `JsonGenerator`
@@ -1412,9 +1438,8 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         /******************************************************************
          */
 
-        /**
-         * @since 3.0
-         */
+        protected StreamReadConstraints _streamReadConstraints;
+
         protected final TokenBuffer _source;
 
         protected final boolean _hasNativeTypeIds;
@@ -1450,7 +1475,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         protected transient ByteArrayBuilder _byteBuilder;
 
         protected JsonLocation _location = null;
-        
+
         /*
         /******************************************************************
         /* Construction, init
@@ -1459,7 +1484,8 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
 
         public Parser(ObjectReadContext readCtxt, TokenBuffer source,
                 Segment firstSeg, boolean hasNativeTypeIds, boolean hasNativeObjectIds,
-                TokenStreamContext parentContext)
+                TokenStreamContext parentContext,
+                StreamReadConstraints streamReadConstraints)
         {
             // 25-Jun-2022, tatu: This should pass stream read features as
             //    per [databind#3528]) but for now at very least should get
@@ -1468,6 +1494,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             _source = source;
             _segment = firstSeg;
             _segmentPtr = -1; // not yet read
+            _streamReadConstraints = streamReadConstraints;
             _parsingContext = TokenBufferReadContext.createRootContext(parentContext);
             _hasNativeTypeIds = hasNativeTypeIds;
             _hasNativeObjectIds = hasNativeObjectIds;
@@ -1503,11 +1530,9 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             return _source;
         }
 
-        // 03-Dec-2022, tatu: Not 100% sure what to do here; could probably instead
-        //    pass from somewhere? (ObjectReadContext)
         @Override
         public StreamReadConstraints streamReadConstraints() {
-            return StreamReadConstraints.defaults();
+            return _streamReadConstraints;
         }
 
         /*

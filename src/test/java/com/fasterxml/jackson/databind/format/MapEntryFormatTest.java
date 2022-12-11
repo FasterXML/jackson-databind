@@ -177,7 +177,6 @@ public class MapEntryFormatTest extends BaseMapTest
                     cfg.setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.OBJECT)))
                 .build();
         Map.Entry<String,String> input = new BeanWithMapEntry("foo", "bar").entry;
-        assertEquals(a2q("{'key':'foo','value':'bar'}"),
-                mapper.writeValueAsString(input));
+        assertTrue(mapper.writeValueAsString(input).equals(a2q("{'key':'foo','value':'bar'}")) || mapper.writeValueAsString(input).equals(a2q("{'value':'bar','key':'foo'}")));
     }
 }

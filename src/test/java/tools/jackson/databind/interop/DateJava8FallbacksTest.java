@@ -51,7 +51,7 @@ public class DateJava8FallbacksTest extends BaseMapTest
     {
         OffsetDateTime time = OffsetDateTime.ofInstant(Instant.now(),
                 ZoneId.of("Z"));
-        try (TokenBuffer tb = new TokenBuffer(false)) {
+        try (TokenBuffer tb = TokenBuffer.forGeneration()) {
             tb.writeEmbeddedObject(time);
 
             try (JsonParser p = tb.asParser()) {
@@ -61,7 +61,7 @@ public class DateJava8FallbacksTest extends BaseMapTest
         }
 
         // but also try deser into an array
-        try (TokenBuffer tb = new TokenBuffer(false)) {
+        try (TokenBuffer tb = TokenBuffer.forGeneration()) {
             tb.writeStartArray();
             tb.writeEmbeddedObject(time);
             tb.writeEndArray();

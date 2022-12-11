@@ -50,7 +50,7 @@ public class TokenBufferTest extends BaseMapTest
     // for [databind#3528]
     public void testParserFeatureDefaults() throws IOException
     {
-        TokenBuffer buf = new TokenBuffer(false);
+        TokenBuffer buf = TokenBuffer.forGeneration();
         try (JsonParser p = buf.asParser()) {
             for (StreamReadFeature feat : StreamReadFeature.values()) {
                 assertEquals("Feature "+feat, feat.enabledByDefault(), p.isEnabled(feat));

@@ -10,7 +10,6 @@ import tools.jackson.databind.*;
 
 public class TestObjectIdWithEquals extends BaseMapTest
 {
-    @JsonPropertyOrder({"id","bars","otherBars"})
     @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id", scope=Foo.class)
     @JsonPropertyOrder({ "id", "bars", "otherBars" })
     static class Foo {

@@ -1,11 +1,3 @@
-/**
- *  Rogue Wave Software, Inc. Copyright (C) 2000-2013, All rights reserved
- *
- *  This  software is the confidential and proprietary information of SOA Software, Inc.
- *  and is subject to copyright protection under laws of the United States of America and
- *  other countries. The  use of this software should be in accordance with the license
- *  agreement terms you entered into with SOA Software, Inc.
- */
 package com.fasterxml.jackson.databind.node;
 
 /**

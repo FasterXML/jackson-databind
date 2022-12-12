@@ -541,6 +541,11 @@ public class ObjectNode
             if (n == null) {
                 n = nullNode();
             }
+
+            if (n instanceof ValueNode) {
+                ((ValueNode) n).setFieldRef(new FieldReference(this, en.getKey()));
+            }
+
             _children.put(en.getKey(), n);
         }
         return (T) this;
@@ -582,6 +587,12 @@ public class ObjectNode
         if (value == null) { // let's not store 'raw' nulls but nodes
             value = nullNode();
         }
+        
+        if (value instanceof ValueNode) {
+            ((ValueNode) value).setFieldRef(new FieldReference(this, propertyName));
+        }
+          
+
         return _children.put(propertyName, value);
     }
 
@@ -646,6 +657,12 @@ public class ObjectNode
         if (value == null) { // let's not store 'raw' nulls but nodes
             value = nullNode();
         }
+        
+        if (value instanceof ValueNode) {
+            ((ValueNode) value).setFieldRef(new FieldReference(this, propertyName));
+        }
+          
+
         return _children.put(propertyName, value);
     }
 
@@ -835,7 +852,13 @@ public class ObjectNode
      * @return This {@code ObjectNode} (to allow chaining)
      */
     public ObjectNode putPOJO(String propertyName, Object pojo) {
-        return _put(propertyName, pojoNode(pojo));
+        
+        //_put(fieldName, pojoNode(pojo));
+        ValueNode n = pojoNode(pojo);
+        n.setFieldRef(new FieldReference(this, propertyName));
+        return _put(propertyName, n);
+          
+
     }
 
     /**
@@ -864,7 +887,10 @@ public class ObjectNode
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String propertyName, short v) {
-        return _put(propertyName, numberNode(v));
+        NumericNode n = numberNode(v);
+        setFieldRef(n, propertyName);
+        return _put(propertyName, n);
+
     }
 
     /**
@@ -874,8 +900,13 @@ public class ObjectNode
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, Short v) {
-        return _put(fieldName, (v == null) ? nullNode()
-                : numberNode(v.shortValue()));
+        if (v == null) {
+            return _put(fieldName, nullNode());
+        } else {
+            NumericNode n = numberNode(v.shortValue());
+            setFieldRef(n, fieldName);
+            return _put(fieldName, n);
+        }
     }
 
     /**
@@ -888,7 +919,10 @@ public class ObjectNode
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, int v) {
-        return _put(fieldName, numberNode(v));
+        NumericNode n = numberNode(v);
+        setFieldRef(n, fieldName);
+        return _put(fieldName, n);
+          
     }
 
     /**
@@ -898,8 +932,14 @@ public class ObjectNode
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, Integer v) {
-        return _put(fieldName, (v == null) ? nullNode()
-                : numberNode(v.intValue()));
+        if (v == null) {
+            return _put(fieldName, nullNode());
+        } else {
+            NumericNode n = numberNode(v.intValue());
+            setFieldRef(n, fieldName);
+            return _put(fieldName, n);
+        }
+          
     }
     
     /**
@@ -912,7 +952,10 @@ public class ObjectNode
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, long v) {
-        return _put(fieldName, numberNode(v));
+        NumericNode n = numberNode(v);
+        setFieldRef(n, fieldName);
+        return _put(fieldName, n);
+          
     }
 
     /**
@@ -928,8 +971,15 @@ public class ObjectNode
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, Long v) {
-        return _put(fieldName, (v == null) ? nullNode()
-                : numberNode(v.longValue()));
+        if (v == null) {
+            return _put(fieldName, nullNode());
+        } else {
+            NumericNode n = numberNode(v.longValue());
+            setFieldRef(n, fieldName);
+            return _put(fieldName, n);
+        }
+          
+
     }
     
     /**
@@ -938,7 +988,10 @@ public class ObjectNode
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, float v) {
-        return _put(fieldName, numberNode(v));
+        NumericNode n = numberNode(v);
+        setFieldRef(n, fieldName);
+        return _put(fieldName, n);
+          
     }
 
     /**
@@ -948,8 +1001,14 @@ public class ObjectNode
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, Float v) {
-        return _put(fieldName, (v == null) ? nullNode()
-                : numberNode(v.floatValue()));
+        if (v == null) {
+            return _put(fieldName, nullNode());
+        } else {
+            NumericNode n = numberNode(v.floatValue());
+            setFieldRef(n, fieldName);
+            return _put(fieldName, n);
+        }
+
     }
     
     /**
@@ -958,7 +1017,10 @@ public class ObjectNode
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, double v) {
-        return _put(fieldName, numberNode(v));
+        NumericNode n = numberNode(v);
+        setFieldRef(n, fieldName);
+        return _put(fieldName, n);
+          
     }
 
     /**
@@ -968,8 +1030,14 @@ public class ObjectNode
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, Double v) {
-        return _put(fieldName, (v == null) ? nullNode()
-                : numberNode(v.doubleValue()));
+        if (v == null) {
+            return _put(fieldName, nullNode());
+        } else {
+            NumericNode n = numberNode(v.doubleValue());
+            setFieldRef(n, fieldName);
+            return _put(fieldName, n);
+        }
+          
     }
     
     /**
@@ -978,8 +1046,15 @@ public class ObjectNode
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, BigDecimal v) {
-        return _put(fieldName, (v == null) ? nullNode()
-                : numberNode(v));
+        if (v == null) {
+            return _put(fieldName, nullNode());
+        } else {
+            ValueNode n = numberNode(v);
+            setFieldRef(n, fieldName);
+            return _put(fieldName, n);
+        }
+          
+
     }
 
     /**
@@ -990,8 +1065,16 @@ public class ObjectNode
      * @since 2.9
      */
     public ObjectNode put(String fieldName, BigInteger v) {
-        return _put(fieldName, (v == null) ? nullNode()
-                : numberNode(v));
+        
+        if (v == null) {
+            return _put(fieldName, nullNode());
+        } else {
+            ValueNode n = numberNode(v);
+            setFieldRef(n, fieldName);
+            return _put(fieldName, n);
+        }
+          
+
     }
 
     /**
@@ -1000,8 +1083,15 @@ public class ObjectNode
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, String v) {
-        return _put(fieldName, (v == null) ? nullNode()
-                : textNode(v));
+        if (v == null) {
+            return _put(fieldName, nullNode());
+        } else {
+            TextNode tn = textNode(v);
+            setFieldRef(tn, fieldName);
+            return _put(fieldName, tn);
+        }
+          
+
     }
 
     /**
@@ -1010,7 +1100,10 @@ public class ObjectNode
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, boolean v) {
-        return _put(fieldName, booleanNode(v));
+        BooleanNode n = booleanNode(v);
+        setFieldRef(n, fieldName);
+        return _put(fieldName, n);
+          
     }
 
     /**
@@ -1020,8 +1113,15 @@ public class ObjectNode
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, Boolean v) {
-        return _put(fieldName, (v == null) ? nullNode()
-                : booleanNode(v.booleanValue()));
+        if (v == null) {
+            return _put(fieldName, nullNode());
+        } else {
+            BooleanNode n = booleanNode(v.booleanValue());
+            setFieldRef(n, fieldName);
+            return _put(fieldName, n);
+        }
+          
+
     }
     
     /**
@@ -1030,8 +1130,15 @@ public class ObjectNode
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, byte[] v) {
-        return _put(fieldName, (v == null) ? nullNode()
-                : binaryNode(v));
+        if (v == null) {
+            return _put(fieldName, nullNode());
+        } else {
+            BinaryNode n = binaryNode(v);
+            setFieldRef(n, fieldName);
+            return _put(fieldName, n);
+        }
+          
+
     }
     
     /*
@@ -1070,6 +1177,12 @@ public class ObjectNode
     /* Internal methods (overridable)
     /**********************************************************
      */
+
+    private void setFieldRef(ValueNode vn, String fieldName) {
+        FieldReference ref = new FieldReference(this, fieldName);
+        vn.setFieldRef(ref);
+    }
+
 
     protected ObjectNode _put(String fieldName, JsonNode value)
     {

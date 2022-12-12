@@ -19,7 +19,18 @@ public abstract class ValueNode
 {
     private static final long serialVersionUID = 1L;
 
+    private FieldReference fieldRef;
+
     protected ValueNode() { }
+
+    public void setFieldRef(FieldReference ref) {
+        this.fieldRef = ref;
+    }
+
+    public FieldReference getFieldRef() {
+        return this.fieldRef;
+    }
+
 
     @Override
     protected JsonNode _at(JsonPointer ptr) {

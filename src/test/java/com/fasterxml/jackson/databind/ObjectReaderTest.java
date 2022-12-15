@@ -17,6 +17,8 @@ import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.CustomArrayNode;
+import com.fasterxml.jackson.databind.node.CustomObjectNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -531,5 +533,26 @@ public class ObjectReaderTest extends BaseMapTest
         private A(@JsonProperty("knownField") String knownField) {
             this.knownField = knownField;
         }
+    }
+
+    // [databind#3699]: custom object node classes
+    public void testCustomObjectNode() throws Exception
+    {
+        ObjectNode defaultNode = (ObjectNode) MAPPER.readTree("{\"x\": 1, \"y\": 2}");
+        CustomObjectNode customObjectNode = new CustomObjectNode(defaultNode);
+        Point point = MAPPER.readerFor(Point.class).readValue(customObjectNode);
+        assertEquals(1, point.x);
+        assertEquals(2, point.y);
+    }
+    
+    // [databind#3699]: custom array node classes
+    public void testCustomArrayNode() throws Exception
+    {
+        ArrayNode defaultNode = (ArrayNode) MAPPER.readTree("[{\"x\": 1, \"y\": 2}]");
+        CustomArrayNode customArrayNode = new CustomArrayNode(defaultNode);
+        Point[] points = MAPPER.readerFor(Point[].class).readValue(customArrayNode);
+        Point point = points[0];
+        assertEquals(1, point.x);
+        assertEquals(2, point.y);
     }
 }

@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;
+import java.util.Map.Entry;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -16,10 +17,11 @@ import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.CustomArrayNode;
-import com.fasterxml.jackson.databind.node.CustomObjectNode;
+import com.fasterxml.jackson.databind.node.BaseJsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class ObjectReaderTest extends BaseMapTest
@@ -554,5 +556,246 @@ public class ObjectReaderTest extends BaseMapTest
         Point point = points[0];
         assertEquals(1, point.x);
         assertEquals(2, point.y);
+    }
+
+    static class CustomObjectNode extends BaseJsonNode
+    {
+        private final ObjectNode _delegate;
+
+        CustomObjectNode(ObjectNode delegate) {
+            this._delegate = delegate;
+        }
+        
+        @Override
+        public boolean isObject() {
+            return true;
+        }
+
+        @Override
+        public int size() {
+            return _delegate.size();
+        }
+        
+        @Override
+        public Iterator<Entry<String, JsonNode>> fields() {
+            return _delegate.fields();
+        }
+
+        @Override
+        public Iterator<JsonNode> elements() {
+            return Collections.emptyIterator();
+        }
+
+        @Override
+        public JsonToken asToken() {
+            return JsonToken.START_OBJECT;
+        }
+
+        @Override
+        public void serialize(JsonGenerator g, SerializerProvider ctxt) {
+            // ignore, will not be called
+        }
+
+        @Override
+        public void serializeWithType(JsonGenerator g, SerializerProvider ctxt, TypeSerializer typeSer) {
+            // ignore, will not be called
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public <T extends JsonNode> T deepCopy() {
+            return (T) new CustomObjectNode(_delegate);
+        }
+
+        @Override
+        public JsonNode get(int index) {
+            return null;
+        }
+
+        @Override
+        public JsonNode path(String fieldName) {
+            return null;
+        }
+
+        @Override
+        public JsonNode path(int index) {
+            return null;
+        }
+
+        @Override
+        protected JsonNode _at(JsonPointer ptr) {
+            return null;
+        }
+
+        @Override
+        public JsonNodeType getNodeType() {
+            return JsonNodeType.OBJECT;
+        }
+
+        @Override
+        public String asText() {
+            return "";
+        }
+
+        @Override
+        public JsonNode findValue(String fieldName) {
+            return null;
+        }
+
+        @Override
+        public JsonNode findParent(String fieldName) {
+            return null;
+        }
+
+        @Override
+        public List<JsonNode> findValues(String fieldName, List<JsonNode> foundSoFar) {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public List<String> findValuesAsText(String fieldName, List<String> foundSoFar) {
+            return foundSoFar;
+        }
+
+        @Override
+        public List<JsonNode> findParents(String fieldName, List<JsonNode> foundSoFar) {
+            return foundSoFar;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == this) {
+                return true;
+            }
+            if (!(o instanceof CustomObjectNode)) {
+                return false;
+            }
+            CustomObjectNode other = (CustomObjectNode) o;
+            return this._delegate.equals(other._delegate);
+        }
+
+        @Override
+        public int hashCode() {
+            return _delegate.hashCode();
+        }
+
+    }
+
+    static class CustomArrayNode extends BaseJsonNode
+    {
+        private final ArrayNode _delegate;
+
+        CustomArrayNode(ArrayNode delegate) {
+            this._delegate = delegate;
+        }
+
+        @Override
+        public boolean isArray() {
+            return true;
+        }
+
+        @Override
+        public int size() {
+            return _delegate.size();
+        }
+
+        @Override
+        public Iterator<JsonNode> elements() {
+            return _delegate.elements();
+        }
+
+        @Override
+        public JsonToken asToken() {
+            return JsonToken.START_ARRAY;
+        }
+
+        @Override
+        public void serialize(JsonGenerator g, SerializerProvider ctxt) {
+            // ignore, will not be called
+        }
+
+        @Override
+        public void serializeWithType(JsonGenerator g, SerializerProvider ctxt, TypeSerializer typeSer) {
+            // ignore, will not be called
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public <T extends JsonNode> T deepCopy() {
+            return (T) new CustomArrayNode(_delegate);
+        }
+
+        @Override
+        public JsonNode get(int index) {
+            return _delegate.get(index);
+        }
+
+        @Override
+        public JsonNode path(String fieldName) {
+            return null;
+        }
+
+        @Override
+        public JsonNode path(int index) {
+            return _delegate.path(index);
+        }
+
+        @Override
+        protected JsonNode _at(JsonPointer ptr) {
+            return null;
+        }
+
+        @Override
+        public JsonNodeType getNodeType() {
+            return JsonNodeType.ARRAY;
+        }
+
+        @Override
+        public String asText() {
+            return "";
+        }
+
+        @Override
+        public JsonNode findValue(String fieldName) {
+            return null;
+        }
+
+        @Override
+        public JsonNode findParent(String fieldName) {
+            return null;
+        }
+
+        @Override
+        public List<JsonNode> findValues(String fieldName, List<JsonNode> foundSoFar) {
+            return foundSoFar;
+        }
+
+        @Override
+        public List<String> findValuesAsText(String fieldName, List<String> foundSoFar) {
+            return foundSoFar;
+        }
+
+        @Override
+        public List<JsonNode> findParents(String fieldName, List<JsonNode> foundSoFar) {
+            return foundSoFar;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == this) {
+                return true;
+            }
+            if (!(o instanceof CustomArrayNode)) {
+                return false;
+            }
+            CustomArrayNode other = (CustomArrayNode) o;
+            return this._delegate.equals(other._delegate);
+        }
+
+        @Override
+        public int hashCode() {
+            return _delegate.hashCode();
+        }
+
     }
 }

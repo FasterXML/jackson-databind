@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.databind.node;
 
 /**
- * @author tgullotta
- *FieldReference to store fieldName and ObjectNode r
+ * @author niralepatel
+ *FieldReference to store fieldName and ObjectNode
  */
 public class FieldReference {
 

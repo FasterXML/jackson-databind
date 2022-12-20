@@ -1529,6 +1529,10 @@ Moritz Halbritter (mhalbritter@github)
     from 2.13.x to 2.14.0
   (2.14.1)
 
+Philippe Marschall (marschall@github)
+  * Contributed #3699: Allow custom `JsonNode` implementations
+  (2.14.2)
+
 Hervé Boutemy (hboutemy@github)
   * Contributed fix for #3680: Timestamp in classes inside jar showing 02/01/1980
   (2.15.0)

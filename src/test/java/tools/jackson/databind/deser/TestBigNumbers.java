@@ -1,14 +1,15 @@
 package tools.jackson.databind.deser;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 import tools.jackson.core.StreamReadConstraints;
+import tools.jackson.core.exc.StreamReadException;
 import tools.jackson.core.json.JsonFactory;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
 
 public class TestBigNumbers extends BaseMapTest
 {
@@ -59,10 +60,9 @@ public class TestBigNumbers extends BaseMapTest
     {
         try {
             MAPPER.readValue(generateJson("d"), DoubleWrapper.class);
-            fail("expected DatabindException");
-        } catch (DatabindException jsonMappingException) {
-            assertTrue("unexpected exception message: " + jsonMappingException.getMessage(),
-                    jsonMappingException.getMessage().startsWith("Malformed numeric value ([number with 1200 characters])"));
+            fail("expected StreamReadException");
+        } catch (StreamReadException e) {
+            verifyException(e, "Invalid numeric value ", "exceeds the maximum length");
         }
     }
 
@@ -77,10 +77,9 @@ public class TestBigNumbers extends BaseMapTest
     {
         try {
             MAPPER.readValue(generateJson("number"), BigDecimalWrapper.class);
-            fail("expected DatabindException");
-        } catch (DatabindException jsonMappingException) {
-            assertTrue("unexpected exception message: " + jsonMappingException.getMessage(),
-                    jsonMappingException.getMessage().startsWith("Malformed numeric value ([number with 1200 characters])"));
+            fail("expected StreamReadException");
+        } catch (StreamReadException e) {
+            verifyException(e, "Invalid numeric value ", "exceeds the maximum length");
         }
     }
 
@@ -96,10 +95,9 @@ public class TestBigNumbers extends BaseMapTest
     {
         try {
             MAPPER.readValue(generateJson("number"), BigIntegerWrapper.class);
-            fail("expected DatabindException");
-        } catch (DatabindException jsonMappingException) {
-            assertTrue("unexpected exception message: " + jsonMappingException.getMessage(),
-                    jsonMappingException.getMessage().startsWith("Malformed numeric value ([number with 1200 characters])"));
+            fail("expected StreamReadException");
+        } catch (StreamReadException e) {
+            verifyException(e, "Invalid numeric value ", "exceeds the maximum length");
         }
     }
 

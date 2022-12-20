@@ -523,16 +523,18 @@ public class ObjectReaderTest extends BaseMapTest
                 return true;
             }
         }).build();
-        A aObject = mapper.readValue("{\"unknownField\" : 1, \"knownField\": \"test\"}", A.class);
+        A2297 aObject = mapper.readValue("{\"unknownField\" : 1, \"knownField\": \"test\"}",
+                A2297.class);
 
         assertEquals("test", aObject.knownField);
     }
 
-    private static class A {
+    // For [databind#2297]
+    private static class A2297 {
         String knownField;
 
         @JsonCreator
-        private A(@JsonProperty("knownField") String knownField) {
+        private A2297(@JsonProperty("knownField") String knownField) {
             this.knownField = knownField;
         }
     }
@@ -551,15 +553,18 @@ public class ObjectReaderTest extends BaseMapTest
     public void testCustomArrayNode() throws Exception
     {
         ArrayNode defaultNode = (ArrayNode) MAPPER.readTree("[{\"x\": 1, \"y\": 2}]");
-        CustomArrayNode customArrayNode = new CustomArrayNode(defaultNode);
+        DelegatingArrayNode customArrayNode = new DelegatingArrayNode(defaultNode);
         Point[] points = MAPPER.readerFor(Point[].class).readValue(customArrayNode);
         Point point = points[0];
         assertEquals(1, point.x);
         assertEquals(2, point.y);
     }
 
+    // for [databind#3699]
     static class CustomObjectNode extends BaseJsonNode
     {
+        private static final long serialVersionUID = 1L;
+
         private final ObjectNode _delegate;
 
         CustomObjectNode(ObjectNode delegate) {
@@ -681,11 +686,14 @@ public class ObjectReaderTest extends BaseMapTest
 
     }
 
-    static class CustomArrayNode extends BaseJsonNode
+    // for [databind#3699]
+    static class DelegatingArrayNode extends BaseJsonNode
     {
+        private static final long serialVersionUID = 1L;
+
         private final ArrayNode _delegate;
 
-        CustomArrayNode(ArrayNode delegate) {
+        DelegatingArrayNode(ArrayNode delegate) {
             this._delegate = delegate;
         }
 
@@ -722,7 +730,7 @@ public class ObjectReaderTest extends BaseMapTest
         @Override
         @SuppressWarnings("unchecked")
         public <T extends JsonNode> T deepCopy() {
-            return (T) new CustomArrayNode(_delegate);
+            return (T) new DelegatingArrayNode(_delegate);
         }
 
         @Override
@@ -785,10 +793,10 @@ public class ObjectReaderTest extends BaseMapTest
             if (o == this) {
                 return true;
             }
-            if (!(o instanceof CustomArrayNode)) {
+            if (!(o instanceof DelegatingArrayNode)) {
                 return false;
             }
-            CustomArrayNode other = (CustomArrayNode) o;
+            DelegatingArrayNode other = (DelegatingArrayNode) o;
             return this._delegate.equals(other._delegate);
         }
 
@@ -796,6 +804,5 @@ public class ObjectReaderTest extends BaseMapTest
         public int hashCode() {
             return _delegate.hashCode();
         }
-
     }
 }

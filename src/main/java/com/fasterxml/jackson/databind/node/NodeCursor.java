@@ -195,9 +195,6 @@ abstract class NodeCursor
         public ObjectCursor(JsonNode n, NodeCursor p)
         {
             super(JsonStreamContext.TYPE_OBJECT, p);
-            if (!n.isObject()) {
-                throw new IllegalStateException("Current node is not an object node");
-            }
             _contents = n.fields();
             _needEntry = true;
         }

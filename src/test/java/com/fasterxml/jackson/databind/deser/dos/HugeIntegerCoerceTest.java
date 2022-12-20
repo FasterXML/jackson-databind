@@ -1,7 +1,10 @@
 package com.fasterxml.jackson.databind.deser.dos;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.core.exc.InputCoercionException;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 // for [databind#2157]
 public class HugeIntegerCoerceTest extends BaseMapTest
@@ -15,16 +18,19 @@ public class HugeIntegerCoerceTest extends BaseMapTest
         }
         BIG_POS_INTEGER = sb.toString();
     }
-
-    private final ObjectMapper MAPPER = objectMapper(); // shared is fine
     
     public void testMaliciousLongForEnum() throws Exception
     {
+        JsonFactory f = JsonFactory.builder()
+            .streamReadConstraints(StreamReadConstraints.builder().maxNumberLength(BIG_NUM_LEN + 10).build())
+            .build();
+        final ObjectMapper mapper = new JsonMapper(f);
+
         // Note: due to [jackson-core#488], fix verified with streaming over multiple
         // parser types. Here we focus on databind-level
         
         try {
-            /*ABC value =*/ MAPPER.readValue(BIG_POS_INTEGER, ABC.class);
+            /*ABC value =*/ mapper.readValue(BIG_POS_INTEGER, ABC.class);
             fail("Should not pass");
         } catch (InputCoercionException e) {
             verifyException(e, "out of range of int");

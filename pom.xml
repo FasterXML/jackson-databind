@@ -269,6 +269,12 @@
             <artifactId>gummy-bears-api-${version.android.sdk}</artifactId>
             <version>${version.android.sdk.signature}</version>
           </signature>
+          <ignores>
+            <!-- These are only accessed (safely) via "Java7SupportImpl.java" so ignore
+              -->
+            <ignore>java.beans.ConstructorProperties</ignore>
+            <ignore>java.beans.Transient</ignore>
+          </ignores>
         </configuration>
       </plugin>
     </plugins>

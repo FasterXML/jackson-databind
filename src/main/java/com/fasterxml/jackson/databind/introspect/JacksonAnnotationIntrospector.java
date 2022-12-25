@@ -59,17 +59,9 @@ public class JacksonAnnotationIntrospector
         JsonMerge.class // since 2.9
     };
 
-    // NOTE: loading of Java7 dependencies is encapsulated by handlers in Java7Support,
-    //  here we do not really need any handling; but for extra-safety use try-catch
-    private static final Java7Support _java7Helper;
-    static {
-        Java7Support x = null;
-        try {
-            x = Java7Support.instance();
-        } catch (Throwable t) { }
-        _java7Helper = x;
-    }
-    
+    // NOTE: Since Jackson 2.14, Java 8 is required so we can safely assume Java 7 support will load ok
+    private static final Java7Support _java7Helper = Java7Support.instance();
+
     /**
      * Since introspection of annotation types is a performance issue in some
      * use cases (rare, but do exist), let's try a simple cache to reduce

@@ -68,15 +68,8 @@ public class OptionalHandlerFactory implements java.io.Serializable
     // // (note: also assume it comes from JDK so that ClassLoader issues with OSGi
     // // can, I hope, be avoided?)
 
-    private static final Java7Handlers _jdk7Helper;
-    static {
-        Java7Handlers x = null;
-        try {
-            x = Java7Handlers.instance();
-        } catch (Throwable t) { }
-        _jdk7Helper = x;
-    }
-    
+    private static final Java7Handlers _jdk7Helper = Java7Handlers.instance();
+
     public final static OptionalHandlerFactory instance = new OptionalHandlerFactory();
 
     // classes from java.sql module, this module may or may not be present at runtime

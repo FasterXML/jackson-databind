@@ -242,26 +242,22 @@
               mvn animal-sniffer:check
 	-->
       <plugin>
-	<groupId>org.codehaus.mojo</groupId>
-	<artifactId>animal-sniffer-maven-plugin</artifactId>
-	<version>1.22</version>
-	<configuration>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>animal-sniffer-maven-plugin</artifactId>
+        <version>1.22</version>
+        <configuration>
           <signature>
             <groupId>com.toasttab.android</groupId>
             <artifactId>gummy-bears-api-${version.android.sdk}</artifactId>
             <version>${version.android.sdk.signature}</version>
           </signature>
-	  <ignores>
+          <ignores>
             <!-- These are only accessed (safely) via "Java7SupportImpl.java" so ignore
               -->
-	    <ignore>java.beans.ConstructorProperties</ignore>
-	    <ignore>java.beans.Transient</ignore>
-	    <ignore>java.nio.file.FileSystemNotFoundException</ignore>
-	    <ignore>java.nio.file.Path</ignore>
-	    <ignore>java.nio.file.Paths</ignore>
-	    <ignore>java.nio.file.spi.FileSystemProvider</ignore>
-	  </ignores>
-	</configuration>
+            <ignore>java.beans.ConstructorProperties</ignore>
+            <ignore>java.beans.Transient</ignore>
+          </ignores>
+        </configuration>
       </plugin>
 
      </plugins>

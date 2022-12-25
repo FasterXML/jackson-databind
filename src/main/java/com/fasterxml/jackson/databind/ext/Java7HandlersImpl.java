@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 
 /**
+ * Since v2.15, this is no longer loaded via reflection.
+ *
  * @since 2.10
  */
 public class Java7HandlersImpl extends Java7Handlers

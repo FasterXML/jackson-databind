@@ -4,11 +4,11 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 
 /**
- * To support Java7-incomplete platforms, we will offer support for JDK 7
- * datatype(s) (that is, {@link java.nio.file.Path} through this class, loaded
- * dynamically; if loading fails, support will be missing.
- * This class is the non-JDK-7-dependent API, and {@link Java7HandlersImpl} is
- * JDK7-dependent implementation of functionality.
+ * Since v2.15, {@link Java7HandlersImpl} is no longer loaded via reflection.
+ * <p>
+ *     Prior to v2.15, this class supported Java7-incomplete platforms, specifically
+ *     platforms that do not support {@link java.nio.file.Path}.
+ * </p>
  *
  * @since 2.10 (cleaved off of {@link Java7Support})
  */

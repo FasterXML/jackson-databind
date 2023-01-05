@@ -5,7 +5,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
@@ -53,6 +53,15 @@ public class TestPolymorphicDeduction extends BaseMapTest {
   static class Box {
     public Feline feline;
   }
+
+  @JsonTypeInfo(use = JsonTypeInfo.Id.DEDUCTION)
+  static class Bean3711 {
+      @JsonValue
+      public String ser = "value";
+  }
+
+  @JsonTypeInfo(use = JsonTypeInfo.Id.DEDUCTION)
+  static enum Enum3711 { A, B }
 
   /*
   /**********************************************************
@@ -268,5 +277,17 @@ public class TestPolymorphicDeduction extends BaseMapTest {
     String json = MAPPER.writeValueAsString(list);
     // Then:
     assertEquals(arrayOfCatsJson, json);
+  }
+
+  // [databind#3711]
+  public void testWithPojoAsJsonValue() throws Exception
+  {
+      assertEquals(q("value"), MAPPER.writeValueAsString(new Bean3711()));
+  }
+
+  // [databind#3711]
+  public void testWithEnum() throws Exception
+  {
+      assertEquals(q("B"), MAPPER.writeValueAsString(Enum3711.B));
   }
 }

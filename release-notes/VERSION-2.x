@@ -12,6 +12,8 @@ Project: jackson-databind
 #3680: Timestamp in classes inside jar showing 02/01/1980
  (fix contributed by Hervé B)
 #3682: Transient `Field`s are not ignored as Mutators if there is visible Getter
+#3690: Incorrect target type for arrays when disabling coercion
+ (reported by João G)
 #3708: Seems like `java.nio.file.Path` is safe for Android API level 26
  (contributed by @pjfanning)
 

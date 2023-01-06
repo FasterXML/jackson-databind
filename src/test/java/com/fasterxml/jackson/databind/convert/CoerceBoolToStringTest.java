@@ -67,7 +67,7 @@ public class CoerceBoolToStringTest extends BaseMapTest
     {
         _verifyCoerceFail(MAPPER_TO_FAIL, String.class, "true");
         _verifyCoerceFail(MAPPER_TO_FAIL, StringWrapper.class, "{\"str\": false}", "string");
-        _verifyCoerceFail(MAPPER_TO_FAIL, String[].class, "[ true ]", "element of `java.lang.String[]`");
+        _verifyCoerceFail(MAPPER_TO_FAIL, String[].class, "[ true ]", "to `java.lang.String` value");
     }
 
     /*

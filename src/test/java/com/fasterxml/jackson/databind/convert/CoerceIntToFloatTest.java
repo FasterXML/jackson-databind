@@ -110,12 +110,12 @@ public class CoerceIntToFloatTest extends BaseMapTest
         _verifyCoerceFail(MAPPER_TO_FAIL, Float.class, "3");
         _verifyCoerceFail(MAPPER_TO_FAIL, Float.TYPE, "-2");
         _verifyCoerceFail(MAPPER_TO_FAIL, FloatWrapper.class, "{\"f\": -5}", "float");
-        _verifyCoerceFail(MAPPER_TO_FAIL, float[].class, "[ 2 ]", "element of `float[]`");
+        _verifyCoerceFail(MAPPER_TO_FAIL, float[].class, "[ 2 ]", "to `float` value");
 
         _verifyCoerceFail(MAPPER_TO_FAIL, Double.class, "-1");
         _verifyCoerceFail(MAPPER_TO_FAIL, Double.TYPE, "4");
         _verifyCoerceFail(MAPPER_TO_FAIL, DoubleWrapper.class, "{\"d\": 2}", "double");
-        _verifyCoerceFail(MAPPER_TO_FAIL, double[].class, "[ -2 ]", "element of `double[]`");
+        _verifyCoerceFail(MAPPER_TO_FAIL, double[].class, "[ -2 ]", "to `double` value");
 
         _verifyCoerceFail(MAPPER_TO_FAIL, BigDecimal.class, "73455342");
     }

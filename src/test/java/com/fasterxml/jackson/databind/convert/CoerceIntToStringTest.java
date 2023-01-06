@@ -68,7 +68,7 @@ public class CoerceIntToStringTest extends BaseMapTest
     {
         _verifyCoerceFail(MAPPER_TO_FAIL, String.class, "3");
         _verifyCoerceFail(MAPPER_TO_FAIL, StringWrapper.class, "{\"str\": -5}", "string");
-        _verifyCoerceFail(MAPPER_TO_FAIL, String[].class, "[ 2 ]", "element of `java.lang.String[]`");
+        _verifyCoerceFail(MAPPER_TO_FAIL, String[].class, "[ 2 ]", "to `java.lang.String` value");
     }
 
     /*

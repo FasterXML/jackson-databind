@@ -6,7 +6,9 @@ import com.fasterxml.jackson.databind.ser.*;
 
 /**
  * Simple {@link FilterProvider} implementation that just stores
- * direct id-to-filter mapping.
+ * direct id-to-filter mapping. It also allows specifying a
+ * "default" filter to return if no registered instance matches
+ * given filter id.
  *<p>
  * Note that version 2.3 was a partial rewrite, now that
  * {@link PropertyFilter} is set to replace <code>BeanPropertyFilter</code>.
@@ -25,7 +27,7 @@ public class SimpleFilterProvider
 
     /**
      * This is the filter we return in case no mapping was found for
-     * given id; default is 'null' (in which case caller typically
+     * given id; default is {@code null} (in which case caller typically
      * reports an error), but can be set to an explicit filter.
      */
     protected PropertyFilter _defaultFilter;
@@ -104,6 +106,14 @@ public class SimpleFilterProvider
         return this;
     }
 
+    /**
+     * Method for defining "default filter" to use, if any ({@code null} if none),
+     * to return in case no registered instance matches passed filter id.
+     *
+     * @param f Default filter to set
+     *
+     * @return This provider instance, for call-chaining
+     */
     public SimpleFilterProvider setDefaultFilter(PropertyFilter f)
     {
         _defaultFilter = f;
@@ -170,7 +180,7 @@ public class SimpleFilterProvider
     {
         throw new UnsupportedOperationException("Access to deprecated filters not supported");
     }
-    
+
     @Override
     public PropertyFilter findPropertyFilter(Object filterId, Object valueToFilter)
     {

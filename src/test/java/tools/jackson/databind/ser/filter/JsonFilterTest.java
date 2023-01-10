@@ -16,7 +16,7 @@ import tools.jackson.databind.ser.std.SimpleFilterProvider;
  * Tests for verifying that bean property filtering using JsonFilter
  * works as expected.
  */
-public class TestJsonFilter extends BaseMapTest
+public class JsonFilterTest extends BaseMapTest
 {
     @JsonFilter("RootFilter")
     @JsonPropertyOrder({ "a", "b" })

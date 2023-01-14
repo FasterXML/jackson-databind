@@ -1761,6 +1761,10 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             switch (_currToken) {
             case VALUE_NUMBER_INT:
             case VALUE_NUMBER_FLOAT:
+                Object obj = _currentObject();
+                if (obj instanceof LazyNumber) {
+                    return ((LazyNumber) obj).getText();
+                }
                 return ClassUtil.nullOrToString(_currentObject());
             default:
             	return _currToken.asString();

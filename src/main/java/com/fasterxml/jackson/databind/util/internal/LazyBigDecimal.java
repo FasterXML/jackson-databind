@@ -2,9 +2,6 @@ package com.fasterxml.jackson.databind.util.internal;
 
 import com.fasterxml.jackson.core.io.NumberInput;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-
 public class LazyBigDecimal implements LazyNumber {
     private final String _value;
     private final boolean _useFastParser;
@@ -18,5 +15,9 @@ public class LazyBigDecimal implements LazyNumber {
     public Number getNumber() {
         return NumberInput.parseBigDecimal(_value, _useFastParser);
     }
+
+    @Override
+    public String getText() {
+        return _value;
     }
 }

@@ -1712,7 +1712,10 @@ factory.toString()));
             if (deser == null) {
                 deser = new EnumDeserializer(constructEnumResolver(enumClass,
                         config, beanDesc.findJsonValueAccessor()),
-                        config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS));
+                        config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS),
+                        ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE),
+                        ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
+                  );
             }
         }
 

@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.deser.enums;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.IOException;
 import java.util.EnumSet;
 
@@ -34,6 +35,16 @@ public class EnumAltIdTest extends BaseMapTest
     protected static class StrictCaseBean {
         @JsonFormat(without={ JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES })
         public TestEnum value;
+    }
+
+    protected static class DefaultEnumBean {
+        @JsonFormat(with={ JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE })
+        public MyEnum2352_3 value;
+    }
+
+    protected static class NullValueEnumBean {
+        @JsonFormat(with={ JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_AS_NULL })
+        public MyEnum2352_3 value;
     }
 
 
@@ -212,5 +223,39 @@ public class EnumAltIdTest extends BaseMapTest
         assertEquals(MyEnum2352_3.C, multipleAliases1);
         MyEnum2352_3 multipleAliases2 = reader.readValue(q("multipleAliases2"));
         assertEquals(MyEnum2352_3.C, multipleAliases2);
+    }
+
+    public void testEnumWithDefaultForUnknownValueEnabled() throws JsonProcessingException {
+        final String JSON = a2q("{'value':'ok'}");
+
+        DefaultEnumBean pojo = READER_DEFAULT.forType(DefaultEnumBean.class)
+          .readValue(JSON);
+        assertEquals(MyEnum2352_3.B, pojo.value);
+        // including disabling acceptance
+        try {
+            READER_DEFAULT.forType(StrictCaseBean.class)
+              .readValue(JSON);
+            fail("Should not pass");
+        } catch (InvalidFormatException e) {
+            verifyException(e, "not one of the values accepted for Enum class");
+            verifyException(e, "[JACKSON, OK, RULES]");
+        }
+    }
+
+    public void testEnumWithNullForUnknownValueEnabled() throws JsonProcessingException {
+        final String JSON = a2q("{'value':'ok'}");
+
+        NullValueEnumBean pojo = READER_DEFAULT.forType(NullValueEnumBean.class)
+          .readValue(JSON);
+        assertNull(pojo.value);
+        // including disabling acceptance
+        try {
+            READER_DEFAULT.forType(StrictCaseBean.class)
+              .readValue(JSON);
+            fail("Should not pass");
+        } catch (InvalidFormatException e) {
+            verifyException(e, "not one of the values accepted for Enum class");
+            verifyException(e, "[JACKSON, OK, RULES]");
+        }
     }
 }

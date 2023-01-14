@@ -14,6 +14,7 @@ import com.fasterxml.jackson.core.util.JacksonFeatureSet;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.util.internal.LazyBigDecimal;
 import com.fasterxml.jackson.databind.util.internal.LazyBigInteger;
+import com.fasterxml.jackson.databind.util.internal.LazyNumber;
 
 /**
  * Utility class used for efficient storage of {@link JsonToken}
@@ -1911,6 +1912,8 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                     return NumberInput.parseBigInteger(str, isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
                 }
                 return NumberInput.parseLong(str);
+            } else if (value instanceof LazyNumber) {
+                return ((LazyNumber) value).getNumber();
             }
             if (value == null) {
                 return null;

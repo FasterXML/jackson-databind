@@ -1538,3 +1538,16 @@ Philippe Marschall (marschall@github)
 Hervé Boutemy (hboutemy@github)
   * Contributed fix for #3680: Timestamp in classes inside jar showing 02/01/1980
   (2.15.0)
+
+Sim Yih Tsern (yihtsern@github)
+  * Contributed fix for #2974: Null coercion with `@JsonSetter` does not work with `java.lang.Record`
+  (2.15.0)
+  * Contributed fix for #2992: Properties naming strategy do not work with Record
+  (2.15.0)
+  * Contributed fix for #3180: Support `@JsonCreator` annotation on record classes
+  (2.15.0)
+  * Contributed fix for #3297: `@JsonDeserialize(converter = ...)` does not work with Records
+  (2.15.0)
+  * Contributed fix for #3342: `JsonTypeInfo.As.EXTERNAL_PROPERTY` does not work with record wrappers
+  (2.15.0)
+

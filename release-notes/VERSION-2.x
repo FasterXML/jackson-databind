@@ -6,6 +6,16 @@ Project: jackson-databind
 
 2.15.0 (not yet released)
 
+#2974: Null coercion with `@JsonSetter` does not work with `java.lang.Record`
+ (fix contributed by Sim Y-T)
+#2992: Properties naming strategy do not work with Record
+ (fix contributed by Sim Y-T)
+#3180: Support `@JsonCreator` annotation on record classes
+ (fix contributed by Sim Y-T)
+#3297: `@JsonDeserialize(converter = ...)` does not work with Records
+ (fix contributed by Sim Y-T)
+#3342: `JsonTypeInfo.As.EXTERNAL_PROPERTY` does not work with record wrappers
+ (fix contributed by Sim Y-T)
 #3654: Infer `@JsonCreator(mode = Mode.DELEGATING)` from use of `@JsonValue`)
 #3676: Allow use of `@JsonCreator(mode = Mode.PROPERTIES)` creator for POJOs
  with"empty String" coercion

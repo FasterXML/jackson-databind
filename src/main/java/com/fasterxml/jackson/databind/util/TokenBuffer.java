@@ -1798,8 +1798,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             Number n = getNumberValue();
             if (n instanceof BigInteger) {
                 return (BigInteger) n;
-            }
-            if (getNumberType() == NumberType.BIG_DECIMAL) {
+            } else if (n instanceof BigDecimal) {
                 return ((BigDecimal) n).toBigInteger();
             }
             // int/long is simple, but let's also just truncate float/double:
@@ -1812,14 +1811,12 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             Number n = getNumberValue();
             if (n instanceof BigDecimal) {
                 return (BigDecimal) n;
-            }
-            switch (getNumberType()) {
-            case INT:
-            case LONG:
+            } else if (n instanceof Integer) {
+                return BigDecimal.valueOf(n.intValue());
+            } else if (n instanceof Long) {
                 return BigDecimal.valueOf(n.longValue());
-            case BIG_INTEGER:
+            } else if (n instanceof BigInteger) {
                 return new BigDecimal((BigInteger) n);
-            default:
             }
             // float or double
             return BigDecimal.valueOf(n.doubleValue());

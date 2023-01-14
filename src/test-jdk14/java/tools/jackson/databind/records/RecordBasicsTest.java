@@ -149,11 +149,11 @@ public class RecordBasicsTest extends BaseMapTest
      * @see #testDeserializeConstructorInjectRecord()
      */
     public void testDeserializeHeaderInjectRecord_WillFail() throws Exception {
-        MAPPER.setInjectableValues(new InjectableValues.Std().addValue(String.class, "Bob"));
-
+        ObjectMapper mapper = jsonMapperBuilder()
+                .injectableValues(new InjectableValues.Std().addValue(String.class, "Bob"))
+                .build();
         try {
-            MAPPER.readValue("{\"id\":123}", RecordWithHeaderInject.class);
-
+            mapper.readValue("{\"id\":123}", RecordWithHeaderInject.class);
             fail("should not pass");
         } catch (IllegalArgumentException e) {
             verifyException(e, "RecordWithHeaderInject#name");
@@ -162,9 +162,10 @@ public class RecordBasicsTest extends BaseMapTest
     }
 
     public void testDeserializeConstructorInjectRecord() throws Exception {
-        MAPPER.setInjectableValues(new InjectableValues.Std().addValue(String.class, "Bob"));
-
-        RecordWithConstructorInject value = MAPPER.readValue("{\"id\":123}", RecordWithConstructorInject.class);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .injectableValues(new InjectableValues.Std().addValue(String.class, "Bob"))
+                .build();
+        RecordWithConstructorInject value = mapper.readValue("{\"id\":123}", RecordWithConstructorInject.class);
         assertEquals(new RecordWithConstructorInject(123, "Bob"), value);
     }
 

@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 public class IgnorePropertyOnDeserTest extends BaseMapTest
 {
@@ -121,36 +123,60 @@ public class IgnorePropertyOnDeserTest extends BaseMapTest
         assertEquals(2, result1.obj2.y);
     }
 
+    // [databind#1217]
     public void testIgnoreViaConfigOverride1217() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configOverride(Point.class)
-            .setIgnorals(JsonIgnoreProperties.Value.forIgnoredProperties("y"));
+        ObjectMapper mapper = JsonMapper.builder()
+            .withConfigOverride(Point.class,
+                cfg -> cfg.setIgnorals(JsonIgnoreProperties.Value.forIgnoredProperties("y")))
+            .build();
         Point p = mapper.readValue(a2q("{'x':1,'y':2}"), Point.class);
         // bind 'x', but ignore 'y'
         assertEquals(1, p.x);
         assertEquals(0, p.y);
     }
 
+    // [databind#3721]
+    public void testIgnoreUnknownViaConfigOverride() throws Exception
+    {
+        final String DOC = a2q("{'x':2,'foobar':3}");
+
+        // First, fail without overrides
+        try {
+            MAPPER.readValue(DOC, Point.class);
+            fail("Should not pass");
+        } catch (UnrecognizedPropertyException e) {
+            verifyException(e, "foobar"); // message varies between 2.x and 3.x
+        }
+
+        // But pass with specific class override:
+        ObjectMapper mapper = JsonMapper.builder()
+            .withConfigOverride(Point.class,
+                cfg -> cfg.setIgnorals(JsonIgnoreProperties.Value.forIgnoreUnknown(true)))
+            .build();
+        Point p = mapper.readValue(DOC, Point.class);
+        assertEquals(2, p.x);
+
+        // 13-Jan-2023, tatu: Alas, no global defaulting yet!
+    }
+
     // [databind#1595]
     public void testIgnoreGetterNotSetter1595() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         Simple1595 config = new Simple1595();
         config.setId(123);
         config.setName("jack");
-        String json = mapper.writeValueAsString(config);
+        String json = MAPPER.writeValueAsString(config);
         assertEquals(a2q("{'id':123}"), json);
-        Simple1595 des = mapper.readValue(a2q("{'id':123,'name':'jack'}"), Simple1595.class);
+        Simple1595 des = MAPPER.readValue(a2q("{'id':123,'name':'jack'}"), Simple1595.class);
         assertEquals("jack", des.getName());
     }
 
     // [databind#2627]
     public void testIgnoreUnknownOnField() throws IOException
     {
-        ObjectMapper objectMapper = new ObjectMapper();
         String json = "{\"value\": {\"name\": \"my_name\", \"extra\": \"val\"}, \"type\":\"Json\"}";
-        MyPojoValue value = objectMapper.readValue(json, MyPojoValue.class);
+        MyPojoValue value = MAPPER.readValue(json, MyPojoValue.class);
         assertNotNull(value);
         assertNotNull(value.getValue());
         assertEquals("my_name", value.getValue().name);

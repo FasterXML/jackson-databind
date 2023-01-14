@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.failing;
+package com.fasterxml.jackson.databind.records;
 
 import java.util.List;
 import java.util.Map;

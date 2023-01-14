@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.failing;
+package com.fasterxml.jackson.databind.records;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 
@@ -8,8 +8,6 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-// [databind#3102]: fails on JDK 16 which finally blocks mutation
-// of Record fields.
 public class RecordWithJsonNaming3102Test extends BaseMapTest
 {
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)

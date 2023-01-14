@@ -1,17 +1,19 @@
-package com.fasterxml.jackson.databind.failing;
+package com.fasterxml.jackson.databind.records;
 
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
+import com.fasterxml.jackson.databind.util.Converter;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-// 01-Dec-2022, tatu: Alas, fails on JDK 17
 public class RecordBasicsTest extends BaseMapTest
 {
     record EmptyRecord() { }
@@ -20,13 +22,23 @@ public class RecordBasicsTest extends BaseMapTest
 
     record RecordOfRecord(SimpleRecord record) { }
 
-    record RecordWithIgnore(int id, @JsonIgnore String name) { }
-
     record RecordWithRename(int id, @JsonProperty("rename")String name) { }
+
+    record RecordWithHeaderInject(int id, @JacksonInject String name) { }
+
+    record RecordWithConstructorInject(int id, String name) {
+
+        RecordWithConstructorInject(int id, @JacksonInject String name) {
+            this.id = id;
+            this.name = name;
+        }
+    }
 
     // [databind#2992]
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
     record SnakeRecord(String myId, String myValue){}
+
+    record RecordWithJsonDeserialize(int id, @JsonDeserialize(converter = StringTrimmer.class) String name) { }
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
@@ -41,7 +53,6 @@ public class RecordBasicsTest extends BaseMapTest
 
         assertTrue(ClassUtil.isRecordType(SimpleRecord.class));
         assertTrue(ClassUtil.isRecordType(RecordOfRecord.class));
-        assertTrue(ClassUtil.isRecordType(RecordWithIgnore.class));
         assertTrue(ClassUtil.isRecordType(RecordWithRename.class));
     }
 
@@ -50,7 +61,6 @@ public class RecordBasicsTest extends BaseMapTest
 
         assertTrue(MAPPER.constructType(SimpleRecord.class).isRecordType());
         assertTrue(MAPPER.constructType(RecordOfRecord.class).isRecordType());
-        assertTrue(MAPPER.constructType(RecordWithIgnore.class).isRecordType());
         assertTrue(MAPPER.constructType(RecordWithRename.class).isRecordType());
     }
 
@@ -116,14 +126,9 @@ public class RecordBasicsTest extends BaseMapTest
 
     /*
     /**********************************************************************
-    /* Test methods, ignorals, renames
+    /* Test methods, renames, injects
     /**********************************************************************
      */
-
-    public void testSerializeJsonIgnoreRecord() throws Exception {
-        String json = MAPPER.writeValueAsString(new RecordWithIgnore(123, "Bob"));
-        assertEquals("{\"id\":123}", json);
-    }
 
     public void testSerializeJsonRename() throws Exception {
         String json = MAPPER.writeValueAsString(new RecordWithRename(123, "Bob"));
@@ -137,6 +142,32 @@ public class RecordBasicsTest extends BaseMapTest
         assertEquals(new RecordWithRename(123, "Bob"), value);
     }
 
+    /**
+     * This test-case is just for documentation purpose:
+     * GOTCHA: Annotations on header will be propagated to the field, leading to this failure.
+     *
+     * @see #testDeserializeConstructorInjectRecord()
+     */
+    public void testDeserializeHeaderInjectRecord_WillFail() throws Exception {
+        MAPPER.setInjectableValues(new InjectableValues.Std().addValue(String.class, "Bob"));
+
+        try {
+            MAPPER.readValue("{\"id\":123}", RecordWithHeaderInject.class);
+
+            fail("should not pass");
+        } catch (IllegalArgumentException e) {
+            verifyException(e, "RecordWithHeaderInject#name");
+            verifyException(e, "Can not set final java.lang.String field");
+        }
+    }
+
+    public void testDeserializeConstructorInjectRecord() throws Exception {
+        MAPPER.setInjectableValues(new InjectableValues.Std().addValue(String.class, "Bob"));
+
+        RecordWithConstructorInject value = MAPPER.readValue("{\"id\":123}", RecordWithConstructorInject.class);
+        assertEquals(new RecordWithConstructorInject(123, "Bob"), value);
+    }
+
     /*
     /**********************************************************************
     /* Test methods, naming strategy
@@ -147,9 +178,24 @@ public class RecordBasicsTest extends BaseMapTest
     public void testNamingStrategy() throws Exception
     {
         SnakeRecord input = new SnakeRecord("123", "value");
+
         String json = MAPPER.writeValueAsString(input);
+        assertEquals("{\"my_id\":\"123\",\"my_value\":\"value\"}", json);
+
         SnakeRecord output = MAPPER.readValue(json, SnakeRecord.class);
         assertEquals(input, output);
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods, JsonDeserialize
+    /**********************************************************************
+     */
+
+    public void testDeserializeJsonDeserializeRecord() throws Exception {
+        RecordWithJsonDeserialize value = MAPPER.readValue("{\"id\":123,\"name\":\"   Bob   \"}", RecordWithJsonDeserialize.class);
+
+        assertEquals(new RecordWithJsonDeserialize(123, "Bob"), value);
     }
 
     /*
@@ -164,5 +210,23 @@ public class RecordBasicsTest extends BaseMapTest
         result.put(key1, value1);
         result.put(key2, value2);
         return result;
+    }
+
+    public static class StringTrimmer implements Converter<String, String> {
+
+        @Override
+        public String convert(String value) {
+            return value.trim();
+        }
+
+        @Override
+        public JavaType getInputType(TypeFactory typeFactory) {
+            return typeFactory.constructType(String.class);
+        }
+
+        @Override
+        public JavaType getOutputType(TypeFactory typeFactory) {
+            return typeFactory.constructType(String.class);
+        }
     }
 }

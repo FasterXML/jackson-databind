@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.jdk14.JDK14Util;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
@@ -610,23 +611,53 @@ public class POJOPropertiesCollector
     protected void _addCreators(Map<String, POJOPropertyBuilder> props)
     {
         // can be null if annotation processing is disabled...
-        if (!_useAnnotations) {
-            return;
+        if (_useAnnotations) {
+            for (AnnotatedConstructor ctor : _classDef.getConstructors()) {
+                if (_creatorProperties == null) {
+                    _creatorProperties = new LinkedList<POJOPropertyBuilder>();
+                }
+                for (int i = 0, len = ctor.getParameterCount(); i < len; ++i) {
+                    _addCreatorParam(props, ctor.getParameter(i));
+                }
+            }
+            for (AnnotatedMethod factory : _classDef.getFactoryMethods()) {
+                if (_creatorProperties == null) {
+                    _creatorProperties = new LinkedList<POJOPropertyBuilder>();
+                }
+                for (int i = 0, len = factory.getParameterCount(); i < len; ++i) {
+                    _addCreatorParam(props, factory.getParameter(i));
+                }
+            }
         }
-        for (AnnotatedConstructor ctor : _classDef.getConstructors()) {
-            if (_creatorProperties == null) {
-                _creatorProperties = new LinkedList<POJOPropertyBuilder>();
-            }
-            for (int i = 0, len = ctor.getParameterCount(); i < len; ++i) {
-                _addCreatorParam(props, ctor.getParameter(i));
-            }
-        }
-        for (AnnotatedMethod factory : _classDef.getFactoryMethods()) {
-            if (_creatorProperties == null) {
-                _creatorProperties = new LinkedList<POJOPropertyBuilder>();
-            }
-            for (int i = 0, len = factory.getParameterCount(); i < len; ++i) {
-                _addCreatorParam(props, factory.getParameter(i));
+        if (_classDef.getType().isRecordType()) {
+            List<String> recordComponentNames = new ArrayList<String>();
+            AnnotatedConstructor canonicalCtor = JDK14Util.findRecordConstructor(
+                    _classDef, _annotationIntrospector, _config, recordComponentNames);
+
+            if (canonicalCtor != null) {
+                if (_creatorProperties == null) {
+                    _creatorProperties = new LinkedList<POJOPropertyBuilder>();
+                }
+
+                Set<AnnotatedParameter> registeredParams = new HashSet<AnnotatedParameter>();
+                for (POJOPropertyBuilder creatorProperty : _creatorProperties) {
+                    Iterator<AnnotatedParameter> iter = creatorProperty.getConstructorParameters();
+                    while (iter.hasNext()) {
+                        AnnotatedParameter param = iter.next();
+                        if (param.getOwner().equals(canonicalCtor)) {
+                            registeredParams.add(param);
+                        }
+                    }
+                }
+
+                if (_creatorProperties.isEmpty() || !registeredParams.isEmpty()) {
+                    for (int i = 0; i < canonicalCtor.getParameterCount(); i++) {
+                        AnnotatedParameter param = canonicalCtor.getParameter(i);
+                        if (!registeredParams.contains(param)) {
+                            _addCreatorParam(props, param, recordComponentNames.get(i));
+                        }
+                    }
+                }
             }
         }
     }
@@ -637,11 +668,23 @@ public class POJOPropertiesCollector
     protected void _addCreatorParam(Map<String, POJOPropertyBuilder> props,
             AnnotatedParameter param)
     {
-        // JDK 8, paranamer, Scala can give implicit name
-        String impl = _annotationIntrospector.findImplicitPropertyName(param);
-        if (impl == null) {
-            impl = "";
+        _addCreatorParam(props, param, null);
+    }
+
+    private void _addCreatorParam(Map<String, POJOPropertyBuilder> props,
+            AnnotatedParameter param, String recordComponentName)
+    {
+        String impl;
+        if (recordComponentName != null) {
+            impl = recordComponentName;
+        } else {
+            // JDK 8, paranamer, Scala can give implicit name
+            impl = _annotationIntrospector.findImplicitPropertyName(param);
+            if (impl == null) {
+                impl = "";
+            }
         }
+
         PropertyName pn = _annotationIntrospector.findNameForDeserialization(param);
         boolean expl = (pn != null && !pn.isEmpty());
         if (!expl) {
@@ -650,10 +693,13 @@ public class POJOPropertiesCollector
                 // this creator parameter -- may or may not be a problem, verified at a later point.
                 return;
             }
-            // Also: if this occurs, there MUST be explicit annotation on creator itself
-            JsonCreator.Mode creatorMode = _annotationIntrospector.findCreatorAnnotation(_config,
-                    param.getOwner());
-            if ((creatorMode == null) || (creatorMode == JsonCreator.Mode.DISABLED)) {
+
+            // Also: if this occurs, there MUST be explicit annotation on creator itself...
+            JsonCreator.Mode creatorMode = _annotationIntrospector.findCreatorAnnotation(_config, param.getOwner());
+            // ...or is a Records canonical constructor
+            boolean isCanonicalConstructor = recordComponentName != null;
+
+            if ((creatorMode == null || creatorMode == JsonCreator.Mode.DISABLED) && !isCanonicalConstructor) {
                 return;
             }
             pn = PropertyName.construct(impl);
@@ -902,6 +948,17 @@ public class POJOPropertiesCollector
             }
             // Otherwise, check ignorals
             if (prop.anyIgnorals()) {
+                // Special handling for Records, as they do not have mutators so relying on constructors with (mostly)
+                // implicitly-named parameters...
+                if (_classDef.getType().isRecordType()) {
+                    // ...so can only remove ignored field and/or accessors, not constructor parameters that are needed
+                    // for instantiation...
+                    prop.removeIgnored();
+                    // ...which will then be ignored (the incoming property value) during deserialization
+                    _collectIgnorals(prop.getName());
+                    continue;
+                }
+
                 // first: if one or more ignorals, and no explicit markers, remove the whole thing
                 // 16-May-2022, tatu: NOTE! As per [databind#3357] need to consider
                 //    only explicit inclusion by accessors OTHER than ones with ignoral marker

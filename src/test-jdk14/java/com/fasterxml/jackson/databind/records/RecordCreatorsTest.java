@@ -57,6 +57,17 @@ public class RecordCreatorsTest extends BaseMapTest
                 RecordWithAltCtor.class);
         assertEquals(2812, value.id());
         assertEquals("name2", value.name());
+
+        // "Implicit" canonical constructor can no longer be used when there's explicit constructor
+        try {
+            MAPPER.readValue("{\"id\":2812,\"name\":\"Bob\"}",
+                    RecordWithAltCtor.class);
+
+            fail("should not pass");
+        } catch (JsonMappingException e) {
+            verifyException(e, "Can not set final java.lang.String field");
+            verifyException(e, "RecordWithAltCtor.name");
+        }
     }
 
     // [databind#2980]

@@ -1,9 +1,9 @@
-package com.fasterxml.jackson.databind.records;
+package tools.jackson.databind.records;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.BaseMapTest;
+import tools.jackson.databind.ObjectMapper;
 
 public class RecordWithJsonIgnoreTest extends BaseMapTest
 {

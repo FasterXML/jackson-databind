@@ -1,14 +1,16 @@
-package com.fasterxml.jackson.databind.records;
+package tools.jackson.databind.records;
 
-import com.fasterxml.jackson.databind.introspect.AnnotatedConstructor;
-import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
-import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
-import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import tools.jackson.databind.cfg.MapperConfig;
+import tools.jackson.databind.introspect.AnnotatedConstructor;
+import tools.jackson.databind.introspect.AnnotatedMember;
+import tools.jackson.databind.introspect.AnnotatedParameter;
+import tools.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
-class Jdk8ConstructorParameterNameAnnotationIntrospector extends JacksonAnnotationIntrospector {
-
+@SuppressWarnings("serial")
+class Jdk8ConstructorParameterNameAnnotationIntrospector extends JacksonAnnotationIntrospector
+{
     @Override
-    public String findImplicitPropertyName(AnnotatedMember member) {
+    public String findImplicitPropertyName(MapperConfig<?> cfg, AnnotatedMember member) {
         if (!(member instanceof AnnotatedParameter)) {
             return null;
         }

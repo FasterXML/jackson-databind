@@ -1,8 +1,4 @@
-<<<<<<< HEAD:src/test-jdk14/java/tools/jackson/databind/failing/RecordNamingStrategy2992Test.java
 package tools.jackson.databind.failing;
-=======
-package com.fasterxml.jackson.databind.records;
->>>>>>> 2.15:src/test-jdk14/java/tools/jackson/databind/records/RecordNamingStrategy2992Test.java
 
 import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.ObjectMapper;

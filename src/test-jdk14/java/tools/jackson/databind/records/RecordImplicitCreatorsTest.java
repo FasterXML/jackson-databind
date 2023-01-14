@@ -1,11 +1,8 @@
-package com.fasterxml.jackson.databind.records;
+package tools.jackson.databind.records;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.cfg.ConstructorDetector;
-import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.ConstructorDetector;
+import tools.jackson.databind.exc.MismatchedInputException;
 
 import java.math.BigDecimal;
 
@@ -101,7 +98,7 @@ public class RecordImplicitCreatorsTest extends BaseMapTest
             MAPPER.readValue("123", RecordWithImplicitFactoryMethods.class);
 
             fail("should not pass");
-        } catch (JsonMappingException e) {
+        } catch (DatabindException e) {
             verifyException(e, "Cannot construct instance");
             verifyException(e, "RecordWithImplicitFactoryMethod");
             verifyException(e, "no int/Int-argument constructor/factory method");

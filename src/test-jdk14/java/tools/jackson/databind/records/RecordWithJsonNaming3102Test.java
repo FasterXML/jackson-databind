@@ -1,8 +1,4 @@
-<<<<<<< HEAD:src/test-jdk14/java/tools/jackson/databind/failing/RecordWithJsonNaming3102Test.java
-package tools.jackson.databind.failing;
-=======
-package com.fasterxml.jackson.databind.records;
->>>>>>> 2.15:src/test-jdk14/java/tools/jackson/databind/records/RecordWithJsonNaming3102Test.java
+package tools.jackson.databind.records;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 

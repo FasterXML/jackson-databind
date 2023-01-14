@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.io.NumberInput;
 
 import java.math.BigInteger;
 
-public class LazyBigInteger {
+public class LazyBigInteger implements LazyNumber {
     private final String _value;
     private final boolean _useFastParser;
 
@@ -13,7 +13,8 @@ public class LazyBigInteger {
         this._useFastParser = useFastParser;
     }
 
-    public BigInteger getBigInteger() {
+    @Override
+    public Number getNumber() {
         return NumberInput.parseBigInteger(_value, _useFastParser);
     }
 }

@@ -9,6 +9,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
+import java.math.BigInteger;
+
 public class UnknownPropertiesTest extends BaseMapTest
 {
 
@@ -24,6 +26,33 @@ public class UnknownPropertiesTest extends BaseMapTest
 
         public String getS() {
             return s;
+        }
+
+        public int getI() {
+            return i;
+        }
+    }
+
+    static class ExtractAllFieldsNoDefaultConstructor {
+        private final String s;
+        private final BigInteger n;
+        private final int i;
+
+        @JsonCreator
+        public ExtractAllFieldsNoDefaultConstructor(@JsonProperty("s") String s,
+                                                    @JsonProperty("n") BigInteger n,
+                                                    @JsonProperty("i") int i) {
+            this.s = s;
+            this.n = n;
+            this.i = i;
+        }
+
+        public String getS() {
+            return s;
+        }
+
+        public BigInteger getN() {
+            return n;
         }
 
         public int getI() {
@@ -52,6 +81,23 @@ public class UnknownPropertiesTest extends BaseMapTest
         final String test1000000 = stringBuilder.toString();
         ExtractFieldsNoDefaultConstructor ef =
                 objectMapper.readValue(genJson(test1000000), ExtractFieldsNoDefaultConstructor.class);
+    }
+
+    public void testExtractAllFields() throws Exception
+    {
+        JsonFactory jsonFactory = JsonFactory.builder()
+                .streamReadConstraints(StreamReadConstraints.builder().maxNumberLength(Integer.MAX_VALUE).build())
+                .build();
+        ObjectMapper objectMapper = JsonMapper.builder(jsonFactory)
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .build();
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < 1000000; i++) {
+            stringBuilder.append(7);
+        }
+        final String test1000000 = stringBuilder.toString();
+        ExtractAllFieldsNoDefaultConstructor ef =
+                objectMapper.readValue(genJson(test1000000), ExtractAllFieldsNoDefaultConstructor.class);
     }
 
     private String genJson(String num) {

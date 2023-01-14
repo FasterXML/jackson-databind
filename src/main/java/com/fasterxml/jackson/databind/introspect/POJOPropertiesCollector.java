@@ -901,9 +901,8 @@ public class POJOPropertiesCollector
         if (prev != null) {
             // 12-Apr-2017, tatu: Let's allow masking of Field by Method
             if (prev.getClass() == m.getClass()) {
-                String type = id.getClass().getName();
-                throw new IllegalArgumentException("Duplicate injectable value with id '"
-                        + id +"' (of type "+type+")");
+                reportProblem("Duplicate injectable value with id '%s' (of type %s)",
+                        id, ClassUtil.classNameOf(id));
             }
         }
     }
@@ -1351,12 +1350,12 @@ public class POJOPropertiesCollector
         if (namingDef instanceof PropertyNamingStrategy) {
             return (PropertyNamingStrategy) namingDef;
         }
-        /* Alas, there's no way to force return type of "either class
-         * X or Y" -- need to throw an exception after the fact
-         */
+        // Alas, there's no way to force return type of "either class
+        // X or Y" -- need to throw an exception after the fact
         if (!(namingDef instanceof Class)) {
-            throw new IllegalStateException("AnnotationIntrospector returned PropertyNamingStrategy definition of type "
-                    +namingDef.getClass().getName()+"; expected type PropertyNamingStrategy or Class<PropertyNamingStrategy> instead");
+            reportProblem("AnnotationIntrospector returned PropertyNamingStrategy definition of type %s"
+                            + "; expected type `PropertyNamingStrategy` or `Class<PropertyNamingStrategy>` instead",
+                            ClassUtil.classNameOf(namingDef));
         }
         Class<?> namingClass = (Class<?>)namingDef;
         // 09-Nov-2015, tatu: Need to consider pseudo-value of STD, which means "use default"
@@ -1365,8 +1364,8 @@ public class POJOPropertiesCollector
         }
         
         if (!PropertyNamingStrategy.class.isAssignableFrom(namingClass)) {
-            throw new IllegalStateException("AnnotationIntrospector returned Class "
-                    +namingClass.getName()+"; expected Class<PropertyNamingStrategy>");
+            reportProblem("AnnotationIntrospector returned Class %s; expected `Class<PropertyNamingStrategy>`",
+                    ClassUtil.classNameOf(namingClass));
         }
         HandlerInstantiator hi = _config.getHandlerInstantiator();
         if (hi != null) {

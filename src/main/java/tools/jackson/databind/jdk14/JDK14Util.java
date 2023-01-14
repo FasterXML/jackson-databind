@@ -9,8 +9,9 @@ import com.fasterxml.jackson.annotation.JsonCreator.Mode;
 
 import tools.jackson.databind.AnnotationIntrospector;
 import tools.jackson.databind.BeanDescription;
-import tools.jackson.databind.DeserializationConfig;
 import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.cfg.MapperConfig;
+import tools.jackson.databind.introspect.AnnotatedClass;
 import tools.jackson.databind.introspect.AnnotatedConstructor;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.NativeImageUtil;
@@ -20,8 +21,6 @@ import tools.jackson.databind.util.NativeImageUtil;
  * without Jackson itself being run on (or even built with) Java 14.
  * In particular allows better support of {@code java.lang.Record}
  * types (see <a href="https://openjdk.java.net/jeps/359">JEP 359</a>).
- *
- * @since 2.12
  */
 public class JDK14Util
 {
@@ -31,7 +30,12 @@ public class JDK14Util
 
     public static AnnotatedConstructor findRecordConstructor(DeserializationContext ctxt,
             BeanDescription beanDesc, List<String> names) {
-        return new CreatorLocator(ctxt, beanDesc)
+        return findRecordConstructor(beanDesc.getClassInfo(), ctxt.getAnnotationIntrospector(), ctxt.getConfig(), names);
+    }
+
+    public static AnnotatedConstructor findRecordConstructor(AnnotatedClass recordClass,
+            AnnotationIntrospector intr, MapperConfig<?> config, List<String> names) {
+        return new CreatorLocator(recordClass, intr, config)
             .locate(names);
     }
 
@@ -151,25 +155,25 @@ i, components.length, ClassUtil.nameOf(recordType)), e);
     }
 
     static class CreatorLocator {
-        protected final BeanDescription _beanDesc;
-        protected final DeserializationConfig _config;
+        protected final AnnotatedClass _recordClass;
+        protected final MapperConfig<?> _config;
         protected final AnnotationIntrospector _intr;
 
         protected final List<AnnotatedConstructor> _constructors;
         protected final AnnotatedConstructor _primaryConstructor;
         protected final RawTypeName[] _recordFields;
 
-        CreatorLocator(DeserializationContext ctxt, BeanDescription beanDesc)
+        CreatorLocator(AnnotatedClass recordClass, AnnotationIntrospector intr, MapperConfig<?> config)
         {
-            _beanDesc = beanDesc;
+            _recordClass = recordClass;
 
-            _intr = ctxt.getAnnotationIntrospector();
-            _config = ctxt.getConfig();
+            _intr = intr;
+            _config = config;
 
-            _recordFields = RecordAccessor.instance().getRecordFields(beanDesc.getBeanClass());
+            _recordFields = RecordAccessor.instance().getRecordFields(recordClass.getRawType());
             if (_recordFields == null) {
                 // not a record, or no reflective access on native image
-                _constructors = beanDesc.getConstructors();
+                _constructors = recordClass.getConstructors();
                 _primaryConstructor = null;
             } else {
                 final int argCount = _recordFields.length;
@@ -180,10 +184,10 @@ i, components.length, ClassUtil.nameOf(recordType)), e);
 
                 // One special case: empty Records, empty constructor is separate case
                 if (argCount == 0) {
-                    primary = beanDesc.findDefaultConstructor();
+                    primary = recordClass.getDefaultConstructor();
                     _constructors = Collections.singletonList(primary);
                 } else {
-                    _constructors = beanDesc.getConstructors();
+                    _constructors = recordClass.getConstructors();
                     main_loop:
                     for (AnnotatedConstructor ctor : _constructors) {
                         if (ctor.getParameterCount() != argCount) {
@@ -200,7 +204,7 @@ i, components.length, ClassUtil.nameOf(recordType)), e);
                 }
                 if (primary == null) {
                     throw new IllegalArgumentException("Failed to find the canonical Record constructor of type "
-                            +ClassUtil.getTypeDescription(_beanDesc.getType()));
+                            +ClassUtil.getTypeDescription(_recordClass.getType()));
                 }
                 _primaryConstructor = primary;
             }

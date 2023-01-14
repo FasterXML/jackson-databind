@@ -237,16 +237,6 @@ public abstract class BasicDeserializerFactory
 
         // constructors only usable on concrete types:
         if (beanDesc.getType().isConcrete()) {
-            // [databind#2709]: Record support
-            if (beanDesc.getType().isRecordType()) {
-                final List<String> names = new ArrayList<>();
-                // NOTE: this does verify that there is no explicitly annotated alternatives
-                AnnotatedConstructor canonical = JDK14Util.findRecordConstructor(ctxt, beanDesc, names);
-                if (canonical != null) {
-                    _addRecordConstructor(ctxt, ccState, canonical, names);
-                    return ccState.creators.constructValueInstantiator(ctxt);
-                }
-            }
             // 25-Jan-2017, tatu: As per [databind#1501], [databind#1502], [databind#1503], best
             //     for now to skip attempts at using anything but no-args constructor (see
             //     `InnerClassProperty` construction for that)
@@ -355,6 +345,7 @@ index, owner, defs[index], propDef);
      * Helper method called when a {@code java.lang.Record} definition's "canonical"
      * constructor is to be used: if so, we have implicit names to consider.
      */
+    @Deprecated
     protected void _addRecordConstructor(DeserializationContext ctxt, CreatorCollectionState ccState,
             AnnotatedConstructor canonical, List<String> implicitNames)
     {
@@ -504,7 +495,9 @@ index, owner, defs[index], propDef);
                 JacksonInject.Value injectable = intr.findInjectableValue(config, param);
                 final PropertyName name = (propDef == null) ? null : propDef.getFullName();
 
-                if (propDef != null && propDef.isExplicitlyNamed()) {
+                if (propDef != null
+                        // NOTE: Record canonical constructor will have implicitly named propDef
+                        && (propDef.isExplicitlyNamed() || beanDesc.getType().isRecordType())) {
                     ++explicitNameCount;
                     properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectable);
                     continue;

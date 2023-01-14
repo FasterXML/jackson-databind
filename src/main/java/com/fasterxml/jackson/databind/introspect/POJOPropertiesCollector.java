@@ -948,6 +948,17 @@ public class POJOPropertiesCollector
             }
             // Otherwise, check ignorals
             if (prop.anyIgnorals()) {
+                // Special handling for Records, as they do not have mutators so relying on constructors with (mostly)
+                // implicitly-named parameters...
+                if (_classDef.getType().isRecordType()) {
+                    // ...so can only remove ignored field and/or accessors, not constructor parameters that are needed
+                    // for instantiation...
+                    prop.removeIgnored();
+                    // ...which will then be ignored (the incoming property value) during deserialization
+                    _collectIgnorals(prop.getName());
+                    continue;
+                }
+
                 // first: if one or more ignorals, and no explicit markers, remove the whole thing
                 // 16-May-2022, tatu: NOTE! As per [databind#3357] need to consider
                 //    only explicit inclusion by accessors OTHER than ones with ignoral marker

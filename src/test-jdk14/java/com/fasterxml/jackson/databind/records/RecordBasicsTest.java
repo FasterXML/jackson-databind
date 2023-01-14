@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -22,8 +21,6 @@ public class RecordBasicsTest extends BaseMapTest
     record SimpleRecord(int id, String name) { }
 
     record RecordOfRecord(SimpleRecord record) { }
-
-    record RecordWithIgnore(int id, @JsonIgnore String name) { }
 
     record RecordWithRename(int id, @JsonProperty("rename")String name) { }
 
@@ -56,7 +53,6 @@ public class RecordBasicsTest extends BaseMapTest
 
         assertTrue(ClassUtil.isRecordType(SimpleRecord.class));
         assertTrue(ClassUtil.isRecordType(RecordOfRecord.class));
-        assertTrue(ClassUtil.isRecordType(RecordWithIgnore.class));
         assertTrue(ClassUtil.isRecordType(RecordWithRename.class));
     }
 
@@ -65,7 +61,6 @@ public class RecordBasicsTest extends BaseMapTest
 
         assertTrue(MAPPER.constructType(SimpleRecord.class).isRecordType());
         assertTrue(MAPPER.constructType(RecordOfRecord.class).isRecordType());
-        assertTrue(MAPPER.constructType(RecordWithIgnore.class).isRecordType());
         assertTrue(MAPPER.constructType(RecordWithRename.class).isRecordType());
     }
 
@@ -131,36 +126,9 @@ public class RecordBasicsTest extends BaseMapTest
 
     /*
     /**********************************************************************
-    /* Test methods, ignorals, renames, injects
+    /* Test methods, renames, injects
     /**********************************************************************
      */
-
-    public void testSerializeJsonIgnoreRecord() throws Exception {
-        String json = MAPPER.writeValueAsString(new RecordWithIgnore(123, "Bob"));
-        assertEquals("{\"id\":123}", json);
-    }
-
-    /**
-     * This test-case is just for documentation purpose:
-     * Because unlike JavaBean where the setter can be ignored, the Record's constructor argument must
-     * have value.
-     * <p/>
-     * You can make a constructor parameter optional by {@link JacksonInject}-ing a value, or by creating an alternative
-     * JsonCreator.mode=PROPERTIES constructor that excludes the ignored parameter.
-     *
-     * @see #testDeserializeConstructorInjectRecord()
-     * @see RecordCreatorsTest#testDeserializeWithAltCtor()
-     */
-    public void testDeserializeJsonIgnoreRecord_WillFail() throws Exception {
-        try {
-            MAPPER.readValue("{\"id\":123,\"name\":\"Bob\"}", RecordWithIgnore.class);
-
-            fail("should not pass");
-        } catch (InvalidDefinitionException e) {
-            verifyException(e, "Argument #1 of constructor");
-            verifyException(e, "must have name when multiple-parameter constructor annotated as Creator");
-        }
-    }
 
     public void testSerializeJsonRename() throws Exception {
         String json = MAPPER.writeValueAsString(new RecordWithRename(123, "Bob"));

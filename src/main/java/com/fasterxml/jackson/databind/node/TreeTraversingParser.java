@@ -7,6 +7,9 @@ import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.base.ParserMinimalBase;
+import com.fasterxml.jackson.core.io.LazyBigDecimal;
+import com.fasterxml.jackson.core.io.LazyBigInteger;
+import com.fasterxml.jackson.core.io.LazyNumber;
 import com.fasterxml.jackson.core.util.JacksonFeatureSet;
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -261,6 +264,21 @@ public class TreeTraversingParser extends ParserMinimalBase
     @Override
     public BigDecimal getDecimalValue() throws IOException {
         return currentNumericNode().decimalValue();
+    }
+
+    @Override
+    public LazyNumber getLazyNumber() throws IOException {
+        switch (getNumberType()) {
+            case BIG_INTEGER:
+            case INT:
+            case LONG:
+                return new LazyBigInteger(getBigIntegerValue());
+            case BIG_DECIMAL:
+            case FLOAT:
+            case DOUBLE:
+                return new LazyBigDecimal(getDecimalValue());
+        }
+        throw new JsonParseException(this, "Unable to create LazyNumber from " + getText());
     }
 
     @Override

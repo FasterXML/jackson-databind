@@ -7,14 +7,14 @@ import java.util.TreeMap;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.base.ParserMinimalBase;
+import com.fasterxml.jackson.core.io.LazyBigDecimal;
+import com.fasterxml.jackson.core.io.LazyBigInteger;
+import com.fasterxml.jackson.core.io.LazyNumber;
 import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.core.json.JsonWriteContext;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.fasterxml.jackson.core.util.JacksonFeatureSet;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.util.internal.LazyBigDecimal;
-import com.fasterxml.jackson.databind.util.internal.LazyBigInteger;
-import com.fasterxml.jackson.databind.util.internal.LazyNumber;
 
 /**
  * Utility class used for efficient storage of {@link JsonToken}
@@ -1089,7 +1089,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 writeNumber(p.getIntValue());
                 break;
             case BIG_INTEGER:
-                writeLazyBigInteger(p.getText(), p.isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
+                writeLazyBigInteger(p.getLazyNumber());
                 break;
             default:
                 writeNumber(p.getLongValue());
@@ -1101,11 +1101,11 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 //   number is already decoded into a number (in which case might as well
                 //   access as number); or is still retained as text (in which case we
                 //   should further defer decoding that may not need BigDecimal):
-                writeLazyBigDecimal(p.getText(), p.isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
+                writeLazyBigDecimal(p.getLazyNumber());
             } else {
                 switch (p.getNumberType()) {
                 case BIG_DECIMAL:
-                    writeLazyBigDecimal(p.getText(), p.isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
+                    writeLazyBigDecimal(p.getLazyNumber());
                     break;
                 case FLOAT:
                     writeNumber(p.getFloatValue());
@@ -1247,7 +1247,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 writeNumber(p.getIntValue());
                 break;
             case BIG_INTEGER:
-                writeLazyBigInteger(p.getText(), p.isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
+                writeLazyBigInteger(p.getLazyNumber());
                 break;
             default:
                 writeNumber(p.getLongValue());
@@ -1255,7 +1255,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             break;
         case VALUE_NUMBER_FLOAT:
             if (_forceBigDecimal) {
-                writeLazyBigDecimal(p.getText(), p.isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
+                writeLazyBigDecimal(p.getLazyNumber());
             } else {
                 // 09-Jul-2020, tatu: Used to just copy using most optimal method, but
                 //  issues like [databind#2644] force to use exact, not optimal type
@@ -1331,19 +1331,19 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     }
     */
 
-    private void writeLazyBigInteger(final String v, final boolean useFastParser) throws IOException {
-        if (v == null) {
+    private void writeLazyBigInteger(final LazyNumber lazyNumber) throws IOException {
+        if (lazyNumber == null) {
             writeNull();
         } else {
-            _appendValue(JsonToken.VALUE_NUMBER_INT, new LazyBigInteger(v, useFastParser));
+            _appendValue(JsonToken.VALUE_NUMBER_INT, lazyNumber);
         }
     }
 
-    private void writeLazyBigDecimal(final String v, final boolean useFastParser) throws IOException {
-        if (v == null) {
+    private void writeLazyBigDecimal(final LazyNumber lazyNumber) throws IOException {
+        if (lazyNumber == null) {
             writeNull();
         } else {
-            _appendValue(JsonToken.VALUE_NUMBER_FLOAT, new LazyBigDecimal(v, useFastParser));
+            _appendValue(JsonToken.VALUE_NUMBER_FLOAT, lazyNumber);
         }
     }
 
@@ -1843,6 +1843,29 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             }
             // float or double
             return BigDecimal.valueOf(n.doubleValue());
+        }
+
+        @Override
+        public LazyNumber getLazyNumber() throws IOException {
+            Object value = _currentObject();
+            if (value instanceof LazyNumber) {
+                return (LazyNumber) value;
+            } else if (value instanceof String) {
+                return new LazyBigDecimal((String) value, isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
+            } else if (value instanceof BigDecimal) {
+                return new LazyBigDecimal((BigDecimal) value);
+            } else if (value instanceof BigInteger) {
+                return new LazyBigInteger((BigInteger) value);
+            } else if (value instanceof Integer) {
+                return new LazyBigInteger(getBigIntegerValue());
+            } else if (value instanceof Long) {
+                return new LazyBigInteger(getBigIntegerValue());
+            } else if (value instanceof Double) {
+                return new LazyBigDecimal(getDecimalValue());
+            } else if (value instanceof Float) {
+                return new LazyBigDecimal(getDecimalValue());
+            }
+            throw new JsonParseException(this, "unable to get LazyNumber from " + getText());
         }
 
         @Override

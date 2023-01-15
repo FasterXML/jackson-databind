@@ -24,7 +24,6 @@ import com.fasterxml.jackson.databind.deser.std.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.ext.OptionalHandlerFactory;
 import com.fasterxml.jackson.databind.introspect.*;
-import com.fasterxml.jackson.databind.jdk14.JDK14Util;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
@@ -540,9 +539,9 @@ index, owner, defs[index], propDef);
                 JacksonInject.Value injectable = intr.findInjectableValue(param);
                 final PropertyName name = (propDef == null) ? null : propDef.getFullName();
 
-                if (propDef != null
-                        // NOTE: Record canonical constructor will have implicitly named propDef
-                        && (propDef.isExplicitlyNamed() || beanDesc.getType().isRecordType())) {
+                if ((propDef != null)
+                        // [databind#3724]: Record canonical constructor will have implicitly named propDef
+                        && (propDef.isExplicitlyNamed() || beanDesc.isRecordType())) {
                     ++explicitNameCount;
                     properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectable);
                     continue;

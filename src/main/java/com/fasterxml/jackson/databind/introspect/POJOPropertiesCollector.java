@@ -220,7 +220,14 @@ public class POJOPropertiesCollector
     public JavaType getType() {
         return _type;
     }
-    
+
+    /**
+     * @since 2.15
+     */
+    public boolean isRecordType() {
+        return _type.isRecordType();
+    }
+
     public AnnotatedClass getClassDef() {
         return _classDef;
     }
@@ -629,7 +636,7 @@ public class POJOPropertiesCollector
                 }
             }
         }
-        if (_classDef.getType().isRecordType()) {
+        if (isRecordType()) {
             List<String> recordComponentNames = new ArrayList<String>();
             AnnotatedConstructor canonicalCtor = JDK14Util.findRecordConstructor(
                     _classDef, _annotationIntrospector, _config, recordComponentNames);
@@ -947,9 +954,9 @@ public class POJOPropertiesCollector
             }
             // Otherwise, check ignorals
             if (prop.anyIgnorals()) {
-                // Special handling for Records, as they do not have mutators so relying on constructors with (mostly)
-                // implicitly-named parameters...
-                if (_classDef.getType().isRecordType()) {
+                // Special handling for Records, as they do not have mutators so relying on constructors
+                // with (mostly)  implicitly-named parameters...
+                if (isRecordType()) {
                     // ...so can only remove ignored field and/or accessors, not constructor parameters that are needed
                     // for instantiation...
                     prop.removeIgnored();

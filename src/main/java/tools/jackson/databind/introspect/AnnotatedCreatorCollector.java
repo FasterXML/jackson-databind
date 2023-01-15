@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import tools.jackson.databind.AnnotationIntrospector;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.AnnotatedClass.Creators;
@@ -288,7 +289,7 @@ final class AnnotatedCreatorCollector
             ClassUtil.Ctor mixin)
     {
         final int paramCount = ctor.getParamCount();
-        if (_intr == null) { // when annotation processing is disabled
+        if (_intr == null || _intr == AnnotationIntrospector.nopInstance()) { // when annotation processing is disabled
             return new AnnotatedConstructor(_typeContext, ctor.getConstructor(),
                     _emptyAnnotationMap(), _emptyAnnotationMaps(paramCount));
         }

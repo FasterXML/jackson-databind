@@ -50,6 +50,8 @@ public abstract class BeanDescription
 
     public Class<?> getBeanClass() { return _type.getRawClass(); }
 
+    public boolean isRecordType() { return _type.isRecordType(); }
+
     public boolean isNonStaticInnerClass() {
         return getClassInfo().isNonStaticInnerClass();
     }

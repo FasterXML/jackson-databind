@@ -607,12 +607,12 @@ public class BeanDeserializer
                 continue;
             }
             // regular property? needs buffering
-            // Special handling because Records' ignored creator props weren't removed (to help in creating
-            // constructor-backed PropertyCreator) so they ended up in _beanProperties, unlike POJO (whose ignored
-            // props are removed)
-            boolean isClassWithoutMutator = _beanType.isRecordType();
             int ix = _propNameMatcher.matchName(propName);
-            if ((ix >= 0) && !isClassWithoutMutator) {
+            // [databind#3724]: Special handling because Records' ignored creator props
+            // weren't removed (to help in creating constructor-backed PropertyCreator)
+            // so they ended up in _beanProperties, unlike POJO (whose ignored
+            // props are removed)
+            if ((ix >= 0) && !_beanType.isRecordType()) {
                 SettableBeanProperty prop = _propsByIndex[ix];
                 try {
                     buffer.bufferProperty(prop, _deserializeWithErrorWrapping(p, ctxt, prop));

@@ -31,8 +31,6 @@ public class POJOPropertiesCollector
 
     /**
      * Handler used for name-mangling of getter, mutator (setter/with) methods
-     *
-     * @since 2.12
      */
     protected final AccessorNamingStrategy _accessorNaming;
 
@@ -92,16 +90,11 @@ public class POJOPropertiesCollector
      * The main use case is to effectively relink accessors based on fields
      * discovered, and used to sort of correct otherwise missing linkage between
      * fields and other accessors.
-     *
-     * @since 2.11
      */
     protected Map<PropertyName, PropertyName> _fieldRenameMappings;
     
     protected LinkedList<AnnotatedMember> _anyGetters;
 
-    /**
-     * @since 2.12
-     */
     protected LinkedList<AnnotatedMember> _anyGetterField;
 
     protected LinkedList<AnnotatedMethod> _anySetters;
@@ -172,7 +165,11 @@ public class POJOPropertiesCollector
     public JavaType getType() {
         return _type;
     }
-    
+
+    public boolean isRecordType() {
+        return _type.isRecordType();
+    }
+
     public AnnotatedClass getClassDef() {
         return _classDef;
     }
@@ -560,7 +557,7 @@ public class POJOPropertiesCollector
                 }
             }
         }
-        if (_classDef.getType().isRecordType()) {
+        if (isRecordType()) {
             List<String> recordComponentNames = new ArrayList<String>();
             AnnotatedConstructor canonicalCtor = JDK14Util.findRecordConstructor(
                     _classDef, _annotationIntrospector, _config, recordComponentNames);
@@ -828,9 +825,8 @@ public class POJOPropertiesCollector
         if (prev != null) {
             // 12-Apr-2017, tatu: Let's allow masking of Field by Method
             if (prev.getClass() == m.getClass()) {
-                String type = id.getClass().getName();
-                throw new IllegalArgumentException("Duplicate injectable value with id '"
-                        + id +"' (of type "+type+")");
+                reportProblem("Duplicate injectable value with id '%s' (of type %s)",
+                        id, ClassUtil.classNameOf(id));
             }
         }
     }
@@ -874,9 +870,9 @@ public class POJOPropertiesCollector
             }
             // Otherwise, check ignorals
             if (prop.anyIgnorals()) {
-                // Special handling for Records, as they do not have mutators so relying on constructors with (mostly)
-                // implicitly-named parameters...
-                if (_classDef.getType().isRecordType()) {
+                // Special handling for Records, as they do not have mutators so relying on constructors
+                // with (mostly)  implicitly-named parameters...
+                if (isRecordType()) {
                     // ...so can only remove ignored field and/or accessors, not constructor parameters that are needed
                     // for instantiation...
                     prop.removeIgnored();
@@ -1280,8 +1276,9 @@ public class POJOPropertiesCollector
         // Alas, there's no way to force return type of "either class
         // X or Y" -- need to throw an exception after the fact
         if (!(namingDef instanceof Class)) {
-            throw new IllegalStateException("AnnotationIntrospector returned PropertyNamingStrategy definition of type "
-                    +namingDef.getClass().getName()+"; expected type PropertyNamingStrategy or Class<PropertyNamingStrategy> instead");
+            reportProblem("AnnotationIntrospector returned PropertyNamingStrategy definition of type %s"
+                            + "; expected type `PropertyNamingStrategy` or `Class<PropertyNamingStrategy>` instead",
+                            ClassUtil.classNameOf(namingDef));
         }
         Class<?> namingClass = (Class<?>)namingDef;
         // 09-Nov-2015, tatu: Need to consider pseudo-value of STD, which means "use default"
@@ -1290,8 +1287,8 @@ public class POJOPropertiesCollector
         }
         
         if (!PropertyNamingStrategy.class.isAssignableFrom(namingClass)) {
-            throw new IllegalStateException("AnnotationIntrospector returned Class "
-                    +namingClass.getName()+"; expected Class<PropertyNamingStrategy>");
+            reportProblem("AnnotationIntrospector returned Class %s; expected `Class<PropertyNamingStrategy>`",
+                    ClassUtil.classNameOf(namingClass));
         }
         HandlerInstantiator hi = _config.getHandlerInstantiator();
         if (hi != null) {

@@ -25,7 +25,6 @@ import tools.jackson.databind.ext.jdk8.OptionalDoubleDeserializer;
 import tools.jackson.databind.ext.jdk8.OptionalIntDeserializer;
 import tools.jackson.databind.ext.jdk8.OptionalLongDeserializer;
 import tools.jackson.databind.introspect.*;
-import tools.jackson.databind.jdk14.JDK14Util;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.*;
 import tools.jackson.databind.util.*;
@@ -495,9 +494,9 @@ index, owner, defs[index], propDef);
                 JacksonInject.Value injectable = intr.findInjectableValue(config, param);
                 final PropertyName name = (propDef == null) ? null : propDef.getFullName();
 
-                if (propDef != null
-                        // NOTE: Record canonical constructor will have implicitly named propDef
-                        && (propDef.isExplicitlyNamed() || beanDesc.getType().isRecordType())) {
+                if ((propDef != null)
+                        // [databind#3724]: Record canonical constructor will have implicitly named propDef
+                        && (propDef.isExplicitlyNamed() || beanDesc.isRecordType())) {
                     ++explicitNameCount;
                     properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectable);
                     continue;

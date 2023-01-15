@@ -1,34 +1,19 @@
-<<<<<<< HEAD:src/test-jdk14/java/tools/jackson/databind/failing/RecordBasicsTest.java
-package tools.jackson.databind.failing;
-=======
-package com.fasterxml.jackson.databind.records;
-
-import com.fasterxml.jackson.annotation.*;
-
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.fasterxml.jackson.databind.util.ClassUtil;
-import com.fasterxml.jackson.databind.util.Converter;
->>>>>>> 2.15:src/test-jdk14/java/tools/jackson/databind/records/RecordBasicsTest.java
+package tools.jackson.databind.records;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-<<<<<<< HEAD:src/test-jdk14/java/tools/jackson/databind/failing/RecordBasicsTest.java
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonNaming;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.type.TypeFactory;
 import tools.jackson.databind.util.ClassUtil;
+import tools.jackson.databind.util.Converter;
 
-// 01-Dec-2022, tatu: Alas, fails on JDK 17
-=======
->>>>>>> 2.15:src/test-jdk14/java/tools/jackson/databind/records/RecordBasicsTest.java
 public class RecordBasicsTest extends BaseMapTest
 {
     record EmptyRecord() { }
@@ -164,11 +149,11 @@ public class RecordBasicsTest extends BaseMapTest
      * @see #testDeserializeConstructorInjectRecord()
      */
     public void testDeserializeHeaderInjectRecord_WillFail() throws Exception {
-        MAPPER.setInjectableValues(new InjectableValues.Std().addValue(String.class, "Bob"));
-
+        ObjectMapper mapper = jsonMapperBuilder()
+                .injectableValues(new InjectableValues.Std().addValue(String.class, "Bob"))
+                .build();
         try {
-            MAPPER.readValue("{\"id\":123}", RecordWithHeaderInject.class);
-
+            mapper.readValue("{\"id\":123}", RecordWithHeaderInject.class);
             fail("should not pass");
         } catch (IllegalArgumentException e) {
             verifyException(e, "RecordWithHeaderInject#name");
@@ -177,9 +162,10 @@ public class RecordBasicsTest extends BaseMapTest
     }
 
     public void testDeserializeConstructorInjectRecord() throws Exception {
-        MAPPER.setInjectableValues(new InjectableValues.Std().addValue(String.class, "Bob"));
-
-        RecordWithConstructorInject value = MAPPER.readValue("{\"id\":123}", RecordWithConstructorInject.class);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .injectableValues(new InjectableValues.Std().addValue(String.class, "Bob"))
+                .build();
+        RecordWithConstructorInject value = mapper.readValue("{\"id\":123}", RecordWithConstructorInject.class);
         assertEquals(new RecordWithConstructorInject(123, "Bob"), value);
     }
 

@@ -1,9 +1,9 @@
-package com.fasterxml.jackson.databind.records;
+package tools.jackson.databind.records;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.BaseMapTest;
+import tools.jackson.databind.ObjectMapper;
 
 // [databind#3102]
 public class RecordTypeInfo3342Test extends BaseMapTest

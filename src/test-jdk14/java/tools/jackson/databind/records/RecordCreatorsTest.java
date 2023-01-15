@@ -64,7 +64,7 @@ public class RecordCreatorsTest extends BaseMapTest
                     RecordWithAltCtor.class);
 
             fail("should not pass");
-        } catch (JsonMappingException e) {
+        } catch (DatabindException e) {
             verifyException(e, "Can not set final java.lang.String field");
             verifyException(e, "RecordWithAltCtor.name");
         }

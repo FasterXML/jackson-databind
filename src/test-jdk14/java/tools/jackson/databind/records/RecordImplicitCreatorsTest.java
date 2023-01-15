@@ -1,13 +1,12 @@
-package com.fasterxml.jackson.databind.records;
+package tools.jackson.databind.records;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.cfg.ConstructorDetector;
-import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.ConstructorDetector;
+import tools.jackson.databind.exc.MismatchedInputException;
 
 import java.math.BigDecimal;
+
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
 public class RecordImplicitCreatorsTest extends BaseMapTest
 {
@@ -95,13 +94,16 @@ public class RecordImplicitCreatorsTest extends BaseMapTest
     }
 
     public void testDeserializeUsingImplicitFactoryMethod_WithAutoDetectCreatorsDisabled_WillFail() throws Exception {
-        MAPPER.disable(MapperFeature.AUTO_DETECT_CREATORS);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .changeDefaultVisibility(vc -> vc.withScalarConstructorVisibility(JsonAutoDetect.Visibility.NONE)
+                        .withCreatorVisibility(JsonAutoDetect.Visibility.NONE))
+                .build();
+        // was: MAPPER.disable(MapperFeature.AUTO_DETECT_CREATORS);
 
         try {
-            MAPPER.readValue("123", RecordWithImplicitFactoryMethods.class);
-
+            mapper.readValue("123", RecordWithImplicitFactoryMethods.class);
             fail("should not pass");
-        } catch (JsonMappingException e) {
+        } catch (DatabindException e) {
             verifyException(e, "Cannot construct instance");
             verifyException(e, "RecordWithImplicitFactoryMethod");
             verifyException(e, "no int/Int-argument constructor/factory method");
@@ -148,11 +150,13 @@ public class RecordImplicitCreatorsTest extends BaseMapTest
      * See {@link #testDeserializeUsingImplicitSingleValueConstructor}
      */
     public void testDeserializeSingleValueConstructor_WithDelegatingConstructorDetector_WillFail() throws Exception {
-        MAPPER.setConstructorDetector(ConstructorDetector.USE_DELEGATING);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .constructorDetector(ConstructorDetector.USE_DELEGATING)
+                .build();
 
         try {
             // Fail, no delegating creator
-            MAPPER.readValue("123", RecordWithSingleValueConstructor.class);
+            mapper.readValue("123", RecordWithSingleValueConstructor.class);
 
             fail("should not pass");
         } catch (MismatchedInputException e) {
@@ -171,11 +175,12 @@ public class RecordImplicitCreatorsTest extends BaseMapTest
      * This is just to catch any potential regression.
      */
     public void testDeserializeSingleValueConstructor_WithPropertiesBasedConstructorDetector_WillFail() throws Exception {
-        MAPPER.setConstructorDetector(ConstructorDetector.USE_PROPERTIES_BASED);
-
+        ObjectMapper mapper = jsonMapperBuilder()
+                .constructorDetector(ConstructorDetector.USE_PROPERTIES_BASED)
+                .build();
         try {
             // This should fail
-            MAPPER.readValue("123", RecordWithSingleValueConstructor.class);
+            mapper.readValue("123", RecordWithSingleValueConstructor.class);
 
             fail("should not pass");
         } catch (MismatchedInputException e) {
@@ -219,20 +224,25 @@ public class RecordImplicitCreatorsTest extends BaseMapTest
     /**********************************************************************
      */
 
-    public void testDeserializeMultipleConstructorsRecord_WithImplicitParameterNames_WillUseCanonicalConstructor() throws Exception {
-        MAPPER.setAnnotationIntrospector(new Jdk8ConstructorParameterNameAnnotationIntrospector());
+    public void testDeserializeMultipleConstructorsRecord_WithImplicitParameterNames_WillUseCanonicalConstructor() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .annotationIntrospector(new Jdk8ConstructorParameterNameAnnotationIntrospector())
+                .build();
 
-        RecordWithNonCanonicalConstructor value = MAPPER.readValue(
+        RecordWithNonCanonicalConstructor value = mapper.readValue(
                 "{\"id\":123,\"name\":\"Bob\",\"email\":\"bob@example.com\"}",
                 RecordWithNonCanonicalConstructor.class);
 
         assertEquals(new RecordWithNonCanonicalConstructor(123, "Bob", "bob@example.com"), value);
     }
 
-    public void testDeserializeMultipleConstructorsRecord_WithImplicitParameterNames_WillIgnoreNonCanonicalConstructor() throws Exception {
-        MAPPER.setAnnotationIntrospector(new Jdk8ConstructorParameterNameAnnotationIntrospector());
-
-        RecordWithNonCanonicalConstructor value = MAPPER.readValue(
+    public void testDeserializeMultipleConstructorsRecord_WithImplicitParameterNames_WillIgnoreNonCanonicalConstructor() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .annotationIntrospector(new Jdk8ConstructorParameterNameAnnotationIntrospector())
+                .build();
+        RecordWithNonCanonicalConstructor value = mapper.readValue(
                 "{\"id\":123,\"email\":\"bob@example.com\"}",
                 RecordWithNonCanonicalConstructor.class);
 

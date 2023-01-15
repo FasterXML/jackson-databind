@@ -1,15 +1,16 @@
-package com.fasterxml.jackson.databind.records;
+package tools.jackson.databind.records;
+
+import java.math.BigDecimal;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
-import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
-import java.math.BigDecimal;
+import tools.jackson.databind.BaseMapTest;
+import tools.jackson.databind.DatabindException;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.exc.InvalidDefinitionException;
+import tools.jackson.databind.exc.MismatchedInputException;
 
 public class RecordExplicitCreatorsTest extends BaseMapTest
 {
@@ -131,8 +132,8 @@ public class RecordExplicitCreatorsTest extends BaseMapTest
                     RecordWithOneJsonPropertyWithoutJsonCreator.class);
 
             fail("should not pass");
-        } catch (JsonMappingException e) {
-            verifyException(e, "Unrecognized field \"id\"");
+        } catch (DatabindException e) {
+            verifyException(e, "Unrecognized property \"id\"");
             verifyException(e, "RecordWithOneJsonPropertyWithoutJsonCreator");
             verifyException(e, "one known property: \"id_only\"");
         }
@@ -143,8 +144,8 @@ public class RecordExplicitCreatorsTest extends BaseMapTest
                     RecordWithTwoJsonPropertyWithoutJsonCreator.class);
 
             fail("should not pass");
-        } catch (JsonMappingException e) {
-            verifyException(e, "Unrecognized field \"id\"");
+        } catch (DatabindException e) {
+            verifyException(e, "Unrecognized property \"id\"");
             verifyException(e, "RecordWithTwoJsonPropertyWithoutJsonCreator");
             verifyException(e, "2 known properties: \"the_id\", \"the_email\"");
         }
@@ -182,8 +183,8 @@ public class RecordExplicitCreatorsTest extends BaseMapTest
             MAPPER.readValue("{\"id\":123,\"name\":\"Bobby\"}", RecordWithJsonPropertyWithJsonCreator.class);
 
             fail("should not pass");
-        } catch (JsonMappingException e) {
-            verifyException(e, "Unrecognized field \"id\"");
+        } catch (DatabindException e) {
+            verifyException(e, "Unrecognized property \"id\"");
             verifyException(e, "RecordWithJsonPropertyWithJsonCreator");
             verifyException(e, "one known property: \"id_only\"");
         }
@@ -272,7 +273,8 @@ public class RecordExplicitCreatorsTest extends BaseMapTest
      * there's JsonCreator factory method(s) in the JavaBean class.
      */
     public void testDeserializeUsingImplicitCanonicalConstructor_WhenFactoryMethodsExist() throws Exception {
-        RecordWithExplicitFactoryMethod value = MAPPER.readValue("{\"id\":123.4,\"name\":\"CanonicalConstructor\"}", RecordWithExplicitFactoryMethod.class);
+        RecordWithExplicitFactoryMethod value = MAPPER.readValue("{\"id\":123.4,\"name\":\"CanonicalConstructor\"}",
+                RecordWithExplicitFactoryMethod.class);
 
         assertEquals(new RecordWithExplicitFactoryMethod(BigDecimal.valueOf(123.4), "CanonicalConstructor"), value);
     }
@@ -284,9 +286,10 @@ public class RecordExplicitCreatorsTest extends BaseMapTest
      */
 
     public void testDeserializeMultipleConstructorsRecord_WithExplicitAndImplicitParameterNames_WithJsonCreator() throws Exception {
-        MAPPER.setAnnotationIntrospector(new Jdk8ConstructorParameterNameAnnotationIntrospector());
-
-        RecordWithJsonPropertyAndImplicitPropertyWithJsonCreator value = MAPPER.readValue(
+        ObjectMapper mapper = jsonMapperBuilder()
+                .annotationIntrospector(new Jdk8ConstructorParameterNameAnnotationIntrospector())
+                .build();
+        RecordWithJsonPropertyAndImplicitPropertyWithJsonCreator value = mapper.readValue(
                 "{\"id_only\":123,\"email\":\"bob@example.com\"}",
                 RecordWithJsonPropertyAndImplicitPropertyWithJsonCreator.class);
         assertEquals(new RecordWithJsonPropertyAndImplicitPropertyWithJsonCreator(123, "bob@example.com"), value);
@@ -307,11 +310,13 @@ public class RecordExplicitCreatorsTest extends BaseMapTest
      * @see #testDeserializeUsingJsonCreatorConstructor()
      * @see #testDeserializeUsingCanonicalConstructor_WhenJsonCreatorConstructorExists_WillFail()
      */
-    public void testDeserializeMultipleConstructorsRecord_WithExplicitAndImplicitParameterNames() throws Exception {
-        MAPPER.setAnnotationIntrospector(new Jdk8ConstructorParameterNameAnnotationIntrospector());
-
+    public void testDeserializeMultipleConstructorsRecord_WithExplicitAndImplicitParameterNames() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .annotationIntrospector(new Jdk8ConstructorParameterNameAnnotationIntrospector())
+                .build();
         try {
-            MAPPER.readValue(
+            mapper.readValue(
                     "{\"id_only\":123,\"email\":\"bob@example.com\"}",
                     RecordWithJsonPropertyAndImplicitPropertyWithoutJsonCreator.class);
 

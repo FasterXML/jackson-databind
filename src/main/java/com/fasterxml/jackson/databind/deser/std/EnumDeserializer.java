@@ -54,8 +54,8 @@ public class EnumDeserializer
 
     protected final Boolean _caseInsensitive;
 
-    private final Boolean _useDefaultValueForUnknownEnum;
-    private final Boolean _useNullForUnknownEnum;
+    private Boolean _useDefaultValueForUnknownEnum;
+    private Boolean _useNullForUnknownEnum;
 
     /**
      * Marker flag for cases where we expect actual integral value for Enum,
@@ -68,7 +68,7 @@ public class EnumDeserializer
     /**
      * @since 2.9
      */
-    public EnumDeserializer(EnumResolver byNameResolver, Boolean caseInsensitive, Boolean useDefaultValueForUnknownEnum, Boolean useNullForUnknownEnum)
+    public EnumDeserializer(EnumResolver byNameResolver, Boolean caseInsensitive)
     {
         super(byNameResolver.getEnumClass());
         _lookupByName = byNameResolver.constructLookup();
@@ -76,8 +76,6 @@ public class EnumDeserializer
         _enumDefaultValue = byNameResolver.getDefaultValue();
         _caseInsensitive = caseInsensitive;
         _isFromIntValue = byNameResolver.isFromIntValue();
-        _useDefaultValueForUnknownEnum = useDefaultValueForUnknownEnum;
-        _useNullForUnknownEnum = useNullForUnknownEnum;
     }
 
     /**
@@ -100,7 +98,7 @@ public class EnumDeserializer
      */
     @Deprecated
     public EnumDeserializer(EnumResolver byNameResolver) {
-        this(byNameResolver, null, null, null);
+        this(byNameResolver, null);
     }
 
     /**

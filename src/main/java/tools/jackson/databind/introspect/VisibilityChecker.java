@@ -37,6 +37,21 @@ public class VisibilityChecker
             Visibility.PUBLIC_ONLY // scalar-constructor (new in 3.x)
     );
 
+    /**
+     * Visibility settings needed to support auto-discover of non-private
+     * Records.
+     *
+     * @since 3.0
+     */
+    protected final static VisibilityChecker ALL_PUBLIC_EXCEPT_CREATORS = new VisibilityChecker(
+            Visibility.PUBLIC_ONLY, // field
+            Visibility.PUBLIC_ONLY, // getter
+            Visibility.PUBLIC_ONLY, // is-getter
+            Visibility.PUBLIC_ONLY, // setter
+            Visibility.NON_PRIVATE, // creator
+            Visibility.NON_PRIVATE // scalar-constructor (1 arg)
+    );
+
     protected final Visibility _fieldMinLevel;
     protected final Visibility _getterMinLevel;
     protected final Visibility _isGetterMinLevel;
@@ -109,6 +124,10 @@ public class VisibilityChecker
     public static VisibilityChecker defaultInstance() { return DEFAULT; }
 
     public static VisibilityChecker allPublicInstance() { return ALL_PUBLIC; }
+
+    public static VisibilityChecker allPublicExceptCreatorsInstance() {
+        return ALL_PUBLIC_EXCEPT_CREATORS;
+    }
 
     /*
     /**********************************************************************
@@ -348,5 +367,19 @@ public class VisibilityChecker
         return String.format("[Visibility: field=%s,getter=%s,isGetter=%s,setter=%s,creator=%s,scalarConstructor=%s]",
                 _fieldMinLevel, _getterMinLevel, _isGetterMinLevel, _setterMinLevel,
                 _creatorMinLevel, _scalarConstructorMinLevel);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) return true;
+        if (!(o instanceof VisibilityChecker)) return false;
+        VisibilityChecker other = (VisibilityChecker) o;
+        return _fieldMinLevel == other._fieldMinLevel
+                && _getterMinLevel == other._getterMinLevel
+                && _isGetterMinLevel == other._isGetterMinLevel
+                && _setterMinLevel == other._setterMinLevel
+                &&  _creatorMinLevel== other._creatorMinLevel
+                &&  _scalarConstructorMinLevel == other._scalarConstructorMinLevel
+                ;
     }
 }

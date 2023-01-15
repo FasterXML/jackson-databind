@@ -288,7 +288,7 @@ final class AnnotatedCreatorCollector
             ClassUtil.Ctor mixin)
     {
         final int paramCount = ctor.getParamCount();
-        if (_intr == null) { // when annotation processing is disabled
+        if (!_collectAnnotations) { // when annotation processing is disabled
             return new AnnotatedConstructor(_typeContext, ctor.getConstructor(),
                     _emptyAnnotationMap(), _emptyAnnotationMaps(paramCount));
         }
@@ -345,7 +345,7 @@ ctor.getDeclaringClass().getName(), paramCount, paramAnns.length));
             TypeResolutionContext typeResCtxt, Method mixin)
     {
         final int paramCount = m.getParameterCount();
-        if (_intr == null) { // when annotation processing is disabled
+        if (!_collectAnnotations) { // when annotation processing is disabled
             return new AnnotatedMethod(typeResCtxt, m, _emptyAnnotationMap(),
                     _emptyAnnotationMaps(paramCount));
         }

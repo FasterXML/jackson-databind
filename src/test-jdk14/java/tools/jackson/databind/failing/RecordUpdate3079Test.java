@@ -7,7 +7,7 @@ import tools.jackson.databind.*;
 // 01-Dec-2022, tatu: Alas, fails on JDK 17
 public class RecordUpdate3079Test extends BaseMapTest
 {
-    record IdNameRecord(int id, String name) { }
+    public record IdNameRecord(int id, String name) { }
 
     static class IdNameWrapper {
         public IdNameRecord value;

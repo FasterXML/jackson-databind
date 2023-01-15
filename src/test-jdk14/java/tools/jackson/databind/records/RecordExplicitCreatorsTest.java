@@ -14,7 +14,7 @@ import tools.jackson.databind.exc.MismatchedInputException;
 
 public class RecordExplicitCreatorsTest extends BaseMapTest
 {
-    record RecordWithOneJsonPropertyWithoutJsonCreator(int id, String name) {
+    public record RecordWithOneJsonPropertyWithoutJsonCreator(int id, String name) {
 
         public RecordWithOneJsonPropertyWithoutJsonCreator(@JsonProperty("id_only") int id) {
             this(id, "JsonPropertyConstructor");
@@ -25,7 +25,7 @@ public class RecordExplicitCreatorsTest extends BaseMapTest
         }
     }
 
-    record RecordWithTwoJsonPropertyWithoutJsonCreator(int id, String name, String email) {
+    public record RecordWithTwoJsonPropertyWithoutJsonCreator(int id, String name, String email) {
 
         public RecordWithTwoJsonPropertyWithoutJsonCreator(@JsonProperty("the_id") int id, @JsonProperty("the_email") String email) {
             this(id, "TwoJsonPropertyConstructor", email);
@@ -36,14 +36,14 @@ public class RecordExplicitCreatorsTest extends BaseMapTest
         }
     }
 
-    record RecordWithJsonPropertyAndImplicitPropertyWithoutJsonCreator(int id, String name, String email) {
+    public record RecordWithJsonPropertyAndImplicitPropertyWithoutJsonCreator(int id, String name, String email) {
 
         public RecordWithJsonPropertyAndImplicitPropertyWithoutJsonCreator(@JsonProperty("id_only") int id, String email) {
             this(id, "JsonPropertyConstructor", email);
         }
     }
 
-    record RecordWithJsonPropertyWithJsonCreator(int id, String name) {
+    public record RecordWithJsonPropertyWithJsonCreator(int id, String name) {
 
         @JsonCreator
         public RecordWithJsonPropertyWithJsonCreator(@JsonProperty("id_only") int id) {
@@ -55,7 +55,7 @@ public class RecordExplicitCreatorsTest extends BaseMapTest
         }
     }
 
-    record RecordWithJsonPropertyAndImplicitPropertyWithJsonCreator(int id, String name, String email) {
+    public record RecordWithJsonPropertyAndImplicitPropertyWithJsonCreator(int id, String name, String email) {
 
         @JsonCreator
         public RecordWithJsonPropertyAndImplicitPropertyWithJsonCreator(@JsonProperty("id_only") int id, String email) {
@@ -63,7 +63,7 @@ public class RecordExplicitCreatorsTest extends BaseMapTest
         }
     }
 
-    record RecordWithMultiExplicitDelegatingConstructor(int id, String name) {
+    public record RecordWithMultiExplicitDelegatingConstructor(int id, String name) {
 
         @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
         public RecordWithMultiExplicitDelegatingConstructor(int id) {
@@ -76,14 +76,14 @@ public class RecordExplicitCreatorsTest extends BaseMapTest
         }
     }
 
-    record RecordWithDisabledJsonCreator(int id, String name) {
+    public record RecordWithDisabledJsonCreator(int id, String name) {
 
         @JsonCreator(mode = JsonCreator.Mode.DISABLED)
-        RecordWithDisabledJsonCreator {
+        public RecordWithDisabledJsonCreator {
         }
     }
 
-    record RecordWithExplicitFactoryMethod(BigDecimal id, String name) {
+    public record RecordWithExplicitFactoryMethod(BigDecimal id, String name) {
 
         @JsonCreator
         public static RecordWithExplicitFactoryMethod valueOf(int id) {

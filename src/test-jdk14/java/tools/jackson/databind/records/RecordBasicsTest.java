@@ -16,19 +16,19 @@ import tools.jackson.databind.util.Converter;
 
 public class RecordBasicsTest extends BaseMapTest
 {
-    record EmptyRecord() { }
+    public record EmptyRecord() { }
 
-    record SimpleRecord(int id, String name) { }
+    public record SimpleRecord(int id, String name) { }
 
-    record RecordOfRecord(SimpleRecord record) { }
+    public record RecordOfRecord(SimpleRecord record) { }
 
-    record RecordWithRename(int id, @JsonProperty("rename")String name) { }
+    public record RecordWithRename(int id, @JsonProperty("rename")String name) { }
 
-    record RecordWithHeaderInject(int id, @JacksonInject String name) { }
+    public record RecordWithHeaderInject(int id, @JacksonInject String name) { }
 
-    record RecordWithConstructorInject(int id, String name) {
+    public record RecordWithConstructorInject(int id, String name) {
 
-        RecordWithConstructorInject(int id, @JacksonInject String name) {
+        public RecordWithConstructorInject(int id, @JacksonInject String name) {
             this.id = id;
             this.name = name;
         }
@@ -36,9 +36,9 @@ public class RecordBasicsTest extends BaseMapTest
 
     // [databind#2992]
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-    record SnakeRecord(String myId, String myValue){}
+    public record SnakeRecord(String myId, String myValue){}
 
-    record RecordWithJsonDeserialize(int id, @JsonDeserialize(converter = StringTrimmer.class) String name) { }
+    public record RecordWithJsonDeserialize(int id, @JsonDeserialize(converter = StringTrimmer.class) String name) { }
 
     private final ObjectMapper MAPPER = newJsonMapper();
 

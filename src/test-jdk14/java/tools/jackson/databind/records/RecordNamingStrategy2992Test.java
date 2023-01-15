@@ -8,7 +8,7 @@ import tools.jackson.databind.annotation.JsonNaming;
 public class RecordNamingStrategy2992Test extends BaseMapTest
 {
     @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-    record Record2992(String myId, String myValue) {}
+    public record Record2992(String myId, String myValue) {}
 
     private final ObjectMapper MAPPER = newJsonMapper();
 

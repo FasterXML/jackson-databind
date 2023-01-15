@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
 public class RecordImplicitCreatorsTest extends BaseMapTest
 {
-    record RecordWithImplicitFactoryMethods(BigDecimal id, String name) {
+    public record RecordWithImplicitFactoryMethods(BigDecimal id, String name) {
 
         public static RecordWithImplicitFactoryMethods valueOf(int id) {
             return new RecordWithImplicitFactoryMethods(BigDecimal.valueOf(id), "IntFactoryMethod");
@@ -25,10 +25,10 @@ public class RecordImplicitCreatorsTest extends BaseMapTest
         }
     }
 
-    record RecordWithSingleValueConstructor(int id) {
+    public record RecordWithSingleValueConstructor(int id) {
     }
 
-    record RecordWithNonCanonicalConstructor(int id, String name, String email) {
+    public record RecordWithNonCanonicalConstructor(int id, String name, String email) {
 
         public RecordWithNonCanonicalConstructor(int id, String email) {
             this(id, "NonCanonicalConstructor", email);
@@ -52,7 +52,7 @@ public class RecordImplicitCreatorsTest extends BaseMapTest
      *   }
      * </pre>
      */
-    record RecordWithAltSingleValueConstructor(int id, String name) {
+    public record RecordWithAltSingleValueConstructor(int id, String name) {
 
         public RecordWithAltSingleValueConstructor(int id) {
             this(id, "SingleValueConstructor");

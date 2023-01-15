@@ -8,14 +8,14 @@ import tools.jackson.databind.*;
 
 public class RecordCreatorsTest extends BaseMapTest
 {
-    record RecordWithCanonicalCtorOverride(int id, String name) {
+    public record RecordWithCanonicalCtorOverride(int id, String name) {
         public RecordWithCanonicalCtorOverride(int id, String name) {
             this.id = id;
             this.name = "name";
         }
     }
 
-    record RecordWithAltCtor(int id, String name) {
+    public record RecordWithAltCtor(int id, String name) {
         @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
         public RecordWithAltCtor(@JsonProperty("id") int id) {
             this(id, "name2");
@@ -23,7 +23,7 @@ public class RecordCreatorsTest extends BaseMapTest
     }
 
     // [databind#2980]
-    record RecordWithDelegation(String value) {
+    public record RecordWithDelegation(String value) {
         @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
         public RecordWithDelegation(String value) {
             this.value = "del:"+value;

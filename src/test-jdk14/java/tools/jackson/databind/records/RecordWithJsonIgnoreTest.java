@@ -7,13 +7,13 @@ import tools.jackson.databind.ObjectMapper;
 
 public class RecordWithJsonIgnoreTest extends BaseMapTest
 {
-    record RecordWithIgnore(int id, @JsonIgnore String name) {
+    public record RecordWithIgnore(int id, @JsonIgnore String name) {
     }
 
-    record RecordWithIgnoreJsonProperty(int id, @JsonIgnore @JsonProperty("name") String name) {
+    public record RecordWithIgnoreJsonProperty(int id, @JsonIgnore @JsonProperty("name") String name) {
     }
 
-    record RecordWithIgnoreAccessor(int id, String name) {
+    public record RecordWithIgnoreAccessor(int id, String name) {
 
         @JsonIgnore
         @Override
@@ -22,7 +22,7 @@ public class RecordWithJsonIgnoreTest extends BaseMapTest
         }
     }
 
-    record RecordWithIgnorePrimitiveType(@JsonIgnore int id, String name) {
+    public record RecordWithIgnorePrimitiveType(@JsonIgnore int id, String name) {
     }
 
     private final ObjectMapper MAPPER = newJsonMapper();

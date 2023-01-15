@@ -13,7 +13,7 @@ import tools.jackson.databind.exc.InvalidNullException;
 
 public class RecordWithJsonSetter2974Test extends BaseMapTest
 {
-    record RecordWithNonNullDefs(@JsonSetter(nulls=Nulls.AS_EMPTY) List<String> names,
+    public record RecordWithNonNullDefs(@JsonSetter(nulls=Nulls.AS_EMPTY) List<String> names,
             @JsonSetter(nulls=Nulls.FAIL) Map<String, Integer> agesByNames)
     { }
 

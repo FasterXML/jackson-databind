@@ -56,6 +56,11 @@ public class POJOPropertiesCollector
 
     protected final boolean _useAnnotations;
 
+    /**
+     * @since 2.15
+     */
+    protected final boolean _isRecordType;
+
     /*
     /**********************************************************************
     /* Collected property information
@@ -140,6 +145,7 @@ public class POJOPropertiesCollector
         _forSerialization = forSerialization;
         _type = type;
         _classDef = classDef;
+        _isRecordType = _type.isRecordType();
         if (config.isAnnotationProcessingEnabled()) {
             _useAnnotations = true;
             _annotationIntrospector = _config.getAnnotationIntrospector();
@@ -167,7 +173,7 @@ public class POJOPropertiesCollector
     }
 
     public boolean isRecordType() {
-        return _type.isRecordType();
+        return _isRecordType;
     }
 
     public AnnotatedClass getClassDef() {
@@ -354,7 +360,12 @@ public class POJOPropertiesCollector
         LinkedHashMap<String, POJOPropertyBuilder> props = new LinkedHashMap<String, POJOPropertyBuilder>();
 
         // First: gather basic data
-        _addFields(props); // note: populates _fieldRenameMappings
+
+        // 15-Jan-2023, tatu: [databind#3736] Let's avoid detecting fields of Records
+        //   altogether (unless we find a good reason to detect them)
+        if (!isRecordType()) {
+            _addFields(props); // note: populates _fieldRenameMappings
+        }
         _addMethods(props);
         // 25-Jan-2016, tatu: Avoid introspecting (constructor-)creators for non-static
         //    inner classes, see [databind#1502]
@@ -910,7 +921,10 @@ public class POJOPropertiesCollector
      */
     protected void _removeUnwantedAccessor(Map<String, POJOPropertyBuilder> props)
     {
-        final boolean inferMutators = _config.isEnabled(MapperFeature.INFER_PROPERTY_MUTATORS);
+        // 15-Jan-2023, tatu: Avoid pulling in mutators for Records; Fields mostly
+        //    since there should not be setters.
+        final boolean inferMutators = !isRecordType()
+                && _config.isEnabled(MapperFeature.INFER_PROPERTY_MUTATORS);
         Iterator<POJOPropertyBuilder> it = props.values().iterator();
 
         while (it.hasNext()) {

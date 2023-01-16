@@ -437,7 +437,12 @@ public class POJOPropertiesCollector
         LinkedHashMap<String, POJOPropertyBuilder> props = new LinkedHashMap<String, POJOPropertyBuilder>();
 
         // First: gather basic data
-        _addFields(props); // note: populates _fieldRenameMappings
+
+        // 15-Jan-2023, tatu: [databind#3736] Let's avoid detecting fields of Records
+        //   altogether (unless we find a good reason to detect them)
+        if (!isRecordType()) {
+            _addFields(props); // note: populates _fieldRenameMappings
+        }
         _addMethods(props);
         // 25-Jan-2016, tatu: Avoid introspecting (constructor-)creators for non-static
         //    inner classes, see [databind#1502]

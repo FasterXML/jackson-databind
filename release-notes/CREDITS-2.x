@@ -1532,3 +1532,7 @@ Moritz Halbritter (mhalbritter@github)
 Philippe Marschall (marschall@github)
   * Contributed #3699: Allow custom `JsonNode` implementations
   (2.14.2)
+
+Gili Tzabari (cowwoc@github)
+  * Reported #3063: `@JsonValue` fails for Java Record
+  (2.14.2)

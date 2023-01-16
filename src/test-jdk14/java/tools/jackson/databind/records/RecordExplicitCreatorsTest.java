@@ -85,7 +85,7 @@ public class RecordExplicitCreatorsTest extends BaseMapTest
 
     record RecordWithExplicitFactoryMethod(BigDecimal id, String name) {
 
-        @JsonCreator
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
         public static RecordWithExplicitFactoryMethod valueOf(int id) {
             return new RecordWithExplicitFactoryMethod(BigDecimal.valueOf(id), "IntFactoryMethod");
         }
@@ -94,7 +94,7 @@ public class RecordExplicitCreatorsTest extends BaseMapTest
             return new RecordWithExplicitFactoryMethod(BigDecimal.valueOf(id), "DoubleFactoryMethod");
         }
 
-        @JsonCreator
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
         public static RecordWithExplicitFactoryMethod valueOf(String id) {
             return new RecordWithExplicitFactoryMethod(BigDecimal.valueOf(Double.parseDouble(id)), "StringFactoryMethod");
         }

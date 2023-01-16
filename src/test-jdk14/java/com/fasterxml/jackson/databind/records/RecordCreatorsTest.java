@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 
 public class RecordCreatorsTest extends BaseMapTest
 {
@@ -62,11 +63,11 @@ public class RecordCreatorsTest extends BaseMapTest
         try {
             MAPPER.readValue("{\"id\":2812,\"name\":\"Bob\"}",
                     RecordWithAltCtor.class);
-
             fail("should not pass");
-        } catch (JsonMappingException e) {
-            verifyException(e, "Can not set final java.lang.String field");
-            verifyException(e, "RecordWithAltCtor.name");
+        } catch (UnrecognizedPropertyException e) {
+            verifyException(e, "Unrecognized");
+            verifyException(e, "\"name\"");
+            verifyException(e, "RecordWithAltCtor");
         }
     }
 

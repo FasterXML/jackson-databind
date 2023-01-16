@@ -61,6 +61,11 @@ public class POJOPropertiesCollector
      */
     protected final boolean _useAnnotations;
 
+    /**
+     * @since 2.15
+     */
+    protected final boolean _isRecordType;
+
     /*
     /**********************************************************
     /* Collected property information
@@ -170,6 +175,7 @@ public class POJOPropertiesCollector
         _forSerialization = forSerialization;
         _type = type;
         _classDef = classDef;
+        _isRecordType = _type.isRecordType();
         if (config.isAnnotationProcessingEnabled()) {
             _useAnnotations = true;
             _annotationIntrospector = _config.getAnnotationIntrospector();
@@ -225,7 +231,7 @@ public class POJOPropertiesCollector
      * @since 2.15
      */
     public boolean isRecordType() {
-        return _type.isRecordType();
+        return _isRecordType;
     }
 
     public AnnotatedClass getClassDef() {
@@ -994,7 +1000,10 @@ public class POJOPropertiesCollector
      */
     protected void _removeUnwantedAccessor(Map<String, POJOPropertyBuilder> props)
     {
-        final boolean inferMutators = _config.isEnabled(MapperFeature.INFER_PROPERTY_MUTATORS);
+        // 15-Jan-2023, tatu: Avoid pulling in mutators for Records; Fields mostly
+        //    since there should not be setters.
+        final boolean inferMutators = !isRecordType()
+                && _config.isEnabled(MapperFeature.INFER_PROPERTY_MUTATORS);
         Iterator<POJOPropertyBuilder> it = props.values().iterator();
 
         while (it.hasNext()) {

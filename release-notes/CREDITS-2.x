@@ -1535,6 +1535,10 @@ Philippe Marschall (marschall@github)
   * Contributed #3699: Allow custom `JsonNode` implementations
   (2.14.2)
 
+Gili Tzabari (cowwoc@github)
+  * Reported #3063: `@JsonValue` fails for Java Record
+  (2.14.2)
+
 Hervé Boutemy (hboutemy@github)
   * Contributed fix for #3680: Timestamp in classes inside jar showing 02/01/1980
   (2.15.0)
@@ -1550,4 +1554,3 @@ Sim Yih Tsern (yihtsern@github)
   (2.15.0)
   * Contributed fix for #3342: `JsonTypeInfo.As.EXTERNAL_PROPERTY` does not work with record wrappers
   (2.15.0)
-

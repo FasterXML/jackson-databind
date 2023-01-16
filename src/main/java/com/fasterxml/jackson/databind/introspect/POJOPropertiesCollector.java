@@ -251,9 +251,11 @@ public class POJOPropertiesCollector
         // If @JsonKey defined, must have a single one
         if (_jsonKeyAccessors != null) {
             if (_jsonKeyAccessors.size() > 1) {
-                reportProblem("Multiple 'as-key' properties defined (%s vs %s)",
-                        _jsonKeyAccessors.get(0),
-                        _jsonKeyAccessors.get(1));
+                if (!_resolveFieldVsGetter(_jsonKeyAccessors)) {
+                    reportProblem("Multiple 'as-key' properties defined (%s vs %s)",
+                            _jsonKeyAccessors.get(0),
+                            _jsonKeyAccessors.get(1));
+                }
             }
             // otherwise we won't greatly care
             return _jsonKeyAccessors.get(0);
@@ -270,11 +272,14 @@ public class POJOPropertiesCollector
             collectAll();
         }
         // If @JsonValue defined, must have a single one
+        // 15-Jan-2023, tatu: Except let's try resolving "getter-over-field" case at least
         if (_jsonValueAccessors != null) {
             if (_jsonValueAccessors.size() > 1) {
-                reportProblem("Multiple 'as-value' properties defined (%s vs %s)",
-                        _jsonValueAccessors.get(0),
-                        _jsonValueAccessors.get(1));
+                if (!_resolveFieldVsGetter(_jsonValueAccessors)) {
+                    reportProblem("Multiple 'as-value' properties defined (%s vs %s)",
+                            _jsonValueAccessors.get(0),
+                            _jsonValueAccessors.get(1));
+                }
             }
             // otherwise we won't greatly care
             return _jsonValueAccessors.get(0);
@@ -1123,7 +1128,7 @@ public class POJOPropertiesCollector
 
     /*
     /**********************************************************
-    /* Overridable internal methods, sorting, other stuff
+    /* Internal methods, sorting
     /**********************************************************
      */
     
@@ -1242,6 +1247,48 @@ public class POJOPropertiesCollector
             }
         }
         return false;
+    }
+
+    /*
+    /**********************************************************
+    /* Internal methods, conflict resolution
+    /**********************************************************
+     */
+
+    /**
+     * Method that will be given a {@link List} with 2 or more accessors
+     * that may be in conflict: it will need to remove lower-priority accessors
+     * to leave just a single highest-priority accessor to use.
+     * If this succeeds method returns {@code true}, otherwise {@code false}.
+     *<p>
+     * NOTE: method will directly modify given {@code List} directly, regardless
+     * of whether it ultimately succeeds or not.
+     *
+     * @return True if seeming conflict was resolved and there only remains
+     *    single accessor
+     */
+    protected boolean _resolveFieldVsGetter(List<AnnotatedMember> accessors) {
+        do {
+            AnnotatedMember acc1 = accessors.get(0);
+            AnnotatedMember acc2 = accessors.get(1);
+
+            if (acc1 instanceof AnnotatedField) {
+                if (acc2 instanceof AnnotatedMethod) {
+                    // Method has precedence, remove first entry
+                    accessors.remove(0);
+                    continue;
+                }
+            } else if (acc1 instanceof AnnotatedMethod) {
+                // Method has precedence, remove second entry
+                if (acc2 instanceof AnnotatedField) {
+                    accessors.remove(1);
+                    continue;
+                }
+            }
+            // Not a field/method pair; fail
+            return false;
+        } while (accessors.size() > 1);
+        return true;
     }
 
     /*

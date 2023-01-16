@@ -29,6 +29,12 @@ public class ConfigOverrides
      */
     final static JsonInclude.Value INCLUDE_DEFAULT // non-private for test access
         = JsonInclude.Value.construct(JsonInclude.Include.USE_DEFAULTS, JsonInclude.Include.USE_DEFAULTS);
+
+    private final static VisibilityChecker DEFAULT_VISIBILITY_CHECKER
+        = VisibilityChecker.defaultInstance();
+
+    private final static VisibilityChecker DEFAULT_RECORD_VISIBILITY_CHECKER
+        = VisibilityChecker.allPublicExceptCreatorsInstance();
     
     /**
      * Per-type override definitions
@@ -57,7 +63,7 @@ public class ConfigOverrides
         this(null,
                 INCLUDE_DEFAULT,
                 JsonSetter.Value.empty(),
-                VisibilityChecker.defaultInstance(),
+                DEFAULT_VISIBILITY_CHECKER,
                 null, null
         );
     }
@@ -168,6 +174,21 @@ public class ConfigOverrides
 
     public VisibilityChecker getDefaultVisibility() {
         return _visibilityChecker;
+    }
+
+    /**
+     * Alternate accessor needed due to complexities of Record
+     * auto-discovery: needs to obey custom overrides but also
+     * give alternate "default default" if no customizations made.
+     *
+     * @since 3.0
+     */
+    public VisibilityChecker getDefaultRecordVisibility() {
+        // Records only use default if it has been explicitly overridden to
+        // settings other than original settings
+        return (DEFAULT_VISIBILITY_CHECKER.equals(_visibilityChecker))
+                ? DEFAULT_RECORD_VISIBILITY_CHECKER
+                : _visibilityChecker;
     }
 
     /*

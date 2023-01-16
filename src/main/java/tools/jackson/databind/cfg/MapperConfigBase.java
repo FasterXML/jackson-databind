@@ -598,6 +598,9 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
 
         if (ClassUtil.isJDKClass(baseType)) {
             vc = VisibilityChecker.allPublicInstance();
+        } else if (ClassUtil.isRecordType(baseType)) {
+            // 15-Jan-2023, tatu: [databind#3724] Records require slightly different defaults
+            vc = _configOverrides.getDefaultRecordVisibility();
         } else {
             vc = getDefaultVisibilityChecker();
         }

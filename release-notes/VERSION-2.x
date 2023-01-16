@@ -31,6 +31,8 @@ Project: jackson-databind
 
 #1751: `@JsonTypeInfo` does not work if the Type Id is an Integer value
  (reported by @marvin-we)
+#3063: `@JsonValue` fails for Java Record
+ (reported by Gili T)
 #3699: Allow custom `JsonNode` implementations
  (contributed by Philippe M)
 #3711: Enum polymorphism not working correctly with DEDUCTION

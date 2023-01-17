@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.records;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -27,6 +28,18 @@ public class RecordImplicitCreatorsTest extends BaseMapTest
     }
 
     record RecordWithSingleValueConstructor(int id) {
+    }
+
+    record RecordWithSingleValueConstructorWithJsonValue(@JsonValue int id) {
+    }
+
+    record RecordWithSingleValueConstructorWithJsonValueAccessor(int id) {
+
+        @JsonValue
+        @Override
+        public int id() {
+            return id;
+        }
     }
 
     record RecordWithNonCanonicalConstructor(int id, String name, String email) {
@@ -119,8 +132,18 @@ public class RecordImplicitCreatorsTest extends BaseMapTest
      * GOTCHA: For JavaBean, only having single-value constructor results in implicit delegating creator.  But for
      * Records, the CANONICAL single-value constructor results in properties-based creator.
      * <p/>
-     * Only when there's NON-CANONICAL single-value constructor will there be implicit delegating creator - see
-     * {@link #testDeserializeUsingImplicitDelegatingConstructor()}.
+     * It will result in implicit delegating constructor only when:
+     * <ul>
+     *   <li>
+     *     There's NON-CANONICAL single-value constructor - see
+     *     {@link #testDeserializeUsingImplicitDelegatingConstructor()}, or
+     *   </li>
+     *   <li>
+     *     {@code @JsonValue} annotation is used - see
+     *     {@link #testDeserializeUsingImplicitSingleValueConstructor_WithJsonValue()},
+     *     {@link #testDeserializeUsingImplicitSingleValueConstructor_WithJsonValueAccessor()}
+     *   </li>
+     * </ul>.
      * <p/>
      * yihtserns: maybe we can change this to adopt JavaBean's behaviour, but I prefer to not break existing behaviour
      * until and unless there's a discussion on this.
@@ -188,6 +211,64 @@ public class RecordImplicitCreatorsTest extends BaseMapTest
         // This should work
         RecordWithSingleValueConstructor value = MAPPER.readValue("{\"id\":123}", RecordWithSingleValueConstructor.class);
         assertEquals(new RecordWithSingleValueConstructor(123), value);
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods, implicit single-value constructor + @JsonValue
+    /**********************************************************************
+     */
+
+    /**
+     * [databind#3180]
+     * This test-case is just for documentation purpose:
+     * Unlike {@link #testDeserializeUsingImplicitSingleValueConstructor()}, annotating {@code @JsonValue}
+     * to a Record's header results in a delegating constructor.
+     */
+    public void testDeserializeUsingImplicitSingleValueConstructor_WithJsonValue() throws Exception {
+        // Can use delegating creator
+        RecordWithSingleValueConstructorWithJsonValue value = MAPPER.readValue(
+                "123",
+                RecordWithSingleValueConstructorWithJsonValue.class);
+        assertEquals(new RecordWithSingleValueConstructorWithJsonValue(123), value);
+
+        try {
+            // Can no longer use properties-based creator
+            MAPPER.readValue("{\"id\":123}", RecordWithSingleValueConstructorWithJsonValue.class);
+
+            fail("should not pass");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Cannot construct instance");
+            verifyException(e, "RecordWithSingleValueConstructorWithJsonValue");
+            verifyException(e, "although at least one Creator exists");
+            verifyException(e, "cannot deserialize from Object value");
+        }
+    }
+
+    /**
+     * [databind#3180]
+     * This test-case is just for documentation purpose:
+     * Unlike {@link #testDeserializeUsingImplicitSingleValueConstructor()}, annotating {@code @JsonValue}
+     * to the accessor results in a delegating creator.
+     */
+    public void testDeserializeUsingImplicitSingleValueConstructor_WithJsonValueAccessor() throws Exception {
+        // Can use delegating creator
+        RecordWithSingleValueConstructorWithJsonValueAccessor value = MAPPER.readValue(
+                "123",
+                RecordWithSingleValueConstructorWithJsonValueAccessor.class);
+        assertEquals(new RecordWithSingleValueConstructorWithJsonValueAccessor(123), value);
+
+        try {
+            // Can no longer use properties-based creator
+            MAPPER.readValue("{\"id\":123}", RecordWithSingleValueConstructorWithJsonValueAccessor.class);
+
+            fail("should not pass");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Cannot construct instance");
+            verifyException(e, "RecordWithSingleValueConstructorWithJsonValueAccessor");
+            verifyException(e, "although at least one Creator exists");
+            verifyException(e, "cannot deserialize from Object value");
+        }
     }
 
     /*

@@ -42,11 +42,20 @@ public class EnumAltIdTest extends BaseMapTest
         public MyEnum2352_3 value;
     }
 
+    protected static class DefaultEnumSetBean {
+        @JsonFormat(with={ JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE })
+        public EnumSet<MyEnum2352_3> value;
+    }
+
     protected static class NullValueEnumBean {
         @JsonFormat(with={ JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_AS_NULL })
         public MyEnum2352_3 value;
     }
 
+    protected static class NullEnumSetBean {
+        @JsonFormat(with={ JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_AS_NULL })
+        public EnumSet<MyEnum2352_3> value;
+    }
 
     // for [databind#2352]: Support aliases on enum values
     enum MyEnum2352_1 {
@@ -225,7 +234,7 @@ public class EnumAltIdTest extends BaseMapTest
         assertEquals(MyEnum2352_3.C, multipleAliases2);
     }
 
-    public void testEnumWithDefaultForUnknownValueEnabled() throws JsonProcessingException {
+    public void testEnumWithDefaultForUnknownValueEnabled() throws Exception {
         final String JSON = a2q("{'value':'ok'}");
 
         DefaultEnumBean pojo = READER_DEFAULT.forType(DefaultEnumBean.class)
@@ -242,7 +251,7 @@ public class EnumAltIdTest extends BaseMapTest
         }
     }
 
-    public void testEnumWithNullForUnknownValueEnabled() throws JsonProcessingException {
+    public void testEnumWithNullForUnknownValueEnabled() throws Exception {
         final String JSON = a2q("{'value':'ok'}");
 
         NullValueEnumBean pojo = READER_DEFAULT.forType(NullValueEnumBean.class)
@@ -257,5 +266,23 @@ public class EnumAltIdTest extends BaseMapTest
             verifyException(e, "not one of the values accepted for Enum class");
             verifyException(e, "[JACKSON, OK, RULES]");
         }
+    }
+
+    public void testEnumWithDefaultForUnknownValueEnumSet() throws Exception {
+        final String JSON = a2q("{'value':['ok']}");
+
+        DefaultEnumSetBean pojo = READER_DEFAULT.forType(DefaultEnumSetBean.class)
+          .readValue(JSON);
+        assertEquals(1, pojo.value.size());
+        assertTrue(pojo.value.contains(MyEnum2352_3.B));
+    }
+
+    public void testEnumWithNullForUnknownValueEnumSet() throws Exception {
+        final String JSON = a2q("{'value':['ok','B']}");
+
+        NullEnumSetBean pojo = READER_DEFAULT.forType(NullEnumSetBean.class)
+          .readValue(JSON);
+        assertEquals(1, pojo.value.size());
+        assertTrue(pojo.value.contains(MyEnum2352_3.B));
     }
 }

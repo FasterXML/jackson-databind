@@ -445,6 +445,8 @@ public class TokenBuffer
                         gen.writeNumber((Long) n);
                     } else if (n instanceof Short) {
                         gen.writeNumber((Short) n);
+                    } else if (n instanceof LazyNumber) {
+                        gen.writeNumber(((LazyNumber) n).getText());
                     } else {
                         gen.writeNumber(((Number) n).intValue());
                     }
@@ -463,6 +465,8 @@ public class TokenBuffer
                         gen.writeNull();
                     } else if (n instanceof String) {
                         gen.writeNumber((String) n);
+                    } else if (n instanceof LazyNumber) {
+                        gen.writeNumber(((LazyNumber) n).getText());
                     } else {
                         _reportError(String.format(
                                 "Unrecognized value type for VALUE_NUMBER_FLOAT: %s, cannot serialize",
@@ -1096,24 +1100,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             }
             break;
         case VALUE_NUMBER_FLOAT:
-            if (_forceBigDecimal) {
-                // 10-Oct-2015, tatu: Ideally we would first determine whether underlying
-                //   number is already decoded into a number (in which case might as well
-                //   access as number); or is still retained as text (in which case we
-                //   should further defer decoding that may not need BigDecimal):
-                writeLazyBigDecimal(p.getLazyNumber());
-            } else {
-                switch (p.getNumberType()) {
-                case BIG_DECIMAL:
-                    writeLazyBigDecimal(p.getLazyNumber());
-                    break;
-                case FLOAT:
-                    writeNumber(p.getFloatValue());
-                    break;
-                default:
-                    writeNumber(p.getDoubleValue());
-                }
-            }
+            writeLazyDecimal(p.getLazyNumber());
             break;
         case VALUE_TRUE:
             writeBoolean(true);
@@ -1255,7 +1242,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             break;
         case VALUE_NUMBER_FLOAT:
             if (_forceBigDecimal) {
-                writeLazyBigDecimal(p.getLazyNumber());
+                writeLazyDecimal(p.getLazyNumber());
             } else {
                 // 09-Jul-2020, tatu: Used to just copy using most optimal method, but
                 //  issues like [databind#2644] force to use exact, not optimal type
@@ -1339,7 +1326,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         }
     }
 
-    private void writeLazyBigDecimal(final LazyNumber lazyNumber) throws IOException {
+    private void writeLazyDecimal(final LazyNumber lazyNumber) throws IOException {
         if (lazyNumber == null) {
             writeNull();
         } else {

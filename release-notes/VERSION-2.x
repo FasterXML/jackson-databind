@@ -27,6 +27,8 @@ Project: jackson-databind
 #3708: Seems like `java.nio.file.Path` is safe for Android API level 26
  (contributed by @pjfanning)
 #3736: Try to avoid auto-detecting Fields for Record types
+#3742: schemaType of `LongSerializer` is wrong
+ (reported by @luozhenyu)
 
 2.14.2 (not yet released)
 

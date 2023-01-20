@@ -1,10 +1,12 @@
 package tools.jackson.databind.deser.jdk;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import tools.jackson.core.*;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.cfg.CoercionAction;
@@ -40,6 +42,9 @@ public class EnumDeserializer
 
     protected final Boolean _caseInsensitive;
 
+    private Boolean _useDefaultValueForUnknownEnum;
+    private Boolean _useNullForUnknownEnum;
+
     /**
      * Marker flag for cases where we expect actual integral value for Enum,
      * based on {@code @JsonValue} (and equivalent) annotated accessor.
@@ -56,7 +61,8 @@ public class EnumDeserializer
         _isFromIntValue = byNameResolver.isFromIntValue();
     }
 
-    protected EnumDeserializer(EnumDeserializer base, Boolean caseInsensitive)
+    protected EnumDeserializer(EnumDeserializer base, Boolean caseInsensitive,
+            Boolean useDefaultValueForUnknownEnum, Boolean useNullForUnknownEnum)
     {
         super(base);
         _lookupByName = base._lookupByName;
@@ -64,6 +70,8 @@ public class EnumDeserializer
         _enumDefaultValue = base._enumDefaultValue;
         _caseInsensitive = caseInsensitive;
         _isFromIntValue = base._isFromIntValue;
+        _useDefaultValueForUnknownEnum = useDefaultValueForUnknownEnum;
+        _useNullForUnknownEnum = useNullForUnknownEnum;
     }
 
     /**
@@ -101,23 +109,28 @@ public class EnumDeserializer
         return new FactoryBasedEnumDeserializer(enumClass, factory);
     }
 
-    public EnumDeserializer withResolved(Boolean caseInsensitive) {
-        if (Objects.equals(_caseInsensitive, caseInsensitive)) {
+    public EnumDeserializer withResolved(Boolean caseInsensitive,
+            Boolean useDefaultValueForUnknownEnum, Boolean useNullForUnknownEnum) {
+        if (Objects.equals(_caseInsensitive, caseInsensitive)
+          && Objects.equals(_useDefaultValueForUnknownEnum, useDefaultValueForUnknownEnum)
+          && Objects.equals(_useNullForUnknownEnum, useNullForUnknownEnum)) {
             return this;
         }
-        return new EnumDeserializer(this, caseInsensitive);
+        return new EnumDeserializer(this, caseInsensitive,
+                useDefaultValueForUnknownEnum, useNullForUnknownEnum);
     }
     
     @Override
     public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property)
     {
-        Boolean caseInsensitive = findFormatFeature(ctxt, property, handledType(),
-                JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
-        if (caseInsensitive == null) {
-            caseInsensitive = _caseInsensitive;
-        }
-        return withResolved(caseInsensitive);
+        Boolean caseInsensitive = Optional.ofNullable(findFormatFeature(ctxt, property, handledType(),
+          JsonFormat.Feature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)).orElse(_caseInsensitive);
+        Boolean useDefaultValueForUnknownEnum = Optional.ofNullable(findFormatFeature(ctxt, property, handledType(),
+          JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)).orElse(_useDefaultValueForUnknownEnum);
+        Boolean useNullForUnknownEnum = Optional.ofNullable(findFormatFeature(ctxt, property, handledType(),
+          JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)).orElse(_useNullForUnknownEnum);
+        return withResolved(caseInsensitive, useDefaultValueForUnknownEnum, useNullForUnknownEnum);
     }
 
     /*
@@ -218,11 +231,10 @@ public class EnumDeserializer
         if (index >= 0 && index < _enumsByIndex.length) {
             return _enumsByIndex[index];
         }
-        if ((_enumDefaultValue != null)
-                && ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)) {
+        if (useDefaultValueForUnknownEnum(ctxt)) {
             return _enumDefaultValue;
         }
-        if (!ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
+        if (!useNullForUnknownEnum(ctxt)) {
             return ctxt.handleWeirdNumberValue(_enumClass(), index,
                     "index value outside legal index range [0..%s]",
                     _enumsByIndex.length-1);
@@ -248,11 +260,10 @@ public class EnumDeserializer
         if (name.isEmpty()) { // empty or blank
             // 07-Jun-2021, tatu: [databind#3171] Need to consider Default value first
             //   (alas there's bit of duplication here)
-            if ((_enumDefaultValue != null)
-                    && ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)) {
+            if (useDefaultValueForUnknownEnum(ctxt)) {
                 return _enumDefaultValue;
             }
-            if (ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
+            if (useNullForUnknownEnum(ctxt)) {
                 return null;
             }
 
@@ -303,11 +314,10 @@ public class EnumDeserializer
                 }
             }
         }
-        if ((_enumDefaultValue != null)
-                && ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)) {
+        if (useDefaultValueForUnknownEnum(ctxt)) {
             return _enumDefaultValue;
         }
-        if (ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
+        if (useNullForUnknownEnum(ctxt)) {
             return null;
         }
         return ctxt.handleWeirdStringValue(_enumClass(), name,
@@ -341,5 +351,18 @@ public class EnumDeserializer
             _lookupByToString = lookup;
         }
         return lookup;
+    }
+
+    // @since 2.15
+    protected boolean useNullForUnknownEnum(DeserializationContext ctxt) {
+        return Boolean.TRUE.equals(_useNullForUnknownEnum)
+          || ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
+    }
+
+    // @since 2.15
+    protected boolean useDefaultValueForUnknownEnum(DeserializationContext ctxt) {
+        return (_enumDefaultValue != null)
+          && (Boolean.TRUE.equals(_useDefaultValueForUnknownEnum)
+          || ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE));
     }
 }

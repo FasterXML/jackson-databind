@@ -1679,7 +1679,8 @@ factory.toString()));
             if (deser == null) {
                 deser = new EnumDeserializer(constructEnumResolver(ctxt, enumClass,
                         beanDesc.findJsonValueAccessor()),
-                        config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS));
+                        config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+                );
             }
         }
 

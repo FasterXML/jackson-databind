@@ -16,6 +16,9 @@ Project: jackson-databind
  (fix contributed by Sim Y-T)
 #3342: `JsonTypeInfo.As.EXTERNAL_PROPERTY` does not work with record wrappers
  (fix contributed by Sim Y-T)
+#3637: Add enum features into `@JsonFormat.Feature`
+ (requested by @Anatoly4444)
+ (fix contributed by Ajay S)
 #3654: Infer `@JsonCreator(mode = Mode.DELEGATING)` from use of `@JsonValue`)
 #3676: Allow use of `@JsonCreator(mode = Mode.PROPERTIES)` creator for POJOs
  with"empty String" coercion

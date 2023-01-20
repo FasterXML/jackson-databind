@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.*;
-import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
@@ -27,11 +26,11 @@ import com.fasterxml.jackson.databind.util.Converter;
  * Base class used by all standard serializers, and can also
  * be used for custom serializers (in fact, this is the recommended
  * base class to use).
- * Provides convenience methods for implementing {@link SchemaAware}
  */
+@SuppressWarnings("deprecation")
 public abstract class StdSerializer<T>
     extends JsonSerializer<T>
-    implements JsonFormatVisitable, SchemaAware, java.io.Serializable
+    implements JsonFormatVisitable, com.fasterxml.jackson.databind.jsonschema.SchemaAware, java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -120,7 +119,11 @@ public abstract class StdSerializer<T>
     /**
      * Default implementation simply claims type is "string"; usually
      * overriden by custom serializers.
+     *
+     * @deprecated Since 2.15, we recommend use of external
+     * <a href="https://github.com/FasterXML/jackson-module-jsonSchema">JSON Schema generator module</a>
      */
+    @Deprecated
     @Override
     public JsonNode getSchema(SerializerProvider provider, Type typeHint) throws JsonMappingException
     {
@@ -130,7 +133,11 @@ public abstract class StdSerializer<T>
     /**
      * Default implementation simply claims type is "string"; usually
      * overriden by custom serializers.
+     *
+     * @deprecated Since 2.15, we recommend use of external
+     * <a href="https://github.com/FasterXML/jackson-module-jsonSchema">JSON Schema generator module</a>
      */
+    @Deprecated
     @Override
     public JsonNode getSchema(SerializerProvider provider, Type typeHint, boolean isOptional)
         throws JsonMappingException

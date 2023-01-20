@@ -8,7 +8,11 @@ import java.lang.reflect.Type;
 
 /**
  * Marker interface for schema-aware serializers.
+ *
+ * @deprecated Since 2.15, we recommend use of external
+ * <a href="https://github.com/FasterXML/jackson-module-jsonSchema">JSON Schema generator module</a>
  */
+@Deprecated
 public interface SchemaAware
 {
     /**

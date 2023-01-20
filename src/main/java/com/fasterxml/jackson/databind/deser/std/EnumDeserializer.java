@@ -25,7 +25,7 @@ import java.util.Optional;
  * Deserializer class that can deserialize instances of
  * specified Enum class from Strings and Integers.
  */
-@JacksonStdImpl // was missing until 2.6
+@JacksonStdImpl
 public class EnumDeserializer
     extends StdScalarDeserializer<Object>
     implements ContextualDeserializer
@@ -79,9 +79,10 @@ public class EnumDeserializer
     }
 
     /**
-     * @since 2.9
+     * @since 2.15
      */
-    protected EnumDeserializer(EnumDeserializer base, Boolean caseInsensitive, Boolean useDefaultValueForUnknownEnum, Boolean useNullForUnknownEnum)
+    protected EnumDeserializer(EnumDeserializer base, Boolean caseInsensitive,
+            Boolean useDefaultValueForUnknownEnum, Boolean useNullForUnknownEnum)
     {
         super(base);
         _lookupByName = base._lookupByName;
@@ -93,6 +94,15 @@ public class EnumDeserializer
         _useNullForUnknownEnum = useNullForUnknownEnum;
     }
 
+    /**
+     * @since 2.9
+     * @deprecated Since 2.15
+     */
+    @Deprecated
+    protected EnumDeserializer(EnumDeserializer base, Boolean caseInsensitive) {
+        this(base, caseInsensitive, null, null);
+    }
+    
     /**
      * @deprecated Since 2.9
      */
@@ -150,9 +160,10 @@ public class EnumDeserializer
     }
 
     /**
-     * @since 2.9
+     * @since 2.15
      */
-    public EnumDeserializer withResolved(Boolean caseInsensitive, Boolean useDefaultValueForUnknownEnum, Boolean useNullForUnknownEnum) {
+    public EnumDeserializer withResolved(Boolean caseInsensitive,
+            Boolean useDefaultValueForUnknownEnum, Boolean useNullForUnknownEnum) {
         if (Objects.equals(_caseInsensitive, caseInsensitive)
           && Objects.equals(_useDefaultValueForUnknownEnum, useDefaultValueForUnknownEnum)
           && Objects.equals(_useNullForUnknownEnum, useNullForUnknownEnum)) {
@@ -160,7 +171,17 @@ public class EnumDeserializer
         }
         return new EnumDeserializer(this, caseInsensitive, useDefaultValueForUnknownEnum, useNullForUnknownEnum);
     }
-    
+
+    /**
+     * @since 2.9
+     * @deprecated Since 2.15
+     */
+    @Deprecated
+    public EnumDeserializer withResolved(Boolean caseInsensitive) {
+        return withResolved(caseInsensitive,
+                _useDefaultValueForUnknownEnum, _useNullForUnknownEnum);
+    }
+
     @Override // since 2.9
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property) throws JsonMappingException
@@ -391,12 +412,14 @@ public class EnumDeserializer
         return lookup;
     }
 
-    private boolean useNullForUnknownEnum(DeserializationContext ctxt) {
+    // @since 2.15
+    protected boolean useNullForUnknownEnum(DeserializationContext ctxt) {
         return Boolean.TRUE.equals(_useNullForUnknownEnum)
           || ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
     }
 
-    private boolean useDefaultValueForUnknownEnum(DeserializationContext ctxt) {
+    // @since 2.15
+    protected boolean useDefaultValueForUnknownEnum(DeserializationContext ctxt) {
         return (_enumDefaultValue != null)
           && (Boolean.TRUE.equals(_useDefaultValueForUnknownEnum)
           || ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE));

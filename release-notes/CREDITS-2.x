@@ -1554,3 +1554,8 @@ Sim Yih Tsern (yihtsern@github)
   (2.15.0)
   * Contributed fix for #3342: `JsonTypeInfo.As.EXTERNAL_PROPERTY` does not work with record wrappers
   (2.15.0)
+
+Ajay Siwach (Siwach16@github)
+  * Contributed #3637: Add enum features into `@JsonFormat.Feature`
+  (2.15.0)
+

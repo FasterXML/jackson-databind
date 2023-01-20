@@ -41,7 +41,11 @@ public class RawSerializer<T>
         serialize(value, g, provider);
         typeSer.writeTypeSuffix(g, typeIdDef);
     }
-    
+
+    /**
+     * @deprecated Since 2.15
+     */
+    @Deprecated
     @Override
     public JsonNode getSchema(SerializerProvider provider, Type typeHint)
     {

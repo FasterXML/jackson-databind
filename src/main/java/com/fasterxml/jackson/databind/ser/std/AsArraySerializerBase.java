@@ -12,7 +12,6 @@ import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
-import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
@@ -271,7 +270,10 @@ public abstract class AsArraySerializerBase<T>
     protected abstract void serializeContents(T value, JsonGenerator gen, SerializerProvider provider)
         throws IOException;
 
-    @SuppressWarnings("deprecation")
+    /**
+     * @deprecated Since 2.15
+     */
+    @Deprecated
     @Override
     public JsonNode getSchema(SerializerProvider provider, Type typeHint)
         throws JsonMappingException
@@ -279,8 +281,9 @@ public abstract class AsArraySerializerBase<T>
         ObjectNode o = createSchemaNode("array", true);
         if (_elementSerializer != null) {
             JsonNode schemaNode = null;
-            if (_elementSerializer instanceof SchemaAware) {
-                schemaNode = ((SchemaAware) _elementSerializer).getSchema(provider, null);
+            if (_elementSerializer instanceof com.fasterxml.jackson.databind.jsonschema.SchemaAware) {
+                schemaNode = ((com.fasterxml.jackson.databind.jsonschema.SchemaAware) _elementSerializer)
+                    .getSchema(provider, null);
             }
             if (schemaNode == null) {
                 schemaNode = com.fasterxml.jackson.databind.jsonschema.JsonSchema.getDefaultSchemaNode();

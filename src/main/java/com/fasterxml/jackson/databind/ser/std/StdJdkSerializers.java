@@ -66,7 +66,11 @@ public class StdJdkSerializers
         public void serialize(AtomicBoolean value, JsonGenerator gen, SerializerProvider provider) throws IOException {
             gen.writeBoolean(value.get());
         }
-    
+
+        /**
+         * @deprecated Since 2.15
+         */
+        @Deprecated
         @Override
         public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
             return createSchemaNode("boolean", true);
@@ -87,7 +91,11 @@ public class StdJdkSerializers
         public void serialize(AtomicInteger value, JsonGenerator gen, SerializerProvider provider) throws IOException {
             gen.writeNumber(value.get());
         }
-    
+
+        /**
+         * @deprecated Since 2.15
+         */
+        @Deprecated
         @Override
         public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
             return createSchemaNode("integer", true);
@@ -109,7 +117,11 @@ public class StdJdkSerializers
         public void serialize(AtomicLong value, JsonGenerator gen, SerializerProvider provider) throws IOException {
             gen.writeNumber(value.get());
         }
-    
+
+        /**
+         * @deprecated Since 2.15
+         */
+        @Deprecated
         @Override
         public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
             return createSchemaNode("integer", true);

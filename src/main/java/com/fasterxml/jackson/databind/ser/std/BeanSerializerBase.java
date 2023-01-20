@@ -16,7 +16,6 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.jsonschema.JsonSerializableSchema;
-import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.*;
@@ -40,7 +39,7 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
 public abstract class BeanSerializerBase
     extends StdSerializer<Object>
     implements ContextualSerializer, ResolvableSerializer,
-        JsonFormatVisitable, SchemaAware
+        JsonFormatVisitable
 {
     protected final static PropertyName NAME_FOR_OBJECT_REF = new PropertyName("#object-ref");
 

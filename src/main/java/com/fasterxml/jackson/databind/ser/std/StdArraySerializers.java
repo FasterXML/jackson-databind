@@ -155,6 +155,10 @@ public class StdArraySerializers
             }
         }
 
+        /**
+         * @deprecated Since 2.15
+         */
+        @Deprecated
         @Override
         public JsonNode getSchema(SerializerProvider provider, Type typeHint)
         {
@@ -232,6 +236,10 @@ public class StdArraySerializers
             }
         }
 
+        /**
+         * @deprecated Since 2.15
+         */
+        @Deprecated
         @Override
         public JsonNode getSchema(SerializerProvider provider, Type typeHint)
         {
@@ -307,6 +315,10 @@ public class StdArraySerializers
             }
         }
 
+        /**
+         * @deprecated Since 2.15
+         */
+        @Deprecated
         @Override
         public JsonNode getSchema(SerializerProvider provider, Type typeHint)
         {
@@ -397,6 +409,10 @@ public class StdArraySerializers
             }
         }
 
+        /**
+         * @deprecated Since 2.15
+         */
+        @Deprecated
         @Override
         public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
             return createSchemaNode("array", true).set("items", createSchemaNode("integer"));
@@ -469,6 +485,10 @@ public class StdArraySerializers
             }
         }
 
+        /**
+         * @deprecated Since 2.15
+         */
+        @Deprecated
         @Override
         public JsonNode getSchema(SerializerProvider provider, Type typeHint)
         {
@@ -547,6 +567,10 @@ public class StdArraySerializers
             }
         }
 
+        /**
+         * @deprecated Since 2.15
+         */
+        @Deprecated
         @Override
         public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
             return createSchemaNode("array", true).set("items", createSchemaNode("number"));
@@ -631,6 +655,10 @@ public class StdArraySerializers
             }
         }
 
+        /**
+         * @deprecated Since 2.15
+         */
+        @Deprecated
         @Override
         public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
             return createSchemaNode("array", true).set("items", createSchemaNode("number"));

@@ -75,6 +75,10 @@ public class NumberSerializers {
                     || (numberType == JsonParser.NumberType.BIG_INTEGER);
         }
 
+        /**
+         * @deprecated Since 2.15
+         */
+        @Deprecated
         @Override
         public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
             return createSchemaNode(_schemaType, true);

@@ -51,6 +51,10 @@ public class DOMSerializer extends StdSerializer<Node>
         }
     }
 
+    /**
+     * @deprecated Since 2.15
+     */
+    @Deprecated
     @Override
     public JsonNode getSchema(SerializerProvider provider, java.lang.reflect.Type typeHint) {
         // Well... it is serialized as String

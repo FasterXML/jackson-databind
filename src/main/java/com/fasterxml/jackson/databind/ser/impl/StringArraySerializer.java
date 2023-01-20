@@ -210,6 +210,10 @@ public class StringArraySerializer
         }
     }
 
+    /**
+     * @deprecated Since 2.15
+     */
+    @Deprecated
     @Override
     public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
         return createSchemaNode("array", true).set("items", createSchemaNode("string"));

@@ -16,6 +16,8 @@ import tools.jackson.core.io.CharacterEscapes;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.deser.std.DelegatingDeserializer;
+import tools.jackson.databind.deser.std.StdDeserializer;
 import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.ser.jdk.CollectionSerializer;
 import tools.jackson.databind.ser.std.SimpleBeanPropertyFilter;
@@ -23,6 +25,8 @@ import tools.jackson.databind.ser.std.SimpleFilterProvider;
 import tools.jackson.databind.ser.std.StdDelegatingSerializer;
 import tools.jackson.databind.ser.std.StdScalarSerializer;
 import tools.jackson.databind.ser.std.StdSerializer;
+import tools.jackson.databind.util.AccessPattern;
+import tools.jackson.databind.util.NameTransformer;
 import tools.jackson.databind.util.StdConverter;
 
 /**
@@ -188,13 +192,62 @@ public class CustomSerializersTest extends BaseMapTest
         }
     }
 
+    // [databind#3748]
+    static class BaseDeserializer3748
+        extends StdDeserializer<String>
+    {
+        public BaseDeserializer3748() { super(String.class); }
+
+        @Override
+        public String deserialize(JsonParser p, DeserializationContext ctxt) {
+            return null;
+        }
+
+        @Override
+        public Object getEmptyValue(DeserializationContext ctxt) {
+            return "empty";
+        }
+
+        @Override
+        public AccessPattern getEmptyAccessPattern() {
+            return AccessPattern.ALWAYS_NULL;
+        }
+        
+        @Override
+        public Object getAbsentValue(DeserializationContext ctxt) {
+            return "absent";
+        }
+
+        @Override
+        public ValueDeserializer<String> unwrappingDeserializer(DeserializationContext ctxt,
+                NameTransformer unwrapper) {
+            return new BaseDeserializer3748();
+        }
+    }
+
+    static class Delegating3748 extends DelegatingDeserializer
+    {
+        public Delegating3748() {
+            this(new BaseDeserializer3748());
+        }
+
+        public Delegating3748(ValueDeserializer<?> del) {
+            super(del);
+        }
+
+        @Override
+        protected ValueDeserializer<?> newDelegatingInstance(ValueDeserializer<?> newDelegatee) {
+            return new Delegating3748(newDelegatee);
+        }
+    }
+
     /*
     /**********************************************************
     /* Unit tests
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     public void testCustomization() throws Exception
     {
@@ -312,6 +365,17 @@ public class CustomSerializersTest extends BaseMapTest
 
         assertEquals(a2q("{'id':'ID-2','set':[]}"),
                 writer.writeValueAsString(new Item2475(new HashSet<String>(), "ID-2")));
-    }    
+    }
 
+    // [databind#3748]
+    public void testBasicDelegatingDeser() throws Exception
+    {
+        Delegating3748 deser = new Delegating3748();
+        assertEquals("absent", deser.getAbsentValue(null));
+        assertEquals("empty", deser.getEmptyValue(null));
+        assertEquals(AccessPattern.ALWAYS_NULL, deser.getEmptyAccessPattern());
+        ValueDeserializer<?> unwrapping = deser.unwrappingDeserializer(null, null);
+        assertNotNull(unwrapping);
+        assertNotSame(deser, unwrapping);
+    }
 }

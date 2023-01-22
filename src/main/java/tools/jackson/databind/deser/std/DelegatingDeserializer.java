@@ -4,24 +4,26 @@ import java.util.Collection;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.*;
 import tools.jackson.databind.deser.impl.ObjectIdReader;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.util.AccessPattern;
+import tools.jackson.databind.util.NameTransformer;
 
 /**
  * Base class that simplifies implementations of {@link ValueDeserializer}s
  * that mostly delegate functionality to another deserializer implementation
- * (possibly forming a chain of deserializers delegating functionality
+ * (possibly forming a chaining of deserializers delegating functionality
  * in some cases)
  */
 public abstract class DelegatingDeserializer
     extends StdDeserializer<Object>
 {
     protected final ValueDeserializer<?> _delegatee;
-    
+
     /*
     /**********************************************************************
     /* Construction
@@ -39,9 +41,9 @@ public abstract class DelegatingDeserializer
     /* Abstract methods to implement
     /**********************************************************************
      */
-    
+
     protected abstract ValueDeserializer<?> newDelegatingInstance(ValueDeserializer<?> newDelegatee);
-    
+
     /*
     /**********************************************************************
     /* Overridden methods for contextualization, resolving
@@ -68,10 +70,16 @@ public abstract class DelegatingDeserializer
         return newDelegatingInstance(del);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public SettableBeanProperty findBackReference(String logicalName) {
-        // [databind#253]: Hope this works....
-        return _delegatee.findBackReference(logicalName);
+    public ValueDeserializer<Object> unwrappingDeserializer(DeserializationContext ctxt,
+            NameTransformer unwrapper)
+    {
+        ValueDeserializer<?> unwrapping = _delegatee.unwrappingDeserializer(ctxt, unwrapper);
+        if (unwrapping == _delegatee) {
+            return this;
+        }
+        return (ValueDeserializer<Object>) newDelegatingInstance(unwrapping);
     }
 
     @Override
@@ -135,13 +143,28 @@ public abstract class DelegatingDeserializer
     }
 
     @Override
+    public Object getAbsentValue(DeserializationContext ctxt) {
+        return _delegatee.getAbsentValue(ctxt);
+    }
+
+    @Override
     public Object getEmptyValue(DeserializationContext ctxt) {
         return _delegatee.getEmptyValue(ctxt);
     }
 
     @Override
+    public AccessPattern getEmptyAccessPattern() {
+        return _delegatee.getEmptyAccessPattern();
+    }
+    
+    @Override
     public LogicalType logicalType() {
         return _delegatee.logicalType();
+    }
+
+    @Override
+    public boolean isCachable() {
+        return (_delegatee != null) && _delegatee.isCachable();
     }
 
     @Override
@@ -153,8 +176,8 @@ public abstract class DelegatingDeserializer
     }
 
     @Override
-    public boolean isCachable() {
-        return (_delegatee != null) && _delegatee.isCachable();
+    public SettableBeanProperty findBackReference(String logicalName) {
+        return _delegatee.findBackReference(logicalName);
     }
 
     @Override

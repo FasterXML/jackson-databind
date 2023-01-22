@@ -124,41 +124,7 @@ public class StdConvertingDeserializer<T>
 
     /*
     /**********************************************************************
-    /* Accessors
-    /**********************************************************************
-     */
-
-    @Override
-    public ValueDeserializer<?> getDelegatee() {
-        return _delegateDeserializer;
-    }
-
-    @Override
-    public Class<?> handledType() {
-        return _delegateDeserializer.handledType();
-    }
-
-    /**
-     * Let's assume that as long as delegate is cachable, we are too.
-     */
-    @Override
-    public boolean isCachable() {
-        return (_delegateDeserializer != null) && _delegateDeserializer.isCachable();
-    }
-
-    @Override
-    public LogicalType logicalType() {
-        return _delegateDeserializer.logicalType();
-    }
-    
-    @Override
-    public Boolean supportsUpdate(DeserializationConfig config) {
-        return _delegateDeserializer.supportsUpdate(config);
-    }
-
-    /*
-    /**********************************************************************
-    /* Serialization
+    /* Deserialization
     /**********************************************************************
      */
 
@@ -219,6 +185,40 @@ public class StdConvertingDeserializer<T>
         throw new UnsupportedOperationException(String.format
                 ("Cannot update object of type %s (using deserializer for type %s)"
                         +intoValue.getClass().getName(), _delegateType));
+    }
+
+    /*
+    /**********************************************************************
+    /* Accessors
+    /**********************************************************************
+     */
+
+    @Override
+    public ValueDeserializer<?> getDelegatee() {
+        return _delegateDeserializer;
+    }
+
+    @Override
+    public Class<?> handledType() {
+        return _delegateDeserializer.handledType();
+    }
+
+    /**
+     * Let's assume that as long as delegate is cachable, we are too.
+     */
+    @Override
+    public boolean isCachable() {
+        return (_delegateDeserializer != null) && _delegateDeserializer.isCachable();
+    }
+
+    @Override
+    public LogicalType logicalType() {
+        return _delegateDeserializer.logicalType();
+    }
+
+    @Override
+    public Boolean supportsUpdate(DeserializationConfig config) {
+        return _delegateDeserializer.supportsUpdate(config);
     }
 
     /*

@@ -45,6 +45,7 @@ Project: jackson-databind
  (contributed by Philippe M)
 #3711: Enum polymorphism not working correctly with DEDUCTION
  (reported by @smilep)
+#3741: `StdDelegatingDeserializer` ignores `nullValue` of `_delegateDeserializer`.
 
 2.14.1 (21-Nov-2022)
 

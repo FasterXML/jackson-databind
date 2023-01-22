@@ -25,6 +25,8 @@ import com.fasterxml.jackson.databind.util.Converter;
  *<p>
  * Since 2.5 There is {@link StdNodeBasedDeserializer} that is a simplified version
  * for cases where intermediate type is {@link JsonNode}
+ *<p>
+ * NOTE: in Jackson 3.0 this class will be renamed as {@code StdConvertingDeserializer}.
  * 
  * @param <T> Target type to convert to, from delegate type
  * 

@@ -1,12 +1,17 @@
 package tools.jackson.databind.deser.std;
 
+import java.util.Collection;
+
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.type.LogicalType;
+import tools.jackson.databind.util.AccessPattern;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.Converter;
+import tools.jackson.databind.util.NameTransformer;
 
 /**
  * Deserializer implementation where given Java type is first deserialized
@@ -86,6 +91,22 @@ public class StdConvertingDeserializer<T>
     {
         ClassUtil.verifyMustOverride(StdConvertingDeserializer.class, this, "withDelegate");
         return new StdConvertingDeserializer<T>(converter, delegateType, delegateDeserializer);
+    }
+
+    @Override
+    public ValueDeserializer<T> unwrappingDeserializer(DeserializationContext ctxt,
+            NameTransformer unwrapper) {
+        ClassUtil.verifyMustOverride(StdConvertingDeserializer.class, this, "unwrappingDeserializer");
+        return replaceDelegatee(_delegateDeserializer.unwrappingDeserializer(ctxt, unwrapper));
+    }
+
+    @Override
+    public ValueDeserializer<T> replaceDelegatee(ValueDeserializer<?> delegatee) {
+        ClassUtil.verifyMustOverride(StdConvertingDeserializer.class, this, "replaceDelegatee");
+        if (delegatee == _delegateDeserializer) {
+            return this;
+        }
+        return new StdConvertingDeserializer<T>(_converter, _delegateType, delegatee);
     }
 
     /*
@@ -171,6 +192,22 @@ public class StdConvertingDeserializer<T>
         return (T) _handleIncompatibleUpdateValue(p, ctxt, intoValue);
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
+            TypeDeserializer typeDeserializer, T intoValue)
+        throws JacksonException
+    {
+        // 21-Jan-2023, tatu: Override was missing from 2.15. Tricky to
+        //    support but follow example of the other "deserializeWithType()"
+        //   It seems unlikely to actually work (isn't type check just... wrong?)
+        //   but for now has to do I guess.
+        if (!_delegateType.getRawClass().isAssignableFrom(intoValue.getClass())){
+            return (T) _handleIncompatibleUpdateValue(p, ctxt, intoValue);
+        }
+        return (T) _delegateDeserializer.deserialize(p, ctxt, intoValue);
+    }
+
     /**
      * Overridable handler method called when {@link #deserialize(JsonParser, DeserializationContext, Object)}
      * has been called with a value that is not compatible with delegate value.
@@ -194,27 +231,67 @@ public class StdConvertingDeserializer<T>
      */
 
     @Override
-    public ValueDeserializer<?> getDelegatee() {
-        return _delegateDeserializer;
-    }
-
-    @Override
     public Class<?> handledType() {
         return _delegateDeserializer.handledType();
-    }
-
-    /**
-     * Let's assume that as long as delegate is cachable, we are too.
-     */
-    @Override
-    public boolean isCachable() {
-        return (_delegateDeserializer != null) && _delegateDeserializer.isCachable();
     }
 
     @Override
     public LogicalType logicalType() {
         return _delegateDeserializer.logicalType();
     }
+
+    // Let's assume we should be cachable if delegate is
+    @Override
+    public boolean isCachable() {
+        return (_delegateDeserializer != null) && _delegateDeserializer.isCachable();
+    }
+
+    @Override
+    public ValueDeserializer<?> getDelegatee() {
+        return _delegateDeserializer;
+    }
+
+    @Override
+    public Collection<Object> getKnownPropertyNames() {
+        return _delegateDeserializer.getKnownPropertyNames();
+    }
+
+    /*
+    /**********************************************************
+    /* Null/empty/absent accessors
+    /**********************************************************
+     */
+
+    @Override
+    public T getNullValue(DeserializationContext ctxt) {
+        return _convertIfNonNull(_delegateDeserializer.getNullValue(ctxt));
+    }
+
+    @Override
+    public AccessPattern getNullAccessPattern() {
+        return _delegateDeserializer.getNullAccessPattern();
+    }
+
+    @Override
+    public Object getAbsentValue(DeserializationContext ctxt) {
+        return _convertIfNonNull(_delegateDeserializer.getAbsentValue(ctxt));
+    }
+
+    @Override
+    public Object getEmptyValue(DeserializationContext ctxt) {
+        return _convertIfNonNull(_delegateDeserializer.getEmptyValue(ctxt));
+    }
+
+    @Override
+    public AccessPattern getEmptyAccessPattern() {
+        return _delegateDeserializer.getEmptyAccessPattern();
+    }
+
+    /*
+    /**********************************************************
+    /* Other accessors
+    /**********************************************************
+     */
 
     @Override
     public Boolean supportsUpdate(DeserializationConfig config) {
@@ -241,5 +318,16 @@ public class StdConvertingDeserializer<T>
      */
     protected T convertValue(Object delegateValue) {
         return _converter.convert(delegateValue);
+    }
+
+    /*
+    /**********************************************************
+    /* Helper methods
+    /**********************************************************
+     */
+
+    protected T _convertIfNonNull(Object delegateValue) {
+        return (delegateValue == null) ? null
+                : _converter.convert(delegateValue);
     }
 }

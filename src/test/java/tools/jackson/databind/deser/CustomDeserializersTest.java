@@ -14,6 +14,8 @@ import tools.jackson.databind.annotation.*;
 import tools.jackson.databind.deser.std.*;
 import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.util.AccessPattern;
+import tools.jackson.databind.util.NameTransformer;
 import tools.jackson.databind.util.StdConverter;
 
 /**
@@ -336,6 +338,55 @@ public class CustomDeserializersTest
         }
     }
 
+    // [databind#3748]
+    static class BaseDeserializer3748
+        extends StdDeserializer<String>
+    {
+        public BaseDeserializer3748() { super(String.class); }
+
+        @Override
+        public String deserialize(JsonParser p, DeserializationContext ctxt) {
+            return null;
+        }
+
+        @Override
+        public Object getEmptyValue(DeserializationContext ctxt) {
+            return "empty";
+        }
+
+        @Override
+        public AccessPattern getEmptyAccessPattern() {
+            return AccessPattern.ALWAYS_NULL;
+        }
+
+        @Override
+        public Object getAbsentValue(DeserializationContext ctxt) {
+            return "absent";
+        }
+
+        @Override
+        public ValueDeserializer<String> unwrappingDeserializer(DeserializationContext ctxt,
+                NameTransformer unwrapper) {
+            return new BaseDeserializer3748();
+        }
+    }
+
+    static class Delegating3748 extends DelegatingDeserializer
+    {
+        public Delegating3748() {
+            this(new BaseDeserializer3748());
+        }
+
+        public Delegating3748(ValueDeserializer<?> del) {
+            super(del);
+        }
+
+        @Override
+        protected ValueDeserializer<?> newDelegatingInstance(ValueDeserializer<?> newDelegatee) {
+            return new Delegating3748(newDelegatee);
+        }
+    }
+
     /*
     /**********************************************************************
     /* Test methods
@@ -547,5 +598,17 @@ public class CustomDeserializersTest
         assertNotNull(result);
         assertEquals("4", result.name);
         assertNull(result.point);
+    }
+
+    // [databind#3748]
+    public void testBasicDelegatingDeser() throws Exception
+    {
+        Delegating3748 deser = new Delegating3748();
+        assertEquals("absent", deser.getAbsentValue(null));
+        assertEquals("empty", deser.getEmptyValue(null));
+        assertEquals(AccessPattern.ALWAYS_NULL, deser.getEmptyAccessPattern());
+        ValueDeserializer<?> unwrapping = deser.unwrappingDeserializer(null, null);
+        assertNotNull(unwrapping);
+        assertNotSame(deser, unwrapping);
     }
 }

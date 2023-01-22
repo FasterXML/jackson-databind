@@ -141,33 +141,7 @@ public class StdDelegatingDeserializer<T>
 
     /*
     /**********************************************************
-    /* Accessors
-    /**********************************************************
-     */
-
-    @Override
-    public JsonDeserializer<?> getDelegatee() {
-        return _delegateDeserializer;
-    }
-
-    @Override
-    public Class<?> handledType() {
-        return _delegateDeserializer.handledType();
-    }
-
-    @Override // since 2.12
-    public LogicalType logicalType() {
-        return _delegateDeserializer.logicalType();
-    }
-    
-    @Override // since 2.9
-    public Boolean supportsUpdate(DeserializationConfig config) {
-        return _delegateDeserializer.supportsUpdate(config);
-    }
-
-    /*
-    /**********************************************************
-    /* Serialization
+    /* Deserialization
     /**********************************************************
      */
     
@@ -231,7 +205,33 @@ public class StdDelegatingDeserializer<T>
                 ("Cannot update object of type %s (using deserializer for type %s)"
                         +intoValue.getClass().getName(), _delegateType));
     }
+
+    /*
+    /**********************************************************
+    /* Accessors
+    /**********************************************************
+     */
+
+    @Override
+    public JsonDeserializer<?> getDelegatee() {
+        return _delegateDeserializer;
+    }
+
+    @Override
+    public Class<?> handledType() {
+        return _delegateDeserializer.handledType();
+    }
+
+    @Override // since 2.12
+    public LogicalType logicalType() {
+        return _delegateDeserializer.logicalType();
+    }
     
+    @Override // since 2.9
+    public Boolean supportsUpdate(DeserializationConfig config) {
+        return _delegateDeserializer.supportsUpdate(config);
+    }
+
     /*
     /**********************************************************
     /* Overridable methods

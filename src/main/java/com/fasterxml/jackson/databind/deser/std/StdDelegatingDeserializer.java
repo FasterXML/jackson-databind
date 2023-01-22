@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser.std;
 import java.io.IOException;
 import java.util.Collection;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.*;
@@ -13,6 +14,7 @@ import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.AccessPattern;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
+import com.fasterxml.jackson.databind.util.NameTransformer;
 
 /**
  * Deserializer implementation where given Java type is first deserialized
@@ -105,6 +107,21 @@ public class StdDelegatingDeserializer<T>
         return new StdDelegatingDeserializer<T>(converter, delegateType, delegateDeserializer);
     }
 
+    @Override
+    public JsonDeserializer<T> unwrappingDeserializer(NameTransformer unwrapper) {
+        ClassUtil.verifyMustOverride(StdDelegatingDeserializer.class, this, "unwrappingDeserializer");
+        return replaceDelegatee(_delegateDeserializer.unwrappingDeserializer(unwrapper));
+    }
+
+    @Override
+    public JsonDeserializer<T> replaceDelegatee(JsonDeserializer<?> delegatee) {
+        ClassUtil.verifyMustOverride(StdDelegatingDeserializer.class, this, "replaceDelegatee");
+        if (delegatee == _delegateDeserializer) {
+            return this;
+        }
+        return new StdDelegatingDeserializer<T>(_converter, _delegateType, delegatee);
+    }
+
     /*
     /**********************************************************
     /* Contextualization
@@ -188,6 +205,22 @@ public class StdDelegatingDeserializer<T>
             return (T) _delegateDeserializer.deserialize(p, ctxt, intoValue);
         }
         return (T) _handleIncompatibleUpdateValue(p, ctxt, intoValue);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
+            TypeDeserializer typeDeserializer, T intoValue)
+        throws IOException, JacksonException
+    {
+        // 21-Jan-2023, tatu: Override was missing from 2.15. Tricky to
+        //    support but follow example of the other "deserializeWithType()"
+        //   It seems unlikely to actually work (isn't type check just... wrong?)
+        //   but for now has to do I guess.
+        if (!_delegateType.getRawClass().isAssignableFrom(intoValue.getClass())){
+            return (T) _handleIncompatibleUpdateValue(p, ctxt, intoValue);
+        }
+        return (T) _delegateDeserializer.deserialize(p, ctxt, intoValue);
     }
 
     /**

@@ -254,6 +254,21 @@ public class StdDelegatingDeserializer<T>
         return _delegateDeserializer.getNullAccessPattern();
     }
 
+    @Override
+    public Object getAbsentValue(DeserializationContext ctxt) throws JsonMappingException {
+        return _convertIfNonNull(_delegateDeserializer.getAbsentValue(ctxt));
+    }
+
+    @Override
+    public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+        return _convertIfNonNull(_delegateDeserializer.getEmptyValue(ctxt));
+    }
+
+    @Override
+    public AccessPattern getEmptyAccessPattern() {
+        return _delegateDeserializer.getEmptyAccessPattern();
+    }
+
     /*
     /**********************************************************
     /* Other accessors

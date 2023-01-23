@@ -1927,6 +1927,10 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 }
                 return NumberInput.parseLong(str);
             } else if (value instanceof LazyNumber) {
+                if (preferBigNumbers && !(value instanceof LazyBigDecimal)) {
+                    return NumberInput.parseBigDecimal(((LazyNumber) value).getText(),
+                            isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
+                }
                 return ((LazyNumber) value).getNumber();
             }
             if (value == null) {

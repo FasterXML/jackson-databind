@@ -1808,7 +1808,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         @Override
         public BigDecimal getDecimalValue() throws IOException
         {
-            Number n = getNumberValue();
+            Number n = getNumberValue(true);
             if (n instanceof BigDecimal) {
                 return (BigDecimal) n;
             } else if (n instanceof Integer) {
@@ -1869,6 +1869,10 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
 
         @Override
         public final Number getNumberValue() throws IOException {
+            return getNumberValue(false);
+        }
+
+        private Number getNumberValue(final boolean preferBigDecimal) throws IOException {
             _checkIsNumber();
             Object value = _currentObject();
             if (value instanceof Number) {
@@ -1880,6 +1884,10 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             if (value instanceof String) {
                 String str = (String) value;
                 if (str.indexOf('.') >= 0) {
+                    if (preferBigDecimal) {
+                        return NumberInput.parseBigDecimal(str,
+                                isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
+                    }
                     return NumberInput.parseDouble(str, isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
                 }
                 return NumberInput.parseLong(str);

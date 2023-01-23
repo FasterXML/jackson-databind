@@ -1795,7 +1795,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         @Override
         public BigInteger getBigIntegerValue() throws IOException
         {
-            Number n = getNumberValue();
+            Number n = getNumberValue(true);
             if (n instanceof BigInteger) {
                 return (BigInteger) n;
             } else if (n instanceof BigDecimal) {

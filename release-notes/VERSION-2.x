@@ -101,7 +101,7 @@ Project: jackson-databind
 #3633: Expose `translate()` method of standard `PropertyNamingStrategy` implementations
  (requested by Joachim D)
 
-2.13.5 (not yet released)
+2.13.5 (23-Jan-2023)
 
 #3659: Improve testing (likely via CI) to try to ensure compatibility with
   specific Android SDKs

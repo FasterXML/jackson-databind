@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.13.5 (not yet released)
+2.13.5 (23-Jan-2023)
 
 #3659: Improve testing (likely via CI) to try to ensure compatibility with
   specific Android SDKs

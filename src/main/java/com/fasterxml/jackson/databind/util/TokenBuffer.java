@@ -9,6 +9,10 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.base.ParserMinimalBase;
 import com.fasterxml.jackson.core.io.LazyBigDecimal;
 import com.fasterxml.jackson.core.io.LazyBigInteger;
+import com.fasterxml.jackson.core.io.LazyDouble;
+import com.fasterxml.jackson.core.io.LazyFloat;
+import com.fasterxml.jackson.core.io.LazyInteger;
+import com.fasterxml.jackson.core.io.LazyLong;
 import com.fasterxml.jackson.core.io.LazyNumber;
 import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.core.json.JsonWriteContext;
@@ -1844,15 +1848,15 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             } else if (value instanceof BigInteger) {
                 return new LazyBigInteger((BigInteger) value);
             } else if (value instanceof Integer) {
-                return new LazyBigInteger(getBigIntegerValue());
+                return new LazyInteger((Integer) value);
             } else if (value instanceof Long) {
-                return new LazyBigInteger(getBigIntegerValue());
+                return new LazyLong((Long) value);
             } else if (value instanceof Double) {
-                return new LazyBigDecimal(getDecimalValue());
+                return new LazyDouble((Double) value);
             } else if (value instanceof Float) {
-                return new LazyBigDecimal(getDecimalValue());
+                return new LazyFloat((Float) value);
             }
-            throw new JsonParseException(this, "unable to get LazyNumber from " + getText());
+            throw new JsonParseException(this, "unable to get LazyNumber from type " + value.getClass().getName());
         }
 
         @Override

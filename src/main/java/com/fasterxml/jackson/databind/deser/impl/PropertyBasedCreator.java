@@ -111,7 +111,12 @@ public final class PropertyBasedCreator
                 // 15-Apr-2020, tatu: [databind#962] Avoid getting deserializer for Inject-only
                 //     cases
                 if (!prop.isInjectionOnly()) {
-                    prop = prop.withValueDeserializer(ctxt.findContextualValueDeserializer(prop.getType(), prop));
+                    SettableBeanProperty existProperty = allProperties.find(prop.getName());
+                    if (existProperty != null) {
+                        prop = existProperty;
+                    } else {
+                        prop = prop.withValueDeserializer(ctxt.findContextualValueDeserializer(prop.getType(), prop));
+                    }
                 }
             }
             creatorProps[i] = prop;

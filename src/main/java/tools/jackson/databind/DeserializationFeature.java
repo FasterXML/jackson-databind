@@ -34,11 +34,11 @@ public enum DeserializationFeature implements ConfigFeature
      * If enabled such values will be deserialized as {@link java.math.BigDecimal}s;
      * if disabled, will be deserialized as {@link Double}s.
      *<p>
-     * NOTE: one aspect of {@link java.math.BigDecimal} handling that may need
+     * NOTE: one related aspect of {@link java.math.BigDecimal} handling that may need
      * configuring is whether trailing zeroes are trimmed:
-     * {@link tools.jackson.databind.node.JsonNodeFactory} has
-     * {@link tools.jackson.databind.node.JsonNodeFactory#withExactBigDecimals} for
-     * changing default behavior (default is for trailing zeroes to be trimmed).
+     * {@link tools.jackson.databind.cfg.JsonNodeFeature#STRIP_TRAILING_BIGDECIMAL_ZEROES}
+     * is used for optionally enabling this for {@link tools.jackson.databind.JsonNode}
+     * values.
      *<p>
      * Feature is disabled by default, meaning that "untyped" floating
      * point numbers will by default be deserialized as {@link Double}s

@@ -109,7 +109,7 @@ public class ObjectReaderTest extends BaseMapTest
 
     public void testNodeHandling() throws Exception
     {
-        JsonNodeFactory nodes = new JsonNodeFactory(true);
+        JsonNodeFactory nodes = new JsonNodeFactory();
         ObjectReader r = MAPPER.reader().with(nodes);
         // but also no further changes if attempting again
         assertSame(r, r.with(nodes));

@@ -86,7 +86,7 @@ public class ObjectMapperTest extends BaseMapTest
     {
         // should have default factory
         assertNotNull(MAPPER.getNodeFactory());
-        JsonNodeFactory nf = new JsonNodeFactory(true);
+        JsonNodeFactory nf = new JsonNodeFactory();
         JsonMapper m = JsonMapper.builder()
                 .nodeFactory(nf)
                 .build();

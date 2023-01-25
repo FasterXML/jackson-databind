@@ -16,6 +16,7 @@ import tools.jackson.core.tree.ObjectTreeNode;
 import tools.jackson.core.util.JacksonFeatureSet;
 import tools.jackson.databind.cfg.ContextAttributes;
 import tools.jackson.databind.cfg.DatatypeFeature;
+import tools.jackson.databind.cfg.DatatypeFeatures;
 import tools.jackson.databind.cfg.GeneratorSettings;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.InvalidTypeIdException;
@@ -343,9 +344,14 @@ public abstract class SerializerProvider
         return _config.isEnabled(feature);
     }
 
-    @Override // @since 2.14
+    @Override
     public final boolean isEnabled(DatatypeFeature feature) {
         return _config.isEnabled(feature);
+    }
+
+    @Override
+    public final DatatypeFeatures getDatatypeFeatures() {
+        return _config.getDatatypeFeatures();
     }
 
     @Override

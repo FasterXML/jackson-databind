@@ -12,6 +12,7 @@ import tools.jackson.databind.node.ObjectNode;
 import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.util.RawValue;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 
 /**
@@ -530,7 +531,11 @@ public abstract class BaseNodeDeserializer<T extends JsonNode>
     {
         JsonParser.NumberType nt = p.getNumberType();
         if (nt == JsonParser.NumberType.BIG_DECIMAL) {
-            return nodeFactory.numberNode(p.getDecimalValue());
+            BigDecimal nr = p.getDecimalValue();
+            if (ctxt.isEnabled(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES)) {
+                nr = _normalize(nr);
+            }
+            return nodeFactory.numberNode(nr);
         }
         if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
             // 20-May-2016, tatu: As per [databind#1028], need to be careful
@@ -538,12 +543,29 @@ public abstract class BaseNodeDeserializer<T extends JsonNode>
             if (p.isNaN()) {
                 return nodeFactory.numberNode(p.getDoubleValue());
             }
-            return nodeFactory.numberNode(p.getDecimalValue());
+            BigDecimal nr = p.getDecimalValue();
+            if (ctxt.isEnabled(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES)) {
+                nr = _normalize(nr);
+            }
+            return nodeFactory.numberNode(nr);
         }
         if (nt == JsonParser.NumberType.FLOAT) {
             return nodeFactory.numberNode(p.getFloatValue());
         }
         return nodeFactory.numberNode(p.getDoubleValue());
+    }
+
+    protected BigDecimal _normalize(BigDecimal nr) {
+        // 24-Mar-2021, tatu: [dataformats-binary#264] barfs on a specific value...
+        //   Must skip normalization in that particular case. Alas, haven't found
+        //   another way to check it instead of getting "Overflow", catching
+        try {
+            nr = nr.stripTrailingZeros();
+        } catch (ArithmeticException e) {
+            // If we can't, we can't...
+            ;
+        }
+        return nr;
     }
 
     protected final JsonNode _fromEmbedded(JsonParser p, DeserializationContext ctxt)

@@ -1,6 +1,7 @@
 package tools.jackson.databind.node;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.DatatypeFeatures;
 import tools.jackson.databind.cfg.JsonNodeFeature;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -30,6 +31,29 @@ public class NodeFeaturesTest extends BaseMapTest
                 .isEnabled(JsonNodeFeature.WRITE_NULL_PROPERTIES));
     }
 
+    public void testImplicitVsExplicit()
+    {
+        DatatypeFeatures dfs = DatatypeFeatures.defaultFeatures();
+        assertTrue(dfs.isEnabled(JsonNodeFeature.READ_NULL_PROPERTIES));
+        assertFalse(dfs.isExplicitlySet(JsonNodeFeature.READ_NULL_PROPERTIES));
+        assertFalse(dfs.isExplicitlyEnabled(JsonNodeFeature.READ_NULL_PROPERTIES));
+        assertFalse(dfs.isExplicitlyDisabled(JsonNodeFeature.READ_NULL_PROPERTIES));
+
+        // disable
+        dfs = dfs.without(JsonNodeFeature.READ_NULL_PROPERTIES);
+        assertFalse(dfs.isEnabled(JsonNodeFeature.READ_NULL_PROPERTIES));
+        assertTrue(dfs.isExplicitlySet(JsonNodeFeature.READ_NULL_PROPERTIES));
+        assertFalse(dfs.isExplicitlyEnabled(JsonNodeFeature.READ_NULL_PROPERTIES));
+        assertTrue(dfs.isExplicitlyDisabled(JsonNodeFeature.READ_NULL_PROPERTIES));
+
+        // re-enable
+        dfs = dfs.with(JsonNodeFeature.READ_NULL_PROPERTIES);
+        assertTrue(dfs.isEnabled(JsonNodeFeature.READ_NULL_PROPERTIES));
+        assertTrue(dfs.isExplicitlySet(JsonNodeFeature.READ_NULL_PROPERTIES));
+        assertTrue(dfs.isExplicitlyEnabled(JsonNodeFeature.READ_NULL_PROPERTIES));
+        assertFalse(dfs.isExplicitlyDisabled(JsonNodeFeature.READ_NULL_PROPERTIES));
+    }
+    
     /*
     /**********************************************************************
     /* ObjectNode property handling

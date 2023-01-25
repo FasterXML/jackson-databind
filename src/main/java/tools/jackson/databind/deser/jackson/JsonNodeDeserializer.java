@@ -7,9 +7,6 @@ import tools.jackson.databind.node.*;
 /**
  * Deserializer that can build instances of {@link JsonNode} from any
  * JSON content, using appropriate {@link JsonNode} type.
- *<p>
- * Rewritten in Jackson 2.13 to avoid recursion and allow handling of
- * very deeply nested structures.
  */
 public class JsonNodeDeserializer
     extends BaseNodeDeserializer<JsonNode>

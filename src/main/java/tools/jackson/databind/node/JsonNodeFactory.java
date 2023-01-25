@@ -12,6 +12,14 @@ import tools.jackson.databind.util.RawValue;
  * on type), as well as basic implementation of the methods.
  * Designed to be sub-classed if extended functionality (additions
  * to behavior of node types, mostly) is needed.
+ *<p>
+ * Note that behavior of "exact BigDecimal value" (aka
+ * "strip trailing zeroes of BigDecimal or not") changed in 3.0:
+ * new {@link tools.jackson.databind.cfg.JsonNodeFeature#STRIP_TRAILING_BIGDECIMAL_ZEROES}
+ * setting is used to externally configure this behavior.
+ * Note, too, that this factory will no longer handle this normalization
+ * (if enabled): caller (like {@link tools.jackson.databind.deser.jackson.JsonNodeDeserializer})
+ * is expected to handle it.
  */
 public class JsonNodeFactory
     implements java.io.Serializable,
@@ -24,13 +32,6 @@ public class JsonNodeFactory
      * use for inserts.
      */
     protected final static int MAX_ELEMENT_INDEX_FOR_INSERT = 9999;
-    
-    private final boolean _cfgBigDecimalExact;
-
-    private static final JsonNodeFactory decimalsNormalized
-        = new JsonNodeFactory(false);
-    private static final JsonNodeFactory decimalsAsIs
-        = new JsonNodeFactory(true);
 
     /**
      * Default singleton instance that construct "standard" node instances:
@@ -39,65 +40,17 @@ public class JsonNodeFactory
      *<p>
      * Default for 3.x is to make no changes; no normalization by default.
      */
-    public final static JsonNodeFactory instance = decimalsAsIs;
+    public final static JsonNodeFactory instance = new JsonNodeFactory();
 
     /**
-     * Main constructor
-     *
-     * <p>The only argument to this constructor is a boolean telling whether
-     * {@link DecimalNode} instances must be built with exact representations of
-     * {@link BigDecimal} instances.</p>
-     *
-     * <p>This has quite an influence since, for instance, a BigDecimal (and,
-     * therefore, a DecimalNode) constructed from input string {@code "1.0"} and
-     * another constructed with input string {@code "1.00"} <b>will not</b> be
-     * equal, since their scale differs (1 in the first case, 2 in the second
-     * case).</p>
-     *
-     * <p>Note that setting the argument to {@code true} does <i>not</i>
-     * guarantee a strict inequality between JSON representations: input texts
-     * {@code "0.1"} and {@code "1e-1"}, for instance, yield two equivalent
-     * BigDecimal instances since they have the same scale (1).</p>
-     *
-     * <p>The no-arg constructor (and the default {@link #instance}) calls this
-     * constructor with {@code false} as an argument.</p>
-     *
-     * @param bigDecimalExact see description
-     *
-     * @see BigDecimal
+     * Default constructor.
      */
-    public JsonNodeFactory(boolean bigDecimalExact)
-    {
-        _cfgBigDecimalExact = bigDecimalExact;
-    }
-
-    /**
-     * Default constructor
-     *
-     * <p>This calls {@link #JsonNodeFactory(boolean)} with {@code false}
-     * as an argument.</p>
-     */
-    protected JsonNodeFactory()
-    {
-        this(false);
-    }
-
-    /**
-     * Return a factory instance with the desired behavior for BigDecimals
-     * <p>See {@link #JsonNodeFactory(boolean)} for a full description.</p>
-     *
-     * @param bigDecimalExact see description
-     * @return a factory instance
-     */
-    public static JsonNodeFactory withExactBigDecimals(boolean bigDecimalExact)
-    {
-        return bigDecimalExact ? decimalsAsIs : decimalsNormalized;
-    }
+    public JsonNodeFactory() { }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Metadata/config access
-    /**********************************************************
+    /**********************************************************************
      */
 
     public int getMaxElementIndexForInsert() {
@@ -105,9 +58,9 @@ public class JsonNodeFactory
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory methods for literal values
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -262,48 +215,17 @@ public class JsonNodeFactory
     /**
      * Factory method for getting an instance of JSON numeric value
      * that expresses given unlimited precision floating point value
-     *
-     * <p>In the event that the factory has been built to normalize decimal
-     * values, the BigDecimal argument will be stripped off its trailing zeroes,
-     * using {@link BigDecimal#stripTrailingZeros()}.</p>
-     *
-     * @see #JsonNodeFactory(boolean)
+     * <p>
+     * Note that no normalization is performed here; caller may choose
+     * to do that, based on
+     * {@link tools.jackson.databind.cfg.JsonNodeFeature#STRIP_TRAILING_BIGDECIMAL_ZEROES}
+     * setting.
      */
     @Override
     public ValueNode numberNode(BigDecimal v)
     {
         if (v == null) {
             return nullNode();
-        }
-        /*
-         * If the user wants the exact representation of this big decimal,
-         * return the value directly
-         */
-        if (_cfgBigDecimalExact)
-            return DecimalNode.valueOf(v);
-
-        /*
-         * If the user has asked to strip trailing zeroes, however, there is
-         * this bug to account for:
-         *
-         * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6480539
-         *
-         * In short: zeroes are never stripped out of 0! We therefore _have_
-         * to compare with BigDecimal.ZERO...
-         */
-        // 24-Mar-2021, tatu: But isn't it more efficient to use "signum()"?
-        //   Especially as we now have a special case to consider
-        if (v.signum() == 0) {
-            return DecimalNode.ZERO;
-        }
-        // 24-Mar-2021, tatu: [dataformats-binary#264] barfs on a specific value...
-        //   Must skip normalization in that particular case. Alas, haven't found
-        //   another way to check it instead of getting "Overflow", catching
-        try {
-            v = v.stripTrailingZeros();
-        } catch (ArithmeticException e) {
-            // If we can't, we can't...
-            ;
         }
         return DecimalNode.valueOf(v);
     }

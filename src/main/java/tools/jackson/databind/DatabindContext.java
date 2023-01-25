@@ -7,6 +7,7 @@ import java.util.TimeZone;
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.cfg.DatatypeFeature;
+import tools.jackson.databind.cfg.DatatypeFeatures;
 import tools.jackson.databind.cfg.HandlerInstantiator;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.Annotated;
@@ -82,6 +83,11 @@ public abstract class DatabindContext
      * @since 2.14
      */
     public abstract boolean isEnabled(DatatypeFeature feature);
+
+    /**
+     * @since 2.15
+     */
+    public abstract DatatypeFeatures getDatatypeFeatures();
 
     /**
      * Convenience method for accessing serialization view in use (if any); equivalent to:

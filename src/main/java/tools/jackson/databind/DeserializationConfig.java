@@ -563,6 +563,10 @@ public final class DeserializationConfig
         return _datatypeFeatures.isEnabled(feature);
     }
 
+    public final DatatypeFeatures getDatatypeFeatures() {
+        return _datatypeFeatures;
+    }
+
     /**
      * Convenience method equivalent to:
      *<code>

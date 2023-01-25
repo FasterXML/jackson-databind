@@ -19,6 +19,8 @@ Project: jackson-databind
 #3637: Add enum features into `@JsonFormat.Feature`
  (requested by @Anatoly4444)
  (fix contributed by Ajay S)
+#3651: Deprecate "exact values" setting from `JsonNodeFactory`, replace with
+  `JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES`
 #3654: Infer `@JsonCreator(mode = Mode.DELEGATING)` from use of `@JsonValue`)
 #3676: Allow use of `@JsonCreator(mode = Mode.PROPERTIES)` creator for POJOs
  with"empty String" coercion
@@ -132,7 +134,7 @@ Project: jackson-databind
 #3633: Expose `translate()` method of standard `PropertyNamingStrategy` implementations
  (requested by Joachim D)
 
-2.13.5 (not yet released)
+2.13.5 (23-Jan-2023)
 
 #3659: Improve testing (likely via CI) to try to ensure compatibility with
   specific Android SDKs

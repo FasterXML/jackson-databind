@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import java.util.TreeMap;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.JsonNodeFeature;
 import tools.jackson.databind.json.JsonMapper;
 
 public class JsonNodeFactoryTest extends NodeTestBase
@@ -25,6 +26,7 @@ public class JsonNodeFactoryTest extends NodeTestBase
     public void testSimpleCreation()
     {
         JsonNodeFactory f = MAPPER.getNodeFactory();
+
         JsonNode n;
 
         n = f.numberNode((byte) 4);
@@ -75,7 +77,7 @@ public class JsonNodeFactoryTest extends NodeTestBase
                MAPPER.writeValueAsString(mapper.readTree(BIGGER_INPUT)));
    }
 
-   // 06-Nov-2022, tatu: Wasn't being tests, oddly enough
+   // 06-Nov-2022, tatu: Wasn't being tested, oddly enough
    public void testBigDecimalNormalization() throws Exception
    {
        final BigDecimal NON_NORMALIZED = new BigDecimal("12.5000");
@@ -86,12 +88,11 @@ public class JsonNodeFactoryTest extends NodeTestBase
        assertEquals(NON_NORMALIZED, n1.decimalValue());
 
        // But can change
-       JsonNodeFactory nf = JsonNodeFactory.withExactBigDecimals(false);
-       ObjectMapper nonNormMapper = JsonMapper.builder()
+       ObjectMapper normMapper = JsonMapper.builder()
                .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
-               .nodeFactory(nf)
+               .enable(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES)
                .build();
-       JsonNode n3 = nonNormMapper.readTree(String.valueOf(NON_NORMALIZED));
+       JsonNode n3 = normMapper.readTree(String.valueOf(NON_NORMALIZED));
        assertEquals(NORMALIZED, n3.decimalValue());
    }
 }

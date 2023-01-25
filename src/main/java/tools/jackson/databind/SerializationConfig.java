@@ -562,6 +562,10 @@ public final class SerializationConfig
         return _datatypeFeatures.isEnabled(feature);
     }
 
+    public final DatatypeFeatures getDatatypeFeatures() {
+        return _datatypeFeatures;
+    }
+
     /**
      * Method for getting provider used for locating filters given
      * id (which is usually provided with filter annotations).

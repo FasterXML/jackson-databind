@@ -33,6 +33,18 @@ public enum JsonNodeFeature implements DatatypeFeature
 
 //    ALLOW_OBJECT_MERGE(true),
 
+    // // // Misc other
+
+    /**
+     * Feature that determines whether {@link java.math.BigDecimal} values
+     * will be "normalized" by stripping trailing zeroes off, when constructing
+     * nodes with {@link tools.jackson.databind.node.JsonNodeFactory#numberNode(java.math.BigDecimal)}.
+     * If enabled, {@link java.math.BigDecimal#stripTrailingZeros()} will be called
+     * prior to node creation; if disabled, numeric value will be used as is.
+     *<p>
+     * Default value: {@code false} (since 3.0).
+     */
+    STRIP_TRAILING_BIGDECIMAL_ZEROES(false)
     ;
 
     private final static int FEATURE_INDEX = DatatypeFeatures.FEATURE_INDEX_JSON_NODE;

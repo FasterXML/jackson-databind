@@ -1166,7 +1166,7 @@ se.getClass().getName(), se.getMessage()),
     /**
      * Convenience method for:
      *<pre>
-     *   return getJDKMajorVersion() >= 17
+     *   return getJDKMajorVersion() &gt;= 17
      *</pre>
      * that also catches any possible exceptions so it is safe to call
      * from static contexts.

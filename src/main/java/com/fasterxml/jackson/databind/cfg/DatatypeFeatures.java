@@ -211,7 +211,7 @@ public class DatatypeFeatures
     /**
      * Convenience method equivalent to:
      *<pre>
-     *   isExplicitlySet(f) && isEnabled(f)
+     *   isExplicitlySet(f) &amp;&amp; isEnabled(f)
      *</pre>
      *
      * @param f Feature to check
@@ -235,7 +235,7 @@ public class DatatypeFeatures
     /**
      * Convenience method equivalent to:
      *<pre>
-     *   isExplicitlySet(f) && isDisabled(f)
+     *   isExplicitlySet(f) &amp;&amp; isDisabled(f)
      *</pre>
      *
      * @param f Feature to check

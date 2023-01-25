@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import java.util.TreeMap;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.JsonNodeFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
 public class JsonNodeFactoryTest extends NodeTestBase
@@ -25,6 +26,10 @@ public class JsonNodeFactoryTest extends NodeTestBase
     public void testSimpleCreation()
     {
         JsonNodeFactory f = MAPPER.getNodeFactory();
+
+        // Baseline as of 2.15 is that trailing-zeros-stripping is
+        // still on, for backwards-compatibility
+        assertTrue(f.willStripTrailingBigDecimalZeroes());
         JsonNode n;
 
         n = f.numberNode((byte) 4);
@@ -75,7 +80,7 @@ public class JsonNodeFactoryTest extends NodeTestBase
                MAPPER.writeValueAsString(mapper.readTree(BIGGER_INPUT)));
    }
 
-   // 06-Nov-2022, tatu: Wasn't being tests, oddly enough
+   // 06-Nov-2022, tatu: Wasn't being tested, oddly enough
    public void testBigDecimalNormalization() throws Exception
    {
        final BigDecimal NON_NORMALIZED = new BigDecimal("12.5000");
@@ -84,6 +89,20 @@ public class JsonNodeFactoryTest extends NodeTestBase
        // By default, 2.x WILL normalize
        JsonNode n1 = MAPPER.readTree(String.valueOf(NON_NORMALIZED));
        assertEquals(NORMALIZED, n1.decimalValue());
+
+       // But can change
+       ObjectMapper nonNormMapper = JsonMapper.builder()
+               .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
+               .disable(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES)
+               .build();
+       JsonNode n3 = nonNormMapper.readTree(String.valueOf(NON_NORMALIZED));
+       assertEquals(NON_NORMALIZED, n3.decimalValue());
+   }
+
+   @SuppressWarnings("deprecation")
+   public void testBigDecimalNormalizationLEGACY() throws Exception
+   {
+       final BigDecimal NON_NORMALIZED = new BigDecimal("12.5000");
 
        // But can change
        JsonNodeFactory nf = JsonNodeFactory.withExactBigDecimals(true);

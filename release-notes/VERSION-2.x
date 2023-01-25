@@ -19,6 +19,8 @@ Project: jackson-databind
 #3637: Add enum features into `@JsonFormat.Feature`
  (requested by @Anatoly4444)
  (fix contributed by Ajay S)
+#3651: Deprecate "exact values" setting from `JsonNodeFactory`, replace with
+  `JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES`
 #3654: Infer `@JsonCreator(mode = Mode.DELEGATING)` from use of `@JsonValue`)
 #3676: Allow use of `@JsonCreator(mode = Mode.PROPERTIES)` creator for POJOs
  with"empty String" coercion

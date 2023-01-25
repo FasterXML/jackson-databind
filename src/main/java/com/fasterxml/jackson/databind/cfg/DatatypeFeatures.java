@@ -209,6 +209,54 @@ public class DatatypeFeatures
     }
 
     /**
+     * Convenience method equivalent to:
+     *<pre>
+     *   isExplicitlySet(f) &amp;&amp; isEnabled(f)
+     *</pre>
+     *
+     * @param f Feature to check
+     *
+     * @return Whether given feature has been explicitly enabled
+     *
+     * @since 2.15
+     */
+    public boolean isExplicitlyEnabled(DatatypeFeature f) {
+        switch (f.featureIndex()) {
+        case 0:
+            return f.enabledIn(_explicitFor1 & _enabledFor1);
+        case 1:
+            return f.enabledIn(_explicitFor2 & _enabledFor2);
+        default:
+            VersionUtil.throwInternal();
+            return false;
+        }
+    }
+
+    /**
+     * Convenience method equivalent to:
+     *<pre>
+     *   isExplicitlySet(f) &amp;&amp; isDisabled(f)
+     *</pre>
+     *
+     * @param f Feature to check
+     *
+     * @return Whether given feature has been explicitly disabled
+     *
+     * @since 2.15
+     */
+    public boolean isExplicitlyDisabled(DatatypeFeature f) {
+        switch (f.featureIndex()) {
+        case 0:
+            return f.enabledIn(_explicitFor1 & ~_enabledFor1);
+        case 1:
+            return f.enabledIn(_explicitFor2 & ~_enabledFor2);
+        default:
+            VersionUtil.throwInternal();
+            return false;
+        }
+    }
+    
+    /**
      * Accessor for getting explicit state of given feature in this set
      * iff explicitly set, or {@code null} if not explicitly set (default value)
      *

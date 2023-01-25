@@ -1,11 +1,13 @@
 package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Arrays;
 
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.DatatypeFeatures;
 import com.fasterxml.jackson.databind.cfg.JsonNodeFeature;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -750,7 +752,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     {
         JsonParser.NumberType nt = p.getNumberType();
         if (nt == JsonParser.NumberType.BIG_DECIMAL) {
-            return nodeFactory.numberNode(p.getDecimalValue());
+            return _fromBigDecimal(ctxt, nodeFactory, p.getDecimalValue());
         }
         if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
             // 20-May-2016, tatu: As per [databind#1028], need to be careful
@@ -758,12 +760,57 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             if (p.isNaN()) {
                 return nodeFactory.numberNode(p.getDoubleValue());
             }
-            return nodeFactory.numberNode(p.getDecimalValue());
+            return _fromBigDecimal(ctxt, nodeFactory, p.getDecimalValue());
         }
         if (nt == JsonParser.NumberType.FLOAT) {
             return nodeFactory.numberNode(p.getFloatValue());
         }
         return nodeFactory.numberNode(p.getDoubleValue());
+    }
+
+    protected final JsonNode _fromBigDecimal(DeserializationContext ctxt,
+            JsonNodeFactory nodeFactory, BigDecimal bigDec)
+    {
+        // 23-Jan-2023, tatu: [databind#3651] Logic for determining whether
+        //   to "normalize" BigDecimal is bit hairy due to legacy setting...
+
+        boolean normalize;
+        // New feature has higher precedence if (but only if!) explicitly set
+        final DatatypeFeatures dtf = ctxt.getDatatypeFeatures();
+        if (dtf.isExplicitlySet(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES)) {
+            normalize = dtf.isEnabled(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES);
+        } else {
+            normalize = nodeFactory.willStripTrailingBigDecimalZeroes();
+        }
+        if (normalize) {
+            /* If the user has asked to strip trailing zeroes, however, there was
+             * this bug to account for:
+             *
+             * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6480539
+             *
+             * In short: zeroes are never stripped out of 0! We therefore _have_
+             * to compare with BigDecimal.ZERO...
+             */
+            // 24-Mar-2021, tatu: But isn't it more efficient to use "signum()"?
+            //   Especially as we now have a special case to consider
+            // 23-Jan-2023, tatu: It's 2023 and fix was in JDK 8. Let's not bother.
+            /*
+            if (bigDec.signum() == 0) {
+                return DecimalNode.ZERO;
+            }
+            */
+
+            // 24-Mar-2021, tatu: [dataformats-binary#264] barfs on a specific value...
+            //   Must skip normalization in that particular case. Alas, haven't found
+            //   another way to check it instead of getting "Overflow", catching
+            try {
+                bigDec = bigDec.stripTrailingZeros();
+            } catch (ArithmeticException e) {
+                // If we can't, we can't...
+                ;
+            }
+        }
+        return nodeFactory.numberNode(bigDec);
     }
 
     protected final JsonNode _fromEmbedded(JsonParser p, DeserializationContext ctxt)

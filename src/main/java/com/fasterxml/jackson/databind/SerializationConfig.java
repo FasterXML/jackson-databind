@@ -868,6 +868,13 @@ public final class SerializationConfig
     }
 
     /**
+     * @since 2.15
+     */
+    public final DatatypeFeatures getDatatypeFeatures() {
+        return _datatypeFeatures;
+    }
+
+    /**
      * Method for getting provider used for locating filters given
      * id (which is usually provided with filter annotations).
      * Will be null if no provided was set for {@link ObjectWriter}
@@ -876,7 +883,7 @@ public final class SerializationConfig
     public FilterProvider getFilterProvider() {
         return _filterProvider;
     }
-    
+
     /**
      * Accessor for configured blueprint "default" {@link PrettyPrinter} to
      * use, if default pretty-printing is enabled.

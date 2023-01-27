@@ -1749,7 +1749,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         @Override
         public BigInteger getBigIntegerValue()
         {
-            Number n = _numberValue(NR_BIGINT);
+            Number n = _numberValue(NR_BIGINT, true);
             if (n instanceof BigInteger) {
                 return (BigInteger) n;
             } else if (n instanceof BigDecimal) {
@@ -1762,7 +1762,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         @Override
         public BigDecimal getDecimalValue()
         {
-            Number n = _numberValue(NR_BIGDECIMAL);
+            Number n = _numberValue(NR_BIGDECIMAL, true);
             if (n instanceof BigDecimal) {
                 return (BigDecimal) n;
             } else if (n instanceof Integer) {
@@ -1778,19 +1778,19 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
 
         @Override
         public double getDoubleValue() {
-            return _numberValue(NR_DOUBLE).doubleValue();
+            return _numberValue(NR_DOUBLE, false).doubleValue();
         }
 
         @Override
         public float getFloatValue() {
-            return _numberValue(NR_FLOAT).floatValue();
+            return _numberValue(NR_FLOAT, false).floatValue();
         }
 
         @Override
         public int getIntValue()
         {
             Number n = (_currToken == JsonToken.VALUE_NUMBER_INT) ?
-                    ((Number) _currentObject()) : _numberValue(NR_INT);
+                    ((Number) _currentObject()) : _numberValue(NR_INT, false);
             if ((n instanceof Integer) || _smallerThanInt(n)) {
                 return n.intValue();
             }
@@ -1800,7 +1800,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         @Override
         public long getLongValue() {
             Number n = (_currToken == JsonToken.VALUE_NUMBER_INT) ?
-                    ((Number) _currentObject()) : _numberValue(NR_LONG);
+                    ((Number) _currentObject()) : _numberValue(NR_LONG, false);
             if ((n instanceof Long) || _smallerThanLong(n)) {
                 return n.longValue();
             }
@@ -1830,16 +1830,14 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
 
         @Override
         public final Number getNumberValue() {
-            return _numberValue(-1);
+            return _numberValue(-1, false);
         }
 
-        protected final Number _numberValue(int targetNumType)
-        {
+        private Number _numberValue(final int targetNumType, final boolean preferBigNumbers) {
             // Former "_checkIsNumber()"
             if (_currToken == null || !_currToken.isNumeric()) {
                 throw _constructNotNumericType(_currToken, targetNumType);
             }
-
             Object value = _currentObject();
             if (value instanceof Number) {
                 return (Number) value;
@@ -1852,7 +1850,13 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             if (value instanceof String) {
                 String str = (String) value;
                 if (str.indexOf('.') >= 0) {
+                    if (preferBigNumbers) {
+                        return NumberInput.parseBigDecimal(str,
+                                isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
+                    }
                     return NumberInput.parseDouble(str, isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
+                } else if (preferBigNumbers) {
+                    return NumberInput.parseBigInteger(str, isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
                 }
                 return NumberInput.parseLong(str);
             }

@@ -89,7 +89,12 @@ e.getMessage()),
         return getBinaryValue(Base64Variants.getDefaultVariant());
     }
 
-    /* 
+    @Override
+    public boolean isEmpty() {
+        return _value == null || _value.isEmpty();
+    }
+
+    /*
     /**********************************************************
     /* General type coercions
     /**********************************************************

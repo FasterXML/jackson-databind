@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.node;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 public class TextNodeTest extends NodeTestBase
 {
     public void testText()
@@ -35,5 +37,16 @@ public class TextNodeTest extends NodeTestBase
         assertTrue(TextNode.valueOf("true").asBoolean(false));
         assertFalse(TextNode.valueOf("false").asBoolean(true));
         assertFalse(TextNode.valueOf("false").asBoolean(false));
+    }
+
+    // Test to check conversions, coercions
+    protected void assertNodeNumbers(JsonNode n, int expInt, double expDouble)
+    {
+        assertEquals(expInt, n.asInt());
+        assertEquals(expInt, n.asInt(-42));
+        assertEquals((long) expInt, n.asLong());
+        assertEquals((long) expInt, n.asLong(19L));
+        assertEquals(expDouble, n.asDouble());
+        assertEquals(expDouble, n.asDouble(-19.25));
     }
 }

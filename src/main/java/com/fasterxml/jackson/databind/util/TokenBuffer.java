@@ -1872,7 +1872,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             return getNumberValue(false);
         }
 
-        private Number getNumberValue(final boolean preferBigDecimal) throws IOException {
+        private Number getNumberValue(final boolean preferBigNumbers) throws IOException {
             _checkIsNumber();
             Object value = _currentObject();
             if (value instanceof Number) {
@@ -1884,11 +1884,13 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             if (value instanceof String) {
                 String str = (String) value;
                 if (str.indexOf('.') >= 0) {
-                    if (preferBigDecimal) {
+                    if (preferBigNumbers) {
                         return NumberInput.parseBigDecimal(str,
                                 isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
                     }
                     return NumberInput.parseDouble(str, isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
+                } else if (preferBigNumbers) {
+                    return NumberInput.parseBigInteger(str, isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
                 }
                 return NumberInput.parseLong(str);
             }

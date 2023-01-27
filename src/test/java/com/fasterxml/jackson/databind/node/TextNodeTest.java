@@ -29,6 +29,7 @@ public class TextNodeTest extends NodeTestBase
         // and then with non-numeric input
         n = TextNode.valueOf("foobar");
         assertNodeNumbersForNonNumeric(n);
+        assertFalse(n.isEmpty());
 
         assertEquals("foobar", n.asText("barf"));
         assertEquals("", empty.asText("xyz"));
@@ -39,14 +40,4 @@ public class TextNodeTest extends NodeTestBase
         assertFalse(TextNode.valueOf("false").asBoolean(false));
     }
 
-    // Test to check conversions, coercions
-    protected void assertNodeNumbers(JsonNode n, int expInt, double expDouble)
-    {
-        assertEquals(expInt, n.asInt());
-        assertEquals(expInt, n.asInt(-42));
-        assertEquals((long) expInt, n.asLong());
-        assertEquals((long) expInt, n.asLong(19L));
-        assertEquals(expDouble, n.asDouble());
-        assertEquals(expDouble, n.asDouble(-19.25));
-    }
 }

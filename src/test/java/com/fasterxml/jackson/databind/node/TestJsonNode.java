@@ -45,7 +45,9 @@ public class TestJsonNode extends NodeTestBase
         assertEquals(JsonToken.VALUE_TRUE, t.asToken());
 
         assertNodeNumbers(f, 0, 0.0);
+        assertTrue(f.isEmpty());
         assertNodeNumbers(t, 1, 1.0);
+        assertTrue(t.isEmpty());
     
         JsonNode result = objectMapper().readTree("true\n");
         assertFalse(result.isNull());
@@ -102,7 +104,9 @@ public class TestJsonNode extends NodeTestBase
         // default; non-numeric
         assertNodeNumbersForNonNumeric(n);
         // but if wrapping actual number, use it
-        assertNodeNumbers(new POJONode(Integer.valueOf(123)), 123, 123.0);
+        POJONode pojoNode = new POJONode(Integer.valueOf(123));
+        assertNodeNumbers(pojoNode, 123, 123.0);
+        assertTrue(pojoNode.isEmpty());
     }
 
     // [databind#743]

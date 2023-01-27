@@ -30,6 +30,7 @@ public class NumberNodesTest extends NodeTestBase
         assertEquals("1", n.asText());
 
         assertNodeNumbers(n, 1, 1.0);
+        assertTrue(n.isEmpty());
 
         assertTrue(ShortNode.valueOf((short) 0).canConvertToInt());
         assertTrue(ShortNode.valueOf(Short.MAX_VALUE).canConvertToInt());
@@ -85,6 +86,7 @@ public class NumberNodesTest extends NodeTestBase
         assertEquals("1", n.asText("foo"));
         
         assertNodeNumbers(n, 1, 1.0);
+        assertTrue(n.isEmpty());
 
         assertTrue(IntNode.valueOf(0).canConvertToInt());
         assertTrue(IntNode.valueOf(Integer.MAX_VALUE).canConvertToInt());
@@ -110,6 +112,7 @@ public class NumberNodesTest extends NodeTestBase
         assertEquals("1", n.asText());
 
         assertNodeNumbers(n, 1, 1.0);
+        assertTrue(n.isEmpty());
 
         // ok if contains small enough value
         assertTrue(LongNode.valueOf(0).canConvertToInt());
@@ -167,6 +170,7 @@ public class NumberNodesTest extends NodeTestBase
         assertEquals("0.25", n.asText());
 
         assertNodeNumbers(DoubleNode.valueOf(4.5), 4, 4.5);
+        assertTrue(n.isEmpty());
 
         assertTrue(DoubleNode.valueOf(0).canConvertToInt());
         assertTrue(DoubleNode.valueOf(Integer.MAX_VALUE).canConvertToInt());
@@ -240,6 +244,7 @@ public class NumberNodesTest extends NodeTestBase
 
         // 1.6:
         assertNodeNumbers(FloatNode.valueOf(4.5f), 4, 4.5f);
+        assertTrue(n.isEmpty());
 
         assertTrue(FloatNode.valueOf(0).canConvertToInt());
         assertTrue(FloatNode.valueOf(Integer.MAX_VALUE).canConvertToInt());
@@ -272,6 +277,7 @@ public class NumberNodesTest extends NodeTestBase
         assertEquals("1", n.asText());
 
         assertNodeNumbers(n, 1, 1.0);
+        assertTrue(n.isEmpty());
 
         assertTrue(DecimalNode.valueOf(BigDecimal.ZERO).canConvertToInt());
         assertTrue(DecimalNode.valueOf(BigDecimal.valueOf(Integer.MAX_VALUE)).canConvertToInt());
@@ -352,6 +358,7 @@ public class NumberNodesTest extends NodeTestBase
         assertEquals(BigInteger.ONE, n.bigIntegerValue());
         assertEquals("1", n.asText());
         assertNodeNumbers(n, 1, 1.0);
+        assertTrue(n.isEmpty());
 
         BigInteger maxLong = BigInteger.valueOf(Long.MAX_VALUE);
         

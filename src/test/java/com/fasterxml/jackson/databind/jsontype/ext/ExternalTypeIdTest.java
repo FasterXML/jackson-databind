@@ -539,6 +539,25 @@ public class ExternalTypeIdTest extends BaseMapTest
             w.value.equals(w2.value));
     }
 
+    public void testBigDecimal965StringBased() throws Exception
+    {
+        Wrapper965 w = new Wrapper965();
+        w.typeEnum = Type965.BIG_DECIMAL;
+        final String NUM_STR = "-10000000000.0000000001";
+        w.value = new BigDecimal(NUM_STR);
+
+        String json = "{\"objectValue\":\"-10000000000.0000000001\",\"type\":\"BIG_DECIMAL\"}";
+
+        Wrapper965 w2 = MAPPER.readerFor(Wrapper965.class)
+                .with(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
+                .readValue(json);
+
+        assertEquals(w.typeEnum, w2.typeEnum);
+        assertTrue(String.format("Expected %s = %s; got back %s = %s",
+                        w.value.getClass().getSimpleName(), w.value.toString(), w2.value.getClass().getSimpleName(), w2.value.toString()),
+                w.value.equals(w2.value));
+    }
+
     static class Box3008 {
         public String type;
         public Fruit3008 fruit;

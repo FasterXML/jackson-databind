@@ -80,17 +80,17 @@ public class JsonNodeFactoryTest extends NodeTestBase
                MAPPER.writeValueAsString(mapper.readTree(BIGGER_INPUT)));
    }
 
-	public void testBigDecimalNormalization_enabled_by_default() throws Exception
-	{
-		final BigDecimal NON_NORMALIZED = new BigDecimal("12.5000");
-		final BigDecimal NORMALIZED = NON_NORMALIZED.stripTrailingZeros();
+   public void testBigDecimalNormalization_enabled_by_default() throws Exception
+   {
+      final BigDecimal NON_NORMALIZED = new BigDecimal("12.5000");
+      final BigDecimal NORMALIZED = NON_NORMALIZED.stripTrailingZeros();
 
-		// By default, 2.x WILL normalize
-		JsonNode n1 = MAPPER.readTree(String.valueOf(NON_NORMALIZED));
-		assertEquals(NORMALIZED, n1.decimalValue());
-	}
+      // By default, 2.x WILL normalize
+      JsonNode n1 = MAPPER.readTree(String.valueOf(NON_NORMALIZED));
+      assertEquals(NORMALIZED, n1.decimalValue());
+   }
 
-	// 06-Nov-2022, tatu: Wasn't being tested, oddly enough
+   // 06-Nov-2022, tatu: Wasn't being tested, oddly enough
    public void testBigDecimalNormalization_when_disabled() throws Exception
    {
        final BigDecimal NON_NORMALIZED = new BigDecimal("12.5000");

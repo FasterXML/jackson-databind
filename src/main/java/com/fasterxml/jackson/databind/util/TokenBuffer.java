@@ -450,7 +450,7 @@ public class TokenBuffer
                     } else if (n instanceof Short) {
                         gen.writeNumber((Short) n);
                     } else if (n instanceof LazyNumber) {
-                        gen.writeNumber(((LazyNumber) n).getText());
+                        extracted(gen, (LazyNumber) n);
                     } else {
                         gen.writeNumber(((Number) n).intValue());
                     }
@@ -504,6 +504,29 @@ public class TokenBuffer
                 break;
             default:
                 throw new RuntimeException("Internal error: should never end up through this code path");
+            }
+        }
+    }
+
+    private static void extracted(JsonGenerator gen, LazyNumber n) throws IOException {
+        if (gen.canWriteFormattedNumbers()) {
+            gen.writeNumber(n.getText());
+        } else {
+            final Number result = n.getNumber();
+            if (result instanceof Integer) {
+                gen.writeNumber((Integer) result);
+            } else if (result instanceof Long) {
+                gen.writeNumber((Long) result);
+            } else if (result instanceof Double) {
+                gen.writeNumber((Double) result);
+            } else if (result instanceof Float) {
+                gen.writeNumber((Float) result);
+            } else if (result instanceof Short) {
+                gen.writeNumber((Short) result);
+            } else if (result instanceof BigDecimal) {
+                gen.writeNumber((BigDecimal) result);
+            } else if (result instanceof BigInteger) {
+                gen.writeNumber((BigInteger) result);
             }
         }
     }

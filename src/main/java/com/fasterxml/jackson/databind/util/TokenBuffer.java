@@ -450,7 +450,7 @@ public class TokenBuffer
                     } else if (n instanceof Short) {
                         gen.writeNumber((Short) n);
                     } else if (n instanceof LazyNumber) {
-                        extracted(gen, (LazyNumber) n);
+                        writeLazyNumber(gen, (LazyNumber) n);
                     } else {
                         gen.writeNumber(((Number) n).intValue());
                     }
@@ -470,7 +470,7 @@ public class TokenBuffer
                     } else if (n instanceof String) {
                         gen.writeNumber((String) n);
                     } else if (n instanceof LazyNumber) {
-                        gen.writeNumber(((LazyNumber) n).getText());
+                        writeLazyNumber(gen, (LazyNumber) n);
                     } else {
                         _reportError(String.format(
                                 "Unrecognized value type for VALUE_NUMBER_FLOAT: %s, cannot serialize",
@@ -504,29 +504,6 @@ public class TokenBuffer
                 break;
             default:
                 throw new RuntimeException("Internal error: should never end up through this code path");
-            }
-        }
-    }
-
-    private static void extracted(JsonGenerator gen, LazyNumber n) throws IOException {
-        if (gen.canWriteFormattedNumbers()) {
-            gen.writeNumber(n.getText());
-        } else {
-            final Number result = n.getNumber();
-            if (result instanceof Integer) {
-                gen.writeNumber((Integer) result);
-            } else if (result instanceof Long) {
-                gen.writeNumber((Long) result);
-            } else if (result instanceof Double) {
-                gen.writeNumber((Double) result);
-            } else if (result instanceof Float) {
-                gen.writeNumber((Float) result);
-            } else if (result instanceof Short) {
-                gen.writeNumber((Short) result);
-            } else if (result instanceof BigDecimal) {
-                gen.writeNumber((BigDecimal) result);
-            } else if (result instanceof BigInteger) {
-                gen.writeNumber((BigInteger) result);
             }
         }
     }
@@ -1361,6 +1338,32 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         }
     }
 
+    private static void writeLazyNumber(final JsonGenerator gen, final LazyNumber n) throws IOException {
+        if (gen.canWriteFormattedNumbers()) {
+            gen.writeNumber(n.getText());
+        } else {
+            final Number result = n.getNumber();
+            if (result instanceof Integer) {
+                gen.writeNumber((Integer) result);
+            } else if (result instanceof Long) {
+                gen.writeNumber((Long) result);
+            } else if (result instanceof Double) {
+                gen.writeNumber((Double) result);
+            } else if (result instanceof Float) {
+                gen.writeNumber((Float) result);
+            } else if (result instanceof BigDecimal) {
+                gen.writeNumber((BigDecimal) result);
+            } else if (result instanceof BigInteger) {
+                gen.writeNumber((BigInteger) result);
+            } else if (result instanceof Short) {
+                gen.writeNumber((Short) result);
+            } else if (result != null) {
+                throw new IllegalStateException("Unable to write LazyNumber result of type "
+                        + result.getClass().getName());
+            }
+        }
+    }
+
     /**
      * Method used for appending token known to represent a "simple" scalar
      * value where token is the only information
@@ -1954,7 +1957,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 }
                 return NumberInput.parseLong(str);
             } else if (value instanceof LazyNumber) {
-                if (preferBigNumbers && !(value instanceof LazyBigDecimal)) {
+                if (preferBigNumbers && !(value instanceof LazyBigDecimal) && !(value instanceof LazyBigInteger)) {
                     return NumberInput.parseBigDecimal(((LazyNumber) value).getText(),
                             isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
                 }

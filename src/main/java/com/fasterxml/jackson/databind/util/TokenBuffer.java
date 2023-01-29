@@ -1840,7 +1840,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         @Override
         public NumberType getNumberType() throws IOException
         {
-            Number n = getNumberValue();
+            Object n = getNumberValueDeferred();
             if (n instanceof Integer) return NumberType.INT;
             if (n instanceof Long) return NumberType.LONG;
             if (n instanceof Double) return NumberType.DOUBLE;
@@ -1848,6 +1848,9 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             if (n instanceof BigInteger) return NumberType.BIG_INTEGER;
             if (n instanceof Float) return NumberType.FLOAT;
             if (n instanceof Short) return NumberType.INT;       // should be SHORT
+            if (n instanceof String) {
+                return ((String) n).contains(".") ? NumberType.BIG_DECIMAL : NumberType.BIG_INTEGER;
+            }
             return null;
         }
 

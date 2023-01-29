@@ -404,6 +404,19 @@ public enum DeserializationFeature implements ConfigFeature
      */
     READ_ENUMS_USING_TO_STRING(false),
 
+   /**
+    * Feature that determines standard deserialization mechanism used for
+    * Enum values: if enabled, Enums are assumed to have been serialized using
+    * index of ordinal value known as index <code>Enum</code>;
+    * if disabled, return value of <code>Enum.name()</code> is assumed to have been used.
+    *<p>
+    * Note: this feature should usually have same value
+    * as {@link SerializationFeature#WRITE_ENUM_KEYS_USING_INDEX}.
+    *<p>
+    * Feature is disabled by default.
+    */
+   READ_ENUMS_KEYS_USING_INDEX(false),
+
     /**
      * Feature that allows unknown Enum values to be parsed as null values. 
      * If disabled, unknown Enum values will throw exceptions.

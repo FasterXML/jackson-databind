@@ -2873,8 +2873,7 @@ public class ObjectMapper
     @Override
     @SuppressWarnings("unchecked")
     public <T> T readValue(JsonParser p, Class<T> valueType)
-        throws IOException, StreamReadException, DatabindException
-    {
+        throws IOException {
         _assertNotNull("p", p);
         return (T) _readValue(getDeserializationConfig(), p, _typeFactory.constructType(valueType));
     }
@@ -2898,7 +2897,7 @@ public class ObjectMapper
     @Override
     @SuppressWarnings("unchecked")
     public <T> T readValue(JsonParser p, TypeReference<T> valueTypeRef)
-        throws IOException, StreamReadException, DatabindException
+        throws IOException
     {
         _assertNotNull("p", p);
         return (T) _readValue(getDeserializationConfig(), p, _typeFactory.constructType(valueTypeRef));
@@ -2922,7 +2921,7 @@ public class ObjectMapper
     @Override
     @SuppressWarnings("unchecked")
     public final <T> T readValue(JsonParser p, ResolvedType valueType)
-        throws IOException, StreamReadException, DatabindException
+        throws IOException
     {
         _assertNotNull("p", p);
         return (T) _readValue(getDeserializationConfig(), p, (JavaType) valueType);
@@ -2942,7 +2941,7 @@ public class ObjectMapper
      */
     @SuppressWarnings("unchecked")
     public <T> T readValue(JsonParser p, JavaType valueType)
-        throws IOException, StreamReadException, DatabindException
+        throws IOException
     {
         _assertNotNull("p", p);
         return (T) _readValue(getDeserializationConfig(), p, valueType);
@@ -3536,7 +3535,7 @@ public class ObjectMapper
      */
     @SuppressWarnings("unchecked")
     public <T> T readValue(File src, Class<T> valueType)
-        throws IOException, StreamReadException, DatabindException
+        throws IOException
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueType));
@@ -3556,7 +3555,7 @@ public class ObjectMapper
      */
     @SuppressWarnings({ "unchecked" })
     public <T> T readValue(File src, TypeReference<T> valueTypeRef)
-        throws IOException, StreamReadException, DatabindException
+        throws IOException
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueTypeRef));
@@ -3576,7 +3575,7 @@ public class ObjectMapper
      */
     @SuppressWarnings("unchecked")
     public <T> T readValue(File src, JavaType valueType)
-        throws IOException, StreamReadException, DatabindException
+        throws IOException
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), valueType);
@@ -3602,7 +3601,7 @@ public class ObjectMapper
      */
     @SuppressWarnings("unchecked")
     public <T> T readValue(URL src, Class<T> valueType)
-        throws IOException, StreamReadException, DatabindException
+        throws IOException
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueType));
@@ -3613,7 +3612,7 @@ public class ObjectMapper
      */
     @SuppressWarnings({ "unchecked" })
     public <T> T readValue(URL src, TypeReference<T> valueTypeRef)
-        throws IOException, StreamReadException, DatabindException
+        throws IOException
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueTypeRef));
@@ -3624,7 +3623,7 @@ public class ObjectMapper
      */
     @SuppressWarnings("unchecked")
     public <T> T readValue(URL src, JavaType valueType)
-        throws IOException, StreamReadException, DatabindException
+        throws IOException
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), valueType);
@@ -3684,7 +3683,7 @@ public class ObjectMapper
 
     @SuppressWarnings("unchecked")
     public <T> T readValue(Reader src, Class<T> valueType)
-        throws IOException, StreamReadException, DatabindException
+        throws IOException
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueType));
@@ -3692,7 +3691,7 @@ public class ObjectMapper
 
     @SuppressWarnings({ "unchecked" })
     public <T> T readValue(Reader src, TypeReference<T> valueTypeRef)
-        throws IOException, StreamReadException, DatabindException
+        throws IOException
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueTypeRef));
@@ -3700,7 +3699,7 @@ public class ObjectMapper
 
     @SuppressWarnings("unchecked")
     public <T> T readValue(Reader src, JavaType valueType)
-        throws IOException, StreamReadException, DatabindException
+        throws IOException
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), valueType);
@@ -3708,7 +3707,7 @@ public class ObjectMapper
 
     @SuppressWarnings("unchecked")
     public <T> T readValue(InputStream src, Class<T> valueType)
-        throws IOException, StreamReadException, DatabindException
+        throws IOException
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueType));
@@ -3716,7 +3715,7 @@ public class ObjectMapper
 
     @SuppressWarnings({ "unchecked" })
     public <T> T readValue(InputStream src, TypeReference<T> valueTypeRef)
-        throws IOException, StreamReadException, DatabindException
+        throws IOException
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueTypeRef));
@@ -3724,7 +3723,7 @@ public class ObjectMapper
 
     @SuppressWarnings("unchecked")
     public <T> T readValue(InputStream src, JavaType valueType)
-        throws IOException, StreamReadException, DatabindException
+        throws IOException
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), valueType);
@@ -3732,7 +3731,7 @@ public class ObjectMapper
 
     @SuppressWarnings("unchecked")
     public <T> T readValue(byte[] src, Class<T> valueType)
-        throws IOException, StreamReadException, DatabindException
+        throws IOException
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueType));
@@ -3741,7 +3740,7 @@ public class ObjectMapper
     @SuppressWarnings("unchecked")
     public <T> T readValue(byte[] src, int offset, int len, 
                                Class<T> valueType)
-        throws IOException, StreamReadException, DatabindException
+        throws IOException
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src, offset, len), _typeFactory.constructType(valueType));
@@ -3749,7 +3748,7 @@ public class ObjectMapper
 
     @SuppressWarnings({ "unchecked" })
     public <T> T readValue(byte[] src, TypeReference<T> valueTypeRef)
-        throws IOException, StreamReadException, DatabindException
+        throws IOException
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueTypeRef));
@@ -3757,7 +3756,7 @@ public class ObjectMapper
     
     @SuppressWarnings({ "unchecked" })
     public <T> T readValue(byte[] src, int offset, int len, TypeReference<T> valueTypeRef)
-        throws IOException, StreamReadException, DatabindException
+        throws IOException
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src, offset, len), _typeFactory.constructType(valueTypeRef));
@@ -3765,7 +3764,7 @@ public class ObjectMapper
 
     @SuppressWarnings("unchecked")
     public <T> T readValue(byte[] src, JavaType valueType)
-        throws IOException, StreamReadException, DatabindException
+        throws IOException
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), valueType);
@@ -3773,7 +3772,7 @@ public class ObjectMapper
 
     @SuppressWarnings("unchecked")
     public <T> T readValue(byte[] src, int offset, int len, JavaType valueType)
-        throws IOException, StreamReadException, DatabindException
+        throws IOException
     {
         _assertNotNull("src", src);
         return (T) _readMapAndClose(_jsonFactory.createParser(src, offset, len), valueType);
@@ -3806,7 +3805,7 @@ public class ObjectMapper
      * JSON output, written to File provided.
      */
     public void writeValue(File resultFile, Object value)
-        throws IOException, StreamWriteException, DatabindException
+        throws IOException
     {
         _writeValueAndClose(createGenerator(resultFile, JsonEncoding.UTF8), value);
     }
@@ -3823,7 +3822,7 @@ public class ObjectMapper
      * is closed).
      */
     public void writeValue(OutputStream out, Object value)
-        throws IOException, StreamWriteException, DatabindException
+        throws IOException
     {
         _writeValueAndClose(createGenerator(out, JsonEncoding.UTF8), value);
     }
@@ -3847,7 +3846,7 @@ public class ObjectMapper
      * is closed).
      */
     public void writeValue(Writer w, Object value)
-        throws IOException, StreamWriteException, DatabindException
+        throws IOException
     {
         _writeValueAndClose(createGenerator(w), value);
     }

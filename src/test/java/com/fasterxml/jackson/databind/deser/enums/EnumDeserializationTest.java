@@ -671,7 +671,7 @@ public class EnumDeserializationTest
       objMap.put(TestEnum.JACKSON, "I AM FOR REAL");
       obj.map  = objMap;
 
-      var deserObj = MAPPER.writer()
+      String deserObj = MAPPER.writer()
          .with(SerializationFeature.WRITE_ENUM_KEYS_USING_INDEX)
          .writeValueAsString(obj);
 

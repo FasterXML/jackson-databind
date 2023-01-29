@@ -370,6 +370,15 @@ public class StdKeyDeserializer extends KeyDeserializer
          */
         protected EnumResolver _byToStringResolver;
 
+        /**
+         /**
+         * Lazily constructed alternative in case there is need to
+         * parse using enum index method as the source.
+         *
+         * @since 2.15
+         */
+        protected EnumResolver _byIndexResolver;
+
         protected final Enum<?> _enumDefaultValue;
         
         protected EnumKD(EnumResolver er, AnnotatedMethod factory) {
@@ -392,6 +401,11 @@ public class StdKeyDeserializer extends KeyDeserializer
             EnumResolver res = ctxt.isEnabled(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
                     ? _getToStringResolver(ctxt) : _byNameResolver;
             Enum<?> e = res.findEnum(key);
+            // If enum is found, no need to try deser using index
+            if (e == null && ctxt.isEnabled(DeserializationFeature.READ_ENUMS_KEYS_USING_INDEX)){
+               res = _getIndexResolver(ctxt);
+               e = res.findEnum(key);
+            }
             if (e == null) {
                 if ((_enumDefaultValue != null)
                         && ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)) {
@@ -417,6 +431,18 @@ public class StdKeyDeserializer extends KeyDeserializer
             }
             return res;
         }
+
+       private EnumResolver _getIndexResolver(DeserializationContext ctxt) {
+          EnumResolver res = _byIndexResolver;
+          if (res == null) {
+             synchronized (this) {
+                res = EnumResolver.constructUsingIndex(ctxt.getConfig(),
+                   _byNameResolver.getEnumClass());
+                _byIndexResolver = res;
+             }
+          }
+          return res;
+       }
     }
     
     /**

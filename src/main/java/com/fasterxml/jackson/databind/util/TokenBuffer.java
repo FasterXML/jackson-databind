@@ -926,6 +926,14 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         _appendValue(JsonToken.VALUE_NUMBER_FLOAT, encodedValue);
     }
 
+    private void writeLazyInteger(Object encodedValue) throws IOException {
+        _appendValue(JsonToken.VALUE_NUMBER_INT, encodedValue);
+    }
+
+    private void writeLazyDecimal(Object encodedValue) throws IOException {
+        _appendValue(JsonToken.VALUE_NUMBER_FLOAT, encodedValue);
+    }
+
     @Override
     public void writeBoolean(boolean state) throws IOException {
         _appendValue(state ? JsonToken.VALUE_TRUE : JsonToken.VALUE_FALSE);
@@ -1086,31 +1094,14 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 writeNumber(p.getIntValue());
                 break;
             case BIG_INTEGER:
-                writeNumber(p.getBigIntegerValue());
+                writeLazyInteger(p.getNumberValueDeferred());
                 break;
             default:
                 writeNumber(p.getLongValue());
             }
             break;
         case VALUE_NUMBER_FLOAT:
-            if (_forceBigDecimal) {
-                // 10-Oct-2015, tatu: Ideally we would first determine whether underlying
-                //   number is already decoded into a number (in which case might as well
-                //   access as number); or is still retained as text (in which case we
-                //   should further defer decoding that may not need BigDecimal):
-                writeNumber(p.getDecimalValue());
-            } else {
-                switch (p.getNumberType()) {
-                case BIG_DECIMAL:
-                    writeNumber(p.getDecimalValue());
-                    break;
-                case FLOAT:
-                    writeNumber(p.getFloatValue());
-                    break;
-                default:
-                    writeNumber(p.getDoubleValue());
-                }
-            }
+            writeLazyDecimal(p.getNumberValueDeferred());
             break;
         case VALUE_TRUE:
             writeBoolean(true);
@@ -1244,7 +1235,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 writeNumber(p.getIntValue());
                 break;
             case BIG_INTEGER:
-                writeNumber(p.getBigIntegerValue());
+                writeLazyInteger(p.getNumberValueDeferred());
                 break;
             default:
                 writeNumber(p.getLongValue());
@@ -1252,7 +1243,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             break;
         case VALUE_NUMBER_FLOAT:
             if (_forceBigDecimal) {
-                writeNumber(p.getDecimalValue());
+                writeLazyDecimal(p.getNumberValueDeferred());
             } else {
                 // 09-Jul-2020, tatu: Used to just copy using most optimal method, but
                 //  issues like [databind#2644] force to use exact, not optimal type

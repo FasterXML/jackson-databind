@@ -654,4 +654,34 @@ public class EnumDeserializationTest
         assertEquals(Operation3006.THREE, MAPPER.readValue("3", Operation3006.class));
         assertEquals(Operation3006.THREE, MAPPER.readValue(q("3"), Operation3006.class));
     }
+    
+   public void testEnumIndexAsKey() throws Exception
+   {
+      ObjectReader reader = MAPPER.reader(DeserializationFeature.READ_ENUMS_KEYS_USING_INDEX);
+
+      ClassWithEnumMapKey result = reader.readValue("{\"map\": {\"0\":\"I AM FOR REAL\"}}", ClassWithEnumMapKey.class);
+
+      assertEquals(result.map.get(TestEnum.JACKSON), "I AM FOR REAL");
+   }
+
+   public void testEnumIndexAsKey_symmetric_to_writing() throws Exception
+   {
+      ClassWithEnumMapKey obj = new ClassWithEnumMapKey();
+      Map<TestEnum, String> objMap = new HashMap<>();
+      objMap.put(TestEnum.JACKSON, "I AM FOR REAL");
+      obj.map  = objMap;
+
+      var deserObj = MAPPER.writer()
+         .with(SerializationFeature.WRITE_ENUM_KEYS_USING_INDEX)
+         .writeValueAsString(obj);
+
+      ClassWithEnumMapKey result = MAPPER.reader()
+         .with(DeserializationFeature.READ_ENUMS_KEYS_USING_INDEX)
+         .readValue(deserObj, ClassWithEnumMapKey.class);
+
+      assertNotSame(obj, result);
+      assertNotSame(obj.map, result.map);
+      assertEquals(result.map.get(TestEnum.JACKSON), "I AM FOR REAL");
+   }
+
 }

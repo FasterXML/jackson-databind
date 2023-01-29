@@ -148,6 +148,10 @@ df0.getClass().getName()));
 
     protected abstract long _timestamp(T value);
 
+    /**
+     * @deprecated Since 2.15
+     */
+    @Deprecated
     @Override
     public JsonNode getSchema(SerializerProvider serializers, Type typeHint) {
         //todo: (ryan) add a format for the date in the schema?

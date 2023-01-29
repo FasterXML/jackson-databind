@@ -17,7 +17,6 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor;
-import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.BeanSerializer;
@@ -41,7 +40,7 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 @JacksonStdImpl
 public class JsonValueSerializer
     extends StdSerializer<Object>
-    implements ContextualSerializer, JsonFormatVisitable, SchemaAware
+    implements ContextualSerializer, JsonFormatVisitable
 {
     /**
      * @since 2.9
@@ -302,13 +301,17 @@ public class JsonValueSerializer
     /**********************************************************
      */
 
-    @SuppressWarnings("deprecation")
+    /**
+     * @deprecated Since 2.15
+     */
+    @Deprecated
     @Override
     public JsonNode getSchema(SerializerProvider ctxt, Type typeHint)
         throws JsonMappingException
     {
-        if (_valueSerializer instanceof SchemaAware) {
-            return ((SchemaAware)_valueSerializer).getSchema(ctxt, null);
+        if (_valueSerializer instanceof com.fasterxml.jackson.databind.jsonschema.SchemaAware) {
+            return ((com.fasterxml.jackson.databind.jsonschema.SchemaAware) _valueSerializer)
+                .getSchema(ctxt, null);
         }
         return com.fasterxml.jackson.databind.jsonschema.JsonSchema.getDefaultSchemaNode();
     }

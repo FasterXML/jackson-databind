@@ -415,7 +415,7 @@ public enum DeserializationFeature implements ConfigFeature
     *<p>
     * Feature is disabled by default.
     */
-   READ_ENUMS_KEYS_USING_INDEX(false),
+   READ_ENUM_KEYS_USING_INDEX(false),
 
     /**
      * Feature that allows unknown Enum values to be parsed as null values. 

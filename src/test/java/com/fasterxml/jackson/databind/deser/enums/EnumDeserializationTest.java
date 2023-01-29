@@ -657,7 +657,7 @@ public class EnumDeserializationTest
     
    public void testEnumIndexAsKey() throws Exception
    {
-      ObjectReader reader = MAPPER.reader(DeserializationFeature.READ_ENUMS_KEYS_USING_INDEX);
+      ObjectReader reader = MAPPER.reader(DeserializationFeature.READ_ENUM_KEYS_USING_INDEX);
 
       ClassWithEnumMapKey result = reader.readValue("{\"map\": {\"0\":\"I AM FOR REAL\"}}", ClassWithEnumMapKey.class);
 
@@ -676,7 +676,7 @@ public class EnumDeserializationTest
          .writeValueAsString(obj);
 
       ClassWithEnumMapKey result = MAPPER.reader()
-         .with(DeserializationFeature.READ_ENUMS_KEYS_USING_INDEX)
+         .with(DeserializationFeature.READ_ENUM_KEYS_USING_INDEX)
          .readValue(deserObj, ClassWithEnumMapKey.class);
 
       assertNotSame(obj, result);

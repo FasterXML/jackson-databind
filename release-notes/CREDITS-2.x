@@ -1559,3 +1559,6 @@ Ajay Siwach (Siwach16@github)
   * Contributed #3637: Add enum features into `@JsonFormat.Feature`
   (2.15.0)
 
+Zhenyu Luo (luozhenyu@github)
+  * Contributed #3745: Deprecate classes in package `com.fasterxml.jackson.databind.jsonschema`
+  (2.15.0)

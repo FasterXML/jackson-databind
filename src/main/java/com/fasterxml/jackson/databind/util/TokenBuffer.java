@@ -1863,6 +1863,11 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             return getNumberValue(false);
         }
 
+        public Object getNumberValueDeferred() throws IOException {
+            _checkIsNumber();
+            return _currentObject();
+        }
+
         private Number getNumberValue(final boolean preferBigNumbers) throws IOException {
             _checkIsNumber();
             Object value = _currentObject();

@@ -1863,6 +1863,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             return getNumberValue(false);
         }
 
+        @Override
         public Object getNumberValueDeferred() throws IOException {
             _checkIsNumber();
             return _currentObject();

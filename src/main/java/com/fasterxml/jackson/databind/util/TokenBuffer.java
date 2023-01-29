@@ -1242,14 +1242,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             }
             break;
         case VALUE_NUMBER_FLOAT:
-            if (_forceBigDecimal) {
-                writeLazyDecimal(p.getNumberValueDeferred());
-            } else {
-                // 09-Jul-2020, tatu: Used to just copy using most optimal method, but
-                //  issues like [databind#2644] force to use exact, not optimal type
-                final Number n = p.getNumberValueExact();
-                _appendValue(JsonToken.VALUE_NUMBER_FLOAT, n);
-            }
+            writeLazyDecimal(p.getNumberValueDeferred());
             break;
         case VALUE_TRUE:
             writeBoolean(true);

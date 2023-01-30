@@ -431,6 +431,7 @@ public class StdKeyDeserializer extends KeyDeserializer
             return res;
         }
 
+        // Consider using atomicReference?
         private EnumResolver _getIndexResolver(DeserializationContext ctxt) {
             if (_byIndexResolver == null) {
                 synchronized (this) {

@@ -399,17 +399,15 @@ public class EnumDeserializer
 
     protected CompactStringObjectMap _getToStringLookup(DeserializationContext ctxt)
     {
-        CompactStringObjectMap lookup = _lookupByToString;
-        // note: exact locking not needed; all we care for here is to try to
-        // reduce contention for the initial resolution
-        if (lookup == null) {
+        if (_lookupByToString == null) {
             synchronized (this) {
-                lookup = EnumResolver.constructUsingToString(ctxt.getConfig(), _enumClass())
-                    .constructLookup();
+                if (_lookupByToString == null) {
+                    _lookupByToString = EnumResolver.constructUsingToString(ctxt.getConfig(), _enumClass())
+                       .constructLookup();
+                }
             }
-            _lookupByToString = lookup;
         }
-        return lookup;
+        return _lookupByToString;
     }
 
     // @since 2.15

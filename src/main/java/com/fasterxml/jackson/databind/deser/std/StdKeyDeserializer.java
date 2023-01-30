@@ -376,7 +376,7 @@ public class StdKeyDeserializer extends KeyDeserializer
          *
          * @since 2.15
          */
-        protected EnumResolver _byIndexResolver;
+        protected volatile EnumResolver _byIndexResolver;
 
         protected final Enum<?> _enumDefaultValue;
         
@@ -435,8 +435,10 @@ public class StdKeyDeserializer extends KeyDeserializer
             EnumResolver res = _byIndexResolver;
             if (res == null) {
                 synchronized (this) {
-                    res = EnumResolver.constructUsingIndex(ctxt.getConfig(),
-                        _byNameResolver.getEnumClass());
+                    if (res == null){
+                        res = EnumResolver.constructUsingIndex(ctxt.getConfig(),
+                            _byNameResolver.getEnumClass());
+                    }
                     _byIndexResolver = res;
                 }
             }

@@ -50,7 +50,7 @@ public class EnumDeserializer
      *
      * @since 2.7.3
      */
-    protected CompactStringObjectMap _lookupByToString;
+    protected volatile CompactStringObjectMap _lookupByToString;
 
     protected final Boolean _caseInsensitive;
 

@@ -431,17 +431,19 @@ public class StdKeyDeserializer extends KeyDeserializer
             return res;
         }
 
-        // Consider using atomicReference?
         private EnumResolver _getIndexResolver(DeserializationContext ctxt) {
-            if (_byIndexResolver == null) {
+            EnumResolver res = _byIndexResolver;
+            if (res == null) {
                 synchronized (this) {
-                    if (_byIndexResolver == null) {
-                        _byIndexResolver = EnumResolver.constructUsingIndex(ctxt.getConfig(),
+                    res = _byIndexResolver;
+                    if (res == null) {
+                        res = EnumResolver.constructUsingIndex(ctxt.getConfig(),
                             _byNameResolver.getEnumClass());
+                        _byIndexResolver = res;
                     }
                 }
             }
-            return _byIndexResolver;
+            return res;
         }
     }
     

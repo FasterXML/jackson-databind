@@ -440,7 +440,7 @@ public class StdKeyDeserializer extends KeyDeserializer
                     }
                 }
             }
-            return _byNameResolver;
+            return _byIndexResolver;
         }
     }
     

@@ -1833,6 +1833,12 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             return _numberValue(-1, false);
         }
 
+        // !!! TODO: implement properly to allow further deferral
+        @Override
+        public Object getNumberValueDeferred() {
+            return _numberValue(-1, false);
+        }
+
         private Number _numberValue(final int targetNumType, final boolean preferBigNumbers) {
             // Former "_checkIsNumber()"
             if (_currToken == null || !_currToken.isNumeric()) {

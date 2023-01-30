@@ -432,17 +432,15 @@ public class StdKeyDeserializer extends KeyDeserializer
         }
 
         private EnumResolver _getIndexResolver(DeserializationContext ctxt) {
-            EnumResolver res = _byIndexResolver;
-            if (res == null) {
+            if (_byIndexResolver == null) {
                 synchronized (this) {
-                    if (res == null){
-                        res = EnumResolver.constructUsingIndex(ctxt.getConfig(),
+                    if (_byIndexResolver == null) {
+                        _byIndexResolver = EnumResolver.constructUsingIndex(ctxt.getConfig(),
                             _byNameResolver.getEnumClass());
-                        _byIndexResolver = res;
                     }
                 }
             }
-            return res;
+            return _byNameResolver;
         }
     }
     

@@ -397,8 +397,7 @@ public class EnumDeserializer
         return handledType();
     }
 
-    protected CompactStringObjectMap _getToStringLookup(DeserializationContext ctxt)
-    {
+    protected CompactStringObjectMap _getToStringLookup(DeserializationContext ctxt) {
         CompactStringObjectMap lookup = _lookupByToString;
         if (lookup == null) {
             synchronized (this) {

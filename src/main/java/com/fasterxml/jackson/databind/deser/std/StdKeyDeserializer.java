@@ -431,17 +431,17 @@ public class StdKeyDeserializer extends KeyDeserializer
             return res;
         }
 
-       private EnumResolver _getIndexResolver(DeserializationContext ctxt) {
-          EnumResolver res = _byIndexResolver;
-          if (res == null) {
-             synchronized (this) {
-                res = EnumResolver.constructUsingIndex(ctxt.getConfig(),
-                   _byNameResolver.getEnumClass());
-                _byIndexResolver = res;
-             }
-          }
-          return res;
-       }
+        private EnumResolver _getIndexResolver(DeserializationContext ctxt) {
+            EnumResolver res = _byIndexResolver;
+            if (res == null) {
+                synchronized (this) {
+                    res = EnumResolver.constructUsingIndex(ctxt.getConfig(),
+                        _byNameResolver.getEnumClass());
+                    _byIndexResolver = res;
+                }
+            }
+            return res;
+        }
     }
     
     /**

@@ -399,15 +399,18 @@ public class EnumDeserializer
 
     protected CompactStringObjectMap _getToStringLookup(DeserializationContext ctxt)
     {
-        if (_lookupByToString == null) {
+        CompactStringObjectMap lookup = _lookupByToString;
+        if (lookup == null) {
             synchronized (this) {
-                if (_lookupByToString == null) {
+                lookup = _lookupByToString;
+                if (lookup == null) {
                     _lookupByToString = EnumResolver.constructUsingToString(ctxt.getConfig(), _enumClass())
                         .constructLookup();
+                    _lookupByToString = lookup;
                 }
             }
         }
-        return _lookupByToString;
+        return lookup;
     }
 
     // @since 2.15

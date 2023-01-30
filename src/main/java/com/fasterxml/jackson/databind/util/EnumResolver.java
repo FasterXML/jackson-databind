@@ -127,24 +127,24 @@ public class EnumResolver implements java.io.Serializable
     }
 
 
-   public static EnumResolver constructUsingIndex(DeserializationConfig config, Class<Enum<?>> enumCls) {
-      return _constructUsingIndex(enumCls, config.getAnnotationIntrospector(),
-         config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS));
-   }
+    public static EnumResolver constructUsingIndex(DeserializationConfig config, Class<Enum<?>> enumCls) {
+        return _constructUsingIndex(enumCls, config.getAnnotationIntrospector(),
+                config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS));
+    }
 
-   private static EnumResolver _constructUsingIndex(Class<Enum<?>> enumCls0, AnnotationIntrospector ai, boolean isIgnoreCase) {
-      final Class<Enum<?>> enumCls = _enumClass(enumCls0);
-      final Enum<?>[] enumConstants = _enumConstants(enumCls0);
-      HashMap<String, Enum<?>> map = new HashMap<>();
+    private static EnumResolver _constructUsingIndex(Class<Enum<?>> enumCls0, AnnotationIntrospector ai, boolean isIgnoreCase) {
+        final Class<Enum<?>> enumCls = _enumClass(enumCls0);
+        final Enum<?>[] enumConstants = _enumConstants(enumCls0);
+        HashMap<String, Enum<?>> map = new HashMap<>();
 
-      // from last to first, so that in case of duplicate values, first wins
-      for (int i = enumConstants.length; --i >= 0; ) {
-         Enum<?> enumValue = enumConstants[i];
-         map.put(String.valueOf(i), enumValue);
-      }
-      return new EnumResolver(enumCls, enumConstants, map,
-         _enumDefault(ai, enumCls), isIgnoreCase, false);
-   }
+        // from last to first, so that in case of duplicate values, first wins
+        for (int i = enumConstants.length; --i >= 0; ) {
+            Enum<?> enumValue = enumConstants[i];
+            map.put(String.valueOf(i), enumValue);
+        }
+        return new EnumResolver(enumCls, enumConstants, map,
+            _enumDefault(ai, enumCls), isIgnoreCase, false);
+    }
 
    /**
      * @since 2.12

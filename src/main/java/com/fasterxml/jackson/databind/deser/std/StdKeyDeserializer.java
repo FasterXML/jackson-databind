@@ -371,7 +371,6 @@ public class StdKeyDeserializer extends KeyDeserializer
         protected EnumResolver _byToStringResolver;
 
         /**
-         /**
          * Lazily constructed alternative in case there is need to
          * parse using enum index method as the source.
          *

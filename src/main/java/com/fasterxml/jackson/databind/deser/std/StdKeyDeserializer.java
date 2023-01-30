@@ -438,8 +438,8 @@ public class StdKeyDeserializer extends KeyDeserializer
                     if (res == null){
                         res = EnumResolver.constructUsingIndex(ctxt.getConfig(),
                             _byNameResolver.getEnumClass());
+                        _byIndexResolver = res;
                     }
-                    _byIndexResolver = res;
                 }
             }
             return res;

@@ -403,7 +403,7 @@ public class EnumDeserializer
             synchronized (this) {
                 if (_lookupByToString == null) {
                     _lookupByToString = EnumResolver.constructUsingToString(ctxt.getConfig(), _enumClass())
-                       .constructLookup();
+                        .constructLookup();
                 }
             }
         }

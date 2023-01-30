@@ -404,7 +404,7 @@ public class EnumDeserializer
             synchronized (this) {
                 lookup = _lookupByToString;
                 if (lookup == null) {
-                    _lookupByToString = EnumResolver.constructUsingToString(ctxt.getConfig(), _enumClass())
+                    lookup = EnumResolver.constructUsingToString(ctxt.getConfig(), _enumClass())
                         .constructLookup();
                     _lookupByToString = lookup;
                 }

@@ -953,6 +953,14 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         return this;
     }
 
+    private void writeLazyInteger(Object encodedValue) {
+        _appendValue(JsonToken.VALUE_NUMBER_INT, encodedValue);
+    }
+
+    private void writeLazyDecimal(Object encodedValue) {
+        _appendValue(JsonToken.VALUE_NUMBER_FLOAT, encodedValue);
+    }
+
     @Override
     public JsonGenerator writeBoolean(boolean state) {
         _appendValue(state ? JsonToken.VALUE_TRUE : JsonToken.VALUE_FALSE);
@@ -1105,31 +1113,14 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 writeNumber(p.getIntValue());
                 break;
             case BIG_INTEGER:
-                writeNumber(p.getBigIntegerValue());
+                writeLazyInteger(p.getNumberValueDeferred());
                 break;
             default:
                 writeNumber(p.getLongValue());
             }
             break;
         case VALUE_NUMBER_FLOAT:
-            if (_forceBigDecimal) {
-                // 10-Oct-2015, tatu: Ideally we would first determine whether underlying
-                //   number is already decoded into a number (in which case might as well
-                //   access as number); or is still retained as text (in which case we
-                //   should further defer decoding that may not need BigDecimal):
-                writeNumber(p.getDecimalValue());
-            } else {
-                switch (p.getNumberType()) {
-                case BIG_DECIMAL:
-                    writeNumber(p.getDecimalValue());
-                    break;
-                case FLOAT:
-                    writeNumber(p.getFloatValue());
-                    break;
-                default:
-                    writeNumber(p.getDoubleValue());
-                }
-            }
+            writeLazyDecimal(p.getNumberValueDeferred());
             break;
         case VALUE_TRUE:
             writeBoolean(true);
@@ -1263,21 +1254,14 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 writeNumber(p.getIntValue());
                 break;
             case BIG_INTEGER:
-                writeNumber(p.getBigIntegerValue());
+                writeLazyInteger(p.getNumberValueDeferred());
                 break;
             default:
                 writeNumber(p.getLongValue());
             }
             break;
         case VALUE_NUMBER_FLOAT:
-            if (_forceBigDecimal) {
-                writeNumber(p.getDecimalValue());
-            } else {
-                // 09-Jul-2020, tatu: Used to just copy using most optimal method, but
-                //  issues like [databind#2644] force to use exact, not optimal type
-                final Number n = p.getNumberValueExact();
-                _appendValue(JsonToken.VALUE_NUMBER_FLOAT, n);
-            }
+            writeLazyDecimal(p.getNumberValueDeferred());
             break;
         case VALUE_TRUE:
             writeBoolean(true);
@@ -1824,6 +1808,8 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 if (n instanceof BigInteger) return NumberType.BIG_INTEGER;
                 if (n instanceof Float) return NumberType.FLOAT;
                 if (n instanceof Short) return NumberType.INT;       // should be SHORT
+            } else if (value instanceof String) {
+                return ((String) value).contains(".") ? NumberType.BIG_DECIMAL : NumberType.BIG_INTEGER;
             }
             return null;
         }
@@ -1833,10 +1819,13 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             return _numberValue(-1, false);
         }
 
-        // !!! TODO: implement properly to allow further deferral
         @Override
         public Object getNumberValueDeferred() {
-            return _numberValue(-1, false);
+            // Former "_checkIsNumber()"
+            if (_currToken == null || !_currToken.isNumeric()) {
+                throw _constructNotNumericType(_currToken, 0);
+            }
+            return _currentObject();
         }
 
         private Number _numberValue(final int targetNumType, final boolean preferBigNumbers) {
@@ -1882,7 +1871,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         }
 
         // 02-Jan-2017, tatu: Modified from method(s) in `ParserBase`
-        
+
         protected int _convertNumberToInt(Number n) throws InputCoercionException
         {
             if (n instanceof Long) {

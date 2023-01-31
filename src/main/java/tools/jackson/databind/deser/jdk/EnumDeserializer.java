@@ -38,7 +38,7 @@ public class EnumDeserializer
      * Alternatively, we may need a different lookup object if "use toString"
      * is defined.
      */
-    protected CompactStringObjectMap _lookupByToString;
+    protected volatile CompactStringObjectMap _lookupByToString;
 
     protected final Boolean _caseInsensitive;
 
@@ -338,17 +338,17 @@ public class EnumDeserializer
         return handledType();
     }
 
-    protected CompactStringObjectMap _getToStringLookup(DeserializationContext ctxt)
-    {
+    protected CompactStringObjectMap _getToStringLookup(DeserializationContext ctxt) {
         CompactStringObjectMap lookup = _lookupByToString;
-        // note: exact locking not needed; all we care for here is to try to
-        // reduce contention for the initial resolution
         if (lookup == null) {
             synchronized (this) {
-                lookup = EnumResolver.constructUsingToString(ctxt.getConfig(), _enumClass())
-                    .constructLookup();
+                lookup = _lookupByToString;
+                if (lookup == null) {
+                    lookup = EnumResolver.constructUsingToString(ctxt.getConfig(), _enumClass())
+                        .constructLookup();
+                    _lookupByToString = lookup;
+                }
             }
-            _lookupByToString = lookup;
         }
         return lookup;
     }

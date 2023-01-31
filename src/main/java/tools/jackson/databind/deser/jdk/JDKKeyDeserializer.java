@@ -363,7 +363,7 @@ public class JDKKeyDeserializer extends KeyDeserializer
          *
          * @since 2.7.3
          */
-        protected EnumResolver _byToStringResolver;
+        protected volatile EnumResolver _byToStringResolver;
 
         protected final Enum<?> _enumDefaultValue;
         
@@ -406,9 +406,12 @@ public class JDKKeyDeserializer extends KeyDeserializer
             EnumResolver res = _byToStringResolver;
             if (res == null) {
                 synchronized (this) {
-                    res = EnumResolver.constructUsingToString(ctxt.getConfig(),
+                    res = _byToStringResolver;
+                    if (res == null) {
+                        res = EnumResolver.constructUsingToString(ctxt.getConfig(),
                             _byNameResolver.getEnumClass());
-                    _byToStringResolver = res;
+                        _byToStringResolver = res;
+                    }
                 }
             }
             return res;

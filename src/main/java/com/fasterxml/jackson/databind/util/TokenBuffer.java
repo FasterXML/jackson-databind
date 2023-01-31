@@ -926,6 +926,14 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         _appendValue(JsonToken.VALUE_NUMBER_FLOAT, encodedValue);
     }
 
+    private void writeLazyInteger(Object encodedValue) throws IOException {
+        _appendValue(JsonToken.VALUE_NUMBER_INT, encodedValue);
+    }
+
+    private void writeLazyDecimal(Object encodedValue) throws IOException {
+        _appendValue(JsonToken.VALUE_NUMBER_FLOAT, encodedValue);
+    }
+
     @Override
     public void writeBoolean(boolean state) throws IOException {
         _appendValue(state ? JsonToken.VALUE_TRUE : JsonToken.VALUE_FALSE);
@@ -1086,31 +1094,14 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 writeNumber(p.getIntValue());
                 break;
             case BIG_INTEGER:
-                writeNumber(p.getBigIntegerValue());
+                writeLazyInteger(p.getNumberValueDeferred());
                 break;
             default:
                 writeNumber(p.getLongValue());
             }
             break;
         case VALUE_NUMBER_FLOAT:
-            if (_forceBigDecimal) {
-                // 10-Oct-2015, tatu: Ideally we would first determine whether underlying
-                //   number is already decoded into a number (in which case might as well
-                //   access as number); or is still retained as text (in which case we
-                //   should further defer decoding that may not need BigDecimal):
-                writeNumber(p.getDecimalValue());
-            } else {
-                switch (p.getNumberType()) {
-                case BIG_DECIMAL:
-                    writeNumber(p.getDecimalValue());
-                    break;
-                case FLOAT:
-                    writeNumber(p.getFloatValue());
-                    break;
-                default:
-                    writeNumber(p.getDoubleValue());
-                }
-            }
+            writeLazyDecimal(p.getNumberValueDeferred());
             break;
         case VALUE_TRUE:
             writeBoolean(true);
@@ -1244,21 +1235,14 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 writeNumber(p.getIntValue());
                 break;
             case BIG_INTEGER:
-                writeNumber(p.getBigIntegerValue());
+                writeLazyInteger(p.getNumberValueDeferred());
                 break;
             default:
                 writeNumber(p.getLongValue());
             }
             break;
         case VALUE_NUMBER_FLOAT:
-            if (_forceBigDecimal) {
-                writeNumber(p.getDecimalValue());
-            } else {
-                // 09-Jul-2020, tatu: Used to just copy using most optimal method, but
-                //  issues like [databind#2644] force to use exact, not optimal type
-                final Number n = p.getNumberValueExact();
-                _appendValue(JsonToken.VALUE_NUMBER_FLOAT, n);
-            }
+            writeLazyDecimal(p.getNumberValueDeferred());
             break;
         case VALUE_TRUE:
             writeBoolean(true);
@@ -1856,7 +1840,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         @Override
         public NumberType getNumberType() throws IOException
         {
-            Number n = getNumberValue();
+            Object n = getNumberValueDeferred();
             if (n instanceof Integer) return NumberType.INT;
             if (n instanceof Long) return NumberType.LONG;
             if (n instanceof Double) return NumberType.DOUBLE;
@@ -1864,12 +1848,21 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             if (n instanceof BigInteger) return NumberType.BIG_INTEGER;
             if (n instanceof Float) return NumberType.FLOAT;
             if (n instanceof Short) return NumberType.INT;       // should be SHORT
+            if (n instanceof String) {
+                return ((String) n).contains(".") ? NumberType.BIG_DECIMAL : NumberType.BIG_INTEGER;
+            }
             return null;
         }
 
         @Override
         public final Number getNumberValue() throws IOException {
             return getNumberValue(false);
+        }
+
+        @Override
+        public Object getNumberValueDeferred() throws IOException {
+            _checkIsNumber();
+            return _currentObject();
         }
 
         private Number getNumberValue(final boolean preferBigNumbers) throws IOException {

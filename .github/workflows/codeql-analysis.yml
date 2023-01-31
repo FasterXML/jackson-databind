@@ -3,26 +3,7 @@ name: "CodeQL"
 on:
   schedule:
     - cron: '40 21 * * 2'
-  push:
-    branches:
-    - master
-    - "3.0"
-    - "2.15"
-    - "2.14"
-    - "2.13"
-    paths-ignore:
-    - "README.md"
-    - "release-notes/*"
-  pull_request:
-    branches:
-    - master
-    - "3.0"
-    - "2.15"
-    - "2.14"
-    - "2.13"
-    paths-ignore:
-    - "README.md"
-    - "release-notes/*"
+  # Used to be run on PRs, merges; but too unreliable, removed
 permissions:
   contents: read
 

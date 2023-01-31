@@ -17,10 +17,13 @@ import com.fasterxml.jackson.annotation.JacksonAnnotation;
  * 
  * @author Ryan Heaton
  * @author Tatu Saloranta
+ * @deprecated Since 2.15, we recommend use of external
+ * <a href="https://github.com/FasterXML/jackson-module-jsonSchema">JSON Schema generator module</a>
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @JacksonAnnotation
+@Deprecated
 public @interface JsonSerializableSchema
 {
     /**

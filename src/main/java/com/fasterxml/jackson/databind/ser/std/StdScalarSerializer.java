@@ -58,6 +58,10 @@ public abstract class StdScalarSerializer<T>
         typeSer.writeTypeSuffix(g, typeIdDef);
     }
 
+    /**
+     * @deprecated Since 2.15
+     */
+    @Deprecated
     @Override
     public JsonNode getSchema(SerializerProvider provider, Type typeHint)
         throws JsonMappingException

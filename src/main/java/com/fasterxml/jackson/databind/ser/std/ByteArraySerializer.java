@@ -69,6 +69,10 @@ public class ByteArraySerializer extends StdSerializer<byte[]>
         */
     }
 
+    /**
+     * @deprecated Since 2.15
+     */
+    @Deprecated
     @Override
     public JsonNode getSchema(SerializerProvider provider, Type typeHint)
     {

@@ -101,11 +101,8 @@ public class EnumResolver implements java.io.Serializable
             String[] aliases = allAliases[i];
             if (aliases != null) {
                 for (String alias : aliases) {
-                    // TODO: JDK 1.8, use Map.putIfAbsent()
                     // Avoid overriding any primary names
-                    if (!map.containsKey(alias)) {
-                        map.put(alias, enumValue);
-                    }
+                    map.putIfAbsent(alias, enumValue);
                 }
             }
         }
@@ -147,11 +144,8 @@ public class EnumResolver implements java.io.Serializable
             String[] aliases = allAliases[i];
             if (aliases != null) {
                 for (String alias : aliases) {
-                    // TODO: JDK 1.8, use Map.putIfAbsent()
                     // Avoid overriding any primary names
-                    if (!map.containsKey(alias)) {
-                        map.put(alias, enumValue);
-                    }
+                    map.putIfAbsent(alias, enumValue);
                 }
             }
         }

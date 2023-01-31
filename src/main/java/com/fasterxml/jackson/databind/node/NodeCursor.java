@@ -195,7 +195,7 @@ abstract class NodeCursor
         public ObjectCursor(JsonNode n, NodeCursor p)
         {
             super(JsonStreamContext.TYPE_OBJECT, p);
-            _contents = ((ObjectNode) n).fields();
+            _contents = n.fields();
             _needEntry = true;
         }
 

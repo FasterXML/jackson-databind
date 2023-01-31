@@ -6,17 +6,50 @@ Project: jackson-databind
 
 2.15.0 (not yet released)
 
+#2974: Null coercion with `@JsonSetter` does not work with `java.lang.Record`
+ (fix contributed by Sim Y-T)
+#2992: Properties naming strategy do not work with Record
+ (fix contributed by Sim Y-T)
+#3180: Support `@JsonCreator` annotation on record classes
+ (fix contributed by Sim Y-T)
+#3297: `@JsonDeserialize(converter = ...)` does not work with Records
+ (fix contributed by Sim Y-T)
+#3342: `JsonTypeInfo.As.EXTERNAL_PROPERTY` does not work with record wrappers
+ (fix contributed by Sim Y-T)
+#3637: Add enum features into `@JsonFormat.Feature`
+ (requested by @Anatoly4444)
+ (fix contributed by Ajay S)
+#3651: Deprecate "exact values" setting from `JsonNodeFactory`, replace with
+  `JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES`
 #3654: Infer `@JsonCreator(mode = Mode.DELEGATING)` from use of `@JsonValue`)
 #3676: Allow use of `@JsonCreator(mode = Mode.PROPERTIES)` creator for POJOs
  with"empty String" coercion
 #3680: Timestamp in classes inside jar showing 02/01/1980
  (fix contributed by Hervé B)
 #3682: Transient `Field`s are not ignored as Mutators if there is visible Getter
+#3690: Incorrect target type for arrays when disabling coercion
+ (reported by João G)
+#3708: Seems like `java.nio.file.Path` is safe for Android API level 26
+ (contributed by @pjfanning)
+#3736: Try to avoid auto-detecting Fields for Record types
+#3742: schemaType of `LongSerializer` is wrong
+ (reported by @luozhenyu)
+#3745: Deprecate classes in package `com.fasterxml.jackson.databind.jsonschema`
+ (contributed by @luozhenyu)
+#3748: `DelegatingDeserializer` missing override of `getAbsentValue()`
+ (and couple of other methods)
 
-2.14.2 (not yet released)
+2.14.2 (28-Jan-2023)
 
 #1751: `@JsonTypeInfo` does not work if the Type Id is an Integer value
  (reported by @marvin-we)
+#3063: `@JsonValue` fails for Java Record
+ (reported by Gili T)
+#3699: Allow custom `JsonNode` implementations
+ (contributed by Philippe M)
+#3711: Enum polymorphism not working correctly with DEDUCTION
+ (reported by @smilep)
+#3741: `StdDelegatingDeserializer` ignores `nullValue` of `_delegateDeserializer`.
 
 2.14.1 (21-Nov-2022)
 
@@ -103,7 +136,7 @@ Project: jackson-databind
 #3633: Expose `translate()` method of standard `PropertyNamingStrategy` implementations
  (requested by Joachim D)
 
-2.13.5 (not yet released)
+2.13.5 (23-Jan-2023)
 
 #3659: Improve testing (likely via CI) to try to ensure compatibility with
   specific Android SDKs

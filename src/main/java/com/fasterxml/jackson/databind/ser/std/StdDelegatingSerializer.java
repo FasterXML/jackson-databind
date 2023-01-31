@@ -5,7 +5,6 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
-import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
@@ -29,7 +28,7 @@ import java.lang.reflect.Type;
 public class StdDelegatingSerializer
     extends StdSerializer<Object>
     implements ContextualSerializer, ResolvableSerializer,
-        JsonFormatVisitable, SchemaAware
+        JsonFormatVisitable
 {
     protected final Converter<Object,?> _converter;
 
@@ -201,22 +200,32 @@ public class StdDelegatingSerializer
     /**********************************************************
      */
 
+    /**
+     * @deprecated Since 2.15
+     */
+    @Deprecated
     @Override
     public JsonNode getSchema(SerializerProvider provider, Type typeHint)
         throws JsonMappingException
     {
-        if (_delegateSerializer instanceof SchemaAware) {
-            return ((SchemaAware) _delegateSerializer).getSchema(provider, typeHint);
+        if (_delegateSerializer instanceof com.fasterxml.jackson.databind.jsonschema.SchemaAware) {
+            return ((com.fasterxml.jackson.databind.jsonschema.SchemaAware) _delegateSerializer)
+                .getSchema(provider, typeHint);
         }
         return super.getSchema(provider, typeHint);
     }
 
+    /**
+     * @deprecated Since 2.15
+     */
+    @Deprecated
     @Override
     public JsonNode getSchema(SerializerProvider provider, Type typeHint,
         boolean isOptional) throws JsonMappingException
     {
-        if (_delegateSerializer instanceof SchemaAware) {
-            return ((SchemaAware) _delegateSerializer).getSchema(provider, typeHint, isOptional);
+        if (_delegateSerializer instanceof com.fasterxml.jackson.databind.jsonschema.SchemaAware) {
+            return ((com.fasterxml.jackson.databind.jsonschema.SchemaAware) _delegateSerializer)
+                .getSchema(provider, typeHint, isOptional);
         }
         return super.getSchema(provider, typeHint);
     }

@@ -148,7 +148,9 @@ public class NewSchemaTest extends BaseMapTest
                     }
                     // and this just for bit of extra coverage...
                     if (ser instanceof StdSerializer) {
-                        assertNotNull(((StdSerializer<?>) ser).getSchema(prov, prop.getType()));
+                        @SuppressWarnings("deprecation")
+                        JsonNode schemaNode = ((StdSerializer<?>) ser).getSchema(prov, prop.getType());
+                        assertNotNull(schemaNode);
                     }
                     JsonFormatVisitorWrapper visitor = new JsonFormatVisitorWrapper.Base(getProvider());
                     ser.acceptJsonFormatVisitor(visitor, prop.getType());

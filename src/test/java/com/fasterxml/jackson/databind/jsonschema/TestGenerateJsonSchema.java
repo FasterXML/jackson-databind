@@ -34,7 +34,7 @@ public class TestGenerateJsonSchema
         private Collection<Float> property4;
         @JsonProperty(required=true)
         private String property5;
-        
+
         public int getProperty1()
         {
             return property1;
@@ -80,9 +80,12 @@ public class TestGenerateJsonSchema
             return property5;
         }
 
-        public void setProperty5(String property5)
-        {
+        public void setProperty5(String property5) {
             this.property5 = property5;
+        }
+
+        public long getProperty6() {
+            return 0L;
         }
     }
 
@@ -119,7 +122,7 @@ public class TestGenerateJsonSchema
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
     
     /**
      * tests generating json-schema stuff.
@@ -162,6 +165,16 @@ public class TestGenerateJsonSchema
         assertEquals("array", property4Schema.get("type").asText());
         assertEquals(false, property4Schema.path("required").booleanValue());
         assertEquals("number", property4Schema.get("items").get("type").asText());
+
+        JsonNode property5Schema = propertiesSchema.get("property5");
+        assertNotNull(property5Schema);
+        assertEquals("string", property5Schema.get("type").asText());
+        assertEquals(true, property5Schema.path("required").booleanValue());
+
+        JsonNode property6Schema = propertiesSchema.get("property6");
+        assertNotNull(property6Schema);
+        assertEquals("integer", property6Schema.get("type").asText());
+        assertEquals(false, property6Schema.path("required").booleanValue());
     }
     
     @JsonFilter("filteredBean")

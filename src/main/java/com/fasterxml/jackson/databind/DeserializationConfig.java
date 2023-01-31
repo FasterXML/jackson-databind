@@ -893,6 +893,13 @@ public final class DeserializationConfig
         return _datatypeFeatures.isEnabled(feature);
     }
 
+    /**
+     * @since 2.15
+     */
+    public final DatatypeFeatures getDatatypeFeatures() {
+        return _datatypeFeatures;
+    }
+
     /*
     /**********************************************************
     /* Other configuration

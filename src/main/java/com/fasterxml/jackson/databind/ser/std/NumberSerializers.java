@@ -75,6 +75,10 @@ public class NumberSerializers {
                     || (numberType == JsonParser.NumberType.BIG_INTEGER);
         }
 
+        /**
+         * @deprecated Since 2.15
+         */
+        @Deprecated
         @Override
         public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
             return createSchemaNode(_schemaType, true);
@@ -121,7 +125,7 @@ public class NumberSerializers {
         final static ShortSerializer instance = new ShortSerializer();
 
         public ShortSerializer() {
-            super(Short.class, JsonParser.NumberType.INT, "number");
+            super(Short.class, JsonParser.NumberType.INT, "integer");
         }
 
         @Override
@@ -186,7 +190,7 @@ public class NumberSerializers {
     @JacksonStdImpl
     public static class LongSerializer extends Base<Object> {
         public LongSerializer(Class<?> cls) {
-            super(cls, JsonParser.NumberType.LONG, "number");
+            super(cls, JsonParser.NumberType.LONG, "integer");
         }
 
         @Override

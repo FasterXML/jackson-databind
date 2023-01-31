@@ -44,6 +44,7 @@ public class SimpleModuleTest extends BaseMapTest
             jgen.writeString(value.str + "|" + value.num);
         }
 
+        @Deprecated
         @Override
         public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
             return null;
@@ -78,6 +79,7 @@ public class SimpleModuleTest extends BaseMapTest
             jgen.writeString(value.name().toLowerCase());
         }
 
+        @Deprecated
         @Override
         public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
             return null;

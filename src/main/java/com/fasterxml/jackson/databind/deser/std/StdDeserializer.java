@@ -1401,6 +1401,9 @@ public abstract class StdDeserializer<T>
         throws IOException
     {
         CoercionAction act = CoercionAction.TryConvert;
+        // 05-Jan-2022, tatu: We are usually coercing into `String` as element,
+        //    or such; `_valueClass` would be wrong choice here
+        final Class<?> rawTargetType = String.class;
 
         switch (p.currentTokenId()) {
         case JsonTokenId.ID_STRING:
@@ -1420,17 +1423,20 @@ public abstract class StdDeserializer<T>
         case JsonTokenId.ID_START_OBJECT:
             return ctxt.extractScalarFromObject(p, this, _valueClass);
         case JsonTokenId.ID_NUMBER_INT:
-            act = _checkIntToStringCoercion(p, ctxt, _valueClass);
+            act = _checkIntToStringCoercion(p, ctxt, rawTargetType);
             break;
         case JsonTokenId.ID_NUMBER_FLOAT:
-            act = _checkFloatToStringCoercion(p, ctxt, _valueClass);
+            act = _checkFloatToStringCoercion(p, ctxt, rawTargetType);
             break;
         case JsonTokenId.ID_TRUE:
         case JsonTokenId.ID_FALSE:
-            act = _checkBooleanToStringCoercion(p, ctxt, _valueClass);
+            act = _checkBooleanToStringCoercion(p, ctxt, rawTargetType);
             break;
         }
 
+        // !!! 05-Jan-2022, tatu: This might work in practice, but in theory
+        //   we should not use "nullProvider" of this deserializer as this
+        //   unlikely to be what we want (it's for containing type, not String)
         if (act == CoercionAction.AsNull) {
             return (String) nullProvider.getNullValue(ctxt);
         }
@@ -1655,7 +1661,7 @@ value, _coercedTypeDesc());
         if (act == CoercionAction.Fail) {
             ctxt.reportBadCoercion(this, targetType, inputValue,
 "Cannot coerce %s to %s (but could if coercion was enabled using `CoercionConfig`)",
-inputDesc, _coercedTypeDesc());
+inputDesc, _coercedTypeDesc(targetType));
         }
         return act;
     }
@@ -1777,11 +1783,27 @@ inputDesc, _coercedTypeDesc());
             typeDesc = ClassUtil.getTypeDescription(t);
         } else {
             Class<?> cls = handledType();
-            structured = cls.isArray() || Collection.class.isAssignableFrom(cls)
-                || Map.class.isAssignableFrom(cls);
+            structured = ClassUtil.isCollectionMapOrArray(cls);
             typeDesc = ClassUtil.getClassDescription(cls);
         }
         if (structured) {
+            return "element of "+typeDesc;
+        }
+        return typeDesc+" value";
+    }
+
+    /**
+     * Helper method called to get a description of type into which a scalar value coercion
+     * is being applied, to be used for constructing exception messages
+     * on coerce failure.
+     *
+     * @return Message with backtick-enclosed name of target type
+     *
+     * @since 2.15
+     */
+    protected String _coercedTypeDesc(Class<?> rawTargetType) {
+        String typeDesc = ClassUtil.getClassDescription(rawTargetType);
+        if (ClassUtil.isCollectionMapOrArray(rawTargetType)) {
             return "element of "+typeDesc;
         }
         return typeDesc+" value";

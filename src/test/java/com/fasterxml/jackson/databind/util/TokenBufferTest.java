@@ -194,6 +194,32 @@ public class TokenBufferTest extends BaseMapTest
         }
     }
 
+    public void testBigIntAsString() throws IOException
+    {
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            BigInteger big = BigInteger.valueOf(Long.MAX_VALUE).add(BigInteger.valueOf(1));
+            buf.writeNumber(big.toString());
+            try (JsonParser p = buf.asParser()) {
+                // NOTE: oddity of buffering, no inspection of "real" type if given String...
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertEquals(big, p.getBigIntegerValue());
+            }
+        }
+    }
+
+    public void testBigDecimalAsString() throws IOException
+    {
+        final String num = "-10000000000.0000000001";
+        try (TokenBuffer buf = new TokenBuffer(null, false)) {
+            buf.writeNumber(num);
+            try (JsonParser p = buf.asParser()) {
+                // NOTE: oddity of buffering, no inspection of "real" type if given String...
+                assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+                assertEquals(new BigDecimal(num), p.getDecimalValue());
+            }
+        }
+    }
+
     public void testParentContext() throws IOException
     {
         TokenBuffer buf = new TokenBuffer(null, false); // no ObjectCodec

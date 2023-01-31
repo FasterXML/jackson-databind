@@ -24,7 +24,6 @@ import com.fasterxml.jackson.databind.deser.std.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.ext.OptionalHandlerFactory;
 import com.fasterxml.jackson.databind.introspect.*;
-import com.fasterxml.jackson.databind.jdk14.JDK14Util;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
@@ -280,16 +279,6 @@ public abstract class BasicDeserializerFactory
 
         // constructors only usable on concrete types:
         if (beanDesc.getType().isConcrete()) {
-            // [databind#2709]: Record support
-            if (beanDesc.getType().isRecordType()) {
-                final List<String> names = new ArrayList<>();
-                // NOTE: this does verify that there is no explicitly annotated alternatives
-                AnnotatedConstructor canonical = JDK14Util.findRecordConstructor(ctxt, beanDesc, names);
-                if (canonical != null) {
-                    _addRecordConstructor(ctxt, ccState, canonical, names);
-                    return ccState.creators.constructValueInstantiator(ctxt);
-                }
-            }
             // 25-Jan-2017, tatu: As per [databind#1501], [databind#1502], [databind#1503], best
             //     for now to skip attempts at using anything but no-args constructor (see
             //     `InnerClassProperty` construction for that)
@@ -400,7 +389,10 @@ index, owner, defs[index], propDef);
      * constructor is to be used: if so, we have implicit names to consider.
      *
      * @since 2.12
+     * @deprecated since 2.15 - no longer used, but kept because this protected method might have been overridden/used
+     * elsewhere
      */
+    @Deprecated
     protected void _addRecordConstructor(DeserializationContext ctxt, CreatorCollectionState ccState,
             AnnotatedConstructor canonical, List<String> implicitNames)
                     throws JsonMappingException
@@ -547,7 +539,9 @@ index, owner, defs[index], propDef);
                 JacksonInject.Value injectable = intr.findInjectableValue(param);
                 final PropertyName name = (propDef == null) ? null : propDef.getFullName();
 
-                if (propDef != null && propDef.isExplicitlyNamed()) {
+                if ((propDef != null)
+                        // [databind#3724]: Record canonical constructor will have implicitly named propDef
+                        && (propDef.isExplicitlyNamed() || beanDesc.isRecordType())) {
                     ++explicitNameCount;
                     properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectable);
                     continue;
@@ -1712,7 +1706,8 @@ factory.toString()));
             if (deser == null) {
                 deser = new EnumDeserializer(constructEnumResolver(enumClass,
                         config, beanDesc.findJsonValueAccessor()),
-                        config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS));
+                        config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+                );
             }
         }
 

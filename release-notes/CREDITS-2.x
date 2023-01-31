@@ -1039,6 +1039,8 @@ João Guerra (joca-bt@github)
   (2.11.1)
   * Reported #3227: Content `null` handling not working for root values
   (2.13.0)
+  * Reported #3690: Incorrect target type for arrays when disabling coercion
+  (2.15.0)
 
 Ryan Bohn (bohnman@github)
   * Reported #2475: `StringCollectionSerializer` calls `JsonGenerator.setCurrentValue(value)`,
@@ -1529,6 +1531,34 @@ Moritz Halbritter (mhalbritter@github)
     from 2.13.x to 2.14.0
   (2.14.1)
 
+Philippe Marschall (marschall@github)
+  * Contributed #3699: Allow custom `JsonNode` implementations
+  (2.14.2)
+
+Gili Tzabari (cowwoc@github)
+  * Reported #3063: `@JsonValue` fails for Java Record
+  (2.14.2)
+
 Hervé Boutemy (hboutemy@github)
   * Contributed fix for #3680: Timestamp in classes inside jar showing 02/01/1980
+  (2.15.0)
+
+Sim Yih Tsern (yihtsern@github)
+  * Contributed fix for #2974: Null coercion with `@JsonSetter` does not work with `java.lang.Record`
+  (2.15.0)
+  * Contributed fix for #2992: Properties naming strategy do not work with Record
+  (2.15.0)
+  * Contributed fix for #3180: Support `@JsonCreator` annotation on record classes
+  (2.15.0)
+  * Contributed fix for #3297: `@JsonDeserialize(converter = ...)` does not work with Records
+  (2.15.0)
+  * Contributed fix for #3342: `JsonTypeInfo.As.EXTERNAL_PROPERTY` does not work with record wrappers
+  (2.15.0)
+
+Ajay Siwach (Siwach16@github)
+  * Contributed #3637: Add enum features into `@JsonFormat.Feature`
+  (2.15.0)
+
+Zhenyu Luo (luozhenyu@github)
+  * Contributed #3745: Deprecate classes in package `com.fasterxml.jackson.databind.jsonschema`
   (2.15.0)

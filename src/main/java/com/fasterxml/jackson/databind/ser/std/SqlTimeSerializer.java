@@ -22,6 +22,10 @@ public class SqlTimeSerializer
         g.writeString(value.toString());
     }
 
+    /**
+     * @deprecated Since 2.15
+     */
+    @Deprecated
     @Override
     public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
         return createSchemaNode("string", true);

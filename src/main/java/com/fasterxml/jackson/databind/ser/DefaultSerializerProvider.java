@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
-import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.impl.WritableObjectId;
@@ -583,8 +582,9 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
          * type information it needs is accessible via "untyped" serializer)
          */
         JsonSerializer<Object> ser = findValueSerializer(type, null);
-        JsonNode schemaNode = (ser instanceof SchemaAware) ?
-                ((SchemaAware) ser).getSchema(this, null) : com.fasterxml.jackson.databind.jsonschema.JsonSchema.getDefaultSchemaNode();
+        JsonNode schemaNode = (ser instanceof com.fasterxml.jackson.databind.jsonschema.SchemaAware)
+            ? ((com.fasterxml.jackson.databind.jsonschema.SchemaAware) ser).getSchema(this, null)
+            : com.fasterxml.jackson.databind.jsonschema.JsonSchema.getDefaultSchemaNode();
         if (!(schemaNode instanceof ObjectNode)) {
             throw new IllegalArgumentException("Class " + type.getName()
                     +" would not be serialized as a JSON object and therefore has no schema");

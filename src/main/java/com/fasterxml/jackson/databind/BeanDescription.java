@@ -53,6 +53,11 @@ public abstract class BeanDescription
     public Class<?> getBeanClass() { return _type.getRawClass(); }
 
     /**
+     * @since 2.15
+     */
+    public boolean isRecordType() { return _type.isRecordType(); }
+
+    /**
      * @since 2.9
      */
     public boolean isNonStaticInnerClass() {

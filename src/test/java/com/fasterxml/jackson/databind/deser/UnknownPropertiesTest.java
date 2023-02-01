@@ -4,11 +4,20 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.StreamReadConstraints;
+import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
+import static org.powermock.api.mockito.PowerMockito.*;
+
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(fullyQualifiedNames = "com.fasterxml.jackson.core.io.NumberInput")
 public class UnknownPropertiesTest extends BaseMapTest
 {
 
@@ -39,6 +48,11 @@ public class UnknownPropertiesTest extends BaseMapTest
 
     public void testIgnoreProperty() throws Exception
     {
+        mockStatic(NumberInput.class);
+        when(NumberInput.parseBigInteger(Mockito.anyString()))
+                .thenThrow(new IllegalStateException("mock: deliberate failure"));
+        when(NumberInput.parseBigInteger(Mockito.anyString(), Mockito.anyBoolean()))
+                .thenThrow(new IllegalStateException("mock: deliberate failure"));
         JsonFactory jsonFactory = JsonFactory.builder()
                 .streamReadConstraints(StreamReadConstraints.builder().maxNumberLength(Integer.MAX_VALUE).build())
                 .build();
@@ -52,6 +66,7 @@ public class UnknownPropertiesTest extends BaseMapTest
         final String test1000000 = stringBuilder.toString();
         ExtractFieldsNoDefaultConstructor ef =
                 objectMapper.readValue(genJson(test1000000), ExtractFieldsNoDefaultConstructor.class);
+        assertNotNull(ef);
     }
 
     private String genJson(String num) {

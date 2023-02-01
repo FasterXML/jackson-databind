@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.deser;
+package com.fasterxml.jackson.databind.deser.lazy;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -23,7 +23,7 @@ import static org.powermock.api.mockito.PowerMockito.*;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(fullyQualifiedNames = "com.fasterxml.jackson.core.io.NumberInput")
-public class UnknownPropertiesTest extends BaseMapTest
+public class LazyIgnoralForNumbers3730Test extends BaseMapTest
 {
     static class ExtractFieldsNoDefaultConstructor {
         private final String s;

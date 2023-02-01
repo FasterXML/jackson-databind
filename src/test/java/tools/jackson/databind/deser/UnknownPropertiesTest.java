@@ -3,15 +3,26 @@ package tools.jackson.databind.deser;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import tools.jackson.core.*;
-import tools.jackson.core.json.JsonFactory;
+import tools.jackson.core.io.NumberInput;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.json.JsonMapper;
 
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+
+import static org.powermock.api.mockito.PowerMockito.*;
+
+/**
+ * Tests to verify that skipping of unknown/unmapped works such that
+ * "expensive" numbers (all floating-point, {@code BigInteger} is avoided.
+ */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(fullyQualifiedNames = "tools.jackson.core.io.NumberInput")
 public class UnknownPropertiesTest extends BaseMapTest
 {
-
     static class ExtractFieldsNoDefaultConstructor {
         private final String s;
         private final int i;
@@ -37,21 +48,25 @@ public class UnknownPropertiesTest extends BaseMapTest
     /**********************************************************
      */
 
-    public void testIgnoreProperty() throws Exception
+    private final ObjectMapper MAPPER = JsonMapper.builder()
+            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            .build();
+    
+    public void testIgnoreBigInteger() throws Exception
     {
-        JsonFactory jsonFactory = JsonFactory.builder()
-                .streamReadConstraints(StreamReadConstraints.builder().maxNumberLength(Integer.MAX_VALUE).build())
-                .build();
-        ObjectMapper objectMapper = JsonMapper.builder(jsonFactory)
-                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                .build();
+        mockStatic(NumberInput.class);
+        when(NumberInput.parseBigInteger(Mockito.anyString()))
+                .thenThrow(new IllegalStateException("mock: deliberate failure"));
+        when(NumberInput.parseBigInteger(Mockito.anyString(), Mockito.anyBoolean()))
+                .thenThrow(new IllegalStateException("mock: deliberate failure"));
         StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < 1000000; i++) {
+        for (int i = 0; i < 999; i++) {
             stringBuilder.append(7);
         }
-        final String test1000000 = stringBuilder.toString();
+        final String testBigInteger = stringBuilder.toString();
         ExtractFieldsNoDefaultConstructor ef =
-                objectMapper.readValue(genJson(test1000000), ExtractFieldsNoDefaultConstructor.class);
+                MAPPER.readValue(genJson(testBigInteger), ExtractFieldsNoDefaultConstructor.class);
+        assertNotNull(ef);
     }
 
     private String genJson(String num) {

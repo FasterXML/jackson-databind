@@ -1809,7 +1809,8 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 if (n instanceof Float) return NumberType.FLOAT;
                 if (n instanceof Short) return NumberType.INT;       // should be SHORT
             } else if (value instanceof String) {
-                return ((String) value).contains(".") ? NumberType.BIG_DECIMAL : NumberType.BIG_INTEGER;
+                return (_currToken == JsonToken.VALUE_NUMBER_FLOAT)
+                        ? NumberType.BIG_DECIMAL : NumberType.BIG_INTEGER;
             }
             return null;
         }
@@ -1844,22 +1845,35 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             // 12-Jan-2021, tatu: Is this really needed, and for what? CSV, XML?
             if (value instanceof String) {
                 String str = (String) value;
-                if (str.indexOf('.') >= 0) {
-                    if (preferBigNumbers) {
-                        return NumberInput.parseBigDecimal(str,
-                                isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
+                final int len = str.length();
+                if (_currToken == JsonToken.VALUE_NUMBER_INT) {
+                    if (preferBigNumbers
+                            // 01-Feb-2023, tatu: Not really accurate but we'll err on side
+                            //   of not losing accuracy (should really check 19-char case,
+                            //   or, with minus sign, 20-char)
+                            || (len >= 19)) {
+                        return NumberInput.parseBigInteger(str, isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
                     }
-                    return NumberInput.parseDouble(str, isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
-                } else if (preferBigNumbers) {
-                    return NumberInput.parseBigInteger(str, isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
+                    // Otherwise things get trickier; here, too, we should use more accurate
+                    // boundary checks
+                    if (len >= 10) {
+                        return NumberInput.parseLong(str);
+                    }
+                    return NumberInput.parseInt(str);
                 }
-                return NumberInput.parseLong(str);
-            }
-            if (value == null) {
-                return null;
+                if (preferBigNumbers) {
+                    BigDecimal dec = NumberInput.parseBigDecimal(str,
+                            isEnabled(StreamReadFeature.USE_FAST_BIG_NUMBER_PARSER));
+                    // 01-Feb-2023, tatu: This is... weird. Seen during tests, only
+                    if (dec == null) {
+                        throw new IllegalStateException("Internal error: failed to parse number '"+str+"'");
+                    }
+                    return dec;
+                }
+                return NumberInput.parseDouble(str, isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
             }
             throw new IllegalStateException("Internal error: entry should be a Number, but is of type "
-                    +value.getClass().getName());
+                    +ClassUtil.classNameOf(value));
         }
 
         private final boolean _smallerThanInt(Number n) {

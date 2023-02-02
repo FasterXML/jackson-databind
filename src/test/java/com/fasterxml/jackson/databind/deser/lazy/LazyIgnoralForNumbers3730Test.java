@@ -2,7 +2,7 @@ package com.fasterxml.jackson.databind.deser.lazy;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.core.io.NumberInput;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
@@ -49,23 +49,40 @@ public class LazyIgnoralForNumbers3730Test extends BaseMapTest
     }
 
     // Another class to test that we do actually call parse method -- just not
-    // eagerly
-    static class ExtractFieldsWithNumberField3730 {
-        public String s;
-        public int i;
-        public Number n;
+    // eagerly. But MUST use "@JsonUnwrapped" to force buffering; creator not enough
+    static class UnwrappedWithNumber {
+        @JsonUnwrapped
+        public Values values;
+
+        static class Values {
+            public String s;
+            public int i;
+            public Number n;
+        }
     }
 
-    static class ExtractFieldsWithBigDecimalField3730 {
-        public String s;
-        public int i;
-        public double n;
+    // Same as above
+    static class UnwrappedWithBigDecimal {
+        @JsonUnwrapped
+        public Values values;
+
+        static class Values {
+            public String s;
+            public int i;
+            public BigDecimal n;
+        }
     }
 
-    static class ExtractFieldsWithDoubleField3730 {
-        public String s;
-        public int i;
-        public BigDecimal n;
+    // And same here
+    static class UnwrappedWithDouble {
+        @JsonUnwrapped
+        public Values values;
+
+        static class Values {
+            public String s;
+            public int i;
+            public double n;
+        }
     }
 
     /*
@@ -76,6 +93,10 @@ public class LazyIgnoralForNumbers3730Test extends BaseMapTest
 
     private final ObjectMapper MAPPER = JsonMapper.builder()
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            .build();
+
+    private final ObjectMapper STRICT_MAPPER = JsonMapper.builder()
+            .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .build();
 
     public void testIgnoreBigInteger() throws Exception
@@ -95,11 +116,11 @@ public class LazyIgnoralForNumbers3730Test extends BaseMapTest
         ExtractFieldsNoDefaultConstructor3730 ef =
                 MAPPER.readValue(json, ExtractFieldsNoDefaultConstructor3730.class);
         assertNotNull(ef);
-
-        // Ok but then let's ensure method IS called, if field is actually mapped
+        // Ok but then let's ensure method IS called, if field is actually mapped,
+        // first to Number
         try {
-            MAPPER.readValue(json, ExtractFieldsWithNumberField3730.class);
-            fail("Should throw exception with mocking!");
+            Object ob = STRICT_MAPPER.readValue(json, UnwrappedWithNumber.class);
+            fail("Should throw exception with mocking: instead got: "+MAPPER.writeValueAsString(ob));
         } catch (DatabindException e) {
             verifyMockException(e, MOCK_MSG);
         }
@@ -122,7 +143,7 @@ public class LazyIgnoralForNumbers3730Test extends BaseMapTest
         // Ok but then let's ensure method IS called, if field is actually mapped
         // First, to "Number"
         try {
-            MAPPER.readValue(json, ExtractFieldsWithNumberField3730.class);
+            STRICT_MAPPER.readValue(json, UnwrappedWithNumber.class);
             fail("Should throw exception with mocking!");
         } catch (DatabindException e) {
             verifyMockException(e, MOCK_MSG);
@@ -130,20 +151,19 @@ public class LazyIgnoralForNumbers3730Test extends BaseMapTest
 
         // And then to "double"
         // 01-Feb-2023, tatu: Not quite working, yet:
-        /*
         try {
-            MAPPER.readValue(json, ExtractFieldsWithDoubleField3730.class);
+            STRICT_MAPPER.readValue(json, UnwrappedWithDouble.class);
             fail("Should throw exception with mocking!");
         } catch (DatabindException e) {
+            e.printStackTrace();
             verifyMockException(e, MOCK_MSG);
         }
-        */
     }
 
     public void testIgnoreFPValuesBigDecimal() throws Exception
     {
         final String MOCK_MSG = "mock: deliberate failure for parseBigDecimal";
-        final ObjectReader reader = MAPPER
+        ObjectReader reader = MAPPER
                 .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
                 .readerFor(ExtractFieldsNoDefaultConstructor3730.class);
 
@@ -159,10 +179,13 @@ public class LazyIgnoralForNumbers3730Test extends BaseMapTest
                 reader.readValue(genJson(json));
         assertNotNull(ef);
 
+        // But then ensure we'll fail with unknown (except does it work with unwrapped?)
+        reader = reader.with(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+
         // Ok but then let's ensure method IS called, if field is actually mapped
         // First to Number
         try {
-            reader.forType(ExtractFieldsWithNumberField3730.class).readValue(json);
+            reader.forType(UnwrappedWithNumber.class).readValue(json);
             fail("Should throw exception with mocking!");
         } catch (DatabindException e) {
             verifyMockException(e, MOCK_MSG);
@@ -170,14 +193,12 @@ public class LazyIgnoralForNumbers3730Test extends BaseMapTest
 
         // And then to "BigDecimal"
         // 01-Feb-2023, tatu: Not quite working, yet:
-        /*
         try {
-            reader.forType(ExtractFieldsWithBigDecimalField3730.class).readValue(json);
+            reader.forType(UnwrappedWithBigDecimal.class).readValue(json);
             fail("Should throw exception with mocking!");
         } catch (DatabindException e) {
             verifyMockException(e, MOCK_MSG);
         }
-        */
     }
 
     private String genJson(String num) {

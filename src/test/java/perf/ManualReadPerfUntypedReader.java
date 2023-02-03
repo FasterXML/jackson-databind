@@ -48,7 +48,7 @@ public class ManualReadPerfUntypedReader extends ObjectReaderTestBase
     protected double testDeser2(int reps, String input, ObjectReader reader) throws IOException {
         return _testRawDeser(reps, input, reader);
     }
-    
+
     protected final double _testRawDeser(int reps, String json, ObjectReader reader) throws IOException
     {
         long start = System.nanoTime();

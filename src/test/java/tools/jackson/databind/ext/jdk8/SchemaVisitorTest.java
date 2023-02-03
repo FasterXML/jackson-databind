@@ -50,7 +50,7 @@ public class SchemaVisitorTest extends BaseMapTest
         });
         assertEquals(JsonParser.NumberType.LONG, result.get());
     }
-    
+
     // for [datatype-jdk8#25]
     public void testOptionalDouble() throws Exception
     {

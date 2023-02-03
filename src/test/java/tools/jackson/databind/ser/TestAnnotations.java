@@ -98,10 +98,10 @@ public class TestAnnotations
     static class GettersWithoutSetters
     {
         public int d = 0;
-        
+
         @JsonCreator
         public GettersWithoutSetters(@JsonProperty("a") int a) { }
-        
+
         // included, since there is a constructor property
         public int getA() { return 3; }
 
@@ -122,7 +122,7 @@ public class TestAnnotations
         @JsonProperty
         public int getA() { return 123; }
     }
-    
+
     /*
     /**********************************************************
     /* Other helper classes
@@ -157,7 +157,7 @@ public class TestAnnotations
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     public void testSimpleGetter() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, new SizeClassGetter());
@@ -232,7 +232,7 @@ public class TestAnnotations
         ObjectMapper m = new ObjectMapper();
         GettersWithoutSetters bean = new GettersWithoutSetters(123);
         assertFalse(m.isEnabled(MapperFeature.REQUIRE_SETTERS_FOR_GETTERS));
-    
+
         // by default, all 4 found:
         assertEquals("{\"a\":3,\"b\":4,\"c\":5,\"d\":6}", m.writeValueAsString(bean));
 

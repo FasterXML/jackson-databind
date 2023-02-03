@@ -82,7 +82,7 @@ public class SqlDateSerializationTest extends BaseMapTest
         assertEquals(MAPPER.writeValueAsString(altTnput),
                 MAPPER.writeValueAsString(input));
     }
-    
+
     public void testPatternWithSqlDate()
     {
         // `java.sql.Date` applies system default zone (and not UTC)

@@ -15,7 +15,7 @@ public class ObjectId825Test extends BaseMapTest
     public static class TestA extends AbstractEntity {
         public TestAbst testAbst;
         public TestD d;
-    }    
+    }
 
     static class TestAbst extends AbstractEntity { }
 

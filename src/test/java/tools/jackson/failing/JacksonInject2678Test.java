@@ -23,7 +23,7 @@ public class JacksonInject2678Test extends BaseMapTest
                 @JsonProperty("field2")
                 @JacksonInject(value = "defaultValueForField2", useInput = OptBoolean.TRUE)
                 final String field2) {
-//System.err.println("CTOR: setField2 as ["+field2+"]");            
+//System.err.println("CTOR: setField2 as ["+field2+"]");
             this.field1 = Objects.requireNonNull(field1);
              this.field2 = Objects.requireNonNull(field2);
         }

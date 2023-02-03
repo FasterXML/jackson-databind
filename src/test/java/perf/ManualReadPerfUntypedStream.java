@@ -11,7 +11,7 @@ public class ManualReadPerfUntypedStream extends ObjectReaderTestBase
 {
     @Override
     protected int targetSizeMegs() { return 15; }
-    
+
     public static void main(String[] args) throws Exception
     {
         if (args.length != 1) {
@@ -47,7 +47,7 @@ public class ManualReadPerfUntypedStream extends ObjectReaderTestBase
     protected double testDeser2(int reps, byte[] input, ObjectReader reader) throws IOException {
         return _testRawDeser(reps, input, reader);
     }
-    
+
     protected final double _testRawDeser(int reps, byte[] json, ObjectReader reader) throws IOException
     {
         long start = System.nanoTime();

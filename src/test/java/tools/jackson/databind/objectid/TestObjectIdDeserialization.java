@@ -73,7 +73,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
     static class ValueNode {
         public int value;
         public IdWrapper next;
-        
+
         public ValueNode() { this(0); }
         public ValueNode(int v) { value = v; }
     }
@@ -86,9 +86,9 @@ public class TestObjectIdDeserialization extends BaseMapTest
         public int value;
 
         public int customId;
-        
+
         public IdentifiableCustom next;
-        
+
         public IdentifiableCustom() { this(-1, 0); }
         public IdentifiableCustom(int i, int v) {
             customId = i;
@@ -113,7 +113,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
         public int value;
         protected int customId;
         public IdWrapperExt next;
-        
+
         public ValueNodeExt() { this(0); }
         public ValueNodeExt(int v) { value = v; }
 
@@ -121,7 +121,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
         	customId = i;
         }
     }
-    
+
     static class MappedCompany {
         public Map<Integer, Employee> employees;
     }
@@ -172,7 +172,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
         {
             return resolverType.getClass() == getClass() && _pool != null && !_pool.isEmpty();
         }
-        
+
         @Override
         public ObjectIdResolver newForDeserialization(Object c)
         {
@@ -211,7 +211,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
         assertNotNull(result.next);
         assertEquals(29, result.next.value);
     }
-    
+
     public void testSimpleUUIDForClassRoundTrip() throws Exception
     {
         UUIDNode root = new UUIDNode(1);
@@ -242,7 +242,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
 
     // Bit more complex, due to extra wrapping etc:
     private final static String EXP_SIMPLE_INT_PROP = "{\"node\":{\"@id\":1,\"value\":7,\"next\":{\"node\":1}}}";
-        
+
     public void testSimpleDeserializationProperty() throws Exception
     {
         IdWrapper result = MAPPER.readValue(EXP_SIMPLE_INT_PROP, IdWrapper.class);
@@ -323,9 +323,9 @@ public class TestObjectIdDeserialization extends BaseMapTest
     public void testUnresolvedForwardReference()
         throws Exception
     {
-        String json = "{\"employees\":[" 
+        String json = "{\"employees\":["
                       + "{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[3]},"
-                      + "{\"id\":2,\"name\":\"Second\",\"manager\":3,\"reports\":[]}" 
+                      + "{\"id\":2,\"name\":\"Second\",\"manager\":3,\"reports\":[]}"
                       + "]}";
         try {
             MAPPER.readValue(json, Company.class);
@@ -408,7 +408,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
     }
 
     private final static String EXP_CUSTOM_VIA_PROP = "{\"node\":{\"customId\":3,\"value\":99,\"next\":{\"node\":3}}}";
-    
+
     public void testCustomDeserializationProperty() throws Exception
     {
         // then bring back...
@@ -461,7 +461,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
     public void testNullObjectId() throws Exception
     {
         // Ok, so missing Object Id is ok, but so is null.
-        
+
         Identifiable value = MAPPER.readValue
                 (a2q("{'value':3, 'next':null, 'id':null}"), Identifiable.class);
         assertNotNull(value);

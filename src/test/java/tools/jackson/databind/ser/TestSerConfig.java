@@ -41,7 +41,7 @@ public class TestSerConfig
     public static class SimpleBean {
         public int x = 1;
     }
-    
+
     /*
     /**********************************************************
     /* Main tests
@@ -57,7 +57,7 @@ public class TestSerConfig
     public void testEnumIndexes()
     {
         int max = 0;
-        
+
         for (SerializationFeature f : SerializationFeature.values()) {
             max = Math.max(max, f.ordinal());
         }
@@ -65,7 +65,7 @@ public class TestSerConfig
             fail("Max number of SerializationFeature enums reached: "+max);
         }
     }
-    
+
     public void testDefaults()
     {
         SerializationConfig cfg = MAPPER.serializationConfig();
@@ -111,13 +111,13 @@ public class TestSerConfig
     static class TestObjectMapper
         extends ObjectMapper
     {
-        public SerializationContexts getSerializationContexts() { return _serializationContexts; }    
+        public SerializationContexts getSerializationContexts() { return _serializationContexts; }
     }
 
     /**
      * Test for verifying some aspects of serializer caching
      */
-    public void testProviderConfig() throws Exception   
+    public void testProviderConfig() throws Exception
     {
         TestObjectMapper mapper = new TestObjectMapper();
         SerializationContexts prov = mapper.getSerializationContexts();
@@ -191,7 +191,7 @@ public class TestSerConfig
         // also better stick via reader/writer as well
         assertEquals(tz1, mapper.writer().getConfig().getTimeZone());
         assertEquals(tz1, mapper.reader().getConfig().getTimeZone());
-        
+
         SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         f.setTimeZone(tz2);
 
@@ -199,14 +199,14 @@ public class TestSerConfig
                 .defaultTimeZone(tz1)
                 .defaultDateFormat(f)
                 .build();
-        
+
         // should not change the timezone tho
         assertEquals(tz1, mapper.serializationConfig().getTimeZone());
         assertEquals(tz1, mapper.deserializationConfig().getTimeZone());
         assertEquals(tz1, mapper.writer().getConfig().getTimeZone());
         assertEquals(tz1, mapper.reader().getConfig().getTimeZone());
     }
-    
+
     private final static String getLF() {
         return System.getProperty("line.separator");
     }

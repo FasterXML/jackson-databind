@@ -32,7 +32,7 @@ public class TestSubtypes extends BaseMapTest
     // "Empty" bean
     @JsonTypeInfo(use=JsonTypeInfo.Id.NAME)
     static abstract class BaseBean { }
-    
+
     static class EmptyBean extends BaseBean { }
 
     static class EmptyNonFinal { }
@@ -43,7 +43,7 @@ public class TestSubtypes extends BaseMapTest
     {
         @JsonTypeInfo(use=JsonTypeInfo.Id.NAME)
         public SuperType value;
-        
+
         public PropertyBean() { this(null); }
         public PropertyBean(SuperType v) { value = v; }
     }
@@ -103,7 +103,7 @@ public class TestSubtypes extends BaseMapTest
         public Issue1125Wrapper() { }
         public Issue1125Wrapper(Base1125 v) { value = v; }
     }
-    
+
     @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, defaultImpl=Default1125.class)
     @JsonSubTypes({ @JsonSubTypes.Type(Interm1125.class) })
     static class Base1125 {
@@ -218,7 +218,7 @@ public class TestSubtypes extends BaseMapTest
         result = mapper.readValue(json, PropertyBean.class);
         assertSame(SubC.class, result.value.getClass());
     }
-    
+
     public void testSerialization() throws Exception
     {
         // serialization can detect type name ok without anything extra:
@@ -232,7 +232,7 @@ public class TestSubtypes extends BaseMapTest
         assertEquals("{\"@type\":\"typeB\",\"b\":1}", mapper.writeValueAsString(bean));
 
         // and default name ought to be simple class name; with context
-        assertEquals("{\"@type\":\"TestSubtypes$SubD\",\"d\":0}", mapper.writeValueAsString(new SubD()));  
+        assertEquals("{\"@type\":\"TestSubtypes$SubD\",\"d\":0}", mapper.writeValueAsString(new SubD()));
     }
 
     public void testDeserializationNonNamed() throws Exception
@@ -329,7 +329,7 @@ public class TestSubtypes extends BaseMapTest
     public void testIssue1125NonDefault() throws Exception
     {
         String json = MAPPER.writeValueAsString(new Issue1125Wrapper(new Impl1125(1, 2, 3)));
-        
+
         Issue1125Wrapper result = MAPPER.readValue(json, Issue1125Wrapper.class);
         assertNotNull(result.value);
         assertEquals(Impl1125.class, result.value.getClass());

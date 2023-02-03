@@ -119,7 +119,7 @@ public class TestSubtypesExternalPropertyMissingProperty extends BaseMapTest
     protected static JsonMapper.Builder jsonMapperBuilder() {
         return JsonMapper.builder();
     }
-    
+
     /**
      * Deserialization tests for external type id property present
      */
@@ -259,4 +259,4 @@ public class TestSubtypesExternalPropertyMissingProperty extends BaseMapTest
             verifyException(e, "Missing property 'fruit' for external type id 'type'");
         }
     }
-}    
+}

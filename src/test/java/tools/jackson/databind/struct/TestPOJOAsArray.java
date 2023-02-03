@@ -35,7 +35,7 @@ public class TestPOJOAsArray extends BaseMapTest
             y = y0;
         }
     }
-    
+
     // note: must be serialized/deserialized alphabetically; fields NOT declared in that order
     @JsonPropertyOrder(alphabetic=true)
     static class PojoAsArray
@@ -134,7 +134,7 @@ public class TestPOJOAsArray extends BaseMapTest
      */
 
     private final static ObjectMapper MAPPER = new ObjectMapper();
-    
+
     /**
      * Test that verifies that property annotation works
      */
@@ -161,7 +161,7 @@ public class TestPOJOAsArray extends BaseMapTest
         assertEquals(1, p.x);
         assertEquals(2, p.y);
     }
-    
+
     /**
      * Test that verifies that property annotation works
      */

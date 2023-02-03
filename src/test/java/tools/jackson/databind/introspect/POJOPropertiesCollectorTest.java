@@ -19,7 +19,7 @@ public class POJOPropertiesCollectorTest
 {
     static class Simple {
         public int value;
-        
+
         @JsonProperty("value")
         public void valueSetter(int v) { value = v; }
 
@@ -31,18 +31,18 @@ public class POJOPropertiesCollectorTest
     {
         @JsonDeserialize String[] values;
     }
-    
+
     static class SimpleGetterVisibility {
         public int getA() { return 0; }
         protected int getB() { return 1; }
         @SuppressWarnings("unused")
         private int getC() { return 2; }
     }
-    
+
     // Class for testing 'shared ignore'
     static class Empty {
         public int value;
-        
+
         public void setValue(int v) { value = v; }
 
         @JsonIgnore
@@ -52,7 +52,7 @@ public class POJOPropertiesCollectorTest
     static class IgnoredSetter {
         @JsonProperty
         public int value;
-        
+
         @JsonIgnore
         public void setValue(int v) { value = v; }
 
@@ -64,18 +64,18 @@ public class POJOPropertiesCollectorTest
         @JsonIgnore public void setB(int b) { }
         public int c;
     }
-    
+
     // Should find just one setter for "y", due to partial ignore
     static class IgnoredRenamedSetter {
         @JsonIgnore public void setY(int value) { }
         @JsonProperty("y") void foobar(int value) { }
     }
-    
+
     // should produce a single property, "x"
     static class RenamedProperties {
         @JsonProperty("x")
         public int value;
-        
+
         public void setValue(int v) { value = v; }
 
         public int getX() { return value; }
@@ -87,11 +87,11 @@ public class POJOPropertiesCollectorTest
         public int getValue() { return 1; }
         public void setValue(int x) { }
     }
-    
+
     // Testing that we can "merge" properties with renaming
     static class MergedProperties {
         public int x;
-        
+
         @JsonProperty("x")
         public void setFoobar(int v) { x = v; }
     }
@@ -102,7 +102,7 @@ public class POJOPropertiesCollectorTest
     {
         public int b;
         public int c;
-        
+
         public void setD(int value) { }
         public void setA(int value) { }
     }
@@ -127,9 +127,9 @@ public class POJOPropertiesCollectorTest
             location.add(new FoodOrgLocation());
         }
 
-        public List<FoodOrgLocation> getLocation() { return location; } 
+        public List<FoodOrgLocation> getLocation() { return location; }
     }
-    
+
     static class FoodOrgLocation
     {
         protected Long id;
@@ -141,7 +141,7 @@ public class POJOPropertiesCollectorTest
         }
 
         public FoodOrgLocation(final Location foodOrg) { }
-                
+
         public FoodOrgLocation(final Long id, final String name, final Location location) { }
 
         public Location getLocation() { return location; }
@@ -168,13 +168,13 @@ public class POJOPropertiesCollectorTest
     static class Issue744Bean
     {
         protected Map<String,Object> additionalProperties;
-        
+
         @JsonAnySetter
         public void addAdditionalProperty(String key, Object value) {
             if (additionalProperties == null) additionalProperties = new HashMap<String, Object>();
             additionalProperties.put(key,value);
         }
-        
+
         public void setAdditionalProperties(Map<String, Object> additionalProperties) {
             this.additionalProperties = additionalProperties;
         }
@@ -197,7 +197,7 @@ public class POJOPropertiesCollectorTest
         public String a;
 
         protected int b;
-        
+
         public String getA() { return a; }
 
         public void setA(String a) { this.a = a; }
@@ -245,7 +245,7 @@ public class POJOPropertiesCollectorTest
 /*
     public void testSimple()
     {
-        POJOPropertiesCollector coll = 
+        POJOPropertiesCollector coll =
         Map<String, POJOPropertyBuilder> props = beanPropMap(MAPPER, Simple.class, true);
         assertEquals(1, props.size());
         POJOPropertyBuilder prop = props.get("value");
@@ -281,7 +281,7 @@ public class POJOPropertiesCollectorTest
         assertTrue(prop.hasGetter());
         assertFalse(prop.hasField());
     }
-    
+
     // Unit test for verifying that a single @JsonIgnore can remove the
     // whole property, unless explicit property marker exists
     public void testEmpty()
@@ -346,7 +346,7 @@ public class POJOPropertiesCollectorTest
         assertFalse(prop.hasGetter());
         assertTrue(prop.hasField());
     }beanPropMap
-    
+
     public void testSimpleIgnoreAndRename()
     {
         POJOPropertiesCollector coll = collector(MAPPER,
@@ -456,7 +456,7 @@ public class POJOPropertiesCollectorTest
             Class<?> cls, boolean forSerialization) {
         return beanDesc(m0, cls, forSerialization).findProperties();
     }
-    
+
     protected BeanDescription beanDesc(ObjectMapper m0,
             Class<?> cls, boolean forSerialization)
     {

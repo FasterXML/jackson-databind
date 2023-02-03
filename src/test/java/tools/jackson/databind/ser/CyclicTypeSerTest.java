@@ -38,7 +38,7 @@ public class CyclicTypeSerTest
         public int id;
 
         public Selfie2501 parent;
-        
+
         public Selfie2501(int id) { this.id = id; }
     }
 

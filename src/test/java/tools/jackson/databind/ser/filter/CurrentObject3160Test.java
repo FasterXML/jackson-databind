@@ -28,7 +28,7 @@ public class CurrentObject3160Test extends BaseMapTest
         }
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")    
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
     @JsonSubTypes({ @JsonSubTypes.Type(name = "Foo", value = Foo.class) })
     interface Strategy { }
 

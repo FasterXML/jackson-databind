@@ -47,7 +47,7 @@ public class BuilderWithUnwrappedSingleArray2608Test extends BaseMapTest
         public POJOValue2608(String s) {
             subValue = s;
         }
-        
+
       @JsonPOJOBuilder(withPrefix = "")
       public static class POJOValueBuilder {
           String v;

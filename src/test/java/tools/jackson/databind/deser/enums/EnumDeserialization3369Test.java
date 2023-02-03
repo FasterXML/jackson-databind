@@ -63,7 +63,7 @@ public class EnumDeserialization3369Test
         data = R.readValue("{\"value\" : [\"a\"], \"person\" : \"Jeff\", \"age\" : 30}");
         _verify3369(data, null);
 
-        data = R.readValue("{\"value\" : {\"a\":{}}, \"person\" : \"Jeff\", \"age\": 30}");       
+        data = R.readValue("{\"value\" : {\"a\":{}}, \"person\" : \"Jeff\", \"age\": 30}");
         _verify3369(data, null);
     }
 

@@ -103,5 +103,5 @@ public class ObjectId687Test extends BaseMapTest
 
         // also, compare by re-serializing:
         assertEquals(json, MAPPER.writeValueAsString(result));
-    }    
+    }
 }

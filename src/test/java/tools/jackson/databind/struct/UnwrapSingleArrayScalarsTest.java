@@ -31,7 +31,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
     /* Tests for boolean
     /**********************************************************
      */
-    
+
     public void testBooleanPrimitiveArrayUnwrap() throws Exception
     {
         // [databind#381]
@@ -46,11 +46,11 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
         result = mapper.readValue("{\"v\":[null]}", BooleanBean.class);
         assertNotNull(result);
         assertFalse(result._v);
-        
+
         result = mapper.readValue("[{\"v\":[null]}]", BooleanBean.class);
         assertNotNull(result);
         assertFalse(result._v);
-        
+
         boolean[] array = mapper.readValue(new StringReader("[ [ null ] ]"), boolean[].class);
         assertNotNull(array);
         assertEquals(1, array.length);
@@ -62,7 +62,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
     /* Single-element as array tests, numbers
     /**********************************************************
      */
-    
+
     // [databind#381]
     public void testSingleElementScalarArrays() throws Exception {
         final int intTest = 932832;
@@ -254,7 +254,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
         ObjectMapper mapper = jsonMapperBuilder()
                 .disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
                 .build();
-        
+
         String value = "FOO!";
         try {
             mapper.readValue("[\""+value+"\"]", String.class);
@@ -262,11 +262,11 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
         } catch (MismatchedInputException exp) {
             _verifyNoDeserFromArray(exp);
         }
-        
+
         mapper = jsonMapperBuilder()
                 .enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
                 .build();
-        
+
         try {
             mapper.readValue("[\""+value+"\",\""+value+"\"]", String.class);
             fail("Exception not thrown when attempting to unwrap a single value 'String' array that contained more than one value into a simple String");
@@ -282,7 +282,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
         ObjectMapper mapper = jsonMapperBuilder()
                 .disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
                 .build();
-        
+
         BigDecimal value = new BigDecimal("0.001");
         BigDecimal result = mapper.readValue(value.toString(), BigDecimal.class);
         assertEquals(value, result);
@@ -298,7 +298,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
                 .build();
         result = mapper.readValue("[" + value.toString() + "]", BigDecimal.class);
         assertEquals(value, result);
-        
+
         try {
             mapper.readValue("[" + value.toString() + "," + value.toString() + "]", BigDecimal.class);
             fail("Exception was not thrown when attempting to read a muti value array of BigDecimal when UNWRAP_SINGLE_VALUE_ARRAYS feature is enabled");
@@ -323,19 +323,19 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
         } catch (MismatchedInputException exp) {
             _verifyNoDeserFromArray(exp);
         }
-        
+
         mapper = jsonMapperBuilder()
                 .enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
                 .build();
         result = mapper.readValue("[" + value.toString() + "]", BigInteger.class);
         assertEquals(value, result);
-        
+
         try {
             mapper.readValue("[" + value.toString() + "," + value.toString() + "]", BigInteger.class);
             fail("Exception was not thrown when attempting to read a multi-value array of BigInteger when UNWRAP_SINGLE_VALUE_ARRAYS feature is enabled");
         } catch (MismatchedInputException exp) {
             verifyException(exp, "Attempted to unwrap");
-        }        
+        }
     }
 
     public void testClassAsArray() throws Exception
@@ -374,7 +374,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
         } catch (MismatchedInputException e) {
             _verifyNoDeserFromArray(e);
         }
-        
+
         _verifyMultiValueArrayFail("[\""+value.toString()+"\",\""+value.toString()+"\"]", URI.class);
     }
 

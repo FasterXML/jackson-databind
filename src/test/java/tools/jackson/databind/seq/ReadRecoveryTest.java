@@ -71,7 +71,7 @@ public class ReadRecoveryTest extends BaseMapTest
         assertEquals(2, bean.b);
 
         assertFalse(it.hasNextValue());
-        
+
         it.close();
     }
 
@@ -100,7 +100,7 @@ public class ReadRecoveryTest extends BaseMapTest
         assertEquals(2, bean.b);
 
         assertFalse(it.hasNextValue());
-        
+
         it.close();
     }
 }

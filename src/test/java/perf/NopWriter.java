@@ -5,7 +5,7 @@ import java.io.*;
 public class NopWriter extends Writer
 {
     protected int size = 0;
-    
+
     public NopWriter() { }
 
     @Override

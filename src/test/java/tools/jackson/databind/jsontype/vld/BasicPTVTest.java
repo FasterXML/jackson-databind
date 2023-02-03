@@ -70,7 +70,7 @@ public class BasicPTVTest extends BaseMapTest
         protected NumberWrapper() { }
         public NumberWrapper(Number v) { value = v; }
     }
-    
+
     /*
     /**********************************************************************
     /* Test methods: by base type, pass
@@ -84,7 +84,7 @@ public class BasicPTVTest extends BaseMapTest
                 .build();
         ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(ptv, DefaultTyping.NON_FINAL)
-                .build();        
+                .build();
 
         // First, test accepted case
         final String json = mapper.writeValueAsString(BaseValueWrapper.withA(42));
@@ -119,7 +119,7 @@ public class BasicPTVTest extends BaseMapTest
                 .build();
         ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(ptv, DefaultTyping.NON_FINAL)
-                .build();        
+                .build();
 
         // First, test accepted case
         final String json = mapper.writeValueAsString(BaseValueWrapper.withA(42));
@@ -144,7 +144,7 @@ public class BasicPTVTest extends BaseMapTest
                 .build();
         ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(ptv, DefaultTyping.NON_FINAL)
-                .build();        
+                .build();
 
         // First, test accepted case
         final String json = mapper.writeValueAsString(BaseValueWrapper.withA(42));
@@ -172,7 +172,7 @@ public class BasicPTVTest extends BaseMapTest
                 .build();
         ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(ptv, DefaultTyping.NON_FINAL)
-                .build();        
+                .build();
         final String json = mapper.writeValueAsString(new ObjectWrapper(new ValueA(15)));
         try {
             mapper.readValue(json, ObjectWrapper.class);
@@ -196,7 +196,7 @@ public class BasicPTVTest extends BaseMapTest
                 .build();
         ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(ptv, DefaultTyping.NON_FINAL)
-                .build();        
+                .build();
 
         // First, test accepted case
         final String json = mapper.writeValueAsString(BaseValueWrapper.withB(42));
@@ -220,7 +220,7 @@ public class BasicPTVTest extends BaseMapTest
                 .build();
         ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(ptv, DefaultTyping.NON_FINAL)
-                .build();        
+                .build();
 
         // First, test accepted case
         final String json = mapper.writeValueAsString(BaseValueWrapper.withB(42));
@@ -244,7 +244,7 @@ public class BasicPTVTest extends BaseMapTest
                 .build();
         ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(ptv, DefaultTyping.NON_FINAL)
-                .build();        
+                .build();
 
         // First, test accepted case
         final String json = mapper.writeValueAsString(BaseValueWrapper.withB(42));

@@ -204,7 +204,7 @@ public class TestBackRefsWithPolymorphic extends BaseMapTest
             +"\"" +CLASS_NAME+ "$StringPropertyImpl\",\"id\":0,\"name\":\"p1name\",\"value\":\"p1value\"},"
             +"\"p2name\":{\"@class\":\""+CLASS_NAME+"$StringPropertyImpl\",\"id\":0,"
             +"\"name\":\"p2name\",\"value\":\"p2value\"}}}";
-    
+
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     public void testDeserialize() throws IOException

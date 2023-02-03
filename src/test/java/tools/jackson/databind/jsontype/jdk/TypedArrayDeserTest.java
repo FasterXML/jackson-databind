@@ -28,11 +28,11 @@ public class TypedArrayDeserTest
     @SuppressWarnings("serial")
     @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY)
     static class TypedListAsProp<T> extends ArrayList<T> { }
-    
+
     @SuppressWarnings("serial")
     @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.WRAPPER_OBJECT)
     static class TypedListAsWrapper<T> extends LinkedList<T> { }
-    
+
     // Mix-in to force wrapper for things like primitive arrays
     @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.WRAPPER_OBJECT)
     interface WrapperMixIn { }
@@ -42,13 +42,13 @@ public class TypedArrayDeserTest
     /* Unit tests, Lists
     /**********************************************************
      */
-    
+
     public void testIntList() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         // uses WRAPPER_OBJECT inclusion
         String JSON = "{\""+TypedListAsWrapper.class.getName()+"\":[4,5, 6]}";
-        JavaType type = TypeFactory.defaultInstance().constructCollectionType(TypedListAsWrapper.class, Integer.class);        
+        JavaType type = TypeFactory.defaultInstance().constructCollectionType(TypedListAsWrapper.class, Integer.class);
         TypedListAsWrapper<Integer> result = m.readValue(JSON, type);
         assertNotNull(result);
         assertEquals(3, result.size());
@@ -67,7 +67,7 @@ public class TypedArrayDeserTest
         ObjectMapper m = new ObjectMapper();
         // tries to use PROPERTY inclusion; but for ARRAYS (and scalars) will become ARRAY_WRAPPER
         String JSON = "[\""+TypedListAsProp.class.getName()+"\",[true, false]]";
-        JavaType type = TypeFactory.defaultInstance().constructCollectionType(TypedListAsProp.class, Boolean.class);        
+        JavaType type = TypeFactory.defaultInstance().constructCollectionType(TypedListAsProp.class, Boolean.class);
         TypedListAsProp<Object> result = m.readValue(JSON, type);
         assertNotNull(result);
         assertEquals(2, result.size());
@@ -79,9 +79,9 @@ public class TypedArrayDeserTest
     {
         ObjectMapper m = new ObjectMapper();
         // uses OBJECT_ARRAY, works just fine
-        
+
         String JSON = "{\""+TypedListAsWrapper.class.getName()+"\":[1, 3]}";
-        JavaType type = TypeFactory.defaultInstance().constructCollectionType(TypedListAsWrapper.class, Long.class);        
+        JavaType type = TypeFactory.defaultInstance().constructCollectionType(TypedListAsWrapper.class, Long.class);
         TypedListAsWrapper<Object> result = m.readValue(JSON, type);
         assertNotNull(result);
         assertEquals(2, result.size());

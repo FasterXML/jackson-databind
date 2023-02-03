@@ -18,7 +18,7 @@ public class TypeAliasesTest
     public static abstract class BaseData<T> {
         public T dataObj;
     }
-   
+
     public static class Child extends Base<Long> {
         public static class ChildData extends BaseData<List<String>> { }
     }
@@ -34,7 +34,7 @@ public class TypeAliasesTest
     {
         String s3 = "{\"dataObj\" : [ \"one\", \"two\", \"three\" ] }";
         ObjectMapper m = new ObjectMapper();
-   
+
         Child.ChildData d = m.readValue(s3, Child.ChildData.class);
         assertNotNull(d.dataObj);
         assertEquals(3, d.dataObj.size());

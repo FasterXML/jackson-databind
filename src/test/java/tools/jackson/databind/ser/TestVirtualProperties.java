@@ -82,7 +82,7 @@ public class TestVirtualProperties extends BaseMapTest
     {
         public int value = 72;
     }
-    
+
     /*
     /**********************************************************
     /* Test methods

@@ -29,7 +29,7 @@ public class SqlDateDeserializationTest
         assertEquals(value, MAPPER.readValue(String.valueOf(now), java.sql.Date.class));
 
         // then from default java.sql.Date String serialization:
-        
+
         java.sql.Date result = MAPPER.readValue(q(value.toString()), java.sql.Date.class);
         Calendar c = gmtCalendar(result.getTime());
         assertEquals(1999, c.get(Calendar.YEAR));

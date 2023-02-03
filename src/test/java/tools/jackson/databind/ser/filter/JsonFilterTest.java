@@ -92,7 +92,7 @@ public class JsonFilterTest extends BaseMapTest
         public void setUserPassword(String value) {
             this.userPassword = value;
         }
-    }    
+    }
 
     // [databind#306]: JsonFilter for properties, too!
 
@@ -106,7 +106,7 @@ public class JsonFilterTest extends BaseMapTest
         @JsonFilter("b")
         public Bean second = new Bean();
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests
@@ -133,7 +133,7 @@ public class JsonFilterTest extends BaseMapTest
                 SimpleBeanPropertyFilter.serializeAll());
         assertEquals("{\"a\":\"a\",\"b\":\"b\"}", MAPPER.writer(prov).writeValueAsString(new Bean()));
     }
-    
+
     public void testSimpleExclusionFilter() throws Exception
     {
         FilterProvider prov = new SimpleFilterProvider().addFilter("RootFilter",
@@ -151,7 +151,7 @@ public class JsonFilterTest extends BaseMapTest
         } catch (InvalidDefinitionException e) { // should be resolved to this (internally may be something else)
             verifyException(e, "Cannot resolve PropertyFilter with id 'RootFilter'");
         }
-        
+
         // but when changing behavior, should work difference
         SimpleFilterProvider fp = new SimpleFilterProvider().setFailOnUnknownId(false);
         ObjectMapper mapper = jsonMapperBuilder()
@@ -166,7 +166,7 @@ public class JsonFilterTest extends BaseMapTest
         FilterProvider prov = new SimpleFilterProvider().setDefaultFilter(SimpleBeanPropertyFilter.filterOutAllExcept("b"));
         assertEquals("{\"b\":\"b\"}", MAPPER.writer(prov).writeValueAsString(new Bean()));
     }
-    
+
     // [databind#89] combining @JsonIgnore, @JsonProperty
     public void testIssue89() throws Exception
     {

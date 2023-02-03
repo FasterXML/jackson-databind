@@ -19,7 +19,7 @@ public class DOMTypeReadWriteTest extends tools.jackson.databind.BaseMapTest
             "<root xmlns='http://foo'/>";
 
     private final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     public void testSerializeSimpleNonNS() throws Exception
     {
         // Let's just parse first, easiest
@@ -82,7 +82,7 @@ public class DOMTypeReadWriteTest extends tools.jackson.databind.BaseMapTest
             assertEquals("instr", pi.getData());
         }
     }
-    
+
     public void testDeserializeNS() throws Exception
     {
         Document doc = MAPPER.readValue(q(SIMPLE_XML_NS), Document.class);

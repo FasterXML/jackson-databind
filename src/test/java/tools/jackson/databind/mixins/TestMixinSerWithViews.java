@@ -93,7 +93,7 @@ public class TestMixinSerWithViews
       {
         this.testDataArray = testDataArray;
       }
-    }    
+    }
 
     public interface TestDataJAXBMixin
     {
@@ -122,7 +122,7 @@ public class TestMixinSerWithViews
     static class Views {
         static class View { }
     }
-    
+
     public class A {
         private String name;
         private int age;
@@ -158,7 +158,7 @@ public class TestMixinSerWithViews
     /* Tests
     /**********************************************************
      */
-    
+
     public void testDataBindingUsage( ) throws Exception
     {
       ObjectMapper objectMapper = createObjectMapper();
@@ -167,7 +167,7 @@ public class TestMixinSerWithViews
       String json = objectWriter.writeValueAsString(object);
       assertTrue( json.indexOf( "nameHidden" ) == -1 );
       assertTrue( json.indexOf( "\"name\" : \"shown\"" ) > 0 );
-    }    
+    }
 
     public void testIssue560() throws Exception
     {

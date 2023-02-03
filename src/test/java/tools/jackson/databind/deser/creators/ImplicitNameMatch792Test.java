@@ -25,7 +25,7 @@ public class ImplicitNameMatch792Test extends BaseMapTest
             return super.findImplicitPropertyName(config, member);
         }
     }
-    
+
     @JsonPropertyOrder({ "first" ,"second", "other" })
     static class Issue792Bean
     {
@@ -38,14 +38,14 @@ public class ImplicitNameMatch792Test extends BaseMapTest
         }
 
         public String getCtor0() { return value; }
-        
+
         public int getOther() { return 3; }
     }
 
     static class Bean2
     {
         int x = 3;
-        
+
         @JsonProperty("stuff")
         private void setValue(int i) { x = i; }
 
@@ -87,7 +87,7 @@ public class ImplicitNameMatch792Test extends BaseMapTest
             return String.format("[password='%s',value=%d]", password, value);
         }
     }
-    
+
     /*
     /**********************************************************
     /* Test methods
@@ -95,7 +95,7 @@ public class ImplicitNameMatch792Test extends BaseMapTest
      */
 
     private final ObjectMapper MAPPER = sharedMapper();
-    
+
     public void testBindingOfImplicitCreatorNames() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()

@@ -19,7 +19,7 @@ public class ViewsWithSchemaTest extends BaseMapTest
 
         @JsonView({ ViewAB.class, ViewBC.class })
         public int b;
-        
+
         @JsonView({ ViewBC.class })
         public int c;
     }
@@ -50,7 +50,7 @@ public class ViewsWithSchemaTest extends BaseMapTest
     /* Test methods
     /**********************************************************
      */
-    
+
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     public void testSchemaWithViews() throws Exception

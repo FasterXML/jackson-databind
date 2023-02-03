@@ -28,7 +28,7 @@ public class TestRootType
     interface BaseInterface {
         int getB();
     }
-    
+
     static class BaseType
         implements BaseInterface
     {
@@ -40,7 +40,7 @@ public class TestRootType
 
     static class SubType extends BaseType {
         public String a2 = "x";
-        
+
         public boolean getB2() { return true; }
     }
 
@@ -50,7 +50,7 @@ public class TestRootType
     public static class TestClass398 extends BaseClass398 {
        public String property = "aa";
     }
-    
+
     @JsonRootName("root")
     static class WithRootName {
         public int a = 3;
@@ -64,7 +64,7 @@ public class TestRootType
     }
 
     static class TestCommandChild extends TestCommandParent { }
-    
+
     /*
     /**********************************************************
     /* Main tests
@@ -123,7 +123,7 @@ public class TestRootType
         // should propagate interface type through due to root declaration; static typing
         assertEquals("[{\"b\":3}]", json);
     }
-    
+
     /**
      * Unit test to ensure that proper exception is thrown if declared
      * root type is not compatible with given value instance.
@@ -159,7 +159,7 @@ public class TestRootType
         typedList.add(new TestClass398());
 
         final String EXP = "[{\"beanClass\":\"TestRootType$TestClass398\",\"property\":\"aa\"}]";
-        
+
         // First simplest way:
         String json = mapper.writerFor(collectionType).writeValueAsString(typedList);
         assertEquals(EXP, json);

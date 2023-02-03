@@ -31,7 +31,7 @@ public class BuilderWithCreatorTest extends BaseMapTest
             this.a = a;
             this.b = b;
         }
-        
+
         public PropertyCreatorBuilder withC(int v) {
             c = v;
             return this;
@@ -42,7 +42,7 @@ public class BuilderWithCreatorTest extends BaseMapTest
     }
 
     // With String
-    
+
     @JsonDeserialize(builder=StringCreatorBuilder.class)
     static class StringCreatorValue
     {
@@ -65,7 +65,7 @@ public class BuilderWithCreatorTest extends BaseMapTest
     }
 
     // With boolean
-    
+
     @JsonDeserialize(builder=BooleanCreatorBuilder.class)
     static class BooleanCreatorValue
     {
@@ -86,9 +86,9 @@ public class BuilderWithCreatorTest extends BaseMapTest
             return new BooleanCreatorValue(value);
         }
     }
-    
+
     // With Int
-    
+
     @JsonDeserialize(builder=IntCreatorBuilder.class)
     static class IntCreatorValue
     {
@@ -111,7 +111,7 @@ public class BuilderWithCreatorTest extends BaseMapTest
     }
 
     // With Double
-    
+
     @JsonDeserialize(builder=DoubleCreatorBuilder.class)
     static class DoubleCreatorValue
     {
@@ -144,7 +144,7 @@ public class BuilderWithCreatorTest extends BaseMapTest
     public void testWithPropertiesCreator() throws Exception
     {
         final String json = a2q("{'a':1,'c':3,'b':2}");
-        PropertyCreatorValue value = MAPPER.readValue(json, PropertyCreatorValue.class);        
+        PropertyCreatorValue value = MAPPER.readValue(json, PropertyCreatorValue.class);
         assertEquals(1, value.a);
         assertEquals(2, value.b);
         assertEquals(3, value.c);
@@ -154,7 +154,7 @@ public class BuilderWithCreatorTest extends BaseMapTest
     {
         final int EXP = 139;
         IntCreatorValue value = MAPPER.readValue(String.valueOf(EXP),
-                IntCreatorValue.class);        
+                IntCreatorValue.class);
         assertEquals(EXP, value.value);
     }
 
@@ -162,7 +162,7 @@ public class BuilderWithCreatorTest extends BaseMapTest
     {
         final double EXP = -3.75;
         DoubleCreatorValue value = MAPPER.readValue(String.valueOf(EXP),
-                DoubleCreatorValue.class);        
+                DoubleCreatorValue.class);
         assertEquals(EXP, value.value);
     }
 
@@ -170,7 +170,7 @@ public class BuilderWithCreatorTest extends BaseMapTest
     {
         final boolean EXP = true;
         BooleanCreatorValue value = MAPPER.readValue(String.valueOf(EXP),
-                BooleanCreatorValue.class);        
+                BooleanCreatorValue.class);
         assertEquals(EXP, value.value);
     }
 }

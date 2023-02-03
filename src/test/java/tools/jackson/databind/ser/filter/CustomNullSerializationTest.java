@@ -32,7 +32,7 @@ public class CustomNullSerializationTest
     static class Bean2 {
         public String type = null;
     }
-    
+
     @SuppressWarnings("serial")
     static class MyNullSerializerContexts extends SerializationContexts
     {
@@ -85,7 +85,7 @@ public class CustomNullSerializationTest
     @JsonSerialize(nullsUsing=NullSerializer.class)
     static class NullValuedType { }
 */
-    
+
     /*
     /**********************************************************************
     /* Test methods
@@ -93,7 +93,7 @@ public class CustomNullSerializationTest
      */
 
     private final ObjectMapper MAPPER = objectMapper();
-    
+
     public void testSimple() throws Exception
     {
         assertEquals("null", MAPPER.writeValueAsString(null));

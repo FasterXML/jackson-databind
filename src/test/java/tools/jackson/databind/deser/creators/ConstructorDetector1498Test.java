@@ -37,7 +37,7 @@ public class ConstructorDetector1498Test extends BaseMapTest
         protected int v;
 
         SingleArgNotAnnotated() { v = -1; }
-        
+
         public SingleArgNotAnnotated(@ImplicitName("value") int value) {
             v = value;
         }

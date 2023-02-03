@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 final class RecordAsArray extends RecordBase
 {
     protected RecordAsArray() { super(); }
-    
+
     public RecordAsArray(int a, String fn, String ln, char g, boolean ins)
     {
         super(a, fn, ln, g, ins);

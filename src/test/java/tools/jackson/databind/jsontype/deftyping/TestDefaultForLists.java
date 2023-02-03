@@ -53,20 +53,20 @@ public class TestDefaultForLists
 
     static class SetBean {
         public Set<String> names;
-        
+
         public SetBean() { }
         public SetBean(String str) {
             names = new HashSet<String>();
             names.add(str);
         }
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests
     /**********************************************************
      */
-    
+
     public void testListOfLongs() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
@@ -125,7 +125,7 @@ public class TestDefaultForLists
         assertTrue(outputList.get(0) instanceof TimeZone);
         assertTrue(outputList.get(1) instanceof Locale);
     }
-    
+
     public void testJackson628() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()

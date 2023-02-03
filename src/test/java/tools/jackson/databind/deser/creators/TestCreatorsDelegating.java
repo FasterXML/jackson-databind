@@ -19,7 +19,7 @@ public class TestCreatorsDelegating extends BaseMapTest
         protected Boolean value;
 
         public BooleanBean(Boolean v) { value = v; }
-        
+
         @JsonCreator
         protected static BooleanBean create(Boolean value) {
             return new BooleanBean(value);
@@ -31,7 +31,7 @@ public class TestCreatorsDelegating extends BaseMapTest
         protected Integer value;
 
         public IntegerBean(Integer v) { value = v; }
-        
+
         @JsonCreator
         protected static IntegerBean create(Integer value) {
             return new IntegerBean(value);
@@ -43,7 +43,7 @@ public class TestCreatorsDelegating extends BaseMapTest
         protected Long value;
 
         public LongBean(Long v) { value = v; }
-        
+
         @JsonCreator
         protected static LongBean create(Long value) {
             return new LongBean(value);
@@ -98,7 +98,7 @@ public class TestCreatorsDelegating extends BaseMapTest
     static class MapBean
     {
         protected Map<String,Long> map;
-        
+
         @JsonCreator
         public MapBean(Map<String, Long> map) {
             this.map = map;
@@ -234,7 +234,7 @@ public class TestCreatorsDelegating extends BaseMapTest
         Map<String,Long> map = MAPPER.readValue(JSON, Map.class);
         assertEquals(1, map.size());
         assertEquals(Integer.valueOf(12), map.get("A"));
-        
+
         MapBean bean = MAPPER.readValue(JSON, MapBean.class);
         assertEquals(1, bean.map.size());
         assertEquals(Long.valueOf(12L), bean.map.get("A"));
@@ -244,7 +244,7 @@ public class TestCreatorsDelegating extends BaseMapTest
 
         map = MAPPER.readValue(EMPTY_JSON, Map.class);
         assertEquals(0, map.size());
-        
+
         bean = MAPPER.readValue(EMPTY_JSON, MapBean.class);
         assertEquals(0, bean.map.size());
     }

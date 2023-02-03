@@ -115,7 +115,7 @@ public class IntrospectorPairTest extends BaseMapTest
         /******************************************************
         /* General class annotations
         /******************************************************
-         */        
+         */
 
         @Override
         public PropertyName findRootName(MapperConfig<?> config, AnnotatedClass ac) {
@@ -136,7 +136,7 @@ public class IntrospectorPairTest extends BaseMapTest
         public Object findFilterId(MapperConfig<?> config, Annotated ann) {
             return (Object) values.get("findFilterId");
         }
-        
+
         @Override
         public Object findNamingStrategy(MapperConfig<?> config, AnnotatedClass ac) {
             return (Object) values.get("findNamingStrategy");
@@ -216,7 +216,7 @@ public class IntrospectorPairTest extends BaseMapTest
         /******************************************************
         /* Helper methods
         /******************************************************
-         */        
+         */
 
         private boolean _boolean(String key) {
             Object ob = values.get(key);

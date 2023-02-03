@@ -20,7 +20,7 @@ public class IgnoredCreatorProperty1572Test extends BaseMapTest
 
         @JsonIgnore
         String otherOtherStr;
-        
+
         @JsonCreator
         public OuterTest(/*@JsonProperty("innerTest")*/ InnerTest inner,
                 /*@JsonProperty("otherOtherStr")*/ String otherStr) {

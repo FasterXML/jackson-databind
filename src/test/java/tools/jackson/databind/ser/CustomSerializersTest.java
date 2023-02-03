@@ -39,7 +39,7 @@ public class CustomSerializersTest extends BaseMapTest
             gen.writeString("element");
         }
     }
-    
+
     @JsonSerialize(using = ElementSerializer.class)
     public static class ElementMixin {}
 
@@ -60,7 +60,7 @@ public class CustomSerializersTest extends BaseMapTest
             _asciiEscapes['a'] = 'A'; // to basically give us "\A" instead of 'a'
             _asciiEscapes['b'] = CharacterEscapes.ESCAPE_STANDARD; // too force "\u0062"
         }
-        
+
         @Override
         public int[] getEscapeCodesForAscii() {
             return _asciiEscapes;
@@ -79,7 +79,7 @@ public class CustomSerializersTest extends BaseMapTest
         public int x;
 
         public LikeNumber(int value) { x = value; }
-        
+
         @Override
         public double doubleValue() {
             return x;
@@ -262,7 +262,7 @@ public class CustomSerializersTest extends BaseMapTest
         assertEquals(q("foo\\u0062\\Ar"),
                 MAPPER.writer(new CustomEscapes()).writeValueAsString("foobar"));
     }
-    
+
     public void testNumberSubclass() throws Exception
     {
         assertEquals(a2q("{'x':42}"),
@@ -283,7 +283,7 @@ public class CustomSerializersTest extends BaseMapTest
                 MAPPER.writeValueAsString(wr));
 
         // and then per-type registration
-        
+
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addSerializer(String.class, new UCStringSerializer());
         ObjectMapper mapper = jsonMapperBuilder()

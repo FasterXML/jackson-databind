@@ -65,7 +65,7 @@ public class TestCreators3 extends BaseMapTest
     static class MultiCtor
     {
         protected String _a, _b;
-        
+
         private MultiCtor() { }
         private MultiCtor(String a, String b, Boolean c) {
             if (c == null) {
@@ -99,7 +99,7 @@ public class TestCreators3 extends BaseMapTest
             return super.findImplicitPropertyName(config, param);
         }
     }
- 
+
     // [databind#1853]
     public static class Product1853 {
         String name;
@@ -133,7 +133,7 @@ public class TestCreators3 extends BaseMapTest
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
-    
+
     public void testCreator541() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()

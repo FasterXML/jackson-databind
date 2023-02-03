@@ -47,7 +47,7 @@ public class TestNamingStrategyCustom extends BaseMapTest
             return "Set-"+defaultName;
         }
     }
-    
+
     static class CStyleStrategy extends PropertyNamingStrategy
     {
         @Override
@@ -83,14 +83,14 @@ public class TestNamingStrategyCustom extends BaseMapTest
             return result.toString();
         }
     }
-    
+
     static class GetterBean {
         public int getKey() { return 123; }
     }
 
     static class SetterBean {
         protected int value;
-        
+
         public void setKey(int v) {
             value = v;
         }
@@ -120,7 +120,7 @@ public class TestNamingStrategyCustom extends BaseMapTest
 
     static class Value {
         public int intValue;
-        
+
         public Value() { this(0); }
         public Value(int v) { intValue = v; }
     }
@@ -144,13 +144,13 @@ public class TestNamingStrategyCustom extends BaseMapTest
             return propertyName.toLowerCase();
         }
     }
-    
+
     static class RenamedCollectionBean
     {
 //        @JsonDeserialize
         @JsonProperty
         private List<String> theValues = Collections.emptyList();
-        
+
         // intentionally odd name, to be renamed by naming strategy
         public List<String> getTheValues() { return theValues; }
     }
@@ -160,17 +160,17 @@ public class TestNamingStrategyCustom extends BaseMapTest
     static class BeanWithPrefixNames
     {
         protected int a = 3;
-        
+
         public int getA() { return a; }
         public void setA(int value) { a = value; }
     }
-    
+
     /*
     /**********************************************************************
     /* Test methods
     /**********************************************************************
      */
-    
+
     public void testSimpleGetters() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -210,7 +210,7 @@ public class TestNamingStrategyCustom extends BaseMapTest
                 .build();
         String json = mapper.writeValueAsString(new PersonBean("Joe", "Sixpack", 42));
         assertEquals("{\"first_name\":\"Joe\",\"last_name\":\"Sixpack\",\"age\":42}", json);
-        
+
         // then deserialize
         PersonBean result = mapper.readValue(json, PersonBean.class);
         assertEquals("Joe", result.firstName);

@@ -73,7 +73,7 @@ public class TestAutoDetectForSer
                 .changeDefaultVisibility(vc ->
                     vc.withFieldVisibility(JsonAutoDetect.Visibility.ANY))
                 .build();
-        
+
         Map<String,Object> result = writeAndMap(m, new FieldBean());
         assertEquals(3, result.size());
         assertEquals("public", result.get("p1"));

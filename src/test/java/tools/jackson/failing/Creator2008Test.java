@@ -55,7 +55,7 @@ public class Creator2008Test extends BaseMapTest
                   '}';
         }
    }
-    
+
     private ObjectMapper objectMapper = newJsonMapper();
 
     public void testSimple() throws Exception {

@@ -44,7 +44,7 @@ public class CreatorForOptionalTest extends BaseMapTest
 
         // 21-Sep-2022, tatu: [databind#3601] Changed this to now become proper
         //    `null`. Should probably also check coercion in future.
-        
+
         assertNull(bean.b);
     }
 }

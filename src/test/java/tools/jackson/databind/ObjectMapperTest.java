@@ -26,7 +26,7 @@ public class ObjectMapperTest extends BaseMapTest
 {
     static class Bean {
         int value = 3;
-        
+
         public void setX(int v) { value = v; }
 
         protected Bean() { }
@@ -98,7 +98,7 @@ public class ObjectMapperTest extends BaseMapTest
     public void testConfigForPropertySorting() throws Exception
     {
         ObjectMapper m = newJsonMapper();
-        
+
         // sort-alphabetically is disabled by default:
         assertFalse(m.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY));
         assertTrue(m.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
@@ -128,7 +128,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertFalse(dc.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
     }
 
-    public void testDeserializationContextCache() throws Exception   
+    public void testDeserializationContextCache() throws Exception
     {
         ObjectMapper m = newJsonMapper();
         final String JSON = "{ \"x\" : 3 }";

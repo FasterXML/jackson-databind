@@ -44,7 +44,7 @@ public class IgnoreWithDeserTest
      */
 
     private final ObjectMapper MAPPER = objectMapper();
-    
+
     public void testSimpleIgnore() throws Exception
     {
         SizeClassIgnore result = MAPPER.readValue("{ \"x\":1, \"y\" : 2 }",
@@ -57,7 +57,7 @@ public class IgnoreWithDeserTest
     public void testFailOnIgnore() throws Exception
     {
         ObjectReader r = MAPPER.readerFor(NoYOrZ.class);
-        
+
         // First, fine to get "x":
         NoYOrZ result = r.readValue(a2q("{'x':3}"));
         assertEquals(3, result.x);

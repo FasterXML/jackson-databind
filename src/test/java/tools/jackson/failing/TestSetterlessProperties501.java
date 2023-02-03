@@ -26,7 +26,7 @@ public class TestSetterlessProperties501
             m.put(key, value);
             l.add(value);
         }
-        
+
         @JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
         public List<Poly> getList(){
             return l;
@@ -40,7 +40,7 @@ public class TestSetterlessProperties501
 //        public void setMap(Map<String,Poly> m) { this.m = m; }
 //        public void setList(List<Poly> l) { this.l = l; }
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests

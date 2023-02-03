@@ -39,7 +39,7 @@ public class NullHandlingTest extends BaseMapTest
             return this.any;
         }
     }
-    
+
     // [databind#1601]
     static class RootData {
         public String name;
@@ -148,7 +148,7 @@ public class NullHandlingTest extends BaseMapTest
         String str = mapper.readValue("null", String.class);
         assertNotNull(str);
         assertEquals("funny", str);
-        
+
         // as well as via ObjectReader
         ObjectReader reader = mapper.readerFor(String.class);
         str = reader.readValue("null");

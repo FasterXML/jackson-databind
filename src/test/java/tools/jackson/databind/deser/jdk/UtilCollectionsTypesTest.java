@@ -145,7 +145,7 @@ public class UtilCollectionsTypesTest extends BaseMapTest
         input.put("c", "d");
         _verifyMap(Collections.synchronizedMap(input));
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests, other
@@ -188,7 +188,7 @@ public class UtilCollectionsTypesTest extends BaseMapTest
             fail("Should be subtype of "+expType.getName()+", is: "+actType.getName());
         }
     }
-    
+
     protected Collection<?> _writeReadCollection(Collection<?> input) throws Exception {
         final String json = DEFAULT_MAPPER.writeValueAsString(input);
         return DEFAULT_MAPPER.readValue(json, Collection.class);

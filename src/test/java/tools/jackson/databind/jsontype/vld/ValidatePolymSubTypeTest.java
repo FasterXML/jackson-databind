@@ -31,7 +31,7 @@ public class ValidatePolymSubTypeTest extends BaseMapTest
     static class BadValue extends BaseValue { }
     static class GoodValue extends BaseValue { }
     static class MehValue extends BaseValue { }
-    
+
     // // // Wrapper types
 
     static class AnnotatedWrapper {
@@ -58,7 +58,7 @@ public class ValidatePolymSubTypeTest extends BaseMapTest
     }
 
     // // // Validator implementations
-    
+
     static class SimpleNameBasedValidator extends PolymorphicTypeValidator {
         private static final long serialVersionUID = 1L;
 
@@ -111,7 +111,7 @@ public class ValidatePolymSubTypeTest extends BaseMapTest
     }
 
     // // // Mappers with Default Typing
-    
+
     private final ObjectMapper MAPPER_DEF_TYPING_NAME_CHECK = jsonMapperBuilder()
             .activateDefaultTyping(new SimpleNameBasedValidator())
             .build();
@@ -173,7 +173,7 @@ public class ValidatePolymSubTypeTest extends BaseMapTest
     {
         _verifyMehDefaultValue(MAPPER_DEF_TYPING_CLASS_CHECK);
     }
-    
+
     /*
     /**********************************************************************
     /* Test methods, annotated typing, full class
@@ -217,7 +217,7 @@ public class ValidatePolymSubTypeTest extends BaseMapTest
     {
         _verifyMehAnnotatedValue(MAPPER_EXPLICIT_CLASS_CHECK);
     }
-    
+
     /*
     /**********************************************************************
     /* Test methods, annotated typing, minimal class name
@@ -261,7 +261,7 @@ public class ValidatePolymSubTypeTest extends BaseMapTest
     {
         _verifyMehAnnotatedMinValue(MAPPER_EXPLICIT_CLASS_CHECK);
     }
-    
+
     /*
     /**********************************************************************
     /* Helper methods, round-trip (ok case)
@@ -288,7 +288,7 @@ public class ValidatePolymSubTypeTest extends BaseMapTest
     /* Helper methods, failing deser verification
     /**********************************************************************
      */
-    
+
     private void _verifyBadDefaultValue(ObjectMapper mapper) throws Exception {
         final String json = mapper.writeValueAsString(new DefTypeWrapper(new BadValue()));
         _verifyBadValue(mapper, json, DefTypeWrapper.class);

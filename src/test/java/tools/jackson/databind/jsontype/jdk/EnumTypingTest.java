@@ -18,17 +18,17 @@ public class EnumTypingTest extends BaseMapTest
 
     public enum Tag implements EnumInterface
     { A, B };
-    
+
     static class EnumInterfaceWrapper {
         public EnumInterface value;
     }
-    
+
     static class EnumInterfaceList extends ArrayList<EnumInterface> { }
 
     static class TagList extends ArrayList<Tag> { }
 
     static enum TestEnum { A, B, C; }
-    
+
     static class UntypedEnumBean
     {
         @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="__type")
@@ -106,7 +106,7 @@ public class EnumTypingTest extends BaseMapTest
         list.add(Tag.A);
         list.add(Tag.B);
         String json = MAPPER.writeValueAsString(list);
-        
+
         EnumInterfaceList result = MAPPER.readValue(json, EnumInterfaceList.class);
         assertEquals(2, result.size());
         assertSame(Tag.A, result.get(0));

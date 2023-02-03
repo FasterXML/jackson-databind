@@ -104,7 +104,7 @@ public class TypedContainerSerTest
     /* Test methods
     /**********************************************************
      */
-	
+
     public void testPolymorphicWithContainer() throws Exception
     {
 		Dog dog = new Dog("medor");

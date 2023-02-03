@@ -24,7 +24,7 @@ public class BuilderAdvanced2580Test extends BaseMapTest
     @JsonSubTypes({ @JsonSubTypes.Type(ValueBean.class) })
     static class BaseBean {
     }
-    
+
     @JsonTypeName("vbean")
     static class ValueBean extends BaseBean
     {

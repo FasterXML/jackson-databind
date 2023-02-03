@@ -21,14 +21,14 @@ public class ObjectIdWithInjectables538Test extends BaseMapTest
         @JsonCreator
         public B(@JacksonInject("i2") String injected) {
         }
-    } 
+    }
 
     /*
     /*****************************************************
     /* Test methods
     /*****************************************************
      */
-    
+
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     // 26-Sep-2017, tatu: With Jackson 3.x and inclusion of parameter-names for creators

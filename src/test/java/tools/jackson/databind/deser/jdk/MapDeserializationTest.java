@@ -48,7 +48,7 @@ public class MapDeserializationTest
 
     static class KeyType {
         protected String value;
-        
+
         private KeyType(String v, boolean bogus) {
             value = v;
         }
@@ -113,7 +113,7 @@ public class MapDeserializationTest
         assertEquals(map.size(), ((Map<?,?>) bound).size());
         assertEquals(map, bound);
     }
-    
+
     /**
      * Let's also try another way to express "gimme a Map" deserialization;
      * this time by specifying a Map class, to reduce need to cast
@@ -177,7 +177,7 @@ public class MapDeserializationTest
              new TypeReference<Map<String, ObjectWrapper>>() { });
        _doTestUntyped(map);
     }
-    
+
     private void _doTestUntyped(final Map<String, ObjectWrapper> map)
     {
         ObjectWrapper w = map.get("double");
@@ -335,7 +335,7 @@ public class MapDeserializationTest
         assertNull(result.get(Key.KEY1));
     }
 
-    public void testEnumPolymorphicSerializationTest() throws Exception 
+    public void testEnumPolymorphicSerializationTest() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         List<ITestType> testTypesList = new ArrayList<ITestType>();
@@ -350,7 +350,7 @@ public class MapDeserializationTest
         testTypesMap.put(KeyEnum.A, ConcreteType.ONE);
         testTypesMap.put(KeyEnum.B, ConcreteType.TWO);
         enumMapContainer.testTypes = testTypesMap;
-        
+
         json = mapper.writeValueAsString(enumMapContainer);
         enumMapContainer = mapper.readValue(json, EnumMapContainer.class);
     }
@@ -365,15 +365,15 @@ public class MapDeserializationTest
     {
     	 Date date1=new Date(123456000L);
     	 DateFormat fmt = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
-         
+
     	 String JSON = "{ \""+  fmt.format(date1)+"\" : \"\", \""+new Date(0).getTime()+"\" : null }";
     	 HashMap<Date,String> result=  MAPPER.readValue
     	            (JSON, new TypeReference<HashMap<Date,String>>() { });
-    	 
+
     	 assertNotNull(result);
     	 assertEquals(HashMap.class, result.getClass());
     	 assertEquals(2, result.size());
-    	 
+
     	 assertTrue(result.containsKey(date1));
     	 assertEquals("", result.get(new Date(123456000L)));
 
@@ -491,7 +491,7 @@ public class MapDeserializationTest
     public void testMapError() throws Exception
     {
         try {
-            Object result = MAPPER.readValue("[ 1, 2 ]", 
+            Object result = MAPPER.readValue("[ 1, 2 ]",
                     new TypeReference<Map<String,String>>() { });
             fail("Expected an exception, but got result value: "+result);
         } catch (MismatchedInputException jex) {

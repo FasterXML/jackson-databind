@@ -55,7 +55,7 @@ public class BasicExceptionTest extends BaseMapTest
                 beanDef, (BeanPropertyDefinition) null);
         assertEquals(beanDef.getType(), e.getType());
         assertNotNull(e);
-        
+
         g.close();
     }
 

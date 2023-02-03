@@ -80,7 +80,7 @@ public class TestStdDateFormat extends BaseMapTest
         assertEquals(2, m.groupCount());
         assertEquals(".2", m.group(1));
         assertEquals("+03:00", m.group(2));
-        
+
         m = p.matcher("1972-12-28T00:00:00.01-0300");
         assertTrue(m.matches());
         assertEquals(".01", m.group(1));
@@ -120,7 +120,7 @@ public class TestStdDateFormat extends BaseMapTest
         dt = f.parse("2015-11-32");
         assertNotNull(dt);
     }
-    
+
     public void testInvalid() {
         StdDateFormat std = new StdDateFormat();
         try {

@@ -19,9 +19,9 @@ public class EnumMapDeserializationTest extends BaseMapTest
     enum TestEnumWithDefault {
         JACKSON, RULES,
         @JsonEnumDefaultValue
-        OK; 
+        OK;
     }
-    
+
     protected enum LowerCaseEnum {
         A, B, C;
         private LowerCaseEnum() { }
@@ -29,13 +29,13 @@ public class EnumMapDeserializationTest extends BaseMapTest
         public String toString() { return name().toLowerCase(); }
     }
 
-    static class MySimpleEnumMap extends EnumMap<TestEnum,String> { 
+    static class MySimpleEnumMap extends EnumMap<TestEnum,String> {
         public MySimpleEnumMap() {
             super(TestEnum.class);
         }
     }
 
-    static class FromStringEnumMap extends EnumMap<TestEnum,String> { 
+    static class FromStringEnumMap extends EnumMap<TestEnum,String> {
         @JsonCreator
         public FromStringEnumMap(String value) {
             super(TestEnum.class);
@@ -43,7 +43,7 @@ public class EnumMapDeserializationTest extends BaseMapTest
         }
     }
 
-    static class FromDelegateEnumMap extends EnumMap<TestEnum,String> { 
+    static class FromDelegateEnumMap extends EnumMap<TestEnum,String> {
         @JsonCreator
         public FromDelegateEnumMap(Map<Object,Object> stuff) {
             super(TestEnum.class);
@@ -51,7 +51,7 @@ public class EnumMapDeserializationTest extends BaseMapTest
         }
     }
 
-    static class FromPropertiesEnumMap extends EnumMap<TestEnum,String> { 
+    static class FromPropertiesEnumMap extends EnumMap<TestEnum,String> {
         int a0, b0;
 
         @JsonCreator
@@ -140,21 +140,21 @@ public class EnumMapDeserializationTest extends BaseMapTest
     public void testCustomEnumMapWithDefaultCtor() throws Exception
     {
         MySimpleEnumMap map = MAPPER.readValue(a2q("{'RULES':'waves'}"),
-                MySimpleEnumMap.class);   
+                MySimpleEnumMap.class);
         assertEquals(1, map.size());
         assertEquals("waves", map.get(TestEnum.RULES));
     }
 
     public void testCustomEnumMapFromString() throws Exception
     {
-        FromStringEnumMap map = MAPPER.readValue(q("kewl"), FromStringEnumMap.class);   
+        FromStringEnumMap map = MAPPER.readValue(q("kewl"), FromStringEnumMap.class);
         assertEquals(1, map.size());
         assertEquals("kewl", map.get(TestEnum.JACKSON));
     }
 
     public void testCustomEnumMapWithDelegate() throws Exception
     {
-        FromDelegateEnumMap map = MAPPER.readValue(a2q("{'foo':'bar'}"), FromDelegateEnumMap.class);   
+        FromDelegateEnumMap map = MAPPER.readValue(a2q("{'foo':'bar'}"), FromDelegateEnumMap.class);
         assertEquals(1, map.size());
         assertEquals("{foo=bar}", map.get(TestEnum.OK));
     }

@@ -27,7 +27,7 @@ public class TestJsonSerializeAs extends BaseMapTest
         public int getFoo() { return 42; }
         public int getBar() { return 15; }
     }
-    
+
     public class Fooables {
         public FooImpl[] getFoos() {
             return new FooImpl[] { new FooImpl() };

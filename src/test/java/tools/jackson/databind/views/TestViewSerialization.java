@@ -19,7 +19,7 @@ public class TestViewSerialization
     static class ViewAA extends ViewA { }
     static class ViewB { }
     static class ViewBB extends ViewB { }
-    
+
     static class Bean
     {
         @JsonView(ViewA.class)
@@ -57,10 +57,10 @@ public class TestViewSerialization
 
     static class VisibilityBean {
         @JsonProperty protected String id = "id";
-    
+
         @JsonView(ViewA.class)
         public String value = "x";
-    }   
+    }
 
     public static class WebView { }
     public static class OtherView { }
@@ -73,7 +73,7 @@ public class TestViewSerialization
     /**********************************************************
     /* Unit tests
     /**********************************************************
-     */    
+     */
 
     private final ObjectMapper MAPPER = objectMapper();
 
@@ -186,5 +186,5 @@ public class TestViewSerialization
                 .build();
         assertEquals("{}",
                 mapper.writerWithView(OtherView.class).writeValueAsString(new Foo()));
-    }    
+    }
 }

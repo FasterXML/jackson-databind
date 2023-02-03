@@ -39,7 +39,7 @@ public class PolymorphicDeserErrorHandlingTest extends BaseMapTest
     /* Test methods
     /**********************************************************************
      */
-    
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     public void testUnknownClassAsSubtype() throws Exception

@@ -39,7 +39,7 @@ public class ExternalTypeIdWithCreatorTest extends BaseMapTest
     }
 
     // [databind#1198]
-    
+
     public enum Attacks { KICK, PUNCH }
 
     static class Character {

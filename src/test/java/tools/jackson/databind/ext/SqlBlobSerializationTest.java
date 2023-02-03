@@ -21,7 +21,7 @@ public class SqlBlobSerializationTest extends BaseMapTest
         public void setSqlBlob1(Blob sqlBlob1) {
             this.sqlBlob1 = sqlBlob1;
         }
-    } 
+    }
 
     /*
     /**********************************************************

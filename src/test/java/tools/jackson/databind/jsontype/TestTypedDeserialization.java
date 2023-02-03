@@ -27,7 +27,7 @@ public class TestTypedDeserialization
     @JsonTypeInfo(use=Id.CLASS, include=As.PROPERTY, property="@classy")
     static abstract class Animal {
         public String name;
-        
+
         protected Animal(String n)  { name = n; }
     }
 
@@ -35,7 +35,7 @@ public class TestTypedDeserialization
     static class Dog extends Animal
     {
         public int boneCount;
-        
+
         @JsonCreator
         public Dog(@JsonProperty("name") String name) {
             super(name);
@@ -43,7 +43,7 @@ public class TestTypedDeserialization
 
         public void setBoneCount(int i) { boneCount = i; }
     }
-    
+
     @JsonTypeName("kitty")
     static class Cat extends Animal
     {
@@ -107,7 +107,7 @@ public class TestTypedDeserialization
 
         public DummyImpl() { super(true); }
     }
-    
+
     @JsonTypeInfo(use=Id.MINIMAL_CLASS, include=As.WRAPPER_OBJECT)
     interface TypeWithWrapper { }
 
@@ -214,7 +214,7 @@ public class TestTypedDeserialization
                 +asJSONObjectValueString(MAPPER,
                         "@classy", Fish.class.getName())
                 +", null\n]";
-        
+
         JavaType expType = TypeFactory.defaultInstance().constructCollectionType(ArrayList.class, Animal.class);
         List<Animal> animals = MAPPER.readValue(JSON, expType);
         assertNotNull(animals);
@@ -269,7 +269,7 @@ public class TestTypedDeserialization
         Issue506DateBean output = MAPPER.readValue(json, Issue506DateBean.class);
         assertEquals(input.date, output.date);
     }
-    
+
     // [JACKSON-506], wrt Number
     public void testIssue506WithNumber() throws Exception
     {

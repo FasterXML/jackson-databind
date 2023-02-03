@@ -42,5 +42,5 @@ public class OptionalMapsTest extends BaseMapTest
         assertEquals("{\"values\":{\"key\":\"\"}}",
                 mapper.writeValueAsString(new OptMapBean("key", Optional.of(""))));
     }
-    
+
 }

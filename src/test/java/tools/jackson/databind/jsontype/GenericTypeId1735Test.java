@@ -36,7 +36,7 @@ public class GenericTypeId1735Test extends BaseMapTest
     private final ObjectMapper MAPPER = objectMapper();
 
     private final static String NEF_CLASS = Nefarious1735.class.getName();
-    
+
     // Existing checks should kick in fine
     public void testSimpleTypeCheck1735() throws Exception
     {

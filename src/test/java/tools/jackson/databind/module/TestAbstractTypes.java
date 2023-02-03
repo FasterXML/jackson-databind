@@ -14,7 +14,7 @@ public class TestAbstractTypes extends BaseMapTest
     static class MyString implements CharSequence
     {
         protected String value;
-        
+
         public MyString(String s) { value = s; }
 
         @Override

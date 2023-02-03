@@ -25,13 +25,13 @@ public class MapperJDKSerializationTest extends BaseMapTest
     static class MyPojo {
         public int x;
         protected int y;
-        
+
         public MyPojo() { }
         public MyPojo(int x0, int y0) {
             x = x0;
             y = y0;
         }
-        
+
         public int getY() { return y; }
         public void setY(int y) { this.y = y; }
     }
@@ -74,7 +74,7 @@ public class MapperJDKSerializationTest extends BaseMapTest
      *   let's create a private copy for this class only.
      */
     private final ObjectMapper MAPPER = newJsonMapper();
-    
+
     public void testConfigs() throws IOException
     {
         byte[] base = jdkSerialize(MAPPER.deserializationConfig().getBaseSettings());
@@ -132,7 +132,7 @@ public class MapperJDKSerializationTest extends BaseMapTest
         assertEquals(p.x, p2.x);
         assertEquals(p.y, p2.y);
     }
-    
+
     public void testObjectWriter() throws IOException
     {
         // 20-Apr-2018, tatu: ObjectReader no longer JDK serializable so
@@ -148,7 +148,7 @@ public class MapperJDKSerializationTest extends BaseMapTest
                 .addEntry("a", "b"));
         assertEquals("{\"a\":\"b\"}", json);
     }
-    
+
     public void testObjectReader() throws IOException
     {
         // 20-Apr-2018, tatu: ObjectReader no longer JDK serializable so
@@ -173,7 +173,7 @@ public class MapperJDKSerializationTest extends BaseMapTest
             byte[] b = jdkSerialize(module);
             assertNotNull(b);
         }
-        
+
         JsonMapper mapper = JsonMapper.builder()
                 .enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)
                 .enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
@@ -187,11 +187,11 @@ public class MapperJDKSerializationTest extends BaseMapTest
 
         byte[] bytes = jdkSerialize(mapper);
         ObjectMapper mapper2 = jdkDeserialize(bytes);
-        
+
         // verify settings
         assertTrue(mapper.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS));
         assertTrue(mapper.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY));
-        
+
         assertEquals(EXP_JSON, mapper2.writeValueAsString(p));
         MyPojo p2 = mapper2.readValue(EXP_JSON, MyPojo.class);
         assertEquals(p.x, p2.x);

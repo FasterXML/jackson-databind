@@ -37,13 +37,13 @@ public class MapInclusion2573Test extends BaseMapTest
 
     private final JsonInclude.Value BOTH_NON_NULL = JsonInclude.Value.construct(JsonInclude.Include.NON_NULL,
             JsonInclude.Include.NON_NULL);
-    
+
 //    final private ObjectMapper MAPPER = objectMapper();
 
     // [databind#2572]
     public void test2572MapDefault() throws Exception
     {
-                
+
         ObjectMapper mapper = JsonMapper.builder()
                 .changeDefaultPropertyInclusion(incl -> BOTH_NON_NULL)
                 .build();
@@ -58,7 +58,7 @@ public class MapInclusion2573Test extends BaseMapTest
     {
         ObjectMapper mapper = JsonMapper.builder()
                 .changeDefaultPropertyInclusion(incl -> BOTH_NON_NULL)
-                .withConfigOverride(Map.class, 
+                .withConfigOverride(Map.class,
                         o -> o.setInclude(JsonInclude.Value.construct(JsonInclude.Include.USE_DEFAULTS,
                         JsonInclude.Include.USE_DEFAULTS)))
                 .build();

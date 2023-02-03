@@ -22,7 +22,7 @@ public class TestPolymorphicWithDefaultImpl1565 extends BaseMapTest
     static class CBaseClass1565 implements CTestInterface1565
     {
          private String mName;
-         
+
          @Override
          public String getName() {
               return(mName);

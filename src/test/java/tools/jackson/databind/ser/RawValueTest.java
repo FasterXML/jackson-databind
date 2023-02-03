@@ -27,13 +27,13 @@ public class RawValueTest
     final static class ClassGetter<T>
     {
         protected final T _value;
-    	
+
         protected ClassGetter(T value) { _value = value;}
- 
+
         public T getNonRaw() { return _value; }
 
         @JsonProperty("raw") @JsonRawValue public T foobar() { return _value; }
-        
+
         @JsonProperty @JsonRawValue protected T value() { return _value; }
     }
 
@@ -55,7 +55,7 @@ public class RawValueTest
      */
 
     private final ObjectMapper MAPPER = objectMapper();
-    
+
     public void testSimpleStringGetter() throws Exception
     {
         String value = "abc";

@@ -7,7 +7,7 @@ public class TestArraySerialization
     extends BaseMapTest
 {
     private final ObjectMapper MAPPER = sharedMapper();
-    
+
     public void testLongStringArray() throws Exception
     {
         final int SIZE = 40000;
@@ -33,7 +33,7 @@ public class TestArraySerialization
         assertNull(p.nextToken());
         p.close();
     }
-    
+
     public void testIntArray() throws Exception
     {
         String json = MAPPER.writeValueAsString(new int[] { 1, 2, 3, -7 });
@@ -63,7 +63,7 @@ public class TestArraySerialization
             p.close();
         }
     }
-    
+
     public void testLongArray() throws Exception
     {
         String json = MAPPER.writeValueAsString(new long[] { Long.MIN_VALUE, 0, Long.MAX_VALUE });

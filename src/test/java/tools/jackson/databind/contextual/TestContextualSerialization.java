@@ -46,23 +46,23 @@ public class TestContextualSerialization extends BaseMapTest
         public AnnotatedContextualBean(String s) { value = s; }
     }
 
-    
+
     @Prefix("wrappedBean:")
     static class ContextualBeanWrapper
     {
         @Prefix("wrapped:")
         public ContextualBean wrapped;
-        
+
         public ContextualBeanWrapper(String s) {
             wrapped = new ContextualBean(s);
         }
     }
-    
+
     static class ContextualArrayBean
     {
         @Prefix("array->")
         public final String[] beans;
-        
+
         public ContextualArrayBean(String... strings) {
             beans = strings;
         }
@@ -73,12 +73,12 @@ public class TestContextualSerialization extends BaseMapTest
         @Prefix("elem->")
         @JsonSerialize(contentUsing=AnnotatedContextualSerializer.class)
         public final String[] beans;
-        
+
         public ContextualArrayElementBean(String... strings) {
             beans = strings;
         }
     }
-    
+
     static class ContextualListBean
     {
         @Prefix("list->")
@@ -90,13 +90,13 @@ public class TestContextualSerialization extends BaseMapTest
             }
         }
     }
-    
+
     static class ContextualMapBean
     {
         @Prefix("map->")
         public final Map<String, String> beans = new HashMap<String, String>();
     }
-    
+
     /**
      * Another bean that has class annotations that should be visible for
      * contextualizer, too
@@ -108,7 +108,7 @@ public class TestContextualSerialization extends BaseMapTest
 
         public BeanWithClassConfig(String v) { value = v; }
     }
-    
+
     /**
      * Annotation-based contextual serializer that simply prepends piece of text.
      */
@@ -116,7 +116,7 @@ public class TestContextualSerialization extends BaseMapTest
         extends ValueSerializer<String>
     {
         protected final String _prefix;
-        
+
         public AnnotatedContextualSerializer() { this(""); }
         public AnnotatedContextualSerializer(String p) {
             _prefix = p;
@@ -210,7 +210,7 @@ public class TestContextualSerialization extends BaseMapTest
     /* Unit tests
     /**********************************************************
      */
-    
+
     // Test to verify that contextual serializer can make use of property
     // (method, field) annotations.
     public void testMethodAnnotations() throws Exception
@@ -244,7 +244,7 @@ public class TestContextualSerialization extends BaseMapTest
                 .build();
         assertEquals("{\"wrapped\":{\"value\":\"see:xyz\"}}", mapper.writeValueAsString(new ContextualBeanWrapper("xyz")));
     }
-    
+
     // Serializer should get passed property context even if contained in an array.
     public void testMethodAnnotationInArray() throws Exception
     {

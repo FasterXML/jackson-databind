@@ -129,13 +129,13 @@ public class TestJacksonAnnotationIntrospector
             return names;
         }
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests
     /**********************************************************
      */
-    
+
     /**
      * tests getting serializer/deserializer instances.
      */

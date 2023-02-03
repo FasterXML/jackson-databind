@@ -19,9 +19,9 @@ public class TestNullNode extends NodeTestBase
 
     @SuppressWarnings("serial")
     static class MyNull extends NullNode { }
-    
+
     private final ObjectMapper MAPPER = sharedMapper();
-    
+
     public void testBasicsWithNullNode() throws Exception
     {
         // Let's use something that doesn't add much beyond JsonNode base
@@ -37,9 +37,9 @@ public class TestNullNode extends NodeTestBase
         assertFalse(n.isMissingNode());
 
         assertFalse(n.isNumber());
-        assertFalse(n.canConvertToInt()); 
-        assertFalse(n.canConvertToLong()); 
-        assertFalse(n.canConvertToExactIntegral()); 
+        assertFalse(n.canConvertToInt());
+        assertFalse(n.canConvertToLong());
+        assertFalse(n.canConvertToExactIntegral());
 
         // fallback accessors
         assertFalse(n.booleanValue());
@@ -80,7 +80,7 @@ public class TestNullNode extends NodeTestBase
         n = objectMapper().readTree("null");
         assertNotNull(n);
         assertTrue(n.isNull());
-        
+
         // Then object property
         ObjectNode root = (ObjectNode) objectReader().readTree("{\"x\":null}");
         assertEquals(1, root.size());

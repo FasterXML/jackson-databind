@@ -342,7 +342,7 @@ public class TestCustomValueInstDefaults
     }
 
     // [databind#1432]
-    
+
     public static class ClassWith32Module extends SimpleModule {
         public ClassWith32Module() {
             super("test", Version.unknownVersion());
@@ -369,7 +369,7 @@ public class TestCustomValueInstDefaults
     /* Test methods
     /**********************************************************
      */
-    
+
     // When all values are in the source, no defaults should be used.
     public void testAllPresent() throws Exception
     {

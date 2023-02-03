@@ -135,7 +135,7 @@ public class ObjectId825BTest extends BaseMapTest
 
     static class V extends AbstractData {
         private static final long serialVersionUID = 1L;
-    }    
+    }
 
     /*
     /*****************************************************
@@ -196,7 +196,7 @@ public class ObjectId825BTest extends BaseMapTest
         // also replace package
         final String newPkg = getClass().getName() + "\\$";
         INPUT = INPUT.replaceAll("_PKG_", newPkg);
-        
+
         CTC result = mapper.readValue(INPUT, CTC.class);
         assertNotNull(result);
     }

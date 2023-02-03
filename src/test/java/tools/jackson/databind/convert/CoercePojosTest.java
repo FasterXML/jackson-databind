@@ -53,7 +53,7 @@ public class CoercePojosTest extends BaseMapTest
     {
         _testPOJOFromEmptyGlobalConfig(CoercionInputShape.EmptyString, JSON_EMPTY, null);
     }
-    
+
     public void testPOJOFromEmptyLogicalTypeConfig() throws Exception
     {
         _testPOJOFromEmptyLogicalTypeConfig(CoercionInputShape.EmptyString, JSON_EMPTY, null);

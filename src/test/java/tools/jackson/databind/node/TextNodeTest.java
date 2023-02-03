@@ -14,16 +14,16 @@ public class TextNodeTest extends NodeTestBase
 
         assertNodeNumbers(TextNode.valueOf("-3"), -3, -3.0);
         assertNodeNumbers(TextNode.valueOf("17.75"), 17, 17.75);
-    
+
         long value = 127353264013893L;
         TextNode n = TextNode.valueOf(String.valueOf(value));
         assertEquals(value, n.asLong());
 
         assertFalse(n.isNumber());
-        assertFalse(n.canConvertToInt()); 
-        assertFalse(n.canConvertToLong()); 
-        assertFalse(n.canConvertToExactIntegral()); 
-        
+        assertFalse(n.canConvertToInt());
+        assertFalse(n.canConvertToLong());
+        assertFalse(n.canConvertToExactIntegral());
+
         // and then with non-numeric input
         n = TextNode.valueOf("foobar");
         assertNodeNumbersForNonNumeric(n);

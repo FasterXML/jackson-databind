@@ -33,9 +33,9 @@ public class CoerceToBooleanTest extends BaseMapTest
     static class BooleanWrapper {
         public Boolean wrapper;
         public boolean primitive;
-        
+
         protected Boolean ctor;
-        
+
         @JsonCreator
         public BooleanWrapper(@JsonProperty("ctor") Boolean foo) {
             ctor = foo;
@@ -179,7 +179,7 @@ public class CoerceToBooleanTest extends BaseMapTest
      */
 
     public void testIntToBooleanCoercionSuccessPojo() throws Exception
-    {        
+    {
         BooleanPOJO p;
         final ObjectReader r = DEFAULT_MAPPER.readerFor(BooleanPOJO.class);
 
@@ -195,7 +195,7 @@ public class CoerceToBooleanTest extends BaseMapTest
     }
 
     public void testIntToBooleanCoercionSuccessRoot() throws Exception
-    {        
+    {
         final ObjectReader br = DEFAULT_MAPPER.readerFor(Boolean.class);
 
         assertEquals(Boolean.FALSE, br.readValue(" 0"));
@@ -206,7 +206,7 @@ public class CoerceToBooleanTest extends BaseMapTest
         final ObjectReader atomicR = DEFAULT_MAPPER.readerFor(AtomicBoolean.class);
 
         AtomicBoolean ab;
-        
+
         ab = atomicR.readValue(" 0");
         ab = atomicR.readValue(utf8Bytes(" 0"));
         assertEquals(false, ab.get());
@@ -317,7 +317,7 @@ public class CoerceToBooleanTest extends BaseMapTest
         p = MAPPER_INT_TO_EMPTY.readValue(DOC_WITH_1, BooleanPOJO.class);
         assertFalse(p.value);
     }
-        
+
     public void testIntToTryCoercion() throws Exception
     {
         // And "TryCoerce" should do what would be typically expected
@@ -413,7 +413,7 @@ public class CoerceToBooleanTest extends BaseMapTest
 
     private void _verifyFailFromInteger(ObjectMapper m, Class<?> targetType, String doc,
             Class<?> valueType) throws Exception
-    {       
+    {
         try {
             m.readerFor(targetType).readValue(doc);
             fail("Should not accept Integer for "+targetType.getName()+" by default");

@@ -15,7 +15,7 @@ class ImmutableBeanWithStaticFactory {
         this.name = name;
         this.value = value;
     }
-    
+
     private final String name;
     private final Integer value;
 

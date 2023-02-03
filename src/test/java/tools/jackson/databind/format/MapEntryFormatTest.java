@@ -34,7 +34,7 @@ public class MapEntryFormatTest extends BaseMapTest
             key = k;
             value = v;
         }
-        
+
         @Override
         public String getKey() {
             return key;
@@ -87,7 +87,7 @@ public class MapEntryFormatTest extends BaseMapTest
             entry = map.entrySet().iterator().next();
         }
     }
-    
+
     static class EmptyEntryWrapper {
         @JsonInclude(value=JsonInclude.Include.NON_EMPTY,
                 content=JsonInclude.Include.NON_EMPTY)
@@ -99,13 +99,13 @@ public class MapEntryFormatTest extends BaseMapTest
             entry = map.entrySet().iterator().next();
         }
     }
-    
+
     /*
     /**********************************************************
     /* Test methods, basic
     /**********************************************************
      */
-    
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     public void testInclusion() throws Exception
@@ -163,7 +163,7 @@ public class MapEntryFormatTest extends BaseMapTest
 
         // 16-Oct-2016, tatu: Happens to work by default because it's NOT basic
         //   `Map.Entry` but subtype.
-        
+
         MapEntryAsObject result = MAPPER.readValue(json, MapEntryAsObject.class);
         assertEquals("foo", result.getKey());
         assertEquals("bar", result.getValue());

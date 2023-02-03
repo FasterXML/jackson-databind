@@ -23,7 +23,7 @@ public class UUIDSerializationTest extends BaseMapTest
 
         public UUIDWrapperBinary(UUID u) { uuid = u; }
     }
-    
+
     private final ObjectMapper MAPPER = sharedMapper();
 
     // Verify that efficient UUID codec won't mess things up:
@@ -46,7 +46,7 @@ public class UUIDSerializationTest extends BaseMapTest
             String str = MAPPER.convertValue(uuid, String.class);
             assertEquals(value, str);
         }
-        
+
         // then use templating; note that these are not exactly valid UUIDs
         // wrt spec (type bits etc), but JDK UUID should deal ok
         final String TEMPL = "00000000-0000-0000-0000-000000000000";
@@ -72,7 +72,7 @@ public class UUIDSerializationTest extends BaseMapTest
         // but that without one we'd get String
         assertEquals("{\"uuid\":\""+nullUUIDStr+"\"}",
                 MAPPER.writeValueAsString(new UUIDWrapperVanilla(nullUUID)));
-        
+
         // but can also override by type
         ObjectMapper m = JsonMapper.builder()
                 .withConfigOverride(UUID.class,

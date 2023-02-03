@@ -18,7 +18,7 @@ public class JavaUtilDateSerializationTest
 {
     static class TimeZoneBean {
         private TimeZone tz;
-        
+
         public TimeZoneBean(String name) {
             tz = TimeZone.getTimeZone(name);
         }
@@ -63,7 +63,7 @@ public class JavaUtilDateSerializationTest
         public Date date;
         public DateAsDefaultBean(long l) { date = new java.util.Date(l); }
     }
-    
+
     static class DateAsDefaultBeanWithEmptyJsonFormat {
         @JsonFormat
         public Date date;
@@ -232,7 +232,7 @@ public class JavaUtilDateSerializationTest
         map.put(new Date(0L), Integer.valueOf(1));
         // by default will serialize as ISO-8601 values...
         assertEquals("{\"1970-01-01T00:00:00.000Z\":1}", mapper.writeValueAsString(map));
-        
+
         // but can change to use timestamps too
         mapper = jsonMapperBuilder()
                 .configure(SerializationFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS, true)
@@ -258,7 +258,7 @@ public class JavaUtilDateSerializationTest
         // and with different DateFormat; CET is one hour ahead of GMT
         json = MAPPER.writeValueAsString(new DateInCETBean(0L));
         assertEquals("{\"date\":\"1970-01-01,01:00\"}", json);
-        
+
         // and for [Issue#423] as well:
         json = MAPPER.writer().with(getUTCTimeZone()).writeValueAsString(new CalendarAsStringBean(0L));
         assertEquals("{\"value\":\"1970-01-01\"}", json);
@@ -279,7 +279,7 @@ public class JavaUtilDateSerializationTest
                 .defaultTimeZone(TimeZone.getTimeZone("PST"))
                 .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .build();
-        
+
         // pacific time is GMT-8; so midnight becomes 16:00 previous day:
         serialize( mapper, judate(1969, 12, 31, 16, 00, 00, 00, "PST"), "1969-12-31/16:00 PST");
 

@@ -60,12 +60,12 @@ public class OptionalTest extends BaseMapTest
     // [datatype-jdk8#4]
     static class Issue4Entity {
         private final Optional<String> data;
- 
+
         @JsonCreator
         public Issue4Entity(@JsonProperty("data") Optional<String> data) {
             this.data = Objects.requireNonNull(data, "data");
         }
- 
+
         @JsonProperty ("data")
         public Optional<String> data() {
             return data;
@@ -146,7 +146,7 @@ public class OptionalTest extends BaseMapTest
     {
         final Issue4Entity emptyEntity = new Issue4Entity(Optional.empty());
         final String json = MAPPER.writeValueAsString(emptyEntity);
-        
+
         final Issue4Entity deserialisedEntity = MAPPER.readValue(json, Issue4Entity.class);
         if (!deserialisedEntity.equals(emptyEntity)) {
             throw new IOException("Entities not equal");

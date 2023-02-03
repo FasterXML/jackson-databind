@@ -11,7 +11,7 @@ public class GenericNestedType2331Test extends BaseMapTest
 {
     static class SuperNode<T> { }
     static class SuperTestClass { }
-    
+
     @SuppressWarnings("serial")
     static class Node<T extends SuperTestClass & Cloneable> extends SuperNode<Node<T>> implements Serializable {
 
@@ -28,7 +28,7 @@ public class GenericNestedType2331Test extends BaseMapTest
         public List<? extends SuperNode<Node<T>>> getChildren() {
             return children;
         }
-    }    
+    }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public void testGeneric2331() throws Exception {

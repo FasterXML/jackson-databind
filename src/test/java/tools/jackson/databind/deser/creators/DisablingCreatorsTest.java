@@ -21,7 +21,7 @@ public class DisablingCreatorsTest extends BaseMapTest
 
      static class NonConflictingCreators {
           public String _value;
-          
+
           @JsonCreator(mode=JsonCreator.Mode.DELEGATING)
           public NonConflictingCreators(String foo) { _value = foo; }
 

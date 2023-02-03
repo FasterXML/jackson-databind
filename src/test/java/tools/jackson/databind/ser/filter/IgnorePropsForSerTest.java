@@ -29,7 +29,7 @@ public class IgnorePropsForSerTest
         @JsonIgnoreProperties("y")
         public XY value = new XY();
     }
-    
+
     static class XY {
         public int x = 1;
         public int y = 2;
@@ -81,7 +81,7 @@ public class IgnorePropsForSerTest
         public IgnoreForListValuesXYZ() {
             coordinates = Arrays.asList(new XYZ());
         }
-    }    
+    }
 
     /*
     /****************************************************************
@@ -90,7 +90,7 @@ public class IgnorePropsForSerTest
      */
 
     private final ObjectMapper MAPPER = objectMapper();
-    
+
     public void testExplicitIgnoralWithBean() throws Exception
     {
         IgnoreSome value = new IgnoreSome();
@@ -130,12 +130,12 @@ public class IgnorePropsForSerTest
         assertEquals("{\"value\":{\"z\":3}}",
                 MAPPER.writeValueAsString(new WrapperWithPropIgnoreUntyped()));
     }
-    
+
     public void testIgnoreWithMapProperty() throws Exception
     {
         assertEquals("{\"value\":{\"b\":2}}", MAPPER.writeValueAsString(new MapWrapper()));
     }
-    
+
     public void testIgnoreViaPropsAndClass() throws Exception
     {
         assertEquals("{\"value\":{\"y\":2}}",

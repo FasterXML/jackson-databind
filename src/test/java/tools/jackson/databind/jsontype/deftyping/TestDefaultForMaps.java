@@ -13,7 +13,7 @@ import tools.jackson.databind.jsontype.impl.TypeNameIdResolver;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 import tools.jackson.databind.type.TypeFactory;
 
-public class TestDefaultForMaps 
+public class TestDefaultForMaps
     extends BaseMapTest
 {
     static class MapKey {
@@ -39,7 +39,7 @@ public class TestDefaultForMaps
     }
 
     // // For #234
-    
+
     static class ItemList {
         public String value;
         public List<ItemList> childItems = new LinkedList<ItemList>();
@@ -64,13 +64,13 @@ public class TestDefaultForMaps
           childItems.put(key, items);
         }
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests
     /**********************************************************
      */
-    
+
     public void testJackson428() throws Exception
     {
         TypeResolverBuilder<?> serializerTyper = new DefaultTypeResolverBuilder(NoCheckSubTypeValidator.instance,

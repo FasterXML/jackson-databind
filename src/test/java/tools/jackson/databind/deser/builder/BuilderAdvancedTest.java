@@ -26,7 +26,7 @@ public class BuilderAdvancedTest extends BaseMapTest
 
         @JacksonInject
         protected String stuff;
-        
+
         public InjectableBuilderXY withX(int x0) {
               this.x = x0;
               return this;

@@ -32,7 +32,7 @@ public class TestAutoDetect
         String a;
         private PrivateBeanNonAnnotated(String a) { this.a = a; }
     }
-    
+
     // test for [databind#1347], config overrides for visibility
     @JsonPropertyOrder(alphabetic=true)
     static class Feature1347SerBean {

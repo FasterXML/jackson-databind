@@ -94,7 +94,7 @@ public class TestMixinSerForMethods
      */
 
     /**
-     * Unit test for verifying that leaf-level mix-ins work ok; 
+     * Unit test for verifying that leaf-level mix-ins work ok;
      * that is, any annotations added properly override all annotations
      * that masked methods (fields etc) have.
      */
@@ -169,7 +169,7 @@ public class TestMixinSerForMethods
                 }
                 return null;
             }
-        
+
             @Override
             public MixInResolver snapshot() {
                 return this;

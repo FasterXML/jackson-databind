@@ -28,7 +28,7 @@ public class AlwaysAsReferenceFirstTest extends BaseMapTest
     static class Value1607
     {
         public int value;
-        
+
         public Value1607() { this(0); }
         public Value1607(int v) {
             value = v;
@@ -60,7 +60,7 @@ public class AlwaysAsReferenceFirstTest extends BaseMapTest
     /* Test methods
     /**********************************************************
      */
-    
+
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     // [databind#1255]

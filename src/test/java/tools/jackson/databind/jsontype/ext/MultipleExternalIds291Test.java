@@ -54,7 +54,7 @@ public class MultipleExternalIds291Test extends BaseMapTest
      */
 
     final ObjectMapper MAPPER = objectMapper();
-    
+
     // [databind#291]
     public void testMultipleValuesSingleExtId() throws Exception
     {

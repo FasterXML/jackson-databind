@@ -62,7 +62,7 @@ public class UntypedObjectWithDupsTest extends BaseMapTest
     // Helper methods
     ///////////////////////////////////////////////////////////////////////
      */
-    
+
     /* Method that will verify default JSON behavior of overwriting value
      * (no merging).
      */

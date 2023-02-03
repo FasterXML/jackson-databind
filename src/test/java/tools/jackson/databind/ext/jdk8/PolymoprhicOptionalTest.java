@@ -23,13 +23,13 @@ public class PolymoprhicOptionalTest extends BaseMapTest
     public static class ContainedImpl implements Contained { }
 
     private final ObjectMapper MAPPER = newJsonMapper();
-    
+
     // [datatype-jdk8#14]
     public void testPolymorphic14() throws Exception
     {
         final Container dto = new Container();
         dto.contained = Optional.of(new ContainedImpl());
-        
+
         final String json = MAPPER.writeValueAsString(dto);
 
         final Container fromJson = MAPPER.readValue(json, Container.class);

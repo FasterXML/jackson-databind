@@ -30,7 +30,7 @@ public class UnlimitedLookupCacheTest {
         UnlimitedLookupCache<Object, JavaType> cache = new UnlimitedLookupCache<>(4);
         TypeFactory tf = TypeFactory.defaultInstance().withCache(cache);
         assertNotNull(tf); // just to get rid of warning
-        
+
         //TODO find way to inject the `tf` instance into an ObjectMapper (via MapperBuilder?)
 
         //ObjectMapper mapper = new ObjectMapper();

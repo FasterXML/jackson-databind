@@ -83,7 +83,7 @@ public class TestPolymorphicCreators
             return 1;
         }
     }
-    
+
     /*
     /**********************************************************
     /* Actual tests
@@ -91,7 +91,7 @@ public class TestPolymorphicCreators
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     /**
      * Simple test to verify that it is possible to implement polymorphic
      * deserialization manually.

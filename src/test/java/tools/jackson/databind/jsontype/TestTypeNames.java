@@ -32,7 +32,7 @@ public class TestTypeNames extends BaseMapTest
 
     @JsonTypeName("B")
     static class B1616 extends Base1616 { }
-    
+
     /*
     /**********************************************************
     /* Unit tests
@@ -58,13 +58,13 @@ public class TestTypeNames extends BaseMapTest
             }
         }
     }
-    
+
     public void testSerialization() throws Exception
     {
         // Note: need to use wrapper array just so that we can define
         // static type on serialization. If we had root static types,
         // could use those; but at the moment root type is dynamic
-        
+
         assertEquals("[{\"doggy\":{\"name\":\"Spot\",\"ageInYears\":3}}]",
                 MAPPER.writeValueAsString(new Animal[] { new Dog("Spot", 3) }));
         assertEquals("[{\"MaineCoon\":{\"name\":\"Belzebub\",\"purrs\":true}}]",

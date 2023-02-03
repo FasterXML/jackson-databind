@@ -59,7 +59,7 @@ public class TestSimpleSerializationIgnore
     static class NonIgnoredType
     {
         public int value = 13;
-        
+
         public IgnoredType ignored = new IgnoredType();
     }
 

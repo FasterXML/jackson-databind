@@ -12,7 +12,7 @@ public class ManualReadPerfWithMedia extends ObjectReaderTestBase
 {
     @Override
     protected int targetSizeMegs() { return 8; }
-    
+
     public static void main(String[] args) throws Exception
     {
         if (args.length != 0) {

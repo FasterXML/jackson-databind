@@ -24,7 +24,7 @@ public class InjectableWithoutDeser962Test extends BaseMapTest
         public void setA(InjectMe a) {
             this.a = String.valueOf(a);
         }
-        
+
         public String getA() {
             return a;
         }

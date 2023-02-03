@@ -14,7 +14,7 @@ public class TestUnwrappedWithSameName647 extends BaseMapTest
         @JsonUnwrapped
         public Mail mail;
     }
-    
+
     static class Mail {
         public String mail;
     }

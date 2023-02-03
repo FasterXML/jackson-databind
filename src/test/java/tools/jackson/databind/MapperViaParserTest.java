@@ -16,14 +16,14 @@ public class MapperViaParserTest extends BaseMapTest
 
     final static SerializedString TWO_BYTE_ESCAPED_STRING = new SerializedString("&111;");
     final static SerializedString THREE_BYTE_ESCAPED_STRING = new SerializedString("&1111;");
-    
+
     final static class Pojo
     {
         int _x;
 
         public void setX(int x) { _x = x; }
     }
-    
+
     /*
     /********************************************************
     /* Helper types
@@ -45,7 +45,7 @@ public class MapperViaParserTest extends BaseMapTest
             _asciiEscapes['b'] = CharacterEscapes.ESCAPE_STANDARD; // too force "\u0062"
             _asciiEscapes['d'] = CharacterEscapes.ESCAPE_CUSTOM;
         }
-        
+
         @Override
         public int[] getEscapeCodesForAscii() {
             return _asciiEscapes;
@@ -66,7 +66,7 @@ public class MapperViaParserTest extends BaseMapTest
             return null;
         }
     }
-    
+
     /*
     /********************************************************
     /* Unit tests

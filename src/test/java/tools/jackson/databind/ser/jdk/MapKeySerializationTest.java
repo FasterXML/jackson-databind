@@ -275,7 +275,7 @@ public class MapKeySerializationTest extends BaseMapTest
         // First, using wrapper
         MapWrapper<byte[], String> input = new MapWrapper<>(binary, "stuff");
         String expBase64 = Base64Variants.MIME.encode(binary);
-        
+
         assertEquals(a2q("{'map':{'"+expBase64+"':'stuff'}}"),
                 MAPPER.writeValueAsString(input));
 

@@ -12,7 +12,7 @@ import tools.jackson.databind.type.TypeFactory;
 public class BeanPropertyMapTest extends BaseMapTest
 {
     protected final static JavaType BOGUS_TYPE = TypeFactory.unknownType();
-    
+
     @SuppressWarnings("serial")
     static class MyObjectIdReader extends ObjectIdReader
     {

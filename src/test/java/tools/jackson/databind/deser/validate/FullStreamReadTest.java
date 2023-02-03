@@ -25,7 +25,7 @@ public class FullStreamReadTest extends BaseMapTest
     private final static String JSON_OK_NULL = " null  ";
     private final static String JSON_OK_NULL_WITH_COMMENT = " null /* stuff */ ";
     private final static String JSON_FAIL_NULL = JSON_OK_NULL + " false";
-    
+
     /*
     /**********************************************************************
     /* Test methods, config
@@ -166,7 +166,7 @@ public class FullStreamReadTest extends BaseMapTest
                 .readValue(JSON_OK_NULL_WITH_COMMENT);
         assertNull(ob);
     }
-    
+
     public void testReaderAcceptTrailing()
     {
         ObjectReader R = MAPPER.reader();
@@ -234,7 +234,7 @@ public class FullStreamReadTest extends BaseMapTest
         // but works if comments enabled etc
 
         ObjectReader strictRWithComments = strictR.with(JsonReadFeature.ALLOW_JAVA_COMMENTS);
-        
+
         _verifyCollection((List<?>)strictRWithComments.forType(List.class).readValue(JSON_OK_ARRAY_WITH_COMMENT));
         _verifyArray(strictRWithComments.readTree(JSON_OK_ARRAY_WITH_COMMENT));
     }
@@ -286,7 +286,7 @@ public class FullStreamReadTest extends BaseMapTest
         Object ob = strictRWithComments.forType(List.class).readValue(JSON_OK_NULL_WITH_COMMENT);
         assertNull(ob);
     }
-    
+
     private void _verifyArray(JsonNode n)
     {
         assertTrue(n.isArray());

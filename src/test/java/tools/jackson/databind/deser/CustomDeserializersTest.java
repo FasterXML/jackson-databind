@@ -93,7 +93,7 @@ public class CustomDeserializersTest
 
     public static class Immutable {
         protected int x, y;
-        
+
         public Immutable(int x0, int y0) {
             x = x0;
             y = y0;
@@ -107,7 +107,7 @@ public class CustomDeserializersTest
 
         public int getId() { return id; }
     }
-    
+
     public static class Model
     {
         protected final Map<CustomKey, String> map;
@@ -124,7 +124,7 @@ public class CustomDeserializersTest
             return map;
         }
     }
-     
+
     static class CustomKeySerializer extends ValueSerializer<CustomKey> {
         @Override
         public void serialize(CustomKey value, JsonGenerator g, SerializerProvider provider) {
@@ -149,7 +149,7 @@ public class CustomDeserializersTest
         @Negative
         public Bean375Outer value;
     }
-    
+
     static class Bean375Outer {
         protected Bean375Inner inner;
 
@@ -165,7 +165,7 @@ public class CustomDeserializersTest
     static class Bean375OuterDeserializer extends StdDeserializer<Bean375Outer>
     {
         protected BeanProperty prop;
-        
+
         protected Bean375OuterDeserializer() { this(null); }
         protected Bean375OuterDeserializer(BeanProperty p) {
             super(Bean375Outer.class);
@@ -188,7 +188,7 @@ public class CustomDeserializersTest
     static class Bean375InnerDeserializer extends StdDeserializer<Bean375Inner>
     {
         protected boolean negative;
-        
+
         protected Bean375InnerDeserializer() { this(false); }
         protected Bean375InnerDeserializer(boolean n) {
             super(Bean375Inner.class);
@@ -394,7 +394,7 @@ public class CustomDeserializersTest
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
-    
+
     public void testCustomBeanDeserializer() throws Exception
     {
         String json = "{\"beans\":[{\"c\":{\"a\":10,\"b\":20},\"d\":\"hello, tatu\"}]}";
@@ -479,7 +479,7 @@ public class CustomDeserializersTest
         assertEquals(-10, imm.x);
         assertEquals(3, imm.y);
     }
-    
+
     public void testIssue882() throws Exception
     {
         Model original = new Model(Collections.singletonMap(new CustomKey(123), "test"));

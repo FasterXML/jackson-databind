@@ -104,7 +104,7 @@ public class CoerceMiscScalarsTest extends BaseMapTest
     {
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_EMPTY, File.class);
         _testScalarEmptyToNull(MAPPER_EMPTY_TO_EMPTY, URL.class);
-        
+
         _testScalarEmptyToEmpty(MAPPER_EMPTY_TO_EMPTY, URI.class,
                 URI.create(""));
 

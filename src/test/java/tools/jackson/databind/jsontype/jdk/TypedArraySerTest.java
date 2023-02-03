@@ -31,11 +31,11 @@ public class TypedArraySerTest
     @SuppressWarnings("serial")
     @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY)
     static class TypedListAsProp<T> extends ArrayList<T> { }
-    
+
     @SuppressWarnings("serial")
     @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=JsonTypeInfo.As.WRAPPER_OBJECT)
     static class TypedListAsWrapper<T> extends LinkedList<T> { }
-    
+
     // Mix-in to force wrapper for things like primitive arrays
     @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.WRAPPER_OBJECT)
     interface WrapperMixIn { }
@@ -80,7 +80,7 @@ public class TypedArraySerTest
         ObjectWriter w = MAPPER.writerWithView(Object.class);
         assertEquals("{\"beans\":[{\"@type\":\"bean\",\"x\":0}]}", w.writeValueAsString(beans));
     }
-    
+
     public void testIntList() throws Exception
     {
         TypedList<Integer> input = new TypedList<Integer>();
@@ -90,7 +90,7 @@ public class TypedArraySerTest
         assertEquals("[\""+TypedList.class.getName()+"\",[5,13]]",
                 MAPPER.writeValueAsString(input));
     }
-    
+
     // Similar to above, but this time let's request adding type info
     // as property. That would not work (since there's no JSON Object to
     // add property in), so it should revert to method used with

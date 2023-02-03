@@ -40,13 +40,13 @@ public class TestBeanDeserializer extends BaseMapTest
     static class ModuleImpl extends SimpleModule
     {
         protected ValueDeserializerModifier modifier;
-        
+
         public ModuleImpl(ValueDeserializerModifier modifier)
         {
             super("test", Version.unknownVersion());
             this.modifier = modifier;
         }
-        
+
         @Override
         public void setupModule(SetupContext context)
         {
@@ -60,9 +60,9 @@ public class TestBeanDeserializer extends BaseMapTest
     static class RemovingModifier extends ValueDeserializerModifier
     {
         private final String _removedProperty;
-        
+
         public RemovingModifier(String remove) { _removedProperty = remove; }
-        
+
         @Override
         public BeanDeserializerBuilder updateBuilder(DeserializationConfig config,
                 BeanDescription beanDesc, BeanDeserializerBuilder builder) {
@@ -70,13 +70,13 @@ public class TestBeanDeserializer extends BaseMapTest
             return builder;
         }
     }
-    
+
     static class ReplacingModifier extends ValueDeserializerModifier
     {
         private final ValueDeserializer<?> _deserializer;
-        
+
         public ReplacingModifier(ValueDeserializer<?> s) { _deserializer = s; }
-        
+
         @Override
         public ValueDeserializer<?> modifyDeserializer(DeserializationConfig config,
                 BeanDescription beanDesc, ValueDeserializer<?> deserializer) {
@@ -87,12 +87,12 @@ public class TestBeanDeserializer extends BaseMapTest
     static class BogusBeanDeserializer extends ValueDeserializer<Object>
     {
         private final String a, b;
-        
+
         public BogusBeanDeserializer(String a, String b) {
             this.a = a;
             this.b = b;
         }
-        
+
         @Override
         public Object deserialize(JsonParser jp, DeserializationContext ctxt)
         {
@@ -120,7 +120,7 @@ public class TestBeanDeserializer extends BaseMapTest
             super.createContextual(ctxt, property);
             propCount++;
             return this;
-        }        
+        }
     }
     public class Issue476DeserializerModifier extends ValueDeserializerModifier {
         @Override
@@ -130,18 +130,18 @@ public class TestBeanDeserializer extends BaseMapTest
                 return new Issue476Deserializer((BeanDeserializer)deserializer);
             }
             return super.modifyDeserializer(config, beanDesc, deserializer);
-        }        
+        }
     }
     public class Issue476Module extends SimpleModule
     {
         public Issue476Module() {
             super("Issue476Module", Version.unknownVersion());
         }
-        
+
         @Override
         public void setupModule(SetupContext context) {
             context.addDeserializerModifier(new Issue476DeserializerModifier());
-        }        
+        }
     }
 
     public static class Issue1912Bean {
@@ -235,7 +235,7 @@ public class TestBeanDeserializer extends BaseMapTest
     // [Issue#121], arrays, collections, maps
 
     enum EnumABC { A, B, C; }
-    
+
     static class ArrayDeserializerModifier extends ValueDeserializerModifier {
         @Override
         public ValueDeserializer<?> modifyArrayDeserializer(DeserializationConfig config, ArrayType valueType,
@@ -309,7 +309,7 @@ public class TestBeanDeserializer extends BaseMapTest
     static class UCStringDeserializer extends StdScalarDeserializer<String>
     {
         private final ValueDeserializer<?> _deser;
-        
+
         public UCStringDeserializer(ValueDeserializer<?> orig) {
             super(String.class);
             _deser = orig;
@@ -343,7 +343,7 @@ public class TestBeanDeserializer extends BaseMapTest
         } catch (InvalidDefinitionException e) {
             verifyException(e, "cannot construct");
         }
-    }    
+    }
     public void testPropertyRemoval() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -353,7 +353,7 @@ public class TestBeanDeserializer extends BaseMapTest
         assertEquals("2", bean.b);
         // and 'a' has its default value:
         assertEquals("a", bean.a);
-    } 
+    }
 
     public void testDeserializerReplacement() throws Exception
     {
@@ -369,7 +369,7 @@ public class TestBeanDeserializer extends BaseMapTest
     public void testIssue476() throws Exception
     {
         final String JSON = "{\"value1\" : {\"name\" : \"fruit\", \"value\" : \"apple\"}, \"value2\" : {\"name\" : \"color\", \"value\" : \"red\"}}";
-        
+
         ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new Issue476Module())
                 .build();

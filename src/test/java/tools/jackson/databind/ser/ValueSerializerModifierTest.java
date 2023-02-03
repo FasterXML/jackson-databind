@@ -25,13 +25,13 @@ public class ValueSerializerModifierTest extends BaseMapTest
     static class SerializerModifierModule extends SimpleModule
     {
         protected ValueSerializerModifier modifier;
-        
+
         public SerializerModifierModule(ValueSerializerModifier modifier)
         {
             super("test", Version.unknownVersion());
             this.modifier = modifier;
         }
-        
+
         @Override
         public void setupModule(SetupContext context)
         {
@@ -51,9 +51,9 @@ public class ValueSerializerModifierTest extends BaseMapTest
     static class RemovingModifier extends ValueSerializerModifier
     {
         private final String _removedProperty;
-        
+
         public RemovingModifier(String remove) { _removedProperty = remove; }
-        
+
         @Override
         public List<BeanPropertyWriter> changeProperties(SerializationConfig config, BeanDescription beanDesc,
                 List<BeanPropertyWriter> beanProperties)
@@ -68,7 +68,7 @@ public class ValueSerializerModifierTest extends BaseMapTest
             return beanProperties;
         }
     }
-    
+
     static class ReorderingModifier extends ValueSerializerModifier
     {
         @Override
@@ -85,9 +85,9 @@ public class ValueSerializerModifierTest extends BaseMapTest
     static class ReplacingModifier extends ValueSerializerModifier
     {
         private final ValueSerializer<?> _serializer;
-        
+
         public ReplacingModifier(ValueSerializer<?> s) { _serializer = s; }
-        
+
         @Override
         public ValueSerializer<?> modifySerializer(SerializationConfig config, BeanDescription beanDesc,
                 ValueSerializer<?> serializer) {
@@ -98,11 +98,11 @@ public class ValueSerializerModifierTest extends BaseMapTest
     static class BuilderModifier extends ValueSerializerModifier
     {
         private final ValueSerializer<?> _serializer;
-        
+
         public BuilderModifier(ValueSerializer<?> ser) {
             _serializer = ser;
         }
-        
+
         @Override
         public BeanSerializerBuilder updateBuilder(SerializationConfig config,
                 BeanDescription beanDesc, BeanSerializerBuilder builder) {
@@ -113,7 +113,7 @@ public class ValueSerializerModifierTest extends BaseMapTest
     static class BogusSerializerBuilder extends BeanSerializerBuilder
     {
         private final ValueSerializer<?> _serializer;
-        
+
         public BogusSerializerBuilder(BeanSerializerBuilder src,
                 ValueSerializer<?> ser) {
             super(src);
@@ -125,11 +125,11 @@ public class ValueSerializerModifierTest extends BaseMapTest
             return _serializer;
         }
     }
-    
+
     static class BogusBeanSerializer extends StdSerializer<Object>
     {
         private final int _value;
-        
+
         public BogusBeanSerializer(int v) {
             super(Object.class);
             _value = v;
@@ -179,7 +179,7 @@ public class ValueSerializerModifierTest extends BaseMapTest
         {
             return beanProperties;
         }
-        
+
         @Override
         public ValueSerializer<?> modifySerializer(SerializationConfig config,
                 BeanDescription beanDesc, ValueSerializer<?> serializer) {
@@ -187,7 +187,7 @@ public class ValueSerializerModifierTest extends BaseMapTest
         }
     }
     // [databind#120], arrays, collections, maps
-    
+
     static class ArraySerializerModifier extends ValueSerializerModifier {
         @Override
         public ValueSerializer<?> modifyArraySerializer(SerializationConfig config,
@@ -279,7 +279,7 @@ public class ValueSerializerModifierTest extends BaseMapTest
                 .build();
         Bean bean = new Bean();
         assertEquals("17", mapper.writeValueAsString(bean));
-    }    
+    }
     public void testSerializerReplacement() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -320,7 +320,7 @@ public class ValueSerializerModifierTest extends BaseMapTest
         String json = mapper.writeValueAsString(new EmptyBean());
         assertEquals("42", json);
     }
-    
+
     // [databind#121]
 
     public void testModifyArraySerializer() throws Exception

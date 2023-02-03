@@ -31,13 +31,13 @@ public class ObjectNodeTest
         public DataImpl(JsonNode n) {
             root = n;
         }
-        
+
         @JsonValue
         public JsonNode value() { return root; }
-        
+
         /*
         public Wrapper(ObjectNode n) { root = n; }
-        
+
         @JsonValue
         public ObjectNode value() { return root; }
         */
@@ -89,10 +89,10 @@ public class ObjectNodeTest
         assertFalse(root.isBoolean());
         assertFalse(root.isTextual());
         assertFalse(root.isNumber());
-        assertFalse(root.canConvertToInt()); 
-        assertFalse(root.canConvertToLong()); 
-        assertFalse(root.canConvertToExactIntegral()); 
-        
+        assertFalse(root.canConvertToInt());
+        assertFalse(root.canConvertToLong());
+        assertFalse(root.canConvertToExactIntegral());
+
         Iterator<JsonNode> it = root.iterator();
         assertNotNull(it);
         assertTrue(it.hasNext());
@@ -134,13 +134,13 @@ public class ObjectNodeTest
         Data w = MAPPER.readValue("{}", Data.class);
         assertNotNull(w);
     }
-    
+
     public void testBasics()
     {
         ObjectNode n = new ObjectNode(JsonNodeFactory.instance);
         assertStandardEquals(n);
         assertTrue(n.isEmpty());
-        
+
         assertFalse(n.elements().hasNext());
         assertFalse(n.fields().hasNext());
         assertFalse(n.propertyNames().hasNext());
@@ -149,7 +149,7 @@ public class ObjectNodeTest
 
         TextNode text = TextNode.valueOf("x");
         assertSame(n, n.set("a", text));
-        
+
         assertEquals(1, n.size());
         assertTrue(n.elements().hasNext());
         assertTrue(n.fields().hasNext());
@@ -170,7 +170,7 @@ public class ObjectNodeTest
         n2.put("b", 13);
         assertFalse(n.equals(n2));
         n.setAll(n2);
-        
+
         assertEquals(2, n.size());
         n.set("null", (JsonNode)null);
         assertEquals(3, n.size());
@@ -404,7 +404,7 @@ public class ObjectNodeTest
     public void testFailOnDupKeys() throws Exception
     {
         final String DUP_JSON = "{ \"a\":1, \"a\":2 }";
-        
+
         // first: verify defaults:
         assertFalse(MAPPER.isEnabled(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY));
         ObjectNode root = (ObjectNode) MAPPER.readTree(DUP_JSON);
@@ -413,7 +413,7 @@ public class ObjectNodeTest
         // and via ObjectReader, too:
         root = (ObjectNode) MAPPER.reader().readTree(DUP_JSON);
         assertEquals(2, root.path("a").asInt());
-        
+
         // and then enable checks:
         try {
             MAPPER.reader(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY).readTree(DUP_JSON);
@@ -444,7 +444,7 @@ public class ObjectNodeTest
         ObjectNode ob2 = MAPPER.createObjectNode();
 
         // same contents, different insertion order; should not matter
-        
+
         ob1.put("a", 1);
         ob1.put("b", 2);
         ob1.put("c", 3);

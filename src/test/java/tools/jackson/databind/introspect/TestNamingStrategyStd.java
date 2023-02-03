@@ -55,7 +55,7 @@ public class TestNamingStrategyStd extends BaseMapTest
             this._x = _x;
         }
     }
-    
+
     @JsonPropertyOrder({"results", "user", "__", "$_user"})
     static class OtherNonStandardNames
     {
@@ -63,7 +63,7 @@ public class TestNamingStrategyStd extends BaseMapTest
         public String _User;
         public String ___;
         public String $User;
-        
+
         public OtherNonStandardNames() {this(null, null, null, null);}
         public OtherNonStandardNames(String Results, String _User, String ___, String $User)
         {
@@ -89,7 +89,7 @@ public class TestNamingStrategyStd extends BaseMapTest
     public static class ClassWithObjectNodeField {
         public String id;
         public ObjectNode json;
-    }    
+    }
 
     static class ExplicitBean {
         @JsonProperty("firstName")
@@ -330,7 +330,7 @@ public class TestNamingStrategyStd extends BaseMapTest
         assertEquals("Sixpack", result.lastName);
         assertEquals(42, result.age);
     }
-    
+
     public void testLowerCaseAcronymsTranslations() throws Exception
     {
         // First serialize
@@ -363,7 +363,7 @@ public class TestNamingStrategyStd extends BaseMapTest
         // First serialize
         String json = _lcWithUnderscoreMapper.writeValueAsString(new UnchangedNames("from_user", "_user", "from$user", "from7user", "_x"));
         assertEquals("{\"from_user\":\"from_user\",\"user\":\"_user\",\"from$user\":\"from$user\",\"from7user\":\"from7user\",\"x\":\"_x\"}", json);
-        
+
         // then deserialize
         UnchangedNames result = _lcWithUnderscoreMapper.readValue(json, UnchangedNames.class);
         assertEquals("from_user", result.from_user);
@@ -471,7 +471,7 @@ public class TestNamingStrategyStd extends BaseMapTest
     /* Test methods for KEBAB_CASE
     /**********************************************************************
      */
-    
+
     public void testKebabCaseStrategyStandAlone()
     {
         assertEquals("some-value",
@@ -485,7 +485,7 @@ public class TestNamingStrategyStd extends BaseMapTest
         assertEquals("some-url-stuff",
                 PropertyNamingStrategies.KEBAB_CASE.nameForField(null, null, "SomeURLStuff"));
     }
-    
+
     public void testSimpleKebabCase() throws Exception
     {
         final FirstNameBean input = new FirstNameBean("Bob");
@@ -537,7 +537,7 @@ public class TestNamingStrategyStd extends BaseMapTest
     /* Test methods, other
     /**********************************************************************
      */
-    
+
     /**
      * Test [databind#815], problems with ObjectNode, naming strategy
      */

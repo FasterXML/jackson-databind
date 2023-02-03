@@ -41,7 +41,7 @@ public class StreamSerializerTest extends StreamTestBase
         public int hashCode() {
             return foo ^ bar.hashCode();
         }
-    }    
+    }
     TestBean[] empty = {};
 
     TestBean testBean1 = new TestBean(1, "one");
@@ -52,19 +52,19 @@ public class StreamSerializerTest extends StreamTestBase
 
     TestBean[] multipleValues = { testBean1, testBean2 };
 
-    
+
     @Test
     public void testEmptyStream() throws Exception {
         assertArrayEquals(empty, this.roundTrip(Stream.empty(), TestBean[].class));
     }
-    
+
     @Test
     public void testNestedStreamEmptyElement() throws Exception {
         final List<NestedStream<String,List<String>>> expected = Arrays.asList(new NestedStream<>(new ArrayList<>()));
         final Collection<NestedStream<String, List<String>>> actual = roundTrip(expected.stream(), new TypeReference<Collection<NestedStream<String,List<String>>>>() {});
         assertEquals(expected,actual);
     }
-    
+
     @Test
     public void testSingleElement() throws Exception {
         assertArrayEquals(single, roundTrip(Stream.of(single), TestBean[].class));
@@ -81,7 +81,7 @@ public class StreamSerializerTest extends StreamTestBase
     public void testMultiElements() throws Exception {
         assertArrayEquals(multipleValues, roundTrip(Stream.of(multipleValues), TestBean[].class));
     }
-    
+
     @Test
     public void testNestedStreamMultiElements() throws Exception {
         final List<NestedStream<String,List<String>>> expected = Arrays.asList(new NestedStream<>(Arrays.asList("foo")),new NestedStream<>(Arrays.asList("bar")));
@@ -142,9 +142,9 @@ public class StreamSerializerTest extends StreamTestBase
      */
     static class NestedStream<T,C extends Collection<T>> {
         C  values;
-        
+
         NestedStream(){};
-        
+
         public NestedStream(C values) {
             super();
             this.values = values;
@@ -188,5 +188,5 @@ public class StreamSerializerTest extends StreamTestBase
         public String toString() {
             return "NestedStream [values=" + this.values + "]";
         }
-    } 
+    }
 }

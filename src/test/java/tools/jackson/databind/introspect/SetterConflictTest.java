@@ -38,7 +38,7 @@ public class SetterConflictTest extends BaseMapTest
     // in favor of `String` but code up until 2.12 short-circuited early fail
     static class DupSetter3125Bean {
         String str;
-        
+
         public void setValue(Integer value) { throw new RuntimeException("Integer: wrong!"); }
         public void setValue(Boolean value) { throw new RuntimeException("Boolean: wrong!"); }
         public void setValue(String value) { str = value; }
@@ -55,7 +55,7 @@ public class SetterConflictTest extends BaseMapTest
     /* Test methods
     /**********************************************************************
      */
-    
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#1033]

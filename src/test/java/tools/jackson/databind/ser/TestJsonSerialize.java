@@ -128,7 +128,7 @@ public class TestJsonSerialize
     private final ObjectMapper STATIC_MAPPER = jsonMapperBuilder()
             .enable(MapperFeature.USE_STATIC_TYPING)
             .build();
-    
+
     @SuppressWarnings("unchecked")
     public void testSimpleValueDefinition() throws Exception
     {
@@ -203,7 +203,7 @@ public class TestJsonSerialize
         list.add(new ValueClass());
         assertEquals("[{\"x\":3}]", STATIC_MAPPER.writeValueAsString(list));
     }
-    
+
     public void testStaticTypingWithArray() throws Exception
     {
         ValueInterface[] array = new ValueInterface[] { new ValueClass() };

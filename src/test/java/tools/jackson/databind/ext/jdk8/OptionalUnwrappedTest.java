@@ -59,7 +59,7 @@ public class OptionalUnwrappedTest extends BaseMapTest
 	// for [datatype-jdk8#20]
 	public void testShouldSerializeUnwrappedOptional() throws Exception {
          final ObjectMapper mapper = newJsonMapper();
-	    
+
 	    assertEquals("{\"id\":\"foo\"}",
 	            mapper.writeValueAsString(new Bean("foo", Optional.<Bean2>empty())));
 	}

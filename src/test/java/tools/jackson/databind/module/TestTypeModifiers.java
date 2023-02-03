@@ -83,7 +83,7 @@ public class TestTypeModifiers extends BaseMapTest
             g.writeString("xxx:"+value);
         }
     }
-    
+
     interface MapMarker<K,V> {
         public K getKey();
         public V getValue();
@@ -132,7 +132,7 @@ public class TestTypeModifiers extends BaseMapTest
             _keySerializer = keySer;
             _valueSerializer = valueSer;
         }
-        
+
         @Override
         public void serialize(MapMarker<?,?> value, JsonGenerator jgen, SerializerProvider provider)
         {
@@ -162,7 +162,7 @@ public class TestTypeModifiers extends BaseMapTest
             int value = p.getIntValue();
             if (p.nextToken() != JsonToken.END_OBJECT) throw new StreamReadException(p, "Wrong token: "+p.currentToken());
             return new MyMapLikeType(key, value);
-        }        
+        }
     }
 
     static class MyCollectionSerializer extends StdSerializer<MyCollectionLikeType>
@@ -184,7 +184,7 @@ public class TestTypeModifiers extends BaseMapTest
             int value = p.getIntValue();
             if (p.nextToken() != JsonToken.END_ARRAY) throw new StreamReadException(p, "Wrong token: "+p.currentToken());
             return new MyCollectionLikeType(value);
-        }        
+        }
     }
 
     static class MyTypeModifier extends TypeModifier
@@ -252,7 +252,7 @@ public class TestTypeModifiers extends BaseMapTest
     }
 
     // [databind#2395] Can trigger problem this way too
-    // NOTE: oddly enough, seems to ONLY fail 
+    // NOTE: oddly enough, seems to ONLY fail
     public void testTypeResolutionForRecursive() throws Exception
     {
         final ObjectMapper mapper = jsonMapperBuilder()

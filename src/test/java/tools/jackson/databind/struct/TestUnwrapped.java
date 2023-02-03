@@ -34,7 +34,7 @@ public class TestUnwrapped extends BaseMapTest
             this.y = y;
         }
     }
-    
+
     static class DeepUnwrapping
     {
         @JsonUnwrapped
@@ -45,7 +45,7 @@ public class TestUnwrapped extends BaseMapTest
             unwrapped = new Unwrapping(str, x, y);
         }
     }
-    
+
     static class UnwrappingWithCreator {
         public String name;
 
@@ -107,7 +107,7 @@ public class TestUnwrapped extends BaseMapTest
         public String street;
         public String addon;
         public String zip;
-        public String town;    
+        public String town;
         public String country;
     }
 

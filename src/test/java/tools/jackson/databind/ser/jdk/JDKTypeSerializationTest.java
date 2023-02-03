@@ -43,7 +43,7 @@ public class JDKTypeSerializationTest
         String str = MAPPER.writeValueAsString(map);
         assertEquals("{\"pi\":3.14159265}", str);
     }
-    
+
     public void testBigDecimalAsPlainString() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper(JsonFactory.builder()
@@ -62,7 +62,7 @@ public class JDKTypeSerializationTest
         File f = new File(new File("/tmp"), "foo.text");
         String str = MAPPER.writeValueAsString(f);
         // escape backslashes (for portability with windows)
-        String escapedAbsPath = f.getAbsolutePath().replaceAll("\\\\", "\\\\\\\\"); 
+        String escapedAbsPath = f.getAbsolutePath().replaceAll("\\\\", "\\\\\\\\");
         assertEquals(q(escapedAbsPath), str);
     }
 

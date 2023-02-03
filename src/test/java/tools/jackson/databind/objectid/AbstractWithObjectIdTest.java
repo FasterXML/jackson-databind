@@ -61,7 +61,7 @@ public class AbstractWithObjectIdTest extends BaseMapTest
         // write and print the JSON
         String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(myList);
         ListWrapper<BaseInterfaceImpl> result;
-        
+
         result = mapper.readValue(json, new TypeReference<ListWrapper<BaseInterfaceImpl>>() { });
 
         assertNotNull(result);

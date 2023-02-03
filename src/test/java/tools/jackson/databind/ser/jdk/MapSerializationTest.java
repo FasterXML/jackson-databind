@@ -15,7 +15,7 @@ import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 @SuppressWarnings("serial")
 public class MapSerializationTest extends BaseMapTest
 {
-    @JsonSerialize(using=PseudoMapSerializer.class)    
+    @JsonSerialize(using=PseudoMapSerializer.class)
     static class PseudoMap extends LinkedHashMap<String,String>
     {
         public PseudoMap(String... values) {
@@ -40,7 +40,7 @@ public class MapSerializationTest extends BaseMapTest
     static class MapOrderingBean {
         @JsonPropertyOrder(alphabetic=true)
         public LinkedHashMap<String,Integer> map;
-        
+
         public MapOrderingBean(String... keys) {
             map = new LinkedHashMap<String,Integer>();
             int ix = 1;
@@ -172,7 +172,7 @@ public class MapSerializationTest extends BaseMapTest
         MapOrderingBean input = new MapOrderingBean("c", "b", "a");
         String json = MAPPER.writeValueAsString(input);
         assertEquals(a2q("{'map':{'a':3,'b':2,'c':1}}"), json);
-    }        
+    }
 
     // [Databind#565]
     public void testMapEntry() throws IOException
@@ -213,7 +213,7 @@ public class MapSerializationTest extends BaseMapTest
 
         assertEquals(a2q("{'@type':'mymap','id':'Test','NULL':null}"),
                 json);
-    }    
+    }
 
     // [databind#691]
     public void testNullJsonInTypedMap691() throws Exception {

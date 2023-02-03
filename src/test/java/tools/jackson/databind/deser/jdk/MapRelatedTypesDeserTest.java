@@ -35,7 +35,7 @@ public class MapRelatedTypesDeserTest
         assertEquals(2, stuff.size());
         assertNotNull(stuff.get(1));
         assertEquals(Integer.valueOf(13), stuff.get(1).getKey());
-        
+
         StringWrapper sw = stuff.get(1).getValue();
         assertEquals("Bar", sw.str);
     }
@@ -56,7 +56,7 @@ public class MapRelatedTypesDeserTest
     /* Test methods, other exotic Map types
     /**********************************************************
      */
-    
+
     // [databind#810]
     public void testReadProperties() throws Exception
     {

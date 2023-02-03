@@ -14,13 +14,13 @@ public class EnumNamingTest
         @JsonProperty("customValue")
         ENUM_NAME;
     }
-    
+
     // for [module-parameter-names#32]
     @Test
     public void testCustomEnumName() throws Exception
     {
         final String EXP = "\"customValue\"";
-        
+
         // First, verify default handling
 
         String json = new ObjectMapper()

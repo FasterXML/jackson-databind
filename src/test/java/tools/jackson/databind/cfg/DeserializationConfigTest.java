@@ -76,7 +76,7 @@ public class DeserializationConfigTest extends BaseMapTest
     public void testEnumIndexes()
     {
         int max = 0;
-        
+
         for (DeserializationFeature f : DeserializationFeature.values()) {
             max = Math.max(max, f.ordinal());
         }

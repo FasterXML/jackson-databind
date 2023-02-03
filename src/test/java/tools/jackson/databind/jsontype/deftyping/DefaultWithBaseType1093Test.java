@@ -41,7 +41,7 @@ public class DefaultWithBaseType1093Test extends BaseMapTest
             ObjectWriter w) throws Exception
     {
         String json = w.writeValueAsString(input);
-        
+
         Point1093 result = (Point1093) r.readValue(json);
 
         assertEquals(input.x, result.x);

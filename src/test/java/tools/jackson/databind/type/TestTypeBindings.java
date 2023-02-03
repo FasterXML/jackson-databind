@@ -11,9 +11,9 @@ import tools.jackson.databind.JavaType;
  */
 public class TestTypeBindings
     extends BaseMapTest
-{    
+{
     static class AbstractType<A,B> { }
-    
+
     static class LongStringType extends AbstractType<Long,String> { }
 
     static class InnerGenericTyping<K, V> extends AbstractMap<K, Collection<V>>
@@ -75,7 +75,7 @@ public class TestTypeBindings
 
         assertFalse(b.equals("foo"));
     }
-    
+
     public void testInvalidBindings()
     {
         JavaType unknown = TypeFactory.unknownType();

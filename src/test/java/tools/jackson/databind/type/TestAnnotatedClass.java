@@ -67,7 +67,7 @@ public class TestAnnotatedClass
     // for [databind#1005]
     static class Bean1005 {
         // private to force creation of a synthetic constructor to avoid access issues
-        Bean1005(int i) {}     
+        Bean1005(int i) {}
     }
 
     /*
@@ -77,7 +77,7 @@ public class TestAnnotatedClass
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     public void testFieldIntrospection()
     {
         SerializationConfig config = MAPPER.serializationConfig();
@@ -114,7 +114,7 @@ public class TestAnnotatedClass
         assertFalse(ac.memberMethods().iterator().hasNext());
         assertFalse(ac.fields().iterator().hasNext());
     }
-    
+
     public void testIntrospectionWithRawClass() throws Exception
     {
         AnnotatedClass ac = AnnotatedClassResolver.resolveWithoutSuperTypes(MAPPER.serializationConfig(),

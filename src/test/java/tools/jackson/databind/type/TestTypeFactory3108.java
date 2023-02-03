@@ -14,7 +14,7 @@ public class TestTypeFactory3108
     static class StringList3108 extends ArrayList<String> {}
 
     static class StringStringMap3108 extends HashMap<String, String> {}
-    
+
     static class ParamType3108<T> {}
 
     static class ConcreteType3108 extends ParamType3108<Integer> {}

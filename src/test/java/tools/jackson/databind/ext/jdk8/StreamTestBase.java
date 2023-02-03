@@ -88,7 +88,7 @@ public abstract class StreamTestBase
      */
     static class IsClosedMatcher extends CustomMatcher<Object> {
         final AtomicBoolean closed;
-        
+
         public IsClosedMatcher(AtomicBoolean closed) {
             super("Check flag closed");
             this.closed = closed;

@@ -9,7 +9,7 @@ abstract class ObjectReaderTestBase
     protected final static int WARMUP_ROUNDS = 5;
 
     protected String _desc1, _desc2;
-    
+
     protected int hash;
     protected long startMeasure = System.currentTimeMillis() + 5000L;
     protected int roundsDone = 0;
@@ -17,7 +17,7 @@ abstract class ObjectReaderTestBase
     private double[] timeMsecs;
 
     protected abstract int targetSizeMegs();
-    
+
     protected void testFromBytes(ObjectMapper mapper1, String desc1,
             Object inputValue1, Class<?> inputClass1,
             ObjectMapper mapper2, String desc2,
@@ -36,10 +36,10 @@ abstract class ObjectReaderTestBase
 
         _desc1 = String.format("%s (%d bytes)", desc1, byteInput1.length);
         _desc2 = String.format("%s (%d bytes)", desc2, byteInput2.length);
-        
+
         doTest(mapper1, byteInput1, inputClass1, mapper2, byteInput2, inputClass2);
     }
-    
+
     protected void testFromString(ObjectMapper mapper1, String desc1,
             Object inputValue1, Class<?> inputClass1,
             ObjectMapper mapper2, String desc2,
@@ -57,10 +57,10 @@ abstract class ObjectReaderTestBase
         /*T1 back1 =*/ mapper1.readValue(input1, inputClass1);
         /*T2 back2 =*/ mapper2.readValue(input2, inputClass2);
         System.out.println("Input successfully round-tripped for both styles...");
-        
+
         doTest(mapper1, input1, inputClass1, mapper2, input2, inputClass2);
     }
-    
+
     protected void doTest(ObjectMapper mapper1, byte[] byteInput1, Class<?> inputClass1,
             ObjectMapper mapper2, byte[] byteInput2, Class<?> inputClass2)
         throws Exception
@@ -73,19 +73,19 @@ abstract class ObjectReaderTestBase
                 .forType(inputClass1);
         final ObjectReader arrayReader = mapper2.reader()
                 .forType(inputClass2);
-        
+
         int i = 0;
         final int TYPES = 2;
 
         timeMsecs = new double[TYPES];
-        
+
         while (true) {
             Thread.sleep(100L);
             final int type = (i++ % TYPES);
 
             String msg;
             double msesc;
-            
+
             switch (type) {
             case 0:
                 msg = _desc1;
@@ -116,7 +116,7 @@ abstract class ObjectReaderTestBase
         final ObjectReader arrayReader = mapper2.reader()
                 .with(DeserializationFeature.EAGER_DESERIALIZER_FETCH)
                 .forType(inputClass2);
-        
+
         int i = 0;
         final int TYPES = 2;
 
@@ -127,7 +127,7 @@ abstract class ObjectReaderTestBase
             int type = (i++ % TYPES);
             String msg;
             double msecs;
-            
+
             switch (type) {
             case 0:
                 msg = _desc1;
@@ -143,7 +143,7 @@ abstract class ObjectReaderTestBase
             updateStats(type, (i % 17) == 0, msg, msecs);
         }
     }
-    
+
     private void updateStats(int type, boolean doGc, String msg, double msecs)
         throws Exception
     {
@@ -188,7 +188,7 @@ abstract class ObjectReaderTestBase
     protected double testDeser2(int reps, byte[] input, ObjectReader reader) throws Exception {
         return _testDeser(reps, input, reader);
     }
-    
+
     protected final double _testDeser(int reps, byte[] input, ObjectReader reader) throws Exception
     {
         long start = System.nanoTime();
@@ -208,7 +208,7 @@ abstract class ObjectReaderTestBase
     protected double testDeser2(int reps, String input, ObjectReader reader) throws Exception {
         return _testDeser(reps, input, reader);
     }
-    
+
     protected final double _testDeser(int reps, String input, ObjectReader reader) throws Exception
     {
         long start = System.nanoTime();
@@ -223,7 +223,7 @@ abstract class ObjectReaderTestBase
     protected final double _msecsFromNanos(long nanos) {
         return (nanos / 1000000.0);
     }
-    
+
     protected static byte[] readAll(String filename) throws IOException
     {
         File f = new File(filename);
@@ -231,7 +231,7 @@ abstract class ObjectReaderTestBase
         byte[] buffer = new byte[4000];
         int count;
         FileInputStream in = new FileInputStream(f);
-        
+
         while ((count = in.read(buffer)) > 0) {
             bytes.write(buffer, 0, count);
         }

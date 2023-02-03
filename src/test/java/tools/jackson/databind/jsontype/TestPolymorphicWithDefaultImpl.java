@@ -72,7 +72,7 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
     public static class Bad {
         public List<BadItem> many;
     }
- 
+
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
             include = JsonTypeInfo.As.WRAPPER_OBJECT)
     @JsonSubTypes({@JsonSubTypes.Type(name="sub1", value = GoodSub1.class),
@@ -115,7 +115,7 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY,
             property = "clazz")
-    abstract static class BaseClass { }    
+    abstract static class BaseClass { }
 
     static class BaseWrapper {
         public BaseClass value;

@@ -38,13 +38,13 @@ public class AccessorNamingStrategyTest extends BaseMapTest
         public int getY() { return 3; }
     }
 
-    // Bean for checking optional 
+    // Bean for checking optional
     @JsonPropertyOrder(alphabetic = true)
     static class FirstLetterVariesBean {
         // Do we allow lower-case letter as first letter following prefix?
         public boolean island() { return true; }
 
-        // Do we allow non-letter 
+        // Do we allow non-letter
         public int get4Roses() { return 42; }
 
         // But good old upper-case letter is solid always...
@@ -143,7 +143,7 @@ public class AccessorNamingStrategyTest extends BaseMapTest
     /* Test methods, base provider impl
     /********************************************************
      */
-    
+
     // Test to verify that the base naming impl works as advertised
     public void testBaseAccessorNaming() throws Exception
     {
@@ -195,7 +195,7 @@ public class AccessorNamingStrategyTest extends BaseMapTest
     /*
         public boolean island() { return true; }
 
-        // Do we allow non-letter 
+        // Do we allow non-letter
         public int get_lost() { return 42; }
 
         // But good old upper-case letter is solid always...

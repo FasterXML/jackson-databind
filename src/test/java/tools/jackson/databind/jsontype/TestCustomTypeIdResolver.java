@@ -21,7 +21,7 @@ public class TestCustomTypeIdResolver extends BaseMapTest
 
     static class CustomBeanImpl extends CustomBean {
         public int x;
-        
+
         public CustomBeanImpl() { }
         public CustomBeanImpl(int x) { this.x = x; }
     }
@@ -47,16 +47,16 @@ public class TestCustomTypeIdResolver extends BaseMapTest
             }
         }
     }
-    
+
     static abstract class ExtBean { }
 
     static class ExtBeanImpl extends ExtBean {
         public int y;
-        
+
         public ExtBeanImpl() { }
         public ExtBeanImpl(int y) { this.y = y; }
     }
-    
+
     static class ExtResolver extends TestCustomResolverBase {
         public ExtResolver() {
             super(ExtBean.class, ExtBeanImpl.class);
@@ -130,7 +130,7 @@ public class TestCustomTypeIdResolver extends BaseMapTest
 
         @Override
         public void init(JavaType baseType) { }
-     
+
         @Override
         public String idFromValue(DatabindContext ctxt, Object value) {
             if (value.getClass() == Base1270.class) {
@@ -205,7 +205,7 @@ public class TestCustomTypeIdResolver extends BaseMapTest
 
         ExtBeanWrapper out = MAPPER.readValue(json, ExtBeanWrapper.class);
         assertNotNull(out);
-        
+
         assertEquals(12, ((ExtBeanImpl) out.value).y);
     }
 

@@ -26,7 +26,7 @@ public class CoerceEnumTest extends BaseMapTest
     private final String JSON_BLANK = q("    ");
 
     private final EnumCoerce ENUM_DEFAULT = EnumCoerce.DEFAULT;
-    
+
     /*
     /********************************************************
     /* Test methods, from empty String
@@ -42,7 +42,7 @@ public class CoerceEnumTest extends BaseMapTest
     public void testEnumFromEmptyGlobalConfig() throws Exception {
         _testEnumFromEmptyGlobalConfig(CoercionInputShape.EmptyString, JSON_EMPTY, null);
     }
-    
+
     public void testEnumFromEmptyLogicalTypeConfig() throws Exception {
         _testEnumFromEmptyLogicalTypeConfig(CoercionInputShape.EmptyString, JSON_EMPTY, null);
     }

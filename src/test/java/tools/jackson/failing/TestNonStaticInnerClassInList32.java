@@ -17,13 +17,13 @@ public class TestNonStaticInnerClassInList32 extends BaseMapTest
             public int length;
         }
     }
-    
+
     /*
     /**********************************************************
     /* Tests
     /**********************************************************
      */
-    
+
     // core/[Issue#32]
     public void testInnerList() throws Exception
     {

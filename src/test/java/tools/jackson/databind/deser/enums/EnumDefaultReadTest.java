@@ -19,17 +19,17 @@ public class EnumDefaultReadTest extends BaseMapTest
         ZERO,
         ONE;
     }
-    
+
     enum CustomEnum {
         ZERO(0),
         ONE(1);
-    
+
         private final int number;
-    
+
         CustomEnum(final int number) {
             this.number = number;
         }
-    
+
         @JsonValue
         int getNumber() {
             return this.number;
@@ -40,13 +40,13 @@ public class EnumDefaultReadTest extends BaseMapTest
         @JsonEnumDefaultValue
         ZERO(0),
         ONE(1);
-    
+
         private final int number;
-    
+
         CustomEnumWithDefault(final int number) {
             this.number = number;
         }
-    
+
         @JsonValue
         int getNumber() {
             return this.number;
@@ -195,13 +195,13 @@ public class EnumDefaultReadTest extends BaseMapTest
         _verifyOkDeserialization(r, "0", CustomEnumWithDefault.class, CustomEnumWithDefault.ZERO);
         _verifyOkDeserialization(r, "1", CustomEnumWithDefault.class, CustomEnumWithDefault.ONE);
 
-        // 
+        //
         // The three tests below fail; Jackson throws an exception on the basis that
         // "FAIL_ON_NUMBERS_FOR_ENUMS" is enabled. I claim the default value should be returned instead.
         _verifyOkDeserialization(r, "0", SimpleEnumWithDefault.class, SimpleEnumWithDefault.ZERO);
         _verifyOkDeserialization(r, "1", SimpleEnumWithDefault.class, SimpleEnumWithDefault.ZERO);
         _verifyOkDeserialization(r, "2", SimpleEnumWithDefault.class, SimpleEnumWithDefault.ZERO);
-        
+
         // Fails. Jackson throws an exception on the basis that "FAIL_ON_NUMBERS_FOR_ENUMS"
         // is enabled, but the default value should have been returned instead.
         _verifyOkDeserialization(r, "2", CustomEnumWithDefault.class, CustomEnumWithDefault.ZERO);

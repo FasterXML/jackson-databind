@@ -18,7 +18,7 @@ public class TestAnnotationMerging extends BaseMapTest
 
         public Wrapper() { }
         public Wrapper(Object o) { value = o; }
-        
+
         @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
         public Object getValue() { return value; }
 
@@ -30,7 +30,7 @@ public class TestAnnotationMerging extends BaseMapTest
         protected int value;
 
         public SharedName(int v) { value = v; }
-        
+
         public int getValue() { return value; }
     }
 
@@ -54,7 +54,7 @@ public class TestAnnotationMerging extends BaseMapTest
         }
         public Object getValue() { return value; }
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests
@@ -75,7 +75,7 @@ public class TestAnnotationMerging extends BaseMapTest
         SharedName2 result = mapper.readValue(json, SharedName2.class);
         assertNotNull(result);
     }
-    
+
     public void testSharedTypeInfo() throws Exception
     {
         final ObjectMapper mapper = jsonMapperBuilder()

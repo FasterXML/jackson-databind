@@ -12,7 +12,7 @@ public class BasicPTVKnownTypesTest extends BaseMapTest
     private final ObjectMapper DEFAULTING_MAPPER = jsonMapperBuilder()
             .activateDefaultTyping(BasicPolymorphicTypeValidator.builder()
                     .allowSubTypesWithExplicitDeserializer()
-                    .build(), 
+                    .build(),
                     DefaultTyping.EVERYTHING)
             .build();
 

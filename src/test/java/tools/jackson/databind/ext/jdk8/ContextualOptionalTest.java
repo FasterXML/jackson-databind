@@ -47,5 +47,5 @@ public class ContextualOptionalTest extends BaseMapTest
         assertEquals(a2q(
                 "{'date':'1970/01/01','date1':'1970+01+01','date2':'1970*01*01'}"),
                 json);
-    }        
+    }
 }

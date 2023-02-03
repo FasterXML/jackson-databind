@@ -42,7 +42,7 @@ public class MapDeserializerCachingTest extends BaseMapTest
         assertTrue(ignored.data.containsKey("2nd"));
 
 //mapper = new ObjectMapper();
-        
+
         MapHolder model2 = mapper.readValue(json, MapHolder.class);
         if (!model2.data.containsKey("1st (CUSTOM)")
             || !model2.data.containsKey("2nd (CUSTOM)")) {

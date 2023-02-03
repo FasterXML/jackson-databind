@@ -16,7 +16,7 @@ public class TestDefaultForEnums
     static final class EnumHolder
     {
         public Object value; // "untyped"
-        
+
         public EnumHolder() { }
         public EnumHolder(TestEnum e) { value = e; }
     }
@@ -34,18 +34,18 @@ public class TestDefaultForEnums
     private final ObjectMapper DEFTYPING_MAPPER = jsonMapperBuilder()
             .activateDefaultTyping(NoCheckSubTypeValidator.instance)
             .build();
-    
+
     public void testSimpleEnumBean() throws Exception
     {
         TimeUnitBean bean = new TimeUnitBean();
         bean.timeUnit = TimeUnit.SECONDS;
-        
+
         // First, without type info
         ObjectMapper m = new ObjectMapper();
         String json = m.writeValueAsString(bean);
         TimeUnitBean result = m.readValue(json, TimeUnitBean.class);
         assertEquals(TimeUnit.SECONDS, result.timeUnit);
-        
+
         // then with type info
         json = DEFTYPING_MAPPER.writeValueAsString(bean);
         result = DEFTYPING_MAPPER.readValue(json, TimeUnitBean.class);

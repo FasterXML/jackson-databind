@@ -13,7 +13,7 @@ public class EnumAsMapKeyTest extends BaseMapTest
 {
     static class MapBean {
         public Map<ABCEnum,Integer> map = new HashMap<>();
-        
+
         public void add(ABCEnum key, int value) {
             map.put(key, Integer.valueOf(value));
         }
@@ -39,7 +39,7 @@ public class EnumAsMapKeyTest extends BaseMapTest
 
     static class MyStuff594 {
         public Map<MyEnum594,String> stuff = new EnumMap<MyEnum594,String>(MyEnum594.class);
-        
+
         public MyStuff594(String value) {
             stuff.put(MyEnum594.VALUE_WITH_A_REALLY_LONG_NAME_HERE, value);
         }
@@ -64,13 +64,13 @@ public class EnumAsMapKeyTest extends BaseMapTest
         FOO;
         public static class Serializer extends ValueSerializer<Foo661> {
             @Override
-            public void serialize(Foo661 value, JsonGenerator g, SerializerProvider provider) 
+            public void serialize(Foo661 value, JsonGenerator g, SerializerProvider provider)
             {
                 g.writeName("X-"+value.name());
             }
         }
     }
-    
+
     // [databind#2129]
     public enum Type {
         FIRST,
@@ -90,7 +90,7 @@ public class EnumAsMapKeyTest extends BaseMapTest
     /* Test methods
     /**********************************************************************
      */
-    
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     public void testMapWithEnumKeys() throws Exception
@@ -129,7 +129,7 @@ public class EnumAsMapKeyTest extends BaseMapTest
         assertEquals(a2q("{'stuff':{'longValue':'foo'}}"),
                 MAPPER.writeValueAsString(new MyStuff594("foo")));
     }
-    
+
     // [databind#2129]
     public void testEnumAsIndexForRootMap() throws Exception
     {
@@ -151,7 +151,7 @@ public class EnumAsMapKeyTest extends BaseMapTest
                     .with(SerializationFeature.WRITE_ENUMS_USING_INDEX)
                     .writeValueAsString(input));
     }
-    
+
     // [databind#2129]
     public void testEnumAsIndexForValueMap() throws Exception
     {

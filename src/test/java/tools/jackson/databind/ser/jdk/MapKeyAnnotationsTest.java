@@ -39,7 +39,7 @@ public class MapKeyAnnotationsTest extends BaseMapTest
 
     @SuppressWarnings("serial")
     static class WatMap extends HashMap<Wat,Boolean> { }
-    
+
     // [databind#943]
     static class UCString {
         private String value;
@@ -72,7 +72,7 @@ public class MapKeyAnnotationsTest extends BaseMapTest
             this.id = id;
         }
     }
-    
+
     // [databind#2871]
     static class Inner {
         @JsonKey
@@ -127,7 +127,7 @@ public class MapKeyAnnotationsTest extends BaseMapTest
 
         String json = MAPPER.writeValueAsString(input);
         assertEquals(a2q("{'3':true}"), json);
-    }    
+    }
 
     // [databind#943]
     public void testDynamicMapKeys() throws Exception

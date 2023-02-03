@@ -57,7 +57,7 @@ public class TestConversions extends BaseMapTest
                 SerializerProvider provider) {
             g.writePOJO(new Issue467TmpBean(value.i));
         }
-    }    
+    }
 
     static class Issue467TreeSerializer extends ValueSerializer<Issue467Tree> {
         @Override
@@ -65,8 +65,8 @@ public class TestConversions extends BaseMapTest
                 SerializerProvider provider) {
             g.writeTree(BooleanNode.TRUE);
         }
-    }    
-    
+    }
+
     static class Issue467TmpBean  {
         public int x;
 
@@ -90,7 +90,7 @@ public class TestConversions extends BaseMapTest
         public void setFoo(final String foo) {
             node.put("foo", foo);
         }
-    
+
         @Override
         public void serialize(final JsonGenerator jgen, final SerializerProvider provider)
         {
@@ -105,7 +105,7 @@ public class TestConversions extends BaseMapTest
             typeSer.writeTypePrefix(g, ctxt, typeIdDef);
             serialize(g, ctxt);
             typeSer.writeTypePrefix(g, ctxt, typeIdDef);
-        }    
+        }
     }
 
     /*
@@ -115,7 +115,7 @@ public class TestConversions extends BaseMapTest
      */
 
     private final ObjectMapper MAPPER = objectMapper();
-    
+
     public void testAsInt() throws Exception
     {
         assertEquals(9, IntNode.valueOf(9).asInt());
@@ -141,7 +141,7 @@ public class TestConversions extends BaseMapTest
 
         assertEquals(true, new POJONode(Boolean.TRUE).asBoolean());
     }
-    
+
     // Deserializer to trigger the problem described in [JACKSON-554]
     public static class LeafDeserializer extends ValueDeserializer<Leaf>
     {
@@ -189,7 +189,7 @@ public class TestConversions extends BaseMapTest
     public void testBase64Text() throws Exception
     {
         // let's actually iterate over sets of encoding modes, lengths
-        
+
         final int[] LENS = { 1, 2, 3, 4, 7, 9, 32, 33, 34, 35 };
         final Base64Variant[] VARIANTS = {
                 Base64Variants.MIME,
@@ -242,7 +242,7 @@ public class TestConversions extends BaseMapTest
         String json = MAPPER.writeValueAsString(node);
         Issue709Bean resultFromString = MAPPER.readValue(json, Issue709Bean.class);
         Issue709Bean resultFromConvert = MAPPER.convertValue(node, Issue709Bean.class);
-        
+
         // all methods should work equally well:
         Assert.assertArrayEquals(inputData, resultFromString.data);
         Assert.assertArrayEquals(inputData, resultFromConvert.data);
@@ -298,7 +298,7 @@ public class TestConversions extends BaseMapTest
     {
         final Issue467Bean input = new Issue467Bean(13);
         final String EXP = "{\"x\":13}";
-        
+
         // first, sanity check
         String json = MAPPER.writeValueAsString(input);
         assertEquals(EXP, json);
@@ -355,7 +355,7 @@ public class TestConversions extends BaseMapTest
 
         pojo = MAPPER.treeToValue(n, MAPPER.constructType(Root.class));
         assertNull(pojo);
-        
+
         // [databind#2972]
         AtomicReference<?> result = MAPPER.treeToValue(NullNode.instance,
                 AtomicReference.class);

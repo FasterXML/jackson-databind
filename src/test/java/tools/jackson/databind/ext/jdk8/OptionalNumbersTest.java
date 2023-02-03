@@ -21,7 +21,7 @@ public class OptionalNumbersTest extends BaseMapTest
             value = OptionalInt.of(v);
         }
     }
-    
+
     static class OptionalLongBean {
         public OptionalLong value;
 
@@ -106,7 +106,7 @@ public class OptionalNumbersTest extends BaseMapTest
         assertNotNull(arr[0]);
         assertFalse(arr[0].isPresent());
     }
-    
+
     public void testOptionalLongPresent() throws Exception
     {
         assertEquals(Long.MAX_VALUE, MAPPER.readValue(MAPPER.writeValueAsBytes(OptionalLong.of(Long.MAX_VALUE)), OptionalLong.class).getAsLong());
@@ -121,7 +121,7 @@ public class OptionalNumbersTest extends BaseMapTest
         opt = MAPPER.readValue("\"\"", OptionalLong.class);
         assertNotNull(opt);
         assertFalse(opt.isPresent());
-        
+
         OptionalLongBean bean = MAPPER.readValue(a2q("{'value':null}"),
                 OptionalLongBean.class);
         assertNotNull(bean.value);
@@ -131,7 +131,7 @@ public class OptionalNumbersTest extends BaseMapTest
         assertNotNull(bean.value);
         assertEquals(19L, bean.value.getAsLong());
     }
-    
+
     public void testOptionalLongSerializeFilter() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -186,7 +186,7 @@ public class OptionalNumbersTest extends BaseMapTest
         opt = MAPPER.readValue("\"\"", OptionalDouble.class);
         assertNotNull(opt);
         assertFalse(opt.isPresent());
-        
+
         OptionalDoubleBean bean = MAPPER.readValue(a2q("{'value':null}"),
                 OptionalDoubleBean.class);
         assertNotNull(bean.value);

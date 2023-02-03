@@ -35,12 +35,12 @@ public class TestMixinMerging extends BaseMapTest
     /* Unit tests
     /**********************************************************
      */
-    
+
     // for [databind#515]
     public void testDisappearingMixins515() throws Exception
     {
         SimpleModule module = new SimpleModule("Test");
-        module.setMixInAnnotation(Person.class, PersonMixin.class);        
+        module.setMixInAnnotation(Person.class, PersonMixin.class);
         ObjectMapper mapper = jsonMapperBuilder()
                 .disable(MapperFeature.INFER_PROPERTY_MUTATORS)
                 .disable(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS)

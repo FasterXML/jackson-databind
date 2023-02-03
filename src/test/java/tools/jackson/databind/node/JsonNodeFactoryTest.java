@@ -58,7 +58,7 @@ public class JsonNodeFactoryTest extends NodeTestBase
    public void testSortingObjectNode() throws Exception
    {
        final String SIMPLE_INPUT = "{\"b\":2,\"a\":1}";
-       
+
        // First, by default, ordering retained:
        assertEquals(SIMPLE_INPUT,
                MAPPER.writeValueAsString(MAPPER.readTree(SIMPLE_INPUT)));

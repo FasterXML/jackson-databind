@@ -34,9 +34,9 @@ public class JDKScalarsDeserTest
     static class BooleanWrapper {
         public Boolean wrapper;
         public boolean primitive;
-        
+
         protected Boolean ctor;
-        
+
         @JsonCreator
         public BooleanWrapper(@JsonProperty("ctor") Boolean foo) {
             ctor = foo;
@@ -52,7 +52,7 @@ public class JDKScalarsDeserTest
         long _v;
         void setV(long v) { _v = v; }
     }
-    
+
     final static class DoubleBean {
         double _v;
         void setV(double v) { _v = v; }
@@ -62,13 +62,13 @@ public class JDKScalarsDeserTest
         float _v;
         void setV(float v) { _v = v; }
     }
-    
+
     final static class CharacterBean {
         char _v;
         void setV(char v) { _v = v; }
         char getV() { return _v; }
     }
-    
+
     final static class CharacterWrapperBean {
         Character _v;
         void setV(Character v) { _v = v; }
@@ -211,7 +211,7 @@ public class JDKScalarsDeserTest
         // 22-Jun-2020, tatu: one special case turns out to be white space;
         //    need to avoid considering it "blank" value
         assertEquals(Character.valueOf(' '), MAPPER.readValue(q(" "), Character.class));
-        
+
         final CharacterWrapperBean wrapper = MAPPER.readValue("{\"v\":null}", CharacterWrapperBean.class);
         assertNotNull(wrapper);
         assertNull(wrapper.getV());
@@ -275,17 +275,17 @@ public class JDKScalarsDeserTest
 
         result = unwrappingR.readValue("{\"v\":[3]}");
         assertEquals(3, result._v);
-        
+
         result = unwrappingR.readValue("[{\"v\":[3]}]");
         assertEquals(3, result._v);
-        
+
         try {
             unwrappingR.readValue("[{\"v\":[3,3]}]");
             fail("Did not throw exception while reading a value from a multi value array with UNWRAP_SINGLE_VALUE_ARRAY feature enabled");
         } catch (MismatchedInputException exp) {
             //threw exception as required
         }
-        
+
         result = unwrappingR.readValue("{\"v\":[null]}");
         assertNotNull(result);
         assertEquals(0, result._v);
@@ -338,20 +338,20 @@ public class JDKScalarsDeserTest
 
         ObjectReader unwrappingR = MAPPER.readerFor(LongBean.class)
                 .with(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
-        
+
         result = unwrappingR.readValue("{\"v\":[3]}");
         assertEquals(3, result._v);
-        
+
         result = unwrappingR.readValue("[{\"v\":[3]}]");
         assertEquals(3, result._v);
-        
+
         try {
             unwrappingR.readValue("[{\"v\":[3,3]}]");
             fail("Did not throw exception while reading a value from a multi value array with UNWRAP_SINGLE_VALUE_ARRAY feature enabled");
         } catch (MismatchedInputException exp) {
             //threw exception as required
         }
-        
+
         result = unwrappingR.readValue("{\"v\":[null]}");
         assertNotNull(result);
         assertEquals(0, result._v);
@@ -466,17 +466,17 @@ public class JDKScalarsDeserTest
 
         DoubleBean result = unwrappingR.readValue("{\"v\":[" + value + "]}");
         assertEquals(value, result._v);
-        
+
         result = unwrappingR.readValue("[{\"v\":[" + value + "]}]");
         assertEquals(value, result._v);
-        
+
         try {
             unwrappingR.readValue("[{\"v\":[" + value + "," + value + "]}]");
             fail("Did not throw exception while reading a value from a multi value array with UNWRAP_SINGLE_VALUE_ARRAY feature enabled");
         } catch (MismatchedInputException e) {
             verifyException(e, "Unexpected token (`JsonToken.VALUE_NUMBER_FLOAT`)");
         }
-        
+
         result = unwrappingR.readValue("{\"v\":[null]}");
         assertNotNull(result);
         assertEquals(0d, result._v);
@@ -767,7 +767,7 @@ public class JDKScalarsDeserTest
             verifyException(e, "Cannot coerce `null`");
             verifyException(e, "to element of "+SIMPLE_NAME);
         }
-        
+
         if (testEmptyString) {
             ob = readerCoerceOk.forType(cls).readValue(EMPTY_STRING_JSON);
             assertEquals(1, Array.getLength(ob));

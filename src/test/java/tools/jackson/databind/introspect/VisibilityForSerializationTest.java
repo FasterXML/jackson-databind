@@ -142,7 +142,7 @@ public class VisibilityForSerializationTest
                     vc.withVisibility(PropertyAccessor.ALL, Visibility.NONE))
                 .build();
         // Only use explicitly specified values to be serialized/deserialized (i.e., JSONProperty).
-        
+
         BeanDescription desc = ObjectMapperTestAccess.beanDescriptionForSer(mapper, TCls.class);
         List<BeanPropertyDefinition> props = desc.findProperties();
         if (props.size() != 1) {

@@ -27,7 +27,7 @@ public class FieldSerializationTest
         // ignored, not detectable either
         @JsonIgnore public int a;
     }
-    
+
     static class SimpleFieldBean2
     {
         @JsonSerialize String[] values;
@@ -120,7 +120,7 @@ public class FieldSerializationTest
             this.state = state;
         }
     }
-    
+
     /*
     /**********************************************************
     /* Main tests, success
@@ -201,7 +201,7 @@ public class FieldSerializationTest
         Item240 bean = new Item240("a12", null);
         assertEquals(MAPPER.writeValueAsString(bean), "{\"id\":\"a12\"}");
     }
-    
+
     /*
     /**********************************************************
     /* Main tests, failure cases

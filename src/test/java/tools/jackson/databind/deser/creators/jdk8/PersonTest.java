@@ -40,7 +40,7 @@ public class PersonTest extends BaseMapTest
         public void setNickname(String nickname) {
             this.nickname = nickname;
         }
-    }    
+    }
     public void testPersonDeserialization() throws IOException
     {
         final ObjectMapper mapper = new ObjectMapper();

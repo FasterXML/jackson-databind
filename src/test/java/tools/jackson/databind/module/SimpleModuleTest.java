@@ -24,7 +24,7 @@ public class SimpleModuleTest extends BaseMapTest
     {
         protected String str;
         protected int num;
-        
+
         public CustomBean(String s, int i) {
             str = s;
             num = i;
@@ -32,7 +32,7 @@ public class SimpleModuleTest extends BaseMapTest
     }
 
     static enum SimpleEnum { A, B; }
-    
+
     // Extend SerializerBase to get access to declared handledType
     static class CustomBeanSerializer extends StdSerializer<CustomBean>
     {
@@ -85,7 +85,7 @@ public class SimpleModuleTest extends BaseMapTest
     interface Base {
         public String getText();
     }
-    
+
     static class Impl1 implements Base {
         @Override
         public String getText() { return "1"; }
@@ -99,7 +99,7 @@ public class SimpleModuleTest extends BaseMapTest
     static class BaseSerializer extends StdScalarSerializer<Base>
     {
         public BaseSerializer() { super(Base.class); }
-        
+
         @Override
         public void serialize(Base value, JsonGenerator g, SerializerProvider provider) {
             g.writeString("Base:"+value.getText());
@@ -114,7 +114,7 @@ public class SimpleModuleTest extends BaseMapTest
 
     @JsonPropertyOrder({"c", "a", "b"})
     static class MixInForOrder { }
-    
+
     protected static class MySimpleSerializers extends SimpleSerializers { }
     protected static class MySimpleDeserializers extends SimpleDeserializers { }
 
@@ -237,7 +237,7 @@ public class SimpleModuleTest extends BaseMapTest
     /* Unit tests; simple deserializers
     /**********************************************************************
      */
-    
+
     public void testSimpleBeanDeserializer() throws Exception
     {
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());

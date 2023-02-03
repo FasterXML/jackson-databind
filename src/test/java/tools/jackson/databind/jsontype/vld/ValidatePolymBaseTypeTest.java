@@ -117,7 +117,7 @@ public class ValidatePolymBaseTypeTest extends BaseMapTest
             verifyException(e, "all subtypes of base type");
         }
     }
-   
+
     /*
     /**********************************************************************
     /* Test methods: default typing

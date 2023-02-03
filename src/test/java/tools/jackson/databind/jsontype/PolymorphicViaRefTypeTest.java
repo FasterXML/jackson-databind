@@ -10,7 +10,7 @@ import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 public class PolymorphicViaRefTypeTest extends BaseMapTest
 {
-    
+
     @JsonSubTypes({
         @JsonSubTypes.Type(name = "impl5", value = ImplForAtomic.class)
     })

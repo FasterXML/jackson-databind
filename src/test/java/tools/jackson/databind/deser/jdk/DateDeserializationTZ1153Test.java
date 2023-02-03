@@ -18,7 +18,7 @@ public class DateDeserializationTZ1153Test extends BaseMapTest
             _testWithTimeZone(TimeZone.getTimeZone(tzStr));
         }
     }
-    
+
     void _testWithTimeZone(TimeZone tz) throws Exception
     {
         ObjectReader r = MAPPER.readerFor(Date.class)

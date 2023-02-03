@@ -25,7 +25,7 @@ public class TestSubtypesWithDefaultImpl extends BaseMapTest
     static class DefaultImpl505 extends SuperTypeWithoutDefault {
         public int a;
     }
-    
+
     /*
     /**********************************************************************
     /* Unit tests
@@ -59,7 +59,7 @@ public class TestSubtypesWithDefaultImpl extends BaseMapTest
     public void testDefaultImplViaModule() throws Exception
     {
         final String JSON = "{\"a\":123}";
-        
+
         // first: without registration etc, epic fail:
         try {
             MAPPER.readValue(JSON, SuperTypeWithoutDefault.class);

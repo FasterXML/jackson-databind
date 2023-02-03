@@ -25,21 +25,21 @@ public class TestNameConflicts extends BaseMapTest
             this.bar = bar.toString();
         }
     }
-    
+
     static class Bean193
     {
         @JsonProperty("val1")
         private int x;
         @JsonIgnore
         private int value2;
-        
+
         public Bean193(@JsonProperty("val1")int value1,
                     @JsonProperty("val2")int value2)
         {
             this.x = value1;
             this.value2 = value2;
         }
-        
+
         @JsonProperty("val2")
         int x()
         {
@@ -72,13 +72,13 @@ public class TestNameConflicts extends BaseMapTest
         public MultipleTheoreticalGetters(@JsonProperty("a") int foo) {
             ;
         }
-        
+
         @JsonProperty
         public int getA() { return 3; }
 
         public int a() { return 5; }
     }
-    
+
     /*
     /**********************************************************
     /* Test methods
@@ -86,7 +86,7 @@ public class TestNameConflicts extends BaseMapTest
      */
 
     private final ObjectMapper MAPPER = objectMapper();
-    
+
     // [Issue#193]
     public void testIssue193() throws Exception
     {
@@ -99,7 +99,7 @@ public class TestNameConflicts extends BaseMapTest
     {
         String json = MAPPER.writeValueAsString(new BogusConflictBean());
         assertEquals(a2q("{'prop1':2,'prop2':1}"), json);
-    }    
+    }
 
     public void testHypotheticalGetters() throws Exception
     {
@@ -123,5 +123,5 @@ public class TestNameConflicts extends BaseMapTest
         }
         assertNotNull(result);
         assertEquals("y", result.bar);
-    }    
+    }
 }

@@ -230,13 +230,13 @@ public class CoerceEmptyArrayTest extends BaseMapTest
             fail("Expect value ["+exp+"] for "+cls.getName()+", got: "+result);
         }
     }
-    
+
     private void _verifyFailForEmptyArray(ObjectMapper mapper, Class<?> targetType) throws Exception {
         _verifyFailForEmptyArray(mapper.readerFor(targetType), targetType);
     }
 
     private void _verifyFailForEmptyArray(ObjectReader r, Class<?> targetType) throws Exception
-    {       
+    {
         try {
             r.forType(targetType).readValue(EMPTY_ARRAY);
             fail("Should not accept Empty Array for "+targetType.getName()+" by default");

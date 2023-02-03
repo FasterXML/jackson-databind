@@ -32,7 +32,7 @@ public class TestMapFiltering extends BaseMapTest
         @JsonFilter("filterX")
         @CustomOffset(1)
         public Map<String,Integer> values;
-        
+
         public MapBean() {
             values = new LinkedHashMap<String,Integer>();
             values.put("a", 1);
@@ -44,7 +44,7 @@ public class TestMapFiltering extends BaseMapTest
     static class MapBeanNoOffset {
         @JsonFilter("filterX")
         public Map<String,Integer> values;
-        
+
         public MapBeanNoOffset() {
             values = new LinkedHashMap<String,Integer>();
             values.put("a", 1);
@@ -52,14 +52,14 @@ public class TestMapFiltering extends BaseMapTest
             values.put("c", 3);
         }
     }
-    
+
     static class TestMapFilter implements PropertyFilter
     {
         @Override
         public PropertyFilter snapshot() {
             return this;
         }
-        
+
         @Override
         public void serializeAsProperty(Object bean, JsonGenerator g,
                 SerializerProvider provider, PropertyWriter writer)
@@ -104,7 +104,7 @@ public class TestMapFiltering extends BaseMapTest
     static class NoNullValuesMapContainer {
         @JsonInclude(content=JsonInclude.Include.NON_NULL)
         public Map<String,String> stuff = new LinkedHashMap<String,String>();
-        
+
         public NoNullValuesMapContainer add(String key, String value) {
             stuff.put(key, value);
             return this;
@@ -190,7 +190,7 @@ public class TestMapFiltering extends BaseMapTest
             .add("c", "bar"));
         assertEquals(a2q("{'stuff':{'a':'foo','c':'bar'}}"), json);
     }
-    
+
     // [databind#522]
     public void testMapFilteringWithAnnotations() throws Exception
     {

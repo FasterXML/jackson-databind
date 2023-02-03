@@ -73,23 +73,23 @@ public class TestOptionalWithPolymorphic extends BaseMapTest
 		Map<String, Object> loop = new LinkedHashMap<>();
 		loop.put("type", "Foo");
 		loop.put("foo", 42);
-		
+
 		foo.put("name", "foo strategy");
 		foo.put("strategy", loop);
-		
+
 		_test(MAPPER, foo);
     }
 
     public void testOptionalMapsBar() throws Exception {
-		
+
 		Map<String, Object> bar = new LinkedHashMap<>();
 		Map<String, Object> loop = new LinkedHashMap<>();
 		loop.put("type", "Bar");
 		loop.put("bar", true);
-		
+
 		bar.put("name", "bar strategy");
 		bar.put("strategy", loop);
-		
+
 		_test(MAPPER, bar);
     }
 
@@ -98,7 +98,7 @@ public class TestOptionalWithPolymorphic extends BaseMapTest
 		Map<String, Object> loop = new LinkedHashMap<>();
 		loop.put("type", "Baz");
 		loop.put("baz", "hello world!");
-		
+
 		baz.put("name", "bar strategy");
 		baz.put("strategy", loop);
 

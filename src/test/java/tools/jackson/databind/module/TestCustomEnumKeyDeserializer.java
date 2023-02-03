@@ -166,7 +166,7 @@ public class TestCustomEnumKeyDeserializer extends BaseMapTest
     /* Test methods
     /**********************************************************
      */
-    
+
     // Test passing with the fix
     public void testWithEnumKeys() throws Exception {
         ObjectMapper plainObjectMapper = new ObjectMapper();
@@ -229,7 +229,7 @@ public class TestCustomEnumKeyDeserializer extends BaseMapTest
     public void testCustomEnumValueAndKeyViaModifier() throws IOException
     {
         SimpleModule module = new SimpleModule();
-        module.setDeserializerModifier(new ValueDeserializerModifier() {        
+        module.setDeserializerModifier(new ValueDeserializerModifier() {
             @Override
             public ValueDeserializer<Enum> modifyEnumDeserializer(DeserializationConfig config,
                     final JavaType type, BeanDescription beanDesc,

@@ -20,26 +20,26 @@ public class OptionalBasicTest extends BaseMapTest
     public static final class OptionalGenericData<T> {
         Optional<T> myData;
     }
-	
+
     @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class)
     public static class Unit
     {
         public Optional<Unit> baseUnit;
-        
+
 		public Unit() {
 		}
 
 		public Unit(final Optional<Unit> u) {
 			baseUnit = u;
 		}
-        
+
         public void link(final Unit u) {
             baseUnit = Optional.of(u);
         }
     }
 
     // To test handling of polymorphic value types
-    
+
     public static class Container {
         public Optional<Contained> contained;
     }
@@ -51,7 +51,7 @@ public class OptionalBasicTest extends BaseMapTest
     public static interface Contained { }
 
     public static class ContainedImpl implements Contained { }
-    
+
     /*
     /**********************************************************************
     /* Test methods

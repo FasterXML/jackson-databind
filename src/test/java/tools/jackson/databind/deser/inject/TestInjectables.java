@@ -15,7 +15,7 @@ public class TestInjectables extends BaseMapTest
         protected String otherStuff;
 
         protected long third;
-        
+
         public int value;
 
         @JacksonInject
@@ -27,7 +27,7 @@ public class TestInjectables extends BaseMapTest
     static class CtorBean {
         protected String name;
         protected int age;
-        
+
         public CtorBean(@JacksonInject String n, @JsonProperty("age") int a)
         {
             name = n;
@@ -38,7 +38,7 @@ public class TestInjectables extends BaseMapTest
     static class CtorBean2 {
         protected String name;
         protected Integer age;
-        
+
         public CtorBean2(@JacksonInject String n, @JacksonInject("number") Integer a)
         {
             name = n;
@@ -53,7 +53,7 @@ public class TestInjectables extends BaseMapTest
 
         public int value;
     }
-    
+
     static class Bean471 {
 
         protected final Object constructorInjected;
@@ -92,7 +92,7 @@ public class TestInjectables extends BaseMapTest
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
-    
+
     public void testSimple() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -107,7 +107,7 @@ public class TestInjectables extends BaseMapTest
         assertEquals("xyz", bean.otherStuff);
         assertEquals(37L, bean.third);
     }
-    
+
     public void testWithCtors() throws Exception
     {
         CtorBean bean = MAPPER.readerFor(CtorBean.class)

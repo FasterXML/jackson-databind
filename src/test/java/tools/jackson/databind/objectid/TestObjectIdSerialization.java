@@ -20,7 +20,7 @@ public class TestObjectIdSerialization extends BaseMapTest
         public int value;
 
         public Identifiable next;
-        
+
         public Identifiable() { this(0); }
         public Identifiable(int v) {
             value = v;
@@ -33,7 +33,7 @@ public class TestObjectIdSerialization extends BaseMapTest
         public int value;
 
         public StringIdentifiable next;
-        
+
         public StringIdentifiable() { this(0); }
         public StringIdentifiable(int v) {
             value = v;
@@ -49,7 +49,7 @@ public class TestObjectIdSerialization extends BaseMapTest
         public int customId;
 
         public IdentifiableWithProp next;
-        
+
         public IdentifiableWithProp() { this(0, 0); }
         public IdentifiableWithProp(int id, int value) {
             this.customId = id;
@@ -58,7 +58,7 @@ public class TestObjectIdSerialization extends BaseMapTest
     }
 
     // For property reference, need another class:
-    
+
     static class IdWrapper
     {
         @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="@id")
@@ -73,13 +73,13 @@ public class TestObjectIdSerialization extends BaseMapTest
     static class ValueNode {
         public int value;
         public IdWrapper next;
-        
+
         public ValueNode() { this(0); }
         public ValueNode(int v) { value = v; }
     }
 
     // Similarly for property-ref via property:
-    
+
     protected static class IdWrapperCustom
     {
         @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
@@ -97,7 +97,7 @@ public class TestObjectIdSerialization extends BaseMapTest
         public IdWrapperCustom next;
 
         public int getId() { return id; }
-        
+
         public ValueNodeCustom() { this(0, 0); }
         public ValueNodeCustom(int id, int value) {
             this.id = id;
@@ -109,7 +109,7 @@ public class TestObjectIdSerialization extends BaseMapTest
     static class AlwaysAsId
     {
         public int value;
-        
+
         public AlwaysAsId() { this(0); }
         public AlwaysAsId(int v) {
             value = v;
@@ -122,7 +122,7 @@ public class TestObjectIdSerialization extends BaseMapTest
     {
         @JsonIdentityReference(alwaysAsId=true)
         public AlwaysAsId a = new AlwaysAsId(13);
-        
+
         @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="id")
         @JsonIdentityReference(alwaysAsId=true)
         public Value b = new Value();
@@ -188,14 +188,14 @@ public class TestObjectIdSerialization extends BaseMapTest
      */
 
     private final static String EXP_SIMPLE_INT_CLASS = "{\"id\":1,\"next\":1,\"value\":13}";
-    
+
     private final ObjectMapper MAPPER = objectMapper();
 
     public void testSimpleSerializationClass() throws Exception
     {
         Identifiable src = new Identifiable(13);
         src.next = src;
-        
+
         // First, serialize:
         JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
         String json = mapper.writeValueAsString(src);
@@ -205,7 +205,7 @@ public class TestObjectIdSerialization extends BaseMapTest
         json = mapper.writeValueAsString(src);
         assertEquals(EXP_SIMPLE_INT_CLASS, json);
     }
-    
+
     // Bit more complex, due to extra wrapping etc:
     private final static String EXP_SIMPLE_INT_PROP = "{\"node\":{\"@id\":1,\"next\":{\"node\":1},\"value\":7}}";
 
@@ -213,7 +213,7 @@ public class TestObjectIdSerialization extends BaseMapTest
     {
         IdWrapper src = new IdWrapper(7);
         src.node.next = src;
-        
+
         // First, serialize:
         JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
         String json = mapper.writeValueAsString(src);
@@ -229,7 +229,7 @@ public class TestObjectIdSerialization extends BaseMapTest
         final ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(new EmptyObject());
         assertEquals(a2q("{'@id':1}"), json);
-    }    
+    }
 
     public void testSerializeWithOpaqueStringId() throws Exception
     {
@@ -305,7 +305,7 @@ public class TestObjectIdSerialization extends BaseMapTest
 
     public void testAlwaysIdForTree() throws Exception
     {
-        TreeNode root = new TreeNode(null, 1, "root");     
+        TreeNode root = new TreeNode(null, 1, "root");
         TreeNode leaf = new TreeNode(root, 2, "leaf");
         root.child = leaf;
         JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
@@ -313,7 +313,7 @@ public class TestObjectIdSerialization extends BaseMapTest
         assertEquals("{\"id\":1,\"child\":"
                 +"{\"id\":2,\"child\":null,\"name\":\"leaf\",\"parent\":1},\"name\":\"root\",\"parent\":null}",
                 json);
-        		
+
     }
 
     //for [databind#1150]
@@ -323,7 +323,7 @@ public class TestObjectIdSerialization extends BaseMapTest
                 (a2q("{'value':3, 'next':null, 'id':null}"), IdentifiableStringId.class);
         assertNotNull(value);
         assertEquals(3, value.value);
-    }    
+    }
 
     /*
     /*****************************************************

@@ -47,7 +47,7 @@ public class ManualReadWithTypeResolution
         _inputType = Map.class;
         _inputTypeRef = new TypeReference<Map<String,Object>>() { };
         */
-        
+
         REPS = (int) ((double) (15 * 1000 * 1000) / (double) _input.length);
     }
 
@@ -72,7 +72,7 @@ public class ManualReadWithTypeResolution
 
             String msg;
             double msesc;
-            
+
             switch (type) {
             case 0:
                 msesc = testDeser(REPS, _input, _mapper, _inputType);
@@ -112,7 +112,7 @@ public class ManualReadWithTypeResolution
         hash = result.hashCode();
         return _msecsFromNanos(System.nanoTime() - start);
     }
-    
+
     private void updateStats(int type, boolean doGc, String msg, double msecs)
         throws Exception
     {

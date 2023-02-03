@@ -10,7 +10,7 @@ import tools.jackson.databind.*;
 public class ExternalTypeIdDup1410Test extends BaseMapTest
 {
     enum EnvironmentEventSource { BACKEND; }
-    
+
     @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=JsonTypeInfo.As.PROPERTY, property="source")
     @JsonSubTypes({
             @JsonSubTypes.Type(value = BackendEvent.class, name = "BACKEND")

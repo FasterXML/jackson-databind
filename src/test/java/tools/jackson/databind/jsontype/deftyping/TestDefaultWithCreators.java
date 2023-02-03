@@ -21,7 +21,7 @@ public class TestDefaultWithCreators
     {
         private final String url;
         private final int count;
-        
+
         @JsonCreator
         public UrlJob(@JsonProperty("id") long id, @JsonProperty("url") String url,
                 @JsonProperty("count") int count)
@@ -47,7 +47,7 @@ public class TestDefaultWithCreators
     static class Bean1385
     {
         byte[] raw;
-    
+
         @JsonCreator(mode=JsonCreator.Mode.DELEGATING)
         public Bean1385(byte[] raw) {
             this.raw = raw.clone();

@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.cfg.EnumFeature;
 import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
@@ -655,15 +656,16 @@ public class EnumDeserializationTest
         assertEquals(Operation3006.THREE, MAPPER.readValue(q("3"), Operation3006.class));
     }
 
-    public void testEnumIndexAsKey() throws Exception {
-        ObjectReader reader = MAPPER.reader(DeserializationFeature.READ_ENUM_KEYS_USING_INDEX);
+    public void testEnumFeature_EnumIndexAsKey() throws Exception {
+        ObjectReader reader = MAPPER.reader()
+            .with(EnumFeature.READ_ENUM_KEYS_USING_INDEX);
 
         ClassWithEnumMapKey result = reader.readValue("{\"map\": {\"0\":\"I AM FOR REAL\"}}", ClassWithEnumMapKey.class);
 
         assertEquals(result.map.get(TestEnum.JACKSON), "I AM FOR REAL");
     }
 
-    public void testEnumIndexAsKey_symmetric_to_writing() throws Exception {
+    public void testEnumFeature_symmetric_to_writing() throws Exception {
         ClassWithEnumMapKey obj = new ClassWithEnumMapKey();
         Map<TestEnum, String> objMap = new HashMap<>();
         objMap.put(TestEnum.JACKSON, "I AM FOR REAL");
@@ -674,12 +676,20 @@ public class EnumDeserializationTest
             .writeValueAsString(obj);
 
         ClassWithEnumMapKey result = MAPPER.reader()
-            .with(DeserializationFeature.READ_ENUM_KEYS_USING_INDEX)
+            .with(EnumFeature.READ_ENUM_KEYS_USING_INDEX)
             .readValue(deserObj, ClassWithEnumMapKey.class);
 
         assertNotSame(obj, result);
         assertNotSame(obj.map, result.map);
         assertEquals(result.map.get(TestEnum.JACKSON), "I AM FOR REAL");
+    }
+
+
+    public void testEnumFeature_READ_ENUM_KEYS_USING_INDEX_isDisabledByDefault() {
+        ObjectReader READER = MAPPER.reader();
+        assertFalse(READER.isEnabled(EnumFeature.READ_ENUM_KEYS_USING_INDEX));
+        assertFalse(READER.without(EnumFeature.READ_ENUM_KEYS_USING_INDEX)
+            .isEnabled(EnumFeature.READ_ENUM_KEYS_USING_INDEX));
     }
 
 }

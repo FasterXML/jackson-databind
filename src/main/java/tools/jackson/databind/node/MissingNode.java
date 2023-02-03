@@ -17,7 +17,7 @@ import tools.jackson.databind.jsontype.TypeSerializer;
  * In most respects this placeholder node will act as {@link NullNode};
  * for example, for purposes of value conversions, value is considered
  * to be null and represented as value zero when used for numeric
- * conversions. 
+ * conversions.
  */
 public final class MissingNode
     extends BaseJsonNode // NOTE! Does NOT extend `ValueNode` unlike in 2.x
@@ -55,16 +55,16 @@ public final class MissingNode
     @Override public String asText() { return ""; }
 
     @Override public String asText(String defaultValue) { return defaultValue; }
-    
+
     // // Note: not a numeric node, hence default 'asXxx()' are fine:
-    
+
     /*
     public int asInt(int defaultValue);
     public long asLong(long defaultValue);
     public double asDouble(double defaultValue);
     public boolean asBoolean(boolean defaultValue);
     */
-    
+
     @Override
     public final void serialize(JsonGenerator g, SerializerProvider provider)
         throws JacksonException

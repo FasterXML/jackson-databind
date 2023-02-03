@@ -34,7 +34,7 @@ public final class IndexedListSerializer
 
     @Override
     protected StdContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
-        return new IndexedListSerializer(this, 
+        return new IndexedListSerializer(this,
                 vts, _elementSerializer, _unwrapSingle, _property);
     }
 
@@ -50,7 +50,7 @@ public final class IndexedListSerializer
     /* Accessors
     /**********************************************************************
      */
-    
+
     @Override
     public boolean isEmpty(SerializerProvider prov, Object value) {
         return ((List<?>)value).isEmpty();
@@ -79,7 +79,7 @@ public final class IndexedListSerializer
         serializeContents(value, gen, provider);
         gen.writeEndArray();
     }
-    
+
     @Override
     public void serializeContents(Object value0, JsonGenerator g, SerializerProvider ctxt)
         throws JacksonException
@@ -122,7 +122,7 @@ public final class IndexedListSerializer
             wrapAndThrow(ctxt, e, value, i);
         }
     }
-    
+
     public void serializeContentsUsing(List<?> value, JsonGenerator jgen, SerializerProvider provider,
             ValueSerializer<Object> ser)
         throws JacksonException

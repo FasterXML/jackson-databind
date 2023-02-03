@@ -19,7 +19,7 @@ public final class StringSerializer
     extends StdScalarSerializer<Object>
 {
     public final static StringSerializer instance = new StringSerializer();
-    
+
     public StringSerializer() { super(String.class, false); }
 
     @Override

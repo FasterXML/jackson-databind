@@ -19,7 +19,7 @@ public class EnumSetSerializer
             Boolean unwrapSingle, BeanProperty property) {
         super(src, vts, valueSerializer, unwrapSingle, property);
     }
-    
+
     @Override
     protected EnumSetSerializer _withValueTypeSerializer(TypeSerializer vts) {
         // no typing for enums (always "hard" type)
@@ -60,7 +60,7 @@ public class EnumSetSerializer
         serializeContents(value, gen, provider);
         gen.writeEndArray();
     }
-    
+
     @Override
     public void serializeContents(EnumSet<? extends Enum<?>> value, JsonGenerator gen,
             SerializerProvider ctxt)

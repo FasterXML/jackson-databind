@@ -36,7 +36,7 @@ public class SimpleFilterProvider
      * configured.
      */
     protected boolean _cfgFailOnUnknownId = true;
-    
+
     /*
     /**********************************************************
     /* Life-cycle: constructing, configuring
@@ -86,11 +86,11 @@ public class SimpleFilterProvider
         _defaultFilter = f;
         return this;
     }
-    
+
     public PropertyFilter getDefaultFilter() {
         return _defaultFilter;
     }
-    
+
     public SimpleFilterProvider setFailOnUnknownId(boolean state) {
         _cfgFailOnUnknownId = state;
         return this;
@@ -112,7 +112,7 @@ public class SimpleFilterProvider
         _filtersById.put(id, filter);
         return this;
     }
-    
+
     public PropertyFilter removeFilter(String id) {
         return _filtersById.remove(id);
     }

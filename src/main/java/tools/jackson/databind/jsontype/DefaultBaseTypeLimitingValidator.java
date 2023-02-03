@@ -121,7 +121,7 @@ ClassUtil.classNameOf(getClass()), ClassUtil.classNameOf(baseType.getRawClass())
             UNSAFE.add("javax.naming.Referenceable");
             UNSAFE.add("javax.sql.DataSource");
         }
-        
+
         public boolean isUnsafeBaseType(Class<?> rawBaseType)
         {
             return UNSAFE.contains(rawBaseType.getName());

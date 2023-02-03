@@ -57,7 +57,7 @@ public class ModuleContextBase
     /* Accessors for metadata
     /**********************************************************************
      */
-    
+
     @Override
     public Version getMapperVersion() {
         return tools.jackson.databind.cfg.PackageVersion.VERSION;
@@ -94,7 +94,7 @@ public class ModuleContextBase
     /* Accessors on/off features
     /**********************************************************************
      */
-    
+
     @Override
     public boolean isEnabled(MapperFeature f) {
         return _builder.isEnabled(f);
@@ -184,7 +184,7 @@ public class ModuleContextBase
         _set(_serializerFactory().withNullKeySerializer(ser));
         return this;
     }
-    
+
     @Override
     public SetupContext overrideDefaultNullValueSerializer(ValueSerializer<?> ser) {
         _set(_serializerFactory().withNullValueSerializer(ser));
@@ -274,7 +274,7 @@ public class ModuleContextBase
         }
         return this;
     }
-    
+
     @Override
     public SetupContext setMixIn(Class<?> target, Class<?> mixinSource) {
         _builder.addMixIn(target, mixinSource);

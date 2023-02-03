@@ -54,17 +54,17 @@ public class SimpleType // note: until 2.6 was final
 
     /**
      * Pass-through constructor used by {@link ReferenceType}.
-     * 
+     *
      * @since 2.6
      */
     protected SimpleType(Class<?> cls, TypeBindings bindings,
             JavaType superClass, JavaType[] superInts, int extraHash,
             Object valueHandler, Object typeHandler, boolean asStatic)
     {
-        super(cls, bindings, superClass, superInts, 
+        super(cls, bindings, superClass, superInts,
                 extraHash, valueHandler, typeHandler, asStatic);
     }
-    
+
     /**
      * Method used by core Jackson classes: NOT to be used by application code:
      * it does NOT properly handle inspection of super-types, so neither parent
@@ -90,7 +90,7 @@ public class SimpleType // note: until 2.6 was final
      * Note that prior to 2.7, method usage was not limited and would typically
      * have worked acceptably: the problem comes from inability to resolve super-type
      * information, for which {@link TypeFactory} is needed.
-     * 
+     *
     @Deprecated
     public static SimpleType construct(Class<?> cls)
     {
@@ -116,7 +116,7 @@ public class SimpleType // note: until 2.6 was final
     public JavaType withContentType(JavaType contentType) {
         throw new IllegalArgumentException("Simple types have no content types; cannot call withContentType()");
     }
-    
+
     @Override
     public SimpleType withTypeHandler(Object h) {
         if (_typeHandler == h) {
@@ -138,7 +138,7 @@ public class SimpleType // note: until 2.6 was final
         }
         return new SimpleType(_class, _bindings, _superClass, _superInterfaces, h, _typeHandler, _asStatic);
     }
-    
+
     @Override
     public  SimpleType withContentValueHandler(Object h) {
         // no content type, so:
@@ -190,7 +190,7 @@ public class SimpleType // note: until 2.6 was final
 
     @Override
     public boolean isContainerType() { return false; }
-    
+
     @Override
     public boolean hasContentType() { return false; }
 
@@ -198,7 +198,7 @@ public class SimpleType // note: until 2.6 was final
     public StringBuilder getErasedSignature(StringBuilder sb) {
         return _classSignature(_class, sb, true);
     }
-    
+
     @Override
     public StringBuilder getGenericSignature(StringBuilder sb)
     {
@@ -239,7 +239,7 @@ public class SimpleType // note: until 2.6 was final
 
         SimpleType other = (SimpleType) o;
 
-        // Classes must be identical... 
+        // Classes must be identical...
         if (other._class != this._class) return false;
 
         // And finally, generic bindings, if any

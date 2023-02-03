@@ -76,14 +76,14 @@ public class AnnotationIntrospectorPair
         _secondary.allIntrospectors(result);
         return result;
     }
-    
+
     // // // Generic annotation properties, lookup
-    
+
     @Override
     public boolean isAnnotationBundle(Annotation ann) {
         return _primary.isAnnotationBundle(ann) || _secondary.isAnnotationBundle(ann);
     }
-    
+
     /*
     /**********************************************************************
     /* General class annotations
@@ -113,7 +113,7 @@ public class AnnotationIntrospectorPair
         return (v2 == null) // shouldn't occur but
             ? v1 : v2.withOverrides(v1);
     }
-    
+
     @Override
     public JsonIncludeProperties.Value findPropertyInclusionByName(MapperConfig<?> config, Annotated a)
     {
@@ -142,7 +142,7 @@ public class AnnotationIntrospectorPair
         }
         return id;
     }
-    
+
     @Override
     public Object findNamingStrategy(MapperConfig<?> config, AnnotatedClass ac)
     {
@@ -167,7 +167,7 @@ public class AnnotationIntrospectorPair
     /* Property auto-detection
     /**********************************************************************
      */
-    
+
     @Override
     public VisibilityChecker findAutoDetectVisibility(MapperConfig<?> config,
             AnnotatedClass ac, VisibilityChecker checker)
@@ -238,7 +238,7 @@ public class AnnotationIntrospectorPair
         return b;
     }
     */
-    
+
     @Override
     public List<NamedType> findSubtypes(MapperConfig<?> config, Annotated a)
     {
@@ -257,7 +257,7 @@ public class AnnotationIntrospectorPair
     {
         String name = _primary.findTypeName(config, ac);
         if (name == null || name.length() == 0) {
-            name = _secondary.findTypeName(config, ac);                
+            name = _secondary.findTypeName(config, ac);
         }
         return name;
     }
@@ -267,14 +267,14 @@ public class AnnotationIntrospectorPair
     /* General member (field, method/constructor) annotations
     /**********************************************************************
      */
-    
-    @Override        
+
+    @Override
     public ReferenceProperty findReferenceType(MapperConfig<?> config, AnnotatedMember member) {
         ReferenceProperty r = _primary.findReferenceType(config, member);
         return (r == null) ? _secondary.findReferenceType(config, member) : r;
     }
 
-    @Override        
+    @Override
     public NameTransformer findUnwrappingNameTransformer(MapperConfig<?> config, AnnotatedMember member) {
         NameTransformer r = _primary.findUnwrappingNameTransformer(config, member);
         return (r == null) ? _secondary.findUnwrappingNameTransformer(config, member) : r;
@@ -314,7 +314,7 @@ public class AnnotationIntrospectorPair
         return _explicitClassOrOb(_secondary.findSerializer(config, am),
                 ValueSerializer.None.class);
     }
-    
+
     @Override
     public Object findKeySerializer(MapperConfig<?> config, Annotated a) {
         Object r = _primary.findKeySerializer(config, a);
@@ -334,7 +334,7 @@ public class AnnotationIntrospectorPair
         return _explicitClassOrOb(_secondary.findContentSerializer(config, a),
                 ValueSerializer.None.class);
     }
-    
+
     @Override
     public Object findNullSerializer(MapperConfig<?> config, Annotated a) {
         Object r = _primary.findNullSerializer(config, a);
@@ -401,7 +401,7 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
-    public ObjectIdInfo findObjectReferenceInfo(MapperConfig<?> config, 
+    public ObjectIdInfo findObjectReferenceInfo(MapperConfig<?> config,
             Annotated ann, ObjectIdInfo objectIdInfo) {
         // to give precedence for primary, must start with secondary:
         objectIdInfo = _secondary.findObjectReferenceInfo(config, ann, objectIdInfo);
@@ -531,7 +531,7 @@ public class AnnotationIntrospectorPair
     }
 
     // // // Serialization: property annotations
-    
+
     @Override
     public PropertyName findNameForSerialization(MapperConfig<?> config, Annotated a) {
         PropertyName n = _primary.findNameForSerialization(config, a);
@@ -627,7 +627,7 @@ public class AnnotationIntrospectorPair
         }
         return _explicitClassOrOb(_secondary.findContentDeserializer(config, am),
                 ValueDeserializer.None.class);
-                
+
     }
 
     @Override

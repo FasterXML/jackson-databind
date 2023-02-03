@@ -19,7 +19,7 @@ public class ObjectIdReader
     protected final JavaType _idType;
 
     public final PropertyName propertyName;
-    
+
     /**
      * Blueprint generator instance: actual instance will be
      * fetched from {@link SerializerProvider} using this as
@@ -35,13 +35,13 @@ public class ObjectIdReader
     protected final ValueDeserializer<Object> _deserializer;
 
     public final SettableBeanProperty idProperty;
-    
+
     /*
     /**********************************************************
     /* Life-cycle
     /**********************************************************
      */
-    
+
     @SuppressWarnings("unchecked")
     protected ObjectIdReader(JavaType t, PropertyName propName, ObjectIdGenerator<?> gen,
             ValueDeserializer<?> deser, SettableBeanProperty idProp, ObjectIdResolver resolver)
@@ -105,7 +105,7 @@ public class ObjectIdReader
     public boolean isValidReferencePropertyName(String name, JsonParser parser) {
         return generator.isValidReferencePropertyName(name, parser);
     }
-    
+
     /**
      * Method called to read value that is expected to be an Object Reference
      * (that is, value of an Object Id used to refer to another object).

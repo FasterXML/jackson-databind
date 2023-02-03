@@ -43,7 +43,7 @@ public class JDKArraySerializers
     public static ValueSerializer<?> findStandardImpl(Class<?> cls) {
         return _arraySerializers.get(cls.getName());
     }
-    
+
     /*
      ****************************************************************
     /* Intermediate base classes
@@ -95,12 +95,12 @@ public class JDKArraySerializers
                 BeanProperty prop, Boolean unwrapSingle) {
             super(src, prop, unwrapSingle);
         }
-        
+
         @Override
         public ValueSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
             return new BooleanArraySerializer(this, prop, unwrapSingle);
         }
-        
+
         /**
          * Booleans never add type info; hence, even if type serializer is suggested,
          * we'll ignore it...
@@ -120,7 +120,7 @@ public class JDKArraySerializers
             // 14-Jan-2012, tatu: We could refer to an actual serializer if absolutely necessary
             return null;
         }
-        
+
         @Override
         public boolean isEmpty(SerializerProvider prov, boolean[] value) {
             return value.length == 0;
@@ -188,7 +188,7 @@ public class JDKArraySerializers
             // 14-Jan-2012, tatu: We could refer to an actual serializer if absolutely necessary
             return null;
         }
-        
+
         @Override
         public boolean isEmpty(SerializerProvider prov, short[] value) {
             return value.length == 0;
@@ -239,12 +239,12 @@ public class JDKArraySerializers
     public static class CharArraySerializer extends StdSerializer<char[]>
     {
         public CharArraySerializer() { super(char[].class); }
-        
+
         @Override
         public boolean isEmpty(SerializerProvider prov, char[] value) {
             return value.length == 0;
         }
-        
+
         @Override
         public void serialize(char[] value, JsonGenerator g, SerializerProvider provider)
             throws JacksonException
@@ -307,12 +307,12 @@ public class JDKArraySerializers
                 BeanProperty prop, Boolean unwrapSingle) {
             super(src, prop, unwrapSingle);
         }
-        
+
         @Override
         public ValueSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
             return new IntArraySerializer(this, prop, unwrapSingle);
         }
-        
+
         /**
          * Ints never add type info; hence, even if type serializer is suggested,
          * we'll ignore it...
@@ -320,7 +320,7 @@ public class JDKArraySerializers
         @Override
         public StdContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
             return this;
-        }        
+        }
 
         @Override
         public JavaType getContentType() {
@@ -332,7 +332,7 @@ public class JDKArraySerializers
             // 14-Jan-2012, tatu: We could refer to an actual serializer if absolutely necessary
             return null;
         }
-        
+
         @Override
         public boolean isEmpty(SerializerProvider prov, int[] value) {
             return value.length == 0;
@@ -399,7 +399,7 @@ public class JDKArraySerializers
             // 14-Jan-2012, tatu: We could refer to an actual serializer if absolutely necessary
             return null;
         }
-        
+
         @Override
         public boolean isEmpty(SerializerProvider prov, long[] value) {
             return value.length == 0;
@@ -421,7 +421,7 @@ public class JDKArraySerializers
             // 11-May-2016, tatu: As per [core#277] we have efficient `writeArray(...)` available
             g.writeArray(value, 0, value.length);
         }
-        
+
         @Override
         public void serializeContents(long[] value, JsonGenerator g, SerializerProvider provider)
             throws JacksonException
@@ -444,7 +444,7 @@ public class JDKArraySerializers
         // as above, assuming no one re-defines primitive/wrapper types
         @SuppressWarnings("deprecation")
         private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Float.TYPE);
-        
+
         public FloatArraySerializer() {
             super(float[].class);
         }
@@ -468,7 +468,7 @@ public class JDKArraySerializers
             // 14-Jan-2012, tatu: We could refer to an actual serializer if absolutely necessary
             return null;
         }
-        
+
         @Override
         public boolean isEmpty(SerializerProvider prov, float[] value) {
             return value.length == 0;
@@ -491,7 +491,7 @@ public class JDKArraySerializers
             serializeContents(value, g, provider);
             g.writeEndArray();
         }
-        
+
         @Override
         public void serializeContents(float[] value, JsonGenerator g, SerializerProvider provider)
             throws JacksonException
@@ -549,7 +549,7 @@ public class JDKArraySerializers
             // 14-Jan-2012, tatu: We could refer to an actual serializer if absolutely necessary
             return null;
         }
-        
+
         @Override
         public boolean isEmpty(SerializerProvider prov, double[] value) {
             return value.length == 0;

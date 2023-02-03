@@ -28,13 +28,13 @@ public class AsArrayTypeDeserializer
     public AsArrayTypeDeserializer(AsArrayTypeDeserializer src, BeanProperty property) {
         super(src, property);
     }
-    
+
     @Override
     public TypeDeserializer forProperty(BeanProperty prop) {
         // usually if it's null:
         return (prop == _property) ? this : new AsArrayTypeDeserializer(this, prop);
     }
-    
+
     @Override
     public As getTypeInclusion() { return As.WRAPPER_ARRAY; }
 
@@ -53,17 +53,17 @@ public class AsArrayTypeDeserializer
     public Object deserializeTypedFromObject(JsonParser p, DeserializationContext ctxt) throws JacksonException {
         return _deserialize(p, ctxt);
     }
-    
+
     @Override
     public Object deserializeTypedFromScalar(JsonParser p, DeserializationContext ctxt) throws JacksonException {
         return _deserialize(p, ctxt);
-    }    
+    }
 
     @Override
     public Object deserializeTypedFromAny(JsonParser p, DeserializationContext ctxt) throws JacksonException {
         return _deserialize(p, ctxt);
-    }    
-    
+    }
+
     /*
     /***************************************************************
     /* Internal methods
@@ -122,8 +122,8 @@ public class AsArrayTypeDeserializer
             // ... but for now, fall through
         }
         return value;
-    }    
-    
+    }
+
     protected String _locateTypeId(JsonParser p, DeserializationContext ctxt) throws JacksonException
     {
         if (!p.isExpectedStartArrayToken()) {

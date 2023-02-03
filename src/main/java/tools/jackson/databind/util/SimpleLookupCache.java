@@ -65,7 +65,7 @@ public class SimpleLookupCache<K,V>
     public V putIfAbsent(K key, V value) {
         return _map.putIfAbsent(key, value);
     }
-    
+
     @Override
     public V get(Object key) { return _map.get(key); }
 
@@ -80,7 +80,7 @@ public class SimpleLookupCache<K,V>
     /* Extended API
     /**********************************************************************
      */
-    
+
     public void contents(BiConsumer<K,V> consumer) {
         for (Map.Entry<K,V> entry : _map.entrySet()) {
             consumer.accept(entry.getKey(), entry.getValue());

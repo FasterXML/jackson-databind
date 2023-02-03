@@ -44,7 +44,7 @@ public class TypeResolverProvider
      *
      * @param baseType Base java type of value for which resolver is to be found
      * @param classInfo Introspected annotation information for the class (type)
-     * 
+     *
      * @return Type resolver builder for given type, if one found; null if none
      */
     public TypeSerializer findTypeSerializer(SerializerProvider ctxt,

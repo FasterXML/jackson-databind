@@ -77,7 +77,7 @@ public class EnumDeserializer
     /**
      * Factory method used when Enum instances are to be deserialized
      * using a creator (static factory method)
-     * 
+     *
      * @return Deserializer based on given factory method
      */
     public static ValueDeserializer<?> deserializerForCreator(DeserializationConfig config,
@@ -96,7 +96,7 @@ public class EnumDeserializer
     /**
      * Factory method used when Enum instances are to be deserialized
      * using a zero-/no-args factory method
-     * 
+     *
      * @return Deserializer based on given no-args factory method
      */
     public static ValueDeserializer<?> deserializerForNoArgsCreator(DeserializationConfig config,
@@ -119,7 +119,7 @@ public class EnumDeserializer
         return new EnumDeserializer(this, caseInsensitive,
                 useDefaultValueForUnknownEnum, useNullForUnknownEnum);
     }
-    
+
     @Override
     public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property)
@@ -245,13 +245,13 @@ public class EnumDeserializer
     return _checkCoercionFail(ctxt, act, rawTargetType, value,
             "empty String (\"\")");
             */
-    
+
     /*
     /**********************************************************************
     /* Internal helper methods
     /**********************************************************************
      */
-    
+
     private final Object _deserializeAltString(JsonParser p, DeserializationContext ctxt,
             CompactStringObjectMap lookup, String nameOrig)
         throws JacksonException

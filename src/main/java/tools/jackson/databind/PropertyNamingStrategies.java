@@ -19,7 +19,7 @@ public abstract class PropertyNamingStrategies
     /* Static instances that may be referenced
     /**********************************************************************
      */
-    
+
     /**
      * Naming convention used in Java, where words other than first are capitalized
      * and no separator is used between words. Since this is the native Java naming convention,
@@ -130,13 +130,13 @@ public abstract class PropertyNamingStrategies
             if (length == 0) {
                 return input;
             }
-    
+
             final StringBuilder result = new StringBuilder(length + (length >> 1));
             int upperCount = 0;
             for (int i = 0; i < length; ++i) {
                 char ch = input.charAt(i);
                 char lc = Character.toLowerCase(ch);
-    
+
                 if (lc == ch) { // lower-case letter means we can get new word
                     // but need to check for multi-letter upper-case (acronym), where assumption
                     // is that the last upper-case char is start of a new word
@@ -163,7 +163,7 @@ public abstract class PropertyNamingStrategies
     /* Standard implementations
     /**********************************************************************
      */
-    
+
     /**
      * A {@link PropertyNamingStrategy} that translates typical camel case Java
      * property names to lower case JSON element names, separated by
@@ -171,7 +171,7 @@ public abstract class PropertyNamingStrategies
      * provides some additional translations beyond strictly translating from
      * camel case only.  In particular, the following translations are applied
      * by this PropertyNamingStrategy.
-     * 
+     *
      * <ul><li>Every upper case letter in the Java property name is translated
      * into two characters, an underscore and the lower case equivalent of the
      * target character, with three exceptions.
@@ -285,15 +285,15 @@ public abstract class PropertyNamingStrategies
     }
 
     /**
-     * A {@link PropertyNamingStrategy} that translates typical camelCase Java 
+     * A {@link PropertyNamingStrategy} that translates typical camelCase Java
      * property names to PascalCase JSON element names (i.e., with a capital
-     * first letter).  In particular, the following translations are applied by 
+     * first letter).  In particular, the following translations are applied by
      * this PropertyNamingStrategy.
-     * 
-     * <ul><li>The first lower-case letter in the Java property name is translated 
+     *
+     * <ul><li>The first lower-case letter in the Java property name is translated
      * into its equivalent upper-case representation.</li></ul>
-     * 
-     * This rules result in the following example translation from 
+     *
+     * This rules result in the following example translation from
      * Java property names to JSON element names.
      * <ul><li>&quot;userName&quot; is translated to &quot;UserName&quot;</li></ul>
      */
@@ -303,7 +303,7 @@ public abstract class PropertyNamingStrategies
 
         /**
          * Converts camelCase to PascalCase
-         * 
+         *
          * For example, "userName" would be converted to
          * "UserName".
          *

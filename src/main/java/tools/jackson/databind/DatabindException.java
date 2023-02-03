@@ -348,13 +348,13 @@ public class DatabindException
         jme.prependPath(ref);
         return jme;
     }
-    
+
     /*
     /**********************************************************************
     /* Life-cycle: information augmentation (cannot use factory style, alas)
     /**********************************************************************
      */
-    
+
     /**
      * Method called to prepend a reference information in front of
      * current path

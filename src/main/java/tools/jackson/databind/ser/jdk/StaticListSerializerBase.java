@@ -53,7 +53,7 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
             BeanProperty property)
     {
         ValueSerializer<?> ser = null;
-        
+
         if (property != null) {
             final AnnotationIntrospector intr = serializers.getAnnotationIntrospector();
             AnnotatedMember m = property.getMember();

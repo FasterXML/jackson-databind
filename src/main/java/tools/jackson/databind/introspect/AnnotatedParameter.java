@@ -134,14 +134,14 @@ public final class AnnotatedParameter
     /**
      * Accessor for 'owner' of this parameter; method or constructor that
      * has this parameter as member of its argument list.
-     * 
+     *
      * @return Owner (member or creator) object of this parameter
      */
     public AnnotatedWithParams getOwner() { return _owner; }
-    
+
     /**
      * Accessor for index of this parameter within argument list
-     * 
+     *
      * @return Index of this parameter within argument list
      */
     public int getIndex() { return _index; }
@@ -151,12 +151,12 @@ public final class AnnotatedParameter
     /* Other
     /**********************************************************************
      */
-    
+
     @Override
     public int hashCode() {
         return _owner.hashCode() + _index;
     }
-    
+
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
@@ -166,7 +166,7 @@ public final class AnnotatedParameter
         AnnotatedParameter other = (AnnotatedParameter) o;
         return other._owner.equals(_owner) && (other._index == _index);
     }
-    
+
     @Override
     public String toString() {
         return "[parameter #"+getIndex()+", annotations: "+_annotations+"]";

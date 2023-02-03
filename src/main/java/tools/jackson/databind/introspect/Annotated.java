@@ -48,7 +48,7 @@ public abstract class Annotated
     public abstract Class<?> getRawType();
 
     // Also: ensure we can use #equals, #hashCode
-    
+
     @Override
     public abstract boolean equals(Object o);
 

@@ -72,7 +72,7 @@ public class POJOPropertiesCollector
      * has been collected or not.
      */
     protected boolean _collected;
-    
+
     /**
      * Set of logical property information collected so far.
      *<p>
@@ -97,13 +97,13 @@ public class POJOPropertiesCollector
      * fields and other accessors.
      */
     protected Map<PropertyName, PropertyName> _fieldRenameMappings;
-    
+
     protected LinkedList<AnnotatedMember> _anyGetters;
 
     protected LinkedList<AnnotatedMember> _anyGetterField;
 
     protected LinkedList<AnnotatedMethod> _anySetters;
-    
+
     protected LinkedList<AnnotatedMember> _anySetterField;
 
     /**
@@ -183,7 +183,7 @@ public class POJOPropertiesCollector
     public AnnotationIntrospector getAnnotationIntrospector() {
         return _annotationIntrospector;
     }
-    
+
     public List<BeanPropertyDefinition> getProperties() {
         // make sure we return a copy, so caller can remove entries if need be:
         Map<String, POJOPropertyBuilder> props = getPropertyMap();
@@ -651,7 +651,7 @@ public class POJOPropertiesCollector
 
         // shouldn't need to worry about @JsonIgnore, since creators only added
         // if so annotated
-        
+
         /* 13-May-2015, tatu: We should try to start with implicit name, similar to how
          *   fields and methods work; but unlike those, we don't necessarily have
          *   implicit name to use (pre-Java8 at least). So:
@@ -818,7 +818,7 @@ public class POJOPropertiesCollector
         for (AnnotatedField f : _classDef.fields()) {
             _doAddInjectable(_annotationIntrospector.findInjectableValue(_config, f), f);
         }
-        
+
         for (AnnotatedMethod m : _classDef.memberMethods()) {
             // for now, only allow injection of a single arg (to be changed in future?)
             if (m.getParameterCount() != 1) {
@@ -997,7 +997,7 @@ public class POJOPropertiesCollector
             }
             */
         }
-        
+
         // and if any were renamed, merge back in...
         if (renamed != null) {
             for (POJOPropertyBuilder prop : renamed) {
@@ -1143,7 +1143,7 @@ public class POJOPropertiesCollector
         final boolean indexed = _anyIndexed(props.values());
 
         String[] propertyOrder = intr.findSerializationPropertyOrder(_config, _classDef);
-        
+
         // no sorting? no need to shuffle, then
         if (!sortAlpha && !indexed && (_creatorProperties == null) && (propertyOrder == null)) {
             return;
@@ -1346,7 +1346,7 @@ public class POJOPropertiesCollector
         if (namingClass == PropertyNamingStrategy.class) {
             return null;
         }
-        
+
         if (!PropertyNamingStrategy.class.isAssignableFrom(namingClass)) {
             reportProblem("AnnotationIntrospector returned Class %s; expected `Class<PropertyNamingStrategy>`",
                     ClassUtil.classNameOf(namingClass));

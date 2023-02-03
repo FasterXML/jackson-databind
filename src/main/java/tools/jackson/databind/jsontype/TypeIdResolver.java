@@ -33,7 +33,7 @@ public interface TypeIdResolver
      * used to initialize instance with configuration. This is necessary
      * since instances may be created via reflection, without ability to
      * call specific constructor to pass in configuration settings.
-     * 
+     *
      * @param baseType Base type for which this id resolver instance is
      *   used
      */

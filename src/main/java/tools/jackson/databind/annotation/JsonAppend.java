@@ -14,7 +14,7 @@ import tools.jackson.databind.ser.VirtualBeanPropertyWriter;
  * after regular properties (although ordering may be changed using
  * both standard <code>@JsonPropertyOrder</code> annotation, and
  * properties of this annotation).
- * 
+ *
  * @since 2.5
  */
 @Target({ElementType.ANNOTATION_TYPE, ElementType.TYPE })
@@ -82,7 +82,7 @@ public @interface JsonAppend
          */
         public boolean required() default false;
     }
-    
+
     /**
      * Definition of a single general virtual property.
      */

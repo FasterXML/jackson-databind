@@ -47,7 +47,7 @@ public class UnrolledBeanAsArraySerializer
     /**********************************************************************
      */
 
-    public UnrolledBeanAsArraySerializer(BeanSerializerBase src) {    
+    public UnrolledBeanAsArraySerializer(BeanSerializerBase src) {
         super(src, (ObjectIdWriter) null);
         _defaultSerializer = src;
         _propCount = _props.length;
@@ -66,7 +66,7 @@ public class UnrolledBeanAsArraySerializer
         BeanPropertyWriter[] oProps = new BeanPropertyWriter[6];
         int offset = 6 - _propCount;
         System.arraycopy(_props, 0, oProps, offset, _propCount);
-        
+
         _prop1 = oProps[0];
         _prop2 = oProps[1];
         _prop3 = oProps[2];

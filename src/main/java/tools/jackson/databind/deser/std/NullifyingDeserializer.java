@@ -12,7 +12,7 @@ public class NullifyingDeserializer
     extends StdDeserializer<Object>
 {
     public final static NullifyingDeserializer instance = new NullifyingDeserializer();
-    
+
     public NullifyingDeserializer() { super(Object.class); }
 
     /*

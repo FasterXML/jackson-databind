@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package tools.jackson.databind.jsonFormatVisitors;
 

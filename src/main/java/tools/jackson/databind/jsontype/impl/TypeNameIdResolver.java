@@ -151,7 +151,7 @@ public class TypeNameIdResolver extends TypeIdResolverBase
     public JavaType typeFromId(DatabindContext context, String id) {
         return _typeFromId(id);
     }
-    
+
     protected JavaType _typeFromId(String id) {
         // [databind#1983]: for case-insensitive lookups must canonicalize:
         if (_caseInsensitive) {
@@ -162,7 +162,7 @@ public class TypeNameIdResolver extends TypeIdResolverBase
         // could just try Class.forName)
         // For now let's not add any such workarounds; can add if need be
         return _idToType.get(id);
-    }    
+    }
 
     @Override
     public String getDescForKnownTypeIds() {
@@ -189,7 +189,7 @@ public class TypeNameIdResolver extends TypeIdResolverBase
     /* Helper methods
     /**********************************************************************
      */
-    
+
     /**
      * If no name was explicitly given for a class, we will just
      * use non-qualified class name

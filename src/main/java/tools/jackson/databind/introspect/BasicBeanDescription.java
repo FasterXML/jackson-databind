@@ -235,7 +235,7 @@ public class BasicBeanDescription extends BeanDescription
         return (_propCollector == null) ? null
                 : _propCollector.getJsonValueAccessor();
     }
- 
+
     @Override
     public Set<String> getIgnoredPropertyNames() {
         Set<String> ign = (_propCollector == null) ? null
@@ -269,7 +269,7 @@ public class BasicBeanDescription extends BeanDescription
             if (anyMethod != null) {
                 // Also, let's be somewhat strict on how field name is to be
                 // passed; String, Object make sense, others not so much.
-    
+
                 /* !!! 18-May-2009, tatu: how about enums? Can add support if
                  *  requested; easy enough for devs to add support within method.
                  */
@@ -676,7 +676,7 @@ anyField.getName()));
     /* Helper methods, other
     /**********************************************************************
      */
-    
+
     @SuppressWarnings("unchecked")
     protected Converter<Object,Object> _createConverter(Object converterDef)
     {

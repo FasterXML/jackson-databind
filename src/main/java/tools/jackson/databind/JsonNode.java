@@ -62,7 +62,7 @@ public abstract class JsonNode
 
         /**
          * Mode in which explicit {@code NullNode}s may be replaced but no other
-         * node types. 
+         * node types.
          */
         NULLS,
 
@@ -84,7 +84,7 @@ public abstract class JsonNode
     /* Construction, related
     /**********************************************************************
      */
-    
+
     protected JsonNode() { }
 
     /**
@@ -98,7 +98,7 @@ public abstract class JsonNode
      * Note: return type is guaranteed to have same type as the
      * node method is called on; which is why method is declared
      * with local generic type.
-     * 
+     *
      * @return Node that is either a copy of this node (and all non-leaf
      *    children); or, for immutable leaf nodes, node itself.
      */
@@ -231,12 +231,12 @@ public abstract class JsonNode
 
     /**
      * Method for locating node specified by given JSON pointer instances.
-     * Method will never return null; if no matching node exists, 
+     * Method will never return null; if no matching node exists,
      *   will return a node for which {@link #isMissingNode()} returns true.
-     * 
+     *
      * @return Node that matches given JSON Pointer: if no match exists,
      *   will return a node for which {@link #isMissingNode()} returns true.
-     * 
+     *
      * @since 2.3
      */
     @Override
@@ -262,10 +262,10 @@ public abstract class JsonNode
      * Note that if the same expression is used often, it is preferable to construct
      * {@link JsonPointer} instance once and reuse it: this method will not perform
      * any caching of compiled expressions.
-     * 
+     *
      * @param jsonPtrExpr Expression to compile as a {@link JsonPointer}
      *   instance
-     * 
+     *
      * @return Node that matches given JSON Pointer: if no match exists,
      *   will return a node for which {@link TreeNode#isMissingNode()} returns true.
      */
@@ -321,7 +321,7 @@ public abstract class JsonNode
     }
 
     /**
-     * 
+     *
      * @return True if this node represents an integral (integer)
      *   numeric JSON value
      */
@@ -340,7 +340,7 @@ public abstract class JsonNode
      * is possible that conversion would be possible from other numeric
      * types -- to check if this is possible, use
      * {@link #canConvertToInt()} instead.
-     * 
+     *
      * @return True if the value contained by this node is stored as Java short
      */
     public boolean isShort() { return false; }
@@ -352,7 +352,7 @@ public abstract class JsonNode
      * is possible that conversion would be possible from other numeric
      * types -- to check if this is possible, use
      * {@link #canConvertToInt()} instead.
-     * 
+     *
      * @return True if the value contained by this node is stored as Java int
      */
     public boolean isInt() { return false; }
@@ -364,7 +364,7 @@ public abstract class JsonNode
      * is possible that conversion would be possible from other numeric
      * types -- to check if this is possible, use
      * {@link #canConvertToLong()} instead.
-     * 
+     *
      * @return True if the value contained by this node is stored as Java <code>long</code>
      */
     public boolean isLong() { return false; }
@@ -423,7 +423,7 @@ public abstract class JsonNode
      * from JSON String into Number; so even if this method returns false,
      * it is possible that {@link #asInt} could still succeed
      * if node is a JSON String representing integral number, or boolean.
-     * 
+     *
      * @since 2.0
      */
     public boolean canConvertToInt() { return false; }
@@ -617,7 +617,7 @@ public abstract class JsonNode
         String str = asText();
         return (str == null) ? defaultValue : str;
     }
-    
+
     /**
      * Method that will try to convert value of this node to a Java <b>int</b>.
      * Numbers are coerced using default Java rules; booleans convert to 0 (false)
@@ -659,7 +659,7 @@ public abstract class JsonNode
     public long asLong() {
         return asLong(0L);
     }
-    
+
     /**
      * Method that will try to convert value of this node to a Java <b>long</b>.
      * Numbers are coerced using default Java rules; booleans convert to 0 (false)
@@ -673,7 +673,7 @@ public abstract class JsonNode
     public long asLong(long defaultValue) {
         return defaultValue;
     }
-    
+
     /**
      * Method that will try to convert value of this node to a Java <b>double</b>.
      * Numbers are coerced using default Java rules; booleans convert to 0.0 (false)
@@ -687,7 +687,7 @@ public abstract class JsonNode
     public double asDouble() {
         return asDouble(0.0);
     }
-    
+
     /**
      * Method that will try to convert value of this node to a Java <b>double</b>.
      * Numbers are coerced using default Java rules; booleans convert to 0.0 (false)
@@ -715,7 +715,7 @@ public abstract class JsonNode
     public boolean asBoolean() {
         return asBoolean(false);
     }
-    
+
     /**
      * Method that will try to convert value of this node to a Java <b>boolean</b>.
      * JSON booleans map naturally; integer numbers other than 0 map to true, and
@@ -887,7 +887,7 @@ public abstract class JsonNode
      * method will return <code>true</code> for such properties.
      *
      * @param fieldName Name of element to check
-     * 
+     *
      * @return True if this node is a JSON Object node, and has a property
      *   entry with specified name (with any value, including null value)
      */
@@ -913,7 +913,7 @@ public abstract class JsonNode
      * null values.
      *
      * @param index Index to check
-     * 
+     *
      * @return True if this node is a JSON Object node, and has a property
      *   entry with specified name (with any value, including null value)
      */
@@ -929,7 +929,7 @@ public abstract class JsonNode
      *<pre>
      *   node.get(fieldName) != null &amp;&amp; !node.get(fieldName).isNull()
      *</pre>
-     * 
+     *
      * @since 2.1
      */
     public boolean hasNonNull(String fieldName) {
@@ -945,7 +945,7 @@ public abstract class JsonNode
      *<pre>
      *   node.get(index) != null &amp;&amp; !node.get(index).isNull()
      *</pre>
-     * 
+     *
      * @since 2.1
      */
     public boolean hasNonNull(int index) {
@@ -995,9 +995,9 @@ public abstract class JsonNode
      * Method for finding a JSON Object field with specified name in this
      * node or its child nodes, and returning value it has.
      * If no matching field is found in this node or its descendants, returns null.
-     * 
+     *
      * @param fieldName Name of field to look for
-     * 
+     *
      * @return Value of first matching node found, if any; null if none
      */
     public abstract JsonNode findValue(String fieldName);
@@ -1008,7 +1008,7 @@ public abstract class JsonNode
      * so possible children of result nodes are <b>not</b> included.
      * If no matching fields are found in this node or its descendants, returns
      * an empty List.
-     * 
+     *
      * @param fieldName Name of field to look for
      */
     public final List<JsonNode> findValues(String fieldName)
@@ -1032,28 +1032,28 @@ public abstract class JsonNode
         }
         return result;
     }
-    
+
     /**
      * Method similar to {@link #findValue}, but that will return a
      * "missing node" instead of null if no field is found. Missing node
      * is a specific kind of node for which {@link #isMissingNode}
      * returns true; and all value access methods return empty or
      * missing value.
-     * 
+     *
      * @param fieldName Name of field to look for
-     * 
+     *
      * @return Value of first matching node found; or if not found, a
      *    "missing node" (non-null instance that has no value)
      */
     public abstract JsonNode findPath(String fieldName);
-    
+
     /**
      * Method for finding a JSON Object that contains specified field,
      * within this node or its descendants.
      * If no matching field is found in this node or its descendants, returns null.
-     * 
+     *
      * @param fieldName Name of field to look for
-     * 
+     *
      * @return Value of first matching node found, if any; null if none
      */
     public abstract JsonNode findParent(String fieldName);
@@ -1062,9 +1062,9 @@ public abstract class JsonNode
      * Method for finding a JSON Object that contains specified field,
      * within this node or its descendants.
      * If no matching field is found in this node or its descendants, returns null.
-     * 
+     *
      * @param fieldName Name of field to look for
-     * 
+     *
      * @return Value of first matching node found, if any; null if none
      */
     public final List<JsonNode> findParents(String fieldName)
@@ -1322,8 +1322,8 @@ public abstract class JsonNode
      * Default implementation simply delegates to passed in <code>comparator</code>,
      * with <code>this</code> as the first argument, and <code>other</code> as
      * the second argument.
-     * 
-     * @param comparator Object called to compare two scalar {@link JsonNode} 
+     *
+     * @param comparator Object called to compare two scalar {@link JsonNode}
      *   instances, and return either 0 (are equals) or non-zero (not equal)
      */
     public boolean equals(Comparator<JsonNode> comparator, JsonNode other) {
@@ -1335,7 +1335,7 @@ public abstract class JsonNode
     /* Overridden standard methods
     /**********************************************************************
      */
-    
+
     /**
      * Method that will produce (as of Jackson 2.10) valid JSON using
      * default settings of databind, as String.
@@ -1361,7 +1361,7 @@ public abstract class JsonNode
     public String toPrettyString() {
         return toString();
     }
-    
+
     /**
      * Equality for node objects is defined as full (deep) value
      * equality. This means that it is possible to compare complete

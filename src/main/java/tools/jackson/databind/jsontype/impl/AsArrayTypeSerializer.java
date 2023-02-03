@@ -21,7 +21,7 @@ public class AsArrayTypeSerializer extends TypeSerializerBase
             BeanProperty prop) {
         return (_property == prop) ? this : new AsArrayTypeSerializer(_idResolver, prop);
     }
-    
+
     @Override
     public As getTypeInclusion() { return As.WRAPPER_ARRAY; }
 }

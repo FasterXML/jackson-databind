@@ -24,7 +24,7 @@ public abstract class ContextAttributes
     public static ContextAttributes getEmpty() {
         return Impl.getEmpty();
     }
-    
+
     /*
     /**********************************************************
     /* Per-reader/writer access
@@ -34,9 +34,9 @@ public abstract class ContextAttributes
     public abstract ContextAttributes withSharedAttribute(Object key, Object value);
 
     public abstract ContextAttributes withSharedAttributes(Map<?,?> attributes);
-    
+
     public abstract ContextAttributes withoutSharedAttribute(Object key);
-    
+
     /*
     /**********************************************************
     /* Per-operation (serialize/deserialize) access
@@ -68,7 +68,7 @@ public abstract class ContextAttributes
         protected final static Impl EMPTY = new Impl(Collections.emptyMap());
 
         protected final static Object NULL_SURROGATE = new Object();
-        
+
         /**
          * Shared attributes that we cannot modify in-place.
          */
@@ -83,13 +83,13 @@ public abstract class ContextAttributes
          * complicate that access.
          */
         protected transient Map<Object,Object> _nonShared;
-        
+
         /*
         /**********************************************************
         /* Construction, factory methods
         /**********************************************************
          */
-        
+
         protected Impl(Map<?,?> shared) {
             _shared = shared;
             _nonShared = null;
@@ -99,7 +99,7 @@ public abstract class ContextAttributes
             _shared = shared;
             _nonShared = nonShared;
         }
-        
+
         public static ContextAttributes getEmpty() {
             return EMPTY;
         }
@@ -119,7 +119,7 @@ public abstract class ContextAttributes
         /* Per-reader/writer mutant factories
         /**********************************************************
          */
-        
+
         @Override
         public ContextAttributes withSharedAttribute(Object key, Object value)
         {
@@ -164,7 +164,7 @@ public abstract class ContextAttributes
         /* Per-call access
         /**********************************************************
          */
-        
+
         @Override
         public Object getAttribute(Object key)
         {
@@ -179,7 +179,7 @@ public abstract class ContextAttributes
             }
             return _shared.get(key);
         }
-        
+
         @Override
         public ContextAttributes withPerCallAttribute(Object key, Object value)
         {
@@ -223,7 +223,7 @@ public abstract class ContextAttributes
             m.put(key, value);
             return new Impl(_shared, m);
         }
-        
+
         private Map<Object,Object> _copy(Map<?,?> src)
         {
             return new HashMap<Object,Object>(src);

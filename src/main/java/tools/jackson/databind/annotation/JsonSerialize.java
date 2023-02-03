@@ -114,7 +114,7 @@ public @interface JsonSerialize
      * thrown by serializer.
      */
     public Class<?> contentAs() default Void.class;
-    
+
     /**
      * Whether type detection used is dynamic or static: that is,
      * whether actual runtime type is used (dynamic), or just the
@@ -166,7 +166,7 @@ public @interface JsonSerialize
          * be used.
          */
         STATIC,
-        
+
         /**
          * Pseudo-value that is used to indicate
          * "use whatever is default used at higher level".

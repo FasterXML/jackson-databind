@@ -104,7 +104,7 @@ public class ThrowableDeserializer
             return ctxt.handleMissingInstantiator(handledType(), getValueInstantiator(), p,
                     "Throwable needs a default constructor, a single-String-arg constructor; or explicit @JsonCreator");
         }
-        
+
         Throwable throwable = null;
         Object[] pending = null;
         Throwable[] suppressed = null;

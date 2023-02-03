@@ -17,7 +17,7 @@ public interface LookupCache <K,V>
 {
     // 17-Sep-2019, tatu: There is one usage, by `ReadOnlyClassToSerializerMap`, so
     //    for now NOT exposed, but can reconsider if it proves generally useful
-    
+
 //    void contents(BiConsumer<K,V> consumer);
 
     /**

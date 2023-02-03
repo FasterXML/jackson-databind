@@ -9,7 +9,7 @@ import tools.jackson.databind.type.*;
  * {@link ValueDeserializer} instances (which are then cached by
  * context and/or dedicated cache).
  *<p>
- * Since there are multiple broad categories of deserializers, there are 
+ * Since there are multiple broad categories of deserializers, there are
  * multiple factory methods:
  *<ul>
  * <li>For JSON "Array" type, we need 2 methods: one to deal with expected
@@ -116,7 +116,7 @@ public abstract class DeserializerFactory
      * Method called to find if factory knows how to create a key deserializer
      * for specified type; currently this means checking if a module has registered
      * possible deserializers.
-     * 
+     *
      * @return Key deserializer to use for specified type, if one found; null if not
      *   (and default key deserializer should be used)
      */
@@ -129,7 +129,7 @@ public abstract class DeserializerFactory
      * given type as opposed to auto-generated "Bean" deserializer. Factory itself will check
      * for known JDK-provided types, but registered {@link tools.jackson.databind.JacksonModule}s
      * are also called to see if they might provide explicit deserializer.
-     *<p> 
+     *<p>
      * Main use for this method is with Safe Default Typing (and generally Safe Polymorphic
      * Deserialization), during which it is good to be able to check that given raw type
      * is explicitly supported and as such "known type" (as opposed to potentially
@@ -159,7 +159,7 @@ public abstract class DeserializerFactory
      * {@link KeyDeserializers}.
      */
     public abstract DeserializerFactory withAdditionalKeyDeserializers(KeyDeserializers additional);
-    
+
     /**
      * Convenience method for creating a new factory instance with additional
      * {@link ValueDeserializerModifier}.

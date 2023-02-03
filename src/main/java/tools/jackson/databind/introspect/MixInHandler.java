@@ -55,7 +55,7 @@ public class MixInHandler
         return new MixInHandler(overrides, _localMixIns);
     }
 
-    
+
     /**
      * Mutant factory method that constructs a new instance that has no locally
      * defined mix-in/target mappings.
@@ -63,7 +63,7 @@ public class MixInHandler
     public MixInHandler withoutLocalDefinitions() {
         return new MixInHandler(_overrides, null);
     }
-    
+
     /*
     /**********************************************************************
     /* Mutators

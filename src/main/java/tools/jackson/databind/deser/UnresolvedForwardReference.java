@@ -51,7 +51,7 @@ public class UnresolvedForwardReference extends DatabindException
     public List<UnresolvedId> getUnresolvedIds(){
         return _unresolvedIds;
     }
-    
+
     @Override
     public String getMessage()
     {

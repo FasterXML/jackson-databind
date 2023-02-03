@@ -18,7 +18,7 @@ public class UnwrappingBeanSerializer
      * of unwrapped POJO.
      */
     protected final NameTransformer _nameTransformer;
-    
+
     /*
     /**********************************************************
     /* Life-cycle: constructors
@@ -108,7 +108,7 @@ public class UnwrappingBeanSerializer
     protected BeanSerializerBase asArraySerializer() {
         return this;
     }
-    
+
     /*
     /**********************************************************
     /* ValueSerializer implementation that differs between impls

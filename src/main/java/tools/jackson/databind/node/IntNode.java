@@ -46,7 +46,7 @@ public class IntNode
         return CANONICALS[i - MIN_CANONICAL];
     }
 
-    /* 
+    /*
     /**********************************************************************
     /* BaseJsonNode extended API
     /**********************************************************************
@@ -57,7 +57,7 @@ public class IntNode
     @Override
     public JsonParser.NumberType numberType() { return JsonParser.NumberType.INT; }
 
-    /* 
+    /*
     /**********************************************************************
     /* Overrridden JsonNode methods
     /**********************************************************************
@@ -71,7 +71,7 @@ public class IntNode
 
     @Override public boolean canConvertToInt() { return true; }
     @Override public boolean canConvertToLong() { return true; }
-    
+
     @Override
     public Number numberValue() {
         return Integer.valueOf(_value);
@@ -88,11 +88,11 @@ public class IntNode
 
     @Override
     public float floatValue() { return (float) _value; }
-    
+
     @Override
     public double doubleValue() { return (double) _value; }
 
-    
+
     @Override
     public BigDecimal decimalValue() { return BigDecimal.valueOf(_value); }
 
@@ -108,7 +108,7 @@ public class IntNode
     public boolean asBoolean(boolean defaultValue) {
         return _value != 0;
     }
-    
+
     @Override
     public final void serialize(JsonGenerator g, SerializerProvider provider)
         throws JacksonException

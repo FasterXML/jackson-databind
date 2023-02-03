@@ -44,7 +44,7 @@ public final class TypeWrappedDeserializer
     public Boolean supportsUpdate(DeserializationConfig config) {
         return _deserializer.supportsUpdate(config);
     }
-    
+
     @Override
     public ValueDeserializer<?> getDelegatee() {
         return _deserializer.getDelegatee();
@@ -64,7 +64,7 @@ public final class TypeWrappedDeserializer
     public Object getEmptyValue(DeserializationContext ctxt){
         return _deserializer.getEmptyValue(ctxt);
     }
-    
+
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt)
         throws JacksonException

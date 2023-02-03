@@ -28,12 +28,12 @@ public class AsWrapperTypeDeserializer
     protected AsWrapperTypeDeserializer(AsWrapperTypeDeserializer src, BeanProperty property) {
         super(src, property);
     }
-    
+
     @Override
     public TypeDeserializer forProperty(BeanProperty prop) {
         return (prop == _property) ? this : new AsWrapperTypeDeserializer(this, prop);
     }
-    
+
     @Override
     public As getTypeInclusion() { return As.WRAPPER_OBJECT; }
 
@@ -43,7 +43,7 @@ public class AsWrapperTypeDeserializer
     @Override
     public Object deserializeTypedFromObject(JsonParser jp, DeserializationContext ctxt) throws JacksonException {
         return _deserialize(jp, ctxt);
-    }    
+    }
 
     @Override
     public Object deserializeTypedFromArray(JsonParser jp, DeserializationContext ctxt) throws JacksonException {
@@ -59,7 +59,7 @@ public class AsWrapperTypeDeserializer
     public Object deserializeTypedFromAny(JsonParser jp, DeserializationContext ctxt) throws JacksonException {
         return _deserialize(jp, ctxt);
     }
-    
+
     /*
     /***************************************************************
     /* Internal methods

@@ -22,7 +22,7 @@ public interface JsonNodeCreator
      * @since 3.0
      */
     public JsonNode missingNode();
-    
+
     // Numeric types.
     //
     // note! Can not return `NumericNode` when passed wrapper since `null` will

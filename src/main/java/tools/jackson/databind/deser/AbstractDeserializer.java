@@ -34,7 +34,7 @@ public class AbstractDeserializer
     protected transient Map<String,SettableBeanProperty> _properties;
 
     // support for "native" types, which require special care:
-    
+
     protected final boolean _acceptString;
     protected final boolean _acceptBoolean;
     protected final boolean _acceptInt;
@@ -165,7 +165,7 @@ handledType().getName()));
     public Class<?> handledType() {
         return _baseType.getRawClass();
     }
-    
+
     @Override
     public boolean isCachable() { return true; }
 

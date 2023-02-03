@@ -49,7 +49,7 @@ public abstract class JavaUtilCollectionsDeserializers
         if (localName != null) {
             JavaUtilCollectionsConverter conv = null;
             String name;
-    
+
             if ((name = _findUnmodifiableTypeName(localName)) != null) {
                 if (name.endsWith("Set")) {
                     conv = converter(TYPE_UNMODIFIABLE_SET, type, Set.class);
@@ -72,7 +72,7 @@ public abstract class JavaUtilCollectionsDeserializers
                     conv = converter(TYPE_SYNC_COLLECTION, type, Collection.class);
                 }
             }
-    
+
             return (conv == null) ? null : new StdConvertingDeserializer<Object>(conv);
         }
         if ((localName = _findUtilArrayTypeName(clsName)) != null) {
@@ -112,7 +112,7 @@ public abstract class JavaUtilCollectionsDeserializers
 
         if ((localName = _findUtilCollectionsTypeName(clsName)) != null) {
             String name;
-        
+
             if ((name = _findUnmodifiableTypeName(localName)) != null) {
                 if (name.contains("Map")) {
                     conv = converter(TYPE_UNMODIFIABLE_MAP, type, Map.class);
@@ -173,7 +173,7 @@ public abstract class JavaUtilCollectionsDeserializers
     private static String _findUnmodifiableTypeName(String localName) {
         return localName.startsWith("Unmodifiable") ? localName.substring(12): null;
     }
-    
+
     /**
      * Implementation used for converting from various generic container
      * types ({@link java.util.Set}, {@link java.util.List}, {@link java.util.Map})
@@ -189,13 +189,13 @@ public abstract class JavaUtilCollectionsDeserializers
             _inputType = inputType;
             _kind = kind;
         }
-        
+
         @Override
         public Object convert(Object value) {
             if (value == null) { // is this legal to get?
                 return null;
             }
-            
+
             switch (_kind) {
             case TYPE_SINGLETON_SET:
                 {
@@ -232,7 +232,7 @@ public abstract class JavaUtilCollectionsDeserializers
                 return Collections.synchronizedCollection((Collection<?>) value);
             case TYPE_SYNC_MAP:
                 return Collections.synchronizedMap((Map<?,?>) value);
-                
+
             case TYPE_AS_LIST:
             default:
                 // Here we do not actually care about impl type, just return List as-is:

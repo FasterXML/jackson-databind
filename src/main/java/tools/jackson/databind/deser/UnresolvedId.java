@@ -5,7 +5,7 @@ import tools.jackson.databind.util.ClassUtil;
 
 /**
  * Helper class for {@link UnresolvedForwardReference}, to contain information about unresolved ids.
- * 
+ *
  * @author pgelinas
  */
 public class UnresolvedId {
@@ -18,7 +18,7 @@ public class UnresolvedId {
         _type = type;
         _location = where;
     }
-    
+
     /**
      * The id which is unresolved.
      */

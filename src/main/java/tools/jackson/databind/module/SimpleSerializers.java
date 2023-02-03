@@ -46,26 +46,26 @@ public class SimpleSerializers
      * Flag to help find "generic" enum serializer, if one has been registered.
      */
     protected boolean _hasEnumSerializer = false;
-    
+
     /*
     /**********************************************************
     /* Life-cycle, construction and configuring
     /**********************************************************
      */
-    
+
     public SimpleSerializers() { }
 
     public SimpleSerializers(List<ValueSerializer<?>> sers) {
         addSerializers(sers);
     }
-    
+
     /**
      * Method for adding given serializer for type that {@link ValueSerializer#handledType}
      * specifies (which MUST return a non-null class; and can NOT be {@link Object}, as a
      * sanity check).
      * For serializers that do not declare handled type, use the variant that takes
      * two arguments.
-     * 
+     *
      * @param ser
      */
     public SimpleSerializers addSerializer(ValueSerializer<?> ser)
@@ -75,7 +75,7 @@ public class SimpleSerializers
         if (cls == null || cls == Object.class) {
             throw new IllegalArgumentException("`ValueSerializer` of type `"+ser.getClass().getName()
                     +"` does not define valid handledType() -- must either register with method that takes type argument "
-                    +" or make serializer extend 'tools.jackson.databind.ser.std.StdSerializer'"); 
+                    +" or make serializer extend 'tools.jackson.databind.ser.std.StdSerializer'");
         }
         _addSerializer(cls, ser);
         return this;
@@ -99,7 +99,7 @@ public class SimpleSerializers
     /* Serializers implementation
     /**********************************************************************
      */
-    
+
     @Override
     public ValueSerializer<?> findSerializer(SerializationConfig config,
             JavaType type, BeanDescription beanDesc, JsonFormat.Value formatOverrides)
@@ -107,7 +107,7 @@ public class SimpleSerializers
         Class<?> cls = type.getRawClass();
         ClassKey key = new ClassKey(cls);
         ValueSerializer<?> ser = null;
-        
+
         // First: direct match?
         if (cls.isInterface()) {
             if (_interfaceMappings != null) {
@@ -131,7 +131,7 @@ public class SimpleSerializers
                         return ser;
                     }
                 }
-                
+
                 // If not direct match, maybe super-class match?
                 for (Class<?> curr = cls; (curr != null); curr = curr.getSuperclass()) {
                     key.reset(curr);
@@ -181,7 +181,7 @@ public class SimpleSerializers
             TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer) {
         return findSerializer(config, type, beanDesc, formatOverrides);
     }
-        
+
     @Override
     public ValueSerializer<?> findMapSerializer(SerializationConfig config,
             MapType type, BeanDescription beanDesc, JsonFormat.Value formatOverrides,
@@ -197,13 +197,13 @@ public class SimpleSerializers
             TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer) {
         return findSerializer(config, type, beanDesc, formatOverrides);
     }
-    
+
     /*
     /**********************************************************************
     /* Internal methods
     /**********************************************************************
      */
-    
+
     protected ValueSerializer<?> _findInterfaceMapping(Class<?> cls, ClassKey key)
     {
         for (Class<?> iface : cls.getInterfaces()) {

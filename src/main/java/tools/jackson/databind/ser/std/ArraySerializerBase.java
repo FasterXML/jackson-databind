@@ -11,7 +11,7 @@ import tools.jackson.databind.jsontype.TypeSerializer;
 
 /**
  * Intermediate base class for serializers used for various Java arrays.
- * 
+ *
  * @param <T> Type of arrays serializer handles
  */
 public abstract class ArraySerializerBase<T>

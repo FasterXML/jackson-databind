@@ -37,7 +37,7 @@ public abstract class StdSerializer<T>
      * constructing converting serializers.
      */
     private final static Object KEY_CONTENT_CONVERTER_LOCK = new Object();
-    
+
     /**
      * Nominal type supported, usually declared type of
      * property for which serializer is used.
@@ -118,7 +118,7 @@ public abstract class StdSerializer<T>
         schema.put("type", type);
         return schema;
     }
-    
+
     protected ObjectNode createSchemaNode(String type, boolean isOptional)
     {
         ObjectNode schema = createSchemaNode(type);
@@ -181,7 +181,7 @@ public abstract class StdSerializer<T>
             }
         }
     }
-    
+
     /**
      * Helper method that calls necessary visit method(s) to indicate that the
      * underlying JSON type is a floating-point JSON number.
@@ -218,7 +218,7 @@ public abstract class StdSerializer<T>
     /* Helper methods for exception handling
     /**********************************************************************
      */
-    
+
     /**
      * Method that will modify caught exception (passed in as argument)
      * as necessary to include reference information, and to ensure it
@@ -288,7 +288,7 @@ public abstract class StdSerializer<T>
      * Helper method that can be used to see if specified property has annotation
      * indicating that a converter is to be used for contained values (contents
      * of structured types; array/List/Map values)
-     * 
+     *
      * @param existingSerializer (optional) configured content
      *    serializer if one already exists.
      */
@@ -381,7 +381,7 @@ public abstract class StdSerializer<T>
      * Convenience method that uses {@link #findFormatOverrides} to find possible
      * defaults and/of overrides, and then calls <code>JsonFormat.Value.getFeature(...)</code>
      * to find whether that feature has been specifically marked as enabled or disabled.
-     * 
+     *
      * @param typeForDefaults Type (erased) used for finding default format settings, if any
      */
     protected Boolean findFormatFeature(SerializerProvider provider,
@@ -403,7 +403,7 @@ public abstract class StdSerializer<T>
         // even without property or AnnotationIntrospector, may have type-specific defaults
         return provider.getDefaultPropertyInclusion(typeForDefaults);
     }
-    
+
     /**
      * Convenience method for finding out possibly configured content value serializer.
      */
@@ -427,7 +427,7 @@ public abstract class StdSerializer<T>
     /* Helper methods, other
     /**********************************************************************
      */
-    
+
     /**
      * Method that can be called to determine if given serializer is the default
      * serializer Jackson uses; as opposed to a custom serializer installed by

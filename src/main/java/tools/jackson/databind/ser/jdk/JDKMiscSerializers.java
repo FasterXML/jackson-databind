@@ -47,7 +47,7 @@ public class JDKMiscSerializers
             return new TokenBufferSerializer();
         }
         // And then some stranger types... not 100% they are needed but:
-        if ((raw == Void.class) || (raw == Void.TYPE)) { 
+        if ((raw == Void.class) || (raw == Void.TYPE)) {
             return NullSerializer.instance;
         }
         return null;
@@ -63,7 +63,7 @@ public class JDKMiscSerializers
         extends StdScalarSerializer<AtomicBoolean>
     {
         public AtomicBooleanSerializer() { super(AtomicBoolean.class, false); }
-    
+
         @Override
         public void serialize(AtomicBoolean value, JsonGenerator gen, SerializerProvider provider) throws JacksonException {
             gen.writeBoolean(value.get());
@@ -79,7 +79,7 @@ public class JDKMiscSerializers
         extends StdScalarSerializer<AtomicInteger>
     {
         public AtomicIntegerSerializer() { super(AtomicInteger.class, false); }
-    
+
         @Override
         public void serialize(AtomicInteger value, JsonGenerator gen, SerializerProvider provider) throws JacksonException {
             gen.writeNumber(value.get());
@@ -96,7 +96,7 @@ public class JDKMiscSerializers
         extends StdScalarSerializer<AtomicLong>
     {
         public AtomicLongSerializer() { super(AtomicLong.class, false); }
-    
+
         @Override
         public void serialize(AtomicLong value, JsonGenerator gen, SerializerProvider provider) throws JacksonException {
             gen.writeNumber(value.get());

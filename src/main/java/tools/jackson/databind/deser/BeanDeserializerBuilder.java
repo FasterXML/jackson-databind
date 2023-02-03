@@ -122,7 +122,7 @@ public class BeanDeserializerBuilder
 
     public BeanDeserializerBuilder(BeanDescription beanDesc,
             DeserializationContext ctxt)
-    { 
+    {
         _beanDesc = beanDesc;
         _context = ctxt;
         _config = ctxt.getConfig();
@@ -303,13 +303,13 @@ public class BeanDeserializerBuilder
         _buildMethod = buildMethod;
         _builderConfig = config;
     }
-    
+
     /*
     /**********************************************************************
     /* Public accessors
     /**********************************************************************
      */
-    
+
     /**
      * Method that allows accessing all properties that this
      * builder currently contains.
@@ -337,7 +337,7 @@ public class BeanDeserializerBuilder
     public SettableAnyProperty getAnySetter() {
         return _anySetter;
     }
-    
+
     public ValueInstantiator getValueInstantiator() {
         return _valueInstantiator;
     }
@@ -493,7 +493,7 @@ public class BeanDeserializerBuilder
 
         // 15-Sep-2016, tatu: Access via back-ref properties has been done earlier
         //   as it has to, for some reason, so not repeated here.
-/*        
+/*
         if (_backRefProperties != null) {
             for (SettableBeanProperty prop : _backRefProperties.values()) {
                 try {
@@ -508,7 +508,7 @@ public class BeanDeserializerBuilder
         // 17-Jun-2020, tatu: Despite [databind#2760], it seems that methods that
         //    are explicitly defined (any setter via annotation, builder too) can not
         //    be left as-is? May reconsider based on feedback
-        
+
         if (_anySetter != null) {
             try {
                 _anySetter.fixAccess(_config);

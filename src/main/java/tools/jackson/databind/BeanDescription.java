@@ -67,7 +67,7 @@ public abstract class BeanDescription
      * be used for this POJO type, if any.
      */
     public abstract ObjectIdInfo getObjectIdInfo();
-    
+
     /**
      * Method for checking whether class being described has any
      * annotations recognized by registered annotation introspector.
@@ -273,7 +273,7 @@ public abstract class BeanDescription
      * Method called to create a "default instance" of the bean, currently
      * only needed for obtaining default field values which may be used for
      * suppressing serialization of fields that have "not changed".
-     * 
+     *
      * @param fixAccess If true, method is allowed to fix access to the
      *   default constructor (to be able to call non-public constructor);
      *   if false, has to use constructor as is.

@@ -28,7 +28,7 @@ public final class AnnotatedField
         super(contextClass, annMap);
         _field = field;
     }
-    
+
     @Override
     public AnnotatedField withAnnotations(AnnotationMap ann) {
         return new AnnotatedField(_typeContext, _field, ann);
@@ -105,12 +105,12 @@ public final class AnnotatedField
      * @since 2.6
      */
     public boolean isTransient() { return Modifier.isTransient(getModifiers()); }
-    
+
     @Override
     public int hashCode() {
         return _field.getName().hashCode();
     }
-    
+
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;

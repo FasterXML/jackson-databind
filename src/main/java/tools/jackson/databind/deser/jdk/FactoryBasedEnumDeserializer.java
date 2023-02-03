@@ -34,14 +34,14 @@ class FactoryBasedEnumDeserializer
      * Lazily instantiated property-based creator.
      */
     private transient PropertyBasedCreator _propCreator;
-    
+
     public FactoryBasedEnumDeserializer(Class<?> cls, AnnotatedMethod f, JavaType paramType,
             ValueInstantiator valueInstantiator, SettableBeanProperty[] creatorProps)
     {
         super(cls);
         _factory = f;
         _hasArgs = true;
-        // We'll skip case of `String`, as well as no type (zero-args): 
+        // We'll skip case of `String`, as well as no type (zero-args):
         _inputType = (paramType.hasRawClass(String.class) || paramType.hasRawClass(CharSequence.class))
                 ? null : paramType;
         _deser = null;
@@ -192,18 +192,18 @@ ClassUtil.getTypeDescription(targetType), _factory, p.currentToken());
         }
         return typeDeserializer.deserializeTypedFromAny(p, ctxt);
     }
-    
+
     // Method to deserialize the Enum using property based methodology
     protected Object deserializeEnumUsingPropertyBased(final JsonParser p, final DeserializationContext ctxt,
     		final PropertyBasedCreator creator) throws JacksonException
     {
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, null);
-    
+
         JsonToken t = p.currentToken();
         for (; t == JsonToken.PROPERTY_NAME; t = p.nextToken()) {
             String propName = p.currentName();
             p.nextToken(); // to point to value
-    
+
             final SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
             if (buffer.readIdProperty(propName) && creatorProp == null) {
                 continue;

@@ -66,7 +66,7 @@ public final class ReadOnlyClassToSerializerMap
      */
 
     public int size() { return _size; }
-    
+
     public ValueSerializer<Object> typedValueSerializer(JavaType type)
     {
         Bucket bucket = _buckets[TypeKey.typedHash(type) & _mask];
@@ -129,7 +129,7 @@ public final class ReadOnlyClassToSerializerMap
             }
         }
         return _sharedCache.untypedValueSerializer(rawType);
-    }    
+    }
 
     /*
     /**********************************************************************
@@ -146,7 +146,7 @@ public final class ReadOnlyClassToSerializerMap
         protected final JavaType _type;
 
         protected final boolean _isTyped;
-        
+
         public Bucket(Bucket next, TypeKey key, ValueSerializer<Object> value)
         {
             this.next = next;

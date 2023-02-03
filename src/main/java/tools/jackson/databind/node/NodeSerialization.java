@@ -23,7 +23,7 @@ class NodeSerialization implements java.io.Serializable,
 
     private static final JsonMapper JSON_MAPPER = JsonMapper.shared();
     private static final ObjectReader NODE_READER = JSON_MAPPER.readerFor(JsonNode.class);
-    
+
     public byte[] json;
 
     public NodeSerialization() { }
@@ -36,7 +36,7 @@ class NodeSerialization implements java.io.Serializable,
         } catch (JacksonException e) {
             throw new IllegalArgumentException("Failed to JDK deserialize `JsonNode` value: "+e.getMessage(), e);
         }
-    }    
+    }
 
     public static NodeSerialization from(Object o) {
         return new NodeSerialization(valueToBytes(o));

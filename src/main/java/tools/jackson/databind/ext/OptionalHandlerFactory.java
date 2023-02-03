@@ -66,7 +66,7 @@ public class OptionalHandlerFactory
         // 09-Nov-2020, tatu: Not really optimal way to deal with these, problem  being that
         //   Blob is interface and actual instance we get is usually different. So may
         //   need to improve if we reported bugs. But for now, do this
-        
+
         _sqlSerializers.put(CLS_NAME_JAVA_SQL_BLOB, "tools.jackson.databind.ext.sql.JavaSqlBlobSerializer");
         _sqlSerializers.put(CLS_NAME_JAVA_SQL_SERIALBLOB, "tools.jackson.databind.ext.sql.JavaSqlBlobSerializer");
     }

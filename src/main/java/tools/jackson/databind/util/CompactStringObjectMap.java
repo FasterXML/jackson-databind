@@ -22,7 +22,7 @@ public final class CompactStringObjectMap
      */
     private final static CompactStringObjectMap EMPTY = new CompactStringObjectMap(1, 0,
             new Object[4]);
-    
+
     private final int _hashMask, _spillCount;
 
     private final Object[] _hashArea;
@@ -55,7 +55,7 @@ public final class CompactStringObjectMap
             if (key == null) {
                 continue;
             }
-            
+
             int slot = key.hashCode() & mask;
             int ix = slot+slot;
 
@@ -139,7 +139,7 @@ public final class CompactStringObjectMap
         }
         return null;
     }
-    
+
     public List<String> keys() {
         final int end = _hashArea.length;
         List<String> keys = new ArrayList<String>(end >> 2);

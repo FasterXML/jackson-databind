@@ -16,7 +16,7 @@ public enum DefaultTyping {
      * typing.
      */
     JAVA_LANG_OBJECT,
-    
+
     /**
      * Value that means that default typing will be used for
      * properties with declared type of {@link java.lang.Object}
@@ -33,7 +33,7 @@ public enum DefaultTyping {
      * This does NOT apply to {@link TreeNode} and its subtypes.
      */
     NON_CONCRETE_AND_ARRAYS,
-    
+
     /**
      * Value that means that default typing will be used for
      * all non-final types, with exception of small number of

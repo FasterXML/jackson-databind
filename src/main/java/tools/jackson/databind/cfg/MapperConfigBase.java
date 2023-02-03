@@ -64,7 +64,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /* Immutable config, factories
     /**********************************************************************
      */
-    
+
     /**
      * Explicitly defined root name to use, if any; if empty
      * String, will disable root-name wrapping; if null, will
@@ -259,7 +259,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /* Additional shared fluent factory methods; DatatypeFeatures
     /**********************************************************************
      */
-    
+
     /**
      * Fluent factory method that will return a configuration
      * object instance with specified feature enabled: this may be
@@ -299,7 +299,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     public final T withoutFeatures(DatatypeFeature... features) {
         return _with(_datatypeFeatures().withoutFeatures(features));
     }
-    
+
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified features disabled.
@@ -331,7 +331,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     public T withAttributes(Map<?,?> attributes) {
         return with(getAttributes().withSharedAttributes(attributes));
     }
-    
+
     /**
      * Method for constructing an instance that has specified
      * value for attribute for given key.
@@ -420,7 +420,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * disable root name wrapping; and if null used, will instead use
      * <code>SerializationFeature</code> to determine if to use wrapping, and annotation
      * (or default name) for actual root name to use.
-     * 
+     *
      * @param rootName to use: if null, means "use default" (clear setting);
      *   if empty String ("") means that no root name wrapping is used;
      *   otherwise defines root name to use.
@@ -679,13 +679,13 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     public boolean hasMixIns() {
         return _mixIns.hasMixIns();
     }
-    
+
     // Not really relevant here (should not get called)
     @Override
     public MixInResolver snapshot() {
         throw new UnsupportedOperationException();
     }
-    
+
     /**
      * Test-only method -- does not reflect possibly open-ended set that external
      * mix-in resolver might provide.

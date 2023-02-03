@@ -115,7 +115,7 @@ public final class AnnotatedClass
      * @param rawType Type-erased class; pass if no `type` needed or available
      */
     AnnotatedClass(MapperConfig<?> config, JavaType type, Class<?> rawType, List<JavaType> superTypes,
-            Class<?> primaryMixIn, Annotations classAnnotations, TypeBindings bindings, 
+            Class<?> primaryMixIn, Annotations classAnnotations, TypeBindings bindings,
             MixInResolver mir, boolean collectAnnotations)
     {
         _config = config;
@@ -158,7 +158,7 @@ public final class AnnotatedClass
 
     /*
     /**********************************************************************
-    /* Annotated impl 
+    /* Annotated impl
     /**********************************************************************
      */
 
@@ -319,7 +319,7 @@ public final class AnnotatedClass
     public int hashCode() {
         return _class.getName().hashCode();
     }
-    
+
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;

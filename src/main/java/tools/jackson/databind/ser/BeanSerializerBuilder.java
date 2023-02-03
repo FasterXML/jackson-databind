@@ -27,7 +27,7 @@ public class BeanSerializerBuilder
     final protected BeanDescription _beanDesc;
 
     protected SerializationConfig _config;
-    
+
     /*
     /**********************************************************
     /* Accumulated information about properties
@@ -44,7 +44,7 @@ public class BeanSerializerBuilder
      * view-based filtering is performed.
      */
     protected BeanPropertyWriter[] _filteredProperties;
-    
+
     /**
      * Writer used for "any getter" properties, if any.
      */
@@ -98,7 +98,7 @@ public class BeanSerializerBuilder
     protected void setConfig(SerializationConfig config) {
         _config = config;
     }
-    
+
     public void setProperties(List<BeanPropertyWriter> properties) {
         _properties = properties;
     }
@@ -126,7 +126,7 @@ public class BeanSerializerBuilder
     public void setFilterId(Object filterId) {
         _filterId = filterId;
     }
-    
+
     public void setTypeId(AnnotatedMember idProp) {
         // Not legal to use multiple ones...
         if (_typeId != null) {
@@ -138,7 +138,7 @@ public class BeanSerializerBuilder
     public void setObjectIdWriter(ObjectIdWriter w) {
         _objectIdWriter = w;
     }
-    
+
     /*
     /**********************************************************
     /* Accessors for things BeanSerializer cares about:
@@ -148,7 +148,7 @@ public class BeanSerializerBuilder
      */
 
     public AnnotatedClass getClassInfo() { return _beanDesc.getClassInfo(); }
-    
+
     public BeanDescription getBeanDescription() { return _beanDesc; }
 
     public List<BeanPropertyWriter> getProperties() { return _properties; }
@@ -157,21 +157,21 @@ public class BeanSerializerBuilder
     }
 
     public BeanPropertyWriter[] getFilteredProperties() { return _filteredProperties; }
-    
+
     public AnyGetterWriter getAnyGetter() { return _anyGetter; }
-    
+
     public Object getFilterId() { return _filterId; }
 
     public AnnotatedMember getTypeId() { return _typeId; }
 
     public ObjectIdWriter getObjectIdWriter() { return _objectIdWriter; }
-    
+
     /*
     /**********************************************************
     /* Build methods for actually creating serializer instance
     /**********************************************************
      */
-    
+
     /**
      * Method called to create {@link BeanSerializer} instance with
      * all accumulated information. Will construct a serializer if we

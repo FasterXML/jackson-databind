@@ -223,7 +223,7 @@ public enum MapperFeature
     /* View-related features
     /**********************************************************************
      */
-    
+
     /**
      * Feature that determines whether properties that have no view
      * annotations are included in JSON serialization views (see
@@ -433,7 +433,7 @@ public enum MapperFeature
         _defaultState = defaultState;
         _mask = (1L << ordinal());
     }
-    
+
     public boolean enabledByDefault() { return _defaultState; }
 
     public long getLongMask() {

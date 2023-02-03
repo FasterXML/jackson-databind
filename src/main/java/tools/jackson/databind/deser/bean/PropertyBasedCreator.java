@@ -138,7 +138,7 @@ public final class PropertyBasedCreator
             }
             creatorProps[i] = prop;
         }
-        return new PropertyBasedCreator(ctxt, valueInstantiator, creatorProps, 
+        return new PropertyBasedCreator(ctxt, valueInstantiator, creatorProps,
                 caseInsensitive, false);
     }
 
@@ -188,7 +188,7 @@ public final class PropertyBasedCreator
         if (bean != null) {
             // Object Id to handle?
             bean = buffer.handleIdValue(ctxt, bean);
-            
+
             // Anything buffered?
             for (PropertyValue pv = buffer.buffered(); pv != null; pv = pv.next) {
                 pv.assign(bean);
@@ -224,7 +224,7 @@ public final class PropertyBasedCreator
         public static CaseInsensitiveMap construct(Locale l) {
             return new CaseInsensitiveMap(l);
         }
-        
+
         @Override
         public SettableBeanProperty get(Object key0) {
             return super.get(((String) key0).toLowerCase(_locale));

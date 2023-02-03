@@ -109,7 +109,7 @@ public abstract class DeserializationContextExt
      * needed for {@link #tryToResolveUnresolvedObjectId}.
      * Default implementation simply constructs default {@link ReadableObjectId} with
      * given <code>key</code>.
-     * 
+     *
      * @param key The key to associate with the new ReadableObjectId
      * @return New ReadableObjectId instance
      */
@@ -164,13 +164,13 @@ public abstract class DeserializationContextExt
     {
         return roid.tryToResolveUnresolved(this);
     }
-    
+
     /*
     /**********************************************************************
     /* Abstract methods impls, other factory methods
     /**********************************************************************
      */
-    
+
     @SuppressWarnings("unchecked")
     @Override
     public ValueDeserializer<Object> deserializerInstance(Annotated ann, Object deserDef)
@@ -179,7 +179,7 @@ public abstract class DeserializationContextExt
             return null;
         }
         ValueDeserializer<?> deser;
-        
+
         if (deserDef instanceof ValueDeserializer) {
             deser = (ValueDeserializer<?>) deserDef;
         } else {
@@ -218,7 +218,7 @@ public abstract class DeserializationContextExt
         }
 
         KeyDeserializer deser;
-        
+
         if (deserDef instanceof KeyDeserializer) {
             deser = (KeyDeserializer) deserDef;
         } else {

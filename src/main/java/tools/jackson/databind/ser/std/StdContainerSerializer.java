@@ -30,7 +30,7 @@ public abstract class StdContainerSerializer<T>
      * @since 3.0 (in 2.x subtypes contained it)
      */
     protected PropertySerializerMap _dynamicValueSerializers;
-    
+
     /*
     /**********************************************************************
     /* Construction, initialization
@@ -69,7 +69,7 @@ public abstract class StdContainerSerializer<T>
      * Factory(-like) method that can be used to construct a new container
      * serializer that uses specified {@link TypeSerializer} for decorating
      * contained values with additional type information.
-     * 
+     *
      * @param vts Type serializer to use for contained values; can be null,
      *    in which case 'this' serializer is returned as is
      * @return Serializer instance that uses given type serializer for values if

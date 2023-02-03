@@ -18,7 +18,7 @@ final class LaissezFaireSubTypeValidator
 {
     private static final long serialVersionUID = 1L;
 
-    public final static LaissezFaireSubTypeValidator instance = new LaissezFaireSubTypeValidator(); 
+    public final static LaissezFaireSubTypeValidator instance = new LaissezFaireSubTypeValidator();
 
     @Override
     public Validity validateBaseType(DatabindContext ctxt, JavaType baseType) {

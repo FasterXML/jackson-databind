@@ -42,7 +42,7 @@ public class SerializationContextExt
      * Object Id handling is enabled.
      */
     protected transient Map<Object, WritableObjectId> _seenObjectIds;
-    
+
     protected transient ArrayList<ObjectIdGenerator<?>> _objectIdGenerators;
 
     /*
@@ -62,7 +62,7 @@ public class SerializationContextExt
     /* Abstract method impls, factory methods
     /**********************************************************************
      */
-    
+
     @Override
     public ValueSerializer<Object> serializerInstance(Annotated annotated, Object serDef)
     {
@@ -70,7 +70,7 @@ public class SerializationContextExt
             return null;
         }
         ValueSerializer<?> ser;
-        
+
         if (serDef instanceof ValueSerializer) {
             ser = (ValueSerializer<?>) serDef;
         } else {
@@ -159,7 +159,7 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
      * are not re-constructed through actual format representation. So if transformation
      * requires actual materialization of encoded content,
      * it will be necessary to do actual serialization.
-     * 
+     *
      * @param <T> Actual node type; usually either basic {@link JsonNode} or
      *  {@link tools.jackson.databind.node.ObjectNode}
      * @param fromValue Java value to convert
@@ -193,7 +193,7 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
     /* Object Id handling
     /**********************************************************************
      */
-    
+
     @Override
     public WritableObjectId findObjectId(Object forPojo, ObjectIdGenerator<?> generatorType)
     {
@@ -207,7 +207,7 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
         }
         // Not seen yet; must add an entry, return it. For that, we need generator
         ObjectIdGenerator<?> generator = null;
-        
+
         if (_objectIdGenerators == null) {
             _objectIdGenerators = new ArrayList<ObjectIdGenerator<?>>(8);
         } else {
@@ -265,7 +265,7 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
     /* Extended API called by ObjectMapper: value serialization
     /**********************************************************************
      */
-    
+
     /**
      * The method to be called by {@link ObjectMapper} and {@link ObjectWriter}
      * for serializing given value, using serializers that
@@ -302,7 +302,7 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
      * using serializers that
      * this provider has access to (via caching and/or creating new serializers
      * as need be),
-     * 
+     *
      * @param rootType Type to use for locating serializer to use, instead of actual
      *    runtime type. Must be actual type, or one of its super types
      */
@@ -337,7 +337,7 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
      * for serializing given value (assumed to be of specified root type,
      * instead of runtime type of value), when it may know specific
      * {@link ValueSerializer} to use.
-     * 
+     *
      * @param rootType Type to use for locating serializer to use, instead of actual
      *    runtime type, if no serializer is passed
      * @param ser Root Serializer to use, if not null

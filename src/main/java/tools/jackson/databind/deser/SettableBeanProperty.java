@@ -158,7 +158,7 @@ public abstract class SettableBeanProperty
     /**
      * Constructor only used by {@link tools.jackson.databind.deser.impl.ObjectIdValueProperty}.
      */
-    protected SettableBeanProperty(PropertyName propName, JavaType type, 
+    protected SettableBeanProperty(PropertyName propName, JavaType type,
             PropertyMetadata metadata, ValueDeserializer<Object> valueDeser)
     {
         super(metadata);
@@ -269,9 +269,9 @@ public abstract class SettableBeanProperty
      * Fluent factory method for constructing and returning a new instance
      * with specified value deserializer.
      * Note that this method should NOT change configuration of this instance.
-     * 
+     *
      * @param deser Deserializer to assign to the new property instance
-     * 
+     *
      * @return Newly constructed instance, if value deserializer differs from the
      *   one used for this instance; or 'this' if not.
      */
@@ -281,9 +281,9 @@ public abstract class SettableBeanProperty
      * Fluent factory method for constructing and returning a new instance
      * with specified property name.
      * Note that this method should NOT change configuration of this instance.
-     * 
+     *
      * @param newName Name to use for the new instance.
-     * 
+     *
      * @return Newly constructed instance, if property name differs from the
      *   one used for this instance; or 'this' if not.
      */
@@ -349,7 +349,7 @@ public abstract class SettableBeanProperty
     /* BeanProperty impl
     /**********************************************************************
      */
-    
+
     @Override
     public final String getName() {
         return _propName.getSimpleName();
@@ -367,7 +367,7 @@ public abstract class SettableBeanProperty
     public PropertyName getWrapperName() {
         return _wrapperName;
     }
-    
+
     @Override
     public abstract AnnotatedMember getMember();
 
@@ -384,7 +384,7 @@ public abstract class SettableBeanProperty
             SerializerProvider provider)
     {
         if (isRequired()) {
-            objectVisitor.property(this); 
+            objectVisitor.property(this);
         } else {
             objectVisitor.optionalProperty(this);
         }
@@ -427,12 +427,12 @@ public abstract class SettableBeanProperty
     }
 
     public boolean hasViews() { return _viewMatcher != null; }
-    
+
     /**
      * Method for accessing unique index of this property; indexes are
      * assigned once all properties of a {@link BeanDeserializer} have
      * been collected.
-     * 
+     *
      * @return Index of this property
      */
     public int getPropertyIndex() { return _propertyIndex; }
@@ -517,7 +517,7 @@ public abstract class SettableBeanProperty
      * Pre-condition is that passed parser must point to the first token
      * that should be consumed to produce the value (the only value for
      * scalars, multiple for Objects and Arrays).
-     *<p> 
+     *<p>
      * Note that this method is final for performance reasons: to override
      * functionality you must override other methods that call this method;
      * this method should also not be called directly unless you really know
@@ -655,7 +655,7 @@ public abstract class SettableBeanProperty
             }
             return withDelegate(newDelegate);
         }
-        
+
         @Override
         public SettableBeanProperty withValueDeserializer(ValueDeserializer<?> deser) {
             return _with(delegate.withValueDeserializer(deser));
@@ -701,7 +701,7 @@ public abstract class SettableBeanProperty
 
         @Override
         public boolean hasValueTypeDeserializer() { return delegate.hasValueTypeDeserializer(); }
-        
+
         @Override
         public ValueDeserializer<Object> getValueDeserializer() { return delegate.getValueDeserializer(); }
 

@@ -70,14 +70,14 @@ public abstract class ValueDeserializer<T>
      * as a result method should <b>NOT</b> modify this instance but rather construct
      * and return a new instance. This instance should only be returned as-is, in case
      * it is already suitable for use.
-     * 
-     * @param ctxt Deserialization context to access configuration, additional 
+     *
+     * @param ctxt Deserialization context to access configuration, additional
      *    deserializers that may be needed by this deserializer
      * @param property Method, field or constructor parameter that represents the property
      *   (and is used to assign deserialized value).
      *   Should be available; but there may be cases where caller cannot provide it and
      *   null is passed instead (in which case impls usually pass 'this' deserializer as is)
-     * 
+     *
      * @return Deserializer to use for deserializing values of specified property;
      *   may be this instance or a new instance.
      */
@@ -92,14 +92,14 @@ public abstract class ValueDeserializer<T>
     /* Main deserialization methods
     /**********************************************************************
      */
-    
+
     /**
      * Method that can be called to ask implementation to deserialize
      * JSON content into the value type this serializer handles.
      * Returned instance is to be constructed by method itself.
      *<p>
      * Pre-condition for this method is that the parser points to the
-     * first event that is part of value to deserializer (and which 
+     * first event that is part of value to deserializer (and which
      * is never JSON 'null' literal, more on this below): for simple
      * types it may be the only value; and for structured types the
      * Object start marker or a FIELD_NAME.
@@ -181,14 +181,14 @@ public abstract class ValueDeserializer<T>
      * should not rely on current default implementation.
      * Implementation is mostly provided to avoid compilation errors with older
      * code.
-     * 
+     *
      * @param typeDeserializer Deserializer to use for handling type information
      */
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
         throws JacksonException
     {
-        // We could try calling 
+        // We could try calling
         return typeDeserializer.deserializeTypedFromAny(p, ctxt);
     }
 
@@ -290,7 +290,7 @@ public abstract class ValueDeserializer<T>
      * another deserializer for actual deserialization, by delegating
      * calls. If so, will return immediate delegate (which itself may
      * delegate to further deserializers); otherwise will return null.
-     * 
+     *
      * @return Deserializer this deserializer delegates calls to, if null;
      *   null otherwise.
      */
@@ -428,7 +428,7 @@ public abstract class ValueDeserializer<T>
      * {@link tools.jackson.databind.deser.bean.BeanDeserializer})
      * do implement this feature, and may return reader instance, depending on exact
      * configuration of instance (which is based on type, and referring property).
-     * 
+     *
      * @return ObjectIdReader used for resolving possible Object Identifier
      *    value, instead of full value serialization, if deserializer can do that;
      *    null if no Object Id is expected.

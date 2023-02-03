@@ -69,7 +69,7 @@ public final class AnnotatedMethod
     /* AnnotatedWithParams
     /**********************************************************************
      */
-    
+
     @Override
     public final Object call() throws Exception {
         // 31-Mar-2021, tatu: Note! This is faster than calling without arguments
@@ -201,7 +201,7 @@ public final class AnnotatedMethod
     public int hashCode() {
         return _method.getName().hashCode();
     }
-    
+
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;

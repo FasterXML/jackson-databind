@@ -38,7 +38,7 @@ public enum JsonValueFormat
      * This SHOULD be a host-name.
      */
     HOST_NAME("host-name"),
-     
+
     /**
      * This SHOULD be an ip version 4 address.
      */

@@ -96,7 +96,7 @@ public final class EnumValues
             SerializableString[] externalValues) {
         return new EnumValues(enumClass, externalValues);
     }
-    
+
     public SerializableString serializedValueFor(Enum<?> key) {
         return _textual[key.ordinal()];
     }
@@ -107,7 +107,7 @@ public final class EnumValues
 
     /**
      * Convenience accessor for getting raw Enum instances.
-     * 
+     *
      * @since 2.6
      */
     public List<Enum<?>> enums() {

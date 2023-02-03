@@ -192,7 +192,7 @@ public class CreatorProperty
     /* BeanProperty impl
     /**********************************************************************
      */
-    
+
     @Override
     public <A extends Annotation> A getAnnotation(Class<A> acls) {
         if (_annotated == null) {
@@ -228,7 +228,7 @@ public class CreatorProperty
         _verifySetter();
         return _fallbackSetter.setAndReturn(instance, deserialize(p, ctxt));
     }
-    
+
     @Override
     public void set(Object instance, Object value)
     {

@@ -112,7 +112,7 @@ public abstract class AsArraySerializerBase<T>
     /* Post-processing
     /**********************************************************************
      */
-    
+
     /**
      * This method is needed to resolve contextual annotations like
      * per-property overrides, as well as do recursive call
@@ -130,7 +130,7 @@ public abstract class AsArraySerializerBase<T>
         ValueSerializer<?> ser = null;
         Boolean unwrapSingle = null;
         // First: if we have a property, may have property-annotation overrides
-        
+
         if (property != null) {
             final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
             AnnotatedMember m = property.getMember();
@@ -171,7 +171,7 @@ public abstract class AsArraySerializerBase<T>
     /* Accessors
     /**********************************************************************
      */
-    
+
     @Override
     public JavaType getContentType() {
         return _elementType;
@@ -190,7 +190,7 @@ public abstract class AsArraySerializerBase<T>
 
     // 16-Apr-2018, tatu: Sample code, but sub-classes need to implement (for more
     //    efficient "is-single-unwrapped" check)
-    
+
     // at least if they can provide access to actual size of value and use `writeStartArray()`
     // variant that passes size of array to output, which is helpful with some data formats
     /*

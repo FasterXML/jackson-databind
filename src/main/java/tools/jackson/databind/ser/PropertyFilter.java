@@ -31,7 +31,7 @@ public interface PropertyFilter
      *      writer.serializeAsProperty(pojo, gen, prov);
      * }
      *</pre>
-     * 
+     *
      * @param pojo Object that contains property value to serialize
      * @param g Generator use for serializing value
      * @param ctxt Provider that can be used for accessing dynamic aspects of serialization
@@ -44,7 +44,7 @@ public interface PropertyFilter
 
     /**
      * Method called by container to let the filter decide what to do with given element
-     * value: 
+     * value:
      * the usual choices are to either filter out (i.e.
      * do nothing) or write using given {@link PropertyWriter}, although filters
      * can choose other to do something different altogether.
@@ -55,7 +55,7 @@ public interface PropertyFilter
      *      writer.serializeAsElement(pojo, gen, prov);
      * }
      *</pre>
-     * 
+     *
      * @param elementValue Element value being serializerd
      * @param g Generator use for serializing value
      * @param ctxt Provider that can be used for accessing dynamic aspects of serialization
@@ -77,9 +77,9 @@ public interface PropertyFilter
      *      writer.depositSchemaProperty(objectVisitor, provider);
      * }
      *</pre>
-     * 
+     *
      * @param writer Bean property serializer to use to create schema value
-     * @param v JsonObjectFormatVisitor which should be aware of 
+     * @param v JsonObjectFormatVisitor which should be aware of
      * the property's existence
      * @param ctxt Serialization context
      */

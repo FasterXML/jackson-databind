@@ -43,14 +43,14 @@ public class NullNode
     }
 
     // as with MissingNode, not considered number node; hence defaults are returned if provided
-    
+
     /*
     public int asInt(int defaultValue);
     public long asLong(long defaultValue);
     public double asDouble(double defaultValue);
     public boolean asBoolean(boolean defaultValue);
     */
-    
+
     @Override
     public final void serialize(JsonGenerator g, SerializerProvider provider)
         throws JacksonException

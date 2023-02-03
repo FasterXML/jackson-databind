@@ -9,7 +9,7 @@ public class JsonNodeException
     private static final long serialVersionUID = 3L;
 
     protected final JsonNode _node;
-    
+
     protected JsonNodeException(JsonNode node, String message) {
         super(message);
         _node = node;
@@ -24,7 +24,7 @@ public class JsonNodeException
         return new JsonNodeException(node,
                 String.format(message, args));
     }
-    
+
     public JsonNode getNode() {
         return _node;
     }

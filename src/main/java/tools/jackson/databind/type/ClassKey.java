@@ -32,7 +32,7 @@ public final class ClassKey
      */
     private int _hashCode;
 
-    public ClassKey() 
+    public ClassKey()
     {
         _class = null;
         _className = null;
@@ -93,5 +93,5 @@ public final class ClassKey
     @Override public int hashCode() { return _hashCode; }
 
     @Override public String toString() { return _className; }
-    
+
 }

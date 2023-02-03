@@ -23,7 +23,7 @@ public class XMLGregorianCalendarSerializer
     final static XMLGregorianCalendarSerializer instance = new XMLGregorianCalendarSerializer();
 
     final ValueSerializer<Object> _delegate;
-    
+
     public XMLGregorianCalendarSerializer() {
         this(JavaUtilCalendarSerializer.instance);
     }

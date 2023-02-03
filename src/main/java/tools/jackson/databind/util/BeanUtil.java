@@ -51,7 +51,7 @@ public class BeanUtil
     /* Value defaulting helpers
     /**********************************************************************
      */
-    
+
     /**
      * Accessor used to find out "default value" to use for comparing values to
      * serialize, to determine whether to exclude value from serialization with

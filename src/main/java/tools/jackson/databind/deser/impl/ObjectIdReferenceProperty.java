@@ -59,7 +59,7 @@ public class ObjectIdReferenceProperty extends SettableBeanProperty
     public SettableBeanProperty withNullProvider(NullValueProvider nva) {
         return new ObjectIdReferenceProperty(this, _valueDeserializer, nva);
     }
-    
+
     @Override
     public void fixAccess(DeserializationConfig config) {
         if (_forward != null) {

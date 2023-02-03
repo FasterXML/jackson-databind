@@ -93,7 +93,7 @@ public class EnumSerializer
     /* Extended API for Jackson databind core
     /**********************************************************************
      */
-    
+
     public EnumValues getEnumValues() { return _values; }
 
     /*
@@ -101,7 +101,7 @@ public class EnumSerializer
     /* Actual serialization
     /**********************************************************************
      */
-    
+
     @Override
     public final void serialize(Enum<?> en, JsonGenerator g, SerializerProvider ctxt)
         throws JacksonException
@@ -136,9 +136,9 @@ public class EnumSerializer
         JsonStringFormatVisitor stringVisitor = visitor.expectStringFormat(typeHint);
         if (stringVisitor != null) {
             Set<String> enums = new LinkedHashSet<String>();
-            
+
             // Use toString()?
-            if ((serializers != null) && 
+            if ((serializers != null) &&
                     serializers.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)) {
                 for (Enum<?> e : _values.enums()) {
                     enums.add(e.toString());
@@ -158,7 +158,7 @@ public class EnumSerializer
     /* Helper methods
     /**********************************************************************
      */
-    
+
     protected final boolean _serializeAsIndex(SerializerProvider ctxt)
     {
         if (_serializeAsIndex != null) {

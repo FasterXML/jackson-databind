@@ -12,7 +12,7 @@ public interface ConfigFeature
      * Accessor for checking whether this feature is enabled by default.
      */
     public boolean enabledByDefault();
-    
+
     /**
      * Returns bit mask for this feature instance
      */

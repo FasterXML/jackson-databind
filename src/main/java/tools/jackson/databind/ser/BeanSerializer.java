@@ -44,7 +44,7 @@ public class BeanSerializer
     {
         super(type, builder, properties, filteredProperties);
     }
-    
+
     /**
      * Alternate copy constructor that can be used to construct
      * standard {@link BeanSerializer} passing an instance of

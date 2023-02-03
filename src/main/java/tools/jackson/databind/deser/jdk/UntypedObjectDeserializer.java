@@ -471,7 +471,7 @@ public class UntypedObjectDeserializer
     {
         String key1;
         JsonToken t = p.currentToken();
-        
+
         if (t == JsonToken.START_OBJECT) {
             key1 = p.nextName();
         } else if (t == JsonToken.PROPERTY_NAME) {

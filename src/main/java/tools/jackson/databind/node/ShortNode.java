@@ -26,7 +26,7 @@ public class ShortNode
 
     public static ShortNode valueOf(short l) { return new ShortNode(l); }
 
-    /* 
+    /*
     /**********************************************************************
     /* Overridden JsonNode methods
     /**********************************************************************
@@ -46,7 +46,7 @@ public class ShortNode
 
     @Override public boolean canConvertToInt() { return true; }
     @Override public boolean canConvertToLong() { return true; }
-    
+
     @Override
     public Number numberValue() {
         return Short.valueOf(_value);
@@ -82,7 +82,7 @@ public class ShortNode
     public boolean asBoolean(boolean defaultValue) {
         return _value != 0;
     }
-    
+
     @Override
     public final void serialize(JsonGenerator g, SerializerProvider provider)
         throws JacksonException

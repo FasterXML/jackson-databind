@@ -20,7 +20,7 @@ class InternalNodeSerializer
 
     private final static ObjectWriter COMPACT_WRITER = MAPPER.writer();
     private final static ObjectWriter PRETTY_WRITER = MAPPER.writerWithDefaultPrettyPrinter();
-    
+
     private static JacksonSerializable _wrapper(BaseJsonNode root) {
         return new WrapperForSerializer(root);
     }

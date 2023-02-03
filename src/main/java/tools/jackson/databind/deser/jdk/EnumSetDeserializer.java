@@ -191,8 +191,8 @@ public class EnumSetDeserializer
         }
         return _deserialize(p, ctxt, result);
     }
-    
-    @SuppressWarnings("unchecked") 
+
+    @SuppressWarnings("unchecked")
     protected final EnumSet<?> _deserialize(JsonParser p, DeserializationContext ctxt,
             EnumSet result) throws JacksonException
     {
@@ -212,7 +212,7 @@ public class EnumSetDeserializer
                 } else {
                     value = _enumDeserializer.deserialize(p, ctxt);
                 }
-                if (value != null) { 
+                if (value != null) {
                     result.add(value);
                 }
             }
@@ -229,14 +229,14 @@ public class EnumSetDeserializer
     {
         return typeDeserializer.deserializeTypedFromArray(p, ctxt);
     }
-    
-    @SuppressWarnings("unchecked") 
+
+    @SuppressWarnings("unchecked")
     private EnumSet constructSet()
     {
         return EnumSet.noneOf((Class<Enum>) _enumType.getRawClass());
     }
 
-    @SuppressWarnings("unchecked") 
+    @SuppressWarnings("unchecked")
     protected EnumSet<?> handleNonArray(JsonParser p, DeserializationContext ctxt,
             EnumSet result)
         throws JacksonException
@@ -254,7 +254,7 @@ public class EnumSetDeserializer
         }
         try {
             Enum<?> value = _enumDeserializer.deserialize(p, ctxt);
-            if (value != null) { 
+            if (value != null) {
                 result.add(value);
             }
         } catch (Exception e) {

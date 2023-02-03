@@ -34,7 +34,7 @@ public abstract class SerializationContexts
     // get passed via `forMapper(...)` call; all we want to serialize is identity
     // of this class (and possibly whatever sub-classes may want to retain).
     // Hence `transient` modifiers
-    
+
     /**
      * Low-level {@link TokenStreamFactory} that may be used for constructing
      * embedded generators.
@@ -79,7 +79,7 @@ public abstract class SerializationContexts
     protected abstract SerializationContexts forMapper(Object mapper,
             TokenStreamFactory tsf, SerializerFactory serializerFactory,
             SerializerCache cache);
-    
+
     /**
      * Factory method for constructing context object for individual {@code writeValue()}
      * calls.
@@ -113,7 +113,7 @@ public abstract class SerializationContexts
      * Exact count depends on what kind of serializers get cached;
      * default implementation caches all serializers, including ones that
      * are eagerly constructed (for optimal access speed)
-     *<p> 
+     *<p>
      * The main use case for this method is to allow conditional flushing of
      * serializer cache, if certain number of entries is reached.
      */

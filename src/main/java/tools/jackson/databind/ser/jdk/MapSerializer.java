@@ -62,7 +62,7 @@ public class MapSerializer
     /* Serializers used
     /**********************************************************************
      */
-    
+
     /**
      * Key serializer to use, if it can be statically determined
      */
@@ -283,7 +283,7 @@ public class MapSerializer
 
         if (mapType == null) { // for tests?
             keyType = valueType = UNSPECIFIED_TYPE;
-        } else { 
+        } else {
             keyType = mapType.getKeyType();
             if (mapType.hasRawClass(java.util.Properties.class)) {
                 // 25-Mar-2020, tatu: [databind#2657] Since non-standard Properties may actually
@@ -472,7 +472,7 @@ public class MapSerializer
         if (value.isEmpty()) {
             return true;
         }
-        
+
         // 05-Nove-2015, tatu: Simple cases are cheap, but for recursive
         //   emptiness checking we actually need to see if values are empty as well.
         Object supp = _suppressableValue;
@@ -611,7 +611,7 @@ public class MapSerializer
 
     /**
      * General-purpose serialization for contents, where we do not necessarily know
-     * the value serialization, but 
+     * the value serialization, but
      * we do know that no value suppression is needed (which simplifies processing a bit)
      *<p>
      * NOTE: {@code public} only because it is called by code from {@code Guava}
@@ -721,7 +721,7 @@ public class MapSerializer
             }
         }
     }
-    
+
     /**
      * Method called to serialize fields, when the value type is statically known,
      * so that value serializer is passed and does not need to be fetched from
@@ -853,7 +853,7 @@ public class MapSerializer
                 keySerializer = _keySerializer;
             }
             final Object valueElem = entry.getValue();
-    
+
             // And then value
             ValueSerializer<Object> valueSer;
             if (valueElem == null) {
@@ -960,7 +960,7 @@ public class MapSerializer
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
     {
-        JsonMapFormatVisitor v2 = visitor.expectMapFormat(typeHint);        
+        JsonMapFormatVisitor v2 = visitor.expectMapFormat(typeHint);
         if (v2 != null) {
             v2.keyFormat(_keySerializer, _keyType);
             ValueSerializer<?> valueSer = _valueSerializer;
@@ -995,7 +995,7 @@ public class MapSerializer
                 if (key == null) {
                     _writeNullKeyedEntry(gen, provider, entry.getValue());
                     continue;
-                } 
+                }
                 result.put(key, entry.getValue());
             }
             return result;
@@ -1012,10 +1012,10 @@ public class MapSerializer
         //   known good cases).
         //   While my first instinct was to do black-listing (remove Hashtable and ConcurrentHashMap),
         //   all in all it is probably better to just white list `HashMap` (and its sub-classes).
-        
+
         return (input instanceof HashMap) && input.containsKey(null);
     }
-    
+
     protected void _writeNullKeyedEntry(JsonGenerator g, SerializerProvider ctxt,
             Object value) throws JacksonException
     {

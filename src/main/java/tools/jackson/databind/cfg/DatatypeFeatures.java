@@ -46,7 +46,7 @@ public class DatatypeFeatures
     /* Public Mutant Factory methods
     /**********************************************************************
      */
-    
+
     /**
      * Mutant factory method that returns an instance with given Feature
      * explicitly enabled.
@@ -97,7 +97,7 @@ public class DatatypeFeatures
             return this;
         }
     }
-    
+
     /**
      * Mutant factory method that returns an instance with given Feature
      * explicitly disabled.
@@ -162,7 +162,7 @@ public class DatatypeFeatures
     /* Public accessors
     /**********************************************************************
      */
-    
+
     /**
      * Accessor for getting value of specified feature in this set, regardless of
      * whether explicit defined or not (if not explicitly enabled/disabled returns
@@ -253,7 +253,7 @@ public class DatatypeFeatures
             return false;
         }
     }
-    
+
     /**
      * Accessor for getting explicit state of given feature in this set
      * iff explicitly set, or {@code null} if not explicitly set (default value)

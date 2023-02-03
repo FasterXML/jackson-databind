@@ -112,7 +112,7 @@ public class StdDateFormat
 
     /**
      * Blueprint "Calendar" instance for use during formatting. Cannot be used as is,
-     * due to thread-safety issues, but can be used for constructing actual instances 
+     * due to thread-safety issues, but can be used for constructing actual instances
      * more cheaply by cloning.
      */
     protected static final Calendar CALENDAR = new GregorianCalendar(DEFAULT_TIMEZONE, DEFAULT_LOCALE);
@@ -140,7 +140,7 @@ public class StdDateFormat
 
     private transient DateFormat _formatRFC1123;
 
-    /** 
+    /**
      * Whether the TZ offset must be formatted with a colon between hours and minutes ({@code HH:mm} format)
      *<p>
      * NOTE: default changed to `true` in Jackson 3.0; was `false` earlier.
@@ -168,7 +168,7 @@ public class StdDateFormat
     public static TimeZone getDefaultTimeZone() {
         return DEFAULT_TIMEZONE;
     }
-    
+
     /**
      * Method used for creating a new instance with specified timezone;
      * if no timezone specified, defaults to the default timezone (UTC).
@@ -225,7 +225,7 @@ public class StdDateFormat
         }
         return new StdDateFormat(_timezone, _locale, _lenient, b);
      }
-    
+
     @Override
     public StdDateFormat clone() {
         // Although there isn't that much state to share, we do need to
@@ -285,7 +285,7 @@ public class StdDateFormat
      * (parsing) always accepts optional colon but does not require it, regardless
      * of this setting.
      *
-     * @return {@code true} if a colon is to be inserted between the hours and minutes 
+     * @return {@code true} if a colon is to be inserted between the hours and minutes
      * of the TZ offset when serializing as String; otherwise {@code false}
      */
     public boolean isColonIncludedInTimeZone() {
@@ -364,7 +364,7 @@ public class StdDateFormat
     /* Public API, writing
     /**********************************************************************
      */
-    
+
     @Override
     public StringBuffer format(Date date, StringBuffer toAppendTo,
             FieldPosition fieldPosition)
@@ -376,7 +376,7 @@ public class StdDateFormat
         _format(tz, _locale, date, toAppendTo);
         return toAppendTo;
     }
-    
+
     protected void _format(TimeZone tz, Locale loc, Date date,
             StringBuffer buffer)
     {
@@ -593,7 +593,7 @@ public class StdDateFormat
             Matcher m = PATTERN_ISO8601.matcher(dateStr);
             if (m.matches()) {
                 // Important! START with optional time zone; otherwise Calendar will explode
-                
+
                 int start = m.start(2);
                 int end = m.end(2);
                 int len = end-start;
@@ -612,7 +612,7 @@ public class StdDateFormat
                     // 23-Jun-2017, tatu: Not sure why, but this appears to be needed too:
                     cal.set(Calendar.DST_OFFSET, 0);
                 }
-                
+
                 int year = _parse4D(dateStr, 0);
                 int month = _parse2D(dateStr, 5)-1;
                 int day = _parse2D(dateStr, 8);
@@ -735,7 +735,7 @@ public class StdDateFormat
         cal.setLenient(isLenient());
         return cal;
     }
-    
+
     protected static <T> boolean _equals(T value1, T value2) {
         if (value1 == value2) {
             return true;

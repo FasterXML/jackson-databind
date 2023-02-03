@@ -173,7 +173,7 @@ _containerType,
                 JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
         // also, often value deserializer is resolved here:
         ValueDeserializer<?> valueDeser = _valueDeserializer;
-        
+
         // May have a content converter
         valueDeser = findConvertingContentDeserializer(ctxt, property, valueDeser);
         final JavaType vt = _containerType.getContentType();
@@ -526,14 +526,14 @@ _containerType,
     private final static class CollectionReferring extends Referring {
         private final CollectionReferringAccumulator _parent;
         public final List<Object> next = new ArrayList<Object>();
-        
+
         CollectionReferring(CollectionReferringAccumulator parent,
                 UnresolvedForwardReference reference, Class<?> contentType)
         {
             super(reference, contentType);
             _parent = parent;
         }
-        
+
         @Override
         public void handleResolvedForwardReference(Object id, Object value) throws JacksonException {
             _parent.resolveForwardReference(id, value);

@@ -78,7 +78,7 @@ public abstract class BasicDeserializerFactory
     protected BasicDeserializerFactory(DeserializerFactoryConfig config) {
         _factoryConfig = config;
     }
-    
+
     /**
      * Method for getting current {@link DeserializerFactoryConfig}.
       *<p>
@@ -115,7 +115,7 @@ public abstract class BasicDeserializerFactory
     public final DeserializerFactory withAdditionalKeyDeserializers(KeyDeserializers additional) {
         return withConfig(_factoryConfig.withAdditionalKeyDeserializers(additional));
     }
-    
+
     /**
      * Convenience method for creating a new factory instance with additional
      * {@link ValueDeserializerModifier}.
@@ -278,7 +278,7 @@ public abstract class BasicDeserializerFactory
                 AnnotatedWithParams owner = param.getOwner();
                 BeanPropertyDefinition[] defs = result.get(owner);
                 final int index = param.getIndex();
-                
+
                 if (defs == null) {
                     if (result.isEmpty()) { // since emptyMap is immutable need to create a 'real' one
                         result = new LinkedHashMap<AnnotatedWithParams,BeanPropertyDefinition[]>();
@@ -297,7 +297,7 @@ index, owner, defs[index], propDef);
         }
         return result;
     }
-    
+
     public ValueInstantiator _valueInstantiatorInstance(DeserializationConfig config,
             Annotated annotated, Object instDef)
     {
@@ -306,7 +306,7 @@ index, owner, defs[index], propDef);
         }
 
         ValueInstantiator inst;
-        
+
         if (instDef instanceof ValueInstantiator) {
             return (ValueInstantiator) instDef;
         }
@@ -607,7 +607,7 @@ nonAnnotatedParamIndex, ctor);
             if (creatorMode == JsonCreator.Mode.DISABLED) {
                 continue;
             }
-            
+
             // zero-arg method factory methods fine, as long as explicit
             if (argCount == 0) {
                 creators.setDefaultCreator(factory);
@@ -665,12 +665,12 @@ nonAnnotatedParamIndex, ctor);
                 }
                 continue;
             }
-            AnnotatedParameter nonAnnotatedParam = null;            
+            AnnotatedParameter nonAnnotatedParam = null;
             SettableBeanProperty[] properties = new SettableBeanProperty[argCount];
             int implicitNameCount = 0;
             int explicitNameCount = 0;
             int injectCount = 0;
-            
+
             for (int i = 0; i < argCount; ++i) {
                 final AnnotatedParameter param = factory.getParameter(i);
                 BeanPropertyDefinition propDef = (propDefs == null) ? null : propDefs[i];
@@ -713,7 +713,7 @@ nonAnnotatedParamIndex, ctor);
                 }
             }
             final int namedCount = explicitNameCount + implicitNameCount;
-            
+
             // Ok: if named or injectable, we have more work to do
             if (explicitNameCount > 0 || injectCount > 0) {
                 // simple case; everything covered:
@@ -1288,7 +1288,7 @@ paramIndex, candidate);
     {
         final DeserializationConfig config = ctxt.getConfig();
         JavaType elemType = type.getContentType();
-        
+
         // Very first thing: is deserializer hard-coded for elements?
         @SuppressWarnings("unchecked")
         ValueDeserializer<Object> contentDeser = (ValueDeserializer<Object>) elemType.getValueHandler();
@@ -1471,7 +1471,7 @@ paramIndex, candidate);
         final DeserializationConfig config = ctxt.getConfig();
         JavaType keyType = type.getKeyType();
         JavaType contentType = type.getContentType();
-        
+
         // First: is there annotation-specified deserializer for values?
         @SuppressWarnings("unchecked")
         ValueDeserializer<Object> contentDeser = (ValueDeserializer<Object>) contentType.getValueHandler();
@@ -1516,7 +1516,7 @@ paramIndex, candidate);
             }
 
             // Otherwise, generic handler works ok.
-    
+
             /* But there is one more twist: if we are being asked to instantiate
              * an interface or abstract Map, we need to either find something
              * that implements the thing, or give up.
@@ -1594,11 +1594,11 @@ paramIndex, candidate);
         JavaType keyType = type.getKeyType();
         JavaType contentType = type.getContentType();
         final DeserializationConfig config = ctxt.getConfig();
-        
+
         // First: is there annotation-specified deserializer for values?
         @SuppressWarnings("unchecked")
         ValueDeserializer<Object> contentDeser = (ValueDeserializer<Object>) contentType.getValueHandler();
-        
+
         // Ok: need a key deserializer (null indicates 'default' here)
         KeyDeserializer keyDes = (KeyDeserializer) keyType.getValueHandler();
         /* !!! 24-Jan-2012, tatu: NOTE: impls MUST use resolve() to find key deserializer!
@@ -1674,7 +1674,7 @@ factory.toString()));
                     break;
                 }
             }
-           
+
             // Need to consider @JsonValue if one found
             if (deser == null) {
                 deser = new EnumDeserializer(constructEnumResolver(ctxt, enumClass,
@@ -1782,7 +1782,7 @@ factory.toString()));
     /* DeserializerFactory impl (partial): key deserializers
     /**********************************************************************
      */
-    
+
     @Override
     public KeyDeserializer createKeyDeserializer(DeserializationContext ctxt,
             JavaType type)
@@ -1885,7 +1885,7 @@ factory.toString()));
     /* DeserializerFactory impl: find explicitly supported types
     /**********************************************************************
      */
-    
+
     /**
      * Method that can be used to check if databind module has deserializer
      * for given (likely JDK) type: explicit meaning that it is not automatically
@@ -1951,7 +1951,7 @@ factory.toString()));
         }
         return false;
     }
-    
+
     /*
     /**********************************************************************
     /* Extended API
@@ -1972,7 +1972,7 @@ factory.toString()));
             // 11-Feb-2015, tatu: As per [databind#700] need to be careful wrt non-default Map, List.
             DeserializationConfig config = ctxt.getConfig();
             JavaType lt, mt;
-            
+
             if (ctxt.getConfig().hasAbstractTypeResolvers()) {
                 lt = _findRemappedType(config, List.class);
                 mt = _findRemappedType(config, Map.class);
@@ -2093,7 +2093,7 @@ factory.toString()));
         }
         return null;
     }
-    
+
     protected ValueDeserializer<?> _findCustomCollectionDeserializer(CollectionType type,
             DeserializationConfig config, BeanDescription beanDesc,
             TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer)
@@ -2107,7 +2107,7 @@ factory.toString()));
         }
         return null;
     }
-    
+
     protected ValueDeserializer<?> _findCustomCollectionLikeDeserializer(CollectionLikeType type,
             DeserializationConfig config, BeanDescription beanDesc,
             TypeDeserializer elementTypeDeserializer, ValueDeserializer<?> elementDeserializer)
@@ -2133,7 +2133,7 @@ factory.toString()));
         }
         return null;
     }
-    
+
     protected ValueDeserializer<?> _findCustomMapDeserializer(MapType type,
             DeserializationConfig config, BeanDescription beanDesc,
             KeyDeserializer keyDeserializer,
@@ -2169,7 +2169,7 @@ factory.toString()));
     /* Helper methods, value/content/key type introspection
     /**********************************************************************
      */
-    
+
     /**
      * Helper method called to check if a class or method
      * has annotation that tells which class to use for deserialization; and if
@@ -2221,7 +2221,7 @@ factory.toString()));
         }
         return null;
     }
-    
+
     /**
      * Helper method used to resolve additional type-related annotation information
      * like type overrides, or handler (serializer, deserializer) overrides,
@@ -2258,7 +2258,7 @@ factory.toString()));
                 type = type.withContentValueHandler(cd);
             }
             TypeDeserializer contentTypeDeser = ctxt.findPropertyContentTypeDeserializer(type,
-                    (AnnotatedMember) member);            	
+                    (AnnotatedMember) member);
             if (contentTypeDeser != null) {
                 type = type.withContentTypeHandler(contentTypeDeser);
             }
@@ -2298,7 +2298,7 @@ factory.toString()));
         AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         if (intr != null) {
             JsonCreator.Mode mode = intr.findCreatorAnnotation(ctxt.getConfig(), ann);
-            return (mode != null) && (mode != JsonCreator.Mode.DISABLED); 
+            return (mode != null) && (mode != JsonCreator.Mode.DISABLED);
         }
         return false;
     }

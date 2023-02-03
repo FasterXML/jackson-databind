@@ -58,7 +58,7 @@ public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
     /**
      * Method for building type serializer based on current configuration
      * of this builder.
-     * 
+     *
      * @param baseType Base type that constructed resolver will
      *    handle; super type of all types it will be used for.
      */
@@ -68,7 +68,7 @@ public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
     /**
      * Method for building type deserializer based on current configuration
      * of this builder.
-     * 
+     *
      * @param baseType Base type that constructed resolver will
      *    handle; super type of all types it will be used for.
      * @param subtypes Known subtypes of the base type.
@@ -88,7 +88,7 @@ public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
      * passed directly (for example when instantiated for an annotation)
      *
      * @param settings Configuration settings to apply.
-     * 
+     *
      * @return Resulting builder instance (usually this builder,
      *   but not necessarily)
      */
@@ -102,11 +102,11 @@ public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
 
     /**
      * "Mutant factory" method for creating a new instance with different
-     * default implementation to use if type id 
+     * default implementation to use if type id
      * is either not available, or cannot be resolved.
      *<p>
      * In Jackson 2.x there was instead method {@code defaultImpl()} which
-     * was a mutator: this method MUST NOT change the underlying state. 
+     * was a mutator: this method MUST NOT change the underlying state.
      *
      * @return Either this instance (if nothing changed) or a new instance with
      *    different default implementation

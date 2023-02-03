@@ -34,7 +34,7 @@ public abstract class DeserializationContexts
     // get passed via `forMapper(...)` call; all we want to serialize is identity
     // of this class (and possibly whatever sub-classes may want to retain).
     // Hence `transient` modifiers
-    
+
     /**
      * Low-level {@link TokenStreamFactory} that may be used for constructing
      * embedded generators.
@@ -79,7 +79,7 @@ public abstract class DeserializationContexts
     protected abstract DeserializationContexts forMapper(Object mapper,
             TokenStreamFactory tsf, DeserializerFactory deserializerFactory,
             DeserializerCache cache);
-    
+
     /**
      * Factory method for constructing context object for individual {@code writeValue} call.
      */

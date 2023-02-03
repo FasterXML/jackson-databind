@@ -56,7 +56,7 @@ public class PropertyName
      * of {@link SerializedString} at most leads to multiple instantiations.
      */
     protected SerializableString _encodedSimple;
-    
+
     public PropertyName(String simpleName) {
         this(simpleName, null);
     }
@@ -129,7 +129,7 @@ public class PropertyName
         }
         return new PropertyName(simpleName, _namespace);
     }
-    
+
     /**
      * Fluent factory method for constructing an instance with different
      * namespace.
@@ -144,7 +144,7 @@ public class PropertyName
         }
         return new PropertyName(_simpleName, ns);
     }
-    
+
     /*
     /**********************************************************
     /* FullyNamed impl
@@ -166,7 +166,7 @@ public class PropertyName
     /* Accessors
     /**********************************************************
      */
-    
+
     public String getSimpleName() {
         return _simpleName;
     }
@@ -187,7 +187,7 @@ public class PropertyName
         }
         return sstr;
     }
-    
+
     public String getNamespace() {
         return _namespace;
     }
@@ -203,7 +203,7 @@ public class PropertyName
         // _simpleName never null so...
         return _simpleName.equals(str);
     }
-    
+
     public boolean hasNamespace() {
         return _namespace != null;
     }
@@ -213,7 +213,7 @@ public class PropertyName
      *<pre>
      *   !hasSimpleName() &lt;&lt; !hasNamespace();
      *</pre>
-     * 
+     *
      * @since 2.4
      */
     public boolean isEmpty() {
@@ -250,7 +250,7 @@ public class PropertyName
         }
         return _namespace.equals(other._namespace);
     }
-    
+
     @Override
     public int hashCode() {
         if (_namespace == null) {
@@ -258,7 +258,7 @@ public class PropertyName
         }
         return _namespace.hashCode() ^  _simpleName.hashCode();
     }
-    
+
     @Override
     public String toString() {
         if (_namespace == null) {

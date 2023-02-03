@@ -84,7 +84,7 @@ public final class SetterlessProperty
     /* BeanProperty impl
     /**********************************************************
      */
-    
+
     @Override
     public <A extends Annotation> A getAnnotation(Class<A> acls) {
         return _annotated.getAnnotation(acls);
@@ -97,7 +97,7 @@ public final class SetterlessProperty
     /* Overridden methods
     /**********************************************************
      */
-    
+
     @Override
     public final void deserializeAndSet(JsonParser p, DeserializationContext ctxt,
             Object instance) throws JacksonException

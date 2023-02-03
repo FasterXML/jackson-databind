@@ -14,7 +14,7 @@ public final class NamedType implements java.io.Serializable
     protected final int _hashCode;
 
     protected String _name;
-    
+
     public NamedType(Class<?> c) { this(c, null); }
 
     public NamedType(Class<?> c, String name) {
@@ -28,7 +28,7 @@ public final class NamedType implements java.io.Serializable
     public void setName(String name) { _name = (name == null || name.isEmpty()) ? null : name; }
 
     public boolean hasName() { return _name != null; }
-    
+
     /**
      * Equality is defined based on class and name
      */

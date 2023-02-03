@@ -42,13 +42,13 @@ public class JDKKeyDeserializers
             AnnotatedMethod factory) {
         return new JDKKeyDeserializer.EnumKD(enumResolver, factory);
     }
-    
+
     public static KeyDeserializer constructDelegatingKeyDeserializer(DeserializationConfig config,
             JavaType type, ValueDeserializer<?> deser)
     {
         return new JDKKeyDeserializer.DelegatingKD(type.getRawClass(), deser);
     }
-    
+
     public static KeyDeserializer findStringBasedKeyDeserializer(DeserializationContext ctxt,
             JavaType type)
    {

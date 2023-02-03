@@ -73,7 +73,7 @@ public class IteratorSerializer
         serializeContents(value, gen, provider);
         gen.writeEndArray();
     }
-    
+
     @Override
     public void serializeContents(Iterator<?> value, JsonGenerator g,
             SerializerProvider provider)
@@ -99,7 +99,7 @@ public class IteratorSerializer
             }
         } while (value.hasNext());
     }
-    
+
     protected void _serializeDynamicContents(Iterator<?> value, JsonGenerator g,
             SerializerProvider ctxt)
         throws JacksonException

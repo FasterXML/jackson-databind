@@ -92,7 +92,7 @@ public class CollectionSerializer
         serializeContents(value, g, provider);
         g.writeEndArray();
     }
-    
+
     @Override
     public void serializeContents(Collection<?> value, JsonGenerator g, SerializerProvider ctxt)
         throws JacksonException

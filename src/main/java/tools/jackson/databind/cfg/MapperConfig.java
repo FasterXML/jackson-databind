@@ -47,7 +47,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * Set of shared mapper features enabled.
      */
     protected final long _mapperFeatures;
-    
+
     /**
      * Immutable container object for simple configuration settings.
      */
@@ -70,7 +70,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
         _base = base;
         _mapperFeatures = src._mapperFeatures;
     }
-    
+
     protected MapperConfig(MapperConfig<T> src)
     {
         _base = src._base;
@@ -94,7 +94,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     /**
      * Method for determining whether annotation processing is enabled or not
      * (default settings are typically that it is enabled; must explicitly disable).
-     * 
+     *
      * @return True if annotation processing is enabled; false if not
      */
     public final boolean isAnnotationProcessingEnabled() {
@@ -107,7 +107,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * to invoke non-public Constructors, Methods; or to instantiate non-public
      * Classes. By default this is enabled, but on some platforms it needs to be
      * prevented since if this would violate security constraints and cause failures.
-     * 
+     *
      * @return True if access modifier overriding is allowed (and may be done for
      *   any Field, Method, Constructor or Class); false to prevent any attempts
      *   to override.
@@ -141,9 +141,9 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * Method for constructing a specialized textual object that can typically
      * be serialized faster than basic {@link java.lang.String} (depending
      * on escaping needed if any, char-to-byte encoding if needed).
-     * 
+     *
      * @param src Text to represent
-     * 
+     *
      * @return Optimized text object constructed
      */
     public SerializableString compileString(String src) {
@@ -151,7 +151,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
         //   future might want to allow overriding somehow?
         return new SerializedString(src);
     }
-    
+
     /*
     /**********************************************************************
     /* Configuration: introspectors, mix-ins
@@ -282,7 +282,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      *<p>
      * Note that only directly associated override
      * is found; no type hierarchy traversal is performed.
-     * 
+     *
      * @return Override object to use for the type, if defined; null if none.
      */
     public abstract ConfigOverride findConfigOverride(Class<?> type);
@@ -294,7 +294,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      *<p>
      * Note that only directly associated override
      * is found; no type hierarchy traversal is performed.
-     * 
+     *
      * @return Override object to use for the type, never null (but may be empty)
      */
     public abstract ConfigOverride getConfigOverride(Class<?> type);
@@ -453,7 +453,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     /* Configuration: other
     /**********************************************************************
      */
-    
+
     /**
      * Method for accessing currently configured (textual) date format
      * that will be used for reading or writing date values (in case

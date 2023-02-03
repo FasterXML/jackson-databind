@@ -193,7 +193,7 @@ public class SimpleBeanPropertyFilter
         SerializeExceptFilter() {
             _propertiesToExclude = Collections.emptySet();
         }
-        
+
         public SerializeExceptFilter(Set<String> properties) {
             _propertiesToExclude = properties;
         }

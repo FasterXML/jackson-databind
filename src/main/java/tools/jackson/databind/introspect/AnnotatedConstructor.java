@@ -33,7 +33,7 @@ public final class AnnotatedConstructor
     public AnnotatedConstructor withAnnotations(AnnotationMap ann) {
         return new AnnotatedConstructor(_typeContext, _constructor, ann, _paramAnnotations);
     }
-    
+
     /*
     /**********************************************************************
     /* Annotated impl

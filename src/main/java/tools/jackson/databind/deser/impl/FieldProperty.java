@@ -109,7 +109,7 @@ public final class FieldProperty
     /* BeanProperty impl
     /**********************************************************
      */
-    
+
     @Override
     public <A extends Annotation> A getAnnotation(Class<A> acls) {
         return (_annotated == null) ? null : _annotated.getAnnotation(acls);

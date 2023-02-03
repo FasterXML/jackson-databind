@@ -46,12 +46,12 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         super(src, property);
         _inclusion = src._inclusion;
     }
-    
+
     @Override
     public TypeDeserializer forProperty(BeanProperty prop) {
         return (prop == _property) ? this : new AsPropertyTypeDeserializer(this, prop);
     }
-    
+
     @Override
     public As getTypeInclusion() { return _inclusion; }
 
@@ -197,9 +197,9 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             return super.deserializeTypedFromArray(p, ctxt);
         }
         return deserializeTypedFromObject(p, ctxt);
-    }    
-    
+    }
+
     // These are fine from base class:
     //public Object deserializeTypedFromArray(JsonParser p, DeserializationContext ctxt)
-    //public Object deserializeTypedFromScalar(JsonParser p, DeserializationContext ctxt)    
+    //public Object deserializeTypedFromScalar(JsonParser p, DeserializationContext ctxt)
 }

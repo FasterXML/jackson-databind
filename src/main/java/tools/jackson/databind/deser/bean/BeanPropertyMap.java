@@ -59,7 +59,7 @@ public class BeanPropertyMap
      */
 
     private transient PropertyNameMatcher _nameMatcher;
-    
+
     /**
      * Lazily instantiated array of properties mapped from lookup index, in which
      * first entries are same as in <code>_propsInOrder</code> followed by alias
@@ -72,7 +72,7 @@ public class BeanPropertyMap
     /* Construction
     /**********************************************************************
      */
-    
+
     /**
      * @param caseInsensitive Whether property name matching should case-insensitive or not
      * @param props Sequence of primary properties to index
@@ -206,7 +206,7 @@ public class BeanPropertyMap
         }
         return prop;
     }
-    
+
     /**
      * Mutant factory method that will use this instance as the base, and
      * construct an instance that is otherwise same except for excluding
@@ -404,7 +404,7 @@ public class BeanPropertyMap
     /* Std method overrides
     /**********************************************************************
      */
-    
+
     @Override
     public String toString()
     {

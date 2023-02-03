@@ -126,7 +126,7 @@ public class PropertyBuilder
 
         // 12-Jul-2016, tatu: [databind#1256] Need to make sure we consider type refinement
         JavaType actualType = (serializationType == null) ? declaredType : serializationType;
-        
+
         // 17-Mar-2017: [databind#1522] Allow config override per property type
         AnnotatedMember accessor = propDef.getAccessor(); // lgtm [java/dereferenced-value-may-be-null]
         if (accessor == null) {
@@ -143,7 +143,7 @@ public class PropertyBuilder
                 rawPropertyType, _defaultInclusion);
 
         // property annotation override
-        
+
         inclV = inclV.withOverrides(propDef.findInclusion());
 
         JsonInclude.Include inclusion = inclV.getValueInclusion();
@@ -302,7 +302,7 @@ public class PropertyBuilder
         if (useStaticTyping) {
             // 11-Oct-2015, tatu: Make sure JavaType also "knows" static-ness...
             return declaredType.withStaticTyping();
-            
+
         }
         return null;
     }
@@ -341,7 +341,7 @@ public class PropertyBuilder
     /* Helper methods for exception handling
     /**********************************************************************
      */
-    
+
     protected Object _throwWrapped(Exception e, String propName, Object defaultBean)
     {
         Throwable t = e;

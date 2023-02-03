@@ -37,7 +37,7 @@ public abstract class BaseJsonNode
     /* Defaulting for introspection
     /**********************************************************************
      */
-    
+
     @Override
     public boolean isMissingNode() { return false; }
 
@@ -109,7 +109,7 @@ public abstract class BaseJsonNode
     @Override
     public JsonParser.NumberType numberType() {
         // most types non-numeric, so:
-        return null; 
+        return null;
     }
 
     /*

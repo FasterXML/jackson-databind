@@ -22,11 +22,11 @@ public class JavaUtilDateSerializer
      * is needed.
      */
     public static final JavaUtilDateSerializer instance = new JavaUtilDateSerializer();
-    
+
     public JavaUtilDateSerializer() {
         this(null, null);
     }
-        
+
     public JavaUtilDateSerializer(Boolean useTimestamp, DateFormat customFormat) {
         super(Date.class, useTimestamp, customFormat);
     }

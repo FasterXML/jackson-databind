@@ -28,7 +28,7 @@ public class RootNameLookup implements java.io.Serializable
     public PropertyName findRootName(DatabindContext ctxt, Class<?> rootType)
     {
         ClassKey key = new ClassKey(rootType);
-        PropertyName name = _rootNames.get(key); 
+        PropertyName name = _rootNames.get(key);
         if (name != null) {
             return name;
         }

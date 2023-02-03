@@ -15,7 +15,7 @@ public class TypeParser
     private static final long serialVersionUID = 3L;
 
     public final static TypeParser instance = new TypeParser();
-    
+
     public TypeParser() { }
 
     public JavaType parse(TypeFactory tf, String canonical) throws IllegalArgumentException
@@ -91,7 +91,7 @@ public class TypeParser
 
         protected String _pushbackToken;
 
-        public MyTokenizer(String str) {            
+        public MyTokenizer(String str) {
             super(str, "<,>", true);
             _input = str;
         }
@@ -100,7 +100,7 @@ public class TypeParser
         public boolean hasMoreTokens() {
             return (_pushbackToken != null) || super.hasMoreTokens();
         }
-        
+
         @Override
         public String nextToken() {
             String token;

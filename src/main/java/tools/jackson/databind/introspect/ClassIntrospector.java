@@ -30,7 +30,7 @@ public abstract class ClassIntrospector
      * {@code writeValue()}).
      */
     public abstract ClassIntrospector forOperation(MapperConfig<?> config);
-    
+
     /*
     /**********************************************************************
     /* Public API: annotation introspection

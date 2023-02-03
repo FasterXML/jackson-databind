@@ -53,7 +53,7 @@ public abstract class BeanDeserializerBase
      */
 
     /**
-     * Object that handles details of constructing initial 
+     * Object that handles details of constructing initial
      * bean value (to which bind data to), unless instance
      * is passed (via updateValue())
      */
@@ -218,7 +218,7 @@ public abstract class BeanDeserializerBase
         _delegateDeserializer = null;
         _arrayDelegateDeserializer = null;
         _propertyBasedCreator = null;
-        
+
         _beanProperties = properties;
         _backRefs = backRefs;
         _ignorableProps = ignorableProps;
@@ -264,14 +264,14 @@ public abstract class BeanDeserializerBase
     protected BeanDeserializerBase(BeanDeserializerBase src, boolean ignoreAllUnknown)
     {
         super(src._beanType);
-        
+
         _beanType = src._beanType;
-        
+
         _valueInstantiator = src._valueInstantiator;
         _delegateDeserializer = src._delegateDeserializer;
         _arrayDelegateDeserializer = src._arrayDelegateDeserializer;
         _propertyBasedCreator = src._propertyBasedCreator;
-        
+
         _beanProperties = src._beanProperties;
         _backRefs = src._backRefs;
         _ignorableProps = src._ignorableProps;
@@ -280,7 +280,7 @@ public abstract class BeanDeserializerBase
         _anySetter = src._anySetter;
         _injectables = src._injectables;
         _objectIdReader = src._objectIdReader;
-        
+
         _nonStandardCreation = src._nonStandardCreation;
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
         _needViewProcesing = src._needViewProcesing;
@@ -290,7 +290,7 @@ public abstract class BeanDeserializerBase
     }
 
     /**
-     * Constructor used in cases where unwrapping-with-name-change has been 
+     * Constructor used in cases where unwrapping-with-name-change has been
      * invoked and lookup indices need to be updated.
      */
     protected BeanDeserializerBase(BeanDeserializerBase src,
@@ -300,7 +300,7 @@ public abstract class BeanDeserializerBase
         super(src._beanType);
 
         _beanType = src._beanType;
-        
+
         _valueInstantiator = src._valueInstantiator;
         _delegateDeserializer = src._delegateDeserializer;
         _arrayDelegateDeserializer = src._arrayDelegateDeserializer;
@@ -329,19 +329,19 @@ public abstract class BeanDeserializerBase
     {
         super(src._beanType);
         _beanType = src._beanType;
-        
+
         _valueInstantiator = src._valueInstantiator;
         _delegateDeserializer = src._delegateDeserializer;
         _arrayDelegateDeserializer = src._arrayDelegateDeserializer;
         _propertyBasedCreator = src._propertyBasedCreator;
-        
+
         _backRefs = src._backRefs;
         _ignorableProps = src._ignorableProps;
         _ignoreAllUnknown = src._ignoreAllUnknown;
         _includableProps = src._includableProps;
         _anySetter = src._anySetter;
         _injectables = src._injectables;
-        
+
         _nonStandardCreation = src._nonStandardCreation;
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
         _needViewProcesing = src._needViewProcesing;
@@ -371,7 +371,7 @@ public abstract class BeanDeserializerBase
     {
         super(src._beanType);
         _beanType = src._beanType;
-        
+
         _valueInstantiator = src._valueInstantiator;
         _delegateDeserializer = src._delegateDeserializer;
         _arrayDelegateDeserializer = src._arrayDelegateDeserializer;
@@ -415,7 +415,7 @@ public abstract class BeanDeserializerBase
         _anySetter = src._anySetter;
         _injectables = src._injectables;
         _objectIdReader = src._objectIdReader;
-        
+
         _nonStandardCreation = src._nonStandardCreation;
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
         _needViewProcesing = src._needViewProcesing;
@@ -616,7 +616,7 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
             // we consider this non-standard, to offline handling
             _nonStandardCreation = true;
         }
-        
+
         _unwrappedPropertyHandler = unwrapped;
         if (unwrapped != null) { // we consider this non-standard, to offline handling
             _nonStandardCreation = true;
@@ -727,7 +727,7 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
             if (objectIdInfo != null) { // some code duplication here as well (from BeanDeserializerFactory)
                 // 2.1: allow modifications by "id ref" annotations as well:
                 objectIdInfo = intr.findObjectReferenceInfo(config, accessor, objectIdInfo);
-                
+
                 Class<?> implClass = objectIdInfo.getGeneratorType();
                 // Property-based generator is trickier
                 JavaType idType;
@@ -950,7 +950,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         if (merge != null) {
             ValueDeserializer<?> valueDeser = prop.getValueDeserializer();
             Boolean mayMerge = valueDeser.supportsUpdate(ctxt.getConfig());
-    
+
             if (mayMerge == null) {
                 // we don't really know if it's ok; so only use if explicitly specified
                 if (merge.fromDefaults) {
@@ -1019,7 +1019,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
     /**
      * Accessor for checking whether this deserializer is operating
      * in case-insensitive manner.
-     * 
+     *
      * @return True if this deserializer should match property names without
      *    considering casing; false if case has to match exactly.
      *
@@ -1036,7 +1036,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         //   bean settings...
         return Boolean.TRUE;
     }
-    
+
     @Override
     public Class<?> handledType() {
         return _beanType.getRawClass();
@@ -1051,7 +1051,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
     public ObjectIdReader getObjectIdReader(DeserializationContext ctxt) {
         return _objectIdReader;
     }
-    
+
     public boolean hasProperty(String propertyName) {
         return _beanProperties.findDefinition(propertyName) != null;
     }
@@ -1059,11 +1059,11 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
     public boolean hasViews() {
         return _needViewProcesing;
     }
-    
+
     /**
      * Accessor for checking number of deserialized properties.
      */
-    public int getPropertyCount() { 
+    public int getPropertyCount() {
         return _beanProperties.size();
     }
 
@@ -1125,7 +1125,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         // TODO: start matching full name?
         return findProperty(propertyName.getSimpleName());
     }
-    
+
     /**
      * Accessor for finding the property with given name, if POJO
      * has one. Name used is the external name, i.e. name used
@@ -1644,10 +1644,10 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      *   (in addition to buffered properties); if null, all properties are passed
      *   in buffer
      */
-    protected Object handlePolymorphic(JsonParser p, DeserializationContext ctxt,                                          
+    protected Object handlePolymorphic(JsonParser p, DeserializationContext ctxt,
             Object bean, TokenBuffer unknownTokens)
         throws JacksonException
-    {  
+    {
         // First things first: maybe there is a more specific deserializer available?
         ValueDeserializer<Object> subDeser = _findSubclassDeserializer(ctxt, bean, unknownTokens);
         if (subDeser != null) {
@@ -1681,7 +1681,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
     protected ValueDeserializer<Object> _findSubclassDeserializer(DeserializationContext ctxt,
             Object bean, TokenBuffer unknownTokens)
         throws JacksonException
-    {  
+    {
         ValueDeserializer<Object> subDeser;
 
         // First: maybe we have already created sub-type deserializer?
@@ -1707,7 +1707,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
                     _subDeserializers = new HashMap<ClassKey,ValueDeserializer<Object>>();;
                 }
                 _subDeserializers.put(new ClassKey(bean.getClass()), subDeser);
-            }            
+            }
         }
         return subDeser;
     }
@@ -1747,7 +1747,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
                 bean, fieldName);
     }
 
-    private Throwable throwOrReturnThrowable(Throwable t, DeserializationContext ctxt) 
+    private Throwable throwOrReturnThrowable(Throwable t, DeserializationContext ctxt)
         throws JacksonException
     {
         // 05-Mar-2009, tatu: But one nasty edge is when we get

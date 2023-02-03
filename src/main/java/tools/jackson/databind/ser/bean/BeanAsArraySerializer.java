@@ -49,14 +49,14 @@ public class BeanAsArraySerializer
      * cases where array output cannot be used.
      */
     protected final BeanSerializerBase _defaultSerializer;
-    
+
     /*
     /**********************************************************************
     /* Life-cycle: constructors
     /**********************************************************************
      */
 
-    public BeanAsArraySerializer(BeanSerializerBase src) {    
+    public BeanAsArraySerializer(BeanSerializerBase src) {
         super(src, (ObjectIdWriter) null);
         _defaultSerializer = src;
     }
@@ -89,7 +89,7 @@ public class BeanAsArraySerializer
         }
         return new BeanAsArraySerializer(src);
     }
-    
+
     @Override
     public ValueSerializer<Object> unwrappingSerializer(NameTransformer transformer) {
         // If this gets called, we will just need delegate to the default

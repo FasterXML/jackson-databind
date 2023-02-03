@@ -120,7 +120,7 @@ public abstract class DatabindContext
      * Per-call attributes have highest precedence; attributes set
      * via {@link ObjectReader} or {@link ObjectWriter} have lower
      * precedence.
-     * 
+     *
      * @param key Key of the attribute to get
      * @return Value of the attribute, if any; null otherwise
      */
@@ -130,10 +130,10 @@ public abstract class DatabindContext
      * Method for setting per-call value of given attribute.
      * This will override any previously defined value for the
      * attribute within this context.
-     * 
+     *
      * @param key Key of the attribute to set
      * @param value Value to set attribute to
-     * 
+     *
      * @return This context object, to allow chaining
      */
     public abstract DatabindContext setAttribute(Object key, Object value);

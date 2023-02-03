@@ -69,7 +69,7 @@ public class CollectionLikeType extends TypeBase
         return new CollectionLikeType(_class, _bindings, _superClass, _superInterfaces,
                 contentType, _valueHandler, _typeHandler, _asStatic);
     }
-    
+
     @Override
     public CollectionLikeType withTypeHandler(Object h) {
         return new CollectionLikeType(_class, _bindings,
@@ -109,7 +109,7 @@ public class CollectionLikeType extends TypeBase
         }
         return type;
     }
-    
+
     @Override
     public CollectionLikeType withStaticTyping() {
         if (_asStatic) {
@@ -127,7 +127,7 @@ public class CollectionLikeType extends TypeBase
                 superClass, superInterfaces, _elementType,
                 _valueHandler, _typeHandler, _asStatic);
     }
-    
+
     /*
     /**********************************************************
     /* Public API
@@ -151,7 +151,7 @@ public class CollectionLikeType extends TypeBase
     @Override
     public Object getContentTypeHandler() {
         return _elementType.getTypeHandler();
-    }    
+    }
 
     @Override
     public boolean hasHandlers() {
@@ -162,7 +162,7 @@ public class CollectionLikeType extends TypeBase
     public StringBuilder getErasedSignature(StringBuilder sb) {
         return _classSignature(_class, sb, true);
     }
-    
+
     @Override
     public StringBuilder getGenericSignature(StringBuilder sb) {
         _classSignature(_class, sb, false);
@@ -171,7 +171,7 @@ public class CollectionLikeType extends TypeBase
         sb.append(">;");
         return sb;
     }
-    
+
     @Override
     protected String buildCanonicalName() {
         StringBuilder sb = new StringBuilder();

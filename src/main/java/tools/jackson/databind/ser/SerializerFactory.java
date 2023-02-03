@@ -18,8 +18,8 @@ public abstract class SerializerFactory
      */
 
     /**
-     * Method called to create (or, for immutable serializers, reuse) a serializer for given type. 
-     * 
+     * Method called to create (or, for immutable serializers, reuse) a serializer for given type.
+     *
      * @param ctxt (not null) Context that needs to be used to resolve annotation-provided
      *    serializers (but NOT for others)
      * @param formatOverride (nullable) Possible format overrides (from property annotations)
@@ -34,9 +34,9 @@ public abstract class SerializerFactory
      * Method called to create serializer to use for serializing JSON property names (which must
      * be output as <code>JsonToken.FIELD_NAME</code>) for Map that has specified declared
      * key type, and is for specified property (or, if property is null, as root value)
-     * 
+     *
      * @param type Declared type for Map keys
-     * 
+     *
      * @return Serializer to use, if factory knows it; null if not (in which case default
      *   serializer is to be used)
      */

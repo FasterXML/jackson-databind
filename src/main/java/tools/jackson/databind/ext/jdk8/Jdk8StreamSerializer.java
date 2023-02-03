@@ -17,7 +17,7 @@ public class Jdk8StreamSerializer extends StdSerializer<Stream<?>>
      * Stream elements type (matching T)
      */
     private final JavaType elemType;
-    
+
     /**
      * element specific serializer, if any
      */
@@ -65,7 +65,7 @@ public class Jdk8StreamSerializer extends StdSerializer<Stream<?>>
     {
         try (Stream<?> s = stream) {
             g.writeStartArray(s);
-            
+
             s.forEach(elem -> {
                 if (elemSerializer == null) {
                     ctxt.writeValue(g, elem);
@@ -76,7 +76,7 @@ public class Jdk8StreamSerializer extends StdSerializer<Stream<?>>
             g.writeEndArray();
         } catch (Exception e) {
             // For most regular serializers we won't both handling but streams are typically
-            // root values so 
+            // root values so
             wrapAndThrow(ctxt, e, stream, g.streamWriteContext().getCurrentIndex());
         }
     }

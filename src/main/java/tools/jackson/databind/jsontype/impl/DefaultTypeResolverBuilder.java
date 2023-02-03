@@ -106,7 +106,7 @@ public class DefaultTypeResolverBuilder
     public TypeSerializer buildTypeSerializer(SerializerProvider ctxt,
             JavaType baseType, Collection<NamedType> subtypes)
     {
-        return useForType(baseType) ? super.buildTypeSerializer(ctxt, baseType, subtypes) : null;            
+        return useForType(baseType) ? super.buildTypeSerializer(ctxt, baseType, subtypes) : null;
     }
 
     public DefaultTypeResolverBuilder typeIdVisibility(boolean isVisible) {

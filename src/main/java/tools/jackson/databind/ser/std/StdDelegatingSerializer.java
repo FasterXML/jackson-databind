@@ -29,7 +29,7 @@ public class StdDelegatingSerializer
      * Fully resolved delegate type, with generic information if any available.
      */
     protected final JavaType _delegateType;
-    
+
     /**
      * Underlying serializer for type <code>T</code>.
      */
@@ -43,7 +43,7 @@ public class StdDelegatingSerializer
      * @since 3.0
      */
     protected PropertySerializerMap _dynamicValueSerializers = PropertySerializerMap.emptyForProperties();
-    
+
     /*
     /**********************************************************************
     /* Life-cycle
@@ -84,7 +84,7 @@ public class StdDelegatingSerializer
         _delegateSerializer = (ValueSerializer<Object>) delegateSerializer;
         _property = prop;
     }
-    
+
     /**
      * Method used for creating resolved contextual instances. Must be
      * overridden when sub-classing.
@@ -236,9 +236,9 @@ public class StdDelegatingSerializer
      *<P>
      * The default implementation uses configured {@link Converter} to do
      * conversion.
-     * 
+     *
      * @param value Value to convert
-     * 
+     *
      * @return Result of conversion
      */
     protected Object convertValue(Object value) {

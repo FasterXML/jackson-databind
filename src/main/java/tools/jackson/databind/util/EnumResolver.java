@@ -37,7 +37,7 @@ public class EnumResolver implements java.io.Serializable
      * Special case is needed since this specifically means that {@code Enum.index()}
      * should NOT be used or default to.
      */
-    protected final boolean _isFromIntValue;    
+    protected final boolean _isFromIntValue;
 
     protected EnumResolver(Class<Enum<?>> enumClass, Enum<?>[] enums,
             HashMap<String, Enum<?>> enumsById, Enum<?> defaultValue,
@@ -185,7 +185,7 @@ public class EnumResolver implements java.io.Serializable
     /* Public API
     /**********************************************************************
      */
-    
+
     public Enum<?> findEnum(String key) {
         Enum<?> en = _enumsById.get(key);
         if (en == null) {
@@ -218,7 +218,7 @@ public class EnumResolver implements java.io.Serializable
     public Enum<?>[] getRawEnums() {
         return _enums;
     }
-    
+
     public List<Enum<?>> getEnums() {
         ArrayList<Enum<?>> enums = new ArrayList<Enum<?>>(_enums.length);
         for (Enum<?> e : _enums) {
@@ -230,7 +230,7 @@ public class EnumResolver implements java.io.Serializable
     public Collection<String> getEnumIds() {
         return _enumsById.keySet();
     }
-    
+
     public Class<Enum<?>> getEnumClass() { return _enumClass; }
 
     public int lastValidIndex() { return _enums.length-1; }

@@ -156,7 +156,7 @@ public abstract class DelegatingDeserializer
     public AccessPattern getEmptyAccessPattern() {
         return _delegatee.getEmptyAccessPattern();
     }
-    
+
     @Override
     public LogicalType logicalType() {
         return _delegatee.logicalType();

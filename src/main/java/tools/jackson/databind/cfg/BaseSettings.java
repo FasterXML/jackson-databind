@@ -73,7 +73,7 @@ public final class BaseSettings
     /* Configuration settings; other
     /**********************************************************
      */
-    
+
     /**
      * Custom date format to use for deserialization. If specified, will be
      * used instead of {@link tools.jackson.databind.util.StdDateFormat}.
@@ -195,7 +195,7 @@ public final class BaseSettings
                 typer, _typeValidator, _dateFormat, _handlerInstantiator, _locale,
                 _timeZone, _defaultBase64, _nodeFactory);
     }
-    
+
     public BaseSettings with(PolymorphicTypeValidator ptv) {
         if (_typeValidator == ptv) {
             return this;
@@ -322,7 +322,7 @@ public final class BaseSettings
     public boolean hasExplicitTimeZone() {
         return (_timeZone != null);
     }
-    
+
     public Base64Variant getBase64Variant() {
         return _defaultBase64;
     }

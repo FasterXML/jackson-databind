@@ -67,7 +67,7 @@ public abstract class BasicSerializerFactory
         HashMap<String, ValueSerializer<?>> concrete
             = new HashMap<String, ValueSerializer<?>>();
 
-        
+
         /* String and string-like types (note: date types explicitly
          * not included -- can use either textual or numeric serialization)
          */
@@ -100,7 +100,7 @@ public abstract class BasicSerializerFactory
     /* Configuration
     /**********************************************************************
      */
-    
+
     /**
      * Configuration settings for this factory; immutable instance (just like this
      * factory), new version created via copy-constructor (fluent-style)
@@ -151,7 +151,7 @@ public abstract class BasicSerializerFactory
     public final SerializerFactory withAdditionalKeySerializers(Serializers additional) {
         return withConfig(_factoryConfig.withAdditionalKeySerializers(additional));
     }
-    
+
     /**
      * Convenience method for creating a new factory instance with additional bean
      * serializer modifier.
@@ -176,7 +176,7 @@ public abstract class BasicSerializerFactory
     /* `SerializerFactory` impl
     /**********************************************************************
      */
-    
+
 // Implemented by sub-classes
 //    public abstract ValueSerializer<Object> createSerializer(SerializerProvider ctxt, ....)
 
@@ -262,9 +262,9 @@ public abstract class BasicSerializerFactory
      * return null.
      *
      * @param containerType Declared type of the container to use as the base type for type information serializer
-     * 
+     *
      * @return Type serializer to use for property value contents, if one is needed; null if not.
-     */    
+     */
     public TypeSerializer findPropertyContentTypeSerializer(SerializerProvider ctxt,
             JavaType containerType, AnnotatedMember accessor)
     {
@@ -309,7 +309,7 @@ public abstract class BasicSerializerFactory
      *  </li>
      *</ul>
      */
-    protected final ValueSerializer<?> findSerializerByAnnotations(SerializerProvider ctxt, 
+    protected final ValueSerializer<?> findSerializerByAnnotations(SerializerProvider ctxt,
             JavaType type, BeanDescription beanDesc)
     {
         Class<?> raw = type.getRawClass();
@@ -341,7 +341,7 @@ public abstract class BasicSerializerFactory
      * This does not include "secondary" interfaces, but
      * mostly concrete or abstract base classes.
      */
-    protected final ValueSerializer<?> findSerializerByPrimaryType(SerializerProvider ctxt, 
+    protected final ValueSerializer<?> findSerializerByPrimaryType(SerializerProvider ctxt,
             JavaType type, BeanDescription beanDesc, JsonFormat.Value formatOverrides,
             boolean staticTyping)
     {
@@ -429,7 +429,7 @@ public abstract class BasicSerializerFactory
         if (ClassLoader.class.isAssignableFrom(raw)) {
             return new ToEmptyObjectSerializer(type);
         }
-        // Then check for optional/external serializers 
+        // Then check for optional/external serializers
         return OptionalHandlerFactory.instance.findSerializer(ctxt.getConfig(), type);
     }
 
@@ -441,7 +441,7 @@ public abstract class BasicSerializerFactory
      * bean classes may implement {@link Iterable}, but their main
      * function is usually something else. The reason for
      */
-    protected final ValueSerializer<?> findSerializerByAddonType(SerializerProvider ctxt, 
+    protected final ValueSerializer<?> findSerializerByAddonType(SerializerProvider ctxt,
             JavaType javaType, BeanDescription beanDesc, JsonFormat.Value formatOverrides,
             boolean staticTyping)
     {
@@ -508,7 +508,7 @@ public abstract class BasicSerializerFactory
         }
         return ctxt.converterInstance(a, convDef);
     }
-    
+
     /*
     /**********************************************************************
     /* Factory methods, container types:
@@ -618,7 +618,7 @@ public abstract class BasicSerializerFactory
     protected ValueSerializer<?> buildCollectionSerializer(SerializerProvider ctxt,
             CollectionType type, BeanDescription beanDesc,  JsonFormat.Value formatOverrides,
             boolean staticTyping,
-            TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer) 
+            TypeSerializer elementTypeSerializer, ValueSerializer<Object> elementValueSerializer)
     {
         SerializationConfig config = ctxt.getConfig();
         ValueSerializer<?> ser = null;
@@ -739,7 +739,7 @@ public abstract class BasicSerializerFactory
         // 1. Custom serializers
         // 2. Annotations (@JsonValue, @JsonDeserialize)
         // 3. Defaults
-        
+
         final SerializationConfig config = ctxt.getConfig();
         for (Serializers serializers : customSerializers()) { // (1) Custom
             ser = serializers.findMapSerializer(config, type, beanDesc, formatOverrides,
@@ -934,13 +934,13 @@ public abstract class BasicSerializerFactory
         }
         return inclV;
     }
-    
+
     /*
     /**********************************************************************
     /* Factory methods, for Arrays
     /**********************************************************************
      */
-    
+
     /**
      * Helper method that handles configuration details when constructing serializers for
      * <code>Object[]</code> (and subtypes, except for String).
@@ -964,7 +964,7 @@ public abstract class BasicSerializerFactory
                  break;
              }
         }
-        
+
         if (ser == null) {
              Class<?> raw = type.getRawClass();
              // Important: do NOT use standard serializers if non-standard element value serializer specified
@@ -1000,7 +1000,7 @@ public abstract class BasicSerializerFactory
             ReferenceType refType, BeanDescription beanDesc, JsonFormat.Value format,
             boolean staticTyping)
     {
-        JavaType contentType = refType.getContentType(); 
+        JavaType contentType = refType.getContentType();
         TypeSerializer contentTypeSerializer = (TypeSerializer) contentType.getTypeHandler();
         final SerializationConfig config = ctxt.getConfig();
         if (contentTypeSerializer == null) {
@@ -1044,7 +1044,7 @@ public abstract class BasicSerializerFactory
         final JavaType contentType = refType.getReferencedType();
         JsonInclude.Value inclV = _findInclusionWithContent(ctxt, beanDesc,
                 contentType, baseType);
-        
+
         // Need to support global legacy setting, for now:
         JsonInclude.Include incl = (inclV == null) ? JsonInclude.Include.USE_DEFAULTS : inclV.getContentInclusion();
         Object valueToSuppress;

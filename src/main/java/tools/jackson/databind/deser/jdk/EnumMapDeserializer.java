@@ -17,7 +17,7 @@ import tools.jackson.databind.type.LogicalType;
  * Note: casting within this class is all messed up -- just could not figure out a way
  * to properly deal with recursive definition of {@code EnumMap<K extends Enum<K>, V>}
  */
-@SuppressWarnings({ "unchecked", "rawtypes" }) 
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class EnumMapDeserializer
     extends ContainerDeserializerBase<EnumMap<?,?>>
 {
@@ -49,7 +49,7 @@ public class EnumMapDeserializer
      * that takes one or more named properties as argument(s),
      * this creator is used for instantiation.
      */
-    protected PropertyBasedCreator _propertyBasedCreator;    
+    protected PropertyBasedCreator _propertyBasedCreator;
 
     /*
     /**********************************************************************
@@ -208,7 +208,7 @@ public class EnumMapDeserializer
     /* Actual deserialization
     /**********************************************************************
      */
-    
+
     @Override
     public EnumMap<?,?> deserialize(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
@@ -371,7 +371,7 @@ public class EnumMapDeserializer
                 p.skipChildren();
                 continue;
             }
-            Object value; 
+            Object value;
 
             try {
                 if (t == JsonToken.VALUE_NULL) {

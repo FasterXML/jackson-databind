@@ -17,7 +17,7 @@ import tools.jackson.databind.util.NameTransformer;
  * other chained {@link ValueSerializer}s too) to serialize Objects of
  * arbitrary types into JSON, using provided {@link JsonGenerator}.
  * Note that although API is defined here, custom serializer implementations
- * should almost always be based on {@link tools.jackson.databind.ser.std.StdSerializer} 
+ * should almost always be based on {@link tools.jackson.databind.ser.std.StdSerializer}
  * since it will implement many of optional methods of this class.
  *<p>
  * If serializer is an aggregate one -- meaning it delegates handling of some
@@ -90,13 +90,13 @@ public abstract class ValueSerializer<T>
      * value serializer; it is not called for every serialization, as doing that would have
      * significant performance impact; most serializers cache contextual instances for future
      * use.
-     * 
+     *
      * @param prov Serializer provider to use for accessing config, other serializers
      * @param property Property (defined by one or more accessors - field or method - used
      *     for accessing logical property value) for which serializer is used to be used;
      *     or, `null` for root value (or in cases where caller does not have this information,
      *     which is handled as root value case).
-     * 
+     *
      * @return Serializer to use for serializing values of specified property;
      *   may be this instance or a new instance.
      */
@@ -122,7 +122,7 @@ public abstract class ValueSerializer<T>
      *<p>
      * Default implementation just returns serializer as-is,
      * indicating that no unwrapped variant exists
-     * 
+     *
      * @param unwrapper Name transformation to use to convert between names
      *   of unwrapper properties
      */
@@ -289,7 +289,7 @@ public abstract class ValueSerializer<T>
      * another serializer for actual serialization, by delegating
      * calls. If so, will return immediate delegate (which itself may
      * delegate to further serializers); otherwise will return null.
-     * 
+     *
      * @return Serializer this serializer delegates calls to, if null;
      *   null otherwise.
      */
@@ -314,7 +314,7 @@ public abstract class ValueSerializer<T>
     /* Accessors for introspecting handling of values
     /**********************************************************************
      */
-    
+
     /**
      * Method called to check whether given serializable value is
      * considered "empty" value (for purposes of suppressing serialization

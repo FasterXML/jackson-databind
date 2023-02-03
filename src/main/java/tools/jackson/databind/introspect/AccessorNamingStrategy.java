@@ -83,7 +83,7 @@ public abstract class AccessorNamingStrategy
      *<p>
      * Note that visibility checks are applied separately; strategy does not need
      * to be concerned with that aspect.
-     * 
+     *
      * @param field Field to check
      * @param name Name to check (usually same as {@link AnnotatedField#getName()}
      *

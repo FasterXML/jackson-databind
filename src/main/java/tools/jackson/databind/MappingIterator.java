@@ -29,12 +29,12 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
      * State in which iterator is closed
      */
     protected final static int STATE_CLOSED = 0;
-    
+
     /**
      * State in which value read failed
      */
     protected final static int STATE_NEED_RESYNC = 1;
-    
+
     /**
      * State in which no recovery is needed, but "hasNextValue()" needs
      * to be called first
@@ -80,13 +80,13 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
      * but caller wants to try to read more elements.
      */
     protected final TokenStreamContext _seqContext;
-    
+
     /**
      * If not null, "value to update" instead of creating a new instance
      * for each call.
      */
     protected final T _updatedValue;
-    
+
     /**
      * Flag that indicates whether input {@link JsonParser} should be closed
      * when we are done or not; generally only called when caller did not
@@ -99,7 +99,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
     /* Parsing state
     /**********************************************************************
      */
-    
+
     /**
      * State of the iterator
      */
@@ -110,7 +110,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
     /* Construction
     /**********************************************************************
      */
-    
+
     /**
      * @param managedParser Whether we "own" the {@link JsonParser} passed or not:
      *   if true, it was created by {@link ObjectReader} and code here needs to
@@ -196,7 +196,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
     public void remove() {
         throw new UnsupportedOperationException();
     }
-    
+
     @Override
     public void close() {
         if (_state != STATE_CLOSED) {
@@ -286,7 +286,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
     /**
      * Convenience method for reading all entries accessible via
      * this iterator; resulting container will be a {@link java.util.ArrayList}.
-     * 
+     *
      * @return List of entries read
      */
     public List<T> readAll() throws JacksonException {
@@ -296,7 +296,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
     /**
      * Convenience method for reading all entries accessible via
      * this iterator
-     * 
+     *
      * @return List of entries read (same as passed-in argument)
      */
     public <L extends List<? super T>> L readAll(L resultList) throws JacksonException
@@ -318,7 +318,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
         }
         return results;
     }
-    
+
     /*
     /**********************************************************************
     /* Extended API, accessors
@@ -346,7 +346,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
      *<code>
      *   iterator.getParser().getCurrentLocation()
      *</code>
-     * 
+     *
      * @return Location of the input stream of the underlying parser
      */
     public JsonLocation currentLocation() {

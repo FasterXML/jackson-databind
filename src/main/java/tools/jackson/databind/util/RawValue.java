@@ -53,7 +53,7 @@ public class RawValue
     public Object rawValue() {
         return _value;
     }
-    
+
     @Override
     public void serialize(JsonGenerator gen, SerializerProvider serializers) throws JacksonException
     {
@@ -108,12 +108,12 @@ public class RawValue
         }
         return (_value != null) && _value.equals(other._value);
     }
-    
+
     @Override
     public int hashCode() {
         return (_value == null) ? 0 : _value.hashCode();
     }
-    
+
     @Override
     public String toString() {
         return String.format("[RawValue of type %s]", ClassUtil.classNameOf(_value));

@@ -27,7 +27,7 @@ public final class SerializerFactoryConfig
     protected final static Serializers[] NO_SERIALIZERS = new Serializers[0];
 
     protected final static ValueSerializerModifier[] NO_MODIFIERS = new ValueSerializerModifier[0];
-    
+
     /**
      * List of providers for additional serializers, checked before considering default
      * basic or bean serialializers.
@@ -39,7 +39,7 @@ public final class SerializerFactoryConfig
      * key serialializers.
      */
     protected final Serializers[] _additionalKeySerializers;
-    
+
     /**
      * List of modifiers that can change the way {@link BeanSerializer} instances
      * are configured and constructed.
@@ -56,11 +56,11 @@ public final class SerializerFactoryConfig
      * {@link java.util.Map} having null key.
      */
     protected final ValueSerializer<Object> _nullKeySerializer;
-    
+
     public SerializerFactoryConfig() {
         this(null, null, null,
                 DEFAULT_NULL_KEY_SERIALIZER, null);
-                
+
     }
 
     protected SerializerFactoryConfig(Serializers[] allAdditionalSerializers,

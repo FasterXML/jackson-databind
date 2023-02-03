@@ -29,7 +29,7 @@ import tools.jackson.databind.util.UniqueId;
  * {@link java.util.Collection}s or {@link java.util.Map}s: this because parametric
  * type information will not be considered and you may end up having "wrong" handler
  * for your type.
- * What you need to do, instead, is to implement {@link tools.jackson.databind.deser.Deserializers} 
+ * What you need to do, instead, is to implement {@link tools.jackson.databind.deser.Deserializers}
  * and/or {@link tools.jackson.databind.ser.Serializers} callbacks to match full type
  * signatures (with {@link JavaType}).
  */
@@ -61,7 +61,7 @@ public class SimpleModule
 
     protected ValueSerializer<?> _defaultNullKeySerializer = null;
     protected ValueSerializer<?> _defaultNullValueSerializer = null;
-    
+
     /**
      * Lazily-constructed resolver used for storing mappings from
      * abstract classes to more specific implementing classes
@@ -85,7 +85,7 @@ public class SimpleModule
      * by target class, value being mix-in to apply.
      */
     protected HashMap<Class<?>, Class<?>> _mixins = null;
-    
+
     /**
      * Set of subtypes to register, if any.
      */
@@ -124,13 +124,13 @@ public class SimpleModule
     public SimpleModule(Version version) {
         this(version.getArtifactId(), version);
     }
-    
+
     /**
      * Constructor to use for actual reusable modules.
      * ObjectMapper may use name as identifier to notice attempts
      * for multiple registrations of the same module (although it
      * does not have to).
-     * 
+     *
      * @param name Unique name of the module
      * @param version Version of the module
      */
@@ -167,7 +167,7 @@ public class SimpleModule
     /* Simple accessors
     /**********************************************************************
      */
-    
+
     @Override
     public Version version() { return _version; }
 
@@ -233,7 +233,7 @@ public class SimpleModule
      * Resets currently configured abstract type mappings
      */
     public SimpleModule setAbstractTypes(SimpleAbstractTypeResolver atr) {
-        _abstractTypes = atr;        
+        _abstractTypes = atr;
         return this;
     }
 
@@ -259,7 +259,7 @@ public class SimpleModule
         _namingStrategy = naming;
         return this;
     }
-    
+
     /*
     /**********************************************************************
     /* Configuration methods, adding serializers
@@ -428,7 +428,7 @@ public class SimpleModule
     /* Configuration methods, add other handlers
     /**********************************************************************
      */
-    
+
     /**
      * Method for registering {@link ValueInstantiator} to use when deserializing
      * instances of type <code>beanType</code>.
@@ -471,7 +471,7 @@ public class SimpleModule
     /* Module impl
     /**********************************************************************
      */
-    
+
     @Override
     public String getModuleName() {
         return _name;
@@ -479,7 +479,7 @@ public class SimpleModule
 
     /**
      * Standard implementation handles registration of all configured
-     * customizations: it is important that sub-classes call this 
+     * customizations: it is important that sub-classes call this
      * implementation (usually before additional custom logic)
      * if they choose to override it; otherwise customizations
      * will not be registered.

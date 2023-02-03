@@ -17,7 +17,7 @@ public class FloatNode extends NumericNode
 
     protected final float _value;
 
-    /* 
+    /*
     /**********************************************************************
     /* Construction
     /**********************************************************************
@@ -27,7 +27,7 @@ public class FloatNode extends NumericNode
 
     public static FloatNode valueOf(float v) { return new FloatNode(v); }
 
-    /* 
+    /*
     /**********************************************************************
     /* BaseJsonNode extended API
     /**********************************************************************
@@ -38,7 +38,7 @@ public class FloatNode extends NumericNode
     @Override
     public JsonParser.NumberType numberType() { return JsonParser.NumberType.FLOAT; }
 
-    /* 
+    /*
     /**********************************************************************
     /* Overrridden JsonNode methods
     /**********************************************************************

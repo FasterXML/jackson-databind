@@ -27,15 +27,15 @@ public class StdTypeResolverBuilder
      * Whether type id should be exposed to deserializers or not
      */
     protected boolean _typeIdVisible = false;
-    
+
     /**
      * Default class to use in case type information is not available
      * or is broken.
      */
     protected Class<?> _defaultImpl;
-    
+
     // Objects
-    
+
     protected TypeIdResolver _customIdResolver;
 
     /*
@@ -109,7 +109,7 @@ public class StdTypeResolverBuilder
                 throw new IllegalArgumentException("idType cannot be null");
             }
             _includeAs = settings.getInclusionType();
-    
+
             // Let's also initialize property name as per idType default
             _typeProperty = settings.getPropertyName();
             if (_typeProperty == null) {

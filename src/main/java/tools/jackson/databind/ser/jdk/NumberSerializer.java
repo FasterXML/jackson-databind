@@ -33,7 +33,7 @@ public class NumberSerializer
      * Copied from `jackson-core` class `GeneratorBase`
      */
     protected final static int MAX_BIG_DECIMAL_SCALE = 9999;
-    
+
     protected final boolean _isInt;
 
     /**
@@ -72,7 +72,7 @@ public class NumberSerializer
             g.writeNumber((BigDecimal) value);
         } else if (value instanceof BigInteger) {
             g.writeNumber((BigInteger) value);
-            
+
         // These should not occur, as more specific methods should have been called; but
         // just in case let's cover all bases:
         } else if (value instanceof Long) {
@@ -110,12 +110,12 @@ public class NumberSerializer
     public static ValueSerializer<?> bigDecimalAsStringSerializer() {
         return BigDecimalAsStringSerializer.BD_INSTANCE;
     }
-    
+
     final static class BigDecimalAsStringSerializer
         extends ToStringSerializerBase
     {
         final static BigDecimalAsStringSerializer BD_INSTANCE = new BigDecimalAsStringSerializer();
-        
+
         public BigDecimalAsStringSerializer() {
             super(BigDecimal.class);
         }

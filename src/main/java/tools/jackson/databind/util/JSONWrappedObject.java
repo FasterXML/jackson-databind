@@ -9,7 +9,7 @@ import tools.jackson.databind.jsontype.TypeSerializer;
  * value with arbitrary literal prefix and suffix. This can be used for
  * example to construct arbitrary Javascript values (similar to how basic
  * function name and parenthesis are used with JSONP).
- * 
+ *
  * @see tools.jackson.databind.util.JSONPObject
  */
 public class JSONWrappedObject implements JacksonSerializable
@@ -25,7 +25,7 @@ public class JSONWrappedObject implements JacksonSerializable
      * Will not be quoted when serializing value.
      */
     protected final String _suffix;
-    
+
     /**
      * Value to be serialized as JSONP padded; can be null.
      */
@@ -55,7 +55,7 @@ public class JSONWrappedObject implements JacksonSerializable
         _value = value;
         _serializationType = asType;
     }
-    
+
     /*
     /**********************************************************************
     /* JacksonSerializable implementation
@@ -93,7 +93,7 @@ public class JSONWrappedObject implements JacksonSerializable
     /* Accessors
     /**********************************************************************
      */
-    
+
     public String getPrefix() { return _prefix; }
     public String getSuffix() { return _suffix; }
     public Object getValue() { return _value; }

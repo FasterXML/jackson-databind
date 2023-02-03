@@ -351,7 +351,7 @@ public abstract class ReferenceTypeSerializer<T>
         // 19-Apr-2016, tatu: In order to basically "skip" the whole wrapper level
         //    (which is what non-polymorphic serialization does too), we will need
         //    to simply delegate call, I think, and NOT try to use it here.
-        
+
         // Otherwise apply type-prefix/suffix, then std serialize:
         /*
         typeSer.writeTypePrefixForScalar(ref, g);
@@ -389,7 +389,7 @@ public abstract class ReferenceTypeSerializer<T>
     /* Helper methods
     /**********************************************************************
      */
-    
+
     /**
      * Helper method that encapsulates logic of retrieving and caching required
      * serializer.

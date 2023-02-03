@@ -86,11 +86,11 @@ public class UUIDDeserializer extends FromStringDeserializer<UUID>
                 + (byteFromChars(str, index+4, ctxt) << 8)
                 + byteFromChars(str, index+6, ctxt);
     }
-    
+
     int shortFromChars(String str, int index, DeserializationContext ctxt) {
         return (byteFromChars(str, index, ctxt) << 8) + byteFromChars(str, index+2, ctxt);
     }
-    
+
     int byteFromChars(String str, int index, DeserializationContext ctxt)
     {
         final char c1 = str.charAt(index);

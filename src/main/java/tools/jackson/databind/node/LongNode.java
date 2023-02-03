@@ -48,7 +48,7 @@ public class LongNode
         return (_value >= Integer.MIN_VALUE && _value <= Integer.MAX_VALUE);
     }
     @Override public boolean canConvertToLong() { return true; }
-    
+
     @Override
     public Number numberValue() {
         return Long.valueOf(_value);
@@ -84,7 +84,7 @@ public class LongNode
     public boolean asBoolean(boolean defaultValue) {
         return _value != 0;
     }
-    
+
     @Override
     public final void serialize(JsonGenerator jg, SerializerProvider provider)
         throws JacksonException

@@ -84,7 +84,7 @@ public enum CoercionInputShape
      * usually used to allow special coercion into "empty" or {@code null} target type.
      */
     EmptyObject,
-    
+
     /**
      * Special case for String values with no content (or, if allowed by format or specific
      * configuration, also "blank" String, that is, all-whitespace content).

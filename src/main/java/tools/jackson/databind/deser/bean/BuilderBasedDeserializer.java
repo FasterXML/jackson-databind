@@ -196,7 +196,7 @@ public class BuilderBasedDeserializer
     @Override
     protected BeanDeserializerBase asArrayDeserializer() {
         return new BeanAsArrayBuilderDeserializer(this, _targetType,
-                _beanProperties.getPrimaryProperties(), 
+                _beanProperties.getPrimaryProperties(),
                 _buildMethod);
     }
 
@@ -234,7 +234,7 @@ public class BuilderBasedDeserializer
         throws JacksonException
     {
         // common case first:
-        if (p.isExpectedStartObjectToken()) { 
+        if (p.isExpectedStartObjectToken()) {
             if (_vanillaProcessing) {
                 return finishBuild(ctxt, _vanillaDeserialize(p, ctxt));
             }
@@ -391,7 +391,7 @@ public class BuilderBasedDeserializer
     protected Object _deserializeUsingPropertyBased(final JsonParser p,
             final DeserializationContext ctxt)
         throws JacksonException
-    { 
+    {
         final PropertyBasedCreator creator = _propertyBasedCreator;
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
@@ -482,7 +482,7 @@ public class BuilderBasedDeserializer
 
     protected final Object _deserialize(JsonParser p,
             DeserializationContext ctxt, Object builder) throws JacksonException
-    {        
+    {
         if (_injectables != null) {
             injectValues(ctxt, builder);
         }

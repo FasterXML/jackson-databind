@@ -1,5 +1,5 @@
 /**
- * Contains those implementation classes of deserialization part of 
+ * Contains those implementation classes of deserialization part of
  * data binding that are not considered part of public or semi-public
  * interfaces. Use of these classes by non-core classes is discouraged,
  * although occasionally this may be necessary.

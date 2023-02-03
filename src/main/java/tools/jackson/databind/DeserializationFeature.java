@@ -83,7 +83,7 @@ public enum DeserializationFeature implements ConfigFeature
      * if value fits.
      */
     USE_LONG_FOR_INTS(false),
-    
+
     /**
      * Feature that determines whether JSON Array is mapped to
      * <code>Object[]</code> or {@code List<Object>} when binding
@@ -250,7 +250,7 @@ public enum DeserializationFeature implements ConfigFeature
      * token(s)) for backwards compatibility reasons.
      */
     FAIL_ON_TRAILING_TOKENS(false),
-    
+
     /**
      * Feature that determines whether Jackson code should catch
      * and wrap non-Jackson {@link Exception}s (but never {@link Error}s!)
@@ -284,7 +284,7 @@ public enum DeserializationFeature implements ConfigFeature
      * Feature is disabled by default.
      */
     ACCEPT_SINGLE_VALUE_AS_ARRAY(false),
-    
+
     /**
      * Feature that determines whether it is acceptable to coerce single value array (in JSON)
      * values to the corresponding value type.  This is basically the opposite of the {@link #ACCEPT_SINGLE_VALUE_AS_ARRAY}
@@ -292,7 +292,7 @@ public enum DeserializationFeature implements ConfigFeature
      * <p>
      * NOTE: only <b>single</b> wrapper Array is allowed: if multiple attempted, exception
      * will be thrown.
-     * 
+     *
      * Feature is disabled by default.
      */
     UNWRAP_SINGLE_VALUE_ARRAYS(false),
@@ -373,11 +373,11 @@ public enum DeserializationFeature implements ConfigFeature
     READ_ENUMS_USING_TO_STRING(false),
 
     /**
-     * Feature that allows unknown Enum values to be parsed as null values. 
+     * Feature that allows unknown Enum values to be parsed as null values.
      * If disabled, unknown Enum values will throw exceptions.
      *<p>
      * Note that in some cases this will in effect ignore unknown Enum values,
-     * e.g. when the unknown values are used as keys of {@link java.util.EnumMap} 
+     * e.g. when the unknown values are used as keys of {@link java.util.EnumMap}
      * or values of {@link java.util.EnumSet}, given the current deserializer
      * implementation that ignores entries with null keys.
      *<p>
@@ -451,12 +451,12 @@ public enum DeserializationFeature implements ConfigFeature
      * Feature is enabled by default.
      */
     EAGER_DESERIALIZER_FETCH(true)
-    
+
     ;
 
     private final boolean _defaultState;
     private final int _mask;
-    
+
     private DeserializationFeature(boolean defaultState) {
         _defaultState = defaultState;
         _mask = (1 << ordinal());

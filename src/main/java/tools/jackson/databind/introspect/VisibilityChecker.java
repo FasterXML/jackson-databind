@@ -62,7 +62,7 @@ public class VisibilityChecker
     /**
      * Constructor used for building instance that has minumum visibility
      * levels as indicated by given annotation instance
-     * 
+     *
      * @param ann Annotations to use for determining minimum visibility levels
      */
     public VisibilityChecker(JsonAutoDetect ann)
@@ -94,7 +94,7 @@ public class VisibilityChecker
     /**
      * Constructor that will assign given visibility value for all
      * properties.
-     * 
+     *
      * @param v level to use for all property types
      */
     public VisibilityChecker(Visibility v)
@@ -206,7 +206,7 @@ public class VisibilityChecker
             return this;
         }
     }
-    
+
     /**
      * Builder method that will return a checker instance that has
      * specified minimum visibility level for fields.
@@ -349,7 +349,7 @@ public class VisibilityChecker
      * constructor is auto-detectable
      * as delegating Creator, with respect to its visibility
      * (not considering signature, just visibility)
-     * 
+     *
      * @since 3.0
      */
     public boolean isScalarConstructorVisible(AnnotatedMember m) {

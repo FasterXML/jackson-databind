@@ -59,19 +59,19 @@ public abstract class SubtypeResolver
      * by given element (method or field),
      * such that access is by type,
      * typically needed for serialization (converting from type to type name).
-     * 
+     *
      * @param baseType Effective property base type to use; may differ from
      *    actual type of property; for structured types it is content (value) type and NOT
      *    structured type.
      */
-    public abstract Collection<NamedType> collectAndResolveSubtypesByClass(MapperConfig<?> config, 
+    public abstract Collection<NamedType> collectAndResolveSubtypesByClass(MapperConfig<?> config,
             AnnotatedMember property, JavaType baseType);
 
     /**
      * Method for finding out all reachable subtypes for given type,
      * such that access is by type,
      * typically needed for serialization (converting from type to type name).
-     * 
+     *
      * @param baseType Effective property base type to use; may differ from
      *    actual type of property; for structured types it is content (value) type and NOT
      *    structured type.
@@ -84,19 +84,19 @@ public abstract class SubtypeResolver
      * by given element (method or field),
      * such that access is by type id,
      * typically needed for deserialization (converting from type id to type).
-     * 
+     *
      * @param baseType Effective property base type to use; may differ from
      *    actual type of property; for structured types it is content (value) type and NOT
      *    structured type.
      */
-    public abstract Collection<NamedType> collectAndResolveSubtypesByTypeId(MapperConfig<?> config, 
+    public abstract Collection<NamedType> collectAndResolveSubtypesByTypeId(MapperConfig<?> config,
             AnnotatedMember property, JavaType baseType);
 
     /**
      * Method for finding out all reachable subtypes for given type,
      * such that access is by type id,
      * typically needed for deserialization (converting from type id to type).
-     * 
+     *
      * @param baseType Effective property base type to use; may differ from
      *    actual type of property; for structured types it is content (value) type and NOT
      *    structured type.

@@ -20,14 +20,14 @@ public interface Serializers
      * Method called by serialization framework first time a serializer is needed for
      * specified type, which is not of a container or reference type (for which
      * other methods are called).
-     * 
+     *
      * @param type Fully resolved type of instances to serialize
      * @param config Serialization configuration in use
      * @param beanDesc Additional information about type
      * @param formatOverrides (nullable) Optional format overrides (usually from property definition),
      *     to change definitions that {@code beanDesc} may have (and which are NOT included). Usually
      *     combined calling {@code Serializers.Base#calculateEffectiveFormat}.
-     *    
+     *
      * @return Configured serializer to use for the type; or null if implementation
      *    does not recognize or support type
      */
@@ -51,7 +51,7 @@ public interface Serializers
     {
         return null;
     }
-    
+
     /**
      * Method called by serialization framework first time a serializer is needed for
      * specified array type.
@@ -103,7 +103,7 @@ public interface Serializers
     {
         return null;
     }
-    
+
     /**
      * Method called by serialization framework first time a serializer is needed for
      * specified {@link java.util.Map} type.
@@ -200,7 +200,7 @@ public interface Serializers
         {
             return null;
         }
-            
+
         @Override
         public ValueSerializer<?> findMapSerializer(SerializationConfig config,
                 MapType type, BeanDescription beanDesc, JsonFormat.Value formatOverrides,
@@ -225,7 +225,7 @@ public interface Serializers
         {
             return null;
         }
-        
+
         /*
         /******************************************************************
         /* Helper methods

@@ -14,7 +14,7 @@ import tools.jackson.databind.util.Annotations;
  * {@link BeanPropertyWriter} implementation used with
  * {@link tools.jackson.databind.annotation.JsonAppend}
  * to add "virtual" properties in addition to regular ones.
- * 
+ *
  * @see tools.jackson.databind.ser.impl.AttributePropertyWriter
  */
 public abstract class VirtualBeanPropertyWriter
@@ -131,7 +131,7 @@ public abstract class VirtualBeanPropertyWriter
     /* PropertyWriter serialization method overrides
     /**********************************************************************
      */
-    
+
     @Override
     public void serializeAsProperty(Object bean, JsonGenerator g, SerializerProvider prov)
         throws Exception
@@ -180,7 +180,7 @@ public abstract class VirtualBeanPropertyWriter
 
     // This one's fine as-is from base class
     //public void serializeAsOmittedProperty(Object bean, JsonGenerator g, SerializerProvider prov) throws Exception
-    
+
     @Override
     public void serializeAsElement(Object bean, JsonGenerator g, SerializerProvider prov)
         throws Exception

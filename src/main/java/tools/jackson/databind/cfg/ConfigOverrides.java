@@ -35,7 +35,7 @@ public class ConfigOverrides
 
     private final static VisibilityChecker DEFAULT_RECORD_VISIBILITY_CHECKER
         = VisibilityChecker.allPublicExceptCreatorsInstance();
-    
+
     /**
      * Per-type override definitions
      */
@@ -102,7 +102,7 @@ public class ConfigOverrides
     /* Per-type override access
     /**********************************************************************
      */
-    
+
     public ConfigOverride findOverride(Class<?> type) {
         if (_overrides == null) {
             return null;

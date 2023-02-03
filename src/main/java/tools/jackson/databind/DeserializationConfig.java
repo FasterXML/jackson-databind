@@ -28,7 +28,7 @@ public final class DeserializationConfig
 
     /*
     /**********************************************************************
-    /* Deserialization, parser, format features 
+    /* Deserialization, parser, format features
     /**********************************************************************
      */
 
@@ -295,7 +295,7 @@ public final class DeserializationConfig
             new DeserializationConfig(this, newDeserFeatures,
                     _streamReadFeatures, _formatReadFeatures);
     }
-    
+
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified feature disabled.
@@ -371,7 +371,7 @@ public final class DeserializationConfig
             new DeserializationConfig(this, _deserFeatures, newSet,
                     _formatReadFeatures);
     }
-    
+
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified feature disabled.
@@ -534,7 +534,7 @@ public final class DeserializationConfig
     public final boolean hasFormatFeature(FormatFeature f) {
         return (_formatReadFeatures & f.getMask()) != 0;
     }
-    
+
     /**
      * Bulk access method for checking that all features specified by
      * mask are enabled.

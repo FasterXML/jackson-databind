@@ -48,7 +48,7 @@ public abstract class PrimitiveArrayDeserializers<T>
     /* Life-cycle
     /********************************************************
      */
-    
+
     protected PrimitiveArrayDeserializers(Class<T> cls) {
         super(cls);
         _unwrapSingle = null;
@@ -61,7 +61,7 @@ public abstract class PrimitiveArrayDeserializers<T>
         _unwrapSingle = unwrapSingle;
         _nuller = nuller;
     }
-    
+
     public static ValueDeserializer<?> forType(Class<?> rawType)
     {
         // Start with more common types...
@@ -71,7 +71,7 @@ public abstract class PrimitiveArrayDeserializers<T>
         if (rawType == Long.TYPE) {
             return LongDeser.instance;
         }
-        
+
         if (rawType == Byte.TYPE) {
             return new ByteDeser();
         }
@@ -141,7 +141,7 @@ public abstract class PrimitiveArrayDeserializers<T>
 
     // since 2.9
     protected abstract T _constructEmpty();
-    
+
     /*
     /********************************************************
     /* Default implementations
@@ -152,7 +152,7 @@ public abstract class PrimitiveArrayDeserializers<T>
     public LogicalType logicalType() {
         return LogicalType.Array;
     }
-    
+
     @Override // since 2.9
     public Boolean supportsUpdate(DeserializationConfig config) {
         return Boolean.TRUE;
@@ -163,7 +163,7 @@ public abstract class PrimitiveArrayDeserializers<T>
         // Empty values shareable freely
         return AccessPattern.CONSTANT;
     }
-    
+
     @Override
     public Object getEmptyValue(DeserializationContext ctxt) {
         Object empty = _emptyValue;
@@ -264,7 +264,7 @@ public abstract class PrimitiveArrayDeserializers<T>
                 char[] buffer = p.getTextCharacters();
                 int offset = p.getTextOffset();
                 int len = p.getTextLength();
-    
+
                 return Arrays.copyOfRange(buffer, offset, offset + len);
             }
             if (p.isExpectedStartArrayToken()) {
@@ -442,12 +442,12 @@ public abstract class PrimitiveArrayDeserializers<T>
             //    binary data so...
             return LogicalType.Binary;
         }
-        
+
         @Override
         public byte[] deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException
         {
             JsonToken t = p.currentToken();
-            
+
             // Most likely case: base64 encoded String?
             if (t == JsonToken.VALUE_STRING) {
                 try {
@@ -621,7 +621,7 @@ public abstract class PrimitiveArrayDeserializers<T>
         extends PrimitiveArrayDeserializers<int[]>
     {
         public final static IntDeser instance = new IntDeser();
-        
+
         public IntDeser() { super(int[].class); }
         protected IntDeser(IntDeser base, NullValueProvider nuller, Boolean unwrapSingle) {
             super(base, nuller, unwrapSingle);

@@ -95,7 +95,7 @@ public abstract class BeanSerializerBase
     /**
      * Constructor used by {@link BeanSerializerBuilder} to create an
      * instance
-     * 
+     *
      * @param type Nominal type of values handled by this serializer
      * @param builder Builder for accessing other collected information
      */
@@ -160,7 +160,7 @@ public abstract class BeanSerializerBase
         _beanType = src._beanType;
         _props = src._props;
         _filteredProps = src._filteredProps;
-        
+
         _typeId = src._typeId;
         _anyGetterWriter = src._anyGetterWriter;
         _objectIdWriter = objectIdWriter;
@@ -193,14 +193,14 @@ public abstract class BeanSerializerBase
         }
         _props = propsOut.toArray(NO_PROPS);
         _filteredProps = (fpropsOut == null) ? null : fpropsOut.toArray(NO_PROPS);
-        
+
         _typeId = src._typeId;
         _anyGetterWriter = src._anyGetterWriter;
         _objectIdWriter = src._objectIdWriter;
         _propertyFilterId = src._propertyFilterId;
         _serializationShape = src._serializationShape;
     }
-    
+
     /**
      * Mutant factory used for creating a new instance with different
      * {@link ObjectIdWriter}.
@@ -306,7 +306,7 @@ public abstract class BeanSerializerBase
             if (ser == null) {
                 // Was the serialization type hard-coded? If so, use it
                 JavaType type = prop.getSerializationType();
-                
+
                 // It not, we can use declared return type if and only if declared type is final:
                 // if not, we don't really know the actual type until we get the instance.
                 if (type == null) {
@@ -455,7 +455,7 @@ public abstract class BeanSerializerBase
             } else {
                 // Ugh: mostly copied from BeanDeserializerBase: but can't easily change it
                 // to be able to move to SerializerProvider (where it really belongs)
-                
+
                 // 2.1: allow modifications by "id ref" annotations as well:
                 objectIdInfo = intr.findObjectReferenceInfo(config, accessor, objectIdInfo);
 
@@ -466,7 +466,7 @@ public abstract class BeanSerializerBase
                 if (implClass == ObjectIdGenerators.PropertyGenerator.class) { // most special one, needs extra work
                     String propName = objectIdInfo.getPropertyName().getSimpleName();
                     BeanPropertyWriter idProp = null;
-                    
+
                     for (int i = 0, len = _props.length; ; ++i) {
                         if (i == len) {
                             ctxt.reportBadDefinition(_beanType, String.format(
@@ -571,7 +571,7 @@ public abstract class BeanSerializerBase
      * Accessor for checking if view-processing is enabled for this bean,
      * that is, if it has separate set of properties with view-checking
      * added.
-     * 
+     *
      * @since 3.0
      */
     public boolean hasViewProperties() {
@@ -616,7 +616,7 @@ public abstract class BeanSerializerBase
     public boolean usesObjectId() {
         return (_objectIdWriter != null);
     }
-    
+
     // Main serialization method left unimplemented
     @Override
     public abstract void serialize(Object bean, JsonGenerator gen, SerializerProvider provider)
@@ -673,7 +673,7 @@ public abstract class BeanSerializerBase
             g.writeEndObject();
         }
     }
-    
+
     protected final void _serializeWithObjectId(Object bean, JsonGenerator g, SerializerProvider provider,
             TypeSerializer typeSer)
         throws JacksonException
@@ -927,11 +927,11 @@ public abstract class BeanSerializerBase
     /* Introspection (for schema generation etc)
     /**********************************************************************
      */
-    
+
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
     {
-        //deposit your output format 
+        //deposit your output format
         if (visitor == null) {
             return;
         }

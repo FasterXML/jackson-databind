@@ -191,7 +191,7 @@ public final class ConstructorDetector
      * and, if so, whether JDK type constructors are allowed (if type is JDK type)
      * to determine whether implicit constructor
      * detection should be enabled for given type or not.
-     * 
+     *
      * @param rawType Value type to consider
      *
      * @return True if implicit constructor detection should be enabled; false if not

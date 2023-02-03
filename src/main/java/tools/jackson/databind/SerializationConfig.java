@@ -111,7 +111,7 @@ public final class SerializationConfig
         _streamWriteFeatures = streamWriteFeatures;
         _formatWriteFeatures = formatWriteFeatures;
     }
-    
+
     private SerializationConfig(SerializationConfig src, BaseSettings base)
     {
         super(src, base);
@@ -214,7 +214,7 @@ public final class SerializationConfig
     public SerializationConfig withView(Class<?> view) {
         return (_view == view) ? this : new SerializationConfig(this, view);
     }
-    
+
     @Override
     public SerializationConfig with(ContextAttributes attrs) {
         return (attrs == _attributes) ? this : new SerializationConfig(this, attrs);
@@ -575,7 +575,7 @@ public final class SerializationConfig
     public FilterProvider getFilterProvider() {
         return _filterProvider;
     }
-    
+
     /**
      * Accessor for configured blueprint "default" {@link PrettyPrinter} to
      * use, if default pretty-printing is enabled.

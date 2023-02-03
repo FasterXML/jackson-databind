@@ -41,7 +41,7 @@ public class StdSubtypeResolver
     /**********************************************************
      */
 
-    @Override    
+    @Override
     public StdSubtypeResolver registerSubtypes(NamedType... types) {
         if (_registeredSubtypes == null) {
             _registeredSubtypes = new LinkedHashSet<>();
@@ -81,7 +81,7 @@ public class StdSubtypeResolver
      */
 
     @Override
-    public Collection<NamedType> collectAndResolveSubtypesByClass(MapperConfig<?> config, 
+    public Collection<NamedType> collectAndResolveSubtypesByClass(MapperConfig<?> config,
             AnnotatedMember property, JavaType baseType)
     {
         final AnnotationIntrospector ai = config.getAnnotationIntrospector();
@@ -95,7 +95,7 @@ public class StdSubtypeResolver
         } else {
             throw new IllegalArgumentException("Both property and base type are nulls");
         }
-        
+
         HashMap<NamedType, NamedType> collected = new HashMap<>();
         // start with registered subtypes (which have precedence)
         if (_registeredSubtypes != null) {
@@ -108,7 +108,7 @@ public class StdSubtypeResolver
                 }
             }
         }
-        
+
         // then annotated types for property itself
         if (property != null) {
             Collection<NamedType> st = ai.findSubtypes(config, property);
@@ -117,13 +117,13 @@ public class StdSubtypeResolver
                     AnnotatedClass ac = AnnotatedClassResolver.resolveWithoutSuperTypes(config,
                             nt.getType());
                     _collectAndResolve(config, ac, nt, ai, collected);
-                }            
+                }
             }
         }
 
         NamedType rootType = new NamedType(rawBase, null);
         AnnotatedClass ac = AnnotatedClassResolver.resolveWithoutSuperTypes(config, rawBase);
-            
+
         // and finally subtypes via annotations from base type (recursively)
         _collectAndResolve(config, ac, rootType, ai, collected);
 
@@ -162,13 +162,13 @@ public class StdSubtypeResolver
      */
 
     @Override
-    public Collection<NamedType> collectAndResolveSubtypesByTypeId(MapperConfig<?> config, 
+    public Collection<NamedType> collectAndResolveSubtypesByTypeId(MapperConfig<?> config,
             AnnotatedMember property, JavaType baseType)
     {
         final AnnotationIntrospector ai = config.getAnnotationIntrospector();
         Class<?> rawBase = baseType.getRawClass();
 
-        // Need to keep track of classes that have been handled already 
+        // Need to keep track of classes that have been handled already
         Set<Class<?>> typesHandled = new HashSet<>();
         Map<String,NamedType> byName = new LinkedHashMap<>();
 
@@ -177,7 +177,7 @@ public class StdSubtypeResolver
         AnnotatedClass ac = AnnotatedClassResolver.resolveWithoutSuperTypes(config,
                 rawBase);
         _collectAndResolveByTypeId(config, ac, rootType, typesHandled, byName);
-        
+
         // then with definitions from property
         if (property != null) {
             Collection<NamedType> st = ai.findSubtypes(config, property);
@@ -185,7 +185,7 @@ public class StdSubtypeResolver
                 for (NamedType nt : st) {
                     ac = AnnotatedClassResolver.resolveWithoutSuperTypes(config, nt.getType());
                     _collectAndResolveByTypeId(config, ac, nt, typesHandled, byName);
-                }            
+                }
             }
         }
         // and finally explicit type registrations (highest precedence)
@@ -212,7 +212,7 @@ public class StdSubtypeResolver
 
         NamedType rootType = new NamedType(rawBase, null);
         _collectAndResolveByTypeId(config, baseType, rootType, typesHandled, byName);
-        
+
         if (_registeredSubtypes != null) {
             for (NamedType subtype : _registeredSubtypes) {
                 // is it a subtype of root type?

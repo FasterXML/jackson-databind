@@ -19,7 +19,7 @@ public abstract class PropertyBindingException
      * Class that does not contain mapping for the unrecognized property.
      */
     protected final Class<?> _referringClass;
-    
+
     /**
      *<p>
      * Note: redundant information since it is also included in the
@@ -100,7 +100,7 @@ public abstract class PropertyBindingException
     /* Extended API
     /**********************************************************
      */
-    
+
     /**
      * Method for accessing type (class) that is missing definition to allow
      * binding of the unrecognized property.
@@ -108,7 +108,7 @@ public abstract class PropertyBindingException
     public Class<?> getReferringClass() {
         return _referringClass;
     }
-    
+
     /**
      * Convenience method for accessing logical property name that could
      * not be mapped. Note that it is the last path reference in the
@@ -116,8 +116,8 @@ public abstract class PropertyBindingException
      */
     public String getPropertyName() {
         return _propertyName;
-    }    
-    
+    }
+
     public Collection<Object> getKnownPropertyIds()
     {
         if (_propertyIds == null) {

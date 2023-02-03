@@ -61,7 +61,7 @@ public abstract class PropertyWriter
      * that is, tries to find a property annotation first, but if one is not
      * found, tries to find context-annotation (from enclosing class) of
      * same type.
-     * 
+     *
      * @since 2.5
      */
     public <A extends Annotation> A findAnnotation(Class<A> acls) {
@@ -71,11 +71,11 @@ public abstract class PropertyWriter
         }
         return ann;
     }
-    
+
     /**
      * Method for accessing annotations directly declared for property that this
      * writer is associated with.
-     * 
+     *
      * @since 2.5
      */
     @Override

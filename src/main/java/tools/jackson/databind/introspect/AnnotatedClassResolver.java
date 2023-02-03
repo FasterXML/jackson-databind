@@ -78,7 +78,7 @@ public class AnnotatedClassResolver
     /* Public static API
     /**********************************************************************
      */
-    
+
     public static AnnotatedClass resolve(MapperConfig<?> config, JavaType forType,
             MixInResolver r)
     {
@@ -127,7 +127,7 @@ public class AnnotatedClassResolver
     /* Main resolution methods
     /**********************************************************************
      */
-    
+
     AnnotatedClass resolveFully() {
         final List<JavaType> superTypes;
 
@@ -146,7 +146,7 @@ public class AnnotatedClassResolver
                 }
             }
         }
-//System.err.println(" resolveFully("+_type.getRawClass().getSimpleName()+") -> "+superTypes);        
+//System.err.println(" resolveFully("+_type.getRawClass().getSimpleName()+") -> "+superTypes);
         return new AnnotatedClass(_config, _type, _class, superTypes, _primaryMixin,
                 resolveClassAnnotations(superTypes),
                 _bindings, _mixInResolver,
@@ -175,7 +175,7 @@ public class AnnotatedClassResolver
         if ((cls == CLS_OBJECT) || (cls == CLS_ENUM)) {
             return;
         }
-        
+
         if (addClassItself) {
             if (_contains(result, cls)) { // already added, no need to check supers
                 return;
@@ -284,7 +284,7 @@ public class AnnotatedClassResolver
         if (mixin != null) {
             // Ok, first: annotations from mix-in class itself:
             annotations = _addAnnotationsIfNotPresent(annotations, _findClassAnnotations(mixin));
-    
+
             // And then from its supertypes, if any. But note that we will only consider
             // super-types up until reaching the masked class (if found); this because
             // often mix-in class is a sub-class (for convenience reasons).

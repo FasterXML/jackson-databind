@@ -128,7 +128,7 @@ public abstract class JDKKeySerializers
         final static int TYPE_TO_STRING = 8;
 
         protected final int _typeId;
-        
+
         public Default(int typeId, Class<?> type) {
             super(type);
             _typeId = typeId;
@@ -191,7 +191,7 @@ public abstract class JDKKeySerializers
     {
         // Important: MUST be transient, to allow serialization of key serializer itself
         protected transient PropertySerializerMap _dynamicSerializers;
-        
+
         public Dynamic() {
             super(String.class);
             _dynamicSerializers = PropertySerializerMap.emptyForProperties();
@@ -274,7 +274,7 @@ public abstract class JDKKeySerializers
         {
             return new EnumKeySerializer(enumType, enumValues);
         }
-        
+
         @Override
         public void serialize(Object value, JsonGenerator g, SerializerProvider serializers)
             throws JacksonException

@@ -80,7 +80,7 @@ public abstract class AnnotationIntrospector
 
         public static ReferenceProperty managed(String name) { return new ReferenceProperty(Type.MANAGED_REFERENCE, name); }
         public static ReferenceProperty back(String name) { return new ReferenceProperty(Type.BACK_REFERENCE, name); }
-        
+
         public Type getType() { return _type; }
         public String getName() { return _name; }
 
@@ -152,7 +152,7 @@ public abstract class AnnotationIntrospector
     /* Factory methods
     /**********************************************************************
      */
-    
+
     /**
      * Factory method for accessing "no operation" implementation
      * of introspector: instance that will never find any annotation-based
@@ -191,7 +191,7 @@ public abstract class AnnotationIntrospector
     public Collection<AnnotationIntrospector> allIntrospectors() {
         return Collections.singletonList(this);
     }
-    
+
     /**
      * Method that can be used to collect all "real" introspectors that
      * this introspector contains, if any; or this introspector
@@ -211,7 +211,7 @@ public abstract class AnnotationIntrospector
         result.add(this);
         return result;
     }
-    
+
     /*
     /**********************************************************************
     /* Default Versioned impl
@@ -220,7 +220,7 @@ public abstract class AnnotationIntrospector
 
     @Override
     public abstract Version version();
-    
+
     /*
     /**********************************************************************
     /* Meta-annotations (annotations for annotation types)
@@ -345,7 +345,7 @@ public abstract class AnnotationIntrospector
      *
      * @param config Effective mapper configuration in use
      * @param ann Annotated entity to introspect
-     * 
+     *
      * @return Id of the filter to use for filtering properties of annotated
      *    class, if any; or null if none found.
      */
@@ -374,7 +374,7 @@ public abstract class AnnotationIntrospector
      *
      * @param config Effective mapper configuration in use
      * @param ac Annotated class to introspect
-     * 
+     *
      * @return Human-readable description, if any.
      */
     public String findClassDescription(MapperConfig<?> config, AnnotatedClass ac) { return null; }
@@ -395,7 +395,7 @@ public abstract class AnnotationIntrospector
      * @param config Effective mapper configuration in use
      * @param ac Annotated class to introspect
      */
-    public VisibilityChecker findAutoDetectVisibility(MapperConfig<?> config, 
+    public VisibilityChecker findAutoDetectVisibility(MapperConfig<?> config,
             AnnotatedClass ac, VisibilityChecker checker) {
         return checker;
     }
@@ -446,7 +446,7 @@ public abstract class AnnotationIntrospector
      * a list of directly
      * declared subtypes, no recursive processing is guarantees (i.e. caller
      * has to do it if/as necessary)
-     * 
+     *
      * @param config Effective mapper configuration in use
      * @param a Annotated entity (class, field/method) to check for annotations
      */
@@ -517,10 +517,10 @@ public abstract class AnnotationIntrospector
      * Type if identifier needs to be compatible with provider of
      * values (of type {@link InjectableValues}); often a simple String
      * id is used.
-     * 
+     *
      * @param config Effective mapper configuration in use
      * @param member Member to check for information
-     * 
+     *
      * @return Identifier of value to inject, if any; null if no injection
      *   indicator is found
      */
@@ -549,7 +549,7 @@ public abstract class AnnotationIntrospector
      *<p>
      * Since 2.9 this method may also be called to find "default view(s)" for
      * {@link AnnotatedClass}
-     * 
+     *
      * @param config Effective mapper configuration in use
      * @param a Annotated property (represented by a method, field or ctor parameter)
      *
@@ -600,7 +600,7 @@ public abstract class AnnotationIntrospector
      * these may be marked up using HTML is not defined.
      *
      * @param config Effective mapper configuration in use
-     * 
+     *
      * @return Human-readable description, if any.
      */
     public String findPropertyDescription(MapperConfig<?> config, Annotated ann) { return null; }
@@ -774,7 +774,7 @@ public abstract class AnnotationIntrospector
      * Note also that this feature does not necessarily work well with polymorphic
      * type handling, or object identity handling; if such features are needed
      * an explicit serializer is usually better way to handle serialization.
-     * 
+     *
      * @param a Annotated property (field, method) or class to check for annotations
      */
     public Object findSerializationConverter(MapperConfig<?> config, Annotated a) {
@@ -794,7 +794,7 @@ public abstract class AnnotationIntrospector
      * type is used for actual serialization.
      *<p>
      * Other notes are same as those for {@link #findSerializationConverter}
-     * 
+     *
      * @param a Annotated property (field, method) to check.
      */
     public Object findSerializationContentConverter(MapperConfig<?> config, AnnotatedMember a) {
@@ -857,7 +857,7 @@ public abstract class AnnotationIntrospector
      */
     public void findAndAddVirtualProperties(MapperConfig<?> config, AnnotatedClass ac,
             List<BeanPropertyWriter> properties) { }
-    
+
     /*
     /**********************************************************************
     /* Serialization: property annotations
@@ -871,9 +871,9 @@ public abstract class AnnotationIntrospector
      * Should return null if no annotation
      * is found; otherwise a non-null name (possibly
      * {@link PropertyName#USE_DEFAULT}, which means "use default heuristics").
-     * 
+     *
      * @param a Property accessor to check
-     * 
+     *
      * @return Name to use if found; null if not.
      */
     public PropertyName findNameForSerialization(MapperConfig<?> config, Annotated a) {
@@ -917,7 +917,7 @@ public abstract class AnnotationIntrospector
      * properties, often bound with matching "any setter" method.
      *
      * @param ann Annotated entity to check
-     * 
+     *
      * @return True if such annotation is found (and is not disabled),
      *   false otherwise
      */
@@ -944,7 +944,7 @@ public abstract class AnnotationIntrospector
 
     /**
      * Method that is related to {@link #findEnumValues} but is called to check if
-     * there are alternative names (aliased) that can be accepted for entries, in 
+     * there are alternative names (aliased) that can be accepted for entries, in
      * addition to primary names introspected earlier.
      * If so, these aliases should be returned in {@code aliases} {@link List} passed
      * as argument (and initialized for proper size by caller).
@@ -966,7 +966,7 @@ public abstract class AnnotationIntrospector
      *
      * @return null if none found or it's not possible to determine one.
      */
-    public Enum<?> findDefaultEnumValue(MapperConfig<?> config, 
+    public Enum<?> findDefaultEnumValue(MapperConfig<?> config,
             Class<?> enumCls) {
         return null;
     }
@@ -1029,7 +1029,7 @@ public abstract class AnnotationIntrospector
      * Note also that this feature does not necessarily work well with polymorphic
      * type handling, or object identity handling; if such features are needed
      * an explicit deserializer is usually better way to handle deserialization.
-     * 
+     *
      * @param a Annotated property (field, method) or class to check for annotations
      */
     public Object findDeserializationConverter(MapperConfig<?> config, Annotated a) {
@@ -1049,7 +1049,7 @@ public abstract class AnnotationIntrospector
      * needs to convert this into its target type to be set as property value.
      *<p>
      * Other notes are same as those for {@link #findDeserializationConverter}
-     * 
+     *
      * @param a Annotated property (field, method) to check.
      */
     public Object findDeserializationContentConverter(MapperConfig<?> config, AnnotatedMember a) {
@@ -1126,7 +1126,7 @@ public abstract class AnnotationIntrospector
      * Should return null if no annotation
      * is found; otherwise a non-null name (possibly
      * {@link PropertyName#USE_DEFAULT}, which means "use default heuristics").
-     * 
+     *
      * @param ann Annotated entity to check
      *
      * @return Name to use if found; null if not.
@@ -1134,13 +1134,13 @@ public abstract class AnnotationIntrospector
     public PropertyName findNameForDeserialization(MapperConfig<?> config, Annotated ann) {
         return null;
     }
-    
+
     /**
      * Method for checking whether given method has an annotation
      * that suggests that the method is to serve as "any setter";
      * method to be used for setting values of any properties for
      * which no dedicated setter method is found.
-     * 
+     *
      * @param ann Annotated entity to check
      *
      * @return True if such annotation is found (and is not disabled),
@@ -1191,7 +1191,7 @@ public abstract class AnnotationIntrospector
     /**
      * Method that should be used by sub-classes for ALL
      * annotation access;
-     * overridable so 
+     * overridable so
      * that sub-classes may, if they choose to, mangle actual access to
      * block access ("hide" annotations) or perhaps change it.
      *<p>

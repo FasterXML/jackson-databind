@@ -32,7 +32,7 @@ public class OptionalIntSerializer extends StdScalarSerializer<OptionalInt>
             v2.numberType(JsonParser.NumberType.INT);
         }
     }
-    
+
     @Override
     public void serialize(OptionalInt value, JsonGenerator gen, SerializerProvider provider)
         throws JacksonException

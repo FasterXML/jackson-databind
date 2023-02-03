@@ -69,7 +69,7 @@ public final class ManagedReferenceProperty
     {
         return setAndReturn(instance, deserialize(p, ctxt));
     }
-    
+
     @Override
     public final void set(Object instance, Object value) {
         setAndReturn(instance, value);

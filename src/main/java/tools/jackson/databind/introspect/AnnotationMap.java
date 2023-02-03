@@ -20,7 +20,7 @@ public final class AnnotationMap implements Annotations
     /* Construction
     /**********************************************************
      */
-    
+
     public AnnotationMap() { }
 
     public AnnotationMap(Map<Class<?>,Annotation> a) {
@@ -46,7 +46,7 @@ public final class AnnotationMap implements Annotations
     /* Annotations impl
     /**********************************************************
      */
-    
+
     @SuppressWarnings("unchecked")
     @Override
     public <A extends Annotation> A get(Class<A> cls)
@@ -94,7 +94,7 @@ public final class AnnotationMap implements Annotations
         }
         return _annotations.values();
     }
-    
+
     public static AnnotationMap merge(AnnotationMap primary, AnnotationMap secondary)
     {
         if (primary == null || primary._annotations == null || primary._annotations.isEmpty()) {
@@ -114,7 +114,7 @@ public final class AnnotationMap implements Annotations
         }
         return new AnnotationMap(annotations);
     }
-    
+
     @Override
     public int size() {
         return (_annotations == null) ? 0 : _annotations.size();

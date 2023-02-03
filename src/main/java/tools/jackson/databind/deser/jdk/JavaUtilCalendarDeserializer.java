@@ -63,7 +63,7 @@ public class JavaUtilCalendarDeserializer extends DateBasedDeserializer<Calendar
             return ctxt.constructCalendar(d);
         }
         try {
-            Calendar c = _defaultCtor.newInstance();            
+            Calendar c = _defaultCtor.newInstance();
             c.setTimeInMillis(d.getTime());
             TimeZone tz = ctxt.getTimeZone();
             if (tz != null) {

@@ -27,7 +27,7 @@ public class BeanAsArrayDeserializer
      * Properties in order expected to be found in JSON array.
      */
     protected final SettableBeanProperty[] _orderedProperties;
-    
+
     /*
     /**********************************************************************
     /* Life-cycle, construction, initialization
@@ -46,7 +46,7 @@ public class BeanAsArrayDeserializer
         _delegate = delegate;
         _orderedProperties = ordered;
     }
-    
+
     @Override
     public ValueDeserializer<Object> unwrappingDeserializer(DeserializationContext ctxt,
             NameTransformer unwrapper)
@@ -80,7 +80,7 @@ public class BeanAsArrayDeserializer
         return new BeanAsArrayDeserializer(_delegate.withBeanProperties(props),
                 _orderedProperties);
     }
-    
+
     @Override
     protected BeanDeserializerBase asArrayDeserializer() {
         return this;
@@ -88,13 +88,13 @@ public class BeanAsArrayDeserializer
 
     @Override
     protected void initNameMatcher(DeserializationContext ctxt) { }
-    
+
     /*
     /**********************************************************************
     /* ValueDeserializer implementation
     /**********************************************************************
      */
-    
+
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
@@ -205,7 +205,7 @@ public class BeanAsArrayDeserializer
                 p.skipChildren();
             }
         }
-        
+
         /*
         while (true) {
             if (p.nextToken() == JsonToken.END_ARRAY) {
@@ -253,7 +253,7 @@ public class BeanAsArrayDeserializer
         if (!p.isExpectedStartArrayToken()) {
             return _deserializeFromNonArray(p, ctxt);
         }
-        
+
         /* No good way to verify that we have an array... although could I guess
          * check via JsonParser. So let's assume everything is working fine, for now.
          */
@@ -282,7 +282,7 @@ public class BeanAsArrayDeserializer
             }
             ++i;
         }
-        
+
         // Ok; extra fields? Let's fail, unless ignoring extra props is fine
         if (!_ignoreAllUnknown && ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
             ctxt.reportWrongTokenException(this, JsonToken.END_ARRAY,
@@ -371,7 +371,7 @@ public class BeanAsArrayDeserializer
      * Method called to deserialize bean using "property-based creator":
      * this means that a non-default constructor or factory method is
      * called, and then possibly other setters. The trick is that
-     * values for creator method need to be buffered, first; and 
+     * values for creator method need to be buffered, first; and
      * due to non-guaranteed ordering possibly some other properties
      * as well.
      */

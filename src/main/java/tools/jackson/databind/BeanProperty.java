@@ -39,7 +39,7 @@ public interface BeanProperty extends FullyNamed
     public final static JsonInclude.Value EMPTY_INCLUDE = JsonInclude.Value.empty();
 
     // // // From FullyNamed
-    
+
     //public String getName();
     //public PropertyName getFullName();
 
@@ -60,7 +60,7 @@ public interface BeanProperty extends FullyNamed
      * @return Metadata about property; never null.
      */
     public PropertyMetadata getMetadata();
-    
+
     /**
      * Whether value for property is marked as required using
      * annotations or associated schema.
@@ -82,7 +82,7 @@ public interface BeanProperty extends FullyNamed
     /* Access to annotation information
     /**********************************************************************
      */
-    
+
     /**
      * Method for finding annotation associated with this property;
      * meaning annotation associated with one of entities used to
@@ -158,7 +158,7 @@ public interface BeanProperty extends FullyNamed
      * Note that not all implementations support traversal with this
      * method; those that do not should throw
      * {@link UnsupportedOperationException}.
-     * 
+     *
      * @param objectVisitor Visitor to used as the callback handler
      */
     public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor,
@@ -224,7 +224,7 @@ public interface BeanProperty extends FullyNamed
         public JsonFormat.Value findFormatOverrides(MapperConfig<?> config) {
             return null;
         }
-        
+
         @Override
         public JsonFormat.Value findPropertyFormat(MapperConfig<?> config, Class<?> baseType) {
             JsonFormat.Value v0 = config.getDefaultPropertyFormat(baseType);
@@ -238,7 +238,7 @@ public interface BeanProperty extends FullyNamed
             }
             return v0.withOverrides(v);
         }
-        
+
         @Override
         public JsonInclude.Value findPropertyInclusion(MapperConfig<?> config, Class<?> baseType)
         {
@@ -345,7 +345,7 @@ public interface BeanProperty extends FullyNamed
         public JsonFormat.Value findFormatOverrides(MapperConfig<?> config) {
             return null;
         }
-        
+
         @Override
         public Value findPropertyFormat(MapperConfig<?> config, Class<?> baseType) {
             return Value.empty();

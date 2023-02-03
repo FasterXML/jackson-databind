@@ -22,7 +22,7 @@ public abstract class FilterProvider
      * @param valueToFilter Object being filtered (usually POJO, but may be a {@link java.util.Map},
      *   or in future a container), <b>if available</b>; not available when generating
      *   schemas.
-     * 
+     *
      * @return Filter to use, if any.
      */
     public abstract PropertyFilter findPropertyFilter(SerializerProvider ctxt,

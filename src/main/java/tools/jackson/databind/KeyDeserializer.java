@@ -34,7 +34,7 @@ public abstract class KeyDeserializer
     /* Main API
     /**********************************************************************
      */
-    
+
     /**
      * Method called to deserialize a {@link java.util.Map} key from JSON property name.
      */

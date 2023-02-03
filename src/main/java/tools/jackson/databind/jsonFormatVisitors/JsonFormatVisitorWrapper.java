@@ -55,7 +55,7 @@ public interface JsonFormatVisitorWrapper extends JsonFormatVisitorWithSerialize
     /**
      * Method called when type is of Java {@link java.util.Map} type, and will
      * be serialized as a JSON Object.
-     * 
+     *
      * @since 2.2
      */
     public JsonMapFormatVisitor expectMapFormat(JavaType type);

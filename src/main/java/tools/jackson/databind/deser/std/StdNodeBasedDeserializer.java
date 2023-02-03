@@ -22,7 +22,7 @@ public abstract class StdNodeBasedDeserializer<T>
     /* Life-cycle
     /**********************************************************************
      */
-    
+
     protected StdNodeBasedDeserializer(JavaType targetType) {
         super(targetType);
     }
@@ -59,7 +59,7 @@ public abstract class StdNodeBasedDeserializer<T>
     /* ValueDeserializer impl
     /**********************************************************************
      */
-    
+
     @Override
     public T deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
         JsonNode n = (JsonNode) _treeDeserializer.deserialize(p, ctxt);

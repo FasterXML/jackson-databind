@@ -41,7 +41,7 @@ public class StringArraySerializer
     /* Life-cycle
     /**********************************************************************
      */
-    
+
     protected StringArraySerializer() {
         super(String[].class);
         _elementSerializer = null;
@@ -73,7 +73,7 @@ public class StringArraySerializer
     /* Post-processing
     /**********************************************************************
      */
-    
+
     @Override
     public ValueSerializer<?> createContextual(SerializerProvider provider,
             BeanProperty property)
@@ -130,7 +130,7 @@ public class StringArraySerializer
     public ValueSerializer<?> getContentSerializer() {
         return _elementSerializer;
     }
-    
+
     @Override
     public boolean isEmpty(SerializerProvider prov, String[] value) {
         return (value.length == 0);
@@ -146,7 +146,7 @@ public class StringArraySerializer
     /* Actual serialization
     /**********************************************************************
      */
-    
+
     @Override
     public final void serialize(String[] value, JsonGenerator gen, SerializerProvider provider)
         throws JacksonException
@@ -164,7 +164,7 @@ public class StringArraySerializer
         serializeContents(value, gen, provider);
         gen.writeEndArray();
     }
-    
+
     @Override
     public void serializeContents(String[] value, JsonGenerator gen, SerializerProvider provider)
         throws JacksonException

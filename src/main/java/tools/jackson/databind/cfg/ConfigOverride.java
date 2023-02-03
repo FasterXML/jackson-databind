@@ -64,7 +64,7 @@ public abstract class ConfigOverride
      * or not.
      */
     protected Boolean _mergeable;
-    
+
     protected ConfigOverride() { }
     protected ConfigOverride(ConfigOverride src) {
         _format = src._format;

@@ -29,7 +29,7 @@ public abstract class TypeIdResolverBase
     protected TypeIdResolverBase() {
         this(null);
     }
-    
+
     protected TypeIdResolverBase(JavaType baseType) {
         _baseType = baseType;
     }

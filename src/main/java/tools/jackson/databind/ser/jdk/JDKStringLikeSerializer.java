@@ -31,7 +31,7 @@ public class JDKStringLikeSerializer
     protected final static int TYPE_PATH = 4;
 
     protected final static int TYPE_CLASS = 5;
-    
+
     protected final static int TYPE_CURRENCY = 6;
     protected final static int TYPE_LOCALE = 7;
     protected final static int TYPE_PATTERN = 8;
@@ -65,7 +65,7 @@ public class JDKStringLikeSerializer
         }
         return new JDKStringLikeSerializer(raw, I.intValue());
     }
-    
+
     @Override
     public boolean isEmpty(SerializerProvider prov, Object value) {
         return value.toString().isEmpty();

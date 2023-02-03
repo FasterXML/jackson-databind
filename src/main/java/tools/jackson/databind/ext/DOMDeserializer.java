@@ -76,14 +76,14 @@ public abstract class DOMDeserializer<T> extends FromStringDeserializer<T>
     /* Concrete deserializers
     /**********************************************************
      */
-    
+
     public static class NodeDeserializer extends DOMDeserializer<Node> {
         public NodeDeserializer() { super(Node.class); }
         @Override
         public Node _deserialize(String value, DeserializationContext ctxt) throws IllegalArgumentException {
             return parse(value);
         }
-    }    
+    }
 
     public static class DocumentDeserializer extends DOMDeserializer<Document> {
         public DocumentDeserializer() { super(Document.class); }
@@ -91,5 +91,5 @@ public abstract class DOMDeserializer<T> extends FromStringDeserializer<T>
         public Document _deserialize(String value, DeserializationContext ctxt) throws IllegalArgumentException {
             return parse(value);
         }
-    }    
+    }
 }

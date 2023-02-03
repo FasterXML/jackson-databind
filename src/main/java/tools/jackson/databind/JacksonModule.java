@@ -98,7 +98,7 @@ public abstract class JacksonModule
          */
 
         /**
-         * Method that returns version information about {@link ObjectMapper} 
+         * Method that returns version information about {@link ObjectMapper}
          * that implements this context. Modules can use this to choose
          * different settings or initialization order; or even decide to fail
          * set up completely if version is compatible with module.
@@ -176,7 +176,7 @@ public abstract class JacksonModule
         /* Handler registration; deserializers, related
         /******************************************************************
          */
-        
+
         /**
          * Method that module can use to register additional deserializers to use for
          * handling types.
@@ -192,7 +192,7 @@ public abstract class JacksonModule
          * they are always serialized from String values)
          */
         public SetupContext addKeyDeserializers(KeyDeserializers s);
-        
+
         /**
          * Method that module can use to register additional modifier objects to
          * customize configuration and construction of bean deserializers.
@@ -203,9 +203,9 @@ public abstract class JacksonModule
 
         /**
          * Method that module can use to register additional {@link tools.jackson.databind.deser.ValueInstantiator}s,
-         * by adding {@link ValueInstantiators} object that gets called when 
+         * by adding {@link ValueInstantiators} object that gets called when
          * instantatiator is needed by a deserializer.
-         * 
+         *
          * @param instantiators Object that can provide {@link tools.jackson.databind.deser.ValueInstantiator}s for
          *    constructing POJO values during deserialization
          */
@@ -269,7 +269,7 @@ public abstract class JacksonModule
          * Method for registering specified {@link AnnotationIntrospector} as the highest
          * priority introspector (will be chained with existing introspector(s) which
          * will be used as fallbacks for cases this introspector does not handle)
-         * 
+         *
          * @param ai Annotation introspector to register.
          */
         public SetupContext insertAnnotationIntrospector(AnnotationIntrospector ai);
@@ -278,7 +278,7 @@ public abstract class JacksonModule
          * Method for registering specified {@link AnnotationIntrospector} as the lowest
          * priority introspector, chained with existing introspector(s) and called
          * as fallback for cases not otherwise handled.
-         * 
+         *
          * @param ai Annotation introspector to register.
          */
         public SetupContext appendAnnotationIntrospector(AnnotationIntrospector ai);
@@ -293,7 +293,7 @@ public abstract class JacksonModule
          * Method that module can use to register additional
          * {@link AbstractTypeResolver} instance, to handle resolution of
          * abstract to concrete types (either by defaulting, or by materializing).
-         * 
+         *
          * @param resolver Resolver to add.
          */
         public SetupContext addAbstractTypeResolver(AbstractTypeResolver resolver);
@@ -302,7 +302,7 @@ public abstract class JacksonModule
          * Method that module can use to register additional
          * {@link TypeModifier} instance, which can augment {@link tools.jackson.databind.JavaType}
          * instances constructed by {@link tools.jackson.databind.type.TypeFactory}.
-         * 
+         *
          * @param modifier to add
          */
         public SetupContext addTypeModifier(TypeModifier modifier);
@@ -324,7 +324,7 @@ public abstract class JacksonModule
          * they have)
          */
         public SetupContext registerSubtypes(Collection<Class<?>> subtypes);
- 
+
         /*
         /******************************************************************
         /* Handler registration, other

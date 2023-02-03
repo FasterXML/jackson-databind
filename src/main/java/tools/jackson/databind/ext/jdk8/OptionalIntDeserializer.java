@@ -62,7 +62,7 @@ public class OptionalIntDeserializer extends BaseScalarOptionalDeserializer<Opti
                 p.nextToken();
                 final OptionalInt parsed = deserialize(p, ctxt);
                 _verifyEndArrayForSingle(p, ctxt);
-                return parsed;            
+                return parsed;
             }
             break;
         default:

@@ -27,7 +27,7 @@ public abstract class SettableAnyProperty
     implements java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
-    
+
     /**
      * Method used for setting "any" properties, along with annotation
      * information. Retained to allow contextualization of any properties.
@@ -135,7 +135,7 @@ public abstract class SettableAnyProperty
      */
 
     public BeanProperty getProperty() { return _property; }
-    
+
     public boolean hasValueDeserializer() { return (_valueDeserializer != null); }
 
     public JavaType getType() { return _type; }
@@ -147,7 +147,7 @@ public abstract class SettableAnyProperty
     /* Public API, deserialization
     /**********************************************************************
      */
-    
+
     /**
      * Method called to deserialize appropriate value, given parser (and
      * context), and set it using appropriate method (a setter method).
@@ -318,7 +318,7 @@ public abstract class SettableAnyProperty
                     _keyDeserializer, deser, _valueTypeDeserializer,
                     _valueInstantiator);
         }
-        
+
         @SuppressWarnings("unchecked")
         @Override
         protected void _set(Object instance, Object propName, Object value) throws Exception

@@ -59,4 +59,4 @@ public class TokenBufferSerializer
         // This seems like closest approximation
         visitor.expectAnyFormat(typeHint);
     }
-}    
+}

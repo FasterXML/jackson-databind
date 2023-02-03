@@ -11,14 +11,14 @@ import java.util.NoSuchElementException;
 public class ArrayIterator<T> implements Iterator<T>, Iterable<T> // lgtm [java/iterator-implements-iterable]
 {
     private final T[] _a;
-    
+
     private int _index;
 
     public ArrayIterator(T[] a) {
         _a = a;
         _index = 0;
     }
-    
+
     @Override
     public boolean hasNext() { return _index < _a.length; }
 

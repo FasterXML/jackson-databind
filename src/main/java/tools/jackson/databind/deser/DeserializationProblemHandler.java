@@ -34,7 +34,7 @@ public abstract class DeserializationProblemHandler
      * they could not handle problem and produce replacement value.
      */
     public final static Object NOT_HANDLED = new Object();
-    
+
     /**
      * Method called when a JSON Object property with an unrecognized
      * name is encountered.
@@ -56,7 +56,7 @@ public abstract class DeserializationProblemHandler
      *   will be instantiated (if no instantiation done yet: for example
      *   when bean uses non-default constructors)
      * @param p Parser to use for handling problematic content
-     * 
+     *
      * @return True if the problem is resolved (and content available used or skipped);
      *  false if the handler did not anything and the problem is unresolved. Note that in
      *  latter case caller will either throw an exception or explicitly skip the content,

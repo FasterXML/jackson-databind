@@ -494,7 +494,7 @@ public class BeanPropertyWriter
 
     /**
      * Method for accessing value of specified internal setting.
-     * 
+     *
      * @return Value of the setting, if any; null if none.
      */
     public Object getInternalSetting(Object key) {
@@ -503,7 +503,7 @@ public class BeanPropertyWriter
 
     /**
      * Method for setting specific internal setting to given value
-     * 
+     *
      * @return Old value of the setting, if any (null if none)
      */
     public Object setInternalSetting(Object key, Object value) {
@@ -515,7 +515,7 @@ public class BeanPropertyWriter
 
     /**
      * Method for removing entry for specified internal setting.
-     * 
+     *
      * @return Existing value of the setting, if any (null if none)
      */
     public Object removeInternalSetting(Object key) {

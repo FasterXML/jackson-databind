@@ -221,7 +221,7 @@ public enum SerializationFeature implements ConfigFeature
      * offset is used for ISO-8601 compatibility (if any timezone information is
      * included in value).
      */
-    WRITE_DATES_WITH_ZONE_ID(false), 
+    WRITE_DATES_WITH_ZONE_ID(false),
 
     /**
      * Feature that determines whether timezone/offset included in zoned date/time
@@ -258,7 +258,7 @@ public enum SerializationFeature implements ConfigFeature
      * serialized as timestamps.
      */
     WRITE_DURATIONS_AS_TIMESTAMPS(true),
-    
+
     /**
      * Feature that determines how type <code>char[]</code> is serialized:
      * when enabled, will be serialized as an explict JSON array (with
@@ -422,7 +422,7 @@ public enum SerializationFeature implements ConfigFeature
 
     private final boolean _defaultState;
     private final int _mask;
-    
+
     private SerializationFeature(boolean defaultState) {
         _defaultState = defaultState;
         _mask = (1 << ordinal());

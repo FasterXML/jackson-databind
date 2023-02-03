@@ -103,7 +103,7 @@ class CollectorBase
         }
         return c;
     }
-    
+
     protected final static boolean _ignorableAnnotation(Annotation a) {
         return (a instanceof Target) || (a instanceof Retention);
     }

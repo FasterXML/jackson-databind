@@ -73,11 +73,11 @@ public class SimpleBeanPropertyDefinition
             JsonInclude.Include inclusion)
     {
         JsonInclude.Value inclValue
-             = ((inclusion == null) || (inclusion == JsonInclude.Include.USE_DEFAULTS)) 
+             = ((inclusion == null) || (inclusion == JsonInclude.Include.USE_DEFAULTS))
              ? EMPTY_INCLUDE : JsonInclude.Value.construct(inclusion, null);
         return new SimpleBeanPropertyDefinition(config, member, name, metadata, inclValue);
     }
-    
+
     /**
      * @since 2.7
      */

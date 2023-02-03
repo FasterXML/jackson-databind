@@ -54,7 +54,7 @@ public class JDKKeyDeserializer extends KeyDeserializer
      * Some types that are deserialized using a helper deserializer.
      */
     protected final JDKFromStringDeserializer _deser;
-    
+
     protected JDKKeyDeserializer(int kind, Class<?> cls) {
         this(kind, cls, null);
     }
@@ -280,7 +280,7 @@ public class JDKKeyDeserializer extends KeyDeserializer
     {
         private final static StringKD sString = new StringKD(String.class);
         private final static StringKD sObject = new StringKD(Object.class);
-        
+
         private StringKD(Class<?> nominalType) { super(-1, nominalType); }
 
         public static StringKD forType(Class<?> nominalType)
@@ -298,7 +298,7 @@ public class JDKKeyDeserializer extends KeyDeserializer
         public Object deserializeKey(String key, DeserializationContext ctxt) throws JacksonException {
             return key;
         }
-    }    
+    }
 
     /*
     /**********************************************************************
@@ -317,7 +317,7 @@ public class JDKKeyDeserializer extends KeyDeserializer
         final protected Class<?> _keyClass;
 
         protected final ValueDeserializer<?> _delegate;
-        
+
         protected DelegatingKD(Class<?> cls, ValueDeserializer<?> deser) {
             _keyClass = cls;
             _delegate = deser;
@@ -366,7 +366,7 @@ public class JDKKeyDeserializer extends KeyDeserializer
         protected volatile EnumResolver _byToStringResolver;
 
         protected final Enum<?> _enumDefaultValue;
-        
+
         protected EnumKD(EnumResolver er, AnnotatedMethod factory) {
             super(-1, er.getEnumClass());
             _byNameResolver = er;
@@ -417,7 +417,7 @@ public class JDKKeyDeserializer extends KeyDeserializer
             return res;
         }
     }
-    
+
     /**
      * Key deserializer that calls a single-string-arg constructor
      * to instantiate desired key type.

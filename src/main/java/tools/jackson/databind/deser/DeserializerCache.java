@@ -88,7 +88,7 @@ public final class DeserializerCache
 
     /**
      * Method that can be used to determine how many deserializers this
-     * provider is caching currently 
+     * provider is caching currently
      * (if it does caching: default implementation does)
      * Exact count depends on what kind of deserializers get cached;
      * default implementation caches only dynamically constructed deserializers,
@@ -110,7 +110,7 @@ public final class DeserializerCache
      * configuration changes for mapper than owns the provider.
      */
     public void flushCachedDeserializers() {
-        _cachedDeserializers.clear();       
+        _cachedDeserializers.clear();
     }
 
     /*
@@ -195,7 +195,7 @@ public final class DeserializerCache
     /**
      * Method that will try to create a deserializer for given type,
      * and resolve and cache it if necessary
-     * 
+     *
      * @param ctxt Currently active deserialization context
      * @param type Type of property to deserialize
      */
@@ -286,7 +286,7 @@ public final class DeserializerCache
     /* Helper methods for actual construction of deserializers
     /**********************************************************************
      */
-    
+
     /**
      * Method that does the heavy lifting of checking for per-type annotations,
      * find out full type, and figure out which actual factory method
@@ -435,7 +435,7 @@ public final class DeserializerCache
             return null;
         }
         return ctxt.converterInstance(a, convDef);
-    }    
+    }
     /**
      * Method called to see if given method has annotations that indicate
      * a more specific type than what the argument specifies.
@@ -476,7 +476,7 @@ public final class DeserializerCache
                         // keyType = type.getKeyType(); // just in case it's used below
                     }
                 }
-            }            
+            }
         }
         JavaType contentType = type.getContentType();
         if (contentType != null) {
@@ -502,7 +502,7 @@ public final class DeserializerCache
         // And after handlers, possible type refinements
         // (note: could possibly avoid this if explicit deserializer was invoked?)
         type = intr.refineDeserializationType(config, a, type);
-        
+
         return type;
     }
 

@@ -113,7 +113,7 @@ public abstract class SerializerProvider
      * Only set for non-blueprint instances.
      */
     protected final SerializerFactory _serializerFactory;
-    
+
     /**
      * Serializer used to output a null value. Default implementation
      * writes nulls using {@link JsonGenerator#writeNull}.
@@ -124,7 +124,7 @@ public abstract class SerializerProvider
      * Flag set to indicate that we are using vanilla null value serialization
      */
     protected final boolean _stdNullValueSerializer;
-    
+
     /*
     /**********************************************************************
     /* Helper objects for caching, reuse
@@ -135,7 +135,7 @@ public abstract class SerializerProvider
      * Cache for doing type-to-value-serializer lookups.
      */
     protected final SerializerCache _serializerCache;
-    
+
     /**
      * For fast lookups, we will have a local non-shared read-only
      * map that contains serializers previously fetched.
@@ -153,7 +153,7 @@ public abstract class SerializerProvider
      * Lazily constructed {@link ClassIntrospector} instance: created from "blueprint"
      */
     protected transient ClassIntrospector _classIntrospector;
-    
+
     /*
     /**********************************************************************
     /* Other state
@@ -479,7 +479,7 @@ public abstract class SerializerProvider
     /* Access to other helper objects
     /**********************************************************************
      */
-    
+
     /**
      * Convenience method for accessing provider to find serialization filters used,
      * equivalent to calling:
@@ -542,7 +542,7 @@ public abstract class SerializerProvider
      * sequence. This method is mostly used for root-level serializer
      * handling to allow for simpler caching. A call can always be replaced
      * by equivalent calls to access serializer and type serializer separately.
-     * 
+     *
      * @param rawType Type for purpose of locating a serializer; usually dynamic
      *   runtime type, but can also be static declared type, depending on configuration
      * @param cache Whether resulting value serializer should be cached or not
@@ -575,7 +575,7 @@ public abstract class SerializerProvider
      * sequence. This method is mostly used for root-level serializer
      * handling to allow for simpler caching. A call can always be replaced
      * by equivalent calls to access serializer and type serializer separately.
-     * 
+     *
      * @param valueType Declared type of value being serialized (which may not
      *    be actual runtime type); used for finding both value serializer and
      *    type serializer to use for adding polymorphic type (if any)
@@ -651,7 +651,7 @@ public abstract class SerializerProvider
      * handling value of the property). Difference (if any) has to do with contextual resolution,
      * and method(s) called: this method should only be called when caller is
      * certain that this is the primary property value serializer.
-     * 
+     *
      * @param property Property that is being handled; will never be null, and its
      *    type has to match <code>valueType</code> parameter.
      */
@@ -793,7 +793,7 @@ public abstract class SerializerProvider
      * return null.
      *
      * @param baseType Declared type to use as the base type for type information serializer
-     * 
+     *
      * @return Type serializer to use for property values, if one is needed; null if not.
      *
      * @since 3.0
@@ -1037,7 +1037,7 @@ public abstract class SerializerProvider
      * or an uninitialized serializer instance.
      * Either way, serializer will be properly resolved
      * (via {@link tools.jackson.databind.ValueSerializer#resolve}).
-     * 
+     *
      * @param annotated Annotated entity that contained definition
      * @param serDef Serializer definition: either an instance or class
      */
@@ -1060,7 +1060,7 @@ public abstract class SerializerProvider
      * to check handling of `null` values by the filter.
      */
     public abstract boolean includeFilterSuppressNulls(Object filter);
- 
+
     /*
     /**********************************************************************
     /* Support for contextualization
@@ -1072,7 +1072,7 @@ public abstract class SerializerProvider
      * directly created to serialize values of a POJO property),
      * to handle details of contextualization, calling
      * {@link ValueSerializer#createContextual(SerializerProvider, BeanProperty)} with given property context.
-     * 
+     *
      * @param property Property for which the given primary serializer is used; never null.
      */
     @SuppressWarnings("unchecked")
@@ -1095,7 +1095,7 @@ public abstract class SerializerProvider
      * Given that these serializers are not directly related to given property
      * (or, in case of root value property, to any property), annotations
      * accessible may or may not be relevant.
-     * 
+     *
      * @param property Property for which serializer is used, if any; null
      *    when deserializing root values
      */
@@ -1239,7 +1239,7 @@ public abstract class SerializerProvider
      * are not re-constructed through actual format representation. So if transformation
      * requires actual materialization of encoded content,
      * it will be necessary to do actual serialization.
-     * 
+     *
      * @param <T> Actual node type; usually either basic {@link JsonNode} or
      *  {@link tools.jackson.databind.node.ObjectNode}
      * @param fromValue Java value to convert

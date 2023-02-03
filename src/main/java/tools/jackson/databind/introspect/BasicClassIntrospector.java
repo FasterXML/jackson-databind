@@ -44,7 +44,7 @@ public class BasicClassIntrospector
     protected final MixInResolver _mixInResolver;
 
     protected final MapperConfig<?> _config;
-    
+
     /*
     /**********************************************************************
     /* State
@@ -139,7 +139,7 @@ public class BasicClassIntrospector
     protected AnnotatedClass _resolveAnnotatedWithoutSuperTypes(JavaType type) {
         return AnnotatedClassResolver.resolveWithoutSuperTypes(_config, type, _mixInResolver);
     }
-    
+
     /*
     /**********************************************************************
     /* Factory method impls: bean introspection

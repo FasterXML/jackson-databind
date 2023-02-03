@@ -50,7 +50,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     protected final static PolymorphicTypeValidator DEFAULT_TYPE_VALIDATOR = new DefaultBaseTypeLimitingValidator();
 
     protected final static AccessorNamingStrategy.Provider DEFAULT_ACCESSOR_NAMING = new DefaultAccessorNamingStrategy.Provider();
-    
+
     protected final static BaseSettings DEFAULT_BASE_SETTINGS = new BaseSettings(
             DEFAULT_ANNOTATION_INTROSPECTOR,
             null, DEFAULT_ACCESSOR_NAMING,
@@ -148,7 +148,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     protected SerializationContexts _serializationContexts;
 
     protected SerializerFactory _serializerFactory;
-    
+
     protected FilterProvider _filterProvider;
 
     protected PrettyPrinter _defaultPrettyPrinter;
@@ -254,7 +254,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * allow future "rebuild".
      */
     protected transient MapperBuilderState _savedState;
-    
+
     /*
     /**********************************************************************
     /* Life-cycle
@@ -442,7 +442,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     /* Secondary factory methods
     /**********************************************************************
      */
-    
+
     public SerializationConfig buildSerializationConfig(ConfigOverrides configOverrides,
             MixInHandler mixins, TypeFactory tf, ClassIntrospector classIntr, SubtypeResolver str,
             RootNameLookup rootNames,
@@ -537,7 +537,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     protected ContextAttributes _defaultDefaultAttributes() {
         return ContextAttributes.getEmpty();
     }
-    
+
     /*
     /**********************************************************************
     /* Accessors, introspection
@@ -651,7 +651,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     public FilterProvider filterProvider() {
         return _filterProvider;
     }
-    
+
     public PrettyPrinter defaultPrettyPrinter() {
         if (_defaultPrettyPrinter == null) {
             _defaultPrettyPrinter = _defaultPrettyPrinter();
@@ -702,7 +702,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     public LinkedNode<DeserializationProblemHandler> deserializationProblemHandlers() {
         return _problemHandlers;
     }
-    
+
     /*
     /**********************************************************************
     /* Changing features: mapper, ser, deser
@@ -1403,9 +1403,9 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     /**
      * Method that will configure default {@link Base64Variant} that
      * <code>byte[]</code> serializers and deserializers will use.
-     * 
+     *
      * @param v Base64 variant to use
-     * 
+     *
      * @return This mapper, for convenience to allow chaining
      */
     public B defaultBase64Variant(Base64Variant v) {
@@ -1575,7 +1575,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * attacks using "deserialization gadgets". Implementations should use
      * allow-listing to specify acceptable types unless source of content
      * is fully trusted to only send safe types.
-     * 
+     *
      * @param applicability Defines kinds of types for which additional type information
      *    is added; see {@link DefaultTyping} for more information.
      */
@@ -1631,7 +1631,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      * content comes from untrusted sources, so care should be taken to use
      * a {@link TypeResolverBuilder} that can limit allowed classes to
      * deserialize.
-     * 
+     *
      * @param typer Type information inclusion handler
      */
     public B setDefaultTyping(TypeResolverBuilder<?> typer) {

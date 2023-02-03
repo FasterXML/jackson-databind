@@ -415,7 +415,7 @@ public class ArrayNode
         }
         return _children.set(index, value);
     }
-    
+
     /**
      * Method for adding specified node at the end of this array.
      *

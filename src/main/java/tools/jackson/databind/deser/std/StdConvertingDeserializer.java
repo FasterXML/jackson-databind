@@ -25,9 +25,9 @@ import tools.jackson.databind.util.NameTransformer;
  * to do this will result in an exception.
  *<p>
  * Also note that in Jackson 2.x, this class was named {@code StdDelegatingDeserializer}
- * 
+ *
  * @param <T> Target type to convert to, from delegate type
- * 
+ *
  * @see StdNodeBasedDeserializer
  * @see Converter
  */
@@ -311,9 +311,9 @@ public class StdConvertingDeserializer<T>
      *<P>
      * The default implementation uses configured {@link Converter} to do
      * conversion.
-     * 
+     *
      * @param delegateValue
-     * 
+     *
      * @return Result of conversion
      */
     protected T convertValue(Object delegateValue) {

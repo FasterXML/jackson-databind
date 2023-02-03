@@ -83,7 +83,7 @@ public class ObjectWriter
      * performance a bit on cases where readers are reused.
      */
     protected final Prefetch _prefetch;
-    
+
     /*
     /**********************************************************************
     /* Life-cycle, constructors
@@ -141,7 +141,7 @@ public class ObjectWriter
                 : new GeneratorSettings(null, s, null, null);
         _prefetch = Prefetch.empty;
     }
-    
+
     /**
      * Copy constructor used for building variations.
      */
@@ -241,7 +241,7 @@ public class ObjectWriter
      */
     public ObjectWriter with(SerializationFeature first, SerializationFeature... other) {
         return _new(this, _config.with(first, other));
-    }    
+    }
 
     /**
      * Method for constructing a new instance that is configured
@@ -249,15 +249,15 @@ public class ObjectWriter
      */
     public ObjectWriter withFeatures(SerializationFeature... features) {
         return _new(this, _config.withFeatures(features));
-    }    
-    
+    }
+
     /**
      * Method for constructing a new instance that is configured
      * with specified feature disabled.
      */
     public ObjectWriter without(SerializationFeature feature) {
         return _new(this, _config.without(feature));
-    }    
+    }
 
     /**
      * Method for constructing a new instance that is configured
@@ -265,7 +265,7 @@ public class ObjectWriter
      */
     public ObjectWriter without(SerializationFeature first, SerializationFeature... other) {
         return _new(this, _config.without(first, other));
-    }    
+    }
 
     /**
      * Method for constructing a new instance that is configured
@@ -397,7 +397,7 @@ public class ObjectWriter
     /* Life-cycle, fluent factories, other
     /**********************************************************************
      */
-    
+
     /**
      * Fluent factory method that will construct a new writer instance that will
      * use specified date format for serializing dates; or if null passed, one
@@ -444,7 +444,7 @@ public class ObjectWriter
      *<p>
      * Note that method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
-     * 
+     *
      * @param rootName Root name to use, if non-empty; `null` for "use defaults",
      *    and empty String ("") for "do NOT add root wrapper"
      */
@@ -467,7 +467,7 @@ public class ObjectWriter
     public ObjectWriter withoutRootName() {
         return _new(this, _config.withRootName(PropertyName.NO_NAME));
     }
-    
+
     /**
      * Method that will construct a new instance that uses specific format schema
      * for serialization.
@@ -490,7 +490,7 @@ public class ObjectWriter
      */
     public ObjectWriter withView(Class<?> view) {
         return _new(this, _config.withView(view));
-    }    
+    }
 
     public ObjectWriter with(Locale l) {
         return _new(this, _config.with(l));
@@ -1061,7 +1061,7 @@ public class ObjectWriter
      * and constructing String, but more efficient.
      */
     public String writeValueAsString(Object value) throws JacksonException
-    {        
+    {
         // alas, we have to pull the recycler directly here...
         SegmentedStringWriter sw = new SegmentedStringWriter(_generatorFactory._getBufferRecycler());
         SerializationContextExt ctxt = _serializerProvider();
@@ -1153,7 +1153,7 @@ public class ObjectWriter
      * are not re-constructed through actual format representation. So if transformation
      * requires actual materialization of encoded content,
      * it will be necessary to do actual serialization.
-     * 
+     *
      * @param <T> Actual node type; usually either basic {@link JsonNode} or
      *  {@link tools.jackson.databind.node.ObjectNode}
      * @param fromValue Java value to convert
@@ -1252,7 +1252,7 @@ public class ObjectWriter
         private static final long serialVersionUID = 1L;
 
         public final static Prefetch empty = new Prefetch(null, null, null);
-        
+
         /**
          * Specified root serialization type to use; can be same
          * as runtime type, but usually one of its super types
@@ -1273,7 +1273,7 @@ public class ObjectWriter
          * serializer, but can pre-fetch {@link TypeSerializer}.
          */
         private final TypeSerializer typeSerializer;
-        
+
         private Prefetch(JavaType rootT,
                 ValueSerializer<Object> ser, TypeSerializer typeSer)
         {

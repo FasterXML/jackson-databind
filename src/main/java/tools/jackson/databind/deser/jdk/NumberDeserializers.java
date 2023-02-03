@@ -119,7 +119,7 @@ public class NumberDeserializers
         // should never occur
         throw new IllegalArgumentException("Internal error: can't find deserializer for "+rawType.getName());
     }
-    
+
     /*
     /**********************************************************
     /* Then one intermediate base class for things that have
@@ -330,7 +330,7 @@ public class NumberDeserializers
     {
         final static ShortDeserializer primitiveInstance = new ShortDeserializer(Short.TYPE, Short.valueOf((short)0));
         final static ShortDeserializer wrapperInstance = new ShortDeserializer(Short.class, null);
-        
+
         public ShortDeserializer(Class<Short> cls, Short nvl)
         {
             super(cls, LogicalType.Integer, nvl, (short)0);
@@ -414,7 +414,7 @@ public class NumberDeserializers
     {
         final static CharacterDeserializer primitiveInstance = new CharacterDeserializer(Character.TYPE, '\0');
         final static CharacterDeserializer wrapperInstance = new CharacterDeserializer(Character.class, null);
-        
+
         public CharacterDeserializer(Class<Character> cls, Character nvl)
         {
             super(cls,
@@ -493,7 +493,7 @@ public class NumberDeserializers
     {
         final static IntegerDeserializer primitiveInstance = new IntegerDeserializer(Integer.TYPE, 0);
         final static IntegerDeserializer wrapperInstance = new IntegerDeserializer(Integer.class, null);
-        
+
         public IntegerDeserializer(Class<Integer> cls, Integer nvl) {
             super(cls, LogicalType.Integer, nvl, 0);
         }
@@ -534,14 +534,14 @@ public class NumberDeserializers
     {
         final static LongDeserializer primitiveInstance = new LongDeserializer(Long.TYPE, 0L);
         final static LongDeserializer wrapperInstance = new LongDeserializer(Long.class, null);
-        
+
         public LongDeserializer(Class<Long> cls, Long nvl) {
             super(cls, LogicalType.Integer, nvl, 0L);
         }
 
         @Override
         public boolean isCachable() { return true; }
-        
+
         @Override
         public Long deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
             if (p.isExpectedNumberIntToken()) {
@@ -560,7 +560,7 @@ public class NumberDeserializers
     {
         final static FloatDeserializer primitiveInstance = new FloatDeserializer(Float.TYPE, 0.f);
         final static FloatDeserializer wrapperInstance = new FloatDeserializer(Float.class, null);
-        
+
         public FloatDeserializer(Class<Float> cls, Float nvl) {
             super(cls, LogicalType.Float, nvl, 0.f);
         }
@@ -639,7 +639,7 @@ public class NumberDeserializers
     {
         final static DoubleDeserializer primitiveInstance = new DoubleDeserializer(Double.TYPE, 0.d);
         final static DoubleDeserializer wrapperInstance = new DoubleDeserializer(Double.class, null);
-        
+
         public DoubleDeserializer(Class<Double> cls, Double nvl) {
             super(cls, LogicalType.Float, nvl, 0.d);
         }
@@ -746,7 +746,7 @@ public class NumberDeserializers
         extends StdScalarDeserializer<Object>
     {
         public final static NumberDeserializer instance = new NumberDeserializer();
-        
+
         public NumberDeserializer() {
             super(Number.class);
         }
@@ -790,7 +790,7 @@ public class NumberDeserializers
             }
 
             // Textual values are more difficult... not parsing itself, but figuring
-            // out 'minimal' type to use 
+            // out 'minimal' type to use
             CoercionAction act = _checkFromStringCoercion(ctxt, text);
             if (act == CoercionAction.AsNull) {
                 return getNullValue(ctxt);
@@ -947,7 +947,7 @@ public class NumberDeserializers
         extends StdScalarDeserializer<BigDecimal>
     {
         public final static BigDecimalDeserializer instance = new BigDecimalDeserializer();
- 
+
         public BigDecimalDeserializer() { super(BigDecimal.class); }
 
         @Override

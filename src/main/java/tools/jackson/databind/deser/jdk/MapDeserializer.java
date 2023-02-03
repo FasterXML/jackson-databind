@@ -76,7 +76,7 @@ public class MapDeserializer
      * that takes one or more named properties as argument(s),
      * this creator is used for instantiation.
      */
-    protected PropertyBasedCreator _propertyBasedCreator;    
+    protected PropertyBasedCreator _propertyBasedCreator;
 
     protected final boolean _hasDefaultCreator;
 
@@ -295,7 +295,7 @@ public class MapDeserializer
                 keyDeser = ((ContextualKeyDeserializer) keyDeser).createContextual(ctxt, property);
             }
         }
-        
+
         ValueDeserializer<?> valueDeser = _valueDeserializer;
         // [databind#125]: May have a content converter
         if (property != null) {
@@ -445,7 +445,7 @@ public class MapDeserializer
     {
         // [databind#631]: Assign current value, to be accessible by custom deserializers
         p.assignCurrentValue(result);
-        
+
         // Ok: must point to START_OBJECT or PROPERTY_NAME
         JsonToken t = p.currentToken();
         if (t != JsonToken.START_OBJECT && t != JsonToken.PROPERTY_NAME) {
@@ -492,7 +492,7 @@ public class MapDeserializer
         final KeyDeserializer keyDes = _keyDeserializer;
         final ValueDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
-        
+
         MapReferringAccumulator referringAccumulator = null;
         boolean useObjectId = valueDes.getObjectIdReader(ctxt) != null;
         if (useObjectId) {
@@ -513,7 +513,7 @@ public class MapDeserializer
             }
             keyStr = p.currentName();
         }
-        
+
         for (; keyStr != null; keyStr = p.nextName()) {
             Object key = keyDes.deserializeKey(keyStr, ctxt);
             // And then the value...
@@ -567,7 +567,7 @@ public class MapDeserializer
         if (useObjectId) {
             referringAccumulator = new MapReferringAccumulator(_containerType.getContentType().getRawClass(), result);
         }
-        
+
         String key;
         if (p.isExpectedStartObjectToken()) {
             key = p.nextName();
@@ -619,8 +619,8 @@ public class MapDeserializer
 
         return result;
     }
-    
-    @SuppressWarnings("unchecked") 
+
+    @SuppressWarnings("unchecked")
     public Map<Object,Object> _deserializeUsingCreator(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
@@ -639,7 +639,7 @@ public class MapDeserializer
         } else {
             key = null;
         }
-        
+
         for (; key != null; key = p.nextName()) {
             JsonToken t = p.nextToken(); // to get to value
             if ((_inclusionChecker != null) && _inclusionChecker.shouldIgnore(key)) {
@@ -664,7 +664,7 @@ public class MapDeserializer
             }
             // other property? needs buffering
             Object actualKey = _keyDeserializer.deserializeKey(key, ctxt);
-            Object value; 
+            Object value;
 
             try {
                 if (t == JsonToken.VALUE_NULL) {
@@ -722,7 +722,7 @@ public class MapDeserializer
             }
             keyStr = p.currentName();
         }
-        
+
         for (; keyStr != null; keyStr = p.nextName()) {
             Object key = keyDes.deserializeKey(keyStr, ctxt);
             // And then the value...
@@ -930,7 +930,7 @@ public class MapDeserializer
 
         public final Map<Object, Object> next = new LinkedHashMap<Object, Object>();
         public final Object key;
-        
+
         MapReferring(MapReferringAccumulator parent, UnresolvedForwardReference ref,
                 Class<?> valueType, Object key)
         {

@@ -110,7 +110,7 @@ public abstract class PropertySerializerMap
         ValueSerializer<Object> serializer = provider.findKeySerializer(type, property);
         return new SerializerAndMapResult(serializer, newWith(type, serializer));
     }
-    
+
     /**
      * Method that can be used to 'register' a serializer that caller has resolved
      * without help of this map.
@@ -147,7 +147,7 @@ public abstract class PropertySerializerMap
     {
         public final ValueSerializer<Object> serializer;
         public final PropertySerializerMap map;
-        
+
         public SerializerAndMapResult(ValueSerializer<Object> serializer,
                 PropertySerializerMap map)
         {
@@ -199,7 +199,7 @@ public abstract class PropertySerializerMap
         public static Empty emptyFor(PropertySerializerMap src) {
             return (src._resetWhenFull) ? FOR_ROOT_VALUES : FOR_PROPERTIES;
         }
-        
+
         Object readResolve() { // for JDK serialization (since 3.0)
             return emptyFor(this);
         }
@@ -207,7 +207,7 @@ public abstract class PropertySerializerMap
         @Override
         public ValueSerializer<Object> serializerFor(Class<?> type) {
             return null; // empty, nothing to find
-        }        
+        }
 
         @Override
         public PropertySerializerMap newWith(Class<?> type, ValueSerializer<Object> serializer) {
@@ -287,7 +287,7 @@ public abstract class PropertySerializerMap
                 return _serializer2;
             }
             return null;
-        }        
+        }
 
         @Override
         public PropertySerializerMap newWith(Class<?> type, ValueSerializer<Object> serializer) {
@@ -299,7 +299,7 @@ public abstract class PropertySerializerMap
             return new Multi(this, ts);
         }
     }
-    
+
     private final static class Multi extends PropertySerializerMap
         implements java.io.Serializable // since 3.0
     {
@@ -314,7 +314,7 @@ public abstract class PropertySerializerMap
          * limit. 8 sounds like a reasonable stab for now.
          */
         private final static int MAX_ENTRIES = 8;
-        
+
         private final TypeAndSerializer[] _entries;
 
         public Multi(PropertySerializerMap base, TypeAndSerializer[] entries) {

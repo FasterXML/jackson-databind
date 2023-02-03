@@ -81,7 +81,7 @@ public class ObjectReader
     protected final boolean _unwrapRoot;
 
     /**
-     * Filter to be consider for JsonParser.  
+     * Filter to be consider for JsonParser.
      * Default value to be null as filter not considered.
      */
     private final TokenFilter _filter;
@@ -109,7 +109,7 @@ public class ObjectReader
      * performance a bit on cases where readers are reused.
      */
     protected final ValueDeserializer<Object> _rootDeserializer;
-    
+
     /**
      * Instance to update with data binding; if any. If null,
      * a new instance is created, if non-null, properties of
@@ -177,7 +177,7 @@ public class ObjectReader
         _rootDeserializer = _prefetchRootDeserializer(valueType);
         _filter = null;
     }
-    
+
     /**
      * Copy constructor used for building variations.
      */
@@ -233,7 +233,7 @@ public class ObjectReader
         _unwrapRoot = base._unwrapRoot;
         _filter = filter;
     }
-    
+
     /**
      * Method that will return version information stored in and read from jar
      * that contains this class.
@@ -338,7 +338,7 @@ public class ObjectReader
             DeserializationFeature... other)
     {
         return _with(_config.with(first, other));
-    }    
+    }
 
     /**
      * Method for constructing a new reader instance that is configured
@@ -346,14 +346,14 @@ public class ObjectReader
      */
     public ObjectReader withFeatures(DeserializationFeature... features) {
         return _with(_config.withFeatures(features));
-    }    
+    }
 
     /**
      * Method for constructing a new reader instance that is configured
      * with specified feature disabled.
      */
     public ObjectReader without(DeserializationFeature feature) {
-        return _with(_config.without(feature)); 
+        return _with(_config.without(feature));
     }
 
     /**
@@ -363,7 +363,7 @@ public class ObjectReader
     public ObjectReader without(DeserializationFeature first,
             DeserializationFeature... other) {
         return _with(_config.without(first, other));
-    }    
+    }
 
     /**
      * Method for constructing a new reader instance that is configured
@@ -371,7 +371,7 @@ public class ObjectReader
      */
     public ObjectReader withoutFeatures(DeserializationFeature... features) {
         return _with(_config.withoutFeatures(features));
-    }    
+    }
 
     /*
     /**********************************************************************
@@ -400,7 +400,7 @@ public class ObjectReader
      * with specified feature disabled.
      */
     public ObjectReader without(DatatypeFeature feature) {
-        return _with(_config.without(feature)); 
+        return _with(_config.without(feature));
     }
 
     /**
@@ -409,7 +409,7 @@ public class ObjectReader
      */
     public ObjectReader withoutFeatures(DatatypeFeature... features) {
         return _with(_config.withoutFeatures(features));
-    }    
+    }
 
     /*
     /**********************************************************
@@ -431,14 +431,14 @@ public class ObjectReader
      */
     public ObjectReader withFeatures(StreamReadFeature... features) {
         return _with(_config.withFeatures(features));
-    }    
+    }
 
     /**
      * Method for constructing a new reader instance that is configured
      * with specified feature disabled.
      */
     public ObjectReader without(StreamReadFeature feature) {
-        return _with(_config.without(feature)); 
+        return _with(_config.without(feature));
     }
 
     /**
@@ -469,14 +469,14 @@ public class ObjectReader
      */
     public ObjectReader withFeatures(FormatFeature... features) {
         return _with(_config.withFeatures(features));
-    }    
+    }
 
     /**
      * Method for constructing a new reader instance that is configured
      * with specified feature disabled.
      */
     public ObjectReader without(FormatFeature feature) {
-        return _with(_config.without(feature)); 
+        return _with(_config.without(feature));
     }
 
     /**
@@ -486,7 +486,7 @@ public class ObjectReader
     public ObjectReader withoutFeatures(FormatFeature... features) {
         return _with(_config.withoutFeatures(features));
     }
-    
+
     /*
     /**********************************************************************
     /* Life-cycle, fluent factory methods, other
@@ -494,8 +494,8 @@ public class ObjectReader
      */
 
     /**
-     * Convenience method to bind from {@link JsonPointer}.  
-     * {@link JsonPointerBasedFilter} is registered and will be used for parsing later. 
+     * Convenience method to bind from {@link JsonPointer}.
+     * {@link JsonPointerBasedFilter} is registered and will be used for parsing later.
      */
     public ObjectReader at(String pointerExpr) {
         _assertNotNull("pointerExpr", pointerExpr);
@@ -520,7 +520,7 @@ public class ObjectReader
      */
     public ObjectReader with(DeserializationConfig config) {
         return _with(config);
-    }    
+    }
 
     /**
      * Method for constructing a new instance with configuration that uses
@@ -567,7 +567,7 @@ public class ObjectReader
     public ObjectReader withRootName(PropertyName rootName) {
         return _with(_config.withRootName(rootName));
     }
-    
+
     /**
      * Convenience method that is same as calling:
      *<code>
@@ -579,7 +579,7 @@ public class ObjectReader
     public ObjectReader withoutRootName() {
         return _with(_config.withRootName(PropertyName.NO_NAME));
     }
-    
+
     /**
      * Method for constructing a new instance with configuration that
      * passes specified {@link FormatSchema} to {@link JsonParser} that
@@ -613,7 +613,7 @@ public class ObjectReader
         ValueDeserializer<Object> rootDeser = _prefetchRootDeserializer(valueType);
         return _new(this, _config, valueType, rootDeser,
                 _valueToUpdate, _schema, _injectableValues);
-    }    
+    }
 
     /**
      * Method for constructing a new reader instance that is configured
@@ -624,7 +624,7 @@ public class ObjectReader
      */
     public ObjectReader forType(Class<?> valueType) {
         return forType(_config.constructType(valueType));
-    }    
+    }
 
     /**
      * Method for constructing a new reader instance that is configured
@@ -639,7 +639,7 @@ public class ObjectReader
 
     /**
      * Method for constructing a new instance with configuration that
-     * updates passed Object (as root value), instead of constructing 
+     * updates passed Object (as root value), instead of constructing
      * a new value.
      *<p>
      * Note that the method does NOT change state of this reader, but
@@ -655,7 +655,7 @@ public class ObjectReader
                     _schema, _injectableValues);
         }
         JavaType t;
-        
+
         /* no real benefit from pre-fetching, as updating readers are much
          * less likely to be reused, and value type may also be forced
          * with a later chained call...
@@ -728,7 +728,7 @@ public class ObjectReader
     /* Internal factory methods
     /**********************************************************************
      */
-    
+
     protected final ObjectReader _with(DeserializationConfig newConfig) {
         if (newConfig == _config) {
             return this;
@@ -741,7 +741,7 @@ public class ObjectReader
     /* Simple accessors
     /**********************************************************************
      */
-    
+
     public boolean isEnabled(DeserializationFeature f) {
         return _config.isEnabled(f);
     }
@@ -1005,7 +1005,7 @@ public class ObjectReader
     public JsonNode nullNode() {
         return _config.getNodeFactory().nullNode();
     }
-    
+
     @Override
     public JsonParser treeAsTokens(TreeNode n) {
         _assertNotNull("n", n);
@@ -1333,7 +1333,7 @@ public class ObjectReader
     /* Deserialization methods; JsonNode ("tree")
     /**********************************************************************
      */
-    
+
     /**
      * Method that reads content from given input source,
      * using configuration of this reader, and binds it as JSON Tree.
@@ -1358,7 +1358,7 @@ public class ObjectReader
         return _bindAndCloseAsTree(ctxt,
                 _considerFilter(_parserFactory.createParser(ctxt, src), false));
     }
-    
+
     /**
      * Same as {@link #readTree(InputStream)} except content accessed through
      * passed-in {@link Reader}
@@ -1424,7 +1424,7 @@ public class ObjectReader
     /* Deserialization methods; reading sequence of values
     /**********************************************************************
      */
-    
+
     /**
      * Method for reading sequence of Objects from parser stream.
      *<p>
@@ -1444,7 +1444,7 @@ public class ObjectReader
         // false -> do not close as caller gave parser instance
         return _newIterator(p, ctxt, _findRootDeserializer(ctxt), false);
     }
-    
+
     /**
      * Method for reading sequence of Objects from parser stream.
      *<p>
@@ -1472,7 +1472,7 @@ public class ObjectReader
         return _bindAndReadValues(ctxt,
                 _considerFilter(_parserFactory.createParser(ctxt, src), true));
     }
-    
+
     /**
      * Overloaded version of {@link #readValue(InputStream)}.
      */
@@ -1486,10 +1486,10 @@ public class ObjectReader
         p.nextToken();
         return _newIterator(p, ctxt, _findRootDeserializer(ctxt), true);
     }
-    
+
     /**
      * Overloaded version of {@link #readValue(InputStream)}.
-     * 
+     *
      * @param content String that contains JSON content to parse
      */
     @SuppressWarnings("resource")
@@ -1554,7 +1554,7 @@ public class ObjectReader
      * calls {@link java.net.URL#openStream()}, meaning no special handling
      * is done. If different HTTP connection options are needed you will need
      * to create {@link java.io.InputStream} separately.
-     * 
+     *
      * @param src URL to read to access JSON content to parse.
      */
     public <T> MappingIterator<T> readValues(URL src) throws JacksonException
@@ -1730,7 +1730,7 @@ public class ObjectReader
         }
         return resultNode;
     }
-    
+
     protected <T> MappingIterator<T> _bindAndReadValues(DeserializationContextExt ctxt,
             JsonParser p) throws JacksonException
     {
@@ -1740,7 +1740,7 @@ public class ObjectReader
     }
 
     /**
-     * Consider filter when creating JsonParser.  
+     * Consider filter when creating JsonParser.
      */
     protected JsonParser _considerFilter(final JsonParser p, boolean multiValue) {
         // 26-Mar-2016, tatu: Need to allow multiple-matches at least if we have
@@ -1830,7 +1830,7 @@ public class ObjectReader
     /* Helper methods, locating deserializers etc
     /**********************************************************************
      */
-    
+
     /**
      * Method called to locate deserializer for the passed root-level value.
      */

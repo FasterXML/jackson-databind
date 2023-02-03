@@ -36,7 +36,7 @@ import tools.jackson.databind.util.NativeImageUtil;
  * (as defined by "having at least one get method recognizable as bean
  * accessor" -- where {@link Object#getClass} does not count);
  * as well as for "standard" JDK types. Latter is achieved
- * by delegating calls to {@link BasicSerializerFactory} 
+ * by delegating calls to {@link BasicSerializerFactory}
  * to find serializers both for "standard" JDK types (and in some cases,
  * sub-classes as is the case for collection classes like
  * {@link java.util.List}s and {@link java.util.Map}s) and bean (value)
@@ -85,7 +85,7 @@ public class BeanSerializerFactory
     {
         super(config);
     }
-    
+
     /**
      * Method used by module registration functionality, to attach additional
      * serializer providers into this serializer factory. This is typically
@@ -161,7 +161,7 @@ public class BeanSerializerFactory
         Converter<Object,Object> conv = beanDesc.findSerializationConverter();
         if (conv != null) { // yup, need converter
             JavaType delegateType = conv.getOutputType(ctxt.getTypeFactory());
-            
+
             // One more twist, as per [databind#288]; probably need to get new BeanDesc
             if (!delegateType.hasRawClass(type.getRawClass())) {
                 beanDesc = ctxt.introspectBeanDescription(delegateType);
@@ -184,7 +184,7 @@ public class BeanSerializerFactory
     {
         ValueSerializer<?> ser = null;
         final SerializationConfig config = ctxt.getConfig();
-        
+
         // Container types differ from non-container types
         // (note: called method checks for module-provided serializers)
         if (type.isContainerType()) {
@@ -215,7 +215,7 @@ public class BeanSerializerFactory
                 ser = findSerializerByAnnotations(ctxt, type, beanDesc);
             }
         }
-        
+
         if (ser == null) {
             // Otherwise, we will check "primary types"; both marker types that
             // indicate specific handling (JacksonSerializable), or main types that have
@@ -304,7 +304,7 @@ public class BeanSerializerFactory
         } else {
             props = removeOverlappingTypeIds(ctxt, beanDesc, builder, props);
         }
-        
+
         // [databind#638]: Allow injection of "virtual" properties:
         ctxt.getAnnotationIntrospector().findAndAddVirtualProperties(config, beanDesc.getClassInfo(), props);
 
@@ -333,7 +333,7 @@ public class BeanSerializerFactory
         // do before view handling, mostly for the custom id case which needs
         // access to a property
         builder.setObjectIdWriter(constructObjectIdHandler(ctxt, beanDesc, props));
-        
+
         builder.setProperties(props);
         builder.setFilterId(findFilterId(config, beanDesc));
 
@@ -435,8 +435,8 @@ ClassUtil.getTypeDescription(beanDesc.getType()), ClassUtil.name(propName)));
             gen = new PropertyBasedObjectIdGenerator(objectIdInfo, idProp);
             // one more thing: must ensure that ObjectIdWriter does not actually write the value:
             return ObjectIdWriter.construct(idType, (PropertyName) null, gen, objectIdInfo.getAlwaysAsId());
-            
-        } 
+
+        }
         // other types are simpler
         JavaType type = ctxt.constructType(implClass);
         // Could require type to be passed explicitly, but we should be able to find it too:
@@ -475,7 +475,7 @@ ClassUtil.getTypeDescription(beanDesc.getType()), ClassUtil.name(propName)));
 
     /**
      * Helper method used to skip processing for types that we know
-     * cannot be (i.e. are never consider to be) beans: 
+     * cannot be (i.e. are never consider to be) beans:
      * things like primitives, Arrays, Enums, and proxy types.
      *<p>
      * Note that usually we shouldn't really be getting these sort of
@@ -511,7 +511,7 @@ ClassUtil.getTypeDescription(beanDesc.getType()), ClassUtil.name(propName)));
         // null is for value type serializer, which we don't have access to from here (ditto for bean prop)
         boolean staticTyping = usesStaticTyping(config, beanDesc, null);
         PropertyBuilder pb = constructPropertyBuilder(config, beanDesc);
-        
+
         ArrayList<BeanPropertyWriter> result = new ArrayList<BeanPropertyWriter>(properties.size());
         for (BeanPropertyDefinition property : properties) {
             final AnnotatedMember accessor = property.getAccessor();

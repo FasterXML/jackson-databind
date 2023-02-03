@@ -56,7 +56,7 @@ public final class StringArrayDeserializer
      * content values should be skipped (instead of being possibly converted).
      */
     protected final boolean _skipNullValues;
-    
+
     public StringArrayDeserializer() {
         this(null, null, null);
     }
@@ -188,7 +188,7 @@ public final class StringArrayDeserializer
             ix = old.length;
             chunk = buffer.resetAndStart(old, ix);
         }
-        
+
         final ValueDeserializer<String> deser = _elementDeserializer;
 
         try {

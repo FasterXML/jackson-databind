@@ -14,6 +14,7 @@ import com.fasterxml.jackson.core.io.NumberInput;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.cfg.EnumFeature;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.EnumResolver;
@@ -401,7 +402,7 @@ public class StdKeyDeserializer extends KeyDeserializer
                     ? _getToStringResolver(ctxt) : _byNameResolver;
             Enum<?> e = res.findEnum(key);
             // If enum is found, no need to try deser using index
-            if (e == null && ctxt.isEnabled(DeserializationFeature.READ_ENUM_KEYS_USING_INDEX)) {
+            if (e == null && ctxt.isEnabled(EnumFeature.READ_ENUM_KEYS_USING_INDEX)) {
                 res = _getIndexResolver(ctxt);
                 e = res.findEnum(key);
             }

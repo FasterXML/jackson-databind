@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy;
  * Note that if the {@link #value} property is omitted, its default value
  * means "use default naming" (that is, no alternate naming method is used).
  * This can be used as an override with mix-ins.
- * 
+ *
  * @since 2.1
  */
 @Target({ElementType.ANNOTATION_TYPE, ElementType.TYPE})

@@ -87,7 +87,7 @@ public class TokenBuffer
      * @since 2.7
      */
     protected boolean _forceBigDecimal;
-    
+
     /*
     /**********************************************************
     /* Token buffering state
@@ -104,9 +104,9 @@ public class TokenBuffer
      * for appending more tokens
      */
     protected Segment _last;
-    
+
     /**
-     * Offset within last segment, 
+     * Offset within last segment,
      */
     protected int _appendAt;
 
@@ -241,7 +241,7 @@ public class TokenBuffer
      *<p>
      * Note: instances are not synchronized, that is, they are not thread-safe
      * if there are concurrent appends to the underlying buffer.
-     * 
+     *
      * @return Parser that can be used for reading contents stored in this buffer
      */
     public JsonParser asParser() {
@@ -274,7 +274,7 @@ public class TokenBuffer
      * @param codec Object codec to use for stream-based object
      *   conversion through parser/generator interfaces. If null,
      *   such methods cannot be used.
-     * 
+     *
      * @return Parser that can be used for reading contents stored in this buffer
      */
     public JsonParser asParser(ObjectCodec codec)
@@ -335,21 +335,21 @@ public class TokenBuffer
      * Helper method that will append contents of given buffer into this
      * buffer.
      * Not particularly optimized; can be made faster if there is need.
-     * 
+     *
      * @return This buffer
      */
     @SuppressWarnings("resource")
     public TokenBuffer append(TokenBuffer other) throws IOException
     {
         // Important? If source has native ids, need to store
-        if (!_hasNativeTypeIds) {  
+        if (!_hasNativeTypeIds) {
             _hasNativeTypeIds = other.canWriteTypeId();
         }
         if (!_hasNativeObjectIds) {
             _hasNativeObjectIds = other.canWriteObjectId();
         }
         _mayHaveNativeIds = _hasNativeTypeIds || _hasNativeObjectIds;
-        
+
         JsonParser p = other.asParser();
         while (p.nextToken() != null) {
             copyCurrentStructure(p);
@@ -395,7 +395,7 @@ public class TokenBuffer
                     gen.writeTypeId(id);
                 }
             }
-            
+
             // Note: copied from 'copyCurrentEvent'...
             switch (t) {
             case START_OBJECT:
@@ -499,7 +499,7 @@ public class TokenBuffer
 
     /**
      * Helper method used by standard deserializer.
-     * 
+     *
      * @since 2.3
      */
     public TokenBuffer deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
@@ -539,7 +539,7 @@ public class TokenBuffer
 sb.append("NativeTypeIds=").append(_hasNativeTypeIds).append(",");
 sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
 */
-        
+
         JsonParser jp = asParser();
         int count = 0;
         final boolean hasNativeIds = _hasNativeTypeIds || _hasNativeObjectIds;
@@ -553,7 +553,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 if (hasNativeIds) {
                     _appendNativeIds(sb);
                 }
-                        
+
                 if (count < MAX_COUNT) {
                     if (count > 0) {
                         sb.append(", ");
@@ -589,7 +589,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             sb.append("[typeId=").append(String.valueOf(typeId)).append(']');
         }
     }
-    
+
     /*
     /**********************************************************
     /* JsonGenerator implementation: configuration
@@ -658,7 +658,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     /* JsonGenerator implementation: capability introspection
     /**********************************************************
      */
-    
+
     /**
      * Since we can efficiently store <code>byte[]</code>, yes.
      */
@@ -811,7 +811,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             _appendValue(JsonToken.VALUE_STRING, text);
         }
     }
-    
+
     @Override
     public void writeRawUTF8String(byte[] text, int offset, int length) throws IOException
     {
@@ -840,7 +840,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     public void writeRaw(SerializableString text) throws IOException {
         _reportUnsupportedOperation();
     }
-    
+
     @Override
     public void writeRaw(char[] text, int offset, int len) throws IOException {
         _reportUnsupportedOperation();
@@ -1035,13 +1035,13 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     public boolean canWriteObjectId() {
         return _hasNativeObjectIds;
     }
-    
+
     @Override
     public void writeTypeId(Object id) {
         _typeId = id;
         _hasNativeId = true;
     }
-    
+
     @Override
     public void writeObjectId(Object id) {
         _objectId = id;
@@ -1260,7 +1260,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             throw new RuntimeException("Internal error: unexpected token: "+t);
         }
     }
-    
+
     private final void _checkNativeIds(JsonParser p) throws IOException
     {
         if ((_typeId = p.getTypeId()) != null) {
@@ -1423,7 +1423,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     protected void _reportUnsupportedOperation() {
         throw new UnsupportedOperationException("Called operation not supported for TokenBuffer");
     }
-    
+
     /*
     /**********************************************************
     /* Supporting classes
@@ -1457,7 +1457,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         protected final boolean _hasNativeObjectIds;
 
         protected final boolean _hasNativeIds;
-        
+
         /*
         /**********************************************************
         /* Parsing state
@@ -1479,13 +1479,13 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
          * the next token is to be parsed (root, array, object).
          */
         protected TokenBufferReadContext _parsingContext;
-        
+
         protected boolean _closed;
 
         protected transient ByteArrayBuilder _byteBuilder;
 
         protected JsonLocation _location = null;
-        
+
         /*
         /**********************************************************
         /* Construction, init
@@ -1565,7 +1565,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         /* Extended API beyond JsonParser
         /**********************************************************
          */
-        
+
         public JsonToken peekNextToken() throws IOException
         {
             // closed? nothing more to peek, either
@@ -1578,7 +1578,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             }
             return (seg == null) ? null : seg.type(ptr);
         }
-        
+
         /*
         /**********************************************************
         /* Closeable implementation
@@ -1597,7 +1597,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         /* Public API, traversal
         /**********************************************************
          */
-        
+
         @Override
         public JsonToken nextToken() throws IOException
         {
@@ -1917,7 +1917,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         }
 
         // 02-Jan-2017, tatu: Modified from method(s) in `ParserBase`
-        
+
         protected int _convertNumberToInt(Number n) throws IOException
         {
             if (n instanceof Long) {
@@ -1930,7 +1930,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             }
             if (n instanceof BigInteger) {
                 BigInteger big = (BigInteger) n;
-                if (BI_MIN_INT.compareTo(big) > 0 
+                if (BI_MIN_INT.compareTo(big) > 0
                         || BI_MAX_INT.compareTo(big) < 0) {
                     reportOverflowInt();
                 }
@@ -1943,7 +1943,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 return (int) d;
             } else if (n instanceof BigDecimal) {
                 BigDecimal big = (BigDecimal) n;
-                if (BD_MIN_INT.compareTo(big) > 0 
+                if (BD_MIN_INT.compareTo(big) > 0
                     || BD_MAX_INT.compareTo(big) < 0) {
                     reportOverflowInt();
                 }
@@ -1957,7 +1957,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         {
             if (n instanceof BigInteger) {
                 BigInteger big = (BigInteger) n;
-                if (BI_MIN_LONG.compareTo(big) > 0 
+                if (BI_MIN_LONG.compareTo(big) > 0
                         || BI_MAX_LONG.compareTo(big) < 0) {
                     reportOverflowLong();
                 }
@@ -1970,7 +1970,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 return (long) d;
             } else if (n instanceof BigDecimal) {
                 BigDecimal big = (BigDecimal) n;
-                if (BD_MIN_LONG.compareTo(big) > 0 
+                if (BD_MIN_LONG.compareTo(big) > 0
                     || BD_MAX_LONG.compareTo(big) < 0) {
                     reportOverflowLong();
                 }
@@ -2061,7 +2061,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         public Object getObjectId() {
             return _segment.findObjectId(_segmentPtr);
         }
-        
+
         /*
         /**********************************************************
         /* Internal methods
@@ -2084,7 +2084,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             _throwInternal();
         }
     }
-    
+
     /**
      * Individual segment of TokenBuffer that can store up to 16 tokens
      * (limited by 4 bits per token type marker requirement).
@@ -2092,10 +2092,10 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
      * use 16 distinct fields and switch statement (slightly more efficient
      * storage, slightly slower access)
      */
-    protected final static class Segment 
+    protected final static class Segment
     {
         public final static int TOKENS_PER_SEGMENT = 16;
-        
+
         /**
          * Static array used for fast conversion between token markers and
          * matching {@link JsonToken} instances
@@ -2110,9 +2110,9 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         }
 
         // // // Linking
-        
+
         protected Segment _next;
-        
+
         // // // State
 
         /**
@@ -2121,7 +2121,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
          */
         protected long _tokenTypes;
 
-        
+
         // Actual tokens
 
         protected final Object[] _tokens = new Object[TOKENS_PER_SEGMENT];
@@ -2130,7 +2130,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
          * Lazily constructed Map for storing native type and object ids, if any
          */
         protected TreeMap<Integer,Object> _nativeIds;
-        
+
         public Segment() { }
 
         // // // Accessors
@@ -2154,7 +2154,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             int ix = ((int) l) & 0xF;
             return ix;
         }
-        
+
         public Object get(int index) {
             return _tokens[index];
         }
@@ -2168,9 +2168,9 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         public boolean hasIds() {
             return _nativeIds != null;
         }
-        
+
         // // // Mutators
-        
+
         public Segment append(int index, JsonToken tokenType)
         {
             if (index < TOKENS_PER_SEGMENT) {
@@ -2327,7 +2327,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         Object findObjectId(int index) {
             return (_nativeIds == null) ? null : _nativeIds.get(_objectIdIndex(index));
         }
-        
+
         /**
          * @since 2.3
          */

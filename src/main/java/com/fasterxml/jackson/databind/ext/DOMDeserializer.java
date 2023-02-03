@@ -78,7 +78,7 @@ public abstract class DOMDeserializer<T> extends FromStringDeserializer<T>
     /* Concrete deserializers
     /**********************************************************
      */
-    
+
     public static class NodeDeserializer extends DOMDeserializer<Node> {
         private static final long serialVersionUID = 1L;
         public NodeDeserializer() { super(Node.class); }
@@ -86,7 +86,7 @@ public abstract class DOMDeserializer<T> extends FromStringDeserializer<T>
         public Node _deserialize(String value, DeserializationContext ctxt) throws IllegalArgumentException {
             return parse(value);
         }
-    }    
+    }
 
     public static class DocumentDeserializer extends DOMDeserializer<Document> {
         private static final long serialVersionUID = 1L;
@@ -95,5 +95,5 @@ public abstract class DOMDeserializer<T> extends FromStringDeserializer<T>
         public Document _deserialize(String value, DeserializationContext ctxt) throws IllegalArgumentException {
             return parse(value);
         }
-    }    
+    }
 }

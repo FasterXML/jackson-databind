@@ -61,7 +61,7 @@ public class StdJdkSerializers
         extends StdScalarSerializer<AtomicBoolean>
     {
         public AtomicBooleanSerializer() { super(AtomicBoolean.class, false); }
-    
+
         @Override
         public void serialize(AtomicBoolean value, JsonGenerator gen, SerializerProvider provider) throws IOException {
             gen.writeBoolean(value.get());
@@ -75,18 +75,18 @@ public class StdJdkSerializers
         public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
             return createSchemaNode("boolean", true);
         }
-        
+
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException {
             visitor.expectBooleanFormat(typeHint);
         }
     }
-    
+
     public static class AtomicIntegerSerializer
         extends StdScalarSerializer<AtomicInteger>
     {
         public AtomicIntegerSerializer() { super(AtomicInteger.class, false); }
-    
+
         @Override
         public void serialize(AtomicInteger value, JsonGenerator gen, SerializerProvider provider) throws IOException {
             gen.writeNumber(value.get());
@@ -100,7 +100,7 @@ public class StdJdkSerializers
         public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
             return createSchemaNode("integer", true);
         }
-        
+
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
         {
@@ -112,7 +112,7 @@ public class StdJdkSerializers
         extends StdScalarSerializer<AtomicLong>
     {
         public AtomicLongSerializer() { super(AtomicLong.class, false); }
-    
+
         @Override
         public void serialize(AtomicLong value, JsonGenerator gen, SerializerProvider provider) throws IOException {
             gen.writeNumber(value.get());
@@ -126,7 +126,7 @@ public class StdJdkSerializers
         public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
             return createSchemaNode("integer", true);
         }
-        
+
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
             throws JsonMappingException

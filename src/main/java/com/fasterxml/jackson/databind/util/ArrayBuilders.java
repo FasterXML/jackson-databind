@@ -22,7 +22,7 @@ public final class ArrayBuilders
     private ShortBuilder _shortBuilder = null;
     private IntBuilder _intBuilder = null;
     private LongBuilder _longBuilder = null;
-    
+
     private FloatBuilder _floatBuilder = null;
     private DoubleBuilder _doubleBuilder = null;
 
@@ -137,7 +137,7 @@ public final class ArrayBuilders
         @Override
         public final double[] _constructArray(int len) { return new double[len]; }
     }
-    
+
     /*
     /**********************************************************
     /* Static helper methods
@@ -151,7 +151,7 @@ public final class ArrayBuilders
      * Note: current implementation is not optimized for speed; if performance
      * ever becomes an issue, it is possible to construct much more efficient
      * typed instances (one for Object[] and sub-types; one per primitive type).
-     * 
+     *
      * @since 2.2 Moved from earlier <code>Comparators</code> class
      */
     public static Object getArrayComparator(final Object defaultValue)
@@ -207,7 +207,7 @@ public final class ArrayBuilders
     public static <T> T[] insertInListNoDup(T[] array, T element)
     {
         final int len = array.length;
-        
+
         // First: see if the element already exists
         for (int ix = 0; ix < len; ++ix) {
             if (array[ix] == element) {

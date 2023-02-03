@@ -73,7 +73,7 @@ public abstract class DefaultDeserializationContext
      * properly; specifically, that caches are cleared, but settings
      * will otherwise remain identical; and that no sharing of state
      * occurs.
-     * 
+     *
      * @since 2.4.4
      */
     public DefaultDeserializationContext copy() {
@@ -137,7 +137,7 @@ public abstract class DefaultDeserializationContext
      * needed for {@link #tryToResolveUnresolvedObjectId}.
      * Default implementation simply constructs default {@link ReadableObjectId} with
      * given <code>key</code>.
-     * 
+     *
      * @param key The key to associate with the new ReadableObjectId
      * @return New ReadableObjectId instance
      *
@@ -196,13 +196,13 @@ public abstract class DefaultDeserializationContext
     {
         return roid.tryToResolveUnresolved(this);
     }
-    
+
     /*
     /**********************************************************
     /* Abstract methods impls, other factory methods
     /**********************************************************
      */
-    
+
     @SuppressWarnings("unchecked")
     @Override
     public JsonDeserializer<Object> deserializerInstance(Annotated ann, Object deserDef)
@@ -212,7 +212,7 @@ public abstract class DefaultDeserializationContext
             return null;
         }
         JsonDeserializer<?> deser;
-        
+
         if (deserDef instanceof JsonDeserializer) {
             deser = (JsonDeserializer<?>) deserDef;
         } else {
@@ -252,7 +252,7 @@ public abstract class DefaultDeserializationContext
         }
 
         KeyDeserializer deser;
-        
+
         if (deserDef instanceof KeyDeserializer) {
             deser = (KeyDeserializer) deserDef;
         } else {
@@ -295,7 +295,7 @@ public abstract class DefaultDeserializationContext
      * with different factory
      */
     public abstract DefaultDeserializationContext with(DeserializerFactory factory);
-    
+
     /**
      * Method called to create actual usable per-deserialization
      * context instance.
@@ -305,7 +305,7 @@ public abstract class DefaultDeserializationContext
 
     public abstract DefaultDeserializationContext createDummyInstance(
             DeserializationConfig config);
-    
+
     /*
     /**********************************************************
     /* Extended API, read methods

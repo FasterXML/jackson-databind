@@ -67,7 +67,7 @@ public class TokenBufferSerializer
         // This seems like closest approximation
         return createSchemaNode("any", true);
     }
-    
+
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         throws JsonMappingException
@@ -76,4 +76,4 @@ public class TokenBufferSerializer
         // This seems like closest approximation
         visitor.expectAnyFormat(typeHint);
     }
-}    
+}

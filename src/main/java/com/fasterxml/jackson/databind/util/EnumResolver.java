@@ -156,7 +156,7 @@ public class EnumResolver implements java.io.Serializable
     /**
      * Method used when actual String serialization is indicated using @JsonValue
      * on a method in Enum class.
-     * 
+     *
      * @since 2.12
      */
     public static EnumResolver constructUsingMethod(DeserializationConfig config,
@@ -191,7 +191,7 @@ public class EnumResolver implements java.io.Serializable
                 // 26-Sep-2021, tatu: [databind#1850] Need to consider "from int" case
                 _isIntType(accessor.getRawType())
         );
-    }    
+    }
 
     public CompactStringObjectMap constructLookup() {
         return CompactStringObjectMap.construct(_enumsById);
@@ -307,7 +307,7 @@ public class EnumResolver implements java.io.Serializable
     /* Public API
     /**********************************************************************
      */
-    
+
     public Enum<?> findEnum(final String key) {
         Enum<?> en = _enumsById.get(key);
         if (en == null) {
@@ -342,7 +342,7 @@ public class EnumResolver implements java.io.Serializable
     public Enum<?>[] getRawEnums() {
         return _enums;
     }
-    
+
     public List<Enum<?>> getEnums() {
         ArrayList<Enum<?>> enums = new ArrayList<Enum<?>>(_enums.length);
         for (Enum<?> e : _enums) {
@@ -357,7 +357,7 @@ public class EnumResolver implements java.io.Serializable
     public Collection<String> getEnumIds() {
         return _enumsById.keySet();
     }
-    
+
     public Class<Enum<?>> getEnumClass() { return _enumClass; }
 
     public int lastValidIndex() { return _enums.length-1; }

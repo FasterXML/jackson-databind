@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.ser.impl.TypeWrappedSerializer;
  *  <li>Explicit {@link #close} is needed after all values have been written
  *     ({@link ObjectWriter} can auto-close after individual value writes)
  *</ul>
- * 
+ *
  * @since 2.5
  */
 public class SequenceWriter
@@ -43,7 +43,7 @@ public class SequenceWriter
 
     protected final JsonSerializer<Object> _rootSerializer;
     protected final TypeSerializer _typeSerializer;
-    
+
     protected final boolean _closeGenerator;
     protected final boolean _cfgFlush;
     protected final boolean _cfgCloseCloseable;
@@ -61,7 +61,7 @@ public class SequenceWriter
      * Assumption is that
      */
     protected PropertySerializerMap _dynamicSerializers;
-    
+
     /**
      * State flag for keeping track of need to write matching END_ARRAY,
      * if a START_ARRAY was written during initialization
@@ -138,7 +138,7 @@ public class SequenceWriter
             _provider.serializeValue(_generator, null);
             return this;
         }
-        
+
         if (_cfgCloseCloseable && (value instanceof Closeable)) {
             return _writeCloseableValue(value);
         }
@@ -162,7 +162,7 @@ public class SequenceWriter
      * to write; further, full type (often generic, like {@link java.util.Map}
      * is passed in case a new
      * {@link JsonSerializer} needs to be fetched to handle type
-     * 
+     *
      * If root type was specified for {@link ObjectWriter},
      * value must be of compatible type (same or subtype).
      */
@@ -172,7 +172,7 @@ public class SequenceWriter
             _provider.serializeValue(_generator, null);
             return this;
         }
-        
+
         if (_cfgCloseCloseable && (value instanceof Closeable)) {
             return _writeCloseableValue(value, type);
         }
@@ -219,7 +219,7 @@ public class SequenceWriter
         }
         return this;
     }
-    
+
     @Override
     public void flush() throws IOException {
         if (!_closed) {

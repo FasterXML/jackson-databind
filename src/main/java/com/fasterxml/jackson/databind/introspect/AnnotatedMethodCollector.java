@@ -44,7 +44,7 @@ public class AnnotatedMethodCollector
             JavaType mainType, List<JavaType> superTypes, Class<?> primaryMixIn)
     {
         Map<MemberKey,MethodBuilder> methods = new LinkedHashMap<>();
-        
+
         // first: methods from the class itself
         _addMemberMethods(tc, mainType.getRawClass(), methods, primaryMixIn);
 

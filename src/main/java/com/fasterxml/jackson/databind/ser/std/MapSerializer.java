@@ -51,7 +51,7 @@ public class MapSerializer
     /* Basic information about referring property, type
     /**********************************************************
      */
-    
+
     /**
      * Map-valued property being serialized with this instance
      */
@@ -78,7 +78,7 @@ public class MapSerializer
     /* Serializers used
     /**********************************************************
      */
-    
+
     /**
      * Key serializer to use, if it can be statically determined
      */
@@ -132,7 +132,7 @@ public class MapSerializer
      * non-null values.
      * Note that inclusion value for Map instance itself is handled by caller (POJO
      * property that refers to the Map value).
-     * 
+     *
      * @since 2.5
      */
     protected final Object _suppressableValue;
@@ -161,7 +161,7 @@ public class MapSerializer
     /**
      * Flag set if output is forced to be sorted by keys (usually due
      * to annotation).
-     * 
+     *
      * @since 2.4
      */
     protected final boolean _sortKeys;
@@ -171,7 +171,7 @@ public class MapSerializer
     /* Life-cycle
     /**********************************************************
      */
-    
+
     /**
      * @since 2.12
      */
@@ -352,7 +352,7 @@ public class MapSerializer
     /**
      * Mutant factory for constructing an instance with different inclusion strategy
      * for content (Map values).
-     * 
+     *
      * @since 2.9
      */
     public MapSerializer withContentInclusion(Object suppressableValue, boolean suppressNulls) {
@@ -375,7 +375,7 @@ public class MapSerializer
 
         if (mapType == null) {
             keyType = valueType = UNSPECIFIED_TYPE;
-        } else { 
+        } else {
             keyType = mapType.getKeyType();
             if (mapType.hasRawClass(java.util.Properties.class)) {
                 // 25-Mar-2020, tatu: [databind#2657] Since non-standard Properties may actually
@@ -451,7 +451,7 @@ public class MapSerializer
     @Deprecated // since 2.9
     public MapSerializer withContentInclusion(Object suppressableValue) {
         return new MapSerializer(this, _valueTypeSerializer, suppressableValue, _suppressNulls);
-    }                
+    }
 
     /**
      * @since 2.3
@@ -631,7 +631,7 @@ public class MapSerializer
         if (value.isEmpty()) {
             return true;
         }
-        
+
         // 05-Nove-2015, tatu: Simple cases are cheap, but for recursive
         //   emptiness checking we actually need to see if values are empty as well.
         Object supp = _suppressableValue;
@@ -705,7 +705,7 @@ public class MapSerializer
     public JsonSerializer<?> getKeySerializer() {
         return _keySerializer;
     }
-    
+
     /*
     /**********************************************************
     /* JsonSerializer implementation
@@ -768,7 +768,7 @@ public class MapSerializer
 
     /**
      * General-purpose serialization for contents, where we do not necessarily know
-     * the value serialization, but 
+     * the value serialization, but
      * we do know that no value suppression is needed (which simplifies processing a bit)
      */
     public void serializeFields(Map<?,?> value, JsonGenerator gen, SerializerProvider provider)
@@ -872,7 +872,7 @@ public class MapSerializer
             }
         }
     }
-    
+
     /**
      * Method called to serialize fields, when the value type is statically known,
      * so that value serializer is passed and does not need to be fetched from
@@ -916,7 +916,7 @@ public class MapSerializer
     /**
      * Helper method used when we have a JSON Filter to use for potentially
      * filtering out Map entries.
-     * 
+     *
      * @since 2.5
      */
     public void serializeFilteredFields(Map<?,?> value, JsonGenerator gen, SerializerProvider provider,
@@ -998,7 +998,7 @@ public class MapSerializer
                 keySerializer = _keySerializer;
             }
             final Object valueElem = entry.getValue();
-    
+
             // And then value
             JsonSerializer<Object> valueSer;
             if (valueElem == null) {
@@ -1036,7 +1036,7 @@ public class MapSerializer
      * "any properties" of a POJO.
      *
      * @param bean Enclosing POJO that has any-getter used to obtain "any properties"
-     * 
+     *
      * @since 2.9
      */
     public void serializeFilteredAnyProperties(SerializerProvider provider, JsonGenerator gen,
@@ -1118,7 +1118,7 @@ public class MapSerializer
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         throws JsonMappingException
     {
-        JsonMapFormatVisitor v2 = visitor.expectMapFormat(typeHint);        
+        JsonMapFormatVisitor v2 = visitor.expectMapFormat(typeHint);
         if (v2 != null) {
             v2.keyFormat(_keySerializer, _keyType);
             JsonSerializer<?> valueSer = _valueSerializer;
@@ -1178,7 +1178,7 @@ public class MapSerializer
                 if (key == null) {
                     _writeNullKeyedEntry(gen, provider, entry.getValue());
                     continue;
-                } 
+                }
                 result.put(key, entry.getValue());
             }
             return result;
@@ -1198,10 +1198,10 @@ public class MapSerializer
         //   known good cases).
         //   While my first instinct was to do black-listing (remove Hashtable and ConcurrentHashMap),
         //   all in all it is probably better to just white list `HashMap` (and its sub-classes).
-        
+
         return (input instanceof HashMap) && input.containsKey(null);
     }
-    
+
     protected void _writeNullKeyedEntry(JsonGenerator gen, SerializerProvider provider,
             Object value)
         throws IOException

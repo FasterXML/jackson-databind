@@ -34,7 +34,7 @@ public class FileSerializer
     public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
         return createSchemaNode("string", true);
     }
-    
+
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         throws JsonMappingException

@@ -95,7 +95,7 @@ public class MapEntryDeserializer
     protected MapEntryDeserializer withResolved(KeyDeserializer keyDeser,
             TypeDeserializer valueTypeDeser, JsonDeserializer<?> valueDeser)
     {
-        
+
         if ((_keyDeserializer == keyDeser) && (_valueDeserializer == valueDeser)
                 && (_valueTypeDeserializer == valueTypeDeser)) {
             return this;

@@ -19,7 +19,7 @@ public class PlaceholderForType extends TypeBase
      * structure resolution)
      */
     protected JavaType _actualType;
-    
+
     public PlaceholderForType(int ordinal)
     {
         super(Object.class, TypeBindings.emptyBindings(),

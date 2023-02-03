@@ -36,7 +36,7 @@ public class IterableSerializer
             Boolean unwrapSingle) {
         return new IterableSerializer(this, property, vts, elementSerializer, unwrapSingle);
     }
-    
+
     @Override
     public boolean isEmpty(SerializerProvider prov, Iterable<?> value) {
         // Not really good way to implement this, but has to do for now:
@@ -74,7 +74,7 @@ public class IterableSerializer
         serializeContents(value, gen, provider);
         gen.writeEndArray();
     }
-    
+
     @Override
     public void serializeContents(Iterable<?> value, JsonGenerator jgen,
         SerializerProvider provider) throws IOException
@@ -84,7 +84,7 @@ public class IterableSerializer
             final TypeSerializer typeSer = _valueTypeSerializer;
             JsonSerializer<Object> prevSerializer = null;
             Class<?> prevClass = null;
-            
+
             do {
                 Object elem = it.next();
                 if (elem == null) {

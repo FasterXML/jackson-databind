@@ -77,7 +77,7 @@ public abstract class SerializerProvider
     /* Configuration, general
     /**********************************************************
      */
-    
+
     /**
      * Serialization configuration to use for serialization processing.
      */
@@ -88,7 +88,7 @@ public abstract class SerializerProvider
      * Only set for non-blueprint instances.
      */
     protected final Class<?> _serializationView;
-    
+
     /*
     /**********************************************************
     /* Configuration, factories
@@ -106,7 +106,7 @@ public abstract class SerializerProvider
     /* Helper objects for caching, reuse
     /**********************************************************
      */
-    
+
     /**
      * Cache for doing type-to-value-serializer lookups.
      */
@@ -115,11 +115,11 @@ public abstract class SerializerProvider
     /**
      * Lazily-constructed holder for per-call attributes.
      * Only set for non-blueprint instances.
-     * 
+     *
      * @since 2.3
      */
     protected transient ContextAttributes _attributes;
-    
+
     /*
     /**********************************************************
     /* Configuration, specialized serializers
@@ -177,11 +177,11 @@ public abstract class SerializerProvider
 
     /**
      * Flag set to indicate that we are using vanilla null value serialization
-     * 
+     *
      * @since 2.3
      */
     protected final boolean _stdNullValueSerializer;
-    
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -239,7 +239,7 @@ public abstract class SerializerProvider
 
     /**
      * Copy-constructor used when making a copy of a blueprint instance.
-     * 
+     *
      * @since 2.5
      */
     protected SerializerProvider(SerializerProvider src)
@@ -260,7 +260,7 @@ public abstract class SerializerProvider
 
         _stdNullValueSerializer = src._stdNullValueSerializer;
     }
-    
+
     /*
     /**********************************************************
     /* Methods for configuring default settings
@@ -313,7 +313,7 @@ public abstract class SerializerProvider
         }
         _nullKeySerializer = nks;
     }
-        
+
     /*
     /**********************************************************
     /* DatabindContext implementation (and closely related but ser-specific)
@@ -444,13 +444,13 @@ public abstract class SerializerProvider
     /**
      * "Bulk" access method for checking that all features specified by
      * mask are enabled.
-     * 
+     *
      * @since 2.3
      */
     public final boolean hasSerializationFeatures(int featureMask) {
         return _config.hasSerializationFeatures(featureMask);
     }
-    
+
     /**
      * Convenience method for accessing provider to find serialization filters used,
      * equivalent to calling:
@@ -515,7 +515,7 @@ public abstract class SerializerProvider
      */
     public abstract WritableObjectId findObjectId(Object forPojo,
         ObjectIdGenerator<?> generatorType);
-    
+
     /*
     /**********************************************************
     /* General serializer locating functionality
@@ -577,7 +577,7 @@ public abstract class SerializerProvider
      * to handle polymorphic types.
      *<p>
      * Note: this call will also contextualize serializer before returning it.
-     * 
+     *
      * @param property When creating secondary serializers, property for which
      *   serializer is needed: annotations of the property (or bean that contains it)
      *   may be checked to create contextual serializers.
@@ -611,7 +611,7 @@ public abstract class SerializerProvider
      * Method variant used when we do NOT want contextualization to happen; it will need
      * to be handled at a later point, but caller wants to be able to do that
      * as needed; sometimes to avoid infinite loops
-     * 
+     *
      * @since 2.5
      */
     public JsonSerializer<Object> findValueSerializer(Class<?> valueType) throws JsonMappingException
@@ -640,7 +640,7 @@ public abstract class SerializerProvider
      * Method variant used when we do NOT want contextualization to happen; it will need
      * to be handled at a later point, but caller wants to be able to do that
      * as needed; sometimes to avoid infinite loops
-     * 
+     *
      * @since 2.5
      */
     public JsonSerializer<Object> findValueSerializer(JavaType valueType)
@@ -662,18 +662,18 @@ public abstract class SerializerProvider
         }
         return ser;
     }
-    
+
     /**
      * Similar to {@link #findValueSerializer(JavaType, BeanProperty)}, but used
      * when finding "primary" property value serializer (one directly handling
      * value of the property). Difference has to do with contextual resolution,
      * and method(s) called: this method should only be called when caller is
      * certain that this is the primary property value serializer.
-     * 
+     *
      * @param valueType Type of values to serialize
      * @param property Property that is being handled; will never be null, and its
      *    type has to match <code>valueType</code> parameter.
-     * 
+     *
      * @since 2.3
      */
     @SuppressWarnings("unchecked")
@@ -806,7 +806,7 @@ public abstract class SerializerProvider
      * sequence. This method is currently only used for root-level serializer
      * handling to allow for simpler caching. A call can always be replaced
      * by equivalent calls to access serializer and type serializer separately.
-     * 
+     *
      * @param valueType Type for purpose of locating a serializer; usually dynamic
      *   runtime type, but can also be static declared type, depending on configuration
      * @param cache Whether resulting value serializer should be cached or not; this is just
@@ -850,12 +850,12 @@ public abstract class SerializerProvider
      * sequence. This method is currently only used for root-level serializer
      * handling to allow for simpler caching. A call can always be replaced
      * by equivalent calls to access serializer and type serializer separately.
-     * 
+     *
      * @param valueType Declared type of value being serialized (which may not
      *    be actual runtime type); used for finding both value serializer and
      *    type serializer to use for adding polymorphic type (if any)
      * @param cache Whether resulting value serializer should be cached or not; this is just
-     *    a hint 
+     *    a hint
      * @param property When creating secondary serializers, property for which
      *   serializer is needed: annotations of the property (or bean that contains it)
      *   may be checked to create contextual serializers.
@@ -945,7 +945,7 @@ public abstract class SerializerProvider
     public JsonSerializer<Object> getDefaultNullValueSerializer() {
         return _nullValueSerializer;
     }
-    
+
     /**
      * Method called to get the serializer to use for serializing
      * Map keys that are nulls: this is needed since JSON does not allow
@@ -960,7 +960,7 @@ public abstract class SerializerProvider
      * declared type. Note that type is completely based on declared type,
      * since nulls in Java have no type and thus runtime type cannot be
      * determined.
-     * 
+     *
      * @since 2.0
      */
     public JsonSerializer<Object> findNullKeySerializer(JavaType serializationType,
@@ -978,7 +978,7 @@ public abstract class SerializerProvider
      * can be overridden to add custom null serialization for properties
      * of certain type or name. This gives method full granularity to basically
      * override null handling for any specific property or class of properties.
-     * 
+     *
      * @since 2.0
      */
     public JsonSerializer<Object> findNullValueSerializer(BeanProperty property)
@@ -1011,7 +1011,7 @@ public abstract class SerializerProvider
      * Helper method called to see if given serializer is considered to be
      * something returned by {@link #getUnknownTypeSerializer}, that is, something
      * for which no regular serializer was found or constructed.
-     * 
+     *
      * @since 2.5
      */
     public boolean isUnknownTypeSerializer(JsonSerializer<?> ser) {
@@ -1027,7 +1027,7 @@ public abstract class SerializerProvider
         }
         return false;
     }
-    
+
     /*
     /**********************************************************
     /* Methods for creating instances based on annotations
@@ -1041,7 +1041,7 @@ public abstract class SerializerProvider
      * Either way, serialize will be properly resolved
      * (via {@link com.fasterxml.jackson.databind.ser.ResolvableSerializer}) and/or contextualized
      * (via {@link com.fasterxml.jackson.databind.ser.ContextualSerializer}) as necessary.
-     * 
+     *
      * @param annotated Annotated entity that contained definition
      * @param serDef Serializer definition: either an instance or class
      */
@@ -1083,9 +1083,9 @@ public abstract class SerializerProvider
      * directly created to serialize values of a POJO property),
      * to handle details of resolving
      * {@link ContextualSerializer} with given property context.
-     * 
+     *
      * @param property Property for which the given primary serializer is used; never null.
-     * 
+     *
      * @since 2.3
      */
     public JsonSerializer<?> handlePrimaryContextualization(JsonSerializer<?> ser,
@@ -1110,10 +1110,10 @@ public abstract class SerializerProvider
      * Given that these serializers are not directly related to given property
      * (or, in case of root value property, to any property), annotations
      * accessible may or may not be relevant.
-     * 
+     *
      * @param property Property for which serializer is used, if any; null
      *    when deserializing root values
-     * 
+     *
      * @since 2.3
      */
     public JsonSerializer<?> handleSecondaryContextualization(JsonSerializer<?> ser,
@@ -1127,7 +1127,7 @@ public abstract class SerializerProvider
         }
         return ser;
     }
-    
+
     /*
     /********************************************************
     /* Convenience methods for serializing using default methods
@@ -1154,7 +1154,7 @@ public abstract class SerializerProvider
             findTypedValueSerializer(cls, true, null).serialize(value, gen, this);
         }
     }
-    
+
     /**
      * Convenience method that will serialize given field with specified
      * value. Value may be null. Serializer is done using the usual
@@ -1374,7 +1374,7 @@ public abstract class SerializerProvider
      * Factory method for constructing a {@link JsonMappingException};
      * usually only indirectly used by calling
      * {@link #reportMappingProblem(Throwable, String, Object...)}
-     * 
+     *
      * @since 2.8
      *
      * @deprecated Since 2.9
@@ -1414,7 +1414,7 @@ public abstract class SerializerProvider
      */
     protected JsonSerializer<Object> _findExplicitUntypedSerializer(Class<?> runtimeType)
         throws JsonMappingException
-    {        
+    {
         // Fast lookup from local lookup thingy works?
         JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(runtimeType);
         if (ser == null) {
@@ -1469,7 +1469,7 @@ public abstract class SerializerProvider
 
     protected JsonSerializer<Object> _createAndCacheUntypedSerializer(JavaType type)
         throws JsonMappingException
-    {        
+    {
         JsonSerializer<Object> ser;
         try {
             ser = _createUntypedSerializer(type);
@@ -1479,7 +1479,7 @@ public abstract class SerializerProvider
             ser = null;
             reportMappingProblem(iae, ClassUtil.exceptionMessage(iae));
         }
-    
+
         if (ser != null) {
             // 21-Dec-2015, tatu: Should we also cache using raw key?
             _serializerCache.addAndResolveNonTypedSerializer(type, ser, this);

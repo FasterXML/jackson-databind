@@ -30,7 +30,7 @@ public interface NullValueProvider
      * Accessor that may be used to determine if and when provider must be called to
      * access null replacement value.
      */
-    public AccessPattern getNullAccessPattern(); 
+    public AccessPattern getNullAccessPattern();
 
     /**
      * Method called to determine placeholder value to be used for cases

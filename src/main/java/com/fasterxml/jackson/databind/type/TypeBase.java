@@ -24,7 +24,7 @@ public abstract class TypeBase
     protected final JavaType _superClass;
 
     protected final JavaType[] _superInterfaces;
-    
+
     /**
      * Bindings in effect for this type instance; possibly empty.
      * Needed when resolving types declared in members of this type
@@ -33,7 +33,7 @@ public abstract class TypeBase
      * @since 2.7
      */
     protected final TypeBindings _bindings;
-    
+
     /**
      * Lazily initialized external representation of the type
      */
@@ -158,7 +158,7 @@ public abstract class TypeBase
         }
         return match.getBindings().typeParameterArray();
     }
-    
+
     /*
     /**********************************************************
     /* JsonSerializable base implementation
@@ -181,7 +181,7 @@ public abstract class TypeBase
         throws IOException
     {
         gen.writeString(toCanonical());
-    } 
+    }
 
     /*
     /**********************************************************
@@ -197,7 +197,7 @@ public abstract class TypeBase
            boolean trailingSemicolon)
     {
         if (cls.isPrimitive()) {
-            if (cls == Boolean.TYPE) {                
+            if (cls == Boolean.TYPE) {
                 sb.append('Z');
             } else if (cls == Byte.TYPE) {
                 sb.append('B');

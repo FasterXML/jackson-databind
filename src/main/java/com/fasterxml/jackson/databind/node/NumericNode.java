@@ -36,7 +36,7 @@ public abstract class NumericNode
     @Override public abstract boolean canConvertToInt();
     @Override public abstract boolean canConvertToLong();
 
-    /* 
+    /*
     /**********************************************************
     /* General type coercions
     /**********************************************************
@@ -75,7 +75,7 @@ public abstract class NumericNode
         return doubleValue();
     }
 
-    /* 
+    /*
     /**********************************************************
     /* Other
     /**********************************************************

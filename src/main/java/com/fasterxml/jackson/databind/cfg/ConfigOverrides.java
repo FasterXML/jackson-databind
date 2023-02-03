@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 
 /**
  * Container for individual {@link ConfigOverride} values.
- * 
+ *
  * @since 2.8
  */
 public class ConfigOverrides
@@ -94,7 +94,7 @@ public class ConfigOverrides
             VisibilityChecker<?> defVisibility, Boolean defMergeable) {
         this(overrides, defIncl, defSetter, defVisibility, defMergeable, null);
     }
-    
+
     public ConfigOverrides copy()
     {
         Map<Class<?>, MutableConfigOverride> newOverrides;
@@ -188,7 +188,7 @@ public class ConfigOverrides
     public Boolean getDefaultLeniency() {
         return _defaultLeniency;
     }
-    
+
     /**
      * @since 2.9
      */

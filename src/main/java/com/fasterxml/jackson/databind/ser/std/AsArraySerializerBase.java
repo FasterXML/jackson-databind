@@ -138,7 +138,7 @@ public abstract class AsArraySerializerBase<T>
     {
         this(src, property, vts, elementSerializer, src._unwrapSingle);
     }
-    
+
     /**
      * @deprecated since 2.6: use the overloaded method that takes 'unwrapSingle'
      */
@@ -160,7 +160,7 @@ public abstract class AsArraySerializerBase<T>
     /* Post-processing
     /**********************************************************
      */
-    
+
     /**
      * This method is needed to resolve contextual annotations like
      * per-property overrides, as well as do recursive call
@@ -179,7 +179,7 @@ public abstract class AsArraySerializerBase<T>
         JsonSerializer<?> ser = null;
         Boolean unwrapSingle = null;
         // First: if we have a property, may have property-annotation overrides
-        
+
         if (property != null) {
             final AnnotationIntrospector intr = serializers.getAnnotationIntrospector();
             AnnotatedMember m = property.getMember();
@@ -222,7 +222,7 @@ public abstract class AsArraySerializerBase<T>
     /* Accessors
     /**********************************************************
      */
-    
+
     @Override
     public JavaType getContentType() {
         return _elementType;

@@ -31,17 +31,17 @@ public class StdTypeResolverBuilder
      * Whether type id should be exposed to deserializers or not
      */
     protected boolean _typeIdVisible = false;
-    
+
     /**
      * Default class to use in case type information is not available
      * or is broken.
      */
     protected Class<?> _defaultImpl;
-    
+
     // Objects
-    
+
     protected TypeIdResolver _customIdResolver;
-    
+
     /*
     /**********************************************************
     /* Construction, initialization, actual building
@@ -333,7 +333,7 @@ public class StdTypeResolverBuilder
     public PolymorphicTypeValidator subTypeValidator(MapperConfig<?> config) {
         return config.getPolymorphicTypeValidator();
     }
-    
+
     /**
      * Helper method called to check that base type is valid regarding possible constraints
      * on basetype/subtype combinations allowed for polymorphic type handling.

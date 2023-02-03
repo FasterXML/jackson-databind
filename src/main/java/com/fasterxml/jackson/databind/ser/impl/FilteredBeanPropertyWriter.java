@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * that are not to be included in currently active JsonView.
  */
 public abstract class FilteredBeanPropertyWriter
-{    
+{
     public static BeanPropertyWriter constructViewBased(BeanPropertyWriter base, Class<?>[] viewsToIncludeIn)
     {
         if (viewsToIncludeIn.length == 1) {
@@ -37,7 +37,7 @@ public abstract class FilteredBeanPropertyWriter
         protected final BeanPropertyWriter _delegate;
 
         protected final Class<?> _view;
-        
+
         protected SingleView(BeanPropertyWriter delegate, Class<?> view)
         {
             super(delegate);
@@ -49,7 +49,7 @@ public abstract class FilteredBeanPropertyWriter
         public SingleView rename(NameTransformer transformer) {
             return new SingleView(_delegate.rename(transformer), _view);
         }
-        
+
         @Override
         public void assignSerializer(JsonSerializer<Object> ser) {
             _delegate.assignSerializer(ser);
@@ -59,7 +59,7 @@ public abstract class FilteredBeanPropertyWriter
         public void assignNullSerializer(JsonSerializer<Object> nullSer) {
             _delegate.assignNullSerializer(nullSer);
         }
-        
+
         @Override
         public void serializeAsField(Object bean, JsonGenerator gen, SerializerProvider prov)
             throws Exception
@@ -104,7 +104,7 @@ public abstract class FilteredBeanPropertyWriter
         protected final BeanPropertyWriter _delegate;
 
         protected final Class<?>[] _views;
-        
+
         protected MultiView(BeanPropertyWriter delegate, Class<?>[] views) {
             super(delegate);
             _delegate = delegate;
@@ -115,7 +115,7 @@ public abstract class FilteredBeanPropertyWriter
         public MultiView rename(NameTransformer transformer) {
             return new MultiView(_delegate.rename(transformer), _views);
         }
-        
+
         @Override
         public void assignSerializer(JsonSerializer<Object> ser) {
             _delegate.assignSerializer(ser);
@@ -125,7 +125,7 @@ public abstract class FilteredBeanPropertyWriter
         public void assignNullSerializer(JsonSerializer<Object> nullSer) {
             _delegate.assignNullSerializer(nullSer);
         }
-        
+
         @Override
         public void serializeAsField(Object bean, JsonGenerator gen, SerializerProvider prov)
             throws Exception
@@ -157,7 +157,7 @@ public abstract class FilteredBeanPropertyWriter
             }
         }
 
-        private final boolean _inView(Class<?> activeView) 
+        private final boolean _inView(Class<?> activeView)
         {
             if (activeView == null) {
                 return true;

@@ -15,10 +15,10 @@ public abstract class FilterProvider
      * Note that id is typically a {@link java.lang.String}, but is not necessarily
      * limited to that; that is, while standard components use String, custom
      * implementation can choose other kinds of keys.
-     * 
+     *
      * @return Filter registered with specified id, if one defined; null if
      *   none found.
-     *   
+     *
      * @deprecated Since 2.3 deprecated because {@link BeanPropertyFilter} is deprecated;
      */
     @Deprecated
@@ -36,14 +36,14 @@ public abstract class FilterProvider
      * backwards compatibility, and will call the deprecated <code>findFilter</code>
      * method, then wrap filter if one found as {@link PropertyFilter}.
      * It should be overridden by up-to-date implementations
-     * 
+     *
      * @param filterId Id of the filter to fetch
      * @param valueToFilter Object being filtered (usually POJO, but may be a {@link java.util.Map},
      *   or in future a container), <b>if available</b>; not available when generating
      *   schemas.
-     * 
+     *
      * @return Filter to use, if any.
-     * 
+     *
      * @since 2.3
      */
     public PropertyFilter findPropertyFilter(Object filterId, Object valueToFilter)

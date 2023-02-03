@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 /**
  * Simple container used for temporarily buffering a set of
  * <code>PropertyValue</code>s.
- * Using during construction of beans (and Maps) that use Creators, 
+ * Using during construction of beans (and Maps) that use Creators,
  * and hence need buffering before instance (that will have properties
  * to assign values to) is constructed.
  */
@@ -29,7 +29,7 @@ public class PropertyValueBuffer
     protected final DeserializationContext _context;
 
     protected final ObjectIdReader _objectIdReader;
-    
+
     /*
     /**********************************************************
     /* Accumulated properties, other stuff
@@ -41,7 +41,7 @@ public class PropertyValueBuffer
      * instance.
      */
     protected final Object[] _creatorParameters;
-    
+
     /**
      * Number of creator parameters for which we have not yet received
      * values.
@@ -80,7 +80,7 @@ public class PropertyValueBuffer
     /* Life-cycle
     /**********************************************************
      */
-    
+
     public PropertyValueBuffer(JsonParser p, DeserializationContext ctxt, int paramCount,
             ObjectIdReader oir)
     {
@@ -227,7 +227,7 @@ public class PropertyValueBuffer
     /**
      * Helper method called to see if given non-creator property is the "id property";
      * and if so, handle appropriately.
-     * 
+     *
      * @since 2.1
      */
     public boolean readIdProperty(String propName) throws IOException
@@ -260,7 +260,7 @@ public class PropertyValueBuffer
         }
         return bean;
     }
-    
+
     protected PropertyValue buffered() { return _buffered; }
 
     public boolean isComplete() { return _paramsNeeded <= 0; }
@@ -270,7 +270,7 @@ public class PropertyValueBuffer
      * we now have values for all (creator) properties that we expect to get values for.
      *
      * @return True if we have received all creator parameters
-     * 
+     *
      * @since 2.6
      */
     public boolean assignParameter(SettableBeanProperty prop, Object value)
@@ -301,7 +301,7 @@ public class PropertyValueBuffer
     public void bufferProperty(SettableBeanProperty prop, Object value) {
         _buffered = new PropertyValue.Regular(_buffered, value, prop);
     }
-    
+
     public void bufferAnyProperty(SettableAnyProperty prop, String propName, Object value) {
         _buffered = new PropertyValue.Any(_buffered, value, prop, propName);
     }

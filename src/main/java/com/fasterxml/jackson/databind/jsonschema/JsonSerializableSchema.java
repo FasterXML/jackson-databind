@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.JacksonAnnotation;
  * Note that annotation is often not needed: for example, regular
  * Jackson beans that Jackson can introspect can be used without
  * annotations, to produce JSON schema definition.
- * 
+ *
  * @author Ryan Heaton
  * @author Tatu Saloranta
  * @deprecated Since 2.15, we recommend use of external
@@ -39,7 +39,7 @@ public @interface JsonSerializableSchema
      * is defined.
      */
     public String id() default "";
-    
+
     /**
      * The schema type for this JsonSerializable instance.
      * Possible values: "string", "number", "boolean", "object", "array", "null", "any"
@@ -53,7 +53,7 @@ public @interface JsonSerializableSchema
      * a String.
      *
      * @return The node representing the schema properties, or "##irrelevant" if irrelevant.
-     * 
+     *
      * @deprecated (since 2.1) -- support will be dropped in future, since JSON-as-String is
      *   fundamentally bad way for customizing anything. No direct replacements offered.
      */
@@ -64,7 +64,7 @@ public @interface JsonSerializableSchema
      * If the schema type if "array", JSON definition of the schema for item types contained.
      *
      * @return The schema for the items in the array, or "##irrelevant" if irrelevant.
-     * 
+     *
      * @deprecated (since 2.1) -- support will be dropped in future, since JSON-as-String is
      *   fundamentally bad way for customizing anything. No direct replacements offered.
      */

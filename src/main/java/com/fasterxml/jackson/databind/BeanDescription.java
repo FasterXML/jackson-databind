@@ -75,7 +75,7 @@ public abstract class BeanDescription
      * be used for this POJO type, if any.
      */
     public abstract ObjectIdInfo getObjectIdInfo();
-    
+
     /**
      * Method for checking whether class being described has any
      * annotations recognized by registered annotation introspector.
@@ -258,7 +258,7 @@ public abstract class BeanDescription
 
     @Deprecated // since 2.9
     public abstract AnnotatedMethod findJsonValueMethod();
-    
+
     /**
      * @deprecated Since 2.9: use {@link #findAnySetterAccessor} instead
      */
@@ -304,7 +304,7 @@ public abstract class BeanDescription
      * Method for checking what is the expected format for POJO, as
      * defined by defaults and possible annotations.
      * Note that this may be further refined by per-property annotations.
-     * 
+     *
      * @since 2.1
      */
     public abstract JsonFormat.Value findExpectedFormat(JsonFormat.Value defValue);
@@ -312,7 +312,7 @@ public abstract class BeanDescription
     /**
      * Method for finding {@link Converter} used for serializing instances
      * of this class.
-     * 
+     *
      * @since 2.2
      */
     public abstract Converter<Object,Object> findSerializationConverter();
@@ -320,7 +320,7 @@ public abstract class BeanDescription
     /**
      * Method for finding {@link Converter} used for serializing instances
      * of this class.
-     * 
+     *
      * @since 2.2
      */
     public abstract Converter<Object,Object> findDeserializationConverter();
@@ -358,7 +358,7 @@ public abstract class BeanDescription
      * Method called to create a "default instance" of the bean, currently
      * only needed for obtaining default field values which may be used for
      * suppressing serialization of fields that have "not changed".
-     * 
+     *
      * @param fixAccess If true, method is allowed to fix access to the
      *   default constructor (to be able to call non-public constructor);
      *   if false, has to use constructor as is.

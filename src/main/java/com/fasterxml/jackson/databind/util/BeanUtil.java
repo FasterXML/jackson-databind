@@ -34,7 +34,7 @@ public class BeanUtil
         }
         return str;
     }
-    
+
     /**
      * @since 2.5
      *
@@ -48,7 +48,7 @@ public class BeanUtil
             /* 16-Feb-2009, tatu: To handle [JACKSON-53], need to block
              *   CGLib-provided method "getCallbacks". Not sure of exact
              *   safe criteria to get decent coverage without false matches;
-             *   but for now let's assume there's no reason to use any 
+             *   but for now let's assume there's no reason to use any
              *   such getter from CGLib.
              *   But let's try this approach...
              */
@@ -118,7 +118,7 @@ public class BeanUtil
     /* Value defaulting helpers
     /**********************************************************
      */
-    
+
     /**
      * Accessor used to find out "default value" to use for comparing values to
      * serialize, to determine whether to exclude value from serialization with
@@ -171,7 +171,7 @@ public class BeanUtil
 
     /**
      * This method was added to address the need to weed out
-     * CGLib-injected "getCallbacks" method. 
+     * CGLib-injected "getCallbacks" method.
      * At this point caller has detected a potential getter method
      * with name "getCallbacks" and we need to determine if it is
      * indeed injectect by Cglib. We do this by verifying that the
@@ -213,7 +213,7 @@ public class BeanUtil
      */
 
     /**
-     * Method called to figure out name of the property, given 
+     * Method called to figure out name of the property, given
      * corresponding suggested name based on a method or field name.
      *
      * @param basename Name of accessor/mutator method, not including prefix
@@ -228,7 +228,7 @@ public class BeanUtil
         // next check: is the first character upper case? If not, return as is
         char c = basename.charAt(offset);
         char d = Character.toLowerCase(c);
-        
+
         if (c == d) {
             return basename.substring(offset);
         }

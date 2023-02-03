@@ -30,13 +30,13 @@ public final class BaseSettings
     /**
      * We will use a default TimeZone as the baseline.
      */
-    private static final TimeZone DEFAULT_TIMEZONE = 
+    private static final TimeZone DEFAULT_TIMEZONE =
             //  TimeZone.getDefault()
             /* [databind#915] 05-Nov-2015, tatu: Changed to UTC, from earlier
              * baseline of GMT (up to 2.6)
              */
             TimeZone.getTimeZone("UTC");
-    
+
     /*
     /**********************************************************
     /* Configuration settings; introspection, related
@@ -99,7 +99,7 @@ public final class BaseSettings
     /* Configuration settings; other
     /**********************************************************
      */
-    
+
     /**
      * Custom date format to use for deserialization. If specified, will be
      * used instead of {@link com.fasterxml.jackson.databind.util.StdDateFormat}.
@@ -138,11 +138,11 @@ public final class BaseSettings
      * Explicitly default {@link Base64Variant} to use for handling
      * binary data (<code>byte[]</code>), used with data formats
      * that use base64 encoding (like JSON, CSV).
-     * 
+     *
      * @since 2.1
      */
     protected final Base64Variant _defaultBase64;
-    
+
     /*
     /**********************************************************
     /* Construction
@@ -209,7 +209,7 @@ public final class BaseSettings
     /* Factory methods
     /**********************************************************
      */
-    
+
     public BaseSettings withClassIntrospector(ClassIntrospector ci) {
         if (_classIntrospector == ci) {
             return this;
@@ -218,7 +218,7 @@ public final class BaseSettings
                 _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
                 _timeZone, _defaultBase64, _typeValidator, _accessorNaming);
     }
-    
+
     public BaseSettings withAnnotationIntrospector(AnnotationIntrospector ai) {
         if (_annotationIntrospector == ai) {
             return this;
@@ -245,7 +245,7 @@ public final class BaseSettings
                 _timeZone, _defaultBase64, _typeValidator);
     }
     */
-    
+
     public BaseSettings withPropertyNamingStrategy(PropertyNamingStrategy pns) {
         if (_propertyNamingStrategy == pns) {
             return this;
@@ -282,7 +282,7 @@ public final class BaseSettings
                 typer, _dateFormat, _handlerInstantiator, _locale,
                 _timeZone, _defaultBase64, _typeValidator, _accessorNaming);
     }
-    
+
     public BaseSettings withDateFormat(DateFormat df) {
         if (_dateFormat == df) {
             return this;
@@ -363,7 +363,7 @@ public final class BaseSettings
                 _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
                 _timeZone, _defaultBase64, v, _accessorNaming);
     }
-    
+
     /*
     /**********************************************************
     /* API
@@ -373,7 +373,7 @@ public final class BaseSettings
     public ClassIntrospector getClassIntrospector() {
         return _classIntrospector;
     }
-    
+
     public AnnotationIntrospector getAnnotationIntrospector() {
         return _annotationIntrospector;
     }
@@ -400,7 +400,7 @@ public final class BaseSettings
     public PolymorphicTypeValidator getPolymorphicTypeValidator() {
         return _typeValidator;
     }
-    
+
     public DateFormat getDateFormat() {
         return _dateFormat;
     }
@@ -428,7 +428,7 @@ public final class BaseSettings
     public boolean hasExplicitTimeZone() {
         return (_timeZone != null);
     }
-    
+
     public Base64Variant getBase64Variant() {
         return _defaultBase64;
     }

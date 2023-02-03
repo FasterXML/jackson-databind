@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.util.Converter;
  * process. Designed so that some of implementations can rely on shared
  * aspects like access to secondary contextual objects like type factories
  * or handler instantiators.
- * 
+ *
  * @since 2.2
  */
 public abstract class DatabindContext
@@ -126,10 +126,10 @@ public abstract class DatabindContext
      * Per-call attributes have highest precedence; attributes set
      * via {@link ObjectReader} or {@link ObjectWriter} have lower
      * precedence.
-     * 
+     *
      * @param key Key of the attribute to get
      * @return Value of the attribute, if any; null otherwise
-     * 
+     *
      * @since 2.3
      */
     public abstract Object getAttribute(Object key);
@@ -138,12 +138,12 @@ public abstract class DatabindContext
      * Method for setting per-call value of given attribute.
      * This will override any previously defined value for the
      * attribute within this context.
-     * 
+     *
      * @param key Key of the attribute to set
      * @param value Value to set attribute to
-     * 
+     *
      * @return This context object, to allow chaining
-     * 
+     *
      * @since 2.3
      */
     public abstract DatabindContext setAttribute(Object key, Object value);
@@ -355,7 +355,7 @@ public abstract class DatabindContext
     /**
      * Helper method to use to construct a {@link Converter}, given a definition
      * that may be either actual converter instance, or Class for instantiating one.
-     * 
+     *
      * @since 2.2
      */
     @SuppressWarnings("unchecked")
@@ -453,7 +453,7 @@ public abstract class DatabindContext
         // !!! should we quote it? (in case there are control chars, linefeeds)
         return String.format("\"%s\"", _truncate(desc));
     }
-    
+
     /**
      * @since 2.9
      */

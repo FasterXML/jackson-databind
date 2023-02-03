@@ -51,7 +51,7 @@ public abstract class BeanSerializerModifier
 
     /**
      * Method called by {@link BeanSerializerFactory} with set of properties
-     * to serialize, in default ordering (based on defaults as well as 
+     * to serialize, in default ordering (based on defaults as well as
      * possible type annotations).
      * Implementations can change ordering any way they like.
      *
@@ -77,7 +77,7 @@ public abstract class BeanSerializerModifier
             BeanDescription beanDesc, BeanSerializerBuilder builder) {
         return builder;
     }
-    
+
     /**
      * Method called by {@link BeanSerializerFactory} after constructing default
      * bean serializer instance with properties collected and ordered earlier.
@@ -107,15 +107,15 @@ public abstract class BeanSerializerModifier
      * {@link ArrayType}
      * to make it possible to either replace or augment this serializer with
      * additional functionality.
-     * 
+     *
      * @param config Configuration in use
      * @param valueType Type of the value serializer is used for.
      * @param beanDesc Details of the type in question, to allow checking class annotations
      * @param serializer Default serializer that would be used.
-     * 
+     *
      * @return Serializer to use; either <code>serializer</code> that was passed
      *   in, or an instance method constructed.
-     * 
+     *
      * @since 2.2
      */
     public JsonSerializer<?> modifyArraySerializer(SerializationConfig config,
@@ -138,7 +138,7 @@ public abstract class BeanSerializerModifier
             CollectionLikeType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
         return serializer;
     }
-    
+
     /**
      * @since 2.2
      */
@@ -169,15 +169,15 @@ public abstract class BeanSerializerModifier
      * given type.
      * This makes it possible to either replace or augment default serializer with
      * additional functionality.
-     * 
+     *
      * @param config Configuration in use
      * @param valueType Type of keys the serializer is used for.
      * @param beanDesc Details of the type in question, to allow checking class annotations
      * @param serializer Default serializer that would be used.
-     * 
+     *
      * @return Serializer to use; either <code>serializer</code> that was passed
      *   in, or an instance method constructed.
-     * 
+     *
      * @since 2.2
      */
     public JsonSerializer<?> modifyKeySerializer(SerializationConfig config,

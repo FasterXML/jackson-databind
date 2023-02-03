@@ -15,7 +15,7 @@ public class TypeParser
     private static final long serialVersionUID = 1L;
 
     protected final TypeFactory _factory;
-        
+
     public TypeParser(TypeFactory f) {
         _factory = f;
     }
@@ -100,7 +100,7 @@ public class TypeParser
 
         protected String _pushbackToken;
 
-        public MyTokenizer(String str) {            
+        public MyTokenizer(String str) {
             super(str, "<,>", true);
             _input = str;
         }
@@ -109,7 +109,7 @@ public class TypeParser
         public boolean hasMoreTokens() {
             return (_pushbackToken != null) || super.hasMoreTokens();
         }
-        
+
         @Override
         public String nextToken() {
             String token;

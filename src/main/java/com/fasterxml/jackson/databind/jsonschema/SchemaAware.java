@@ -24,7 +24,7 @@ public interface SchemaAware
      */
     public JsonNode getSchema(SerializerProvider provider, Type typeHint)
         throws JsonMappingException;
-    
+
     /**
      * Get the representation of the schema to which this serializer will conform.
      *

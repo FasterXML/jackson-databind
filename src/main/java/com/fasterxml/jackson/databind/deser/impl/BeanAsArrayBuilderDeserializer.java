@@ -40,7 +40,7 @@ public class BeanAsArrayBuilderDeserializer
     /* Life-cycle, construction, initialization
     /**********************************************************
      */
-    
+
     /**
      * Main constructor used both for creating new instances (by
      * {@link BeanDeserializer#asArrayDeserializer}) and for
@@ -59,7 +59,7 @@ public class BeanAsArrayBuilderDeserializer
         _orderedProperties = ordered;
         _buildMethod = buildMethod;
     }
-    
+
     @Override
     public JsonDeserializer<Object> unwrappingDeserializer(NameTransformer unwrapper)
     {
@@ -105,7 +105,7 @@ public class BeanAsArrayBuilderDeserializer
     /* Overrides
     /**********************************************************
      */
-    
+
     @Override // since 2.9
     public Boolean supportsUpdate(DeserializationConfig config) {
         // 26-Oct-2016, tatu: No, we can't merge Builder-based POJOs as of now
@@ -191,7 +191,7 @@ public class BeanAsArrayBuilderDeserializer
     {
         return _deserializeFromNonArray(p, ctxt);
     }
-    
+
     /*
     /**********************************************************
     /* Helper methods, non-standard creation
@@ -202,7 +202,7 @@ public class BeanAsArrayBuilderDeserializer
      * Alternate deserialization method that has to check many more configuration
      * aspects than the "vanilla" processing.
      * Note: should NOT resolve builder; caller will do that
-     * 
+     *
      * @return Builder object in use.
      */
     protected Object _deserializeNonVanilla(JsonParser p, DeserializationContext ctxt)
@@ -259,7 +259,7 @@ public class BeanAsArrayBuilderDeserializer
      * Method called to deserialize bean using "property-based creator":
      * this means that a non-default constructor or factory method is
      * called, and then possibly other setters. The trick is that
-     * values for creator method need to be buffered, first; and 
+     * values for creator method need to be buffered, first; and
      * due to non-guaranteed ordering possibly some other properties
      * as well.
      */
@@ -276,7 +276,7 @@ public class BeanAsArrayBuilderDeserializer
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
         int i = 0;
         Object builder = null;
-        
+
         for (; p.nextToken() != JsonToken.END_ARRAY; ++i) {
             SettableBeanProperty prop = (i < propCount) ? props[i] : null;
             if (prop == null) { // we get null if there are extra elements; maybe otherwise too?

@@ -87,7 +87,7 @@ public abstract class ContainerDeserializerBase<T>
 
     @Override // since 2.9
     public JavaType getValueType() { return _containerType; }
-    
+
     @Override // since 2.9
     public Boolean supportsUpdate(DeserializationConfig config) {
         return Boolean.TRUE;
@@ -132,7 +132,7 @@ public abstract class ContainerDeserializerBase<T>
         //   and may not be shared; for some deserializers this may be further refined.
         return AccessPattern.DYNAMIC;
     }
-    
+
     @Override // since 2.9
     public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
         ValueInstantiator vi = getValueInstantiator();

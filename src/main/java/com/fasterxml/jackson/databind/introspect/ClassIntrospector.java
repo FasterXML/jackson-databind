@@ -39,7 +39,7 @@ public abstract class ClassIntrospector
          * <code>ObjectMapper</code> instance, and one that should not be connected
          * to this instance, if resolver has mutable state.
          * If resolver is immutable may simply return `this`.
-         * 
+         *
          * @since 2.6
          */
         public MixInResolver copy();

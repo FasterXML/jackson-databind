@@ -32,7 +32,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
  * are deprecated due to
  * <a href="https://github.com/FasterXML/jackson-databind/issues/2715">databind#2715</a>.
  * Please use constants and classes in {@link PropertyNamingStrategies} instead.
- * 
+ *
  */
 @SuppressWarnings("serial")
 public class PropertyNamingStrategy // NOTE: was abstract until 2.7
@@ -104,13 +104,13 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
      * Method called to find external name (name used in JSON) for given logical
      * POJO property,
      * as defined by given field.
-     * 
+     *
      * @param config Configuration in used: either <code>SerializationConfig</code>
      *   or <code>DeserializationConfig</code>, depending on whether method is called
      *   during serialization or deserialization
      * @param field Field used to access property
      * @param defaultName Default name that would be used for property in absence of custom strategy
-     * 
+     *
      * @return Logical name to use for property that the field represents
      */
     public String nameForField(MapperConfig<?> config, AnnotatedField field,
@@ -125,13 +125,13 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
      * as defined by given getter method; typically called when building a serializer.
      * (but not always -- when using "getter-as-setter", may be called during
      * deserialization)
-     * 
+     *
      * @param config Configuration in used: either <code>SerializationConfig</code>
      *   or <code>DeserializationConfig</code>, depending on whether method is called
      *   during serialization or deserialization
      * @param method Method used to access property.
      * @param defaultName Default name that would be used for property in absence of custom strategy
-     * 
+     *
      * @return Logical name to use for property that the method represents
      */
     public String nameForGetterMethod(MapperConfig<?> config, AnnotatedMethod method,
@@ -145,13 +145,13 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
      * POJO property,
      * as defined by given setter method; typically called when building a deserializer
      * (but not necessarily only then).
-     * 
+     *
      * @param config Configuration in used: either <code>SerializationConfig</code>
      *   or <code>DeserializationConfig</code>, depending on whether method is called
      *   during serialization or deserialization
      * @param method Method used to access property.
      * @param defaultName Default name that would be used for property in absence of custom strategy
-     * 
+     *
      * @return Logical name to use for property that the method represents
      */
     public String nameForSetterMethod(MapperConfig<?> config, AnnotatedMethod method,
@@ -165,7 +165,7 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
      * POJO property,
      * as defined by given constructor parameter; typically called when building a deserializer
      * (but not necessarily only then).
-     * 
+     *
      * @param config Configuration in used: either <code>SerializationConfig</code>
      *   or <code>DeserializationConfig</code>, depending on whether method is called
      *   during serialization or deserialization
@@ -216,7 +216,7 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
         {
             return translate(defaultName);
         }
-        
+
         public abstract String translate(String propertyName);
 
         /**
@@ -231,13 +231,13 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
             if (length == 0) {
                 return input;
             }
-    
+
             final StringBuilder result = new StringBuilder(length + (length >> 1));
             int upperCount = 0;
             for (int i = 0; i < length; ++i) {
                 char ch = input.charAt(i);
                 char lc = Character.toLowerCase(ch);
-    
+
                 if (lc == ch) { // lower-case letter means we can get new word
                     // but need to check for multi-letter upper-case (acronym), where assumption
                     // is that the last upper-case char is start of a new word
@@ -261,10 +261,10 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
 
     /*
     /**********************************************************
-    /* Standard implementations 
+    /* Standard implementations
     /**********************************************************
      */
-    
+
     /**
      * @deprecated Since 2.12 use {@link PropertyNamingStrategies.SnakeCaseStrategy} instead
      * (see
@@ -320,7 +320,7 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
     {
         /**
          * Converts camelCase to PascalCase
-         * 
+         *
          * For example, "userName" would be converted to
          * "UserName".
          *

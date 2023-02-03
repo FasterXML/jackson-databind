@@ -49,8 +49,8 @@ public class ThrowableDeserializer
         */
         return new ThrowableDeserializer(baseDeserializer);
     }
-    
-    
+
+
     /**
      * Alternative constructor used when creating "unwrapping" deserializers
      */
@@ -97,7 +97,7 @@ public class ThrowableDeserializer
             return ctxt.handleMissingInstantiator(handledType(), getValueInstantiator(), p,
                     "Throwable needs a default constructor, a single-String-arg constructor; or explicit @JsonCreator");
         }
-        
+
         Throwable throwable = null;
         Object[] pending = null;
         Throwable[] suppressed = null;
@@ -164,7 +164,7 @@ public class ThrowableDeserializer
         if (throwable == null) {
             /* 15-Oct-2010, tatu: Can't assume missing message is an error, since it may be
              *   suppressed during serialization.
-             *   
+             *
              *   Should probably allow use of default constructor, too...
              */
             //throw new XxxException("No 'message' property found: could not deserialize "+_beanType);

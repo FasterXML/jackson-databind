@@ -54,7 +54,7 @@ public class CreatorProperty
      *<p>
      * Mutable only to allow setting after construction, but must be strictly
      * set before any use.
-     * 
+     *
      * @since 2.3
      */
     protected SettableBeanProperty _fallbackSetter;
@@ -122,7 +122,7 @@ public class CreatorProperty
      *    method parameter; used for accessing annotations of the property
      * @param injectable Information about injectable value, if any
      * @param index Index of this property within creator invocation
-     * 
+     *
      * @since 2.11
      */
     public static CreatorProperty construct(PropertyName name, JavaType type, PropertyName wrapperName,
@@ -134,7 +134,7 @@ public class CreatorProperty
         return new CreatorProperty(name, type, wrapperName, typeDeser, contextAnnotations,
                 param, index, injectable, metadata);
     }
-    
+
     /**
      * @since 2.3
      */
@@ -161,7 +161,7 @@ public class CreatorProperty
     public SettableBeanProperty withName(PropertyName newName) {
         return new CreatorProperty(this, newName);
     }
-    
+
     @Override
     public SettableBeanProperty withValueDeserializer(JsonDeserializer<?> deser) {
         if (_valueDeserializer == deser) {
@@ -176,7 +176,7 @@ public class CreatorProperty
     public SettableBeanProperty withNullProvider(NullValueProvider nva) {
         return new CreatorProperty(this, _valueDeserializer, nva);
     }
-    
+
     @Override
     public void fixAccess(DeserializationConfig config) {
         if (_fallbackSetter != null) {
@@ -187,7 +187,7 @@ public class CreatorProperty
     /**
      * NOTE: one exception to immutability, due to problems with CreatorProperty instances
      * being shared between Bean, separate PropertyBasedCreator
-     * 
+     *
      * @since 2.6
      */
     public void setFallbackSetter(SettableBeanProperty fallbackSetter) {
@@ -242,7 +242,7 @@ public class CreatorProperty
     /* BeanProperty impl
     /**********************************************************
      */
-    
+
     @Override
     public <A extends Annotation> A getAnnotation(Class<A> acls) {
         if (_annotated == null) {
@@ -278,7 +278,7 @@ public class CreatorProperty
         _verifySetter();
         return _fallbackSetter.setAndReturn(instance, deserialize(p, ctxt));
     }
-    
+
     @Override
     public void set(Object instance, Object value) throws IOException
     {
@@ -325,7 +325,7 @@ public class CreatorProperty
     /* Overridden methods, other
     /**********************************************************
      */
-    
+
     @Override
     public String toString() { return "[creator property, name "+ClassUtil.name(getName())+"; inject id '"+getInjectableValueId()+"']"; }
 

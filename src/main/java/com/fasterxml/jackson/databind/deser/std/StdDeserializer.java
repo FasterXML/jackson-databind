@@ -125,7 +125,7 @@ public abstract class StdDeserializer<T>
      *   }
      *   return ctxt.constructType(handledType());
      *</pre>
-     * 
+     *
      * @since 2.10
      */
     public JavaType getValueType(DeserializationContext ctxt) {
@@ -157,7 +157,7 @@ public abstract class StdDeserializer<T>
 
     /*
     /**********************************************************
-    /* Partial JsonDeserializer implementation 
+    /* Partial JsonDeserializer implementation
     /**********************************************************
      */
 
@@ -475,7 +475,7 @@ public abstract class StdDeserializer<T>
         }
         return false;
     }
- 
+
     /**
      * Helper method called for cases where non-primitive, boolean-based value
      * is to be deserialized: result of this method will be {@link java.lang.Boolean},
@@ -891,7 +891,7 @@ public abstract class StdDeserializer<T>
         if (act == CoercionAction.AsNull) {
             // 03-May-2021, tatu: Might not be allowed (should we do "empty" check?)
             _verifyNullForPrimitive(ctxt);
-            return 0L; 
+            return 0L;
         }
         if (act == CoercionAction.AsEmpty) {
             return 0L;

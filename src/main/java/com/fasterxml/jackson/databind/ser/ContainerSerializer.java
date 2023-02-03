@@ -31,11 +31,11 @@ public abstract class ContainerSerializer<T>
     protected ContainerSerializer(JavaType fullType) {
         super(fullType);
     }
-    
+
     /**
      * Alternate constructor that is (alas!) needed to work
      * around kinks of generic type handling
-     * 
+     *
      * @param t
      */
     protected ContainerSerializer(Class<?> t, boolean dummy) {
@@ -45,12 +45,12 @@ public abstract class ContainerSerializer<T>
     protected ContainerSerializer(ContainerSerializer<?> src) {
         super(src._handledType, false);
     }
-    
+
     /**
      * Factory(-like) method that can be used to construct a new container
      * serializer that uses specified {@link TypeSerializer} for decorating
      * contained values with additional type information.
-     * 
+     *
      * @param vts Type serializer to use for contained values; can be null,
      *    in which case 'this' serializer is returned as is
      * @return Serializer instance that uses given type serializer for values if
@@ -126,7 +126,7 @@ public abstract class ContainerSerializer<T>
      * Helper method used to encapsulate logic for determining whether there is
      * a property annotation that overrides element type; if so, we can
      * and need to statically find the serializer.
-     * 
+     *
      * @since 2.1
      *
      * @deprecated Since 2.7: should not be needed; should be enough to see if

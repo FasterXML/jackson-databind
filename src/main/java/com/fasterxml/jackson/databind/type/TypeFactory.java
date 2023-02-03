@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.util.LookupCache;
  * as well as many objects it constructs (like
 * {@link com.fasterxml.jackson.databind.DeserializationConfig} and
  * {@link com.fasterxml.jackson.databind.SerializationConfig})),
- * but usually those objects also 
+ * but usually those objects also
  * expose convenience methods (<code>constructType</code>).
  * So, you can do for example:
  *<pre>
@@ -158,7 +158,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
     protected final TypeModifier[] _modifiers;
 
     protected final TypeParser _parser;
-    
+
     /**
      * ClassLoader used by this factory [databind#624].
      */
@@ -227,7 +227,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      * {@link TypeModifier} added as the first modifier to call (in case there
      * are multiple registered).
      */
-    public TypeFactory withModifier(TypeModifier mod) 
+    public TypeFactory withModifier(TypeModifier mod)
     {
         LookupCache<Object,JavaType> typeCache = _typeCache;
         TypeModifier[] mods;
@@ -304,13 +304,13 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
     public ClassLoader getClassLoader() {
         return _classLoader;
     }
-    
+
     /*
     /**********************************************************
     /* Static methods for non-instance-specific functionality
     /**********************************************************
      */
-    
+
     /**
      * Method for constructing a marker type that indicates missing generic
      * type information, which is handled same as simple type for
@@ -377,12 +377,12 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
         ClassUtil.throwIfRTE(prob);
         throw new ClassNotFoundException(prob.getMessage(), prob);
     }
-    
+
     protected Class<?> classForName(String name, boolean initialize,
             ClassLoader loader) throws ClassNotFoundException {
         return Class.forName(name, true, loader);
     }
-    
+
     protected Class<?> classForName(String name) throws ClassNotFoundException {
         return Class.forName(name);
     }
@@ -400,7 +400,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
         if ("void".equals(className)) return Void.TYPE;
         return null;
     }
-    
+
     /*
     /**********************************************************
     /* Type conversion, parameterization resolution methods
@@ -432,7 +432,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      * Can be used, for example, to get equivalent of "HashMap&lt;String,Integer&gt;"
      * from "Map&lt;String,Integer&gt;" by giving <code>HashMap.class</code>
      * as subclass.
-     * 
+     *
      * @param baseType Declared base type with resolved type parameters
      * @param subclass Runtime subtype to use for resolving
      * @param relaxedCompatibilityCheck Whether checking for type-assignment compatibility
@@ -666,9 +666,9 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
     /**
      * Factory method for constructing a {@link JavaType} out of its canonical
      * representation (see {@link JavaType#toCanonical()}).
-     * 
+     *
      * @param canonical Canonical string representation of a type
-     * 
+     *
      * @throws IllegalArgumentException If canonical representation is malformed,
      *   or class that type represents (including its generic parameters) is
      *   not found
@@ -684,7 +684,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      * interface or class.
      * This could mean, for example, trying to figure out
      * key and value types for Map implementations.
-     * 
+     *
      * @param type Sub-type (leaf type) that implements <code>expType</code>
      */
     public JavaType[] findTypeParameters(JavaType type, Class<?> expType)
@@ -699,15 +699,15 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
     /**
      * @deprecated Since 2.7 resolve raw type first, then find type parameters
      */
-    @Deprecated // since 2.7    
+    @Deprecated // since 2.7
     public JavaType[] findTypeParameters(Class<?> clz, Class<?> expType, TypeBindings bindings) {
         return findTypeParameters(constructType(clz, bindings), expType);
     }
-    
+
     /**
      * @deprecated Since 2.7 resolve raw type first, then find type parameters
      */
-    @Deprecated // since 2.7    
+    @Deprecated // since 2.7
     public JavaType[] findTypeParameters(Class<?> clz, Class<?> expType) {
         return findTypeParameters(constructType(clz), expType);
     }
@@ -716,10 +716,10 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      * Method that can be called to figure out more specific of two
      * types (if they are related; that is, one implements or extends the
      * other); or if not related, return the primary type.
-     * 
+     *
      * @param type1 Primary type to consider
      * @param type2 Secondary type to consider
-     * 
+     *
      * @since 2.2
      */
     public JavaType moreSpecificType(JavaType type1, JavaType type2)
@@ -782,7 +782,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      * {@link TypeBindings} (that describes binding of type parameters within
      * context) to pass.
      * This is typically used only by code in databind itself.
-     * 
+     *
      * @param type Type of a {@link java.lang.reflect.Member} to resolve
      * @param contextBindings Type bindings from the context, often class in which
      *     member declared but may be subtype of that type (to bind actual bound
@@ -790,7 +790,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      *
      * @return Fully resolve type
      *
-     * @since 2.12 as replacement for deprecated {@link #constructType(Type, TypeBindings)} 
+     * @since 2.12 as replacement for deprecated {@link #constructType(Type, TypeBindings)}
      */
     public JavaType resolveMemberType(Type type, TypeBindings contextBindings) {
         return _fromAny(null, type, contextBindings);
@@ -876,7 +876,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
     public ArrayType constructArrayType(Class<?> elementType) {
         return ArrayType.construct(_fromAny(null, elementType, null), null);
     }
-    
+
     /**
      * Method for constructing an {@link ArrayType}.
      *<p>
@@ -934,7 +934,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
         return constructCollectionLikeType(collectionClass,
                 _fromClass(null, elementClass, EMPTY_BINDINGS));
     }
-    
+
     /**
      * Method for constructing a {@link CollectionLikeType}.
      *<p>
@@ -1045,7 +1045,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
             JavaType[] parameterTypes)
     {
         return constructSimpleType(rawType, parameterTypes);
-    } 
+    }
 
     /**
      * Method for constructing a {@link ReferenceType} instance with given type parameter
@@ -1066,7 +1066,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
     /**
      * Method that use by core Databind functionality, and that should NOT be called
      * by application code outside databind package.
-     *<p> 
+     *<p>
      * Unchecked here not only means that no checks are made as to whether given class
      * might be non-simple type (like {@link CollectionType}) but also that most of supertype
      * information is not gathered. This means that unless called on primitive types or
@@ -1091,7 +1091,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      *</pre>
      *<p>
      * NOTE: since 2.11.2 {@link TypeModifier}s ARE called on result (fix for [databind#2796])
-     * 
+     *
      * @param parametrized Type-erased type to parameterize
      * @param parameterClasses Type parameters to apply
      *
@@ -1481,7 +1481,7 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
                     bindings);
         } else {
             // If not, need to proceed by first resolving parent type hierarchy
-            
+
             JavaType superClass;
             JavaType[] superInterfaces;
 
@@ -1506,7 +1506,7 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
             }
             // if not, perhaps we are now resolving a well-known class or interface?
             if (result == null) {
-                result = _fromWellKnownClass(context, rawType, bindings, superClass, superInterfaces); 
+                result = _fromWellKnownClass(context, rawType, bindings, superClass, superInterfaces);
                 if (result == null) {
                     result = _fromWellKnownInterface(context, rawType, bindings, superClass, superInterfaces);
                     if (result == null) {
@@ -1615,10 +1615,10 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
 
         // First: what is the actual base type? One odd thing is that 'getRawType'
         // returns Type, not Class<?> as one might expect. But let's assume it is
-        // always of type Class: if not, need to add more code to resolve it to Class.        
+        // always of type Class: if not, need to add more code to resolve it to Class.
         Type[] args = ptype.getActualTypeArguments();
         int paramCount = (args == null) ? 0 : args.length;
-        TypeBindings newBindings;        
+        TypeBindings newBindings;
 
         if (paramCount == 0) {
             newBindings = EMPTY_BINDINGS;
@@ -1661,7 +1661,7 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
         // 15-Jan-2019, tatu: As weird as this looks, apparently on some platforms (Arm CPU, mobile
         //    devices), unsynchronized internal access can lead to issues, see:
         //
-        //  https://vmlens.com/articles/java-lang-reflect-typevariable-getbounds-is-not-thread-safe/  
+        //  https://vmlens.com/articles/java-lang-reflect-typevariable-getbounds-is-not-thread-safe/
         //
         //    No good way to reproduce but since this should not be on critical path, let's add
         //    syncing as it seems potentially necessary.

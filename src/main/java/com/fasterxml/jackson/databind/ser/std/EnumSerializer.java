@@ -44,7 +44,7 @@ public class EnumSerializer
      * Flag that is set if we statically know serialization choice
      * between index and textual format (null if it needs to be dynamically
      * checked).
-     * 
+     *
      * @since 2.1
      */
     protected final Boolean _serializeAsIndex;
@@ -65,7 +65,7 @@ public class EnumSerializer
     /**
      * Factory method used by {@link com.fasterxml.jackson.databind.ser.BasicSerializerFactory}
      * for constructing serializer instance of Enum types.
-     * 
+     *
      * @since 2.1
      */
     @SuppressWarnings("unchecked")
@@ -108,7 +108,7 @@ public class EnumSerializer
     /* Extended API for Jackson databind core
     /**********************************************************
      */
-    
+
     public EnumValues getEnumValues() { return _values; }
 
     /*
@@ -116,7 +116,7 @@ public class EnumSerializer
     /* Actual serialization
     /**********************************************************
      */
-    
+
     @Override
     public final void serialize(Enum<?> en, JsonGenerator gen, SerializerProvider serializers)
         throws IOException
@@ -161,7 +161,7 @@ public class EnumSerializer
         }
         return objectNode;
     }
-    
+
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         throws JsonMappingException
@@ -174,9 +174,9 @@ public class EnumSerializer
         JsonStringFormatVisitor stringVisitor = visitor.expectStringFormat(typeHint);
         if (stringVisitor != null) {
             Set<String> enums = new LinkedHashSet<String>();
-            
+
             // Use toString()?
-            if ((serializers != null) && 
+            if ((serializers != null) &&
                     serializers.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)) {
                 for (Enum<?> e : _values.enums()) {
                     enums.add(e.toString());
@@ -196,7 +196,7 @@ public class EnumSerializer
     /* Helper methods
     /**********************************************************
      */
-    
+
     protected final boolean _serializeAsIndex(SerializerProvider serializers)
     {
         if (_serializeAsIndex != null) {

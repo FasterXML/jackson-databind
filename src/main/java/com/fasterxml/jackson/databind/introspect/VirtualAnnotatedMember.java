@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 /**
  * Placeholder used by virtual properties as placeholder for
  * underlying {@link AnnotatedMember}.
- * 
+ *
  * @since 2.5
  */
 public class VirtualAnnotatedMember extends AnnotatedMember
@@ -44,7 +44,7 @@ public class VirtualAnnotatedMember extends AnnotatedMember
     public Annotated withAnnotations(AnnotationMap fallback) {
         return this;
     }
-    
+
     /*
     /**********************************************************
     /* Annotated impl
@@ -91,7 +91,7 @@ public class VirtualAnnotatedMember extends AnnotatedMember
     public Object getValue(Object pojo) throws IllegalArgumentException {
         throw new IllegalArgumentException("Cannot get virtual property '"+_name+"'");
     }
-    
+
     /*
     /**********************************************************
     /* Extended API, generic
@@ -104,7 +104,7 @@ public class VirtualAnnotatedMember extends AnnotatedMember
     public int hashCode() {
         return _name.hashCode();
     }
-    
+
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;

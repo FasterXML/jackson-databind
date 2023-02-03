@@ -67,7 +67,7 @@ public final class ManagedReferenceProperty
             throws IOException {
         return setAndReturn(instance, deserialize(p, ctxt));
     }
-    
+
     @Override
     public final void set(Object instance, Object value) throws IOException {
         setAndReturn(instance, value);

@@ -42,7 +42,7 @@ public class BasicBeanDescription extends BeanDescription
      * are only accessed when they are actually needed.
      */
     final protected POJOPropertiesCollector _propCollector;
-    
+
     final protected MapperConfig<?> _config;
 
     final protected AnnotationIntrospector _annotationIntrospector;
@@ -52,7 +52,7 @@ public class BasicBeanDescription extends BeanDescription
     /* Information about type itself
     /**********************************************************
      */
-    
+
     /**
      * Information collected about the class introspected.
      */
@@ -124,7 +124,7 @@ public class BasicBeanDescription extends BeanDescription
         _classInfo = classDef;
         _properties = props;
     }
-    
+
     protected BasicBeanDescription(POJOPropertiesCollector coll)
     {
         this(coll, coll.getType(), coll.getClassDef());
@@ -176,7 +176,7 @@ public class BasicBeanDescription extends BeanDescription
      * Method that can be used to prune unwanted properties, during
      * construction of serializers and deserializers.
      * Use with utmost care, if at all...
-     * 
+     *
      * @since 2.1
      */
     public boolean removeProperty(String propName)
@@ -201,14 +201,14 @@ public class BasicBeanDescription extends BeanDescription
         _properties().add(def);
         return true;
     }
-    
+
     /**
      * @since 2.6
      */
     public boolean hasProperty(PropertyName name) {
         return findProperty(name) != null;
     }
-    
+
     /**
      * @since 2.6
      */
@@ -221,7 +221,7 @@ public class BasicBeanDescription extends BeanDescription
         }
         return null;
     }
-    
+
     /*
     /**********************************************************
     /* Simple accessors from BeanDescription
@@ -257,7 +257,7 @@ public class BasicBeanDescription extends BeanDescription
         return (_propCollector == null) ? null
                 : _propCollector.getJsonValueAccessor();
     }
- 
+
     @Override
     public Set<String> getIgnoredPropertyNames() {
         Set<String> ign = (_propCollector == null) ? null
@@ -305,7 +305,7 @@ public class BasicBeanDescription extends BeanDescription
             if (anyMethod != null) {
                 // Also, let's be somewhat strict on how field name is to be
                 // passed; String, Object make sense, others not so much.
-    
+
                 /* !!! 18-May-2009, tatu: how about enums? Can add support if
                  *  requested; easy enough for devs to add support within method.
                  */
@@ -820,7 +820,7 @@ anyField.getName()));
     /* Helper methods, other
     /**********************************************************
      */
-    
+
     @SuppressWarnings("unchecked")
     protected Converter<Object,Object> _createConverter(Object converterDef)
     {

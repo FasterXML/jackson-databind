@@ -69,7 +69,7 @@ public abstract class AnnotationCollector
         public Annotations asAnnotations() {
             return NO_ANNOTATIONS;
         }
- 
+
         @Override
         public AnnotationMap asAnnotationMap() {
             return new AnnotationMap();
@@ -110,7 +110,7 @@ public abstract class AnnotationCollector
         public boolean isPresent(Annotation ann) {
             return ann.annotationType() == _type;
         }
-        
+
         @Override
         public AnnotationCollector addOrOverride(Annotation ann) {
             final Class<?> type = ann.annotationType();
@@ -255,10 +255,10 @@ public abstract class AnnotationCollector
         implements Annotations, java.io.Serializable
     {
         private static final long serialVersionUID = 1L;
-    
+
         private final Class<?> _type1, _type2;
         private final Annotation _value1, _value2;
-    
+
         public TwoAnnotations(Class<?> type1, Annotation value1,
                 Class<?> type2, Annotation value2) {
             _type1 = type1;

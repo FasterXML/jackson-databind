@@ -22,11 +22,11 @@ public class DateSerializer
      * is needed.
      */
     public static final DateSerializer instance = new DateSerializer();
-    
+
     public DateSerializer() {
         this(null, null);
     }
-        
+
     public DateSerializer(Boolean useTimestamp, DateFormat customFormat) {
         super(Date.class, useTimestamp, customFormat);
     }

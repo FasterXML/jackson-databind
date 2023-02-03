@@ -19,7 +19,7 @@ public class DoubleNode
 {
     protected final double _value;
 
-    /* 
+    /*
     /**********************************************************
     /* Construction
     /**********************************************************
@@ -29,7 +29,7 @@ public class DoubleNode
 
     public static DoubleNode valueOf(double v) { return new DoubleNode(v); }
 
-    /* 
+    /*
     /**********************************************************
     /* BaseJsonNode extended API
     /**********************************************************
@@ -40,7 +40,7 @@ public class DoubleNode
     @Override
     public JsonParser.NumberType numberType() { return JsonParser.NumberType.DOUBLE; }
 
-    /* 
+    /*
     /**********************************************************
     /* Overrridden JsonNode methods
     /**********************************************************

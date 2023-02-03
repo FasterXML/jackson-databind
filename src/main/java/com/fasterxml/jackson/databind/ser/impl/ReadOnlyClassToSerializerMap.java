@@ -33,7 +33,7 @@ public final class ReadOnlyClassToSerializerMap
         });
         _buckets = buckets;
     }
-    
+
     private final static int findSize(int size)
     {
         // For small enough results (64 or less), we'll require <= 50% fill rate; otherwise 80%
@@ -59,7 +59,7 @@ public final class ReadOnlyClassToSerializerMap
      */
 
     public int size() { return _size; }
-    
+
     public JsonSerializer<Object> typedValueSerializer(JavaType type)
     {
         Bucket bucket = _buckets[TypeKey.typedHash(type) & _mask];
@@ -126,7 +126,7 @@ public final class ReadOnlyClassToSerializerMap
             }
         }
         return null;
-    }    
+    }
 
     /*
     /**********************************************************
@@ -143,7 +143,7 @@ public final class ReadOnlyClassToSerializerMap
         protected final JavaType _type;
 
         protected final boolean _isTyped;
-        
+
         public Bucket(Bucket next, TypeKey key, JsonSerializer<Object> value)
         {
             this.next = next;

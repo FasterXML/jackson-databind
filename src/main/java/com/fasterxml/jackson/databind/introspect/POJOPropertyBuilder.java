@@ -431,7 +431,7 @@ public class POJOPropertyBuilder
                 }
             }
             /* 30-May-2014, tatu: Three levels of precedence:
-             * 
+             *
              * 1. Regular getters ("getX")
              * 2. Is-getters ("isX")
              * 3. Implicit, possible getters ("x")
@@ -579,7 +579,7 @@ public class POJOPropertyBuilder
         }
 
         /* 30-May-2014, tatu: Two levels of precedence:
-         * 
+         *
          * 1. Regular setters ("setX(...)")
          * 2. Implicit, possible setters ("x(...)")
          */
@@ -651,7 +651,7 @@ public class POJOPropertyBuilder
         /* Hmmh. Checking for constructor parameters is trickier; for one,
          * we must allow creator and factory method annotations.
          * If this is the case, constructor parameter has the precedence.
-         * 
+         *
          * So, for now, just try finding the first constructor parameter;
          * if none, first factory method. And don't check for dups, if we must,
          * can start checking for them later on.
@@ -838,7 +838,7 @@ public class POJOPropertyBuilder
     /* Data aggregation
     /**********************************************************
      */
-    
+
     public void addField(AnnotatedField a, PropertyName name, boolean explName, boolean visible, boolean ignored) {
         _fields = new Linked<AnnotatedField>(a, _fields, name, explName, visible, ignored);
     }
@@ -900,10 +900,10 @@ public class POJOPropertyBuilder
     public JsonProperty.Access removeNonVisible(boolean inferMutators) {
         return removeNonVisible(inferMutators, null);
     }
-    
+
     /**
      * @param inferMutators Whether mutators can be "pulled in" by visible
-     *    accessors or not. 
+     *    accessors or not.
      *
      * @since 2.12 (earlier had different signature)
      */
@@ -961,13 +961,13 @@ public class POJOPropertyBuilder
 
     /**
      * Mutator that will simply drop any constructor parameters property may have.
-     * 
+     *
      * @since 2.5
      */
     public void removeConstructors() {
         _ctorParameters = null;
     }
-    
+
     /**
      * Method called to trim unnecessary entries, such as implicit
      * getter if there is an explict one available. This is important
@@ -1024,7 +1024,7 @@ public class POJOPropertyBuilder
      *<pre>
      * nodes[index].value.getAllAnnotations()
      *</pre>
-     * 
+     *
      * @since 2.6
      */
     private <T extends AnnotatedMember> AnnotationMap _getAllAnnotations(Linked<T> node) {
@@ -1076,7 +1076,7 @@ public class POJOPropertyBuilder
         }
         return node.trimByVisibility();
     }
-        
+
     /*
     /**********************************************************
     /* Accessors for aggregate information
@@ -1173,7 +1173,7 @@ public class POJOPropertyBuilder
     /**
      * Method called to find out set of explicit names for accessors
      * bound together due to implicit name.
-     * 
+     *
      * @since 2.4
      */
     public Set<PropertyName> findExplicitNames()
@@ -1194,7 +1194,7 @@ public class POJOPropertyBuilder
      * multiple distinct explicit names, and the property this builder represents
      * basically needs to be broken apart and replaced by a set of more than
      * one properties.
-     * 
+     *
      * @since 2.4
      */
     public Collection<POJOPropertyBuilder> explode(Collection<PropertyName> newNames)
@@ -1220,7 +1220,7 @@ public class POJOPropertyBuilder
                 if (!node.isVisible) {
                     continue;
                 }
-                
+
                 throw new IllegalStateException("Conflicting/ambiguous property name definitions (implicit name "
                         +ClassUtil.name(_name)+"): found multiple explicit names: "
                         +newNames+", but also implicit accessor: "+node);
@@ -1418,11 +1418,11 @@ public class POJOPropertyBuilder
         implements Iterator<T>
     {
         private Linked<T> next;
-        
+
         public MemberIterator(Linked<T> first) {
             next = first;
         }
-        
+
         @Override
         public boolean hasNext() {
             return (next != null);
@@ -1440,9 +1440,9 @@ public class POJOPropertyBuilder
         public void remove() {
             throw new UnsupportedOperationException();
         }
-        
+
     }
-    
+
     /**
      * Node used for creating simple linked lists to efficiently store small sets
      * of things.
@@ -1456,7 +1456,7 @@ public class POJOPropertyBuilder
         public final boolean isNameExplicit;
         public final boolean isVisible;
         public final boolean isMarkedIgnored;
-        
+
         public Linked(T v, Linked<T> n,
                 PropertyName name, boolean explName, boolean visible, boolean ignored)
         {
@@ -1475,7 +1475,7 @@ public class POJOPropertyBuilder
                     explName = false;
                 }
             }
-            
+
             isNameExplicit = explName;
             isVisible = visible;
             isMarkedIgnored = ignored;
@@ -1487,21 +1487,21 @@ public class POJOPropertyBuilder
             }
             return new Linked<T>(value, null, name, isNameExplicit, isVisible, isMarkedIgnored);
         }
-        
+
         public Linked<T> withValue(T newValue) {
             if (newValue == value) {
                 return this;
             }
             return new Linked<T>(newValue, next, name, isNameExplicit, isVisible, isMarkedIgnored);
         }
-        
+
         public Linked<T> withNext(Linked<T> newNext) {
             if (newNext == next) {
                 return this;
             }
             return new Linked<T>(value, newNext, name, isNameExplicit, isVisible, isMarkedIgnored);
         }
-        
+
         public Linked<T> withoutIgnored() {
             if (isMarkedIgnored) {
                 return (next == null) ? null : next.withoutIgnored();
@@ -1514,7 +1514,7 @@ public class POJOPropertyBuilder
             }
             return this;
         }
-        
+
         public Linked<T> withoutNonVisible() {
             Linked<T> newNext = (next == null) ? null : next.withoutNonVisible();
             return isVisible ? withNext(newNext) : newNext;
@@ -1552,7 +1552,7 @@ public class POJOPropertyBuilder
             }
             return isVisible ? withNext(null) : newNext;
         }
-        
+
         @Override
         public String toString() {
             String msg = String.format("%s[visible=%b,ignore=%b,explicitName=%b]",

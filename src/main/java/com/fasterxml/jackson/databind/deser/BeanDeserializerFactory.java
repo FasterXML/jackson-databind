@@ -45,7 +45,7 @@ public class BeanDeserializerFactory
     /* Life-cycle
     /**********************************************************
      */
-    
+
     /**
      * Globally shareable thread-safe instance which has no additional custom deserializers
      * registered
@@ -56,7 +56,7 @@ public class BeanDeserializerFactory
     public BeanDeserializerFactory(DeserializerFactoryConfig config) {
         super(config);
     }
-    
+
     /**
      * Method used by module registration functionality, to construct a new bean
      * deserializer factory
@@ -77,7 +77,7 @@ public class BeanDeserializerFactory
         ClassUtil.verifyMustOverride(BeanDeserializerFactory.class, this, "withConfig");
         return new BeanDeserializerFactory(config);
     }
-    
+
     /*
     /**********************************************************
     /* DeserializerFactory API implementation
@@ -280,7 +280,7 @@ public class BeanDeserializerFactory
         // managed/back reference fields/setters need special handling... first part
         addBackReferenceProperties(ctxt, beanDesc, builder);
         addInjectables(ctxt, beanDesc, builder);
-        
+
         final DeserializationConfig config = ctxt.getConfig();
         if (_factoryConfig.hasDeserializerModifiers()) {
             for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
@@ -303,7 +303,7 @@ public class BeanDeserializerFactory
         }
         return (JsonDeserializer<Object>) deserializer;
     }
-    
+
     /**
      * Method for constructing a bean deserializer that uses specified
      * intermediate Builder for binding data, and construction of the
@@ -336,7 +336,7 @@ public class BeanDeserializerFactory
          // And then "with methods" for deserializing from JSON Object
         addBeanProps(ctxt, builderDesc, builder);
         addObjectIdReader(ctxt, builderDesc, builder);
-        
+
         // managed/back reference fields/setters need special handling... first part
         addBackReferenceProperties(ctxt, builderDesc, builder);
         addInjectables(ctxt, builderDesc, builder);
@@ -344,7 +344,7 @@ public class BeanDeserializerFactory
         JsonPOJOBuilder.Value builderConfig = builderDesc.findPOJOBuilderConfig();
         final String buildMethodName = (builderConfig == null) ?
                 JsonPOJOBuilder.DEFAULT_BUILD_METHOD : builderConfig.buildMethodName;
-        
+
         // and lastly, find build method to use:
         AnnotatedMethod buildMethod = builderDesc.findMethod(buildMethodName, null);
         if (buildMethod != null) { // note: can't yet throw error; may be given build method
@@ -370,7 +370,7 @@ public class BeanDeserializerFactory
         }
         return (JsonDeserializer<Object>) deserializer;
     }
-    
+
     protected void addObjectIdReader(DeserializationContext ctxt,
             BeanDescription beanDesc, BeanDeserializerBuilder builder)
         throws JsonMappingException
@@ -409,7 +409,7 @@ ClassUtil.name(propName)));
         builder.setObjectIdReader(ObjectIdReader.construct(idType,
                 objectIdInfo.getPropertyName(), gen, deser, idProp, resolver));
     }
-    
+
     @SuppressWarnings("unchecked")
     public JsonDeserializer<Object> buildThrowableDeserializer(DeserializationContext ctxt,
             JavaType type, BeanDescription beanDesc)
@@ -492,7 +492,7 @@ ClassUtil.name(propName)));
             BeanDescription beanDesc) {
         return new BeanDeserializerBuilder(beanDesc, ctxt);
     }
-    
+
     /**
      * Method called to figure out settable properties for the
      * bean deserializer to use.
@@ -574,7 +574,7 @@ ClassUtil.name(propName)));
         // At which point we still have all kinds of properties; not all with mutators:
         for (BeanPropertyDefinition propDef : propDefs) {
             SettableBeanProperty prop = null;
-            
+
             // 18-Oct-2013, tatu: Although constructor parameters have highest precedence,
             //   we need to do linkage (as per [databind#318]), and so need to start with
             //   other types, and only then create constructor parameter, if any.
@@ -794,7 +794,7 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
      * Method called to construct fallback {@link SettableAnyProperty}
      * for handling unknown bean properties, given a method that
      * has been designated as such setter.
-     * 
+     *
      * @param mutator Either 2-argument method (setter, with key and value), or Field
      *     that contains Map; either way accessor used for passing "any values"
      */
@@ -803,7 +803,7 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
             BeanDescription beanDesc, AnnotatedMember mutator)
         throws JsonMappingException
     {
-        //find the java type based on the annotated setter method or setter field 
+        //find the java type based on the annotated setter method or setter field
         BeanProperty prop;
         JavaType keyType;
         JavaType valueType;
@@ -853,7 +853,7 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
                     "Unrecognized mutator type for any-setter: %s",
                     ClassUtil.nameOf(mutator.getClass())));
         }
-        // First: see if there are explicitly specified 
+        // First: see if there are explicitly specified
         // and then possible direct deserializer override on accessor
         KeyDeserializer keyDeser = findKeyDeserializerFromAnnotation(ctxt, mutator);
         if (keyDeser == null) {
@@ -968,7 +968,7 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
 
     /**
      * Helper method used to skip processing for types that we know
-     * cannot be (i.e. are never consider to be) beans: 
+     * cannot be (i.e. are never consider to be) beans:
      * things like primitives, Arrays, Enums, and proxy types.
      *<p>
      * Note that usually we shouldn't really be getting these sort of

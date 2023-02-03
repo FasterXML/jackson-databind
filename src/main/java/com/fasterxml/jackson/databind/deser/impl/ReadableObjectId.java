@@ -89,7 +89,7 @@ public class ReadableObjectId
      * {@link ReadableObjectId} and overriding this method.
      *<p>
      * Default implementation simply returns <code>false</code> to indicate that resolution
-     * attempt did not succeed. 
+     * attempt did not succeed.
      *
      * @return True, if resolution succeeded (and no error needs to be reported); false to
      *   indicate resolution did not succeed.
@@ -103,11 +103,11 @@ public class ReadableObjectId
 
     /**
      * Allow access to the resolver in case anybody wants to use it directly, for
-     * examples from 
+     * examples from
      * {@link com.fasterxml.jackson.databind.deser.DefaultDeserializationContext#tryToResolveUnresolvedObjectId}.
      *
      * @return The registered resolver
-     * 
+     *
      * @since 2.7
      */
     public ObjectIdResolver getResolver() {

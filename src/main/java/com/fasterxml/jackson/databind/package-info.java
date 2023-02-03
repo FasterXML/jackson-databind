@@ -51,7 +51,7 @@ Simplest usage is of form:
   // Or if you prefer JSON Tree representation:
   JsonNode root = mapper.readTree(newState);
   // and find values by, for example, using a {@link com.fasterxml.jackson.core.JsonPointer} expression:
-  int age = root.at("/personal/age").getValueAsInt(); 
+  int age = root.at("/personal/age").getValueAsInt();
 </pre>
 <p>
 For more usage, refer to

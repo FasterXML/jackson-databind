@@ -31,6 +31,6 @@ public abstract class NonTypedScalarSerializerBase<T>
             TypeSerializer typeSer) throws IOException
     {
         // no type info, just regular serialization
-        serialize(value, gen, provider);            
+        serialize(value, gen, provider);
     }
 }

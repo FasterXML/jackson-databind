@@ -57,7 +57,7 @@ public class StdKeyDeserializer extends KeyDeserializer
      * Some types that are deserialized using a helper deserializer.
      */
     protected final FromStringDeserializer<?> _deser;
-    
+
     protected StdKeyDeserializer(int kind, Class<?> cls) {
         this(kind, cls, null);
     }
@@ -280,7 +280,7 @@ public class StdKeyDeserializer extends KeyDeserializer
         private static final long serialVersionUID = 1L;
         private final static StringKD sString = new StringKD(String.class);
         private final static StringKD sObject = new StringKD(Object.class);
-        
+
         private StringKD(Class<?> nominalType) { super(-1, nominalType); }
 
         public static StringKD forType(Class<?> nominalType)
@@ -298,7 +298,7 @@ public class StdKeyDeserializer extends KeyDeserializer
         public Object deserializeKey(String key, DeserializationContext ctxt) throws IOException {
             return key;
         }
-    }    
+    }
 
     /*
     /**********************************************************
@@ -320,7 +320,7 @@ public class StdKeyDeserializer extends KeyDeserializer
         final protected Class<?> _keyClass;
 
         protected final JsonDeserializer<?> _delegate;
-        
+
         protected DelegatingKD(Class<?> cls, JsonDeserializer<?> deser) {
             _keyClass = cls;
             _delegate = deser;
@@ -371,7 +371,7 @@ public class StdKeyDeserializer extends KeyDeserializer
         protected volatile EnumResolver _byToStringResolver;
 
         protected final Enum<?> _enumDefaultValue;
-        
+
         protected EnumKD(EnumResolver er, AnnotatedMethod factory) {
             super(-1, er.getEnumClass());
             _byNameResolver = er;
@@ -421,7 +421,7 @@ public class StdKeyDeserializer extends KeyDeserializer
             return res;
         }
     }
-    
+
     /**
      * Key deserializer that calls a single-string-arg constructor
      * to instantiate desired key type.

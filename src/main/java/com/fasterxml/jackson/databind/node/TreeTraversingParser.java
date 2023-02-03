@@ -237,7 +237,7 @@ public class TreeTraversingParser extends ParserMinimalBase
         // generally we do not have efficient access as char[], hence:
         return false;
     }
-    
+
     /*
     /**********************************************************
     /* Public API, typed non-text access

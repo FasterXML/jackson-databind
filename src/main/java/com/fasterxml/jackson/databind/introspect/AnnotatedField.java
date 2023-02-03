@@ -39,7 +39,7 @@ public final class AnnotatedField
         super(contextClass, annMap);
         _field = field;
     }
-    
+
     @Override
     public AnnotatedField withAnnotations(AnnotationMap ann) {
         return new AnnotatedField(_typeContext, _field, ann);
@@ -54,7 +54,7 @@ public final class AnnotatedField
         _field = null;
         _serialization = ser;
     }
-    
+
     /*
     /**********************************************************
     /* Annotated impl
@@ -113,7 +113,7 @@ public final class AnnotatedField
                     +getFullName()+": "+e.getMessage(), e);
         }
     }
-    
+
     /*
     /**********************************************************
     /* Extended API, generic
@@ -126,12 +126,12 @@ public final class AnnotatedField
      * @since 2.6
      */
     public boolean isTransient() { return Modifier.isTransient(getModifiers()); }
-    
+
     @Override
     public int hashCode() {
         return _field.getName().hashCode();
     }
-    
+
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
@@ -176,7 +176,7 @@ public final class AnnotatedField
                         +"' from Class '"+clazz.getName());
         }
     }
-    
+
     /**
      * Helper class that is used as the workaround to persist
      * Field references. It basically just stores declaring class
@@ -192,7 +192,7 @@ public final class AnnotatedField
         public Serialization(Field f) {
             clazz = f.getDeclaringClass();
             name = f.getName();
-            
+
         }
     }
 }

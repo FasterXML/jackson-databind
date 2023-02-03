@@ -31,7 +31,7 @@ public class BigIntegerNode
 
     public static BigIntegerNode valueOf(BigInteger v) { return new BigIntegerNode(v); }
 
-    /* 
+    /*
     /**********************************************************
     /* Overridden JsonNode methods
     /**********************************************************
@@ -55,7 +55,7 @@ public class BigIntegerNode
     @Override public boolean canConvertToLong() {
         return (_value.compareTo(MIN_LONG) >= 0) && (_value.compareTo(MAX_LONG) <= 0);
     }
-    
+
     @Override
     public Number numberValue() {
         return _value;
@@ -82,12 +82,12 @@ public class BigIntegerNode
     @Override
     public BigDecimal decimalValue() { return new BigDecimal(_value); }
 
-    /* 
+    /*
     /**********************************************************
     /* General type coercions
     /**********************************************************
      */
-    
+
     @Override
     public String asText() {
         return _value.toString();
@@ -97,7 +97,7 @@ public class BigIntegerNode
     public boolean asBoolean(boolean defaultValue) {
         return !BigInteger.ZERO.equals(_value);
     }
-    
+
     @Override
     public final void serialize(JsonGenerator g, SerializerProvider provider)
         throws IOException

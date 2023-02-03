@@ -73,26 +73,26 @@ public class ExternalTypeId2588Test extends BaseMapTest
         Pet pet;
 
         // works?
-        
+
         pet = mapper.readValue(a2q(
-"{\n" + 
-"  'type': 'cat',\n" + 
-"  'animal': { },\n" + 
-"  'ignoredObject\": {\n" + 
-"    'someField': 'someValue'\n" + 
+"{\n" +
+"  'type': 'cat',\n" +
+"  'animal': { },\n" +
+"  'ignoredObject\": {\n" +
+"    'someField': 'someValue'\n" +
 "  }"+
 "}"
                 ), Pet.class);
         assertNotNull(pet);
-        
+
         // fails:
         pet = mapper.readValue(a2q(
-"{\n" + 
-"  'animal\": { },\n" + 
-"  'ignoredObject': {\n" + 
-"    'someField': 'someValue'\n" + 
-"  },\n" + 
-"  'type': 'cat'\n" + 
+"{\n" +
+"  'animal\": { },\n" +
+"  'ignoredObject': {\n" +
+"    'someField': 'someValue'\n" +
+"  },\n" +
+"  'type': 'cat'\n" +
 "}"
                 ), Pet.class);
         assertNotNull(pet);

@@ -12,9 +12,9 @@ import com.fasterxml.jackson.databind.*;
 public class AbstractContainerTypingTest extends BaseMapTest
 {
     // Polymorphic abstract Map type, wrapper
-    
+
     @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=JsonTypeInfo.As.PROPERTY, property="type")
-    @JsonSubTypes({ 
+    @JsonSubTypes({
         @JsonSubTypes.Type(value = MapWrapper.class, name = "wrapper"),
     })
     static class MapWrapper {
@@ -22,7 +22,7 @@ public class AbstractContainerTypingTest extends BaseMapTest
     }
 
     @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=JsonTypeInfo.As.PROPERTY, property="_type_")
-    @JsonSubTypes({ 
+    @JsonSubTypes({
         @JsonSubTypes.Type(value = DataValueMap.class,  name = "DataValueMap")
     })
     public interface IDataValueMap extends Map<String, String> { }
@@ -30,7 +30,7 @@ public class AbstractContainerTypingTest extends BaseMapTest
     static class DataValueMap extends HashMap<String, String> implements IDataValueMap { }
 
     @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=JsonTypeInfo.As.PROPERTY, property="type")
-    @JsonSubTypes({ 
+    @JsonSubTypes({
         @JsonSubTypes.Type(value = ListWrapper.class, name = "wrapper"),
     })
     static class ListWrapper {
@@ -38,7 +38,7 @@ public class AbstractContainerTypingTest extends BaseMapTest
     }
 
     @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=JsonTypeInfo.As.PROPERTY, property="type")
-    @JsonSubTypes({ 
+    @JsonSubTypes({
         @JsonSubTypes.Type(value = DataValueList.class,  name = "list")
     })
     public interface IDataValueList extends List<String> { }
@@ -52,7 +52,7 @@ public class AbstractContainerTypingTest extends BaseMapTest
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
-    
+
     public void testAbstractLists() throws Exception
     {
         ListWrapper w = new ListWrapper();
@@ -66,7 +66,7 @@ public class AbstractContainerTypingTest extends BaseMapTest
         assertEquals(1, out.list.size());
         assertEquals("x", out.list.get(0));
    }
-    
+
     public void testAbstractMaps() throws Exception
     {
         MapWrapper w = new MapWrapper();

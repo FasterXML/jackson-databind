@@ -22,7 +22,7 @@ public class TestConcurrency extends BaseMapTest
     /* Helper classes
     /**********************************************
      */
-    
+
     /**
      * Dummy deserializer used for verifying that partially handled (i.e. not yet
      * resolved) deserializers are not allowed to be used.
@@ -32,7 +32,7 @@ public class TestConcurrency extends BaseMapTest
         implements ResolvableDeserializer
     {
         protected volatile boolean resolved = false;
-        
+
         @Override
         public Bean deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
         {
@@ -66,7 +66,7 @@ public class TestConcurrency extends BaseMapTest
          * exact science; plus caching plays a role too
          */
         final String JSON = "{\"value\":42}";
-        
+
         for (int i = 0; i < 5; ++i) {
             final ObjectMapper mapper = new ObjectMapper();
             Runnable r = new Runnable() {
@@ -86,6 +86,6 @@ public class TestConcurrency extends BaseMapTest
             // note: funny deserializer, mangles data.. :)
             assertEquals(13, b.value);
             t.join();
-        }   
+        }
     }
 }

@@ -125,13 +125,13 @@ public class CaseInsensitiveDeserTest extends BaseMapTest
     public void testCaseInsensitiveDeserialization() throws Exception
     {
         final String JSON = "{\"Value1\" : {\"nAme\" : \"fruit\", \"vALUe\" : \"apple\"}, \"valUE2\" : {\"NAME\" : \"color\", \"value\" : \"red\"}}";
-        
+
         // first, verify default settings which do not accept improper case
         ObjectMapper mapper = new ObjectMapper();
         assertFalse(mapper.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
         try {
             mapper.readValue(JSON, Issue476Bean.class);
-            
+
             fail("Should not accept improper case properties by default");
         } catch (UnrecognizedPropertyException e) {
             verifyException(e, "Unrecognized field");
@@ -165,7 +165,7 @@ public class CaseInsensitiveDeserTest extends BaseMapTest
         assertEquals("12", w.role.ID);
         assertEquals("Foo", w.role.Name);
     }
-    
+
     // [databind#1438]
     public void testCreatorWithInsensitive() throws Exception
     {

@@ -156,7 +156,7 @@ public class VisibilityForSerializationTest
             .configure(MapperFeature.USE_ANNOTATIONS, true)
             .build();
 
-        JavaType javaType = om.getTypeFactory().constructType(TCls.class);        
+        JavaType javaType = om.getTypeFactory().constructType(TCls.class);
         BeanDescription desc = (BeanDescription) om.getSerializationConfig().introspect(javaType);
         List<BeanPropertyDefinition> props = desc.findProperties();
         if (props.size() != 1) {

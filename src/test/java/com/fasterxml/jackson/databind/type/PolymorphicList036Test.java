@@ -21,7 +21,7 @@ public class PolymorphicList036Test extends BaseMapTest
         public StringyList() {
             _stuff = new ArrayList<T>();
         }
-        
+
         @Override
         public boolean add(T arg) {
             return _stuff.add(arg);
@@ -89,21 +89,21 @@ public class PolymorphicList036Test extends BaseMapTest
     }
 
     private final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     public void testPolymorphicWithOverride() throws Exception
     {
         JavaType type = MAPPER.getTypeFactory().constructCollectionType(StringyList.class, String.class);
-        
+
         StringyList<String> list = new StringyList<String>();
         list.add("value 1");
         list.add("value 2");
-        
+
         String serialized = MAPPER.writeValueAsString(list);
 //        System.out.println(serialized);
-        
+
         StringyList<String> deserialized = MAPPER.readValue(serialized, type);
 //        System.out.println(deserialized);
-        
+
         assertNotNull(deserialized);
     }
 }

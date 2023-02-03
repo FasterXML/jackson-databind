@@ -30,7 +30,7 @@ public class BuilderSimpleTest extends BaseMapTest
     static class SimpleBuilderXY
     {
         public int x, y;
-    	
+
         public SimpleBuilderXY withX(int x0) {
     		    this.x = x0;
     		    return this;
@@ -65,7 +65,7 @@ public class BuilderSimpleTest extends BaseMapTest
     {
         public int a; // to be used as is
         private int b, c;
-    	
+
         @JsonProperty("b")
         public BuildABC assignB(int b0) {
             this.b = b0;
@@ -91,10 +91,10 @@ public class BuilderSimpleTest extends BaseMapTest
         final int value;
         protected ValueImmutable(int v) { value = v; }
     }
-    
+
     static class BuildImmutable {
         private final int value;
-        
+
         private BuildImmutable() { this(0); }
         private BuildImmutable(int v) {
             value = v;
@@ -118,7 +118,7 @@ public class BuilderSimpleTest extends BaseMapTest
     @JsonPOJOBuilder(withPrefix="foo", buildMethodName="construct")
     static class BuildFoo {
         private int value;
-        
+
         public BuildFoo fooValue(int v) {
             value = v;
             return this;
@@ -139,7 +139,7 @@ public class BuilderSimpleTest extends BaseMapTest
     interface ValueInterface2 {
         int getX();
     }
-    
+
     static class ValueInterfaceImpl implements ValueInterface
     {
         final int _x;
@@ -167,7 +167,7 @@ public class BuilderSimpleTest extends BaseMapTest
             return _x;
         }
     }
-    
+
     static class ValueInterfaceBuilder
     {
         public int x;
@@ -278,11 +278,11 @@ public class BuilderSimpleTest extends BaseMapTest
         protected Value2354(int v) { value = v; }
 
         public int value() { return value; }
-        
+
         @SuppressWarnings("unused")
         private static class Value2354Builder {
             private int value;
-            
+
             public Value2354Builder withValue(int v) {
                 value = v;
                 return this;
@@ -343,7 +343,7 @@ public class BuilderSimpleTest extends BaseMapTest
         assertEquals(value._x, 2);
         assertEquals(value._y, 3);
     }
-    
+
     public void testMultiAccess() throws Exception
     {
         String json = a2q("{'c':3,'a':2,'b':-9}");
@@ -365,7 +365,7 @@ public class BuilderSimpleTest extends BaseMapTest
     public void testImmutable() throws Exception
     {
         final String json = "{\"value\":13}";
-        ValueImmutable value = MAPPER.readValue(json, ValueImmutable.class);        
+        ValueImmutable value = MAPPER.readValue(json, ValueImmutable.class);
         assertEquals(13, value.value);
     }
 
@@ -373,12 +373,12 @@ public class BuilderSimpleTest extends BaseMapTest
     public void testCustomWith() throws Exception
     {
         final String json = "{\"value\":1}";
-        ValueFoo value = MAPPER.readValue(json, ValueFoo.class);        
+        ValueFoo value = MAPPER.readValue(json, ValueFoo.class);
         assertEquals(1, value.value);
     }
 
     // for [databind#761]
-    
+
     public void testBuilderMethodReturnMoreGeneral() throws Exception
     {
         final String json = "{\"x\":1}";

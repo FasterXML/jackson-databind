@@ -12,7 +12,7 @@ public class NoTypeInfoTest extends BaseMapTest
     @JsonDeserialize(as=NoType.class)
     static interface NoTypeInterface {
     }
-    
+
     final static class NoType implements NoTypeInterface {
         public int a = 3;
     }

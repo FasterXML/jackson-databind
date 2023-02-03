@@ -35,7 +35,7 @@ public class TestUnwrappedWithTypeInfo extends BaseMapTest
 		public void setP2(String p2) { this.p2 = p2; }
 
 	}
-    
+
     /*
     /**********************************************************
     /* Tests, serialization

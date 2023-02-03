@@ -107,7 +107,7 @@ public class NullConversionsPojoTest extends BaseMapTest
         String json = a2q("{'name':null}");
         NullsForString def = MAPPER.readValue(json, NullsForString.class);
         assertNull(def.getName());
-        
+
         ObjectMapper mapper = newJsonMapper();
         mapper.configOverride(String.class)
             .setSetterInfo(JsonSetter.Value.forValueNulls(Nulls.FAIL));

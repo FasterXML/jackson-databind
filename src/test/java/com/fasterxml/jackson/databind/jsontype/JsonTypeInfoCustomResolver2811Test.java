@@ -84,7 +84,7 @@ public class JsonTypeInfoCustomResolver2811Test extends BaseMapTest
             .disable(DeserializationFeature.FAIL_ON_MISSING_EXTERNAL_TYPE_ID_PROPERTY)
             .disable(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE)
             .build();
-    
+
     // [databind#2811]
     public void testTypeInfoWithCustomResolver2811NoTypeId() throws Exception
     {
@@ -100,13 +100,13 @@ public class JsonTypeInfoCustomResolver2811Test extends BaseMapTest
     /*
     public void testTypeInfoWithCustomResolver2811WithTypeId() throws Exception
     {
-        String json = "{\n" + 
-                "  \"name\": \"kamil\",\n" + 
-                "  \"vehicleType\": \"CAR\",\n" + 
-                "  \"vehicle\": {\n" + 
-                "    \"wheels\": 4,\n" + 
-                "    \"color\": \"red\"\n" + 
-                "  }\n" + 
+        String json = "{\n" +
+                "  \"name\": \"kamil\",\n" +
+                "  \"vehicleType\": \"CAR\",\n" +
+                "  \"vehicle\": {\n" +
+                "    \"wheels\": 4,\n" +
+                "    \"color\": \"red\"\n" +
+                "  }\n" +
                 "}"
                 ;
         Person<?> person = MAPPER.readValue(json, Person.class);

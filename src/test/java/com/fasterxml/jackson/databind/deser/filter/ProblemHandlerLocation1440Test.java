@@ -38,7 +38,7 @@ public class ProblemHandlerLocation1440Test extends BaseMapTest
         public List<String> problems() {
             return probs.unknownProperties;
         }
-        
+
         @Override
         public boolean handleUnknownProperty(final DeserializationContext ctxt, final JsonParser p,
                 JsonDeserializer<?> deserializer, Object beanOrClass, String propertyName)

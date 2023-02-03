@@ -27,7 +27,7 @@ public class DeepJsonNodeDeser3397Test extends BaseMapTest
         JsonNode n = MAPPER.readTree(doc);
         assertTrue(n.isObject());
     }
-    
+
     private String _nestedDoc(int nesting, String open, String close) {
         StringBuilder sb = new StringBuilder(nesting * (open.length() + close.length()));
         for (int i = 0; i < nesting; ++i) {

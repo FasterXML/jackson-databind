@@ -71,7 +71,7 @@ public class MapWithGenericValuesDeserTest
             return new KeyTypeFactory(str, true);
         }
     }
-    
+
     /*
     /**********************************************************
     /* Test methods for sub-classing
@@ -112,7 +112,7 @@ public class MapWithGenericValuesDeserTest
         assertEquals(value.getClass(), StringWrapper.class);
         assertEquals("b", ((StringWrapper) value).str);
     }
-    
+
     /*
     /**********************************************************
     /* Test methods for sub-classing for annotation handling

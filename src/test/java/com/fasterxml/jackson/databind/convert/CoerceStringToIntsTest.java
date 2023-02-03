@@ -42,7 +42,7 @@ public class CoerceStringToIntsTest extends BaseMapTest
     /* Test methods, defaults (legacy)
     /********************************************************
      */
-    
+
     public void testLegacyStringToIntCoercion() throws Exception
     {
         // by default, should be ok

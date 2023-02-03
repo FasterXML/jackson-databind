@@ -70,11 +70,11 @@ public class ProblemHandlerTest extends BaseMapTest
         extends DeserializationProblemHandler
     {
         protected final Object value;
-    
+
         public WeirdStringHandler(Object v0) {
             value = v0;
         }
-    
+
         @Override
         public Object handleWeirdStringValue(DeserializationContext ctxt,
                 Class<?> targetType, String v,
@@ -89,7 +89,7 @@ public class ProblemHandlerTest extends BaseMapTest
         extends DeserializationProblemHandler
     {
         protected final Object value;
-    
+
         public InstantiationProblemHandler(Object v0) {
             value = v0;
         }
@@ -150,7 +150,7 @@ public class ProblemHandlerTest extends BaseMapTest
         protected final Class<?> raw;
 
         public UnknownTypeIdHandler(Class<?> r) { raw = r; }
-        
+
         @Override
         public JavaType handleUnknownTypeId(DeserializationContext ctxt,
                 JavaType baseType, String subTypeId, TypeIdResolver idResolver,
@@ -165,9 +165,9 @@ public class ProblemHandlerTest extends BaseMapTest
         extends DeserializationProblemHandler
     {
         protected final Class<?> raw;
-    
+
         public MissingTypeIdHandler(Class<?> r) { raw = r; }
-        
+
         @Override
         public JavaType handleMissingTypeId(DeserializationContext ctxt,
                 JavaType baseType, TypeIdResolver idResolver,
@@ -207,7 +207,7 @@ public class ProblemHandlerTest extends BaseMapTest
     static class Base2Wrapper {
         public Base2 value;
     }
-    
+
     enum SingleValuedEnum {
         A;
     }
@@ -312,7 +312,7 @@ public class ProblemHandlerTest extends BaseMapTest
         assertNotNull(w);
         assertEquals(Base2Impl.class, w.value.getClass());
     }
-    
+
     // verify that by default we get special exception type
     public void testInvalidTypeIdFail() throws Exception
     {

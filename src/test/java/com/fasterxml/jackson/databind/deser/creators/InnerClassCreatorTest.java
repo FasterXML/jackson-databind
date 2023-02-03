@@ -38,7 +38,7 @@ public class InnerClassCreatorTest extends BaseMapTest
             @JsonCreator
             public InnerSomething1502() {}
         }
-    }    
+    }
 
     static class Outer1503 {
         public InnerClass1503 innerClass;
@@ -70,7 +70,7 @@ public class InnerClassCreatorTest extends BaseMapTest
             verifyException(e, "InnerSomething1501");
             verifyException(e, "non-static inner classes like this can only by instantiated using default");
         }
-    }    
+    }
 
     public void testIssue1502() throws Exception
     {

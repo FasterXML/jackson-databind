@@ -27,7 +27,7 @@ public class ExternalTypeId96Test extends BaseMapTest
     @JsonTypeName("vbean")
     static class ValueBean {
         public int value;
-        
+
         public ValueBean() { }
         public ValueBean(int v) { value = v; }
     }
@@ -42,7 +42,7 @@ public class ExternalTypeId96Test extends BaseMapTest
 
     // For [databind#96]: should allow use of default impl, if property missing
     /* 18-Jan-2013, tatu: Unfortunately this collides with [databind#118], and I don't
-     *   know what the best resolution is. For now at least 
+     *   know what the best resolution is. For now at least
      */
     public void testWithDefaultAndMissing() throws Exception
     {

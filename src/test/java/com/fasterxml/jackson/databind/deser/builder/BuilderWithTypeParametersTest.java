@@ -39,7 +39,7 @@ public class BuilderWithTypeParametersTest
 
       // 28-Apr-2020, tatu: Note that as per [databind#921] the NAME of
       //   type variable here MUST match that of enclosing class. This has
-      //   no semantic meaning to JDK or javac, but internally 
+      //   no semantic meaning to JDK or javac, but internally
       //   `MapperFeature.INFER_BUILDER_TYPE_BINDINGS` relies on this -- but
       //   can not really validate it. So user just has to rely on bit of
       //    black magic to use generic types with builders.
@@ -60,7 +60,7 @@ public class BuilderWithTypeParametersTest
     // 05-Sep-2020, tatu: This is not correct and cannot be made to work --
     //   assumption is that static method binding `T` would somehow refer to
     //   class type parameter `T`: this is not true.
-/*    
+/*
     public static class MyGenericPOJOWithCreator<T> {
       List<T> data;
 
@@ -119,7 +119,7 @@ public class BuilderWithTypeParametersTest
     }
 
     // 05-Sep-2020, tatu: see above for reason why this can not work
-/*    
+/*
     public void testWithCreator() throws Exception {
       final ObjectMapper mapper = new ObjectMapper();
       final String json = a2q("{ 'data': [ { 'x': 'x', 'y': 'y' } ] }");

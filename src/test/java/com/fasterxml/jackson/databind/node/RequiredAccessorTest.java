@@ -26,7 +26,7 @@ public class RequiredAccessorTest
     public void testIMPORTANT() {
         _checkRequiredAtFail(TEST_OBJECT, "/data/weird/and/more", "/weird/and/more");
     }
-    
+
     public void testRequiredAtObjectOk() throws Exception {
         assertNotNull(TEST_OBJECT.requiredAt("/array"));
         assertNotNull(TEST_OBJECT.requiredAt("/array/0"));

@@ -111,5 +111,5 @@ public class NullValueViaCreatorTest extends BaseMapTest
         } catch (ValueInstantiationException e) {
             verifyException(e, "JSON creator returned null");
         }
-    }    
+    }
 }

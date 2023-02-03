@@ -26,13 +26,13 @@ public class TestJsonSerialize3 extends BaseMapTest
     static class MyObject {
         @JsonSerialize(contentUsing = FooToBarSerializer.class)
         List<String> list;
-    }    
+    }
     /*
     /**********************************************************
     /* Test methods
     /**********************************************************
      */
-    
+
     public void testCustomContentSerializer() throws Exception
     {
         ObjectMapper m = new ObjectMapper();

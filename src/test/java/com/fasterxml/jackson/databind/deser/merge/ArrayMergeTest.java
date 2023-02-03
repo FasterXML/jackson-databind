@@ -19,7 +19,7 @@ public class ArrayMergeTest extends BaseMapTest
         public MergedX(T v) { value = v; }
         protected MergedX() { }
     }
-    
+
     /*
     /********************************************************
     /* Test methods
@@ -125,7 +125,7 @@ public class ArrayMergeTest extends BaseMapTest
         assertSame(input, result);
         Assert.assertArrayEquals(new char[] { 'c' }, result.value);
     }
-    
+
     public void testIntArrayMerging() throws Exception
     {
         MergedX<int[]> input = new MergedX<int[]>(new int[] { 1, 2 });

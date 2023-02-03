@@ -116,7 +116,7 @@ public class IntrospectorPairTest extends BaseMapTest
         /******************************************************
         /* General class annotations
         /******************************************************
-         */        
+         */
 
         @Override
         public PropertyName findRootName(AnnotatedClass ac) {
@@ -137,7 +137,7 @@ public class IntrospectorPairTest extends BaseMapTest
         public Object findFilterId(Annotated ann) {
             return (Object) values.get("findFilterId");
         }
-        
+
         @Override
         public Object findNamingStrategy(AnnotatedClass ac) {
             return (Object) values.get("findNamingStrategy");
@@ -189,7 +189,7 @@ public class IntrospectorPairTest extends BaseMapTest
         {
             return (TypeResolverBuilder<?>) values.get("findPropertyContentTypeResolver");
         }
-        
+
         @SuppressWarnings("unchecked")
         @Override
         public List<NamedType> findSubtypes(Annotated a)
@@ -238,7 +238,7 @@ public class IntrospectorPairTest extends BaseMapTest
         /******************************************************
         /* Helper methods
         /******************************************************
-         */        
+         */
 
         private boolean _boolean(String key) {
             Object ob = values.get(key);

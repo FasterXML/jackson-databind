@@ -180,7 +180,7 @@ public class ObjectReaderTest extends BaseMapTest
         ObjectReader r = MAPPER.reader();
         assertFalse(r.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
         assertFalse(r.isEnabled(JsonParser.Feature.IGNORE_UNDEFINED));
-        
+
         r = r.withoutFeatures(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES,
                 DeserializationFeature.FAIL_ON_INVALID_SUBTYPE);
         assertFalse(r.isEnabled(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES));
@@ -368,7 +368,7 @@ public class ObjectReaderTest extends BaseMapTest
         assertFalse(itr.hasNext());
         itr.close();
     }
-    
+
     public void testPointerLoadingMappingIteratorMany() throws Exception {
         final String source = "{\"foo\":{\"bar\":{\"caller\":[{\"name\":{\"value\":1234}}, {\"name\":{\"value\":5678}}]}}}";
 
@@ -381,7 +381,7 @@ public class ObjectReaderTest extends BaseMapTest
         assertTrue(pojo.name.containsKey("value"));
         assertEquals(1234, pojo.name.get("value"));
         assertTrue(itr.hasNext());
-        
+
         pojo = itr.next();
 
         assertNotNull(pojo.name);
@@ -418,7 +418,7 @@ public class ObjectReaderTest extends BaseMapTest
     public static class Pojo1637 {
         public Set<String> set1;
         public Set<String> set2;
-    }    
+    }
 
     // [databind#2636]
     public void testCanPassResultToOverloadedMethod() throws Exception {
@@ -437,7 +437,7 @@ public class ObjectReaderTest extends BaseMapTest
         // do nothing - just used to show that the compiler can choose the correct method overloading to invoke
         throw new Error();
     }
-    
+
     /*
     /**********************************************************
     /* Test methods, ObjectCodec
@@ -498,7 +498,7 @@ public class ObjectReaderTest extends BaseMapTest
     public void testSchema() throws Exception
     {
         ObjectReader r = MAPPER.readerFor(String.class);
-        
+
         // Ok to try to set `null` schema, always:
         r = r.with((FormatSchema) null);
 
@@ -506,7 +506,7 @@ public class ObjectReaderTest extends BaseMapTest
             // but not schema that doesn't match format (no schema exists for json)
             r = r.with(new BogusSchema())
                 .readValue(q("foo"));
-            
+
             fail("Should not pass");
         } catch (IllegalArgumentException e) {
             verifyException(e, "Cannot use FormatSchema");
@@ -548,7 +548,7 @@ public class ObjectReaderTest extends BaseMapTest
         assertEquals(1, point.x);
         assertEquals(2, point.y);
     }
-    
+
     // [databind#3699]: custom array node classes
     public void testCustomArrayNode() throws Exception
     {
@@ -570,7 +570,7 @@ public class ObjectReaderTest extends BaseMapTest
         CustomObjectNode(ObjectNode delegate) {
             this._delegate = delegate;
         }
-        
+
         @Override
         public boolean isObject() {
             return true;
@@ -580,7 +580,7 @@ public class ObjectReaderTest extends BaseMapTest
         public int size() {
             return _delegate.size();
         }
-        
+
         @Override
         public Iterator<Entry<String, JsonNode>> fields() {
             return _delegate.fields();

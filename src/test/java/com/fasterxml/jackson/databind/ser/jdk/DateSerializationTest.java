@@ -25,7 +25,7 @@ public class DateSerializationTest
 {
     static class TimeZoneBean {
         private TimeZone tz;
-        
+
         public TimeZoneBean(String name) {
             tz = TimeZone.getTimeZone(name);
         }
@@ -70,7 +70,7 @@ public class DateSerializationTest
         public Date date;
         public DateAsDefaultBean(long l) { date = new java.util.Date(l); }
     }
-    
+
     static class DateAsDefaultBeanWithEmptyJsonFormat {
         @JsonFormat
         public Date date;
@@ -189,7 +189,7 @@ public class DateSerializationTest
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         mapper.setDateFormat(dateFormat);
-        
+
         serialize(mapper, judate(1970, 1, 1,  02, 00, 00, 0, "GMT+2"), "1970-01-01T00:00:00.000+0000");
         serialize(mapper, judate(1970, 1, 1,  00, 00, 00, 0, "UTC"),   "1970-01-01T00:00:00.000+0000");
     }
@@ -243,7 +243,7 @@ public class DateSerializationTest
         map.put(new Date(0L), Integer.valueOf(1));
         // by default will serialize as ISO-8601 values...
         assertEquals("{\"1970-01-01T00:00:00.000+"+zoneOffset("0000")+"\":1}", mapper.writeValueAsString(map));
-        
+
         // but can change to use timestamps too
         mapper.configure(SerializationFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS, true);
         assertEquals("{\"0\":1}", mapper.writeValueAsString(map));
@@ -267,7 +267,7 @@ public class DateSerializationTest
         // and with different DateFormat; CET is one hour ahead of GMT
         json = mapper.writeValueAsString(new DateInCETBean(0L));
         assertEquals("{\"date\":\"1970-01-01,01:00\"}", json);
-        
+
         // and for [Issue#423] as well:
         json = mapper.writer().with(getUTCTimeZone()).writeValueAsString(new CalendarAsStringBean(0L));
         assertEquals("{\"value\":\"1970-01-01\"}", json);

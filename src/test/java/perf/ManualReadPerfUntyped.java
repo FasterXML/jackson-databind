@@ -10,7 +10,7 @@ public class ManualReadPerfUntyped extends ObjectReaderTestBase
 {
     @Override
     protected int targetSizeMegs() { return 10; }
-    
+
     public static void main(String[] args) throws Exception
     {
         if (args.length != 1) {
@@ -24,12 +24,12 @@ public class ManualReadPerfUntyped extends ObjectReaderTestBase
                 .configure(JsonFactory.Feature.CANONICALIZE_FIELD_NAMES, doIntern)
                 .configure(JsonFactory.Feature.INTERN_FIELD_NAMES, doIntern)
                 .build();
-        
+
         JsonMapper m = new JsonMapper(f);
-        
+
         // Either Object or Map
         final Class<?> UNTYPED = Map.class;
-        
+
         Object input1 = m.readValue(data, UNTYPED);
         JsonNode input2 = m.readTree(data);
 

@@ -28,7 +28,7 @@ public class ToStringForNodesTest extends BaseMapTest
     {
         _verifyToStrings(MAPPER.getNodeFactory().binaryNode(new byte[] { 1, 2, 3, 4, 6 }));
     }
-    
+
     protected void _verifyToStrings(JsonNode node) throws Exception
     {
         assertEquals(MAPPER.writeValueAsString(node), node.toString());

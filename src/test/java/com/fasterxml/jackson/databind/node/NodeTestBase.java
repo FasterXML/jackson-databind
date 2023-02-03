@@ -9,9 +9,9 @@ abstract class NodeTestBase extends BaseMapTest
     protected void assertNodeNumbersForNonNumeric(JsonNode n)
     {
         assertFalse(n.isNumber());
-        assertFalse(n.canConvertToInt()); 
-        assertFalse(n.canConvertToLong()); 
-        assertFalse(n.canConvertToExactIntegral()); 
+        assertFalse(n.canConvertToInt());
+        assertFalse(n.canConvertToLong());
+        assertFalse(n.canConvertToExactIntegral());
 
         assertEquals(0, n.asInt());
         assertEquals(-42, n.asInt(-42));

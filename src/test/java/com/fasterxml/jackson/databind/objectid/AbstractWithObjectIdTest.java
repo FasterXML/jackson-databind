@@ -62,7 +62,7 @@ public class AbstractWithObjectIdTest extends BaseMapTest
         // write and print the JSON
         String json = om.writerWithDefaultPrettyPrinter().writeValueAsString(myList);
         ListWrapper<BaseInterfaceImpl> result;
-        
+
         result = om.readValue(json, new TypeReference<ListWrapper<BaseInterfaceImpl>>() { });
 
         assertNotNull(result);

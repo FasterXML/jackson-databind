@@ -18,7 +18,7 @@ public class ManualReadPerfWithUUID extends ObjectReaderTestBase
 
     @Override
     protected int targetSizeMegs() { return 8; }
-    
+
     @SuppressWarnings("serial")
     static class SlowDeser extends FromStringDeserializer<UUID>
     {
@@ -31,14 +31,14 @@ public class ManualReadPerfWithUUID extends ObjectReaderTestBase
             return UUID.fromString(id);
         }
     }
-    
+
     static class UUIDWithJdk {
         @JsonDeserialize(contentUsing=SlowDeser.class)
         public UUID[] ids;
         public UUIDWithJdk() { }
         public UUIDWithJdk(UUID[] ids) { this.ids = ids; }
     }
-    
+
     public static void main(String[] args) throws Exception
     {
         if (args.length != 0) {

@@ -45,7 +45,7 @@ public class BuilderWithBackRef2686Test extends BaseMapTest
          private Container back;
 
          private String contentValue;
-         
+
          @ConstructorProperties({ "back", "contentValue" })
          public Content(Container back, String contentValue) {
               this.back = back;
@@ -76,7 +76,7 @@ public class BuilderWithBackRef2686Test extends BaseMapTest
                    this.contentValue = cv;
                    return this;
               }
-              
+
               Content build() {
                    return new Content(back, contentValue);
               }
@@ -91,7 +91,7 @@ public class BuilderWithBackRef2686Test extends BaseMapTest
         container.containerValue = "containerValue";
         Content content = new Content(container, "contentValue");
         container.forward = content;
-     
+
         String json = MAPPER.writeValueAsString(container);
         Container result = MAPPER.readValue(json, Container.class); // Exception here
 

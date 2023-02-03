@@ -66,7 +66,7 @@ public class TestFieldDeserialization
         @SuppressWarnings("hiding")
         public int y = 11;
     }
-    
+
     abstract static class Abstract { }
     static class Concrete extends Abstract
     {

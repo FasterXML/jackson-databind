@@ -85,17 +85,17 @@ public class TestDefaultForArrays extends BaseMapTest
         Object ob = result[0];
         assertTrue(ob instanceof JsonNode);
     }
-    
+
     @SuppressWarnings("deprecation")
     public void testNodeInEmptyArray() throws Exception {
         Map<String, List<String>> outerMap = new HashMap<String, List<String>>();
         outerMap.put("inner", new ArrayList<String>());
         ObjectMapper m = new ObjectMapper().disable(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS);
         JsonNode tree = m.convertValue(outerMap, JsonNode.class);
-        
+
         String json = m.writeValueAsString(tree);
         assertEquals("{}", json);
-        
+
         JsonNode node = new ObjectMapper().readTree("{\"a\":[]}");
 
         m = jsonMapperBuilder()
@@ -161,7 +161,7 @@ public class TestDefaultForArrays extends BaseMapTest
     /* Helper methods
     /**********************************************************
      */
-    
+
     protected void _testArraysAs(ObjectMapper mapper, String json, Class<?> type)
         throws Exception
     {

@@ -95,13 +95,13 @@ public class MapPolymorphicMerge2336Test extends BaseMapTest
         // now create a reader specifically for merging
         ObjectReader reader = MAPPER.readerForUpdating(baseValue);
 
-        
+
         SomeOtherClass toBeMerged = new SomeOtherClass("house");
         toBeMerged.addValue("SOMEKEY", new SomeClassA("jim", null, 2));
         String jsonForMerging = MAPPER.writeValueAsString(toBeMerged);
 
         assertEquals("fred", baseValue.data.get("SOMEKEY").getName());
-        
+
         // now try to do the merge and it blows up
         SomeOtherClass mergedResult = reader.readValue(jsonForMerging);
 

@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.jsontype.impl.TypeNameIdResolver;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
-public class TestDefaultForMaps 
+public class TestDefaultForMaps
     extends BaseMapTest
 {
     static class MapKey {
@@ -37,7 +37,7 @@ public class TestDefaultForMaps
     }
 
     // // For #234
-    
+
     static class ItemList {
         public String value;
         public List<ItemList> childItems = new LinkedList<ItemList>();
@@ -62,13 +62,13 @@ public class TestDefaultForMaps
           childItems.put(key, items);
         }
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests
     /**********************************************************
      */
-    
+
     public void testJackson428() throws Exception
     {
         ObjectMapper serMapper = new ObjectMapper();

@@ -15,13 +15,13 @@ public class ParsingContextExtTypeId2747Test extends BaseMapTest
         @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type",
              include = JsonTypeInfo.As.EXTERNAL_PROPERTY)
         public Tag wrapped;
-        
+
         public String type;
    }
-   
+
    @JsonSubTypes(@JsonSubTypes.Type(Location.class))
    interface Tag {}
-   
+
    @JsonTypeName("location")
    @JsonDeserialize(using = LocationDeserializer.class)
    static class Location implements Tag
@@ -31,7 +31,7 @@ public class ParsingContextExtTypeId2747Test extends BaseMapTest
         protected Location() { }
         Location(String v) { value = v; }
    }
-   
+
    static class LocationDeserializer extends JsonDeserializer<Location>
    {
         @Override
@@ -46,13 +46,13 @@ public class ParsingContextExtTypeId2747Test extends BaseMapTest
    {
        // This suffices to give actual path
        return p.getParsingContext().pathAsPointer().toString();
-   }   
+   }
 
    // [databind#2747]
    public void testLocationAccessWithExtTypeId() throws Exception
    {
         ObjectReader objectReader = newJsonMapper().readerFor(Wrapper.class);
-        
+
         Wrapper wrapper = objectReader.readValue("{" +
              "\"type\":\"location\"," +
              "\"wrapped\": 1" +

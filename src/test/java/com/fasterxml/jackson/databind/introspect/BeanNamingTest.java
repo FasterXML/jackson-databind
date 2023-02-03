@@ -16,7 +16,7 @@ public class BeanNamingTest extends BaseMapTest
             return 3;
         }
     }
-    
+
     public void testSimple() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();

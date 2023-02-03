@@ -30,22 +30,22 @@ public class TestTypedRootValueSerialization extends BaseMapTest
         // start with specific value case:
         assertEquals("{\"a\":3}", singleJson);
     }
-    
+
     // [JACKSON-822]: ensure that type can be coerced
     public void testTypedArrays() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-// Work-around when real solution not yet implemented:        
+// Work-around when real solution not yet implemented:
 //        mapper.enable(MapperFeature.USE_STATIC_TYPING);
         assertEquals("[{\"a\":3}]", mapper.writerFor(Issue822Interface[].class).writeValueAsString(
                 new Issue822Interface[] { new Issue822Impl() }));
     }
-    
+
     // [JACKSON-822]: ensure that type can be coerced
     public void testTypedLists() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-     // Work-around when real solution not yet implemented:        
+     // Work-around when real solution not yet implemented:
 //        mapper.enable(MapperFeature.USE_STATIC_TYPING);
 
         List<Issue822Interface> list = new ArrayList<Issue822Interface>();

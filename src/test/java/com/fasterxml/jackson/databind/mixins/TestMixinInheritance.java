@@ -41,13 +41,13 @@ public class TestMixinInheritance
         @JsonProperty("id")
         public abstract int getIdo();
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests
     /**********************************************************
      */
-    
+
     public void testMixinFieldInheritance() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();

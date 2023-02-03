@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.*;
 public class ScalarConversionTest extends BaseMapTest
 {
     private final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     // [databind#1433]
     public void testConvertValueNullPrimitive() throws Exception
     {
@@ -18,7 +18,7 @@ public class ScalarConversionTest extends BaseMapTest
         assertEquals(Character.valueOf('\0'), MAPPER.convertValue(null, Character.TYPE));
         assertEquals(Boolean.FALSE, MAPPER.convertValue(null, Boolean.TYPE));
     }
-    
+
     // [databind#1433]
     public void testConvertValueNullBoxed() throws Exception
     {

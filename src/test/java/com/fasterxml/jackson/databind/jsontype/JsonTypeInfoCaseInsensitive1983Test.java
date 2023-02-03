@@ -24,7 +24,7 @@ public class JsonTypeInfoCaseInsensitive1983Test extends BaseMapTest
 
     // verify failures when exact matching required:
     private final ObjectMapper MAPPER = newJsonMapper();
-    
+
     public void testReadMixedCaseSubclass() throws Exception
     {
         final String serialised = "{\"Operation\":\"NoTeQ\"}";

@@ -187,11 +187,11 @@ public class BuilderWithUnwrappedTest extends BaseMapTest
 
             Builder() { }
 
-            @JsonProperty("animal_id") 
+            @JsonProperty("animal_id")
             public void setId(long i) {
                 id = i;
             }
-            
+
             @JsonUnwrapped
             void setName(Name name) {
                 this.name = name;

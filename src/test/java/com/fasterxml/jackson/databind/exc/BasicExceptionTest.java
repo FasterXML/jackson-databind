@@ -42,7 +42,7 @@ public class BasicExceptionTest extends BaseMapTest
                 beanDef, (BeanPropertyDefinition) null);
         assertEquals(beanDef.getType(), e.getType());
         assertNotNull(e);
-        
+
         // and the other constructor too
         JsonGenerator g = JSON_F.createGenerator(new StringWriter());
         e = new InvalidDefinitionException(p,
@@ -55,7 +55,7 @@ public class BasicExceptionTest extends BaseMapTest
                 beanDef, (BeanPropertyDefinition) null);
         assertEquals(beanDef.getType(), e.getType());
         assertNotNull(e);
-        
+
         g.close();
     }
 

@@ -63,7 +63,7 @@ public class SingleValueAsArrayTest extends BaseMapTest
     /* Unit tests
     /**********************************************************
      */
-    
+
     private final ObjectMapper MAPPER = new ObjectMapper();
     {
         MAPPER.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);

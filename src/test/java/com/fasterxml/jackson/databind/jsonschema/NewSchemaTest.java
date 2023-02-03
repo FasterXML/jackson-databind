@@ -22,7 +22,7 @@ public class NewSchemaTest extends BaseMapTest
 {
     enum TestEnum {
         A, B, C;
-        
+
         @Override
         public String toString() {
             return "ToString:"+name();
@@ -31,7 +31,7 @@ public class NewSchemaTest extends BaseMapTest
 
     enum TestEnumWithJsonValue {
         A, B, C;
-        
+
         @JsonValue
         public String forSerialize() {
             return "value-"+name();
@@ -110,7 +110,7 @@ public class NewSchemaTest extends BaseMapTest
         extends JsonFormatVisitorWrapper.Base
     {
         // Implement handlers just to get more exercise...
-        
+
         @Override
         public JsonObjectFormatVisitor expectObjectFormat(JavaType type) {
             return new JsonObjectFormatVisitor.Base(getProvider()) {
@@ -196,7 +196,7 @@ public class NewSchemaTest extends BaseMapTest
         @Override
         public JsonMapFormatVisitor expectMapFormat(JavaType type) {
             return new JsonMapFormatVisitor.Base();
-        }        
+        }
     }
 
     /*
@@ -296,7 +296,7 @@ public class NewSchemaTest extends BaseMapTest
     public void testSimpleNumbers() throws Exception
     {
         final StringBuilder sb = new StringBuilder();
-        
+
         MAPPER.acceptJsonFormatVisitor(Numbers.class,
                 new JsonFormatVisitorWrapper.Base() {
             @Override

@@ -28,7 +28,7 @@ public class TransientTest extends BaseMapTest
         public int a = 1;
         public transient int b = 2;
     }
-    
+
     // for [databind#857]
     static class BeanTransient {
         @Transient

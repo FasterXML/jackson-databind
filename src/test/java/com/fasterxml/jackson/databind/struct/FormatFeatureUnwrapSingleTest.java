@@ -97,12 +97,12 @@ public class FormatFeatureUnwrapSingleTest extends BaseMapTest
             v = new LinkedHashSet<String>(Arrays.asList(values));
         }
     }
-    
+
     static class UnwrapStringLike {
         @JsonFormat(with={ JsonFormat.Feature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED })
         public URI[] v = { URI.create("http://foo") };
     }
-    
+
     @JsonPropertyOrder( { "strings", "ints", "bools", "enums" })
     static class WrapWriteWithCollections
     {

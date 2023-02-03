@@ -19,7 +19,7 @@ abstract class ObjectWriterTestBase<T1,T2>
         {
             final byte[] input1 = mapper.writeValueAsBytes(inputValue1);
             final byte[] input2 = mapper.writeValueAsBytes(inputValue2);
-            
+
             // Let's try to guestimate suitable size, N megs of output
             REPS = (int) ((double) (targetSizeMegs() * 1000 * 1000) / (double) input1.length);
             System.out.printf("Read %d bytes to bind (%d as array); will do %d repetitions\n",
@@ -29,7 +29,7 @@ abstract class ObjectWriterTestBase<T1,T2>
         final ObjectWriter writer0 = mapper.writer().with(SerializationFeature.EAGER_SERIALIZER_FETCH);
         final ObjectWriter writer1 = writer0.forType(inputClass1);
         final ObjectWriter writer2 = writer0.forType(inputClass2);
-        
+
         int i = 0;
         int roundsDone = 0;
         final int TYPES = 2;
@@ -37,9 +37,9 @@ abstract class ObjectWriterTestBase<T1,T2>
         // Skip first 5 seconds
         long startMeasure = System.currentTimeMillis() + 5000L;
         System.out.print("Warming up");
-        
+
         final double[] timesMsec = new double[TYPES];
-        
+
         while (true) {
             final int round = (i % TYPES);
             final boolean lf = (++i % TYPES) == 0;
@@ -86,13 +86,13 @@ abstract class ObjectWriterTestBase<T1,T2>
                 System.gc();
                 Thread.sleep(100L);
             }
-            
+
             System.out.printf("Test '%s' [hash: 0x%s] -> %.1f msecs\n", msg, hash, msecs);
             Thread.sleep(50L);
             if (!lf) {
                 continue;
             }
-            
+
             if ((++roundsDone % 3) == 0) {
                 double den = (double) roundsDone;
                 System.out.printf("Averages after %d rounds (%s/%s): %.1f / %.1f msecs\n",

@@ -22,7 +22,7 @@ public class SetterlessList2692Test extends BaseMapTest
         public String getVal() {
           return val;
         }
-        
+
         public List<String> getList(){
           return new ArrayList<>();
         }

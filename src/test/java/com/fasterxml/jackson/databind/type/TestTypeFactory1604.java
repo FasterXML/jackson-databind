@@ -134,7 +134,7 @@ public class TestTypeFactory1604 extends BaseMapTest
 
         JavaType righty = tf.constructSpecializedType(base, Right.class);
         assertEquals(Right.class, righty.getRawClass());
-        
+
         params = tf.findTypeParameters(righty, Either.class);
         assertEquals(2, params.length);
         assertEquals(Void.class, params[0].getRawClass());

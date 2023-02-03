@@ -20,7 +20,7 @@ public class TestMapConversions
     }
 
     // [Issue#287]
-    
+
     @JsonSerialize(converter=RequestConverter.class)
     static class Request {
         public int x() {
@@ -38,7 +38,7 @@ public class TestMapConversions
             return test;
         }
     }
-    
+
     /*
     /**********************************************************
     /* Test methods

@@ -31,7 +31,7 @@ public class TestTreeTraversingParser
     public static class Inner {
         public String value;
     }
-    
+
     /*
     /**********************************************************
     /* Test methods
@@ -130,7 +130,7 @@ public class TestTreeTraversingParser
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         p.close();
     }
-    
+
     public void testNested() throws Exception
     {
         // For convenience, parse tree from JSON first
@@ -154,14 +154,14 @@ public class TestTreeTraversingParser
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
         assertToken(JsonToken.END_ARRAY, p.nextToken());
-        
+
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         assertToken(JsonToken.END_ARRAY, p.nextToken());
 
         assertToken(JsonToken.END_OBJECT, p.nextToken());
         p.close();
     }
-    
+
     /**
      * Unit test that verifies that we can (re)parse sample document
      * from JSON specification.
@@ -265,7 +265,7 @@ public class TestTreeTraversingParser
         n.putObject("unknown").putNull("inner");
         Jackson370Bean obj = MAPPER.readValue(n.traverse(), Jackson370Bean.class);
         assertNotNull(obj.inner);
-        assertEquals("test", obj.inner.value);        
+        assertEquals("test", obj.inner.value);
     }
 
     // // // Numeric coercion checks, [databind#2189]

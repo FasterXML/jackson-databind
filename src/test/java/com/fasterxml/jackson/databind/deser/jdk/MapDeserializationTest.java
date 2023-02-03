@@ -48,7 +48,7 @@ public class MapDeserializationTest
 
     static class KeyType {
         protected String value;
-        
+
         private KeyType(String v, boolean bogus) {
             value = v;
         }
@@ -79,7 +79,7 @@ public class MapDeserializationTest
     }
 
     static class ClassStringMap extends HashMap<Class<?>,String> { }
-    
+
     static class AbstractMapWrapper {
         public AbstractMap<String, Integer> values;
     }
@@ -111,7 +111,7 @@ public class MapDeserializationTest
         assertEquals(map.size(), ((Map<?,?>) bound).size());
         assertEquals(map, bound);
     }
-    
+
     /**
      * Let's also try another way to express "gimme a Map" deserialization;
      * this time by specifying a Map class, to reduce need to cast
@@ -160,9 +160,9 @@ public class MapDeserializationTest
             "{ \"double\":42.0, \"string\":\"string\","
             +"\"boolean\":true, \"list\":[\"list0\"],"
             +"\"null\":null }";
-    
+
     static class ObjectWrapperMap extends HashMap<String, ObjectWrapper> { }
-    
+
     public void testSpecialMap() throws IOException
     {
        final ObjectWrapperMap map = MAPPER.readValue(UNTYPED_MAP_JSON, ObjectWrapperMap.class);
@@ -177,7 +177,7 @@ public class MapDeserializationTest
              new TypeReference<Map<String, ObjectWrapper>>() { });
        _doTestUntyped(map);
     }
-    
+
     private void _doTestUntyped(final Map<String, ObjectWrapper> map)
     {
         ObjectWrapper w = map.get("double");
@@ -190,7 +190,7 @@ public class MapDeserializationTest
         assertNull(map.get("null"));
         assertEquals(5, map.size());
     }
-    
+
     // [JACKSON-620]: allow "" to mean 'null' for Maps
     public void testFromEmptyString() throws Exception
     {
@@ -337,7 +337,7 @@ public class MapDeserializationTest
         assertNull(result.get(Key.KEY1));
     }
 
-    public void testEnumPolymorphicSerializationTest() throws Exception 
+    public void testEnumPolymorphicSerializationTest() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         List<ITestType> testTypesList = new ArrayList<ITestType>();
@@ -352,7 +352,7 @@ public class MapDeserializationTest
         testTypesMap.put(KeyEnum.A, ConcreteType.ONE);
         testTypesMap.put(KeyEnum.B, ConcreteType.TWO);
         enumMapContainer.testTypes = testTypesMap;
-        
+
         json = mapper.writeValueAsString(enumMapContainer);
         enumMapContainer = mapper.readValue(json, EnumMapContainer.class);
     }
@@ -366,15 +366,15 @@ public class MapDeserializationTest
     {
     	 Date date1=new Date(123456000L);
     	 DateFormat fmt = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
-         
+
     	 String JSON = "{ \""+  fmt.format(date1)+"\" : \"\", \""+new Date(0).getTime()+"\" : null }";
     	 HashMap<Date,String> result=  MAPPER.readValue
     	            (JSON, new TypeReference<HashMap<Date,String>>() { });
-    	 
+
     	 assertNotNull(result);
     	 assertEquals(HashMap.class, result.getClass());
     	 assertEquals(2, result.size());
-    	 
+
     	 assertTrue(result.containsKey(date1));
     	 assertEquals("", result.get(new Date(123456000L)));
 
@@ -391,7 +391,7 @@ public class MapDeserializationTest
     public void testCalendarMap() throws Exception
     {
         // 18-Jun-2015, tatu: Should be safest to use default timezone that mapper would use
-        TimeZone tz = MAPPER.getSerializationConfig().getTimeZone();        
+        TimeZone tz = MAPPER.getSerializationConfig().getTimeZone();
         Calendar c = Calendar.getInstance(tz);
 
         c.setTimeInMillis(123456000L);
@@ -505,7 +505,7 @@ public class MapDeserializationTest
     public void testMapError() throws Exception
     {
         try {
-            Object result = MAPPER.readValue("[ 1, 2 ]", 
+            Object result = MAPPER.readValue("[ 1, 2 ]",
                     new TypeReference<Map<String,String>>() { });
             fail("Expected an exception, but got result value: "+result);
         } catch (MismatchedInputException jex) {

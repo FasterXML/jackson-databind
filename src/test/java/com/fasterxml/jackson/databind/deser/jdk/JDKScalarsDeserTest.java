@@ -33,9 +33,9 @@ public class JDKScalarsDeserTest
     static class BooleanWrapper {
         public Boolean wrapper;
         public boolean primitive;
-        
+
         protected Boolean ctor;
-        
+
         @JsonCreator
         public BooleanWrapper(@JsonProperty("ctor") Boolean foo) {
             ctor = foo;
@@ -61,13 +61,13 @@ public class JDKScalarsDeserTest
         float _v;
         void setV(float v) { _v = v; }
     }
-    
+
     final static class CharacterBean {
         char _v;
         void setV(char v) { _v = v; }
         char getV() { return _v; }
     }
-    
+
     final static class CharacterWrapperBean {
         Character _v;
         void setV(Character v) { _v = v; }
@@ -211,7 +211,7 @@ public class JDKScalarsDeserTest
         // 22-Jun-2020, tatu: one special case turns out to be white space;
         //    need to avoid considering it "blank" value
         assertEquals(Character.valueOf(' '), MAPPER.readValue(q(" "), Character.class));
-        
+
         final CharacterWrapperBean wrapper = MAPPER.readValue("{\"v\":null}", CharacterWrapperBean.class);
         assertNotNull(wrapper);
         assertNull(wrapper.getV());
@@ -654,7 +654,7 @@ public class JDKScalarsDeserTest
             verifyException(e, "Cannot coerce `null`");
             verifyException(e, "to element of "+SIMPLE_NAME);
         }
-        
+
         if (testEmptyString) {
             ob = readerCoerceOk.forType(cls).readValue(EMPTY_STRING_JSON);
             assertEquals(1, Array.getLength(ob));

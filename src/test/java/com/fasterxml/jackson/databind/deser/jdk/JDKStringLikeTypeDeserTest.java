@@ -41,14 +41,14 @@ public class JDKStringLikeTypeDeserTest extends BaseMapTest
 
         @JsonProperty("Location")
         @JsonDeserialize(using=MyStackTraceElementDeserializer.class)
-        protected StackTraceElement location;    
+        protected StackTraceElement location;
     }
 
     @SuppressWarnings("serial")
     static class MyStackTraceElementDeserializer extends StdDeserializer<StackTraceElement>
     {
         public MyStackTraceElementDeserializer() { super(StackTraceElement.class); }
-        
+
         @Override
         public StackTraceElement deserialize(JsonParser jp,
                 DeserializationContext ctxt) throws IOException {
@@ -70,7 +70,7 @@ public class JDKStringLikeTypeDeserTest extends BaseMapTest
     {
         byte[] INPUT = new byte[] { 1, 3, 9, -1, 6 };
         String exp = MAPPER.writeValueAsString(INPUT);
-        ByteBuffer result = MAPPER.readValue(exp,  ByteBuffer.class); 
+        ByteBuffer result = MAPPER.readValue(exp,  ByteBuffer.class);
         assertNotNull(result);
         assertEquals(INPUT.length, result.remaining());
         for (int i = 0; i < INPUT.length; ++i) {
@@ -84,7 +84,7 @@ public class JDKStringLikeTypeDeserTest extends BaseMapTest
         Charset UTF8 = Charset.forName("UTF-8");
         assertSame(UTF8, MAPPER.readValue(q("UTF-8"), Charset.class));
     }
-    
+
     public void testClass() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -151,7 +151,7 @@ public class JDKStringLikeTypeDeserTest extends BaseMapTest
         InetAddress address = MAPPER.readValue(q("127.0.0.1"), InetAddress.class);
         assertEquals("127.0.0.1", address.getHostAddress());
 
-        // should we try resolving host names? That requires connectivity... 
+        // should we try resolving host names? That requires connectivity...
         final String HOST = "google.com";
         address = MAPPER.readValue(q(HOST), InetAddress.class);
         assertEquals(HOST, address.getHostName());
@@ -218,7 +218,7 @@ public class JDKStringLikeTypeDeserTest extends BaseMapTest
         }
         String json = MAPPER.writeValueAsString(elem);
         StackTraceElement back = MAPPER.readValue(json, StackTraceElement.class);
-        
+
         assertEquals("testStackTraceElement", back.getMethodName());
         assertEquals(elem.getLineNumber(), back.getLineNumber());
         assertEquals(elem.getClassName(), back.getClassName());
@@ -242,13 +242,13 @@ public class JDKStringLikeTypeDeserTest extends BaseMapTest
         SimpleModule module = new SimpleModule();
         module.addDeserializer(StackTraceElement.class, new MyStackTraceElementDeserializer());
         mapper.registerModule(module);
-        
+
         StackTraceElement elem = mapper.readValue("123", StackTraceElement.class);
         assertNotNull(elem);
         assertEquals(StackTraceBean.NUM, elem.getLineNumber());
- 
+
         // and finally, even as part of real exception
-        
+
         IOException ioe = mapper.readValue(a2q("{'stackTrace':[ 123, 456 ]}"),
                 IOException.class);
         assertNotNull(ioe);
@@ -380,7 +380,7 @@ public class JDKStringLikeTypeDeserTest extends BaseMapTest
         try (TokenBuffer buf = new TokenBuffer(null, false)) {
             buf.writeObject(value);
             assertSame(value, MAPPER.readValue(buf.asParser(), UUID.class));
-    
+
             // and finally from byte[]
             // oh crap; JDK UUID just... sucks. Not even byte[] accessors or constructors? Huh?
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
@@ -390,11 +390,11 @@ public class JDKStringLikeTypeDeserTest extends BaseMapTest
             out.close();
             byte[] data = bytes.toByteArray();
             assertEquals(16, data.length);
-            
+
             buf.writeObject(data);
-    
+
             UUID value2 = MAPPER.readValue(buf.asParser(), UUID.class);
-            
+
             assertEquals(value, value2);
         }
     }

@@ -44,7 +44,7 @@ public class TestPOJOAsArrayAdvanced extends BaseMapTest
 
     static class ViewA { }
     static class ViewB { }
-    
+
     @JsonFormat(shape=JsonFormat.Shape.ARRAY)
     @JsonPropertyOrder(alphabetic=true)
     static class AsArrayWithView

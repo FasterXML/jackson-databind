@@ -127,7 +127,7 @@ public class JSOGDeserialize622Test extends BaseMapTest
         public int hashCode() {
             return ref;
         }
-        
+
         @Override
         public boolean equals(Object other) {
             return (other instanceof JSOGRef)
@@ -186,7 +186,7 @@ public class JSOGDeserialize622Test extends BaseMapTest
         public Inner inner1;
         public Inner inner2;
     }
-    
+
     /*
     /**********************************************************************
     /* Test methods
@@ -194,7 +194,7 @@ public class JSOGDeserialize622Test extends BaseMapTest
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     // Basic for [databind#622]
     public void testStructJSOGRef() throws Exception
     {
@@ -232,7 +232,7 @@ public class JSOGDeserialize622Test extends BaseMapTest
         outer.inner1 = outer.inner2 = new SubInner("bar", "extra");
 
         String jsog = MAPPER.writeValueAsString(outer);
-        
+
         Outer back = MAPPER.readValue(jsog, Outer.class);
 
         assertSame(back.inner1, back.inner2);

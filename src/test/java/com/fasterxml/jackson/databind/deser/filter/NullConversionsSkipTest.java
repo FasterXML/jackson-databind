@@ -27,7 +27,7 @@ public class NullConversionsSkipTest extends BaseMapTest
             _noNulls = v;
         }
     }
-    
+
     static class StringValue {
         String value = "default";
 
@@ -84,10 +84,10 @@ public class NullConversionsSkipTest extends BaseMapTest
 
     // for [databind#2015]
     public void testEnumAsNullThenSkip() throws Exception
-    {    
+    {
         Pojo2015 p = MAPPER.readerFor(Pojo2015.class)
                 .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
-                .readValue("{\"number\":\"THREE\"}"); 
+                .readValue("{\"number\":\"THREE\"}");
         assertEquals(NUMS2015.TWO, p.number);
     }
 
@@ -96,7 +96,7 @@ public class NullConversionsSkipTest extends BaseMapTest
     /* Test methods, defaulting
     /**********************************************************
      */
-    
+
     public void testSkipNullWithDefaults() throws Exception
     {
         String json = a2q("{'value':null}");

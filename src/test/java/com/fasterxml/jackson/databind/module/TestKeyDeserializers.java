@@ -16,10 +16,10 @@ public class TestKeyDeserializers extends BaseMapTest
             return new Foo(key);
         }
     }
-    
+
     static class Foo {
         public String value;
-        
+
         public Foo(String v) { value = v; }
     }
 

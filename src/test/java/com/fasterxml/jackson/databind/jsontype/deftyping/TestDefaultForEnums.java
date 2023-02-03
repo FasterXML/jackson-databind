@@ -17,7 +17,7 @@ public class TestDefaultForEnums
     static final class EnumHolder
     {
         public Object value; // "untyped"
-        
+
         public EnumHolder() { }
         public EnumHolder(TestEnum e) { value = e; }
     }
@@ -36,13 +36,13 @@ public class TestDefaultForEnums
     {
         TimeUnitBean bean = new TimeUnitBean();
         bean.timeUnit = TimeUnit.SECONDS;
-        
+
         // First, without type info
         ObjectMapper m = new ObjectMapper();
         String json = m.writeValueAsString(bean);
         TimeUnitBean result = m.readValue(json, TimeUnitBean.class);
         assertEquals(TimeUnit.SECONDS, result.timeUnit);
-        
+
         // then with type info
         m = JsonMapper.builder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance)
@@ -52,7 +52,7 @@ public class TestDefaultForEnums
 
         assertEquals(TimeUnit.SECONDS, result.timeUnit);
     }
-    
+
     public void testSimpleEnumsInObjectArray() throws Exception
     {
         ObjectMapper m = JsonMapper.builder()

@@ -33,7 +33,7 @@ public class MixinsWithBundlesTest extends BaseMapTest
         public String getStuff() {
             return stuff;
         }
-    }    
+    }
     public void testMixinWithBundles() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper().addMixIn(Foo.class, FooMixin.class);

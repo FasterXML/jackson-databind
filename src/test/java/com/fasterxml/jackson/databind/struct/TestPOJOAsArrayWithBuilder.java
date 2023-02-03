@@ -40,7 +40,7 @@ public class TestPOJOAsArrayWithBuilder extends BaseMapTest
             x = x0;
             y = y0;
         }
-        
+
         public SimpleBuilderXY withX(int x0) {
             this.x = x0;
             return this;
@@ -85,7 +85,7 @@ public class TestPOJOAsArrayWithBuilder extends BaseMapTest
             this.a = a;
             this.b = b;
         }
-        
+
         @JsonView(String.class)
         public CreatorBuilder withC(int v) {
             c = v;
@@ -134,7 +134,7 @@ public class TestPOJOAsArrayWithBuilder extends BaseMapTest
     /* Creator test(s)
     /*****************************************************
      */
-    
+
     // test to ensure @JsonCreator also works
     public void testWithCreator() throws Exception
     {

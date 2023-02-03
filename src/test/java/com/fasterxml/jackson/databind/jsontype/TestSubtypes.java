@@ -376,7 +376,7 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         assertEquals(DefaultImpl505.class, bean.getClass());
         assertEquals(0, ((DefaultImpl505) bean).a);
     }
-    
+
     public void testErrorMessage() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         try {

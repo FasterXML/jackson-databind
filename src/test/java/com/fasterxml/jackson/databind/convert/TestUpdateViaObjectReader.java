@@ -213,7 +213,7 @@ public class TestUpdateViaObjectReader extends BaseMapTest
         assertSame(toUpdate, value);
         assertEquals(16, value.x); // unchanged
         assertEquals(37, value.y);
-        
+
         assertFalse(it.hasNext());
     }
 
@@ -225,7 +225,7 @@ public class TestUpdateViaObjectReader extends BaseMapTest
         bean.str = "test";
         Updateable result = MAPPER.readerForUpdating(bean)
                 .withView(TextView.class)
-                .readValue("{\"num\": 10, \"str\":\"foobar\"}");    
+                .readValue("{\"num\": 10, \"str\":\"foobar\"}");
         assertSame(bean, result);
 
         assertEquals(100, bean.num);
@@ -267,7 +267,7 @@ public class TestUpdateViaObjectReader extends BaseMapTest
 
         assertEquals(1, dbUpdViaNode.da.i);
         assertEquals(3, dbUpdViaNode.k);
-        
+
         mapper.readerForUpdating(dbUpdViaNode).readValue(jsonBNode);
         assertEquals(5, dbUpdViaNode.da.i);
         assertEquals(13, dbUpdViaNode.k);

@@ -9,7 +9,7 @@ public class TestInferredMutators extends BaseMapTest
 {
     public static class Point {
         protected int x;
-        
+
         public int getX() { return x; }
     }
 
@@ -43,7 +43,7 @@ public class TestInferredMutators extends BaseMapTest
             verifyException(e, "unrecognized field \"x\"");
         }
     }
-    
+
     // for #195
     public void testDeserializationInference() throws Exception
     {

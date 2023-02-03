@@ -34,7 +34,7 @@ public class BeanUtilTest extends BaseMapTest
         // primitive/wrappers have others
         assertEquals(Integer.valueOf(0),
                 BeanUtil.getDefaultValue(tf.constructType(Integer.class)));
-        
+
 
         // but POJOs have no real default
         assertNull(BeanUtil.getDefaultValue(tf.constructType(getClass())));

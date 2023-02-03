@@ -43,7 +43,7 @@ public class CoerceFloatToIntTest extends BaseMapTest
     /* Test methods, defaults (legacy)
     /********************************************************
      */
-    
+
     public void testLegacyDoubleToIntCoercion() throws Exception
     {
         // by default, should be ok
@@ -108,7 +108,7 @@ public class CoerceFloatToIntTest extends BaseMapTest
     /* Test methods, legacy, correct exception type
     /********************************************************
      */
-    
+
     // [databind#2804]
     public void testLegacyFail2804() throws Exception
     {
@@ -141,7 +141,7 @@ public class CoerceFloatToIntTest extends BaseMapTest
             fail("Should get subtype, got: "+ex);
         }
     }
-    
+
     /*
     /********************************************************
     /* Test methods, CoerceConfig, to null

@@ -23,7 +23,7 @@ public class ObjectMapperTest extends BaseMapTest
 {
     static class Bean {
         int value = 3;
-        
+
         public void setX(int v) { value = v; }
 
         protected Bean() { }
@@ -289,7 +289,7 @@ public class ObjectMapperTest extends BaseMapTest
     public void testConfigForPropertySorting() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
-        
+
         // sort-alphabetically is disabled by default:
         assertFalse(m.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY));
         SerializationConfig sc = m.getSerializationConfig();

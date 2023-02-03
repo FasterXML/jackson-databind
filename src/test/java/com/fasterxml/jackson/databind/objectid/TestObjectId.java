@@ -14,7 +14,7 @@ public class TestObjectId extends BaseMapTest
     static class Wrapper {
         public ColumnMetadata a, b;
     }
-    
+
     @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="@id")
     static class ColumnMetadata {
       private final String name;
@@ -45,13 +45,13 @@ public class TestObjectId extends BaseMapTest
       @JsonProperty("comment")
       public String getComment() {
         return comment;
-      }    
+      }
     }
 
     /* Problem in which always-as-id reference may prevent initial
      * serialization of a POJO.
      */
-    
+
     static class Company {
         public List<Employee> employees;
 
@@ -67,15 +67,15 @@ public class TestObjectId extends BaseMapTest
             generator=ObjectIdGenerators.PropertyGenerator.class)
     public static class Employee {
         public int id;
-     
+
         public String name;
-     
+
         @JsonIdentityReference(alwaysAsId=true)
         public Employee manager;
 
         @JsonIdentityReference(alwaysAsId=true)
         public List<Employee> reports;
-    
+
         public Employee() { }
         public Employee(int id, String name, Employee manager) {
             this.id = id;
@@ -124,9 +124,9 @@ public class TestObjectId extends BaseMapTest
     /* Test methods
     /**********************************************************
      */
-    
+
     private final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     public void testColumnMetadata() throws Exception
     {
         ColumnMetadata col = new ColumnMetadata("Billy", "employee", "comment");
@@ -134,12 +134,12 @@ public class TestObjectId extends BaseMapTest
         w.a = col;
         w.b = col;
         String json = MAPPER.writeValueAsString(w);
-        
+
         Wrapper deserialized = MAPPER.readValue(json, Wrapper.class);
         assertNotNull(deserialized);
         assertNotNull(deserialized.a);
         assertNotNull(deserialized.b);
-        
+
         assertEquals("Billy", deserialized.a.getName());
         assertEquals("employee", deserialized.a.getType());
         assertEquals("comment", deserialized.a.getComment());
@@ -159,7 +159,7 @@ public class TestObjectId extends BaseMapTest
 
         JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
         String json = mapper.writeValueAsString(comp);
-        
+
         assertEquals("{\"employees\":["
                 +"{\"id\":1,\"manager\":null,\"name\":\"First\",\"reports\":[2]},"
                 +"{\"id\":2,\"manager\":1,\"name\":\"Second\",\"reports\":[]}"
@@ -178,7 +178,7 @@ public class TestObjectId extends BaseMapTest
 
         String json = mapper.writerWithDefaultPrettyPrinter()
                 .writeValueAsString(inputRoot);
-        
+
         BaseEntity resultRoot = mapper.readValue(json, BaseEntity.class);
         assertNotNull(resultRoot);
         assertTrue(resultRoot instanceof Bar);

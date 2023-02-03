@@ -138,7 +138,7 @@ public class CreatorPropertiesTest extends BaseMapTest
 "    ]\n"),
             new TypeReference<List<Value3252>>() {});
 
-//System.err.println("JsON: "+MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(testData));       
+//System.err.println("JsON: "+MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(testData));
         assertEquals(3, testData.size());
     }
 }

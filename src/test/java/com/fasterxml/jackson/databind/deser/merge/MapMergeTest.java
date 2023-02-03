@@ -54,7 +54,7 @@ public class MapMergeTest extends BaseMapTest
     private final ObjectMapper MAPPER_SKIP_NULLS = newJsonMapper()
             .setDefaultSetterInfo(JsonSetter.Value.forContentNulls(Nulls.SKIP));
     ;
-    
+
     public void testShallowMapMerging() throws Exception
     {
         final String JSON = a2q("{'values':{'c':'y','d':null}}");
@@ -85,7 +85,7 @@ public class MapMergeTest extends BaseMapTest
         assertEquals("a", v.values.get(Integer.valueOf(13)));
         assertEquals("b", v.values.get(Integer.valueOf(72)));
     }
-    
+
     @SuppressWarnings("unchecked")
     public void testDeeperMapMerging() throws Exception
     {
@@ -150,7 +150,7 @@ public class MapMergeTest extends BaseMapTest
     /* Forcing shallow merge of root Maps:
     /********************************************************
      */
-    
+
     public void testDefaultDeepMapMerge() throws Exception
     {
         // First: deep merge should be enabled by default

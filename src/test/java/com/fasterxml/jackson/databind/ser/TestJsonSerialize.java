@@ -87,7 +87,7 @@ public class TestJsonSerialize
     static class ValueList extends ArrayList<ValueInterface> { }
     @SuppressWarnings("serial")
     static class ValueLinkedList extends LinkedList<ValueInterface> { }
-    
+
     // Classes for [JACKSON-294]
     static class Foo294
     {
@@ -132,7 +132,7 @@ public class TestJsonSerialize
      */
 
     final ObjectMapper MAPPER = objectMapper();
-    
+
     @SuppressWarnings("unchecked")
     public void testSimpleValueDefinition() throws Exception
     {
@@ -216,7 +216,7 @@ public class TestJsonSerialize
         list.add(new ValueClass());
         assertEquals("[{\"x\":3}]", serializeAsString(m, list));
     }
-    
+
     public void testStaticTypingWithArray() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
@@ -248,7 +248,7 @@ public class TestJsonSerialize
         .setVisibility(PropertyAccessor.FIELD, Visibility.ANY)
         .setVisibility(PropertyAccessor.CREATOR, Visibility.NONE)
         .setVisibility(PropertyAccessor.IS_GETTER, Visibility.NONE)
-        .setVisibility(PropertyAccessor.SETTER, Visibility.NONE);        
+        .setVisibility(PropertyAccessor.SETTER, Visibility.NONE);
         final String JSON = m.writeValueAsString(new Response());
         assertEquals(a2q("{'a':'x','something':true}"), JSON);
     }

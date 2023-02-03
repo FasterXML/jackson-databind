@@ -45,7 +45,7 @@ public class RecursiveTypeTest extends BaseMapTest
         public R setValue(final R value) {
             throw new UnsupportedOperationException();
         }
-      
+
         static <L, R> ImmutablePair<L, R> of(final L left, final R right) {
             return new ImmutablePair<L, R>(left, right);
         }
@@ -58,7 +58,7 @@ public class RecursiveTypeTest extends BaseMapTest
         JavaType type = tf.constructType(HashTree.class);
         assertNotNull(type);
     }
-    
+
     // for [databind#1301]
     @SuppressWarnings("serial")
     static class DataDefinition extends HashMap<String, DataDefinition> {
@@ -68,7 +68,7 @@ public class RecursiveTypeTest extends BaseMapTest
         public boolean required;
         public String type;
     }
-    
+
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     // [databind#938]

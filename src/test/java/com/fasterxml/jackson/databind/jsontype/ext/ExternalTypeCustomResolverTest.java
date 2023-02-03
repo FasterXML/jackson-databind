@@ -18,9 +18,9 @@ public class ExternalTypeCustomResolverTest extends BaseMapTest
 {
     // [databind#1288]
     public static class ClassesWithoutBuilder {
-        
+
         public static class CreditCardDetails implements PaymentDetails {
-            
+
             protected String cardHolderFirstName;
             protected String cardHolderLastName;
             protected String number;
@@ -30,9 +30,9 @@ public class ExternalTypeCustomResolverTest extends BaseMapTest
             protected String zipCode;
             protected String city;
             protected String province;
-            
+
             protected String countryCode;
-            
+
             protected String description;
 
             public void setCardHolderFirstName(String cardHolderFirstName) {
@@ -78,14 +78,14 @@ public class ExternalTypeCustomResolverTest extends BaseMapTest
             public void setDescription(String description) {
                 this.description = description;
             }
-            
-            
+
+
         }
-        
+
         public static class EncryptedCreditCardDetails implements PaymentDetails {
-            
+
             protected UUID paymentInstrumentID;
-            
+
             protected String name;
 
             public void setPaymentInstrumentID(UUID paymentInstrumentID) {
@@ -97,22 +97,22 @@ public class ExternalTypeCustomResolverTest extends BaseMapTest
             }
 
         }
-        
+
         public enum FormOfPayment {
             INDIVIDUAL_CREDIT_CARD (CreditCardDetails.class), COMPANY_CREDIT_CARD (
                     CreditCardDetails.class), INSTRUMENTED_CREDIT_CARD (EncryptedCreditCardDetails.class);
-            
+
             private final Class<? extends PaymentDetails> clazz;
-            
+
             FormOfPayment(final Class<? extends PaymentDetails> clazz) {
                 this.clazz = clazz;
             }
-            
+
             @SuppressWarnings("unchecked")
             public <T extends PaymentDetails> Class<T> getDetailsClass () {
                 return (Class<T>) this.clazz;
             }
-            
+
             public static FormOfPayment fromDetailsClass(Class<PaymentDetails> detailsClass) {
                 for (FormOfPayment fop : FormOfPayment.values ()) {
                     if (fop.clazz == detailsClass) {
@@ -122,17 +122,17 @@ public class ExternalTypeCustomResolverTest extends BaseMapTest
                 throw new IllegalArgumentException("not found");
             }
         }
-        
+
         public interface PaymentDetails {
             public interface Builder {
                 PaymentDetails build();
             }
         }
-        
+
         public static class PaymentMean {
-            
+
             FormOfPayment formOfPayment;
-            
+
             PaymentDetails paymentDetails;
 
             public void setFormOfPayment(FormOfPayment formOfPayment) {
@@ -145,7 +145,7 @@ public class ExternalTypeCustomResolverTest extends BaseMapTest
                 this.paymentDetails = paymentDetails;
             }
         }
-        
+
         public static class PaymentDetailsTypeIdResolver extends TypeIdResolverBase {
             @SuppressWarnings("unchecked")
             @Override
@@ -155,7 +155,7 @@ public class ExternalTypeCustomResolverTest extends BaseMapTest
                 }
                 return FormOfPayment.fromDetailsClass ((Class<PaymentDetails>) value.getClass ()).name ();
             }
-            
+
             @Override
             public String idFromValueAndType (Object value, Class<?> suggestedType) {
                 return this.idFromValue (value);
@@ -170,16 +170,16 @@ public class ExternalTypeCustomResolverTest extends BaseMapTest
             public String getDescForKnownTypeIds () {
                 return "PaymentDetails";
             }
-            
+
             @Override
             public Id getMechanism () {
                 return JsonTypeInfo.Id.CUSTOM;
             }
         }
     }
-    
+
     public static class ClassesWithBuilder {
-        
+
         @JsonDeserialize (builder = CreditCardDetails.IndividualCreditCardDetailsBuilder.class)
         public static class CreditCardDetails implements PaymentDetails {
             @JsonPOJOBuilder(withPrefix = "")
@@ -188,34 +188,34 @@ public class ExternalTypeCustomResolverTest extends BaseMapTest
                 private String cardHolderLastName;
                 private String number;
                 private int csc;
-                
+
                 @Override
                 public CreditCardDetails build() {
                     return new CreditCardDetails (cardHolderFirstName, cardHolderLastName, number, csc,
                             "COMPANY CREDIT CARD");
                 }
-                
+
                 public CompanyCreditCardDetailsBuilder cardHolderFirstName(final String cardHolderFirstName) {
                     this.cardHolderFirstName = cardHolderFirstName;
                     return this;
                 }
-                
+
                 public CompanyCreditCardDetailsBuilder cardHolderLastName(final String cardHolderLastName) {
                     this.cardHolderLastName = cardHolderLastName;
                     return this;
                 }
-                
+
                 public CompanyCreditCardDetailsBuilder csc(final int csc) {
                     this.csc = csc;
                     return this;
                 }
-                
+
                 public CompanyCreditCardDetailsBuilder number(final String number) {
                     this.number = number;
                     return this;
                 }
             }
-            
+
             @JsonPOJOBuilder (withPrefix = "")
             public static class IndividualCreditCardDetailsBuilder implements Builder {
                 private String cardHolderFirstName;
@@ -229,12 +229,12 @@ public class ExternalTypeCustomResolverTest extends BaseMapTest
                     return new CreditCardDetails(cardHolderFirstName, cardHolderLastName, number, csc,
                             description);
                 }
-                
+
                 public IndividualCreditCardDetailsBuilder cardHolderFirstName(final String cardHolderFirstName) {
                     this.cardHolderFirstName = cardHolderFirstName;
                     return this;
                 }
-                
+
                 public IndividualCreditCardDetailsBuilder cardHolderLastName(final String cardHolderLastName) {
                     this.cardHolderLastName = cardHolderLastName;
                     return this;
@@ -244,7 +244,7 @@ public class ExternalTypeCustomResolverTest extends BaseMapTest
                     this.csc = csc;
                     return this;
                 }
-                
+
                 public IndividualCreditCardDetailsBuilder description (final String description) {
                     this.description = description;
                     return this;
@@ -255,14 +255,14 @@ public class ExternalTypeCustomResolverTest extends BaseMapTest
                     return this;
                 }
             }
-            
+
             protected final String cardHolderFirstName;
             protected final String cardHolderLastName;
             protected final String number;
             protected final int    csc;
-            
+
             protected final String description;
-            
+
             public CreditCardDetails (final String cardHolderFirstName, final String cardHolderLastName,
                     final String number, final int csc,
                     final String description) {
@@ -274,24 +274,24 @@ public class ExternalTypeCustomResolverTest extends BaseMapTest
                 this.description = description;
             }
         }
-        
+
         @JsonDeserialize (builder = EncryptedCreditCardDetails.InstrumentedCreditCardBuilder.class)
         public static class EncryptedCreditCardDetails implements PaymentDetails {
             @JsonPOJOBuilder (withPrefix = "")
             public static class InstrumentedCreditCardBuilder implements Builder {
                 private UUID   paymentInstrumentID;
                 private String name;
-                
+
                 @Override
                 public EncryptedCreditCardDetails build () {
                     return new EncryptedCreditCardDetails (this.paymentInstrumentID, this.name);
                 }
-                
+
                 public InstrumentedCreditCardBuilder name (final String name) {
                     this.name = name;
                     return this;
                 }
-                
+
                 public InstrumentedCreditCardBuilder paymentInstrumentID (final UUID paymentInstrumentID) {
                     this.paymentInstrumentID = paymentInstrumentID;
                     return this;
@@ -307,22 +307,22 @@ public class ExternalTypeCustomResolverTest extends BaseMapTest
                 this.name = name;
             }
         }
-        
+
         public enum FormOfPayment {
             INDIVIDUAL_CREDIT_CARD (CreditCardDetails.IndividualCreditCardDetailsBuilder.class), COMPANY_CREDIT_CARD (
                     CreditCardDetails.CompanyCreditCardDetailsBuilder.class), INSTRUMENTED_CREDIT_CARD (EncryptedCreditCardDetails.InstrumentedCreditCardBuilder.class);
-            
+
             private final Class<? extends PaymentDetails.Builder> builderClass;
-            
+
             FormOfPayment(final Class<? extends PaymentDetails.Builder> builderClass) {
                 this.builderClass = builderClass;
             }
-            
+
             @SuppressWarnings ("unchecked")
             public <T extends PaymentDetails> Class<T> getDetailsClass() {
                 return (Class<T>) this.builderClass.getEnclosingClass();
             }
-            
+
             public static FormOfPayment fromDetailsClass(Class<PaymentDetails> detailsClass) {
                 for (FormOfPayment fop : FormOfPayment.values()) {
                     if (fop.builderClass.getEnclosingClass() == detailsClass) {
@@ -332,13 +332,13 @@ public class ExternalTypeCustomResolverTest extends BaseMapTest
                 throw new IllegalArgumentException("not found");
             }
         }
-        
+
         public interface PaymentDetails {
             public interface Builder {
                 PaymentDetails build();
             }
         }
-        
+
         @JsonDeserialize(builder = PaymentMean.Builder.class)
         public static class PaymentMean {
             @JsonPOJOBuilder(withPrefix = "")
@@ -346,11 +346,11 @@ public class ExternalTypeCustomResolverTest extends BaseMapTest
             public static class Builder {
                 private FormOfPayment  formOfPayment;
                 private PaymentDetails paymentDetails;
-                
+
                 public PaymentMean build () {
                     return new PaymentMean(this.formOfPayment, this.paymentDetails);
                 }
-                
+
                 // if you annotate with @JsonIgnore, it works, but the value
                 // disappears in the constructor
                 public Builder formOfPayment (final FormOfPayment val) {
@@ -365,7 +365,7 @@ public class ExternalTypeCustomResolverTest extends BaseMapTest
                     return this;
                 }
             }
-            
+
             public static Builder create() {
                 return new Builder();
             }
@@ -379,7 +379,7 @@ public class ExternalTypeCustomResolverTest extends BaseMapTest
                 this.paymentDetails = paymentDetails;
             }
         }
-        
+
         public static class PaymentDetailsTypeIdResolver extends TypeIdResolverBase {
             @SuppressWarnings ("unchecked")
             @Override
@@ -389,7 +389,7 @@ public class ExternalTypeCustomResolverTest extends BaseMapTest
                 }
                 return FormOfPayment.fromDetailsClass ((Class<PaymentDetails>) value.getClass ()).name ();
             }
-            
+
             @Override
             public String idFromValueAndType (Object value, Class<?> suggestedType) {
                 return this.idFromValue (value);
@@ -399,12 +399,12 @@ public class ExternalTypeCustomResolverTest extends BaseMapTest
             public JavaType typeFromId(DatabindContext context, String id) {
                 return context.getTypeFactory().constructType(FormOfPayment.valueOf (id).getDetailsClass ());
             }
-            
+
             @Override
             public String getDescForKnownTypeIds() {
                 return "PaymentDetails";
             }
-            
+
             @Override
             public Id getMechanism() {
                 return JsonTypeInfo.Id.CUSTOM;

@@ -53,7 +53,7 @@ System.err.println(" final? "+type.isFinal());
          actualJson = MAPPER.writeValueAsString(list);
          output = MAPPER.readValue(actualJson, List.class);
          assertEquals(3, output.size());
-         
+
          list = List.of();
          actualJson = MAPPER.writeValueAsString(list);
          output = MAPPER.readValue(actualJson, List.class);

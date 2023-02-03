@@ -14,7 +14,7 @@ public class RecordNamingStrategy2992Test extends BaseMapTest
 
     // [databind#2992]
     public void testRecordRenaming2992() throws Exception
-    { 
+    {
         Record2992 src = new Record2992("id", "value");
         String json = MAPPER.writeValueAsString(src);
         assertEquals(a2q("{'my_id':'id','my_value':'value'}"), json);

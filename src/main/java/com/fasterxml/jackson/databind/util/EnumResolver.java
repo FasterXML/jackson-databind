@@ -126,7 +126,12 @@ public class EnumResolver implements java.io.Serializable
                 config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS));
     }
 
-
+    /**
+     * Factory method for constructing resolver that maps from index of Enum.values() into
+     * Enum value
+     *
+     * @since 2.15
+     */
     public static EnumResolver constructUsingIndex(DeserializationConfig config, Class<Enum<?>> enumCls) {
         return _constructUsingIndex(enumCls, config.getAnnotationIntrospector(),
                 config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS));

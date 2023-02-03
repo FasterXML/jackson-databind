@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.JsonParser;
  * Specialized sub-class of {@link MismatchedInputException}
  * that is used when the underlying problem appears to be that
  * of bad formatting of a value to deserialize.
- * 
+ *
  * @since 2.1
  */
 public class InvalidFormatException

@@ -13,7 +13,7 @@ public final class NoCheckSubTypeValidator
 {
     private static final long serialVersionUID = 1L;
 
-    public final static NoCheckSubTypeValidator instance = new NoCheckSubTypeValidator(); 
+    public final static NoCheckSubTypeValidator instance = new NoCheckSubTypeValidator();
 
     @Override
     public Validity validateBaseType(MapperConfig<?> config, JavaType baseType) {

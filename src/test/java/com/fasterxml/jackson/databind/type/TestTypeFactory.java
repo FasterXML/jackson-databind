@@ -32,7 +32,7 @@ public class TestTypeFactory
 
     @SuppressWarnings("serial")
     static class GenericList<T> extends ArrayList<T> { }
-    
+
     interface MapInterface extends Cloneable, IntermediateInterfaceMap<String> { }
     interface IntermediateInterfaceMap<FOO> extends Map<FOO, Integer> { }
 
@@ -56,7 +56,7 @@ public class TestTypeFactory
         // self-reference; should be resolved as "Comparable<Object>"
         public <T extends Comparable<T>> T getFoobar() { return null; }
     }
-    
+
     @SuppressWarnings("serial")
     public static class LongValuedMap<K> extends HashMap<K, Long> { }
 
@@ -80,7 +80,7 @@ public class TestTypeFactory
     /* Unit tests
     /**********************************************************
      */
-    
+
     public void testSimpleTypes()
     {
         Class<?>[] classes = new Class<?>[] {
@@ -139,7 +139,7 @@ public class TestTypeFactory
         assertSame(String.class, mt.getKeyType().getRawClass());
         assertSame(String.class, mt.getContentType().getRawClass());
     }
-    
+
     public void testIterator()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -223,7 +223,7 @@ public class TestTypeFactory
             verifyException(e, "Cannot create TypeBindings for class ");
         }
     }
-    
+
     /**
      * Test for checking that canonical name handling works ok
      */
@@ -360,7 +360,7 @@ public class TestTypeFactory
     /* Unit tests: map type parameter resolution
     /**********************************************************
      */
-    
+
     public void testMaps()
     {
         TypeFactory tf = newTypeFactory();
@@ -410,7 +410,7 @@ public class TestTypeFactory
         assertEquals(Integer.class, mapType.getContentType().getContentType().getRawClass());
         // No super-class, since it's an interface:
         assertNull(type.getSuperClass());
-        
+
         // But then refine to reflect sub-classing
         JavaType subtype = tf.constructSpecializedType(type, LinkedHashMap.class);
         assertEquals(LinkedHashMap.class, subtype.getRawClass());
@@ -455,7 +455,7 @@ public class TestTypeFactory
         assertEquals(MapType.class, type.getClass());
         MapType mapType = (MapType) type;
         assertEquals(tf.constructType(Object.class), mapType.getKeyType());
-        assertEquals(tf.constructType(Object.class), mapType.getContentType());        
+        assertEquals(tf.constructType(Object.class), mapType.getContentType());
     }
 
     public void testMapTypesAdvanced()
@@ -466,7 +466,7 @@ public class TestTypeFactory
         MapType mapType = (MapType) type;
         assertEquals(tf.constructType(String.class), mapType.getKeyType());
         assertEquals(tf.constructType(Long.class), mapType.getContentType());
-        
+
         type = tf.constructType(MapInterface.class);
         mapType = (MapType) type;
 
@@ -491,8 +491,8 @@ public class TestTypeFactory
         MapType mapType = (MapType) type;
         assertEquals(tf.constructType(Integer.class), mapType.getKeyType());
         assertEquals(tf.constructType(Long.class), mapType.getContentType());
-    }    
-    
+    }
+
     /**
      * Plus sneaky types may be found via introspection as well.
      */
@@ -511,8 +511,8 @@ public class TestTypeFactory
         assertTrue(type instanceof CollectionType);
         CollectionType collectionType = (CollectionType) type;
         assertEquals(tf.constructType(Long.class), collectionType.getContentType());
-    }    
-    
+    }
+
     /**
      * Looks like type handling actually differs for properties, too.
      */
@@ -557,7 +557,7 @@ public class TestTypeFactory
     }
 
     static abstract class StringIntMapEntry implements Map.Entry<String,Integer> { }
-    
+
     public void testMapEntryResolution()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -617,7 +617,7 @@ public class TestTypeFactory
     /* Unit tests: other
     /**********************************************************
      */
-    
+
     public void testMoreSpecificType()
     {
         TypeFactory tf = TypeFactory.defaultInstance();

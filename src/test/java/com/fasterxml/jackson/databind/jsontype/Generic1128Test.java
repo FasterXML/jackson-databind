@@ -22,7 +22,7 @@ public class Generic1128Test extends BaseMapTest
 
         // for some reason, setter is needed to expose this...
         public void setTag(String t) { tag = t; }
-        
+
         //public String getTag() { return tag; }
     }
 
@@ -57,7 +57,7 @@ public class Generic1128Test extends BaseMapTest
         parent.id = 2L;
         entity.parent = parent;
         devMContainer1.entity = entity;
-    
+
         String json = mapper.writeValueAsString(devMContainer1);
 
 //        System.out.println("serializedContainer = " + json);

@@ -181,7 +181,7 @@ public final class ClassUtil
         // Anything else? Seems valid, then
         return null;
     }
-    
+
     public static String isLocalType(Class<?> type, boolean allowNonStatic)
     {
         /* As per [JACKSON-187], GAE seems to throw SecurityExceptions
@@ -269,7 +269,7 @@ public final class ClassUtil
         int mod = member.getModifiers();
         return (mod & (Modifier.INTERFACE | Modifier.ABSTRACT)) == 0;
     }
-    
+
     public static boolean isCollectionMapOrArray(Class<?> type)
     {
         if (type.isArray()) return true;
@@ -401,7 +401,7 @@ public final class ClassUtil
     /* Exception handling; other
     /**********************************************************
      */
-    
+
     /**
      * Method that can be used to find the "root cause", innermost
      * of chained (wrapped) exceptions.
@@ -606,7 +606,7 @@ public final class ClassUtil
         }
         return inst.getClass();
     }
-    
+
     /**
      * @since 2.9
      */
@@ -768,7 +768,7 @@ public final class ClassUtil
         }
         return apostrophed(name);
     }
-    
+
     /**
      * Returns either single-quoted (apostrophe) {@code 'name'} (if {@code name} not null),
      * or "[null]" if {@code name} is null.
@@ -918,7 +918,7 @@ public final class ClassUtil
         if (type.isPrimitive()) {
             return type;
         }
-        
+
         if (type == Integer.class) {
             return Integer.TYPE;
         }
@@ -969,7 +969,7 @@ public final class ClassUtil
      * Method that is called if a {@link Member} may need forced access,
      * to force a field, method or constructor to be accessible: this
      * is done by calling {@link AccessibleObject#setAccessible(boolean)}.
-     * 
+     *
      * @param member Accessor to call <code>setAccessible()</code> on.
      * @param evenIfAlreadyPublic Whether to always try to make accessor
      *   accessible, even if {@code public} (true),
@@ -1317,7 +1317,7 @@ se.getClass().getName(), se.getMessage()),
 cls.getName(), rootCause.getClass().getName(), rootCause.getMessage()),
                 rootCause);
     }
-    
+
     /**
      * @since 2.7
      */
@@ -1484,9 +1484,9 @@ cls.getName(), rootCause.getClass().getName(), rootCause.getMessage()),
         private transient Annotation[] _annotations;
 
         private transient Annotation[][] _paramAnnotations;
-        
+
         private int _paramCount = -1;
-        
+
         public Ctor(Constructor<?> ctor) {
             _ctor = ctor;
         }

@@ -31,7 +31,7 @@ public interface Converter<IN,OUT>
      * usually can be determined from type parameters, but may need
      * to be implemented differently from programmatically defined
      * converters (which cannot change static type parameter bindings).
-     * 
+     *
      * @since 2.2
      */
     public JavaType getInputType(TypeFactory typeFactory);
@@ -41,11 +41,11 @@ public interface Converter<IN,OUT>
      * usually can be determined from type parameters, but may need
      * to be implemented differently from programmatically defined
      * converters (which cannot change static type parameter bindings).
-     * 
+     *
      * @since 2.2
      */
     public JavaType getOutputType(TypeFactory typeFactory);
-    
+
     /*
     /**********************************************************
     /* Helper class(es)
@@ -59,7 +59,7 @@ public interface Converter<IN,OUT>
      * Specifically, this class is to be used as the marker for
      * annotation {@link com.fasterxml.jackson.databind.annotation.JsonSerialize},
      * property <code>converter</code> (and related)
-     * 
+     *
      * @since 2.2
      */
     public abstract static class None

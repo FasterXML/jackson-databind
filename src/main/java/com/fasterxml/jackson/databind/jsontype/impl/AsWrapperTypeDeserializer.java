@@ -35,12 +35,12 @@ public class AsWrapperTypeDeserializer
     protected AsWrapperTypeDeserializer(AsWrapperTypeDeserializer src, BeanProperty property) {
         super(src, property);
     }
-    
+
     @Override
     public TypeDeserializer forProperty(BeanProperty prop) {
         return (prop == _property) ? this : new AsWrapperTypeDeserializer(this, prop);
     }
-    
+
     @Override
     public As getTypeInclusion() { return As.WRAPPER_OBJECT; }
 
@@ -50,7 +50,7 @@ public class AsWrapperTypeDeserializer
     @Override
     public Object deserializeTypedFromObject(JsonParser jp, DeserializationContext ctxt) throws IOException {
         return _deserialize(jp, ctxt);
-    }    
+    }
 
     @Override
     public Object deserializeTypedFromArray(JsonParser jp, DeserializationContext ctxt) throws IOException {
@@ -66,7 +66,7 @@ public class AsWrapperTypeDeserializer
     public Object deserializeTypedFromAny(JsonParser jp, DeserializationContext ctxt) throws IOException {
         return _deserialize(jp, ctxt);
     }
-    
+
     /*
     /***************************************************************
     /* Internal methods
@@ -117,7 +117,7 @@ public class AsWrapperTypeDeserializer
             p = JsonParserSequence.createFlattened(false, tb.asParser(p), p);
             p.nextToken();
         }
-        
+
         Object value = deser.deserialize(p, ctxt);
         // And then need the closing END_OBJECT
         if (p.nextToken() != JsonToken.END_OBJECT) {

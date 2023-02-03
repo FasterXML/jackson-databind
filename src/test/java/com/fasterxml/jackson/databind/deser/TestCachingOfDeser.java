@@ -55,7 +55,7 @@ public class TestCachingOfDeser extends BaseMapTest
     final static String MAP_INPUT = "{\"map\":{\"a\":1}}";
     final static String LIST_INPUT = "{\"list\":[1]}";
 
-    
+
     // Ok: first, use custom-annotated instance first, then standard
     public void testCustomMapCaching1() throws Exception
     {
@@ -69,7 +69,7 @@ public class TestCachingOfDeser extends BaseMapTest
         assertEquals(Integer.valueOf(100), mapC.map.get("a"));
         assertEquals(Integer.valueOf(1), mapStd.map.get("a"));
     }
-        
+
     // And then standard first, custom next
     public void testCustomMapCaching2() throws Exception
     {

@@ -16,7 +16,7 @@ public class TestStatics
         int _x;
 
         public static void setX(int value) { throw new Error("Should NOT call static method"); }
-        
+
         @JsonProperty("x") public void assignX(int x) { _x = x; }
     }
 

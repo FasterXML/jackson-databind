@@ -85,7 +85,7 @@ public class MapEntrySerializer
      * non-null values.
      * Note that inclusion value for Map instance itself is handled by caller (POJO
      * property that refers to the Map value).
-     * 
+     *
      * @since 2.5
      */
     protected final Object _suppressableValue;
@@ -128,7 +128,7 @@ public class MapEntrySerializer
         this(src, property, vts, keySer, valueSer,
                 src._suppressableValue, src._suppressNulls);
     }
-        
+
     @SuppressWarnings("unchecked")
     protected MapEntrySerializer(MapEntrySerializer src, BeanProperty property,
             TypeSerializer vts,
@@ -269,7 +269,7 @@ public class MapEntrySerializer
                 }
             }
         }
-        
+
         MapEntrySerializer mser = withResolved(property, keySer, ser,
                 valueToSuppress, suppressNulls);
         // but note: no (full) filtering or sorting (unlike Maps)
@@ -419,7 +419,7 @@ public class MapEntrySerializer
     /* Internal helper methods
     /**********************************************************
      */
-    
+
     protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
             Class<?> type, SerializerProvider provider) throws JsonMappingException
     {

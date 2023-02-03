@@ -29,7 +29,7 @@ public class SerializationFeaturesTest
     private static class StringListBean {
         @SuppressWarnings("unused")
         public Collection<String> values;
-        
+
         public StringListBean(Collection<String> v) { values = v; }
     }
 
@@ -68,7 +68,7 @@ public class SerializationFeaturesTest
         ObjectMapper m = new ObjectMapper();
         // default: serialize as Strings
         assertEquals(q("abc"), m.writeValueAsString(chars));
-        
+
         // new feature: serialize as JSON array:
         m.configure(SerializationFeature.WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS, true);
         assertEquals("[\"a\",\"b\",\"c\"]", m.writeValueAsString(chars));
@@ -145,7 +145,7 @@ public class SerializationFeaturesTest
         final Set<String> SET = new HashSet<String>();
         SET.add("foo");
         assertEquals(EXP_STRINGS, writer.writeValueAsString(new StringListBean(SET)));
-        
+
         // arrays:
         assertEquals("true", writer.writeValueAsString(new boolean[] { true }));
         assertEquals("[true,false]", writer.writeValueAsString(new boolean[] { true, false }));
@@ -153,7 +153,7 @@ public class SerializationFeaturesTest
 
         assertEquals("3", writer.writeValueAsString(new short[] { 3 }));
         assertEquals("[3,2]", writer.writeValueAsString(new short[] { 3, 2 }));
-        
+
         assertEquals("3", writer.writeValueAsString(new int[] { 3 }));
         assertEquals("[3,2]", writer.writeValueAsString(new int[] { 3, 2 }));
 
@@ -165,7 +165,7 @@ public class SerializationFeaturesTest
 
         assertEquals("0.5", writer.writeValueAsString(new float[] { 0.5f }));
         assertEquals("[0.5,2.5]", writer.writeValueAsString(new float[] { 0.5f, 2.5f }));
-        
+
         assertEquals(q("foo"), writer.writeValueAsString(new String[] { "foo" }));
     }
 }

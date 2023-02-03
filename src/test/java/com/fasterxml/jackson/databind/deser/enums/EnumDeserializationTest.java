@@ -214,7 +214,7 @@ public class EnumDeserializationTest
         public String toString() {
             return value;
         }
-    }        
+    }
 
     // [databind#3006]
     enum Operation3006 {
@@ -291,7 +291,7 @@ public class EnumDeserializationTest
         TimeUnit result = MAPPER.readValue(json, TimeUnit.class);
         assertSame(TimeUnit.SECONDS, result);
     }
-    
+
     /**
      * Testing to see that annotation override works
      */
@@ -410,7 +410,7 @@ public class EnumDeserializationTest
                 .readValue("[\"NO-SUCH-VALUE\"]");
         assertEquals(0, result.size());
     }
-    
+
     public void testAllowUnknownEnumValuesAsMapKeysReadAsNull() throws Exception
     {
         ObjectReader reader = MAPPER.reader(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
@@ -418,7 +418,7 @@ public class EnumDeserializationTest
                 .readValue("{\"map\":{\"NO-SUCH-VALUE\":\"val\"}}");
         assertTrue(result.map.containsKey(null));
     }
-    
+
     public void testDoNotAllowUnknownEnumValuesAsMapKeysWhenReadAsNullDisabled() throws Exception
     {
         assertFalse(MAPPER.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL));
@@ -457,7 +457,7 @@ public class EnumDeserializationTest
                     .with(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
                     .readValue("[" + q("JACKSON") + "]"));
     }
-    
+
     public void testUnwrappedEnumException() throws Exception {
         final ObjectMapper mapper = newJsonMapper();
         mapper.disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
@@ -530,7 +530,7 @@ public class EnumDeserializationTest
                 .readValue(q("A"));
         assertSame(Enum1161.A, result);
     }
-    
+
     public void testEnumWithDefaultAnnotation() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);

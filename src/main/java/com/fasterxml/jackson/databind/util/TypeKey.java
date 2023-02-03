@@ -56,11 +56,11 @@ public class TypeKey
     public final static int untypedHash(JavaType type) {
         return type.hashCode() - 1;
     }
-    
+
     public final static int typedHash(JavaType type) {
         return type.hashCode() - 2;
     }
-    
+
     public final void resetTyped(Class<?> cls) {
         _type = null;
         _class = cls;
@@ -74,7 +74,7 @@ public class TypeKey
         _isTyped = false;
         _hashCode = untypedHash(cls);
     }
-    
+
     public final void resetTyped(JavaType type) {
         _type = type;
         _class = null;
@@ -109,7 +109,7 @@ public class TypeKey
         }
         return "{type: "+_type+", typed? "+_isTyped+"}";
     }
-    
+
     // note: we assume key is never used for anything other than as map key, so:
     @Override public final boolean equals(Object o)
     {
@@ -126,5 +126,5 @@ public class TypeKey
             return _type.equals(other._type);
         }
         return false;
-    } 
+    }
 }

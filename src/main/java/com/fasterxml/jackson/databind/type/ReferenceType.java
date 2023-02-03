@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.JavaType;
  * that is, values that can be dereferenced to another value (or null),
  * of different type.
  * Referenced type is accessible using {@link #getContentType()}.
- * 
+ *
  * @since 2.6
  */
 public class ReferenceType extends SimpleType
@@ -57,7 +57,7 @@ public class ReferenceType extends SimpleType
     /**
      * Factory method that can be used to "upgrade" a basic type into collection-like
      * one; usually done via {@link TypeModifier}
-     * 
+     *
      * @param baseType Resolved non-reference type (usually {@link SimpleType}) that is being upgraded
      * @param refdType Referenced type; usually the first and only type parameter, but not necessarily
      *
@@ -220,7 +220,7 @@ public class ReferenceType extends SimpleType
     public StringBuilder getErasedSignature(StringBuilder sb) {
         return _classSignature(_class, sb, true);
     }
-    
+
     @Override
     public StringBuilder getGenericSignature(StringBuilder sb)
     {
@@ -278,7 +278,7 @@ public class ReferenceType extends SimpleType
         ReferenceType other = (ReferenceType) o;
 
         if (other._class != _class) return false;
-        
+
         // Otherwise actually mostly worry about referenced type
         return _referencedType.equals(other._referencedType);
     }

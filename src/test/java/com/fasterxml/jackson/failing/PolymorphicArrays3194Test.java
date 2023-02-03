@@ -32,16 +32,16 @@ public class PolymorphicArrays3194Test extends BaseMapTest
         String json = mapper
 //                .writerWithDefaultPrettyPrinter()
                 .writeValueAsString(instance);
-        
+
         // Note: we'll see something like:
-        // 
+        //
 //  {
 //    "value" : [ "[[Ljava.lang.String;", [ [ "[Ljava.lang.String;", [ "1.1", "1.2" ] ], [ "[Ljava.lang.String;", [ "2.1", "2.2" ] ] ] ]
 //  }
 
-     // that is, type ids for both array levels.   
-        
-// System.err.println("JSON:\n"+json);        
+     // that is, type ids for both array levels.
+
+// System.err.println("JSON:\n"+json);
         SomeBean result = mapper.readValue(json, SomeBean.class); // fails
         assertEquals(String[][].class, result.value.getClass());
         assertEquals(String[].class, result.value[0].getClass());

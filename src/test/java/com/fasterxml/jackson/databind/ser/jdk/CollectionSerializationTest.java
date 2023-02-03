@@ -40,7 +40,7 @@ public class CollectionSerializationTest
      * Class needed for testing [JACKSON-220]
      */
     @SuppressWarnings("serial")
-    @JsonSerialize(using=ListSerializer.class)    
+    @JsonSerialize(using=ListSerializer.class)
     static class PseudoList extends ArrayList<String>
     {
         public PseudoList(String... values) {
@@ -75,7 +75,7 @@ public class CollectionSerializationTest
             list = new ArrayList<String>(Arrays.asList(v));
         }
         protected StaticListWrapper() { }
-        
+
         public List<String> getList( ) { return list; }
         public void setList(List<String> l) { list = l; }
     }
@@ -122,7 +122,7 @@ public class CollectionSerializationTest
                 value = c;
             }
             String json = MAPPER.writeValueAsString(value);
-            
+
             // and then need to verify:
             JsonParser jp = new JsonFactory().createParser(json);
             assertToken(JsonToken.START_ARRAY, jp.nextToken());

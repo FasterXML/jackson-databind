@@ -77,11 +77,11 @@ public class ObjectReader
     protected final boolean _unwrapRoot;
 
     /**
-     * Filter to be consider for JsonParser.  
+     * Filter to be consider for JsonParser.
      * Default value to be null as filter not considered.
      */
     private final TokenFilter _filter;
-    
+
     /*
     /**********************************************************
     /* Configuration that can be changed during building
@@ -103,11 +103,11 @@ public class ObjectReader
      * is known, and if so, reuse it afterwards.
      * This allows avoiding further deserializer lookups and increases
      * performance a bit on cases where readers are reused.
-     * 
+     *
      * @since 2.1
      */
     protected final JsonDeserializer<Object> _rootDeserializer;
-    
+
     /**
      * Instance to update with data binding; if any. If null,
      * a new instance is created, if non-null, properties of
@@ -138,7 +138,7 @@ public class ObjectReader
      * because format-detection only works on byte-sources. Also, if format
      * cannot be detect reliably (as per detector settings),
      * a {@link StreamReadException} will be thrown).
-     * 
+     *
      * @since 2.1
      */
     protected final DataFormatReaders _dataFormatReaders;
@@ -159,7 +159,7 @@ public class ObjectReader
      * Lazily resolved {@link JavaType} for {@link JsonNode}
      */
     protected transient JavaType _jsonNodeType;
-    
+
     /*
     /**********************************************************
     /* Life-cycle, construction
@@ -192,10 +192,10 @@ public class ObjectReader
         _unwrapRoot = config.useRootWrapping();
 
         _rootDeserializer = _prefetchRootDeserializer(valueType);
-        _dataFormatReaders = null;        
+        _dataFormatReaders = null;
         _filter = null;
     }
-    
+
     /**
      * Copy constructor used for building variations.
      */
@@ -240,7 +240,7 @@ public class ObjectReader
         _dataFormatReaders = base._dataFormatReaders;
         _filter = base._filter;
     }
-    
+
     protected ObjectReader(ObjectReader base, JsonFactory f)
     {
         // may need to override ordering, based on data format capabilities
@@ -260,7 +260,7 @@ public class ObjectReader
         _dataFormatReaders = base._dataFormatReaders;
         _filter = base._filter;
     }
-    
+
     protected ObjectReader(ObjectReader base, TokenFilter filter) {
         _config = base._config;
         _context = base._context;
@@ -275,7 +275,7 @@ public class ObjectReader
         _dataFormatReaders = base._dataFormatReaders;
         _filter = filter;
     }
-    
+
     /**
      * Method that will return version information stored in and read from jar
      * that contains this class.
@@ -295,7 +295,7 @@ public class ObjectReader
 
     /**
      * Overridable factory method called by various "withXxx()" methods
-     * 
+     *
      * @since 2.5
      */
     protected ObjectReader _new(ObjectReader base, JsonFactory f) {
@@ -304,7 +304,7 @@ public class ObjectReader
 
     /**
      * Overridable factory method called by various "withXxx()" methods
-     * 
+     *
      * @since 2.5
      */
     protected ObjectReader _new(ObjectReader base, DeserializationConfig config) {
@@ -313,7 +313,7 @@ public class ObjectReader
 
     /**
      * Overridable factory method called by various "withXxx()" methods
-     * 
+     *
      * @since 2.5
      */
     protected ObjectReader _new(ObjectReader base, DeserializationConfig config,
@@ -327,7 +327,7 @@ public class ObjectReader
     /**
      * Factory method used to create {@link MappingIterator} instances;
      * either default, or custom subtype.
-     * 
+     *
      * @since 2.5
      */
     protected <T> MappingIterator<T> _newIterator(JsonParser p, DeserializationContext ctxt,
@@ -370,7 +370,7 @@ public class ObjectReader
      * but need to do other initialization.
      *<p>
      * Base implementation only sets configured {@link FormatSchema}, if any, on parser.
-     * 
+     *
      * @since 2.8
      */
     protected void _initForMultiRead(DeserializationContext ctxt, JsonParser p)
@@ -401,7 +401,7 @@ public class ObjectReader
             DeserializationFeature... other)
     {
         return _with(_config.with(first, other));
-    }    
+    }
 
     /**
      * Method for constructing a new reader instance that is configured
@@ -409,14 +409,14 @@ public class ObjectReader
      */
     public ObjectReader withFeatures(DeserializationFeature... features) {
         return _with(_config.withFeatures(features));
-    }    
+    }
 
     /**
      * Method for constructing a new reader instance that is configured
      * with specified feature disabled.
      */
     public ObjectReader without(DeserializationFeature feature) {
-        return _with(_config.without(feature)); 
+        return _with(_config.without(feature));
     }
 
     /**
@@ -426,7 +426,7 @@ public class ObjectReader
     public ObjectReader without(DeserializationFeature first,
             DeserializationFeature... other) {
         return _with(_config.without(first, other));
-    }    
+    }
 
     /**
      * Method for constructing a new reader instance that is configured
@@ -434,7 +434,7 @@ public class ObjectReader
      */
     public ObjectReader withoutFeatures(DeserializationFeature... features) {
         return _with(_config.withoutFeatures(features));
-    }    
+    }
 
     /*
     /**********************************************************************
@@ -460,7 +460,7 @@ public class ObjectReader
      */
     public ObjectReader withFeatures(DatatypeFeature... features) {
         return _with(_config.withFeatures(features));
-    }    
+    }
 
     /**
      * Method for constructing a new reader instance that is configured
@@ -469,7 +469,7 @@ public class ObjectReader
      * @since 2.14
      */
     public ObjectReader without(DatatypeFeature feature) {
-        return _with(_config.without(feature)); 
+        return _with(_config.without(feature));
     }
 
     /**
@@ -480,7 +480,7 @@ public class ObjectReader
      */
     public ObjectReader withoutFeatures(DatatypeFeature... features) {
         return _with(_config.withoutFeatures(features));
-    }    
+    }
 
     /*
     /**********************************************************
@@ -511,7 +511,7 @@ public class ObjectReader
      */
     public ObjectReader withFeatures(JsonParser.Feature... features) {
         return _with(_config.withFeatures(features));
-    }    
+    }
 
     /**
      * Method for constructing a new reader instance that is configured
@@ -522,7 +522,7 @@ public class ObjectReader
      * @return Reader instance with specified feature disabled
      */
     public ObjectReader without(JsonParser.Feature feature) {
-        return _with(_config.without(feature)); 
+        return _with(_config.without(feature));
     }
 
     /**
@@ -591,7 +591,7 @@ public class ObjectReader
      */
     public ObjectReader withFeatures(FormatFeature... features) {
         return _with(_config.withFeatures(features));
-    }    
+    }
 
     /**
      * Method for constructing a new reader instance that is configured
@@ -600,7 +600,7 @@ public class ObjectReader
      * @since 2.7
      */
     public ObjectReader without(FormatFeature feature) {
-        return _with(_config.without(feature)); 
+        return _with(_config.without(feature));
     }
 
     /**
@@ -612,7 +612,7 @@ public class ObjectReader
     public ObjectReader withoutFeatures(FormatFeature... features) {
         return _with(_config.withoutFeatures(features));
     }
-    
+
     /*
     /**********************************************************
     /* Life-cycle, fluent factory methods, other
@@ -620,8 +620,8 @@ public class ObjectReader
      */
 
     /**
-     * Convenience method to bind from {@link JsonPointer}.  
-     * {@link JsonPointerBasedFilter} is registered and will be used for parsing later. 
+     * Convenience method to bind from {@link JsonPointer}.
+     * {@link JsonPointerBasedFilter} is registered and will be used for parsing later.
      * @since 2.6
      */
     public ObjectReader at(final String pointerExpr) {
@@ -648,7 +648,7 @@ public class ObjectReader
      */
     public ObjectReader with(DeserializationConfig config) {
         return _with(config);
-    }    
+    }
 
     /**
      * Method for constructing a new instance with configuration that uses
@@ -687,7 +687,7 @@ public class ObjectReader
      * (that is, ones that return <code>false</code> for
      * {@link JsonFactory#requiresCustomCodec()}) can be used: trying
      * to use one that requires custom codec will throw exception
-     * 
+     *
      * @since 2.1
      */
     public ObjectReader with(JsonFactory f) {
@@ -701,7 +701,7 @@ public class ObjectReader
         }
         return r;
     }
-    
+
     /**
      * Method for constructing a new instance with configuration that
      * specifies what root name to expect for "root name unwrapping".
@@ -721,7 +721,7 @@ public class ObjectReader
     public ObjectReader withRootName(PropertyName rootName) {
         return _with(_config.withRootName(rootName));
     }
-    
+
     /**
      * Convenience method that is same as calling:
      *<code>
@@ -729,13 +729,13 @@ public class ObjectReader
      *</code>
      * which will forcibly prevent use of root name wrapping when writing
      * values with this {@link ObjectReader}.
-     * 
+     *
      * @since 2.6
      */
     public ObjectReader withoutRootName() {
         return _with(_config.withRootName(PropertyName.NO_NAME));
     }
-    
+
     /**
      * Method for constructing a new instance with configuration that
      * passes specified {@link FormatSchema} to {@link JsonParser} that
@@ -760,7 +760,7 @@ public class ObjectReader
      *<p>
      * Note that the method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
-     * 
+     *
      * @since 2.5
      */
     public ObjectReader forType(JavaType valueType)
@@ -776,7 +776,7 @@ public class ObjectReader
         }
         return _new(this, _config, valueType, rootDeser,
                 _valueToUpdate, _schema, _injectableValues, det);
-    }    
+    }
 
     /**
      * Method for constructing a new reader instance that is configured
@@ -789,7 +789,7 @@ public class ObjectReader
      */
     public ObjectReader forType(Class<?> valueType) {
         return forType(_config.constructType(valueType));
-    }    
+    }
 
     /**
      * Method for constructing a new reader instance that is configured
@@ -802,7 +802,7 @@ public class ObjectReader
      */
     public ObjectReader forType(TypeReference<?> valueTypeRef) {
         return forType(_config.getTypeFactory().constructType(valueTypeRef.getType()));
-    }    
+    }
 
     /**
      * @deprecated since 2.5 Use {@link #forType(JavaType)} instead
@@ -818,7 +818,7 @@ public class ObjectReader
     @Deprecated
     public ObjectReader withType(Class<?> valueType) {
         return forType(_config.constructType(valueType));
-    }    
+    }
 
     /**
      * @deprecated since 2.5 Use {@link #forType(Class)} instead
@@ -834,11 +834,11 @@ public class ObjectReader
     @Deprecated
     public ObjectReader withType(TypeReference<?> valueTypeRef) {
         return forType(_config.getTypeFactory().constructType(valueTypeRef.getType()));
-    }    
+    }
 
     /**
      * Method for constructing a new instance with configuration that
-     * updates passed Object (as root value), instead of constructing 
+     * updates passed Object (as root value), instead of constructing
      * a new value.
      *<p>
      * Note that the method does NOT change state of this reader, but
@@ -854,7 +854,7 @@ public class ObjectReader
                     _schema, _injectableValues, _dataFormatReaders);
         }
         JavaType t;
-        
+
         /* no real benefit from pre-fetching, as updating readers are much
          * less likely to be reused, and value type may also be forced
          * with a later chained call...
@@ -909,12 +909,12 @@ public class ObjectReader
      * Note: not all {@link JsonFactory} types can be passed: specifically, ones that
      * require "custom codec" (like XML factory) will not work. Instead, use
      * method that takes {@link ObjectReader} instances instead of factories.
-     * 
+     *
      * @param readers Data formats accepted, in decreasing order of priority (that is,
      *   matches checked in listed order, first match wins)
-     * 
+     *
      * @return Newly configured writer instance
-     * 
+     *
      * @since 2.1
      */
     public ObjectReader withFormatDetection(ObjectReader... readers) {
@@ -929,11 +929,11 @@ public class ObjectReader
      * NOTE: since format detection only works with byte sources, it is possible to
      * get a failure from some 'readValue()' methods. Also, if input cannot be reliably
      * (enough) detected as one of specified types, an exception will be thrown.
-     * 
+     *
      * @param readers DataFormatReaders to use for detecting underlying format.
-     * 
+     *
      * @return Newly configured writer instance
-     * 
+     *
      * @since 2.1
      */
     public ObjectReader withFormatDetection(DataFormatReaders readers) {
@@ -974,7 +974,7 @@ public class ObjectReader
     /* Overridable factory methods may override
     /**********************************************************
      */
-    
+
     protected ObjectReader _with(DeserializationConfig newConfig) {
         if (newConfig == _config) {
             return this;
@@ -985,13 +985,13 @@ public class ObjectReader
         }
         return r;
     }
-    
+
     /*
     /**********************************************************
     /* Simple accessors
     /**********************************************************
      */
-    
+
     public boolean isEnabled(DeserializationFeature f) {
         return _config.isEnabled(f);
     }
@@ -1024,7 +1024,7 @@ public class ObjectReader
     public DeserializationConfig getConfig() {
         return _config;
     }
-    
+
     /**
      * @since 2.1
      */
@@ -1463,7 +1463,7 @@ public class ObjectReader
     /* Deserialization methods; others similar to what ObjectMapper has
     /**********************************************************
      */
-    
+
     /**
      * Method that binds content read from given input source,
      * using configuration of this reader.
@@ -1768,7 +1768,7 @@ public class ObjectReader
     /* Deserialization methods; JsonNode ("tree")
     /**********************************************************
      */
-    
+
     /**
      * Method that reads content from given input source,
      * using configuration of this reader, and binds it as JSON Tree.
@@ -1793,7 +1793,7 @@ public class ObjectReader
         }
         return _bindAndCloseAsTree(_considerFilter(createParser(src), false));
     }
-    
+
     /**
      * Same as {@link #readTree(InputStream)} except content accessed through
      * passed-in {@link Reader}
@@ -1836,7 +1836,7 @@ public class ObjectReader
         }
         return _bindAndCloseAsTree(_considerFilter(createParser(json), false));
     }
-    
+
     /**
      * Same as {@link #readTree(InputStream)} except content read from
      * passed-in byte array.
@@ -1866,7 +1866,7 @@ public class ObjectReader
     /* Deserialization methods; reading sequence of values
     /**********************************************************
      */
-    
+
     /**
      * Method for reading sequence of Objects from parser stream.
      *<p>
@@ -1885,7 +1885,7 @@ public class ObjectReader
         // false -> do not close as caller gave parser instance
         return _newIterator(p, ctxt, _findRootDeserializer(ctxt), false);
     }
-    
+
     /**
      * Method for reading sequence of Objects from parser stream.
      *<p>
@@ -1911,10 +1911,10 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             return _detectBindAndReadValues(_dataFormatReaders.findFormat(src), false);
         }
-        
+
         return _bindAndReadValues(_considerFilter(createParser(src), true));
     }
-    
+
     /**
      * Overloaded version of {@link #readValue(InputStream)}.
      */
@@ -1929,10 +1929,10 @@ public class ObjectReader
         p.nextToken();
         return _newIterator(p, ctxt, _findRootDeserializer(ctxt), true);
     }
-    
+
     /**
      * Overloaded version of {@link #readValue(InputStream)}.
-     * 
+     *
      * @param json String that contains JSON content to parse
      */
     public <T> MappingIterator<T> readValues(String json) throws IOException
@@ -1966,7 +1966,7 @@ public class ObjectReader
         _assertNotNull("src", src);
         return readValues(src, 0, src.length);
     }
-    
+
     /**
      * Overloaded version of {@link #readValue(InputStream)}.
      */
@@ -1987,7 +1987,7 @@ public class ObjectReader
      * calls {@link java.net.URL#openStream()}, meaning no special handling
      * is done. If different HTTP connection options are needed you will need
      * to create {@link java.io.InputStream} separately.
-     * 
+     *
      * @param src URL to read to access JSON content to parse.
      */
     public <T> MappingIterator<T> readValues(URL src) throws IOException
@@ -2125,7 +2125,7 @@ public class ObjectReader
         if (_valueToUpdate != null) {
             return (JsonNode) _bind(p, _valueToUpdate);
         }
-        
+
         // Need to inline `_initForReading()` due to tree reading handling end-of-input specially
         _config.initialize(p);
         if (_schema != null) {
@@ -2208,7 +2208,7 @@ public class ObjectReader
     }
 
     /**
-     * Consider filter when creating JsonParser.  
+     * Consider filter when creating JsonParser.
      */
     protected JsonParser _considerFilter(final JsonParser p, boolean multiValue) {
         // 26-Mar-2016, tatu: Need to allow multiple-matches at least if we have
@@ -2259,7 +2259,7 @@ public class ObjectReader
             _reportUnkownFormat(_dataFormatReaders, match);
         }
         JsonParser p = match.createParserWithMatch();
-        // One more thing: we Own the input stream now; and while it's 
+        // One more thing: we Own the input stream now; and while it's
         // not super clean way to do it, we must ensure closure so:
         if (forceClosing) {
             p.enable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
@@ -2275,7 +2275,7 @@ public class ObjectReader
             _reportUnkownFormat(_dataFormatReaders, match);
         }
         JsonParser p = match.createParserWithMatch();
-        // One more thing: we Own the input stream now; and while it's 
+        // One more thing: we Own the input stream now; and while it's
         // not super clean way to do it, we must ensure closure so:
         if (forceClosing) {
             p.enable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
@@ -2294,7 +2294,7 @@ public class ObjectReader
         p.enable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
         return match.getReader()._bindAndCloseAsTree(p);
     }
-    
+
     /**
      * Method called to indicate that format detection failed to detect format
      * of given input
@@ -2360,7 +2360,7 @@ public class ObjectReader
     /* Helper methods, locating deserializers etc
     /**********************************************************
      */
-    
+
     /**
      * Method called to locate deserializer for the passed root-level value.
      */

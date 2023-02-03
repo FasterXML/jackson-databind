@@ -49,8 +49,8 @@ public class TestTreeWithType extends BaseMapTest
         {
             return (SavedCookie) typeDeserializer.deserializeTypedFromObject(jp, ctxt);
         }
-    }    
-    
+    }
+
     /*
     /**********************************************************
     /* Unit tests

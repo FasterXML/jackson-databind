@@ -36,7 +36,7 @@ public class SqlDateSerializer
     protected long _timestamp(java.sql.Date value) {
         return (value == null) ? 0L : value.getTime();
     }
-    
+
     @Override
     public void serialize(java.sql.Date value, JsonGenerator g, SerializerProvider provider)
         throws IOException

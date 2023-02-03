@@ -111,7 +111,7 @@ public class JsonNodeFactory
 
     /**
      * Accessor needed by {@code JsonNodeDeserializer}.
-     * 
+     *
      * @since 2.15
      */
     public boolean willStripTrailingBigDecimalZeroes() {
@@ -143,7 +143,7 @@ public class JsonNodeFactory
     public JsonNode missingNode() {
         return MissingNode.getInstance();
     }
-    
+
     /*
     /**********************************************************
     /* Factory methods for numeric values

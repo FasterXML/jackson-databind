@@ -22,7 +22,7 @@ public class UnwrappingBeanSerializer
      * of unwrapped POJO.
      */
     protected final NameTransformer _nameTransformer;
-    
+
     /*
     /**********************************************************
     /* Life-cycle: constructors
@@ -112,7 +112,7 @@ public class UnwrappingBeanSerializer
     protected BeanSerializerBase asArraySerializer() {
         return this;
     }
-    
+
     /*
     /**********************************************************
     /* JsonSerializer implementation that differs between impls
@@ -138,7 +138,7 @@ public class UnwrappingBeanSerializer
             serializeFields(bean, gen, provider);
         }
     }
-    
+
     @Override
     public void serializeWithType(Object bean, JsonGenerator gen, SerializerProvider provider,
     		TypeSerializer typeSer) throws IOException

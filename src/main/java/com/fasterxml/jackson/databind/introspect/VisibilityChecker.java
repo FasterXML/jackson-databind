@@ -61,7 +61,7 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
      * (which would basically enable auto-detection for all member fields)
      */
     public T withVisibility(PropertyAccessor method, Visibility v);
-    
+
     /**
      * Builder method that will return a checker instance that has
      * specified minimum visibility level for regular ("getXxx") getters.
@@ -73,7 +73,7 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
      * specified minimum visibility level for "is-getters" ("isXxx").
      */
     public T withIsGetterVisibility(Visibility v);
-    
+
     /**
      * Builder method that will return a checker instance that has
      * specified minimum visibility level for setters.
@@ -92,9 +92,9 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
      * specified minimum visibility level for fields.
      */
     public T withFieldVisibility(Visibility v);
-	
+
     // // Accessors
-	
+
     /**
      * Method for checking whether given method is auto-detectable
      * as regular getter, with respect to its visibility (not considering
@@ -110,7 +110,7 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
      */
     public boolean isIsGetterVisible(Method m);
     public boolean isIsGetterVisible(AnnotatedMethod m);
-    
+
     /**
      * Method for checking whether given method is auto-detectable
      * as setter, with respect to its visibility (not considering
@@ -201,11 +201,11 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
          * @since 2.13
          */
         public static Std allPublicInstance() { return ALL_PUBLIC; }
-        
+
         /**
          * Constructor used for building instance that has minumum visibility
          * levels as indicated by given annotation instance
-         * 
+         *
          * @param ann Annotations to use for determining minimum visibility levels
          */
         public Std(JsonAutoDetect ann)
@@ -234,7 +234,7 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
         /**
          * Constructor that will assign given visibility value for all
          * properties.
-         * 
+         *
          * @param v level to use for all property types
          */
         public Std(Visibility v)
@@ -352,7 +352,7 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
                 return this;
             }
         }
-	
+
         @Override
         public Std withGetterVisibility(Visibility v) {
             if (v == Visibility.DEFAULT) v = DEFAULT._getterMinLevel;
@@ -423,22 +423,22 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
         public boolean isGetterVisible(AnnotatedMethod m) {
              return isGetterVisible(m.getAnnotated());
         }
-    
+
         @Override
         public boolean isIsGetterVisible(Method m) {
             return _isGetterMinLevel.isVisible(m);
-        }    
-    
+        }
+
         @Override
         public boolean isIsGetterVisible(AnnotatedMethod m) {
             return isIsGetterVisible(m.getAnnotated());
         }
-    
+
         @Override
         public boolean isSetterVisible(Method m) {
             return _setterMinLevel.isVisible(m);
         }
-        
+
         @Override
         public boolean isSetterVisible(AnnotatedMethod m) {
             return isSetterVisible(m.getAnnotated());
@@ -449,7 +449,7 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
         /* Standard methods
         /********************************************************
          */
-    
+
         @Override
         public String toString() {
             return String.format("[Visibility: getter=%s,isGetter=%s,setter=%s,creator=%s,field=%s]",

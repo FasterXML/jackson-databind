@@ -29,7 +29,7 @@ public class JsonIncludeArrayTest extends BaseMapTest
 
         public NonEmptyCharArray(char... v) { value = v; }
     }
-    
+
     static class NonEmptyIntArray {
         @JsonInclude(JsonInclude.Include.NON_EMPTY)
         public int[] value;

@@ -44,7 +44,7 @@ public class BeanSerializer
     {
         super(type, builder, properties, filteredProperties);
     }
-    
+
     /**
      * Alternate copy constructor that can be used to construct
      * standard {@link BeanSerializer} passing an instance of
@@ -136,7 +136,7 @@ public class BeanSerializer
     protected BeanSerializerBase asArraySerializer()
     {
         /* Cannot:
-         * 
+         *
          * - have Object Id (may be allowed in future)
          * - have "any getter"
          * - have per-property filters
@@ -150,7 +150,7 @@ public class BeanSerializer
         // already is one, so:
         return this;
     }
-    
+
     /*
     /**********************************************************
     /* JsonSerializer implementation that differs between impls

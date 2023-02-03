@@ -17,7 +17,7 @@ public class ExternalTypeIdWithEnum1328Test extends BaseMapTest
     public static class Dog implements Animal {
         public String dogStuff;
     }
-    
+
     public enum AnimalType {
         Dog;
     }
@@ -25,10 +25,10 @@ public class ExternalTypeIdWithEnum1328Test extends BaseMapTest
     public static class AnimalAndType {
         public AnimalType type;
 
-        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, 
-            include = JsonTypeInfo.As.EXTERNAL_PROPERTY, 
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS,
+            include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
             property = "type")
-        @JsonTypeIdResolver(AnimalResolver.class)   
+        @JsonTypeIdResolver(AnimalResolver.class)
         private Animal animal;
 
         public AnimalAndType() { }
@@ -76,12 +76,12 @@ public class ExternalTypeIdWithEnum1328Test extends BaseMapTest
         @Override
         public JsonTypeInfo.Id getMechanism() {
             return JsonTypeInfo.Id.CUSTOM;
-        } 
+        }
     }
 
     public void testExample() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
-        
+
         String json = mapper.writerWithDefaultPrettyPrinter()
                 .writeValueAsString(Arrays.asList(new AnimalAndType(AnimalType.Dog, new Dog())));
         List<AnimalAndType> list = mapper.readerFor(new TypeReference<List<AnimalAndType>>() { })

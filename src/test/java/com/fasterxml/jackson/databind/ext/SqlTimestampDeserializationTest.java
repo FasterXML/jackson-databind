@@ -31,7 +31,7 @@ public class SqlTimestampDeserializationTest
     {
         final ObjectReader r = MAPPER.readerFor(java.sql.Timestamp.class)
                 .with(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
-        
+
         long now = System.currentTimeMillis();
         java.sql.Timestamp value = new java.sql.Timestamp(now);
 

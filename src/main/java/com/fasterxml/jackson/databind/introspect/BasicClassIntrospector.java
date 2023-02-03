@@ -216,7 +216,7 @@ public class BasicClassIntrospector
     {
         return collectPropertiesWithBuilder(config, type, r, null, forSerialization);
     }
-    
+
     /**
      * Overridable method called for creating {@link POJOPropertiesCollector} instance
      * to use; override is needed if a custom sub-class is to be used.

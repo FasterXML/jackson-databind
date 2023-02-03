@@ -80,7 +80,7 @@ public class TestMixinSerForClass
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
-    
+
     public void testClassMixInsTopLevel() throws IOException
     {
         Map<String,Object> result;

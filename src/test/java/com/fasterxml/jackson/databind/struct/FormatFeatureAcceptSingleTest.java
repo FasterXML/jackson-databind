@@ -20,7 +20,7 @@ public class FormatFeatureAcceptSingleTest extends BaseMapTest
         protected StringArrayNotAnnoted() { }
         public StringArrayNotAnnoted(String ... v) { values = v; }
     }
-    
+
     static class StringArrayWrapper {
         @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
         public String[] values;
@@ -45,7 +45,7 @@ public class FormatFeatureAcceptSingleTest extends BaseMapTest
         @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
         public float[] values;
     }
-    
+
     static class DoubleArrayWrapper {
         @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
         public double[] values;
@@ -87,7 +87,7 @@ public class FormatFeatureAcceptSingleTest extends BaseMapTest
         @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
         public EnumSet<ABC> values;
     }
-    
+
     static class RolesInArray {
         @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
         public Role[] roles;
@@ -224,7 +224,7 @@ public class FormatFeatureAcceptSingleTest extends BaseMapTest
         assertEquals(1, result.values.length);
         assertEquals(0.25f, result.values[0]);
     }
-    
+
     public void testSingleElementArrayRead() throws Exception {
         String json = a2q(
                 "{ 'roles': { 'Name': 'User', 'ID': '333' } }");

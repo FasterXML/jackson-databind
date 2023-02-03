@@ -19,7 +19,7 @@ public class NullsConstantProvider
     private final static NullsConstantProvider SKIPPER = new NullsConstantProvider(null);
 
     private final static NullsConstantProvider NULLER = new NullsConstantProvider(null);
-    
+
     protected final Object _nullValue;
 
     protected final AccessPattern _access;
@@ -68,12 +68,12 @@ public class NullsConstantProvider
     public static boolean isNuller(NullValueProvider p) {
         return (p == NULLER);
     }
-    
+
     @Override
     public AccessPattern getNullAccessPattern() {
         return _access;
     }
-    
+
     @Override
     public Object getNullValue(DeserializationContext ctxt) {
         return _nullValue;

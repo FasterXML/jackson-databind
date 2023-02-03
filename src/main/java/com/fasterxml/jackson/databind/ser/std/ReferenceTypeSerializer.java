@@ -33,7 +33,7 @@ public abstract class ReferenceTypeSerializer<T>
      * @since 2.9
      */
     public final static Object MARKER_FOR_EMPTY = JsonInclude.Include.NON_EMPTY;
-    
+
     /**
      * Value type
      */
@@ -403,7 +403,7 @@ public abstract class ReferenceTypeSerializer<T>
         // 19-Apr-2016, tatu: In order to basically "skip" the whole wrapper level
         //    (which is what non-polymorphic serialization does too), we will need
         //    to simply delegate call, I think, and NOT try to use it here.
-        
+
         // Otherwise apply type-prefix/suffix, then std serialize:
         /*
         typeSer.writeTypePrefixForScalar(ref, g);
@@ -442,7 +442,7 @@ public abstract class ReferenceTypeSerializer<T>
     /* Helper methods
     /**********************************************************
      */
-    
+
     /**
      * Helper method that encapsulates logic of retrieving and caching required
      * serializer.
@@ -461,7 +461,7 @@ public abstract class ReferenceTypeSerializer<T>
                 JavaType fullType = provider.constructSpecializedType(_referredType, rawType);
                 // 23-Oct-2019, tatu: I _think_ we actually need to consider referenced
                 //    type as "primary" to allow applying various handlers -- done since 2.11
-                
+
                 ser = provider.findPrimaryPropertySerializer(fullType, _property);
             } else {
                 ser = provider.findPrimaryPropertySerializer(rawType, _property);

@@ -36,5 +36,5 @@ public class SerializationIgnore3357Test extends BaseMapTest
         String json = MAPPER.writeValueAsString(new IgnoreAndProperty3357());
         assertEquals("{\"toInclude\":2}", json);
     }
-    
+
 }

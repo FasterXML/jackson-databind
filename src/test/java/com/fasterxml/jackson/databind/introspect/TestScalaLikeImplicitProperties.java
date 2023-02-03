@@ -181,7 +181,7 @@ public class TestScalaLikeImplicitProperties extends BaseMapTest
     /* Helper methods
     /**********************************************************
      */
-    
+
     private ObjectMapper manglingMapper()
     {
         ObjectMapper m = new ObjectMapper();

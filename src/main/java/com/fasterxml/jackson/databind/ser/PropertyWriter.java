@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * as key/value pairs via streaming API. This is the most generic abstraction
  * implemented by both POJO and {@link java.util.Map} serializers, and invoked
  * by filtering functionality.
- * 
+ *
  * @since 2.3
  */
 public abstract class PropertyWriter
@@ -64,7 +64,7 @@ public abstract class PropertyWriter
      * that is, tries to find a property annotation first, but if one is not
      * found, tries to find context-annotation (from enclosing class) of
      * same type.
-     * 
+     *
      * @since 2.5
      */
     public <A extends Annotation> A findAnnotation(Class<A> acls) {
@@ -74,11 +74,11 @@ public abstract class PropertyWriter
         }
         return ann;
     }
-    
+
     /**
      * Method for accessing annotations directly declared for property that this
      * writer is associated with.
-     * 
+     *
      * @since 2.5
      */
     @Override
@@ -88,7 +88,7 @@ public abstract class PropertyWriter
      * Method for accessing annotations declared in context of the property that this
      * writer is associated with; usually this means annotations on enclosing class
      * for property.
-     * 
+     *
      * @since 2.5
      */
     @Override
@@ -158,7 +158,7 @@ public abstract class PropertyWriter
 
     /**
      * Legacy method called for JSON Schema generation; should not be called by new code
-     * 
+     *
      * @deprecated Since 2.2
      */
     @Deprecated

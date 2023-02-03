@@ -76,7 +76,7 @@ public class OptionalHandlerFactory implements java.io.Serializable
         } catch (Throwable t) { }
         _jdk7Helper = x;
     }
-    
+
     public final static OptionalHandlerFactory instance = new OptionalHandlerFactory();
 
     // classes from java.sql module, this module may or may not be present at runtime
@@ -111,7 +111,7 @@ public class OptionalHandlerFactory implements java.io.Serializable
         // 09-Nov-2020, tatu: Not really optimal way to deal with these, problem  being that
         //   Blob is interface and actual instance we get is usually different. So may
         //   need to improve if we reported bugs. But for now, do this
-        
+
         _sqlSerializers.put(CLS_NAME_JAVA_SQL_BLOB, "com.fasterxml.jackson.databind.ext.SqlBlobSerializer");
         _sqlSerializers.put(CLS_NAME_JAVA_SQL_SERIALBLOB, "com.fasterxml.jackson.databind.ext.SqlBlobSerializer");
     }
@@ -121,7 +121,7 @@ public class OptionalHandlerFactory implements java.io.Serializable
     /* Public API
     /**********************************************************
      */
-    
+
     public JsonSerializer<?> findSerializer(SerializationConfig config, JavaType type,
             BeanDescription beanDesc)
     {
@@ -254,7 +254,7 @@ public class OptionalHandlerFactory implements java.io.Serializable
      * types are classes, not interfaces. This has performance implications for
      * some cases, as we do not need to go over interfaces implemented, just
      * superclasses
-     * 
+     *
      * @since 2.7
      */
     private boolean hasSuperClassStartingWith(Class<?> rawType, String prefix)

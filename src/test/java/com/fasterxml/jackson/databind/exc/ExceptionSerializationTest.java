@@ -79,7 +79,7 @@ public class ExceptionSerializationTest
         p.close();
         assertNotNull(json);
     }
-    
+
     // for [databind#877]
     @SuppressWarnings("unchecked")
     public void testIgnorals() throws Exception

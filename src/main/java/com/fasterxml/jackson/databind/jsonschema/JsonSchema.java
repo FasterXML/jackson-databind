@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  *
  * @author Ryan Heaton
  * @see <a href="http://json-schema.org/">JSON Schema</a>
- * 
+ *
  * @deprecated Since 2.2, we recommend use of external
  *   <a href="https://github.com/FasterXML/jackson-module-jsonSchema">JSON Schema generator module</a>
  */
@@ -28,7 +28,7 @@ public class JsonSchema
      * Main constructor for schema instances.
      *<p>
      * This is the creator constructor used by Jackson itself when
-     * deserializing instances. It is so-called delegating creator, 
+     * deserializing instances. It is so-called delegating creator,
      * meaning that its argument will be bound by Jackson before
      * constructor gets called.
      */

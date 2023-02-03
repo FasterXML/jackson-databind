@@ -62,7 +62,7 @@ public final class ObjectIdValueProperty
     }
 
     // // // BeanProperty impl
-    
+
     @Override
     public <A extends Annotation> A getAnnotation(Class<A> acls) {
         return null;

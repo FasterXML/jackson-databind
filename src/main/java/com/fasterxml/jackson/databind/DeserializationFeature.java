@@ -82,11 +82,11 @@ public enum DeserializationFeature implements ConfigFeature
      * Feature is disabled by default, meaning that "untyped" integral
      * numbers will by default be deserialized using {@link java.lang.Integer}
      * if value fits.
-     * 
+     *
      * @since 2.6
      */
     USE_LONG_FOR_INTS(false),
-    
+
     /**
      * Feature that determines whether JSON Array is mapped to
      * <code>Object[]</code> or {@code List<Object>} when binding
@@ -153,7 +153,7 @@ public enum DeserializationFeature implements ConfigFeature
      *<p>
      * Feature is enabled by default so that exception is thrown for missing or invalid
      * type information.
-     * 
+     *
      * @since 2.2
      */
     FAIL_ON_INVALID_SUBTYPE(true),
@@ -170,7 +170,7 @@ public enum DeserializationFeature implements ConfigFeature
      * keys. New features may be added to control additional cases.
      *<p>
      * Feature is disabled by default so that no exception is thrown.
-     * 
+     *
      * @since 2.3
      */
     FAIL_ON_READING_DUP_TREE_KEY(false),
@@ -197,7 +197,7 @@ public enum DeserializationFeature implements ConfigFeature
      *<p>
      * Feature is enabled by default, so that unknown Object Ids will result in an
      * exception being thrown, at the end of deserialization.
-     * 
+     *
      * @since 2.5
      */
     FAIL_ON_UNRESOLVED_OBJECT_IDS(true),
@@ -218,7 +218,7 @@ public enum DeserializationFeature implements ConfigFeature
      *<p>
      * Feature is disabled by default, so that no exception is thrown for missing creator
      * property values, unless they are explicitly marked as `required`.
-     * 
+     *
      * @since 2.6
      */
     FAIL_ON_MISSING_CREATOR_PROPERTIES(false),
@@ -269,7 +269,7 @@ public enum DeserializationFeature implements ConfigFeature
      * @since 2.9
      */
     FAIL_ON_TRAILING_TOKENS(false),
-    
+
     /**
      * Feature that determines whether Jackson code should catch
      * and wrap {@link Exception}s (but never {@link Error}s!)
@@ -311,7 +311,7 @@ public enum DeserializationFeature implements ConfigFeature
      * Feature is disabled by default.
      */
     ACCEPT_SINGLE_VALUE_AS_ARRAY(false),
-    
+
     /**
      * Feature that determines whether it is acceptable to coerce single value array (in JSON)
      * values to the corresponding value type.  This is basically the opposite of the {@link #ACCEPT_SINGLE_VALUE_AS_ARRAY}
@@ -319,7 +319,7 @@ public enum DeserializationFeature implements ConfigFeature
      * <p>
      * NOTE: only <b>single</b> wrapper Array is allowed: if multiple attempted, exception
      * will be thrown.
-     * 
+     *
      * Feature is disabled by default.
      * @since 2.4
      */
@@ -342,7 +342,7 @@ public enum DeserializationFeature implements ConfigFeature
     /* Value conversion features
     /******************************************************
      */
-    
+
     /**
      * Feature that can be enabled to allow JSON empty String
      * value ("") to be bound as `null` for POJOs and other structured
@@ -372,7 +372,7 @@ public enum DeserializationFeature implements ConfigFeature
      * to be equivalent of JSON null.
      *<p>
      * Feature is disabled by default.
-     * 
+     *
      * @since 2.5
      */
     ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT(false),
@@ -386,7 +386,7 @@ public enum DeserializationFeature implements ConfigFeature
      * will be thrown.
      *<p>
      * Feature is enabled by default.
-     * 
+     *
      * @since 2.6
      */
     ACCEPT_FLOAT_AS_INT(true),
@@ -405,16 +405,16 @@ public enum DeserializationFeature implements ConfigFeature
     READ_ENUMS_USING_TO_STRING(false),
 
     /**
-     * Feature that allows unknown Enum values to be parsed as null values. 
+     * Feature that allows unknown Enum values to be parsed as null values.
      * If disabled, unknown Enum values will throw exceptions.
      *<p>
      * Note that in some cases this will in effect ignore unknown {@code Enum} values,
-     * e.g. when the unknown values are used as keys of {@link java.util.EnumMap} 
+     * e.g. when the unknown values are used as keys of {@link java.util.EnumMap}
      * or values of {@link java.util.EnumSet}: this because these data structures cannot
      * store {@code null} values.
      *<p>
      * Feature is disabled by default.
-     * 
+     *
      * @since 2.0
      */
     READ_UNKNOWN_ENUM_VALUES_AS_NULL(false),
@@ -443,7 +443,7 @@ public enum DeserializationFeature implements ConfigFeature
      * This is the counterpart to {@link SerializationFeature#WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS}.
      *<p>
      * Feature is enabled by default, to support most accurate time values possible.
-     * 
+     *
      * @since 2.2
      */
     READ_DATE_TIMESTAMPS_AS_NANOSECONDS(true),
@@ -467,7 +467,7 @@ public enum DeserializationFeature implements ConfigFeature
      *<p>
      * Taking above into account, this feature is supported only by extension modules for
      * Joda and Java 8 date/time datatypes.
-     * 
+     *
      * @since 2.2
      */
     ADJUST_DATES_TO_CONTEXT_TIME_ZONE(true),
@@ -489,16 +489,16 @@ public enum DeserializationFeature implements ConfigFeature
      * feature: only consider that if there are actual perceived problems.
      *<p>
      * Feature is enabled by default.
-     * 
+     *
      * @since 2.1
      */
     EAGER_DESERIALIZER_FETCH(true)
-    
+
     ;
 
     private final boolean _defaultState;
     private final int _mask;
-    
+
     private DeserializationFeature(boolean defaultState) {
         _defaultState = defaultState;
         _mask = (1 << ordinal());

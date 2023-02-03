@@ -33,7 +33,7 @@ public class MapEntryFormatTest extends BaseMapTest
             key = k;
             value = v;
         }
-        
+
         @Override
         public String getKey() {
             return key;
@@ -86,7 +86,7 @@ public class MapEntryFormatTest extends BaseMapTest
             entry = map.entrySet().iterator().next();
         }
     }
-    
+
     static class EmptyEntryWrapper {
         @JsonInclude(value=JsonInclude.Include.NON_EMPTY,
                 content=JsonInclude.Include.NON_EMPTY)
@@ -98,13 +98,13 @@ public class MapEntryFormatTest extends BaseMapTest
             entry = map.entrySet().iterator().next();
         }
     }
-    
+
     /*
     /**********************************************************************
     /* Test methods, basic
     /**********************************************************************
      */
-    
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     public void testInclusion() throws Exception

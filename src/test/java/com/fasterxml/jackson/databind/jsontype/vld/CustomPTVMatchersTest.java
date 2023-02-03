@@ -90,7 +90,7 @@ public class CustomPTVMatchersTest extends BaseMapTest
                 .build();
         ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(ptv, DefaultTyping.NON_FINAL)
-                .build();        
+                .build();
 
         // First: allow "Good" one:
         final String goodJson = mapper.writeValueAsString(new ObjectWrapper(new CustomGood(42) ));

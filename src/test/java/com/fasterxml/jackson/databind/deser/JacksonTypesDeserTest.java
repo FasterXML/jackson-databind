@@ -107,7 +107,7 @@ public class JacksonTypesDeserTest
         Map<?,?> map = MAPPER.readValue(buf.asParser(), Map.class);
         assertEquals(1, map.size());
         assertEquals(Boolean.TRUE, map.get("a"));
-        
+
         assertEquals(JsonToken.END_ARRAY, jp.nextToken());
         assertNull(jp.nextToken());
     }
@@ -138,7 +138,7 @@ public class JacksonTypesDeserTest
         }
     }
 
-    private String _createNested(int nesting, String open, String middle, String close) 
+    private String _createNested(int nesting, String open, String middle, String close)
     {
         StringBuilder sb = new StringBuilder(2 * nesting);
         for (int i = 0; i < nesting; ++i) {

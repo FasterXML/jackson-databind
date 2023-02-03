@@ -15,7 +15,7 @@ public class TestRootName extends BaseMapTest
     static class Bean {
         public int a = 3;
     }
-    
+
     @JsonRootName("")
     static class RootBeanWithEmpty {
         public int a = 2;

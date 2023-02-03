@@ -25,7 +25,7 @@ public class DeserializerFactoryTest extends BaseMapTest
         _verifyIsFound(Calendar.class);
         _verifyIsFound(GregorianCalendar.class);
         _verifyIsFound(Date.class);
-        
+
         // "Untyped" as target is actually undefined: we could choose either way.
         // It is valid target, which would support inclusion... but it is not actual
         // final target (but convenient marker) and as such never to be included as

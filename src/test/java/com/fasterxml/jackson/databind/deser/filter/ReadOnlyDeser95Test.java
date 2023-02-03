@@ -12,10 +12,10 @@ public class ReadOnlyDeser95Test extends BaseMapTest
     static class ReadOnlyBean
     {
         public int value = 3;
-        
+
         public int getComputed() { return 32; }
     }
-    
+
     public void testReadOnlyProp() throws Exception
     {
         ObjectMapper m = new ObjectMapper();

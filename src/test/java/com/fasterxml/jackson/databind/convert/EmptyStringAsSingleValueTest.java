@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 import org.junit.Assert;
 
 // [databind#3418]: Coercion from empty String to Collection<String>, with
-// `DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY` 
+// `DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY`
 public class EmptyStringAsSingleValueTest extends BaseMapTest
 {
     static final class StringWrapper {
@@ -81,7 +81,7 @@ public class EmptyStringAsSingleValueTest extends BaseMapTest
 
     public void testCoercedListToList() throws Exception {
         // YES coercion + empty LIST input + StringCollectionDeserializer
-        assertEquals(Collections.emptyList(), 
+        assertEquals(Collections.emptyList(),
                 COERCION_MAPPER.readValue("[]", new TypeReference<List<String>>() {}));
     }
 

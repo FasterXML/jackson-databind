@@ -28,7 +28,7 @@ public class DefaultViewTest extends BaseMapTest
     /**********************************************************
     /* Unit tests
     /**********************************************************
-     */    
+     */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 

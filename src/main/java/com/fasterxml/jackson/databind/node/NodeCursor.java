@@ -27,7 +27,7 @@ abstract class NodeCursor
      * @since 2.5
      */
     protected java.lang.Object _currentValue;
-    
+
     public NodeCursor(int contextType, NodeCursor p)
     {
         super();
@@ -67,7 +67,7 @@ abstract class NodeCursor
     public void setCurrentValue(java.lang.Object v) {
         _currentValue = v;
     }
-    
+
     /*
     /**********************************************************
     /* Extended API
@@ -79,7 +79,7 @@ abstract class NodeCursor
 
     public abstract NodeCursor startObject();
     public abstract NodeCursor startArray();
-    
+
     /**
      * Method called to create a new context for iterating all
      * contents of the current structured value (JSON array or object)
@@ -120,9 +120,9 @@ abstract class NodeCursor
 
         @Override
         public void overrideCurrentName(String name) {
-            
+
         }
-        
+
         @Override
         public JsonToken nextToken() {
             if (!_done) {
@@ -191,7 +191,7 @@ abstract class NodeCursor
         protected Map.Entry<String, JsonNode> _current;
 
         protected boolean _needEntry;
-        
+
         public ObjectCursor(JsonNode n, NodeCursor p)
         {
             super(JsonStreamContext.TYPE_OBJECT, p);

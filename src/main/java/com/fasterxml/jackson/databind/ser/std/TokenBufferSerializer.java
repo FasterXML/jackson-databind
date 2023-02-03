@@ -56,6 +56,10 @@ public class TokenBufferSerializer
         typeSer.writeTypeSuffix(g, typeIdDef);
     }
 
+    /**
+     * @deprecated Since 2.15
+     */
+    @Deprecated
     @Override
     public JsonNode getSchema(SerializerProvider provider, Type typeHint)
     {
@@ -63,7 +67,7 @@ public class TokenBufferSerializer
         // This seems like closest approximation
         return createSchemaNode("any", true);
     }
-    
+
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         throws JsonMappingException
@@ -72,4 +76,4 @@ public class TokenBufferSerializer
         // This seems like closest approximation
         visitor.expectAnyFormat(typeHint);
     }
-}    
+}

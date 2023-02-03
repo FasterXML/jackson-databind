@@ -132,7 +132,7 @@ final class AnnotatedCreatorCollector
         if (ctors == null) {
             result = Collections.emptyList();
             // Nothing found? Short-circuit
-            if (defaultCtor == null) { 
+            if (defaultCtor == null) {
                 return result;
             }
             ctorCount = 0;
@@ -163,7 +163,7 @@ final class AnnotatedCreatorCollector
                         }
                     }
                     MemberKey key = new MemberKey(mixinCtor.getConstructor());
-    
+
                     for (int i = 0; i < ctorCount; ++i) {
                         if (key.equals(ctorKeys[i])) {
                             result.set(i,
@@ -219,7 +219,7 @@ final class AnnotatedCreatorCollector
         // 27-Oct-2020, tatu: SIGH. As per [databind#2894] there is widespread use of
         //   incorrect bindings in the wild -- not supported (no tests) but used
         //   nonetheless. So, for 2.11.x, put back "Bad Bindings"...
-//        
+//
 
         // 03-Nov-2020, ckozak: Implement generic JsonCreator TypeVariable handling [databind#2895]
 //        final TypeResolutionContext emptyTypeResCtxt = new TypeResolutionContext.Empty(typeFactory);

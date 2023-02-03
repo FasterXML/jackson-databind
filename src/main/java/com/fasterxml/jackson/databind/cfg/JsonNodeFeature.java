@@ -30,7 +30,7 @@ public enum JsonNodeFeature implements DatatypeFeature
     // // // Merge configuration settings
 
     // // // 03-Aug-2022, tatu: Possible other additions:
-    
+
 //    ALLOW_ARRAY_MERGE(true),
 
 //    ALLOW_OBJECT_MERGE(true),

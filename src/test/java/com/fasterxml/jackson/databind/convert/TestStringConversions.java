@@ -43,7 +43,7 @@ public class TestStringConversions
         Ints.add(1);
         Ints.add(2);
         Ints.add(3);
-        
+
         assertArrayEquals(ints, MAPPER.convertValue(Ints, int[].class));
     }
 
@@ -68,7 +68,7 @@ public class TestStringConversions
         byte[] result = MAPPER.convertValue(encoded, byte[].class);
         assertArrayEquals(input, result);
     }
-    
+
     public void testBytestoCharArray() throws Exception
     {
         byte[] input = new byte[] { 1, 2, 3, 4, 5, 6, 7 };

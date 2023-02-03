@@ -32,7 +32,7 @@ public class JsonIncludeCustomTest extends BaseMapTest
             return false;
         }
     }
-    
+
     static class FooBean {
         @JsonInclude(value=JsonInclude.Include.CUSTOM,
                 valueFilter=FooFilter.class)
@@ -78,7 +78,7 @@ public class JsonIncludeCustomTest extends BaseMapTest
 
         public CountingFooBean(String v) { value = v; }
     }
-    
+
     /*
     /**********************************************************
     /* Test methods, success
@@ -125,7 +125,7 @@ public class JsonIncludeCustomTest extends BaseMapTest
     /* Test methods, fail handling
     /**********************************************************
      */
-    
+
     public void testBrokenFilter() throws Exception
     {
         try {

@@ -47,7 +47,7 @@ public abstract class ConcreteBeanPropertyBase
 
     @Override
     public PropertyMetadata getMetadata() { return _metadata; }
-    
+
     @Override
     public boolean isVirtual() { return false; }
 

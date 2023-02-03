@@ -46,7 +46,7 @@ public class TypeResolverTest extends BaseMapTest
         mapper.registerModule(basicModule);
         String value = "{\"z\": {\"zz\": {\"a\": 42}}}";
         A a = mapper.readValue(value, A.class);
-        
+
         Map map = a.getMap();
         assertEquals(MyMap.class, map.getClass());
 

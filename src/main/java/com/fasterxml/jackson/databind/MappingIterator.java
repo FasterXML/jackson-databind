@@ -26,12 +26,12 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
      * State in which iterator is closed
      */
     protected final static int STATE_CLOSED = 0;
-    
+
     /**
      * State in which value read failed
      */
     protected final static int STATE_NEED_RESYNC = 1;
-    
+
     /**
      * State in which no recovery is needed, but "hasNextValue()" needs
      * to be called first
@@ -77,13 +77,13 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
      * but caller wants to try to read more elements.
      */
     protected final JsonStreamContext _seqContext;
-    
+
     /**
      * If not null, "value to update" instead of creating a new instance
      * for each call.
      */
     protected final T _updatedValue;
-    
+
     /**
      * Flag that indicates whether input {@link JsonParser} should be closed
      * when we are done or not; generally only called when caller did not
@@ -96,7 +96,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
     /* Parsing state
     /**********************************************************
      */
-    
+
     /**
      * State of the iterator
      */
@@ -107,7 +107,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
     /* Construction
     /**********************************************************
      */
-    
+
     /**
      * @param managedParser Whether we "own" the {@link JsonParser} passed or not:
      *   if true, it was created by {@link ObjectReader} and code here needs to
@@ -190,7 +190,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
             return (Boolean) _handleIOException(e);
         }
     }
-    
+
     @SuppressWarnings("unchecked")
     @Override
     public T next()
@@ -208,7 +208,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
     public void remove() {
         throw new UnsupportedOperationException();
     }
-    
+
     @Override
     public void close() throws IOException {
         if (_state != STATE_CLOSED) {
@@ -300,9 +300,9 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
     /**
      * Convenience method for reading all entries accessible via
      * this iterator; resulting container will be a {@link java.util.ArrayList}.
-     * 
+     *
      * @return List of entries read
-     * 
+     *
      * @since 2.2
      */
     public List<T> readAll() throws IOException {
@@ -312,9 +312,9 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
     /**
      * Convenience method for reading all entries accessible via
      * this iterator
-     * 
+     *
      * @return List of entries read (same as passed-in argument)
-     * 
+     *
      * @since 2.2
      */
     public <L extends List<? super T>> L readAll(L resultList) throws IOException
@@ -328,7 +328,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
     /**
      * Convenience method for reading all entries accessible via
      * this iterator
-     * 
+     *
      * @since 2.5
      */
     public <C extends Collection<? super T>> C readAll(C results) throws IOException
@@ -338,7 +338,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
         }
         return results;
     }
-    
+
     /*
     /**********************************************************
     /* Extended API, accessors
@@ -347,7 +347,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
 
     /**
      * Accessor for getting underlying parser this iterator uses.
-     * 
+     *
      * @since 2.2
      */
     public JsonParser getParser() {
@@ -358,7 +358,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
      * Accessor for accessing {@link FormatSchema} that the underlying parser
      * (as per {@link #getParser}) is using, if any; only parser of schema-aware
      * formats use schemas.
-     * 
+     *
      * @since 2.2
      */
     public FormatSchema getParserSchema() {
@@ -370,9 +370,9 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
      *<code>
      *   iterator.getParser().getCurrentLocation()
      *</code>
-     * 
+     *
      * @return Location of the input stream of the underlying parser
-     * 
+     *
      * @since 2.2.1
      */
     public JsonLocation getCurrentLocation() {
@@ -411,7 +411,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
     protected <R> R _throwNoSuchElement() {
         throw new NoSuchElementException();
     }
-    
+
     protected <R> R _handleMappingException(JsonMappingException e) {
         throw new RuntimeJsonMappingException(e.getMessage(), e);
     }

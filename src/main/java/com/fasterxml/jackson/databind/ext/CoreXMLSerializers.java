@@ -51,7 +51,7 @@ public class CoreXMLSerializers extends Serializers.Base
         final static XMLGregorianCalendarSerializer instance = new XMLGregorianCalendarSerializer();
 
         final JsonSerializer<Object> _delegate;
-        
+
         public XMLGregorianCalendarSerializer() {
             this(CalendarSerializer.instance);
         }

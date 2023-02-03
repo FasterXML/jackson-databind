@@ -49,7 +49,7 @@ public interface BeanProperty extends Named
      * Method for getting full name definition, including possible
      * format-specific additional properties (such as namespace when
      * using XML backend).
-     * 
+     *
      * @since 2.3
      */
     public PropertyName getFullName();
@@ -62,20 +62,20 @@ public interface BeanProperty extends Named
     /**
      * If property is indicated to be wrapped, name of
      * wrapper element to use.
-     * 
+     *
      * @since 2.2
      */
     public PropertyName getWrapperName();
 
     /**
      * Accessor for additional optional information about property.
-     * 
+     *
      * @since 2.3
-     * 
+     *
      * @return Metadata about property; never null.
      */
     public PropertyMetadata getMetadata();
-    
+
     /**
      * Whether value for property is marked as required using
      * annotations or associated schema.
@@ -83,7 +83,7 @@ public interface BeanProperty extends Named
      *<code>
      *  getMetadata().isRequired()
      *</code>
-     * 
+     *
      * @since 2.2
      */
     public boolean isRequired();
@@ -91,7 +91,7 @@ public interface BeanProperty extends Named
     /**
      * Accessor for checking whether there is an actual physical property
      * behind this property abstraction or not.
-     * 
+     *
      * @since 2.7
      */
     public boolean isVirtual();
@@ -101,7 +101,7 @@ public interface BeanProperty extends Named
     /* Access to annotation information
     /**********************************************************
      */
-    
+
     /**
      * Method for finding annotation associated with this property;
      * meaning annotation associated with one of entities used to
@@ -141,7 +141,7 @@ public interface BeanProperty extends Named
      * use {@link #findPropertyFormat} if such defaults would be useful.
      *
      * @since 2.6
-     * 
+     *
      * @deprecated since 2.8 use {@link #findPropertyFormat} instead.
      */
     @Deprecated
@@ -192,9 +192,9 @@ public interface BeanProperty extends Named
      * NOTE: Starting with 2.7, takes explicit {@link SerializerProvider}
      * argument to reduce the need to rely on provider visitor may or may not
      * have assigned.
-     * 
+     *
      * @param objectVisitor Visitor to used as the callback handler
-     * 
+     *
      * @since 2.2 (although signature did change in 2.7)
      */
     public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor,
@@ -296,7 +296,7 @@ public interface BeanProperty extends Named
             }
             return v0.withOverrides(v);
         }
-        
+
         @Override
         public JsonInclude.Value findPropertyInclusion(MapperConfig<?> config, Class<?> baseType)
         {

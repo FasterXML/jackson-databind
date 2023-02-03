@@ -34,7 +34,7 @@ public class TestGenericsBounded
         public DoubleRange() { }
         public DoubleRange(Double s, Double e) { super(s, e); }
     }
-     
+
     static class BoundedWrapper<A extends Serializable>
     {
         public List<A> values;
@@ -117,7 +117,7 @@ public class TestGenericsBounded
         assertEquals(IntBean.class, result.wrapped.getClass());
         assertEquals(3, result.wrapped.x);
     }
-    
+
     // Test related to type bound handling problem within [JACKSON-190]
     public void testBounded() throws Exception
     {
@@ -156,7 +156,7 @@ public class TestGenericsBounded
         JavaType rowType = resultSetType.containedType(0);
         assertNotNull(rowType);
         assertEquals(RowWithDoc.class, rowType.getRawClass());
-        
+
         assertEquals(1, rowType.containedTypeCount());
         JavaType docType = rowType.containedType(0);
         assertEquals(MyDoc.class, docType.getRawClass());
@@ -164,7 +164,7 @@ public class TestGenericsBounded
         // type passed is correct, but somehow it gets mangled when passed...
         ResultSetWithDoc<MyDoc> rs = MAPPER.readValue(json, type);
         Document d = rs.rows.iterator().next().d;
-    
+
         assertEquals(MyDoc.class, d.getClass()); //expected MyDoc but was Document
     }
 

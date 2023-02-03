@@ -46,8 +46,8 @@ public class POJONode
         }
         return super.binaryValue();
     }
-    
-    /* 
+
+    /*
     /**********************************************************
     /* General type coercions
     /**********************************************************
@@ -59,7 +59,7 @@ public class POJONode
     @Override public String asText(String defaultValue) {
         return (_value == null) ? defaultValue : _value.toString();
     }
-    
+
     @Override
     public boolean asBoolean(boolean defaultValue)
     {
@@ -68,7 +68,7 @@ public class POJONode
         }
         return defaultValue;
     }
-    
+
     @Override
     public int asInt(int defaultValue)
     {
@@ -86,7 +86,7 @@ public class POJONode
         }
         return defaultValue;
     }
-    
+
     @Override
     public double asDouble(double defaultValue)
     {
@@ -95,7 +95,7 @@ public class POJONode
         }
         return defaultValue;
     }
-    
+
     /*
     /**********************************************************
     /* Public API, serialization
@@ -154,7 +154,7 @@ public class POJONode
         }
         return _value.equals(other._value);
     }
-    
+
     @Override
     public int hashCode() { return _value.hashCode(); }
 }

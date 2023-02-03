@@ -24,9 +24,9 @@ public class CoerceJDKScalarsTest extends BaseMapTest
     static class BooleanWrapper {
         public Boolean wrapper;
         public boolean primitive;
-        
+
         protected Boolean ctor;
-        
+
         @JsonCreator
         public BooleanWrapper(@JsonProperty("ctor") Boolean foo) {
             ctor = foo;

@@ -88,7 +88,7 @@ public class ArrayDeserializationTest
                 SerializerProvider provider, TypeSerializer typeSer)
                 throws IOException {
         }
-    }	
+    }
 
     static class ObjectWrapper {
         public Object wrapped;
@@ -113,15 +113,15 @@ public class ArrayDeserializationTest
 
     static class NonDeserializable {
         protected String value;
-        
+
         public NonDeserializable(String v, boolean bogus) {
             value = v;
         }
     }
 
-    static class Product { 
-        public String name; 
-        public List<Things> thelist; 
+    static class Product {
+        public String name;
+        public List<Things> thelist;
     }
 
     static class Things {
@@ -141,7 +141,7 @@ public class ArrayDeserializationTest
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     public void testUntypedArray() throws Exception
     {
 
@@ -236,8 +236,8 @@ public class ArrayDeserializationTest
         ObjectArrayWrapper aw = MAPPER.readValue("{\"wrapped\":"+JSON+"}", ObjectArrayWrapper.class);
         assertNotNull(aw);
         assertNotNull(aw.wrapped);
-    }    
-    
+    }
+
     /*
     /**********************************************************
     /* Tests for String arrays, char[]
@@ -397,7 +397,7 @@ public class ArrayDeserializationTest
         assertEquals("b", new String(data[1], "US-ASCII"));
         assertEquals("c", new String(data[2], "US-ASCII"));
     }
-    
+
     public void testShortArray() throws Exception
     {
         final int LEN = 31001; // fits in signed 16-bit
@@ -556,7 +556,7 @@ public class ArrayDeserializationTest
     /* And special cases for byte array (base64 encoded)
     /**********************************************************
      */
-    
+
     // for [databind#890]
     public void testByteArrayTypeOverride890() throws Exception
     {
@@ -566,7 +566,7 @@ public class ArrayDeserializationTest
         assertNotNull(result.someBytes);
         assertEquals(byte[].class, result.someBytes.getClass());
     }
-    
+
     /*
     /**********************************************************
     /* And custom deserializers too
@@ -579,7 +579,7 @@ public class ArrayDeserializationTest
         SimpleModule testModule = new SimpleModule("test", Version.unknownVersion());
         testModule.addDeserializer(NonDeserializable[].class, new CustomNonDeserArrayDeserializer());
         mapper.registerModule(testModule);
-        
+
         NonDeserializable[] result = mapper.readValue("[\"a\"]", NonDeserializable[].class);
         assertNotNull(result);
         assertEquals(1, result.length);

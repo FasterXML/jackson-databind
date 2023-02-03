@@ -97,7 +97,7 @@ public class EmptyContentAsTreeTest extends BaseMapTest
         _assertMissing(MAPPER.readTree(EMPTY1));
         _assertMissing(MAPPER.readTree(new StringReader(EMPTY0)));
         _assertMissing(MAPPER.readTree(new StringReader(EMPTY1)));
-        
+
         _assertMissing(MAPPER.readTree(EMPTY0_BYTES));
         _assertMissing(MAPPER.readTree(EMPTY0_BYTES, 0, EMPTY0_BYTES.length));
         _assertMissing(MAPPER.readTree(new ByteArrayInputStream(EMPTY0_BYTES)));
@@ -115,7 +115,7 @@ public class EmptyContentAsTreeTest extends BaseMapTest
         _assertMissing(MAPPER.reader().readTree(EMPTY1));
         _assertMissing(MAPPER.reader().readTree(new StringReader(EMPTY0)));
         _assertMissing(MAPPER.reader().readTree(new StringReader(EMPTY1)));
-        
+
         _assertMissing(MAPPER.reader().readTree(EMPTY0_BYTES));
         _assertMissing(MAPPER.reader().readTree(EMPTY0_BYTES, 0, EMPTY0_BYTES.length));
         _assertMissing(MAPPER.reader().readTree(new ByteArrayInputStream(EMPTY0_BYTES)));

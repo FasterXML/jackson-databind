@@ -148,6 +148,10 @@ df0.getClass().getName()));
 
     protected abstract long _timestamp(T value);
 
+    /**
+     * @deprecated Since 2.15
+     */
+    @Deprecated
     @Override
     public JsonNode getSchema(SerializerProvider serializers, Type typeHint) {
         //todo: (ryan) add a format for the date in the schema?
@@ -175,7 +179,7 @@ df0.getClass().getName()));
     /* Helper methods
     /**********************************************************
      */
-    
+
     protected boolean _asTimestamp(SerializerProvider serializers)
     {
         if (_useTimestamp != null) {
@@ -218,7 +222,7 @@ df0.getClass().getName()));
         //    While `ThreadLocal` could alternatively be used, it is likely that it would lead to
         //    higher memory footprint, but without much upside -- if we can not reuse, we'll just
         //    clone(), which has some overhead but not drastic one.
-        
+
         DateFormat f = _reusedCustomFormat.getAndSet(null);
         if (f == null) {
             f = (DateFormat) _customFormat.clone();

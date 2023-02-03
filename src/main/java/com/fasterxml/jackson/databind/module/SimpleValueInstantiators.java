@@ -28,16 +28,16 @@ public class SimpleValueInstantiators
 
     public SimpleValueInstantiators()
     {
-        _classMappings = new HashMap<ClassKey,ValueInstantiator>();        
+        _classMappings = new HashMap<ClassKey,ValueInstantiator>();
     }
-    
+
     public SimpleValueInstantiators addValueInstantiator(Class<?> forType,
             ValueInstantiator inst)
     {
         _classMappings.put(new ClassKey(forType), inst);
         return this;
     }
-    
+
     @Override
     public ValueInstantiator findValueInstantiator(DeserializationConfig config,
             BeanDescription beanDesc, ValueInstantiator defaultInstantiator)

@@ -27,7 +27,7 @@ public class BuilderAdvancedTest extends BaseMapTest
 
         @JacksonInject
         protected String stuff;
-        
+
         public InjectableBuilderXY withX(int x0) {
               this.x = x0;
               return this;
@@ -57,7 +57,7 @@ public class BuilderAdvancedTest extends BaseMapTest
     @JsonSubTypes({ @JsonSubTypes.Type(ValueBean.class) })
     static class BaseBean {
     }
-    
+
     @JsonTypeName("vbean")
     static class ValueBean extends BaseBean
     {

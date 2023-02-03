@@ -8,7 +8,7 @@ public class PropertyMetadataTest extends BaseMapTest
     public void testPropertyName()
     {
         PropertyName name = PropertyName.NO_NAME;
-        
+
         assertFalse(name.hasSimpleName());
         assertFalse(name.hasNamespace());
         assertSame(name, name.internSimpleName());
@@ -73,7 +73,7 @@ public class PropertyMetadataTest extends BaseMapTest
         md = md.withRequired(null);
         assertNull(md.getRequired());
         assertFalse(md.isRequired());
- 
+
         assertFalse(md.hasIndex());
         md = md.withIndex(Integer.valueOf(3));
         assertTrue(md.hasIndex());

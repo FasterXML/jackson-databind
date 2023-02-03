@@ -181,7 +181,7 @@ public class SubTypeValidator
         s.add("org.apache.activemq.pool.XaPooledConnectionFactory");
         s.add("org.apache.activemq.jms.pool.XaPooledConnectionFactory"); // pool-jms
         s.add("org.apache.activemq.jms.pool.JcaPooledConnectionFactory");
-        
+
         // [databind#2666]: apache/commons-jms
         s.add("org.apache.commons.proxy.provider.remoting.RmiProvider");
 
@@ -241,7 +241,7 @@ public class SubTypeValidator
 
         // [databind#3003]: another case of embedded Xalan (derivative of #2469)
         s.add("org.docx4j.org.apache.xalan.lib.sql.JNDIConnectionPool");
-        
+
         DEFAULT_NO_DESER_CLASS_NAMES = Collections.unmodifiableSet(s);
     }
 
@@ -291,7 +291,7 @@ public class SubTypeValidator
                 // s.add("com.mchange.v2.c3p0.WrapperConnectionPoolDataSource");
                 // [databind#1931]; more 3rd party
                 // com.mchange.v2.c3p0.ComboPooledDataSource
-                // com.mchange.v2.c3p0.debug.AfterCloseLoggingComboPooledDataSource 
+                // com.mchange.v2.c3p0.debug.AfterCloseLoggingComboPooledDataSource
                 if (full.endsWith("DataSource")) {
                     break main_check;
                 }

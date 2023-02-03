@@ -13,13 +13,13 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 public class Java7HandlersImpl extends Java7Handlers
 {
     private final Class<?> _pathClass;
-    
+
     public Java7HandlersImpl() {
         // 19-Sep-2019, tatu: Important to do this here, because otherwise
         //    we get [databind#2466]
         _pathClass = Path.class;
     }
-    
+
     @Override
     public Class<?> getClassJavaNioFilePath() {
         return _pathClass;

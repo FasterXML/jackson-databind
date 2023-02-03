@@ -76,12 +76,12 @@ public class TestGenerics
         SimpleBean bean = (SimpleBean) contents;
         assertEquals(13, bean.x);
     }
-    
+
     public void testGenericWrapperWithSingleElementArray() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
-        
+
         Wrapper<SimpleBean> result = mapper.readValue
             ("[{\"value\": [{ \"x\" : 13 }] }]",
              new TypeReference<Wrapper<SimpleBean>>() { });
@@ -115,7 +115,7 @@ public class TestGenerics
             ("{\"value\": 7}", new TypeReference<Wrapper<Long>>() { });
         assertEquals(new Wrapper<Long>(7L), result3);
     }
-    
+
     //[databind#381]
     public void testMultipleWrappersSingleValueArray() throws Exception
     {
@@ -157,13 +157,13 @@ public class TestGenerics
         SimpleBean bean = (SimpleBean) contents;
         assertEquals(9, bean.x);
     }
-    
+
     // [Issue#381]
     public void testArrayOfGenericWrappersSingleValueArray() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
-        
+
         Wrapper<SimpleBean>[] result = mapper.readValue
             ("[ {\"value\": [ { \"x\" : [ 9 ] } ] } ]",
              new TypeReference<Wrapper<SimpleBean>[]>() { });

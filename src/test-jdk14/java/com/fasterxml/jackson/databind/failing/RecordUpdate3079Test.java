@@ -17,7 +17,7 @@ public class RecordUpdate3079Test extends BaseMapTest
     }
 
     private final ObjectMapper MAPPER = newJsonMapper();
-    
+
     // [databind#3079]: Should be able to Record value directly
     public void testDirectRecordUpdate() throws Exception
     {

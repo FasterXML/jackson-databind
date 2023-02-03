@@ -35,7 +35,7 @@ public class IteratorSerializer
         // no really good way to determine (without consuming iterator), so:
         return false;
     }
-    
+
     @Override
     public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
         return new IteratorSerializer(this, _property, vts, _elementSerializer, _unwrapSingle);
@@ -67,7 +67,7 @@ public class IteratorSerializer
         serializeContents(value, gen, provider);
         gen.writeEndArray();
     }
-    
+
     @Override
     public void serializeContents(Iterator<?> value, JsonGenerator g,
             SerializerProvider provider) throws IOException
@@ -92,7 +92,7 @@ public class IteratorSerializer
             }
         } while (value.hasNext());
     }
-    
+
     protected void _serializeDynamicContents(Iterator<?> value, JsonGenerator g,
             SerializerProvider provider) throws IOException
     {

@@ -82,7 +82,7 @@ public abstract class BaseJsonNode
     public JsonParser traverse(ObjectCodec codec) {
         return new TreeTraversingParser(this, codec);
     }
-    
+
     /**
      * Method that can be used for efficient type detection
      * when using stream abstraction for traversing nodes.
@@ -100,7 +100,7 @@ public abstract class BaseJsonNode
     @Override
     public JsonParser.NumberType numberType() {
         // most types non-numeric, so:
-        return null; 
+        return null;
     }
 
     /*

@@ -8,7 +8,11 @@ import java.lang.reflect.Type;
 
 /**
  * Marker interface for schema-aware serializers.
+ *
+ * @deprecated Since 2.15, we recommend use of external
+ * <a href="https://github.com/FasterXML/jackson-module-jsonSchema">JSON Schema generator module</a>
  */
+@Deprecated
 public interface SchemaAware
 {
     /**
@@ -20,7 +24,7 @@ public interface SchemaAware
      */
     public JsonNode getSchema(SerializerProvider provider, Type typeHint)
         throws JsonMappingException;
-    
+
     /**
      * Get the representation of the schema to which this serializer will conform.
      *

@@ -15,13 +15,13 @@ public class TestIterable extends BaseMapTest
         implements Iterable<Integer>
     {
         List<Integer> _ints = new ArrayList<Integer>();
-    
+
         public IterableWrapper(int[] values) {
             for (int i : values) {
                 _ints.add(Integer.valueOf(i));
             }
         }
-    
+
         @Override
         public Iterator<Integer> iterator() {
             return _ints.iterator();
@@ -79,7 +79,7 @@ public class TestIterable extends BaseMapTest
 
         public int getX() { return 13; }
     }
- 
+
     // [databind#358]
     static class A {
         public String unexpected = "Bye.";
@@ -123,7 +123,7 @@ public class TestIterable extends BaseMapTest
         l.add(null);
         l.add(-9);
         l.add(0);
-        
+
         assertEquals("[1,null,-9,0]", MAPPER.writeValueAsString(l.iterator()));
         l.clear();
         assertEquals("[]", MAPPER.writeValueAsString(l.iterator()));
@@ -142,7 +142,7 @@ public class TestIterable extends BaseMapTest
         assertEquals("[1,2,3]",
                 STATIC_MAPPER.writeValueAsString(new IntIterable()));
     }
-    
+
     public void testWithIterator() throws IOException
     {
         assertEquals("{\"values\":[\"itValue\"]}",

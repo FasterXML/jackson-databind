@@ -18,7 +18,7 @@ public class DOMTypeReadWriteTest extends com.fasterxml.jackson.databind.BaseMap
             "<root xmlns='http://foo'/>";
 
     private final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     public void testSerializeSimpleNonNS() throws Exception
     {
         // Let's just parse first, easiest
@@ -81,7 +81,7 @@ public class DOMTypeReadWriteTest extends com.fasterxml.jackson.databind.BaseMap
             assertEquals("instr", pi.getData());
         }
     }
-    
+
     public void testDeserializeNS() throws Exception
     {
         Document doc = MAPPER.readValue(q(SIMPLE_XML_NS), Document.class);

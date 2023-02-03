@@ -19,9 +19,9 @@ public interface JsonNodeCreator
     public ValueNode booleanNode(boolean v);
     public ValueNode nullNode();
 
-// Not yet in 2.10, will be added in 3.0    
+// Not yet in 2.10, will be added in 3.0
 //    public JsonNode missingNode();
-    
+
     // Numeric types
 
     public ValueNode numberNode(byte v);

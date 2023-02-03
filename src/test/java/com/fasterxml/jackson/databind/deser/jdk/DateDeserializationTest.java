@@ -27,7 +27,7 @@ public class DateDeserializationTest
         @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="/yyyy/MM/dd/", locale="fr_FR")
         public Date date;
     }
-    
+
     static class CalendarAsStringBean
     {
         @JsonFormat(shape=JsonFormat.Shape.STRING, pattern=";yyyy/MM/dd;")
@@ -48,7 +48,7 @@ public class DateDeserializationTest
         @JsonFormat(lenient=OptBoolean.TRUE)
         public Calendar value;
     }
-    
+
     static class StrictCalendarBean {
         @JsonFormat(lenient=OptBoolean.FALSE)
         public Calendar value;
@@ -201,7 +201,7 @@ public class DateDeserializationTest
         String inputStr;
         Date inputDate;
         Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        
+
         inputStr = "2014-10-03T18:00:00.6-05:00";
         inputDate = MAPPER.readValue(q(inputStr), java.util.Date.class);
         c.setTime(inputDate);
@@ -341,7 +341,7 @@ public class DateDeserializationTest
 
     public void testDateUtilISO8601NoTimezone() throws Exception
     {
-        // Timezone itself is optional as well... 
+        // Timezone itself is optional as well...
         String inputStr = "1984-11-13T00:00:09";
         Date inputDate = MAPPER.readValue(q(inputStr), java.util.Date.class);
         Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
@@ -393,7 +393,7 @@ public class DateDeserializationTest
         final String INPUT_STR = "2013-10-31T17:27:00";
         Date inputDate;
         Calendar c;
-        
+
         inputDate = MAPPER.readValue(q(INPUT_STR), java.util.Date.class);
         c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         c.setTime(inputDate);
@@ -587,13 +587,13 @@ public class DateDeserializationTest
         // ... but, Travis manages to have fails, so insist on newly created
         ObjectMapper mapper = newJsonMapper();
         Date dateUTC = mapper.readValue(json, Date.class);  // 1970-01-01T00:00:00.000+00:00
-    
+
         // Mapper with timezone GMT-2
         // note: must construct new one, not share
         mapper = new ObjectMapper();
         mapper.setTimeZone(TimeZone.getTimeZone("GMT-2"));
         Date dateGMT1 = mapper.readValue(json, Date.class);  // 1970-01-01T00:00:00.000-02:00
-    
+
         // Underlying timestamps should be the same
         assertEquals(dateUTC.getTime(), dateGMT1.getTime());
     }
@@ -603,7 +603,7 @@ public class DateDeserializationTest
     /* Context timezone use (or not)
     /**********************************************************
      */
-    
+
     // for [databind#204]
     public void testContextTimezone() throws Exception
     {
@@ -637,7 +637,7 @@ public class DateDeserializationTest
         // 23-Jun-2017, tatu: Actually turns out to be hard if not impossible to do ...
         //    problem being SimpleDateFormat does not really retain timezone offset.
         //    But if we match fields... we perhaps could use it?
-        
+
         // !!! TODO: would not yet pass
 /*
         System.err.println("CAL/2 == "+cal);
@@ -651,7 +651,7 @@ public class DateDeserializationTest
     /* Test(s) for array unwrapping
     /**********************************************************
      */
-    
+
     public void testCalendarArrayUnwrap() throws Exception
     {
         ObjectReader reader = new ObjectMapper()
@@ -742,7 +742,7 @@ public class DateDeserializationTest
             verifyException(e, "from String \"2015-11-32\"");
             verifyException(e, "expected format");
         }
-    
+
         // Unless we actually had per-type override too
         mapper = new ObjectMapper();
         mapper.configOverride(Calendar.class)
@@ -774,7 +774,7 @@ public class DateDeserializationTest
                     +InvalidFormatException.class.getName());
         }
     }
-    
+
     /*
     /**********************************************************
     /* Helper methods

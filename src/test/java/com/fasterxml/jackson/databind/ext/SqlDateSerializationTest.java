@@ -59,7 +59,7 @@ public class SqlDateSerializationTest extends BaseMapTest
 
         // And also should be able to use String output as need be:
         ObjectWriter w = MAPPER.writer().without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-               
+
         assertEquals(q("1999-04-01"), w.writeValueAsString(date99));
         assertEquals(q(date0.toString()), w.writeValueAsString(date0));
         assertEquals(a2q("{'date':'"+date0.toString()+"'}"),
@@ -82,7 +82,7 @@ public class SqlDateSerializationTest extends BaseMapTest
         assertEquals(MAPPER.writeValueAsString(altTnput),
                 MAPPER.writeValueAsString(input));
     }
-    
+
     public void testPatternWithSqlDate() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -101,7 +101,7 @@ public class SqlDateSerializationTest extends BaseMapTest
         ObjectMapper mapper = newJsonMapper();
         mapper.setTimeZone(TimeZone.getDefault());
         mapper.configOverride(java.sql.Date.class)
-            .setFormat(JsonFormat.Value.forPattern("yyyy+MM+dd"));        
+            .setFormat(JsonFormat.Value.forPattern("yyyy+MM+dd"));
         assertEquals("\"1980+04+14\"",
             mapper.writeValueAsString(java.sql.Date.valueOf("1980-04-14")));
     }

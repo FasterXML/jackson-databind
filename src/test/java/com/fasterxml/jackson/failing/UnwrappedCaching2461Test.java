@@ -39,7 +39,7 @@ public class UnwrappedCaching2461Test extends BaseMapTest
 
         final String EXP_INNER = "{\"base.id\":\"12345\"}";
         final String EXP_OUTER = "{\"container.base.id\":\"12345\"}";
-        
+
         final ObjectMapper mapperOrder1 = newJsonMapper();
         assertEquals(EXP_OUTER, mapperOrder1.writeValueAsString(outer));
         assertEquals(EXP_INNER, mapperOrder1.writeValueAsString(inner));

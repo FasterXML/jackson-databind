@@ -40,7 +40,7 @@ public class TestOverlappingTypeIdNames extends BaseMapTest
         assertNotNull(value);
         assertEquals(Impl312.class, value.getClass());
         assertEquals(7, ((Impl312) value).x);
-        
+
         value = MAPPER.readValue(a2q("{'type':'b','x':3}"), Base312.class);
         assertNotNull(value);
         assertEquals(Impl312.class, value.getClass());

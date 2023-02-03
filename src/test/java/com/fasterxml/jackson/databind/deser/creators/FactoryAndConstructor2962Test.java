@@ -33,7 +33,7 @@ public class FactoryAndConstructor2962Test extends BaseMapTest
     // [databind#2962]
     public void testImplicitCtorExplicitFactory() throws Exception
     {
-        ExampleDto2962 result = MAPPER.readValue("42", ExampleDto2962.class);        
+        ExampleDto2962 result = MAPPER.readValue("42", ExampleDto2962.class);
         assertEquals(42, result.version);
     }
 }

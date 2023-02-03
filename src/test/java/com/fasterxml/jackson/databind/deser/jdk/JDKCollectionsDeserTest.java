@@ -28,7 +28,7 @@ public class JDKCollectionsDeserTest extends BaseMapTest
      */
 
     private final static ObjectMapper MAPPER = new ObjectMapper();
-    
+
     // And then a round-trip test for singleton collections
     public void testSingletonCollections() throws Exception
     {

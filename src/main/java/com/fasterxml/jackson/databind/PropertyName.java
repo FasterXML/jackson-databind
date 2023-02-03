@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 /**
  * Simple value class used for containing names of properties as defined
  * by annotations (and possibly other configuration sources).
- * 
+ *
  * @since 2.1
  */
 public class PropertyName
@@ -34,7 +34,7 @@ public class PropertyName
      * commonly this value disables behavior for which name would be needed.
      */
     public final static PropertyName NO_NAME = new PropertyName(new String(_NO_NAME), null);
-    
+
     /**
      * Basic name of the property.
      */
@@ -52,11 +52,11 @@ public class PropertyName
      * NOTE: not defined as volatile to avoid performance problem with
      * concurrent access in multi-core environments; due to statelessness
      * of {@link SerializedString} at most leads to multiple instantiations.
-     * 
+     *
      * @since 2.4
      */
     protected SerializableString _encodedSimple;
-    
+
     public PropertyName(String simpleName) {
         this(simpleName, null);
     }
@@ -132,7 +132,7 @@ public class PropertyName
         }
         return new PropertyName(simpleName, _namespace);
     }
-    
+
     /**
      * Fluent factory method for constructing an instance with different
      * namespace.
@@ -147,13 +147,13 @@ public class PropertyName
         }
         return new PropertyName(_simpleName, ns);
     }
-    
+
     /*
     /**********************************************************
     /* Accessors
     /**********************************************************
      */
-    
+
     public String getSimpleName() {
         return _simpleName;
     }
@@ -161,7 +161,7 @@ public class PropertyName
     /**
      * Accessor that may be used to get lazily-constructed efficient
      * representation of the simple name.
-     * 
+     *
      * @since 2.4
      */
     public SerializableString simpleAsEncoded(MapperConfig<?> config) {
@@ -176,7 +176,7 @@ public class PropertyName
         }
         return sstr;
     }
-    
+
     public String getNamespace() {
         return _namespace;
     }
@@ -192,7 +192,7 @@ public class PropertyName
         // _simpleName never null so...
         return _simpleName.equals(str);
     }
-    
+
     public boolean hasNamespace() {
         return _namespace != null;
     }
@@ -202,7 +202,7 @@ public class PropertyName
      *<pre>
      *   !hasSimpleName() &lt;&lt; !hasNamespace();
      *</pre>
-     * 
+     *
      * @since 2.4
      */
     public boolean isEmpty() {
@@ -239,7 +239,7 @@ public class PropertyName
         }
         return _namespace.equals(other._namespace);
     }
-    
+
     @Override
     public int hashCode() {
         if (_namespace == null) {
@@ -247,7 +247,7 @@ public class PropertyName
         }
         return _namespace.hashCode() ^  _simpleName.hashCode();
     }
-    
+
     @Override
     public String toString() {
         if (_namespace == null) {

@@ -23,16 +23,16 @@ public interface ContextualSerializer
      * as a result method should <b>NOT</b> modify this instance but rather construct
      * and return a new instance. This instance should only be returned as-is, in case
      * it is already suitable for use.
-     * 
+     *
      * @param prov Serializer provider to use for accessing config, other serializers
      * @param property Method or field that represents the property
      *   (and is used to access value to serialize).
      *   Should be available; but there may be cases where caller cannot provide it and
      *   null is passed instead (in which case impls usually pass 'this' serializer as is)
-     * 
+     *
      * @return Serializer to use for serializing values of specified property;
      *   may be this instance or a new instance.
-     * 
+     *
      * @throws JsonMappingException
      */
     public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)

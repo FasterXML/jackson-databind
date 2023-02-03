@@ -36,7 +36,7 @@ public class SingleArgCreatorTest extends BaseMapTest
 
         public String getFoobar() { return "x"; }
     }
-    
+
     // For [databind#557]
     static class StringyBean
     {
@@ -65,9 +65,9 @@ public class SingleArgCreatorTest extends BaseMapTest
     static class MyParamIntrospector extends JacksonAnnotationIntrospector
     {
         private final String name;
-        
+
         public MyParamIntrospector(String n) { name = n; }
-        
+
         @Override
         public String findImplicitPropertyName(AnnotatedMember param) {
             if (param instanceof AnnotatedParameter) {
@@ -122,7 +122,7 @@ public class SingleArgCreatorTest extends BaseMapTest
     static class XY {
         public int x, y;
     }
-    
+
     // [databind#1383]
     static class SingleArgWithImplicit {
         protected XY _value;
@@ -175,7 +175,7 @@ public class SingleArgCreatorTest extends BaseMapTest
         mapper.setAnnotationIntrospector(new MyParamIntrospector("value"));
         StringyBean bean = mapper.readValue(q("foobar"), StringyBean.class);
         assertEquals("foobar", bean.getValue());
-    }    
+    }
 
     // [databind#714]
     public void testSingleImplicitlyNamedNotDelegating() throws Exception
@@ -184,7 +184,7 @@ public class SingleArgCreatorTest extends BaseMapTest
         mapper.setAnnotationIntrospector(new MyParamIntrospector("value"));
         StringyBeanWithProps bean = mapper.readValue("{\"value\":\"x\"}", StringyBeanWithProps.class);
         assertEquals("x", bean.getValue());
-    }    
+    }
 
     // [databind#714]
     public void testSingleExplicitlyNamedButDelegating() throws Exception
@@ -229,6 +229,6 @@ public class SingleArgCreatorTest extends BaseMapTest
         DecVector3062 vector = new DecVector3062(Arrays.asList(1.0, 2.0, 3.0));
         String result = MAPPER.writeValueAsString(vector);
         DecVector3062 deser = MAPPER.readValue(result, DecVector3062.class);
-        assertEquals(vector.elems, deser.elems);        
+        assertEquals(vector.elems, deser.elems);
     }
 }

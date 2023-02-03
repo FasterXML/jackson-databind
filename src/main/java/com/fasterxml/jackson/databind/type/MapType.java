@@ -39,7 +39,7 @@ public final class MapType extends MapLikeType
             JavaType keyT, JavaType valueT) {
         return new MapType(rawType, bindings, superClass, superInts, keyT, valueT, null, null, false);
     }
-    
+
     @Deprecated // since 2.7
     public static MapType construct(Class<?> rawType, JavaType keyT, JavaType valueT)
     {
@@ -78,7 +78,7 @@ public final class MapType extends MapLikeType
                 _superClass, _superInterfaces, _keyType, _valueType.withTypeHandler(h),
                 _valueHandler, _typeHandler, _asStatic);
     }
-    
+
     @Override
     public MapType withValueHandler(Object h) {
         return new MapType(_class, _bindings,
@@ -110,7 +110,7 @@ public final class MapType extends MapLikeType
         return new MapType(_class, _bindings, _superClass, _superInterfaces,
                 _keyType, contentType, _valueHandler, _typeHandler, _asStatic);
     }
-    
+
     @Override
     public MapType withKeyType(JavaType keyType) {
         if (keyType == _keyType) {
@@ -133,7 +133,7 @@ public final class MapType extends MapLikeType
     /* Extended API
     /**********************************************************
      */
-    
+
     @Override
     public MapType withKeyTypeHandler(Object h)
     {

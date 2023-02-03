@@ -41,21 +41,21 @@ public class TestPropertyTypeInfo extends BaseMapTest
         public FieldWrapperBeanArray() { }
         public FieldWrapperBeanArray(FieldWrapperBean[] beans) { this.beans = beans; }
     }
-    
+
     static class MethodWrapperBean
     {
         protected Object value;
-        
+
         @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.WRAPPER_ARRAY)
         public Object getValue() { return value; }
 
         @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.WRAPPER_ARRAY)
         public void setValue(Object v) { value = v; }
-        
+
         public MethodWrapperBean() { }
         public MethodWrapperBean(Object o) { value = o; }
     }
-    
+
     static class MethodWrapperBeanList extends ArrayList<MethodWrapperBean> { }
     static class MethodWrapperBeanMap extends HashMap<String,MethodWrapperBean> { }
     static class MethodWrapperBeanArray {
@@ -66,7 +66,7 @@ public class TestPropertyTypeInfo extends BaseMapTest
 
         @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.WRAPPER_ARRAY)
         public void setValue(MethodWrapperBean[] v) { beans = v; }
-        
+
         public MethodWrapperBeanArray() { }
         public MethodWrapperBeanArray(MethodWrapperBean[] beans) { this.beans = beans; }
     }
@@ -74,7 +74,7 @@ public class TestPropertyTypeInfo extends BaseMapTest
     static class OtherBean {
         public int x = 1, y = 1;
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests
@@ -169,7 +169,7 @@ public class TestPropertyTypeInfo extends BaseMapTest
         assertEquals(StringWrapper.class, bean.value.getClass());
         assertEquals(((StringWrapper) bean.value).str, "A");
     }
-    
+
     public void testSimpleMapField() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();

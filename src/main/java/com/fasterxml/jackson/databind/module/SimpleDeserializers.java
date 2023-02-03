@@ -27,17 +27,17 @@ public class SimpleDeserializers
 
     /**
      * Flag to help find "generic" enum deserializer, if one has been registered.
-     * 
+     *
      * @since 2.3
      */
     protected boolean _hasEnumDeserializer = false;
-    
+
     /*
     /**********************************************************
     /* Life-cycle, construction and configuring
     /**********************************************************
      */
-    
+
     public SimpleDeserializers() { }
 
     /**
@@ -46,7 +46,7 @@ public class SimpleDeserializers
     public SimpleDeserializers(Map<Class<?>,JsonDeserializer<?>> desers) {
         addDeserializers(desers);
     }
-    
+
     public <T> void addDeserializer(Class<T> forClass, JsonDeserializer<? extends T> deser)
     {
         ClassKey key = new ClassKey(forClass);
@@ -73,7 +73,7 @@ public class SimpleDeserializers
             addDeserializer((Class<Object>) cls, deser);
         }
     }
-    
+
     /*
     /**********************************************************
     /* Serializers implementation
@@ -116,7 +116,7 @@ public class SimpleDeserializers
     {
         return _find(type);
     }
-    
+
     @Override
     public JsonDeserializer<?> findEnumDeserializer(Class<?> type,
             DeserializationConfig config, BeanDescription beanDesc)

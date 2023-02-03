@@ -31,7 +31,7 @@ public class SimpleKeyDeserializers
     /* Life-cycle, construction and configuring
     /**********************************************************
      */
-    
+
     public SimpleKeyDeserializers() { }
 
     public SimpleKeyDeserializers addDeserializer(Class<?> forClass, KeyDeserializer deser)

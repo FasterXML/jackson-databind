@@ -27,12 +27,16 @@ public class ClassSerializer
         g.writeString(value.getName());
     }
 
+    /**
+     * @deprecated Since 2.15
+     */
+    @Deprecated
     @Override
     public JsonNode getSchema(SerializerProvider provider, Type typeHint)
     {
         return createSchemaNode("string", true);
     }
-    
+
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         throws JsonMappingException

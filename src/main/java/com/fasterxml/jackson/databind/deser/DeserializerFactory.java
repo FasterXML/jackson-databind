@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.type.*;
  * {@link JsonDeserializer} instances (which are then cached by
  * context and/or dedicated cache).
  *<p>
- * Since there are multiple broad categories of deserializers, there are 
+ * Since there are multiple broad categories of deserializers, there are
  * multiple factory methods:
  *<ul>
  * <li>For JSON "Array" type, we need 2 methods: one to deal with expected
@@ -59,7 +59,7 @@ public abstract class DeserializerFactory
      * {@link KeyDeserializers}.
      */
     public abstract DeserializerFactory withAdditionalKeyDeserializers(KeyDeserializers additional);
-    
+
     /**
      * Convenience method for creating a new factory instance with additional
      * {@link BeanDeserializerModifier}.
@@ -77,7 +77,7 @@ public abstract class DeserializerFactory
      * {@link ValueInstantiators}.
      */
     public abstract DeserializerFactory withValueInstantiators(ValueInstantiators instantiators);
-    
+
     /*
     /**********************************************************
     /* Basic DeserializerFactory API:
@@ -100,7 +100,7 @@ public abstract class DeserializerFactory
     public abstract ValueInstantiator findValueInstantiator(DeserializationContext ctxt,
             BeanDescription beanDesc)
         throws JsonMappingException;
-    
+
     /**
      * Method called to create (or, for completely immutable deserializers,
      * reuse) a deserializer that can convert JSON content into values of
@@ -137,7 +137,7 @@ public abstract class DeserializerFactory
     public abstract JsonDeserializer<?> createReferenceDeserializer(DeserializationContext ctxt,
             ReferenceType type, BeanDescription beanDesc)
         throws JsonMappingException;
-    
+
     /**
      * Method called to create and return a deserializer that can construct
      * JsonNode(s) from JSON content.
@@ -145,7 +145,7 @@ public abstract class DeserializerFactory
     public abstract JsonDeserializer<?> createTreeDeserializer(DeserializationConfig config,
             JavaType type, BeanDescription beanDesc)
         throws JsonMappingException;
-    
+
     /**
      * Method called to create (or, for completely immutable deserializers,
      * reuse) a deserializer that can convert JSON content into values of
@@ -177,7 +177,7 @@ public abstract class DeserializerFactory
      * Method called to find if factory knows how to create a key deserializer
      * for specified type; currently this means checking if a module has registered
      * possible deserializers.
-     * 
+     *
      * @return Key deserializer to use for specified type, if one found; null if not
      *   (and default key deserializer should be used)
      */
@@ -195,7 +195,7 @@ public abstract class DeserializerFactory
      *
      * @param baseType Declared base type of the value to deserializer (actual
      *    deserializer type will be this type or its subtype)
-     * 
+     *
      * @return Type deserializer to use for given base type, if one is needed; null if not.
      */
     public abstract TypeDeserializer findTypeDeserializer(DeserializationConfig config,
@@ -208,7 +208,7 @@ public abstract class DeserializerFactory
      * given type as opposed to auto-generated "Bean" deserializer. Factory itself will check
      * for known JDK-provided types, but registered {@link com.fasterxml.jackson.databind.Module}s
      * are also called to see if they might provide explicit deserializer.
-     *<p> 
+     *<p>
      * Main use for this method is with Safe Default Typing (and generally Safe Polymorphic
      * Deserialization), during which it is good to be able to check that given raw type
      * is explicitly supported and as such "known type" (as opposed to potentially

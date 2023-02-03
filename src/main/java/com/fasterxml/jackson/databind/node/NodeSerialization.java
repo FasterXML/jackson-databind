@@ -31,7 +31,7 @@ class NodeSerialization implements java.io.Serializable,
         } catch (IOException e) {
             throw new IllegalArgumentException("Failed to JDK deserialize `JsonNode` value: "+e.getMessage(), e);
         }
-    }    
+    }
 
     public static NodeSerialization from(Object o) {
         try {

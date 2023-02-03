@@ -9,7 +9,7 @@ public class ViewMatcher implements java.io.Serializable
     private static final long serialVersionUID = 1L;
 
     protected final static ViewMatcher EMPTY = new ViewMatcher();
-    
+
     public boolean isVisibleForView(Class<?> activeView) { return false; }
 
     public static ViewMatcher construct(Class<?>[] views)
@@ -24,8 +24,8 @@ public class ViewMatcher implements java.io.Serializable
             return new Single(views[0]);
         }
         return new Multi(views);
-    } 
-    
+    }
+
     /*
     /**********************************************************
     /* Concrete sub-classes

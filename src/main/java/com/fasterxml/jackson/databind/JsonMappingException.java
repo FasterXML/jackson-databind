@@ -330,7 +330,7 @@ public class JsonMappingException
     private static JsonGenerator _generator(SerializerProvider ctxt) {
         return (ctxt == null) ? null : ctxt.getGenerator();
     }
-    
+
     /**
      * Factory method used when "upgrading" an {@link IOException} into
      * {@link JsonMappingException}: usually only needed to comply with
@@ -445,7 +445,7 @@ public class JsonMappingException
         _appendPathDesc(sb);
         return sb;
     }
-    
+
     /**
      * Method called to prepend a reference information in front of
      * current path
@@ -492,7 +492,7 @@ public class JsonMappingException
     public String getLocalizedMessage() {
         return _buildMessage();
     }
-    
+
     /**
      * Method is overridden so that we can properly inject description
      * of problem path, if such is defined.

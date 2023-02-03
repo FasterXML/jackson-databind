@@ -50,10 +50,10 @@ public class CyclicTypesDeserTest
 
         @JsonIgnoreProperties({ "parent" })
         public Selfie405 parent;
-        
+
         public Selfie405(int id) { this.id = id; }
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests
@@ -61,7 +61,7 @@ public class CyclicTypesDeserTest
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
-    
+
     public void testLinked() throws Exception
     {
         Bean first = MAPPER.readValue
@@ -106,7 +106,7 @@ public class CyclicTypesDeserTest
         } catch (InvalidDefinitionException e) {
             verifyException(e, "Direct self-reference");
         }
-        
+
         ObjectWriter w = MAPPER.writer()
                 .without(SerializationFeature.FAIL_ON_SELF_REFERENCES);
         String json = w.writeValueAsString(self1);

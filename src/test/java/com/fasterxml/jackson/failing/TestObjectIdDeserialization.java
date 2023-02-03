@@ -48,7 +48,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
     }
 
     private final ObjectMapper mapper = new ObjectMapper();
-    
+
     /*
     /*****************************************************
     /* Unit tests, external id deserialization

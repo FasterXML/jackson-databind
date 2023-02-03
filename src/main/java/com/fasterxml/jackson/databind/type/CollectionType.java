@@ -76,7 +76,7 @@ public final class CollectionType
         return new CollectionType(_class, _bindings, _superClass, _superInterfaces,
                 contentType, _valueHandler, _typeHandler, _asStatic);
     }
-    
+
     @Override
     public CollectionType withTypeHandler(Object h) {
         return new CollectionType(_class, _bindings,

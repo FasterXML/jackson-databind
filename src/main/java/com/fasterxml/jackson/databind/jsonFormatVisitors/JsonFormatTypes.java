@@ -22,12 +22,12 @@ public enum JsonFormatTypes
 	        _byLCName.put(t.name().toLowerCase(), t);
 	    }
 	}
-	
+
 	@JsonValue
 	public String value() {
 		return name().toLowerCase();
 	}
-	
+
 	@JsonCreator
 	public static JsonFormatTypes forValue(String s) {
 		return _byLCName.get(s);

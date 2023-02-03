@@ -17,14 +17,14 @@ public interface ValueInstantiators
      * Note that a default value instantiator is always created first and passed;
      * if an implementation does not want to modify or replace it, it has to return
      * passed instance as is (returning null is an error)
-     * 
+     *
      * @param config Deserialization configuration in use
      * @param beanDesc Additional information about POJO type to be instantiated
      * @param defaultInstantiator Instantiator that will be used if no changes are made;
      *   passed to allow custom instances to use annotation-provided information
      *   (note, however, that earlier {@link ValueInstantiators} may have changed it to
      *   a custom instantiator already)
-     *   
+     *
      * @return Instantiator to use; either <code>defaultInstantiator</code> that was passed,
      *   or a custom variant; cannot be null.
      */

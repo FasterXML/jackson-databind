@@ -89,7 +89,7 @@ e.getMessage()),
         return getBinaryValue(Base64Variants.getDefaultVariant());
     }
 
-    /* 
+    /*
     /**********************************************************
     /* General type coercions
     /**********************************************************
@@ -104,7 +104,7 @@ e.getMessage()),
     public String asText(String defaultValue) {
         return (_value == null) ? defaultValue : _value;
     }
-    
+
     // note: neither fast nor elegant, but these work for now:
 
     @Override
@@ -120,7 +120,7 @@ e.getMessage()),
         }
         return defaultValue;
     }
-    
+
     @Override
     public int asInt(int defaultValue) {
         return NumberInput.parseAsInt(_value, defaultValue);
@@ -130,18 +130,18 @@ e.getMessage()),
     public long asLong(long defaultValue) {
         return NumberInput.parseAsLong(_value, defaultValue);
     }
-    
+
     @Override
     public double asDouble(double defaultValue) {
         return NumberInput.parseAsDouble(_value, defaultValue);
     }
-    
-    /* 
+
+    /*
     /**********************************************************
     /* Serialization
     /**********************************************************
      */
-    
+
     @Override
     public final void serialize(JsonGenerator g, SerializerProvider provider) throws IOException
     {
@@ -157,7 +157,7 @@ e.getMessage()),
     /* Overridden standard methods
     /**********************************************************
      */
-    
+
     @Override
     public boolean equals(Object o)
     {
@@ -168,7 +168,7 @@ e.getMessage()),
         }
         return false;
     }
-    
+
     @Override
     public int hashCode() { return _value.hashCode(); }
 

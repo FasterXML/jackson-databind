@@ -61,7 +61,7 @@ public class ObjectIdInfo
         }
         return new ObjectIdInfo(_propertyName, _scope, _generator, state, _resolver);
     }
-    
+
     public PropertyName getPropertyName() { return _propertyName; }
     public Class<?> getScope() { return _scope; }
     public Class<? extends ObjectIdGenerator<?>> getGeneratorType() { return _generator; }

@@ -11,7 +11,7 @@ package com.fasterxml.jackson.databind.node;
  * @see BinaryNode
  * @see MissingNode
  * @see POJONode
- * 
+ *
  * @since 2.2
  */
 public enum JsonNodeType

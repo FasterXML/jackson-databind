@@ -18,11 +18,11 @@ public interface Serializers
      * Method called by serialization framework first time a serializer is needed for
      * specified type, which is not of a container or reference type (for which
      * other methods are called).
-     * 
+     *
      * @param type Fully resolved type of instances to serialize
      * @param config Serialization configuration in use
      * @param beanDesc Additional information about type
-     *    
+     *
      * @return Configured serializer to use for the type; or null if implementation
      *    does not recognize or support type
      */
@@ -38,7 +38,7 @@ public interface Serializers
     public JsonSerializer<?> findReferenceSerializer(SerializationConfig config,
             ReferenceType type, BeanDescription beanDesc,
             TypeSerializer contentTypeSerializer, JsonSerializer<Object> contentValueSerializer);
-    
+
     /**
      * Method called by serialization framework first time a serializer is needed for
      * specified array type.
@@ -69,7 +69,7 @@ public interface Serializers
     public JsonSerializer<?> findCollectionLikeSerializer(SerializationConfig config,
             CollectionLikeType type, BeanDescription beanDesc,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer);
-    
+
     /**
      * Method called by serialization framework first time a serializer is needed for
      * specified {@link java.util.Map} type.
@@ -139,7 +139,7 @@ public interface Serializers
         {
             return null;
         }
-            
+
         @Override
         public JsonSerializer<?> findMapSerializer(SerializationConfig config,
                 MapType type, BeanDescription beanDesc,

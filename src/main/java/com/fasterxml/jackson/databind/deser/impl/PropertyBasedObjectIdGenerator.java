@@ -12,7 +12,7 @@ public class PropertyBasedObjectIdGenerator
     public PropertyBasedObjectIdGenerator(Class<?> scope) {
         super(scope);
     }
-    
+
     @Override
     public Object generateId(Object forPojo) {
     	throw new UnsupportedOperationException();

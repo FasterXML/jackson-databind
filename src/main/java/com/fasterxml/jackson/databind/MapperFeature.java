@@ -84,7 +84,7 @@ public enum MapperFeature implements ConfigFeature
      * Feature is enabled by default.
      */
     AUTO_DETECT_CREATORS(true),
-    
+
     /**
      * Feature that determines whether non-static fields are recognized as
      * properties.
@@ -99,12 +99,12 @@ public enum MapperFeature implements ConfigFeature
      * Feature is enabled by default.
      */
     AUTO_DETECT_FIELDS(true),
-    
+
     /**
      * Feature that determines whether regular "getter" methods are
      * automatically detected based on standard Bean naming convention
      * or not. If yes, then all public zero-argument methods that
-     * start with prefix "get" 
+     * start with prefix "get"
      * are considered as getters.
      * If disabled, only methods explicitly  annotated are considered getters.
      *<p>
@@ -333,7 +333,7 @@ public enum MapperFeature implements ConfigFeature
     /* View-related features
     /******************************************************
      */
-    
+
     /**
      * Feature that determines whether properties that have no view
      * annotations are included in JSON serialization views (see
@@ -351,7 +351,7 @@ public enum MapperFeature implements ConfigFeature
      * Feature is enabled by default.
      */
     DEFAULT_VIEW_INCLUSION(true),
-    
+
     /*
     /******************************************************
     /* Generic output features
@@ -411,7 +411,7 @@ public enum MapperFeature implements ConfigFeature
      * letters. Overhead for names that are already lower-case should be negligible.
      *<p>
      * Feature is disabled by default.
-     * 
+     *
      * @since 2.5
      */
     ACCEPT_CASE_INSENSITIVE_PROPERTIES(false),
@@ -440,7 +440,7 @@ public enum MapperFeature implements ConfigFeature
      * setting instead.
      *<p>
      * Feature is disabled by default.
-     * 
+     *
      * @since 2.10
      */
     ACCEPT_CASE_INSENSITIVE_VALUES(false),
@@ -454,7 +454,7 @@ public enum MapperFeature implements ConfigFeature
      * If disabled, wrapper name is only used for wrapping (if anything).
      *<p>
      * Feature is disabled by default.
-     * 
+     *
      * @since 2.1
      */
     USE_WRAPPER_NAME_AS_PROPERTY_NAME(false),
@@ -577,7 +577,7 @@ public enum MapperFeature implements ConfigFeature
      *<p>
      * Feature is disabled by default in 2.x for backwards compatibility reasons: it will become
      * default setting (and feature likely removed) in 3.0.
-     * 
+     *
      * @since 2.11
      */
     BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES(false),
@@ -614,7 +614,7 @@ public enum MapperFeature implements ConfigFeature
         _defaultState = defaultState;
         _mask = (1L << ordinal());
     }
-    
+
     @Override
     public boolean enabledByDefault() { return _defaultState; }
 

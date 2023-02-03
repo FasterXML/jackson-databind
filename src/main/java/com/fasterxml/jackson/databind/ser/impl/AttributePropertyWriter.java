@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.util.Annotations;
  * {@link com.fasterxml.jackson.databind.annotation.JsonAppend},
  * to serialize properties backed-by dynamically assignable attribute
  * values.
- * 
+ *
  * @since 2.5
  */
 public class AttributePropertyWriter
@@ -55,7 +55,7 @@ public class AttributePropertyWriter
         return new AttributePropertyWriter(attrName, propDef,
                 contextAnnotations, declaredType);
     }
-    
+
     protected AttributePropertyWriter(AttributePropertyWriter base) {
         super(base);
         _attrName = base._attrName;
@@ -70,13 +70,13 @@ public class AttributePropertyWriter
             AnnotatedClass declaringClass, BeanPropertyDefinition propDef, JavaType type) {
         throw new IllegalStateException("Should not be called on this type");
     }
-    
+
     /*
     /**********************************************************
     /* Overrides for actual serialization, value access
     /**********************************************************
      */
-    
+
     @Override
     protected Object value(Object bean, JsonGenerator jgen, SerializerProvider prov) throws Exception {
         return prov.getAttribute(_attrName);

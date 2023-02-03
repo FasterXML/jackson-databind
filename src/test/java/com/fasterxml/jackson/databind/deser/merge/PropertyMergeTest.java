@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 /**
  * Tests to make sure that the new "merging" property of
  * <code>JsonSetter</code> annotation works as expected.
- * 
+ *
  * @since 2.9
  */
 @SuppressWarnings("serial")
@@ -35,7 +35,7 @@ public class PropertyMergeTest extends BaseMapTest
     // another variant where all we got is a getter
     static class NoSetterConfig {
         AB _value = new AB(1, 2);
- 
+
         @JsonMerge
         public AB getValue() { return _value; }
     }
@@ -79,7 +79,7 @@ public class PropertyMergeTest extends BaseMapTest
         public MergedX(T v) { value = v; }
         protected MergedX() { }
     }
-    
+
     // // // Classes with invalid merge definition(s)
 
     static class CantMergeInts {

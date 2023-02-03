@@ -17,7 +17,7 @@ public final class AnnotatedConstructor
     /**
      * Field that is used to make JDK serialization work with this
      * object.
-     * 
+     *
      * @since 2.1
      */
     protected Serialization _serialization;
@@ -48,12 +48,12 @@ public final class AnnotatedConstructor
         _constructor = null;
         _serialization = ser;
     }
-    
+
     @Override
     public AnnotatedConstructor withAnnotations(AnnotationMap ann) {
         return new AnnotatedConstructor(_typeContext, _constructor, ann, _paramAnnotations);
     }
-    
+
     /*
     /**********************************************************
     /* Annotated impl
@@ -132,7 +132,7 @@ public final class AnnotatedConstructor
     public final Object call1(Object arg) throws Exception {
         return _constructor.newInstance(arg);
     }
-    
+
     /*
     /**********************************************************
     /* AnnotatedMember impl
@@ -160,7 +160,7 @@ public final class AnnotatedConstructor
         throw new UnsupportedOperationException("Cannot call getValue() on constructor of "
                 +getDeclaringClass().getName());
     }
-    
+
     /*
     /**********************************************************
     /* Extended API, specific annotations
@@ -219,7 +219,7 @@ public final class AnnotatedConstructor
                     +_serialization.args.length+" args from Class '"+clazz.getName());
         }
     }
-    
+
     /**
      * Helper class that is used as the workaround to persist
      * Field references. It basically just stores declaring class

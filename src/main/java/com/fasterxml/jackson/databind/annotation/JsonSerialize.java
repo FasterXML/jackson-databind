@@ -73,7 +73,7 @@ public @interface JsonSerialize
      * default null serializer.
      * Note that using this property when annotation types (classes) has
      * no effect currently (it is possible this could be improved in future).
-     * 
+     *
      * @since 2.3
      */
     @SuppressWarnings("rawtypes") // to work around JDK8 bug wrt Class-valued annotation properties
@@ -116,7 +116,7 @@ public @interface JsonSerialize
      * thrown by serializer.
      */
     public Class<?> contentAs() default Void.class;
-    
+
     /**
      * Whether type detection used is dynamic or static: that is,
      * whether actual runtime type is used (dynamic), or just the
@@ -130,7 +130,7 @@ public @interface JsonSerialize
     public Typing typing() default Typing.DEFAULT_TYPING;
 
     // // // Annotations for specifying intermediate Converters (2.2+)
-    
+
     /**
      * Which helper object is to be used to convert type into something
      * that Jackson knows how to serialize; either because base type
@@ -153,7 +153,7 @@ public @interface JsonSerialize
      */
     @SuppressWarnings("rawtypes") // to work around JDK8 bug wrt Class-valued annotation properties
     public Class<? extends Converter> contentConverter() default Converter.None.class;
-    
+
     // // // Annotation(s) for inclusion criteria
 
     /**
@@ -177,7 +177,7 @@ public @interface JsonSerialize
      */
     @Deprecated
     public Inclusion include() default Inclusion.DEFAULT_INCLUSION;
-    
+
     /*
     /**********************************************************
     /* Value enumerations needed
@@ -236,7 +236,7 @@ public @interface JsonSerialize
         /**
          * Pseudo-value that is used to indicate
          * "use whatever is default used at higher level".
-         * 
+         *
          * @since 2.3
          */
         DEFAULT_INCLUSION
@@ -261,11 +261,11 @@ public @interface JsonSerialize
          * be used.
          */
         STATIC,
-        
+
         /**
          * Pseudo-value that is used to indicate
          * "use whatever is default used at higher level".
-         * 
+         *
          * @since 2.3
          */
         DEFAULT_TYPING

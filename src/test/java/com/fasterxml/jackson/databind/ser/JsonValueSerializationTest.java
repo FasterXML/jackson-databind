@@ -38,7 +38,7 @@ public class JsonValueSerializationTest
 
         public FieldValueClass(T v) { _value = v; }
     }
-    
+
     /**
      * Another test class to check that it is also possible to
      * force specific serializer to use with @JsonValue annotated
@@ -75,7 +75,7 @@ public class JsonValueSerializationTest
     static class ValueType extends ValueBase {
         public String b = "b";
     }
-    
+
     // Finally, let's also test static vs dynamic type
     static class ValueWrapper {
         @JsonValue
@@ -101,7 +101,7 @@ public class JsonValueSerializationTest
             stuff.put("b", "2");
         }
     }
-    
+
     static class MapAsNumber extends HashMap<String,String>
     {
         @JsonValue
@@ -127,27 +127,27 @@ public class JsonValueSerializationTest
 
     static class IntExtBean {
         public List<Internal> values = new ArrayList<Internal>();
-        
+
         public void add(int v) { values.add(new Internal(v)); }
     }
-    
+
     static class Internal {
         public int value;
-        
+
         public Internal(int v) { value = v; }
-        
+
         @JsonValue
         public External asExternal() { return new External(this); }
     }
-    
+
     static class External {
         public int i;
-        
+
         External(Internal e) { i = e.value; }
     }
 
     // [databind#167]
-    
+
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "boingo")
     @JsonSubTypes(value = {@JsonSubTypes.Type(name = "boopsy", value = AdditionInterfaceImpl.class)
     })
@@ -155,21 +155,21 @@ public class JsonValueSerializationTest
     {
         public int add(int in);
     }
-	
+
     public static class AdditionInterfaceImpl implements AdditionInterface
     {
 	    private final int toAdd;
-	
+
 	    @JsonCreator
 	    public AdditionInterfaceImpl(@JsonProperty("toAdd") int toAdd) {
 	      this.toAdd = toAdd;
 	    }
-	
+
 	    @JsonProperty
 	    public int getToAdd() {
 	      return toAdd;
 	    }
-	
+
 	    @Override
 	    public int add(int in) {
 	      return in + toAdd;
@@ -233,7 +233,7 @@ public class JsonValueSerializationTest
             this.value = value;
         }
     }
-    
+
     /*
     /**********************************************************************
     /* Test cases
@@ -241,7 +241,7 @@ public class JsonValueSerializationTest
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
-    
+
     public void testSimpleMethodJsonValue() throws Exception
     {
         assertEquals("\"abc\"", MAPPER.writeValueAsString(new ValueClass<String>("abc")));
@@ -315,7 +315,7 @@ public class JsonValueSerializationTest
     public void testPolymorphicSerdeWithDelegate() throws Exception
     {
 	    AdditionInterface adder = new AdditionInterfaceImpl(1);
-	
+
 	    assertEquals(2, adder.add(1));
 	    String json = MAPPER.writeValueAsString(adder);
 	    assertEquals("{\"boingo\":\"boopsy\",\"toAdd\":1}", json);

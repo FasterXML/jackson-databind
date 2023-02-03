@@ -9,14 +9,14 @@ public class TestFormatDetection extends BaseMapTest
 
     static class POJO {
         public int x, y;
-        
+
         public POJO() { }
         public POJO(int x, int y) {
             this.x = x;
             this.y = y;
         }
     }
-    
+
     /*
     /**********************************************************
     /* Test methods
@@ -47,7 +47,7 @@ public class TestFormatDetection extends BaseMapTest
         pojo = it.nextValue();
         assertEquals(2, pojo.x);
         assertEquals(5, pojo.y);
-        
+
         assertFalse(it.hasNextValue());
         it.close();
 

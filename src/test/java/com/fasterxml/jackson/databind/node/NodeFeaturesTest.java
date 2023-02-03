@@ -53,13 +53,13 @@ public class NodeFeaturesTest extends BaseMapTest
         assertTrue(dfs.isExplicitlyEnabled(JsonNodeFeature.READ_NULL_PROPERTIES));
         assertFalse(dfs.isExplicitlyDisabled(JsonNodeFeature.READ_NULL_PROPERTIES));
     }
-    
+
     /*
     /**********************************************************************
     /* ObjectNode property handling
     /**********************************************************************
      */
-    
+
     // [databind#3421]
     public void testReadNulls() throws Exception
     {

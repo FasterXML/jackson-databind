@@ -32,13 +32,13 @@ public class TreeReadViaMapperTest extends BaseMapTest
             assertType(result, ObjectNode.class);
             assertEquals(1, result.size());
             assertTrue(result.isObject());
-            
+
             ObjectNode main = (ObjectNode) result;
             assertEquals("Image", main.fieldNames().next());
             JsonNode ob = main.elements().next();
             assertType(ob, ObjectNode.class);
             ObjectNode imageMap = (ObjectNode) ob;
-            
+
             assertEquals(5, imageMap.size());
             ob = imageMap.get("Width");
             assertTrue(ob.isIntegralNumber());
@@ -47,11 +47,11 @@ public class TreeReadViaMapperTest extends BaseMapTest
             ob = imageMap.get("Height");
             assertTrue(ob.isIntegralNumber());
             assertEquals(SAMPLE_SPEC_VALUE_HEIGHT, ob.intValue());
-            
+
             ob = imageMap.get("Title");
             assertTrue(ob.isTextual());
             assertEquals(SAMPLE_SPEC_VALUE_TITLE, ob.textValue());
-            
+
             ob = imageMap.get("Thumbnail");
             assertType(ob, ObjectNode.class);
             ObjectNode tn = (ObjectNode) ob;
@@ -64,7 +64,7 @@ public class TreeReadViaMapperTest extends BaseMapTest
             ob = tn.get("Width");
             assertTrue(ob.isTextual());
             assertEquals(SAMPLE_SPEC_VALUE_TN_WIDTH, ob.textValue());
-            
+
             ob = imageMap.get("IDs");
             assertTrue(ob.isArray());
             ArrayNode idList = (ArrayNode) ob;

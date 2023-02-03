@@ -53,7 +53,7 @@ public class TestObjectBuffer
                 }
 
                 Object[] result;
-                
+
                 if (clz == null) {
                     result = thisBuf.completeAndClearBuffer(chunk, ix);
                 } else {

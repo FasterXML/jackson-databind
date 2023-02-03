@@ -66,7 +66,7 @@ public class NumberSerTest extends BaseMapTest
         public BigDecimalAsString() { this(BigDecimal.valueOf(0.25)); }
         public BigDecimalAsString(BigDecimal v) { value = v; }
     }
-    
+
     static class NumberWrapper {
         // ensure it will use `Number` as statically force type, when looking for serializer
         @JsonSerialize(as=Number.class)
@@ -74,7 +74,7 @@ public class NumberSerTest extends BaseMapTest
 
         public NumberWrapper(Number v) { value = v; }
     }
-    
+
     /*
     /**********************************************************
     /* Test methods

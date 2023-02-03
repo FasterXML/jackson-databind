@@ -20,27 +20,27 @@ public class TestJDKProxy extends BaseMapTest
 
         public Planet() { }
         public Planet(String s) { name = s; }
-        
+
         @Override
         public String getName(){return name;}
         @Override
         public String setName(String iName) {name = iName;
             return name;
         }
-    }    
-    
+    }
+
     /*
     /********************************************************
     /* Test methods
     /********************************************************
      */
-    
+
     public void testSimple() throws Exception
     {
         IPlanet input = getProxy(IPlanet.class, new Planet("Foo"));
         String json = MAPPER.writeValueAsString(input);
         assertEquals("{\"name\":\"Foo\"}", json);
-        
+
         // and just for good measure
         Planet output = MAPPER.readValue(json, Planet.class);
         assertEquals("Foo", output.getName());

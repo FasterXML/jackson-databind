@@ -23,7 +23,7 @@ public final class MethodProperty
     private static final long serialVersionUID = 1;
 
     protected final AnnotatedMethod _annotated;
-    
+
     /**
      * Setter method for modifying property value; used for
      * "regular" method-accessible properties.
@@ -34,7 +34,7 @@ public final class MethodProperty
      * @since 2.9
      */
     final protected boolean _skipNulls;
-    
+
     public MethodProperty(BeanPropertyDefinition propDef,
             JavaType type, TypeDeserializer typeDeser,
             Annotations contextAnnotations, AnnotatedMethod method)
@@ -74,7 +74,7 @@ public final class MethodProperty
     public SettableBeanProperty withName(PropertyName newName) {
         return new MethodProperty(this, newName);
     }
-    
+
     @Override
     public SettableBeanProperty withValueDeserializer(JsonDeserializer<?> deser) {
         if (_valueDeserializer == deser) {
@@ -101,7 +101,7 @@ public final class MethodProperty
     /* BeanProperty impl
     /**********************************************************
      */
-    
+
     @Override
     public <A extends Annotation> A getAnnotation(Class<A> acls) {
         return (_annotated == null) ? null : _annotated.getAnnotation(acls);

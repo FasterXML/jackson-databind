@@ -33,7 +33,7 @@ public class TestMixinMerging extends BaseMapTest
     /* Unit tests
     /**********************************************************
      */
-    
+
     // for [databind#515]
     public void testDisappearingMixins515() throws Exception
     {

@@ -21,7 +21,7 @@ public class ExistingPropertyTest extends BaseMapTest
             visible=true)
     @JsonSubTypes({
         @Type(value = Apple.class, name = "apple") ,
-        @Type(value = Orange.class, name = "orange") 
+        @Type(value = Orange.class, name = "orange")
     })
     static abstract class Fruit {
         public String name;
@@ -70,13 +70,13 @@ public class ExistingPropertyTest extends BaseMapTest
 	@JsonTypeInfo(use = Id.NAME, include = As.EXISTING_PROPERTY, property = "type")
 	@JsonSubTypes({
 		@Type(value = Dog.class, name = "doggie") ,
-		@Type(value = Cat.class, name = "kitty") 
+		@Type(value = Cat.class, name = "kitty")
 		})
 	static abstract class Animal {
         public String name;
-        
+
         protected Animal(String n)  { name = n; }
-        
+
         public abstract String getType();
     }
 
@@ -84,34 +84,34 @@ public class ExistingPropertyTest extends BaseMapTest
     static class Dog extends Animal
     {
         public int boneCount;
-        
+
         private Dog() { super(null); }
         public Dog(String name, int b) {
             super(name);
             boneCount = b;
         }
-        
+
  		@Override
 		public String getType() {
         	return "doggie";
-        }        
+        }
     }
 
     @JsonTypeName("kitty")
     static class Cat extends Animal
     {
         public String furColor;
-        
+
         private Cat() { super(null); }
         public Cat(String name, String c) {
             super(name);
             furColor = c;
         }
-        
+
 		@Override
 		public String getType() {
         	return "kitty";
-        }        
+        }
     }
 
     static class AnimalWrapper {
@@ -126,10 +126,10 @@ public class ExistingPropertyTest extends BaseMapTest
 	@JsonTypeInfo(use = Id.NAME, include = As.EXISTING_PROPERTY, property = "type")
 	@JsonSubTypes({
 		@Type(value = Accord.class, name = "accord") ,
-		@Type(value = Camry.class, name = "camry") 
+		@Type(value = Camry.class, name = "camry")
 		})
 	static abstract class Car {
-        public String name;        
+        public String name;
         protected Car(String n)  { name = n; }
     }
 
@@ -137,32 +137,32 @@ public class ExistingPropertyTest extends BaseMapTest
     static class Accord extends Car
     {
         public int speakerCount;
-        
+
         private Accord() { super(null); }
         public Accord(String name, int b) {
             super(name);
             speakerCount = b;
         }
-        
+
 		public String getType() {
         	return "accord";
-        }        
+        }
     }
 
     @JsonTypeName("camry")
     static class Camry extends Car
     {
         public String exteriorColor;
-        
+
         private Camry() { super(null); }
         public Camry(String name, String c) {
             super(name);
             exteriorColor = c;
         }
-        
+
 		public String getType() {
         	return "camry";
-        }        
+        }
     }
 
     static class CarWrapper {
@@ -214,8 +214,8 @@ public class ExistingPropertyTest extends BaseMapTest
      */
 
     private static final Orange mandarin = new Orange("Mandarin Orange", "orange");
-    private static final String mandarinJson = "{\"name\":\"Mandarin Orange\",\"color\":\"orange\",\"type\":\"orange\"}";	
-    private static final Apple pinguo = new Apple("Apple-A-Day", 16);    
+    private static final String mandarinJson = "{\"name\":\"Mandarin Orange\",\"color\":\"orange\",\"type\":\"orange\"}";
+    private static final Apple pinguo = new Apple("Apple-A-Day", 16);
     private static final String pinguoJson = "{\"name\":\"Apple-A-Day\",\"seedCount\":16,\"type\":\"apple\"}";
     private static final FruitWrapper pinguoWrapper = new FruitWrapper(pinguo);
     private static final String pinguoWrapperJson = "{\"fruit\":" + pinguoJson + "}";
@@ -223,7 +223,7 @@ public class ExistingPropertyTest extends BaseMapTest
     private static final String fruitListJson = "[" + pinguoJson + "," + mandarinJson + "]";
 
     private static final Cat beelzebub = new Cat("Beelzebub", "tabby");
-    private static final String beelzebubJson = "{\"name\":\"Beelzebub\",\"furColor\":\"tabby\",\"type\":\"kitty\"}";	
+    private static final String beelzebubJson = "{\"name\":\"Beelzebub\",\"furColor\":\"tabby\",\"type\":\"kitty\"}";
     private static final Dog rover = new Dog("Rover", 42);
     private static final String roverJson = "{\"name\":\"Rover\",\"boneCount\":42,\"type\":\"doggie\"}";
     private static final AnimalWrapper beelzebubWrapper = new AnimalWrapper(beelzebub);
@@ -232,7 +232,7 @@ public class ExistingPropertyTest extends BaseMapTest
     private static final String animalListJson = "[" + beelzebubJson + "," + roverJson + "]";
 
     private static final Camry camry = new Camry("Sweet Ride", "candy-apple-red");
-    private static final String camryJson = "{\"name\":\"Sweet Ride\",\"exteriorColor\":\"candy-apple-red\",\"type\":\"camry\"}";	
+    private static final String camryJson = "{\"name\":\"Sweet Ride\",\"exteriorColor\":\"candy-apple-red\",\"type\":\"camry\"}";
     private static final Accord accord = new Accord("Road Rage", 6);
     private static final String accordJson = "{\"name\":\"Road Rage\",\"speakerCount\":6,\"type\":\"accord\"}";
     private static final CarWrapper camryWrapper = new CarWrapper(camry);
@@ -258,13 +258,13 @@ public class ExistingPropertyTest extends BaseMapTest
         assertEquals(pinguo.name, result.get("name"));
         assertEquals(pinguo.seedCount, result.get("seedCount"));
         assertEquals(pinguo.type, result.get("type"));
-        
+
         result = writeAndMap(MAPPER, mandarin);
         assertEquals(3, result.size());
         assertEquals(mandarin.name, result.get("name"));
         assertEquals(mandarin.color, result.get("color"));
         assertEquals(mandarin.type, result.get("type"));
-        
+
         String pinguoSerialized = MAPPER.writeValueAsString(pinguo);
         assertEquals(pinguoSerialized, pinguoJson);
 
@@ -304,7 +304,7 @@ public class ExistingPropertyTest extends BaseMapTest
         assertEquals("apple", ((Apple) fruits[0]).type);
         assertEquals(Orange.class, fruits[1].getClass());
         assertEquals("orange", ((Orange) fruits[1]).type);
-        
+
         List<Fruit> f2 = MAPPER.readValue(fruitListJson,
                 new TypeReference<List<Fruit>>() { });
         assertNotNull(f2);
@@ -329,13 +329,13 @@ public class ExistingPropertyTest extends BaseMapTest
         assertEquals(rover.name, result.get("name"));
         assertEquals(rover.boneCount, result.get("boneCount"));
         assertEquals(rover.getType(), result.get("type"));
-        
+
         String beelzebubSerialized = MAPPER.writeValueAsString(beelzebub);
         assertEquals(beelzebubSerialized, beelzebubJson);
-        
+
         String roverSerialized = MAPPER.writeValueAsString(rover);
         assertEquals(roverSerialized, roverJson);
-        
+
         String animalWrapperSerialized = MAPPER.writeValueAsString(beelzebubWrapper);
         assertEquals(animalWrapperSerialized, beelzebubWrapperJson);
 
@@ -362,7 +362,7 @@ public class ExistingPropertyTest extends BaseMapTest
         assertEquals(beelzebub.name, beelzebubExtracted.name);
         assertEquals(beelzebub.furColor, ((Cat) beelzebubExtracted).furColor);
         assertEquals(beelzebub.getType(), beelzebubExtracted.getType());
-    	
+
         @SuppressWarnings("unchecked")
         List<Animal> animalListDeserialized = MAPPER.readValue(animalListJson, List.class);
         assertNotNull(animalListDeserialized);
@@ -397,7 +397,7 @@ public class ExistingPropertyTest extends BaseMapTest
 
         String accordSerialized = MAPPER.writeValueAsString(accord);
         assertEquals(accordSerialized, accordJson);
-        
+
         String carWrapperSerialized = MAPPER.writeValueAsString(camryWrapper);
         assertEquals(carWrapperSerialized, camryWrapperJson);
 

@@ -22,9 +22,9 @@ public class NullSerializer
     extends StdSerializer<Object>
 {
     public final static NullSerializer instance = new NullSerializer();
-    
+
     private NullSerializer() { super(Object.class); }
-    
+
     @Override
     public void serialize(Object value, JsonGenerator gen, SerializerProvider provider) throws IOException {
         gen.writeNull();
@@ -43,12 +43,16 @@ public class NullSerializer
     {
         gen.writeNull();
     }
-    
+
+    /**
+     * @deprecated Since 2.15
+     */
+    @Deprecated
     @Override
     public JsonNode getSchema(SerializerProvider provider, Type typeHint) throws JsonMappingException {
         return createSchemaNode("null");
     }
-    
+
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException {
         visitor.expectNullFormat(typeHint);

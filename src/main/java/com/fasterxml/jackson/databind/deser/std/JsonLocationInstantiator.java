@@ -27,7 +27,7 @@ public class JsonLocationInstantiator
 
     @Override
     public boolean canCreateFromObjectWith() { return true; }
-    
+
     @Override
     public SettableBeanProperty[] getFromObjectArguments(DeserializationConfig config) {
         JavaType intType = config.constructType(Integer.TYPE);

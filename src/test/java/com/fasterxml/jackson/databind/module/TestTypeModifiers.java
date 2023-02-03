@@ -86,7 +86,7 @@ public class TestTypeModifiers extends BaseMapTest
             jgen.writeString("xxx:"+value);
         }
     }
-    
+
     interface MapMarker<K,V> {
         public K getKey();
         public V getValue();
@@ -129,12 +129,12 @@ public class TestTypeModifiers extends BaseMapTest
     {
         protected final JsonSerializer<Object> _keySerializer;
         protected final JsonSerializer<Object> _valueSerializer;
-        
+
         public MyMapSerializer(JsonSerializer<Object> keySer, JsonSerializer<Object> valueSer) {
             _keySerializer = keySer;
             _valueSerializer = valueSer;
         }
-        
+
         @Override
         public void serialize(MapMarker<?,?> value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
             jgen.writeStartObject();
@@ -162,7 +162,7 @@ public class TestTypeModifiers extends BaseMapTest
             int value = jp.getIntValue();
             if (jp.nextToken() != JsonToken.END_OBJECT) throw new IOException("Wrong token: "+jp.currentToken());
             return new MyMapLikeType(key, value);
-        }        
+        }
     }
 
     static class MyCollectionSerializer extends JsonSerializer<MyCollectionLikeType>
@@ -183,7 +183,7 @@ public class TestTypeModifiers extends BaseMapTest
             int value = jp.getIntValue();
             if (jp.nextToken() != JsonToken.END_ARRAY) throw new IOException("Wrong token: "+jp.currentToken());
             return new MyCollectionLikeType(value);
-        }        
+        }
     }
 
     static class MyTypeModifier extends TypeModifier
@@ -246,7 +246,7 @@ public class TestTypeModifiers extends BaseMapTest
     }
 
     // [databind#2395] Can trigger problem this way too
-    // NOTE: oddly enough, seems to ONLY fail 
+    // NOTE: oddly enough, seems to ONLY fail
     public void testTypeResolutionForRecursive() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();

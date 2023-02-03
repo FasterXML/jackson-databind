@@ -51,7 +51,7 @@ public class AnnotatedPolymorphicValidationTest
             return baseType.isTypeOrSubTypeOf(Number.class);
         }
     }
-    
+
     /*
     /**********************************************************
     /* Test methods
@@ -79,12 +79,12 @@ public class AnnotatedPolymorphicValidationTest
                 .enable(MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES)
                 .polymorphicTypeValidator(new NumbersAreOkValidator())
                 .build();
-        
+
         WrappedPolymorphicUntyped w = customMapper.readValue(JSON, WrappedPolymorphicUntyped.class);
         assertEquals(Integer.valueOf(10), w.value);
 
         // but yet again, it is not opening up all types (just as an example)
-        
+
         try {
             customMapper.readValue(JSON, WrappedPolymorphicUntypedSer.class);
             fail("Should not pass");

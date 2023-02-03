@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  *<p>
  * Starting with version 2.3 this class is deprecated; use
  * {@link PropertyFilter} instead.
- * 
+ *
  * @deprecated Since 2.3: use {@link PropertyFilter} instead.
  */
 @Deprecated
@@ -31,7 +31,7 @@ public interface BeanPropertyFilter
      *      writer.serializeAsField(pojo, jgen, prov);
      * }
      *</pre>
-     * 
+     *
      * @param pojo Object that contains property value to serialize
      * @param jgen Generator use for serializing value
      * @param prov Provider that can be used for accessing dynamic aspects of serialization
@@ -41,7 +41,7 @@ public interface BeanPropertyFilter
     public void serializeAsField(Object pojo, JsonGenerator jgen, SerializerProvider prov,
             BeanPropertyWriter writer)
         throws Exception;
-    
+
     /**
      * Method called by {@link BeanSerializer} to let the filter determine whether, and in what
      * form the given property exist within the parent, or root, schema. Filters can omit
@@ -53,12 +53,12 @@ public interface BeanPropertyFilter
      *      writer.depositSchemaProperty(propertiesNode, provider);
      * }
      *</pre>
-     * 
+     *
      * @param writer Bean property writer to use to create schema value
      * @param propertiesNode Node which the given property would exist within
      * @param provider Provider that can be used for accessing dynamic aspects of serialization
      * 	processing
-     * 
+     *
      * @since 2.1
      * @deprecated Since 2.3: new code should use the alternative <code>depositSchemaProperty</code>
      *   method
@@ -67,7 +67,7 @@ public interface BeanPropertyFilter
     public void depositSchemaProperty(BeanPropertyWriter writer, ObjectNode propertiesNode,
             SerializerProvider provider)
         throws JsonMappingException;
-    
+
     /**
      * Method called by {@link BeanSerializer} to let the filter determine whether, and in what
      * form the given property exist within the parent, or root, schema. Filters can omit
@@ -79,13 +79,13 @@ public interface BeanPropertyFilter
      *      writer.depositSchemaProperty(objectVisitor, provider);
      * }
      *</pre>
-     * 
+     *
      * @param writer Bean property serializer to use to create schema value
-     * @param objectVisitor JsonObjectFormatVisitor which should be aware of 
+     * @param objectVisitor JsonObjectFormatVisitor which should be aware of
      * the property's existence
      * @param provider Provider that can be used for accessing dynamic aspects of serialization
      * 	processing
-     * 
+     *
      * @since 2.1
      */
     public void depositSchemaProperty(BeanPropertyWriter writer, JsonObjectFormatVisitor objectVisitor,

@@ -37,7 +37,7 @@ public class UnrecognizedPropertyException
 
     /**
      * Factory method used for constructing instances of this exception type.
-     * 
+     *
      * @param p Underlying parser used for reading input being used for data-binding
      * @param fromObjectOrClass Reference to either instance of problematic type (
      *    if available), or if not, type itself

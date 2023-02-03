@@ -14,7 +14,7 @@ public class ScalarTypingTest extends BaseMapTest
     private static class DynamicWrapper {
         @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY)
         public Object value;
-        
+
         @SuppressWarnings("unused")
         public DynamicWrapper() { }
         public DynamicWrapper(Object v) { value = v; }
@@ -25,7 +25,7 @@ public class ScalarTypingTest extends BaseMapTest
     private static class AbstractWrapper {
         @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY)
         public Serializable value;
-        
+
         @SuppressWarnings("unused")
         public AbstractWrapper() { }
         public AbstractWrapper(Serializable v) { value = v; }
@@ -50,7 +50,7 @@ public class ScalarTypingTest extends BaseMapTest
      */
 
     final ObjectMapper MAPPER = newJsonMapper();
-    
+
     /**
      * Ensure that per-property dynamic types work, both for "native" types
      * and others
@@ -77,7 +77,7 @@ public class ScalarTypingTest extends BaseMapTest
         json = m.writeValueAsString(new DynamicWrapper(Boolean.TRUE));
         result = m.readValue(json, DynamicWrapper.class);
         assertEquals(Boolean.TRUE, result.value);
-        
+
         // then verify other scalars
         json = m.writeValueAsString(new DynamicWrapper(Long.valueOf(7L)));
         result = m.readValue(json, DynamicWrapper.class);
@@ -110,7 +110,7 @@ public class ScalarTypingTest extends BaseMapTest
         json = m.writeValueAsString(new AbstractWrapper(Boolean.TRUE));
         result = m.readValue(json, AbstractWrapper.class);
         assertEquals(Boolean.TRUE, result.value);
-        
+
         // then verify other scalars
         json = m.writeValueAsString(new AbstractWrapper(Long.valueOf(7L)));
         result = m.readValue(json, AbstractWrapper.class);

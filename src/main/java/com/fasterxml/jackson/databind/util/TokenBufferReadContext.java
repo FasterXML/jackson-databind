@@ -122,7 +122,7 @@ public class TokenBufferReadContext extends JsonStreamContext
     public TokenBufferReadContext parentOrCopy() {
         // 30-Apr-2017, tatu: This is bit awkward since part on ancestor stack is of different
         //     type (usually `JsonReadContext`)... and so for unbalanced buffers (with extra
-        //     END_OBJECT / END_ARRAY), we may need to create 
+        //     END_OBJECT / END_ARRAY), we may need to create
         if (_parent instanceof TokenBufferReadContext) {
             return (TokenBufferReadContext) _parent;
         }

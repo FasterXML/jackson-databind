@@ -65,14 +65,14 @@ public class MapFormatShapeTest extends BaseMapTest
     static class Map1540Implementation implements Map<Integer, Integer> {
         public int property;
         public Map<Integer, Integer> map = new LinkedHashMap<>();
- 
+
         public Map<Integer, Integer> getMap() {
             return map;
        }
 
        public void setMap(Map<Integer, Integer> map) {
             this.map = map;
-       }        
+       }
 
        @Override
        public Integer put(Integer key, Integer value) {
@@ -99,17 +99,17 @@ public class MapFormatShapeTest extends BaseMapTest
         public boolean containsValue(Object value) {
             return map.containsValue(value);
         }
-    
+
         @Override
         public Integer get(Object key) {
             return map.get(key);
         }
-    
+
         @Override
         public Integer remove(Object key) {
             return map.remove(key);
         }
-    
+
         @Override
         public void putAll(Map<? extends Integer, ? extends Integer> m) {
             map.putAll(m);
@@ -129,14 +129,14 @@ public class MapFormatShapeTest extends BaseMapTest
         public Collection<Integer> values() {
             return map.values();
         }
-    
+
         @Override
         public Set<java.util.Map.Entry<Integer, Integer>> entrySet() {
             return map.entrySet();
         }
     }
 
-    
+
     /*
     /**********************************************************
     /* Test methods, serialization
@@ -154,7 +154,7 @@ public class MapFormatShapeTest extends BaseMapTest
     }
 
     // Can't yet use per-property overrides at all, see [databind#1419]
-    
+
     /*
     public void testSerializeAsPOJOViaProperty() throws Exception
     {
@@ -193,7 +193,7 @@ public class MapFormatShapeTest extends BaseMapTest
         assertEquals(result.property, input.property);
         assertEquals(input.getMap(), input.getMap());
    }
-    
+
     // [databind#1554]
     public void testDeserializeAsPOJOViaClass() throws Exception
     {

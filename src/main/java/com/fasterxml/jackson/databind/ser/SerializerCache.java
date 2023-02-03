@@ -124,7 +124,7 @@ public final class SerializerCache
     /* Methods for adding shared serializer instances
     /**********************************************************
      */
-    
+
     /**
      * Method called if none of lookups succeeded, and caller had to construct
      * a serializer. If so, we will update the shared lookup map so that it
@@ -149,7 +149,7 @@ public final class SerializerCache
             }
         }
     }
-    
+
     public void addAndResolveNonTypedSerializer(Class<?> type, JsonSerializer<Object> ser,
             SerializerProvider provider)
         throws JsonMappingException

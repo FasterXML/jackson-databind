@@ -42,7 +42,7 @@ public class AccessorNamingForBuilderTest extends BaseMapTest
     {
         final String json = a2q("{'x':28,'y':72}");
         final ObjectMapper vanillaMapper = newJsonMapper();
-        
+
         // First: without custom strategy, will fail:
         try {
             ValueClassXY xy = vanillaMapper.readValue(json, ValueClassXY.class);

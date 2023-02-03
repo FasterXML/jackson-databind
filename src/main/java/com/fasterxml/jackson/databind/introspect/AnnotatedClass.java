@@ -62,7 +62,7 @@ public final class AnnotatedClass
      * @since 2.7
      */
     final protected TypeFactory _typeFactory;
-    
+
     /**
      * Object that knows mapping of mix-in classes (ones that contain
      * annotations to add) with their target classes (ones that
@@ -136,7 +136,7 @@ public final class AnnotatedClass
      * @param rawType Type-erased class; pass if no `type` needed or available
      */
     AnnotatedClass(JavaType type, Class<?> rawType, List<JavaType> superTypes,
-            Class<?> primaryMixIn, Annotations classAnnotations, TypeBindings bindings, 
+            Class<?> primaryMixIn, Annotations classAnnotations, TypeBindings bindings,
             AnnotationIntrospector aintr, MixInResolver mir, TypeFactory tf,
             boolean collectAnnotations)
     {
@@ -154,7 +154,7 @@ public final class AnnotatedClass
 
     @Deprecated // since 2.10
     AnnotatedClass(JavaType type, Class<?> rawType, List<JavaType> superTypes,
-            Class<?> primaryMixIn, Annotations classAnnotations, TypeBindings bindings, 
+            Class<?> primaryMixIn, Annotations classAnnotations, TypeBindings bindings,
             AnnotationIntrospector aintr, MixInResolver mir, TypeFactory tf)
     {
         this(type, rawType, superTypes, primaryMixIn, classAnnotations, bindings,
@@ -236,7 +236,7 @@ public final class AnnotatedClass
 
     /*
     /**********************************************************
-    /* Annotated impl 
+    /* Annotated impl
     /**********************************************************
      */
 
@@ -424,7 +424,7 @@ public final class AnnotatedClass
     public int hashCode() {
         return _class.getName().hashCode();
     }
-    
+
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;

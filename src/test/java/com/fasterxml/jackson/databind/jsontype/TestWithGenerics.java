@@ -19,7 +19,7 @@ public class TestWithGenerics extends BaseMapTest
     @JsonSubTypes( { @Type(value = Dog.class, name = "doggy") })
     static abstract class Animal {
         public String name;
-    }    
+    }
 
     static class Dog extends Animal {
         public int boneCount;
@@ -44,13 +44,13 @@ public class TestWithGenerics extends BaseMapTest
 
         public ContainerWithField(T a) { animal = a; }
     }
-    
+
     static class WrappedContainerWithField {
         public ContainerWithField<?> animalContainer;
     }
 
 	// Beans for [JACKSON-387], [JACKSON-430]
-    
+
     @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="@classAttr1")
     static class MyClass {
         public List<MyParam<?>> params = new ArrayList<MyParam<?>>();
@@ -67,26 +67,26 @@ public class TestWithGenerics extends BaseMapTest
     static class SomeObject {
         public String someValue = UUID.randomUUID().toString();
     }
-    
+
     // Beans for [JACKSON-430]
-    
+
     static class CustomJsonSerializer extends JsonSerializer<Object>
         implements ResolvableSerializer
     {
         private final JsonSerializer<Object> beanSerializer;
-    
+
         public CustomJsonSerializer( JsonSerializer<Object> beanSerializer ) { this.beanSerializer = beanSerializer; }
-    
+
         @Override
         public void serialize( Object value, JsonGenerator jgen, SerializerProvider provider )
             throws IOException
         {
             beanSerializer.serialize( value, jgen, provider );
         }
-    
+
         @Override
         public Class<Object> handledType() { return beanSerializer.handledType(); }
-    
+
         @Override
         public void serializeWithType( Object value, JsonGenerator jgen, SerializerProvider provider, TypeSerializer typeSer )
             throws IOException
@@ -102,7 +102,7 @@ public class TestWithGenerics extends BaseMapTest
             }
         }
     }
-    
+
     @SuppressWarnings("serial")
     protected static class CustomJsonSerializerFactory extends BeanSerializerFactory
     {
@@ -112,7 +112,7 @@ public class TestWithGenerics extends BaseMapTest
         protected JsonSerializer<Object> constructBeanOrAddOnSerializer(SerializerProvider prov,
                 JavaType type, BeanDescription beanDesc, boolean staticTyping)
             throws JsonMappingException
-        {                
+        {
             return new CustomJsonSerializer(super.constructBeanOrAddOnSerializer(prov, type, beanDesc, staticTyping) );
         }
     }
@@ -120,7 +120,7 @@ public class TestWithGenerics extends BaseMapTest
     // [databind#543]
     static class ContainerWithTwoAnimals<U extends Animal,V extends Animal> extends ContainerWithField<U> {
          public V otherAnimal;
-        
+
          public ContainerWithTwoAnimals(U a1, V a2) {
               super(a1);
               otherAnimal = a2;
@@ -152,7 +152,7 @@ public class TestWithGenerics extends BaseMapTest
             fail("polymorphic type not kept, result == "+json+"; should contain 'object-type':'...'");
         }
     }
-    
+
     public void testWrapperWithExplicitType() throws Exception
     {
         Dog dog = new Dog("Fluffy", 3);
@@ -163,7 +163,7 @@ public class TestWithGenerics extends BaseMapTest
             fail("polymorphic type not kept, result == "+json+"; should contain 'object-type':'...'");
         }
     }
-    
+
     public void testJackson387() throws Exception
     {
         ObjectMapper om = new ObjectMapper();
@@ -178,7 +178,7 @@ public class TestWithGenerics extends BaseMapTest
         MyParam<String> moc2 = new MyParam<String>("valueX");
 
         SomeObject so = new SomeObject();
-        so.someValue = "xxxxxx"; 
+        so.someValue = "xxxxxx";
         MyParam<SomeObject> moc3 = new MyParam<SomeObject>(so);
 
         List<SomeObject> colist = new ArrayList<SomeObject>();
@@ -193,7 +193,7 @@ public class TestWithGenerics extends BaseMapTest
         mc.params.add( moc4 );
 
         String json = om.writeValueAsString( mc );
-        
+
         MyClass mc2 = om.readValue(json, MyClass.class );
         assertNotNull(mc2);
         assertNotNull(mc2.params);
@@ -210,7 +210,7 @@ public class TestWithGenerics extends BaseMapTest
 
         String str = om.writeValueAsString( mc );
 //        System.out.println( str );
-        
+
         MyClass mc2 = om.readValue( str, MyClass.class );
         assertNotNull(mc2);
         assertNotNull(mc2.params);

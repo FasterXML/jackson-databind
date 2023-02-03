@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.*;
 
 // This is probably impossible to handle, in general case, since
 // there is a cycle for Parent2/Child2... unless special handling
-// could be made to ensure that 
+// could be made to ensure that
 public class TestObjectIdWithInjectables639 extends BaseMapTest
 {
         public static final class Context { }
@@ -28,7 +28,7 @@ public class TestObjectIdWithInjectables639 extends BaseMapTest
                 this.parent = parent;
             }
         }
-        
+
         @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
         public static final class Parent2 {
 

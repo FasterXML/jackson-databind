@@ -32,7 +32,7 @@ public class ReferentialWithObjectIdTest extends BaseMapTest
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     public void testAtomicWithObjectId() throws Exception
     {
         Employee first = new Employee();
@@ -52,7 +52,7 @@ public class ReferentialWithObjectIdTest extends BaseMapTest
         String json = MAPPER.writeValueAsString(input);
 
         // and back
- 
+
         EmployeeList result = MAPPER.readValue(json, EmployeeList.class);
         Employee firstB = result.first.get();
         assertNotNull(firstB);

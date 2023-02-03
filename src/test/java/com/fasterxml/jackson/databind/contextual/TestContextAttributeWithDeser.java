@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 public class TestContextAttributeWithDeser extends BaseMapTest
 {
     final static String KEY = "foobar";
-    
+
     @SuppressWarnings("serial")
     static class PrefixStringDeserializer extends StdScalarDeserializer<String>
     {
@@ -39,7 +39,7 @@ public class TestContextAttributeWithDeser extends BaseMapTest
         @JsonDeserialize(using=PrefixStringDeserializer.class)
         public String value;
     }
-    
+
     /*
     /**********************************************************
     /* Test methods
@@ -47,7 +47,7 @@ public class TestContextAttributeWithDeser extends BaseMapTest
      */
 
     final ObjectMapper MAPPER = sharedMapper();
-    
+
     public void testSimplePerCall() throws Exception
     {
         final String INPUT = a2q("[{'value':'a'},{'value':'b'}]");

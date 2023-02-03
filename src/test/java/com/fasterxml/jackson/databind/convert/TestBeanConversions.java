@@ -69,12 +69,12 @@ public class TestBeanConversions
         public Leaf() { }
         public Leaf(int v) { value = v; }
     }
-    
+
     // [databind#288]
 
     @JsonSerialize(converter = ConvertingBeanConverter.class)
-    static class ConvertingBean { 
-       public int x, y; 
+    static class ConvertingBean {
+       public int x, y;
        public ConvertingBean(int v1, int v2) {
           x = v1;
           y = v2;
@@ -97,18 +97,18 @@ public class TestBeanConversions
           return new DummyBean(cb.x, cb.y);
        }
     }
-    
+
     @JsonDeserialize(using = NullBeanDeserializer.class)
     static class NullBean {
         public static final NullBean NULL_INSTANCE = new NullBean();
     }
-    
+
     static class NullBeanDeserializer extends JsonDeserializer<NullBean> {
         @Override
         public NullBean getNullValue(final DeserializationContext context) {
             return NullBean.NULL_INSTANCE;
         }
-        
+
         @Override
         public NullBean deserialize(final JsonParser parser, final DeserializationContext context) {
             throw new UnsupportedOperationException();
@@ -120,7 +120,7 @@ public class TestBeanConversions
     /* Test methods
     /**********************************************************
      */
-    
+
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     public void testBeanConvert()
@@ -133,7 +133,7 @@ public class TestBeanConversions
         // z not included in input, will be whatever default constructor provides
         assertEquals(-13, point.z);
     }
-    
+
     // For [JACKSON-371]; verify that we know property that caused issue...
     // (note: not optimal place for test, but will have to do for now)
     public void testErrorReporting() throws Exception
@@ -240,7 +240,7 @@ public class TestBeanConversions
         } catch (IllegalArgumentException e) {
             verifyException(e, "no properties discovered");
         }
-        
+
         ObjectMapper mapper = new ObjectMapper();
         mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
         try {
@@ -260,13 +260,13 @@ public class TestBeanConversions
         // must be  {"a":2,"b":4}
         assertEquals("{\"a\":2,\"b\":4}", json);
     }
-    
+
     // Test null conversions from [databind#1433]
     public void testConversionIssue1433() throws Exception
     {
         assertNull(MAPPER.convertValue(null, Object.class));
         assertNull(MAPPER.convertValue(null, PointZ.class));
-        
+
         assertSame(NullBean.NULL_INSTANCE,
                 MAPPER.convertValue(null, NullBean.class));
     }

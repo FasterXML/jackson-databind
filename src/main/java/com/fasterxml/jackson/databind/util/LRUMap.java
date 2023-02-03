@@ -52,7 +52,7 @@ public class LRUMap<K,V>
     public V putIfAbsent(K key, V value) {
         return _map.putIfAbsent(key, value);
     }
-    
+
     // NOTE: key is of type Object only to retain binary backwards-compatibility
     @Override
     public V get(Object key) { return _map.get(key); }

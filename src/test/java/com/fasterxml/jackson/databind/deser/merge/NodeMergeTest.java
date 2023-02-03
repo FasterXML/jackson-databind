@@ -77,7 +77,7 @@ public class NodeMergeTest extends BaseMapTest
         assertEquals(2, base.size());
         ObjectNode resultProps = (ObjectNode) base.get("props");
         assertEquals(4, resultProps.size());
-        
+
         assertEquals(123, resultProps.path("base").asInt());
         assertTrue(resultProps.path("value").asBoolean());
         assertEquals(25.5, resultProps.path("extra").asDouble());

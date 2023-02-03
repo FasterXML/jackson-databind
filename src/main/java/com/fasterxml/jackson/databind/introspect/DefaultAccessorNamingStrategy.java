@@ -70,7 +70,7 @@ public class DefaultAccessorNamingStrategy
         _isGetterPrefix = isGetterPrefix;
         _baseNameValidator = baseNameValidator;
     }
-    
+
     @Override
     public String findNameForIsGetter(AnnotatedMethod am, String name)
     {
@@ -136,7 +136,7 @@ public class DefaultAccessorNamingStrategy
      */
 
     /**
-     * Method called to figure out name of the property, given 
+     * Method called to figure out name of the property, given
      * corresponding suggested name based on a method or field name.
      *
      * @param basename Name of accessor/mutator method, not including prefix
@@ -159,7 +159,7 @@ public class DefaultAccessorNamingStrategy
 
         // next check: is the first character upper case? If not, return as is
         char d = Character.toLowerCase(c);
-        
+
         if (c == d) {
             return basename.substring(offset);
         }
@@ -220,7 +220,7 @@ public class DefaultAccessorNamingStrategy
      */
 
     // This method was added to address the need to weed out CGLib-injected
-    // "getCallbacks" method. 
+    // "getCallbacks" method.
     // At this point caller has detected a potential getter method with
     // name "getCallbacks" and we need to determine if it is indeed injected
     // by Cglib. We do this by verifying that the  result type is "net.sf.cglib.proxy.Callback[]"
@@ -335,7 +335,7 @@ public class DefaultAccessorNamingStrategy
             return new Provider(this,
                     prefix, _withPrefix, _getterPrefix, _isGetterPrefix);
         }
-        
+
         /**
          * Mutant factory for changing the prefix used for Builders
          * (from default {@link JsonPOJOBuilder#DEFAULT_WITH_PREFIX})
@@ -429,7 +429,7 @@ public class DefaultAccessorNamingStrategy
         public Provider withBaseNameValidator(BaseNameValidator vld) {
             return new Provider(this, vld);
         }
-        
+
         @Override
         public AccessorNamingStrategy forPOJO(MapperConfig<?> config, AnnotatedClass targetClass)
         {
@@ -486,7 +486,7 @@ public class DefaultAccessorNamingStrategy
          * @param allowNonLetterFirstChar  Whether base names that start with non-letter
          *    character (like {@code "_"} or number {@code 1}) are accepted as valid or not:
          *    consider difference between "setter-methods" {@code setValue()} and {@code set_value()}.
-         * 
+         *
          * @return Validator instance to use, if any; {@code null} to indicate no additional
          *   rules applied (case when both arguments are {@code false})
          */
@@ -498,7 +498,7 @@ public class DefaultAccessorNamingStrategy
             return new FirstCharBasedValidator(allowLowerCaseFirstChar,
                     allowNonLetterFirstChar);
         }
-            
+
         @Override
         public boolean accept(char firstChar, String basename, int offset) {
             // Ok, so... If UTF-16 letter, then check whether lc allowed
@@ -510,7 +510,7 @@ public class DefaultAccessorNamingStrategy
             return _allowNonLetterFirstChar;
         }
     }
-    
+
     /**
      * Implementation used for supporting "non-prefix" naming convention of
      * Java 14 {@code java.lang.Record} types, and in particular find default

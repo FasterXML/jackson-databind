@@ -616,7 +616,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _mapper.setDefaultSetterInfo(v);
         return _this();
     }
-    
+
     /**
      * Method for setting default Setter configuration, regarding things like
      * merging, null-handling; used for properties for which there are
@@ -681,9 +681,9 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     /**
      * Method that will configure default {@link Base64Variant} that
      * <code>byte[]</code> serializers and deserializers will use.
-     * 
+     *
      * @param v Base64 variant to use
-     * 
+     *
      * @return This builder instance to allow call chaining
      */
     public B defaultBase64Variant(Base64Variant v) {
@@ -855,7 +855,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      *<p>
      * NOTE: choice of {@link PolymorphicTypeValidator} to pass is critical for security
      * as allowing all subtypes can be risky for untrusted content.
-     * 
+     *
      * @param applicability Defines kinds of types for which additional type information
      *    is added; see {@link DefaultTyping} for more information.
      */

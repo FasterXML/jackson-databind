@@ -33,7 +33,7 @@ public abstract class TypeIdResolverBase
     protected TypeIdResolverBase() {
         this(null, null);
     }
-    
+
     protected TypeIdResolverBase(JavaType baseType, TypeFactory typeFactory) {
         _baseType = baseType;
         _typeFactory = typeFactory;

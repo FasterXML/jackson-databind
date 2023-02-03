@@ -89,14 +89,14 @@ public class EnumSerializationTest
 
     static class MapBean {
         public Map<TestEnum,Integer> map = new HashMap<TestEnum,Integer>();
-        
+
         public void add(TestEnum key, int value) {
             map.put(key, Integer.valueOf(value));
         }
     }
 
     static enum NOT_OK {
-        V1("v1"); 
+        V1("v1");
         protected String key;
         // any runtime-persistent annotation is fine
         NOT_OK(@JsonProperty String key) { this.key = key; }
@@ -157,7 +157,7 @@ public class EnumSerializationTest
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
-    
+
     public void testSimple() throws Exception
     {
         assertEquals("\"B\"", MAPPER.writeValueAsString(TestEnum.B));
@@ -273,7 +273,7 @@ public class EnumSerializationTest
         m.put(LC749Enum.A, "value");
         assertEquals("{\"A\":\"value\"}", mapper.writeValueAsString(m));
     }
-    
+
     public void testEnumMapSerDisableToString() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         ObjectWriter w = mapper.writer().without(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
@@ -334,7 +334,7 @@ public class EnumSerializationTest
 
 // [JACKSON-757], non-inner enum
 enum NOT_OK2 {
-    V2("v2"); 
+    V2("v2");
     protected String key;
     // any runtime-persistent annotation is fine
     NOT_OK2(@JsonProperty String key) { this.key = key; }

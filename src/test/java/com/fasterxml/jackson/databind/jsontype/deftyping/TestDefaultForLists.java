@@ -48,14 +48,14 @@ public class TestDefaultForLists
 
     static class SetBean {
         public Set<String> names;
-        
+
         public SetBean() { }
         public SetBean(String str) {
             names = new HashSet<String>();
             names.add(str);
         }
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests
@@ -65,7 +65,7 @@ public class TestDefaultForLists
     private final ObjectMapper POLY_MAPPER = jsonMapperBuilder()
             .activateDefaultTyping(NoCheckSubTypeValidator.instance)
             .build();
-    
+
     public void testListOfLongs() throws Exception
     {
         ListOfLongs input = new ListOfLongs(1L, 2L, 3L);
@@ -115,7 +115,7 @@ public class TestDefaultForLists
         assertTrue(outputList.get(0) instanceof TimeZone);
         assertTrue(outputList.get(1) instanceof Locale);
     }
-    
+
     public void testJackson628() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();

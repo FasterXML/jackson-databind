@@ -41,7 +41,7 @@ public class ObjectArraySerializer
      * Type serializer to use for values, if any.
      */
     protected final TypeSerializer _valueTypeSerializer;
-    
+
     /**
      * Value serializer to use, if it can be statically determined.
      */
@@ -101,7 +101,7 @@ public class ObjectArraySerializer
         return new ObjectArraySerializer(this, prop,
                 _valueTypeSerializer, _elementSerializer, unwrapSingle);
     }
-    
+
     @Override
     public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
         return new ObjectArraySerializer(_elementType, _staticTyping, vts, _elementSerializer);

@@ -7,11 +7,11 @@ public class JsonPointerAtNodeTest
     extends BaseMapTest
 {
     private final ObjectMapper MAPPER = newJsonMapper();
-    
+
     public void testIt() throws Exception
     {
         final JsonNode SAMPLE_ROOT = MAPPER.readTree(SAMPLE_DOC_JSON_SPEC);
-        
+
         // first: "empty" pointer points to context node:
         assertSame(SAMPLE_ROOT, SAMPLE_ROOT.at(JsonPointer.compile("")));
         // second: "/" is NOT root, but "root property with name of Empty String"
@@ -41,12 +41,12 @@ public class JsonPointerAtNodeTest
     {
         // First, with small int key
         JsonNode root = MAPPER.readTree("{\"123\" : 456}");
-        JsonNode jn2 = root.at("/123"); 
+        JsonNode jn2 = root.at("/123");
         assertEquals(456, jn2.asInt());
 
         // and then with above int-32:
         root = MAPPER.readTree("{\"35361706045\" : 1234}");
-        jn2 = root.at("/35361706045"); 
+        jn2 = root.at("/35361706045");
         assertEquals(1234, jn2.asInt());
     }
 

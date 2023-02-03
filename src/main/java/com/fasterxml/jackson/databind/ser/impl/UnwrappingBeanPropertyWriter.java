@@ -58,7 +58,7 @@ public class UnwrappingBeanPropertyWriter
 
         // important: combine transformers:
         transformer = NameTransformer.chainedTransformer(transformer, _nameTransformer);
-    
+
         return _new(transformer, new SerializedString(newName));
     }
 
@@ -199,7 +199,7 @@ public class UnwrappingBeanPropertyWriter
     /* Overrides: internal, other
     /**********************************************************
      */
-    
+
     // need to override as we must get unwrapping instance...
     @Override
     protected JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
@@ -220,7 +220,7 @@ public class UnwrappingBeanPropertyWriter
                 t = NameTransformer.chainedTransformer(t, ((UnwrappingBeanSerializer) serializer)._nameTransformer);
         }
         serializer = serializer.unwrappingSerializer(t);
-        
+
         _dynamicSerializers = _dynamicSerializers.newWith(type, serializer);
         return serializer;
     }

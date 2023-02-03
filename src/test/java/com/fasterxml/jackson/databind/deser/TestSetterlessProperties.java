@@ -36,7 +36,7 @@ public class TestSetterlessProperties
         @JsonProperty("list") protected List<Integer> values = new ArrayList<Integer>();
 
         public Dual() { }
-        
+
         public List<Integer> getList() {
             throw new IllegalStateException("Should not get called");
         }

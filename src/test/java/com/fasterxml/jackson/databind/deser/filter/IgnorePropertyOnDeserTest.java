@@ -16,7 +16,7 @@ public class IgnorePropertyOnDeserTest extends BaseMapTest
     @JsonIgnoreProperties({ "userId" })
     static class User {
         public String firstName;
-        Integer userId; 
+        Integer userId;
 
         public Integer getUserId() {
             return userId;
@@ -118,7 +118,7 @@ public class IgnorePropertyOnDeserTest extends BaseMapTest
                   TestIgnoreObject.class);
         assertEquals(1, result1.obj.x);
         assertEquals(30, result1.obj.y);
-       
+
         assertEquals(20, result1.obj2.x);
         assertEquals(2, result1.obj2.y);
     }

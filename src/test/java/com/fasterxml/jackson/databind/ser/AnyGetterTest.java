@@ -19,7 +19,7 @@ public class AnyGetterTest extends BaseMapTest
         static {
             extra.put("a", Boolean.TRUE);
         }
-        
+
         public int getX() { return 3; }
 
         @JsonAnyGetter
@@ -47,11 +47,11 @@ public class AnyGetterTest extends BaseMapTest
 
         public int getValue() { return 42; }
     }
-    
+
     static class MapAsAny
     {
         protected Map<String,Object> stuff = new LinkedHashMap<String,Object>();
-        
+
         @JsonAnyGetter
         public Map<String,Object> any() {
             return stuff;
@@ -70,7 +70,7 @@ public class AnyGetterTest extends BaseMapTest
             stuff = new LinkedHashMap<String,String>();
             stuff.put(key, value);
         }
-        
+
         @JsonSerialize(using = Issue705Serializer.class)
 //    @JsonSerialize(converter = MyConverter.class)
         @JsonAnyGetter
@@ -109,7 +109,7 @@ public class AnyGetterTest extends BaseMapTest
             }
             additionalProperties.put(key,value);
         }
-        
+
         public void setAdditionalProperties(Map<String, String> additionalProperties) {
             this.additionalProperties = additionalProperties;
         }
@@ -200,7 +200,7 @@ public class AnyGetterTest extends BaseMapTest
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
-    
+
     public void testSimpleAnyBean() throws Exception
     {
         String json = MAPPER.writeValueAsString(new Bean());
@@ -244,7 +244,7 @@ public class AnyGetterTest extends BaseMapTest
 
     public void testIssue705() throws Exception
     {
-        Issue705Bean input = new Issue705Bean("key", "value");        
+        Issue705Bean input = new Issue705Bean("key", "value");
         String json = MAPPER.writeValueAsString(input);
         assertEquals("{\"stuff\":\"[key/value]\"}", json);
     }

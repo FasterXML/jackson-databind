@@ -22,8 +22,8 @@ public class TestPolymorphicUpdateValue extends BaseMapTest
     public static class Child extends Parent {
         public int w;
         public int h;
-    }    
-    
+    }
+
     /*
     /********************************************************
     /* Unit tests

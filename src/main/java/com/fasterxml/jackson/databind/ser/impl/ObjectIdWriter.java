@@ -25,7 +25,7 @@ public final class ObjectIdWriter
      * the key.
      */
     public final ObjectIdGenerator<?> generator;
-    
+
     /**
      * Serializer used for serializing id values.
      */
@@ -35,11 +35,11 @@ public final class ObjectIdWriter
      * Marker that indicates what the first reference is to be
      * serialized as full POJO, or as Object Id (other references
      * will always be serialized as Object Id)
-     * 
+     *
      * @since 2.1
      */
     public final boolean alwaysAsId;
-    
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -61,7 +61,7 @@ public final class ObjectIdWriter
      * Factory method called by {@link com.fasterxml.jackson.databind.ser.std.BeanSerializerBase}
      * with the initial information based on standard settings for the type
      * for which serializer is being built.
-     * 
+     *
      * @since 2.3
      */
     public static ObjectIdWriter construct(JavaType idType, PropertyName propName,

@@ -23,7 +23,7 @@ public class EnumSetSerializer
             Boolean unwrapSingle) {
         super(src, property, vts, valueSerializer, unwrapSingle);
     }
-    
+
     @Override
     public EnumSetSerializer _withValueTypeSerializer(TypeSerializer vts) {
         // no typing for enums (always "hard" type)
@@ -36,7 +36,7 @@ public class EnumSetSerializer
             Boolean unwrapSingle) {
         return new EnumSetSerializer(this, property, vts, elementSerializer, unwrapSingle);
     }
-    
+
     @Override
     public boolean isEmpty(SerializerProvider prov, EnumSet<? extends Enum<?>> value) {
         return value.isEmpty();
@@ -64,7 +64,7 @@ public class EnumSetSerializer
         serializeContents(value, gen, provider);
         gen.writeEndArray();
     }
-    
+
     @Override
     public void serializeContents(EnumSet<? extends Enum<?>> value, JsonGenerator gen,
             SerializerProvider provider)

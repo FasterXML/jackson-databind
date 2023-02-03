@@ -14,7 +14,7 @@ public class ParsingContext2525Test extends BaseMapTest
     private final ObjectMapper MAPPER = sharedMapper();
 
     private final String MINIMAL_ARRAY_DOC = "[ 42 ]";
-    
+
     private final String MINIMAL_OBJECT_DOC = "{\"answer\" : 42 }";
 
     private final String FULL_DOC = a2q("{'a':123,'array':[1,2,[3],5,{'obInArray':4}],"
@@ -112,7 +112,7 @@ public class ParsingContext2525Test extends BaseMapTest
     /* Shared helper methods
     /**********************************************************************
      */
-    
+
     private void _testSimpleArrayUsingPathAsPointer(JsonParser p) throws Exception
     {
         assertSame(JsonPointer.empty(), p.getParsingContext().pathAsPointer());
@@ -124,7 +124,7 @@ public class ParsingContext2525Test extends BaseMapTest
 
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals("/0", p.getParsingContext().pathAsPointer().toString());
-        
+
         assertToken(JsonToken.END_ARRAY, p.nextToken());
         assertSame(JsonPointer.empty(), p.getParsingContext().pathAsPointer());
         assertTrue(p.getParsingContext().inRoot());
@@ -146,14 +146,14 @@ public class ParsingContext2525Test extends BaseMapTest
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(42, p.getIntValue());
         assertEquals("/answer", p.getParsingContext().pathAsPointer().toString());
-        
+
         assertToken(JsonToken.END_OBJECT, p.nextToken());
         assertSame(JsonPointer.empty(), p.getParsingContext().pathAsPointer());
         assertTrue(p.getParsingContext().inRoot());
 
         assertNull(p.nextToken());
     }
-    
+
     private void _testFullDocUsingPathAsPointer(JsonParser p) throws Exception
     {
         // by default should just get "empty"

@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.*;
-import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
@@ -27,11 +26,11 @@ import com.fasterxml.jackson.databind.util.Converter;
  * Base class used by all standard serializers, and can also
  * be used for custom serializers (in fact, this is the recommended
  * base class to use).
- * Provides convenience methods for implementing {@link SchemaAware}
  */
+@SuppressWarnings("deprecation")
 public abstract class StdSerializer<T>
     extends JsonSerializer<T>
-    implements JsonFormatVisitable, SchemaAware, java.io.Serializable
+    implements JsonFormatVisitable, com.fasterxml.jackson.databind.jsonschema.SchemaAware, java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -42,7 +41,7 @@ public abstract class StdSerializer<T>
      * @since 2.9
      */
     private final static Object KEY_CONTENT_CONVERTER_LOCK = new Object();
-    
+
     /**
      * Nominal type supported, usually declared type of
      * property for which serializer is used.
@@ -120,17 +119,25 @@ public abstract class StdSerializer<T>
     /**
      * Default implementation simply claims type is "string"; usually
      * overriden by custom serializers.
+     *
+     * @deprecated Since 2.15, we recommend use of external
+     * <a href="https://github.com/FasterXML/jackson-module-jsonSchema">JSON Schema generator module</a>
      */
+    @Deprecated
     @Override
     public JsonNode getSchema(SerializerProvider provider, Type typeHint) throws JsonMappingException
     {
         return createSchemaNode("string");
     }
-    
+
     /**
      * Default implementation simply claims type is "string"; usually
      * overriden by custom serializers.
+     *
+     * @deprecated Since 2.15, we recommend use of external
+     * <a href="https://github.com/FasterXML/jackson-module-jsonSchema">JSON Schema generator module</a>
      */
+    @Deprecated
     @Override
     public JsonNode getSchema(SerializerProvider provider, Type typeHint, boolean isOptional)
         throws JsonMappingException
@@ -154,7 +161,7 @@ public abstract class StdSerializer<T>
         schema.put("type", type);
         return schema;
     }
-    
+
     protected ObjectNode createSchemaNode(String type, boolean isOptional)
     {
         ObjectNode schema = createSchemaNode(type);
@@ -229,7 +236,7 @@ public abstract class StdSerializer<T>
             }
         }
     }
-    
+
     /**
      * Helper method that calls necessary visit method(s) to indicate that the
      * underlying JSON type is a floating-point JSON number.
@@ -277,7 +284,7 @@ public abstract class StdSerializer<T>
     /* Helper methods for exception handling
     /**********************************************************
      */
-    
+
     /**
      * Method that will modify caught exception (passed in as argument)
      * as necessary to include reference information, and to ensure it
@@ -348,10 +355,10 @@ public abstract class StdSerializer<T>
      * Helper method that can be used to see if specified property has annotation
      * indicating that a converter is to be used for contained values (contents
      * of structured types; array/List/Map values)
-     * 
+     *
      * @param existingSerializer (optional) configured content
      *    serializer if one already exists.
-     * 
+     *
      * @since 2.9
      */
     protected JsonSerializer<?> findContextualConvertingSerializer(SerializerProvider provider,
@@ -413,7 +420,7 @@ public abstract class StdSerializer<T>
     /**
      * Helper method used to locate filter that is needed, based on filter id
      * this serializer was constructed with.
-     * 
+     *
      * @since 2.3
      */
     protected PropertyFilter findPropertyFilter(SerializerProvider provider,
@@ -453,7 +460,7 @@ public abstract class StdSerializer<T>
      * Convenience method that uses {@link #findFormatOverrides} to find possible
      * defaults and/of overrides, and then calls <code>JsonFormat.Value.getFeature(...)</code>
      * to find whether that feature has been specifically marked as enabled or disabled.
-     * 
+     *
      * @param typeForDefaults Type (erased) used for finding default format settings, if any
      *
      * @since 2.7
@@ -480,7 +487,7 @@ public abstract class StdSerializer<T>
         // even without property or AnnotationIntrospector, may have type-specific defaults
         return provider.getDefaultPropertyInclusion(typeForDefaults);
     }
-    
+
     /**
      * Convenience method for finding out possibly configured content value serializer.
      *
@@ -509,7 +516,7 @@ public abstract class StdSerializer<T>
     /* Helper methods, other
     /**********************************************************
      */
-    
+
     /**
      * Method that can be called to determine if given serializer is the default
      * serializer Jackson uses; as opposed to a custom serializer installed by

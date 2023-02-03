@@ -28,7 +28,7 @@ final class InternalNodeMapper {
     private final static ObjectReader NODE_READER = JSON_MAPPER.readerFor(JsonNode.class);
 
     // // // Methods for `JsonNode.toString()` and `JsonNode.toPrettyString()`
-    
+
     public static String nodeToString(BaseJsonNode n) {
         try {
             return STD_WRITER.writeValueAsString(_wrapper(n));
@@ -46,7 +46,7 @@ final class InternalNodeMapper {
     }
 
     // // // Methods for JDK serialization support of JsonNodes
-    
+
     public static byte[] valueToBytes(Object value) throws IOException {
         return JSON_MAPPER.writeValueAsBytes(value);
     }

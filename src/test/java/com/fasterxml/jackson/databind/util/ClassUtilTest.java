@@ -60,7 +60,7 @@ public class ClassUtilTest extends BaseMapTest
 
     static abstract class ConcreteAndAbstract {
         public abstract void a();
-        
+
         public void c() { }
     }
 
@@ -122,7 +122,7 @@ public class ClassUtilTest extends BaseMapTest
         } catch (Error errAct) {
             assertSame(err, errAct);
         }
-        
+
         try {
             ClassUtil.unwrapAndThrowAsIAE(wrapper);
             fail("Shouldn't get this far");
@@ -166,7 +166,7 @@ public class ClassUtilTest extends BaseMapTest
         assertEquals(Float.valueOf(0.0f), ClassUtil.defaultValue(Float.TYPE));
 
         assertEquals(Boolean.FALSE, ClassUtil.defaultValue(Boolean.TYPE));
-        
+
         try {
             ClassUtil.defaultValue(String.class);
         } catch (IllegalArgumentException e) {
@@ -186,7 +186,7 @@ public class ClassUtilTest extends BaseMapTest
         assertEquals(Float.class, ClassUtil.wrapperType(Float.TYPE));
 
         assertEquals(Boolean.class, ClassUtil.wrapperType(Boolean.TYPE));
-        
+
         try {
             ClassUtil.wrapperType(String.class);
             fail("Should not pass");
@@ -205,7 +205,7 @@ public class ClassUtilTest extends BaseMapTest
         assertEquals(Float.TYPE, ClassUtil.primitiveType(Float.class));
         assertEquals(Double.TYPE, ClassUtil.primitiveType(Double.class));
         assertEquals(Boolean.TYPE, ClassUtil.primitiveType(Boolean.class));
-        
+
         assertNull(ClassUtil.primitiveType(String.class));
     }
 

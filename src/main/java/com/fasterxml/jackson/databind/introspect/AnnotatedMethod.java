@@ -20,11 +20,11 @@ public final class AnnotatedMethod
     /**
      * Field that is used to make JDK serialization work with this
      * object.
-     * 
+     *
      * @since 2.1
      */
     protected Serialization _serialization;
-    
+
     /*
     /*****************************************************
     /* Life-cycle
@@ -91,7 +91,7 @@ public final class AnnotatedMethod
     /* AnnotatedWithParams
     /*****************************************************
      */
-    
+
     @Override
     public final Object call() throws Exception {
         // 31-Mar-2021, tatu: Note! This is faster than calling without arguments
@@ -153,7 +153,7 @@ public final class AnnotatedMethod
         }
         return types[index];
     }
-    
+
     @Override
     public Class<?> getDeclaringClass() { return _method.getDeclaringClass(); }
 
@@ -222,7 +222,7 @@ public final class AnnotatedMethod
      * Helper method that can be used to check whether method returns
      * a value or not; if return type declared as <code>void</code>, returns
      * false, otherwise true
-     * 
+     *
      * @since 2.4
      *
      * @deprecated Since 2.12 (related to [databind#2675]), needs to be configurable
@@ -249,7 +249,7 @@ public final class AnnotatedMethod
     public int hashCode() {
         return _method.getName().hashCode();
     }
-    
+
     @Override
     public boolean equals(Object o) {
         if (o == this) return true;
@@ -290,7 +290,7 @@ public final class AnnotatedMethod
                         +"' from Class '"+clazz.getName());
         }
     }
-    
+
     /**
      * Helper class that is used as the workaround to persist
      * Field references. It basically just stores declaring class

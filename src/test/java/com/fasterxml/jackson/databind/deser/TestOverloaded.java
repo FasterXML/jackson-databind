@@ -43,14 +43,14 @@ public class TestOverloaded
     static class Overloaded739
     {
         protected Object _value;
-        
+
         @JsonProperty
         public void setValue(String str) { _value = str; }
 
         // no annotation, should not be chosen:
         public void setValue(Object o) { throw new UnsupportedOperationException(); }
     }
-    
+
     /**
      * And then a Bean that is conflicting and should not work
      */
@@ -68,7 +68,7 @@ public class TestOverloaded
     private final ObjectMapper MAPPER = newJsonMapper();
 
     /**
-     * It should be ok to overload with specialized 
+     * It should be ok to overload with specialized
      * version; more specific method should be used.
      */
     public void testSpecialization() throws Exception
@@ -103,19 +103,19 @@ public class TestOverloaded
         assertNotNull(bean);
         assertEquals("abc", bean._value);
     }
-    
+
     /*
     /************************************************************
     /* Unit tests, failures
     /************************************************************
     */
-    
+
     /**
      * For genuine setter conflict, an exception is to be thrown.
      */
     public void testSetterConflict() throws Exception
     {
-    	try {    		
+    	try {
     	MAPPER.readValue("{ }", ConflictBean.class);
     	} catch (Exception e) {
     	    verifyException(e, "Conflicting setter definitions");

@@ -92,7 +92,7 @@ public class NodeContext2049Test extends BaseMapTest
         }
 
    }
-    
+
     static class ParentSettingDeserializerContextual extends JsonDeserializer<Object> implements ContextualDeserializer {
 
         @Override
@@ -125,13 +125,13 @@ public class NodeContext2049Test extends BaseMapTest
         }
 
    }
-    
+
     /*
     /**********************************************************************
     /* Test methods
     /**********************************************************************
      */
-    
+
     private ObjectMapper objectMapper;
     {
         objectMapper = new ObjectMapper();
@@ -151,18 +151,18 @@ public class NodeContext2049Test extends BaseMapTest
          });
     }
 
-    final static String JSON = "{\n" + 
-            "     \"children\": [\n" + 
-            "          {\n" + 
-            "               \"property\": \"value1\"\n" + 
-            "          },\n" + 
-            "          {\n" + 
-            "               \"property\": \"value2\"\n" + 
-            "          }\n" + 
-            "     ],\n" + 
-            "     \"singleChild\": {\n" + 
-            "          \"property\": \"value3\"\n" + 
-            "     }\n" + 
+    final static String JSON = "{\n" +
+            "     \"children\": [\n" +
+            "          {\n" +
+            "               \"property\": \"value1\"\n" +
+            "          },\n" +
+            "          {\n" +
+            "               \"property\": \"value2\"\n" +
+            "          }\n" +
+            "     ],\n" +
+            "     \"singleChild\": {\n" +
+            "          \"property\": \"value3\"\n" +
+            "     }\n" +
             "}";
 
     public void testReadNoBuffering() throws IOException {

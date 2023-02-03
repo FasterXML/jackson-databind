@@ -31,9 +31,13 @@ Project: jackson-databind
  (reported by João G)
 #3708: Seems like `java.nio.file.Path` is safe for Android API level 26
  (contributed by @pjfanning)
+#3730: Add support in `TokenBuffer` for lazily decoded (big) numbers
+ (contributed by @pjfanning)
 #3736: Try to avoid auto-detecting Fields for Record types
 #3742: schemaType of `LongSerializer` is wrong
  (reported by @luozhenyu)
+#3745: Deprecate classes in package `com.fasterxml.jackson.databind.jsonschema`
+ (contributed by @luozhenyu)
 #3748: `DelegatingDeserializer` missing override of `getAbsentValue()`
  (and couple of other methods)
 

@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
-import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.impl.WritableObjectId;
@@ -46,7 +45,7 @@ public abstract class DefaultSerializerProvider
      * Object Id handling is enabled.
      */
     protected transient Map<Object, WritableObjectId> _seenObjectIds;
-    
+
     protected transient ArrayList<ObjectIdGenerator<?>> _objectIdGenerators;
 
     /**
@@ -99,7 +98,7 @@ public abstract class DefaultSerializerProvider
     /* Abstract method impls, factory methods
     /**********************************************************
      */
-    
+
     @Override
     public JsonSerializer<Object> serializerInstance(Annotated annotated, Object serDef)
             throws JsonMappingException
@@ -108,7 +107,7 @@ public abstract class DefaultSerializerProvider
             return null;
         }
         JsonSerializer<?> ser;
-        
+
         if (serDef instanceof JsonSerializer) {
             ser = (JsonSerializer<?>) serDef;
         } else {
@@ -179,7 +178,7 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
     /* Object Id handling
     /**********************************************************
      */
-    
+
     @Override
     public WritableObjectId findObjectId(Object forPojo, ObjectIdGenerator<?> generatorType)
     {
@@ -193,7 +192,7 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
         }
         // Not seen yet; must add an entry, return it. For that, we need generator
         ObjectIdGenerator<?> generator = null;
-        
+
         if (_objectIdGenerators == null) {
             _objectIdGenerators = new ArrayList<ObjectIdGenerator<?>>(8);
         } else {
@@ -218,7 +217,7 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
      * Overridable helper method used for creating {@link java.util.Map}
      * used for storing mappings from serializable objects to their
      * Object Ids.
-     * 
+     *
      * @since 2.3
      */
     protected Map<Object,WritableObjectId> _createObjectIdMap()
@@ -255,7 +254,7 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
                 return true;
             }
         }
-        
+
         try {
             JsonSerializer<?> ser = _findExplicitUntypedSerializer(cls);
             return (ser != null);
@@ -289,7 +288,7 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
     /* Extended API called by ObjectMapper: value serialization
     /**********************************************************
      */
-    
+
     /**
      * The method to be called by {@link ObjectMapper} and {@link ObjectWriter}
      * for serializing given value, using serializers that
@@ -326,7 +325,7 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
      * using serializers that
      * this provider has access to (via caching and/or creating new serializers
      * as need be),
-     * 
+     *
      * @param rootType Type to use for locating serializer to use, instead of actual
      *    runtime type. Must be actual type, or one of its super types
      */
@@ -361,11 +360,11 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
      * for serializing given value (assumed to be of specified root type,
      * instead of runtime type of value), when it may know specific
      * {@link JsonSerializer} to use.
-     * 
+     *
      * @param rootType Type to use for locating serializer to use, instead of actual
      *    runtime type, if no serializer is passed
      * @param ser Root Serializer to use, if not null
-     * 
+     *
      * @since 2.1
      */
     public void serializeValue(JsonGenerator gen, Object value, JavaType rootType,
@@ -485,7 +484,7 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
 
     /**
      * Helper method called when root value to serialize is null
-     * 
+     *
      * @since 2.3
      */
     protected void _serializeNull(JsonGenerator gen) throws IOException
@@ -522,7 +521,7 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
      * Exact count depends on what kind of serializers get cached;
      * default implementation caches all serializers, including ones that
      * are eagerly constructed (for optimal access speed)
-     *<p> 
+     *<p>
      * The main use case for this method is to allow conditional flushing of
      * serializer cache, if certain number of entries is reached.
      */
@@ -572,7 +571,7 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
      * given type.
      *
      * @param type The type for which to generate schema
-     * 
+     *
      * @deprecated Should not be used any more
      */
     @Deprecated // since 2.6
@@ -583,16 +582,17 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
          * type information it needs is accessible via "untyped" serializer)
          */
         JsonSerializer<Object> ser = findValueSerializer(type, null);
-        JsonNode schemaNode = (ser instanceof SchemaAware) ?
-                ((SchemaAware) ser).getSchema(this, null) : com.fasterxml.jackson.databind.jsonschema.JsonSchema.getDefaultSchemaNode();
+        JsonNode schemaNode = (ser instanceof com.fasterxml.jackson.databind.jsonschema.SchemaAware)
+            ? ((com.fasterxml.jackson.databind.jsonschema.SchemaAware) ser).getSchema(this, null)
+            : com.fasterxml.jackson.databind.jsonschema.JsonSchema.getDefaultSchemaNode();
         if (!(schemaNode instanceof ObjectNode)) {
             throw new IllegalArgumentException("Class " + type.getName()
                     +" would not be serialized as a JSON object and therefore has no schema");
         }
         return new com.fasterxml.jackson.databind.jsonschema.JsonSchema((ObjectNode) schemaNode);
     }
-    
-    
+
+
     /*
     /**********************************************************
     /* Helper classes
@@ -622,7 +622,7 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
             }
             return new Impl(this);
         }
-        
+
         @Override
         public Impl createInstance(SerializationConfig config, SerializerFactory jsf) {
             return new Impl(this, config, jsf);

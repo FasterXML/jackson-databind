@@ -69,7 +69,7 @@ public class JacksonAnnotationIntrospector
         } catch (Throwable t) { }
         _java7Helper = x;
     }
-    
+
     /**
      * Since introspection of annotation types is a performance issue in some
      * use cases (rare, but do exist), let's try a simple cache to reduce
@@ -92,7 +92,7 @@ public class JacksonAnnotationIntrospector
      * explanation.
      *<p>
      * Defaults to true.
-     * 
+     *
      * @since 2.7.4
      */
     protected boolean _cfgConstructorPropertiesImpliesCreator = true;
@@ -138,7 +138,7 @@ public class JacksonAnnotationIntrospector
         _cfgConstructorPropertiesImpliesCreator = b;
         return this;
     }
-    
+
     /*
     /**********************************************************
     /* General annotation properties
@@ -324,7 +324,7 @@ public class JacksonAnnotationIntrospector
         }
         return JsonIncludeProperties.Value.from(v);
     }
- 
+
     @Override
     public Object findFilterId(Annotated a) {
         JsonFilter ann = _findAnnotation(a, JsonFilter.class);
@@ -436,7 +436,7 @@ public class JacksonAnnotationIntrospector
         }
         return null;
     }
-    
+
     @Override
     public String findPropertyDefaultValue(Annotated ann) {
         JsonProperty prop = _findAnnotation(ann, JsonProperty.class);
@@ -447,7 +447,7 @@ public class JacksonAnnotationIntrospector
         // Since annotations do not allow nulls, need to assume empty means "none"
         return str.isEmpty() ? null : str;
     }
-    
+
     @Override
     public JsonFormat.Value findFormat(Annotated ann) {
         JsonFormat f = _findAnnotation(ann, JsonFormat.class);
@@ -456,7 +456,7 @@ public class JacksonAnnotationIntrospector
         return (f == null)  ? null : JsonFormat.Value.from(f);
     }
 
-    @Override        
+    @Override
     public ReferenceProperty findReferenceType(AnnotatedMember member)
     {
         JsonManagedReference ref1 = _findAnnotation(member, JsonManagedReference.class);
@@ -494,7 +494,7 @@ public class JacksonAnnotationIntrospector
         JacksonInject.Value v = JacksonInject.Value.from(ann);
         if (!v.hasId()) {
             Object id;
-            // slight complication; for setters, type 
+            // slight complication; for setters, type
             if (!(m instanceof AnnotatedMethod)) {
                 id = m.getRawType().getName();
             } else {
@@ -544,7 +544,7 @@ public class JacksonAnnotationIntrospector
     {
         Class<?> cls1 = setter1.getRawParameterType(0);
         Class<?> cls2 = setter2.getRawParameterType(0);
-        
+
         // First: prefer primitives over non-primitives
         // 11-Dec-2015, tatu: TODO, perhaps consider wrappers for primitives too?
         if (cls1.isPrimitive()) {
@@ -614,7 +614,7 @@ public class JacksonAnnotationIntrospector
         }
         return _findTypeResolver(config, am, containerType);
     }
-    
+
     @Override
     public List<NamedType> findSubtypes(Annotated a)
     {
@@ -667,7 +667,7 @@ public class JacksonAnnotationIntrospector
         return result;
     }
 
-    @Override        
+    @Override
     public String findTypeName(AnnotatedClass ac)
     {
         JsonTypeName tn = _findAnnotation(ac, JsonTypeName.class);
@@ -725,7 +725,7 @@ public class JacksonAnnotationIntrospector
                 return serClass;
             }
         }
-        
+
         /* 18-Oct-2010, tatu: [JACKSON-351] @JsonRawValue handled just here, for now;
          *  if we need to get raw indicator from other sources need to add
          *  separate accessor within {@link AnnotationIntrospector} interface.
@@ -735,7 +735,7 @@ public class JacksonAnnotationIntrospector
             // let's construct instance with nominal type:
             Class<?> cls = a.getRawType();
             return new RawSerializer<Object>(cls);
-        }       
+        }
         return null;
     }
 
@@ -838,7 +838,7 @@ public class JacksonAnnotationIntrospector
     /* Serialization: type refinements
     /**********************************************************
      */
-    
+
     @Override
     public JavaType refineSerializationType(final MapperConfig<?> config,
             final Annotated a, final JavaType baseType)
@@ -848,7 +848,7 @@ public class JacksonAnnotationIntrospector
         final TypeFactory tf = config.getTypeFactory();
 
         final JsonSerialize jsonSer = _findAnnotation(a, JsonSerialize.class);
-        
+
         // Ok: start by refining the main type itself; common to all types
 
         final Class<?> serClass = (jsonSer == null) ? null : _classIfExplicit(jsonSer.as());
@@ -1241,7 +1241,7 @@ public class JacksonAnnotationIntrospector
         final TypeFactory tf = config.getTypeFactory();
 
         final JsonDeserialize jsonDeser = _findAnnotation(a, JsonDeserialize.class);
-        
+
         // Ok: start by refining the main type itself; common to all types
         final Class<?> valueClass = (jsonDeser == null) ? null : _classIfExplicit(jsonDeser.as());
         if ((valueClass != null) && !type.hasRawClass(valueClass)
@@ -1336,7 +1336,7 @@ public class JacksonAnnotationIntrospector
         JsonPOJOBuilder ann = _findAnnotation(ac, JsonPOJOBuilder.class);
         return (ann == null) ? null : new JsonPOJOBuilder.Value(ann);
     }
-    
+
     /*
     /**********************************************************
     /* Deserialization: property annotations
@@ -1526,7 +1526,7 @@ public class JacksonAnnotationIntrospector
         TypeResolverBuilder<?> b;
         JsonTypeInfo info = _findAnnotation(ann, JsonTypeInfo.class);
         JsonTypeResolver resAnn = _findAnnotation(ann, JsonTypeResolver.class);
-        
+
         if (resAnn != null) {
             if (info == null) {
                 return null;

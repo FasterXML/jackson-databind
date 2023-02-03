@@ -39,7 +39,7 @@ public class TestJSONP
                 MAPPER.writeValueAsString(new JSONPObject("xxx",
                         new Impl("123", "456"))));
     }
-    
+
     /**
      * Test to ensure that it is possible to force a static type for wrapped
      * value.

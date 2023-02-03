@@ -26,7 +26,7 @@ public class TestFormatSchema extends BaseMapTest
         @Override
         public String getSchemaType() { return "test"; }
     }
-    
+
     static class FactoryWithSchema extends JsonFactory
     {
         @Override
@@ -36,7 +36,7 @@ public class TestFormatSchema extends BaseMapTest
         public boolean canUseSchema(FormatSchema schema) {
             return (schema instanceof MySchema);
         }
-        
+
         private static final long serialVersionUID = 1L;
         @Override
         protected JsonParser _createParser(Reader r, IOContext ctxt)
@@ -57,12 +57,12 @@ public class TestFormatSchema extends BaseMapTest
     static class SchemaException extends RuntimeException
     {
         public final FormatSchema _schema;
-        
+
         public SchemaException(FormatSchema s) {
             _schema = s;
         }
     }
-    
+
     static class ParserWithSchema extends ParserBase
     {
         public ParserWithSchema(IOContext ioCtxt, int features)
@@ -230,13 +230,13 @@ public class TestFormatSchema extends BaseMapTest
             return -1;
         }
     }
-    
+
     /*
     /**********************************************************************
     /* Unit tests
     /**********************************************************************
      */
-    
+
     public void testFormatForParsers() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper(new FactoryWithSchema());

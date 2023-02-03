@@ -21,7 +21,7 @@ public class SequenceWriterTest extends BaseMapTest
         public int a;
 
         public Bean(int value) { a = value; }
-        
+
         @Override
         public boolean equals(Object o) {
             if (o == null || o.getClass() != getClass()) return false;
@@ -38,14 +38,14 @@ public class SequenceWriterTest extends BaseMapTest
     @JsonTypeName("A")
     static class ImplA extends PolyBase {
         public int value;
-        
+
         public ImplA(int v) { value = v; }
     }
 
     @JsonTypeName("B")
     static class ImplB extends PolyBase {
         public int b;
-        
+
         public ImplB(int v) { b = v; }
     }
 
@@ -64,7 +64,7 @@ public class SequenceWriterTest extends BaseMapTest
         public int c = 3;
 
         boolean closed = false;
-        
+
         @Override
         public void close() throws IOException {
             closed = true;
@@ -76,7 +76,7 @@ public class SequenceWriterTest extends BaseMapTest
         public int x;
 
         public boolean closed;
-        
+
         @Override
         public void close() throws IOException {
             closed = true;

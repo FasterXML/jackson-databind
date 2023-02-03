@@ -170,7 +170,7 @@ public final class ObjectBuffer
         }
         _reset();
     }
-    
+
     /**
      * Helper method that can be used to check how much free capacity
      * will this instance start with. Can be used to choose the best

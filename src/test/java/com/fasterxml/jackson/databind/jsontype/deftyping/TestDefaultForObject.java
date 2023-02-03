@@ -18,7 +18,7 @@ public class TestDefaultForObject
     extends BaseMapTest
 {
     static abstract class AbstractBean { }
-    
+
     static class StringBean extends AbstractBean { // ha, punny!
         public String name;
 
@@ -40,9 +40,9 @@ public class TestDefaultForObject
         MAYBE(true), PROBABLY_NOT(false);
 
         private boolean state;
-    	
+
         private ComplexChoice(boolean b) { state = b; }
-    	
+
         @Override
         public String toString() { return String.valueOf(state); }
     }
@@ -50,7 +50,7 @@ public class TestDefaultForObject
     static class PolymorphicType {
         public String foo;
         public Object bar;
-        
+
         public PolymorphicType() { }
         public PolymorphicType(String foo, int bar) {
             this.foo = foo;
@@ -61,7 +61,7 @@ public class TestDefaultForObject
     final static class BeanHolder
     {
         public AbstractBean bean;
-        
+
         public BeanHolder() { }
         public BeanHolder(AbstractBean b) { bean = b; }
     }
@@ -116,7 +116,7 @@ public class TestDefaultForObject
         String str = m.writeValueAsString(new Object[] { new StringBean("abc") });
 
         _verifySerializationAsMap(str);
-        
+
         // Ok: serialization seems to work as expected. Now deserialize:
         Object ob = m.readValue(str, Object[].class);
         assertNotNull(ob);
@@ -136,7 +136,7 @@ public class TestDefaultForObject
                 .build();
         // note: need to wrap, to get declared as Object
         String json = m.writeValueAsString(new StringBean("abc"));
-        
+
         // Ok: serialization seems to work as expected. Now deserialize:
         Object result = m.readValue(json, Object.class);
         assertNotNull(result);
@@ -160,7 +160,7 @@ public class TestDefaultForObject
             verifyException(e, "denied resolution of all subtypes of ");
         }
     }
-    
+
     /**
      * Unit test that verifies that an abstract bean is stored with type information
      * if default type information is enabled for non-concrete types.
@@ -224,7 +224,7 @@ public class TestDefaultForObject
         assertNotNull(result);
         assertNull(result.bean);
     }
-    
+
     public void testEnumAsObject() throws Exception
     {
         // wrapping to be declared as object
@@ -381,7 +381,7 @@ public class TestDefaultForObject
         assertNotNull(result);
         assertNotNull(wrapper.myBean);
         assertSame(DiscussBean.class, wrapper.myBean.getClass());
-    }    
+    }
 
     // Test to ensure we can also use "As.PROPERTY" inclusion and custom property name
     public void testFeature432() throws Exception
@@ -432,7 +432,7 @@ public class TestDefaultForObject
     /* Helper methods
     /**********************************************************
      */
-    
+
     @SuppressWarnings("unchecked")
     private void _verifySerializationAsMap(String str) throws Exception
     {

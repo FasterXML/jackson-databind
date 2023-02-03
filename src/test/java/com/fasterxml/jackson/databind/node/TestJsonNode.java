@@ -29,9 +29,9 @@ public class TestJsonNode extends NodeTestBase
         assertEquals(JsonToken.VALUE_FALSE, f.asToken());
 
         assertFalse(f.isNumber());
-        assertFalse(f.canConvertToInt()); 
-        assertFalse(f.canConvertToLong()); 
-        assertFalse(f.canConvertToExactIntegral()); 
+        assertFalse(f.canConvertToInt());
+        assertFalse(f.canConvertToLong());
+        assertFalse(f.canConvertToExactIntegral());
 
         // and ditto for true
         BooleanNode t = BooleanNode.getTrue();
@@ -46,7 +46,7 @@ public class TestJsonNode extends NodeTestBase
 
         assertNodeNumbers(f, 0, 0.0);
         assertNodeNumbers(t, 1, 1.0);
-    
+
         JsonNode result = objectMapper().readTree("true\n");
         assertFalse(result.isNull());
         assertFalse(result.isNumber());
@@ -75,9 +75,9 @@ public class TestJsonNode extends NodeTestBase
         data[1] = (byte) 3;
         BinaryNode n = BinaryNode.valueOf(data, 1, 1);
         assertFalse(n.isNumber());
-        assertFalse(n.canConvertToInt()); 
-        assertFalse(n.canConvertToLong()); 
-        assertFalse(n.canConvertToExactIntegral()); 
+        assertFalse(n.canConvertToInt());
+        assertFalse(n.canConvertToLong());
+        assertFalse(n.canConvertToExactIntegral());
 
         data[2] = (byte) 3;
         BinaryNode n2 = BinaryNode.valueOf(data, 2, 1);
@@ -177,7 +177,7 @@ public class TestJsonNode extends NodeTestBase
 
         ArrayNode array3 = MAPPER.createArrayNode();
         array3.add(123);
-        
+
         assertFalse(root2.equals(cmp, nestedArray1));
         assertTrue(nestedArray1.equals(cmp, nestedArray1));
         assertFalse(nestedArray1.equals(cmp, root2));

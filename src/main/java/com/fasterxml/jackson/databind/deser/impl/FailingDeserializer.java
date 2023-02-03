@@ -27,7 +27,7 @@ public class FailingDeserializer extends StdDeserializer<Object>
         super(rawType);
         _message = m;
     }
-    
+
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
         ctxt.reportInputMismatch(this, _message);

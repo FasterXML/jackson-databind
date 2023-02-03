@@ -83,7 +83,7 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
     /* Life-cycle
     /**********************************************************
      */
-    
+
     protected FromStringDeserializer(Class<?> vc) {
         super(vc);
     }
@@ -133,7 +133,7 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
     public LogicalType logicalType() {
         return LogicalType.OtherScalar;
     }
-    
+
     /*
     /**********************************************************
     /* Deserializer implementations
@@ -277,7 +277,7 @@ _coercedTypeDesc());
     /**
      * "Chameleon" deserializer that works on simple types that are deserialized
      * from a simple String.
-     * 
+     *
      * @since 2.4
      */
     public static class Std extends FromStringDeserializer<Object>
@@ -476,7 +476,7 @@ _coercedTypeDesc());
             }
         }
     }
-   
+
     // @since 2.12 to simplify logic a bit: should not use coercions when reading
     static class StringBuilderDeserializer extends FromStringDeserializer<Object>
     {

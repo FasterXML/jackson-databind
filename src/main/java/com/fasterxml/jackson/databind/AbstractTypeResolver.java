@@ -57,7 +57,7 @@ public abstract class AbstractTypeResolver
      *
      * @param config Configuration in use
      * @param typeDesc Description of the POJO type to resolve
-     * 
+     *
      * @return Resolved concrete type (which should retain generic
      *    type parameters of input type, if any), if resolution succeeds;
      *    null if resolver does not know how to resolve given type

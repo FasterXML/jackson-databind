@@ -45,7 +45,7 @@ public class ISO8601DateFormatTest extends BaseMapTest
         java.text.ParsePosition pos = new java.text.ParsePosition(0);
         String timestamp = "2007-08-13T19:51:23Z";
         Date result = df.parse(timestamp + "hello", pos);
-        
+
         assertEquals(date, result);
         assertEquals(timestamp.length(), pos.getIndex());
     }

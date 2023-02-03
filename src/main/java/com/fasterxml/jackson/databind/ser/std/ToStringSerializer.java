@@ -31,7 +31,7 @@ public class ToStringSerializer
 
     /**
      * Sometimes it may actually make sense to retain actual handled type.
-     * 
+     *
      * @since 2.5
      */
     public ToStringSerializer(Class<?> handledType) {

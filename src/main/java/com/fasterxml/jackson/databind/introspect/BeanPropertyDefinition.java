@@ -33,7 +33,7 @@ public abstract class BeanPropertyDefinition
      * same settings as this one, but with different
      * (external) name; that is, one for which
      * {@link #getName()} would return <code>newName</code>.
-     * 
+     *
      * @since 2.3
      */
     public abstract BeanPropertyDefinition withName(PropertyName newName);
@@ -41,7 +41,7 @@ public abstract class BeanPropertyDefinition
     /**
      * Alternate "mutant factory" that will only change simple name, but
      * leave other optional parts (like namespace) as is.
-     * 
+     *
      * @since 2.3
      */
     public abstract BeanPropertyDefinition withSimpleName(String newSimpleName);
@@ -66,7 +66,7 @@ public abstract class BeanPropertyDefinition
     public boolean hasName(PropertyName name) {
         return getFullName().equals(name);
     }
-    
+
     /**
      * Accessor that can be used to determine implicit name from underlying
      * element(s) before possible renaming. This is the "internal"
@@ -74,10 +74,10 @@ public abstract class BeanPropertyDefinition
      * annotations or naming strategy.
      */
     public abstract String getInternalName();
-    
+
     /**
      * Accessor for finding wrapper name to use for property (if any).
-     * 
+     *
      * @since 2.2
      */
     public abstract PropertyName getWrapperName();
@@ -86,7 +86,7 @@ public abstract class BeanPropertyDefinition
      * Accessor that can be called to check whether property was included
      * due to an explicit marker (usually annotation), or just by naming
      * convention.
-     * 
+     *
      * @return True if property was explicitly included (usually by having
      *   one of components being annotated); false if inclusion was purely
      *   due to naming or visibility definitions (that is, implicit)
@@ -123,12 +123,12 @@ public abstract class BeanPropertyDefinition
      * @since 2.9
      */
     public abstract Class<?> getRawPrimaryType();
-    
+
     /**
      * Method for accessing additional metadata.
      * NOTE: will never return null, so de-referencing return value
      * is safe.
-     * 
+     *
      * @since 2.3
      */
     public abstract PropertyMetadata getMetadata();
@@ -171,13 +171,13 @@ public abstract class BeanPropertyDefinition
     /**
      * Additional method that may be called instead of {@link #getConstructorParameter()}
      * to get access to all constructor parameters, not just the highest priority one.
-     * 
+     *
      * @since 2.5
      */
     public Iterator<AnnotatedParameter> getConstructorParameters() {
         return ClassUtil.emptyIterator();
     }
-    
+
     /**
      * Method used to find accessor (getter, field to access) to use for accessing
      * value of the property.
@@ -228,7 +228,7 @@ public abstract class BeanPropertyDefinition
      * trying to getter or setter info.
      *<p>
      * Note: abstract since 2.5
-     * 
+     *
      * @since 2.1
      */
     public abstract AnnotatedMember getPrimaryMember();
@@ -280,7 +280,7 @@ public abstract class BeanPropertyDefinition
      * associated with it or not.
      * It should NOT check for any default settings (global, per-type, or
      * containing POJO settings)
-     * 
+     *
      * @since 2.5
      */
     public abstract JsonInclude.Value findInclusion();

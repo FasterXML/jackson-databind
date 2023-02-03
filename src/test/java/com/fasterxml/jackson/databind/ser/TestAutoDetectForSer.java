@@ -74,7 +74,7 @@ public class TestAutoDetectForSer
         VisibilityChecker<?> vc = m.getVisibilityChecker();
         vc = vc.withFieldVisibility(JsonAutoDetect.Visibility.ANY);
         m.setVisibility(vc);
-        
+
         Map<String,Object> result = writeAndMap(m, new FieldBean());
         assertEquals(3, result.size());
         assertEquals("public", result.get("p1"));

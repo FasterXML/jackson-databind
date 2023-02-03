@@ -31,7 +31,7 @@ public class CoerceNaNStringToNumberTest extends BaseMapTest
     /* this is needed for backwards-compatibility.
     /**********************************************************************
      */
-    
+
     public void testDoublePrimitiveNonNumeric() throws Exception
     {
         // first, simple case:
@@ -67,14 +67,14 @@ public class CoerceNaNStringToNumberTest extends BaseMapTest
         Double dv = MAPPER_NO_COERCION.readValue(q(String.valueOf(value)), Double.class);
         assertTrue(dv.isInfinite());
     }
-    
+
     public void testFloatPrimitiveNonNumeric() throws Exception
     {
         // bit tricky with binary fps but...
         float value = Float.POSITIVE_INFINITY;
         FloatBean result = MAPPER.readValue("{\"v\":\""+value+"\"}", FloatBean.class);
         assertEquals(value, result._v);
-        
+
         // should work with arrays too..
         float[] array = MAPPER.readValue("[ \"Infinity\" ]", float[].class);
         assertNotNull(array);

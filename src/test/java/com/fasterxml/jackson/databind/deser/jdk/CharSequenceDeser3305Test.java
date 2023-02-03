@@ -45,7 +45,7 @@ public class CharSequenceDeser3305Test extends BaseMapTest
     private static final String APP_ID = "3074457345618296002";
 
     private final static ObjectMapper MAPPER = newJsonMapper();
-    
+
     public void testCharSequenceSerialization() throws Exception {
         AppId appId = AppId.valueOf(APP_ID);
 

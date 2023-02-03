@@ -27,7 +27,7 @@ public final class InnerClassProperty
      * construction of objects.
      */
     final protected transient Constructor<?> _creator;
-    
+
     /**
      * Serializable version of single-arg constructor we use for value instantiation.
      */
@@ -109,7 +109,7 @@ _creator.getDeclaringClass().getName(), e.getMessage()));
     /**********************************************************
      */
 
-    // When reading things back, 
+    // When reading things back,
     Object readResolve() {
         return new InnerClassProperty(this, _annotated);
     }

@@ -25,7 +25,7 @@ public class ResolvedRecursiveType extends TypeBase
         }
         _referencedType = ref;
     }
-   
+
     @Override
     public JavaType getSuperClass() {
         if (_referencedType != null) {
@@ -69,7 +69,7 @@ public class ResolvedRecursiveType extends TypeBase
     public JavaType withContentType(JavaType contentType) {
         return this;
     }
-    
+
     @Override
     public JavaType withTypeHandler(Object h) {
         return this;
@@ -136,7 +136,7 @@ public class ResolvedRecursiveType extends TypeBase
 
             // but... true or false?
             return false;
-            
+
             /*
             // Do NOT ever match unresolved references
             if (_referencedType == null) {

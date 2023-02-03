@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  * In most respects this placeholder node will act as {@link NullNode};
  * for example, for purposes of value conversions, value is considered
  * to be null and represented as value zero when used for numeric
- * conversions. 
+ * conversions.
  */
 public final class MissingNode
     extends ValueNode
@@ -37,7 +37,7 @@ public final class MissingNode
     protected Object readResolve() {
         return instance;
     }
-    
+
     @Override
     public boolean isMissingNode() {
         return true;
@@ -49,7 +49,7 @@ public final class MissingNode
     public <T extends JsonNode> T deepCopy() { return (T) this; }
 
     public static MissingNode getInstance() { return instance; }
-    
+
     @Override
     public JsonNodeType getNodeType()
     {
@@ -61,9 +61,9 @@ public final class MissingNode
     @Override public String asText() { return ""; }
 
     @Override public String asText(String defaultValue) { return defaultValue; }
-    
+
     // // Note: not a numeric node, hence default 'asXxx()' are fine:
-    
+
     /*
     public int asInt(int defaultValue);
     public long asLong(long defaultValue);
@@ -76,7 +76,7 @@ public final class MissingNode
     /* Serialization: bit tricky as we don't really have a value
     /**********************************************************
      */
-    
+
     @Override
     public final void serialize(JsonGenerator g, SerializerProvider provider)
         throws IOException
@@ -103,7 +103,7 @@ public final class MissingNode
     /* Jackson 2.10 improvements for validation
     /**********************************************************
      */
-    
+
     @SuppressWarnings("unchecked")
     @Override
     public JsonNode require() {
@@ -138,7 +138,7 @@ public final class MissingNode
     public String toPrettyString() {
         return "";
     }
-    
+
     @Override
     public boolean equals(Object o)
     {

@@ -40,7 +40,7 @@ public class DelegatingExternalProperty1003Test extends BaseMapTest
         public String getName() {
             return name;
         }
-    }    
+    }
 
     public void testExtrnalPropertyDelegatingCreator() throws Exception
     {

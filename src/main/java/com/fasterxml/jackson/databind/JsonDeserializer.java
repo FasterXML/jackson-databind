@@ -52,14 +52,14 @@ public abstract class JsonDeserializer<T>
     /* Main deserialization methods
     /**********************************************************
      */
-    
+
     /**
      * Method that can be called to ask implementation to deserialize
      * JSON content into the value type this serializer handles.
      * Returned instance is to be constructed by method itself.
      *<p>
      * Pre-condition for this method is that the parser points to the
-     * first event that is part of value to deserializer (and which 
+     * first event that is part of value to deserializer (and which
      * is never JSON 'null' literal, more on this below): for simple
      * types it may be the only value; and for structured types the
      * Object start marker or a FIELD_NAME.
@@ -141,14 +141,14 @@ public abstract class JsonDeserializer<T>
      * should not rely on current default implementation.
      * Implementation is mostly provided to avoid compilation errors with older
      * code.
-     * 
+     *
      * @param typeDeserializer Deserializer to use for handling type information
      */
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
         throws IOException, JacksonException
     {
-        // We could try calling 
+        // We could try calling
         return typeDeserializer.deserializeTypedFromAny(p, ctxt);
     }
 
@@ -193,7 +193,7 @@ public abstract class JsonDeserializer<T>
      * delegate anything; or it does not want any changes), should either
      * throw {@link UnsupportedOperationException} (if operation does not
      * make sense or is not allowed); or return this deserializer as is.
-     * 
+     *
      * @since 2.1
      */
     public JsonDeserializer<?> replaceDelegatee(JsonDeserializer<?> delegatee) {
@@ -257,10 +257,10 @@ public abstract class JsonDeserializer<T>
      * another deserializer for actual deserialization, by delegating
      * calls. If so, will return immediate delegate (which itself may
      * delegate to further deserializers); otherwise will return null.
-     * 
+     *
      * @return Deserializer this deserializer delegates calls to, if null;
      *   null otherwise.
-     * 
+     *
      * @since 2.1
      */
     public JsonDeserializer<?> getDelegatee() {
@@ -276,7 +276,7 @@ public abstract class JsonDeserializer<T>
      * This is only to be used for error reporting and diagnostics
      * purposes (most commonly, to accompany "unknown property"
      * exception).
-     * 
+     *
      * @since 2.0
      */
     public Collection<Object> getKnownPropertyNames() {
@@ -300,7 +300,7 @@ public abstract class JsonDeserializer<T>
      * {@link #getNullAccessPattern()} returns.
      *<p>
      * Default implementation simply returns null.
-     * 
+     *
      * @since 2.6 Added to replace earlier no-arguments variant
      */
     @Override
@@ -405,11 +405,11 @@ public abstract class JsonDeserializer<T>
      * {@link com.fasterxml.jackson.databind.deser.BeanDeserializer})
      * do implement this feature, and may return reader instance, depending on exact
      * configuration of instance (which is based on type, and referring property).
-     * 
+     *
      * @return ObjectIdReader used for resolving possible Object Identifier
      *    value, instead of full value serialization, if deserializer can do that;
      *    null if no Object Id is expected.
-     * 
+     *
      * @since 2.0
      */
     public ObjectIdReader getObjectIdReader() { return null; }
@@ -417,7 +417,7 @@ public abstract class JsonDeserializer<T>
     /**
      * Method needed by {@link BeanDeserializerFactory} to properly link
      * managed- and back-reference pairs.
-     * 
+     *
      * @since 2.2 (was moved out of <code>BeanDeserializerBase</code>)
      */
     public SettableBeanProperty findBackReference(String refName)

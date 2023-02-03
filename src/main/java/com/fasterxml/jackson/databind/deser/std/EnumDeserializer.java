@@ -33,7 +33,7 @@ public class EnumDeserializer
     private static final long serialVersionUID = 1L;
 
     protected Object[] _enumsByIndex;
-    
+
     /**
      * @since 2.8
      */
@@ -50,7 +50,7 @@ public class EnumDeserializer
      *
      * @since 2.7.3
      */
-    protected CompactStringObjectMap _lookupByToString;
+    protected volatile CompactStringObjectMap _lookupByToString;
 
     protected final Boolean _caseInsensitive;
 
@@ -102,7 +102,7 @@ public class EnumDeserializer
     protected EnumDeserializer(EnumDeserializer base, Boolean caseInsensitive) {
         this(base, caseInsensitive, null, null);
     }
-    
+
     /**
      * @deprecated Since 2.9
      */
@@ -123,7 +123,7 @@ public class EnumDeserializer
     /**
      * Factory method used when Enum instances are to be deserialized
      * using a creator (static factory method)
-     * 
+     *
      * @return Deserializer based on given factory method
      *
      * @since 2.8
@@ -144,7 +144,7 @@ public class EnumDeserializer
     /**
      * Factory method used when Enum instances are to be deserialized
      * using a zero-/no-args factory method
-     * 
+     *
      * @return Deserializer based on given no-args factory method
      *
      * @since 2.8
@@ -306,13 +306,13 @@ public class EnumDeserializer
     return _checkCoercionFail(ctxt, act, rawTargetType, value,
             "empty String (\"\")");
             */
-    
+
     /*
     /**********************************************************
     /* Internal helper methods
     /**********************************************************
      */
-    
+
     private final Object _deserializeAltString(JsonParser p, DeserializationContext ctxt,
             CompactStringObjectMap lookup, String nameOrig) throws IOException
     {
@@ -397,17 +397,17 @@ public class EnumDeserializer
         return handledType();
     }
 
-    protected CompactStringObjectMap _getToStringLookup(DeserializationContext ctxt)
-    {
+    protected CompactStringObjectMap _getToStringLookup(DeserializationContext ctxt) {
         CompactStringObjectMap lookup = _lookupByToString;
-        // note: exact locking not needed; all we care for here is to try to
-        // reduce contention for the initial resolution
         if (lookup == null) {
             synchronized (this) {
-                lookup = EnumResolver.constructUsingToString(ctxt.getConfig(), _enumClass())
-                    .constructLookup();
+                lookup = _lookupByToString;
+                if (lookup == null) {
+                    lookup = EnumResolver.constructUsingToString(ctxt.getConfig(), _enumClass())
+                        .constructLookup();
+                    _lookupByToString = lookup;
+                }
             }
-            _lookupByToString = lookup;
         }
         return lookup;
     }

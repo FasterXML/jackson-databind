@@ -55,13 +55,13 @@ public class BuilderInfiniteLoop1978Test extends BaseMapTest
     {
          private int element1;
          private String element2;
-         
+
          @JsonProperty("el1")
          public SubBuilder withElement1(int e1) {
               this.element1 = e1;
               return this;
          }
-         
+
          public SubBean build()
          {
               SubBean bean = new SubBean();

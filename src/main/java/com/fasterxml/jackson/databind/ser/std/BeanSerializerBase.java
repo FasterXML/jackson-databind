@@ -15,8 +15,6 @@ import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
-import com.fasterxml.jackson.databind.jsonschema.JsonSerializableSchema;
-import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.*;
@@ -40,7 +38,7 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
 public abstract class BeanSerializerBase
     extends StdSerializer<Object>
     implements ContextualSerializer, ResolvableSerializer,
-        JsonFormatVisitable, SchemaAware
+        JsonFormatVisitable
 {
     protected final static PropertyName NAME_FOR_OBJECT_REF = new PropertyName("#object-ref");
 
@@ -106,7 +104,7 @@ public abstract class BeanSerializerBase
     /**
      * Constructor used by {@link BeanSerializerBuilder} to create an
      * instance
-     * 
+     *
      * @param type Nominal type of values handled by this serializer
      * @param builder Builder for accessing other collected information
      */
@@ -155,7 +153,7 @@ public abstract class BeanSerializerBase
     {
         this(src, objectIdWriter, src._propertyFilterId);
     }
-    
+
     /**
      * @since 2.3
      */
@@ -166,7 +164,7 @@ public abstract class BeanSerializerBase
         _beanType = src._beanType;
         _props = src._props;
         _filteredProps = src._filteredProps;
-        
+
         _typeId = src._typeId;
         _anyGetterWriter = src._anyGetterWriter;
         _objectIdWriter = objectIdWriter;
@@ -217,11 +215,11 @@ public abstract class BeanSerializerBase
         _propertyFilterId = src._propertyFilterId;
         _serializationShape = src._serializationShape;
     }
-    
+
     /**
      * Mutant factory used for creating a new instance with different
      * {@link ObjectIdWriter}.
-     * 
+     *
      * @since 2.0
      */
     public abstract BeanSerializerBase withObjectIdWriter(ObjectIdWriter objectIdWriter);
@@ -229,7 +227,7 @@ public abstract class BeanSerializerBase
     /**
      * Mutant factory used for creating a new instance with additional
      * set of properties to ignore (from properties this instance otherwise has)
-     * 
+     *
      * @since 2.8
      * @deprecated Since 2.12
      */
@@ -250,7 +248,7 @@ public abstract class BeanSerializerBase
     /**
      * Mutant factory used for creating a new instance with additional
      * set of properties to ignore (from properties this instance otherwise has)
-     * 
+     *
      * @deprecated since 2.8
      */
     @Deprecated
@@ -262,7 +260,7 @@ public abstract class BeanSerializerBase
      * Mutant factory for creating a variant that output POJO as a
      * JSON Array. Implementations may ignore this request if output
      * as array is not possible (either at all, or reliably).
-     * 
+     *
      * @since 2.1
      */
     protected abstract BeanSerializerBase asArraySerializer();
@@ -270,7 +268,7 @@ public abstract class BeanSerializerBase
     /**
      * Mutant factory used for creating a new instance with different
      * filter id (used with <code>JsonFilter</code> annotation)
-     * 
+     *
      * @since 2.3
      */
     @Override
@@ -282,7 +280,7 @@ public abstract class BeanSerializerBase
      *<p>
      * Note: in 2.11.x, need to keep non-abstract for slightly better compatibility
      * (XML module extends)
-     * 
+     *
      * @since 2.11.1
      */
     protected abstract BeanSerializerBase withProperties(BeanPropertyWriter[] properties,
@@ -303,7 +301,7 @@ public abstract class BeanSerializerBase
     protected BeanSerializerBase(BeanSerializerBase src, NameTransformer unwrapper) {
         this(src, rename(src._props, unwrapper), rename(src._filteredProps, unwrapper));
     }
-    
+
     private final static BeanPropertyWriter[] rename(BeanPropertyWriter[] props,
             NameTransformer transformer)
     {
@@ -361,7 +359,7 @@ public abstract class BeanSerializerBase
             if (ser == null) {
                 // Was the serialization type hard-coded? If so, use it
                 JavaType type = prop.getSerializationType();
-                
+
                 // It not, we can use declared return type if and only if declared type is final:
                 // if not, we don't really know the actual type until we get the instance.
                 if (type == null) {
@@ -414,7 +412,7 @@ public abstract class BeanSerializerBase
      * Helper method that can be used to see if specified property is annotated
      * to indicate use of a converter for property value (in case of container types,
      * it is container type itself, not key or content type).
-     * 
+     *
      * @since 2.2
      */
     protected JsonSerializer<Object> findConvertingSerializer(SerializerProvider provider,
@@ -515,7 +513,7 @@ public abstract class BeanSerializerBase
             } else {
                 // Ugh: mostly copied from BeanDeserializerBase: but can't easily change it
                 // to be able to move to SerializerProvider (where it really belongs)
-                
+
                 // 2.1: allow modifications by "id ref" annotations as well:
                 objectIdInfo = intr.findObjectReferenceInfo(accessor, objectIdInfo);
                 Class<?> implClass = objectIdInfo.getGeneratorType();
@@ -525,7 +523,7 @@ public abstract class BeanSerializerBase
                 if (implClass == ObjectIdGenerators.PropertyGenerator.class) { // most special one, needs extra work
                     String propName = objectIdInfo.getPropertyName().getSimpleName();
                     BeanPropertyWriter idProp = null;
-                    
+
                     for (int i = 0, len = _props.length; ; ++i) {
                         if (i == len) {
                             provider.reportBadDefinition(_beanType, String.format(
@@ -628,7 +626,7 @@ public abstract class BeanSerializerBase
     public boolean usesObjectId() {
         return (_objectIdWriter != null);
     }
-    
+
     // Main serialization method left unimplemented
     @Override
     public abstract void serialize(Object bean, JsonGenerator gen, SerializerProvider provider)
@@ -687,7 +685,7 @@ public abstract class BeanSerializerBase
             gen.writeEndObject();
         }
     }
-    
+
     protected final void _serializeWithObjectId(Object bean, JsonGenerator gen, SerializerProvider provider,
             TypeSerializer typeSer) throws IOException
     {
@@ -849,14 +847,15 @@ public abstract class BeanSerializerBase
         ObjectNode o = createSchemaNode("object", true);
         // [JACKSON-813]: Add optional JSON Schema id attribute, if found
         // NOTE: not optimal, does NOT go through AnnotationIntrospector etc:
-        JsonSerializableSchema ann = _handledType.getAnnotation(JsonSerializableSchema.class);
+        com.fasterxml.jackson.databind.jsonschema.JsonSerializableSchema ann =
+            _handledType.getAnnotation(com.fasterxml.jackson.databind.jsonschema.JsonSerializableSchema.class);
         if (ann != null) {
             String id = ann.id();
             if (id != null && !id.isEmpty()) {
                 o.put("id", id);
             }
         }
- 
+
         //todo: should the classname go in the title?
         //o.put("title", _className);
         ObjectNode propertiesNode = o.objectNode();
@@ -866,7 +865,7 @@ public abstract class BeanSerializerBase
         } else {
             filter = null;
         }
-        		
+
         for (int i = 0; i < _props.length; i++) {
             BeanPropertyWriter prop = _props[i];
             if (filter == null) {
@@ -879,12 +878,12 @@ public abstract class BeanSerializerBase
         o.set("properties", propertiesNode);
         return o;
     }
-    
+
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         throws JsonMappingException
     {
-        //deposit your output format 
+        //deposit your output format
         if (visitor == null) {
             return;
         }

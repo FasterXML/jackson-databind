@@ -78,7 +78,7 @@ public class AtomicTypeSerializationTest
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
-    
+
     public void testAtomicBoolean() throws Exception
     {
         assertEquals("true", MAPPER.writeValueAsString(new AtomicBoolean(true)));

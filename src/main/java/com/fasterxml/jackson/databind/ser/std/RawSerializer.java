@@ -41,14 +41,18 @@ public class RawSerializer<T>
         serialize(value, g, provider);
         typeSer.writeTypeSuffix(g, typeIdDef);
     }
-    
+
+    /**
+     * @deprecated Since 2.15
+     */
+    @Deprecated
     @Override
     public JsonNode getSchema(SerializerProvider provider, Type typeHint)
     {
         // type not really known, but since it is a JSON string:
         return createSchemaNode("string", true);
     }
-    
+
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
     {

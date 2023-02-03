@@ -13,12 +13,12 @@ public class CaseInsensitiveDeser953Test extends BaseMapTest
     }
 
     private final Locale LOCALE_EN = new Locale("en", "US");
-    
+
     private final ObjectMapper INSENSITIVE_MAPPER_EN = jsonMapperBuilder()
             .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
             .defaultLocale(LOCALE_EN)
             .build();
-    
+
     private final Locale LOCALE_TR = new Locale("tr", "TR");
 
     private final ObjectMapper INSENSITIVE_MAPPER_TR = jsonMapperBuilder()
@@ -33,14 +33,14 @@ public class CaseInsensitiveDeser953Test extends BaseMapTest
     public void testTurkishILetterDeserializationWithTr() throws Exception {
         _testTurkishILetterDeserialization(INSENSITIVE_MAPPER_TR, LOCALE_TR);
     }
-    
+
     private void _testTurkishILetterDeserialization(ObjectMapper mapper, Locale locale) throws Exception
     {
         // Sanity check first
         assertEquals(locale, mapper.getDeserializationConfig().getLocale());
-        
+
         final String ORIGINAL_KEY = "someId";
-        
+
         Id953 result;
         result = mapper.readValue("{\""+ORIGINAL_KEY+"\":1}", Id953.class);
         assertEquals(1, result.someId);

@@ -33,7 +33,7 @@ public class IgnorePropertiesUtil
     /**
      * Factory method for creating and return a {@link Checker} instance if (and only if)
      * one needed.
-     * 
+     *
      * @param toIgnore Set of property names to ignore (may be null)
      * @param toInclude Set of only property names to include (if null, undefined)
      *
@@ -51,7 +51,7 @@ public class IgnorePropertiesUtil
      * Helper that encapsulates logic for combining two sets of "included names":
      * default logic is to do intersection (name must be in both to be included
      * in result)
-     * 
+     *
      * @param prevToInclude Existing set of names to include, if defined; null means "not defined"
      * @param newToInclude New set of names to included, if defined; null means "not defined"
      *

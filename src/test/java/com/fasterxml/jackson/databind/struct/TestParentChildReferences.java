@@ -22,7 +22,7 @@ public class TestParentChildReferences
     static class SimpleTreeNode
     {
         public String name;
-        
+
         // Reference back to parent; reference, ignored during ser,
         // re-constructed during deser
         @JsonBackReference
@@ -55,7 +55,7 @@ public class TestParentChildReferences
         public SimpleTreeNode2 getChild() { return child; }
         public void setChild(SimpleTreeNode2 c) { child = c; }
     }
-    
+
     /**
      * Then nodes with two separate linkages; parent/child
      * and prev/next-sibling
@@ -75,7 +75,7 @@ public class TestParentChildReferences
         public FullTreeNode next;
         @JsonBackReference("sibling")
         protected FullTreeNode prev;
-        
+
         public FullTreeNode() { this(null); }
         public FullTreeNode(String name) {
             this.name = name;
@@ -94,14 +94,14 @@ public class TestParentChildReferences
     static class ArrayNode
     {
         public String name;
-        
+
         @JsonBackReference("arr")
         public NodeArray parent;
 
         public ArrayNode() { this(null); }
         public ArrayNode(String n) { name = n; }
     }
-    
+
     /**
      * Class for testing managed references via Collections
      */
@@ -114,14 +114,14 @@ public class TestParentChildReferences
     static class NodeForList
     {
         public String name;
-        
+
         @JsonBackReference
         public NodeList parent;
 
         public NodeForList() { this(null); }
         public NodeForList(String n) { name = n; }
     }
-    
+
     static class NodeMap
     {
         @JsonManagedReference
@@ -131,7 +131,7 @@ public class TestParentChildReferences
     static class NodeForMap
     {
         public String name;
-        
+
         @JsonBackReference
         public NodeMap parent;
 
@@ -167,7 +167,7 @@ public class TestParentChildReferences
     static abstract class AbstractNode
     {
         public String id;
-        
+
         @JsonManagedReference public AbstractNode next;
         @JsonBackReference public AbstractNode prev;
     }
@@ -177,10 +177,10 @@ public class TestParentChildReferences
         public ConcreteNode() { }
         public ConcreteNode(String id) { this.id = id; }
     }
-    
+
     // [JACKSON-708]
     static class Model708 { }
-    
+
     static class Advertisement708 extends Model708 {
         public String title;
         @JsonManagedReference public List<Photo708> photos;
@@ -190,7 +190,7 @@ public class TestParentChildReferences
         public int id;
         @JsonBackReference public Advertisement708 advertisement;
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests
@@ -198,16 +198,16 @@ public class TestParentChildReferences
      */
 
     private final ObjectMapper MAPPER = objectMapper();
-    
+
     public void testSimpleRefs() throws Exception
     {
         SimpleTreeNode root = new SimpleTreeNode("root");
         SimpleTreeNode child = new SimpleTreeNode("kid");
         root.child = child;
         child.parent = root;
-        
+
         String json = MAPPER.writeValueAsString(root);
-        
+
         SimpleTreeNode resultNode = MAPPER.readValue(json, SimpleTreeNode.class);
         assertEquals("root", resultNode.name);
         SimpleTreeNode resultChild = resultNode.child;
@@ -223,9 +223,9 @@ public class TestParentChildReferences
         SimpleTreeNode2 child = new SimpleTreeNode2("kid");
         root.child = child;
         child.parent = root;
-        
+
         String json = MAPPER.writeValueAsString(root);
-        
+
         SimpleTreeNode2 resultNode = MAPPER.readValue(json, SimpleTreeNode2.class);
         assertEquals("root", resultNode.name);
         SimpleTreeNode2 resultChild = resultNode.child;
@@ -233,7 +233,7 @@ public class TestParentChildReferences
         assertEquals("kid", resultChild.name);
         assertSame(resultChild.parent, resultNode);
     }
-    
+
     public void testFullRefs() throws Exception
     {
         FullTreeNode root = new FullTreeNode("root");
@@ -243,9 +243,9 @@ public class TestParentChildReferences
         child1.parent = root;
         child1.next = child2;
         child2.prev = child1;
-        
+
         String json = MAPPER.writeValueAsString(root);
-        
+
         FullTreeNode resultNode = MAPPER.readValue(json, FullTreeNode.class);
         assertEquals("root", resultNode.name);
         FullTreeNode resultChild = resultNode.firstChild;
@@ -269,7 +269,7 @@ public class TestParentChildReferences
         ArrayNode node2 = new ArrayNode("b");
         root.nodes = new ArrayNode[] { node1, node2 };
         String json = MAPPER.writeValueAsString(root);
-        
+
         NodeArray result = MAPPER.readValue(json, NodeArray.class);
         ArrayNode[] kids = result.nodes;
         assertNotNull(kids);
@@ -287,7 +287,7 @@ public class TestParentChildReferences
         NodeForList node2 = new NodeForList("b");
         root.nodes = Arrays.asList(node1, node2);
         String json = MAPPER.writeValueAsString(root);
-        
+
         NodeList result = MAPPER.readValue(json, NodeList.class);
         List<NodeForList> kids = result.nodes;
         assertNotNull(kids);
@@ -308,7 +308,7 @@ public class TestParentChildReferences
         nodes.put("b2", node2);
         root.nodes = nodes;
         String json = MAPPER.writeValueAsString(root);
-        
+
         NodeMap result = MAPPER.readValue(json, NodeMap.class);
         Map<String,NodeForMap> kids = result.nodes;
         assertNotNull(kids);
@@ -342,14 +342,14 @@ public class TestParentChildReferences
         assertEquals("c", leaf.id);
         assertSame(root, leaf.prev);
     }
-    
+
     public void testIssue693() throws Exception
     {
         Parent parent = new Parent();
         parent.addChild(new Child("foo"));
         parent.addChild(new Child("bar"));
         byte[] bytes = MAPPER.writeValueAsBytes(parent);
-        Parent value = MAPPER.readValue(bytes, Parent.class); 
+        Parent value = MAPPER.readValue(bytes, Parent.class);
         for (Child child : value.children) {
             assertEquals(value, child.getParent());
         }
@@ -357,7 +357,7 @@ public class TestParentChildReferences
 
     public void testIssue708() throws Exception
     {
-        Advertisement708 ad = MAPPER.readValue("{\"title\":\"Hroch\",\"photos\":[{\"id\":3}]}", Advertisement708.class);      
+        Advertisement708 ad = MAPPER.readValue("{\"title\":\"Hroch\",\"photos\":[{\"id\":3}]}", Advertisement708.class);
         assertNotNull(ad);
-    }   
+    }
 }

@@ -53,7 +53,7 @@ public class BasicPTVWithArraysTest extends BaseMapTest
                 .build();
         ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(ptv, DefaultTyping.NON_FINAL)
-                .build();        
+                .build();
 
         final String json = mapper.writeValueAsString(new ObjectWrapper(new Base2534[] { new Good2534(42) }));
 
@@ -73,7 +73,7 @@ public class BasicPTVWithArraysTest extends BaseMapTest
                 .build();
         mapper = jsonMapperBuilder()
                 .activateDefaultTyping(ptv, DefaultTyping.NON_FINAL)
-                .build();        
+                .build();
 
         ObjectWrapper w = mapper.readValue(json, ObjectWrapper.class);
         assertNotNull(w);

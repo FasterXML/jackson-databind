@@ -81,7 +81,7 @@ public abstract class ContainerNode<T extends ContainerNode<T>>
     /* JsonNodeCreator implementation, just dispatch to real creator
     /**********************************************************
      */
-    
+
     /**
      * Factory method that constructs and returns an empty {@link ArrayNode}
      * Construction is done using registered {@link JsonNodeFactory}.

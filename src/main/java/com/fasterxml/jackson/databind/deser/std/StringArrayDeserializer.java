@@ -66,7 +66,7 @@ public final class StringArrayDeserializer
      * @since 2.9
      */
     protected final boolean _skipNullValues;
-    
+
     public StringArrayDeserializer() {
         this(null, null, null);
     }
@@ -199,7 +199,7 @@ public final class StringArrayDeserializer
             ix = old.length;
             chunk = buffer.resetAndStart(old, ix);
         }
-        
+
         final JsonDeserializer<String> deser = _elementDeserializer;
 
         try {

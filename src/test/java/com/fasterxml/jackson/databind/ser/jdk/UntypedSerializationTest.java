@@ -35,29 +35,29 @@ public class UntypedSerializationTest
 
             try (JsonParser p = MAPPER.createParser(str)) {
                 assertEquals(JsonToken.START_ARRAY, p.nextToken());
-                
+
                 assertEquals(JsonToken.VALUE_STRING, p.nextToken());
                 assertEquals("Elem1", getAndVerifyText(p));
-                
+
                 assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
                 assertEquals(3, p.getIntValue());
-                
+
                 assertEquals(JsonToken.START_OBJECT, p.nextToken());
                 assertEquals(JsonToken.FIELD_NAME, p.nextToken());
                 assertEquals("first", getAndVerifyText(p));
-                
+
                 assertEquals(JsonToken.VALUE_TRUE, p.nextToken());
                 assertEquals(JsonToken.FIELD_NAME, p.nextToken());
                 assertEquals("Second", getAndVerifyText(p));
-                
+
                 if (p.nextToken() != JsonToken.START_ARRAY) {
                     fail("Expected START_ARRAY: JSON == '"+str+"'");
                 }
                 assertEquals(JsonToken.END_ARRAY, p.nextToken());
                 assertEquals(JsonToken.END_OBJECT, p.nextToken());
-                
+
                 assertEquals(JsonToken.VALUE_FALSE, p.nextToken());
-                
+
                 assertEquals(JsonToken.END_ARRAY, p.nextToken());
                 assertNull(p.nextToken());
             }
@@ -77,24 +77,24 @@ public class UntypedSerializationTest
 
             try (JsonParser p = MAPPER.createParser(str)) {
                 assertEquals(JsonToken.START_OBJECT, p.nextToken());
-                
+
                 assertEquals(JsonToken.FIELD_NAME, p.nextToken());
                 assertEquals("a1", getAndVerifyText(p));
                 assertEquals(JsonToken.VALUE_STRING, p.nextToken());
                 assertEquals("\"text\"", getAndVerifyText(p));
-                
+
                 assertEquals(JsonToken.FIELD_NAME, p.nextToken());
                 assertEquals("int", getAndVerifyText(p));
                 assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
                 assertEquals(137, p.getIntValue());
-                
+
                 assertEquals(JsonToken.FIELD_NAME, p.nextToken());
                 assertEquals("foo bar", getAndVerifyText(p));
                 assertEquals(JsonToken.VALUE_NUMBER_INT, p.nextToken());
                 assertEquals(1234567890L, p.getLongValue());
-                
+
                 assertEquals(JsonToken.END_OBJECT, p.nextToken());
-    
+
                 assertNull(p.nextToken());
             }
         }

@@ -57,13 +57,13 @@ public class AsExternalTypeSerializer extends TypeSerializerBase
     protected final void _writeArrayPrefix(Object value, JsonGenerator g) throws IOException {
         g.writeStartArray();
     }
-   
+
     protected final void _writeScalarSuffix(Object value, JsonGenerator g, String typeId) throws IOException {
         if (typeId != null) {
             g.writeStringField(_typePropertyName, typeId);
         }
     }
-   
+
     protected final void _writeObjectSuffix(Object value, JsonGenerator g, String typeId) throws IOException {
         g.writeEndObject();
         if (typeId != null) {

@@ -34,7 +34,7 @@ public class UnsupportedTypeDeserializer extends StdDeserializer<Object>
         _type = t;
         _message = m;
     }
-    
+
     @Override
     public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {

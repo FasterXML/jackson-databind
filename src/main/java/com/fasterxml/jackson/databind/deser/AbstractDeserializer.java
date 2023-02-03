@@ -41,7 +41,7 @@ public class AbstractDeserializer
     protected transient Map<String,SettableBeanProperty> _properties;
 
     // support for "native" types, which require special care:
-    
+
     protected final boolean _acceptString;
     protected final boolean _acceptBoolean;
     protected final boolean _acceptInt;
@@ -113,7 +113,7 @@ public class AbstractDeserializer
     /**
      * Factory method used when constructing instances for non-POJO types, like
      * {@link java.util.Map}s.
-     * 
+     *
      * @since 2.3
      */
     public static AbstractDeserializer constructForNonPOJO(BeanDescription beanDesc) {
@@ -185,7 +185,7 @@ handledType().getName()));
     public Class<?> handledType() {
         return _baseType.getRawClass();
     }
-    
+
     @Override
     public boolean isCachable() { return true; }
 
@@ -224,7 +224,7 @@ handledType().getName()));
     public SettableBeanProperty findBackReference(String logicalName) {
         return (_backRefProperties == null) ? null : _backRefProperties.get(logicalName);
     }
-    
+
     /*
     /**********************************************************
     /* Deserializer implementation

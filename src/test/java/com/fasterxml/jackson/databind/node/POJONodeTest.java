@@ -45,7 +45,7 @@ public class POJONodeTest extends NodeTestBase
       treeTest.putPOJO("data", data);
 
       final String EXP = "{\"data\":{\"aStr\":\"The value is: Hello!\"}}";
-      
+
       String mapOut = MAPPER.writer().withAttribute("myAttr", "Hello!").writeValueAsString(mapTest);
       assertEquals(EXP, mapOut);
 

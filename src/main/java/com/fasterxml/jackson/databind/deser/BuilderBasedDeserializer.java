@@ -182,7 +182,7 @@ public class BuilderBasedDeserializer
         // 26-Oct-2016, tatu: No, we can't merge Builder-based POJOs as of now
         return Boolean.FALSE;
     }
-    
+
     /*
     /**********************************************************
     /* JsonDeserializer implementation
@@ -360,7 +360,7 @@ public class BuilderBasedDeserializer
     protected Object _deserializeUsingPropertyBased(final JsonParser p,
             final DeserializationContext ctxt)
         throws IOException
-    { 
+    {
         final PropertyBasedCreator creator = _propertyBasedCreator;
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
@@ -450,7 +450,7 @@ public class BuilderBasedDeserializer
 
     protected final Object _deserialize(JsonParser p,
             DeserializationContext ctxt, Object builder) throws IOException
-    {        
+    {
         if (_injectables != null) {
             injectValues(ctxt, builder);
         }
@@ -481,7 +481,7 @@ public class BuilderBasedDeserializer
             // Skip field name:
             p.nextToken();
             SettableBeanProperty prop = _beanProperties.find(propName);
-            
+
             if (prop != null) { // normal case
                 try {
                     builder = prop.deserializeSetAndReturn(p, ctxt, builder);

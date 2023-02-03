@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 /**
  * Deserializer that uses a single-String static factory method
  * for locating Enum values by String id.
- * 
+ *
  * @since 2.8 (as stand-alone class; was static inner class of {@link EnumDeserializer}
  */
 class FactoryBasedEnumDeserializer
@@ -44,14 +44,14 @@ class FactoryBasedEnumDeserializer
      * @since 2.8
      */
     private transient PropertyBasedCreator _propCreator;
-    
+
     public FactoryBasedEnumDeserializer(Class<?> cls, AnnotatedMethod f, JavaType paramType,
             ValueInstantiator valueInstantiator, SettableBeanProperty[] creatorProps)
     {
         super(cls);
         _factory = f;
         _hasArgs = true;
-        // We'll skip case of `String`, as well as no type (zero-args): 
+        // We'll skip case of `String`, as well as no type (zero-args):
         _inputType = (paramType.hasRawClass(String.class) || paramType.hasRawClass(CharSequence.class))
                 ? null : paramType;
         _deser = null;
@@ -202,18 +202,18 @@ ClassUtil.getTypeDescription(targetType), _factory, p.currentToken());
         }
         return typeDeserializer.deserializeTypedFromAny(p, ctxt);
     }
-    
+
     // Method to deserialize the Enum using property based methodology
     protected Object deserializeEnumUsingPropertyBased(final JsonParser p, final DeserializationContext ctxt,
     		final PropertyBasedCreator creator) throws IOException
     {
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, null);
-    
+
         JsonToken t = p.currentToken();
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
             String propName = p.currentName();
             p.nextToken(); // to point to value
-    
+
             final SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
             if (buffer.readIdProperty(propName) && creatorProp == null) {
                 continue;

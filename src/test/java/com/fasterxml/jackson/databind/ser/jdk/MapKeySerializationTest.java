@@ -175,7 +175,7 @@ public class MapKeySerializationTest extends BaseMapTest
         json = mapper.writeValueAsString(new Object[] { 1, null, true });
         assertEquals("[1,\"NULL\",true]", json);
     }
-    
+
     public void testCustomEnumInnerMapKey() throws Exception {
         Map<Outer, Object> outerMap = new HashMap<Outer, Object>();
         Map<ABC, Map<String, String>> map = new EnumMap<ABC, Map<String, String>>(ABC.class);
@@ -264,7 +264,7 @@ public class MapKeySerializationTest extends BaseMapTest
         // First, using wrapper
         MapWrapper<byte[], String> input = new MapWrapper<>(binary, "stuff");
         String expBase64 = Base64Variants.MIME.encode(binary);
-        
+
         assertEquals(a2q("{'map':{'"+expBase64+"':'stuff'}}"),
                 MAPPER.writeValueAsString(input));
 

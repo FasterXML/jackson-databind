@@ -23,7 +23,7 @@ public class TestPropertyConflicts extends BaseMapTest
     {
         @JsonProperty
         protected int value = 3;
-        
+
         public int getValue() { return value+1; }
         public boolean isValue() { return false; }
     }
@@ -36,7 +36,7 @@ public class TestPropertyConflicts extends BaseMapTest
 
         @JsonProperty
         protected int value = 3;
-        
+
         public int getValue() { return value+1; }
     }
 
@@ -96,13 +96,13 @@ public class TestPropertyConflicts extends BaseMapTest
         } catch (InvalidDefinitionException e) {
             verifyException(e, "Conflicting getter definitions");
         }
-    }        
+    }
 
     // [databind#238]: ok to have getter, "isGetter"
     public void testRegularAndIsGetter() throws Exception
     {
         final ObjectWriter writer = objectWriter();
-        
+
         // first, serialize without probs:
         assertEquals("{\"value\":4}", writer.writeValueAsString(new Getters1A()));
         assertEquals("{\"value\":4}", writer.writeValueAsString(new Getters1B()));
@@ -121,7 +121,7 @@ public class TestPropertyConflicts extends BaseMapTest
         String json = mapper.writeValueAsString(new Infernal());
         assertEquals(a2q("{'name':'Bob'}"), json);
     }
-    
+
     public void testInferredNameConflictsWithSetters() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();

@@ -22,7 +22,7 @@ public class SimpleModuleTest extends BaseMapTest
     {
         protected String str;
         protected int num;
-        
+
         public CustomBean(String s, int i) {
             str = s;
             num = i;
@@ -30,7 +30,7 @@ public class SimpleModuleTest extends BaseMapTest
     }
 
     static enum SimpleEnum { A, B; }
-    
+
     // Extend SerializerBase to get access to declared handledType
     static class CustomBeanSerializer extends StdSerializer<CustomBean>
     {
@@ -44,12 +44,13 @@ public class SimpleModuleTest extends BaseMapTest
             jgen.writeString(value.str + "|" + value.num);
         }
 
+        @Deprecated
         @Override
         public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
             return null;
         }
     }
-    
+
     static class CustomBeanDeserializer extends JsonDeserializer<CustomBean>
     {
         @Override
@@ -78,6 +79,7 @@ public class SimpleModuleTest extends BaseMapTest
             jgen.writeString(value.name().toLowerCase());
         }
 
+        @Deprecated
         @Override
         public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
             return null;
@@ -97,7 +99,7 @@ public class SimpleModuleTest extends BaseMapTest
     interface Base {
         public String getText();
     }
-    
+
     static class Impl1 implements Base {
         @Override
         public String getText() { return "1"; }
@@ -111,7 +113,7 @@ public class SimpleModuleTest extends BaseMapTest
     static class BaseSerializer extends StdScalarSerializer<Base>
     {
         public BaseSerializer() { super(Base.class); }
-        
+
         @Override
         public void serialize(Base value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
             jgen.writeString("Base:"+value.getText());
@@ -126,7 +128,7 @@ public class SimpleModuleTest extends BaseMapTest
 
     @JsonPropertyOrder({"c", "a", "b"})
     static class MixInForOrder { }
-    
+
     protected static class MySimpleSerializers extends SimpleSerializers { }
     protected static class MySimpleDeserializers extends SimpleDeserializers { }
 
@@ -254,13 +256,13 @@ public class SimpleModuleTest extends BaseMapTest
         assertEquals(q("Base:1"), mapper.writeValueAsString(new Impl1()));
         assertEquals(q("Base:2"), mapper.writeValueAsString(new Impl2()));
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests; simple deserializers
     /**********************************************************
      */
-    
+
     public void testSimpleBeanDeserializer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -410,7 +412,7 @@ public class SimpleModuleTest extends BaseMapTest
 
     public void testAccessToMapper() throws Exception
     {
-        ContextVerifierModule module = new ContextVerifierModule();        
+        ContextVerifierModule module = new ContextVerifierModule();
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(module);
     }

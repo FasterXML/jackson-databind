@@ -25,7 +25,7 @@ public class ManualReadPerfUntypedReader extends ObjectReaderTestBase
                 .configure(JsonFactory.Feature.CANONICALIZE_FIELD_NAMES, doIntern)
                 .configure(JsonFactory.Feature.INTERN_FIELD_NAMES, doIntern)
                 .build();
-        
+
         JsonMapper m = new JsonMapper(f);
         Object input1 = m.readValue(data, Object.class);
         JsonNode input2 = m.readTree(data);
@@ -48,7 +48,7 @@ public class ManualReadPerfUntypedReader extends ObjectReaderTestBase
     protected double testDeser2(int reps, String input, ObjectReader reader) throws IOException {
         return _testRawDeser(reps, input, reader);
     }
-    
+
     protected final double _testRawDeser(int reps, String json, ObjectReader reader) throws IOException
     {
         long start = System.nanoTime();

@@ -37,7 +37,7 @@ public abstract class JavaType
     protected final int _hash;
 
     /**
-     * Optional handler (codec) that can be attached to indicate 
+     * Optional handler (codec) that can be attached to indicate
      * what to use for handling (serializing, deserializing) values of
      * this specific type.
      *<p>
@@ -58,7 +58,7 @@ public abstract class JavaType
     /**
      * Whether entities defined with this type should be handled using
      * static typing (as opposed to dynamic runtime type) or not.
-     * 
+     *
      * @since 2.2
      */
     protected final boolean _asStatic;
@@ -74,7 +74,7 @@ public abstract class JavaType
      *
      * @param raw "Raw" (type-erased) class for this type
      * @param additionalHash Additional hash code to use, in addition
-     *   to hash code of the class name 
+     *   to hash code of the class name
      * @param valueHandler internal handler (serializer/deserializer)
      *   to apply for this type
      * @param typeHandler internal type handler (type serializer/deserializer)
@@ -97,7 +97,7 @@ public abstract class JavaType
      *
      * @since 2.7
      */
-    protected JavaType(JavaType base) 
+    protected JavaType(JavaType base)
     {
         _class = base._class;
         _hash = base._hash;
@@ -116,7 +116,7 @@ public abstract class JavaType
      * If type does not have a content type (which is the case with
      * <code>SimpleType</code>), {@link IllegalArgumentException}
      * will be thrown.
-     * 
+     *
      * @return Newly created type instance
      *
      * @since 2.7
@@ -131,7 +131,7 @@ public abstract class JavaType
      * The main use case is to allow forcing of specific root value serialization type,
      * and specifically in resolving serializers for contained types (element types
      * for arrays, Collections and Maps).
-     * 
+     *
      * @since 2.2
      */
     public abstract JavaType withStaticTyping();
@@ -176,7 +176,7 @@ public abstract class JavaType
      *<p>
      * This mutant factory method will construct a new instance that is identical to
      * this instance, except that it will have specified value handler assigned.
-     * 
+     *
      * @param h Handler to pass to new instance created
      * @return Newly created type instance with same type information, specified handler
      */
@@ -235,7 +235,7 @@ public abstract class JavaType
      */
     public abstract JavaType refine(Class<?> rawType, TypeBindings bindings,
             JavaType superClass, JavaType[] superInterfaces);
-    
+
     /**
      * Legacy method used for forcing sub-typing of this type into
      * type specified by specific type erasure.
@@ -405,7 +405,7 @@ public abstract class JavaType
      * this type should use static typing (as opposed to dynamic typing).
      * Note that while value of 'true' does mean that static typing is to
      * be used, value of 'false' may still be overridden by other settings.
-     * 
+     *
      * @since 2.2
      */
     public final boolean useStaticType() { return _asStatic; }
@@ -433,7 +433,7 @@ public abstract class JavaType
 
     @Override
     public abstract JavaType containedType(int index);
-       
+
     @Deprecated // since 2.7
     @Override
     public abstract String containedTypeName(int index);
@@ -449,7 +449,7 @@ public abstract class JavaType
     /* Extended API beyond ResolvedType
     /**********************************************************************
      */
-    
+
     // NOTE: not defined in Resolved type
     /**
      * Convenience method that is functionally same as:
@@ -557,7 +557,7 @@ public abstract class JavaType
      *
      * @since 2.7
      */
-    public Object getContentTypeHandler() { return null; }    
+    public Object getContentTypeHandler() { return null; }
 
     /**
      * @since 2.6
@@ -581,7 +581,7 @@ public abstract class JavaType
     /* Support for producing signatures
     /**********************************************************************
      */
-    
+
     //public abstract String toCanonical();
 
     /**
@@ -595,18 +595,18 @@ public abstract class JavaType
     public String getGenericSignature() {
         StringBuilder sb = new StringBuilder(40);
         getGenericSignature(sb);
-        return sb.toString();        
+        return sb.toString();
     }
 
     /**
-     * 
+     *
      * @param sb StringBuilder to append signature to
-     * 
+     *
      * @return StringBuilder that was passed in; returned to allow
      * call chaining
      */
     public abstract StringBuilder getGenericSignature(StringBuilder sb);
-    
+
     /**
      * Method for accessing signature without generic
      * type information, in form compatible with all versions
@@ -624,9 +624,9 @@ public abstract class JavaType
      * type information, in form compatible with all versions
      * of JVM, and specifically used for type descriptions
      * when generating byte code.
-     * 
+     *
      * @param sb StringBuilder to append signature to
-     * 
+     *
      * @return StringBuilder that was passed in; returned to allow
      * call chaining
      */

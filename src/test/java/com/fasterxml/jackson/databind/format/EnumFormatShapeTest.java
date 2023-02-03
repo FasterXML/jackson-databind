@@ -21,7 +21,7 @@ public class EnumFormatShapeTest
 
         @JsonProperty
         protected final String value;
-        
+
         private PoNUM(String v) { value = v; }
 
         public String getValue() { return value; }
@@ -37,7 +37,7 @@ public class EnumFormatShapeTest
         @JsonFormat(shape=Shape.NUMBER)
         public OK text = OK.V1;
     }
-    
+
     @JsonFormat(shape=JsonFormat.Shape.ARRAY) // alias for 'number', as of 2.5
     static enum PoAsArray
     {

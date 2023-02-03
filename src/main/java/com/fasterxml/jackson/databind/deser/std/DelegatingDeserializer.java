@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * that mostly delegate functionality to another deserializer implementation
  * (possibly forming a chaining of deserializers delegating functionality
  * in some cases)
- * 
+ *
  * @since 2.1
  */
 public abstract class DelegatingDeserializer
@@ -45,7 +45,7 @@ public abstract class DelegatingDeserializer
     /* Abstract methods to implement
     /**********************************************************************
      */
-    
+
     protected abstract JsonDeserializer<?> newDelegatingInstance(JsonDeserializer<?> newDelegatee);
 
     /*
@@ -173,7 +173,7 @@ public abstract class DelegatingDeserializer
     public AccessPattern getEmptyAccessPattern() {
         return _delegatee.getEmptyAccessPattern();
     }
-    
+
     @Override // since 2.12
     public LogicalType logicalType() {
         return _delegatee.logicalType();

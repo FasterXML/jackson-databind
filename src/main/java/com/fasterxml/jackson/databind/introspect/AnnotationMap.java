@@ -32,7 +32,7 @@ public final class AnnotationMap implements Annotations
     /* Annotations impl
     /**********************************************************
      */
-    
+
     @SuppressWarnings("unchecked")
     @Override
     public <A extends Annotation> A get(Class<A> cls)
@@ -75,7 +75,7 @@ public final class AnnotationMap implements Annotations
     /* Other API
     /**********************************************************
      */
-    
+
     /**
      * @since 2.3
      */
@@ -85,7 +85,7 @@ public final class AnnotationMap implements Annotations
         }
         return _annotations.values();
     }
-    
+
     public static AnnotationMap merge(AnnotationMap primary, AnnotationMap secondary)
     {
         if (primary == null || primary._annotations == null || primary._annotations.isEmpty()) {
@@ -105,7 +105,7 @@ public final class AnnotationMap implements Annotations
         }
         return new AnnotationMap(annotations);
     }
-    
+
     @Override
     public int size() {
         return (_annotations == null) ? 0 : _annotations.size();
@@ -126,7 +126,7 @@ public final class AnnotationMap implements Annotations
 
     /**
      * Method called to add specified annotation in the Map.
-     * 
+     *
      * @return True if the addition changed the contents, that is, this map did not
      *   already have specified annotation
      */

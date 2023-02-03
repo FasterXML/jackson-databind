@@ -21,7 +21,7 @@ public class BuilderFailTest extends BaseMapTest
     static class SimpleBuilderXY
     {
         public int x, y;
-     
+
         public SimpleBuilderXY withX(int x0) {
               this.x = x0;
               return this;

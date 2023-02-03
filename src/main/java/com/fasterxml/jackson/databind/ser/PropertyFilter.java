@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * strongly recommended that custom implementations extend
  * {@link com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter},
  * to avoid backwards compatibility issues in case interface needs to change.
- * 
+ *
  * @since 2.3
  */
 public interface PropertyFilter
@@ -37,7 +37,7 @@ public interface PropertyFilter
      *      writer.serializeAsField(pojo, gen, prov);
      * }
      *</pre>
-     * 
+     *
      * @param pojo Object that contains property value to serialize
      * @param gen Generator use for serializing value
      * @param prov Provider that can be used for accessing dynamic aspects of serialization
@@ -50,7 +50,7 @@ public interface PropertyFilter
 
     /**
      * Method called by container to let the filter decide what to do with given element
-     * value: 
+     * value:
      * the usual choices are to either filter out (i.e.
      * do nothing) or write using given {@link PropertyWriter}, although filters
      * can choose other to do something different altogether.
@@ -61,7 +61,7 @@ public interface PropertyFilter
      *      writer.serializeAsElement(pojo, gen, prov);
      * }
      *</pre>
-     * 
+     *
      * @param elementValue Element value being serializerd
      * @param gen Generator use for serializing value
      * @param prov Provider that can be used for accessing dynamic aspects of serialization
@@ -71,7 +71,7 @@ public interface PropertyFilter
     public void serializeAsElement(Object elementValue, JsonGenerator gen, SerializerProvider prov,
             PropertyWriter writer)
         throws Exception;
-    
+
     /**
      * Method called by {@link BeanSerializer} to let the filter determine whether, and in what
      * form the given property exist within the parent, or root, schema. Filters can omit
@@ -83,12 +83,12 @@ public interface PropertyFilter
      *      writer.depositSchemaProperty(propertiesNode, provider);
      * }
      *</pre>
-     * 
+     *
      * @param writer Bean property writer to use to create schema value
      * @param propertiesNode Node which the given property would exist within
      * @param provider Provider that can be used for accessing dynamic aspects of serialization
      * 	processing
-     * 
+     *
      * @deprecated Since 2.3: new code should use the alternative <code>depositSchemaProperty</code>
      *   method
      */
@@ -96,7 +96,7 @@ public interface PropertyFilter
     public void depositSchemaProperty(PropertyWriter writer, ObjectNode propertiesNode,
             SerializerProvider provider)
         throws JsonMappingException;
-    
+
     /**
      * Method called by {@link BeanSerializer} to let the filter determine whether, and in what
      * form the given property exist within the parent, or root, schema. Filters can omit
@@ -108,9 +108,9 @@ public interface PropertyFilter
      *      writer.depositSchemaProperty(objectVisitor, provider);
      * }
      *</pre>
-     * 
+     *
      * @param writer Bean property serializer to use to create schema value
-     * @param objectVisitor JsonObjectFormatVisitor which should be aware of 
+     * @param objectVisitor JsonObjectFormatVisitor which should be aware of
      * the property's existence
      * @param provider Provider that can be used for accessing dynamic aspects of serialization
      * 	processing

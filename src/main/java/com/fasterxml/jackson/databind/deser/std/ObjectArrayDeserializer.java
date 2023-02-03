@@ -186,7 +186,7 @@ public class ObjectArrayDeserializer
     /* JsonDeserializer API
     /**********************************************************
      */
-    
+
     @Override
     public Object[] deserialize(JsonParser p, DeserializationContext ctxt)
         throws IOException
@@ -206,7 +206,7 @@ public class ObjectArrayDeserializer
             while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
                 // Note: must handle null explicitly here; value deserializers won't
                 Object value;
-                
+
                 if (t == JsonToken.VALUE_NULL) {
                     if (_skipNullValues) {
                         continue;
@@ -273,7 +273,7 @@ public class ObjectArrayDeserializer
         try {
             while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
                 Object value;
-                
+
                 if (t == JsonToken.VALUE_NULL) {
                     if (_skipNullValues) {
                         continue;
@@ -310,7 +310,7 @@ public class ObjectArrayDeserializer
     /* Internal methods
     /**********************************************************
      */
-    
+
     protected Byte[] deserializeFromBase64(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {

@@ -45,15 +45,15 @@ public class ExternalTypeIdTest extends BaseMapTest
     {
         @JsonTypeInfo(use=Id.NAME, include=As.EXTERNAL_PROPERTY, property="extType1")
         public Object value1;
-        
+
         @JsonTypeInfo(use=Id.NAME, include=As.EXTERNAL_PROPERTY, property="extType2")
         public Object value2;
 
         public int foo;
-        
+
         @JsonTypeInfo(use=Id.NAME, include=As.EXTERNAL_PROPERTY, property="extType3")
         public Object value3;
-        
+
         public ExternalBean3() { }
         public ExternalBean3(int v) {
             value1 = new ValueBean(v);
@@ -69,7 +69,7 @@ public class ExternalTypeIdTest extends BaseMapTest
         public Object value;
 
         public int foo;
-        
+
         @JsonCreator
         public ExternalBeanWithCreator(@JsonProperty("foo") int f)
         {
@@ -81,7 +81,7 @@ public class ExternalTypeIdTest extends BaseMapTest
     @JsonTypeName("vbean")
     static class ValueBean {
         public int value;
-        
+
         public ValueBean() { }
         public ValueBean(int v) { value = v; }
     }
@@ -99,12 +99,12 @@ public class ExternalTypeIdTest extends BaseMapTest
     interface Base {
         String getBaseProperty();
     }
-  
+
     static class Derived1 implements Base {
         private String derived1Property;
         private String baseProperty;
         protected  Derived1() { throw new IllegalStateException("wrong constructor called"); }
-        
+
         @JsonCreator
         public Derived1(@JsonProperty("derived1Property") String d1p,
                         @JsonProperty("baseProperty") String bp) {
@@ -143,7 +143,7 @@ public class ExternalTypeIdTest extends BaseMapTest
             return derived2Property;
         }
     }
-    
+
     static class BaseContainer {
         protected final Base base;
         protected final String baseContainerProperty;
@@ -183,7 +183,7 @@ public class ExternalTypeIdTest extends BaseMapTest
         public void setPetType(String petType) {
             this.petType = petType;
         }
-    }    
+    }
 
     // for [databind#118]
     static class ExternalTypeWithNonPOJO {
@@ -200,7 +200,7 @@ public class ExternalTypeIdTest extends BaseMapTest
 
         public ExternalTypeWithNonPOJO() { }
         public ExternalTypeWithNonPOJO(Object o) { value = o; }
-    }    
+    }
 
     // for [databind#119]
     static class AsValueThingy {
@@ -208,7 +208,7 @@ public class ExternalTypeIdTest extends BaseMapTest
 
         public AsValueThingy(long l) { rawDate = l; }
         public AsValueThingy() { }
-        
+
         @JsonValue public Date serialization() {
             return new Date(rawDate);
         }
@@ -223,7 +223,7 @@ public class ExternalTypeIdTest extends BaseMapTest
         public Issue222BeanB value;
 
         public String type = "foo";
-        
+
         public Issue222Bean() { }
         public Issue222Bean(int v) {
             value = new Issue222BeanB(v);
@@ -234,7 +234,7 @@ public class ExternalTypeIdTest extends BaseMapTest
     static class Issue222BeanB
     {
         public int x;
-        
+
         public Issue222BeanB() { }
         public Issue222BeanB(int value) { x = value; }
     }
@@ -271,19 +271,19 @@ public class ExternalTypeIdTest extends BaseMapTest
             this.typeEnum = Type965.valueOf(type);
         }
 
-        @JsonGetter(value = "objectValue") 
+        @JsonGetter(value = "objectValue")
         Object getValue() {
             return value;
         }
 
         @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXTERNAL_PROPERTY, property = "type")
         @JsonSubTypes({ @JsonSubTypes.Type(name = "BIG_DECIMAL", value = BigDecimal.class) })
-        @JsonSetter(value = "objectValue") 
+        @JsonSetter(value = "objectValue")
         private void setValue(Object value) {
             this.value = value;
         }
-    }    
-    
+    }
+
     /*
     /**********************************************************
     /* Unit tests, serialization
@@ -291,7 +291,7 @@ public class ExternalTypeIdTest extends BaseMapTest
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     public void testSimpleSerialization() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -333,7 +333,7 @@ public class ExternalTypeIdTest extends BaseMapTest
     /* Unit tests, deserialization
     /**********************************************************
      */
-    
+
     public void testSimpleDeserialization() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -382,7 +382,7 @@ public class ExternalTypeIdTest extends BaseMapTest
         assertEquals(7, ((ValueBean)result.value).value);
         assertEquals(7, result.foo);
     }
-    
+
     // If trying to use with Class, should just become "PROPERTY" instead:
     public void testImproperExternalIdDeserialization() throws Exception
     {
@@ -469,7 +469,7 @@ public class ExternalTypeIdTest extends BaseMapTest
         assertTrue(result.value instanceof String);
         assertEquals("foobar", result.value);
     }
-    
+
     // For [databind#119]... and bit of [#167] as well
     public void testWithAsValue() throws Exception
     {
@@ -528,7 +528,7 @@ public class ExternalTypeIdTest extends BaseMapTest
         if (!json.contains(NUM_STR)) {
             fail("JSON content should contain value '"+NUM_STR+"', does not appear to: "+json);
         }
-        
+
         Wrapper965 w2 = MAPPER.readerFor(Wrapper965.class)
                 .with(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
                 .readValue(json);

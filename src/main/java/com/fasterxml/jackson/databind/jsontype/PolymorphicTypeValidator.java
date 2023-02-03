@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
  * <ol>
  *  <li>When a deserializer is needed for a polymorphic property (including root values) -- either
  *     for explicitly annotated polymorphic type, or "default typing" -- {@link #validateBaseType}
- *     is called to see if validity can be determined for all possible types: if 
+ *     is called to see if validity can be determined for all possible types: if
  *     {@link Validity#ALLOWED} is returned no futher checks are made for any subtypes; of
  *     {@link Validity#DENIED} is returned, an exception will be thrown to indicate invalid polymorphic
  *     property
@@ -84,7 +84,7 @@ public abstract class PolymorphicTypeValidator
      * or, conversely, allowed for allow subtypes (when base type guarantees that all subtypes
      * are known to be safe). Check can be thought of as both optimization (for latter case)
      * and eager-fail (for former case) to give better feedback.
-     * 
+     *
      * @param config Configuration for resolution: typically will be {@code DeserializationConfig}
      * @param baseType Nominal base type used for polymorphic handling: subtypes MUST be instances
      *   of this type and assignment compatibility is verified by Jackson core
@@ -156,13 +156,13 @@ public abstract class PolymorphicTypeValidator
         public Validity validateBaseType(MapperConfig<?> config, JavaType baseType) {
             return Validity.INDETERMINATE;
         }
-    
+
         @Override
         public Validity validateSubClassName(MapperConfig<?> config, JavaType baseType, String subClassName)
                 throws JsonMappingException {
             return Validity.INDETERMINATE;
         }
-    
+
         @Override
         public Validity validateSubType(MapperConfig<?> config, JavaType baseType, JavaType subType)
                 throws JsonMappingException {

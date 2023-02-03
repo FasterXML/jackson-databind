@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId;
 /**
  * Exception thrown during deserialization when there are object id that can't
  * be resolved.
- * 
+ *
  * @author pgelinas
  */
 public class UnresolvedForwardReference extends JsonMappingException {
@@ -58,7 +58,7 @@ public class UnresolvedForwardReference extends JsonMappingException {
     public List<UnresolvedId> getUnresolvedIds(){
         return _unresolvedIds;
     }
-    
+
     @Override
     public String getMessage()
     {

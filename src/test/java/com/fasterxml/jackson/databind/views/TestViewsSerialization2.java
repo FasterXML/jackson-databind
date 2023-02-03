@@ -19,7 +19,7 @@ public class TestViewsSerialization2 extends BaseMapTest
         public interface View { }
         public interface ExtendedView  extends View { }
     }
-  
+
   static class ComplexTestData
   {
     String nameNull = null;
@@ -116,11 +116,11 @@ public class TestViewsSerialization2 extends BaseMapTest
     }
 
     /*
-    /************************************************************************ 
+    /************************************************************************
     /* Tests
-    /************************************************************************ 
+    /************************************************************************
      */
-  
+
     public void testDataBindingUsage( ) throws Exception
     {
         ObjectMapper mapper = createMapper();

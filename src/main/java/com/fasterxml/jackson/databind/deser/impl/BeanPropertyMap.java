@@ -356,7 +356,7 @@ public class BeanPropertyMap
 
         for (int i = 0; i < len; ++i) {
             SettableBeanProperty prop = _propsInOrder[i];
-            
+
             // What to do with holes? For now, retain
             if (prop == null) {
                 newProps.add(prop);
@@ -515,13 +515,13 @@ public class BeanPropertyMap
         }
         return p;
     }
-    
+
     /**
      * Method that will re-create initial insertion-ordering of
      * properties contained in this map. Note that if properties
      * have been removed, array may contain nulls; otherwise
      * it should be consecutive.
-     * 
+     *
      * @since 2.1
      */
     public SettableBeanProperty[] getPropertiesInInsertionOrder() {
@@ -539,7 +539,7 @@ public class BeanPropertyMap
     /* Public API, property lookup
     /**********************************************************
      */
-    
+
     /**
      * @since 2.3
      */
@@ -656,7 +656,7 @@ public class BeanPropertyMap
      * on it, and return true; or, if not found, return false.
      * Note, too, that if deserialization is attempted, possible exceptions
      * are wrapped if and as necessary, so caller need not handle those.
-     * 
+     *
      * @since 2.5
      */
     public boolean findDeserializeAndSet(JsonParser p, DeserializationContext ctxt,
@@ -679,7 +679,7 @@ public class BeanPropertyMap
     /* Std method overrides
     /**********************************************************
      */
-    
+
     @Override
     public String toString()
     {
@@ -706,7 +706,7 @@ public class BeanPropertyMap
         }
         return sb.toString();
     }
-    
+
     /*
     /**********************************************************
     /* Helper methods
@@ -767,7 +767,7 @@ public class BeanPropertyMap
     {
         final int slot = _hashCode(key);
         int ix = (slot<<1);
-        
+
         // primary match?
         if (key.equals(_hashArea[ix])) {
             return ix+1;
@@ -788,7 +788,7 @@ public class BeanPropertyMap
         return -1;
     }
     */
-    
+
     private final int _findFromOrdered(SettableBeanProperty prop) {
         for (int i = 0, end = _propsInOrder.length; i < end; ++i) {
             if (_propsInOrder[i] == prop) {

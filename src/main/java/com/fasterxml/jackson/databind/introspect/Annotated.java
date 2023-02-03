@@ -63,7 +63,7 @@ public abstract class Annotated
     public abstract Iterable<Annotation> annotations();
 
     // Also: ensure we can use #equals, #hashCode
-    
+
     @Override
     public abstract boolean equals(Object o);
 

@@ -33,7 +33,7 @@ public class TestTypeFactoryWithClassLoader {
 	  threadClassLoader = Thread.currentThread().getContextClassLoader();
 	  Assert.assertNotNull(threadClassLoader);
   }
-  
+
   @Before
   public void before() {
       mapper = new ObjectMapper();

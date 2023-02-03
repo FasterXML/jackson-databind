@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
  * immediately) is to make it possible to cleanly handle self-references;
  * otherwise it would be easy to get into infinite recursion.
  *<p>
- * Note that {@link #resolve} method does NOT allow returning anything 
+ * Note that {@link #resolve} method does NOT allow returning anything
  * (specifically, a new deserializer instance): reason for this is that
  * allowing this would not work with proper handling of cyclic dependencies,
  * which are resolved by two-phase processing, where initially constructed

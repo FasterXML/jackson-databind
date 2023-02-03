@@ -110,7 +110,7 @@ public class DefaultBaseTypeLimitingValidator
             UNSAFE.add("javax.naming.Referenceable");
             UNSAFE.add("javax.sql.DataSource");
         }
-        
+
         public boolean isUnsafeBaseType(Class<?> rawBaseType)
         {
             return UNSAFE.contains(rawBaseType.getName());

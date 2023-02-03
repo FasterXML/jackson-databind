@@ -20,7 +20,7 @@ public class TestUnwrappedMap171 extends BaseMapTest
         @JsonUnwrapped(prefix="map.")
         public Map<String, Object> map;
     }
-    
+
     // // // Reuse mapper to keep tests bit faster
 
     private final ObjectMapper MAPPER = new ObjectMapper();

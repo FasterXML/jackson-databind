@@ -18,7 +18,7 @@ public abstract class BaseMapTest
     extends BaseTest
 {
     private final static Object SINGLETON_OBJECT = new Object();
-    
+
     /*
     /**********************************************************
     /* Shared helper classes
@@ -121,7 +121,7 @@ public abstract class BaseMapTest
             map.put(key, value);
         }
     }
-    
+
     protected static class ArrayWrapper<T>
     {
         public T[] array;
@@ -130,7 +130,7 @@ public abstract class BaseMapTest
             array = v;
         }
     }
-    
+
     /**
      * Enumeration type with sub-classes per value.
      */
@@ -153,7 +153,7 @@ public abstract class BaseMapTest
             x = x0;
             y = y0;
         }
-    
+
         @Override
         public boolean equals(Object o) {
             if (!(o instanceof Point)) {
@@ -204,7 +204,7 @@ public abstract class BaseMapTest
     /* Construction
     /**********************************************************
      */
-    
+
     protected BaseMapTest() { super(); }
 
     /*
@@ -233,7 +233,7 @@ public abstract class BaseMapTest
     protected ObjectReader objectReader() {
         return sharedMapper().reader();
     }
-    
+
     protected ObjectReader objectReader(Class<?> cls) {
         return sharedMapper().readerFor(cls);
     }
@@ -297,7 +297,7 @@ public abstract class BaseMapTest
         String str = m.writeValueAsString(value);
         return (Map<String,Object>) m.readValue(str, LinkedHashMap.class);
     }
-    
+
     protected String serializeAsString(ObjectMapper m, Object value)
         throws IOException
     {
@@ -331,7 +331,7 @@ public abstract class BaseMapTest
     /* Helper methods, deserialization
     /**********************************************************
      */
-    
+
     protected <T> T readAndMapFromString(String input, Class<T> cls)
         throws IOException
     {

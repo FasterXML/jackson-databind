@@ -27,7 +27,7 @@ public class AsWrapperTypeSerializer extends TypeSerializerBase
     public AsWrapperTypeSerializer forProperty(BeanProperty prop) {
         return (_property == prop) ? this : new AsWrapperTypeSerializer(_idResolver, prop);
     }
-    
+
     @Override
     public As getTypeInclusion() { return As.WRAPPER_OBJECT; }
 
@@ -36,7 +36,7 @@ public class AsWrapperTypeSerializer extends TypeSerializerBase
     /* Internal helper methods
     /**********************************************************
      */
-    
+
     /**
      * Helper method used to ensure that intended type id is output as something that is valid:
      * currently only used to ensure that `null` output is converted to an empty String.

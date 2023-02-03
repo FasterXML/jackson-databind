@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.*;
 /**
  * Alternative to {@link DataFormatDetector} that needs to be used when
  * using data-binding.
- * 
+ *
  * @since 2.1
  */
 public class DataFormatReaders
@@ -25,7 +25,7 @@ public class DataFormatReaders
      * leniency to support data formats that need more complex heuristics.
      */
     public final static int DEFAULT_MAX_INPUT_LOOKAHEAD = 64;
-    
+
     /**
      * Ordered list of readers which both represent data formats to
      * detect (in precedence order, starting with highest) and contain
@@ -36,14 +36,14 @@ public class DataFormatReaders
     /**
      * Strength of match we consider to be good enough to be used
      * without checking any other formats.
-     * Default value is {@link MatchStrength#SOLID_MATCH}, 
+     * Default value is {@link MatchStrength#SOLID_MATCH},
      */
     protected final MatchStrength _optimalMatch;
 
     /**
      * Strength of minimal match we accept as the answer, unless
-     * better matches are found. 
-     * Default value is {@link MatchStrength#WEAK_MATCH}, 
+     * better matches are found.
+     * Default value is {@link MatchStrength#WEAK_MATCH},
      */
     protected final MatchStrength _minimalMatch;
 
@@ -54,13 +54,13 @@ public class DataFormatReaders
      * Default value is {@link #DEFAULT_MAX_INPUT_LOOKAHEAD}.
      */
     protected final int _maxInputLookahead;
-    
+
     /*
     /**********************************************************
     /* Construction
     /**********************************************************
      */
-    
+
     public DataFormatReaders(ObjectReader... detectors) {
         this(detectors, MatchStrength.SOLID_MATCH, MatchStrength.WEAK_MATCH,
             DEFAULT_MAX_INPUT_LOOKAHEAD);
@@ -79,13 +79,13 @@ public class DataFormatReaders
         _minimalMatch = minMatch;
         _maxInputLookahead = maxInputLookahead;
     }
-    
+
     /*
     /**********************************************************
     /* Fluent factories for changing match settings
     /**********************************************************
      */
-    
+
     public DataFormatReaders withOptimalMatch(MatchStrength optMatch) {
         if (optMatch == _optimalMatch) {
             return this;
@@ -103,7 +103,7 @@ public class DataFormatReaders
     public DataFormatReaders with(ObjectReader[] readers) {
         return new DataFormatReaders(readers, _optimalMatch, _minimalMatch, _maxInputLookahead);
     }
-    
+
     public DataFormatReaders withMaxInputLookahead(int lookaheadBytes)
     {
         if (lookaheadBytes == _maxInputLookahead) {
@@ -137,7 +137,7 @@ public class DataFormatReaders
         }
         return new DataFormatReaders(r, _optimalMatch, _minimalMatch, _maxInputLookahead);
     }
-    
+
     /*
     /**********************************************************
     /* Public API
@@ -148,7 +148,7 @@ public class DataFormatReaders
      * Method to call to find format that content (accessible via given
      * {@link InputStream}) given has, as per configuration of this detector
      * instance.
-     * 
+     *
      * @return Matcher object which contains result; never null, even in cases
      *    where no match (with specified minimal match strength) is found.
      */
@@ -160,7 +160,7 @@ public class DataFormatReaders
     /**
      * Method to call to find format that given content (full document)
      * has, as per configuration of this detector instance.
-     * 
+     *
      * @return Matcher object which contains result; never null, even in cases
      *    where no match (with specified minimal match strength) is found.
      */
@@ -172,17 +172,17 @@ public class DataFormatReaders
     /**
      * Method to call to find format that given content (full document)
      * has, as per configuration of this detector instance.
-     * 
+     *
      * @return Matcher object which contains result; never null, even in cases
      *    where no match (with specified minimal match strength) is found.
-     * 
+     *
      * @since 2.1
      */
     public Match findFormat(byte[] fullInputData, int offset, int len) throws IOException
     {
         return _findFormat(new AccessorForReader(fullInputData, offset, len));
     }
-    
+
     /*
     /**********************************************************
     /* Overrides
@@ -205,7 +205,7 @@ public class DataFormatReaders
         sb.append(']');
         return sb.toString();
     }
-    
+
     /*
     /**********************************************************
     /* Internal methods
@@ -266,7 +266,7 @@ public class DataFormatReaders
                     match, matchStrength);
         }
     }
-    
+
     /**
      * Result class, similar to {@link DataFormatMatcher}
      */
@@ -283,7 +283,7 @@ public class DataFormatReaders
          * Pointer to the first byte in buffer available for reading
          */
         protected final int _bufferedStart;
-        
+
         /**
          * Number of bytes available in buffer.
          */
@@ -298,7 +298,7 @@ public class DataFormatReaders
          * Strength of match with {@link #_match}
          */
         protected final MatchStrength _matchStrength;
-        
+
         protected Match(InputStream in, byte[] buffered,
                 int bufferedStart, int bufferedLength,
                 ObjectReader match, MatchStrength strength)
@@ -346,13 +346,13 @@ public class DataFormatReaders
         public String getMatchedFormatName() {
             return _match.getFactory().getFormatName();
         }
-        
+
         /*
         /**********************************************************
         /* Public API, factory methods
         /**********************************************************
          */
-        
+
         /**
          * Convenience method for trying to construct a {@link JsonParser} for
          * parsing content which is assumed to be in detected data format.
@@ -369,7 +369,7 @@ public class DataFormatReaders
             }
             return jf.createParser(getDataStream());
         }
-        
+
         /**
          * Method to use for accessing input for which format detection has been done.
          * This <b>must</b> be used instead of using stream passed to detector
@@ -382,7 +382,7 @@ public class DataFormatReaders
                 return new ByteArrayInputStream(_bufferedData, _bufferedStart, _bufferedLength);
             }
             return new MergedStream(null, _originalStream, _bufferedData, _bufferedStart, _bufferedLength);
-        }        
+        }
     }
-    
+
 }

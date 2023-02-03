@@ -17,7 +17,7 @@ public interface JsonMapFormatVisitor extends JsonFormatVisitorWithSerializerPro
      * the value type
      */
     public void valueFormat(JsonFormatVisitable handler, JavaType valueType) throws JsonMappingException;
-    
+
     /**
      * Default "empty" implementation, useful as the base to start on;
      * especially as it is guaranteed to implement all the method

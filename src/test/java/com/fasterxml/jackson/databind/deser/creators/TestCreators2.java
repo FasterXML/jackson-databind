@@ -43,7 +43,7 @@ public class TestCreators2 extends BaseMapTest
         protected int x = 3;
         protected double d = -0.5;
         protected boolean b = true;
-        
+
         @JsonCreator
         public Primitives(@JsonProperty("x") int x,
                 @JsonProperty("d") double d,
@@ -54,7 +54,7 @@ public class TestCreators2 extends BaseMapTest
             this.b = b;
         }
     }
-    
+
     protected static class Test431Container {
         protected final List<Item431> items;
 
@@ -62,7 +62,7 @@ public class TestCreators2 extends BaseMapTest
         public Test431Container(@JsonProperty("items") final List<Item431> i) {
             items = i;
         }
-    }    
+    }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     protected static class Item431 {
@@ -86,13 +86,13 @@ public class TestCreators2 extends BaseMapTest
     static class BrokenCreatorBean
     {
         protected String bar;
-        
+
         @JsonCreator
         public BrokenCreatorBean(@JsonProperty("bar") String bar1, @JsonProperty("bar") String bar2) {
             bar = ""+bar1+"/"+bar2;
         }
     }
-    
+
     // For [JACKSON-541]: should not need @JsonCreator if SerializationFeature.AUTO_DETECT_CREATORS is on.
     static class AutoDetectConstructorBean
     {
@@ -134,12 +134,12 @@ public class TestCreators2 extends BaseMapTest
     static class AbstractBaseImpl extends AbstractBase
     {
         protected Map<String,Object> props;
-        
+
         public AbstractBaseImpl(Map<String,Object> props) {
             this.props = props;
         }
     }
-    
+
     static interface Issue700Set extends java.util.Set<Object> { }
 
     static class Issue700Bean
@@ -229,7 +229,7 @@ public class TestCreators2 extends BaseMapTest
                 "{\"items\":\n"
                 +"[{\"bar\": 0,\n"
                 +"\"id\": \"id123\",\n"
-                +"\"foo\": 1\n" 
+                +"\"foo\": 1\n"
                 +"}]}",
                 Test431Container.class);
         assertNotNull(foo);

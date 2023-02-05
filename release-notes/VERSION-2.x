@@ -40,6 +40,8 @@ Project: jackson-databind
  (contributed by @luozhenyu)
 #3748: `DelegatingDeserializer` missing override of `getAbsentValue()`
  (and couple of other methods)
+#3771: Classloader leak: DEFAULT_ANNOTATION_INTROSPECTOR holds annotation reference
+ (reported by Christoph S)
 
 2.14.2 (28-Jan-2023)
 

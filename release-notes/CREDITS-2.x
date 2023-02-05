@@ -1562,3 +1562,7 @@ Ajay Siwach (Siwach16@github)
 Zhenyu Luo (luozhenyu@github)
   * Contributed #3745: Deprecate classes in package `com.fasterxml.jackson.databind.jsonschema`
   (2.15.0)
+
+Christoph Schulz (ciis0@github)
+  * Reported #3771: Classloader leak: DEFAULT_ANNOTATION_INTROSPECTOR holds annotation reference
+  (2.15.0)

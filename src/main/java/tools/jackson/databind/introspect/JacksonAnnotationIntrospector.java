@@ -77,7 +77,7 @@ public class JacksonAnnotationIntrospector
      *<p>
      * Non-final only because it needs to be re-created after deserialization.
      */
-    protected transient LookupCache<Class<?>,Boolean> _annotationsInside = new SimpleLookupCache<Class<?>,Boolean>(48, 96);
+    protected transient LookupCache<String, Boolean> _annotationsInside = new SimpleLookupCache<>(48, 96);
 
     /*
     /**********************************************************************
@@ -108,7 +108,7 @@ public class JacksonAnnotationIntrospector
 
     protected Object readResolve() {
         if (_annotationsInside == null) {
-            _annotationsInside = new SimpleLookupCache<Class<?>,Boolean>(48, 48);
+            _annotationsInside = new SimpleLookupCache<>(48, 96);
         }
         return this;
     }
@@ -149,11 +149,12 @@ public class JacksonAnnotationIntrospector
         //   mostly in degenerate cases where introspection used more often than
         //   it should (like recreating ObjectMapper once per read/write).
         //   But it may be more beneficial on platforms like Android (should verify)
-        Class<?> type = ann.annotationType();
-        Boolean b = _annotationsInside.get(type);
+        final Class<?> type = ann.annotationType();
+        final String typeName = type.getName();
+        Boolean b = _annotationsInside.get(typeName);
         if (b == null) {
             b = type.getAnnotation(JacksonAnnotationsInside.class) != null;
-            _annotationsInside.putIfAbsent(type, b);
+            _annotationsInside.putIfAbsent(typeName, b);
         }
         return b.booleanValue();
     }

@@ -17,6 +17,7 @@ import tools.jackson.databind.util.internal.PrivateMaxEntriesMap;
  * The implementation evicts the least recently used
  * entry when max size is reached; this is implemented by the backing
  * {@code PrivateMaxEntriesMap} implementation.
+ * Implementation is thread-safe and does NOT require external synchronization
  */
 public class SimpleLookupCache<K,V>
     implements LookupCache<K,V>, java.io.Serializable

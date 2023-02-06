@@ -38,7 +38,6 @@ public final class EnumValues
         if (config.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)) {
             return constructFromToString(config, enumClass);
         }
-
         return constructFromName(config, enumClass);
     }
 

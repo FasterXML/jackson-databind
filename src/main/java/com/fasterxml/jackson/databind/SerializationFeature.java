@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind;
 
 import com.fasterxml.jackson.databind.cfg.ConfigFeature;
+import com.fasterxml.jackson.databind.cfg.EnumFeature;
 
 /**
  * Enumeration that defines simple on/off features that affect
@@ -316,6 +317,9 @@ public enum SerializationFeature implements ConfigFeature
      * as using {@link Enum#ordinal()} or not.
      * Similar to {@link #WRITE_ENUMS_USING_INDEX} used when writing
      * {@link Enum}s as regular values.
+     *<p>
+     * NOTE: counterpart for this settings is
+     * {@link EnumFeature#READ_ENUM_KEYS_USING_INDEX}.
      *<p>
      * Feature is disabled by default.
      *

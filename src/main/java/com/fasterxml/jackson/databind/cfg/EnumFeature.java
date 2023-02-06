@@ -10,8 +10,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
  */
 public enum EnumFeature implements DatatypeFeature
 {
-    BOGUS_FEATURE(false),
-
     /**
      * Feature that determines standard deserialization mechanism used for
      * Enum values: if enabled, Enums are assumed to have been serialized using
@@ -24,7 +22,8 @@ public enum EnumFeature implements DatatypeFeature
      *
      * @since 2.15
      */
-    READ_ENUM_KEYS_USING_INDEX(false);
+    READ_ENUM_KEYS_USING_INDEX(false)
+    ;
 
     private final static int FEATURE_INDEX = DatatypeFeatures.FEATURE_INDEX_ENUM;
 

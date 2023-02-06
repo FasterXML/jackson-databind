@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.EnumFeature;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 
 /**
@@ -37,10 +38,11 @@ public final class EnumValues
         if (config.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)) {
             return constructFromToString(config, enumClass);
         }
+
         return constructFromName(config, enumClass);
     }
 
-    public static EnumValues constructFromName(MapperConfig<?> config, Class<Enum<?>> enumClass)
+    public static EnumValues constructFromName(SerializationConfig config, Class<Enum<?>> enumClass)
     {
         // Enum types with per-instance sub-classes need special handling
         Class<? extends Enum<?>> enumCls = ClassUtil.findEnumType(enumClass);
@@ -55,6 +57,9 @@ public final class EnumValues
             String name = names[i];
             if (name == null) {
                 name = en.name();
+            }
+            if (config.isEnabled(EnumFeature.WRITE_ENUMS_TO_LOWERCASE)) {
+                name = name.toLowerCase();
             }
             textual[en.ordinal()] = config.compileString(name);
         }

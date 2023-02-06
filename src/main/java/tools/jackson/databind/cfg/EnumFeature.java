@@ -1,12 +1,27 @@
 package tools.jackson.databind.cfg;
 
+import tools.jackson.databind.SerializationFeature;
+
 /**
  * New Datatype-specific configuration options related to handling of
  * {@link java.lang.Enum} types.
  */
 public enum EnumFeature implements DatatypeFeature
 {
-    BOGUS_FEATURE(false);
+    /**
+     * Feature that determines standard deserialization mechanism used for
+     * Enum values: if enabled, Enums are assumed to have been serialized using
+     * index of <code>Enum</code>;
+     *<p>
+     * Note: this feature should be symmetric to
+     * as {@link SerializationFeature#WRITE_ENUM_KEYS_USING_INDEX}.
+     *<p>
+     * Feature is disabled by default.
+     *
+     * @since 2.15
+     */
+    READ_ENUM_KEYS_USING_INDEX(false)
+    ;
 
     private final static int FEATURE_INDEX = DatatypeFeatures.FEATURE_INDEX_ENUM;
 

@@ -6,6 +6,7 @@ import java.util.*;
 
 import tools.jackson.databind.AnnotationIntrospector;
 import tools.jackson.databind.DeserializationConfig;
+import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.introspect.AnnotatedMember;
 
 /**
@@ -96,6 +97,25 @@ public class EnumResolver implements java.io.Serializable
         return _construct(config, enumCls, enumConstants, byId, false);
     }
 
+    /**
+     * Factory method for constructing resolver that maps from index of Enum.values() into
+     * Enum value
+     */
+    public static EnumResolver constructUsingIndex(DeserializationConfig config,
+            Class<Enum<?>> enumCls0)
+    {
+        final Class<Enum<?>> enumCls = _enumClass(enumCls0);
+        final Enum<?>[] enumConstants = _enumConstants(enumCls0);
+        HashMap<String, Enum<?>> map = new HashMap<>();
+
+        // from last to first, so that in case of duplicate values, first wins
+        for (int i = enumConstants.length; --i >= 0; ) {
+            Enum<?> enumValue = enumConstants[i];
+            map.put(String.valueOf(i), enumValue);
+        }
+        return _construct(config, enumCls, enumConstants, map, false);
+    }    
+    
     /**
      * Factory method for constructing resolver that maps from Enum.toString() into
      * Enum value

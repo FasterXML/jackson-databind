@@ -1,21 +1,24 @@
 package tools.jackson.databind.deser.enums;
 
-import static tools.jackson.databind.MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS;
-
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import com.fasterxml.jackson.annotation.*;
+
 import tools.jackson.core.*;
 import tools.jackson.core.type.TypeReference;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.deser.std.FromStringDeserializer;
 import tools.jackson.databind.deser.std.StdDeserializer;
 import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.exc.ValueInstantiationException;
 import tools.jackson.databind.module.SimpleModule;
+
+import static tools.jackson.databind.MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS;
 
 @SuppressWarnings("serial")
 public class EnumDeserializationTest
@@ -652,5 +655,42 @@ public class EnumDeserializationTest
         assertEquals(Operation3006.ONE, MAPPER.readValue(q("1"), Operation3006.class));
         assertEquals(Operation3006.THREE, MAPPER.readValue("3", Operation3006.class));
         assertEquals(Operation3006.THREE, MAPPER.readValue(q("3"), Operation3006.class));
+    }
+
+    public void testEnumFeature_EnumIndexAsKey() throws Exception {
+        ObjectReader reader = MAPPER.reader()
+            .forType(ClassWithEnumMapKey.class)
+            .with(EnumFeature.READ_ENUM_KEYS_USING_INDEX);
+
+        ClassWithEnumMapKey result = reader.readValue("{\"map\": {\"0\":\"I AM FOR REAL\"}}");
+        assertEquals(result.map.get(TestEnum.JACKSON), "I AM FOR REAL");
+    }
+
+    public void testEnumFeature_symmetric_to_writing() throws Exception {
+        ClassWithEnumMapKey obj = new ClassWithEnumMapKey();
+        Map<TestEnum, String> objMap = new HashMap<>();
+        objMap.put(TestEnum.JACKSON, "I AM FOR REAL");
+        obj.map = objMap;
+
+        String deserObj = MAPPER.writer()
+            .with(SerializationFeature.WRITE_ENUM_KEYS_USING_INDEX)
+            .writeValueAsString(obj);
+
+        ClassWithEnumMapKey result = MAPPER.reader()
+            .forType( ClassWithEnumMapKey.class)
+            .with(EnumFeature.READ_ENUM_KEYS_USING_INDEX)
+            .readValue(deserObj);
+
+        assertNotSame(obj, result);
+        assertNotSame(obj.map, result.map);
+        assertEquals(result.map.get(TestEnum.JACKSON), "I AM FOR REAL");
+    }
+
+
+    public void testEnumFeature_READ_ENUM_KEYS_USING_INDEX_isDisabledByDefault() {
+        ObjectReader READER = MAPPER.reader();
+        assertFalse(READER.isEnabled(EnumFeature.READ_ENUM_KEYS_USING_INDEX));
+        assertFalse(READER.without(EnumFeature.READ_ENUM_KEYS_USING_INDEX)
+            .isEnabled(EnumFeature.READ_ENUM_KEYS_USING_INDEX));
     }
 }

@@ -12,8 +12,10 @@ import java.util.*;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.io.NumberInput;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JacksonStdImpl;
+import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.introspect.AnnotatedMethod;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.EnumResolver;
@@ -365,6 +367,14 @@ public class JDKKeyDeserializer extends KeyDeserializer
          */
         protected volatile EnumResolver _byToStringResolver;
 
+        /**
+         * Lazily constructed alternative in case there is need to
+         * parse using enum index method as the source.
+         *
+         * @since 2.15
+         */
+        protected volatile EnumResolver _byIndexResolver;
+
         protected final Enum<?> _enumDefaultValue;
 
         protected EnumKD(EnumResolver er, AnnotatedMethod factory) {
@@ -388,6 +398,11 @@ public class JDKKeyDeserializer extends KeyDeserializer
             EnumResolver res = ctxt.isEnabled(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
                     ? _getToStringResolver(ctxt) : _byNameResolver;
             Enum<?> e = res.findEnum(key);
+            // If enum is found, no need to try deser using index
+            if (e == null && ctxt.isEnabled(EnumFeature.READ_ENUM_KEYS_USING_INDEX)) {
+                res = _getIndexResolver(ctxt);
+                e = res.findEnum(key);
+            }
             if (e == null) {
                 if ((_enumDefaultValue != null)
                         && ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)) {
@@ -411,6 +426,21 @@ public class JDKKeyDeserializer extends KeyDeserializer
                         res = EnumResolver.constructUsingToString(ctxt.getConfig(),
                             _byNameResolver.getEnumClass());
                         _byToStringResolver = res;
+                    }
+                }
+            }
+            return res;
+        }
+
+        private EnumResolver _getIndexResolver(DeserializationContext ctxt) {
+            EnumResolver res = _byIndexResolver;
+            if (res == null) {
+                synchronized (this) {
+                    res = _byIndexResolver;
+                    if (res == null) {
+                        res = EnumResolver.constructUsingIndex(ctxt.getConfig(),
+                            _byNameResolver.getEnumClass());
+                        _byIndexResolver = res;
                     }
                 }
             }

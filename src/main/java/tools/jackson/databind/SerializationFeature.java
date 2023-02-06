@@ -1,6 +1,7 @@
 package tools.jackson.databind;
 
 import tools.jackson.databind.cfg.ConfigFeature;
+import tools.jackson.databind.cfg.EnumFeature;
 
 /**
  * Enumeration that defines simple on/off features that affect
@@ -237,10 +238,8 @@ public enum SerializationFeature implements ConfigFeature
      * {@link java.util.Calendar} which will always use timezone Calendar value has).
      * Setting is also ignored by Joda date/time values.
      *<p>
-     * Featured is enabled by default for backwards-compatibility purposes (in
-     * Jackson 2.12 override was always done if there was explicitly defined timezone).
-     *
-     * @since 2.13
+     * Featured is enabled by default for backwards-compatibility purposes
+     * (from Jackson 2.x)
      */
     WRITE_DATES_WITH_CONTEXT_TIME_ZONE(true),
 
@@ -306,6 +305,9 @@ public enum SerializationFeature implements ConfigFeature
      * as using {@link Enum#ordinal()} or not.
      * Similar to {@link #WRITE_ENUMS_USING_INDEX} used when writing
      * {@link Enum}s as regular values.
+     *<p>
+     * NOTE: counterpart for this settings is
+     * {@link EnumFeature#READ_ENUM_KEYS_USING_INDEX}.
      *<p>
      * Feature is disabled by default.
      */

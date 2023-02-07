@@ -42,7 +42,7 @@ public final class EnumValues
     }
 
     /**
-     * @deprecated Since 2.15
+     * @deprecated Since 2.15 use {@link EnumValues#construct(SerializationConfig, Class)} instead.
      */
     @Deprecated
     public static EnumValues constructFromName(MapperConfig<?> config, Class<Enum<?>> enumClass)

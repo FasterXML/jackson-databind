@@ -110,7 +110,7 @@ class InternalNodeSerializer
                         // [databind#3262] Problematic case, try to handle
                         try {
                             value.serialize(g, _context);
-                        } catch (IOException | RuntimeException e) {
+                        } catch (JacksonException e) {
                             g.writeString(String.format("[ERROR: (%s) %s]",
                                     e.getClass().getName(), e.getMessage()));
                         }

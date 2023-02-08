@@ -106,6 +106,14 @@ class InternalNodeSerializer
                         stack.push(currIt);
                         currIt = value.elements();
                         g.writeStartArray(value, value.size());
+                    } else if (value instanceof POJONode) {
+                        // [databind#3262] Problematic case, try to handle
+                        try {
+                            value.serialize(g, _context);
+                        } catch (IOException | RuntimeException e) {
+                            g.writeString(String.format("[ERROR: (%s) %s]",
+                                    e.getClass().getName(), e.getMessage()));
+                        }
                     } else {
                         value.serialize(g, _context);
                     }

@@ -483,6 +483,22 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
 
     /*
     /**********************************************************************
+    /* Simple Feature access
+    /**********************************************************************
+     */
+    
+    @Override
+    public final boolean isEnabled(DatatypeFeature feature) {
+        return _datatypeFeatures.isEnabled(feature);
+    }
+
+    @Override
+    public final DatatypeFeatures getDatatypeFeatures() {
+        return _datatypeFeatures;
+    }
+    
+    /*
+    /**********************************************************************
     /* Simple config property access
     /**********************************************************************
      */

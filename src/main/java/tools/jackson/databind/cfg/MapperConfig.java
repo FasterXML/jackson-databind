@@ -92,6 +92,18 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     }
 
     /**
+     * Accessor for checking whether give {@link DatatypeFeature}
+     * is enabled or not.
+     *
+     * @param feature Feature to check
+     *
+     * @return True if feature is enabled; false otherwise
+     */
+    public abstract boolean isEnabled(DatatypeFeature feature);
+
+    public abstract DatatypeFeatures getDatatypeFeatures();
+
+    /**
      * Method for determining whether annotation processing is enabled or not
      * (default settings are typically that it is enabled; must explicitly disable).
      *

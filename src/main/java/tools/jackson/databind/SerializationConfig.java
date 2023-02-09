@@ -551,22 +551,6 @@ public final class SerializationConfig
     }
 
     /**
-     * Accessor for checking whether give {@link DatatypeFeature}
-     * is enabled or not.
-     *
-     * @param feature Feature to check
-     *
-     * @return True if feature is enabled; false otherwise
-     */
-    public final boolean isEnabled(DatatypeFeature feature) {
-        return _datatypeFeatures.isEnabled(feature);
-    }
-
-    public final DatatypeFeatures getDatatypeFeatures() {
-        return _datatypeFeatures;
-    }
-
-    /**
      * Method for getting provider used for locating filters given
      * id (which is usually provided with filter annotations).
      * Will be null if no provided was set for {@link ObjectWriter}

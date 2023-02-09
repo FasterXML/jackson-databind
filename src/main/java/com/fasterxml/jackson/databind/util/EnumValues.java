@@ -41,35 +41,7 @@ public final class EnumValues
         return constructFromName(config, enumClass);
     }
 
-    /**
-     * @deprecated Since 2.15 use {@link EnumValues#construct(SerializationConfig, Class)} instead.
-     */
-    @Deprecated
     public static EnumValues constructFromName(MapperConfig<?> config, Class<Enum<?>> enumClass)
-    {
-        // Enum types with per-instance sub-classes need special handling
-        Class<? extends Enum<?>> enumCls = ClassUtil.findEnumType(enumClass);
-        Enum<?>[] enumValues = enumCls.getEnumConstants();
-        if (enumValues == null) {
-            throw new IllegalArgumentException("Cannot determine enum constants for Class "+enumClass.getName());
-        }
-        String[] names = config.getAnnotationIntrospector().findEnumValues(enumCls, enumValues, new String[enumValues.length]);
-        SerializableString[] textual = new SerializableString[enumValues.length];
-        for (int i = 0, len = enumValues.length; i < len; ++i) {
-            Enum<?> en = enumValues[i];
-            String name = names[i];
-            if (name == null) {
-                name = en.name();
-            }
-            textual[en.ordinal()] = config.compileString(name);
-        }
-        return construct(enumClass, textual);
-    }
-
-    /**
-     * @since 2.15
-     */
-    public static EnumValues constructFromName(SerializationConfig config, Class<Enum<?>> enumClass)
     {
         // Enum types with per-instance sub-classes need special handling
         Class<? extends Enum<?>> enumCls = ClassUtil.findEnumType(enumClass);
@@ -92,7 +64,6 @@ public final class EnumValues
         }
         return construct(enumClass, textual);
     }
-
 
     public static EnumValues constructFromToString(MapperConfig<?> config, Class<Enum<?>> enumClass)
     {

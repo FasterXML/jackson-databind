@@ -673,6 +673,11 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /**********************************************************************
      */
 
+    @Override
+    public final DatatypeFeatures getDatatypeFeatures() {
+        return _datatypeFeatures;
+    }
+
     /**
      * Accessor for object used for finding out all reachable subtypes
      * for supertypes; needed when a logical type name is used instead

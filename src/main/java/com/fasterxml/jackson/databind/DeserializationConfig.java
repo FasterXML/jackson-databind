@@ -889,15 +889,9 @@ public final class DeserializationConfig
      *
      * @since 2.14
      */
+    @Override
     public final boolean isEnabled(DatatypeFeature feature) {
         return _datatypeFeatures.isEnabled(feature);
-    }
-
-    /**
-     * @since 2.15
-     */
-    public final DatatypeFeatures getDatatypeFeatures() {
-        return _datatypeFeatures;
     }
 
     /*

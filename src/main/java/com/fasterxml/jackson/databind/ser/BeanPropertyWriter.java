@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
-import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
@@ -874,8 +873,8 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
             ser = provider.findValueSerializer(getType(), this);
         }
         boolean isOptional = !isRequired();
-        if (ser instanceof SchemaAware) {
-            schemaNode = ((SchemaAware) ser).getSchema(provider, hint,
+        if (ser instanceof com.fasterxml.jackson.databind.jsonschema.SchemaAware) {
+            schemaNode = ((com.fasterxml.jackson.databind.jsonschema.SchemaAware) ser).getSchema(provider, hint,
                     isOptional);
         } else {
             schemaNode = com.fasterxml.jackson.databind.jsonschema.JsonSchema

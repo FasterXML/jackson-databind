@@ -4,6 +4,7 @@ import java.util.*;
 
 import tools.jackson.core.SerializableString;
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.cfg.MapperConfig;
 
 /**
@@ -57,6 +58,9 @@ public final class EnumValues
             if (name == null) {
                 name = en.name();
             }
+            if (config.isEnabled(EnumFeature.WRITE_ENUMS_TO_LOWERCASE)) {
+                name = name.toLowerCase();
+            }
             textual[en.ordinal()] = config.compileString(name);
         }
         return construct(enumClass, textual);
@@ -107,8 +111,6 @@ public final class EnumValues
 
     /**
      * Convenience accessor for getting raw Enum instances.
-     *
-     * @since 2.6
      */
     public List<Enum<?>> enums() {
         return Arrays.asList(_values);
@@ -131,8 +133,5 @@ public final class EnumValues
         return result;
     }
 
-    /**
-     * @since 2.2
-     */
     public Class<Enum<?>> getEnumClass() { return _enumClass; }
 }

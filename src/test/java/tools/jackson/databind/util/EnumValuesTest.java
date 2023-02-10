@@ -6,6 +6,7 @@ import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationConfig;
 import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.cfg.EnumFeature;
 
 public class EnumValuesTest extends BaseMapTest
 {
@@ -63,5 +64,19 @@ public class EnumValuesTest extends BaseMapTest
         assertEquals(ABC.A, enums.get(0));
         assertEquals(ABC.B, enums.get(1));
         assertEquals(ABC.C, enums.get(2));
+    }
+
+    // [databind#3053]
+    @SuppressWarnings("unchecked")
+    public void testConstructFromNameLowerCased() {
+        SerializationConfig cfg = MAPPER.serializationConfig()
+            .with(EnumFeature.WRITE_ENUMS_TO_LOWERCASE);
+        Class<Enum<?>> enumClass = (Class<Enum<?>>)(Class<?>) ABC.class;
+        EnumValues values = EnumValues.construct(cfg, enumClass);
+        assertEquals("a", values.serializedValueFor(ABC.A).toString());
+        assertEquals("b", values.serializedValueFor(ABC.B).toString());
+        assertEquals("c", values.serializedValueFor(ABC.C).toString());
+        assertEquals(3, values.values().size());
+        assertEquals(3, values.internalMap().size());
     }
 }

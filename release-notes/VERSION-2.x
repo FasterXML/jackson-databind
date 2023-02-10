@@ -13,6 +13,9 @@ Project: jackson-databind
  (fix contributed by Sim Y-T)
 #2992: Properties naming strategy do not work with Record
  (fix contributed by Sim Y-T)
+#3053: Allow serializing enums to lowercase (`EnumFeature.WRITE_ENUMS_TO_LOWERCASE`)
+ (requested by Vojtěch K)
+ (contributed by Joo-Hyuk K)
 #3180: Support `@JsonCreator` annotation on record classes
  (fix contributed by Sim Y-T)
 #3297: `@JsonDeserialize(converter = ...)` does not work with Records

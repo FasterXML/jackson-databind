@@ -5,8 +5,10 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.core.*;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.ser.std.StdSerializer;
@@ -333,6 +335,22 @@ public class EnumSerializationTest
         Map<EnumWithJsonKey, EnumWithJsonKey> input2
             = Collections.singletonMap(EnumWithJsonKey.A, EnumWithJsonKey.B);
         assertEquals(a2q("{'key:a':'value:b'}"), MAPPER.writeValueAsString(input2));
+    }
+
+    // [databind#3053]
+    public void testEnumFeature_WRITE_ENUMS_TO_LOWERCASE_isDisabledByDefault() {
+        ObjectReader READER = MAPPER.reader();
+        assertFalse(READER.isEnabled(EnumFeature.WRITE_ENUMS_TO_LOWERCASE));
+        assertFalse(READER.without(EnumFeature.WRITE_ENUMS_TO_LOWERCASE)
+            .isEnabled(EnumFeature.WRITE_ENUMS_TO_LOWERCASE));
+    }
+
+    public void testEnumFeature_WRITE_ENUMS_TO_LOWERCASE() throws Exception {
+        ObjectMapper m = jsonMapperBuilder()
+            .configure(EnumFeature.WRITE_ENUMS_TO_LOWERCASE, true)
+            .build();
+        assertEquals(q("b"), m.writeValueAsString(TestEnum.B));
+        // NOTE: cannot be dynamically changed
     }
 }
 

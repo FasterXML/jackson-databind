@@ -332,6 +332,7 @@ public class EnumSerializationTest
         assertEquals(a2q("{'key:a':'value:b'}"), MAPPER.writeValueAsString(input2));
     }
 
+    // [databind#3053]
     public void testEnumFeature_WRITE_ENUMS_TO_LOWERCASE_isDisabledByDefault() {
         ObjectReader READER = MAPPER.reader();
         assertFalse(READER.isEnabled(EnumFeature.WRITE_ENUMS_TO_LOWERCASE));
@@ -343,12 +344,8 @@ public class EnumSerializationTest
         ObjectMapper m = jsonMapperBuilder()
             .configure(EnumFeature.WRITE_ENUMS_TO_LOWERCASE, true)
             .build();
-        assertEquals("\"b\"", m.writeValueAsString(TestEnum.B));
-
-        // [databind#749] but should also be able to dynamically disable
-        assertEquals("\"B\"",
-            m.writer().without(EnumFeature.WRITE_ENUMS_TO_LOWERCASE)
-                .writeValueAsString(LowerCaseEnum.B));
+        assertEquals(q("b"), m.writeValueAsString(TestEnum.B));
+        // NOTE: cannot be dynamically changed
     }
 }
 

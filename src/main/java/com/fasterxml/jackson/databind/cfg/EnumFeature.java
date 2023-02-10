@@ -29,7 +29,12 @@ public enum EnumFeature implements DatatypeFeature
      * Enum values: if enabled, return value of <code>Enum.name().toLowerCase()</code>
      * is used; if disabled, return value of <code>Enum.name()</code> is used.
      *<p>
+     * NOTE: this feature CAN NOT be changed on per-call basis: it will have to
+     * be set on {@code ObjectMapper} before use
+     *<p>
      * Feature is disabled by default.
+     *
+     * @since 2.15
      */
     WRITE_ENUMS_TO_LOWERCASE(false);
 

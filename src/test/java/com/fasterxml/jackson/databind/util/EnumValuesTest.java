@@ -66,6 +66,7 @@ public class EnumValuesTest extends BaseMapTest
         assertEquals(ABC.C, enums.get(2));
     }
 
+    // [databind#3053]
     @SuppressWarnings("unchecked")
     public void testConstructFromNameLowerCased() {
         SerializationConfig cfg = MAPPER.getSerializationConfig()

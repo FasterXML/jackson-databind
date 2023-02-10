@@ -1543,6 +1543,12 @@ Joo Hyuk Kim (JooHyukKim@github)
   * Contributed #2536: Add `EnumFeature.READ_ENUM_KEYS_USING_INDEX` to work with
    existing "WRITE_ENUM_KEYS_USING_INDEX"
   (2.15.0)
+  * Contributed #3053: Allow serializing enums to lowercase (`EnumFeature.WRITE_ENUMS_TO_LOWERCASE`)
+  (2.15.0)
+
+Vojtěch Knyttl (knyttl@github)
+  * Requested #3053: Allow serializing enums to lowercase (`EnumFeature.WRITE_ENUMS_TO_LOWERCASE`)
+  (2.15.0)
 
 Hervé Boutemy (hboutemy@github)
   * Contributed fix for #3680: Timestamp in classes inside jar showing 02/01/1980

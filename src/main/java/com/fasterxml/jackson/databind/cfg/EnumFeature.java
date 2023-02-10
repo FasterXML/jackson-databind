@@ -22,8 +22,16 @@ public enum EnumFeature implements DatatypeFeature
      *
      * @since 2.15
      */
-    READ_ENUM_KEYS_USING_INDEX(false)
-    ;
+    READ_ENUM_KEYS_USING_INDEX(false),
+
+    /**
+     * Feature that determines standard serialization mechanism used for
+     * Enum values: if enabled, return value of <code>Enum.name().toLowerCase()</code>
+     * is used; if disabled, return value of <code>Enum.name()</code> is used.
+     *<p>
+     * Feature is disabled by default.
+     */
+    WRITE_ENUMS_TO_LOWERCASE(false);
 
     private final static int FEATURE_INDEX = DatatypeFeatures.FEATURE_INDEX_ENUM;
 

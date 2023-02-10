@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.cfg.EnumFeature;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
@@ -329,6 +330,25 @@ public class EnumSerializationTest
         Map<EnumWithJsonKey, EnumWithJsonKey> input2
             = Collections.singletonMap(EnumWithJsonKey.A, EnumWithJsonKey.B);
         assertEquals(a2q("{'key:a':'value:b'}"), MAPPER.writeValueAsString(input2));
+    }
+
+    public void testEnumFeature_WRITE_ENUMS_TO_LOWERCASE_isDisabledByDefault() {
+        ObjectReader READER = MAPPER.reader();
+        assertFalse(READER.isEnabled(EnumFeature.WRITE_ENUMS_TO_LOWERCASE));
+        assertFalse(READER.without(EnumFeature.WRITE_ENUMS_TO_LOWERCASE)
+            .isEnabled(EnumFeature.WRITE_ENUMS_TO_LOWERCASE));
+    }
+
+    public void testEnumFeature_WRITE_ENUMS_TO_LOWERCASE() throws Exception {
+        ObjectMapper m = jsonMapperBuilder()
+            .configure(EnumFeature.WRITE_ENUMS_TO_LOWERCASE, true)
+            .build();
+        assertEquals("\"b\"", m.writeValueAsString(TestEnum.B));
+
+        // [databind#749] but should also be able to dynamically disable
+        assertEquals("\"B\"",
+            m.writer().without(EnumFeature.WRITE_ENUMS_TO_LOWERCASE)
+                .writeValueAsString(LowerCaseEnum.B));
     }
 }
 

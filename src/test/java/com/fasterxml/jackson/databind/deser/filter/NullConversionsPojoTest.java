@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidNullException;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 import java.util.Collection;
 
@@ -195,4 +196,43 @@ public class NullConversionsPojoTest extends BaseMapTest
         assertTrue(actual.prices.isEmpty());
     }
 
+    static class Issue3645BeanB {
+        private String text;
+        private Collection<Integer> products;
+
+        public Issue3645BeanB(
+            @JsonProperty("text") String text,
+            @JsonProperty("products") Collection<Integer>products
+        ) {
+            this.text = text;
+            this.products = products;
+        }
+    }
+
+    public void testDeserializeWithNullAsEmptyWithBuilderDefaults() throws JsonProcessingException {
+        String json = "{\"text\": \"Computer\", \"products\" : null}";
+
+        ObjectMapper mapper = JsonMapper.builder()
+            .defaultSetterInfo(JsonSetter.Value.construct(Nulls.AS_EMPTY, Nulls.AS_EMPTY))
+            .build();
+
+        Issue3645BeanB actual = mapper.readValue(json, Issue3645BeanB.class);
+
+        assertEquals(actual.text, "Computer");
+        assertTrue(actual.products.isEmpty());
+
+    }
+
+    public void testDeserializeWithNullAsEmptyWithBuilderDefaults2() throws JsonProcessingException {
+        String json = "{\"text\": \"Computer\"}";
+
+        ObjectMapper mapper = JsonMapper.builder()
+            .defaultSetterInfo(JsonSetter.Value.construct(Nulls.AS_EMPTY, Nulls.AS_EMPTY))
+            .build();
+
+        Issue3645BeanB actual = mapper.readValue(json, Issue3645BeanB.class);
+
+        assertEquals(actual.text, "Computer");
+        assertTrue(actual.products.isEmpty());
+    }
 }

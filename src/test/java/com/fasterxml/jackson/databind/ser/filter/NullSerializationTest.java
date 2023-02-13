@@ -1,10 +1,19 @@
 package com.fasterxml.jackson.databind.ser.filter;
 
 import java.io.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.deser.filter.NullConversionsPojoTest;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
 import com.fasterxml.jackson.databind.ser.SerializerFactory;
@@ -121,5 +130,41 @@ public class NullSerializationTest
     public void testNullSerializerForProperty() throws Exception
     {
         assertEquals("{\"a\":\"foobar\"}", MAPPER.writeValueAsString(new BeanWithNullProps()));
+    }
+
+
+    static class Issue3645BeanC {
+        private String text;
+        private Collection<Integer> products;
+
+        public Issue3645BeanC(
+            @JsonProperty("text") String text,
+            @JsonProperty("products") @JsonSetter(nulls = Nulls.AS_EMPTY) Collection<Integer> products
+        ) {
+            this.text = text;
+            this.products = products;
+        }
+    }
+
+    public void testDeserializeWithNullAsEmptyWithBuilderDefaults() throws JsonProcessingException {
+        String json = "{\"text\": \"Computer\", \"products\" : null}";
+
+        String actual = MAPPER.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
+            .writeValueAsString(new Issue3645BeanC("hello-world", Collections.emptyList()));
+
+        assertEquals(actual, "hihi");
+    }
+
+    public void testDeserializeWithNullAsEmptyWithBuilderDefaults2() throws JsonProcessingException {
+        String json = "{\"text\": \"Computer\"}";
+
+        ObjectMapper mapper = JsonMapper.builder()
+            .defaultSetterInfo(JsonSetter.Value.construct(Nulls.AS_EMPTY, Nulls.AS_EMPTY))
+            .build();
+
+        Issue3645BeanC actual = mapper.readValue(json, Issue3645BeanC.class);
+
+        assertEquals(actual.text, "Computer");
+        assertTrue(actual.products.isEmpty());
     }
 }

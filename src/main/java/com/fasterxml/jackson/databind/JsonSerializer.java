@@ -37,7 +37,7 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  *<p>
  * In addition, to support per-property annotations (to configure aspects
  * of serialization on per-property basis), serializers may want
- * to implement 
+ * to implement
  * {@link com.fasterxml.jackson.databind.ser.ContextualSerializer},
  * which allows specialization of serializers: call to
  * {@link com.fasterxml.jackson.databind.ser.ContextualSerializer#createContextual}
@@ -69,7 +69,7 @@ public abstract class JsonSerializer<T>
      *<p>
      * Default implementation just returns serializer as-is,
      * indicating that no unwrapped variant exists
-     * 
+     *
      * @param unwrapper Name transformation to use to convert between names
      *   of unwrapper properties
      */
@@ -83,7 +83,7 @@ public abstract class JsonSerializer<T>
      * delegate anything; or it does not want any changes), should either
      * throw {@link UnsupportedOperationException} (if operation does not
      * make sense or is not allowed); or return this serializer as is.
-     * 
+     *
      * @since 2.1
      */
     public JsonSerializer<T> replaceDelegatee(JsonSerializer<?> delegatee) {
@@ -187,7 +187,7 @@ public abstract class JsonSerializer<T>
      * of empty values).
      *<p>
      * Default implementation will consider only null values to be empty.
-     * 
+     *
      * @deprecated Since 2.5 Use {@link #isEmpty(SerializerProvider, Object)} instead;
      *   will be removed from 3.0
      */
@@ -204,13 +204,13 @@ public abstract class JsonSerializer<T>
      * Default implementation will consider only null values to be empty.
      *<p>
      * NOTE: replaces {@link #isEmpty(Object)}, which was deprecated in 2.5
-     * 
+     *
      * @since 2.5
      */
     public boolean isEmpty(SerializerProvider provider, T value) {
         return (value == null);
     }
-    
+
     /**
      * Method that can be called to see whether this serializer instance
      * will use Object Id to handle cyclic references.
@@ -228,16 +228,16 @@ public abstract class JsonSerializer<T>
     public boolean isUnwrappingSerializer() {
         return false;
     }
-    
+
     /**
      * Accessor that can be used to determine if this serializer uses
      * another serializer for actual serialization, by delegating
      * calls. If so, will return immediate delegate (which itself may
      * delegate to further serializers); otherwise will return null.
-     * 
+     *
      * @return Serializer this serializer delegates calls to, if null;
      *   null otherwise.
-     * 
+     *
      * @since 2.1
      */
     public JsonSerializer<?> getDelegatee() {
@@ -266,7 +266,7 @@ public abstract class JsonSerializer<T>
 
     /**
      * Default implementation simply calls {@link JsonFormatVisitorWrapper#expectAnyFormat(JavaType)}.
-     * 
+     *
      * @since 2.1
      */
     @Override

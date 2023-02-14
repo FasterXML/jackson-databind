@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
-import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
@@ -67,7 +66,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
 
     /**
      * Wrapper name to use for this element, if any
-     * 
+     *
      * @since 2.2
      */
     protected final PropertyName _wrapperName;
@@ -264,7 +263,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
      * Constructor that may be of use to virtual properties, when there is need
      * for the zero-arg ("default") constructor, and actual initialization is
      * done after constructor call.
-     * 
+     *
      * @since 2.5
      */
     protected BeanPropertyWriter() {
@@ -526,7 +525,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
 
     /**
      * Method for accessing value of specified internal setting.
-     * 
+     *
      * @return Value of the setting, if any; null if none.
      */
     public Object getInternalSetting(Object key) {
@@ -535,7 +534,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
 
     /**
      * Method for setting specific internal setting to given value
-     * 
+     *
      * @return Old value of the setting, if any (null if none)
      */
     public Object setInternalSetting(Object key, Object value) {
@@ -547,7 +546,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
 
     /**
      * Method for removing entry for specified internal setting.
-     * 
+     *
      * @return Existing value of the setting, if any (null if none)
      */
     public Object removeInternalSetting(Object key) {
@@ -594,7 +593,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
      * name).
      * <p>
      * Default implementation simply returns false.
-     * 
+     *
      * @since 2.3
      */
     public boolean isUnwrapping() {
@@ -740,7 +739,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
      * Method called to indicate that serialization of a field was omitted due
      * to filtering, in cases where backend data format does not allow basic
      * omission.
-     * 
+     *
      * @since 2.3
      */
     @Override
@@ -755,7 +754,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
      * Alternative to {@link #serializeAsField} that is used when a POJO is
      * serialized as JSON Array; the difference is that no field names are
      * written.
-     * 
+     *
      * @since 2.3
      */
     @Override
@@ -814,7 +813,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
      * value is not to be included (is filtered out), but when we need an entry
      * so that field indexes will not be off. Typically this should output null
      * or empty String, depending on datatype.
-     * 
+     *
      * @since 2.1
      */
     @Override
@@ -852,7 +851,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
      * Attempt to add the output of the given {@link BeanPropertyWriter} in the
      * given {@link ObjectNode}. Otherwise, add the default schema
      * {@link JsonNode} in place of the writer's output
-     * 
+     *
      * @param propertiesNode
      *            Node which the given property would exist within
      * @param provider
@@ -874,8 +873,8 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
             ser = provider.findValueSerializer(getType(), this);
         }
         boolean isOptional = !isRequired();
-        if (ser instanceof SchemaAware) {
-            schemaNode = ((SchemaAware) ser).getSchema(provider, hint,
+        if (ser instanceof com.fasterxml.jackson.databind.jsonschema.SchemaAware) {
+            schemaNode = ((com.fasterxml.jackson.databind.jsonschema.SchemaAware) ser).getSchema(provider, hint,
                     isOptional);
         } else {
             schemaNode = com.fasterxml.jackson.databind.jsonschema.JsonSchema

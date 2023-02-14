@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.cfg.EnumFeature;
 import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
@@ -213,7 +214,7 @@ public class EnumDeserializationTest
         public String toString() {
             return value;
         }
-    }        
+    }
 
     // [databind#3006]
     enum Operation3006 {
@@ -290,7 +291,7 @@ public class EnumDeserializationTest
         TimeUnit result = MAPPER.readValue(json, TimeUnit.class);
         assertSame(TimeUnit.SECONDS, result);
     }
-    
+
     /**
      * Testing to see that annotation override works
      */
@@ -409,7 +410,7 @@ public class EnumDeserializationTest
                 .readValue("[\"NO-SUCH-VALUE\"]");
         assertEquals(0, result.size());
     }
-    
+
     public void testAllowUnknownEnumValuesAsMapKeysReadAsNull() throws Exception
     {
         ObjectReader reader = MAPPER.reader(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
@@ -417,7 +418,7 @@ public class EnumDeserializationTest
                 .readValue("{\"map\":{\"NO-SUCH-VALUE\":\"val\"}}");
         assertTrue(result.map.containsKey(null));
     }
-    
+
     public void testDoNotAllowUnknownEnumValuesAsMapKeysWhenReadAsNullDisabled() throws Exception
     {
         assertFalse(MAPPER.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL));
@@ -456,7 +457,7 @@ public class EnumDeserializationTest
                     .with(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
                     .readValue("[" + q("JACKSON") + "]"));
     }
-    
+
     public void testUnwrappedEnumException() throws Exception {
         final ObjectMapper mapper = newJsonMapper();
         mapper.disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
@@ -529,7 +530,7 @@ public class EnumDeserializationTest
                 .readValue(q("A"));
         assertSame(Enum1161.A, result);
     }
-    
+
     public void testEnumWithDefaultAnnotation() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
@@ -654,4 +655,41 @@ public class EnumDeserializationTest
         assertEquals(Operation3006.THREE, MAPPER.readValue("3", Operation3006.class));
         assertEquals(Operation3006.THREE, MAPPER.readValue(q("3"), Operation3006.class));
     }
+
+    public void testEnumFeature_EnumIndexAsKey() throws Exception {
+        ObjectReader reader = MAPPER.reader()
+            .with(EnumFeature.READ_ENUM_KEYS_USING_INDEX);
+
+        ClassWithEnumMapKey result = reader.readValue("{\"map\": {\"0\":\"I AM FOR REAL\"}}", ClassWithEnumMapKey.class);
+
+        assertEquals(result.map.get(TestEnum.JACKSON), "I AM FOR REAL");
+    }
+
+    public void testEnumFeature_symmetric_to_writing() throws Exception {
+        ClassWithEnumMapKey obj = new ClassWithEnumMapKey();
+        Map<TestEnum, String> objMap = new HashMap<>();
+        objMap.put(TestEnum.JACKSON, "I AM FOR REAL");
+        obj.map = objMap;
+
+        String deserObj = MAPPER.writer()
+            .with(SerializationFeature.WRITE_ENUM_KEYS_USING_INDEX)
+            .writeValueAsString(obj);
+
+        ClassWithEnumMapKey result = MAPPER.reader()
+            .with(EnumFeature.READ_ENUM_KEYS_USING_INDEX)
+            .readValue(deserObj, ClassWithEnumMapKey.class);
+
+        assertNotSame(obj, result);
+        assertNotSame(obj.map, result.map);
+        assertEquals(result.map.get(TestEnum.JACKSON), "I AM FOR REAL");
+    }
+
+
+    public void testEnumFeature_READ_ENUM_KEYS_USING_INDEX_isDisabledByDefault() {
+        ObjectReader READER = MAPPER.reader();
+        assertFalse(READER.isEnabled(EnumFeature.READ_ENUM_KEYS_USING_INDEX));
+        assertFalse(READER.without(EnumFeature.READ_ENUM_KEYS_USING_INDEX)
+            .isEnabled(EnumFeature.READ_ENUM_KEYS_USING_INDEX));
+    }
+
 }

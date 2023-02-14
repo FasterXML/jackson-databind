@@ -14,6 +14,7 @@ import com.fasterxml.jackson.core.io.NumberInput;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.cfg.EnumFeature;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.EnumResolver;
@@ -57,7 +58,7 @@ public class StdKeyDeserializer extends KeyDeserializer
      * Some types that are deserialized using a helper deserializer.
      */
     protected final FromStringDeserializer<?> _deser;
-    
+
     protected StdKeyDeserializer(int kind, Class<?> cls) {
         this(kind, cls, null);
     }
@@ -280,7 +281,7 @@ public class StdKeyDeserializer extends KeyDeserializer
         private static final long serialVersionUID = 1L;
         private final static StringKD sString = new StringKD(String.class);
         private final static StringKD sObject = new StringKD(Object.class);
-        
+
         private StringKD(Class<?> nominalType) { super(-1, nominalType); }
 
         public static StringKD forType(Class<?> nominalType)
@@ -298,7 +299,7 @@ public class StdKeyDeserializer extends KeyDeserializer
         public Object deserializeKey(String key, DeserializationContext ctxt) throws IOException {
             return key;
         }
-    }    
+    }
 
     /*
     /**********************************************************
@@ -320,7 +321,7 @@ public class StdKeyDeserializer extends KeyDeserializer
         final protected Class<?> _keyClass;
 
         protected final JsonDeserializer<?> _delegate;
-        
+
         protected DelegatingKD(Class<?> cls, JsonDeserializer<?> deser) {
             _keyClass = cls;
             _delegate = deser;
@@ -370,8 +371,16 @@ public class StdKeyDeserializer extends KeyDeserializer
          */
         protected volatile EnumResolver _byToStringResolver;
 
+        /**
+         * Lazily constructed alternative in case there is need to
+         * parse using enum index method as the source.
+         *
+         * @since 2.15
+         */
+        protected volatile EnumResolver _byIndexResolver;
+
         protected final Enum<?> _enumDefaultValue;
-        
+
         protected EnumKD(EnumResolver er, AnnotatedMethod factory) {
             super(-1, er.getEnumClass());
             _byNameResolver = er;
@@ -392,6 +401,11 @@ public class StdKeyDeserializer extends KeyDeserializer
             EnumResolver res = ctxt.isEnabled(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
                     ? _getToStringResolver(ctxt) : _byNameResolver;
             Enum<?> e = res.findEnum(key);
+            // If enum is found, no need to try deser using index
+            if (e == null && ctxt.isEnabled(EnumFeature.READ_ENUM_KEYS_USING_INDEX)) {
+                res = _getIndexResolver(ctxt);
+                e = res.findEnum(key);
+            }
             if (e == null) {
                 if ((_enumDefaultValue != null)
                         && ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)) {
@@ -420,8 +434,23 @@ public class StdKeyDeserializer extends KeyDeserializer
             }
             return res;
         }
+
+        private EnumResolver _getIndexResolver(DeserializationContext ctxt) {
+            EnumResolver res = _byIndexResolver;
+            if (res == null) {
+                synchronized (this) {
+                    res = _byIndexResolver;
+                    if (res == null) {
+                        res = EnumResolver.constructUsingIndex(ctxt.getConfig(),
+                            _byNameResolver.getEnumClass());
+                        _byIndexResolver = res;
+                    }
+                }
+            }
+            return res;
+        }
     }
-    
+
     /**
      * Key deserializer that calls a single-string-arg constructor
      * to instantiate desired key type.

@@ -35,7 +35,7 @@ public abstract class ValueNode
     @SuppressWarnings("unchecked")
     @Override
     public <T extends JsonNode> T deepCopy() { return (T) this; }
-    
+
     @Override public abstract JsonToken asToken();
 
     @Override
@@ -57,7 +57,7 @@ public abstract class ValueNode
 
     @Override
     public boolean isEmpty() { return true; }
-    
+
     /*
     /**********************************************************************
     /* Navigation methods

@@ -9,13 +9,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class TestDeepCopy extends BaseMapTest
 {
     private final ObjectMapper mapper = new ObjectMapper();
-    
+
     public void testWithObjectSimple()
     {
         ObjectNode root = mapper.createObjectNode();
         root.put("a", 3);
         assertEquals(1, root.size());
-        
+
         ObjectNode copy = root.deepCopy();
         assertEquals(1, copy.size());
 
@@ -35,7 +35,7 @@ public class TestDeepCopy extends BaseMapTest
         ArrayNode root = mapper.createArrayNode();
         root.add("a");
         assertEquals(1, root.size());
-        
+
         ArrayNode copy = root.deepCopy();
         assertEquals(1, copy.size());
 
@@ -61,7 +61,7 @@ public class TestDeepCopy extends BaseMapTest
         assertEquals(1, leafObject.size());
         leafArray.add(true);
         assertEquals(1, leafArray.size());
-        
+
         ObjectNode copy = root.deepCopy();
         assertNotSame(copy, root);
         assertEquals(2, copy.size());

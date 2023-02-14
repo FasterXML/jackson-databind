@@ -47,7 +47,7 @@ public class DeserializationConfigTest extends BaseMapTest
         DeserializationConfig newConfig = config.with(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
         assertNotSame(config, newConfig);
         config = newConfig;
-        
+
         // but another attempt with no real change returns same
         assertSame(config, config.with(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
         assertNotSame(config, config.with(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, false));
@@ -86,7 +86,7 @@ public class DeserializationConfigTest extends BaseMapTest
     public void testEnumIndexes()
     {
         int max = 0;
-        
+
         for (DeserializationFeature f : DeserializationFeature.values()) {
             max = Math.max(max, f.ordinal());
         }

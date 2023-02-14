@@ -75,7 +75,7 @@ public class TestUnknownPropertyDeserialization
     static class IgnoreUnknownAnySetter {
 
         Map<String, Object> props = new HashMap<>();
-        
+
         @JsonAnySetter
         public void addProperty(String key, Object value) {
             props.put(key, value);
@@ -89,10 +89,10 @@ public class TestUnknownPropertyDeserialization
 
     @JsonIgnoreProperties(ignoreUnknown=true)
     static class IgnoreUnknownUnwrapped {
-      
+
       @JsonUnwrapped
       UnwrappedChild child;
-      
+
       static class UnwrappedChild {
         public int a, b;
       }
@@ -148,7 +148,7 @@ public class TestUnknownPropertyDeserialization
     private final ObjectMapper MAPPER = newJsonMapper();
 
     final static String JSON_UNKNOWN_FIELD = "{ \"a\" : 1, \"foo\" : [ 1, 2, 3], \"b\" : -1 }";
-    
+
     /**
      * By default we should just get an exception if an unknown property
      * is encountered
@@ -279,7 +279,7 @@ public class TestUnknownPropertyDeserialization
 
         // but "d" is not defined, so should still error
         try {
-            MAPPER.readValue("{\"a\":1,\"b\":2,\"c\":3,\"d\":4 }", ImplicitIgnores.class);            
+            MAPPER.readValue("{\"a\":1,\"b\":2,\"c\":3,\"d\":4 }", ImplicitIgnores.class);
             fail("Should not pass");
         } catch (MismatchedInputException e) {
             verifyException(e, "Unrecognized field \"d\"");

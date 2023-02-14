@@ -89,7 +89,7 @@ public @interface JsonDeserialize
     public Class<?> builder() default Void.class;
 
     // // // Annotations for specifying intermediate Converters (2.2+)
-    
+
     /**
      * Which helper object (if any) is to be used to convert from Jackson-bound
      * intermediate type (source type of converter) into actual property type
@@ -111,8 +111,8 @@ public @interface JsonDeserialize
      */
     @SuppressWarnings("rawtypes") // to work around JDK8 bug wrt Class-valued annotation properties
     public Class<? extends Converter> contentConverter() default Converter.None.class;
-    
-    
+
+
     // // // Annotations for explicitly specifying deserialization type
     // // // (which is used for choosing deserializer, if not explicitly
     // // // specified

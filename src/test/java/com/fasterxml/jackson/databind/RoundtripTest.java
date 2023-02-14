@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.testutil.MediaItem;
 public class RoundtripTest extends BaseMapTest
 {
     private final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     public void testMedaItemRoundtrip() throws Exception
     {
         MediaItem.Content c = new MediaItem.Content();
@@ -22,7 +22,7 @@ public class RoundtripTest extends BaseMapTest
         c.addPerson("Joe Sixp\u00e2ck");
         c.addPerson("Ezekiel");
         c.addPerson("Sponge-Bob Squarepant\u00DF");
-        
+
         MediaItem input = new MediaItem(c);
         input.addPhoto(new MediaItem.Photo());
         input.addPhoto(new MediaItem.Photo());

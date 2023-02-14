@@ -15,7 +15,7 @@ public class CoerceContainersTest extends BaseMapTest
     private final ObjectMapper VANILLA_MAPPER = sharedMapper();
 
     private final ObjectMapper COERCING_MAPPER = jsonMapperBuilder()
-            .withCoercionConfigDefaults(cfg -> 
+            .withCoercionConfigDefaults(cfg ->
                 cfg.setCoercion(CoercionInputShape.EmptyString, CoercionAction.AsEmpty))
             .build();
 
@@ -29,10 +29,10 @@ public class CoerceContainersTest extends BaseMapTest
     {
         final JavaType listType = VANILLA_MAPPER.getTypeFactory()
                 .constructType(new TypeReference<List<Double>>() { });
-        
+
         // 03-Aug-2022, tatu: Due to [databind#3418] message changed; not
         //    100% sure how it should work but let's try this
-        
+
 //        _verifyNoCoercion(listType);
         try {
             VANILLA_MAPPER.readerFor(listType).readValue(JSON_EMPTY);
@@ -42,7 +42,7 @@ public class CoerceContainersTest extends BaseMapTest
             verifyException(e, "Cannot deserialize value of type");
             verifyException(e, "from String value");
         }
-        
+
         List<Double> result = _readWithCoercion(listType);
         assertNotNull(result);
         assertEquals(0, result.size());
@@ -157,7 +157,7 @@ public class CoerceContainersTest extends BaseMapTest
         assertNotNull(result);
         assertEquals(0, result.length);
     }
-    
+
     /*
     /********************************************************
     /* Helper methods

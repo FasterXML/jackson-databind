@@ -28,7 +28,7 @@ public class DeserExceptionTypeTest
         // Constructor that is not detectable as Creator
         public NoCreatorsBean(boolean foo, int foo2) { }
     }
-    
+
     /*
     /**********************************************************
     /* Test methods
@@ -36,7 +36,7 @@ public class DeserExceptionTypeTest
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
-    
+
     public void testHandlingOfUnrecognized() throws Exception
     {
         UnrecognizedPropertyException exc = null;

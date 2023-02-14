@@ -32,7 +32,7 @@ public final class IndexedStringListSerializer
     /* Life-cycle
     /**********************************************************
      */
-    
+
     protected IndexedStringListSerializer() {
         super(List.class);
     }
@@ -46,7 +46,7 @@ public final class IndexedStringListSerializer
     public JsonSerializer<?> _withResolved(BeanProperty prop, Boolean unwrapSingle) {
         return new IndexedStringListSerializer(this, unwrapSingle);
     }
-    
+
     @Override protected JsonNode contentSchema() { return createSchemaNode("string", true); }
 
     @Override

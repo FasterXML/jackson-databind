@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.*;
  */
 public class TestPropertyRename extends BaseMapTest
 {
-    static class Bean323WithIgnore { 
+    static class Bean323WithIgnore {
         @JsonIgnore
         private int a;
 
@@ -21,10 +21,10 @@ public class TestPropertyRename extends BaseMapTest
         private int getA () {
             return a;
         }
-    }    
+    }
 
     @JsonPropertyOrder({ "a","b" })
-    static class Bean323WithExplicitCleave1 { 
+    static class Bean323WithExplicitCleave1 {
         @JsonProperty("a")
         private int a;
 
@@ -36,10 +36,10 @@ public class TestPropertyRename extends BaseMapTest
         private int getA () {
             return a;
         }
-    } 
+    }
 
     @JsonPropertyOrder({ "a","b" })
-    static class Bean323WithExplicitCleave2 { 
+    static class Bean323WithExplicitCleave2 {
         @JsonProperty("b")
         private int a;
 
@@ -51,8 +51,8 @@ public class TestPropertyRename extends BaseMapTest
         private int getA () {
             return a;
         }
-    }    
-   
+    }
+
     /*
     /**********************************************************
     /* Test methods

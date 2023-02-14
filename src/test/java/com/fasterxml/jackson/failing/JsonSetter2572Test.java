@@ -45,6 +45,6 @@ public class JsonSetter2572Test extends BaseMapTest
         assertNotNull(result);
         assertNotNull(result.inner); // converted to "empty" bean
 
-//System.err.println("Final -> "+mapper.writeValueAsString(result));        
+//System.err.println("Final -> "+mapper.writeValueAsString(result));
     }
 }

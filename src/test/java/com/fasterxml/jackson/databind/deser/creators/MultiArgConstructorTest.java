@@ -17,7 +17,7 @@ public class MultiArgConstructorTest extends BaseMapTest
         protected int _a, _b;
 
         public int c;
-        
+
         public MultiArgCtorBean(int a, int b) {
             _a = a;
             _b = b;
@@ -29,13 +29,13 @@ public class MultiArgConstructorTest extends BaseMapTest
         protected int _a, _b;
 
         public int c;
-        
+
         public MultiArgCtorBeanWithAnnotations(int a, @JsonProperty("b2") int b) {
             _a = a;
             _b = b;
         }
     }
-    
+
     /* Before JDK8, we won't have parameter names available, so let's
      * fake it before that...
      */
@@ -56,11 +56,11 @@ public class MultiArgConstructorTest extends BaseMapTest
             return super.findImplicitPropertyName(param);
         }
     }
-    
+
     /*
-    /********************************************************************** 
+    /**********************************************************************
     /* Test methods
-    /********************************************************************** 
+    /**********************************************************************
      */
 
     public void testMultiArgVisible() throws Exception
@@ -87,7 +87,7 @@ public class MultiArgConstructorTest extends BaseMapTest
         assertEquals(-99, bean._a);
         assertEquals(222, bean.c);
     }
-    
+
     // but let's also ensure that it is possible to prevent use of that constructor
     // with different visibility
     public void testMultiArgNotVisible() throws Exception

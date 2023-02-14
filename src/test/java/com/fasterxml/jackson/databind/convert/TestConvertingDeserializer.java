@@ -19,11 +19,11 @@ extends com.fasterxml.jackson.databind.BaseMapTest
             this.y = y;
         }
     }
-    
+
     static class Point
     {
         protected int x, y;
-    
+
         public Point(int v1, int v2) {
             x = v1;
             y = v2;
@@ -47,7 +47,7 @@ extends com.fasterxml.jackson.databind.BaseMapTest
             return new ConvertingBean(values[0], values[1]);
         }
     }
-    
+
     private static class PointConverter extends StdConverter<int[], Point>
     {
         @Override public Point convert(int[] value) {
@@ -64,7 +64,7 @@ extends com.fasterxml.jackson.databind.BaseMapTest
             value = new Point(x, y);
         }
     }
-    
+
     static class PointListWrapperArray {
         @JsonDeserialize(contentConverter=PointConverter.class)
         public Point[] values;
@@ -86,7 +86,7 @@ extends com.fasterxml.jackson.databind.BaseMapTest
         public String convert(String value) {
             return value.toLowerCase();
         }
-        
+
     }
 
     static class LowerCaseText {
@@ -100,7 +100,7 @@ extends com.fasterxml.jackson.databind.BaseMapTest
     }
 
     // for [databind#795]
-    
+
     static class ToNumberConverter extends StdConverter<String,Number>
     {
         @Override

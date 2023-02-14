@@ -21,7 +21,7 @@ public class ArrayBuildersTest extends BaseMapTest
 	{
         String [] arr = new String[]{"me", "you", "him"};
         String [] newarr;
-        
+
         newarr = ArrayBuilders.insertInListNoDup(arr, "you");
         Assert.assertArrayEquals(new String[]{"you", "me", "him"}, newarr);
 

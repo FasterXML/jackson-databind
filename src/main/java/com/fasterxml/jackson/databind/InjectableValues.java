@@ -16,7 +16,7 @@ public abstract class InjectableValues
      * POJO instance in which value will be injected if it is available
      * (will be available when injected via field or setter; not available
      * when injected via constructor or factory method argument).
-     * 
+     *
      * @param valueId Object that identifies value to inject; may be a simple
      *   name or more complex identifier object, whatever provider needs
      * @param ctxt Deserialization context
@@ -44,7 +44,7 @@ public abstract class InjectableValues
         private static final long serialVersionUID = 1L;
 
         protected final Map<String,Object> _values;
-        
+
         public Std() {
             this(new HashMap<String,Object>());
         }
@@ -62,7 +62,7 @@ public abstract class InjectableValues
             _values.put(classKey.getName(), value);
             return this;
         }
-        
+
         @Override
         public Object findInjectableValue(Object valueId, DeserializationContext ctxt,
                 BeanProperty forProperty, Object beanInstance) throws JsonMappingException

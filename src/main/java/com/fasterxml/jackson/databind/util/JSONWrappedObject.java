@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  * value with arbitrary literal prefix and suffix. This can be used for
  * example to construct arbitrary Javascript values (similar to how basic
  * function name and parenthesis are used with JSONP).
- * 
+ *
  * @see com.fasterxml.jackson.databind.util.JSONPObject
  */
 public class JSONWrappedObject implements JsonSerializable
@@ -28,7 +28,7 @@ public class JSONWrappedObject implements JsonSerializable
      * Will not be quoted when serializing value.
      */
     protected final String _suffix;
-    
+
     /**
      * Value to be serialized as JSONP padded; can be null.
      */
@@ -58,7 +58,7 @@ public class JSONWrappedObject implements JsonSerializable
         _value = value;
         _serializationType = asType;
     }
-    
+
     /*
     /**************************************************************
     /* JsonSerializable(WithType) implementation
@@ -95,7 +95,7 @@ public class JSONWrappedObject implements JsonSerializable
     /* Accessors
     /**************************************************************
      */
-    
+
     public String getPrefix() { return _prefix; }
     public String getSuffix() { return _suffix; }
     public Object getValue() { return _value; }

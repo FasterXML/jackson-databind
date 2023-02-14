@@ -55,13 +55,13 @@ public class MappingJsonFactory
         // note: as with base class, must NOT copy mapper reference
         return new MappingJsonFactory(this, null);
     }
-    
+
     /*
     /**********************************************************
     /* Format detection functionality (since 1.8)
     /**********************************************************
      */
-    
+
     /**
      * Sub-classes need to override this method
      */

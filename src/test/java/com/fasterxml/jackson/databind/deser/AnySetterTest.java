@@ -72,27 +72,27 @@ public class AnySetterTest
     static class Ignored
     {
         HashMap<String,Object> map = new HashMap<String,Object>();
- 
+
         @JsonIgnore
         public String bogus;
-        
+
         @JsonAnySetter
         void addEntry(String key, Object value)
         {
             map.put(key, value);
-        }        
+        }
     }
 
     static class Bean744
     {
         protected Map<String,Object> additionalProperties;
-        
+
         @JsonAnySetter
         public void addAdditionalProperty(String key, Object value) {
             if (additionalProperties == null) additionalProperties = new HashMap<String, Object>();
             additionalProperties.put(key,value);
         }
-        
+
         public void setAdditionalProperties(Map<String, Object> additionalProperties) {
             this.additionalProperties = additionalProperties;
         }
@@ -127,7 +127,7 @@ public class AnySetterTest
 
     static class Impl extends Base {
         public String value;
-        
+
         public Impl() { }
         public Impl(String v) { value = v; }
     }
@@ -135,7 +135,7 @@ public class AnySetterTest
     static class PolyAnyBean
     {
         protected Map<String,Base> props = new HashMap<String,Base>();
-        
+
         @JsonAnyGetter
         public Map<String,Base> props() {
             return props;
@@ -183,11 +183,11 @@ public class AnySetterTest
     {
         private String staticallyMappedProperty;
         private Map<T, Integer> dynamicallyMappedProperties = new HashMap<T, Integer>();
-    
+
         public String getStaticallyMappedProperty() {
             return staticallyMappedProperty;
         }
-    
+
         @JsonAnySetter
         public void addDynamicallyMappedProperty(T key, int value) {
             dynamicallyMappedProperties.put(key, value);
@@ -196,7 +196,7 @@ public class AnySetterTest
         public void setStaticallyMappedProperty(String staticallyMappedProperty) {
             this.staticallyMappedProperty = staticallyMappedProperty;
         }
-    
+
         @JsonAnyGetter
         public Map<T, Integer> getDynamicallyMappedProperties() {
             return dynamicallyMappedProperties;
@@ -230,19 +230,19 @@ public class AnySetterTest
     {
         public String type;
         public int x, y;
-    
+
         Map<String, Object> props = new HashMap<>();
-    
+
         @JsonAnySetter
         public void addProperty(String key, Object value) {
             props.put(key, value);
         }
-    
+
         @JsonAnyGetter
         public Map<String, Object> getProperties() {
             return props;
         }
-    
+
         @JsonUnwrapped
         public IdentityDTO349 identity;
     }
@@ -258,7 +258,7 @@ public class AnySetterTest
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
-    
+
     public void testSimpleMapImitation() throws Exception
     {
         MapImitator mapHolder = MAPPER.readValue
@@ -342,7 +342,7 @@ public class AnySetterTest
         input.props.put("a", new Impl("xyz"));
 
         String json = MAPPER.writeValueAsString(input);
-        
+
 //        System.err.println("JSON: "+json);
 
         PolyAnyBean result = MAPPER.readValue(json, PolyAnyBean.class);

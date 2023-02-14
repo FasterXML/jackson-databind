@@ -104,7 +104,7 @@ public class TestBiggerData extends BaseMapTest
 				Citm.class);
 
 		ObjectWriter w = MAPPER.writerWithDefaultPrettyPrinter();
-		
+
 		String json1 = w.writeValueAsString(citm);
 		Citm citm2 = MAPPER.readValue(json1, Citm.class);
 		String json2 = w.writeValueAsString(citm2);

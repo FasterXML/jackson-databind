@@ -27,7 +27,7 @@ public class TestVersions extends BaseMapTest
     /* Helper methods
     /**********************************************************
      */
-    
+
     private void assertVersion(Versioned vers)
     {
         Version v = vers.version();

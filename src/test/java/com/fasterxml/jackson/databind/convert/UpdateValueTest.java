@@ -24,7 +24,7 @@ public class UpdateValueTest extends BaseMapTest
         Map<String,Object> overrides = new LinkedHashMap<>();
         overrides.put("xyz", Boolean.TRUE);
         overrides.put("foo", "bar");
-        
+
         Map<String,Object> ob = MAPPER.updateValue(base, overrides);
         // first: should return first argument
         assertSame(base, ob);

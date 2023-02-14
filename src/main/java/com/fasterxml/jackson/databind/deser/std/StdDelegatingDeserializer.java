@@ -31,11 +31,11 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * for cases where intermediate type is {@link JsonNode}
  *<p>
  * NOTE: in Jackson 3.0 this class will be renamed as {@code StdConvertingDeserializer}.
- * 
+ *
  * @param <T> Target type to convert to, from delegate type
- * 
+ *
  * @since 2.1
- * 
+ *
  * @see StdNodeBasedDeserializer
  * @see Converter
  */
@@ -163,7 +163,7 @@ public class StdDelegatingDeserializer<T>
     /* Deserialization
     /**********************************************************
      */
-    
+
     @Override
     public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
@@ -309,7 +309,7 @@ public class StdDelegatingDeserializer<T>
     /* Other accessors
     /**********************************************************
      */
-        
+
     @Override // since 2.9
     public Boolean supportsUpdate(DeserializationConfig config) {
         return _delegateDeserializer.supportsUpdate(config);
@@ -328,9 +328,9 @@ public class StdDelegatingDeserializer<T>
      *<P>
      * The default implementation uses configured {@link Converter} to do
      * conversion.
-     * 
+     *
      * @param delegateValue
-     * 
+     *
      * @return Result of conversion
      */
     protected T convertValue(Object delegateValue) {

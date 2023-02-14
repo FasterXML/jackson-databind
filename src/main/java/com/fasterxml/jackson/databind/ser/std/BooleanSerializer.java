@@ -92,7 +92,7 @@ public final class BooleanSerializer
     /**
      * Alternate implementation that is used when values are to be serialized
      * as numbers <code>0</code> (false) or <code>1</code> (true).
-     * 
+     *
      * @since 2.9
      */
     final static class AsNumber

@@ -20,7 +20,7 @@ public class DelegatingCreatorWithAbstractProp2252Test extends BaseMapTest
     }
 
     // NOTE! Abstract POJO is fine, only Map/Collection causes issues for some reason
-    
+
 //    static abstract class MyAbstractMap extends AbstractMap<String, Object> { }
 
     @SuppressWarnings("serial")

@@ -18,13 +18,13 @@ public interface ContextualKeyDeserializer
      * as a result method should <b>NOT</b> modify this instance but rather construct
      * and return a new instance. This instance should only be returned as-is, in case
      * it is already suitable for use.
-     * 
-     * @param ctxt Deserialization context to access configuration, additional 
+     *
+     * @param ctxt Deserialization context to access configuration, additional
      *    deserializers that may be needed by this deserializer
      * @param property Method, field or constructor parameter that declared Map for which
      *   contextual instance will be used. Will not be available when deserializing root-level
      *   Map value; otherwise should not be null.
-     * 
+     *
      * @return Key deserializer to use for deserializing keys specified Map property,
      *   may be this instance or a new instance.
      */

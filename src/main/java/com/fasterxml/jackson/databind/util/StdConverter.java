@@ -6,8 +6,8 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 /**
  * Standard implementation of {@link Converter} that supports explicit
  * type access, instead of relying type detection of generic type
- * parameters. 
- * 
+ * parameters.
+ *
  * @since 2.2
  */
 public abstract class StdConverter<IN,OUT>

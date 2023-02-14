@@ -28,7 +28,7 @@ public class CoercionConfigs
      * by logical or physical type.
      */
     protected final MutableCoercionConfig _defaultCoercions;
-    
+
     /**
      * Coercion definitions by logical type ({@link LogicalType})
      */

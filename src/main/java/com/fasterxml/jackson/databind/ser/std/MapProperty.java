@@ -23,7 +23,7 @@ public class MapProperty extends PropertyWriter
     private static final long serialVersionUID = 1L;
 
     private final static BeanProperty BOGUS_PROP = new BeanProperty.Bogus();
-    
+
     protected final TypeSerializer _typeSerializer;
 
     protected final BeanProperty _property;
@@ -97,7 +97,7 @@ public class MapProperty extends PropertyWriter
     public <A extends Annotation> A getContextAnnotation(Class<A> acls) {
         return _property.getContextAnnotation(acls);
     }
-    
+
     @Override
     public void serializeAsField(Object map, JsonGenerator gen,
             SerializerProvider provider) throws IOException
@@ -129,7 +129,7 @@ public class MapProperty extends PropertyWriter
             _valueSerializer.serializeWithType(_value, gen, provider, _typeSerializer);
         }
     }
-    
+
     @Override
     public void serializeAsPlaceholder(Object value, JsonGenerator gen,
             SerializerProvider provider) throws Exception
@@ -142,7 +142,7 @@ public class MapProperty extends PropertyWriter
     /* Rest of BeanProperty, nop
     /**********************************************************
      */
-    
+
     @Override
     public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor,
             SerializerProvider provider)

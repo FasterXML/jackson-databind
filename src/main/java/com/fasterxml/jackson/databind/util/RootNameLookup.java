@@ -29,7 +29,7 @@ public class RootNameLookup implements java.io.Serializable
     public PropertyName findRootName(Class<?> rootType, MapperConfig<?> config)
     {
         ClassKey key = new ClassKey(rootType);
-        PropertyName name = _rootNames.get(key); 
+        PropertyName name = _rootNames.get(key);
         if (name != null) {
             return name;
         }

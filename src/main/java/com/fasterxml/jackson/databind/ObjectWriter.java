@@ -86,7 +86,7 @@ public class ObjectWriter
      * @since 2.5
      */
     protected final Prefetch _prefetch;
-    
+
     /*
     /**********************************************************
     /* Life-cycle, constructors
@@ -147,7 +147,7 @@ public class ObjectWriter
                 : new GeneratorSettings(null, s, null, null);
         _prefetch = Prefetch.empty;
     }
-    
+
     /**
      * Copy constructor used for building variations.
      */
@@ -213,7 +213,7 @@ public class ObjectWriter
 
     /**
      * Overridable factory method called by various "withXxx()" methods
-     * 
+     *
      * @since 2.5
      */
     protected ObjectWriter _new(ObjectWriter base, JsonFactory f) {
@@ -222,7 +222,7 @@ public class ObjectWriter
 
     /**
      * Overridable factory method called by various "withXxx()" methods
-     * 
+     *
      * @since 2.5
      */
     protected ObjectWriter _new(ObjectWriter base, SerializationConfig config) {
@@ -236,7 +236,7 @@ public class ObjectWriter
      * Overridable factory method called by various "withXxx()" methods.
      * It assumes `this` as base for settings other than those directly
      * passed in.
-     * 
+     *
      * @since 2.5
      */
     protected ObjectWriter _new(GeneratorSettings genSettings, Prefetch prefetch) {
@@ -249,7 +249,7 @@ public class ObjectWriter
     /**
      * Overridable factory method called by {@link #writeValues(OutputStream)}
      * method (and its various overrides), and initializes it as necessary.
-     * 
+     *
      * @since 2.5
      */
     @SuppressWarnings("resource")
@@ -282,7 +282,7 @@ public class ObjectWriter
      */
     public ObjectWriter with(SerializationFeature first, SerializationFeature... other) {
         return _new(this, _config.with(first, other));
-    }    
+    }
 
     /**
      * Method for constructing a new instance that is configured
@@ -290,15 +290,15 @@ public class ObjectWriter
      */
     public ObjectWriter withFeatures(SerializationFeature... features) {
         return _new(this, _config.withFeatures(features));
-    }    
-    
+    }
+
     /**
      * Method for constructing a new instance that is configured
      * with specified feature disabled.
      */
     public ObjectWriter without(SerializationFeature feature) {
         return _new(this, _config.without(feature));
-    }    
+    }
 
     /**
      * Method for constructing a new instance that is configured
@@ -306,7 +306,7 @@ public class ObjectWriter
      */
     public ObjectWriter without(SerializationFeature first, SerializationFeature... other) {
         return _new(this, _config.without(first, other));
-    }    
+    }
 
     /**
      * Method for constructing a new instance that is configured
@@ -463,7 +463,7 @@ public class ObjectWriter
      *<p>
      * Note that method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
-     * 
+     *
      * @since 2.5
      */
     public ObjectWriter forType(JavaType rootType) {
@@ -474,7 +474,7 @@ public class ObjectWriter
      * Method that will construct a new instance that uses specific type
      * as the root type for serialization, instead of runtime dynamic
      * type of the root object itself.
-     * 
+     *
      * @since 2.5
      */
     public ObjectWriter forType(Class<?> rootType) {
@@ -485,7 +485,7 @@ public class ObjectWriter
      * Method that will construct a new instance that uses specific type
      * as the root type for serialization, instead of runtime dynamic
      * type of the root object itself.
-     * 
+     *
      * @since 2.5
      */
     public ObjectWriter forType(TypeReference<?> rootType) {
@@ -521,7 +521,7 @@ public class ObjectWriter
     /* Life-cycle, fluent factories, other
     /**********************************************************
      */
-    
+
     /**
      * Fluent factory method that will construct a new writer instance that will
      * use specified date format for serializing dates; or if null passed, one
@@ -568,7 +568,7 @@ public class ObjectWriter
      *<p>
      * Note that method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
-     * 
+     *
      * @param rootName Root name to use, if non-empty; `null` for "use defaults",
      *    and empty String ("") for "do NOT add root wrapper"
      */
@@ -590,13 +590,13 @@ public class ObjectWriter
      *</code>
      * which will forcibly prevent use of root name wrapping when writing
      * values with this {@link ObjectWriter}.
-     * 
+     *
      * @since 2.6
      */
     public ObjectWriter withoutRootName() {
         return _new(this, _config.withRootName(PropertyName.NO_NAME));
     }
-    
+
     /**
      * Method that will construct a new instance that uses specific format schema
      * for serialization.
@@ -627,7 +627,7 @@ public class ObjectWriter
      */
     public ObjectWriter withView(Class<?> view) {
         return _new(this, _config.withView(view));
-    }    
+    }
 
     public ObjectWriter with(Locale l) {
         return _new(this, _config.with(l));
@@ -640,7 +640,7 @@ public class ObjectWriter
     /**
      * Method that will construct a new instance that uses specified default
      * {@link Base64Variant} for base64 encoding
-     * 
+     *
      * @since 2.1
      */
     public ObjectWriter with(Base64Variant b64variant) {
@@ -659,7 +659,7 @@ public class ObjectWriter
      */
     public ObjectWriter with(JsonFactory f) {
         return (f == _generatorFactory) ? this : _new(this, f);
-    }    
+    }
 
     /**
      * @since 2.3
@@ -1002,7 +1002,7 @@ public class ObjectWriter
     public JsonFactory getFactory() {
         return _generatorFactory;
     }
-    
+
     public TypeFactory getTypeFactory() {
         return _config.getTypeFactory();
     }
@@ -1012,7 +1012,7 @@ public class ObjectWriter
      * has pre-fetched serializer to use: pre-fetching improves performance
      * when writer instances are reused as it avoids a per-call serializer
      * lookup.
-     * 
+     *
      * @since 2.2
      */
     public boolean hasPrefetchedSerializer() {
@@ -1025,7 +1025,7 @@ public class ObjectWriter
     public ContextAttributes getAttributes() {
         return _config.getAttributes();
     }
-    
+
     /*
     /**********************************************************
     /* Serialization methods; ones from ObjectCodec first
@@ -1133,7 +1133,7 @@ public class ObjectWriter
      */
     public String writeValueAsString(Object value)
         throws JsonProcessingException
-    {        
+    {
         // alas, we have to pull the recycler directly here...
         SegmentedStringWriter sw = new SegmentedStringWriter(_generatorFactory._getBufferRecycler());
         try {
@@ -1186,7 +1186,7 @@ public class ObjectWriter
      * instance for specified type.
      *
      * @param type Type to generate schema for (possibly with generic signature)
-     * 
+     *
      * @since 2.2
      */
     public void acceptJsonFormatVisitor(JavaType type, JsonFormatVisitorWrapper visitor)
@@ -1216,7 +1216,7 @@ public class ObjectWriter
     /**
      * Method for checking whether instances of given type can be serialized,
      * and optionally why (as per {@link Throwable} returned).
-     * 
+     *
      * @since 2.3
      */
     public boolean canSerialize(Class<?> type, AtomicReference<Throwable> cause) {
@@ -1301,7 +1301,7 @@ public class ObjectWriter
     /**
      * Helper method called to set or override settings of passed-in
      * {@link JsonGenerator}
-     * 
+     *
      * @since 2.5
      */
     protected final JsonGenerator _configureGenerator(JsonGenerator gen)
@@ -1318,7 +1318,7 @@ public class ObjectWriter
             throw new IllegalArgumentException(String.format("argument \"%s\" is null", paramName));
         }
     }
-    
+
     /*
     /**********************************************************
     /* Helper classes for configuration
@@ -1329,7 +1329,7 @@ public class ObjectWriter
      * Helper class used for containing settings specifically related
      * to (re)configuring {@link JsonGenerator} constructed for
      * writing output.
-     * 
+     *
      * @since 2.5
      */
     public final static class GeneratorSettings
@@ -1456,7 +1456,7 @@ public class ObjectWriter
      * As a minor optimization, we will make an effort to pre-fetch a serializer,
      * or at least relevant <code>TypeSerializer</code>, if given enough
      * information.
-     * 
+     *
      * @since 2.5
      */
     public final static class Prefetch
@@ -1465,7 +1465,7 @@ public class ObjectWriter
         private static final long serialVersionUID = 1L;
 
         public final static Prefetch empty = new Prefetch(null, null, null);
-        
+
         /**
          * Specified root serialization type to use; can be same
          * as runtime type, but usually one of its super types
@@ -1486,7 +1486,7 @@ public class ObjectWriter
          * serializer, but can pre-fetch {@link TypeSerializer}.
          */
         private final TypeSerializer typeSerializer;
-        
+
         private Prefetch(JavaType rootT,
                 JsonSerializer<Object> ser, TypeSerializer typeSer)
         {

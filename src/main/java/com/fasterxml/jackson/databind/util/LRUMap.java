@@ -12,11 +12,16 @@ import com.fasterxml.jackson.databind.util.internal.PrivateMaxEntriesMap;
  * on assumption that all use cases are for caching where persistence
  * does not make sense. The only thing serialized is the cache size of Map.
  *<p>
- * NOTE: since Jackson 2.14, the implementation evicts the least recently used
- * entry when max size is reached.
- *<p>
  * Since Jackson 2.12, there has been pluggable {@link LookupCache} interface which
  * allows users, frameworks, provide their own cache implementations.
+ *<p>
+ * Snce Jackson 2.14, the implementation
+ *<ul>
+ *<li>Evicts the least recently used  entry when max size is reached
+ * </li>
+ *<li>Is thread-safe and does NOT require external synchronization
+ * </li>
+ *</ul>
  */
 public class LRUMap<K,V>
     implements LookupCache<K,V>, // since 2.12
@@ -52,7 +57,7 @@ public class LRUMap<K,V>
     public V putIfAbsent(K key, V value) {
         return _map.putIfAbsent(key, value);
     }
-    
+
     // NOTE: key is of type Object only to retain binary backwards-compatibility
     @Override
     public V get(Object key) { return _map.get(key); }

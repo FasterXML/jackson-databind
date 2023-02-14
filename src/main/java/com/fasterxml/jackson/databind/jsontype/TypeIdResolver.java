@@ -33,7 +33,7 @@ public interface TypeIdResolver
      * used to initialize instance with configuration. This is necessary
      * since instances may be created via reflection, without ability to
      * call specific constructor to pass in configuration settings.
-     * 
+     *
      * @param baseType Base type for which this id resolver instance is
      *   used
      */
@@ -69,14 +69,14 @@ public interface TypeIdResolver
 
     /**
      * Method called to resolve type from given type identifier.
-     * 
+     *
      * @since 2.5 (throws clause added in 2.8)
      */
     public JavaType typeFromId(DatabindContext context, String id) throws IOException;
 
     /**
      * Method called for error-reporting and diagnostics purposes.
-     * 
+     *
      * @since 2.7 -- but since 2.5 has existed in {@link com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase}
      */
     public String getDescForKnownTypeIds();

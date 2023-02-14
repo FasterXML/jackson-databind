@@ -258,7 +258,7 @@ public class DateDeserializers
                 return ctxt.constructCalendar(d);
             }
             try {
-                Calendar c = _defaultCtor.newInstance();            
+                Calendar c = _defaultCtor.newInstance();
                 c.setTimeInMillis(d.getTime());
                 TimeZone tz = ctxt.getTimeZone();
                 if (tz != null) {
@@ -297,7 +297,7 @@ public class DateDeserializers
         public Object getEmptyValue(DeserializationContext ctxt) {
             return new Date(0L);
         }
-        
+
         @Override
         public java.util.Date deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             return _parseDate(p, ctxt);

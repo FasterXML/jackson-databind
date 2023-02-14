@@ -32,13 +32,13 @@ public class NamingStrategyViaCreator556Test
             myAge = a;
             myName = n;
         }
-        
+
         @JsonCreator
         public static RenamedFactoryBean create(int age, String name) {
             return new RenamedFactoryBean(age, name, true);
         }
     }
-    
+
     @SuppressWarnings("serial")
     static class MyParamIntrospector extends JacksonAnnotationIntrospector
     {
@@ -63,7 +63,7 @@ public class NamingStrategyViaCreator556Test
             .build();
 
     private final static String CTOR_JSON = a2q("{ 'MyAge' : 42,  'MyName' : 'NotMyRealName' }");
-    
+
     public void testRenameViaCtor() throws Exception
     {
         RenamingCtorBean bean = MAPPER.readValue(CTOR_JSON, RenamingCtorBean.class);

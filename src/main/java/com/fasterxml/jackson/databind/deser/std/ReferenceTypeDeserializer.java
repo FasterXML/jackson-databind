@@ -69,7 +69,7 @@ public abstract class ReferenceTypeDeserializer<T>
         if (deser == null) {
             deser = ctxt.findContextualValueDeserializer(_fullType.getReferencedType(), property);
         } else { // otherwise directly assigned, probably not contextual yet:
-            deser = ctxt.handleSecondaryContextualization(deser, property, _fullType.getReferencedType());            
+            deser = ctxt.handleSecondaryContextualization(deser, property, _fullType.getReferencedType());
         }
         TypeDeserializer typeDeser = _valueTypeDeserializer;
         if (typeDeser != null) {
@@ -107,7 +107,7 @@ public abstract class ReferenceTypeDeserializer<T>
     /* Abstract methods for sub-classes to implement
     /**********************************************************
      */
-    
+
     /**
      * Mutant factory method called when changes are needed; should construct
      * newly configured instance with new values as indicated.

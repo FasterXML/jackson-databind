@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
  *
  * @param <T> Target type of this deserializer; that is, type of values that
  *   input data is deserialized into.
- * 
+ *
  * @since 2.5
  */
 public abstract class StdNodeBasedDeserializer<T>
@@ -30,7 +30,7 @@ public abstract class StdNodeBasedDeserializer<T>
     /* Life-cycle
     /**********************************************************
      */
-    
+
     protected StdNodeBasedDeserializer(JavaType targetType) {
         super(targetType);
     }
@@ -66,7 +66,7 @@ public abstract class StdNodeBasedDeserializer<T>
     /* JsonDeserializer impl
     /**********************************************************
      */
-    
+
     @Override
     public T deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
         JsonNode n = (JsonNode) _treeDeserializer.deserialize(jp, ctxt);

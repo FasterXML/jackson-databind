@@ -26,10 +26,10 @@ public class ArrayNodeTest
         assertFalse(n.isBoolean());
         assertFalse(n.isTextual());
         assertFalse(n.isNumber());
-        assertFalse(n.canConvertToInt()); 
-        assertFalse(n.canConvertToLong()); 
-        assertFalse(n.canConvertToExactIntegral()); 
-        
+        assertFalse(n.canConvertToInt());
+        assertFalse(n.canConvertToLong());
+        assertFalse(n.canConvertToExactIntegral());
+
         assertStandardEquals(n);
         assertFalse(n.elements().hasNext());
         assertFalse(n.fieldNames().hasNext());
@@ -53,7 +53,7 @@ public class ArrayNodeTest
         assertTrue(n.hasNonNull(0));
         assertFalse(n.has(1));
         assertFalse(n.hasNonNull(1));
-        
+
         // add null node too
         n.add((JsonNode) null);
         assertEquals(2, n.size());
@@ -244,7 +244,7 @@ public class ArrayNodeTest
         array.add((String) null);
 
         assertEquals(10, array.size());
-        
+
         for (JsonNode node : array) {
             assertTrue(node.isNull());
         }
@@ -286,7 +286,7 @@ public class ArrayNodeTest
         array.insert(1, (String) null);
 
         assertEquals(10, array.size());
-        
+
         for (JsonNode node : array) {
             assertTrue(node.isNull());
         }
@@ -349,7 +349,7 @@ public class ArrayNodeTest
         src.add("element");
         dest.addAll(src);
     }
-    
+
     public void testParser() throws Exception
     {
         ArrayNode n = new ArrayNode(JsonNodeFactory.instance);

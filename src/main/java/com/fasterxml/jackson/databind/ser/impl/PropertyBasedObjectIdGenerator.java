@@ -12,7 +12,7 @@ public class PropertyBasedObjectIdGenerator
     private static final long serialVersionUID = 1L;
 
     protected final BeanPropertyWriter _property;
-    
+
     public PropertyBasedObjectIdGenerator(ObjectIdInfo oid, BeanPropertyWriter prop)
     {
         this(oid.getScope(), prop);
@@ -44,7 +44,7 @@ public class PropertyBasedObjectIdGenerator
         }
         return false;
     }
-    
+
     @Override
     public Object generateId(Object forPojo) {
         try {

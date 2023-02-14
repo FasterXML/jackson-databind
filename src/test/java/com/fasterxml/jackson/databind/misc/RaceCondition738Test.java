@@ -48,20 +48,20 @@ public class RaceCondition738Test extends BaseMapTest
             return hasSubTypes;
         }
     }
-    
+
     /*
     /**********************************************************
     /* Test methods
     /**********************************************************
      */
-    
+
     public void testRepeatedly() throws Exception {
         final int COUNT = 3000;
         for (int i = 0; i < COUNT; i++) {
             runOnce(i, COUNT);
         }
     }
-    
+
     void runOnce(int round, int max) throws Exception {
         final ObjectMapper mapper = newJsonMapper();
         Callable<String> writeJson = new Callable<String>() {

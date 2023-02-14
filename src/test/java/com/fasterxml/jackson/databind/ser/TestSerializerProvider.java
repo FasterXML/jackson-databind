@@ -14,7 +14,7 @@ public class TestSerializerProvider
 
     static class NoPropsBean {
     }
-    
+
     public void testFindExplicit() throws IOException
     {
         ObjectMapper mapper = newJsonMapper();

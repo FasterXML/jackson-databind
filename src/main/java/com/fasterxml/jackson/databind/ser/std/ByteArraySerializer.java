@@ -35,12 +35,12 @@ public class ByteArraySerializer extends StdSerializer<byte[]>
     public ByteArraySerializer() {
         super(byte[].class);
     }
-    
+
     @Override
     public boolean isEmpty(SerializerProvider prov, byte[] value) {
         return value.length == 0;
     }
-    
+
     @Override
     public void serialize(byte[] value, JsonGenerator g, SerializerProvider provider)
         throws IOException

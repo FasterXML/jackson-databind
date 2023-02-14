@@ -41,7 +41,7 @@ public class UntypedDeserializationTest
         extends StdScalarDeserializer<Number>
     {
         protected final Integer value;
-        
+
         public CustomNumberDeserializer(int nr) {
             super(Number.class);
             value = nr;
@@ -75,7 +75,7 @@ public class UntypedDeserializationTest
                 BeanProperty property) throws JsonMappingException
         {
             // For now, we just need to access "untyped" deserializer; not use it.
-            
+
             /*JsonDeserializer<Object> ob = */
             ctxt.findContextualValueDeserializer(ctxt.constructType(Object.class), property);
             return this;
@@ -100,7 +100,7 @@ public class UntypedDeserializationTest
 
     static class DelegatingUntyped {
         protected Object value;
-        
+
         @JsonCreator // delegating
         public DelegatingUntyped(Object v) {
             value = v;
@@ -131,7 +131,7 @@ public class UntypedDeserializationTest
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
-    
+
     @SuppressWarnings("unchecked")
     public void testSampleDoc() throws Exception
     {
@@ -224,7 +224,7 @@ public class UntypedDeserializationTest
         List<?> list = (List<?>) MAPPER.readValue("[ 1, 2, 3]", Object.class);
         assertEquals(Integer.valueOf(1), list.get(0));
     }
-    
+
     public void testNestedUntypes() throws IOException
     {
         // 05-Apr-2014, tatu: Odd failures if using shared mapper; so work around:
@@ -326,7 +326,7 @@ public class UntypedDeserializationTest
         assertTrue(pojo.value instanceof List);
         pojo = r.readValue("[{}]");
         assertTrue(pojo.value instanceof List);
-        
+
         pojo = r.readValue("{}");
         assertTrue(pojo.value instanceof Map);
         pojo = r.readValue("{\"a\":[]}");
@@ -385,7 +385,7 @@ public class UntypedDeserializationTest
     /* Test methods, merging
     /**********************************************************
      */
-    
+
     public void testValueUpdateVanillaUntyped() throws Exception
     {
         Map<String, Object> map = new LinkedHashMap<>();
@@ -413,7 +413,7 @@ public class UntypedDeserializationTest
                 .addDeserializer(String.class, new UCStringDeserializer());
         final ObjectMapper customMapper = newJsonMapper()
             .registerModule(m);
-        
+
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("a", 42);
 
@@ -434,7 +434,7 @@ public class UntypedDeserializationTest
         assertEquals(3, list.size());
         assertEquals("FOOBAR", list.get(2));
     }
-    
+
     /*
     /**********************************************************
     /* Test methods, polymorphic

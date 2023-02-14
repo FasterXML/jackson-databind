@@ -24,7 +24,7 @@ public class DecimalNode
 
     final protected BigDecimal _value;
 
-    /* 
+    /*
     /**********************************************************
     /* Construction
     /**********************************************************
@@ -34,7 +34,7 @@ public class DecimalNode
 
     public static DecimalNode valueOf(BigDecimal d) { return new DecimalNode(d); }
 
-    /* 
+    /*
     /**********************************************************
     /* BaseJsonNode extended API
     /**********************************************************
@@ -45,7 +45,7 @@ public class DecimalNode
     @Override
     public JsonParser.NumberType numberType() { return JsonParser.NumberType.BIG_DECIMAL; }
 
-    /* 
+    /*
     /**********************************************************
     /* Overrridden JsonNode methods
     /**********************************************************
@@ -53,7 +53,7 @@ public class DecimalNode
 
     @Override
     public boolean isFloatingPointNumber() { return true; }
-    
+
     @Override
     public boolean isBigDecimal() { return true; }
 
@@ -63,7 +63,7 @@ public class DecimalNode
     @Override public boolean canConvertToLong() {
         return (_value.compareTo(MIN_LONG) >= 0) && (_value.compareTo(MAX_LONG) <= 0);
     }
-    
+
     @Override // since 2.12
     public boolean canConvertToExactIntegral() {
         return (_value.signum() == 0)
@@ -89,7 +89,7 @@ public class DecimalNode
 
     @Override
     public float floatValue() { return _value.floatValue(); }
-    
+
     @Override
     public double doubleValue() { return _value.doubleValue(); }
 

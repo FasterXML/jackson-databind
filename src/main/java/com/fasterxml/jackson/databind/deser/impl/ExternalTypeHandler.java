@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  * Helper class that is used to flatten JSON structure when using
  * "external type id" (see {@link com.fasterxml.jackson.annotation.JsonTypeInfo.As#EXTERNAL_PROPERTY}).
  * This is needed to store temporary state and buffer tokens, as the structure is
- * rearranged a bit so that actual type deserializer can resolve type and 
+ * rearranged a bit so that actual type deserializer can resolve type and
  * finalize deserialization.
  */
 public class ExternalTypeHandler
@@ -128,7 +128,7 @@ public class ExternalTypeHandler
      * at point where parser points to the first token of the value.
      * Handling can mean either resolving type id it contains (if it matches type
      * property name), or by buffering the value for further use.
-     * 
+     *
      * @return True, if the given property was properly handled
      */
     @SuppressWarnings("unchecked")
@@ -410,7 +410,7 @@ public class ExternalTypeHandler
     /* Helper classes
     /**********************************************************
      */
-    
+
     public static class Builder
     {
         private final JavaType _beanType;
@@ -445,7 +445,7 @@ public class ExternalTypeHandler
                 _nameToPropertyIndex.put(name, list);
             }
         }
-        
+
         /**
          * Method called after all external properties have been assigned, to further
          * link property with polymorphic value with possible property for type id

@@ -70,7 +70,7 @@ public abstract class AnnotatedMember
     /**
      * Accessor for {@link TypeResolutionContext} that is used for resolving
      * full generic type of this member.
-     * 
+     *
      * @since 2.7
      *
      * @deprecated Since 2.9
@@ -130,7 +130,7 @@ public abstract class AnnotatedMember
      * {@link com.fasterxml.jackson.databind.MapperFeature#CAN_OVERRIDE_ACCESS_MODIFIERS}
      * is enabled before calling this method; as well as pass
      * <code>force</code> flag appropriately.
-     * 
+     *
      * @since 2.7
      */
     public final void fixAccess(boolean force) {

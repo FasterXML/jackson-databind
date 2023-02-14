@@ -23,7 +23,7 @@ public class TypeBindings
     // // // Pre-resolved instances for minor optimizations
 
     // // // Actual member information
-    
+
     /**
      * Array of type (type variable) names.
      */
@@ -40,15 +40,15 @@ public class TypeBindings
      * @since 2.3
      */
     private final String[] _unboundVariables;
-    
+
     private final int _hashCode;
-    
+
     /*
     /**********************************************************************
     /* Construction
     /**********************************************************************
      */
-    
+
     private TypeBindings(String[] names, JavaType[] types, String[] uvars)
     {
         _names = (names == null) ? NO_STRINGS : names;
@@ -173,7 +173,7 @@ public class TypeBindings
         return new TypeBindings(new String[] { vars[0].getName() },
                 new JavaType[] { typeArg1 }, null);
     }
-    
+
     /**
      * Alternate factory method that may be called if it is possible that type
      * does or does not require type parameters; this is mostly useful for
@@ -201,7 +201,7 @@ public class TypeBindings
         }
         return new TypeBindings(names, types, null);
     }
-    
+
     /**
      * Method for creating an instance that has same bindings as this object,
      * plus an indicator for additional type variable that may be unbound within
@@ -256,11 +256,11 @@ name, i, t.getRawClass()));
     public boolean isEmpty() {
         return (_types.length == 0);
     }
-    
+
     /**
      * Returns number of bindings contained
      */
-    public int size() { 
+    public int size() {
         return _types.length;
     }
 
@@ -322,7 +322,7 @@ name, i, t.getRawClass()));
     /* Standard methods
     /**********************************************************************
      */
-    
+
     @Override public String toString()
     {
         if (_types.length == 0) {
@@ -420,7 +420,7 @@ name, i, t.getRawClass()));
                 return VARS_ITERABLE;
             }
             return erasedType.getTypeParameters();
-        }    
+        }
 
         public static TypeVariable<?>[] paramsFor2(Class<?> erasedType)
         {
@@ -434,7 +434,7 @@ name, i, t.getRawClass()));
                 return VARS_LINKED_HASH_MAP;
             }
             return erasedType.getTypeParameters();
-        }    
+        }
     }
 
     /**

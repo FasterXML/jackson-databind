@@ -73,7 +73,7 @@ public class NullConversionsForEnumsTest extends BaseMapTest
     /**********************************************************
      */
 
-    
+
     public void testEnumSetSkipNulls() throws Exception
     {
         NullContentSkip<EnumSet<ABC>> result = MAPPER.readValue(a2q("{'values': [ null ]}"),

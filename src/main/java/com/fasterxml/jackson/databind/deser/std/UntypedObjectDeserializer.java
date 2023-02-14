@@ -68,7 +68,7 @@ public class UntypedObjectDeserializer
      * @since 2.9
      */
     protected final boolean _nonMerging;
-    
+
     /**
      * @deprecated Since 2.6 use variant takes type arguments
      */
@@ -494,7 +494,7 @@ public class UntypedObjectDeserializer
     {
         String key1;
         JsonToken t = p.currentToken();
-        
+
         if (t == JsonToken.START_OBJECT) {
             key1 = p.nextFieldName();
         } else if (t == JsonToken.FIELD_NAME) {
@@ -669,7 +669,7 @@ public class UntypedObjectDeserializer
 
         // @since 2.9
         protected final boolean _nonMerging;
-        
+
         public Vanilla() { this(false); }
 
         protected Vanilla(boolean nonMerging) {

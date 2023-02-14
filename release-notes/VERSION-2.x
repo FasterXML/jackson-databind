@@ -6,10 +6,16 @@ Project: jackson-databind
 
 2.15.0 (not yet released)
 
+#2536: Add `EnumFeature.READ_ENUM_KEYS_USING_INDEX` to work with
+   existing "WRITE_ENUM_KEYS_USING_INDEX"
+ (contributed by Joo-Hyuk K)
 #2974: Null coercion with `@JsonSetter` does not work with `java.lang.Record`
  (fix contributed by Sim Y-T)
 #2992: Properties naming strategy do not work with Record
  (fix contributed by Sim Y-T)
+#3053: Allow serializing enums to lowercase (`EnumFeature.WRITE_ENUMS_TO_LOWERCASE`)
+ (requested by Vojtěch K)
+ (contributed by Joo-Hyuk K)
 #3180: Support `@JsonCreator` annotation on record classes
  (fix contributed by Sim Y-T)
 #3297: `@JsonDeserialize(converter = ...)` does not work with Records
@@ -40,6 +46,8 @@ Project: jackson-databind
  (contributed by @luozhenyu)
 #3748: `DelegatingDeserializer` missing override of `getAbsentValue()`
  (and couple of other methods)
+#3771: Classloader leak: DEFAULT_ANNOTATION_INTROSPECTOR holds annotation reference
+ (reported by Christoph S)
 
 2.14.2 (28-Jan-2023)
 

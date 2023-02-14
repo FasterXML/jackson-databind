@@ -24,17 +24,17 @@ public interface ContextualDeserializer
      * as a result method should <b>NOT</b> modify this instance but rather construct
      * and return a new instance. This instance should only be returned as-is, in case
      * it is already suitable for use.
-     * 
-     * @param ctxt Deserialization context to access configuration, additional 
+     *
+     * @param ctxt Deserialization context to access configuration, additional
      *    deserializers that may be needed by this deserializer
      * @param property Method, field or constructor parameter that represents the property
      *   (and is used to assign deserialized value).
      *   Should be available; but there may be cases where caller cannot provide it and
      *   null is passed instead (in which case impls usually pass 'this' deserializer as is)
-     * 
+     *
      * @return Deserializer to use for deserializing values of specified property;
      *   may be this instance or a new instance.
-     * 
+     *
      * @throws JsonMappingException
      */
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,

@@ -15,7 +15,7 @@ public class JsonValueExtTypeIdTest extends BaseMapTest
     public static class DecimalValue {
         private BigDecimal value;
         public DecimalValue() { value = new BigDecimal("111.1"); }
-     
+
         @JsonValue
         public BigDecimal getValue(){ return value; }
     }
@@ -24,7 +24,7 @@ public class JsonValueExtTypeIdTest extends BaseMapTest
     public static class DecimalEntry {
     public DecimalEntry() {}
         public String getKey() { return "num"; }
-         
+
         @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=JsonTypeInfo.As.EXTERNAL_PROPERTY)
         public DecimalValue getValue(){
             return new DecimalValue();
@@ -43,7 +43,7 @@ public class JsonValueExtTypeIdTest extends BaseMapTest
     public static class DoubleValue {
         private Double value;
         public DoubleValue() { value = 1234.25; }
-         
+
         @JsonValue
         public Double getValue() { return value; }
     }
@@ -52,7 +52,7 @@ public class JsonValueExtTypeIdTest extends BaseMapTest
     public static class DoubleEntry {
         public DoubleEntry(){}
         public String getKey(){ return "num"; }
-     
+
         @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=JsonTypeInfo.As.EXTERNAL_PROPERTY)
         public DoubleValue getValue(){ return new DoubleValue(); }
     }
@@ -65,7 +65,7 @@ public class JsonValueExtTypeIdTest extends BaseMapTest
     }
 
     final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     public void testDoubleMetadata() throws IOException {
         DoubleMetadata doub = new DoubleMetadata();
         String expected = "{\"metadata\":[{\"key\":\"num\",\"value\":1234.25,\"@type\":\"doubleValue\"}]}";

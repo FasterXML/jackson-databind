@@ -74,7 +74,7 @@ public class TestGenerateJsonSchema
         {
             this.property4 = property4;
         }
-        
+
         public String getProperty5()
         {
             return property5;
@@ -115,7 +115,7 @@ public class TestGenerateJsonSchema
         public BigDecimal dec;
         public BigInteger bigInt;
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests
@@ -123,14 +123,14 @@ public class TestGenerateJsonSchema
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
-    
+
     /**
      * tests generating json-schema stuff.
      */
     public void testOldSchemaGeneration() throws Exception
     {
         JsonSchema jsonSchema = MAPPER.generateJsonSchema(SimpleBean.class);
-        
+
         assertNotNull(jsonSchema);
 
         // test basic equality, and that equals() handles null, other obs
@@ -176,23 +176,23 @@ public class TestGenerateJsonSchema
         assertEquals("integer", property6Schema.get("type").asText());
         assertEquals(false, property6Schema.path("required").booleanValue());
     }
-    
+
     @JsonFilter("filteredBean")
     protected static class FilteredBean {
-    	
+
     	@JsonProperty
     	private String secret = "secret";
-    	
+
     	@JsonProperty
     	private String obvious = "obvious";
-    	
+
     	public String getSecret() { return secret; }
     	public void setSecret(String s) { secret = s; }
-    	
+
     	public String getObvious() { return obvious; }
     	public void setObvious(String s) {obvious = s; }
     }
-    
+
     final static FilterProvider secretFilterProvider = new SimpleFilterProvider()
         .addFilter("filteredBean", SimpleBeanPropertyFilter.filterOutAllExcept(new String[]{"obvious"}));
 
@@ -255,7 +255,7 @@ public class TestGenerateJsonSchema
         assertEquals(lastType, "string");
     }
 
-    // 
+    //
     public void testNumberTypes()  throws Exception
     {
         JsonSchema jsonSchema = MAPPER.generateJsonSchema(Numbers.class);

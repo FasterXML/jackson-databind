@@ -31,7 +31,7 @@ public class AnnotatedClassResolver
 
     private final static Class<?> CLS_LIST = List.class;
     private final static Class<?> CLS_MAP = Map.class;
-    
+
     private final MapperConfig<?> _config;
     private final AnnotationIntrospector _intr;
     private final MixInResolver _mixInResolver;
@@ -117,7 +117,7 @@ public class AnnotatedClassResolver
 
     /**
      * Internal helper method used for resolving a small set of "primordial" types for which
-     * we do not accept any annotation information or overrides. 
+     * we do not accept any annotation information or overrides.
      */
     static AnnotatedClass createPrimordial(Class<?> raw) {
         return new AnnotatedClass(raw);
@@ -207,7 +207,7 @@ public class AnnotatedClassResolver
         }
         return false;
     }
-    
+
     /*
     /**********************************************************
     /* Class annotation resolution
@@ -279,7 +279,7 @@ public class AnnotatedClassResolver
         if (mixin != null) {
             // Ok, first: annotations from mix-in class itself:
             annotations = _addAnnotationsIfNotPresent(annotations, ClassUtil.findClassAnnotations(mixin));
-    
+
             // And then from its supertypes, if any. But note that we will only consider
             // super-types up until reaching the masked class (if found); this because
             // often mix-in class is a sub-class (for convenience reasons).

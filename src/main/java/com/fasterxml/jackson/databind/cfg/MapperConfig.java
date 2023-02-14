@@ -91,7 +91,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
         _base = base;
         _mapperFeatures = src._mapperFeatures;
     }
-    
+
     protected MapperConfig(MapperConfig<T> src)
     {
         _base = src._base;
@@ -118,7 +118,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     /* Life-cycle: factory methods
     /**********************************************************
      */
-    
+
     /**
      * Method for constructing and returning a new instance with specified
      * mapper features enabled.
@@ -135,7 +135,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * @since 2.3
      */
     public abstract T with(MapperFeature feature, boolean state);
-    
+
     /*
     /**********************************************************
     /* Configuration: simple features
@@ -153,7 +153,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     /**
      * "Bulk" access method for checking that all features specified by
      * mask are enabled.
-     * 
+     *
      * @since 2.3
      *
      * @deprecated Since 2.13 -- no replacement
@@ -162,11 +162,28 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     public final boolean hasMapperFeatures(int featureMask) {
         return (_mapperFeatures & featureMask) == featureMask;
     }
-    
+
+    /**
+     * Accessor for checking whether give {@link DatatypeFeature}
+     * is enabled or not.
+     *
+     * @param feature Feature to check
+     *
+     * @return True if feature is enabled; false otherwise
+     *
+     * @since 2.15
+     */
+    public abstract boolean isEnabled(DatatypeFeature feature);
+
+    /**
+     * @since 2.15
+     */
+    public abstract DatatypeFeatures getDatatypeFeatures();
+
     /**
      * Method for determining whether annotation processing is enabled or not
      * (default settings are typically that it is enabled; must explicitly disable).
-     * 
+     *
      * @return True if annotation processing is enabled; false if not
      */
     public final boolean isAnnotationProcessingEnabled() {
@@ -179,7 +196,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * to invoke non-public Constructors, Methods; or to instantiate non-public
      * Classes. By default this is enabled, but on some platforms it needs to be
      * prevented since if this would violate security constraints and cause failures.
-     * 
+     *
      * @return True if access modifier overriding is allowed (and may be done for
      *   any Field, Method, Constructor or Class); false to prevent any attempts
      *   to override.
@@ -213,11 +230,11 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * Method for constructing a specialized textual object that can typically
      * be serialized faster than basic {@link java.lang.String} (depending
      * on escaping needed if any, char-to-byte encoding if needed).
-     * 
+     *
      * @param src Text to represent
-     * 
+     *
      * @return Optimized text object constructed
-     * 
+     *
      * @since 2.4
      */
     public SerializableString compileString(String src) {
@@ -227,13 +244,13 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
          */
         return new SerializedString(src);
     }
-    
+
     /*
     /**********************************************************
     /* Configuration: introspectors, mix-ins
     /**********************************************************
      */
-    
+
     public ClassIntrospector getClassIntrospector() {
         return _base.getClassIntrospector();
     }
@@ -279,7 +296,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     public final TypeResolverBuilder<?> getDefaultTyper(JavaType baseType) {
         return _base.getTypeResolverBuilder();
     }
-    
+
     public abstract SubtypeResolver getSubtypeResolver();
 
     /**
@@ -391,7 +408,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * is found; no type hierarchy traversal is performed.
      *
      * @since 2.8
-     * 
+     *
      * @return Override object to use for the type, if defined; null if none.
      */
     public abstract ConfigOverride findConfigOverride(Class<?> type);
@@ -405,7 +422,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * is found; no type hierarchy traversal is performed.
      *
      * @since 2.9
-     * 
+     *
      * @return Override object to use for the type, never null (but may be empty)
      */
     public abstract ConfigOverride getConfigOverride(Class<?> type);
@@ -434,7 +451,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * if none found, returning given <code>defaultIncl</code>
      *
      * @param defaultIncl Inclusion setting to return if no overrides found.
-     * 
+     *
      * @since 2.8.2
      */
     public JsonInclude.Value getDefaultPropertyInclusion(Class<?> baseType,
@@ -584,7 +601,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     /* Configuration: other
     /**********************************************************
      */
-    
+
     /**
      * Method for accessing currently configured (textual) date format
      * that will be used for reading or writing date values (in case
@@ -652,7 +669,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * Method for accessing per-instance shared (baseline/default)
      * attribute values; these are used as the basis for per-call
      * attributes.
-     * 
+     *
      * @since 2.3
      */
     public abstract ContextAttributes getAttributes();

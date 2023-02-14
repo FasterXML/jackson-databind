@@ -28,7 +28,7 @@ public class AsPropertyTypeSerializer
         return (_property == prop) ? this :
             new AsPropertyTypeSerializer(this._idResolver, prop, this._typePropertyName);
     }
-    
+
     @Override
     public String getPropertyName() { return _typePropertyName; }
 

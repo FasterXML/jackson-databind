@@ -62,7 +62,7 @@ public final class SerializationConfig
 
     /*
     /**********************************************************
-    /* Serialization features 
+    /* Serialization features
     /**********************************************************
      */
 
@@ -190,7 +190,7 @@ public final class SerializationConfig
         _formatWriteFeatures = formatFeatures;
         _formatWriteFeaturesToChange = formatFeaturesMask;
     }
-    
+
     private SerializationConfig(SerializationConfig src, BaseSettings base)
     {
         super(src, base);
@@ -343,7 +343,7 @@ public final class SerializationConfig
     public SerializationConfig withView(Class<?> view) {
         return (_view == view) ? this : new SerializationConfig(this, view);
     }
-    
+
     @Override
     public SerializationConfig with(ContextAttributes attrs) {
         return (attrs == _attributes) ? this : new SerializationConfig(this, attrs);
@@ -737,7 +737,7 @@ public final class SerializationConfig
         }
         return pp;
     }
-    
+
     /*
     /**********************************************************
     /* JsonParser initialization
@@ -748,7 +748,7 @@ public final class SerializationConfig
      * Method called by {@link ObjectMapper} and {@link ObjectWriter}
      * to modify those {@link com.fasterxml.jackson.core.JsonGenerator.Feature} settings
      * that have been configured via this config instance.
-     * 
+     *
      * @since 2.5
      */
     public void initialize(JsonGenerator g)
@@ -828,7 +828,7 @@ public final class SerializationConfig
      * Accessor method that first checks if we have any overrides
      * for feature, and only if not, checks state of passed-in
      * factory.
-     * 
+     *
      * @since 2.5
      */
     public final boolean isEnabled(JsonGenerator.Feature f, JsonFactory factory) {
@@ -838,11 +838,11 @@ public final class SerializationConfig
         }
         return factory.isEnabled(f);
     }
-    
+
     /**
      * "Bulk" access method for checking that all features specified by
      * mask are enabled.
-     * 
+     *
      * @since 2.3
      */
     public final boolean hasSerializationFeatures(int featureMask) {
@@ -863,15 +863,9 @@ public final class SerializationConfig
      *
      * @since 2.14
      */
+    @Override
     public final boolean isEnabled(DatatypeFeature feature) {
         return _datatypeFeatures.isEnabled(feature);
-    }
-
-    /**
-     * @since 2.15
-     */
-    public final DatatypeFeatures getDatatypeFeatures() {
-        return _datatypeFeatures;
     }
 
     /**

@@ -23,7 +23,7 @@ public class TestBuilderMethods extends BaseMapTest
      */
 
     private final ObjectMapper mapper = new ObjectMapper();
-    
+
     public void testSimple()
     {
         POJOPropertiesCollector coll = collector(SimpleBuilder.class);

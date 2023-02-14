@@ -21,13 +21,13 @@ public class TestJDKSerialization extends BaseMapTest
     static class MyPojo {
         public int x;
         protected int y;
-        
+
         public MyPojo() { }
         public MyPojo(int x0, int y0) {
             x = x0;
             y = y0;
         }
-        
+
         public int getY() { return y; }
         public void setY(int y) { this.y = y; }
     }
@@ -70,14 +70,14 @@ public class TestJDKSerialization extends BaseMapTest
      *   let's create a private copy for this class only.
      */
     private final ObjectMapper MAPPER = newJsonMapper();
-    
+
     public void testConfigs() throws IOException
     {
         byte[] base = jdkSerialize(MAPPER.getDeserializationConfig().getBaseSettings());
         assertNotNull(jdkDeserialize(base));
 
         // first things first: underlying BaseSettings
-        
+
         DeserializationConfig origDC = MAPPER.getDeserializationConfig();
         SerializationConfig origSC = MAPPER.getSerializationConfig();
         byte[] dcBytes = jdkSerialize(origDC);
@@ -138,7 +138,7 @@ public class TestJDKSerialization extends BaseMapTest
         ObjectWriter writer2 = jdkDeserialize(bytes);
         assertEquals(EXP_JSON, writer2.writeValueAsString(p));
     }
-    
+
     public void testObjectReader() throws IOException
     {
         ObjectReader origReader = MAPPER.readerFor(MyPojo.class);
@@ -148,7 +148,7 @@ public class TestJDKSerialization extends BaseMapTest
         ObjectReader anyReader = MAPPER.readerFor(AnyBean.class);
         AnyBean any = anyReader.readValue(JSON);
         assertEquals(Integer.valueOf(2), any.properties().get("y"));
-        
+
         byte[] readerBytes = jdkSerialize(origReader);
         ObjectReader reader2 = jdkDeserialize(readerBytes);
         MyPojo p2 = reader2.readValue(JSON);

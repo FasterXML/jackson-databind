@@ -100,7 +100,7 @@ public abstract class TypeDeserializerBase
     /* Accessors
     /**********************************************************
      */
-    
+
     @Override
     public abstract JsonTypeInfo.As getTypeInclusion();
 
@@ -108,8 +108,8 @@ public abstract class TypeDeserializerBase
 
     @Override
     public final String getPropertyName() { return _typePropertyName; }
-    
-    @Override    
+
+    @Override
     public TypeIdResolver getTypeIdResolver() { return _idResolver; }
 
     @Override
@@ -139,7 +139,7 @@ public abstract class TypeDeserializerBase
         sb.append(']');
         return sb.toString();
     }
-    
+
     /*
     /**********************************************************
     /* Helper methods for sub-classes
@@ -222,7 +222,7 @@ public abstract class TypeDeserializerBase
         if (ClassUtil.isBogusClass(raw)) {
             return NullifyingDeserializer.instance;
         }
-        
+
         synchronized (_defaultImpl) {
             if (_defaultImplDeserializer == null) {
                 _defaultImplDeserializer = ctxt.findContextualValueDeserializer(
@@ -236,7 +236,7 @@ public abstract class TypeDeserializerBase
      * Helper method called when {@link JsonParser} indicates that it can use
      * so-called native type ids. Assumption from there is that only native
      * type ids are to be used.
-     * 
+     *
      * @since 2.3
      */
     @Deprecated
@@ -247,7 +247,7 @@ public abstract class TypeDeserializerBase
     /**
      * Helper method called when {@link JsonParser} indicates that it can use
      * so-called native type ids, and such type id has been found.
-     * 
+     *
      * @since 2.4
      */
     protected Object _deserializeWithNativeTypeId(JsonParser p, DeserializationContext ctxt, Object typeId)
@@ -270,7 +270,7 @@ public abstract class TypeDeserializerBase
     }
 
     /**
-     * Helper method called when given type id cannot be resolved into 
+     * Helper method called when given type id cannot be resolved into
      * concrete deserializer either directly (using given {@link  TypeIdResolver}),
      * or using default type.
      * Default implementation simply throws a {@link com.fasterxml.jackson.databind.JsonMappingException} to

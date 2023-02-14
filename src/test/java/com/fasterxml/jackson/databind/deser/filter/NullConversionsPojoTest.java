@@ -4,8 +4,11 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidNullException;
+
+import java.util.Collection;
 
 // for [databind#1402]; configurable null handling, for values themselves
 public class NullConversionsPojoTest extends BaseMapTest
@@ -58,6 +61,21 @@ public class NullConversionsPojoTest extends BaseMapTest
         public String getName() { return n; }
     }
 
+    // [databind#3645]
+    static class Issue3645BeanA {
+        private String name;
+        private Collection<Integer> prices;
+
+        public Issue3645BeanA(
+            @JsonProperty("name") String name,
+            @JsonProperty("prices")
+            @JsonSetter(nulls = Nulls.AS_EMPTY) Collection<Integer> prices
+        ) {
+            this.name = name;
+            this.prices = prices;
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -107,7 +125,7 @@ public class NullConversionsPojoTest extends BaseMapTest
         String json = a2q("{'name':null}");
         NullsForString def = MAPPER.readValue(json, NullsForString.class);
         assertNull(def.getName());
-        
+
         ObjectMapper mapper = newJsonMapper();
         mapper.configOverride(String.class)
             .setSetterInfo(JsonSetter.Value.forValueNulls(Nulls.FAIL));
@@ -158,5 +176,25 @@ public class NullConversionsPojoTest extends BaseMapTest
         // and get coerced from "missing", as well
         result = MAPPER.readValue(a2q("{}"), NullAsEmptyCtor.class);
         assertEquals("", result._nullAsEmpty);
+    }
+
+    // [databind#3645]
+    public void testDeserializeMissingCollectionFieldAsEmpty() throws Exception {
+        String json = "{\"name\": \"Computer\"}";
+
+        Issue3645BeanA actual = MAPPER.readValue(json, Issue3645BeanA.class);
+
+        assertEquals(actual.name, "Computer");
+        assertTrue(actual.prices.isEmpty());
+    }
+
+    // [databind#3645]
+    public void testDeserializeNullAsEmpty() throws Exception {
+        String json = "{\"name\": \"Computer\", \"prices\" : null}";
+
+        Issue3645BeanA actual = MAPPER.readValue(json, Issue3645BeanA.class);
+
+        assertEquals(actual.name, "Computer");
+        assertTrue(actual.prices.isEmpty());
     }
 }

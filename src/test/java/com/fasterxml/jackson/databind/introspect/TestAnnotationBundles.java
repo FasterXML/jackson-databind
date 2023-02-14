@@ -28,7 +28,7 @@ public class TestAnnotationBundles extends com.fasterxml.jackson.databind.BaseMa
     protected final static class Bean {
         @MyIgnoral
         public String getIgnored() { return "foo"; }
- 
+
         @MyRename
         public int renamed = 13;
     }
@@ -42,7 +42,7 @@ public class TestAnnotationBundles extends com.fasterxml.jackson.databind.BaseMa
     @JsonAutoDetectOff
     public class NoAutoDetect {
       public int getA() { return 13; }
-      
+
       @JsonProperty
       public int getB() { return 5; }
     }
@@ -82,7 +82,7 @@ public class TestAnnotationBundles extends com.fasterxml.jackson.databind.BaseMa
         @HolderA
         public RecursiveHolder3(int x) { this.x = x; }
     }
-    
+
     @JsonProperty
     @JacksonAnnotationsInside
     @Retention(RetentionPolicy.RUNTIME)
@@ -135,7 +135,7 @@ public class TestAnnotationBundles extends com.fasterxml.jackson.databind.BaseMa
         assertNotNull(result);
         assertEquals(17, result.x);
     }
-    
+
     public void testBundledIgnore() throws Exception
     {
         assertEquals("{\"foobar\":13}", MAPPER.writeValueAsString(new Bean()));
@@ -145,7 +145,7 @@ public class TestAnnotationBundles extends com.fasterxml.jackson.databind.BaseMa
     {
         assertEquals("{\"b\":5}", MAPPER.writeValueAsString(new NoAutoDetect()));
     }
-    
+
     public void testIssue92() throws Exception
     {
         assertEquals("{\"_id\":\"abc\"}", MAPPER.writeValueAsString(new Bean92()));

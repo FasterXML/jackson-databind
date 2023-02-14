@@ -49,7 +49,7 @@ public abstract class SubtypeResolver
      * @since 2.9
      */
     public abstract void registerSubtypes(Collection<Class<?>> subtypes);
-    
+
     /*
     /**********************************************************
     /* Subtype resolution (public API)
@@ -61,14 +61,14 @@ public abstract class SubtypeResolver
      * by given element (method or field),
      * such that access is by type,
      * typically needed for serialization (converting from type to type name).
-     * 
+     *
      * @param baseType Effective property base type to use; may differ from
      *    actual type of property; for structured types it is content (value) type and NOT
      *    structured type.
-     * 
+     *
      * @since 2.6
      */
-    public Collection<NamedType> collectAndResolveSubtypesByClass(MapperConfig<?> config, 
+    public Collection<NamedType> collectAndResolveSubtypesByClass(MapperConfig<?> config,
             AnnotatedMember property, JavaType baseType) {
         // for backwards compatibility...
         return collectAndResolveSubtypes(property, config,
@@ -79,11 +79,11 @@ public abstract class SubtypeResolver
      * Method for finding out all reachable subtypes for given type,
      * such that access is by type,
      * typically needed for serialization (converting from type to type name).
-     * 
+     *
      * @param baseType Effective property base type to use; may differ from
      *    actual type of property; for structured types it is content (value) type and NOT
      *    structured type.
-     * 
+     *
      * @since 2.6
      */
     public Collection<NamedType> collectAndResolveSubtypesByClass(MapperConfig<?> config,
@@ -97,14 +97,14 @@ public abstract class SubtypeResolver
      * by given element (method or field),
      * such that access is by type id,
      * typically needed for deserialization (converting from type id to type).
-     * 
+     *
      * @param baseType Effective property base type to use; may differ from
      *    actual type of property; for structured types it is content (value) type and NOT
      *    structured type.
-     * 
+     *
      * @since 2.6
      */
-    public Collection<NamedType> collectAndResolveSubtypesByTypeId(MapperConfig<?> config, 
+    public Collection<NamedType> collectAndResolveSubtypesByTypeId(MapperConfig<?> config,
             AnnotatedMember property, JavaType baseType) {
         // for backwards compatibility...
         return collectAndResolveSubtypes(property, config,
@@ -115,11 +115,11 @@ public abstract class SubtypeResolver
      * Method for finding out all reachable subtypes for given type,
      * such that access is by type id,
      * typically needed for deserialization (converting from type id to type).
-     * 
+     *
      * @param baseType Effective property base type to use; may differ from
      *    actual type of property; for structured types it is content (value) type and NOT
      *    structured type.
-     * 
+     *
      * @since 2.6
      */
     public Collection<NamedType> collectAndResolveSubtypesByTypeId(MapperConfig<?> config,
@@ -127,13 +127,13 @@ public abstract class SubtypeResolver
         // for backwards compatibility...
         return collectAndResolveSubtypes(baseType, config, config.getAnnotationIntrospector());
     }
-    
+
     /*
     /**********************************************************
     /* Deprecated methods
     /**********************************************************
      */
-    
+
     /**
      * @deprecated Since 2.6 Use either
      *   {@link #collectAndResolveSubtypesByClass(MapperConfig, AnnotatedMember, JavaType)}

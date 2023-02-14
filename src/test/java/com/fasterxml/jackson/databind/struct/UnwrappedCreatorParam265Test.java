@@ -26,7 +26,7 @@ public class UnwrappedCreatorParam265Test extends BaseMapTest
         public String name;
 
         protected JAddress _address;
-         
+
         @JsonCreator
         public JPersonWithoutName(@JsonProperty("name") String name,
                 @JsonUnwrapped JAddress address)
@@ -44,7 +44,7 @@ public class UnwrappedCreatorParam265Test extends BaseMapTest
         public String name;
 
         protected JAddress _address;
-         
+
         @JsonCreator
         public JPersonWithName(@JsonProperty("name") String name,
                 @JsonUnwrapped
@@ -58,7 +58,7 @@ public class UnwrappedCreatorParam265Test extends BaseMapTest
         @JsonUnwrapped
         public JAddress getAddress() { return _address; }
     }
-    
+
     /*
     /**********************************************************
     /* Test methods

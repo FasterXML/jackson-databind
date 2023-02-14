@@ -41,7 +41,7 @@ public class TestContextAttributeWithSer extends BaseMapTest
 
         public TestPOJO(String str) { value = str; }
     }
-    
+
     /*
     /**********************************************************
     /* Test methods
@@ -49,7 +49,7 @@ public class TestContextAttributeWithSer extends BaseMapTest
      */
 
     final ObjectMapper MAPPER = sharedMapper();
-    
+
     public void testSimplePerCall() throws Exception
     {
         final String EXP = a2q("[{'value':'0:a'},{'value':'1:b'}]");

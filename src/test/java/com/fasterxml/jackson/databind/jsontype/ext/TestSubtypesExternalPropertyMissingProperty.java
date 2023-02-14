@@ -254,4 +254,4 @@ public class TestSubtypesExternalPropertyMissingProperty extends BaseMapTest
             BaseMapTest.verifyException(e, "Missing property 'fruit' for external type id 'type'");
         }
     }
-}    
+}

@@ -281,7 +281,7 @@ public class MapLikeType extends TypeBase {
      * Collection type; meaning whether it represents a parameterized subtype of
      * {@link java.util.Collection} or just something that acts like one.
      *
-     * @deprecated Since 2.12 just use instanceof 
+     * @deprecated Since 2.12 just use instanceof
      */
     @Deprecated // since 2.12 use assignment checks
     public boolean isTrueMapType() {

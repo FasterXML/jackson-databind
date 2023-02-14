@@ -23,7 +23,7 @@ public class ExceptionPathTest extends BaseMapTest
     /* Test methods
     /**********************************************************
      */
-    
+
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     public void testReferenceChainForInnerClass() throws Exception

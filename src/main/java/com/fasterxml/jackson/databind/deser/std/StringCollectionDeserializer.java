@@ -40,7 +40,7 @@ public final class StringCollectionDeserializer
     protected final JsonDeserializer<String> _valueDeserializer;
 
     // // Instance construction settings:
-    
+
     /**
      * Instantiator used in case custom handling is needed for creation.
      */
@@ -59,7 +59,7 @@ public final class StringCollectionDeserializer
     /* Life-cycle
     /**********************************************************
      */
-    
+
     public StringCollectionDeserializer(JavaType collectionType,
             JsonDeserializer<?> valueDeser, ValueInstantiator valueInstantiator)
     {
@@ -146,7 +146,7 @@ public final class StringCollectionDeserializer
         }
         return withResolved(delegate, valueDeser, nuller, unwrapSingle);
     }
-    
+
     /*
     /**********************************************************
     /* ContainerDeserializerBase API
@@ -170,7 +170,7 @@ public final class StringCollectionDeserializer
     /* JsonDeserializer API
     /**********************************************************
      */
-    
+
     @SuppressWarnings("unchecked")
     @Override
     public Collection<String> deserialize(JsonParser p, DeserializationContext ctxt)
@@ -224,7 +224,7 @@ public final class StringCollectionDeserializer
         }
         return result;
     }
-    
+
     private Collection<String> deserializeUsingCustom(JsonParser p, DeserializationContext ctxt,
             Collection<String> result, final JsonDeserializer<String> deser) throws IOException
     {
@@ -292,7 +292,7 @@ public final class StringCollectionDeserializer
         JsonToken t = p.currentToken();
 
         String value;
-        
+
         if (t == JsonToken.VALUE_NULL) {
             // 03-Feb-2017, tatu: Does this work?
             if (_skipNullValues) {

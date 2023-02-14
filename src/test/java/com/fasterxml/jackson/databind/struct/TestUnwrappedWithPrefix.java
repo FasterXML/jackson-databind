@@ -56,7 +56,7 @@ public class TestUnwrappedWithPrefix extends BaseMapTest
             location = new Location(x, y);
         }
     }
-    
+
     static class DeepPrefixUnwrap
     {
         @JsonUnwrapped(prefix="u.")
@@ -74,7 +74,7 @@ public class TestUnwrappedWithPrefix extends BaseMapTest
     {
         @JsonUnwrapped(prefix="general.")
         public ConfigGeneral general = new ConfigGeneral();
-        
+
         @JsonUnwrapped(prefix="misc.")
         public ConfigMisc misc = new ConfigMisc();
 
@@ -90,12 +90,12 @@ public class TestUnwrappedWithPrefix extends BaseMapTest
     {
         @JsonUnwrapped
         public ConfigGeneral general = new ConfigGeneral();
-        
+
         @JsonUnwrapped(prefix="misc.")
         public ConfigMisc misc = new ConfigMisc();
 
         public int id;
-        
+
         public ConfigAlternate() { }
         public ConfigAlternate(int id, String name, int value)
         {
@@ -109,7 +109,7 @@ public class TestUnwrappedWithPrefix extends BaseMapTest
     {
         @JsonUnwrapped(prefix="names.")
         public ConfigNames names = new ConfigNames();
-        
+
         public ConfigGeneral() { }
         public ConfigGeneral(String name) {
             names.name = name;
@@ -184,7 +184,7 @@ public class TestUnwrappedWithPrefix extends BaseMapTest
         assertEquals(4, bean.location.x);
         assertEquals(7, bean.location.y);
     }
-    
+
     public void testDeepPrefixedUnwrappingDeserialize() throws Exception
     {
         DeepPrefixUnwrap bean = MAPPER.readValue("{\"u.name\":\"Bubba\",\"u._x\":2,\"u._y\":3}",
@@ -195,7 +195,7 @@ public class TestUnwrappedWithPrefix extends BaseMapTest
         assertEquals(3, bean.unwrapped.location.y);
         assertEquals("Bubba", bean.unwrapped.name);
     }
-    
+
     public void testHierarchicConfigDeserialize() throws Exception
     {
         ConfigRoot root = MAPPER.readValue("{\"general.names.name\":\"Bob\",\"misc.value\":3}",
@@ -245,7 +245,7 @@ public class TestUnwrappedWithPrefix extends BaseMapTest
 
         assertNotNull(output.c1.sc1);
         assertNotNull(output.c2.sc1);
-        
+
         assertEquals("a", output.c1.sc1.value);
         assertEquals("b", output.c2.sc1.value);
     }

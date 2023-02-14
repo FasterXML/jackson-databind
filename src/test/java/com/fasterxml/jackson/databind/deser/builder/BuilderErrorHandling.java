@@ -23,7 +23,7 @@ public class BuilderErrorHandling extends BaseMapTest
     static class SimpleBuilderXY
     {
         int x, y;
-     
+
         public SimpleBuilderXY withX(int x0) {
               this.x = x0;
               return this;
@@ -186,5 +186,5 @@ public class BuilderErrorHandling extends BaseMapTest
         } catch (ValidatingValue.ValidationException e) {
             assertEquals("Missing second", e.getMessage());
         }
-    } 
+    }
 }

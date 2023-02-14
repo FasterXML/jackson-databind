@@ -687,7 +687,7 @@ public class BeanDeserializer
         }
         return bean;
     }
-    
+
     /*
     /**********************************************************
     /* Handling for cases where we have "unwrapped" values
@@ -831,7 +831,7 @@ public class BeanDeserializer
         // 01-Dec-2016, tatu: Note: This IS legal to call, but only when unwrapped
         //    value itself is NOT passed via `CreatorProperty` (which isn't supported).
         //    Ok however to pass via setter or field.
-        
+
         final PropertyBasedCreator creator = _propertyBasedCreator;
         PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
 
@@ -870,7 +870,7 @@ public class BeanDeserializer
                     // 28-Aug-2018, tatu: Let's add sanity check here, easier to catch off-by-some
                     //    problems if we maintain invariants
                     if (t != JsonToken.END_OBJECT) {
-                        ctxt.reportWrongTokenException(this, JsonToken.END_OBJECT, 
+                        ctxt.reportWrongTokenException(this, JsonToken.END_OBJECT,
                                 "Attempted to unwrap '%s' value",
                                 handledType().getName());
                     }

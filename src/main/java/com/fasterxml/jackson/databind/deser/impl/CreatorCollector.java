@@ -48,7 +48,7 @@ public class CreatorCollector
 
     /**
      * Set of creators we have collected so far
-     * 
+     *
      * @since 2.5
      */
     protected final AnnotatedWithParams[] _creators = new AnnotatedWithParams[11];
@@ -121,7 +121,7 @@ public class CreatorCollector
      * or factory method that is called to instantiate a value before populating
      * it with data. Default creator is only used if no other creators are
      * indicated.
-     * 
+     *
      * @param creator
      *            Creator method; no-arguments constructor or static factory
      *            method.
@@ -253,12 +253,12 @@ public class CreatorCollector
 
         // 03-May-2018, tatu: need to check possible annotation-based
         //   custom deserializer [databind#2012],
-        //   type refinement(s) [databind#2016]. 
+        //   type refinement(s) [databind#2016].
         JavaType baseType = creator.getParameterType(ix);
         AnnotationIntrospector intr = config.getAnnotationIntrospector();
         if (intr != null) {
             AnnotatedParameter delegate = creator.getParameter(ix);
-            
+
             // First: custom deserializer(s):
             Object deserDef = intr.findDeserializer(delegate);
             if (deserDef != null) {
@@ -368,7 +368,7 @@ public class CreatorCollector
                         : "implicitly discovered",
                 oldOne, newOne));
     }
-    
+
     /**
      * Helper method for recognizing `Enum.valueOf()` factory method
      *

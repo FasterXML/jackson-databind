@@ -48,7 +48,7 @@ public class BasicPolymorphicTypeValidator
     public abstract static class NameMatcher { // note: public since 2.11
         public abstract boolean match(MapperConfig<?> config, String clazzName);
     }
-    
+
     /*
     /**********************************************************
     /* Builder class for configuring instances
@@ -160,7 +160,7 @@ public class BasicPolymorphicTypeValidator
          * Method for appending custom matcher called with base type: if matcher returns
          * {@code true}, all possible subtypes will be accepted; if {@code false}, other
          * matchers are applied.
-         * 
+         *
          * @param matcher Custom matcher to apply to base type
          *
          * @return This Builder to allow call chaining
@@ -170,7 +170,7 @@ public class BasicPolymorphicTypeValidator
         public Builder allowIfBaseType(final TypeMatcher matcher) {
             return _appendBaseMatcher(matcher);
         }
-        
+
         /**
          * Method for appending matcher that will mark any polymorphic properties with exact
          * specific class to be invalid.
@@ -262,7 +262,7 @@ public class BasicPolymorphicTypeValidator
          * Method for appending custom matcher called with resolved subtype: if matcher returns
          * {@code true}, type will be accepted; if {@code false}, other
          * matchers are applied.
-         * 
+         *
          * @param matcher Custom matcher to apply to resolved subtype
          *
          * @return This Builder to allow call chaining
@@ -378,7 +378,7 @@ public class BasicPolymorphicTypeValidator
      * that match subtype class criteria.
      */
     protected final TypeMatcher[] _subClassMatchers;
-    
+
     protected BasicPolymorphicTypeValidator(Set<Class<?>> invalidBaseTypes,
             TypeMatcher[] baseTypeMatchers,
             NameMatcher[] subTypeNameMatchers, TypeMatcher[] subClassMatchers) {

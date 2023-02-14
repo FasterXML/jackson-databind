@@ -1539,6 +1539,17 @@ Gili Tzabari (cowwoc@github)
   * Reported #3063: `@JsonValue` fails for Java Record
   (2.14.2)
 
+Joo Hyuk Kim (JooHyukKim@github)
+  * Contributed #2536: Add `EnumFeature.READ_ENUM_KEYS_USING_INDEX` to work with
+   existing "WRITE_ENUM_KEYS_USING_INDEX"
+  (2.15.0)
+  * Contributed #3053: Allow serializing enums to lowercase (`EnumFeature.WRITE_ENUMS_TO_LOWERCASE`)
+  (2.15.0)
+
+Vojtěch Knyttl (knyttl@github)
+  * Requested #3053: Allow serializing enums to lowercase (`EnumFeature.WRITE_ENUMS_TO_LOWERCASE`)
+  (2.15.0)
+
 Hervé Boutemy (hboutemy@github)
   * Contributed fix for #3680: Timestamp in classes inside jar showing 02/01/1980
   (2.15.0)
@@ -1561,4 +1572,8 @@ Ajay Siwach (Siwach16@github)
 
 Zhenyu Luo (luozhenyu@github)
   * Contributed #3745: Deprecate classes in package `com.fasterxml.jackson.databind.jsonschema`
+  (2.15.0)
+
+Christoph Schulz (ciis0@github)
+  * Reported #3771: Classloader leak: DEFAULT_ANNOTATION_INTROSPECTOR holds annotation reference
   (2.15.0)

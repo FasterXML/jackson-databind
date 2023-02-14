@@ -52,7 +52,7 @@ public class TestCreators
             this.b = b;
         }
     }
-    
+
     static class DoubleConstructorBean {
         Double d; // cup?
         @JsonCreator protected DoubleConstructorBean(Double d) {
@@ -166,9 +166,9 @@ public class TestCreators
     static class NoArgFactoryBean {
         public int x;
         public int y;
-        
+
         public NoArgFactoryBean(int value) { x = value; }
-        
+
         @JsonCreator
         public static NoArgFactoryBean create() { return new NoArgFactoryBean(123); }
     }
@@ -319,7 +319,7 @@ public class TestCreators
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     public void testSimpleConstructor() throws Exception
     {
         ConstructorBean bean = MAPPER.readValue("{ \"x\" : 42 }", ConstructorBean.class);
@@ -333,7 +333,7 @@ public class TestCreators
         assertEquals(13, value.y);
         assertEquals(123, value.x);
     }
-    
+
     public void testSimpleDoubleConstructor() throws Exception
     {
         Double exp = Double.valueOf("0.25");
@@ -402,7 +402,7 @@ public class TestCreators
         FromStringBean bean = MAPPER.readValue(q(str), FromStringBean.class);
         assertEquals(str, bean.value);
     }
-        
+
     public void testConstructorCreator() throws Exception
     {
         CreatorBean bean = MAPPER.readValue
@@ -447,7 +447,7 @@ public class TestCreators
         bean = MAPPER.readValue("0.25", MultiBean.class);
         assertEquals(Double.valueOf(0.25), bean.value);
     }
-    
+
     /*
     /**********************************************************
     /* Test methods, valid cases, deferred, no mixins

@@ -95,7 +95,7 @@ public class BuilderDeserializationTest2486
     }
 
     private final ObjectMapper MAPPER = newJsonMapper();
-    
+
     // This test passes when the array based @JsonCreator is removed from the
     // MyPOJOWithArrayCreator.Builder implementation. The presence of the creator
     // in the case of arrays breaks deserialize from an object.

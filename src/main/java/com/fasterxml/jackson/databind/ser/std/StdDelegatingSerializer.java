@@ -36,12 +36,12 @@ public class StdDelegatingSerializer
      * Fully resolved delegate type, with generic information if any available.
      */
     protected final JavaType _delegateType;
-    
+
     /**
      * Underlying serializer for type <code>T</code>.
      */
     protected final JsonSerializer<Object> _delegateSerializer;
-    
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -65,7 +65,7 @@ public class StdDelegatingSerializer
         _delegateType = null;
         _delegateSerializer = null;
     }
-    
+
     @SuppressWarnings("unchecked")
     public StdDelegatingSerializer(Converter<Object,?> converter,
             JavaType delegateType, JsonSerializer<?> delegateSerializer)
@@ -86,7 +86,7 @@ public class StdDelegatingSerializer
         ClassUtil.verifyMustOverride(StdDelegatingSerializer.class, this, "withDelegate");
         return new StdDelegatingSerializer(converter, delegateType, delegateSerializer);
     }
-    
+
     /*
     /**********************************************************
     /* Contextualization
@@ -143,7 +143,7 @@ public class StdDelegatingSerializer
     public JsonSerializer<?> getDelegatee() {
         return _delegateSerializer;
     }
-    
+
     /*
     /**********************************************************
     /* Serialization
@@ -255,9 +255,9 @@ public class StdDelegatingSerializer
      *<P>
      * The default implementation uses configured {@link Converter} to do
      * conversion.
-     * 
+     *
      * @param value Value to convert
-     * 
+     *
      * @return Result of conversion
      */
     protected Object convertValue(Object value) {

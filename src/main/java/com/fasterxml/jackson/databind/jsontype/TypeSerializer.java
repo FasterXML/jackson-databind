@@ -36,7 +36,7 @@ public abstract class TypeSerializer
      * (as is the case for bean properties), or values contained
      * (for {@link java.util.Collection} or {@link java.util.Map}
      * valued properties).
-     * 
+     *
      * @since 2.0
      */
     public abstract TypeSerializer forProperty(BeanProperty prop);
@@ -130,7 +130,7 @@ public abstract class TypeSerializer
      *
      * @param g Generator to use for outputting type id and possible wrapping
      * @param typeId Details of what type id is to be written, how.
-     * 
+     *
      * @since 2.9
      */
     public abstract WritableTypeId writeTypePrefix(JsonGenerator g,
@@ -142,7 +142,7 @@ public abstract class TypeSerializer
      * Usual idiom is:
      *<pre>
      * // Indicator generator that type identifier may be needed; generator may write
-     * // one as suggested, modify information, or take some other action 
+     * // one as suggested, modify information, or take some other action
      * // NOTE! For Object/Array types, this will ALSO write start marker!
      * WritableTypeId typeIdDef = typeSer.writeTypePrefix(gen,
      *          typeSer.typeId(value, JsonToken.START_OBJECT));

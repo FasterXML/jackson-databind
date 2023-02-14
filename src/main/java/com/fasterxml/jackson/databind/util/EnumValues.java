@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.EnumFeature;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 
 /**
@@ -56,6 +57,9 @@ public final class EnumValues
             if (name == null) {
                 name = en.name();
             }
+            if (config.isEnabled(EnumFeature.WRITE_ENUMS_TO_LOWERCASE)) {
+                name = name.toLowerCase();
+            }
             textual[en.ordinal()] = config.compileString(name);
         }
         return construct(enumClass, textual);
@@ -95,7 +99,7 @@ public final class EnumValues
             SerializableString[] externalValues) {
         return new EnumValues(enumClass, externalValues);
     }
-    
+
     public SerializableString serializedValueFor(Enum<?> key) {
         return _textual[key.ordinal()];
     }
@@ -106,7 +110,7 @@ public final class EnumValues
 
     /**
      * Convenience accessor for getting raw Enum instances.
-     * 
+     *
      * @since 2.6
      */
     public List<Enum<?>> enums() {

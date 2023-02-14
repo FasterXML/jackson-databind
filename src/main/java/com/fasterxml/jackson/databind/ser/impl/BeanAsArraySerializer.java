@@ -41,7 +41,7 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * In cases where array-based output is not feasible, this serializer
  * can instead delegate to the original Object-based serializer; this
  * is why a reference is retained to the original serializer.
- * 
+ *
  * @since 2.1
  */
 public class BeanAsArraySerializer
@@ -54,14 +54,14 @@ public class BeanAsArraySerializer
      * cases where array output cannot be used.
      */
     protected final BeanSerializerBase _defaultSerializer;
-    
+
     /*
     /**********************************************************
     /* Life-cycle: constructors
     /**********************************************************
      */
 
-    public BeanAsArraySerializer(BeanSerializerBase src) {    
+    public BeanAsArraySerializer(BeanSerializerBase src) {
         super(src, (ObjectIdWriter) null);
         _defaultSerializer = src;
     }
@@ -80,7 +80,7 @@ public class BeanAsArraySerializer
         super(src, oiw, filterId);
         _defaultSerializer = src;
     }
-    
+
     /*
     /**********************************************************
     /* Life-cycle: factory methods, fluent factories

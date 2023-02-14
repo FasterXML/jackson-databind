@@ -47,7 +47,7 @@ public class ReadOnlyListDeser2118Test extends BaseMapTest
     }
 
     private final ObjectMapper mapper = newJsonMapper();
-    
+
     // [databind#2118]
     public void testAccessReadOnly() throws Exception {
         String data ="{\"security_group_rules\": [{\"id\": \"id1\"}]}";

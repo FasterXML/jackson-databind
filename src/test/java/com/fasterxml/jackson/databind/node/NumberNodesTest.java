@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.*;
 public class NumberNodesTest extends NodeTestBase
 {
     private final ObjectMapper MAPPER = objectMapper();
-    
+
     public void testShort()
     {
         ShortNode n = ShortNode.valueOf((short) 1);
@@ -83,7 +83,7 @@ public class NumberNodesTest extends NodeTestBase
         assertEquals("1", n.asText());
         // 2.4
         assertEquals("1", n.asText("foo"));
-        
+
         assertNodeNumbers(n, 1, 1.0);
 
         assertTrue(IntNode.valueOf(0).canConvertToInt());
@@ -253,7 +253,7 @@ public class NumberNodesTest extends NodeTestBase
         assertTrue(FloatNode.valueOf(Integer.MAX_VALUE).canConvertToLong());
         assertTrue(FloatNode.valueOf(Integer.MIN_VALUE).canConvertToLong());
     }
-    
+
     public void testDecimalNode() throws Exception
     {
         DecimalNode n = DecimalNode.valueOf(BigDecimal.ONE);
@@ -303,14 +303,14 @@ public class NumberNodesTest extends NodeTestBase
         assertFalse(result.canConvertToExactIntegral());
         assertTrue(result.canConvertToInt());
         assertTrue(result.canConvertToLong());
-        
+
         assertEquals(value, result.numberValue());
         assertEquals(value.toString(), result.asText());
 
         // also, equality should work ok
         assertEquals(result, DecimalNode.valueOf(value));
     }
-    
+
     public void testDecimalNodeEqualsHashCode()
     {
         // We want DecimalNodes with equivalent _numeric_ values to be equal;
@@ -354,7 +354,7 @@ public class NumberNodesTest extends NodeTestBase
         assertNodeNumbers(n, 1, 1.0);
 
         BigInteger maxLong = BigInteger.valueOf(Long.MAX_VALUE);
-        
+
         n = BigIntegerNode.valueOf(maxLong);
         assertEquals(Long.MAX_VALUE, n.longValue());
 

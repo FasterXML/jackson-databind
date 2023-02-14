@@ -6,7 +6,7 @@ import java.io.OutputStream;
 public class NopOutputStream extends OutputStream
 {
     protected int size = 0;
-    
+
     public NopOutputStream() { }
 
     @Override

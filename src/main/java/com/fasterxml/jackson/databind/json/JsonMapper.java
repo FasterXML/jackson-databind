@@ -148,7 +148,7 @@ public class JsonMapper extends ObjectMapper
 
     // // // 25-Oct-2018, tatu: Since for 2.x these will simply map to legacy settings,
     // // //   we will fake them
-    
+
     public boolean isEnabled(JsonReadFeature f) {
         return isEnabled(f.mappedFeature());
     }

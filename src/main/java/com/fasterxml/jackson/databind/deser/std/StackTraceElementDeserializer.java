@@ -27,7 +27,7 @@ public class StackTraceElementDeserializer
         super(StackTraceElement.class);
         _adapterDeserializer = ad;
     }
-     
+
     /**
      * @since 2.14
      */

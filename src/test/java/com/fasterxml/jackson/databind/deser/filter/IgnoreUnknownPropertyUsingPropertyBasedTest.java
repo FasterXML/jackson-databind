@@ -44,7 +44,7 @@ public class IgnoreUnknownPropertyUsingPropertyBasedTest extends BaseMapTest {
   static class IgnoreUnknownUnwrapped {
 
     int a, b;
-    
+
     @JsonCreator
     public IgnoreUnknownUnwrapped(@JsonProperty("a") int a, @JsonProperty("b") int b) {
       this.a = a;
@@ -58,7 +58,7 @@ public class IgnoreUnknownPropertyUsingPropertyBasedTest extends BaseMapTest {
       public int x, y;
     }
   }
-  
+
   public void testAnySetterWithFailOnUnknownDisabled() throws Exception {
     IgnoreUnknownAnySetter value = MAPPER.readValue("{\"a\":1, \"b\":2, \"x\":3, \"y\": 4}", IgnoreUnknownAnySetter.class);
     assertNotNull(value);

@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.ser.*;
 /**
  * Intermediate base class for serializers used for various
  * Java arrays.
- * 
+ *
  * @param <T> Type of arrays serializer handles
  */
 @SuppressWarnings("serial")
@@ -108,7 +108,7 @@ public abstract class ArraySerializerBase<T>
         }
         return this;
     }
-    
+
     // NOTE: as of 2.5, sub-classes SHOULD override (in 2.4 and before, was final),
     // at least if they can provide access to actual size of value and use `writeStartArray()`
     // variant that passes size of array to output, which is helpful with some data formats

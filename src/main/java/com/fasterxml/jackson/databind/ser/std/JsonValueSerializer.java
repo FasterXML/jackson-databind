@@ -199,7 +199,7 @@ public class JsonValueSerializer
             if (ctxt.isEnabled(MapperFeature.USE_STATIC_TYPING) || _valueType.isFinal()) {
                 /* 10-Mar-2010, tatu: Ideally we would actually separate out type
                  *   serializer from value serializer; but, alas, there's no access
-                 *   to serializer factory at this point... 
+                 *   to serializer factory at this point...
                  */
                 // 05-Sep-2013, tatu: I _think_ this can be considered a primary property...
                 ser = ctxt.findPrimaryPropertySerializer(_valueType, property);
@@ -227,7 +227,7 @@ public class JsonValueSerializer
     /* Actual serialization
     /**********************************************************
      */
-    
+
     @Override
     public void serialize(Object bean, JsonGenerator gen, SerializerProvider ctxt) throws IOException
     {
@@ -326,7 +326,7 @@ public class JsonValueSerializer
          *    So we will need to add special
          *    handling here (see https://github.com/FasterXML/jackson-module-jsonSchema/issues/57
          *    for details).
-         *    
+         *
          *    Note that meaning of JsonValue, then, is very different for Enums. Sigh.
          */
         Class<?> declaring = _accessor.getDeclaringClass();
@@ -349,7 +349,7 @@ public class JsonValueSerializer
     /**
      * Overridable helper method used for special case handling of schema information for
      * Enums.
-     * 
+     *
      * @return True if method handled callbacks; false if not; in latter case caller will
      *   send default callbacks
      *
@@ -498,7 +498,7 @@ public class JsonValueSerializer
         }
 
         // // // New Write API, 2.9+
-        
+
         @Override // since 2.9
         public WritableTypeId writeTypePrefix(JsonGenerator g,
                 WritableTypeId typeId) throws IOException {

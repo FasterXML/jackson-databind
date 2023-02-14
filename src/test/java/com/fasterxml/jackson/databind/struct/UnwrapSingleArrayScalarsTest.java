@@ -42,7 +42,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
     /* Tests for boolean
     /**********************************************************
      */
-    
+
     public void testBooleanPrimitiveArrayUnwrap() throws Exception
     {
         // [databind#381]
@@ -55,11 +55,11 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
         result = r.readValue("{\"v\":[null]}");
         assertNotNull(result);
         assertFalse(result.v);
-        
+
         result = r.readValue("[{\"v\":[null]}]");
         assertNotNull(result);
         assertFalse(result.v);
-        
+
         boolean[] array = UNWRAPPING_READER.forType(boolean[].class)
                 .readValue(new StringReader("[ [ null ] ]"));
         assertNotNull(array);
@@ -86,17 +86,17 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
         ObjectReader r = UNWRAPPING_READER.forType(IntBean.class);
         IntBean result = r.readValue("{\"v\":[3]}");
         assertEquals(3, result.v);
-        
+
         result = r.readValue("[{\"v\":[3]}]");
         assertEquals(3, result.v);
-        
+
         try {
             r.readValue("[{\"v\":[3,3]}]");
             fail("Did not throw exception while reading a value from a multi value array with UNWRAP_SINGLE_VALUE_ARRAY feature enabled");
         } catch (MismatchedInputException e) {
             verifyException(e, "more than one value");
         }
-        
+
         result = r.readValue("{\"v\":[null]}");
         assertNotNull(result);
         assertEquals(0, result.v);
@@ -105,14 +105,14 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
         assertNotNull(array);
         assertEquals(1, array.length);
         assertEquals(0, array[0]);
-        
+
     }
 
     public void testLongPrimitiveArrayUnwrap() throws Exception
     {
         final ObjectReader unwrapR = UNWRAPPING_READER.forType(LongBean.class);
         final ObjectReader noUnwrapR = NO_UNWRAPPING_READER.forType(LongBean.class);
-        
+
         try {
             noUnwrapR.readValue("{\"v\":[3]}");
             fail("Did not throw exception when reading a value from a single value array");
@@ -122,7 +122,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
 
         LongBean result = unwrapR.readValue("{\"v\":[3]}");
         assertEquals(3, result.v);
-        
+
         result = unwrapR.readValue("[{\"v\":[3]}]");
         assertEquals(3, result.v);
 
@@ -132,7 +132,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
         } catch (MismatchedInputException e) {
             verifyException(e, "more than one value");
         }
-        
+
         result = unwrapR.readValue("{\"v\":[null]}");
         assertNotNull(result);
         assertEquals(0, result.v);
@@ -156,20 +156,20 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
         } catch (MismatchedInputException e) {
             verifyException(e, "Cannot deserialize value of type `double`");
         }
-        
+
         DoubleBean result = unwrapR.readValue("{\"v\":[" + value + "]}");
         assertEquals(value, result.v);
-        
+
         result = unwrapR.readValue("[{\"v\":[" + value + "]}]");
         assertEquals(value, result.v);
-        
+
         try {
             unwrapR.readValue("[{\"v\":[" + value + "," + value + "]}]");
             fail("Did not throw exception while reading a value from a multi value array");
         } catch (MismatchedInputException e) {
             verifyException(e, "more than one value");
         }
-        
+
         result = unwrapR.readValue("{\"v\":[null]}");
         assertNotNull(result);
         assertEquals(0d, result.v);
@@ -361,7 +361,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
         } catch (MismatchedInputException exp) {
             _verifyNoDeserFromArray(exp);
         }
- 
+
         try {
             UNWRAPPING_READER.forType(String.class)
                 .readValue("[\""+value+"\",\""+value+"\"]");
@@ -390,7 +390,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
         r = UNWRAPPING_READER.forType(BigDecimal.class);
         result = r.readValue("[" + value.toString() + "]");
         assertEquals(value, result);
-        
+
         try {
             r.readValue("[" + value.toString() + "," + value.toString() + "]");
             fail("Exception was not thrown when attempting to read a muti value array of BigDecimal when UNWRAP_SINGLE_VALUE_ARRAYS feature is enabled");
@@ -414,13 +414,13 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
 
         result = UNWRAPPING_READER.readValue("[" + value.toString() + "]", BigInteger.class);
         assertEquals(value, result);
-        
+
         try {
             UNWRAPPING_READER.readValue("[" + value.toString() + "," + value.toString() + "]", BigInteger.class);
             fail("Exception was not thrown when attempting to read a multi-value array of BigInteger when UNWRAP_SINGLE_VALUE_ARRAYS feature is enabled");
         } catch (MismatchedInputException exp) {
             verifyException(exp, "Attempted to unwrap");
-        }        
+        }
     }
 
     public void testClassAsArray() throws Exception
@@ -455,7 +455,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
         } catch (MismatchedInputException e) {
             _verifyNoDeserFromArray(e);
         }
-        
+
         _verifyMultiValueArrayFail("[\""+value.toString()+"\",\""+value.toString()+"\"]", URI.class);
     }
 

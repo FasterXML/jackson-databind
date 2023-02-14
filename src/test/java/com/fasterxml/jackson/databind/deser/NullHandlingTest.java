@@ -38,7 +38,7 @@ public class NullHandlingTest extends BaseMapTest
             return this.any;
         }
     }
-    
+
     // [databind#1601]
     static class RootData {
         public String name;
@@ -86,7 +86,7 @@ public class NullHandlingTest extends BaseMapTest
     private final ObjectMapper CONTENT_NULL_FAIL_MAPPER = JsonMapper.builder()
             .defaultSetterInfo(JsonSetter.Value.construct(Nulls.AS_EMPTY, Nulls.FAIL))
             .build();
-    
+
     /*
     /**********************************************************************
     /* Test methods
@@ -98,8 +98,8 @@ public class NullHandlingTest extends BaseMapTest
         // null doesn't really have a type, fake by assuming Object
         Object result = MAPPER.readValue("   null", Object.class);
         assertNull(result);
-    }  
-    
+    }
+
     public void testAnySetterNulls() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
@@ -136,7 +136,7 @@ public class NullHandlingTest extends BaseMapTest
         String str = mapper.readValue("null", String.class);
         assertNotNull(str);
         assertEquals("funny", str);
-        
+
         // as well as via ObjectReader
         ObjectReader reader = mapper.readerFor(String.class);
         str = reader.readValue("null");

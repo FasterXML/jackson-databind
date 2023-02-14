@@ -53,7 +53,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /**
      * Mix-in annotation mappings to use, if any: immutable,
      * cannot be changed once defined.
-     * 
+     *
      * @since 2.6
      */
     protected final SimpleMixInResolver _mixIns;
@@ -85,7 +85,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /**
      * Contextual attributes accessible (get and set) during processing,
      * on per-call basis.
-     * 
+     *
      * @since 2.3
      */
     protected final ContextAttributes _attributes;
@@ -385,7 +385,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /* Additional shared fluent factory methods; DatatypeFeatures
     /**********************************************************************
      */
-    
+
     /**
      * Fluent factory method that will return a configuration
      * object instance with specified feature enabled: this may be
@@ -425,7 +425,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     public final T withoutFeatures(DatatypeFeature... features) {
         return _with(_datatypeFeatures().withoutFeatures(features));
     }
-    
+
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified features disabled.
@@ -443,7 +443,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /* Additional shared fluent factory methods; introspectors
     /**********************************************************************
      */
-    
+
     /**
      * Method for constructing and returning a new instance with different
      * {@link AnnotationIntrospector} to use (replacing old one).
@@ -470,7 +470,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     public final T withInsertedAnnotationIntrospector(AnnotationIntrospector ai) {
         return _withBase(_base.withInsertedAnnotationIntrospector(ai));
     }
-    
+
     /**
      * Method for constructing and returning a new instance with different
      * {@link ClassIntrospector}
@@ -492,7 +492,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /**
      * Method for constructing an instance that has specified
      * contextual attributes.
-     * 
+     *
      * @since 2.3
      */
     public abstract T with(ContextAttributes attrs);
@@ -500,17 +500,17 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /**
      * Method for constructing an instance that has only specified
      * attributes, removing any attributes that exist before the call.
-     * 
+     *
      * @since 2.3
      */
     public T withAttributes(Map<?,?> attributes) {
         return with(getAttributes().withSharedAttributes(attributes));
     }
-    
+
     /**
      * Method for constructing an instance that has specified
      * value for attribute for given key.
-     * 
+     *
      * @since 2.3
      */
     public T withAttribute(Object key, Object value) {
@@ -520,7 +520,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /**
      * Method for constructing an instance that has no
      * value for attribute for given key.
-     * 
+     *
      * @since 2.3
      */
     public T withoutAttribute(Object key) {
@@ -635,11 +635,11 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * disable root name wrapping; and if null used, will instead use
      * <code>SerializationFeature</code> to determine if to use wrapping, and annotation
      * (or default name) for actual root name to use.
-     * 
+     *
      * @param rootName to use: if null, means "use default" (clear setting);
      *   if empty String ("") means that no root name wrapping is used;
      *   otherwise defines root name to use.
-     *   
+     *
      * @since 2.6
      */
     public abstract T withRootName(PropertyName rootName);
@@ -650,7 +650,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         }
         return withRootName(PropertyName.construct(rootName));
     }
-    
+
     /**
      * Method for constructing and returning a new instance with different
      * {@link SubtypeResolver}
@@ -672,6 +672,11 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /* Simple accessors
     /**********************************************************************
      */
+
+    @Override
+    public final DatatypeFeatures getDatatypeFeatures() {
+        return _datatypeFeatures;
+    }
 
     /**
      * Accessor for object used for finding out all reachable subtypes
@@ -904,7 +909,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     public MixInResolver copy() {
         throw new UnsupportedOperationException();
     }
-    
+
     /**
      * Test-only method -- does not reflect possibly open-ended set that external
      * mix-in resolver might provide.

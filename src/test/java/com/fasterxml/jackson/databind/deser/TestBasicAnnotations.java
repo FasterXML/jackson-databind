@@ -39,7 +39,7 @@ public class TestBasicAnnotations
         @JsonUnwrapped
         protected IntWrapper w = new IntWrapper(13);
     }
-    
+
     final static class SizeClassSetter2
     {
         int _x;
@@ -89,7 +89,7 @@ public class TestBasicAnnotations
 
     static class AnnoBean {
         int value = 3;
-        
+
         @JsonProperty("y")
         public void setX(int v) { value = v; }
     }
@@ -124,13 +124,13 @@ public class TestBasicAnnotations
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     public void testSimpleSetter() throws Exception
     {
         SizeClassSetter result = MAPPER.readValue
             ("{ \"other\":3, \"size\" : 2, \"length\" : -999 }",
              SizeClassSetter.class);
-                                             
+
         assertEquals(3, result._other);
         assertEquals(2, result._size);
         assertEquals(-999, result._length);
@@ -223,5 +223,5 @@ public class TestBasicAnnotations
         SimpleBean bean = m.readValue("{\"x\":1,\"y\":2}", SimpleBean.class);
         assertEquals(1, bean.x);
         assertEquals(2, bean.y);
-    }    
+    }
 }

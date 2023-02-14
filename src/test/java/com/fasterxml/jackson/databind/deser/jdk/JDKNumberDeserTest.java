@@ -81,7 +81,7 @@ public class JDKNumberDeserTest extends BaseMapTest
     /* Helper classes, serializers/deserializers/resolvers
     /**********************************************************************
      */
-    
+
     static class MyBeanDeserializer extends JsonDeserializer<MyBeanValue>
     {
         @Override
@@ -99,7 +99,7 @@ public class JDKNumberDeserTest extends BaseMapTest
      */
 
     final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     public void testNaN() throws Exception
     {
         Float result = MAPPER.readValue(" \"NaN\"", Float.class);
@@ -157,7 +157,7 @@ public class JDKNumberDeserTest extends BaseMapTest
         assertEquals(Long.valueOf(0L), MAPPER.readValue(NULL_JSON, Long.TYPE));
         assertEquals(Float.valueOf(0f), MAPPER.readValue(NULL_JSON, Float.TYPE));
         assertEquals(Double.valueOf(0d), MAPPER.readValue(NULL_JSON, Double.TYPE));
-        
+
         assertNull(MAPPER.readValue(NULL_JSON, BigInteger.class));
         assertNull(MAPPER.readValue(NULL_JSON, BigDecimal.class));
 
@@ -180,7 +180,7 @@ public class JDKNumberDeserTest extends BaseMapTest
             verifyException(e, "Cannot coerce String value");
         }
     }
-    
+
     public void testDeserializeDecimalHappyPath() throws Exception {
         String json = "{\"defaultValue\": { \"value\": 123 } }";
         MyBeanHolder result = MAPPER.readValue(json, MyBeanHolder.class);

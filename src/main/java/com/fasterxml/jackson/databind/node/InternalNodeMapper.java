@@ -28,7 +28,7 @@ final class InternalNodeMapper {
     private final static ObjectReader NODE_READER = JSON_MAPPER.readerFor(JsonNode.class);
 
     // // // Methods for `JsonNode.toString()` and `JsonNode.toPrettyString()`
-    
+
     public static String nodeToString(BaseJsonNode n) {
         try {
             return STD_WRITER.writeValueAsString(_wrapper(n));
@@ -46,7 +46,7 @@ final class InternalNodeMapper {
     }
 
     // // // Methods for JDK serialization support of JsonNodes
-    
+
     public static byte[] valueToBytes(Object value) throws IOException {
         return JSON_MAPPER.writeValueAsBytes(value);
     }
@@ -134,6 +134,14 @@ final class InternalNodeMapper {
                         stack.push(currIt);
                         currIt = value.elements();
                         g.writeStartArray(value, value.size());
+                    } else if (value instanceof POJONode) {
+                        // [databind#3262] Problematic case, try to handle
+                        try {
+                            value.serialize(g, _context);
+                        } catch (IOException | RuntimeException e) {
+                            g.writeString(String.format("[ERROR: (%s) %s]",
+                                    e.getClass().getName(), e.getMessage()));
+                        }
                     } else {
                         value.serialize(g, _context);
                     }

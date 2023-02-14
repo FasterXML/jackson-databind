@@ -31,13 +31,13 @@ public class TestContextualDeserialization extends BaseMapTest
     public @interface Name {
         public String value();
     }
-    
+
     static class StringValue {
         protected String value;
-        
+
         public StringValue(String v) { value = v; }
     }
-    
+
     static class ContextualBean
     {
         @Name("NameA")
@@ -45,7 +45,7 @@ public class TestContextualDeserialization extends BaseMapTest
         @Name("NameB")
         public StringValue b;
     }
-    
+
     static class ContextualCtorBean
     {
         protected String a, b;
@@ -68,31 +68,31 @@ public class TestContextualDeserialization extends BaseMapTest
         @Name("NameB")
         public StringValue b;
     }
-    
+
     static class ContextualArrayBean
     {
         @Name("array")
         public StringValue[] beans;
     }
-    
+
     static class ContextualListBean
     {
         @Name("list")
         public List<StringValue> beans;
     }
-    
+
     static class ContextualMapBean
     {
         @Name("map")
         public Map<String, StringValue> beans;
     }
-    
+
     static class MyContextualDeserializer
         extends JsonDeserializer<StringValue>
         implements ContextualDeserializer
     {
         protected final String _fieldName;
-        
+
         public MyContextualDeserializer() { this(""); }
         public MyContextualDeserializer(String fieldName) {
             _fieldName = fieldName;
@@ -121,18 +121,18 @@ public class TestContextualDeserialization extends BaseMapTest
         implements ContextualDeserializer
     {
         protected final String _fieldName;
-        
+
         public AnnotatedContextualDeserializer() { this(""); }
         public AnnotatedContextualDeserializer(String fieldName) {
             _fieldName = fieldName;
         }
-    
+
         @Override
         public StringValue deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
         {
             return new StringValue(""+_fieldName+"="+jp.getText());
         }
-    
+
         @Override
         public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
                 BeanProperty property)
@@ -173,7 +173,7 @@ public class TestContextualDeserialization extends BaseMapTest
         @JsonDeserialize(contentUsing=GenericStringDeserializer.class)
         public Map<Integer, String> stuff;
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests
@@ -185,7 +185,7 @@ public class TestContextualDeserialization extends BaseMapTest
                     .addDeserializer(StringValue.class, new AnnotatedContextualDeserializer()
             ))
             .build();
-    
+
     public void testSimple() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -226,7 +226,7 @@ public class TestContextualDeserialization extends BaseMapTest
         assertEquals("Class=123", bean.a.value);
         assertEquals("NameB=345", bean.b.value);
     }
-    
+
     public void testAnnotatedCtor() throws Exception
     {
         ObjectMapper mapper = _mapperWithAnnotatedContextual();

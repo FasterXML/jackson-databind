@@ -25,7 +25,7 @@ public class PropertyAliasTest extends BaseMapTest
             @JsonAlias("A") int a) {
             _a = a;
         }
-        
+
         @JsonAlias({ "Xyz" })
         public void setXyz(int x) {
             _xyz = x;
@@ -100,7 +100,7 @@ public class PropertyAliasTest extends BaseMapTest
         assertEquals("Foobar", bean.name);
         assertEquals(3, bean._a);
         assertEquals(37, bean._xyz);
-        
+
         // and finally, constructor-backed one
         bean = MAPPER.readValue(a2q("{'name':'Foobar','A':3,'xyz':37}"),
                 AliasBean.class);

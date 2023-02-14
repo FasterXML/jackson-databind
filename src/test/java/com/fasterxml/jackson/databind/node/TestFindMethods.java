@@ -60,7 +60,7 @@ public class TestFindMethods
         assertEquals("3", values.get(0));
         assertEquals("42", values.get(1));
     }
-    
+
     private JsonNode _buildTree() throws Exception
     {
         final String SAMPLE = "{ \"a\" : { \"value\" : 3 },"

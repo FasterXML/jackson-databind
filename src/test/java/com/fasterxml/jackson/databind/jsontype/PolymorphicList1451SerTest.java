@@ -34,7 +34,7 @@ public class PolymorphicList1451SerTest extends BaseMapTest
         b.a = "a2";
         input.add(b);
 
-        final TypeReference<?> typeRef = 
+        final TypeReference<?> typeRef =
                 new TypeReference<Collection<A>>(){};
         ObjectWriter writer = mapper.writerFor(typeRef);
 

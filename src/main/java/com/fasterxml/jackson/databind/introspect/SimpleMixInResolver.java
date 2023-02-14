@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.type.ClassKey;
  *<p>
  * Implementation is only thread-safe after initialization (that is,
  * when underlying Map is not modified but only read).
- * 
+ *
  * @since 2.6
  */
 public class SimpleMixInResolver

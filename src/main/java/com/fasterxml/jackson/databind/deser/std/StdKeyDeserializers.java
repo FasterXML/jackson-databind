@@ -34,7 +34,7 @@ public class StdKeyDeserializers
     implements KeyDeserializers, java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
-    
+
     public static KeyDeserializer constructEnumKeyDeserializer(EnumResolver enumResolver) {
         return new StdKeyDeserializer.EnumKD(enumResolver, null);
     }
@@ -43,13 +43,13 @@ public class StdKeyDeserializers
             AnnotatedMethod factory) {
         return new StdKeyDeserializer.EnumKD(enumResolver, factory);
     }
-    
+
     public static KeyDeserializer constructDelegatingKeyDeserializer(DeserializationConfig config,
             JavaType type, JsonDeserializer<?> deser)
     {
         return new StdKeyDeserializer.DelegatingKD(type.getRawClass(), deser);
     }
-    
+
     public static KeyDeserializer findStringBasedKeyDeserializer(DeserializationConfig config,
             JavaType type)
         throws JsonMappingException

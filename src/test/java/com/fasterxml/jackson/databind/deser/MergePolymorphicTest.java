@@ -35,7 +35,7 @@ public class MergePolymorphicTest extends BaseMapTest {
     private final ObjectMapper MAPPER = JsonMapper.builder()
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .build();
-    
+
     public void testPolymorphicNewObject() throws Exception {
         Root root = MAPPER.readValue("{\"child\": { \"@type\": \"ChildA\", \"name\": \"I'm child A\" }}", Root.class);
         assertTrue(root.child instanceof ChildA);

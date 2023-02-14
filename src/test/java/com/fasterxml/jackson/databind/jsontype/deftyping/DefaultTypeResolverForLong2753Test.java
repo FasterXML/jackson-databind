@@ -34,7 +34,7 @@ public class DefaultTypeResolverForLong2753Test extends BaseMapTest
             return true;
         }
     }
-    
+
     public void testDefaultTypingWithLong() throws Exception
     {
         Data data = new Data(1L);

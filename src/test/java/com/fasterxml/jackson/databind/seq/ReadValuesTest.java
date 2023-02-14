@@ -168,7 +168,7 @@ public class ReadValuesTest extends BaseMapTest
     {
         final String JSON = "{\"a\":3}{\"a\":27}  ";
         JsonParser jp = MAPPER.createParser(JSON);
-        
+
         Iterator<Bean> it = jp.readValuesAs(Bean.class);
 
         assertTrue(it.hasNext());
@@ -188,7 +188,7 @@ public class ReadValuesTest extends BaseMapTest
         // NOTE: We must point JsonParser to the first element; if we tried to
         // use "managed" accessor, it would try to advance past START_ARRAY.
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
-        
+
         Iterator<int[]> it = MAPPER.readerFor(int[].class).readValues(jp);
         assertTrue(it.hasNext());
         int[] array = it.next();
@@ -209,7 +209,7 @@ public class ReadValuesTest extends BaseMapTest
         // use "managed" accessor, it would try to advance past START_ARRAY.
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         jp.nextToken();
-        
+
         Iterator<Integer> it = MAPPER.readerFor(Integer.class).readValues(jp);
         assertTrue(it.hasNext());
         int value = it.next();
@@ -252,7 +252,7 @@ public class ReadValuesTest extends BaseMapTest
         // explicitly passed JsonParser MUST point to the first token of
         // the first element
         assertToken(JsonToken.START_OBJECT, jp.nextToken());
-        
+
         Iterator<Bean> it = MAPPER.readerFor(Bean.class).readValues(jp);
 
         assertTrue(it.hasNext());
@@ -275,7 +275,7 @@ public class ReadValuesTest extends BaseMapTest
         // explicitly passed JsonParser MUST point to the first token of
         // the first element
         jp.clearCurrentToken();
-        
+
         Iterator<Map<?,?>> it = MAPPER.readerFor(Map.class).readValues(jp);
 
         assertTrue(it.hasNext());
@@ -334,12 +334,12 @@ public class ReadValuesTest extends BaseMapTest
         final String JSON = "[[1],[3]]";
         JsonParser p = MAPPER.createParser(JSON);
         assertToken(JsonToken.START_ARRAY, p.nextToken());
-        
+
         // Important: as of 2.1, START_ARRAY can only be skipped if the
         // target type is NOT a Collection or array Java type.
         // So we have to explicitly skip it in this particular case.
         assertToken(JsonToken.START_ARRAY, p.nextToken());
-        
+
         Iterator<int[]> it = MAPPER.readValues(p, int[].class);
 
         assertTrue(it.hasNext());

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.cfg.EnumFeature;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
@@ -89,14 +90,14 @@ public class EnumSerializationTest
 
     static class MapBean {
         public Map<TestEnum,Integer> map = new HashMap<TestEnum,Integer>();
-        
+
         public void add(TestEnum key, int value) {
             map.put(key, Integer.valueOf(value));
         }
     }
 
     static enum NOT_OK {
-        V1("v1"); 
+        V1("v1");
         protected String key;
         // any runtime-persistent annotation is fine
         NOT_OK(@JsonProperty String key) { this.key = key; }
@@ -157,7 +158,7 @@ public class EnumSerializationTest
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
-    
+
     public void testSimple() throws Exception
     {
         assertEquals("\"B\"", MAPPER.writeValueAsString(TestEnum.B));
@@ -273,7 +274,7 @@ public class EnumSerializationTest
         m.put(LC749Enum.A, "value");
         assertEquals("{\"A\":\"value\"}", mapper.writeValueAsString(m));
     }
-    
+
     public void testEnumMapSerDisableToString() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         ObjectWriter w = mapper.writer().without(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
@@ -330,11 +331,27 @@ public class EnumSerializationTest
             = Collections.singletonMap(EnumWithJsonKey.A, EnumWithJsonKey.B);
         assertEquals(a2q("{'key:a':'value:b'}"), MAPPER.writeValueAsString(input2));
     }
+
+    // [databind#3053]
+    public void testEnumFeature_WRITE_ENUMS_TO_LOWERCASE_isDisabledByDefault() {
+        ObjectReader READER = MAPPER.reader();
+        assertFalse(READER.isEnabled(EnumFeature.WRITE_ENUMS_TO_LOWERCASE));
+        assertFalse(READER.without(EnumFeature.WRITE_ENUMS_TO_LOWERCASE)
+            .isEnabled(EnumFeature.WRITE_ENUMS_TO_LOWERCASE));
+    }
+
+    public void testEnumFeature_WRITE_ENUMS_TO_LOWERCASE() throws Exception {
+        ObjectMapper m = jsonMapperBuilder()
+            .configure(EnumFeature.WRITE_ENUMS_TO_LOWERCASE, true)
+            .build();
+        assertEquals(q("b"), m.writeValueAsString(TestEnum.B));
+        // NOTE: cannot be dynamically changed
+    }
 }
 
 // [JACKSON-757], non-inner enum
 enum NOT_OK2 {
-    V2("v2"); 
+    V2("v2");
     protected String key;
     // any runtime-persistent annotation is fine
     NOT_OK2(@JsonProperty String key) { this.key = key; }

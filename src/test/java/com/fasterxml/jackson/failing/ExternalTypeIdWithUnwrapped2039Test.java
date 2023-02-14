@@ -33,7 +33,7 @@ public class ExternalTypeIdWithUnwrapped2039Test extends BaseMapTest
     public static class SubA2039 extends SubType2039 {
         @JsonProperty public boolean bool;
     }
-    
+
     public void testExternalWithUnwrapped2039() throws Exception
     {
         final ObjectMapper mapper = newJsonMapper();

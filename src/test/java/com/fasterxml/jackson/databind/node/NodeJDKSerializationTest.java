@@ -66,7 +66,7 @@ public class NodeJDKSerializationTest extends BaseMapTest
                 g.writeStringField("extra", "none#"+ix);
                 g.writeEndObject();
             } while (out.size() < expSize);
-            
+
             g.writeEndArray();
         }
 

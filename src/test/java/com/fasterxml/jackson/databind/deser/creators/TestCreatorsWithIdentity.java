@@ -15,10 +15,10 @@ public class TestCreatorsWithIdentity extends BaseMapTest
 	public static class Parent {
 	    @JsonProperty("id")
 	    String id;
-	
+
 	    @JsonProperty
 	    String parentProp;
-	
+
 	    @JsonCreator
 	    public Parent(@JsonProperty("parentProp") String parentProp) {
 	        this.parentProp = parentProp;

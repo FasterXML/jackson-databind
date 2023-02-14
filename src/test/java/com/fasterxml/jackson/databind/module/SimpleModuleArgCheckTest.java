@@ -60,7 +60,7 @@ public class SimpleModuleArgCheckTest extends BaseMapTest
         } catch (IllegalArgumentException e) {
             verifyException(e, "Cannot pass `null` as serializer");
         }
-        
+
         try {
             mod.addKeySerializer(String.class, null);
             fail("Should not pass");

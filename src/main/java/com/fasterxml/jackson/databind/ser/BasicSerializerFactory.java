@@ -51,7 +51,7 @@ public abstract class BasicSerializerFactory
      * use the class name, and keep things simple and efficient.
      */
     protected final static HashMap<String, JsonSerializer<?>> _concrete;
-    
+
     /**
      * Actually it may not make much sense to eagerly instantiate all
      * kinds of serializers: so this Map actually contains class references,
@@ -65,7 +65,7 @@ public abstract class BasicSerializerFactory
         HashMap<String, JsonSerializer<?>> concrete
             = new HashMap<String, JsonSerializer<?>>();
 
-        
+
         /* String and string-like types (note: date types explicitly
          * not included -- can use either textual or numeric serialization)
          */
@@ -115,7 +115,7 @@ public abstract class BasicSerializerFactory
     /* Configuration
     /**********************************************************
      */
-    
+
     /**
      * Configuration settings for this factory; immutable instance (just like this
      * factory), new version created via copy-constructor (fluent-style)
@@ -136,7 +136,7 @@ public abstract class BasicSerializerFactory
     protected BasicSerializerFactory(SerializerFactoryConfig config) {
         _factoryConfig = (config == null) ? new SerializerFactoryConfig() : config;
     }
-    
+
     /**
      * Method for getting current {@link SerializerFactoryConfig}.
       *<p>
@@ -177,7 +177,7 @@ public abstract class BasicSerializerFactory
     public final SerializerFactory withAdditionalKeySerializers(Serializers additional) {
         return withConfig(_factoryConfig.withAdditionalKeySerializers(additional));
     }
-    
+
     /**
      * Convenience method for creating a new factory instance with additional bean
      * serializer modifier.
@@ -192,7 +192,7 @@ public abstract class BasicSerializerFactory
     /* SerializerFactory impl
     /**********************************************************
      */
-    
+
     // Implemented by sub-classes
     @Override
     public abstract JsonSerializer<Object> createSerializer(SerializerProvider prov,
@@ -378,7 +378,7 @@ public abstract class BasicSerializerFactory
      *
      * @since 2.0
      */
-    protected final JsonSerializer<?> findSerializerByAnnotations(SerializerProvider prov, 
+    protected final JsonSerializer<?> findSerializerByAnnotations(SerializerProvider prov,
             JavaType type, BeanDescription beanDesc)
         throws JsonMappingException
     {
@@ -408,7 +408,7 @@ public abstract class BasicSerializerFactory
         // No well-known annotations...
         return null;
     }
-    
+
     /**
      * Method for checking if we can determine serializer to use based on set of
      * known primary types, checking for set of known base types (exact matches
@@ -416,7 +416,7 @@ public abstract class BasicSerializerFactory
      * This does not include "secondary" interfaces, but
      * mostly concrete or abstract base classes.
      */
-    protected final JsonSerializer<?> findSerializerByPrimaryType(SerializerProvider prov, 
+    protected final JsonSerializer<?> findSerializerByPrimaryType(SerializerProvider prov,
             JavaType type, BeanDescription beanDesc,
             boolean staticTyping)
         throws JsonMappingException
@@ -426,12 +426,12 @@ public abstract class BasicSerializerFactory
         }
 
         final Class<?> raw = type.getRawClass();
-        // Then check for optional/external serializers 
+        // Then check for optional/external serializers
         JsonSerializer<?> ser = findOptionalStdSerializer(prov, type, beanDesc, staticTyping);
         if (ser != null) {
             return ser;
         }
-        
+
         if (Calendar.class.isAssignableFrom(raw)) {
             return CalendarSerializer.instance;
         }
@@ -484,16 +484,16 @@ public abstract class BasicSerializerFactory
 
     /**
      * Overridable method called after checking all other types.
-     * 
+     *
      * @since 2.2
      */
-    protected JsonSerializer<?> findOptionalStdSerializer(SerializerProvider prov, 
+    protected JsonSerializer<?> findOptionalStdSerializer(SerializerProvider prov,
             JavaType type, BeanDescription beanDesc, boolean staticTyping)
         throws JsonMappingException
     {
         return OptionalHandlerFactory.instance.findSerializer(prov.getConfig(), type, beanDesc);
     }
-        
+
     /**
      * Reflection-based serialized find method, which checks if
      * given class implements one of recognized "add-on" interfaces.
@@ -524,7 +524,7 @@ public abstract class BasicSerializerFactory
         }
         return null;
     }
-    
+
     /**
      * Helper method called to check if a class or method
      * has an annotation
@@ -574,7 +574,7 @@ public abstract class BasicSerializerFactory
         }
         return prov.converterInstance(a, convDef);
     }
-    
+
     /*
     /**********************************************************
     /* Factory methods, container types:
@@ -599,7 +599,7 @@ public abstract class BasicSerializerFactory
                 staticTyping = true;
             }
         }
-        
+
         // Let's see what we can learn about element/content/value type, type serializer for it:
         JavaType elementType = type.getContentType();
         TypeSerializer elementTypeSerializer = createTypeSerializer(config,
@@ -683,12 +683,12 @@ public abstract class BasicSerializerFactory
     /**
      * Helper method that handles configuration details when constructing serializers for
      * {@link java.util.List} types that support efficient by-index access
-     * 
+     *
      * @since 2.1
      */
     protected JsonSerializer<?> buildCollectionSerializer(SerializerProvider prov,
             CollectionType type, BeanDescription beanDesc, boolean staticTyping,
-            TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer) 
+            TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer)
         throws JsonMappingException
     {
         SerializationConfig config = prov.getConfig();
@@ -811,7 +811,7 @@ public abstract class BasicSerializerFactory
         // 1. Custom serializers
         // 2. Annotations (@JsonValue, @JsonDeserialize)
         // 3. Defaults
-        
+
         final SerializationConfig config = prov.getConfig();
         for (Serializers serializers : customSerializers()) { // (1) Custom
             ser = serializers.findMapSerializer(config, type, beanDesc,
@@ -1019,13 +1019,13 @@ public abstract class BasicSerializerFactory
         }
         return inclV;
     }
-    
+
     /*
     /**********************************************************
     /* Factory methods, for Arrays
     /**********************************************************
      */
-    
+
     /**
      * Helper method that handles configuration details when constructing serializers for
      * <code>Object[]</code> (and subtypes, except for String).
@@ -1050,7 +1050,7 @@ public abstract class BasicSerializerFactory
                  break;
              }
         }
-        
+
         if (ser == null) {
              Class<?> raw = type.getRawClass();
              // Important: do NOT use standard serializers if non-standard element value serializer specified
@@ -1090,7 +1090,7 @@ public abstract class BasicSerializerFactory
             BeanDescription beanDesc, boolean staticTyping)
         throws JsonMappingException
     {
-        JavaType contentType = refType.getContentType(); 
+        JavaType contentType = refType.getContentType();
         TypeSerializer contentTypeSerializer = contentType.getTypeHandler();
         final SerializationConfig config = prov.getConfig();
         if (contentTypeSerializer == null) {
@@ -1119,7 +1119,7 @@ public abstract class BasicSerializerFactory
         final JavaType contentType = refType.getReferencedType();
         JsonInclude.Value inclV = _findInclusionWithContent(prov, beanDesc,
                 contentType, AtomicReference.class);
-        
+
         // Need to support global legacy setting, for now:
         JsonInclude.Include incl = (inclV == null) ? JsonInclude.Include.USE_DEFAULTS : inclV.getContentInclusion();
         Object valueToSuppress;
@@ -1275,7 +1275,7 @@ public abstract class BasicSerializerFactory
      * annotations for the bean class indicate that static typing
      * (declared types)  should be used for properties.
      * (instead of dynamic runtime types).
-     * 
+     *
      * @since 2.1 (earlier had variant with additional 'property' parameter)
      */
     protected boolean usesStaticTyping(SerializationConfig config,

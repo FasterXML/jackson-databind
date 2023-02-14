@@ -7,7 +7,7 @@ public class TestDuplicateRegistration extends BaseMapTest
 {
     static class MyModule extends com.fasterxml.jackson.databind.Module {
         public int regCount;
-        
+
         public MyModule() {
             super();
         }

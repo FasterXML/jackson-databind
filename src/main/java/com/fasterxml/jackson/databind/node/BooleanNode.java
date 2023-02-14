@@ -67,7 +67,7 @@ public class BooleanNode
     public boolean asBoolean(boolean defaultValue) {
         return _value;
     }
-    
+
     @Override
     public int asInt(int defaultValue) {
         return _value ? 1 : 0;
@@ -80,7 +80,7 @@ public class BooleanNode
     public double asDouble(double defaultValue) {
         return _value ? 1.0 : 0.0;
     }
-    
+
     @Override
     public final void serialize(JsonGenerator g, SerializerProvider provider) throws IOException {
         g.writeBoolean(_value);

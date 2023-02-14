@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 public class GenericTypeSerializationTest extends BaseMapTest
 {
     static class Account {
-        private Long id;        
+        private Long id;
         private String name;
 
         @JsonCreator
@@ -44,19 +44,19 @@ public class GenericTypeSerializationTest extends BaseMapTest
 
     static class Key<T> {
         private final T id;
-        
+
         public Key(T id) { this.id = id; }
-        
+
         public T getId() { return id; }
 
         public <V> Key<V> getParent() { return null; }
     }
- 
+
     static class Person1 {
         private Long id;
         private String name;
         private Key<Account> account;
-        
+
         public Person1(String name) { this.name = name; }
 
         public String getName() {
@@ -73,14 +73,14 @@ public class GenericTypeSerializationTest extends BaseMapTest
 
         public void setAccount(Key<Account> account) {
             this.account = account;
-        }    
+        }
     }
 
     static class Person2 {
         private Long id;
         private String name;
         private List<Key<Account>> accounts;
-        
+
         public Person2(String name) {
                 this.name = name;
         }
@@ -101,7 +101,7 @@ public class GenericTypeSerializationTest extends BaseMapTest
 
         class Element {
             public T value;
-    
+
             public Element(T v) { value = v; }
         }
     }
@@ -110,7 +110,7 @@ public class GenericTypeSerializationTest extends BaseMapTest
     static class Base727 {
         public int a;
     }
-    
+
     @JsonPropertyOrder(alphabetic=true)
     static class Impl727 extends Base727 {
         public int b;
@@ -453,7 +453,7 @@ public class GenericTypeSerializationTest extends BaseMapTest
     {
         Person1 p1 = new Person1("John");
         p1.setAccount(new Key<Account>(new Account("something", 42L)));
-        
+
         // First: ensure we can serialize (pre 1.7 this failed)
         String json = MAPPER.writeValueAsString(p1);
 

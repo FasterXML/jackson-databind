@@ -32,7 +32,7 @@ public abstract class Java7Support
     public static Java7Support instance() {
         return IMPL;
     }
-    
+
     public abstract Boolean findTransient(Annotated a);
 
     public abstract Boolean hasCreatorAnnotation(Annotated a);

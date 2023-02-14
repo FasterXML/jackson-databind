@@ -62,7 +62,7 @@ public final class DeserializationConfig
 
     /*
     /**********************************************************
-    /* Deserialization features 
+    /* Deserialization features
     /**********************************************************
      */
 
@@ -435,7 +435,7 @@ public final class DeserializationConfig
                     _parserFeatures, _parserFeaturesToChange,
                     _formatReadFeatures, _formatReadFeaturesToChange);
     }
-    
+
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified feature disabled.
@@ -524,7 +524,7 @@ public final class DeserializationConfig
                     newSet, newMask,
                     _formatReadFeatures, _formatReadFeaturesToChange);
     }
-    
+
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified feature disabled.
@@ -612,7 +612,7 @@ public final class DeserializationConfig
                     _parserFeatures, _parserFeaturesToChange,
                     newSet, newMask);
     }
-    
+
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified feature disabled.
@@ -775,7 +775,7 @@ public final class DeserializationConfig
      * Method called by {@link ObjectMapper} and {@link ObjectReader}
      * to modify those {@link com.fasterxml.jackson.core.JsonParser.Feature} settings
      * that have been configured via this config instance.
-     * 
+     *
      * @since 2.5
      */
     public JsonParser initialize(JsonParser p) {
@@ -842,7 +842,7 @@ public final class DeserializationConfig
     /**
      * Bulk access method for checking that all features specified by
      * mask are enabled.
-     * 
+     *
      * @since 2.3
      */
     public final boolean hasDeserializationFeatures(int featureMask) {
@@ -852,7 +852,7 @@ public final class DeserializationConfig
     /**
      * Bulk access method for checking that at least one of features specified by
      * mask is enabled.
-     * 
+     *
      * @since 2.6
      */
     public final boolean hasSomeOfFeatures(int featureMask) {
@@ -889,15 +889,9 @@ public final class DeserializationConfig
      *
      * @since 2.14
      */
+    @Override
     public final boolean isEnabled(DatatypeFeature feature) {
         return _datatypeFeatures.isEnabled(feature);
-    }
-
-    /**
-     * @since 2.15
-     */
-    public final DatatypeFeatures getDatatypeFeatures() {
-        return _datatypeFeatures;
     }
 
     /*
@@ -974,12 +968,12 @@ public final class DeserializationConfig
     /* Support for polymorphic type handling
     /**********************************************************
      */
-    
+
     /**
      * Helper method that is needed to properly handle polymorphic referenced
      * types, such as types referenced by {@link java.util.concurrent.atomic.AtomicReference},
      * or various "optional" types.
-     * 
+     *
      * @since 2.4
      */
     public TypeDeserializer findTypeDeserializer(JavaType baseType)

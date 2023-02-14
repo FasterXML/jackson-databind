@@ -107,7 +107,7 @@ public class CyclicRefViaCollection3069Test
 
         return Arrays.asList(a, b, c);
     }
-    
+
     public void testSerializationCollection(final ObjectMapper mapper, final Collection<Bean> collection)
             throws Exception {
         assertEquals(getExpectedResult(), mapper.writeValueAsString(collection));

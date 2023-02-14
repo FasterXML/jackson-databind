@@ -63,7 +63,7 @@ public class IsGetterRenaming2527Test extends BaseMapTest
             return null;
         }
     }
-    
+
     private final ObjectMapper MAPPER = jsonMapperBuilder()
             .annotationIntrospector(new MyIntrospector())
             .build();
@@ -76,7 +76,7 @@ public class IsGetterRenaming2527Test extends BaseMapTest
         Map<?, ?> props = MAPPER.readValue(json, Map.class);
         assertEquals(Collections.singletonMap("isEnabled", Boolean.TRUE),
                 props);
-        
+
         POJO2527 output = MAPPER.readValue(json, POJO2527.class);
         assertEquals(input.isEnabled, output.isEnabled);
     }
@@ -89,7 +89,7 @@ public class IsGetterRenaming2527Test extends BaseMapTest
         Map<?, ?> props = MAPPER.readValue(json, Map.class);
         assertEquals(Collections.singletonMap("isEnabled", Boolean.TRUE),
                 props);
-        
+
         POJO2527PublicField output = MAPPER.readValue(json, POJO2527PublicField.class);
         assertEquals(input.isEnabled, output.isEnabled);
     }
@@ -102,7 +102,7 @@ public class IsGetterRenaming2527Test extends BaseMapTest
         Map<?, ?> props = MAPPER.readValue(json, Map.class);
         assertEquals(Collections.singletonMap("isEnabled", Boolean.TRUE),
                 props);
-        
+
         POJO2527Creator output = MAPPER.readValue(json, POJO2527Creator.class);
         assertEquals(input.isEnabled, output.isEnabled);
     }

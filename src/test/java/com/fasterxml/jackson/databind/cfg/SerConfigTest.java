@@ -34,7 +34,7 @@ public class SerConfigTest extends BaseMapTest
 
         assertNotSame(config, config.with(SerializationFeature.INDENT_OUTPUT,
                 SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS));
-        
+
         assertSame(config, config.withRootName((PropertyName) null)); // defaults to 'none'
 
         newConfig = config.withRootName(PropertyName.construct("foobar"));

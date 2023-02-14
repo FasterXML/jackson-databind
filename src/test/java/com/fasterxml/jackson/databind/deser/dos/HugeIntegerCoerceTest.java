@@ -18,7 +18,7 @@ public class HugeIntegerCoerceTest extends BaseMapTest
         }
         BIG_POS_INTEGER = sb.toString();
     }
-    
+
     public void testMaliciousLongForEnum() throws Exception
     {
         JsonFactory f = JsonFactory.builder()
@@ -28,7 +28,7 @@ public class HugeIntegerCoerceTest extends BaseMapTest
 
         // Note: due to [jackson-core#488], fix verified with streaming over multiple
         // parser types. Here we focus on databind-level
-        
+
         try {
             /*ABC value =*/ mapper.readValue(BIG_POS_INTEGER, ABC.class);
             fail("Should not pass");
@@ -36,5 +36,5 @@ public class HugeIntegerCoerceTest extends BaseMapTest
             verifyException(e, "out of range of int");
             verifyException(e, "Integer with "+BIG_NUM_LEN+" digits");
         }
-    }    
+    }
 }

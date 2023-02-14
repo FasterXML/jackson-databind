@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
 @JacksonStdImpl
 public class TokenBufferDeserializer extends StdScalarDeserializer<TokenBuffer> {
     private static final long serialVersionUID = 1L;
-    
+
     public TokenBufferDeserializer() { super(TokenBuffer.class); }
 
     @Override // since 2.12

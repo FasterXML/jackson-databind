@@ -17,7 +17,7 @@ public class TestJavaType
     static class BaseType { }
 
     static class SubType extends BaseType { }
-    
+
     static enum MyEnum { A, B; }
     static enum MyEnum2 {
         A(1), B(2);
@@ -27,12 +27,12 @@ public class TestJavaType
 
     static enum MyEnumSub {
         A(1) {
-            @Override public String toString() { 
+            @Override public String toString() {
                 return "a";
             }
         },
         B(2) {
-            @Override public String toString() { 
+            @Override public String toString() {
                 return "b";
             }
         }
@@ -40,7 +40,7 @@ public class TestJavaType
 
         private MyEnumSub(int value) { }
     }
-    
+
     // [databind#728]
     static class Issue728 {
         public <C extends CharSequence> C method(C input) { return null; }
@@ -54,13 +54,13 @@ public class TestJavaType
 
     @SuppressWarnings("serial")
     static class AtomicStringReference extends AtomicReference<String> { }
-    
+
     /*
     /**********************************************************
     /* Test methods
     /**********************************************************
      */
-    
+
     public void testLocalType728() throws Exception
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -122,7 +122,7 @@ public class TestJavaType
         JavaType sub = baseType.forcedNarrowBy(SubType.class);
         assertTrue(sub.hasRawClass(SubType.class));
     }
-    
+
     public void testArrayType()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -159,7 +159,7 @@ public class TestJavaType
 
         assertEquals("Ljava/util/HashMap<Ljava/lang/Object;Ljava/lang/Object;>;", mapT.getGenericSignature());
         assertEquals("Ljava/util/HashMap;", mapT.getErasedSignature());
-        
+
         assertTrue(mapT.equals(mapT));
         assertFalse(mapT.equals(null));
         Object bogus = "xyz";
@@ -233,7 +233,7 @@ public class TestJavaType
         t  = tf.constructType(m.getGenericReturnType());
         assertEquals("Ljava/util/List<Ljava/lang/String;>;", t.getGenericSignature());
         assertEquals("Ljava/util/List;", t.getErasedSignature());
-        
+
         m = Generic1194.class.getMethod("getMap");
         t  = tf.constructType(m.getGenericReturnType());
         assertEquals("Ljava/util/Map<Ljava/lang/String;Ljava/lang/String;>;",

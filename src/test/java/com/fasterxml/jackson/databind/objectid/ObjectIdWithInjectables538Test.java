@@ -21,14 +21,14 @@ public class ObjectIdWithInjectables538Test extends BaseMapTest
         @JsonCreator
         public B(@JacksonInject("i2") String injected) {
         }
-    } 
+    }
 
     /*
     /*****************************************************
     /* Test methods
     /*****************************************************
      */
-    
+
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     public void testWithInjectables538() throws Exception

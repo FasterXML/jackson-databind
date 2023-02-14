@@ -35,7 +35,7 @@ final class UntypedObjectDeserializerNR
 
     // @since 2.9
     protected final boolean _nonMerging;
-    
+
     public UntypedObjectDeserializerNR() { this(false); }
 
     protected UntypedObjectDeserializerNR(boolean nonMerging) {
@@ -328,7 +328,7 @@ final class UntypedObjectDeserializerNR
     }
 
     private Object _deserializeAnyScalar(JsonParser p, DeserializationContext ctxt,
-            int tokenType) 
+            int tokenType)
         throws IOException
     {
         switch (tokenType) {
@@ -351,7 +351,7 @@ final class UntypedObjectDeserializerNR
             return Boolean.FALSE;
         case JsonTokenId.ID_EMBEDDED_OBJECT:
             return p.getEmbeddedObject();
-        
+
         case JsonTokenId.ID_NULL: // should not get this far really but...
             return null;
         // Caller should check for anything else
@@ -399,7 +399,7 @@ final class UntypedObjectDeserializerNR
             l.add(newValue);
             result.put(key, l);
         }
-    }    
+    }
 
     /*
     /**********************************************************************
@@ -619,7 +619,7 @@ final class UntypedObjectDeserializerNR
                     l.add(newValue);
                     _map.put(key, l);
                 }
-                
+
             }
         }
 

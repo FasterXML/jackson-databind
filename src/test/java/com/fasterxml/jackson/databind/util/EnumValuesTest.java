@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.cfg.EnumFeature;
 
 public class EnumValuesTest extends BaseMapTest
 {
@@ -63,5 +64,19 @@ public class EnumValuesTest extends BaseMapTest
         assertEquals(ABC.A, enums.get(0));
         assertEquals(ABC.B, enums.get(1));
         assertEquals(ABC.C, enums.get(2));
+    }
+
+    // [databind#3053]
+    @SuppressWarnings("unchecked")
+    public void testConstructFromNameLowerCased() {
+        SerializationConfig cfg = MAPPER.getSerializationConfig()
+            .with(EnumFeature.WRITE_ENUMS_TO_LOWERCASE);
+        Class<Enum<?>> enumClass = (Class<Enum<?>>)(Class<?>) ABC.class;
+        EnumValues values = EnumValues.construct(cfg, enumClass);
+        assertEquals("a", values.serializedValueFor(ABC.A).toString());
+        assertEquals("b", values.serializedValueFor(ABC.B).toString());
+        assertEquals("c", values.serializedValueFor(ABC.C).toString());
+        assertEquals(3, values.values().size());
+        assertEquals(3, values.internalMap().size());
     }
 }

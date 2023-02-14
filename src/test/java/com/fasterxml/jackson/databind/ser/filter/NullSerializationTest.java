@@ -29,7 +29,7 @@ public class NullSerializationTest
     static class Bean2 {
         public String type = null;
     }
-    
+
     @SuppressWarnings("serial")
     static class MyNullProvider extends DefaultSerializerProvider
     {
@@ -43,7 +43,7 @@ public class NullSerializationTest
         public DefaultSerializerProvider copy() {
             return this;
         }
-        
+
         @Override
         public DefaultSerializerProvider createInstance(SerializationConfig config, SerializerFactory jsf) {
             return new MyNullProvider(this, config, jsf);
@@ -70,7 +70,7 @@ public class NullSerializationTest
     @JsonSerialize(nullsUsing=NullSerializer.class)
     static class NullValuedType { }
 */
-    
+
     /*
     /**********************************************************
     /* Test methods
@@ -78,7 +78,7 @@ public class NullSerializationTest
      */
 
     private final ObjectMapper MAPPER = objectMapper();
-    
+
     public void testSimple() throws Exception
     {
         assertEquals("null", MAPPER.writeValueAsString(null));

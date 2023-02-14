@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind;
 
 import com.fasterxml.jackson.databind.cfg.ConfigFeature;
+import com.fasterxml.jackson.databind.cfg.EnumFeature;
 
 /**
  * Enumeration that defines simple on/off features that affect
@@ -226,10 +227,10 @@ public enum SerializationFeature implements ConfigFeature
      * Feature is disabled by default, so that zone id is NOT included; rather, timezone
      * offset is used for ISO-8601 compatibility (if any timezone information is
      * included in value).
-     * 
+     *
      * @since 2.6
      */
-    WRITE_DATES_WITH_ZONE_ID(false), 
+    WRITE_DATES_WITH_ZONE_ID(false),
 
     /**
      * Feature that determines whether timezone/offset included in zoned date/time
@@ -264,7 +265,7 @@ public enum SerializationFeature implements ConfigFeature
      *<p>
      * Feature is enabled by default, so that period/duration are by default
      * serialized as timestamps.
-     * 
+     *
      * @since 2.5
      */
     WRITE_DURATIONS_AS_TIMESTAMPS(true),
@@ -317,8 +318,11 @@ public enum SerializationFeature implements ConfigFeature
      * Similar to {@link #WRITE_ENUMS_USING_INDEX} used when writing
      * {@link Enum}s as regular values.
      *<p>
+     * NOTE: counterpart for this settings is
+     * {@link EnumFeature#READ_ENUM_KEYS_USING_INDEX}.
+     *<p>
      * Feature is disabled by default.
-     * 
+     *
      * @since 2.10
      */
     WRITE_ENUM_KEYS_USING_INDEX(false),
@@ -396,7 +400,7 @@ public enum SerializationFeature implements ConfigFeature
      * support it.
      *<p>
      * Feature is disabled by default.
-     * 
+     *
      * @deprecated Since 2.5: use {@link com.fasterxml.jackson.core.JsonGenerator.Feature#WRITE_BIGDECIMAL_AS_PLAIN} instead
      *    (using {@link ObjectWriter#with(com.fasterxml.jackson.core.JsonGenerator.Feature)}).
      */
@@ -476,7 +480,7 @@ public enum SerializationFeature implements ConfigFeature
 
     private final boolean _defaultState;
     private final int _mask;
-    
+
     private SerializationFeature(boolean defaultState) {
         _defaultState = defaultState;
         _mask = (1 << ordinal());

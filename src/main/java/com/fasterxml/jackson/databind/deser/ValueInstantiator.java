@@ -13,7 +13,7 @@ import java.math.BigInteger;
 
 /**
  * Class that defines simple API implemented by objects that create value
- * instances.  Some or all of properties of value instances may 
+ * instances.  Some or all of properties of value instances may
  * be initialized by instantiator, rest being populated by deserializer,
  * to which value instance is passed.
  * Since different kinds of JSON values (structured and scalar)

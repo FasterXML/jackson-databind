@@ -31,7 +31,7 @@ public class TestGenericCollectionDeser
 
         @JsonValue public Boolean value() { return b; }
     }
-    
+
     /*
     /**********************************************************
     /* Tests for sub-classing

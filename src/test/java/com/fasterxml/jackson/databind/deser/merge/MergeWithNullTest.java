@@ -40,7 +40,7 @@ public class MergeWithNullTest extends BaseMapTest
             loc = new AB(a, b);
         }
     }
-    
+
     // another variant where all we got is a getter
     static class NoSetterConfig {
         AB _value = new AB(2, 3);
@@ -119,7 +119,7 @@ public class MergeWithNullTest extends BaseMapTest
         assertNotNull(config);
         assertNull(config.loc);
     }
-    
+
     public void testSetterlessMergingWithNull() throws Exception
     {
         NoSetterConfig input = new NoSetterConfig();

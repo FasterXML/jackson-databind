@@ -144,7 +144,7 @@ public class JDKAtomicTypesDeserTest
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
-    
+
     public void testAtomicBoolean() throws Exception
     {
         AtomicBoolean b = MAPPER.readValue("true", AtomicBoolean.class);
@@ -233,7 +233,7 @@ public class JDKAtomicTypesDeserTest
     {
         RefWrapper input = new RefWrapper(13);
         String json = MAPPER.writeValueAsString(input);
-        
+
         RefWrapper result = MAPPER.readValue(json, RefWrapper.class);
         assertNotNull(result.w);
         Object ob = result.w.get();
@@ -286,7 +286,7 @@ public class JDKAtomicTypesDeserTest
          assertEquals(WrappedString.class, v.getClass());
          assertEquals("abc", ((WrappedString)v).value);
     }
-    
+
     // [databind#932]: support unwrapping too
     public void testWithUnwrapping() throws Exception
     {

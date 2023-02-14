@@ -68,7 +68,7 @@ public abstract class StdScalarSerializer<T>
     {
         return createSchemaNode("string", true);
     }
-    
+
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         throws JsonMappingException

@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
  * properties. Carved out to reduce number of distinct properties that
  * actual property implementations and place holders need to store;
  * since instances are immutable, they can be freely shared.
- * 
+ *
  * @since 2.3
  */
 public class PropertyMetadata
@@ -74,7 +74,7 @@ public class PropertyMetadata
 
     /**
      * Optional index of the property within containing Object.
-     * 
+     *
      * @since 2.4
      */
     protected final Integer _index;
@@ -94,7 +94,7 @@ public class PropertyMetadata
      * NOTE: transient since it is assumed that this information is only
      * relevant during initial setup and not needed after full initialization.
      * May be changed if this proves necessary.
-     * 
+     *
      * @since 2.9
      */
     protected final transient MergeInfo _mergeInfo;
@@ -103,7 +103,7 @@ public class PropertyMetadata
      * Settings regarding handling of incoming `null`s, both for value itself
      * and, for structured types, content values (array/Collection elements,
      * Map values).
-     * 
+     *
      * @since 2.9
      */
     protected Nulls _valueNulls, _contentNulls;
@@ -205,12 +205,12 @@ public class PropertyMetadata
         return new PropertyMetadata(_required, _description, _index, def,
                 _mergeInfo, _valueNulls, _contentNulls);
     }
-    
+
     public PropertyMetadata withIndex(Integer index) {
         return new PropertyMetadata(_required, _description, index, _defaultValue,
                 _mergeInfo, _valueNulls, _contentNulls);
     }
-    
+
     public PropertyMetadata withRequired(Boolean b) {
         if (b == null) {
             if (_required == null) {

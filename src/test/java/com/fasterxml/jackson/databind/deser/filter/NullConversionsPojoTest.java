@@ -4,8 +4,12 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidNullException;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+
+import java.util.Collection;
 
 // for [databind#1402]; configurable null handling, for values themselves
 public class NullConversionsPojoTest extends BaseMapTest
@@ -159,4 +163,37 @@ public class NullConversionsPojoTest extends BaseMapTest
         result = MAPPER.readValue(a2q("{}"), NullAsEmptyCtor.class);
         assertEquals("", result._nullAsEmpty);
     }
+
+    static class Issue3645BeanA {
+        private String name;
+        private Collection<Integer> prices;
+
+        public Issue3645BeanA(
+            @JsonProperty("name") String name,
+            @JsonProperty("prices")
+            @JsonSetter(nulls = Nulls.AS_EMPTY) Collection<Integer> prices
+        ) {
+            this.name = name;
+            this.prices = prices;
+        }
+    }
+
+    public void testDeserializeMissingCollectionFieldAsEmpty() throws JsonProcessingException {
+        String json = "{\"name\": \"Computer\"}";
+
+        Issue3645BeanA actual = MAPPER.readValue(json, Issue3645BeanA.class);
+
+        assertEquals(actual.name, "Computer");
+        assertTrue(actual.prices.isEmpty());
+    }
+
+    public void testDeserializeNullAsEmpty() throws JsonProcessingException {
+        String json = "{\"name\": \"Computer\", \"prices\" : null}";
+
+        Issue3645BeanA actual = MAPPER.readValue(json, Issue3645BeanA.class);
+
+        assertEquals(actual.name, "Computer");
+        assertTrue(actual.prices.isEmpty());
+    }
+
 }

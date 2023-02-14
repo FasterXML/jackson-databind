@@ -1,5 +1,7 @@
 package tools.jackson.databind.deser.filter;
 
+import java.util.Collection;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
@@ -57,6 +59,21 @@ public class NullConversionsPojoTest extends BaseMapTest
 
         public void setName(String n0) { n = n0; }
         public String getName() { return n; }
+    }
+
+    // [databind#3645]
+    static class Issue3645BeanA {
+        private String name;
+        private Collection<Integer> prices;
+
+        public Issue3645BeanA(
+            @JsonProperty("name") String name,
+            @JsonProperty("prices")
+            @JsonSetter(nulls = Nulls.AS_EMPTY) Collection<Integer> prices
+        ) {
+            this.name = name;
+            this.prices = prices;
+        }
     }
 
     /*
@@ -161,5 +178,25 @@ public class NullConversionsPojoTest extends BaseMapTest
         // and get coerced from "missing", as well
         result = MAPPER.readValue(a2q("{}"), NullAsEmptyCtor.class);
         assertEquals("", result._nullAsEmpty);
+    }
+
+    // [databind#3645]
+    public void testDeserializeMissingCollectionFieldAsEmpty() throws Exception {
+        String json = "{\"name\": \"Computer\"}";
+
+        Issue3645BeanA actual = MAPPER.readValue(json, Issue3645BeanA.class);
+
+        assertEquals(actual.name, "Computer");
+        assertTrue(actual.prices.isEmpty());
+    }
+
+    // [databind#3645]
+    public void testDeserializeNullAsEmpty() throws Exception {
+        String json = "{\"name\": \"Computer\", \"prices\" : null}";
+
+        Issue3645BeanA actual = MAPPER.readValue(json, Issue3645BeanA.class);
+
+        assertEquals(actual.name, "Computer");
+        assertTrue(actual.prices.isEmpty());
     }
 }

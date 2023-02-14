@@ -55,7 +55,7 @@ public class TestBigStrings extends BaseMapTest
             fail("expected JsonMappingException");
         } catch (JsonMappingException jsonMappingException) {
             final String message = jsonMappingException.getMessage();
-            // this test fails when the TextBuffer is being resized so we don't yet know just how the big the string is
+            // this test fails when the TextBuffer is being resized, so we don't yet know just how big the string is
             // so best not to assert that the String length value in the message is the full 2000000 value
             assertTrue("unexpected exception message: " + message, message.startsWith("String length"));
             assertTrue("unexpected exception message: " + message, message.contains("exceeds the maximum length (1000000)"));

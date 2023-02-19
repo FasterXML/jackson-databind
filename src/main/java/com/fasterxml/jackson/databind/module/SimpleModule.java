@@ -309,7 +309,7 @@ public class SimpleModule
      * WARNING! Type matching only uses type-erased {@code Class} and should NOT
      * be used when registering serializers for generic types like
      * {@link java.util.Collection} and {@link java.util.Map}.
-     *
+     *<p>
      * WARNING! "Last one wins" rule is applied.
      * Possible earlier addition of a serializer for a given Class will be replaced.
      */
@@ -329,7 +329,7 @@ public class SimpleModule
      * WARNING! Type matching only uses type-erased {@code Class} and should NOT
      * be used when registering serializers for generic types like
      * {@link java.util.Collection} and {@link java.util.Map}.
-     *
+     *<p>
      * WARNING! "Last one wins" rule is applied.
      * Possible earlier addition of a serializer for a given Class will be replaced.
      */
@@ -367,7 +367,7 @@ public class SimpleModule
      * WARNING! Type matching only uses type-erased {@code Class} and should NOT
      * be used when registering serializers for generic types like
      * {@link java.util.Collection} and {@link java.util.Map}.
-     *
+     *<p>
      * WARNING! "Last one wins" rule is applied.
      * Possible earlier addition of a serializer for a given Class will be replaced.
      */

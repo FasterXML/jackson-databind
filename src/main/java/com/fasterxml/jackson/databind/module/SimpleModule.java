@@ -309,6 +309,9 @@ public class SimpleModule
      * WARNING! Type matching only uses type-erased {@code Class} and should NOT
      * be used when registering serializers for generic types like
      * {@link java.util.Collection} and {@link java.util.Map}.
+     *
+     * WARNING! "Last one wins" rule is applied.
+     * Possible earlier addition of a serializer for a given Class will be replaced.
      */
     public SimpleModule addSerializer(JsonSerializer<?> ser)
     {
@@ -326,6 +329,9 @@ public class SimpleModule
      * WARNING! Type matching only uses type-erased {@code Class} and should NOT
      * be used when registering serializers for generic types like
      * {@link java.util.Collection} and {@link java.util.Map}.
+     *
+     * WARNING! "Last one wins" rule is applied.
+     * Possible earlier addition of a serializer for a given Class will be replaced.
      */
     public <T> SimpleModule addSerializer(Class<? extends T> type, JsonSerializer<T> ser)
     {
@@ -361,6 +367,9 @@ public class SimpleModule
      * WARNING! Type matching only uses type-erased {@code Class} and should NOT
      * be used when registering serializers for generic types like
      * {@link java.util.Collection} and {@link java.util.Map}.
+     *
+     * WARNING! "Last one wins" rule is applied.
+     * Possible earlier addition of a serializer for a given Class will be replaced.
      */
     public <T> SimpleModule addDeserializer(Class<T> type, JsonDeserializer<? extends T> deser)
     {

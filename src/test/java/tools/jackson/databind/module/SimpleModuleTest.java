@@ -156,6 +156,43 @@ public class SimpleModuleTest extends BaseMapTest
         }
     }
 
+    // [databind#3787]
+    static class Test3787Bean {
+        public String value;
+    }
+
+    static class Deserializer3787A extends ValueDeserializer<Test3787Bean> {
+        @Override
+        public Test3787Bean deserialize(JsonParser p, DeserializationContext ctxt) {
+            Test3787Bean simpleTestBean = new Test3787Bean();
+            simpleTestBean.value = "I am A";
+            return simpleTestBean;
+        }
+    }
+
+    static class Deserializer3787B extends ValueDeserializer<Test3787Bean> {
+        @Override
+        public Test3787Bean deserialize(JsonParser p, DeserializationContext ctxt)  {
+            Test3787Bean simpleTestBean = new Test3787Bean();
+            simpleTestBean.value = "I am B";
+            return simpleTestBean;
+        }
+    }
+
+    static class Serializer3787A extends ValueSerializer<Test3787Bean> {
+        @Override
+        public void serialize(Test3787Bean value, JsonGenerator gen, SerializerProvider serializers) {
+            gen.writeRaw("a-result");
+        }
+    }
+
+    static class Serializer3787B extends ValueSerializer<Test3787Bean> {
+        @Override
+        public void serialize(Test3787Bean value, JsonGenerator gen, SerializerProvider serializers) {
+            gen.writeRaw("b-result");
+        }
+    }
+
     /*
     /**********************************************************************
     /* Unit tests; first, verifying need for custom handlers
@@ -202,7 +239,7 @@ public class SimpleModuleTest extends BaseMapTest
     {
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
         mod.addSerializer(new CustomBeanSerializer());
-        ObjectMapper mapper = jsonMapperBuilder()
+        ObjectMapper mapper = JsonMapper.builder()
                 .addModule(mod)
                 .build();
         assertEquals(q("abcde|5"), mapper.writeValueAsString(new CustomBean("abcde", 5)));
@@ -213,8 +250,8 @@ public class SimpleModuleTest extends BaseMapTest
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
         mod.addSerializer(new SimpleEnumSerializer());
         // for fun, call "multi-module" registration
-        ObjectMapper mapper = jsonMapperBuilder()
-                .addModule(mod)
+        ObjectMapper mapper = JsonMapper.builder()
+                .addModules(mod)
                 .build();
         assertEquals(q("b"), mapper.writeValueAsString(SimpleEnum.B));
     }
@@ -225,7 +262,7 @@ public class SimpleModuleTest extends BaseMapTest
         mod.addSerializer(new BaseSerializer());
         // and another variant here too
         List<SimpleModule> mods = Arrays.asList(mod);
-        ObjectMapper mapper = jsonMapperBuilder()
+        ObjectMapper mapper = JsonMapper.builder()
                 .addModules(mods)
                 .build();
         assertEquals(q("Base:1"), mapper.writeValueAsString(new Impl1()));
@@ -417,5 +454,90 @@ public class SimpleModuleTest extends BaseMapTest
     {
         List<?> mods = MapperBuilder.findModules();
         assertEquals(0, mods.size());
+    }
+
+    public void testAddSerializerTwiceThenOnlyLatestIsKept() throws Exception {
+        SimpleModule module = new SimpleModule()
+            .addSerializer(Test3787Bean.class, new Serializer3787A())
+            .addSerializer(Test3787Bean.class, new Serializer3787B());
+        ObjectMapper objectMapper = JsonMapper.builder()
+                .addModule(module)
+                .build();
+        assertEquals("b-result", objectMapper.writeValueAsString(new Test3787Bean()));
+    }
+
+    public void testAddModuleWithSerializerTwiceThenOnlyLatestIsKept() throws Exception {
+        SimpleModule firstModule = new SimpleModule()
+            .addSerializer(Test3787Bean.class, new Serializer3787A());
+        SimpleModule secondModule = new SimpleModule()
+            .addSerializer(Test3787Bean.class, new Serializer3787B());
+        ObjectMapper objectMapper = JsonMapper.builder()
+                .addModule(firstModule)
+                .addModule(secondModule)
+                .build();
+        Test3787Bean obj = new Test3787Bean();
+
+        String result = objectMapper.writeValueAsString(obj);
+
+        assertEquals("b-result", result);
+    }
+
+    public void testAddModuleWithSerializerTwiceThenOnlyLatestIsKept_reverseOrder() throws Exception {
+        SimpleModule firstModule = new SimpleModule()
+            .addSerializer(Test3787Bean.class, new Serializer3787A());
+        SimpleModule secondModule = new SimpleModule()
+            .addSerializer(Test3787Bean.class, new Serializer3787B());
+        ObjectMapper objectMapper = JsonMapper.builder()
+                .addModule(secondModule)
+                .addModule(firstModule)
+                .build();
+
+        assertEquals("a-result", objectMapper.writeValueAsString(new Test3787Bean()));
+    }
+
+    public void testAddDeserializerTwiceThenOnlyLatestIsKept() throws Exception {
+        SimpleModule module = new SimpleModule();
+        module.addDeserializer(Test3787Bean.class, new Deserializer3787A())
+            .addDeserializer(Test3787Bean.class, new Deserializer3787B());
+        ObjectMapper objectMapper = JsonMapper.builder()
+                .addModule(module)
+                .build();
+
+        Test3787Bean result = objectMapper.readValue(
+            "{\"value\" : \"I am C\"}", Test3787Bean.class);
+
+        assertEquals("I am B", result.value);
+    }
+
+    public void testAddModuleWithDeserializerTwiceThenOnlyLatestIsKept() throws Exception {
+        SimpleModule firstModule = new SimpleModule()
+            .addDeserializer(Test3787Bean.class, new Deserializer3787A());
+        SimpleModule secondModule = new SimpleModule()
+            .addDeserializer(Test3787Bean.class, new Deserializer3787B());
+        ObjectMapper objectMapper = JsonMapper.builder()
+                .addModule(firstModule)
+                .addModule(secondModule)
+                .build();
+
+        Test3787Bean result = objectMapper.readValue(
+            "{\"value\" : \"I am C\"}", Test3787Bean.class);
+
+        assertEquals("I am B", result.value);
+    }
+
+    public void testAddModuleWithDeserializerTwiceThenOnlyLatestIsKept_reverseOrder() throws Exception {
+        SimpleModule firstModule = new SimpleModule()
+            .addDeserializer(Test3787Bean.class, new Deserializer3787A());
+        SimpleModule secondModule = new SimpleModule()
+            .addDeserializer(Test3787Bean.class, new Deserializer3787B());
+        ObjectMapper objectMapper = JsonMapper.builder()
+            .addModule(secondModule)
+            .addModule(firstModule)
+            .build();
+
+        Test3787Bean result = objectMapper.readValue(
+            "{\"value\" : \"I am C\"}", Test3787Bean.class);
+        
+        assertEquals("I am A", result.value);
     }
 }

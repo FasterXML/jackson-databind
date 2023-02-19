@@ -456,13 +456,12 @@ public class SimpleModuleTest extends BaseMapTest
         SimpleModule module = new SimpleModule()
             .addSerializer(SimpleTestBean.class, new Serializer3787A())
             .addSerializer(SimpleTestBean.class, new Serializer3787B());
-
         ObjectMapper objectMapper = new ObjectMapper()
             .registerModule(module);
-
         SimpleTestBean obj = new SimpleTestBean();
 
         String result = objectMapper.writeValueAsString(obj);
+
         assertEquals("b-result", result);
     }
 
@@ -471,29 +470,28 @@ public class SimpleModuleTest extends BaseMapTest
             .addSerializer(SimpleTestBean.class, new Serializer3787A());
         SimpleModule secondModule = new SimpleModule()
             .addSerializer(SimpleTestBean.class, new Serializer3787B());
-
         ObjectMapper objectMapper = new ObjectMapper()
             .registerModule(firstModule)
             .registerModule(secondModule);
-
         SimpleTestBean obj = new SimpleTestBean();
+
         String result = objectMapper.writeValueAsString(obj);
+
         assertEquals("b-result", result);
     }
 
     public void testAddModuleWithSerializerTwiceThenOnlyLatestIsKept_reverseOrder() throws JsonProcessingException {
         SimpleModule firstModule = new SimpleModule()
             .addSerializer(SimpleTestBean.class, new Serializer3787A());
-
         SimpleModule secondModule = new SimpleModule()
             .addSerializer(SimpleTestBean.class, new Serializer3787B());
-
-        SimpleTestBean obj = new SimpleTestBean();
         ObjectMapper objectMapper = new ObjectMapper()
             .registerModule(secondModule)
             .registerModule(firstModule);
+        SimpleTestBean obj = new SimpleTestBean();
 
         String result = objectMapper.writeValueAsString(obj);
+
         assertEquals("a-result", result);
     }
 
@@ -519,9 +517,12 @@ public class SimpleModuleTest extends BaseMapTest
         SimpleModule module = new SimpleModule();
         module.addDeserializer(SimpleTestBean.class, new Deserializer3787A())
             .addDeserializer(SimpleTestBean.class, new Deserializer3787B());
+        ObjectMapper objectMapper = new ObjectMapper()
+            .registerModule(module);
 
-        ObjectMapper objectMapper = new ObjectMapper().registerModule(module);
-        SimpleTestBean result = objectMapper.readValue("{\"value\" : \"I am C\"}", SimpleTestBean.class);
+        SimpleTestBean result = objectMapper.readValue(
+            "{\"value\" : \"I am C\"}", SimpleTestBean.class);
+
         assertEquals("I am B", result.value);
     }
 
@@ -530,12 +531,13 @@ public class SimpleModuleTest extends BaseMapTest
             .addDeserializer(SimpleTestBean.class, new Deserializer3787A());
         SimpleModule secondModule = new SimpleModule()
             .addDeserializer(SimpleTestBean.class, new Deserializer3787B());
-
         ObjectMapper objectMapper = new ObjectMapper()
             .registerModule(firstModule)
             .registerModule(secondModule);
 
-        SimpleTestBean result = objectMapper.readValue("{\"value\" : \"I am C\"}", SimpleTestBean.class);
+        SimpleTestBean result = objectMapper.readValue(
+            "{\"value\" : \"I am C\"}", SimpleTestBean.class);
+
         assertEquals("I am B", result.value);
     }
 
@@ -544,12 +546,13 @@ public class SimpleModuleTest extends BaseMapTest
             .addDeserializer(SimpleTestBean.class, new Deserializer3787A());
         SimpleModule secondModule = new SimpleModule()
             .addDeserializer(SimpleTestBean.class, new Deserializer3787B());
-
         ObjectMapper objectMapper = new ObjectMapper()
             .registerModule(secondModule)
             .registerModule(firstModule);
 
-        SimpleTestBean result = objectMapper.readValue("{\"value\" : \"I am C\"}", SimpleTestBean.class);
+        SimpleTestBean result = objectMapper.readValue(
+            "{\"value\" : \"I am C\"}", SimpleTestBean.class);
+        
         assertEquals("I am A", result.value);
     }
 }

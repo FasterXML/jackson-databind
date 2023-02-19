@@ -148,7 +148,7 @@ public class PropertyAliasTest extends BaseMapTest
         public String value;
     }
 
-    public void testDeserializedToLastMatchingKey_ascendingKeys() throws Exception {
+    public void testAliasDeserializedToLastMatchingKey_ascendingKeys() throws Exception {
         String ascendingOrderInput = a2q(
             "{\"a\": \"a-value\", " +
                 "\"b\": \"b-value\", " +
@@ -158,7 +158,7 @@ public class PropertyAliasTest extends BaseMapTest
         assertEquals("c-value", ascObj.value);
     }
 
-    public void testDeserializedToLastMatchingKey_descendingKeys() throws Exception {
+    public void testAliasDeserializedToLastMatchingKey_descendingKeys() throws Exception {
         String descendingOrderInput = a2q(
             "{\"c\": \"c-value\", " +
                 "\"b\": \"b-value\", " +
@@ -173,7 +173,7 @@ public class PropertyAliasTest extends BaseMapTest
         public String value;
     }
 
-    public void testDeserializedToLastMatchingKey_ascendingAliases() throws Exception {
+    public void testAliasDeserializedToLastMatchingKey_ascendingAliases() throws Exception {
         String input = a2q(
                 "{\"a\": \"a-value\", " +
                 "\"b\": \"b-value\", " +
@@ -188,7 +188,7 @@ public class PropertyAliasTest extends BaseMapTest
         public String value;
     }
 
-    public void testDeserializedToLastMatchingKey_descendingAliases() throws Exception {
+    public void testAliasDeserializedToLastMatchingKey_descendingAliases() throws Exception {
         String input = a2q(
             "{\"a\": \"a-value\", " +
                 "\"b\": \"b-value\", " +

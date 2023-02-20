@@ -1020,7 +1020,8 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      * Map-like types are only meant for supporting things that do not implement Map interface
      * and as such cannot use standard Map handlers.
      * </p>
-     * <p>     * NOTE: type modifiers are NOT called on constructed type itself.
+     * <p>
+     * NOTE: type modifiers are NOT called on constructed type itself.
      */
     public MapLikeType constructMapLikeType(Class<?> mapClass, JavaType keyType, JavaType valueType) {
         // 19-Oct-2015, tatu: Allow case of no-type-variables, since it seems likely to be

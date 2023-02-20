@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -8,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.EnumNaming;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
@@ -65,6 +67,32 @@ public class EnumDeserializer
      */
     protected final boolean _isFromIntValue;
 
+    protected Boolean _useEnumNaming;
+
+    protected volatile EnumNamingStrategy _namingStrategy;
+
+    /**
+     * Marker flag for cases where we expect actual integral value for Enum,
+     * based on {@code @JsonValue} (and equivalent) annotated accessor.
+     *
+     * @since 2.15
+     */
+    protected boolean _isEnumNamingSet;
+
+    /**
+     * @since 2.15
+     */
+    protected EnumNamingStrategy _namingStrategy = new EnumNamingStrategies.NoOpEnumNamingStrategy();
+
+
+    private void _initEnumNamingStrategy() {
+        EnumNaming enumNamingAnnotation = _valueClass.getAnnotation(EnumNaming.class);
+        if (enumNamingAnnotation != null) {
+            _isEnumNamingSet = true;
+            ClassUtil.createInstance(enumNamingAnnotation.value(), true);
+        }
+    }
+
     /**
      * @since 2.9
      */
@@ -76,6 +104,7 @@ public class EnumDeserializer
         _enumDefaultValue = byNameResolver.getDefaultValue();
         _caseInsensitive = caseInsensitive;
         _isFromIntValue = byNameResolver.isFromIntValue();
+        _initEnumNamingStrategy();
     }
 
     /**
@@ -92,6 +121,7 @@ public class EnumDeserializer
         _isFromIntValue = base._isFromIntValue;
         _useDefaultValueForUnknownEnum = useDefaultValueForUnknownEnum;
         _useNullForUnknownEnum = useNullForUnknownEnum;
+        _initEnumNamingStrategy();
     }
 
     /**
@@ -254,6 +284,12 @@ public class EnumDeserializer
         CompactStringObjectMap lookup = ctxt.isEnabled(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
                 ? _getToStringLookup(ctxt) : _lookupByName;
         Object result = lookup.find(text);
+
+        if (result == null && _getUseEnumNaming()) {
+            String translatedText = _getNamingStrategy().translate(text);
+            result = lookup.find(translatedText);
+        }
+
         if (result == null) {
             String trimmed = text.trim();
             if ((trimmed == text) || (result = lookup.find(trimmed)) == null) {
@@ -317,6 +353,12 @@ public class EnumDeserializer
             CompactStringObjectMap lookup, String nameOrig) throws IOException
     {
         String name = nameOrig.trim();
+
+        if (_isEnumNamingSet) {
+            String translatedValue = _namingStrategy.translate(name);
+            return lookup.find(translatedValue);
+        }
+
         if (name.isEmpty()) { // empty or blank
             // 07-Jun-2021, tatu: [databind#3171] Need to consider Default value first
             //   (alas there's bit of duplication here)
@@ -411,6 +453,30 @@ public class EnumDeserializer
             }
         }
         return lookup;
+    }
+
+    protected Boolean _getUseEnumNaming() {
+        if (_useEnumNaming == null) {
+            _useEnumNaming = _valueClass.getAnnotation(EnumNaming.class) != null;
+        }
+        return _useEnumNaming;
+    }
+
+    protected EnumNamingStrategy _getNamingStrategy() {
+        EnumNamingStrategy namingStrategy = _namingStrategy;
+        if (namingStrategy == null) {
+            synchronized (this) {
+                namingStrategy = _namingStrategy;
+                if (namingStrategy == null) {
+                    EnumNaming enumNamingAnnotation = _valueClass.getAnnotation(EnumNaming.class);
+                    namingStrategy = enumNamingAnnotation == null
+                        ? new EnumNamingStrategies.NoOpEnumNamingStrategy()
+                        : ClassUtil.createInstance(enumNamingAnnotation.value(), true);
+                    _namingStrategy = namingStrategy;
+                }
+            }
+        }
+        return namingStrategy;
     }
 
     // @since 2.15

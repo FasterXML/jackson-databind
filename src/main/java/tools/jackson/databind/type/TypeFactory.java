@@ -893,8 +893,13 @@ public final class TypeFactory
     }
 
     /**
-     * Method for constructing a {@link MapLikeType} instance
-     *<p>
+     * Method for constructing a {@link MapLikeType} instance.
+     * <p>
+     * Do not use this method to create a true Map type -- use {@link #constructMapType} instead.
+     * Map-like types are only meant for supporting things that do not implement Map interface
+     * and as such cannot use standard Map handlers.
+     * </p>
+     * <p>
      * NOTE: type modifiers are NOT called on constructed type itself; but are called
      * for contained types.
      */
@@ -906,7 +911,12 @@ public final class TypeFactory
 
     /**
      * Method for constructing a {@link MapLikeType} instance
-     *<p>
+     * <p>
+     * Do not use this method to create a true Map type -- use {@link #constructMapType} instead.
+     * Map-like types are only meant for supporting things that do not implement Map interface
+     * and as such cannot use standard Map handlers.
+     * </p>
+     * <p>
      * NOTE: type modifiers are NOT called on constructed type itself.
      */
     public MapLikeType constructMapLikeType(Class<?> mapClass, JavaType keyType, JavaType valueType) {

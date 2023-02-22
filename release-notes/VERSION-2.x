@@ -4,6 +4,11 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.14.3 (not yet released)
+
+#3784: `PrimitiveArrayDeserializers$ByteDeser.deserialize` ignores
+  `DeserializationProblemHandler` for invalid Base64 content
+
 2.14.2 (28-Jan-2023)
 
 #1751: `@JsonTypeInfo` does not work if the Type Id is an Integer value

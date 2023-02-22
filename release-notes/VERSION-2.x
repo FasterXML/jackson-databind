@@ -4,6 +4,12 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+Not yet released
+
+#3784: `PrimitiveArrayDeserializers$ByteDeser.deserialize` ignores
+  `DeserializationProblemHandler` for invalid Base64 content
+ (reported by @or-else)
+
 2.13.5 (23-Jan-2023)
 
 #3659: Improve testing (likely via CI) to try to ensure compatibility with

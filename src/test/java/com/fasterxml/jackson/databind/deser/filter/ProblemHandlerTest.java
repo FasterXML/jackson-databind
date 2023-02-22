@@ -271,6 +271,22 @@ public class ProblemHandlerTest extends BaseMapTest
         assertNull(result2);
     }
 
+    // [databind#3784]: Base64 decoding
+    public void testWeirdStringForBase64() throws Exception
+    {
+        ObjectMapper mapper = newJsonMapper()
+                .addHandler(new WeirdStringHandler(new byte[0]))
+                ;
+        byte[] binary = mapper.readValue(q("foobar"), byte[].class);
+        assertNotNull(binary);
+        assertEquals(0, binary.length);
+
+        JsonNode tree = mapper.readTree(q("foobar"));
+        binary = mapper.treeToValue(tree, byte[].class);
+        assertNotNull(binary);
+        assertEquals(0, binary.length);
+    }
+
     public void testInvalidTypeId() throws Exception
     {
         ObjectMapper mapper = newJsonMapper()

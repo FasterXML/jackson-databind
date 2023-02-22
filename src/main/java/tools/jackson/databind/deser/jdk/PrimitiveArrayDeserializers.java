@@ -452,7 +452,7 @@ public abstract class PrimitiveArrayDeserializers<T>
             if (t == JsonToken.VALUE_STRING) {
                 try {
                     return p.getBinaryValue(ctxt.getBase64Variant());
-                } catch (StreamReadException e) {
+                } catch (StreamReadException | DatabindException e) {
                     // 25-Nov-2016, tatu: related to [databind#1425], try to convert
                     //   to a more usable one, as it's not really a JSON-level parse
                     //   exception, but rather binding from JSON String into base64 decoded

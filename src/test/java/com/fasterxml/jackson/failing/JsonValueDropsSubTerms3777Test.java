@@ -54,7 +54,7 @@ public class JsonValueDropsSubTerms3777Test extends BaseMapTest {
         Outer outer = new Outer(inner);
         String str = MAPPER.writeValueAsString(outer);
 
-        // Act
+        // Act - ***fails here
         Outer actual = MAPPER.readValue(str, Outer.class);
 
         // Assert

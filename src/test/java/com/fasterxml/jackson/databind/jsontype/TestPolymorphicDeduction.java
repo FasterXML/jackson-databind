@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.jsontype;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +14,7 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
@@ -210,9 +212,33 @@ public class TestPolymorphicDeduction extends BaseMapTest {
     }
   }
 
+  public void testUnrecognizedProperties() throws Exception {
+    try {
+      /*Cat cat =*/
+      MAPPER.readValue(ambiguousCatJson, Cat.class);
+      fail("Unable to map, because there is unknown field 'age'");
+    } catch (UnrecognizedPropertyException e) {
+      verifyException(e, "Unrecognized field");
+    }
+  }
+
+  public void testNotFailOnUnknownProperty() throws Exception {
+    // Given:
+    JsonMapper mapper = JsonMapper.builder()
+                                  .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                                  .build();
+    // When:
+    Cat cat = mapper.readValue(ambiguousCatJson, Cat.class);
+    // Then:
+    // unknown proparty 'age' is ignored, and json is deserialized to Cat class
+    assertTrue(cat instanceof Cat);
+    assertSame(Cat.class, cat.getClass());
+    assertEquals("Felix", cat.name);
+  }
+
   public void testAmbiguousProperties() throws Exception {
     try {
-      /*Cat cat =*/ MAPPER.readValue(ambiguousCatJson, Cat.class);
+      /*Feline cat =*/ MAPPER.readValue(ambiguousCatJson, Feline.class);
       fail("Should not get here");
     } catch (InvalidTypeIdException e) {
         verifyException(e, "Cannot deduce unique subtype");
@@ -225,7 +251,7 @@ public class TestPolymorphicDeduction extends BaseMapTest {
       .disable(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE)
       .build();
     // When:
-    Cat cat = mapper.readValue(ambiguousCatJson, Cat.class);
+    Feline cat = mapper.readValue(ambiguousCatJson, Feline.class);
     // Then:
     assertNull(cat);
   }
@@ -268,5 +294,100 @@ public class TestPolymorphicDeduction extends BaseMapTest {
     String json = MAPPER.writeValueAsString(list);
     // Then:
     assertEquals(arrayOfCatsJson, json);
+  }
+
+  @JsonTypeInfo(use = DEDUCTION, defaultImpl = ListOfPlaces.class)
+  @JsonSubTypes( {@Type(ListOfPlaces.class), @Type(CompositePlace.class), @Type(Place.class)})
+  interface WorthSeeing {}
+
+  public static class Place implements WorthSeeing {
+    public String name;
+  }
+
+  public static class CompositePlace extends Place implements WorthSeeing {
+
+    public Map<String, WorthSeeing> places;
+  }
+
+  static class ListOfPlaces extends ArrayList<WorthSeeing> implements WorthSeeing {
+  }
+
+  private static final String colosseumJson = a2q("{'name': 'The Colosseum'}");
+  private static final String romanForumJson = a2q("{'name': 'The Roman Forum'}");
+  private static final String romeJson = a2q("{'name': 'Rome', 'places': {'colosseum': " + colosseumJson + ","+ "'romanForum': "+ romanForumJson +"}}");
+
+  private static final String rialtoBridgeJson = a2q("{'name': 'Rialto Bridge'}");
+  private static final String sighsBridgeJson = a2q("{'name': 'The Bridge Of Sighs'}");
+  private static final String bridgesJson = a2q("["+ rialtoBridgeJson +"," + sighsBridgeJson +"]");
+  private static final String veniceJson = a2q("{'name': 'Venice', 'places': {'bridges':  " + bridgesJson + "}}");
+
+  private static final String alpsJson = a2q("{'name': 'The Alps'}");
+  private static final String citesJson = a2q("[" + romeJson + "," + veniceJson + "]");
+  private static final String italy = a2q("{'name': 'Italy', 'places': {'mountains': " + alpsJson + ", 'cities': "+ citesJson +"}}}");
+
+  public void testSupertypeInferenceWhenDefaultDefined() throws Exception {
+    //When:
+    WorthSeeing worthSeeing = MAPPER.readValue(alpsJson, WorthSeeing.class);
+    // Then:
+    assertEqualsPlace("The Alps", worthSeeing);
+  }
+
+  public void testDefaultImplementation() throws Exception {
+    // When:
+    WorthSeeing worthSeeing = MAPPER.readValue(citesJson, WorthSeeing.class);
+    // Then:
+    assertCities(worthSeeing);
+  }
+
+  public void  testCompositeInference() throws Exception {
+    // When:
+    WorthSeeing worthSeeing = MAPPER.readValue(italy, WorthSeeing.class);
+    // Then:
+    assertSame(CompositePlace.class, worthSeeing.getClass());
+    CompositePlace italy = (CompositePlace) worthSeeing;
+    assertEquals("Italy", italy.name);
+    assertEquals(2, italy.places.size());
+    assertEqualsPlace("The Alps", italy.places.get("mountains"));
+    assertEquals(2, italy.places.size());
+    assertCities(italy.places.get("cities"));
+  }
+
+  private void assertCities(WorthSeeing worthSeeing) {
+    assertSame(ListOfPlaces.class, worthSeeing.getClass());
+    ListOfPlaces cities = (ListOfPlaces) worthSeeing;
+    assertEquals(2, cities.size());
+    assertRome(cities.get(0));
+    assertVenice(cities.get(1));
+  }
+
+  private void assertRome(WorthSeeing worthSeeing) {
+    assertSame(CompositePlace.class, worthSeeing.getClass());
+    CompositePlace rome = (CompositePlace) worthSeeing;
+    assertEquals("Rome", rome.name);
+    assertEquals(2, rome.places.size());
+    assertEqualsPlace("The Colosseum", rome.places.get("colosseum"));
+    assertEqualsPlace("The Roman Forum", rome.places.get("romanForum"));
+  }
+
+  private void assertVenice(WorthSeeing worthSeeing) {
+    assertSame(CompositePlace.class, worthSeeing.getClass());
+    CompositePlace venice = (CompositePlace) worthSeeing;
+    assertEquals("Venice", venice.name);
+    assertEquals(1, venice.places.size());
+    assertVeniceBridges(venice.places.get("bridges"));
+
+  }
+
+  private void assertVeniceBridges(WorthSeeing worthSeeing){
+    assertSame(ListOfPlaces.class, worthSeeing.getClass());
+    ListOfPlaces bridges = (ListOfPlaces) worthSeeing;
+    assertEqualsPlace("Rialto Bridge", bridges.get(0));
+    assertEqualsPlace("The Bridge Of Sighs", bridges.get(1));
+  }
+
+  private void assertEqualsPlace(String expectedName, WorthSeeing worthSeeing){
+    assertTrue(worthSeeing instanceof Place);
+    assertSame(Place.class, worthSeeing.getClass());
+    assertEquals(expectedName,((Place) worthSeeing).name);
   }
 }

@@ -125,6 +125,7 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
         @SuppressWarnings("resource")
         final TokenBuffer tb = ctxt.bufferForInputBuffering(p);
         boolean ignoreCase = ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
+        BitSet existingFingerprint = new BitSet();
 
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
             String name = p.currentName();
@@ -134,6 +135,7 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
 
             Integer bit = fieldBitIndex.get(name);
             if (bit != null) {
+                existingFingerprint.set(bit);
                 // field is known by at least one subtype
                 prune(candidates, bit);
                 if (candidates.size() == 1) {
@@ -141,8 +143,14 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
                 }
             }
         }
+        for(BitSet candidate: candidates) {
+            if (existingFingerprint.equals(candidate)){
+                tb.copyCurrentStructure(p);
+                return _deserializeTypedForId(p, ctxt, tb, subtypeFingerprints.get(candidate));
+            }
+        }
 
-        // We have zero or multiple candidates, deduction has failed
+        // We have zero or multiple candidates and none of them fit exactly the existing fingerprint, deduction has failed
         String msgToReportIfDefaultImplFailsToo = String.format("Cannot deduce unique subtype of %s (%d candidates match)", ClassUtil.getTypeDescription(_baseType), candidates.size());
         return _deserializeTypedUsingDefaultImpl(p, ctxt, tb, msgToReportIfDefaultImplFailsToo);
     }

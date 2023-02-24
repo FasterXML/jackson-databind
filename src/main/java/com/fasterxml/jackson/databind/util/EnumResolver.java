@@ -5,6 +5,7 @@ import java.util.*;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.EnumNamingStrategy;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 
 /**
@@ -113,8 +114,7 @@ public class EnumResolver implements java.io.Serializable
 
     /**
      * Factory method for constructing resolver that maps from Enum.toString() into
-     * Enum value
-     *
+     * Enum value *
      * @since 2.12
      */
     public static EnumResolver constructUsingToString(DeserializationConfig config,
@@ -148,7 +148,43 @@ public class EnumResolver implements java.io.Serializable
             _enumDefault(ai, enumCls), isIgnoreCase, false);
     }
 
-   /**
+    /**
+     * Factory method for constructing resolver that maps the name of enums converted to external property
+     * names into Enum value using an implementation of {@link EnumNamingStrategy}.
+     *
+     * @since 2.15
+     */
+    public static EnumResolver constructUsingEnumNamingStrategy(DeserializationConfig config,
+                                                                Class<?> enumCls, EnumNamingStrategy enumNamingStrategy) {
+        return _constructUsingEnumNamingStrategy(enumCls, config.getAnnotationIntrospector(),
+                config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS), enumNamingStrategy);
+    }
+
+    /**
+     * Internal method for
+     * {@link EnumResolver#_constructUsingEnumNamingStrategy(Class, AnnotationIntrospector, boolean, EnumNamingStrategy)}
+     *
+     * @since 2.15
+     */
+    private static EnumResolver _constructUsingEnumNamingStrategy(
+        Class<?> enumCls0, AnnotationIntrospector ai, boolean isIgnoreCase, EnumNamingStrategy enumNamingStrategy) {
+
+        final Class<Enum<?>> enumCls = _enumClass(enumCls0);
+        final Enum<?>[] enumConstants = _enumConstants(enumCls0);
+        HashMap<String, Enum<?>> map = new HashMap<>();
+
+        // from last to first, so that in case of duplicate values, first wins
+        for (int i = enumConstants.length; --i >= 0; ) {
+            Enum<?> anEnum = enumConstants[i];
+            String translatedExternalValue = enumNamingStrategy.convertEnumToExternalName(anEnum.name());
+            map.put(translatedExternalValue, anEnum);
+        }
+
+        return new EnumResolver(enumCls, enumConstants, map,
+            _enumDefault(ai, enumCls), isIgnoreCase, false);
+    }
+
+    /**
      * @since 2.12
      */
     protected static EnumResolver _constructUsingToString(Class<?> enumCls0,

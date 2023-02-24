@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.introspect.EnumPropertiesCollector;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -48,6 +49,22 @@ public class EnumSerializer
      * @since 2.1
      */
     protected final Boolean _serializeAsIndex;
+
+    /**
+     * Marker flag for deciding whether to search for {@link com.fasterxml.jackson.databind.annotation.EnumNaming}
+     * annotation. Value starts as null to indicate verification has not been performed yet.
+     *
+     * @since 2.15
+     */
+    private volatile Boolean _hasEnumNaming = null;
+
+    /**
+     * Map with key as converted property class defined implementation of {@link EnumNamingStrategy}
+     * and with value as Enum names collected using <code>Enum.name()</code>.
+     *
+     * @since 2.15
+     */
+    protected volatile EnumValues _valuesByEnumNaming;
 
     /*
     /**********************************************************
@@ -103,6 +120,50 @@ public class EnumSerializer
         return this;
     }
 
+    /**
+     * Checks wheather current Enum class is annotated with
+     * {@link com.fasterxml.jackson.databind.annotation.EnumNaming}
+     *
+     * @since 2.15
+     */
+    private boolean _hasEnumNaming(SerializationConfig ctxt) {
+        Boolean exists = _hasEnumNaming;
+        if (exists == null) {
+            synchronized (this) {
+                exists = _hasEnumNaming;
+                if (exists == null) {
+                    exists = EnumPropertiesCollector.findEnumNamingStrategy(ctxt, _handledType) != null;
+                    _hasEnumNaming = exists;
+                }
+            }
+        }
+        return exists;
+    }
+
+
+    /**
+     * Returns {@link EnumValues} to use for enum name lookup of naming strategy.
+     *
+     * @since 2.15
+     */
+    protected EnumValues _getEnumNamingValues(SerializationConfig config) {
+        EnumValues lookup = _valuesByEnumNaming;
+        if (lookup == null) {
+            synchronized (this) {
+                lookup = _valuesByEnumNaming;
+                if (lookup == null) {
+                    EnumNamingStrategy namingStrategy = EnumPropertiesCollector
+                        .findEnumNamingStrategy(config, _handledType);
+                    if (namingStrategy != null) {
+                        lookup = EnumValues.constructUsingEnumNaming(config, _handledType, namingStrategy);
+                        _valuesByEnumNaming = lookup;
+                    }
+                }
+            }
+        }
+        return lookup;
+    }
+
     /*
     /**********************************************************
     /* Extended API for Jackson databind core
@@ -121,6 +182,11 @@ public class EnumSerializer
     public final void serialize(Enum<?> en, JsonGenerator gen, SerializerProvider serializers)
         throws IOException
     {
+        if (_hasEnumNaming(serializers.getConfig())) {
+            EnumValues enumValues = _getEnumNamingValues(serializers.getConfig());
+            gen.writeString(enumValues.serializedValueFor(en));
+            return;
+        }
         if (_serializeAsIndex(serializers)) {
             gen.writeNumber(en.ordinal());
             return;

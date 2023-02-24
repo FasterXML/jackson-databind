@@ -350,6 +350,12 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
+    public Object findEnumNamingStrategy(AnnotatedClass ac) {
+        EnumNaming ann = _findAnnotation(ac, EnumNaming.class);
+        return (ann == null) ? null : ann.value();
+    }
+
+    @Override
     public String findClassDescription(AnnotatedClass ac) {
         JsonClassDescription ann = _findAnnotation(ac, JsonClassDescription.class);
         return (ann == null) ? null : ann.value();

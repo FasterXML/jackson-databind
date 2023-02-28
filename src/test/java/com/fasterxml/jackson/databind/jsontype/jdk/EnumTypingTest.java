@@ -7,6 +7,9 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper.DefaultTypeResolverBuilder;
+import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
+import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
 
 @SuppressWarnings("serial")
 public class EnumTypingTest extends BaseMapTest
@@ -69,6 +72,33 @@ public class EnumTypingTest extends BaseMapTest
     @JsonTypeName("Test")
     enum TestEnum2775 implements Base2775 {
         VALUE;
+    }
+
+    // [databind#3796]
+    enum Greeting3796 {
+        HELLO ("hello"),
+        BYE ("bye");
+        
+        private final String value;
+
+        Greeting3796(String value) {
+          this.value = value;
+        }
+
+        @JsonCreator
+        public static Greeting3796 fromValue(String value) {
+          for (Greeting3796 b : Greeting3796.values()) {
+            if (b.value.equals(value)) {
+              return b;
+            }
+          }
+          throw new IllegalArgumentException("Unexpected value '" + value + "'");
+        }
+
+        @JsonValue
+        public String getValue() {
+          return value;
+        }
     }
 
     /*
@@ -144,5 +174,21 @@ public class EnumTypingTest extends BaseMapTest
                 .without(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE)
                 .readValue(json);
         assertEquals(testValue, deserializedValue);
+    }
+
+    // [databind#3796]
+    public void testEnumAsPolymorphicViaCreator() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        StdTypeResolverBuilder typer = new DefaultTypeResolverBuilder(DefaultTyping.EVERYTHING,
+                mapper.getPolymorphicTypeValidator());
+        typer = typer.init(JsonTypeInfo.Id.CLASS, null);
+        typer = typer.inclusion(JsonTypeInfo.As.PROPERTY);
+        mapper.setDefaultTyping(typer);
+        Greeting3796 greeting = Greeting3796.BYE;
+      
+        String val = mapper.writeValueAsString(greeting);
+        Greeting3796 result = mapper.readValue(val, Greeting3796.class);
+        assertSame(greeting, result);
     }
 }

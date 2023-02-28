@@ -48,6 +48,8 @@ Project: jackson-databind
  (and couple of other methods)
 #3771: Classloader leak: DEFAULT_ANNOTATION_INTROSPECTOR holds annotation reference
  (reported by Christoph S)
+#3976: Enum Deserialisation Failing with Polymorphic type validator
+ (reported by @sagarika4)
 
 2.14.3 (not yet released)
 

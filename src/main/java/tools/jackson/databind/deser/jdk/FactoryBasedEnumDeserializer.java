@@ -187,9 +187,9 @@ ClassUtil.getTypeDescription(targetType), _factory, p.currentToken());
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt, TypeDeserializer typeDeserializer)
             throws JacksonException
     {
-        if (_deser == null) { // String never has type info
-            return deserialize(p, ctxt);
-        }
+        // 27-Feb-2023, tatu: [databind#3796] required we do NOT skip call
+        //    to typed handling even for "simple" Strings
+        // if (_deser == null) { return deserialize(p, ctxt); }
         return typeDeserializer.deserializeTypedFromAny(p, ctxt);
     }
 

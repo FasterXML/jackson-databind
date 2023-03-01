@@ -16,7 +16,7 @@ public class SimpleFilterProviderTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    @JsonFilter("bF")
+    @JsonFilter("filterB")
     public static class AnyBeanB
     {
         public String a;
@@ -30,8 +30,8 @@ public class SimpleFilterProviderTest extends BaseMapTest
 
     public void testAddFilterLastOneRemains() throws Exception {
         FilterProvider prov = new SimpleFilterProvider()
-                .addFilter("bF", SimpleBeanPropertyFilter.serializeAll())
-                .addFilter("bF", SimpleBeanPropertyFilter.filterOutAllExcept());
+                .addFilter("filterB", SimpleBeanPropertyFilter.serializeAll())
+                .addFilter("filterB", SimpleBeanPropertyFilter.filterOutAllExcept());
         AnyBeanB beanB = new AnyBeanB("1a", "2b");
 
         String jsonString = MAPPER.writer(prov).writeValueAsString(beanB);
@@ -41,8 +41,8 @@ public class SimpleFilterProviderTest extends BaseMapTest
 
     public void testAddFilterLastOneRemainsFlip() throws Exception {
         FilterProvider prov = new SimpleFilterProvider()
-                .addFilter("bF", SimpleBeanPropertyFilter.filterOutAllExcept("a"))
-                .addFilter("bF", SimpleBeanPropertyFilter.serializeAll());
+                .addFilter("filterB", SimpleBeanPropertyFilter.filterOutAllExcept("a"))
+                .addFilter("filterB", SimpleBeanPropertyFilter.serializeAll());
         AnyBeanB beanB = new AnyBeanB("1a", "2b");
 
         String jsonString = MAPPER.writer(prov).writeValueAsString(beanB);
@@ -52,7 +52,7 @@ public class SimpleFilterProviderTest extends BaseMapTest
 
     public void testAddFilterNulls() throws Exception {
         FilterProvider prov = new SimpleFilterProvider()
-                .addFilter("bF", SimpleBeanPropertyFilter.filterOutAllExcept(null, null));
+                .addFilter("filterB", SimpleBeanPropertyFilter.filterOutAllExcept(null, null));
         AnyBeanB beanB = new AnyBeanB("1a", "2b");
 
         String jsonString = MAPPER.writer(prov).writeValueAsString(beanB);
@@ -62,7 +62,7 @@ public class SimpleFilterProviderTest extends BaseMapTest
 
     public void testAddFilterEmptyString() throws Exception {
         FilterProvider prov = new SimpleFilterProvider()
-                .addFilter("bF", SimpleBeanPropertyFilter.filterOutAllExcept("", ""));
+                .addFilter("filterB", SimpleBeanPropertyFilter.filterOutAllExcept("", ""));
         AnyBeanB anyBeanB = new AnyBeanB("1a", "2b");
 
         String jsonString = MAPPER.writer(prov).writeValueAsString(anyBeanB);
@@ -92,7 +92,7 @@ public class SimpleFilterProviderTest extends BaseMapTest
         assertEquals(a2q("{'c':null,'d':'D is filtered'}"), jsonString);
     }
 
-    @JsonFilter("notExist")
+    @JsonFilter("filterD")
     public static class AnyBeanD
     {
         public String a;
@@ -106,7 +106,7 @@ public class SimpleFilterProviderTest extends BaseMapTest
 
     public void testAddingNullFilter2ThrowsException() {
         FilterProvider prov = new SimpleFilterProvider()
-                .addFilter("notExist", null);
+                .addFilter("filterD", null);
         ObjectWriter writer = MAPPER.writer(prov);
         AnyBeanD beanD = new AnyBeanD("1a", "2b");
 

@@ -47,18 +47,6 @@ public class SimpleFilterProviderTest extends BaseMapTest
         }
     }
 
-    @JsonFilter("filterD")
-    public static class AnyBeanD
-    {
-        public String a;
-        public String b;
-
-        public AnyBeanD(String a, String b) {
-            this.a = a;
-            this.b = b;
-        }
-    }
-
     /*
     /**********************************************************
     /* Tests
@@ -99,29 +87,29 @@ public class SimpleFilterProviderTest extends BaseMapTest
 
     public void testAddingNullFilter2ThrowsException() throws JsonProcessingException {
         FilterProvider prov = new SimpleFilterProvider()
-                .addFilter("filterD", null);
+                .addFilter("filterB", null);
         ObjectWriter writer = MAPPER.writer(prov);
-        AnyBeanD beanD = new AnyBeanD("1a", "2b");
+        AnyBeanB beanD = new AnyBeanB("1a", "2b");
 
         try {
             writer.writeValueAsString(beanD);
             fail("Should not have passed");
         } catch (JsonMappingException e) {
-            verifyException(e, "No filter configured with id 'filterD'");
+            verifyException(e, "No filter configured with id 'filterB'");
         }
     }
 
     public void testAddingNullFilterIdThrowsException() throws JsonProcessingException {
         FilterProvider prov = new SimpleFilterProvider()
-                .addFilter(null, SimpleBeanPropertyFilter.filterOutAllExcept("a", "b"));
+                .addFilter(null, SimpleBeanPropertyFilter.serializeAll());
         ObjectWriter writer = MAPPER.writer(prov);
-        AnyBeanD beanD = new AnyBeanD("1a", "2b");
+        AnyBeanB beanD = new AnyBeanB("1a", "2b");
 
         try {
             writer.writeValueAsString(beanD);
             fail("Should not have passed");
         } catch (JsonMappingException e) {
-            verifyException(e, "No filter configured with id 'filterD'");
+            verifyException(e, "No filter configured with id 'filterB'");
         }
     }
 }

@@ -114,7 +114,7 @@ public class SimpleFilterProviderTest extends BaseMapTest
             writer.writeValueAsString(beanD);
             fail("Should not have passed");
         } catch (JsonMappingException e) {
-            verifyException(e, "No filter configured with id 'notExist'");
+            verifyException(e, "No filter configured with id 'filterD'");
         } catch (Exception e) {
             fail("Should not have passed");
         }
@@ -130,7 +130,7 @@ public class SimpleFilterProviderTest extends BaseMapTest
             writer.writeValueAsString(beanD);
             fail("Should not have passed");
         } catch (JsonMappingException e) {
-            verifyException(e, "No filter configured with id 'notExist'");
+            verifyException(e, "No filter configured with id 'filterD'");
         } catch (Exception e) {
             fail("Should not have passed");
         }

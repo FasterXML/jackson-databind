@@ -157,7 +157,7 @@ public class SimpleFilterProvider
      * a new filter with the same {@code id} will always override the previously added filter.
      *
      * <p>
-     * WARNING: Binding binding {@code id} or {@code filter} with {@code null} value will not
+     * WARNING: Binding {@code id} or {@code filter} with {@code null} value will not
      * be validated within this method, but during serialization of target class annotated
      * with {@link com.fasterxml.jackson.annotation.JsonFilter}.
      *

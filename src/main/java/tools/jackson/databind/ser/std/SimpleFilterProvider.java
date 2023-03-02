@@ -100,6 +100,20 @@ public class SimpleFilterProvider
         return _cfgFailOnUnknownId;
     }
 
+    /**
+     * Adds an instance of {@link PropertyFilter} associated with the given {@code id} parameter.
+     * Note that there can always only be one filter associated with a single {@code id} parameter, meaning
+     * a new filter with the same {@code id} will always override the previously added filter.
+     * <p>
+     * WARNING: Binding {@code id} or {@code filter} with {@code null} value will not
+     * be validated within this method, but during serialization of target class annotated
+     * with {@link com.fasterxml.jackson.annotation.JsonFilter}.
+     *
+     * @param id The id to associate the filter with.
+     * @param filter The filter to add;
+     *
+     * @return This provider instance, for call-chaining
+     */
     public SimpleFilterProvider addFilter(String id, PropertyFilter filter) {
         _filtersById.put(id, filter);
         return this;
@@ -107,6 +121,20 @@ public class SimpleFilterProvider
 
     /**
      * Overloaded variant just to resolve "ties" when using {@link SimpleBeanPropertyFilter}.
+     * <p>
+     * Adds an instance of {@link SimpleBeanPropertyFilter} associated with the given {@code id} parameter.
+     * Note that there can always only be one filter associated with a single {@code id} parameter, meaning
+     * a new filter with the same {@code id} will always override the previously added filter.
+     *
+     * <p>
+     * WARNING: Binding {@code id} or {@code filter} with {@code null} value will not
+     * be validated within this method, but during serialization of target class annotated
+     * with {@link com.fasterxml.jackson.annotation.JsonFilter}.
+     *
+     * @param id The id to associate the filter with.
+     * @param filter The filter to add;
+     *
+     * @return This provider instance, for call-chaining
      */
     public SimpleFilterProvider addFilter(String id, SimpleBeanPropertyFilter filter) {
         _filtersById.put(id, filter);

@@ -4,6 +4,11 @@ on:
     branches:
     - "2.15"
     - "2.14"
+
+concurrency:
+  group: ${{ github.workflow }} @ ${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   Fuzzing:
     runs-on: ubuntu-latest

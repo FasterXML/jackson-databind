@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.deser.enums;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.core.JsonProcessingException;
+
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -13,18 +13,10 @@ public class EnumDeserialization3638Test extends BaseMapTest
     /**********************************************************
      */
 
-    protected final ObjectMapper MAPPER = new ObjectMapper();
-
     static enum Member
     {
-        FIRST_MEMBER(0),
-        SECOND_MEMBER(1);
-
-        private int index;
-
-        private Member(int index) {
-            this.index = index;
-        }
+        FIRST_MEMBER,
+        SECOND_MEMBER;
     }
 
     static class SensitiveBean
@@ -39,13 +31,15 @@ public class EnumDeserialization3638Test extends BaseMapTest
         public Member enumValue;
     }
 
+    private final ObjectMapper MAPPER = newJsonMapper();
+    
     /*
     /**********************************************************
     /* Tests
     /**********************************************************
      */
 
-    public void testCaseSensitive() throws JsonProcessingException {
+    public void testCaseSensitive() throws Exception {
         String json = a2q("{'enumValue':'1'}");
 
         SensitiveBean sensitiveBean = MAPPER.readValue(json, SensitiveBean.class);
@@ -54,7 +48,7 @@ public class EnumDeserialization3638Test extends BaseMapTest
     }
 
 
-    public void testCaseInsensitive() throws JsonProcessingException {
+    public void testCaseInsensitive() throws Exception {
         String json = a2q("{'enumValue':'1'}");
 
         InsensitiveBean insensitiveBean = MAPPER.readValue(json, InsensitiveBean.class);

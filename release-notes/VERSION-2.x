@@ -15,7 +15,7 @@ Project: jackson-databind
  (fix contributed by Sim Y-T)
 #3053: Allow serializing enums to lowercase (`EnumFeature.WRITE_ENUMS_TO_LOWERCASE`)
  (requested by Vojtěch K)
- (contributed by Joo-Hyuk K)
+ (fix contributed by Joo-Hyuk K)
 #3180: Support `@JsonCreator` annotation on record classes
  (fix contributed by Sim Y-T)
 #3297: `@JsonDeserialize(converter = ...)` does not work with Records
@@ -25,6 +25,10 @@ Project: jackson-databind
 #3637: Add enum features into `@JsonFormat.Feature`
  (requested by @Anatoly4444)
  (fix contributed by Ajay S)
+#3638: Case-insensitive and number-based enum deserialization are
+  (unnecessarily) mutually exclusive
+ (reported by Phil G)
+ (fix contributed by Joo-Hyuk K)
 #3651: Deprecate "exact values" setting from `JsonNodeFactory`, replace with
   `JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES`
 #3654: Infer `@JsonCreator(mode = Mode.DELEGATING)` from use of `@JsonValue`)

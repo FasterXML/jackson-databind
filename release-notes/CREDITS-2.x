@@ -1545,9 +1545,17 @@ Joo Hyuk Kim (JooHyukKim@github)
   (2.15.0)
   * Contributed #3053: Allow serializing enums to lowercase (`EnumFeature.WRITE_ENUMS_TO_LOWERCASE`)
   (2.15.0)
+  * Contributed #3638: Case-insensitive and number-based enum deserialization are
+   (unnecessarily) mutually exclusive
+  (2.15.0)
 
 Vojtěch Knyttl (knyttl@github)
   * Requested #3053: Allow serializing enums to lowercase (`EnumFeature.WRITE_ENUMS_TO_LOWERCASE`)
+  (2.15.0)
+
+Phil Gref (pgrefviau@github)
+  * Reported #3638: Case-insensitive and number-based enum deserialization are
+   (unnecessarily) mutually exclusive
   (2.15.0)
 
 Hervé Boutemy (hboutemy@github)

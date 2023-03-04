@@ -657,11 +657,15 @@ public abstract class DeserializationContext
             return null;
         }
         deser = (JsonDeserializer<Object>) handleSecondaryContextualization(deser, null, type);
-        TypeDeserializer typeDeser = _factory.findTypeDeserializer(_config, type);
-        if (typeDeser != null) {
-            // important: contextualize to indicate this is for root value
-            typeDeser = typeDeser.forProperty(null);
-            return new TypeWrappedDeserializer(typeDeser, deser);
+
+        // @since 2.15 only get TypedDeserializer if we are deserializing with Abstract target type
+        if (!type.isConcrete()) {
+            TypeDeserializer typeDeser = _factory.findTypeDeserializer(_config, type);
+            if (typeDeser != null) {
+                // important: contextualize to indicate this is for root value
+                typeDeser = typeDeser.forProperty(null);
+                return new TypeWrappedDeserializer(typeDeser, deser);
+            }
         }
         return deser;
     }

@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import tools.jackson.core.StreamReadConstraints;
-import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.core.json.JsonFactory;
 
 import tools.jackson.databind.*;
@@ -61,7 +61,7 @@ public class TestBigNumbers extends BaseMapTest
         try {
             MAPPER.readValue(generateJson("d"), DoubleWrapper.class);
             fail("expected StreamReadException");
-        } catch (StreamReadException e) {
+        } catch (StreamConstraintsException e) {
             verifyException(e, "Invalid numeric value ", "exceeds the maximum length");
         }
     }
@@ -78,7 +78,7 @@ public class TestBigNumbers extends BaseMapTest
         try {
             MAPPER.readValue(generateJson("number"), BigDecimalWrapper.class);
             fail("expected StreamReadException");
-        } catch (StreamReadException e) {
+        } catch (StreamConstraintsException e) {
             verifyException(e, "Invalid numeric value ", "exceeds the maximum length");
         }
     }
@@ -96,7 +96,7 @@ public class TestBigNumbers extends BaseMapTest
         try {
             MAPPER.readValue(generateJson("number"), BigIntegerWrapper.class);
             fail("expected StreamReadException");
-        } catch (StreamReadException e) {
+        } catch (StreamConstraintsException e) {
             verifyException(e, "Invalid numeric value ", "exceeds the maximum length");
         }
     }

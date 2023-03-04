@@ -657,7 +657,6 @@ public abstract class DeserializationContext
             return null;
         }
         deser = (JsonDeserializer<Object>) handleSecondaryContextualization(deser, null, type);
-
         TypeDeserializer typeDeser = _factory.findTypeDeserializer(_config, type);
         if (typeDeser != null) {
             // important: contextualize to indicate this is for root value

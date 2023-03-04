@@ -3867,12 +3867,12 @@ public class ObjectMapper
         SegmentedStringWriter sw = new SegmentedStringWriter(_jsonFactory._getBufferRecycler());
         try {
             _writeValueAndClose(createGenerator(sw), value);
+            return sw.getAndClear();
         } catch (JsonProcessingException e) {
             throw e;
         } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:
             throw JsonMappingException.fromUnexpectedIOE(e);
         }
-        return sw.getAndClear();
     }
 
     /**

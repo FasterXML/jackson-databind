@@ -31,8 +31,10 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
     protected final As _inclusion;
 
     /**
-     * Marker flag for whether current class has TypeResolver or not. This value should only
-     * be initialized once.
+     * Marker flag for checking whether current class has TypeResolver or not.
+     * For performance reasones, this value should be initialized by
+     * {@link AsPropertyTypeDeserializer#_hasTypeResolverBuilder(DeserializationConfig, JavaType)}
+     * only once.
      *
      * @since 2.15
      */

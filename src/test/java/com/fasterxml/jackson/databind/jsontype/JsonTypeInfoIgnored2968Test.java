@@ -19,23 +19,13 @@ public class JsonTypeInfoIgnored2968Test extends BaseMapTest
             @JsonSubTypes.Type(value = Dog.class, name = "_dog"),
             @JsonSubTypes.Type(value = Cat.class, name = "_cat")
     })
-    static abstract class Animal
-    {
+    static abstract class Animal {
         public String name;
     }
 
-    static class Cat extends Animal
-    {
-    }
+    static class Cat extends Animal {}
 
-    static class Dog extends Animal
-    {
-    }
-
-    static class Bird
-    {
-        public String name;
-    }
+    static class Dog extends Animal {}
 
     public void testDeserializeParentPositiveWithTypeId() throws Exception {
         String json = a2q("{'_class': '_cat', 'name': 'Cat-in-the-hat'} ");
@@ -63,5 +53,4 @@ public class JsonTypeInfoIgnored2968Test extends BaseMapTest
 
         assertEquals("cat", cat.name);
     }
-
 }

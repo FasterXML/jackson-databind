@@ -186,9 +186,9 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         // genuine, or faked for "dont fail on bad type id")
         JsonDeserializer<Object> deser = _findDefaultImplDeserializer(ctxt);
         if (deser == null) {
-            JavaType t =  _hasTypeResolverBuilder(ctxt.getConfig(), baseType()) ?
-                    ctxt.constructType(_baseType.getRawClass())
-                    : _handleMissingTypeId(ctxt, priorFailureMsg);
+            JavaType t =  _hasTypeResolverBuilder(ctxt.getConfig(), baseType())
+                    ? _handleMissingTypeId(ctxt, priorFailureMsg)
+                    : ctxt.constructType(_baseType.getRawClass());
 
             if (t == null) {
                 // 09-Mar-2017, tatu: Is this the right thing to do?
@@ -214,8 +214,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
      */
     private boolean _hasTypeResolverBuilder(DeserializationConfig config,
                          JavaType baseType){
-        BeanDescription bean = config.introspectClassAnnotations(baseType.getRawClass());
-        AnnotatedClass ac = bean.getClassInfo();
+        AnnotatedClass ac = AnnotatedClassResolver.resolveWithoutSuperTypes(config,  baseType.getRawClass());
         AnnotationIntrospector ai = config.getAnnotationIntrospector();
         return ai.findTypeResolver(config, ac, baseType) != null;
     }

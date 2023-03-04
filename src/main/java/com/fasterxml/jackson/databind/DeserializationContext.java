@@ -1605,7 +1605,7 @@ public abstract class DeserializationContext
 //        if (!isEnabled(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE)) {
 //            return null;
 //        }
-        return baseType;
+        throw missingTypeIdException(baseType, extraDesc);
     }
 
     /**

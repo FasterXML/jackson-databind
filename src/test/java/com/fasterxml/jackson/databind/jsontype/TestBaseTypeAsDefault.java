@@ -60,12 +60,9 @@ public class TestBaseTypeAsDefault extends BaseMapTest
     }
 
     public void testNegativeForChild() throws Exception {
-        try {
-            /*Object o =*/ MAPPER_WITHOUT_BASE.readerFor(Child.class).readValue("{}");
-            fail("Should not pass");
-        } catch (InvalidTypeIdException ex) {
-            assertTrue(ex.getMessage().contains("missing type id property '@class'"));
-        }
+        Child child = MAPPER_WITHOUT_BASE.readerFor(Child.class).readValue("{}");
+
+        assertEquals(Child.class, child.getClass());
     }
 
     public void testConversionForAbstractWithDefault() throws Exception {

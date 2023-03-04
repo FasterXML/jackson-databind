@@ -9,8 +9,12 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.util.JsonParserSequence;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
+import com.fasterxml.jackson.databind.introspect.AnnotatedClassResolver;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
+import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
@@ -182,7 +186,10 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         // genuine, or faked for "dont fail on bad type id")
         JsonDeserializer<Object> deser = _findDefaultImplDeserializer(ctxt);
         if (deser == null) {
-            JavaType t = _handleMissingTypeId(ctxt, priorFailureMsg);
+            JavaType t =  _hasTypeResolverBuilder(ctxt.getConfig(), baseType()) ?
+                    ctxt.constructType(_baseType.getRawClass())
+                    : _handleMissingTypeId(ctxt, priorFailureMsg);
+
             if (t == null) {
                 // 09-Mar-2017, tatu: Is this the right thing to do?
                 return null;
@@ -197,6 +204,20 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             p.nextToken();
         }
         return deser.deserialize(p, ctxt);
+    }
+
+    /**
+     * Internal helper method for checking whether given class has annotations that indicate
+     * that specific type resolver is to be used.
+     *
+     * @since 2.15
+     */
+    private boolean _hasTypeResolverBuilder(DeserializationConfig config,
+                         JavaType baseType){
+        BeanDescription bean = config.introspectClassAnnotations(baseType.getRawClass());
+        AnnotatedClass ac = bean.getClassInfo();
+        AnnotationIntrospector ai = config.getAnnotationIntrospector();
+        return ai.findTypeResolver(config, ac, baseType) != null;
     }
 
     /* Also need to re-route "unknown" version. Need to think

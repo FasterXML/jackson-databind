@@ -64,16 +64,4 @@ public class JsonTypeInfoIgnored2968Test extends BaseMapTest
         assertEquals("cat", cat.name);
     }
 
-
-//    public void testDeserializeParentPositiveWithTypeId() throws Exception {
-//        String json = a2q("{'_class': '_cat', 'name': 'Cat-in-the-hat'} ");
-//
-//        Animal cat = MAPPER.reader().readValue(json, Cat.class);
-//
-//        assertEquals("Cat-in-the-hat", cat.name);
-//    }
-
-    // TODO: ShouldJsonIgnore be there?
-    // DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES
-
 }

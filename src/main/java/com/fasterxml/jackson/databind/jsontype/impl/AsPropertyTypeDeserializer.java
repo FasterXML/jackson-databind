@@ -11,10 +11,8 @@ import com.fasterxml.jackson.core.util.JsonParserSequence;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClassResolver;
-import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
-import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
@@ -31,6 +29,14 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
     private static final long serialVersionUID = 1L;
 
     protected final As _inclusion;
+
+    /**
+     * Marker flag for whether current class has TypeResolver or not. This value should only
+     * be initialized once.
+     *
+     * @since 2.15
+     */
+    protected volatile Boolean _hasTypeResolverBuilder;
 
     // @since 2.12.2 (see [databind#3055]
     protected final String _msgForMissingId = (_property == null)
@@ -210,13 +216,26 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
      * Internal helper method for checking whether given class has annotations that indicate
      * that specific type resolver is to be used.
      *
+     * Note: This method will cache the result, since information like {@link com.fasterxml.jackson.annotation.JsonTypeInfo}
+     * does not change at runtime.
+     *
      * @since 2.15
      */
     private boolean _hasTypeResolverBuilder(DeserializationConfig config,
                          JavaType baseType){
-        AnnotatedClass ac = AnnotatedClassResolver.resolveWithoutSuperTypes(config,  baseType.getRawClass());
-        AnnotationIntrospector ai = config.getAnnotationIntrospector();
-        return ai.findTypeResolver(config, ac, baseType) != null;
+        Boolean hasTypeResolverBuilder = _hasTypeResolverBuilder;
+        if (hasTypeResolverBuilder == null) {
+            synchronized (this) {
+                hasTypeResolverBuilder = _hasTypeResolverBuilder;
+                if (hasTypeResolverBuilder == null) {
+                    AnnotatedClass ac = AnnotatedClassResolver.resolveWithoutSuperTypes(config,  baseType.getRawClass());
+                    AnnotationIntrospector ai = config.getAnnotationIntrospector();
+                    hasTypeResolverBuilder = ai.findTypeResolver(config, ac, baseType) != null;
+                    _hasTypeResolverBuilder = hasTypeResolverBuilder;
+                }
+            }
+        }
+        return hasTypeResolverBuilder;
     }
 
     /* Also need to re-route "unknown" version. Need to think

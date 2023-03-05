@@ -104,9 +104,9 @@ public class EnumNamingStrategies {
                 return word;
             }
             return new StringBuilder(length)
-                .append(charToUpperCaseIfLower(word.charAt(0)))
-                .append(toLowerCase(word.substring(1)))
-                .toString();
+                    .append(charToUpperCaseIfLower(word.charAt(0)))
+                    .append(toLowerCase(word.substring(1)))
+                    .toString();
         }
 
         private static String toLowerCase(String string) {

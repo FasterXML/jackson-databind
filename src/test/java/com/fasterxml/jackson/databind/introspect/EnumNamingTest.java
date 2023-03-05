@@ -40,24 +40,24 @@ public class EnumNamingTest extends BaseMapTest {
 
     public void testEnumNamingTranslateUnknownValueToDefault() throws Exception {
         EnumFlavorA result = MAPPER.reader()
-            .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
-            .readValue(q("__salted_caramel"), EnumFlavorA.class);
+                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+                .readValue(q("__salted_caramel"), EnumFlavorA.class);
 
         assertEquals(EnumFlavorA.VANILLA, result);
     }
 
     public void testEnumNamingToDefaultNumber() throws Exception {
         EnumFlavorA result = MAPPER.reader()
-            .without(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)
-            .readValue(q("1"), EnumFlavorA.class);
+                .without(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)
+                .readValue(q("1"), EnumFlavorA.class);
 
         assertEquals(EnumFlavorA.SALTED_CARAMEL, result);
     }
 
     public void testEnumNamingToDefaultEmptyString() throws Exception {
         EnumFlavorA result = MAPPER.reader()
-            .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
-            .readValue(q(""), EnumFlavorA.class);
+                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+                .readValue(q(""), EnumFlavorA.class);
 
         assertEquals(EnumFlavorA.VANILLA, result);
     }
@@ -69,8 +69,8 @@ public class EnumNamingTest extends BaseMapTest {
 
     public void testOriginalEnamValueShouldNotBeFoundWithEnumNamingStrategy() throws Exception {
         EnumFlavorB result = MAPPER.reader()
-            .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
-            .readValue(q("PEANUT_BUTTER"), EnumFlavorB.class);
+                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
+                .readValue(q("PEANUT_BUTTER"), EnumFlavorB.class);
 
         assertNull(result);
     }
@@ -89,8 +89,8 @@ public class EnumNamingTest extends BaseMapTest {
 
     public void testEnumNamingShouldOverrideToStringFeatue() throws Exception {
         String resultStr = MAPPER.writer()
-            .with(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
-            .writeValueAsString(EnumFlavorC.CHOCOLATE_CHIPS);
+                .with(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
+                .writeValueAsString(EnumFlavorC.CHOCOLATE_CHIPS);
 
         assertEquals(q("chocolateChips"), resultStr);
     }

@@ -56,7 +56,7 @@ public class EnumSerializer
      *
      * @since 2.15
      */
-    private volatile Boolean _hasEnumNaming = null;
+    private volatile Boolean _hasEnumNaming;
 
     /**
      * Map with key as converted property class defined implementation of {@link EnumNamingStrategy}
@@ -126,20 +126,19 @@ public class EnumSerializer
      *
      * @since 2.15
      */
-    private boolean _hasEnumNaming(SerializationConfig ctxt) {
+    private boolean _hasEnumNaming(SerializationConfig config) {
         Boolean exists = _hasEnumNaming;
         if (exists == null) {
             synchronized (this) {
                 exists = _hasEnumNaming;
                 if (exists == null) {
-                    exists = EnumPropertiesCollector.findEnumNamingStrategy(ctxt, _handledType) != null;
+                    exists = _getEnumNamingValues(config) != null;
                     _hasEnumNaming = exists;
                 }
             }
         }
         return exists;
     }
-
 
     /**
      * Returns {@link EnumValues} to use for enum name lookup of naming strategy.
@@ -152,8 +151,8 @@ public class EnumSerializer
             synchronized (this) {
                 lookup = _valuesByEnumNaming;
                 if (lookup == null) {
-                    EnumNamingStrategy namingStrategy = EnumPropertiesCollector
-                        .findEnumNamingStrategy(config, _handledType);
+                    EnumNamingStrategy namingStrategy =
+                            EnumPropertiesCollector.findEnumNamingStrategy(config, _handledType);
                     if (namingStrategy != null) {
                         lookup = EnumValues.constructUsingEnumNaming(config, _handledType, namingStrategy);
                         _valuesByEnumNaming = lookup;

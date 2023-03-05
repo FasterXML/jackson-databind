@@ -114,7 +114,8 @@ public class EnumResolver implements java.io.Serializable
 
     /**
      * Factory method for constructing resolver that maps from Enum.toString() into
-     * Enum value *
+     * Enum value
+     *
      * @since 2.12
      */
     public static EnumResolver constructUsingToString(DeserializationConfig config,

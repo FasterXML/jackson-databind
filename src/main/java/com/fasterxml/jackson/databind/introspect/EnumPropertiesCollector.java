@@ -59,7 +59,7 @@ public class EnumPropertiesCollector {
         // X or Y" -- need to throw an exception after the fact
         if (!(namingDef instanceof Class)) {
             reportProblem("AnnotationIntrospector returned EnumNamingStrategy definition of type %s"
-                + "; expected type `Class<EnumNamingStrategy>` instead", ClassUtil.classNameOf(namingDef));
+                    + "; expected type `Class<EnumNamingStrategy>` instead", ClassUtil.classNameOf(namingDef));
         }
 
         Class<?> namingClass = (Class<?>) namingDef;
@@ -70,7 +70,7 @@ public class EnumPropertiesCollector {
 
         if (!EnumNamingStrategy.class.isAssignableFrom(namingClass)) {
             reportProblem("AnnotationIntrospector returned Class %s; expected `Class<EnumNamingStrategy>`",
-                ClassUtil.classNameOf(namingClass));
+                    ClassUtil.classNameOf(namingClass));
         }
 
         return (EnumNamingStrategy) ClassUtil.createInstance(namingClass, canOverrideAccessModifiers);

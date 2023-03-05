@@ -405,14 +405,18 @@ public enum DeserializationFeature implements ConfigFeature
     READ_ENUMS_USING_TO_STRING(false),
 
     /**
-     * Feature that allows unknown Enum values to be parsed as null values.
+     * Feature that allows unknown Enum values to be parsed as {@code null} values.
      * If disabled, unknown Enum values will throw exceptions.
-     *<p>
-     * Note that in some cases this will in effect ignore unknown {@code Enum} values,
+     * <p>
+     * Note that in some cases this will effectively ignore unknown {@code Enum} values,
      * e.g. when the unknown values are used as keys of {@link java.util.EnumMap}
-     * or values of {@link java.util.EnumSet}: this because these data structures cannot
+     * or values of {@link java.util.EnumSet}: this is because these data structures cannot
      * store {@code null} values.
-     *<p>
+     * <p>
+     * Also note that this feature has lower precedence than
+     * {@link DeserializationFeature#READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE},
+     * meaning this feature will work only if latter feature is disabled.
+     * <p>
      * Feature is disabled by default.
      *
      * @since 2.0
@@ -420,11 +424,13 @@ public enum DeserializationFeature implements ConfigFeature
     READ_UNKNOWN_ENUM_VALUES_AS_NULL(false),
 
     /**
-     * Feature that allows unknown Enum values to be ignored and a predefined value specified through
+     * Feature that allows unknown Enum values to be ignored and replaced by a predefined value specified through
      * {@link com.fasterxml.jackson.annotation.JsonEnumDefaultValue @JsonEnumDefaultValue} annotation.
      * If disabled, unknown Enum values will throw exceptions.
      * If enabled, but no predefined default Enum value is specified, an exception will be thrown as well.
-     *<p>
+     * <p>
+     * Note that this feature has higher precedence than {@link DeserializationFeature#READ_UNKNOWN_ENUM_VALUES_AS_NULL}.
+     * <p>
      * Feature is disabled by default.
      *
      * @since 2.8

@@ -32,9 +32,8 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
 
     /**
      * Indicates if the current class has a TypeResolver or not.
-     * This flag should only be initialized once by
-     * {@link #_hasTypeResolverAnnotations(DeserializationConfig, JavaType)}
-     * for better performance.
+     * This flag should only be accessed by
+     * {@link #_hasTypeResolverAnnotations(DeserializationConfig, JavaType)}.
      *
      * @since 2.15
      */

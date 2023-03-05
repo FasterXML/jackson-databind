@@ -1620,8 +1620,10 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 _parsingContext.setCurrentName(name);
             } else if (_currToken == JsonToken.START_OBJECT) {
                 _parsingContext = _parsingContext.createChildObjectContext();
+                _streamReadConstraints.validateNestingDepth(_parsingContext.getNestingDepth());
             } else if (_currToken == JsonToken.START_ARRAY) {
                 _parsingContext = _parsingContext.createChildArrayContext();
+                _streamReadConstraints.validateNestingDepth(_parsingContext.getNestingDepth());
             } else if (_currToken == JsonToken.END_OBJECT
                     || _currToken == JsonToken.END_ARRAY) {
                 // Closing JSON Object/Array? Close matching context

@@ -34,6 +34,7 @@ abstract class NodeCursor
         _type = contextType;
         _index = -1;
         _parent = p;
+        _nestingDepth = p == null ? 0 : p._nestingDepth + 1;
     }
 
     /*

@@ -113,9 +113,11 @@ public class TreeTraversingParser extends ParserMinimalBase
         switch (_currToken) {
         case START_OBJECT:
             _nodeCursor = _nodeCursor.startObject();
+            streamReadConstraints().validateNestingDepth(_nodeCursor.getNestingDepth());
             break;
         case START_ARRAY:
             _nodeCursor = _nodeCursor.startArray();
+            streamReadConstraints().validateNestingDepth(_nodeCursor.getNestingDepth());
             break;
         case END_OBJECT:
         case END_ARRAY:

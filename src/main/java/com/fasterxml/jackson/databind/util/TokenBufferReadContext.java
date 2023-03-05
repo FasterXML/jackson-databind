@@ -46,6 +46,7 @@ public class TokenBufferReadContext extends JsonStreamContext
         } else {
             _startLocation = JsonLocation.NA;
         }
+        _nestingDepth = _parent == null ? 0 : _parent.getNestingDepth() + 1;
     }
 
     @Deprecated // @since 2.13
@@ -61,6 +62,7 @@ public class TokenBufferReadContext extends JsonStreamContext
         _currentName = base.getCurrentName();
         _currentValue = base.getCurrentValue();
         _startLocation = startLoc;
+        _nestingDepth = _parent == null ? 0 : _parent.getNestingDepth() + 1;
     }
 
     /**
@@ -77,6 +79,7 @@ public class TokenBufferReadContext extends JsonStreamContext
         super(type, index);
         _parent = parent;
         _startLocation = parent._startLocation;
+        _nestingDepth = _parent == null ? 0 : _parent.getNestingDepth() + 1;
     }
 
     @Override

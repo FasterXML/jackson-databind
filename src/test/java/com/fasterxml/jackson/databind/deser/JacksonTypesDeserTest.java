@@ -5,6 +5,7 @@ import java.util.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.ContentReference;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
@@ -118,8 +119,11 @@ public class JacksonTypesDeserTest
     // [databind#2398]
     public void testDeeplyNestedArrays() throws Exception
     {
-        try (JsonParser p = MAPPER.createParser(_createNested(RECURSION_2398 * 2,
-                "[", " 123 ", "]"))) {
+        JsonFactory jsonFactory = JsonFactory.builder()
+                .streamReadConstraints(StreamReadConstraints.builder().maxNestingDepth(Integer.MAX_VALUE).build())
+                .build();
+        try (JsonParser p = JsonMapper.builder(jsonFactory).build().createParser(
+                _createNested(RECURSION_2398 * 2, "[", " 123 ", "]"))) {
             p.nextToken();
             TokenBuffer b = new TokenBuffer(p);
             b.copyCurrentStructure(p);
@@ -129,8 +133,11 @@ public class JacksonTypesDeserTest
 
     public void testDeeplyNestedObjects() throws Exception
     {
-        try (JsonParser p = MAPPER.createParser(_createNested(RECURSION_2398,
-                "{\"a\":", "42", "}"))) {
+        JsonFactory jsonFactory = JsonFactory.builder()
+                .streamReadConstraints(StreamReadConstraints.builder().maxNestingDepth(Integer.MAX_VALUE).build())
+                .build();
+        try (JsonParser p = JsonMapper.builder(jsonFactory).build().createParser(
+                _createNested(RECURSION_2398, "{\"a\":", "42", "}"))) {
             p.nextToken();
             TokenBuffer b = new TokenBuffer(p);
             b.copyCurrentStructure(p);

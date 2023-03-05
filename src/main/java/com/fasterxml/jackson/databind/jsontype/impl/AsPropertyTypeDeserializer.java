@@ -38,7 +38,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
      *
      * @since 2.15
      */
-    protected volatile Boolean _hasTypeResolverAnnotations;
+    private volatile Boolean _hasTypeResolverAnnotations;
 
     // @since 2.12.2 (see [databind#3055]
     protected final String _msgForMissingId = (_property == null)
@@ -224,7 +224,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
      * @return true if the class has type resolver annotations, false otherwise
      * @since 2.15
      */
-    private boolean _hasTypeResolverAnnotations(DeserializationConfig config,
+    protected boolean _hasTypeResolverAnnotations(DeserializationConfig config,
                                                 JavaType baseType){
         Boolean hasTypeResolverAnnotations = _hasTypeResolverAnnotations;
         if (hasTypeResolverAnnotations == null) {

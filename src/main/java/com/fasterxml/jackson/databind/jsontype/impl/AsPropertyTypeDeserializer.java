@@ -31,14 +31,14 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
     protected final As _inclusion;
 
     /**
-     * Marker flag for checking whether current class has TypeResolver or not.
-     * For performance reasones, this value should be initialized by
-     * {@link AsPropertyTypeDeserializer#_hasTypeResolverBuilder(DeserializationConfig, JavaType)}
-     * only once.
+     * Indicates if the current class has a TypeResolver or not.
+     * This flag should only be initialized once by
+     * {@link #_hasTypeResolverAnnotations(DeserializationConfig, JavaType)}
+     * for better performance.
      *
      * @since 2.15
      */
-    protected volatile Boolean _hasTypeResolverBuilder;
+    protected volatile Boolean _hasTypeResolverAnnotations;
 
     // @since 2.12.2 (see [databind#3055]
     protected final String _msgForMissingId = (_property == null)
@@ -194,7 +194,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         // genuine, or faked for "dont fail on bad type id")
         JsonDeserializer<Object> deser = _findDefaultImplDeserializer(ctxt);
         if (deser == null) {
-            JavaType t =  _hasTypeResolverBuilder(ctxt.getConfig(), baseType())
+            JavaType t =  _hasTypeResolverAnnotations(ctxt.getConfig(), baseType())
                     ? _handleMissingTypeId(ctxt, priorFailureMsg)
                     : ctxt.constructType(_baseType.getRawClass());
 
@@ -215,29 +215,30 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
     }
 
     /**
-     * Internal helper method for checking whether given class has annotations that indicate
-     * that specific type resolver is to be used.
+     * Checks whether the given class has annotations indicating some type resolver
+     * is applied, for example {@link com.fasterxml.jackson.annotation.JsonSubTypes}.
+     * Only initializes {@link #_hasTypeResolverAnnotations} once if its value is null.
      *
-     * Note: This method will cache the result, since information like {@link com.fasterxml.jackson.annotation.JsonTypeInfo}
-     * does not change at runtime.
-     *
+     * @param config the deserialization configuration to use
+     * @param baseType the base type to check for type resolver annotations
+     * @return true if the class has type resolver annotations, false otherwise
      * @since 2.15
      */
-    private boolean _hasTypeResolverBuilder(DeserializationConfig config,
-                         JavaType baseType){
-        Boolean hasTypeResolverBuilder = _hasTypeResolverBuilder;
-        if (hasTypeResolverBuilder == null) {
+    private boolean _hasTypeResolverAnnotations(DeserializationConfig config,
+                                                JavaType baseType){
+        Boolean hasTypeResolverAnnotations = _hasTypeResolverAnnotations;
+        if (hasTypeResolverAnnotations == null) {
             synchronized (this) {
-                hasTypeResolverBuilder = _hasTypeResolverBuilder;
-                if (hasTypeResolverBuilder == null) {
+                hasTypeResolverAnnotations = _hasTypeResolverAnnotations;
+                if (hasTypeResolverAnnotations == null) {
                     AnnotatedClass ac = AnnotatedClassResolver.resolveWithoutSuperTypes(config,  baseType.getRawClass());
                     AnnotationIntrospector ai = config.getAnnotationIntrospector();
-                    hasTypeResolverBuilder = ai.findTypeResolver(config, ac, baseType) != null;
-                    _hasTypeResolverBuilder = hasTypeResolverBuilder;
+                    hasTypeResolverAnnotations = ai.findTypeResolver(config, ac, baseType) != null;
+                    _hasTypeResolverAnnotations = hasTypeResolverAnnotations;
                 }
             }
         }
-        return hasTypeResolverBuilder;
+        return hasTypeResolverAnnotations;
     }
 
     /* Also need to re-route "unknown" version. Need to think

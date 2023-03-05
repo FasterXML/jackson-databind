@@ -14,12 +14,15 @@ public class DeepJsonTreeTraversingTest extends BaseMapTest
 {
     private final static int TOO_DEEP_NESTING = 10_000;
 
-    private final ObjectMapper MAPPER = JsonMapper.builder().build();
+    private final JsonFactory unconstrainedFactory = JsonFactory.builder()
+            .streamReadConstraints(StreamReadConstraints.builder().maxNestingDepth(Integer.MAX_VALUE).build())
+            .build();
+    private final ObjectMapper unconstrainedMapper = JsonMapper.builder(unconstrainedFactory).build();
 
     public void testTreeWithArray() throws Exception
     {
         final String doc = _nestedDoc(TOO_DEEP_NESTING, "[ ", "] ");
-        JsonNode tree = MAPPER.readTree(doc);
+        JsonNode tree = unconstrainedMapper.readTree(doc);
         try (JsonParser jp = tree.traverse()) {
             JsonToken jt;
             while ((jt = jp.nextToken()) != null) {
@@ -34,7 +37,7 @@ public class DeepJsonTreeTraversingTest extends BaseMapTest
     public void testTreeWithObject() throws Exception
     {
         final String doc = "{"+_nestedDoc(TOO_DEEP_NESTING, "\"x\":{", "} ") + "}";
-        JsonNode tree = MAPPER.readTree(doc);
+        JsonNode tree = unconstrainedMapper.readTree(doc);
         try (JsonParser jp = tree.traverse()) {
             JsonToken jt;
             while ((jt = jp.nextToken()) != null) {

@@ -3,9 +3,12 @@ package tools.jackson.databind.deser.dos;
 import java.util.List;
 import java.util.Map;
 
+import tools.jackson.core.StreamReadConstraints;
+import tools.jackson.core.json.JsonFactory;
 import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 // For [databind#2816] / [databind#3473]
 public class DeepNestingUntypedDeserTest extends BaseMapTest
@@ -17,7 +20,10 @@ public class DeepNestingUntypedDeserTest extends BaseMapTest
     //   1 million (!) nesting levels, but to keep tests fast use 100k
     private final static int TOO_DEEP_NESTING = 100_000;
 
-    private final ObjectMapper MAPPER = newJsonMapper();
+    private final JsonFactory jsonFactory = JsonFactory.builder()
+            .streamReadConstraints(StreamReadConstraints.builder().maxNestingDepth(Integer.MAX_VALUE).build())
+            .build();
+    private final ObjectMapper MAPPER = JsonMapper.builder(jsonFactory).build();
 
     public void testFormerlyTooDeepUntypedWithArray() throws Exception
     {

@@ -1,12 +1,18 @@
 package tools.jackson.databind.deser.dos;
 
+import tools.jackson.core.StreamReadConstraints;
+import tools.jackson.core.json.JsonFactory;
 import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 public class DeepJsonNodeSerTest extends BaseMapTest
 {
-    private final ObjectMapper MAPPER = newJsonMapper();
+    private final JsonFactory jsonFactory = JsonFactory.builder()
+            .streamReadConstraints(StreamReadConstraints.builder().maxNestingDepth(Integer.MAX_VALUE).build())
+            .build();
+    private final ObjectMapper MAPPER = JsonMapper.builder(jsonFactory).build();
 
     public void testVeryDeepNodeSer() throws Exception
     {

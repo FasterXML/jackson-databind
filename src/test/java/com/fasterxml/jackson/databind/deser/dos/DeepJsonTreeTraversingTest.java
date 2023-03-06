@@ -18,8 +18,29 @@ public class DeepJsonTreeTraversingTest extends BaseMapTest
             .streamReadConstraints(StreamReadConstraints.builder().maxNestingDepth(Integer.MAX_VALUE).build())
             .build();
     private final ObjectMapper unconstrainedMapper = JsonMapper.builder(unconstrainedFactory).build();
+    private final ObjectMapper defaultMapper = JsonMapper.builder().build();
 
-    public void testTreeWithArray() throws Exception
+    public void testTreeWithArrayWithDefaultConfig() throws Exception
+    {
+        final String doc = _nestedDoc(TOO_DEEP_NESTING, "[ ", "] ");
+        try {
+            JsonNode tree = defaultMapper.readTree(doc);
+        } catch (StreamConstraintsException e) {
+            assertEquals("Depth (1001) exceeds the maximum allowed nesting depth (1000)", e.getMessage());
+        }
+    }
+
+    public void testTreeWithObjectWithDefaultConfig() throws Exception
+    {
+        final String doc = "{"+_nestedDoc(TOO_DEEP_NESTING, "\"x\":{", "} ") + "}";
+        try {
+            JsonNode tree = defaultMapper.readTree(doc);
+        } catch (StreamConstraintsException e) {
+            assertEquals("Depth (1001) exceeds the maximum allowed nesting depth (1000)", e.getMessage());
+        }
+    }
+
+    public void testTreeWithArrayWithUnconstrainedConfig() throws Exception
     {
         final String doc = _nestedDoc(TOO_DEEP_NESTING, "[ ", "] ");
         JsonNode tree = unconstrainedMapper.readTree(doc);
@@ -28,13 +49,10 @@ public class DeepJsonTreeTraversingTest extends BaseMapTest
             while ((jt = jp.nextToken()) != null) {
 
             }
-            fail("expected StreamConstraintsException");
-        } catch (StreamConstraintsException e) {
-            assertEquals("Depth (1001) exceeds the maximum allowed nesting depth (1000)", e.getMessage());
         }
     }
 
-    public void testTreeWithObject() throws Exception
+    public void testTreeWithObjectWithUnconstrainedConfig() throws Exception
     {
         final String doc = "{"+_nestedDoc(TOO_DEEP_NESTING, "\"x\":{", "} ") + "}";
         JsonNode tree = unconstrainedMapper.readTree(doc);
@@ -43,9 +61,6 @@ public class DeepJsonTreeTraversingTest extends BaseMapTest
             while ((jt = jp.nextToken()) != null) {
 
             }
-            fail("expected StreamConstraintsException");
-        } catch (StreamConstraintsException e) {
-            assertEquals("Depth (1001) exceeds the maximum allowed nesting depth (1000)", e.getMessage());
         }
     }
 

@@ -150,8 +150,7 @@ public class JacksonTypesDeserTest
                 .streamReadConstraints(StreamReadConstraints.builder().maxNestingDepth(Integer.MAX_VALUE).build())
                 .build();
         try (JsonParser p = JsonMapper.builder(jsonFactory).build().createParser(
-                _createNested(RECURSION_2398,
-                "{\"a\":", "42", "}"))) {
+                _createNested(RECURSION_2398, "{\"a\":", "42", "}"))) {
             p.nextToken();
             TokenBuffer b = TokenBuffer.forGeneration();
             b.copyCurrentStructure(p);

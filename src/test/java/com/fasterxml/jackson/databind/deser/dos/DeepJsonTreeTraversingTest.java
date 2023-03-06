@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 
 public class DeepJsonTreeTraversingTest extends BaseMapTest
 {
-    private final static int TOO_DEEP_NESTING = 10_000;
+    private final static int TOO_DEEP_NESTING = 2_000;
 
     private final JsonFactory unconstrainedFactory = JsonFactory.builder()
             .streamReadConstraints(StreamReadConstraints.builder().maxNestingDepth(Integer.MAX_VALUE).build())

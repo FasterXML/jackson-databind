@@ -4,7 +4,9 @@ import java.util.*;
 
 import tools.jackson.core.*;
 import tools.jackson.core.io.ContentReference;
+import tools.jackson.core.json.JsonFactory;
 import tools.jackson.databind.*;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.type.TypeFactory;
 import tools.jackson.databind.util.TokenBuffer;
 
@@ -115,8 +117,7 @@ public class JacksonTypesDeserTest
     // 10k does it, 5k not, but use bit higher values just in case
     private final static int RECURSION_2398 = 25000;
 
-    // [databind#2398]
-    public void testDeeplyNestedArrays() throws Exception
+    public void testJavaTypeDeser() throws Exception
     {
         TypeFactory tf = TypeFactory.defaultInstance();
         // first simple type:
@@ -128,9 +129,28 @@ public class JacksonTypesDeserTest
         assertEquals(String.class, t.getRawClass());
     }
 
+    // [databind#2398]
+    public void testDeeplyNestedArrays() throws Exception
+    {
+        JsonFactory jsonFactory = JsonFactory.builder()
+                .streamReadConstraints(StreamReadConstraints.builder().maxNestingDepth(Integer.MAX_VALUE).build())
+                .build();
+        try (JsonParser p = JsonMapper.builder(jsonFactory).build().createParser(
+                _createNested(RECURSION_2398 * 2, "[", " 123 ", "]"))) {
+            p.nextToken();
+            TokenBuffer b = TokenBuffer.forGeneration();
+            b.copyCurrentStructure(p);
+            b.close();
+        }
+    }
+
     public void testDeeplyNestedObjects() throws Exception
     {
-        try (JsonParser p = MAPPER.createParser(_createNested(RECURSION_2398,
+        JsonFactory jsonFactory = JsonFactory.builder()
+                .streamReadConstraints(StreamReadConstraints.builder().maxNestingDepth(Integer.MAX_VALUE).build())
+                .build();
+        try (JsonParser p = JsonMapper.builder(jsonFactory).build().createParser(
+                _createNested(RECURSION_2398,
                 "{\"a\":", "42", "}"))) {
             p.nextToken();
             TokenBuffer b = TokenBuffer.forGeneration();

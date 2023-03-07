@@ -20,7 +20,7 @@ public class DeepJsonParsingTest extends BaseMapTest
     private final ObjectMapper unconstrainedMapper = JsonMapper.builder(unconstrainedFactory).build();
     private final ObjectMapper defaultMapper = JsonMapper.builder().build();
 
-    public void testTreeWithArrayWithDefaultConfig() throws Exception
+    public void testParseWithArrayWithDefaultConfig() throws Exception
     {
         final String doc = _nestedDoc(TOO_DEEP_NESTING, "[ ", "] ");
         try (JsonParser jp = defaultMapper.createParser(doc)) {
@@ -35,7 +35,7 @@ public class DeepJsonParsingTest extends BaseMapTest
         }
     }
 
-    public void testTreeWithObjectWithDefaultConfig() throws Exception
+    public void testParseWithObjectWithDefaultConfig() throws Exception
     {
         final String doc = "{"+_nestedDoc(TOO_DEEP_NESTING, "\"x\":{", "} ") + "}";
         try (JsonParser jp = defaultMapper.createParser(doc)) {
@@ -49,7 +49,7 @@ public class DeepJsonParsingTest extends BaseMapTest
         }
     }
 
-    public void testTreeWithArrayWithUnconstrainedConfig() throws Exception
+    public void testParseWithArrayWithUnconstrainedConfig() throws Exception
     {
         final String doc = _nestedDoc(TOO_DEEP_NESTING, "[ ", "] ");
         try (JsonParser jp = unconstrainedMapper.createParser(doc)) {
@@ -60,7 +60,7 @@ public class DeepJsonParsingTest extends BaseMapTest
         }
     }
 
-    public void testTreeWithObjectWithUnconstrainedConfig() throws Exception
+    public void testParseWithObjectWithUnconstrainedConfig() throws Exception
     {
         final String doc = "{"+_nestedDoc(TOO_DEEP_NESTING, "\"x\":{", "} ") + "}";
         try (JsonParser jp = unconstrainedMapper.createParser(doc)) {

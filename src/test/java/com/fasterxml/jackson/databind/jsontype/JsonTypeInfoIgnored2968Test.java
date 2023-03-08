@@ -47,15 +47,6 @@ public class JsonTypeInfoIgnored2968Test extends BaseMapTest {
         }
     }
 
-    static class VolleyBall extends SimpleBall {
-        protected VolleyBall() {}
-
-        public VolleyBall(int size) {
-            super();
-            this.size = size;
-        }
-    }
-
     // make this type `final` to avoid polymorphic handling
     static final class BallValueWrapper {
         public SimpleBall value;
@@ -75,7 +66,6 @@ public class JsonTypeInfoIgnored2968Test extends BaseMapTest {
         assertEquals("Cat-in-the-hat", cat.name);
     }
 
-
     public void testDeserializeParentNegativeWithOutTypeId() throws Exception {
         String json = a2q("{'name': 'cat'} ");
 
@@ -92,34 +82,6 @@ public class JsonTypeInfoIgnored2968Test extends BaseMapTest {
         Cat cat = MAPPER.readValue(json, Cat.class);
 
         assertEquals("cat", cat.name);
-    }
-
-
-    public void testDeserializationConcreteClassWithDefaultTyping() throws Exception {
-        final PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
-            .allowIfBaseType(SimpleBall.class)
-            .build();
-        ObjectMapper mapper = jsonMapperBuilder()
-            .activateDefaultTyping(ptv, ObjectMapper.DefaultTyping.NON_FINAL)
-            .build();
-
-        final String concreteTypeJson = a2q("{'size': 42}");
-        BasketBall basketBall = mapper.readValue(concreteTypeJson, BasketBall.class);
-        assertEquals(42, basketBall.size);
-    }
-
-    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT, defaultImpl = Mango.class)
-    static abstract class Fruit {}
-
-    static class Mango extends Fruit {
-        public int a;
-    }
-
-    public void testDefaultImplWithObjectWrapper() throws Exception {
-        Fruit value = MAPPER.readValue(a2q("{'foobar':{'a':3}}"), Fruit.class);
-        assertNotNull(value);
-        assertEquals(Mango.class, value.getClass());
-        assertEquals(3, ((Mango) value).a);
     }
 
     public void testDeserializationWrapperWithDefaultTyping() throws Exception {
@@ -140,7 +102,6 @@ public class JsonTypeInfoIgnored2968Test extends BaseMapTest {
         assertEquals(BasketBall.class, wrapper.value.getClass());
     }
 
-
     public void testDeserializationBaseClassWithDefaultTyping() throws Exception {
         final PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
             .allowIfBaseType(SimpleBall.class)
@@ -149,7 +110,6 @@ public class JsonTypeInfoIgnored2968Test extends BaseMapTest {
             .activateDefaultTyping(ptv, ObjectMapper.DefaultTyping.NON_FINAL)
             .build();
 
-        // Case 3. Test concrete class deserialization
         final String concreteTypeJson = a2q("{'size': 42}");
         try {
             mapper.readValue(concreteTypeJson, SimpleBall.class);

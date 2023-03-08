@@ -33,7 +33,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
      *
      * @since 2.15
      */
-    private volatile Boolean _hasTypeResolverAttached;
+    private Boolean _hasTypeResolverAttached;
 
     // @since 2.12.2 (see [databind#3055]
     protected final String _msgForMissingId = (_property == null)

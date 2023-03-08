@@ -9,8 +9,6 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.util.JsonParserSequence;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
-import com.fasterxml.jackson.databind.introspect.AnnotatedClassResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
@@ -31,13 +29,11 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
     protected final As _inclusion;
 
     /**
-     * Indicates if the current class has a TypeResolver or not.
-     * This flag should only be accessed by
-     * {@link #_hasTypeResolverAnnotations(DeserializationConfig, JavaType)}.
+     * Indicates if the current class has a TypeResolver attached or not.
      *
      * @since 2.15
      */
-    private volatile Boolean _hasTypeResolverAnnotations;
+    private volatile Boolean _hasTypeResolverAttached;
 
     // @since 2.12.2 (see [databind#3055]
     protected final String _msgForMissingId = (_property == null)
@@ -50,7 +46,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
     public AsPropertyTypeDeserializer(JavaType bt, TypeIdResolver idRes,
             String typePropertyName, boolean typeIdVisible, JavaType defaultImpl)
     {
-        this(bt, idRes, typePropertyName, typeIdVisible, defaultImpl, As.PROPERTY);
+        this(bt, idRes, typePropertyName, typeIdVisible, defaultImpl, As.PROPERTY, Boolean.FALSE);
     }
 
     /**
@@ -58,15 +54,17 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
      */
     public AsPropertyTypeDeserializer(JavaType bt, TypeIdResolver idRes,
             String typePropertyName, boolean typeIdVisible, JavaType defaultImpl,
-            As inclusion)
+            As inclusion, Boolean hasTypeResolverAttached)
     {
         super(bt, idRes, typePropertyName, typeIdVisible, defaultImpl);
         _inclusion = inclusion;
+       _hasTypeResolverAttached = hasTypeResolverAttached;
     }
 
     public AsPropertyTypeDeserializer(AsPropertyTypeDeserializer src, BeanProperty property) {
         super(src, property);
         _inclusion = src._inclusion;
+        _hasTypeResolverAttached = src._hasTypeResolverAttached;
     }
 
     @Override
@@ -193,9 +191,8 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         // genuine, or faked for "dont fail on bad type id")
         JsonDeserializer<Object> deser = _findDefaultImplDeserializer(ctxt);
         if (deser == null) {
-            JavaType t =  _hasTypeResolverAnnotations(ctxt.getConfig(), baseType())
-                    ? _handleMissingTypeId(ctxt, priorFailureMsg)
-                    : ctxt.constructType(_baseType.getRawClass());
+            JavaType t = Boolean.TRUE.equals(_hasTypeResolverAttached)
+                ? _handleMissingTypeId(ctxt, priorFailureMsg) : ctxt.constructType(_baseType.getRawClass());
 
             if (t == null) {
                 // 09-Mar-2017, tatu: Is this the right thing to do?
@@ -211,33 +208,6 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             p.nextToken();
         }
         return deser.deserialize(p, ctxt);
-    }
-
-    /**
-     * Checks whether the given class has annotations indicating some type resolver
-     * is applied, for example {@link com.fasterxml.jackson.annotation.JsonSubTypes}.
-     * Only initializes {@link #_hasTypeResolverAnnotations} once if its value is null.
-     *
-     * @param config the deserialization configuration to use
-     * @param baseType the base type to check for type resolver annotations
-     * @return true if the class has type resolver annotations, false otherwise
-     * @since 2.15
-     */
-    protected boolean _hasTypeResolverAnnotations(DeserializationConfig config,
-                                                JavaType baseType){
-        Boolean hasTypeResolverAnnotations = _hasTypeResolverAnnotations;
-        if (hasTypeResolverAnnotations == null) {
-            synchronized (this) {
-                hasTypeResolverAnnotations = _hasTypeResolverAnnotations;
-                if (hasTypeResolverAnnotations == null) {
-                    AnnotatedClass ac = AnnotatedClassResolver.resolveWithoutSuperTypes(config,  baseType.getRawClass());
-                    AnnotationIntrospector ai = config.getAnnotationIntrospector();
-                    hasTypeResolverAnnotations = ai.findTypeResolver(config, ac, baseType) != null;
-                    _hasTypeResolverAnnotations = hasTypeResolverAnnotations;
-                }
-            }
-        }
-        return hasTypeResolverAnnotations;
     }
 
     /* Also need to re-route "unknown" version. Need to think

@@ -358,9 +358,10 @@
                   <goal>add-test-source</goal>
                 </goals>
                 <configuration>
-                  <sources>
+                  <sources>  
                     <source>src/test-jdk14/java</source>
-                  </sources>
+                    <source>src/test-jdk17/java</source>
+                </sources>
                 </configuration>
               </execution>
             </executions>

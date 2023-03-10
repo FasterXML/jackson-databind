@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.ser.impl.*;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -220,7 +219,7 @@ public class JsonFilterTest extends BaseMapTest
 
     public void testAllFiltersWithSameOutput() throws Exception
     {
-        List<SimpleBeanPropertyFilter> allPossibleFilters = List.of(
+        SimpleBeanPropertyFilter[] allPossibleFilters = new SimpleBeanPropertyFilter[]{
             // Parent class : SimpleBeanPropertyFilter
             SimpleBeanPropertyFilter.filterOutAllExcept("a", "b"),
             SimpleBeanPropertyFilter.filterOutAllExcept(setOf("a", "b")),
@@ -238,7 +237,7 @@ public class JsonFilterTest extends BaseMapTest
             SimpleBeanPropertyFilter.FilterExceptFilter.serializeAllExcept(setOf("c")),
             SimpleBeanPropertyFilter.FilterExceptFilter.filterOutAllExcept(setOf("a", "b")),
             SimpleBeanPropertyFilter.FilterExceptFilter.filterOutAllExcept("a", "b")
-        );
+        };
 
         for (SimpleBeanPropertyFilter filter : allPossibleFilters) {
             BeanB beanB = new BeanB("aa", "bb", "cc");

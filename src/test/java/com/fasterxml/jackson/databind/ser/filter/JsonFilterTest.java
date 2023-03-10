@@ -11,6 +11,8 @@ import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.PropertyWriter;
 import com.fasterxml.jackson.databind.ser.impl.*;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -219,22 +221,22 @@ public class JsonFilterTest extends BaseMapTest
     public void testAllFiltersWithSameOutput() throws Exception
     {
         List<SimpleBeanPropertyFilter> allPossibleFilters = List.of(
-            // Parent class
+            // Parent class : SimpleBeanPropertyFilter
             SimpleBeanPropertyFilter.filterOutAllExcept("a", "b"),
-            SimpleBeanPropertyFilter.filterOutAllExcept(Set.of("a", "b")),
+            SimpleBeanPropertyFilter.filterOutAllExcept(setOf("a", "b")),
             SimpleBeanPropertyFilter.serializeAllExcept("c"),
-            SimpleBeanPropertyFilter.serializeAllExcept(Set.of("c")),
-            // Subclass
-            new SimpleBeanPropertyFilter.SerializeExceptFilter(Set.of("c")),
+            SimpleBeanPropertyFilter.serializeAllExcept(setOf("c")),
+            // Subclass : SerializeExceptFilter
+            new SimpleBeanPropertyFilter.SerializeExceptFilter(setOf("c")),
             SimpleBeanPropertyFilter.SerializeExceptFilter.serializeAllExcept("c"),
-            SimpleBeanPropertyFilter.SerializeExceptFilter.serializeAllExcept(Set.of("c")),
+            SimpleBeanPropertyFilter.SerializeExceptFilter.serializeAllExcept(setOf("c")),
             SimpleBeanPropertyFilter.SerializeExceptFilter.filterOutAllExcept("a", "b"),
-            SimpleBeanPropertyFilter.SerializeExceptFilter.filterOutAllExcept(Set.of("a", "b")),
-            // Subclass
-            new SimpleBeanPropertyFilter.FilterExceptFilter(Set.of("a", "b")),
+            SimpleBeanPropertyFilter.SerializeExceptFilter.filterOutAllExcept(setOf("a", "b")),
+            // Subclass : FilterExceptFilter
+            new SimpleBeanPropertyFilter.FilterExceptFilter(setOf("a", "b")),
             SimpleBeanPropertyFilter.FilterExceptFilter.serializeAllExcept("c"),
-            SimpleBeanPropertyFilter.FilterExceptFilter.serializeAllExcept(Set.of("c")),
-            SimpleBeanPropertyFilter.FilterExceptFilter.filterOutAllExcept(Set.of("a", "b")),
+            SimpleBeanPropertyFilter.FilterExceptFilter.serializeAllExcept(setOf("c")),
+            SimpleBeanPropertyFilter.FilterExceptFilter.filterOutAllExcept(setOf("a", "b")),
             SimpleBeanPropertyFilter.FilterExceptFilter.filterOutAllExcept("a", "b")
         );
 
@@ -247,5 +249,11 @@ public class JsonFilterTest extends BaseMapTest
 
             assertEquals(a2q("{'a':'aa','b':'bb'}"), jsonStr);
         }
+    }
+
+    private Set<String> setOf(String... properties) {
+        Set<String> set = new HashSet<>(properties.length);
+        set.addAll(Arrays.asList(properties));
+        return set;
     }
 }

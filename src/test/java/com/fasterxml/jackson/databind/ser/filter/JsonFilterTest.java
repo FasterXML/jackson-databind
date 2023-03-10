@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.PropertyWriter;
 import com.fasterxml.jackson.databind.ser.impl.*;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -150,6 +149,13 @@ public class JsonFilterTest extends BaseMapTest
         assertEquals("{\"a\":\"a\",\"b\":\"b\"}", MAPPER.writer(prov).writeValueAsString(new Bean()));
     }
 
+    public void testExcludeAllFilter() throws Exception
+    {
+        FilterProvider prov = new SimpleFilterProvider().addFilter("RootFilter",
+            SimpleBeanPropertyFilter.filterOutAll());
+        assertEquals("{}", MAPPER.writer(prov).writeValueAsString(new Bean()));
+    }
+
     public void testSimpleExclusionFilter() throws Exception
     {
         FilterProvider prov = new SimpleFilterProvider().addFilter("RootFilter",
@@ -210,21 +216,21 @@ public class JsonFilterTest extends BaseMapTest
                 MAPPER.writer(prov).writeValueAsString(new FilteredProps()));
     }
 
-    public void testFiltersWithSameOutput() throws Exception
+    public void testAllFiltersWithSameOutput() throws Exception
     {
         List<SimpleBeanPropertyFilter> allPossibleFilters = List.of(
-            // Main-class
+            // Parent class
             SimpleBeanPropertyFilter.filterOutAllExcept("a", "b"),
             SimpleBeanPropertyFilter.filterOutAllExcept(Set.of("a", "b")),
             SimpleBeanPropertyFilter.serializeAllExcept("c"),
             SimpleBeanPropertyFilter.serializeAllExcept(Set.of("c")),
-            // Sub-class
+            // Subclass
             new SimpleBeanPropertyFilter.SerializeExceptFilter(Set.of("c")),
             SimpleBeanPropertyFilter.SerializeExceptFilter.serializeAllExcept("c"),
             SimpleBeanPropertyFilter.SerializeExceptFilter.serializeAllExcept(Set.of("c")),
             SimpleBeanPropertyFilter.SerializeExceptFilter.filterOutAllExcept("a", "b"),
             SimpleBeanPropertyFilter.SerializeExceptFilter.filterOutAllExcept(Set.of("a", "b")),
-            // Sub-class
+            // Subclass
             new SimpleBeanPropertyFilter.FilterExceptFilter(Set.of("a", "b")),
             SimpleBeanPropertyFilter.FilterExceptFilter.serializeAllExcept("c"),
             SimpleBeanPropertyFilter.FilterExceptFilter.serializeAllExcept(Set.of("c")),

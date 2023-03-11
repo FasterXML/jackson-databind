@@ -1548,6 +1548,9 @@ Joo Hyuk Kim (JooHyukKim@github)
   * Contributed #3638: Case-insensitive and number-based enum deserialization are
    (unnecessarily) mutually exclusive
   (2.15.0)
+  * Contributed #3819: Add convenience method `SimpleBeanPropertyFilter.filterOutAll()` as
+   counterpart of `serializeAll()`
+  (2.15.0)
 
 Vojtěch Knyttl (knyttl@github)
   * Requested #3053: Allow serializing enums to lowercase (`EnumFeature.WRITE_ENUMS_TO_LOWERCASE`)

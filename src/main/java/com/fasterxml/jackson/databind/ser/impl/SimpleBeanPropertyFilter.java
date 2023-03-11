@@ -268,16 +268,12 @@ public class SimpleBeanPropertyFilter
     {
         private static final long serialVersionUID = 1L;
 
-        static final FilterExceptFilter EXCLUDE_ALL = new FilterExceptFilter();
+        static final FilterExceptFilter EXCLUDE_ALL = new FilterExceptFilter(Collections.emptySet());
 
         /**
          * Set of property names to serialize.
          */
         protected final Set<String> _propertiesToInclude;
-
-        FilterExceptFilter() {
-            _propertiesToInclude = Collections.emptySet();
-        }
 
         public FilterExceptFilter(Set<String> properties) {
             _propertiesToInclude = properties;
@@ -304,16 +300,12 @@ public class SimpleBeanPropertyFilter
     {
         private static final long serialVersionUID = 1L;
 
-        final static SerializeExceptFilter INCLUDE_ALL = new SerializeExceptFilter();
+        final static SerializeExceptFilter INCLUDE_ALL = new SerializeExceptFilter(Collections.emptySet());
 
         /**
          * Set of property names to filter out.
          */
         protected final Set<String> _propertiesToExclude;
-
-        SerializeExceptFilter() {
-            _propertiesToExclude = Collections.emptySet();
-        }
 
         public SerializeExceptFilter(Set<String> properties) {
             _propertiesToExclude = properties;

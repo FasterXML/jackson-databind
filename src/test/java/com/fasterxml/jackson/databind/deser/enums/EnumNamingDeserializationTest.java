@@ -66,6 +66,11 @@ public class EnumNamingDeserializationTest extends BaseMapTest {
         Map<EnumSauceC, String> map;
     }
 
+    static class ClassWithEnumMapSauceValue {
+        @JsonProperty
+        Map<String, EnumSauceC> map;
+    }
+
     /*
     /**********************************************************
     /* Test
@@ -188,5 +193,31 @@ public class EnumNamingDeserializationTest extends BaseMapTest {
 
         assertEquals(1, result.map.size());
         assertEquals("val", result.map.get(EnumSauceC.KETCH_UP));
+    }
+
+    public void testAllowCaseSensensitiveEnumMapValue() throws Exception {
+        ObjectReader reader = MAPPER
+            .enable(ACCEPT_CASE_INSENSITIVE_ENUMS)
+            .readerFor(ClassWithEnumMapSauceValue.class);
+
+        ClassWithEnumMapSauceValue result = reader.readValue(
+            a2q("{'map':{'lowerSauce':'ketchUp', 'upperSauce':'mayoNezz'}}"));
+
+        assertEquals(2, result.map.size());
+        assertEquals(EnumSauceC.KETCH_UP, result.map.get("lowerSauce"));
+        assertEquals(EnumSauceC.MAYO_NEZZ, result.map.get("upperSauce"));
+    }
+
+    public void testAllowCaseInsensensitiveEnumMapValue() throws Exception {
+        ObjectReader reader = MAPPER
+            .enable(ACCEPT_CASE_INSENSITIVE_ENUMS)
+            .readerFor(ClassWithEnumMapSauceValue.class);
+
+        ClassWithEnumMapSauceValue result = reader.readValue(
+            a2q("{'map':{'lowerSauce':'ketchup', 'upperSauce':'MAYONEZZ'}}"));
+
+        assertEquals(2, result.map.size());
+        assertEquals(EnumSauceC.KETCH_UP, result.map.get("lowerSauce"));
+        assertEquals(EnumSauceC.MAYO_NEZZ, result.map.get("upperSauce"));
     }
 }

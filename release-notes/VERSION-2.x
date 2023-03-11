@@ -54,6 +54,9 @@ Project: jackson-databind
  (reported by Christoph S)
 #3796: Enum Deserialisation Failing with Polymorphic type validator
  (reported by @sagarika4)
+#3819: Add convenience method `SimpleBeanPropertyFilter.filterOutAll()` as
+  counterpart of `serializeAll()`
+ (contributed by Joo-Hyuk K)
 
 2.14.3 (not yet released)
 

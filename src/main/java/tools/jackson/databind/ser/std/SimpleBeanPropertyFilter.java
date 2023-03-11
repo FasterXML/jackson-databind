@@ -45,6 +45,14 @@ public class SimpleBeanPropertyFilter
     }
 
     /**
+     * Convenience factory method that will return a filter that will
+     * simply filter out everything.
+     */
+    public static SimpleBeanPropertyFilter filterOutAll() {
+        return FilterExceptFilter.EXCLUDE_ALL;
+    }
+
+    /**
      * Factory method to construct filter that filters out all properties <b>except</b>
      * ones includes in set
      */
@@ -153,6 +161,8 @@ public class SimpleBeanPropertyFilter
     {
         private static final long serialVersionUID = 1L;
 
+        static final FilterExceptFilter EXCLUDE_ALL = new FilterExceptFilter(Collections.emptySet());
+
         /**
          * Set of property names to serialize.
          */
@@ -183,16 +193,12 @@ public class SimpleBeanPropertyFilter
     {
         private static final long serialVersionUID = 1L;
 
-        final static SerializeExceptFilter INCLUDE_ALL = new SerializeExceptFilter();
+        final static SerializeExceptFilter INCLUDE_ALL = new SerializeExceptFilter(Collections.emptySet());
 
         /**
          * Set of property names to filter out.
          */
         protected final Set<String> _propertiesToExclude;
-
-        SerializeExceptFilter() {
-            _propertiesToExclude = Collections.emptySet();
-        }
 
         public SerializeExceptFilter(Set<String> properties) {
             _propertiesToExclude = properties;

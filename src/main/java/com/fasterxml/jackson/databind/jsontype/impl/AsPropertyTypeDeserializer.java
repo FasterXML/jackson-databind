@@ -33,7 +33,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
      *
      * @since 2.15
      */
-    private Boolean _hasTypeResolverAttached;
+    private boolean _hasTypeResolver;
 
     // @since 2.12.2 (see [databind#3055]
     protected final String _msgForMissingId = (_property == null)
@@ -46,7 +46,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
     public AsPropertyTypeDeserializer(JavaType bt, TypeIdResolver idRes,
             String typePropertyName, boolean typeIdVisible, JavaType defaultImpl)
     {
-        this(bt, idRes, typePropertyName, typeIdVisible, defaultImpl, As.PROPERTY, Boolean.FALSE);
+        this(bt, idRes, typePropertyName, typeIdVisible, defaultImpl, As.PROPERTY);
     }
 
     /**
@@ -54,17 +54,28 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
      */
     public AsPropertyTypeDeserializer(JavaType bt, TypeIdResolver idRes,
             String typePropertyName, boolean typeIdVisible, JavaType defaultImpl,
-            As inclusion, Boolean hasTypeResolverAttached)
+            As inclusion)
     {
         super(bt, idRes, typePropertyName, typeIdVisible, defaultImpl);
         _inclusion = inclusion;
-       _hasTypeResolverAttached = hasTypeResolverAttached;
     }
 
     public AsPropertyTypeDeserializer(AsPropertyTypeDeserializer src, BeanProperty property) {
         super(src, property);
         _inclusion = src._inclusion;
-        _hasTypeResolverAttached = src._hasTypeResolverAttached;
+        _hasTypeResolver = src._hasTypeResolver;
+    }
+
+    /**
+     * @since 2.15
+     */
+    public AsPropertyTypeDeserializer(JavaType bt, TypeIdResolver idRes,
+                                      String typePropertyName, boolean typeIdVisible, JavaType defaultImpl,
+                                      As inclusion, boolean hasTypeResolver)
+    {
+        super(bt, idRes, typePropertyName, typeIdVisible, defaultImpl);
+        _inclusion = inclusion;
+        _hasTypeResolver = hasTypeResolver;
     }
 
     @Override
@@ -191,7 +202,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         // genuine, or faked for "dont fail on bad type id")
         JsonDeserializer<Object> deser = _findDefaultImplDeserializer(ctxt);
         if (deser == null) {
-            JavaType t = Boolean.TRUE.equals(_hasTypeResolverAttached)
+            JavaType t = _hasTypeResolver
                 ? _handleMissingTypeId(ctxt, priorFailureMsg) : ctxt.constructType(_baseType.getRawClass());
 
             if (t == null) {

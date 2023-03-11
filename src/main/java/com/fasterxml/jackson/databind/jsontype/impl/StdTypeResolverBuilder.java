@@ -165,7 +165,8 @@ public class StdTypeResolverBuilder
 
         if(_idType == JsonTypeInfo.Id.DEDUCTION) {
             // Deduction doesn't require an includeAs property
-            return new AsDeductionTypeDeserializer(baseType, idRes, defaultImpl, config, subtypes, _hasTypeResolverAnnotations(config, baseType));
+            return new AsDeductionTypeDeserializer(baseType, idRes, defaultImpl, config, subtypes,
+                    _hasTypeResolver(config, baseType));
         }
 
         // First, method for converting type info to type id:
@@ -176,7 +177,8 @@ public class StdTypeResolverBuilder
         case PROPERTY:
         case EXISTING_PROPERTY: // as per [#528] same class as PROPERTY
             return new AsPropertyTypeDeserializer(baseType, idRes,
-                    _typeProperty, _typeIdVisible, defaultImpl, _includeAs, _hasTypeResolverAnnotations(config, baseType));
+                    _typeProperty, _typeIdVisible, defaultImpl, _includeAs,
+                    _hasTypeResolver(config, baseType));
         case WRAPPER_OBJECT:
             return new AsWrapperTypeDeserializer(baseType, idRes,
                     _typeProperty, _typeIdVisible, defaultImpl);
@@ -185,22 +187,6 @@ public class StdTypeResolverBuilder
                     _typeProperty, _typeIdVisible, defaultImpl);
         }
         throw new IllegalStateException("Do not know how to construct standard type serializer for inclusion type: "+_includeAs);
-    }
-
-    /**
-     * Checks whether the given class has annotations indicating some type resolver
-     * is applied, for example {@link com.fasterxml.jackson.annotation.JsonSubTypes}.
-     * Only initializes {@link #_hasTypeResolverAnnotations} once if its value is null.
-     *
-     * @param config the deserialization configuration to use
-     * @param baseType the base type to check for type resolver annotations
-     * @return true if the class has type resolver annotations, false otherwise
-     * @since 2.15
-     */
-    protected boolean _hasTypeResolverAnnotations(DeserializationConfig config, JavaType baseType){
-        AnnotatedClass ac = AnnotatedClassResolver.resolveWithoutSuperTypes(config,  baseType.getRawClass());
-        AnnotationIntrospector ai = config.getAnnotationIntrospector();
-        return ai.findTypeResolver(config, ac, baseType) != null;
     }
 
     protected JavaType defineDefaultImpl(DeserializationConfig config, JavaType baseType)
@@ -416,5 +402,23 @@ public class StdTypeResolverBuilder
     protected boolean allowPrimitiveTypes(MapperConfig<?> config,
             JavaType baseType) {
         return false;
+    }
+
+    /**
+     * Checks whether the given class has annotations indicating some type resolver
+     * is applied, for example {@link com.fasterxml.jackson.annotation.JsonSubTypes}.
+     * Only initializes {@link #_hasTypeResolver} once if its value is null.
+     *
+     * @param config the deserialization configuration to use
+     * @param baseType the base type to check for type resolver annotations
+     *
+     * @return true if the class has type resolver annotations, false otherwise
+     *
+     * @since 2.15
+     */
+    protected boolean _hasTypeResolver(DeserializationConfig config, JavaType baseType) {
+        AnnotatedClass ac = AnnotatedClassResolver.resolveWithoutSuperTypes(config,  baseType.getRawClass());
+        AnnotationIntrospector ai = config.getAnnotationIntrospector();
+        return ai.findTypeResolver(config, ac, baseType) != null;
     }
 }

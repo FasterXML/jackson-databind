@@ -46,7 +46,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
     public AsPropertyTypeDeserializer(JavaType bt, TypeIdResolver idRes,
             String typePropertyName, boolean typeIdVisible, JavaType defaultImpl)
     {
-        this(bt, idRes, typePropertyName, typeIdVisible, defaultImpl, As.PROPERTY, Boolean.FALSE);
+        this(bt, idRes, typePropertyName, typeIdVisible, defaultImpl, As.PROPERTY);
     }
 
     /**

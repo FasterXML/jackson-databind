@@ -219,6 +219,7 @@ public class JsonFilterTest extends BaseMapTest
 
     public void testAllFiltersWithSameOutput() throws Exception
     {
+        // Setup
         SimpleBeanPropertyFilter[] allPossibleFilters = new SimpleBeanPropertyFilter[]{
             // Parent class : SimpleBeanPropertyFilter
             SimpleBeanPropertyFilter.filterOutAllExcept("a", "b"),
@@ -239,12 +240,12 @@ public class JsonFilterTest extends BaseMapTest
             SimpleBeanPropertyFilter.FilterExceptFilter.filterOutAllExcept("a", "b")
         };
 
+        // Tests
         for (SimpleBeanPropertyFilter filter : allPossibleFilters) {
             BeanB beanB = new BeanB("aa", "bb", "cc");
+            SimpleFilterProvider prov = new SimpleFilterProvider().addFilter("filterB", filter);
 
-            String jsonStr = MAPPER
-                .writer(new SimpleFilterProvider().addFilter("filterB", filter))
-                .writeValueAsString(beanB);
+            String jsonStr = MAPPER.writer(prov).writeValueAsString(beanB);
 
             assertEquals(a2q("{'a':'aa','b':'bb'}"), jsonStr);
         }

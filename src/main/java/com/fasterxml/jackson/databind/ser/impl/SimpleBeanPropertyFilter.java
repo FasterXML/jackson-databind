@@ -304,7 +304,7 @@ public class SimpleBeanPropertyFilter
     {
         private static final long serialVersionUID = 1L;
 
-        static final SerializeExceptFilter INCLUDE_ALL = new SerializeExceptFilter();
+        final static SerializeExceptFilter INCLUDE_ALL = new SerializeExceptFilter();
 
         /**
          * Set of property names to filter out.

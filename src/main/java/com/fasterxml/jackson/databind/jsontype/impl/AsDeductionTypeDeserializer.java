@@ -41,9 +41,9 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
     private final Map<BitSet, String> subtypeFingerprints;
 
     public AsDeductionTypeDeserializer(JavaType bt, TypeIdResolver idRes, JavaType defaultImpl,
-            DeserializationConfig config, Collection<NamedType> subtypes, boolean hasTypeResolverAnnotation)
+            DeserializationConfig config, Collection<NamedType> subtypes)
     {
-        super(bt, idRes, null, false, defaultImpl, null, hasTypeResolverAnnotation);
+        super(bt, idRes, null, false, defaultImpl, null);
         fieldBitIndex = new HashMap<>();
         subtypeFingerprints = buildFingerprints(config, subtypes);
     }

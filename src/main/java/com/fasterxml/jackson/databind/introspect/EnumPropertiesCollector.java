@@ -20,34 +20,34 @@ public class EnumPropertiesCollector {
      */
 
     /**
+     * Factory method for creating an instance of {@link EnumNamingStrategy} from a provided {@code namingDef}.
+     *
+     * @param namingDef subclass of {@link EnumNamingStrategy} to initialize an instance of.
+     * @param canOverrideAccessModifiers whether to override access modifiers when instantiating the naming strategy.
+     *
      * @since 2.15
      */
     public static EnumNamingStrategy createEnumNamingStrategyInstance(Object namingDef, boolean canOverrideAccessModifiers) {
         if (namingDef == null) {
             return null;
         }
-
         if (namingDef instanceof EnumNamingStrategy) {
             return (EnumNamingStrategy) namingDef;
         }
-        // Alas, there's no way to force return type of "either class
-        // X or Y" -- need to throw an exception after the fact
         if (!(namingDef instanceof Class)) {
             reportProblem("AnnotationIntrospector returned EnumNamingStrategy definition of type %s"
                 + "; expected type `Class<EnumNamingStrategy>` instead", ClassUtil.classNameOf(namingDef));
         }
 
         Class<?> namingClass = (Class<?>) namingDef;
-        // 09-Nov-2015, tatu: Need to consider pseudo-value of STD, which means "use default"
+
         if (namingClass == EnumNamingStrategy.class) {
             return null;
         }
-
         if (!EnumNamingStrategy.class.isAssignableFrom(namingClass)) {
             reportProblem("AnnotationIntrospector returned Class %s; expected `Class<EnumNamingStrategy>`",
                 ClassUtil.classNameOf(namingClass));
         }
-
         return (EnumNamingStrategy) ClassUtil.createInstance(namingClass, canOverrideAccessModifiers);
     }
 

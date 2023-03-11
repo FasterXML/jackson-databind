@@ -42,6 +42,16 @@ public class SimpleBeanPropertyFilter
     }
 
     /**
+     * Convenience factory method that will return a filter that will
+     * simply filter out everything.
+     *
+     * @since 2.15
+     */
+    public static SimpleBeanPropertyFilter filterOutAll() {
+        return FilterExceptFilter.EXCLUDE_ALL;
+    }
+
+    /**
      * Factory method that was accidentally added in 2.5 with arguments; basically
      * works just as an alias of {@link #filterOutAllExcept(Set)} which is not
      * very useful. Instead, see {@link #serializeAll()} for intended signature.
@@ -258,10 +268,16 @@ public class SimpleBeanPropertyFilter
     {
         private static final long serialVersionUID = 1L;
 
+        static final FilterExceptFilter EXCLUDE_ALL = new FilterExceptFilter();
+
         /**
          * Set of property names to serialize.
          */
         protected final Set<String> _propertiesToInclude;
+
+        FilterExceptFilter() {
+            _propertiesToInclude = Collections.emptySet();
+        }
 
         public FilterExceptFilter(Set<String> properties) {
             _propertiesToInclude = properties;

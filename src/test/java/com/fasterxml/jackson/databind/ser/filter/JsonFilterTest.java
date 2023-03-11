@@ -11,6 +11,10 @@ import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.PropertyWriter;
 import com.fasterxml.jackson.databind.ser.impl.*;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Tests for verifying that bean property filtering using JsonFilter
  * works as expected.
@@ -37,6 +41,20 @@ public class JsonFilterTest extends BaseMapTest
             @JsonFilter("checkSiblingContextFilter")
             static class C {
             }
+        }
+    }
+
+    @JsonFilter("filterB")
+    @JsonPropertyOrder({ "a", "b", "c"})
+    static class BeanB {
+        public String a;
+        public String b;
+        public String c;
+
+        public BeanB(String a, String b, String c) {
+            this.a = a;
+            this.b = b;
+            this.c = c;
         }
     }
 
@@ -132,6 +150,13 @@ public class JsonFilterTest extends BaseMapTest
         assertEquals("{\"a\":\"a\",\"b\":\"b\"}", MAPPER.writer(prov).writeValueAsString(new Bean()));
     }
 
+    public void testExcludeAllFilter() throws Exception
+    {
+        FilterProvider prov = new SimpleFilterProvider().addFilter("RootFilter",
+            SimpleBeanPropertyFilter.filterOutAll());
+        assertEquals("{}", MAPPER.writer(prov).writeValueAsString(new Bean()));
+    }
+
     public void testSimpleExclusionFilter() throws Exception
     {
         FilterProvider prov = new SimpleFilterProvider().addFilter("RootFilter",
@@ -190,5 +215,45 @@ public class JsonFilterTest extends BaseMapTest
 
         assertEquals("{\"first\":{\"a\":\"a\"},\"second\":{\"b\":\"b\"}}",
                 MAPPER.writer(prov).writeValueAsString(new FilteredProps()));
+    }
+
+    public void testAllFiltersWithSameOutput() throws Exception
+    {
+        // Setup
+        SimpleBeanPropertyFilter[] allPossibleFilters = new SimpleBeanPropertyFilter[]{
+            // Parent class : SimpleBeanPropertyFilter
+            SimpleBeanPropertyFilter.filterOutAllExcept("a", "b"),
+            SimpleBeanPropertyFilter.filterOutAllExcept(setOf("a", "b")),
+            SimpleBeanPropertyFilter.serializeAllExcept("c"),
+            SimpleBeanPropertyFilter.serializeAllExcept(setOf("c")),
+            // Subclass : SerializeExceptFilter
+            new SimpleBeanPropertyFilter.SerializeExceptFilter(setOf("c")),
+            SimpleBeanPropertyFilter.SerializeExceptFilter.serializeAllExcept("c"),
+            SimpleBeanPropertyFilter.SerializeExceptFilter.serializeAllExcept(setOf("c")),
+            SimpleBeanPropertyFilter.SerializeExceptFilter.filterOutAllExcept("a", "b"),
+            SimpleBeanPropertyFilter.SerializeExceptFilter.filterOutAllExcept(setOf("a", "b")),
+            // Subclass : FilterExceptFilter
+            new SimpleBeanPropertyFilter.FilterExceptFilter(setOf("a", "b")),
+            SimpleBeanPropertyFilter.FilterExceptFilter.serializeAllExcept("c"),
+            SimpleBeanPropertyFilter.FilterExceptFilter.serializeAllExcept(setOf("c")),
+            SimpleBeanPropertyFilter.FilterExceptFilter.filterOutAllExcept(setOf("a", "b")),
+            SimpleBeanPropertyFilter.FilterExceptFilter.filterOutAllExcept("a", "b")
+        };
+
+        // Tests
+        for (SimpleBeanPropertyFilter filter : allPossibleFilters) {
+            BeanB beanB = new BeanB("aa", "bb", "cc");
+            SimpleFilterProvider prov = new SimpleFilterProvider().addFilter("filterB", filter);
+
+            String jsonStr = MAPPER.writer(prov).writeValueAsString(beanB);
+
+            assertEquals(a2q("{'a':'aa','b':'bb'}"), jsonStr);
+        }
+    }
+
+    private Set<String> setOf(String... properties) {
+        Set<String> set = new HashSet<>(properties.length);
+        set.addAll(Arrays.asList(properties));
+        return set;
     }
 }

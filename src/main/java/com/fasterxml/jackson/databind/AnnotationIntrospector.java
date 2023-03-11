@@ -383,14 +383,14 @@ public abstract class AnnotationIntrospector
     public Object findNamingStrategy(AnnotatedClass ac) { return null; }
 
     /**
-     * Method for finding {@link EnumNamingStrategy} implenetation class for given
+     * Method for finding {@link EnumNamingStrategy} for given
      * class, if any specified by annotations; and if so, either return
      * a {@link EnumNamingStrategy} instance, or Class to use for
      * creating instance
      *
      * @param ac Annotated class to introspect
      *
-     * @return Subclass of {@link EnumNamingStrategy}, if one
+     * @return Subclass or instance of {@link EnumNamingStrategy}, if one
      *   is specified for given class; null if not.
      *
      * @since 2.15

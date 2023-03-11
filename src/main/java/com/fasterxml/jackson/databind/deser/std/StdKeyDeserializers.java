@@ -44,6 +44,22 @@ public class StdKeyDeserializers
         return new StdKeyDeserializer.EnumKD(enumResolver, factory);
     }
 
+    /**
+     * @since 2.15
+     */
+    public static KeyDeserializer constructEnumKeyDeserializer(EnumResolver enumResolver,
+                                                               EnumResolver enumNamingResolver) {
+        return new StdKeyDeserializer.EnumKD(enumResolver, null, enumNamingResolver);
+    }
+
+    /**
+     * @since 2.15
+     */
+    public static KeyDeserializer constructEnumKeyDeserializer(EnumResolver enumResolver,
+                                            AnnotatedMethod factory, EnumResolver enumNamingResolver) {
+        return new StdKeyDeserializer.EnumKD(enumResolver, factory, enumNamingResolver);
+    }
+
     public static KeyDeserializer constructDelegatingKeyDeserializer(DeserializationConfig config,
             JavaType type, JsonDeserializer<?> deser)
     {

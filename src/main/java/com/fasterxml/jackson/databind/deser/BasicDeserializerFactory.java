@@ -1706,7 +1706,8 @@ factory.toString()));
             if (deser == null) {
                 deser = new EnumDeserializer(constructEnumResolver(enumClass,
                         config, beanDesc.findJsonValueAccessor()),
-                        config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+                        config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS),
+                        constructEnumNamingStrategyResolver(config, enumClass, beanDesc.getClassInfo())
                 );
             }
         }
@@ -1914,6 +1915,7 @@ factory.toString()));
             }
         }
         EnumResolver enumRes = constructEnumResolver(enumClass, config, beanDesc.findJsonValueAccessor());
+        EnumResolver byEnumNamingResolver = constructEnumNamingStrategyResolver(config, enumClass, beanDesc.getClassInfo());
 
         // May have @JsonCreator for static factory method
         for (AnnotatedMethod factory : beanDesc.getFactoryMethods()) {
@@ -1935,7 +1937,7 @@ factory.toString()));
                             ClassUtil.checkAndFixAccess(factory.getMember(),
                                     ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
                         }
-                        return StdKeyDeserializers.constructEnumKeyDeserializer(enumRes, factory);
+                        return StdKeyDeserializers.constructEnumKeyDeserializer(enumRes, factory, byEnumNamingResolver);
                     }
                 }
                 throw new IllegalArgumentException("Unsuitable method ("+factory+") decorated with @JsonCreator (for Enum type "
@@ -1943,7 +1945,7 @@ factory.toString()));
             }
         }
         // Also, need to consider @JsonValue, if one found
-        return StdKeyDeserializers.constructEnumKeyDeserializer(enumRes);
+        return StdKeyDeserializers.constructEnumKeyDeserializer(enumRes, byEnumNamingResolver);
     }
 
     /*
@@ -2422,6 +2424,21 @@ factory.toString()));
         // 14-Mar-2016, tatu: We used to check `DeserializationFeature.READ_ENUMS_USING_TO_STRING`
         //   here, but that won't do: it must be dynamically changeable...
         return EnumResolver.constructFor(config, enumClass);
+    }
+
+    /**
+     * Factory method used to resolve an instance of {@link CompactStringObjectMap}
+     * with {@link EnumNamingStrategy} applied for the target class.
+     *
+     * @since 2.15
+     */
+    protected EnumResolver constructEnumNamingStrategyResolver(DeserializationConfig config, Class<?> enumClass,
+                                                             AnnotatedClass annotatedClass) {
+        Object namingDef = config.getAnnotationIntrospector().findEnumNamingStrategy(annotatedClass);
+        EnumNamingStrategy enumNamingStrategy = EnumPropertiesCollector.createEnumNamingStrategyInstance(
+            namingDef, config.canOverrideAccessModifiers());
+        return enumNamingStrategy == null ? null
+            : EnumResolver.constructUsingEnumNamingStrategy(config, enumClass, enumNamingStrategy);
     }
 
     /**

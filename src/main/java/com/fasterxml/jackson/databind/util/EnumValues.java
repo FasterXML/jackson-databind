@@ -82,7 +82,7 @@ public final class EnumValues
     /**
      * Returns String serializations of Enum name using an instance of {@link EnumNamingStrategy}.
      * The output {@link EnumValues} should contain values that are symmetric to
-     * {@link EnumResolver#constructUsingEnumNamingStrategy(DeserializationConfig, Class, EnumNamingStrategy)}.
+     * {@link EnumResolver#constructUsingEnumNaming(DeserializationConfig, Class, EnumNamingStrategy)}.
      *
      * @since 2.15
      */

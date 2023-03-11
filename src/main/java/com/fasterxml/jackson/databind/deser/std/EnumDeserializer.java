@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -9,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotation.EnumNaming;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
@@ -17,7 +15,6 @@ import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
-import com.fasterxml.jackson.databind.introspect.EnumPropertiesCollector;
 import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.CompactStringObjectMap;
@@ -69,20 +66,13 @@ public class EnumDeserializer
     protected final boolean _isFromIntValue;
 
     /**
-     * Marker flag for deciding whether to search for {@link com.fasterxml.jackson.databind.annotation.EnumNaming}
-     * annotation. Value starts as null to indicate verification has not been performed yet.
+     * Look up map with <b>key</b> as <code>Enum.name()</code> converted by
+     * {@link EnumNamingStrategy#convertEnumToExternalName(String)}
+     * and <b>value</b> as Enums.
      *
      * @since 2.15
      */
-    private volatile Boolean _hasEnumNaming = null;
-
-    /**
-     * Map with key as converted property class defined implementation of {@link EnumNamingStrategy}
-     * and with value as Enum names collected using <code>Enum.name()</code>.
-     *
-     * @since 2.15
-     */
-    protected volatile CompactStringObjectMap _lookupByEnumNaming;
+    protected final CompactStringObjectMap _lookupByEnumNaming;
 
     /**
      * @since 2.9
@@ -95,6 +85,22 @@ public class EnumDeserializer
         _enumDefaultValue = byNameResolver.getDefaultValue();
         _caseInsensitive = caseInsensitive;
         _isFromIntValue = byNameResolver.isFromIntValue();
+        _lookupByEnumNaming = null;
+    }
+
+    /**
+     * @since 2.15
+     */
+    public EnumDeserializer(EnumResolver byNameResolver, boolean caseInsensitive,
+                            EnumResolver byEnumNamingResolver)
+    {
+        super(byNameResolver.getEnumClass());
+        _lookupByName = byNameResolver.constructLookup();
+        _enumsByIndex = byNameResolver.getRawEnums();
+        _enumDefaultValue = byNameResolver.getDefaultValue();
+        _caseInsensitive = caseInsensitive;
+        _isFromIntValue = byNameResolver.isFromIntValue();
+        _lookupByEnumNaming = byEnumNamingResolver == null ? null : byEnumNamingResolver.constructLookup();
     }
 
     /**
@@ -111,6 +117,7 @@ public class EnumDeserializer
         _isFromIntValue = base._isFromIntValue;
         _useDefaultValueForUnknownEnum = useDefaultValueForUnknownEnum;
         _useNullForUnknownEnum = useNullForUnknownEnum;
+        _lookupByEnumNaming = base._lookupByEnumNaming;
     }
 
     /**
@@ -272,7 +279,7 @@ public class EnumDeserializer
     {
         CompactStringObjectMap lookup = ctxt.isEnabled(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
                 ? _getToStringLookup(ctxt) : _lookupByName;
-        lookup = _hasEnumNaming(ctxt) ? _getEnumNamingLookup(ctxt) : lookup;
+        lookup = _lookupByEnumNaming == null ? lookup : _lookupByEnumNaming;
 
         Object result = lookup.find(text);
         if (result == null) {
@@ -445,50 +452,5 @@ public class EnumDeserializer
         return (_enumDefaultValue != null)
           && (Boolean.TRUE.equals(_useDefaultValueForUnknownEnum)
           || ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE));
-    }
-
-    /**
-     * Checks wheather current Enum class is annotated with
-     * {@link com.fasterxml.jackson.databind.annotation.EnumNaming}
-     *
-     * @since 2.15
-     */
-    private boolean _hasEnumNaming(DeserializationContext ctxt) {
-        Boolean exists = _hasEnumNaming;
-        if (exists == null) {
-            synchronized (this) {
-                exists = _hasEnumNaming;
-                if (exists == null) {
-                    exists = _getEnumNamingLookup(ctxt) != null;
-                    _hasEnumNaming = exists;
-                }
-            }
-        }
-        return exists;
-    }
-
-    /**
-     * Returns the CompactStringObjectMap used for enum name lookup of naming strategy.
-     *
-     * @since 2.15
-     */
-    protected CompactStringObjectMap _getEnumNamingLookup(DeserializationContext ctxt) {
-        CompactStringObjectMap lookup = _lookupByEnumNaming;
-        if (lookup == null) {
-            synchronized (this) {
-                lookup = _lookupByEnumNaming;
-                if (lookup == null) {
-                    EnumNamingStrategy namingStrategy = EnumPropertiesCollector
-                            .findEnumNamingStrategy(ctxt.getConfig(), _valueClass);
-                    if (namingStrategy != null) {
-                        lookup = EnumResolver
-                                .constructUsingEnumNamingStrategy(ctxt.getConfig(), _enumClass(), namingStrategy)
-                                .constructLookup();
-                        _lookupByEnumNaming = lookup;
-                    }
-                }
-            }
-        }
-        return lookup;
     }
 }

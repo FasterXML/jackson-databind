@@ -23,10 +23,7 @@ public class DeepJsonParsingTest extends BaseMapTest
     {
         final String doc = _nestedDoc(TOO_DEEP_NESTING, "[ ", "] ");
         try (JsonParser jp = defaultMapper.createParser(doc)) {
-            JsonToken jt;
-            while ((jt = jp.nextToken()) != null) {
-
-            }
+            while (jp.nextToken() != null) { }
             fail("expected StreamConstraintsException");
 
         } catch (StreamConstraintsException e) {
@@ -38,10 +35,7 @@ public class DeepJsonParsingTest extends BaseMapTest
     {
         final String doc = "{"+_nestedDoc(TOO_DEEP_NESTING, "\"x\":{", "} ") + "}";
         try (JsonParser jp = defaultMapper.createParser(doc)) {
-            JsonToken jt;
-            while ((jt = jp.nextToken()) != null) {
-
-            }
+            while (jp.nextToken() != null) { }
             fail("expected StreamConstraintsException");
         } catch (StreamConstraintsException e) {
             assertEquals("Depth (1001) exceeds the maximum allowed nesting depth (1000)", e.getMessage());
@@ -52,10 +46,7 @@ public class DeepJsonParsingTest extends BaseMapTest
     {
         final String doc = _nestedDoc(TOO_DEEP_NESTING, "[ ", "] ");
         try (JsonParser jp = unconstrainedMapper.createParser(doc)) {
-            JsonToken jt;
-            while ((jt = jp.nextToken()) != null) {
-
-            }
+            while (jp.nextToken() != null) { }
         }
     }
 
@@ -63,10 +54,7 @@ public class DeepJsonParsingTest extends BaseMapTest
     {
         final String doc = "{"+_nestedDoc(TOO_DEEP_NESTING, "\"x\":{", "} ") + "}";
         try (JsonParser jp = unconstrainedMapper.createParser(doc)) {
-            JsonToken jt;
-            while ((jt = jp.nextToken()) != null) {
-
-            }
+            while (jp.nextToken() != null) { }
         }
     }
 

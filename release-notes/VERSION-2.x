@@ -7,8 +7,11 @@ Project: jackson-databind
 2.15.0 (not yet released)
 
 #2536: Add `EnumFeature.READ_ENUM_KEYS_USING_INDEX` to work with
-   existing "WRITE_ENUM_KEYS_USING_INDEX"
- (contributed by Joo-Hyuk K)
+   existing "WRITE_ENUM_KEYS_USING_INDEX"#
+#2968: Deserialization of `@JsonTypeInfo` annotated type fails with
+  missing type id even for explicit concrete subtypes
+ (requested by Patrick S) 
+ (fix contributed by Joo-Hyuk K)
 #2974: Null coercion with `@JsonSetter` does not work with `java.lang.Record`
  (fix contributed by Sim Y-T)
 #2992: Properties naming strategy do not work with Record

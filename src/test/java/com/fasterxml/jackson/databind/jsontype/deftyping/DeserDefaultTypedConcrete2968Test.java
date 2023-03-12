@@ -1,5 +1,6 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.jsontype.deftyping;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
@@ -25,7 +26,8 @@ public class DeserDefaultTypedConcrete2968Test extends BaseMapTest {
             .allowIfBaseType(SimpleBall.class)
             .build();
         ObjectMapper mapper = jsonMapperBuilder()
-            .activateDefaultTyping(ptv, ObjectMapper.DefaultTyping.NON_FINAL)
+            .activateDefaultTyping(ptv, ObjectMapper.DefaultTyping.NON_FINAL,
+                    JsonTypeInfo.As.PROPERTY)
             .build();
 
         final String concreteTypeJson = a2q("{'size': 42}");

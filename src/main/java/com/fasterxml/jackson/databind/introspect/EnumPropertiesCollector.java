@@ -25,6 +25,13 @@ public class EnumPropertiesCollector {
      * @param namingDef subclass of {@link EnumNamingStrategy} to initialize an instance of.
      * @param canOverrideAccessModifiers whether to override access modifiers when instantiating the naming strategy.
      *
+     * @throws IllegalArgumentException if {@code namingDef} is not an instance of {@link java.lang.Class} or
+     *              not a subclass of {@link EnumNamingStrategy}.
+     *
+     * @return an instance of {@link EnumNamingStrategy} if {@code namingDef} is a subclass of {@link EnumNamingStrategy},
+     *         {@code null} if {@code namingDef} is {@code null},
+     *         and an instance of {@link EnumNamingStrategy} if {@code namingDef} already is one.
+     *
      * @since 2.15
      */
     public static EnumNamingStrategy createEnumNamingStrategyInstance(Object namingDef, boolean canOverrideAccessModifiers) {
@@ -58,6 +65,8 @@ public class EnumPropertiesCollector {
      */
 
     /**
+     * @throws IllegalArgumentException with provided message.
+     *
      * @since 2.15
      */
     protected static void reportProblem(String msg, Object... args) {

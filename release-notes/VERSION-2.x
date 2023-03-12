@@ -22,6 +22,7 @@ Project: jackson-databind
  (fix contributed by Sim Y-T)
 #3342: `JsonTypeInfo.As.EXTERNAL_PROPERTY` does not work with record wrappers
  (fix contributed by Sim Y-T)
+#3352: Do not require the usage of opens in a modular app when using records
 #3637: Add enum features into `@JsonFormat.Feature`
  (requested by @Anatoly4444)
  (fix contributed by Ajay S)
@@ -54,6 +55,8 @@ Project: jackson-databind
  (reported by Christoph S)
 #3796: Enum Deserialisation Failing with Polymorphic type validator
  (reported by @sagarika4)
+#3816: TokenBuffer does not implement writeString(Reader reader, int len)
+ (reported by Patrick S)
 #3819: Add convenience method `SimpleBeanPropertyFilter.filterOutAll()` as
   counterpart of `serializeAll()`
  (contributed by Joo-Hyuk K)

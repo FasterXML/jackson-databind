@@ -823,11 +823,39 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         return this;
     }
 
-    // In 3.0 no longer implemented by `JsonGenerator, impl copied:
     @Override
-    public JsonGenerator writeString(Reader reader, int len) {
-        // Let's implement this as "unsupported" to make it easier to add new parser impls
-        return _reportUnsupportedOperation();
+    public JsonGenerator writeString(Reader reader, final int len)
+    {
+        if (reader == null) {
+            _reportError("null reader");
+        }
+        int toRead = (len >= 0) ? len : Integer.MAX_VALUE;
+
+        // 11-Mar-2023, tatu: Really crude implementation, but it is not
+        //    expected this method gets often used. Feel free to send a PR
+        //    for more optimal handling if you got an itch. :)
+        final char[] buf = new char[1000];
+        StringBuilder sb = new StringBuilder(1000);
+        while (toRead > 0) {
+            int toReadNow = Math.min(toRead, buf.length);
+            int numRead;
+
+            try {
+                numRead = reader.read(buf, 0, toReadNow);
+            } catch (IOException e) {
+                throw _wrapIOFailure(e);
+            }
+            if (numRead <= 0) {
+                break;
+            }
+            sb.append(buf, 0, numRead);
+            toRead -= numRead;
+        }
+        if (toRead > 0 && len >= 0) {
+            _reportError("Was not able to read enough from reader");
+        }
+        _appendValue(JsonToken.VALUE_STRING, sb.toString());
+        return this;
     }
 
     @Override

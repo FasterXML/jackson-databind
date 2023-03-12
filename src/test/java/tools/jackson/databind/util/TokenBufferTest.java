@@ -3,15 +3,19 @@ package tools.jackson.databind.util;
 import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Map;
 import java.util.UUID;
 
 import tools.jackson.core.*;
 import tools.jackson.core.JsonParser.NumberType;
 import tools.jackson.core.exc.InputCoercionException;
 import tools.jackson.core.io.SerializedString;
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.core.util.JsonParserSequence;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.ser.std.StdSerializer;
 
 @SuppressWarnings("resource")
 public class TokenBufferTest extends BaseMapTest
@@ -21,6 +25,24 @@ public class TokenBufferTest extends BaseMapTest
     static class Base1730 { }
 
     static class Sub1730 extends Base1730 { }
+
+    // [databind#3816]
+    @JsonSerialize(using = Serializer3816.class)
+    static class Foo3816 { }
+
+    static class Serializer3816 extends StdSerializer<Foo3816> {
+        Serializer3816() {
+            super(Foo3816.class);
+        }
+
+        @Override
+        public void serialize(Foo3816 value, JsonGenerator gen, SerializerProvider provider) {
+            gen.writeStartObject();
+            gen.writeName("field");
+            gen.writeString(new StringReader("foobar"), 6);
+            gen.writeEndObject();
+        }
+    }    
 
     /*
     /**********************************************************************
@@ -719,5 +741,19 @@ public class TokenBufferTest extends BaseMapTest
 
             assertEquals(JsonToken.VALUE_NUMBER_INT, buf.firstToken());
         }
+    }
+
+    /*
+    /**********************************************************
+    /* Misc other tests
+    /**********************************************************
+     */
+
+    // [databind#3816]
+    public void testWriteStringFromStream() throws Exception
+    {
+        Map<String, String> map = MAPPER.convertValue(new Foo3816(),
+                new TypeReference<Map<String, String>>() {});
+        assertNotNull(map);
     }
 }

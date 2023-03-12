@@ -48,6 +48,17 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
         subtypeFingerprints = buildFingerprints(config, subtypes);
     }
 
+    /**
+     * @since 2.15
+     */
+    public AsDeductionTypeDeserializer(JavaType bt, TypeIdResolver idRes, JavaType defaultImpl,
+            DeserializationConfig config, Collection<NamedType> subtypes, boolean hasTypeResolver)
+    {
+        super(bt, idRes, null, false, defaultImpl, null, hasTypeResolver);
+        fieldBitIndex = new HashMap<>();
+        subtypeFingerprints = buildFingerprints(config, subtypes);
+    }
+
     public AsDeductionTypeDeserializer(AsDeductionTypeDeserializer src, BeanProperty property) {
         super(src, property);
         fieldBitIndex = src.fieldBitIndex;

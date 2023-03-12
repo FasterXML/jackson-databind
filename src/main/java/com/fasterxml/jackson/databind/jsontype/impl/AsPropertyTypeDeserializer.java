@@ -203,7 +203,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         JsonDeserializer<Object> deser = _findDefaultImplDeserializer(ctxt);
         if (deser == null) {
             JavaType t = _hasTypeResolver
-                ? _handleMissingTypeId(ctxt, priorFailureMsg) : ctxt.constructType(_baseType.getRawClass());
+                ? _handleMissingTypeId(ctxt, priorFailureMsg) : _baseType;
 
             if (t == null) {
                 // 09-Mar-2017, tatu: Is this the right thing to do?

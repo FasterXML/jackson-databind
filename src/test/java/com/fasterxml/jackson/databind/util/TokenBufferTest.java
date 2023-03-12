@@ -3,15 +3,19 @@ package com.fasterxml.jackson.databind.util;
 import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Map;
 import java.util.UUID;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.core.exc.InputCoercionException;
 import com.fasterxml.jackson.core.io.SerializedString;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.JsonParserSequence;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 @SuppressWarnings("resource")
 public class TokenBufferTest extends BaseMapTest
@@ -21,6 +25,26 @@ public class TokenBufferTest extends BaseMapTest
     static class Base1730 { }
 
     static class Sub1730 extends Base1730 { }
+
+    // [databind#3816]
+    @JsonSerialize(using = Serializer3816.class)
+    static class Foo3816 { }
+
+    static class Serializer3816 extends StdSerializer<Foo3816> {
+        private static final long serialVersionUID = 1L;
+
+        Serializer3816() {
+            super(Foo3816.class);
+        }
+
+        @Override
+        public void serialize(Foo3816 value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+            gen.writeStartObject();
+            gen.writeFieldName("field");
+            gen.writeString(new StringReader("foobar"), 6);
+            gen.writeEndObject();
+        }
+    }    
 
     /*
     /**********************************************************
@@ -721,5 +745,19 @@ public class TokenBufferTest extends BaseMapTest
 
             assertEquals(JsonToken.VALUE_NUMBER_INT, buf.firstToken());
         }
+    }
+
+    /*
+    /**********************************************************
+    /* Misc other tests
+    /**********************************************************
+     */
+
+    // [databind#3816]
+    public void testWriteStringFromStream() throws Exception
+    {
+        Map<String, String> map = MAPPER.convertValue(new Foo3816(),
+                new TypeReference<Map<String, String>>() {});
+        assertNotNull(map);
     }
 }

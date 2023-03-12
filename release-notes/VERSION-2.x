@@ -55,6 +55,8 @@ Project: jackson-databind
  (reported by Christoph S)
 #3796: Enum Deserialisation Failing with Polymorphic type validator
  (reported by @sagarika4)
+#3816: TokenBuffer does not implement writeString(Reader reader, int len)
+ (reported by Patrick S)
 #3819: Add convenience method `SimpleBeanPropertyFilter.filterOutAll()` as
   counterpart of `serializeAll()`
  (contributed by Joo-Hyuk K)

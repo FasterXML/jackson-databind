@@ -1588,3 +1588,7 @@ Zhenyu Luo (luozhenyu@github)
 Christoph Schulz (ciis0@github)
   * Reported #3771: Classloader leak: DEFAULT_ANNOTATION_INTROSPECTOR holds annotation reference
   (2.15.0)
+
+Patrick Strawderman (kilink@github)
+  * Reported #3816: TokenBuffer does not implement writeString(Reader reader, int len)
+  (2.15.0)

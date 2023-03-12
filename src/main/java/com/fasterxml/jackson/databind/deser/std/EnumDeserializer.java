@@ -271,10 +271,7 @@ public class EnumDeserializer
             String text)
         throws IOException
     {
-        CompactStringObjectMap lookup = ctxt.isEnabled(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
-                ? _getToStringLookup(ctxt) : _lookupByName;
-        lookup = _lookupByEnumNaming == null ? lookup : _lookupByEnumNaming;
-
+        CompactStringObjectMap lookup = _resolveCurrentLookup(ctxt);
         Object result = lookup.find(text);
         if (result == null) {
             String trimmed = text.trim();
@@ -283,6 +280,18 @@ public class EnumDeserializer
             }
         }
         return result;
+    }
+
+    /**
+     * @since 2.15
+     */
+    private CompactStringObjectMap _resolveCurrentLookup(DeserializationContext ctxt) {
+        if (_lookupByEnumNaming != null) {
+            return _lookupByEnumNaming;
+        }
+        return ctxt.isEnabled(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+            ? _getToStringLookup(ctxt)
+            : _lookupByName;
     }
 
     protected Object _fromInteger(JsonParser p, DeserializationContext ctxt,

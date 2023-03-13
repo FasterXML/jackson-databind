@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.util;
 
 /**
- * Utilitity methods for dealing with exceptions/throwables
+ * Utility methods for dealing with exceptions/throwables
  *
  * @since 2.15
  */
@@ -16,7 +16,7 @@ public class ExceptionUtil {
      * This method should be used with care.
      * <p>
      *     If the <code>Throwable</code> is fatal, it is rethrown, otherwise, this method just returns.
-     *     The input throwable is thrown if it is an <code>Error</code> or <code>RuntimeException</code>.
+     *     The input throwable is thrown if it is an <code>Error</code> or a <code>RuntimeException</code>.
      *     Otherwise, the method wraps the throwable in a RuntimeException and throws that.
      * </p>
      *

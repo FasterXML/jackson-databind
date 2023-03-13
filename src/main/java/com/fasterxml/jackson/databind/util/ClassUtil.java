@@ -1300,10 +1300,10 @@ se.getClass().getName(), se.getMessage()),
             }
             try {
                 return contextClass.getDeclaredMethods(); // Cross fingers
-            } catch (Throwable t) {
+            } catch (Exception t) {
                 return _failGetClassMethods(cls, t);
             }
-        } catch (Throwable t) {
+        } catch (Exception t) {
             return _failGetClassMethods(cls, t);
         }
     }

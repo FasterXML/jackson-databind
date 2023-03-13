@@ -58,7 +58,7 @@ public class StdDateFormat
                     +"(\\.\\d+)?" // optional second fractions
                     +"(Z|[+-]\\d\\d(?:[:]?\\d\\d)?)?" // optional timeoffset/Z
             );
-        } catch (Throwable t) {
+        } catch (Exception t) {
             throw new RuntimeException(t);
         }
         PATTERN_ISO8601 = p;

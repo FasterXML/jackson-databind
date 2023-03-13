@@ -54,7 +54,7 @@ public class OptionalHandlerFactory implements java.io.Serializable
         try {
             node = org.w3c.dom.Node.class;
             doc = org.w3c.dom.Document.class;
-        } catch (Exception e) {
+        } catch (NoClassDefFoundError | Exception e) {
             // not optimal but will do
             // 02-Nov-2020, Xakep_SDK: Remove java.logging module dependency
 //            Logger.getLogger(OptionalHandlerFactory.class.getName())

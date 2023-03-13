@@ -1179,7 +1179,7 @@ se.getClass().getName(), se.getMessage()),
     public static boolean isJDK17OrAbove() {
         try {
             return getJDKMajorVersion() >= 17;
-        } catch (Exception t) {
+        } catch (Throwable t) {
             System.err.println("Failed to determine JDK major version, assuming pre-JDK-17; problem: "+t);
             return false;
         }

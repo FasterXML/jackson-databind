@@ -35,9 +35,6 @@ public abstract class DOMDeserializer<T> extends FromStringDeserializer<T>
             parserFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
         } catch(ParserConfigurationException pce) {
             // not much point to do anything; could log but...
-        } catch (Exception e) {
-            // 14-Jul-2016, tatu: Not sure how or why, but during code coverage runs
-            //   (via Cobertura) we get `java.lang.AbstractMethodError` so... ignore that too
         }
 
         // [databind#2589] add two more settings just in case

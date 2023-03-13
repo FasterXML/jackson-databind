@@ -78,7 +78,7 @@ public class NioPathDeserializer extends StdScalarDeserializer<Path>
                     }
                 }
                 return (Path) ctxt.handleInstantiationProblem(handledType(), value, cause);
-            } catch (Exception | ServiceConfigurationError e) {
+            } catch (ServiceConfigurationError e) {
                 e.addSuppressed(cause);
                 return (Path) ctxt.handleInstantiationProblem(handledType(), value, e);
             }

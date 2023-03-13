@@ -54,7 +54,7 @@ public class OptionalHandlerFactory implements java.io.Serializable
         try {
             node = org.w3c.dom.Node.class;
             doc = org.w3c.dom.Document.class;
-        } catch (NoClassDefFoundError | Exception e) {
+        } catch (Throwable e) {
             // not optimal but will do
             // 02-Nov-2020, Xakep_SDK: Remove java.logging module dependency
 //            Logger.getLogger(OptionalHandlerFactory.class.getName())
@@ -73,7 +73,7 @@ public class OptionalHandlerFactory implements java.io.Serializable
         Java7Handlers x = null;
         try {
             x = Java7Handlers.instance();
-        } catch (Exception t) { }
+        } catch (Throwable t) { }
         _jdk7Helper = x;
     }
 
@@ -231,7 +231,7 @@ public class OptionalHandlerFactory implements java.io.Serializable
     {
         try {
             return instantiate(Class.forName(className), valueType);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             throw new IllegalStateException("Failed to find class `"
 +className+"` for handling values of type "+ClassUtil.getTypeDescription(valueType)
 +", problem: ("+e.getClass().getName()+") "+e.getMessage());
@@ -242,7 +242,7 @@ public class OptionalHandlerFactory implements java.io.Serializable
     {
         try {
             return ClassUtil.createInstance(handlerClass, false);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             throw new IllegalStateException("Failed to create instance of `"
 +handlerClass.getName()+"` for handling values of type "+ClassUtil.getTypeDescription(valueType)
 +", problem: ("+e.getClass().getName()+") "+e.getMessage());

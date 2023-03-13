@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.util.ClassUtil;
+import com.fasterxml.jackson.databind.util.ExceptionUtil;
 
 /**
  * To support Java7-incomplete platforms, we will offer support for JDK 7
@@ -25,6 +26,9 @@ public abstract class Java7Support
             // 09-Sep-2019, tatu: Used to log earlier, but with 2.10.0 let's not log
 //            java.util.logging.Logger.getLogger(Java7Support.class.getName())
 //                .warning("Unable to load JDK7 annotations (@ConstructorProperties, @Transient): no Java7 annotation support added");
+            if (ExceptionUtil.isFatal(t)) {
+                ExceptionUtil.rethrow(t);
+            }
         }
         IMPL = impl;
     }

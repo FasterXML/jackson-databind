@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.deser.Deserializers;
 import com.fasterxml.jackson.databind.ser.Serializers;
 import com.fasterxml.jackson.databind.ser.std.DateSerializer;
 import com.fasterxml.jackson.databind.util.ClassUtil;
+import com.fasterxml.jackson.databind.util.ExceptionUtil;
 
 /**
  * Helper class used for isolating details of handling optional+external types
@@ -55,6 +56,9 @@ public class OptionalHandlerFactory implements java.io.Serializable
             node = org.w3c.dom.Node.class;
             doc = org.w3c.dom.Document.class;
         } catch (Throwable e) {
+            if (ExceptionUtil.isFatal(e)) {
+                ExceptionUtil.rethrow(e);
+            }
             // not optimal but will do
             // 02-Nov-2020, Xakep_SDK: Remove java.logging module dependency
 //            Logger.getLogger(OptionalHandlerFactory.class.getName())
@@ -73,7 +77,11 @@ public class OptionalHandlerFactory implements java.io.Serializable
         Java7Handlers x = null;
         try {
             x = Java7Handlers.instance();
-        } catch (Throwable t) { }
+        } catch (Throwable t) {
+            if (ExceptionUtil.isFatal(t)) {
+                ExceptionUtil.rethrow(t);
+            }
+        }
         _jdk7Helper = x;
     }
 
@@ -232,6 +240,9 @@ public class OptionalHandlerFactory implements java.io.Serializable
         try {
             return instantiate(Class.forName(className), valueType);
         } catch (Throwable e) {
+            if (ExceptionUtil.isFatal(e)) {
+                ExceptionUtil.rethrow(e);
+            }
             throw new IllegalStateException("Failed to find class `"
 +className+"` for handling values of type "+ClassUtil.getTypeDescription(valueType)
 +", problem: ("+e.getClass().getName()+") "+e.getMessage());
@@ -243,6 +254,9 @@ public class OptionalHandlerFactory implements java.io.Serializable
         try {
             return ClassUtil.createInstance(handlerClass, false);
         } catch (Throwable e) {
+            if (ExceptionUtil.isFatal(e)) {
+                ExceptionUtil.rethrow(e);
+            }
             throw new IllegalStateException("Failed to create instance of `"
 +handlerClass.getName()+"` for handling values of type "+ClassUtil.getTypeDescription(valueType)
 +", problem: ("+e.getClass().getName()+") "+e.getMessage());

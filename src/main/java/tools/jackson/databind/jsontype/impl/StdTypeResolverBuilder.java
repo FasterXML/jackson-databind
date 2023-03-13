@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.MapperConfig;
+import tools.jackson.databind.introspect.AnnotatedClass;
+import tools.jackson.databind.introspect.AnnotatedClassResolver;
 import tools.jackson.databind.jsontype.*;
 import tools.jackson.databind.util.ClassUtil;
 
@@ -192,7 +194,8 @@ public class StdTypeResolverBuilder
         case PROPERTY:
         case EXISTING_PROPERTY: // as per [#528] same class as PROPERTY
             return new AsPropertyTypeDeserializer(baseType, idRes,
-                    _typeProperty, _typeIdVisible, defaultImpl, _includeAs);
+                    _typeProperty, _typeIdVisible, defaultImpl, _includeAs,
+                        _hasTypeResolver(ctxt, baseType));
         case WRAPPER_OBJECT:
             return new AsWrapperTypeDeserializer(baseType, idRes,
                     _typeProperty, _typeIdVisible, defaultImpl);
@@ -371,5 +374,24 @@ public class StdTypeResolverBuilder
     protected boolean allowPrimitiveTypes(DatabindContext ctxt,
             JavaType baseType) {
         return false;
+    }
+
+
+    /**
+     * Checks whether the given class has annotations indicating some type resolver
+     * is applied, for example {@link com.fasterxml.jackson.annotation.JsonSubTypes}.
+     * Only initializes {@link #_hasTypeResolver} once if its value is null.
+     *
+     * @param ctxt Currently active context
+     * @param baseType the base type to check for type resolver annotations
+     *
+     * @return true if the class has type resolver annotations, false otherwise
+     */
+    protected boolean _hasTypeResolver(DatabindContext ctxt, JavaType baseType) {
+        AnnotatedClass ac = 
+                AnnotatedClassResolver.resolveWithoutSuperTypes(ctxt.getConfig(),
+                        baseType.getRawClass());
+        AnnotationIntrospector ai = ctxt.getAnnotationIntrospector();
+        return ai.findPolymorphicTypeInfo(ctxt.getConfig(), ac) != null;
     }
 }

@@ -1,4 +1,4 @@
-package tools.jackson.failing;
+package tools.jackson.databind.jsontype.deftyping;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -23,6 +23,7 @@ public class DeserDefaultTypedConcrete2968Test extends BaseMapTest {
         }
     }
 
+    // [databind#2968] / [databind#3824]
     public void testDeserializationConcreteClassWithDefaultTyping() throws Exception {
         final PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
             .allowIfBaseType(SimpleBall.class)

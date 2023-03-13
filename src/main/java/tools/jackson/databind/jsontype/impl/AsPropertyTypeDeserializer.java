@@ -24,6 +24,11 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
 {
     protected final As _inclusion;
 
+    /**
+     * Indicates if the current class has a TypeResolver attached or not.
+     */
+    protected final boolean _hasTypeResolver;    
+
     protected final String _msgForMissingId = (_property == null)
             ? String.format("missing type id property '%s'", _typePropertyName)
             : String.format("missing type id property '%s' (for POJO property '%s')", _typePropertyName, _property.getName());
@@ -38,13 +43,23 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             String typePropertyName, boolean typeIdVisible, JavaType defaultImpl,
             As inclusion)
     {
-        super(bt, idRes, typePropertyName, typeIdVisible, defaultImpl);
-        _inclusion = inclusion;
+        this(bt, idRes, typePropertyName, typeIdVisible, defaultImpl, inclusion, true);
     }
 
+    public AsPropertyTypeDeserializer(JavaType bt, TypeIdResolver idRes,
+            String typePropertyName, boolean typeIdVisible, JavaType defaultImpl,
+            As inclusion,
+            boolean hasTypeResolver)
+    {
+        super(bt, idRes, typePropertyName, typeIdVisible, defaultImpl);
+        _inclusion = inclusion;
+        _hasTypeResolver = hasTypeResolver;
+    }
+    
     public AsPropertyTypeDeserializer(AsPropertyTypeDeserializer src, BeanProperty property) {
         super(src, property);
         _inclusion = src._inclusion;
+        _hasTypeResolver = src._hasTypeResolver;
     }
 
     @Override
@@ -166,7 +181,8 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         // genuine, or faked for "dont fail on bad type id")
         ValueDeserializer<Object> deser = _findDefaultImplDeserializer(ctxt);
         if (deser == null) {
-            JavaType t = _handleMissingTypeId(ctxt, priorFailureMsg);
+            JavaType t = _hasTypeResolver
+                    ? _handleMissingTypeId(ctxt, priorFailureMsg) : _baseType;
             if (t == null) {
                 // 09-Mar-2017, tatu: Is this the right thing to do?
                 return null;

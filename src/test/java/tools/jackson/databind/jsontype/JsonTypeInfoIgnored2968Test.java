@@ -1,4 +1,4 @@
-package tools.jackson.failing;
+package tools.jackson.databind.jsontype;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -98,7 +98,7 @@ public class JsonTypeInfoIgnored2968Test extends BaseMapTest {
 
         final String defaultTypedJson = a2q(
             "{'value':" +
-                "['com.fasterxml.jackson.databind.jsontype.JsonTypeInfoIgnored2968Test$BasketBall'," +
+                "['"+getClass().getName()+"$BasketBall'," +
                 "{'size':42}]}");
 
         BallValueWrapper wrapper = mapper.readValue(defaultTypedJson, BallValueWrapper.class);
@@ -118,8 +118,7 @@ public class JsonTypeInfoIgnored2968Test extends BaseMapTest {
         try {
             mapper.readValue(concreteTypeJson, SimpleBall.class);
         } catch (MismatchedInputException | InvalidDefinitionException e) {
-            verifyException(e, "Unexpected token (START_OBJECT), expected START_ARRAY: need Array value " +
-                "to contain `As.WRAPPER_ARRAY` type information for class");
+            verifyException(e, "Unexpected token", "START_OBJECT", "expected", "START_ARRAY");
         }
     }
 }

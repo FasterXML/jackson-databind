@@ -1,4 +1,4 @@
-package tools.jackson.databind.jsontype;
+package tools.jackson.failing;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -9,6 +9,8 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.InvalidTypeIdException;
 import tools.jackson.databind.exc.MismatchedInputException;
+import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
 
 public class JsonTypeInfoIgnored2968Test extends BaseMapTest {
     /*

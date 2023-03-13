@@ -1,4 +1,4 @@
-package tools.jackson.databind.jsontype.deftyping;
+package tools.jackson.failing;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 

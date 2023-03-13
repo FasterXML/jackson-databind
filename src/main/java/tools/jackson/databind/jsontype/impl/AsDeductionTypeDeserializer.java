@@ -39,7 +39,7 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
             JavaType bt, TypeIdResolver idRes, JavaType defaultImpl,
             Collection<NamedType> subtypes)
     {
-        super(bt, idRes, null, false, defaultImpl, null);
+        super(bt, idRes, null, false, defaultImpl, null, true);
         propertyBitIndex = new HashMap<>();
         subtypeFingerprints = buildFingerprints(ctxt, subtypes);
     }

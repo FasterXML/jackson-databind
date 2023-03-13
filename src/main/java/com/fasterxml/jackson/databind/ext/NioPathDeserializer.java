@@ -82,6 +82,8 @@ public class NioPathDeserializer extends StdScalarDeserializer<Path>
                 e.addSuppressed(cause);
                 return (Path) ctxt.handleInstantiationProblem(handledType(), value, e);
             }
+        } catch (Exception e) {
+            return (Path) ctxt.handleInstantiationProblem(handledType(), value, e);
         }
     }
 }

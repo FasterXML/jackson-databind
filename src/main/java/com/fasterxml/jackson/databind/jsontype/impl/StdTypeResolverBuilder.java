@@ -165,8 +165,7 @@ public class StdTypeResolverBuilder
 
         if(_idType == JsonTypeInfo.Id.DEDUCTION) {
             // Deduction doesn't require an includeAs property
-            return new AsDeductionTypeDeserializer(baseType, idRes, defaultImpl, config, subtypes,
-                    _hasTypeResolver(config, baseType));
+            return new AsDeductionTypeDeserializer(baseType, idRes, defaultImpl, config, subtypes);
         }
 
         // First, method for converting type info to type id:

@@ -33,7 +33,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
      *
      * @since 2.15
      */
-    private boolean _hasTypeResolver;
+    protected final boolean _hasTypeResolver;
 
     // @since 2.12.2 (see [databind#3055]
     protected final String _msgForMissingId = (_property == null)
@@ -58,6 +58,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
     {
         super(bt, idRes, typePropertyName, typeIdVisible, defaultImpl);
         _inclusion = inclusion;
+        _hasTypeResolver = true;
     }
 
     public AsPropertyTypeDeserializer(AsPropertyTypeDeserializer src, BeanProperty property) {
@@ -70,8 +71,8 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
      * @since 2.15
      */
     public AsPropertyTypeDeserializer(JavaType bt, TypeIdResolver idRes,
-                                      String typePropertyName, boolean typeIdVisible, JavaType defaultImpl,
-                                      As inclusion, boolean hasTypeResolver)
+            String typePropertyName, boolean typeIdVisible, JavaType defaultImpl,
+            As inclusion, boolean hasTypeResolver)
     {
         super(bt, idRes, typePropertyName, typeIdVisible, defaultImpl);
         _inclusion = inclusion;

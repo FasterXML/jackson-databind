@@ -43,18 +43,8 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
     public AsDeductionTypeDeserializer(JavaType bt, TypeIdResolver idRes, JavaType defaultImpl,
             DeserializationConfig config, Collection<NamedType> subtypes)
     {
-        super(bt, idRes, null, false, defaultImpl, null);
-        fieldBitIndex = new HashMap<>();
-        subtypeFingerprints = buildFingerprints(config, subtypes);
-    }
-
-    /**
-     * @since 2.15
-     */
-    public AsDeductionTypeDeserializer(JavaType bt, TypeIdResolver idRes, JavaType defaultImpl,
-            DeserializationConfig config, Collection<NamedType> subtypes, boolean hasTypeResolver)
-    {
-        super(bt, idRes, null, false, defaultImpl, null, hasTypeResolver);
+        // Last 'true' should not matter; no type id used with Deduction
+        super(bt, idRes, null, false, defaultImpl, null, true);
         fieldBitIndex = new HashMap<>();
         subtypeFingerprints = buildFingerprints(config, subtypes);
     }

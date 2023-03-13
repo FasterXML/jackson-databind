@@ -94,7 +94,7 @@ public class JsonTypeInfoIgnored2968Test extends BaseMapTest {
 
         final String defaultTypedJson = a2q(
             "{'value':" +
-                "['com.fasterxml.jackson.databind.jsontype.JsonTypeInfoIgnored2968Test$BasketBall'," +
+                "['"+getClass().getName()+"$BasketBall'," +
                 "{'size':42}]}");
 
         BallValueWrapper wrapper = mapper.readValue(defaultTypedJson, BallValueWrapper.class);

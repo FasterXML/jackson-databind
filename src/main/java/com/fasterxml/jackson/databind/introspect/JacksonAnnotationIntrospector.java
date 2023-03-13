@@ -67,9 +67,7 @@ public class JacksonAnnotationIntrospector
         try {
             x = Java7Support.instance();
         } catch (Throwable t) {
-            if (ExceptionUtil.isFatal(t)) {
-                ExceptionUtil.rethrow(t);
-            }
+            ExceptionUtil.rethrowIfFatal(t);
         }
         _java7Helper = x;
     }

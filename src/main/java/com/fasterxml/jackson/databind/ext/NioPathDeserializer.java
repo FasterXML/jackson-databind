@@ -8,6 +8,7 @@ import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.spi.FileSystemProvider;
+import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 
 import com.fasterxml.jackson.core.JsonParser;
@@ -77,12 +78,10 @@ public class NioPathDeserializer extends StdScalarDeserializer<Path>
                     }
                 }
                 return (Path) ctxt.handleInstantiationProblem(handledType(), value, cause);
-            } catch (Throwable e) {
+            } catch (Exception | ServiceConfigurationError e) {
                 e.addSuppressed(cause);
                 return (Path) ctxt.handleInstantiationProblem(handledType(), value, e);
             }
-        } catch (Throwable e) {
-            return (Path) ctxt.handleInstantiationProblem(handledType(), value, e);
         }
     }
 }

@@ -1179,7 +1179,7 @@ se.getClass().getName(), se.getMessage()),
     public static boolean isJDK17OrAbove() {
         try {
             return getJDKMajorVersion() >= 17;
-        } catch (Throwable t) {
+        } catch (Exception t) {
             System.err.println("Failed to determine JDK major version, assuming pre-JDK-17; problem: "+t);
             return false;
         }
@@ -1300,10 +1300,10 @@ se.getClass().getName(), se.getMessage()),
             }
             try {
                 return contextClass.getDeclaredMethods(); // Cross fingers
-            } catch (Throwable t) {
+            } catch (Exception t) {
                 return _failGetClassMethods(cls, t);
             }
-        } catch (Throwable t) {
+        } catch (Exception t) {
             return _failGetClassMethods(cls, t);
         }
     }

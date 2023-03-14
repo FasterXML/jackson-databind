@@ -115,7 +115,7 @@ public abstract class StdKeySerializers
 
     /**
      * Method called if no specified key serializer was located; will return a
-     * "default" key serializer.
+     * "default" key serializer initialized by {@link EnumKeySerializer#construct(Class, EnumValues, EnumValues)}
      *
      * @since 2.15
      */

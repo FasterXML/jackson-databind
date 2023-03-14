@@ -2435,7 +2435,7 @@ factory.toString()));
     protected EnumResolver constructEnumNamingStrategyResolver(DeserializationConfig config, Class<?> enumClass,
                                                              AnnotatedClass annotatedClass) {
         Object namingDef = config.getAnnotationIntrospector().findEnumNamingStrategy(annotatedClass);
-        EnumNamingStrategy enumNamingStrategy = EnumPropertiesCollector.createEnumNamingStrategyInstance(
+        EnumNamingStrategy enumNamingStrategy = EnumNamingStrategyFactory.createEnumNamingStrategyInstance(
             namingDef, config.canOverrideAccessModifiers());
         return enumNamingStrategy == null ? null
             : EnumResolver.constructUsingEnumNamingStrategy(config, enumClass, enumNamingStrategy);

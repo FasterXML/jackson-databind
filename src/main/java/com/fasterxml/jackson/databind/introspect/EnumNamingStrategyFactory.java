@@ -9,9 +9,9 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  *
  * @since 2.15
  */
-public class EnumPropertiesCollector {
+public class EnumNamingStrategyFactory {
 
-    private EnumPropertiesCollector() {}
+    private EnumNamingStrategyFactory() {}
 
     /*
     /**********************************************************

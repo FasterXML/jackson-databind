@@ -14,7 +14,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
-import com.fasterxml.jackson.databind.introspect.EnumPropertiesCollector;
+import com.fasterxml.jackson.databind.introspect.EnumNamingStrategyFactory;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -271,7 +271,7 @@ public class EnumSerializer
     protected static EnumValues constructEnumNamingStrategyValues(SerializationConfig config, Class<Enum<?>> enumClass,
                                                                AnnotatedClass annotatedClass) {
         Object namingDef = config.getAnnotationIntrospector().findEnumNamingStrategy(annotatedClass);
-        EnumNamingStrategy enumNamingStrategy = EnumPropertiesCollector.createEnumNamingStrategyInstance(
+        EnumNamingStrategy enumNamingStrategy = EnumNamingStrategyFactory.createEnumNamingStrategyInstance(
             namingDef, config.canOverrideAccessModifiers());
         return enumNamingStrategy == null ? null : EnumValues.constructUsingEnumNaming(
             config, enumClass, enumNamingStrategy);

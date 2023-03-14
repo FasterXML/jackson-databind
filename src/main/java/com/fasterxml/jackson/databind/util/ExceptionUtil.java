@@ -49,6 +49,12 @@ public class ExceptionUtil {
         return (throwable instanceof VirtualMachineError
                 || throwable instanceof ThreadDeath
                 || throwable instanceof InterruptedException
-                || throwable instanceof LinkageError);
+                || throwable instanceof ClassCircularityError
+                || throwable instanceof ClassFormatError
+                || throwable instanceof ExceptionInInitializerError
+                || throwable instanceof IncompatibleClassChangeError
+                || throwable instanceof BootstrapMethodError
+                || throwable instanceof VerifyError
+        );
     }
 }

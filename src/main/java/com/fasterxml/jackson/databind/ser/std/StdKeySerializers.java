@@ -83,9 +83,12 @@ public abstract class StdKeySerializers
      * Method called if no specified key serializer was located; will return a
      * "default" key serializer.
      *
+     * @deprecated Since 2.15 -- use {@link StdKeySerializers#getFallbackKeySerializer(SerializationConfig, Class, AnnotatedClass)}
+     * instead.
      * @since 2.7
      */
     @SuppressWarnings("unchecked")
+    @Deprecated
     public static JsonSerializer<Object> getFallbackKeySerializer(SerializationConfig config,
             Class<?> rawKeyType)
     {

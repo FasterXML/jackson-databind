@@ -157,7 +157,7 @@ public class OptionalHandlerFactory
     {
         try {
             return instantiate(Class.forName(className), valueType);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             throw new IllegalStateException("Failed to find class `"
 +className+"` for handling values of type "+ClassUtil.getTypeDescription(valueType)
 +", problem: ("+e.getClass().getName()+") "+e.getMessage());
@@ -168,7 +168,7 @@ public class OptionalHandlerFactory
     {
         try {
             return ClassUtil.createInstance(handlerClass, false);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             throw new IllegalStateException("Failed to create instance of `"
 +handlerClass.getName()+"` for handling values of type "+ClassUtil.getTypeDescription(valueType)
 +", problem: ("+e.getClass().getName()+") "+e.getMessage());

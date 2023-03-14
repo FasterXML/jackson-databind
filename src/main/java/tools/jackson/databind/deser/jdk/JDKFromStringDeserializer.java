@@ -378,11 +378,11 @@ public class JDKFromStringDeserializer
                         }
                     }
                     return (Path) ctxt.handleInstantiationProblem(Path.class, value, cause);
-                } catch (Throwable e) {
+                } catch (Exception e) {
                     e.addSuppressed(cause);
                     return (Path) ctxt.handleInstantiationProblem(Path.class, value, e);
                 }
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 return (Path) ctxt.handleInstantiationProblem(Path.class, value, e);
             }
         }

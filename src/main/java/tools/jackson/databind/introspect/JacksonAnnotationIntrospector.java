@@ -66,7 +66,9 @@ public class JacksonAnnotationIntrospector
         JavaBeansAnnotations x = null;
         try {
             x = JavaBeansAnnotations.instance();
-        } catch (Throwable t) { }
+        } catch (Throwable t) {
+            ExceptionUtil.rethrowIfFatal(t);
+        }
         _javaBeansHelper = x;
     }
 

@@ -4,6 +4,7 @@ import tools.jackson.databind.PropertyName;
 import tools.jackson.databind.introspect.Annotated;
 import tools.jackson.databind.introspect.AnnotatedParameter;
 import tools.jackson.databind.util.ClassUtil;
+import tools.jackson.databind.util.ExceptionUtil;
 
 /**
  * Since 2 JDK7-added annotations were left out of JDK 9+ core modules,
@@ -23,6 +24,7 @@ public abstract class JavaBeansAnnotations
             // 09-Sep-2019, tatu: Used to log earlier, but with 2.10.0 let's not log
 //            java.util.logging.Logger.getLogger(Java7Support.class.getName())
 //                .warning("Unable to load JDK7 annotations (@ConstructorProperties, @Transient): no Java7 annotation support added");
+            ExceptionUtil.rethrowIfFatal(t);
         }
         IMPL = impl;
     }

@@ -51,7 +51,6 @@ public class ExceptionUtil {
                 || throwable instanceof InterruptedException
                 || throwable instanceof ClassCircularityError
                 || throwable instanceof ClassFormatError
-                || throwable instanceof ExceptionInInitializerError
                 || throwable instanceof IncompatibleClassChangeError
                 || throwable instanceof BootstrapMethodError
                 || throwable instanceof VerifyError

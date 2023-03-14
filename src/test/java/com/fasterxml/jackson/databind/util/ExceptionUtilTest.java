@@ -8,6 +8,11 @@ public class ExceptionUtilTest extends BaseTest {
         ExceptionUtil.rethrowIfFatal(new NoClassDefFoundError("fake"));
     }
 
+    public void testExceptionInInitializerError() {
+        //next line should be a no-op
+        ExceptionUtil.rethrowIfFatal(new ExceptionInInitializerError("fake"));
+    }
+
     public void testOutOfMemoryError() {
         try {
             ExceptionUtil.rethrowIfFatal(new OutOfMemoryError("fake"));

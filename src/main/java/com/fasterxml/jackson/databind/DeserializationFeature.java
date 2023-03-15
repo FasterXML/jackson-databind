@@ -405,6 +405,16 @@ public enum DeserializationFeature implements ConfigFeature
     READ_ENUMS_USING_TO_STRING(false),
 
     /**
+     * Feature that controls whether numeric strings are interpreted as numeric
+     * timestamps (enabled) nor not (disabled) in addition to an explicitly
+     * defined pattern.
+     * <p>
+     * Note that when a pattern is not explicitly defined numeric strings are
+     * interpreted as a numeric timestamp.
+     */
+    READ_NUMERIC_STRINGS_AS_DATE_TIMESTAMP(false),
+
+    /**
      * Feature that allows unknown Enum values to be parsed as {@code null} values.
      * If disabled, unknown Enum values will throw exceptions.
      * <p>

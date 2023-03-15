@@ -281,10 +281,11 @@ public abstract class PropertyNamingStrategies
 
         @Override
         public String translate(String input) {
-            if (input == null || input.isEmpty()) {
-                return input;
+            String output = super.translate(input);
+            if (output == null) {
+                return null;
             }
-            return super.translate(input).toUpperCase();
+            return output.toUpperCase();
         }
     }
 
@@ -342,8 +343,8 @@ public abstract class PropertyNamingStrategies
          */
         @Override
         public String translate(String input) {
-            if (input == null || input.isEmpty()) {
-                return input;
+            if (input == null || input.isEmpty()){
+                return input; // garbage in, garbage out
             }
             // Replace first lower-case letter with upper-case equivalent
             char c = input.charAt(0);

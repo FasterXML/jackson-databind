@@ -123,14 +123,10 @@ public abstract class PropertyNamingStrategies
          */
         protected String translateLowerCaseWithSeparator(final String input, final char separator)
         {
-            if (input == null) {
-                return input; // garbage in, garbage out
-            }
             final int length = input.length();
             if (length == 0) {
                 return input;
             }
-
             final StringBuilder result = new StringBuilder(length + (length >> 1));
             int upperCount = 0;
             for (int i = 0; i < length; ++i) {
@@ -220,8 +216,10 @@ public abstract class PropertyNamingStrategies
         @Override
         protected String translate(String input)
         {
-            if (input == null) return input; // garbage in, garbage out
             int length = input.length();
+            if (length == 0) {
+                return input;
+            }
             StringBuilder result = new StringBuilder(length * 2);
             int resultLength = 0;
             boolean wasPrevTranslated = false;
@@ -264,9 +262,10 @@ public abstract class PropertyNamingStrategies
         @Override
         protected String translate(String input) {
             String output = super.translate(input);
-            if (output == null)
+            if (output == null) {
                 return null;
-            return super.translate(input).toUpperCase();
+            }
+            return output.toUpperCase();
         }
     }
 
@@ -312,7 +311,7 @@ public abstract class PropertyNamingStrategies
          */
         @Override
         protected String translate(String input) {
-            if (input == null || input.isEmpty()){
+            if (input.isEmpty()){
                 return input; // garbage in, garbage out
             }
             // Replace first lower-case letter with upper-case equivalent

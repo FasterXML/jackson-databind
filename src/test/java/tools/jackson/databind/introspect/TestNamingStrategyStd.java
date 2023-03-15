@@ -179,7 +179,6 @@ public class TestNamingStrategyStd extends BaseMapTest
      */
 
     final static List<Object[]> SNAKE_CASE_NAME_TRANSLATIONS = Arrays.asList(new Object[][] {
-                {null, null},
                 {"", ""},
                 {"a", "a"},
                 {"abc", "abc"},
@@ -236,7 +235,6 @@ public class TestNamingStrategyStd extends BaseMapTest
     });
 
     final static List<Object[]> UPPER_SNAKE_CASE_NAME_TRANSLATIONS = Arrays.asList(new Object[][] {
-        {null, null},
         {"", ""},
         {"a", "A"},
         {"abc", "ABC"},

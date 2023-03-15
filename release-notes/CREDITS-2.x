@@ -1543,8 +1543,11 @@ Joo Hyuk Kim (JooHyukKim@github)
   * Contributed #2536: Add `EnumFeature.READ_ENUM_KEYS_USING_INDEX` to work with
    existing "WRITE_ENUM_KEYS_USING_INDEX"
   (2.15.0)
+  * Contributed #2667: Add `@EnumNaming`, `EnumNamingStrategy` to allow use of naming
+   strategies for Enums
+  (2.15.0)
   * Contributed fix for #2968: Deserialization of `@JsonTypeInfo` annotated type fails with
-  missing type id even for explicit concrete subtypes
+   missing type id even for explicit concrete subtypes
   (2.15.0)
   * Contributed #3053: Allow serializing enums to lowercase (`EnumFeature.WRITE_ENUMS_TO_LOWERCASE`)
   (2.15.0)

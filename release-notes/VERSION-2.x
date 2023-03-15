@@ -8,6 +8,9 @@ Project: jackson-databind
 
 #2536: Add `EnumFeature.READ_ENUM_KEYS_USING_INDEX` to work with
    existing "WRITE_ENUM_KEYS_USING_INDEX"#
+#2667: Add `@EnumNaming`, `EnumNamingStrategy` to allow use of naming
+   strategies for Enums
+ (contributed by Joo-Hyuk K)
 #2968: Deserialization of `@JsonTypeInfo` annotated type fails with
   missing type id even for explicit concrete subtypes
  (requested by Patrick S) 

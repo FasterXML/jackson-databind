@@ -13,6 +13,8 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
+import com.fasterxml.jackson.databind.introspect.EnumNamingStrategyFactory;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -49,6 +51,14 @@ public class EnumSerializer
      */
     protected final Boolean _serializeAsIndex;
 
+    /**
+     * Map with key as converted property class defined implementation of {@link EnumNamingStrategy}
+     * and with value as Enum names collected using <code>Enum.name()</code>.
+     *
+     * @since 2.15
+     */
+    protected final EnumValues _valuesByEnumNaming;
+
     /*
     /**********************************************************
     /* Construction, initialization
@@ -60,6 +70,18 @@ public class EnumSerializer
         super(v.getEnumClass(), false);
         _values = v;
         _serializeAsIndex = serializeAsIndex;
+        _valuesByEnumNaming = null;
+    }
+
+    /**
+     * @since 2.15
+     */
+    public EnumSerializer(EnumValues v, Boolean serializeAsIndex, EnumValues valuesByEnumNaming)
+    {
+        super(v.getEnumClass(), false);
+        _values = v;
+        _serializeAsIndex = serializeAsIndex;
+        _valuesByEnumNaming = valuesByEnumNaming;
     }
 
     /**
@@ -77,8 +99,9 @@ public class EnumSerializer
          *   handle toString() case dynamically (for example)
          */
         EnumValues v = EnumValues.constructFromName(config, (Class<Enum<?>>) enumClass);
+        EnumValues valuesByEnumNaming = constructEnumNamingStrategyValues(config, (Class<Enum<?>>) enumClass, beanDesc.getClassInfo());
         Boolean serializeAsIndex = _isShapeWrittenUsingIndex(enumClass, format, true, null);
-        return new EnumSerializer(v, serializeAsIndex);
+        return new EnumSerializer(v, serializeAsIndex, valuesByEnumNaming);
     }
 
     /**
@@ -121,6 +144,10 @@ public class EnumSerializer
     public final void serialize(Enum<?> en, JsonGenerator gen, SerializerProvider serializers)
         throws IOException
     {
+        if (_valuesByEnumNaming != null) {
+            gen.writeString(_valuesByEnumNaming.serializedValueFor(en));
+            return;
+        }
         if (_serializeAsIndex(serializers)) {
             gen.writeNumber(en.ordinal());
             return;
@@ -233,5 +260,20 @@ public class EnumSerializer
         throw new IllegalArgumentException(String.format(
                 "Unsupported serialization shape (%s) for Enum %s, not supported as %s annotation",
                     shape, enumClass.getName(), (fromClass? "class" : "property")));
+    }
+
+    /**
+     * Factory method used to resolve an instance of {@link EnumValues}
+     * with {@link EnumNamingStrategy} applied for the target class.
+     *
+     * @since 2.15
+     */
+    protected static EnumValues constructEnumNamingStrategyValues(SerializationConfig config, Class<Enum<?>> enumClass,
+                                                               AnnotatedClass annotatedClass) {
+        Object namingDef = config.getAnnotationIntrospector().findEnumNamingStrategy(annotatedClass);
+        EnumNamingStrategy enumNamingStrategy = EnumNamingStrategyFactory.createEnumNamingStrategyInstance(
+            namingDef, config.canOverrideAccessModifiers());
+        return enumNamingStrategy == null ? null : EnumValues.constructUsingEnumNaming(
+            config, enumClass, enumNamingStrategy);
     }
 }

@@ -383,6 +383,21 @@ public abstract class AnnotationIntrospector
     public Object findNamingStrategy(AnnotatedClass ac) { return null; }
 
     /**
+     * Method for finding {@link EnumNamingStrategy} for given
+     * class, if any specified by annotations; and if so, either return
+     * a {@link EnumNamingStrategy} instance, or Class to use for
+     * creating instance
+     *
+     * @param ac Annotated class to introspect
+     *
+     * @return Subclass or instance of {@link EnumNamingStrategy}, if one
+     *   is specified for given class; null if not.
+     *
+     * @since 2.15
+     */
+    public Object findEnumNamingStrategy(AnnotatedClass ac) { return null; }
+
+    /**
      * Method used to check whether specified class defines a human-readable
      * description to use for documentation.
      * There are no further definitions for contents; for example, whether

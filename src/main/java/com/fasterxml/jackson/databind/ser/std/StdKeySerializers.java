@@ -6,6 +6,7 @@ import java.util.Date;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -82,9 +83,12 @@ public abstract class StdKeySerializers
      * Method called if no specified key serializer was located; will return a
      * "default" key serializer.
      *
+     * @deprecated Since 2.15 -- use {@link StdKeySerializers#getFallbackKeySerializer(SerializationConfig, Class, AnnotatedClass)}
+     * instead.
      * @since 2.7
      */
     @SuppressWarnings("unchecked")
+    @Deprecated
     public static JsonSerializer<Object> getFallbackKeySerializer(SerializationConfig config,
             Class<?> rawKeyType)
     {
@@ -103,6 +107,38 @@ public abstract class StdKeySerializers
             if (ClassUtil.isEnumType(rawKeyType)) {
                 return EnumKeySerializer.construct(rawKeyType,
                         EnumValues.constructFromName(config, (Class<Enum<?>>) rawKeyType));
+            }
+        }
+        // 19-Oct-2016, tatu: Used to just return DEFAULT_KEY_SERIALIZER but why not:
+        return new Default(Default.TYPE_TO_STRING, rawKeyType);
+    }
+
+    /**
+     * Method called if no specified key serializer was located; will return a
+     * "default" key serializer initialized by {@link EnumKeySerializer#construct(Class, EnumValues, EnumValues)}
+     *
+     * @since 2.15
+     */
+    @SuppressWarnings("unchecked")
+    public static JsonSerializer<Object> getFallbackKeySerializer(SerializationConfig config,
+                                                    Class<?> rawKeyType, AnnotatedClass annotatedClass)
+    {
+        if (rawKeyType != null) {
+            // 29-Sep-2015, tatu: Odd case here, of `Enum`, which we may get for `EnumMap`; not sure
+            //   if that is a bug or feature. Regardless, it seems to require dynamic handling
+            //   (compared to getting actual fully typed Enum).
+            //  Note that this might even work from the earlier point, but let's play it safe for now
+            // 11-Aug-2016, tatu: Turns out we get this if `EnumMap` is the root value because
+            //    then there is no static type
+            if (rawKeyType == Enum.class) {
+                return new Dynamic();
+            }
+            // 29-Sep-2019, tatu: [databind#2457] can not use 'rawKeyType.isEnum()`, won't work
+            //    for subtypes.
+            if (ClassUtil.isEnumType(rawKeyType)) {
+                return EnumKeySerializer.construct(rawKeyType,
+                    EnumValues.constructFromName(config, (Class<Enum<?>>) rawKeyType),
+                    EnumSerializer.constructEnumNamingStrategyValues(config, (Class<Enum<?>>) rawKeyType, annotatedClass));
             }
         }
         // 19-Oct-2016, tatu: Used to just return DEFAULT_KEY_SERIALIZER but why not:
@@ -276,15 +312,39 @@ public abstract class StdKeySerializers
     {
         protected final EnumValues _values;
 
+        /**
+         * Map with key as converted property class defined implementation of {@link EnumNamingStrategy}
+         * and with value as Enum names collected using <code>Enum.name()</code>.
+         *
+         * @since 2.15
+         */
+        protected final EnumValues _valuesByEnumNaming;
+
         protected EnumKeySerializer(Class<?> enumType, EnumValues values) {
             super(enumType, false);
             _values = values;
+            _valuesByEnumNaming = null;
+        }
+
+        /**
+         * @since 2.15
+         */
+        protected EnumKeySerializer(Class<?> enumType, EnumValues values, EnumValues valuesByEnumNaming) {
+            super(enumType, false);
+            _values = values;
+            _valuesByEnumNaming = valuesByEnumNaming;
         }
 
         public static EnumKeySerializer construct(Class<?> enumType,
                 EnumValues enumValues)
         {
             return new EnumKeySerializer(enumType, enumValues);
+        }
+
+        public static EnumKeySerializer construct(Class<?> enumType,
+                EnumValues enumValues, EnumValues valuesByEnumNaming)
+        {
+            return new EnumKeySerializer(enumType, enumValues, valuesByEnumNaming);
         }
 
         @Override
@@ -296,6 +356,10 @@ public abstract class StdKeySerializers
                 return;
             }
             Enum<?> en = (Enum<?>) value;
+            if (_valuesByEnumNaming != null) {
+                g.writeFieldName(_valuesByEnumNaming.serializedValueFor(en));
+                return;
+            }
             // 14-Sep-2019, tatu: [databind#2129] Use this specific feature
             if (serializers.isEnabled(SerializationFeature.WRITE_ENUM_KEYS_USING_INDEX)) {
                 g.writeFieldName(String.valueOf(en.ordinal()));

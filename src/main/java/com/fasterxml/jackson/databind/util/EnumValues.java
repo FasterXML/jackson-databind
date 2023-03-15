@@ -80,6 +80,26 @@ public final class EnumValues
     }
 
     /**
+     * Returns String serializations of Enum name using an instance of {@link EnumNamingStrategy}.
+     * The output {@link EnumValues} should contain values that are symmetric to
+     * {@link EnumResolver#constructUsingEnumNaming(DeserializationConfig, Class, EnumNamingStrategy)}.
+     *
+     * @since 2.15
+     */
+    public static EnumValues constructUsingEnumNaming(MapperConfig<?> config, Class<Enum<?>> enumClass, EnumNamingStrategy namingStrategy) {
+        Class<? extends Enum<?>> cls = ClassUtil.findEnumType(enumClass);
+        Enum<?>[] values = cls.getEnumConstants();
+        if (values == null) {
+            throw new IllegalArgumentException("Cannot determine enum constants for Class " + enumClass.getName());
+        }
+        ArrayList<String> external = new ArrayList<>(values.length);
+        for (Enum<?> en : values) {
+            external.add(namingStrategy.convertEnumToExternalName(en.name()));
+        }
+        return construct(config, enumClass, external);
+    }
+
+    /**
      * @since 2.11
      */
     public static EnumValues construct(MapperConfig<?> config, Class<Enum<?>> enumClass,

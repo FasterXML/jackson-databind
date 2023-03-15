@@ -162,6 +162,16 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
+    public Object findEnumNamingStrategy(AnnotatedClass ac)
+    {
+        Object str = _primary.findEnumNamingStrategy(ac);
+        if (str == null) {
+            str = _secondary.findEnumNamingStrategy(ac);
+        }
+        return str;
+    }
+
+    @Override
     public String findClassDescription(AnnotatedClass ac) {
         String str = _primary.findClassDescription(ac);
         if ((str == null) || str.isEmpty()) {

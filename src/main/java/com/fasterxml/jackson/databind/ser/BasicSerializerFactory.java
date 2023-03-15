@@ -246,7 +246,8 @@ public abstract class BasicSerializerFactory
                             // null -> no TypeSerializer for key-serializer use case
                             ser = new JsonValueSerializer(acc, null, delegate);
                         } else {
-                            ser = StdKeySerializers.getFallbackKeySerializer(config, keyType.getRawClass());
+                            ser = StdKeySerializers.getFallbackKeySerializer(config, keyType.getRawClass(),
+                                                                                beanDesc.getClassInfo());
                         }
                     }
                 }
@@ -283,7 +284,8 @@ public abstract class BasicSerializerFactory
             if (ser == null) {
                 ser = StdKeySerializers.getStdKeySerializer(config, keyType.getRawClass(), false);
                 if (ser == null) {
-                    ser = StdKeySerializers.getFallbackKeySerializer(config, keyType.getRawClass());
+                    ser = StdKeySerializers.getFallbackKeySerializer(config, keyType.getRawClass(),
+                                                                        beanDesc.getClassInfo());
                 }
             }
         }

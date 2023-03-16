@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.fasterxml.jackson.databind.introspect.TestNamingStrategyCustom.PersonBean;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Unit tests to verify functioning of standard {@link PropertyNamingStrategy}

@@ -395,7 +395,7 @@ public abstract class AnnotationIntrospector
      *
      * @since 2.15
      */
-    public Object findEnumNamingStrategy(AnnotatedClass ac) { return null; }
+    public Object findEnumNamingStrategy(MapperConfig<?> config, AnnotatedClass ac) { return null; }
 
     /**
      * Method used to check whether specified class defines a human-readable

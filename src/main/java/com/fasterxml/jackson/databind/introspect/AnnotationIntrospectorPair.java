@@ -162,11 +162,11 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
-    public Object findEnumNamingStrategy(AnnotatedClass ac)
+    public Object findEnumNamingStrategy(MapperConfig<?> config, AnnotatedClass ac)
     {
-        Object str = _primary.findEnumNamingStrategy(ac);
+        Object str = _primary.findEnumNamingStrategy(config, ac);
         if (str == null) {
-            str = _secondary.findEnumNamingStrategy(ac);
+            str = _secondary.findEnumNamingStrategy(config, ac);
         }
         return str;
     }

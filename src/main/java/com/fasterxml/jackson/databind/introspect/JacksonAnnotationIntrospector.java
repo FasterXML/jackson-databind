@@ -352,7 +352,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public Object findEnumNamingStrategy(AnnotatedClass ac) {
+    public Object findEnumNamingStrategy(MapperConfig<?> config, AnnotatedClass ac) {
         EnumNaming ann = _findAnnotation(ac, EnumNaming.class);
         return (ann == null) ? null : ann.value();
     }

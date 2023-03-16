@@ -18,7 +18,10 @@ public class EnumNamingDeserializationTest extends BaseMapTest {
     /**********************************************************
     */
 
-    final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
+    private final ObjectMapper MAPPER_CI = jsonMapperBuilder()
+            .enable(ACCEPT_CASE_INSENSITIVE_ENUMS)
+            .build();
 
     @EnumNaming(EnumNamingStrategies.CamelCaseStrategy.class)
     static enum EnumFlavorA {
@@ -143,7 +146,7 @@ public class EnumNamingDeserializationTest extends BaseMapTest {
     }
 
     public void testReadWrapperValueWithCaseInsensitiveEnumNamingStrategy() throws Exception {
-        ObjectReader reader = MAPPER.enable(ACCEPT_CASE_INSENSITIVE_ENUMS)
+        ObjectReader reader = MAPPER_CI
             .readerFor(EnumSauceWrapperBean.class);
 
         EnumSauceWrapperBean lowerCase = reader.readValue(a2q("{'sauce': 'ketchup'}"));
@@ -185,8 +188,7 @@ public class EnumNamingDeserializationTest extends BaseMapTest {
     }
 
     public void testAllowCaseInsensensitiveEnumMapKey() throws Exception {
-        ObjectReader reader = MAPPER
-            .enable(ACCEPT_CASE_INSENSITIVE_ENUMS)
+        ObjectReader reader = MAPPER_CI
             .readerFor(ClassWithEnumMapSauceKey.class);
 
         ClassWithEnumMapSauceKey result = reader.readValue(a2q("{'map':{'KeTcHuP':'val'}}"));
@@ -196,8 +198,7 @@ public class EnumNamingDeserializationTest extends BaseMapTest {
     }
 
     public void testAllowCaseSensensitiveEnumMapValue() throws Exception {
-        ObjectReader reader = MAPPER
-            .enable(ACCEPT_CASE_INSENSITIVE_ENUMS)
+        ObjectReader reader = MAPPER_CI
             .readerFor(ClassWithEnumMapSauceValue.class);
 
         ClassWithEnumMapSauceValue result = reader.readValue(
@@ -209,8 +210,7 @@ public class EnumNamingDeserializationTest extends BaseMapTest {
     }
 
     public void testAllowCaseInsensensitiveEnumMapValue() throws Exception {
-        ObjectReader reader = MAPPER
-            .enable(ACCEPT_CASE_INSENSITIVE_ENUMS)
+        ObjectReader reader = MAPPER_CI
             .readerFor(ClassWithEnumMapSauceValue.class);
 
         ClassWithEnumMapSauceValue result = reader.readValue(

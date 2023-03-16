@@ -269,8 +269,9 @@ public class EnumSerializer
      * @since 2.15
      */
     protected static EnumValues constructEnumNamingStrategyValues(SerializationConfig config, Class<Enum<?>> enumClass,
-                                                               AnnotatedClass annotatedClass) {
-        Object namingDef = config.getAnnotationIntrospector().findEnumNamingStrategy(annotatedClass);
+            AnnotatedClass annotatedClass) {
+        Object namingDef = config.getAnnotationIntrospector().findEnumNamingStrategy(config,
+                annotatedClass);
         EnumNamingStrategy enumNamingStrategy = EnumNamingStrategyFactory.createEnumNamingStrategyInstance(
             namingDef, config.canOverrideAccessModifiers());
         return enumNamingStrategy == null ? null : EnumValues.constructUsingEnumNaming(

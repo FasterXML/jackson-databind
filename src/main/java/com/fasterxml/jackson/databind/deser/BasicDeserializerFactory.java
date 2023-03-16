@@ -2433,8 +2433,8 @@ factory.toString()));
      * @since 2.15
      */
     protected EnumResolver constructEnumNamingStrategyResolver(DeserializationConfig config, Class<?> enumClass,
-                                                             AnnotatedClass annotatedClass) {
-        Object namingDef = config.getAnnotationIntrospector().findEnumNamingStrategy(annotatedClass);
+            AnnotatedClass annotatedClass) {
+        Object namingDef = config.getAnnotationIntrospector().findEnumNamingStrategy(config, annotatedClass);
         EnumNamingStrategy enumNamingStrategy = EnumNamingStrategyFactory.createEnumNamingStrategyInstance(
             namingDef, config.canOverrideAccessModifiers());
         return enumNamingStrategy == null ? null

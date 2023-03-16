@@ -5,6 +5,7 @@ import java.util.Date;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
+import tools.jackson.databind.introspect.AnnotatedClass;
 import tools.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import tools.jackson.databind.ser.impl.PropertySerializerMap;
 import tools.jackson.databind.ser.std.StdSerializer;
@@ -76,11 +77,11 @@ public abstract class JDKKeySerializers
 
     /**
      * Method called if no specified key serializer was located; will return a
-     * "default" key serializer.
+     * "default" key serializer initialized by {@link EnumKeySerializer#construct(Class, EnumValues, EnumValues)}
      */
     @SuppressWarnings("unchecked")
     public static ValueSerializer<Object> getFallbackKeySerializer(SerializationConfig config,
-            Class<?> rawKeyType)
+            Class<?> rawKeyType, AnnotatedClass annotatedClass)
     {
         if (rawKeyType != null) {
             // 29-Sep-2015, tatu: Odd case here, of `Enum`, which we may get for `EnumMap`; not sure
@@ -96,7 +97,8 @@ public abstract class JDKKeySerializers
             //    for subtypes.
             if (ClassUtil.isEnumType(rawKeyType)) {
                 return EnumKeySerializer.construct(rawKeyType,
-                        EnumValues.constructFromName(config, (Class<Enum<?>>) rawKeyType));
+                    EnumValues.constructFromName(config, (Class<Enum<?>>) rawKeyType),
+                    EnumSerializer.constructEnumNamingStrategyValues(config, (Class<Enum<?>>) rawKeyType, annotatedClass));
             }
         }
         // 19-Oct-2016, tatu: Used to just return DEFAULT_KEY_SERIALIZER but why not:
@@ -264,15 +266,33 @@ public abstract class JDKKeySerializers
     {
         protected final EnumValues _values;
 
+        /**
+         * Map with key as converted property class defined implementation of {@link EnumNamingStrategy}
+         * and with value as Enum names collected using <code>Enum.name()</code>.
+         */
+        protected final EnumValues _valuesByEnumNaming;
+
+        @Deprecated
         protected EnumKeySerializer(Class<?> enumType, EnumValues values) {
+            this(enumType, values, null);
+        }
+
+        protected EnumKeySerializer(Class<?> enumType, EnumValues values, EnumValues valuesByEnumNaming) {
             super(enumType);
             _values = values;
+            _valuesByEnumNaming = valuesByEnumNaming;
         }
 
         public static EnumKeySerializer construct(Class<?> enumType,
                 EnumValues enumValues)
         {
             return new EnumKeySerializer(enumType, enumValues);
+        }
+
+        public static EnumKeySerializer construct(Class<?> enumType,
+                EnumValues enumValues, EnumValues valuesByEnumNaming)
+        {
+            return new EnumKeySerializer(enumType, enumValues, valuesByEnumNaming);
         }
 
         @Override
@@ -284,6 +304,10 @@ public abstract class JDKKeySerializers
                 return;
             }
             Enum<?> en = (Enum<?>) value;
+            if (_valuesByEnumNaming != null) {
+                g.writeName(_valuesByEnumNaming.serializedValueFor(en));
+                return;
+            }
             // 14-Sep-2019, tatu: [databind#2129] Use this specific feature
             if (serializers.isEnabled(SerializationFeature.WRITE_ENUM_KEYS_USING_INDEX)) {
                 g.writeName(String.valueOf(en.ordinal()));

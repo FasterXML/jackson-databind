@@ -220,7 +220,8 @@ public abstract class BasicSerializerFactory
                         // value type that `JsonType`-annotated accessor returns (or contains, in case of field)
                         ser = new JsonValueSerializer(keyType, acc.getType(), false, null, delegate, acc);
                     } else {
-                        ser = JDKKeySerializers.getFallbackKeySerializer(config, keyType.getRawClass());
+                        ser = JDKKeySerializers.getFallbackKeySerializer(config, keyType.getRawClass(),
+                                beanDesc.getClassInfo());
                     }
                 }
             }

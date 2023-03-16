@@ -43,6 +43,16 @@ public class JDKKeyDeserializers
         return new JDKKeyDeserializer.EnumKD(enumResolver, factory);
     }
 
+    public static KeyDeserializer constructEnumKeyDeserializer(EnumResolver enumResolver,
+            EnumResolver enumNamingResolver) {
+        return new JDKKeyDeserializer.EnumKD(enumResolver, null, enumNamingResolver);
+    }
+
+    public static KeyDeserializer constructEnumKeyDeserializer(EnumResolver enumResolver,
+            AnnotatedMethod factory, EnumResolver enumNamingResolver) {
+        return new JDKKeyDeserializer.EnumKD(enumResolver, factory, enumNamingResolver);
+    }
+
     public static KeyDeserializer constructDelegatingKeyDeserializer(DeserializationConfig config,
             JavaType type, ValueDeserializer<?> deser)
     {

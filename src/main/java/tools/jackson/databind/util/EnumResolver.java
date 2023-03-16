@@ -4,9 +4,7 @@ import static tools.jackson.databind.MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS
 
 import java.util.*;
 
-import tools.jackson.databind.AnnotationIntrospector;
-import tools.jackson.databind.DeserializationConfig;
-import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.*;
 import tools.jackson.databind.introspect.AnnotatedMember;
 
 /**
@@ -114,8 +112,39 @@ public class EnumResolver implements java.io.Serializable
             map.put(String.valueOf(i), enumValue);
         }
         return _construct(config, enumCls, enumConstants, map, false);
-    }    
-    
+    }
+
+    /**
+     * Factory method for constructing resolver that maps the name of enums converted to external property
+     * names into Enum value using an implementation of {@link EnumNamingStrategy}.
+     */
+    public static EnumResolver constructUsingEnumNamingStrategy(DeserializationConfig config,
+            Class<?> enumCls, EnumNamingStrategy enumNamingStrategy) {
+        return _constructUsingEnumNamingStrategy(config, enumCls,
+                config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS),
+                enumNamingStrategy);
+    }
+
+    /**
+     * Internal method for
+     * {@link EnumResolver#_constructUsingEnumNamingStrategy(Class, AnnotationIntrospector, boolean, EnumNamingStrategy)}
+     */
+    private static EnumResolver _constructUsingEnumNamingStrategy(DeserializationConfig config,
+        Class<?> enumCls0, boolean isIgnoreCase, EnumNamingStrategy enumNamingStrategy) {
+
+        final Class<Enum<?>> enumCls = _enumClass(enumCls0);
+        final Enum<?>[] enumConstants = _enumConstants(enumCls);
+        HashMap<String, Enum<?>> map = new HashMap<>();
+
+        // from last to first, so that in case of duplicate values, first wins
+        for (int i = enumConstants.length; --i >= 0; ) {
+            Enum<?> anEnum = enumConstants[i];
+            String translatedExternalValue = enumNamingStrategy.convertEnumToExternalName(anEnum.name());
+            map.put(translatedExternalValue, anEnum);
+        }
+        return _construct(config, enumCls, enumConstants, map, false);
+    }
+
     /**
      * Factory method for constructing resolver that maps from Enum.toString() into
      * Enum value

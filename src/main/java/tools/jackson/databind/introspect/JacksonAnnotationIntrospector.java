@@ -308,6 +308,12 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
+    public Object findEnumNamingStrategy(MapperConfig<?> config, AnnotatedClass ac) {
+        EnumNaming ann = _findAnnotation(ac, EnumNaming.class);
+        return (ann == null) ? null : ann.value();
+    }
+
+    @Override
     public String findClassDescription(MapperConfig<?> config, AnnotatedClass ac) {
         JsonClassDescription ann = _findAnnotation(ac, JsonClassDescription.class);
         return (ann == null) ? null : ann.value();

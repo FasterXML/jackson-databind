@@ -51,7 +51,22 @@ public class EnumDeserializer
      */
     protected final boolean _isFromIntValue;
 
+    /**
+     * Look up map with <b>key</b> as <code>Enum.name()</code> converted by
+     * {@link EnumNamingStrategy#convertEnumToExternalName(String)}
+     * and <b>value</b> as Enums.
+     */
+    protected final CompactStringObjectMap _lookupByEnumNaming;
+
+    /*
     public EnumDeserializer(EnumResolver byNameResolver, Boolean caseInsensitive)
+    {
+        this(byNameResolver, caseInsensitive, null);
+    }
+    */
+
+    public EnumDeserializer(EnumResolver byNameResolver, boolean caseInsensitive,
+                            EnumResolver byEnumNamingResolver)
     {
         super(byNameResolver.getEnumClass());
         _lookupByName = byNameResolver.constructLookup();
@@ -59,6 +74,7 @@ public class EnumDeserializer
         _enumDefaultValue = byNameResolver.getDefaultValue();
         _caseInsensitive = caseInsensitive;
         _isFromIntValue = byNameResolver.isFromIntValue();
+        _lookupByEnumNaming = byEnumNamingResolver == null ? null : byEnumNamingResolver.constructLookup();
     }
 
     protected EnumDeserializer(EnumDeserializer base, Boolean caseInsensitive,
@@ -72,6 +88,7 @@ public class EnumDeserializer
         _isFromIntValue = base._isFromIntValue;
         _useDefaultValueForUnknownEnum = useDefaultValueForUnknownEnum;
         _useNullForUnknownEnum = useNullForUnknownEnum;
+        _lookupByEnumNaming = base._lookupByEnumNaming;
     }
 
     /**
@@ -190,8 +207,7 @@ public class EnumDeserializer
             String text)
         throws JacksonException
     {
-        CompactStringObjectMap lookup = ctxt.isEnabled(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
-                ? _getToStringLookup(ctxt) : _lookupByName;
+        CompactStringObjectMap lookup = _resolveCurrentLookup(ctxt);
         Object result = lookup.find(text);
         if (result == null) {
             String trimmed = text.trim();
@@ -200,6 +216,18 @@ public class EnumDeserializer
             }
         }
         return result;
+    }
+
+    /**
+     * @since 2.15
+     */
+    private CompactStringObjectMap _resolveCurrentLookup(DeserializationContext ctxt) {
+        if (_lookupByEnumNaming != null) {
+            return _lookupByEnumNaming;
+        }
+        return ctxt.isEnabled(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+            ? _getToStringLookup(ctxt)
+            : _lookupByName;
     }
 
     protected Object _fromInteger(JsonParser p, DeserializationContext ctxt,

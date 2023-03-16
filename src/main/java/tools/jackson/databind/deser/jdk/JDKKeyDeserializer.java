@@ -375,6 +375,15 @@ public class JDKKeyDeserializer extends KeyDeserializer
          */
         protected volatile EnumResolver _byIndexResolver;
 
+        /**
+         * Look up map with <b>key</b> as <code>Enum.name()</code> converted by
+         * {@link EnumNamingStrategy#convertEnumToExternalName(String)}
+         * and <b>value</b> as Enums.
+         *
+         * @since 2.15
+         */
+        protected final EnumResolver _byEnumNamingResolver;
+
         protected final Enum<?> _enumDefaultValue;
 
         protected EnumKD(EnumResolver er, AnnotatedMethod factory) {
@@ -382,6 +391,18 @@ public class JDKKeyDeserializer extends KeyDeserializer
             _byNameResolver = er;
             _factory = factory;
             _enumDefaultValue = er.getDefaultValue();
+            _byEnumNamingResolver = null;
+        }
+
+        /**
+         * @since 2.15
+         */
+        protected EnumKD(EnumResolver er, AnnotatedMethod factory, EnumResolver byEnumNamingResolver) {
+            super(-1, er.getEnumClass());
+            _byNameResolver = er;
+            _factory = factory;
+            _enumDefaultValue = er.getDefaultValue();
+            _byEnumNamingResolver = byEnumNamingResolver;
         }
 
         @Override
@@ -395,8 +416,8 @@ public class JDKKeyDeserializer extends KeyDeserializer
                     ClassUtil.unwrapAndThrowAsIAE(e);
                 }
             }
-            EnumResolver res = ctxt.isEnabled(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
-                    ? _getToStringResolver(ctxt) : _byNameResolver;
+
+            EnumResolver res = _resolveCurrentResolver(ctxt);
             Enum<?> e = res.findEnum(key);
             // If enum is found, no need to try deser using index
             if (e == null && ctxt.isEnabled(EnumFeature.READ_ENUM_KEYS_USING_INDEX)) {
@@ -414,6 +435,18 @@ public class JDKKeyDeserializer extends KeyDeserializer
                 // fall-through if problems are collected, not immediately thrown
             }
             return e;
+        }
+
+        /**
+         * @since 2.15
+         */
+        protected EnumResolver _resolveCurrentResolver(DeserializationContext ctxt) {
+            if (_byEnumNamingResolver != null) {
+                return _byEnumNamingResolver;
+            }
+            return ctxt.isEnabled(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+                ? _getToStringResolver(ctxt)
+                : _byNameResolver;
         }
 
         private EnumResolver _getToStringResolver(DeserializationContext ctxt)

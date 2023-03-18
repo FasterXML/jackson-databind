@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.util;
 
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -296,6 +297,103 @@ public class EnumResolver implements java.io.Serializable
                 // 26-Sep-2021, tatu: [databind#1850] Need to consider "from int" case
                 _isIntType(accessor.getRawType())
         );
+    }
+
+
+    public static EnumResolver constructForMixin(DeserializationConfig config,
+                                                 Class<?> enumCls, Class<?> mixInCls) {
+        return _constructForMixIn(enumCls, mixInCls, config.getAnnotationIntrospector(),
+            config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS));
+    }
+
+    private static EnumResolver _constructForMixIn(Class<?> enumCls0, Class<?> mixInCls0, AnnotationIntrospector ai, boolean isIgnoreCase) {
+        final Class<Enum<?>> enumCls = _enumClass(enumCls0);
+        final Enum<?>[] enumConstants = _enumConstants(enumCls0);
+        String[] names = ai.findEnumValues(enumCls, enumConstants, new String[enumConstants.length]);
+        final String[][] allAliases = new String[names.length][];
+        ai.findEnumAliases(enumCls, enumConstants, allAliases);
+
+        HashMap<String, String> mixinPropertyMap = _findEnumNameToMixinPropertyMap(ai, mixInCls0);
+        HashMap<String, String> mixinAliasMap = _findEnumNameToMixinAliasMap(ai, mixInCls0);
+
+        HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();
+        for (int i = 0, len = enumConstants.length; i < len; ++i) {
+            final Enum<?> enumValue = enumConstants[i];
+
+            // Property
+            String name = names[i];
+            if (name == null) {
+                name = enumValue.name();
+            }
+            if (mixinPropertyMap.get(enumValue.name()) != null) {
+                name = mixinPropertyMap.get(enumValue.name());
+            }
+            map.put(name, enumValue);
+
+            // Alias
+            if (mixinAliasMap.get(enumValue.name()) != null) {
+                map.put(mixinAliasMap.get(enumValue.name()), enumValue);
+            } else {
+                String[] aliases = allAliases[i];
+                if (aliases != null) {
+                    for (String alias : aliases) {
+                        // Avoid overriding any primary names
+                        map.putIfAbsent(alias, enumValue);
+                    }
+                }
+            }
+        }
+
+        return new EnumResolver(enumCls, enumConstants, map,
+            _enumDefault(ai, enumCls), isIgnoreCase,
+            false);
+    }
+
+    /**
+     * @return Map with key as {@link Enum#name()} of mixin Enum class and value as property name.
+     *
+     * @since 2.15
+     */
+    protected static HashMap<String, String> _findEnumNameToMixinAliasMap(AnnotationIntrospector ai, Class<?> mixInCls) {
+        final Class<Enum<?>> enumCls = _enumClass(mixInCls);
+        final Enum<?>[] enumConstants = _enumConstants(mixInCls);
+        String[] names = ai.findEnumValues(enumCls, enumConstants, new String[enumConstants.length]);
+
+        final String[][] allAliases = new String[names.length][];
+        ai.findEnumAliases(enumCls, enumConstants, allAliases);
+
+        HashMap<String, String> map = new HashMap<String, String>();
+        for (int i = 0, len = enumConstants.length; i < len; ++i) {
+            final Enum<?> enumValue = enumConstants[i];
+            String[] aliases = allAliases[i];
+            if (aliases != null) {
+                for (String alias : aliases) {
+                    map.putIfAbsent(enumValue.name(), alias);
+                }
+            }
+        }
+        return map;
+    }
+
+    /**
+     * @return Map with key as {@link Enum#name()} of mixin Enum class and value as property name.
+     *
+     * @since 2.15
+     */
+    protected static HashMap<String, String> _findEnumNameToMixinPropertyMap(AnnotationIntrospector ai, Class<?> mixInCls) {
+        final Class<Enum<?>> enumCls = _enumClass(mixInCls);
+        final Enum<?>[] enumConstants = _enumConstants(mixInCls);
+        String[] names = ai.findEnumValues(enumCls, enumConstants, new String[enumConstants.length]);
+
+        HashMap<String, String> map = new HashMap<String, String>();
+        for (int i = 0, len = enumConstants.length; i < len; ++i) {
+            final Enum<?> enumValue = enumConstants[i];
+            String name = names[i];
+            if (name != null) {
+                map.put(enumValue.name(), name);
+            }
+        }
+        return map;
     }
 
     public CompactStringObjectMap constructLookup() {

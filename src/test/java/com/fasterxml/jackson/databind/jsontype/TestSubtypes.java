@@ -188,6 +188,42 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
     @JsonTypeName("implB")
     static class Factory1311ImplB implements Factory1311 { }
 
+
+    @JsonSubTypes({
+            @JsonSubTypes.Type(value=Cat.class, name="cat"),
+            @JsonSubTypes.Type(value=Dog.class, name="dog")
+    })
+    @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include = As.PROPERTY, property = "__type")
+    interface Animal {
+        String getBreed();
+    }
+
+    static class Cat implements Animal {
+        private final String breed;
+
+        Cat(String breed) {
+            this.breed = breed;
+        }
+
+        @Override
+        public String getBreed() {
+            return breed;
+        }
+    }
+
+    static class Dog implements Animal {
+        private final String breed;
+
+        Dog(String breed) {
+            this.breed = breed;
+        }
+
+        @Override
+        public String getBreed() {
+            return breed;
+        }
+    }
+
     /*
     /**********************************************************
     /* Unit tests
@@ -440,4 +476,14 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         assertEquals(5, impl.b);
         assertEquals(9, impl.def);
     }
+
+    public void testSerializeMapWithAsProperty() throws Exception {
+        Map<String, Animal> map = new HashMap<>();
+        map.put("a", new Dog("Golden Retriever"));
+        map.put("b", new Cat("Devon Rex"));
+        String result = MAPPER.writeValueAsString(map);
+        // the result is incorrect, the `__type` field is not written
+        assertEquals("{\"a\":{\"breed\":\"Golden Retriever\"},\"b\":{\"breed\":\"Devon Rex\"}}", result);
+    }
+
 }

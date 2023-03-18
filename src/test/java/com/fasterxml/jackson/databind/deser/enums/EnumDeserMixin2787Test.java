@@ -125,4 +125,11 @@ public class EnumDeserMixin2787Test extends BaseMapTest {
         }
     }
 
+    public void testMixinForWrapper() throws Exception{
+        ObjectMapper mapper = MAPPER.addMixIn(Enum2787.class, EnumMixin2787.class);
+
+        EnumWrapper result = mapper.readValue(a2q("{'value': 'C_MIXIN_ALIAS_1'}"), EnumWrapper.class);
+
+        assertEquals(Enum2787.ITEM_C, result.value);
+    }
 }

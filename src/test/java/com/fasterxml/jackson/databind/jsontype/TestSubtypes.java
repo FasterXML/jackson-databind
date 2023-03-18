@@ -198,6 +198,19 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         String getBreed();
     }
 
+    class AnimalMap {
+        @JsonSubTypes({
+                @JsonSubTypes.Type(value=Cat.class, name="cat"),
+                @JsonSubTypes.Type(value=Dog.class, name="dog")
+        })
+        @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include = As.PROPERTY, property = "__type")
+        private Map<String, Animal> map = new HashMap<>();
+
+        void addAnimal(String key, Animal value) {
+            map.put(key, value);
+        }
+    }
+
     static class Cat implements Animal {
         private final String breed;
 
@@ -484,6 +497,15 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         String result = MAPPER.writeValueAsString(map);
         // the result is incorrect, the `__type` field is not written
         assertEquals("{\"a\":{\"breed\":\"Golden Retriever\"},\"b\":{\"breed\":\"Devon Rex\"}}", result);
+    }
+
+    public void testSerializeAnimalMap() throws Exception {
+        AnimalMap map = new AnimalMap();
+        map.addAnimal("a", new Dog("Golden Retriever"));
+        map.addAnimal("b", new Cat("Devon Rex"));
+        String result = MAPPER.writeValueAsString(map);
+        assertEquals("{\"map\":{\"a\":{\"__type\":\"dog\",\"breed\":\"Golden Retriever\"},\"b\":{\"__type\":\"cat\",\"breed\":\"Devon Rex\"}}}",
+                result);
     }
 
 }

@@ -1704,11 +1704,18 @@ factory.toString()));
 
             // Need to consider @JsonValue if one found
             if (deser == null) {
-                deser = new EnumDeserializer(constructEnumResolver(enumClass,
-                        config, beanDesc.findJsonValueAccessor()),
+                Class<?> mixInClass = config.findMixInClassFor(enumClass);
+                if (mixInClass == null) {
+                    deser = new EnumDeserializer(
+                        constructEnumResolver(enumClass, config, beanDesc.findJsonValueAccessor()),
                         config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS),
-                        constructEnumNamingStrategyResolver(config, enumClass, beanDesc.getClassInfo())
-                );
+                        constructEnumNamingStrategyResolver(config, enumClass, beanDesc.getClassInfo()));
+                } else {
+                    deser = new EnumDeserializer(
+                        EnumResolver.constructForMixin(config, enumClass, mixInClass),
+                        config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS),
+                        null);
+                }
             }
         }
 

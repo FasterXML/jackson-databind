@@ -257,13 +257,22 @@ public class EnumResolver implements java.io.Serializable
     }
 
 
+    /**
+     * Factory method to allow mix-ins for Enum classes. Its implementation regarding overrides
+     * of property names and alias SHOULD work just like POJOs.
+     *
+     * @since 2.15
+     */
     public static EnumResolver constructForMixin(DeserializationConfig config,
                                                  Class<?> enumCls, Class<?> mixInCls) {
         return _constructForMixIn(enumCls, mixInCls, config.getAnnotationIntrospector(),
             config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS));
     }
 
-    private static EnumResolver _constructForMixIn(Class<?> enumCls0, Class<?> mixInCls0, AnnotationIntrospector ai, boolean isIgnoreCase) {
+    /**
+     * @since 2.15
+     */
+    protected static EnumResolver _constructForMixIn(Class<?> enumCls0, Class<?> mixInCls0, AnnotationIntrospector ai, boolean isIgnoreCase) {
         final Class<Enum<?>> enumCls = _enumClass(enumCls0);
         final Enum<?>[] enumConstants = _enumConstants(enumCls0);
         String[] names = ai.findEnumValues(enumCls, enumConstants, new String[enumConstants.length]);

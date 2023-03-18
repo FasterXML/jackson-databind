@@ -41,6 +41,10 @@ public class EnumDeserMixin2787Test extends BaseMapTest {
         }
     }
 
+    static class EnumWrapper {
+        public Enum2787 value;
+    }
+
     /*
     /**********************************************************************
     /* Test methods
@@ -61,14 +65,14 @@ public class EnumDeserMixin2787Test extends BaseMapTest {
         ObjectMapper mapper = MAPPER.addMixIn(Enum2787.class, EnumMixin2787.class)
             .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
 
-        Enum2787 result = mapper.readValue(q("MiXiN-tAx10"), Enum2787.class);
+        Enum2787 result = mapper.readValue(q("B_mIxIn_pRoP"), Enum2787.class);
         assertEquals(Enum2787.ITEM_B, result);
     }
 
     public void testEnumDeserSuccessMissingFromMixIn() throws Exception {
         ObjectMapper mapper = MAPPER.addMixIn(Enum2787.class, EnumMixin2787.class);
 
-        Enum2787 result = mapper.readValue(q("taxOrig"), Enum2787.class);
+        Enum2787 result = mapper.readValue(q("ITEM_ORIGIN"), Enum2787.class);
 
         assertEquals(Enum2787.ITEM_ORIGIN, result);
     }
@@ -96,7 +100,7 @@ public class EnumDeserMixin2787Test extends BaseMapTest {
     public void testMixInItselfNonJsonProperty() throws Exception {
         ObjectMapper mapper = MAPPER.addMixIn(Enum2787.class, EnumMixin2787.class);
 
-        EnumMixin2787 result = mapper.readValue(q("tax30"), EnumMixin2787.class);
+        EnumMixin2787 result = mapper.readValue(q("ITEM_MIXIN"), EnumMixin2787.class);
 
         assertEquals(EnumMixin2787.ITEM_MIXIN, result);
     }

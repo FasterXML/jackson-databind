@@ -316,7 +316,7 @@ public class EnumResolver implements java.io.Serializable
     }
 
     /**
-     * @return Map with key as {@link Enum#name()} of mixin Enum class and value as property name.
+     * @return Map with key as {@link Enum#name()} of mixin Enum class and value as alias.
      *
      * @since 2.15
      */

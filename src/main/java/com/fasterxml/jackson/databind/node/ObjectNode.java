@@ -283,6 +283,17 @@ public class ObjectNode
         return _children.entrySet().iterator();
     }
 
+    /**
+     * Method to use for accessing all properties (with both names
+     * and values) of this JSON Object.
+     *
+     * @since 2.15
+     */
+    @Override
+    public Set<Map.Entry<String, JsonNode>> properties() {
+        return _children.entrySet();
+    }
+    
     @Override
     public boolean equals(Comparator<JsonNode> comparator, JsonNode o)
     {

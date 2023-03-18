@@ -61,6 +61,8 @@ Project: jackson-databind
  (reported by Christoph S)
 #3796: Enum Deserialisation Failing with Polymorphic type validator
  (reported by @sagarika4)
+#3809: Add Stream-friendly alternative to `ObjectNode.fields()`:
+  `Set<Map.Entry<String, JsonNode>> properties()`
 #3816: TokenBuffer does not implement writeString(Reader reader, int len)
  (reported by Patrick S)
 #3819: Add convenience method `SimpleBeanPropertyFilter.filterOutAll()` as

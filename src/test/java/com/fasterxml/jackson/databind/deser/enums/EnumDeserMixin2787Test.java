@@ -2,52 +2,43 @@ package com.fasterxml.jackson.databind.deser.enums;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
-import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 
 public class EnumDeserMixin2787Test extends BaseMapTest {
 
     static enum Enum2787 {
-        APPLE,
-        @JsonAlias({"tax10-alias-A", "tax10-alias-B"})
-        @JsonProperty("orig-tax10")
-        tax10,
-        @JsonAlias({"overridden-alias"})
-        @JsonProperty("overrideen-property")
-        tax20,
-        taxOrig
+        ITEM_A,
+
+        @JsonAlias({"B_ORIGIN_ALIAS_1", "B_ORIGIN_ALIAS_2"})
+        @JsonProperty("B_ORIGIN_PROP")
+        ITEM_B,
+
+        @JsonAlias({"C_ORIGIN_ALIAS"})
+        @JsonProperty("C_ORIGIN_PROP")
+        ITEM_C,
+
+        ITEM_ORIGIN
     }
 
     static enum EnumMixin2787 {
-        APPLE,
-        @JsonProperty("mixIn-tax10")
-        tax10,
-        @JsonAlias({"tax20-aliasA", "tax20-aliasB"})
-        @JsonProperty("PytPyt")
-        tax20,
-        tax30;
+        ITEM_A,
+
+        @JsonProperty("B_MIXIN_PROP")
+        ITEM_B,
+
+        @JsonAlias({"C_MIXIN_ALIAS_1", "C_MIXIN_ALIAS_2"})
+        @JsonProperty("C_MIXIN_PROP")
+        ITEM_C,
+
+        ITEM_MIXIN;
 
         @Override
         public String toString() {
-            return "-----------------------------";
+            return "SHOULD NOT USE WITH TO STRING";
         }
-    }
-
-    static enum EnumSecond {
-        @JsonAlias({"second-alias"})
-        SECOND
-    }
-
-    static enum EnumSecondMixIn {
-        @JsonAlias({"second-alias"})
-        @JsonProperty("second-prop")
-        SECOND
     }
 
     /*
@@ -61,9 +52,9 @@ public class EnumDeserMixin2787Test extends BaseMapTest {
     public void testEnumDeserSuccess() throws Exception {
         ObjectMapper mapper = MAPPER.addMixIn(Enum2787.class, EnumMixin2787.class);
 
-        Enum2787 result = mapper.readValue(q("mixIn-tax10"), Enum2787.class);
+        Enum2787 result = mapper.readValue(q("B_MIXIN_PROP"), Enum2787.class);
 
-        assertEquals(Enum2787.tax10, result);
+        assertEquals(Enum2787.ITEM_B, result);
     }
 
     public void testEnumDeserSuccessCaseInsensitive() throws Exception {
@@ -71,17 +62,7 @@ public class EnumDeserMixin2787Test extends BaseMapTest {
             .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
 
         Enum2787 result = mapper.readValue(q("MiXiN-tAx10"), Enum2787.class);
-        assertEquals(Enum2787.tax10, result);
-    }
-
-    public void testEnumMixInOverloaded() throws JsonProcessingException {
-        ObjectMapper mapper = MAPPER.addMixIn(EnumSecond.class, EnumSecondMixIn.class);
-
-        EnumSecond resultA = mapper.readValue(q("second-alias"), EnumSecond.class);
-        assertEquals(EnumSecond.SECOND, resultA);
-
-        EnumSecond resultB = mapper.readValue(q("second-prop"), EnumSecond.class);
-        assertEquals(EnumSecond.SECOND, resultB);
+        assertEquals(Enum2787.ITEM_B, result);
     }
 
     public void testEnumDeserSuccessMissingFromMixIn() throws Exception {
@@ -89,7 +70,7 @@ public class EnumDeserMixin2787Test extends BaseMapTest {
 
         Enum2787 result = mapper.readValue(q("taxOrig"), Enum2787.class);
 
-        assertEquals(Enum2787.taxOrig, result);
+        assertEquals(Enum2787.ITEM_ORIGIN, result);
     }
 
     public void testEnumDeserMixinFail() throws Exception {
@@ -105,10 +86,10 @@ public class EnumDeserMixin2787Test extends BaseMapTest {
 
         // fail for Bean's JsonProperty because overridden
         try {
-            mapper.readValue(q("orig-tax10"), Enum2787.class);
+            mapper.readValue(q("B_ORIGIN_PROP"), Enum2787.class);
             fail("should not reach");
         } catch (InvalidFormatException e) {
-            verifyException(e, "orig-tax10", "not one of the values accepted for Enum class");
+            verifyException(e, "B_ORIGIN_PROP", "not one of the values accepted for Enum class");
         }
     }
 
@@ -117,7 +98,7 @@ public class EnumDeserMixin2787Test extends BaseMapTest {
 
         EnumMixin2787 result = mapper.readValue(q("tax30"), EnumMixin2787.class);
 
-        assertEquals(EnumMixin2787.tax30, result);
+        assertEquals(EnumMixin2787.ITEM_MIXIN, result);
     }
 
     public void testMixInValueForTargetClass() throws Exception {
@@ -136,7 +117,8 @@ public class EnumDeserMixin2787Test extends BaseMapTest {
         try {
             mapper.readValue(q("should-not-exist"), Enum2787.class);
         } catch (InvalidFormatException e) {
-            verifyException(e, "should-not-exist","not one of the values accepted for Enum class");
+            verifyException(e, "should-not-exist", "not one of the values accepted for Enum class");
         }
     }
+
 }

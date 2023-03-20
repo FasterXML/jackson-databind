@@ -24,6 +24,7 @@ Project: jackson-databind
  (fix contributed by Joo-Hyuk K)
 #3180: Support `@JsonCreator` annotation on record classes
  (fix contributed by Sim Y-T)
+#3262: InvalidDefinitionException when calling mapper.createObjectNode().putPOJO
 #3297: `@JsonDeserialize(converter = ...)` does not work with Records
  (fix contributed by Sim Y-T)
 #3342: `JsonTypeInfo.As.EXTERNAL_PROPERTY` does not work with record wrappers

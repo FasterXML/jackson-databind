@@ -28,13 +28,12 @@ public class MixinsCircularTest extends BaseMapTest {
     /**********************************************************************
      */
 
-    protected final ObjectMapper MAPPER = jsonMapperBuilder().build();
-
     public void testPojoMixinDeserialization() throws Exception {
-        ObjectMapper mxMapper = MAPPER
+        ObjectMapper mxMapper = jsonMapperBuilder()
             .addMixIn(First.class, Second.class)
             .addMixIn(Second.class, Third.class)
-            .addMixIn(Third.class, First.class);
+            .addMixIn(Third.class, First.class)
+            .build();
 
         // first deserialized from second
         First first = mxMapper.readValue(a2q("{'second-mixin':'second-mixin'}"), First.class);
@@ -50,10 +49,11 @@ public class MixinsCircularTest extends BaseMapTest {
     }
 
     public void testPojoMixinSerialization() throws Exception {
-        ObjectMapper mxMapper = MAPPER
+        ObjectMapper mxMapper = jsonMapperBuilder()
             .addMixIn(First.class, Second.class)
             .addMixIn(Second.class, Third.class)
-            .addMixIn(Third.class, First.class);
+            .addMixIn(Third.class, First.class)
+            .build();
 
         // first serialized as second
         First firstBean = new First();

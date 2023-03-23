@@ -8,6 +8,8 @@ Project: jackson-databind
 
 #3784: `PrimitiveArrayDeserializers$ByteDeser.deserialize` ignores
   `DeserializationProblemHandler` for invalid Base64 content
+#3837: Set transformer factory attributes to improve protection against XXE
+ (contributed by @pjfanning)
 
 2.14.2 (28-Jan-2023)
 

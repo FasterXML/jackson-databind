@@ -39,6 +39,7 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
 public abstract class AnnotationIntrospector
     implements Versioned, java.io.Serializable
 {
+
     /*
     /**********************************************************************
     /* Helper types
@@ -1090,6 +1091,13 @@ public abstract class AnnotationIntrospector
     }
 
     /**
+     * @since 2.15
+     */
+    public String[] findEnumValues(Class<?> enumType, Enum<?>[] enumValues, String[] names, AnnotatedClass annotatedClass){
+        return names;
+    }
+
+    /**
      * Method that is related to {@link #findEnumValues} but is called to check if
      * there are alternative names (aliased) that can be accepted for entries, in
      * addition to primary names introspected earlier.
@@ -1107,6 +1115,13 @@ public abstract class AnnotationIntrospector
         ;
     }
 
+
+    /**
+     * @since 2.15
+     */
+    public void findEnumAliases(Class<Enum<?>> enumCls, Enum<?>[] enumConstants, String[][] allAliases, AnnotatedClass annotatedClass) {
+        ;
+    }
     /**
      * Finds the Enum value that should be considered the default value, if possible.
      *

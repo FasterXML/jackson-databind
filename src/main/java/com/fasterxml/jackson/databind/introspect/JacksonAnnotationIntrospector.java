@@ -240,6 +240,44 @@ public class JacksonAnnotationIntrospector
         return names;
     }
 
+    @Override // since 2.15
+    public String[] findEnumValues(Class<?> enumType, Enum<?>[] enumValues, String[] names, AnnotatedClass annotatedClass) {
+        HashMap<String, String> enumToPropertyMap = new HashMap<>();
+        for (AnnotatedField field : annotatedClass._fields) {
+            JsonProperty property = field.getAnnotation(JsonProperty.class);
+            if (property != null) {
+                enumToPropertyMap.put(field.getName(), property.value());
+            }
+        }
+
+        HashMap<String,String> expl = null;
+        for (Field f : enumType.getDeclaredFields()) {
+            if (!f.isEnumConstant()) {
+                continue;
+            }
+
+            String n = enumToPropertyMap.get(f.getName());
+            if (n == null || n.isEmpty()) {
+                continue;
+            }
+            if (expl == null) {
+                expl = new HashMap<String,String>();
+            }
+            expl.put(f.getName(), n);
+        }
+        // and then stitch them together if and as necessary
+        if (expl != null) {
+            for (int i = 0, end = enumValues.length; i < end; ++i) {
+                String defName = enumValues[i].name();
+                String explValue = expl.get(defName);
+                if (explValue != null) {
+                    names[i] = explValue;
+                }
+            }
+        }
+        return names;
+    }
+
     @Override // since 2.11
     public void findEnumAliases(Class<?> enumType, Enum<?>[] enumValues, String[][] aliasList)
     {
@@ -261,6 +299,23 @@ public class JacksonAnnotationIntrospector
                     }
                 }
             }
+        }
+    }
+
+    @Override // 2.15
+    public void findEnumAliases(Class<Enum<?>> enumType, Enum<?>[] enumValues, String[][] aliasList, AnnotatedClass annotatedClass)
+    {
+        HashMap<String, String[]> enumToAliasMap = new HashMap<>();
+        for (AnnotatedField field : annotatedClass._fields) {
+            JsonAlias alias = field.getAnnotation(JsonAlias.class);
+            if (alias != null) {
+                enumToAliasMap.putIfAbsent(field.getName(), alias.value());
+            }
+        }
+
+        for (int i = 0, end = enumValues.length; i < end; ++i) {
+            Enum<?> enumValue = enumValues[i];
+            aliasList[i] = enumToAliasMap.getOrDefault(enumValue.name(), new String[]{});
         }
     }
 

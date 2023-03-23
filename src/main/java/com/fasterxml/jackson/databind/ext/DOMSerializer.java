@@ -28,6 +28,7 @@ public class DOMSerializer extends StdSerializer<Node>
         try {
             transformerFactory = TransformerFactory.newInstance();
             transformerFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+	    // 22-Mar-2023, tatu: [databind#3837] add these 2 settings further
             setTransformerFactoryAttribute(transformerFactory, XMLConstants.ACCESS_EXTERNAL_DTD, "");
             setTransformerFactoryAttribute(transformerFactory, XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
         } catch (Exception e) {

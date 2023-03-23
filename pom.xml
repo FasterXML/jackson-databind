@@ -51,7 +51,7 @@
 
       -->
     <version.android.sdk>26</version.android.sdk>
-    <version.android.sdk.signature>0.5.0</version.android.sdk.signature>
+    <version.android.sdk.signature>0.5.1</version.android.sdk.signature>
 
     <!-- Can not use default, since group id != Java package name here -->
     <osgi.export>com.fasterxml.jackson.databind.*;version=${project.version}</osgi.export>

@@ -1706,8 +1706,7 @@ factory.toString()));
             if (deser == null) {
                 deser = new EnumDeserializer(constructEnumResolver(enumClass, config, beanDesc),
                         config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS),
-                        constructEnumNamingStrategyResolver(config, enumClass, beanDesc.getClassInfo())
-                );
+                        constructEnumNamingStrategyResolver(config, enumClass, beanDesc.getClassInfo()));
             }
         }
 

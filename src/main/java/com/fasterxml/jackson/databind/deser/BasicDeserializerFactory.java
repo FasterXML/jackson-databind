@@ -1704,18 +1704,10 @@ factory.toString()));
 
             // Need to consider @JsonValue if one found
             if (deser == null) {
-                Class<?> mixInClass = config.findMixInClassFor(enumClass);
-                if (mixInClass == null) {
-                    deser = new EnumDeserializer(
-                        constructEnumResolver(enumClass, config, beanDesc.findJsonValueAccessor()),
+                deser = new EnumDeserializer(constructEnumResolver(enumClass, config, beanDesc),
                         config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS),
-                        constructEnumNamingStrategyResolver(config, enumClass, beanDesc.getClassInfo()));
-                } else {
-                    deser = new EnumDeserializer(
-                        EnumResolver.constructForMixin(config, enumClass, mixInClass),
-                        config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS),
-                        null);
-                }
+                        constructEnumNamingStrategyResolver(config, enumClass, beanDesc.getClassInfo())
+                );
             }
         }
 
@@ -1921,7 +1913,7 @@ factory.toString()));
                 return StdKeyDeserializers.constructDelegatingKeyDeserializer(config, type, valueDesForKey);
             }
         }
-        EnumResolver enumRes = constructEnumResolver(enumClass, config, beanDesc.findJsonValueAccessor());
+        EnumResolver enumRes = constructEnumResolver(enumClass, config, beanDesc);
         EnumResolver byEnumNamingResolver = constructEnumNamingStrategyResolver(config, enumClass, beanDesc.getClassInfo());
 
         // May have @JsonCreator for static factory method
@@ -2419,8 +2411,9 @@ factory.toString()));
     }
 
     protected EnumResolver constructEnumResolver(Class<?> enumClass,
-            DeserializationConfig config, AnnotatedMember jsonValueAccessor)
+            DeserializationConfig config, BeanDescription beanDesc)
     {
+        AnnotatedMember jsonValueAccessor = beanDesc.findJsonValueAccessor();
         if (jsonValueAccessor != null) {
             if (config.canOverrideAccessModifiers()) {
                 ClassUtil.checkAndFixAccess(jsonValueAccessor.getMember(),
@@ -2428,9 +2421,7 @@ factory.toString()));
             }
             return EnumResolver.constructUsingMethod(config, enumClass, jsonValueAccessor);
         }
-        // 14-Mar-2016, tatu: We used to check `DeserializationFeature.READ_ENUMS_USING_TO_STRING`
-        //   here, but that won't do: it must be dynamically changeable...
-        return EnumResolver.constructFor(config, enumClass);
+        return EnumResolver.constructFor(config, enumClass, beanDesc.getClassInfo());
     }
 
     /**

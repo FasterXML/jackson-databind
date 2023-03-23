@@ -240,23 +240,22 @@ public class JacksonAnnotationIntrospector
         return names;
     }
 
-    @Override
-    public String[] findEnumValues(MapperConfig<?> config, Enum<?>[] enumValues, String[] names,
-                                   AnnotatedClass annotatedClass) {
-        // First collect all JsonProperty.value()
+    @Override // since 2.15
+    public String[] findEnumValues(Class<?> enumType, Enum<?>[] enumValues, String[] names, AnnotatedClass annotatedClass) {
         HashMap<String, String> enumToPropertyMap = new HashMap<>();
-        for (AnnotatedField field : annotatedClass.fields()) {
+        for (AnnotatedField field : annotatedClass._fields) {
             JsonProperty property = field.getAnnotation(JsonProperty.class);
             if (property != null) {
                 enumToPropertyMap.put(field.getName(), property.value());
             }
         }
-        final Class<?> enumType = annotatedClass.getRawType();
+
         HashMap<String,String> expl = null;
         for (Field f : enumType.getDeclaredFields()) {
             if (!f.isEnumConstant()) {
                 continue;
             }
+
             String n = enumToPropertyMap.get(f.getName());
             if (n == null || n.isEmpty()) {
                 continue;
@@ -303,11 +302,11 @@ public class JacksonAnnotationIntrospector
         }
     }
 
-    @Override
-    public void findEnumAliases(MapperConfig<?> config, Enum<?>[] enumValues, String[][] aliasList, AnnotatedClass annotatedClass)
+    @Override // 2.15
+    public void findEnumAliases(Class<Enum<?>> enumType, Enum<?>[] enumValues, String[][] aliasList, AnnotatedClass annotatedClass)
     {
         HashMap<String, String[]> enumToAliasMap = new HashMap<>();
-        for (AnnotatedField field : annotatedClass.fields()) {
+        for (AnnotatedField field : annotatedClass._fields) {
             JsonAlias alias = field.getAnnotation(JsonAlias.class);
             if (alias != null) {
                 enumToAliasMap.putIfAbsent(field.getName(), alias.value());
@@ -1023,6 +1022,24 @@ public class JacksonAnnotationIntrospector
         return type;
     }
 
+    @Override
+    @Deprecated // since 2.7
+    public Class<?> findSerializationType(Annotated am) {
+        return null;
+    }
+
+    @Override
+    @Deprecated // since 2.7
+    public Class<?> findSerializationKeyType(Annotated am, JavaType baseType) {
+        return null;
+    }
+
+    @Override
+    @Deprecated // since 2.7
+    public Class<?> findSerializationContentType(Annotated am, JavaType baseType) {
+        return null;
+    }
+
     /*
     /**********************************************************
     /* Serialization: class annotations
@@ -1339,6 +1356,24 @@ public class JacksonAnnotationIntrospector
             }
         }
         return type;
+    }
+
+    @Override
+    @Deprecated // since 2.7
+    public Class<?> findDeserializationContentType(Annotated am, JavaType baseContentType) {
+        return null;
+    }
+
+    @Override
+    @Deprecated // since 2.7
+    public Class<?> findDeserializationType(Annotated am, JavaType baseType) {
+        return null;
+    }
+
+    @Override
+    @Deprecated // since 2.7
+    public Class<?> findDeserializationKeyType(Annotated am, JavaType baseKeyType) {
+        return null;
     }
 
     /*

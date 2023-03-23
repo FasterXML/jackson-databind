@@ -1031,10 +1031,6 @@ candidate.creator());
                     return true;
                 }
             }
-            // [databind#3897]: Record canonical constructor will have implicitly named propDef
-            if (!propDef.isExplicitlyNamed() && beanDesc.isRecordType()) {
-                return true;
-            }
         }
         // in absence of everything else, default to delegating
         return false;
@@ -2417,15 +2413,15 @@ factory.toString()));
     protected EnumResolver constructEnumResolver(Class<?> enumClass,
             DeserializationConfig config, BeanDescription beanDesc)
     {
-        AnnotatedMember jvAcc = beanDesc.findJsonValueAccessor();
-        if (jvAcc != null) {
+        AnnotatedMember jsonValueAccessor = beanDesc.findJsonValueAccessor();
+        if (jsonValueAccessor != null) {
             if (config.canOverrideAccessModifiers()) {
-                ClassUtil.checkAndFixAccess(jvAcc.getMember(),
+                ClassUtil.checkAndFixAccess(jsonValueAccessor.getMember(),
                         config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
             }
-            return EnumResolver.constructUsingMethod(config, enumClass, jvAcc);
+            return EnumResolver.constructUsingMethod(config, enumClass, jsonValueAccessor);
         }
-        return EnumResolver.constructFor(config, beanDesc.getClassInfo());
+        return EnumResolver.constructFor(config, enumClass, beanDesc.getClassInfo());
     }
 
     /**

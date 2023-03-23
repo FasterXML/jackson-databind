@@ -9,6 +9,31 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
 public class EnumDeserMixin2787Test extends BaseMapTest {
 
+    static class Bean2787 {
+        public String x;
+    }
+
+    static class BeanMixin2787 {
+        @JsonProperty("x_mixin")
+        public String x;
+    }
+
+    public void testEnumDeserSuccess() throws Exception {
+        ObjectMapper mapper = MAPPER.addMixIn(Enum2787.class, EnumMixin2787.class);
+
+        Enum2787 result = mapper.readValue(q("B_MIXIN_PROP"), Enum2787.class);
+
+        assertEquals(Enum2787.ITEM_B, result);
+    }
+
+    public void testBeanMixin() throws Exception {
+        ObjectMapper mapper = MAPPER.addMixIn(Bean2787.class, BeanMixin2787.class);
+
+        Bean2787 result = mapper.readValue(a2q("{'x_mixin': 'value'}"), Bean2787.class);
+
+        assertEquals("value", result.x);
+    }
+
     static enum Enum2787 {
         ITEM_A,
 
@@ -45,16 +70,6 @@ public class EnumDeserMixin2787Test extends BaseMapTest {
         public Enum2787 value;
     }
 
-
-    static class Bean2787 {
-        public String x;
-    }
-
-    static class BeanMixin2787 {
-        @JsonProperty("x_mixin")
-        public String x;
-    }
-
     /*
     /**********************************************************************
     /* Test methods
@@ -62,22 +77,6 @@ public class EnumDeserMixin2787Test extends BaseMapTest {
      */
 
     protected final ObjectMapper MAPPER = jsonMapperBuilder().build();
-
-    public void testEnumDeserSuccess() throws Exception {
-        ObjectMapper mapper = MAPPER.addMixIn(Enum2787.class, EnumMixin2787.class);
-
-        Enum2787 result = mapper.readValue(q("B_MIXIN_PROP"), Enum2787.class);
-
-        assertEquals(Enum2787.ITEM_B, result);
-    }
-
-    public void testBeanMixin() throws Exception {
-        ObjectMapper mapper = MAPPER.addMixIn(Bean2787.class, BeanMixin2787.class);
-
-        Bean2787 result = mapper.readValue(a2q("{'x_mixin': 'value'}"), Bean2787.class);
-
-        assertEquals("value", result.x);
-    }
 
     public void testEnumDeserSuccessCaseInsensitive() throws Exception {
         ObjectMapper mapper = MAPPER.addMixIn(Enum2787.class, EnumMixin2787.class)
@@ -143,7 +142,7 @@ public class EnumDeserMixin2787Test extends BaseMapTest {
         }
     }
 
-    public void testMixinForWrapper() throws Exception {
+    public void testMixinForWrapper() throws Exception{
         ObjectMapper mapper = MAPPER.addMixIn(Enum2787.class, EnumMixin2787.class);
 
         EnumWrapper result = mapper.readValue(a2q("{'value': 'C_MIXIN_ALIAS_1'}"), EnumWrapper.class);

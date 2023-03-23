@@ -39,6 +39,7 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
 public abstract class AnnotationIntrospector
     implements Versioned, java.io.Serializable
 {
+
     /*
     /**********************************************************************
     /* Helper types
@@ -59,7 +60,7 @@ public abstract class AnnotationIntrospector
              * Usually this can be defined by using
              * {@link com.fasterxml.jackson.annotation.JsonManagedReference}
              */
-            MANAGED_REFERENCE,
+            MANAGED_REFERENCE
 
             /**
              * Reference property that Jackson manages by suppressing it during serialization,
@@ -67,7 +68,7 @@ public abstract class AnnotationIntrospector
              * Usually this can be defined by using
              * {@link com.fasterxml.jackson.annotation.JsonBackReference}
              */
-            BACK_REFERENCE
+            ,BACK_REFERENCE
             ;
         }
 
@@ -932,6 +933,42 @@ public abstract class AnnotationIntrospector
         return JsonInclude.Value.empty();
     }
 
+    /**
+     * Method for checking whether given annotated entity (class, method,
+     * field) defines which Bean/Map properties are to be included in
+     * serialization.
+     * If no annotation is found, method should return given second
+     * argument; otherwise value indicated by the annotation.
+     *<p>
+     * Note that meaning of inclusion value depends on whether it is for
+     * a Class or property (field/method/constructor): in former case,
+     * it is the default for all properties; in latter case it is specific
+     * override for annotated property.
+     *
+     * @return Enumerated value indicating which properties to include
+     *   in serialization
+     *
+     * @deprecated Since 2.7 Use {@link #findPropertyInclusion} instead
+     */
+    @Deprecated // since 2.7
+    public JsonInclude.Include findSerializationInclusion(Annotated a, JsonInclude.Include defValue) {
+        return defValue;
+    }
+
+    /**
+     * Method for checking whether content (entries) of a {@link java.util.Map} property
+     * are to be included during serialization or not.
+     * NOTE: this is NOT called for POJO properties, or array/Collection elements.
+     *
+     * @since 2.5
+     *
+     * @deprecated Since 2.7 Use {@link #findPropertyInclusion} instead
+     */
+    @Deprecated // since 2.7
+    public JsonInclude.Include findSerializationInclusionForContent(Annotated a, JsonInclude.Include defValue) {
+        return defValue;
+    }
+
     /*
     /**********************************************************
     /* Serialization: type refinements
@@ -949,6 +986,30 @@ public abstract class AnnotationIntrospector
             final Annotated a, final JavaType baseType) throws JsonMappingException
     {
         return baseType;
+    }
+
+    /**
+     * @deprecated Since 2.7 call {@link #refineSerializationType} instead
+     */
+    @Deprecated // since 2.7
+    public Class<?> findSerializationType(Annotated a) {
+        return null;
+    }
+
+    /**
+     * @deprecated Since 2.7 call {@link #refineSerializationType} instead
+     */
+    @Deprecated // since 2.7
+    public Class<?> findSerializationKeyType(Annotated am, JavaType baseType) {
+        return null;
+    }
+
+    /**
+     * @deprecated Since 2.7 call {@link #refineSerializationType} instead
+     */
+    @Deprecated // since 2.7
+    public Class<?> findSerializationContentType(Annotated am, JavaType baseType) {
+        return null;
     }
 
     /*
@@ -1090,22 +1151,9 @@ public abstract class AnnotationIntrospector
     }
 
     /**
-     * Finds the explicitly defined name of the given set of {@code Enum} values, if any.
-     * The method overwrites entries in the incoming {@code names} array with the explicit
-     * names found, if any, leaving other entries unmodified.
-     *
-     * @param config the mapper configuration to use
-     * @param enumValues the set of {@code Enum} values to find the explicit names for
-     * @param names the matching declared names of enumeration values (with indexes matching
-     *              {@code enumValues} entries)
-     * @param annotatedClass the annotated class for which to find the explicit names
-     *
-     * @return an array of names to use (possibly {@code names} passed as argument)
-     *
-     * @since 2.16
+     * @since 2.15
      */
-    public String[] findEnumValues(MapperConfig<?> config, Enum<?>[] enumValues, String[] names,
-                                   AnnotatedClass annotatedClass){
+    public String[] findEnumValues(Class<?> enumType, Enum<?>[] enumValues, String[] names, AnnotatedClass annotatedClass){
         return names;
     }
 
@@ -1129,22 +1177,10 @@ public abstract class AnnotationIntrospector
 
 
     /**
-     * Method that is called to check if there are alternative names (aliases) that can be accepted for entries
-     * in addition to primary names that were introspected earlier, related to {@link #findEnumValues}.
-     * These aliases should be returned in {@code String[][] aliases} passed in as argument. 
-     * The {@code aliases.length} is expected to match the number of {@code Enum} values.
-     *
-     * @param config The configuration of the mapper
-     * @param enumValues The values of the enumeration
-     * @param aliases (in/out) Pre-allocated array where aliases found, if any, may be added (in indexes
-     *     matching those of {@code enumValues})
-     * @param annotatedClass The annotated class of the enumeration type
-     *
-     * @since 2.16
+     * @since 2.15
      */
-    public void findEnumAliases(MapperConfig<?> config, Enum<?>[] enumValues, String[][] aliases,
-                                AnnotatedClass annotatedClass) {
-        return;
+    public void findEnumAliases(Class<Enum<?>> enumCls, Enum<?>[] enumConstants, String[][] allAliases, AnnotatedClass annotatedClass) {
+        ;
     }
     /**
      * Finds the Enum value that should be considered the default value, if possible.
@@ -1304,6 +1340,62 @@ public abstract class AnnotationIntrospector
             final Annotated a, final JavaType baseType) throws JsonMappingException
     {
         return baseType;
+    }
+
+    /**
+     * Method for accessing annotated type definition that a
+     * property can have, to be used as the type for deserialization
+     * instead of the static (declared) type.
+     * Type is usually narrowing conversion (i.e.subtype of declared type).
+     * Declared return type of the method is also considered acceptable.
+     *
+     * @param ann Annotated entity to introspect
+     * @param baseType Assumed type before considering annotations
+     *
+     * @return Class to use for deserialization instead of declared type
+     *
+     * @deprecated Since 2.7 call {@link #refineDeserializationType} instead
+     */
+    @Deprecated
+    public Class<?> findDeserializationType(Annotated ann, JavaType baseType) {
+        return null;
+    }
+
+    /**
+     * Method for accessing additional narrowing type definition that a
+     * method can have, to define more specific key type to use.
+     * It should be only be used with {@link java.util.Map} types.
+     *
+     * @param ann Annotated entity to introspect
+     * @param baseKeyType Assumed key type before considering annotations
+     *
+     * @return Class specifying more specific type to use instead of
+     *   declared type, if annotation found; null if not
+     *
+     * @deprecated Since 2.7 call {@link #refineDeserializationType} instead
+     */
+    @Deprecated
+    public Class<?> findDeserializationKeyType(Annotated ann, JavaType baseKeyType) {
+        return null;
+    }
+
+    /**
+     * Method for accessing additional narrowing type definition that a
+     * method can have, to define more specific content type to use;
+     * content refers to Map values and Collection/array elements.
+     * It should be only be used with Map, Collection and array types.
+     *
+     * @param ann Annotated entity to introspect
+     * @param baseContentType Assumed content (value) type before considering annotations
+     *
+     * @return Class specifying more specific type to use instead of
+     *   declared type, if annotation found; null if not
+     *
+     * @deprecated Since 2.7 call {@link #refineDeserializationType} instead
+     */
+    @Deprecated
+    public Class<?> findDeserializationContentType(Annotated ann, JavaType baseContentType) {
+        return null;
     }
 
     /*

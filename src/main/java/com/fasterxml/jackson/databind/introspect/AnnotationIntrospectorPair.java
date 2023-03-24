@@ -613,10 +613,25 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
+    public String[] findEnumValues(MapperConfig<?> config, Class<?> enumType, Enum<?>[] enumValues,
+                                   String[] names, AnnotatedClass annotatedClass) {
+        names = _secondary.findEnumValues(config, enumType, enumValues, names, annotatedClass);
+        names = _primary.findEnumValues(config, enumType, enumValues, names, annotatedClass);
+        return names;
+    }
+
+    @Override
     public void findEnumAliases(Class<?> enumType, Enum<?>[] enumValues, String[][] aliases) {
         // reverse order to give _primary higher precedence
         _secondary.findEnumAliases(enumType, enumValues, aliases);
         _primary.findEnumAliases(enumType, enumValues, aliases);
+    }
+
+    @Override
+    public void findEnumAliases(MapperConfig<?> config, Class<Enum<?>> enumCls, Enum<?>[] enumConstants,
+                                String[][] allAliases, AnnotatedClass annotatedClass) {
+        _secondary.findEnumAliases(config, enumCls, enumConstants, allAliases, annotatedClass);
+        _primary.findEnumAliases(config, enumCls, enumConstants, allAliases, annotatedClass);
     }
 
     @Override

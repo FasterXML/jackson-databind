@@ -1093,7 +1093,8 @@ public abstract class AnnotationIntrospector
     /**
      * @since 2.15
      */
-    public String[] findEnumValues(Class<?> enumType, Enum<?>[] enumValues, String[] names, AnnotatedClass annotatedClass){
+    public String[] findEnumValues(MapperConfig<?> config, Class<?> enumType, Enum<?>[] enumValues,
+                                   String[] names, AnnotatedClass annotatedClass){
         return names;
     }
 
@@ -1119,7 +1120,8 @@ public abstract class AnnotationIntrospector
     /**
      * @since 2.15
      */
-    public void findEnumAliases(Class<Enum<?>> enumCls, Enum<?>[] enumConstants, String[][] allAliases, AnnotatedClass annotatedClass) {
+    public void findEnumAliases(MapperConfig<?> config, Class<Enum<?>> enumCls, Enum<?>[] enumConstants,
+                                String[][] allAliases, AnnotatedClass annotatedClass) {
         ;
     }
     /**

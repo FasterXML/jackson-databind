@@ -88,6 +88,7 @@ public class EnumResolver implements java.io.Serializable
         return _constructFor(config, enumCls0, annotatedClass, config.getAnnotationIntrospector(),
             config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS));
     }
+
     /**
      * @since 2.15
      */
@@ -96,10 +97,10 @@ public class EnumResolver implements java.io.Serializable
     {
         final Class<Enum<?>> enumCls = _enumClass(enumCls0);
         final Enum<?>[] enumConstants = _enumConstants(enumCls0);
-        String[] names = ai.findEnumValues(enumCls, enumConstants, new String[enumConstants.length], annotatedClass);
+        String[] names = ai.findEnumValues(config, enumCls, enumConstants, new String[enumConstants.length], annotatedClass);
 
         final String[][] allAliases = new String[names.length][];
-        ai.findEnumAliases(enumCls, enumConstants, allAliases, annotatedClass);
+        ai.findEnumAliases(config, enumCls, enumConstants, allAliases, annotatedClass);
 
         HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();
         for (int i = 0, len = enumConstants.length; i < len; ++i) {

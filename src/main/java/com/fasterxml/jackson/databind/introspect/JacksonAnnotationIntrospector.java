@@ -241,9 +241,9 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override // since 2.15
-    public String[] findEnumValues(Class<?> enumType, Enum<?>[] enumValues, String[] names, AnnotatedClass annotatedClass) {
+    public String[] findEnumValues(MapperConfig<?> config, Class<?> enumType, Enum<?>[] enumValues, String[] names, AnnotatedClass annotatedClass) {
         HashMap<String, String> enumToPropertyMap = new HashMap<>();
-        for (AnnotatedField field : annotatedClass._fields) {
+        for (AnnotatedField field : annotatedClass.fields()) {
             JsonProperty property = field.getAnnotation(JsonProperty.class);
             if (property != null) {
                 enumToPropertyMap.put(field.getName(), property.value());
@@ -303,10 +303,10 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override // 2.15
-    public void findEnumAliases(Class<Enum<?>> enumType, Enum<?>[] enumValues, String[][] aliasList, AnnotatedClass annotatedClass)
+    public void findEnumAliases(MapperConfig<?> config, Class<Enum<?>> enumType, Enum<?>[] enumValues, String[][] aliasList, AnnotatedClass annotatedClass)
     {
         HashMap<String, String[]> enumToAliasMap = new HashMap<>();
-        for (AnnotatedField field : annotatedClass._fields) {
+        for (AnnotatedField field : annotatedClass.fields()) {
             JsonAlias alias = field.getAnnotation(JsonAlias.class);
             if (alias != null) {
                 enumToAliasMap.putIfAbsent(field.getName(), alias.value());

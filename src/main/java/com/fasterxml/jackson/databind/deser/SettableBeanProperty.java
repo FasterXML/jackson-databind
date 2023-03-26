@@ -197,6 +197,7 @@ public abstract class SettableBeanProperty
     protected SettableBeanProperty(SettableBeanProperty src)
     {
         super(src);
+        _objectIdInfo = null;
         _propName = src._propName;
         _type = src._type;
         _wrapperName = src._wrapperName;

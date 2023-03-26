@@ -249,6 +249,7 @@ public abstract class SerializerProvider
         _serializationView = null;
         _serializerFactory = null;
         _knownSerializers = null;
+        _dateFormat = null;
 
         // and others initialized to default empty state
         _serializerCache = new SerializerCache();

@@ -81,6 +81,12 @@ public class BeanSerializerBuilder
      * Copy-constructor that may be used for sub-classing
      */
     protected BeanSerializerBuilder(BeanSerializerBuilder src) {
+        // empty state
+        _config = null;
+        _typeId = null;
+        _objectIdWriter = null;
+
+        // copy fields
         _beanDesc = src._beanDesc;
         _properties = src._properties;
         _filteredProperties = src._filteredProperties;

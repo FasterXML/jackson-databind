@@ -254,6 +254,7 @@ public abstract class DeserializationContext
         _readCapabilities = src._readCapabilities;
         _view = src._view;
         _injectableValues = null;
+        _currentType = null;
     }
 
     /*

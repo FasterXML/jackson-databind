@@ -66,6 +66,7 @@ public abstract class DefaultDeserializationContext
      */
     protected DefaultDeserializationContext(DefaultDeserializationContext src) {
         super(src);
+        _objectIdResolvers = null;
     }
 
     /**

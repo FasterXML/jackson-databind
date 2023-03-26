@@ -208,7 +208,6 @@ public abstract class SettableBeanProperty
         _propertyIndex = src._propertyIndex;
         _viewMatcher = src._viewMatcher;
         _nullProvider = src._nullProvider;
-        _objectIdInfo = null;
     }
 
     /**

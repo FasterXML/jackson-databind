@@ -92,6 +92,11 @@ public class BeanSerializerBuilder
         _filteredProperties = src._filteredProperties;
         _anyGetter = src._anyGetter;
         _filterId = src._filterId;
+
+        // empty state
+        _config = null;
+        _typeId = null;
+        _objectIdWriter = null;
     }
 
     /**

@@ -155,7 +155,7 @@ public class EnumResolver implements java.io.Serializable
      * names into Enum value using an implementation of {@link EnumNamingStrategy}.
      *
      * The output {@link EnumResolver} should contain values that are symmetric to
-     * {@link EnumValues#constructUsingEnumNaming(MapperConfig, Class, EnumNamingStrategy)}.
+     * {@link EnumValues#constructUsingEnumNamingStrategy(MapperConfig, Class, EnumNamingStrategy)}.
      * @since 2.15
      */
     public static EnumResolver constructUsingEnumNamingStrategy(DeserializationConfig config,

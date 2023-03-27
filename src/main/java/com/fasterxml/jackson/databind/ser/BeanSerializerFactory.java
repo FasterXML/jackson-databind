@@ -646,10 +646,12 @@ ClassUtil.getTypeDescription(beanDesc.getType()), ClassUtil.name(propName)));
         JavaType type = beanDesc.getType();
         JsonFormat.Value format = ai.findFormat(beanDesc.getClassInfo());
 
+        // If type is enum, BUT serialized as an object...
         if (type.isEnumType() && format != null && format.getShape() == JsonFormat.Shape.OBJECT) {
             Iterator<BeanPropertyDefinition> it = properties.iterator();
             while (it.hasNext()) {
                 BeanPropertyDefinition property = it.next();
+                // Remove self(enum)
                 if (type.isTypeOrSubTypeOf(property.getRawPrimaryType())) {
                     it.remove();
                 }

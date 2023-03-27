@@ -82,10 +82,13 @@ public class BeanSerializerBuilder
      */
     protected BeanSerializerBuilder(BeanSerializerBuilder src) {
         _beanDesc = src._beanDesc;
+        _config = src._config;
         _properties = src._properties;
         _filteredProperties = src._filteredProperties;
         _anyGetter = src._anyGetter;
         _filterId = src._filterId;
+        _typeId = src._typeId;
+        _objectIdWriter = src._objectIdWriter;
     }
 
     /**

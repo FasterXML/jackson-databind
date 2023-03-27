@@ -28,6 +28,9 @@ public class DOMSerializer extends StdSerializer<Node>
         try {
             transformerFactory = TransformerFactory.newInstance();
             transformerFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+	    // 22-Mar-2023, tatu: [databind#3837] add these 2 settings further
+            setTransformerFactoryAttribute(transformerFactory, XMLConstants.ACCESS_EXTERNAL_DTD, "");
+            setTransformerFactoryAttribute(transformerFactory, XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
         } catch (Exception e) {
             throw new IllegalStateException("Could not instantiate `TransformerFactory`: "+e.getMessage(), e);
         }
@@ -64,5 +67,14 @@ public class DOMSerializer extends StdSerializer<Node>
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException {
         if (visitor != null) visitor.expectAnyFormat(typeHint);
+    }
+
+    private static void setTransformerFactoryAttribute(final TransformerFactory transformerFactory,
+                                                       final String name, final Object value) {
+        try {
+            transformerFactory.setAttribute(name, value);
+        } catch (Exception e) {
+            System.err.println("[DOMSerializer] Failed to set TransformerFactory attribute: " + name);
+        }
     }
 }

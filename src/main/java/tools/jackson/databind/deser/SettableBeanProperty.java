@@ -265,6 +265,7 @@ public abstract class SettableBeanProperty
         _managedReferenceName = src._managedReferenceName;
         _propertyIndex = src._propertyIndex;
         _viewMatcher = src._viewMatcher;
+        _objectIdInfo = src._objectIdInfo;
         _nullProvider = src._nullProvider;
     }
 

@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.node;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -32,13 +33,6 @@ public class ObjectNodeTest
 
         @JsonValue
         public JsonNode value() { return root; }
-
-        /*
-        public Wrapper(ObjectNode n) { root = n; }
-
-        @JsonValue
-        public ObjectNode value() { return root; }
-        */
     }
 
     static class ObNodeWrapper {
@@ -69,7 +63,7 @@ public class ObjectNodeTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = sharedMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     public void testSimpleObject() throws Exception
     {
@@ -509,12 +503,30 @@ public class ObjectNodeTest
 
     public void testSimpleMismatch() throws Exception
     {
-        ObjectMapper mapper = objectMapper();
         try {
-            mapper.readValue("[ 1, 2, 3 ]", ObjectNode.class);
+            MAPPER.readValue("[ 1, 2, 3 ]", ObjectNode.class);
             fail("Should not pass");
         } catch (MismatchedInputException e) {
             verifyException(e, "from Array value (token `JsonToken.START_ARRAY`)");
         }
+    }
+
+    // [databind#3809]
+    public void testPropertiesTraversal() throws Exception
+    {
+        // Nothing to traverse for other types
+        assertEquals("", _toString(MAPPER.createArrayNode()));
+        assertEquals("", _toString(MAPPER.getNodeFactory().textNode("foo")));
+
+        // But yes for ObjectNode:
+        JsonNode n = MAPPER.readTree(a2q(
+                "{ 'a':1, 'b':true,'c':'stuff'}"));
+        assertEquals("a/1,b/true,c/\"stuff\"", _toString(n));
+    }
+
+    private String _toString(JsonNode n) {
+        return n.properties().stream()
+                .map(e -> e.getKey() + "/" + e.getValue())
+                .collect(Collectors.joining(","));
     }
 }

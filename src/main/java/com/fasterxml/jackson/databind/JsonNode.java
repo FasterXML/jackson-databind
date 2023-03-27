@@ -1017,6 +1017,21 @@ public abstract class JsonNode
         return ClassUtil.emptyIterator();
     }
 
+    /**
+     * Accessor that will return properties of {@code ObjectNode}
+     * similar to how {@link Map#entrySet()} works; 
+     * for other node types will return empty {@link java.util.Set}.
+     *
+     * @return Set of properties, if this node is an {@code ObjectNode}
+     * ({@link JsonNode#isObject()} returns {@code true}); empty
+     * {@link java.util.Set} otherwise.
+     *
+     * @since 2.15
+     */
+    public Set<Map.Entry<String, JsonNode>> properties() {
+        return Collections.emptySet();
+    }
+
     /*
     /**********************************************************
     /* Public API, find methods

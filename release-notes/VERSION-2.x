@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.15.0 (not yet released)
+2.15.0-rc1 (18-Mar-2023)
 
 #2536: Add `EnumFeature.READ_ENUM_KEYS_USING_INDEX` to work with
    existing "WRITE_ENUM_KEYS_USING_INDEX"#
@@ -24,6 +24,7 @@ Project: jackson-databind
  (fix contributed by Joo-Hyuk K)
 #3180: Support `@JsonCreator` annotation on record classes
  (fix contributed by Sim Y-T)
+#3262: InvalidDefinitionException when calling mapper.createObjectNode().putPOJO
 #3297: `@JsonDeserialize(converter = ...)` does not work with Records
  (fix contributed by Sim Y-T)
 #3342: `JsonTypeInfo.As.EXTERNAL_PROPERTY` does not work with record wrappers
@@ -61,6 +62,8 @@ Project: jackson-databind
  (reported by Christoph S)
 #3796: Enum Deserialisation Failing with Polymorphic type validator
  (reported by @sagarika4)
+#3809: Add Stream-friendly alternative to `ObjectNode.fields()`:
+  `Set<Map.Entry<String, JsonNode>> properties()`
 #3816: TokenBuffer does not implement writeString(Reader reader, int len)
  (reported by Patrick S)
 #3819: Add convenience method `SimpleBeanPropertyFilter.filterOutAll()` as
@@ -71,6 +74,8 @@ Project: jackson-databind
 
 #3784: `PrimitiveArrayDeserializers$ByteDeser.deserialize` ignores
   `DeserializationProblemHandler` for invalid Base64 content
+#3837: Set transformer factory attributes to improve protection against XXE
+ (contributed by @pjfanning)
 
 2.14.2 (28-Jan-2023)
 

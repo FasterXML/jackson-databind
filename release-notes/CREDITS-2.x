@@ -1490,6 +1490,8 @@ PJ Fanning (pjfanning@github)
   (2.14.0)
   * Contributed #3530: Change LRUMap to just evict one entry when maxEntries reached
   (2.14.0)
+  * Contributed #3837: Set transformer factory attributes to improve protection against XXE
+  (2.14.3)
 
 Igor Shymko (ancane@github)
   * Contributed #3500: Add optional explicit `JsonSubTypes` repeated names check

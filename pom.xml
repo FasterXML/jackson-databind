@@ -9,11 +9,11 @@
   <parent>
     <groupId>com.fasterxml.jackson</groupId>
     <artifactId>jackson-base</artifactId>
-    <version>2.15.0-rc1-SNAPSHOT</version>
+    <version>2.15.0-rc2-SNAPSHOT</version>
   </parent>
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-databind</artifactId>
-  <version>2.15.0-rc1-SNAPSHOT</version>
+  <version>2.15.0-rc2-SNAPSHOT</version>
   <name>jackson-databind</name>
   <packaging>jar</packaging>
   <description>General data-binding functionality for Jackson: works on core streaming API</description>
@@ -51,7 +51,7 @@
 
       -->
     <version.android.sdk>26</version.android.sdk>
-    <version.android.sdk.signature>0.5.0</version.android.sdk.signature>
+    <version.android.sdk.signature>0.5.1</version.android.sdk.signature>
 
     <!-- Can not use default, since group id != Java package name here -->
     <osgi.export>com.fasterxml.jackson.databind.*;version=${project.version}</osgi.export>
@@ -68,7 +68,7 @@
     <version.powermock>2.0.9</version.powermock>
 
     <!-- for Reproducible Builds -->
-    <project.build.outputTimestamp>2022-11-27T00:00:00Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2023-03-18T20:36:56Z</project.build.outputTimestamp>
   </properties>
 
   <dependencies>

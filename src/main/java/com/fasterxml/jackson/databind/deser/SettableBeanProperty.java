@@ -206,6 +206,7 @@ public abstract class SettableBeanProperty
         _managedReferenceName = src._managedReferenceName;
         _propertyIndex = src._propertyIndex;
         _viewMatcher = src._viewMatcher;
+        _objectIdInfo = src._objectIdInfo;
         _nullProvider = src._nullProvider;
     }
 
@@ -231,6 +232,7 @@ public abstract class SettableBeanProperty
             _valueDeserializer = (JsonDeserializer<Object>) deser;
         }
         _viewMatcher = src._viewMatcher;
+        _objectIdInfo = src._objectIdInfo;
         // 29-Jan-2017, tatu: Bit messy, but for now has to do...
         if (nuller == MISSING_VALUE_DESERIALIZER) {
             nuller = _valueDeserializer;
@@ -253,6 +255,7 @@ public abstract class SettableBeanProperty
         _managedReferenceName = src._managedReferenceName;
         _propertyIndex = src._propertyIndex;
         _viewMatcher = src._viewMatcher;
+        _objectIdInfo = src._objectIdInfo;
         _nullProvider = src._nullProvider;
     }
 

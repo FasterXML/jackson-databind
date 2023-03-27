@@ -5,8 +5,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.BaseMapTest;
 
-import java.util.Arrays;
-
 /* [databind#3566]: `Enum` with `JsonFormat.Shape.OBJECT` fails to deserialize using `JsonCreator.Mode.DELEGATING` ONLY
  * when also has `JsonCreator.Mode.PROPERTIES` (while with Pojo does not).
  */
@@ -57,10 +55,12 @@ public class JsonCreatorModeForEnum3566 extends BaseMapTest {
 
         @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
         public static EnumA fromString(String type) {
-            return Arrays.stream(values())
-                .filter(aEnum -> aEnum.type.equals(type))
-                .findFirst()
-                .orElseThrow();
+            for (EnumA e : EnumA.values()) {
+                if(e.type.equals(type)) {
+                    return e;
+                }
+            }
+            throw new RuntimeException();
         }
 
         @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
@@ -86,10 +86,12 @@ public class JsonCreatorModeForEnum3566 extends BaseMapTest {
 
         @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
         public static EnumB fromString(String type) {
-            return Arrays.stream(values())
-                .filter(aEnum -> aEnum.type.equals(type))
-                .findFirst()
-                .orElseThrow();
+            for (EnumB e : EnumB.values()) {
+                if(e.type.equals(type)) {
+                    return e;
+                }
+            }
+            throw new RuntimeException();
         }
     }
 
@@ -110,10 +112,12 @@ public class JsonCreatorModeForEnum3566 extends BaseMapTest {
 
         @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
         public static EnumC create(@JsonProperty("type") String type) {
-            return Arrays.stream(values())
-                .filter(aEnum -> aEnum.type.equals(type))
-                .findFirst()
-                .orElseThrow();
+            for (EnumC e : EnumC.values()) {
+                if(e.type.equals(type)) {
+                    return e;
+                }
+            }
+            throw new RuntimeException();
         }
     }
 

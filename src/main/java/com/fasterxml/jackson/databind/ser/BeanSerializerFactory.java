@@ -2,10 +2,7 @@ package com.fasterxml.jackson.databind.ser;
 
 import java.util.*;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonIncludeProperties;
-import com.fasterxml.jackson.annotation.ObjectIdGenerator;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.TokenStreamFactory;
@@ -601,6 +598,7 @@ ClassUtil.getTypeDescription(beanDesc.getType()), ClassUtil.name(propName)));
 
         // ignore specified types
         removeIgnorableTypes(config, beanDesc, properties);
+        removeEnumsWithObjectShape(config, beanDesc, properties);
 
         // and possibly remove ones without matching mutator...
         if (config.isEnabled(MapperFeature.REQUIRE_SETTERS_FOR_GETTERS)) {
@@ -616,6 +614,7 @@ ClassUtil.getTypeDescription(beanDesc.getType()), ClassUtil.name(propName)));
         PropertyBuilder pb = constructPropertyBuilder(config, beanDesc);
 
         ArrayList<BeanPropertyWriter> result = new ArrayList<BeanPropertyWriter>(properties.size());
+        // We do not want to include enums as self vlues in the first place.
         for (BeanPropertyDefinition property : properties) {
             final AnnotatedMember accessor = property.getAccessor();
             // Type id? Requires special handling:
@@ -637,6 +636,25 @@ ClassUtil.getTypeDescription(beanDesc.getType()), ClassUtil.name(propName)));
             }
         }
         return result;
+    }
+
+    /**
+     * @since 2.15
+     */
+    protected void removeEnumsWithObjectShape(SerializationConfig config, BeanDescription beanDesc, List<BeanPropertyDefinition> properties) {
+        AnnotationIntrospector ai = config.getAnnotationIntrospector();
+        JavaType type = beanDesc.getType();
+        JsonFormat.Value format = ai.findFormat(beanDesc.getClassInfo());
+
+        if (type.isEnumType() && format != null && format.getShape() == JsonFormat.Shape.OBJECT) {
+            Iterator<BeanPropertyDefinition> it = properties.iterator();
+            while (it.hasNext()) {
+                BeanPropertyDefinition property = it.next();
+                if (type.isTypeOrSubTypeOf(property.getRawPrimaryType())) {
+                    it.remove();
+                }
+            }
+        }
     }
 
     /*

@@ -294,8 +294,7 @@ public class BeanSerializerFactory
             return new ToEmptyObjectSerializer(type);
         }
         final SerializationConfig config = ctxt.getConfig();
-        BeanSerializerBuilder builder = constructBeanSerializerBuilder(beanDesc);
-        builder.setConfig(config);
+        BeanSerializerBuilder builder = constructBeanSerializerBuilder(config, beanDesc);
 
         // First: any detectable (auto-detect, annotations) properties to serialize?
         List<BeanPropertyWriter> props = findBeanProperties(ctxt, beanDesc, builder);
@@ -463,8 +462,9 @@ ClassUtil.getTypeDescription(beanDesc.getType()), ClassUtil.name(propName)));
         return new PropertyBuilder(config, beanDesc);
     }
 
-    protected BeanSerializerBuilder constructBeanSerializerBuilder(BeanDescription beanDesc) {
-        return new BeanSerializerBuilder(beanDesc);
+    protected BeanSerializerBuilder constructBeanSerializerBuilder(SerializationConfig config,
+            BeanDescription beanDesc) {
+        return new BeanSerializerBuilder(config, beanDesc);
     }
 
     /*

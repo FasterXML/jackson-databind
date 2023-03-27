@@ -24,9 +24,9 @@ public class BeanSerializerBuilder
     /**********************************************************
      */
 
-    final protected BeanDescription _beanDesc;
+    protected final BeanDescription _beanDesc;
 
-    protected SerializationConfig _config;
+    protected final SerializationConfig _config;
 
     /*
     /**********************************************************
@@ -73,7 +73,9 @@ public class BeanSerializerBuilder
     /**********************************************************
      */
 
-    public BeanSerializerBuilder(BeanDescription beanDesc) {
+    public BeanSerializerBuilder(SerializationConfig config,
+            BeanDescription beanDesc) {
+        _config = config;
         _beanDesc = beanDesc;
     }
 
@@ -89,17 +91,6 @@ public class BeanSerializerBuilder
         _filterId = src._filterId;
         _typeId = src._typeId;
         _objectIdWriter = src._objectIdWriter;
-    }
-
-    /**
-     * Initialization method called right after construction, to specify
-     * configuration to use.
-     *<p>
-     * Note: ideally should be passed in constructor, but for backwards
-     * compatibility, needed to add a setter instead
-     */
-    protected void setConfig(SerializationConfig config) {
-        _config = config;
     }
 
     public void setProperties(List<BeanPropertyWriter> properties) {

@@ -4,7 +4,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector.MixInResolver;
@@ -71,12 +70,9 @@ public class AnnotatedFieldCollector
         // Let's add super-class' fields first, then ours.
         fields = _findFields(new TypeResolutionContext.Basic(_typeFactory, parent.getBindings()),
                 parent, fields);
-
-        JsonFormat format = cls.getAnnotation(JsonFormat.class);
-        boolean isHandledAsObject = format != null && format.shape() == JsonFormat.Shape.OBJECT;
         for (Field f : cls.getDeclaredFields()) {
             // static fields not included (transients are at this point, filtered out later)
-            if (!_isIncludableField(f, isHandledAsObject)) {
+            if (!_isIncludableField(f)) {
                 continue;
             }
             // Ok now: we can (and need) not filter out ignorable fields at this point; partly
@@ -95,7 +91,7 @@ public class AnnotatedFieldCollector
         if ((fields != null) && (_mixInResolver != null)) {
             Class<?> mixin = _mixInResolver.findMixInClassFor(cls);
             if (mixin != null) {
-                _addFieldMixIns(mixin, cls, fields, isHandledAsObject);
+                _addFieldMixIns(mixin, cls, fields);
             }
         }
         return fields;
@@ -107,13 +103,13 @@ public class AnnotatedFieldCollector
      * super-classes)
      */
     private void _addFieldMixIns(Class<?> mixInCls, Class<?> targetClass,
-             Map<String,FieldBuilder> fields, boolean isHandledAsObject)
+            Map<String,FieldBuilder> fields)
     {
         List<Class<?>> parents = ClassUtil.findSuperClasses(mixInCls, targetClass, true);
         for (Class<?> mixin : parents) {
             for (Field mixinField : mixin.getDeclaredFields()) {
                 // there are some dummy things (static, synthetic); better ignore
-                if (!_isIncludableField(mixinField, isHandledAsObject)) {
+                if (!_isIncludableField(mixinField)) {
                     continue;
                 }
                 String name = mixinField.getName();
@@ -126,9 +122,9 @@ public class AnnotatedFieldCollector
         }
     }
 
-    private boolean _isIncludableField(Field f, boolean isHandledAsObject)
+    private boolean _isIncludableField(Field f)
     {
-        if (f.isEnumConstant() && !isHandledAsObject) {
+        if (f.isEnumConstant()) {
             return true;
         }
         // Most likely synthetic fields, if any, are to be skipped similar to methods

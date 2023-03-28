@@ -614,7 +614,6 @@ ClassUtil.getTypeDescription(beanDesc.getType()), ClassUtil.name(propName)));
         PropertyBuilder pb = constructPropertyBuilder(config, beanDesc);
 
         ArrayList<BeanPropertyWriter> result = new ArrayList<BeanPropertyWriter>(properties.size());
-        // We do not want to include enums as self vlues in the first place.
         for (BeanPropertyDefinition property : properties) {
             final AnnotatedMember accessor = property.getAccessor();
             // Type id? Requires special handling:
@@ -642,16 +641,18 @@ ClassUtil.getTypeDescription(beanDesc.getType()), ClassUtil.name(propName)));
      * @since 2.15
      */
     protected void removeEnumsWithObjectShape(SerializationConfig config, BeanDescription beanDesc, List<BeanPropertyDefinition> properties) {
-        AnnotationIntrospector ai = config.getAnnotationIntrospector();
         JavaType type = beanDesc.getType();
+        if (!type.isEnumType()) { // Do not proceed if type is not enum
+            return;
+        }
+        AnnotationIntrospector ai = config.getAnnotationIntrospector();
         JsonFormat.Value format = ai.findFormat(beanDesc.getClassInfo());
-
-        // If type is enum, BUT serialized as an object...
-        if (type.isEnumType() && format != null && format.getShape() == JsonFormat.Shape.OBJECT) {
+        // If enum is annotated with @JsonFormat with shape as OBJECT...
+        if (format != null && format.getShape() == JsonFormat.Shape.OBJECT) {
             Iterator<BeanPropertyDefinition> it = properties.iterator();
             while (it.hasNext()) {
                 BeanPropertyDefinition property = it.next();
-                // Remove self(enum)
+                // Remove enums, because they are self-referenced
                 if (type.isTypeOrSubTypeOf(property.getRawPrimaryType())) {
                     it.remove();
                 }

@@ -2,6 +2,8 @@ package tools.jackson.databind.introspect;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.MapperFeature;
@@ -21,6 +23,19 @@ public class IsGetterBooleanTest extends BaseMapTest
 
         public int isEnabled() { return isEnabled; }
         public void setEnabled(int b) { isEnabled = b; }
+    }
+
+    // [databind#3836]
+    static class POJO3836_AR {
+        public AtomicReference<Boolean> isAtomic() {
+            return new AtomicReference<>(true);
+        }
+    }
+
+    static class POJO3836_AB {
+        public AtomicBoolean isAtomic() {
+            return new AtomicBoolean(true);
+        }
     }
 
     /*
@@ -60,5 +75,19 @@ public class IsGetterBooleanTest extends BaseMapTest
 
         assertEquals("{}", json);
 
+    }
+
+    // [databind#3836]
+    public void testBooleanReference() throws Exception
+    {
+        assertEquals(a2q("{'atomic':true}"),
+                sharedMapper().writeValueAsString(new POJO3836_AR()));
+    }
+
+    // [databind#3836]
+    public void testAtomicBoolean() throws Exception
+    {
+        assertEquals(a2q("{'atomic':true}"),
+                sharedMapper().writeValueAsString(new POJO3836_AB()));
     }
 }

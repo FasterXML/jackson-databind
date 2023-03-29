@@ -132,18 +132,22 @@ class FactoryBasedEnumDeserializer
             // 30-Mar-2020, tatu: For properties-based one, MUST get JSON Object (before
             //   2.11, was just assuming match)
             if (_creatorProps != null) {
-                if (!p.isExpectedStartObjectToken()) {
-                    final JavaType targetType = getValueType(ctxt);
-                    ctxt.reportInputMismatch(targetType,
-"Input mismatch reading Enum %s: properties-based `@JsonCreator` (%s) expects JSON Object (JsonToken.START_OBJECT), got JsonToken.%s",
-ClassUtil.getTypeDescription(targetType), _factory, p.currentToken());
-                }
-                if (_propCreator == null) {
-                    _propCreator = PropertyBasedCreator.construct(ctxt, _valueInstantiator, _creatorProps,
+                if (p.isExpectedStartObjectToken()) {
+                    if (_propCreator == null) {
+                        _propCreator = PropertyBasedCreator.construct(ctxt, _valueInstantiator, _creatorProps,
                             ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
+                    }
+                    p.nextToken();
+                    return deserializeEnumUsingPropertyBased(p, ctxt, _propCreator);
+                } else {
+                    if (!_valueInstantiator.canCreateFromString()) {
+                        // fail if no delegating-creator
+                        final JavaType targetType = getValueType(ctxt);
+                        ctxt.reportInputMismatch(targetType,
+                            "Input mismatch reading Enum %s: properties-based `@JsonCreator` (%s) expects JSON Object (JsonToken.START_OBJECT), got JsonToken.%s",
+                            ClassUtil.getTypeDescription(targetType), _factory, p.currentToken());
+                    }
                 }
-                p.nextToken();
-                return deserializeEnumUsingPropertyBased(p, ctxt, _propCreator);
             }
 
             // 12-Oct-2021, tatu: We really should only get here if and when String

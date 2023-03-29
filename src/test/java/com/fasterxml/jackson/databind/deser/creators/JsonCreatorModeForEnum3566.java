@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.deser.creators;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -98,7 +98,8 @@ public class JsonCreatorModeForEnum3566 extends BaseMapTest {
     @JsonFormat(shape = JsonFormat.Shape.OBJECT)
     enum EnumC {
         A("AType"),
-        B("BType");
+        B("BType"),
+        C("CType");
 
         private final String type;
 
@@ -119,6 +120,16 @@ public class JsonCreatorModeForEnum3566 extends BaseMapTest {
             }
             throw new RuntimeException();
         }
+    }
+
+    static class DelegatingCreatorEnumWrapper {
+        public EnumA enumA;
+        public EnumB enumB;
+    }
+
+    static class PropertiesCreatorEnumWrapper {
+        public EnumA enumA;
+        public EnumC enumC;
     }
 
     /*
@@ -179,4 +190,21 @@ public class JsonCreatorModeForEnum3566 extends BaseMapTest {
 
         assertEquals("properties", pojo1.name);
     }
+
+    public void testDelegatingCreatorEnumWrapper() throws Exception {
+        DelegatingCreatorEnumWrapper wrapper = newJsonMapper()
+            .readValue(a2q("{'enumA':'AType', 'enumB': 'BType'}"), DelegatingCreatorEnumWrapper.class);
+
+        assertEquals(EnumA.A, wrapper.enumA);
+        assertEquals(EnumB.B, wrapper.enumB);
+    }
+
+    public void testPropertiesCreatorEnumWrapper() throws Exception {
+        PropertiesCreatorEnumWrapper wrapper = newJsonMapper()
+            .readValue(a2q("{'enumA':{'type':'AType'}, 'enumC': {'type':'CType'}}"), PropertiesCreatorEnumWrapper.class);
+
+        assertEquals(EnumA.A, wrapper.enumA);
+        assertEquals(EnumC.C, wrapper.enumC);
+    }
+
 }

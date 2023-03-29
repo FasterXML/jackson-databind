@@ -1,16 +1,16 @@
 package tools.jackson.databind.introspect;
 
-import tools.jackson.databind.BaseMapTest;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.SerializationFeature;
-
 import java.util.Collections;
 import java.util.Map;
 
-import static tools.jackson.databind.MapperFeature.ALLOW_IS_GETTERS_FOR_NON_BOOLEAN;
+import tools.jackson.databind.BaseMapTest;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationFeature;
 
-public class IsGetterBooleanTest extends BaseMapTest {
-
+public class IsGetterBooleanTest extends BaseMapTest
+{
+    // [databind#3609]
     static class POJO3609 {
         int isEnabled;
 
@@ -23,10 +23,17 @@ public class IsGetterBooleanTest extends BaseMapTest {
         public void setEnabled(int b) { isEnabled = b; }
     }
 
+    /*
+    /**********************************************************************
+    /* Test methods
+    /**********************************************************************
+     */
+
+    // [databind#3609]
     public void testAllowIntIsGetter() throws Exception
     {
         ObjectMapper MAPPER = jsonMapperBuilder()
-                .enable(ALLOW_IS_GETTERS_FOR_NON_BOOLEAN)
+                .enable(MapperFeature.ALLOW_IS_GETTERS_FOR_NON_BOOLEAN)
                 .build();
 
         POJO3609 input = new POJO3609(12);
@@ -40,10 +47,11 @@ public class IsGetterBooleanTest extends BaseMapTest {
         assertEquals(input.isEnabled, output.isEnabled);
     }
 
+    // [databind#3609]
     public void testDisallowIntIsGetter() throws Exception
     {
         ObjectMapper MAPPER = jsonMapperBuilder()
-                .disable(ALLOW_IS_GETTERS_FOR_NON_BOOLEAN)
+                .disable(MapperFeature.ALLOW_IS_GETTERS_FOR_NON_BOOLEAN)
                 .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS)
                 .build();
 

@@ -9,7 +9,7 @@ import java.util.Map;
 
 import static com.fasterxml.jackson.databind.MapperFeature.ALLOW_IS_GETTERS_FOR_NON_BOOLEAN;
 
-public class IsGetterBoolean3609Test extends BaseMapTest {
+public class IsGetterBooleanTest extends BaseMapTest {
 
     static class POJO3609 {
         int isEnabled;

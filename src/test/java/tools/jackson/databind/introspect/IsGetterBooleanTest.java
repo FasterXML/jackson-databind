@@ -2,6 +2,7 @@ package tools.jackson.databind.introspect;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -32,9 +33,16 @@ public class IsGetterBooleanTest extends BaseMapTest
         }
     }
 
+    // [databind#3836]
     static class POJO3836_AB {
         public AtomicBoolean isAtomic() {
             return new AtomicBoolean(true);
+        }
+    }
+
+    static class POJO3836_OB {
+        public Optional<Boolean> isAtomic() {
+            return Optional.of(true);
         }
     }
 
@@ -89,5 +97,12 @@ public class IsGetterBooleanTest extends BaseMapTest
     {
         assertEquals(a2q("{'atomic':true}"),
                 sharedMapper().writeValueAsString(new POJO3836_AB()));
+    }
+
+    // [databind#3836]
+    public void testOptionalBoolean() throws Exception
+    {
+        assertEquals(a2q("{'atomic':true}"),
+                sharedMapper().writeValueAsString(new POJO3836_OB()));
     }
 }

@@ -140,8 +140,8 @@ class FactoryBasedEnumDeserializer
                     p.nextToken();
                     return deserializeEnumUsingPropertyBased(p, ctxt, _propCreator);
                 } else {
+                    // if cannot possibly have delegating-creator
                     if (!_valueInstantiator.canCreateFromString()) {
-                        // fail if no delegating-creator
                         final JavaType targetType = getValueType(ctxt);
                         ctxt.reportInputMismatch(targetType,
                             "Input mismatch reading Enum %s: properties-based `@JsonCreator` (%s) expects JSON Object (JsonToken.START_OBJECT), got JsonToken.%s",

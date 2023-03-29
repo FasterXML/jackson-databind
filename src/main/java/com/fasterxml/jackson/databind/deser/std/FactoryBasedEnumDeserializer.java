@@ -139,14 +139,13 @@ class FactoryBasedEnumDeserializer
                     }
                     p.nextToken();
                     return deserializeEnumUsingPropertyBased(p, ctxt, _propCreator);
-                } else {
-                    // if cannot possibly have delegating-creator
-                    if (!_valueInstantiator.canCreateFromString()) {
-                        final JavaType targetType = getValueType(ctxt);
-                        ctxt.reportInputMismatch(targetType,
-                            "Input mismatch reading Enum %s: properties-based `@JsonCreator` (%s) expects JSON Object (JsonToken.START_OBJECT), got JsonToken.%s",
-                            ClassUtil.getTypeDescription(targetType), _factory, p.currentToken());
-                    }
+                }
+                // If value cannot possibly be delegating-creator,
+                if (!_valueInstantiator.canCreateFromString()) {
+                    final JavaType targetType = getValueType(ctxt);
+                    ctxt.reportInputMismatch(targetType,
+                        "Input mismatch reading Enum %s: properties-based `@JsonCreator` (%s) expects JSON Object (JsonToken.START_OBJECT), got JsonToken.%s",
+                        ClassUtil.getTypeDescription(targetType), _factory, p.currentToken());
                 }
             }
 

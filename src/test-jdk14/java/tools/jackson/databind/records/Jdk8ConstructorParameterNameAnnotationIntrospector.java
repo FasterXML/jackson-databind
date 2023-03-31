@@ -6,9 +6,10 @@ import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.introspect.AnnotatedParameter;
 import tools.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
-@SuppressWarnings("serial")
 class Jdk8ConstructorParameterNameAnnotationIntrospector extends JacksonAnnotationIntrospector
 {
+    private static final long serialVersionUID = 1L;
+
     @Override
     public String findImplicitPropertyName(MapperConfig<?> cfg, AnnotatedMember member) {
         if (!(member instanceof AnnotatedParameter)) {

@@ -1,7 +1,6 @@
-package com.fasterxml.jackson.databind.records;
+package tools.jackson.databind.records;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 
 import tools.jackson.databind.BaseMapTest;
@@ -28,9 +27,9 @@ public class RecordNullHandling3847Test extends BaseMapTest {
     public record FixedRecord(@JsonProperty("field_name") String fieldName) {}
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Tests
-    /**********************************************************
+    /**********************************************************************
      */
 
     private final ObjectMapper NULL_MAPPER = JsonMapper.builder()

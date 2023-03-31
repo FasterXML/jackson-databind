@@ -46,7 +46,7 @@ class FactoryBasedEnumDeserializer
      * @since 2.15
      *
      */
-    private transient AtomicReference<PropertyBasedCreator> _propCreatorRef = new AtomicReference<>(null);
+    private AtomicReference<PropertyBasedCreator> _propCreatorRef = new AtomicReference<>(null);
 
     public FactoryBasedEnumDeserializer(Class<?> cls, AnnotatedMethod f, JavaType paramType,
             ValueInstantiator valueInstantiator, SettableBeanProperty[] creatorProps)

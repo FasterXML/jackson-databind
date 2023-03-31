@@ -421,6 +421,23 @@ public class StdTypeResolverBuilder
         if (config.isEnabled(MapperFeature.STRICT_TYPE_ID_HANDLING)) {
             return true;
         }
+        // Otherwise we will be strict if there's a type resolver
+        return _hasTypeResolver(config, baseType);
+    }
+
+    /**
+     * Checks whether the given class has annotations indicating some type resolver
+     * is applied, for example {@link com.fasterxml.jackson.annotation.JsonSubTypes}.
+     * Only initializes {@link #_hasTypeResolver} once if its value is null.
+     *
+     * @param config the deserialization configuration to use
+     * @param baseType the base type to check for type resolver annotations
+     *
+     * @return true if the class has type resolver annotations, false otherwise
+     *
+     * @since 2.15
+     */
+    protected boolean _hasTypeResolver(DeserializationConfig config, JavaType baseType) {
         AnnotatedClass ac = AnnotatedClassResolver.resolveWithoutSuperTypes(config,  baseType.getRawClass());
         AnnotationIntrospector ai = config.getAnnotationIntrospector();
         return ai.findTypeResolver(config, ac, baseType) != null;

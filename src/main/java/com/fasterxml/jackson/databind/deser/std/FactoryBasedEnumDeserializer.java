@@ -136,10 +136,11 @@ class FactoryBasedEnumDeserializer
             //   2.11, was just assuming match)
             if (_creatorProps != null) {
                 if (p.isExpectedStartObjectToken()) {
-                    _propCreatorRef.compareAndSet(null,
-                        PropertyBasedCreator.construct(ctxt, _valueInstantiator, _creatorProps,
-                            ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)));
-
+                    if (_propCreatorRef.get() == null) {
+                        _propCreatorRef.compareAndSet(null,
+                            PropertyBasedCreator.construct(ctxt, _valueInstantiator, _creatorProps,
+                                ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)));
+                    }
                     p.nextToken();
                     return deserializeEnumUsingPropertyBased(p, ctxt, _propCreatorRef.get());
                 }

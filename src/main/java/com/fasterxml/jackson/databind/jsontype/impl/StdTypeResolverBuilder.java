@@ -177,7 +177,7 @@ public class StdTypeResolverBuilder
         case EXISTING_PROPERTY: // as per [#528] same class as PROPERTY
             return new AsPropertyTypeDeserializer(baseType, idRes,
                     _typeProperty, _typeIdVisible, defaultImpl, _includeAs,
-                    _hasTypeResolver(config, baseType));
+                    _strictTypeIdHandling(config, baseType));
         case WRAPPER_OBJECT:
             return new AsWrapperTypeDeserializer(baseType, idRes,
                     _typeProperty, _typeIdVisible, defaultImpl);
@@ -404,18 +404,23 @@ public class StdTypeResolverBuilder
     }
 
     /**
-     * Checks whether the given class has annotations indicating some type resolver
-     * is applied, for example {@link com.fasterxml.jackson.annotation.JsonSubTypes}.
-     * Only initializes {@link #_hasTypeResolver} once if its value is null.
+     * Determines whether strict type ID handling should be used for this type or not.
+     * This will be enabled when either the type has type resolver annotations or if
+     * {@link com.fasterxml.jackson.databind.DeserializationFeature#FAIL_ON_MISSING_TYPE_NAME}
+     * is enabled.
      *
      * @param config the deserialization configuration to use
      * @param baseType the base type to check for type resolver annotations
      *
-     * @return true if the class has type resolver annotations, false otherwise
+     * @return {@code true} if the class has type resolver annotations, or the strict
+     * handling feature is enabled, {@code false} otherwise.
      *
      * @since 2.15
      */
-    protected boolean _hasTypeResolver(DeserializationConfig config, JavaType baseType) {
+    protected boolean _strictTypeIdHandling(DeserializationConfig config, JavaType baseType) {
+        if (config.isEnabled(MapperFeature.STRICT_TYPE_ID_HANDLING)) {
+            return true;
+        }
         AnnotatedClass ac = AnnotatedClassResolver.resolveWithoutSuperTypes(config,  baseType.getRawClass());
         AnnotationIntrospector ai = config.getAnnotationIntrospector();
         return ai.findTypeResolver(config, ac, baseType) != null;

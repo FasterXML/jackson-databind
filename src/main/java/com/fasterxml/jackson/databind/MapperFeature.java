@@ -328,6 +328,15 @@ public enum MapperFeature implements ConfigFeature
      */
     INFER_BUILDER_TYPE_BINDINGS(true),
 
+    /**
+     * Feature that determines what happens when deserializing to a registered sub-type, but no
+     * type information has been provided. If enabled, then an {@link InvalidTypeIdException}
+     * will be thrown, if disabled then the deserialization will proceed without the type information.
+     *
+     * @since 2.15
+     */
+    STRICT_TYPE_ID_HANDLING(false),
+
     /*
     /******************************************************
     /* View-related features

@@ -406,7 +406,7 @@ public class StdTypeResolverBuilder
     /**
      * Determines whether strict type ID handling should be used for this type or not.
      * This will be enabled when either the type has type resolver annotations or if
-     * {@link com.fasterxml.jackson.databind.DeserializationFeature#FAIL_ON_MISSING_TYPE_NAME}
+     * {@link com.fasterxml.jackson.databind.MapperFeature#STRICT_TYPE_ID_HANDLING}
      * is enabled.
      *
      * @param config the deserialization configuration to use

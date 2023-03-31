@@ -34,9 +34,10 @@ public class RecordNullHandling3847Test extends BaseMapTest {
      */
 
     private final ObjectMapper NULL_MAPPER = JsonMapper.builder()
-        .defaultSetterInfo(JsonSetter.Value.construct(Nulls.FAIL, Nulls.FAIL))
-        .withCoercionConfigDefaults(config -> config.setCoercion(CoercionInputShape.String, CoercionAction.Fail))
-        .build();
+            .changeDefaultNullHandling(n -> n.withValueNulls(Nulls.FAIL)
+                    .withContentNulls(Nulls.FAIL))
+            .withCoercionConfigDefaults(config -> config.setCoercion(CoercionInputShape.String, CoercionAction.Fail))
+            .build();
 
     public void testPojoNullHandlingValid() throws Exception {
         Pojo3847 pojo = NULL_MAPPER.readValue(a2q("{'fieldName': 'value'}"), Pojo3847.class); // expected

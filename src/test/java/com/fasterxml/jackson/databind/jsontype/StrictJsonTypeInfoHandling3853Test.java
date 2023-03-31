@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
-public class StrictJsonTypeInfoHandlingTest extends BaseMapTest {
+public class StrictJsonTypeInfoHandling3853Test extends BaseMapTest {
 
     @JsonTypeInfo(use = Id.NAME)
     interface Command {

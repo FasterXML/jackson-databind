@@ -1543,26 +1543,29 @@ Gili Tzabari (cowwoc@github)
 
 Joo Hyuk Kim (JooHyukKim@github)
   * Contributed #2536: Add `EnumFeature.READ_ENUM_KEYS_USING_INDEX` to work with
-   existing "WRITE_ENUM_KEYS_USING_INDEX"
-  (2.15.0)
+    existing "WRITE_ENUM_KEYS_USING_INDEX"
+   (2.15.0)
   * Contributed #2667: Add `@EnumNaming`, `EnumNamingStrategy` to allow use of naming
-   strategies for Enums
-  (2.15.0)
+    strategies for Enums
+   (2.15.0)
   * Contributed fix for #2968: Deserialization of `@JsonTypeInfo` annotated type fails with
-   missing type id even for explicit concrete subtypes
-  (2.15.0)
+    missing type id even for explicit concrete subtypes
+   (2.15.0)
   * Contributed #3053: Allow serializing enums to lowercase (`EnumFeature.WRITE_ENUMS_TO_LOWERCASE`)
-  (2.15.0)
+   (2.15.0)
+  * Contributed #3566: Cannot use both `JsonCreator.Mode.DELEGATING` and `JsonCreator.Mode.PROPERTIES`
+    static creator factory methods for Enums
+   (2.15.0)
   * Contributed #3638: Case-insensitive and number-based enum deserialization are
-   (unnecessarily) mutually exclusive
-  (2.15.0)
+    (unnecessarily) mutually exclusive
+   (2.15.0)
   * Contributed #3819: Add convenience method `SimpleBeanPropertyFilter.filterOutAll()` as
-   counterpart of `serializeAll()`
-  (2.15.0)
+    counterpart of `serializeAll()`
+   (2.15.0)
 
 Vojtěch Knyttl (knyttl@github)
   * Requested #3053: Allow serializing enums to lowercase (`EnumFeature.WRITE_ENUMS_TO_LOWERCASE`)
-  (2.15.0)
+   (2.15.0)
 
 Phil Gref (pgrefviau@github)
   * Reported #3638: Case-insensitive and number-based enum deserialization are

@@ -6,8 +6,12 @@ Project: jackson-databind
 
 Not yet released
 
+#3566: Cannot use both `JsonCreator.Mode.DELEGATING` and `JsonCreator.Mode.PROPERTIES`
+  static creator factory methods for Enums
+ (reported by @andrewbents)
 #3836: `Optional<Boolean>` is not recognized as boolean field
  (reported by @thnaeff)
+ (fix contributed by Joo-Hyuk K)
 
 2.15.0-rc2 (28-Mar-2023)
 

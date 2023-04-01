@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
@@ -40,10 +41,12 @@ class FactoryBasedEnumDeserializer
 
     /**
      * Lazily instantiated property-based creator.
+     * Introduced in 2.8 and wrapped with {@link AtomicReference} in 2.15
      *
-     * @since 2.8
+     * @since 2.15
+     *
      */
-    private transient PropertyBasedCreator _propCreator;
+    private AtomicReference<PropertyBasedCreator> _propCreatorRef = new AtomicReference<>(null);
 
     public FactoryBasedEnumDeserializer(Class<?> cls, AnnotatedMethod f, JavaType paramType,
             ValueInstantiator valueInstantiator, SettableBeanProperty[] creatorProps)
@@ -132,18 +135,22 @@ class FactoryBasedEnumDeserializer
             // 30-Mar-2020, tatu: For properties-based one, MUST get JSON Object (before
             //   2.11, was just assuming match)
             if (_creatorProps != null) {
-                if (!p.isExpectedStartObjectToken()) {
+                if (p.isExpectedStartObjectToken()) {
+                    if (_propCreatorRef.get() == null) {
+                        _propCreatorRef.compareAndSet(null,
+                            PropertyBasedCreator.construct(ctxt, _valueInstantiator, _creatorProps,
+                                ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)));
+                    }
+                    p.nextToken();
+                    return deserializeEnumUsingPropertyBased(p, ctxt, _propCreatorRef.get());
+                }
+                // If value cannot possibly be delegating-creator,
+                if (!_valueInstantiator.canCreateFromString()) {
                     final JavaType targetType = getValueType(ctxt);
                     ctxt.reportInputMismatch(targetType,
-"Input mismatch reading Enum %s: properties-based `@JsonCreator` (%s) expects JSON Object (JsonToken.START_OBJECT), got JsonToken.%s",
-ClassUtil.getTypeDescription(targetType), _factory, p.currentToken());
+                        "Input mismatch reading Enum %s: properties-based `@JsonCreator` (%s) expects JSON Object (JsonToken.START_OBJECT), got JsonToken.%s",
+                        ClassUtil.getTypeDescription(targetType), _factory, p.currentToken());
                 }
-                if (_propCreator == null) {
-                    _propCreator = PropertyBasedCreator.construct(ctxt, _valueInstantiator, _creatorProps,
-                            ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
-                }
-                p.nextToken();
-                return deserializeEnumUsingPropertyBased(p, ctxt, _propCreator);
             }
 
             // 12-Oct-2021, tatu: We really should only get here if and when String

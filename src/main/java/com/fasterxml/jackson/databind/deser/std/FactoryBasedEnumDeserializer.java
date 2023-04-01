@@ -41,12 +41,10 @@ class FactoryBasedEnumDeserializer
 
     /**
      * Lazily instantiated property-based creator.
-     * Introduced in 2.8 and wrapped with {@link AtomicReference} in 2.15
      *
-     * @since 2.15
-     *
+     * @since 2.8
      */
-    private AtomicReference<PropertyBasedCreator> _propCreatorRef = new AtomicReference<>(null);
+    private transient volatile PropertyBasedCreator _propCreator;
 
     public FactoryBasedEnumDeserializer(Class<?> cls, AnnotatedMethod f, JavaType paramType,
             ValueInstantiator valueInstantiator, SettableBeanProperty[] creatorProps)
@@ -136,13 +134,14 @@ class FactoryBasedEnumDeserializer
             //   2.11, was just assuming match)
             if (_creatorProps != null) {
                 if (p.isExpectedStartObjectToken()) {
-                    if (_propCreatorRef.get() == null) {
-                        _propCreatorRef.compareAndSet(null,
-                            PropertyBasedCreator.construct(ctxt, _valueInstantiator, _creatorProps,
-                                ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)));
+                    PropertyBasedCreator pc = _propCreator;
+                    if (pc == null) {
+                        _propCreator = pc = PropertyBasedCreator.construct(ctxt,
+                                _valueInstantiator, _creatorProps,
+                                ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
                     }
                     p.nextToken();
-                    return deserializeEnumUsingPropertyBased(p, ctxt, _propCreatorRef.get());
+                    return deserializeEnumUsingPropertyBased(p, ctxt, pc);
                 }
                 // If value cannot possibly be delegating-creator,
                 if (!_valueInstantiator.canCreateFromString()) {

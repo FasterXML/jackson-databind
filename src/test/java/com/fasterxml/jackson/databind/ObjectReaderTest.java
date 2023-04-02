@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind;
 
-import java.io.IOException;
-import java.io.StringWriter;
+import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -30,6 +29,10 @@ public class ObjectReaderTest extends BaseMapTest
 
     static class POJO {
         public Map<String, Object> name;
+    }
+
+    static class FilePerson {
+        public String name;
     }
 
     /*
@@ -804,5 +807,112 @@ public class ObjectReaderTest extends BaseMapTest
         public int hashCode() {
             return _delegate.hashCode();
         }
+    }
+
+
+    public void testReadValueFromFile() throws IOException {
+        File file = _createFileWithNameAndJson(
+            "testReadValueFromFile.json",
+            a2q("{ 'name': 'John Doe'}"));
+
+        FilePerson bean = newJsonMapper().readerFor(FilePerson.class).readValue(file);
+
+        assertEquals("John Doe", bean.name);
+        _cleanUpFromFileSystem(file);
+    }
+
+    public void testReadValueFromFile2() throws IOException {
+        File file = _createFileWithNameAndJson(
+            "testReadValueFromFile2.json",
+            a2q("{ 'name': 'John Doe'}"));
+
+        FilePerson bean = newJsonMapper().reader().readValue(file, FilePerson.class);
+
+        assertEquals("John Doe", bean.name);
+        _cleanUpFromFileSystem(file);
+    }
+
+    public void testReadValueFromFileWithFormatDetection() throws IOException {
+        File file = _createFileWithNameAndJson(
+            "testReadValueFromFileWithFormatDetection.json",
+            a2q("{ 'name': 'John Doe'}"));
+        ObjectReader reader = newJsonMapper().readerFor(FilePerson.class);
+        reader = reader.withFormatDetection(reader);
+
+        FilePerson bean = reader.readValue(file);
+
+        assertEquals("John Doe", bean.name);
+        _cleanUpFromFileSystem(file);
+    }
+
+    public void testReadValueFromNonExistentFile() throws IOException {
+        File file = new File("testReadValueFromNonExistentFile.json");
+        try {
+            newJsonMapper().readValue(file, FilePerson.class);
+            fail("should not pass");
+        } catch (FileNotFoundException e) {
+            verifyException(e, "testReadValueFromNonExistentFile");
+        }
+    }
+
+    public void testInputStreamFromEmptyFile() throws IOException {
+        File file = new File("testInputStreamFromEmptyFile.json");
+        assertTrue(file.createNewFile());
+
+        try {
+            newJsonMapper().readerFor(FilePerson.class).readValue(file);
+            fail("should not pass");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "No content to map due to end-of-input");
+        } finally {
+            _cleanUpFromFileSystem(file);
+        }
+    }
+
+
+    public void testReadValuesFromFileWithDataFormatReader() throws IOException {
+        File file = _createFileWithNameAndJson(
+        "testReadValuesFromFileWithDataFormatReader.json",
+            a2q("{ 'name': 'One'} { 'name': 'Two'}"));
+
+        ObjectReader reader = newJsonMapper().readerFor(FilePerson.class);
+        reader = reader.withFormatDetection(reader);
+        MappingIterator<FilePerson> iterator = reader.readValues(file);
+
+        _verifyWithMappingIterator(iterator, "One", "Two");
+        _cleanUpFromFileSystem(file);
+    }
+
+    public void testReadValuesFromFile() throws IOException {
+        File file = _createFileWithNameAndJson(
+            "testReadValuesFromFile.json",
+            a2q("{ 'name': 'One'} { 'name': 'Two'}"));
+
+        MappingIterator<FilePerson> iterator = newJsonMapper().readerFor(FilePerson.class).readValues(file);
+
+        _verifyWithMappingIterator(iterator, "One", "Two");
+        _cleanUpFromFileSystem(file);
+    }
+
+    private void _verifyWithMappingIterator(MappingIterator<FilePerson> iterator, String... names) throws IOException {
+        for (String n : names) {
+            assertEquals(n, iterator.next().name);
+        }
+        assertFalse(iterator.hasNext());
+        iterator.close();
+    }
+
+    private File _createFileWithNameAndJson(String fileName, String json) throws IOException {
+        File file = new File(fileName);
+        try (FileWriter writer = new FileWriter(file)) {
+            writer.write(json);
+            writer.flush();
+        }
+        return file;
+    }
+
+    private void _cleanUpFromFileSystem(File file) {
+        assertTrue(file.exists());
+        assertTrue(file.delete());
     }
 }

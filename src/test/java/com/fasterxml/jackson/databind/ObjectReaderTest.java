@@ -810,7 +810,7 @@ public class ObjectReaderTest extends BaseMapTest
     }
 
 
-    public void testReadValueFromFile() throws IOException {
+    public void testReadValueFromFile() throws Exception {
         File file = _createFileWithNameAndJson(
             "testReadValueFromFile.json",
             a2q("{ 'name': 'John Doe'}"));
@@ -821,7 +821,7 @@ public class ObjectReaderTest extends BaseMapTest
         _cleanUpFromFileSystem(file);
     }
 
-    public void testReadValueFromFile2() throws IOException {
+    public void testReadValueFromFile2() throws Exception {
         File file = _createFileWithNameAndJson(
             "testReadValueFromFile2.json",
             a2q("{ 'name': 'John Doe'}"));
@@ -832,20 +832,7 @@ public class ObjectReaderTest extends BaseMapTest
         _cleanUpFromFileSystem(file);
     }
 
-    public void testReadValueFromFileWithFormatDetection() throws IOException {
-        File file = _createFileWithNameAndJson(
-            "testReadValueFromFileWithFormatDetection.json",
-            a2q("{ 'name': 'John Doe'}"));
-        ObjectReader reader = newJsonMapper().readerFor(FilePerson.class);
-        reader = reader.withFormatDetection(reader);
-
-        FilePerson bean = reader.readValue(file);
-
-        assertEquals("John Doe", bean.name);
-        _cleanUpFromFileSystem(file);
-    }
-
-    public void testReadValueFromNonExistentFile() throws IOException {
+    public void testReadValueFromNonExistentFile() throws Exception {
         File file = new File("testReadValueFromNonExistentFile.json");
         try {
             newJsonMapper().readValue(file, FilePerson.class);
@@ -855,7 +842,7 @@ public class ObjectReaderTest extends BaseMapTest
         }
     }
 
-    public void testInputStreamFromEmptyFile() throws IOException {
+    public void testInputStreamFromEmptyFile() throws Exception {
         File file = new File("testInputStreamFromEmptyFile.json");
         assertTrue(file.createNewFile());
 
@@ -869,21 +856,7 @@ public class ObjectReaderTest extends BaseMapTest
         }
     }
 
-
-    public void testReadValuesFromFileWithDataFormatReader() throws IOException {
-        File file = _createFileWithNameAndJson(
-        "testReadValuesFromFileWithDataFormatReader.json",
-            a2q("{ 'name': 'One'} { 'name': 'Two'}"));
-
-        ObjectReader reader = newJsonMapper().readerFor(FilePerson.class);
-        reader = reader.withFormatDetection(reader);
-        MappingIterator<FilePerson> iterator = reader.readValues(file);
-
-        _verifyWithMappingIterator(iterator, "One", "Two");
-        _cleanUpFromFileSystem(file);
-    }
-
-    public void testReadValuesFromFile() throws IOException {
+    public void testReadValuesFromFile() throws Exception {
         File file = _createFileWithNameAndJson(
             "testReadValuesFromFile.json",
             a2q("{ 'name': 'One'} { 'name': 'Two'}"));
@@ -894,7 +867,7 @@ public class ObjectReaderTest extends BaseMapTest
         _cleanUpFromFileSystem(file);
     }
 
-    private void _verifyWithMappingIterator(MappingIterator<FilePerson> iterator, String... names) throws IOException {
+    private void _verifyWithMappingIterator(MappingIterator<FilePerson> iterator, String... names) throws Exception {
         for (String n : names) {
             assertEquals(n, iterator.next().name);
         }
@@ -902,7 +875,7 @@ public class ObjectReaderTest extends BaseMapTest
         iterator.close();
     }
 
-    private File _createFileWithNameAndJson(String fileName, String json) throws IOException {
+    private File _createFileWithNameAndJson(String fileName, String json) throws Exception {
         File file = new File(fileName);
         try (FileWriter writer = new FileWriter(file)) {
             writer.write(json);

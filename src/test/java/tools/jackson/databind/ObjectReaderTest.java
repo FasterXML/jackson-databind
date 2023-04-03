@@ -1,16 +1,16 @@
 package tools.jackson.databind;
 
 import java.io.*;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
 import java.util.*;
+import java.util.Map.Entry;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamReadException;
+import tools.jackson.core.exc.WrappedIOException;
 import tools.jackson.core.json.JsonReadFeature;
 
 import tools.jackson.databind.cfg.ContextAttributes;
@@ -18,30 +18,25 @@ import tools.jackson.databind.deser.DeserializationProblemHandler;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.json.JsonMapper;
-import tools.jackson.databind.node.ArrayNode;
-import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.jsontype.TypeSerializer;
+import tools.jackson.databind.node.*;
 
 public class ObjectReaderTest extends BaseMapTest
 {
+    private final ObjectMapper MAPPER = newJsonMapper();
+
     static class POJO {
         public Map<String, Object> name;
     }
 
-    static class A2297 {
-        String knownField;
-
-        @JsonCreator
-        private A2297(@JsonProperty("knownField") String knownField) {
-            this.knownField = knownField;
-        }
+    static class FilePerson {
+        public String name;
     }
 
-    private final JsonMapper MAPPER = newJsonMapper();
-
     /*
-    /**********************************************************************
+    /**********************************************************
     /* Test methods, simple read/write with defaults
-    /**********************************************************************
+    /**********************************************************
      */
 
     public void testSimpleViaParser() throws Exception
@@ -107,20 +102,10 @@ public class ObjectReaderTest extends BaseMapTest
         assertEquals(Collections.singletonMap("key", ABC.B), value);
     }
 
-    public void testNodeHandling() throws Exception
-    {
-        JsonNodeFactory nodes = new JsonNodeFactory();
-        ObjectReader r = MAPPER.reader().with(nodes);
-        // but also no further changes if attempting again
-        assertSame(r, r.with(nodes));
-        assertTrue(r.createArrayNode().isArray());
-        assertTrue(r.createObjectNode().isObject());
-    }
-
     /*
-    /**********************************************************************
+    /**********************************************************
     /* Test methods, some alternative JSON settings
-    /**********************************************************************
+    /**********************************************************
      */
 
     public void testJsonReadFeaturesComments() throws Exception
@@ -176,9 +161,9 @@ public class ObjectReaderTest extends BaseMapTest
     }
 
     /*
-    /**********************************************************************
+    /**********************************************************
     /* Test methods, config setting verification
-    /**********************************************************************
+    /**********************************************************
      */
 
     public void testFeatureSettings() throws Exception
@@ -262,14 +247,6 @@ public class ObjectReaderTest extends BaseMapTest
                 .createParser("[ ]")) {
             assertTrue(p.isEnabled(StreamReadFeature.STRICT_DUPLICATE_DETECTION));
         }
-
-        /*
-        try (JsonParser p = MAPPER.reader()
-                .with(JsonReadFeature.ALLOW_JAVA_COMMENTS)
-                .createParser("[ ]")) {
-            assertTrue(p.isEnabled(JsonReadFeature.ALLOW_JAVA_COMMENTS));
-        }
-        */
     }
 
     public void testGeneratorConfigViaReader() throws Exception
@@ -283,9 +260,9 @@ public class ObjectReaderTest extends BaseMapTest
     }
 
     /*
-    /**********************************************************************
+    /**********************************************************
     /* Test methods, JsonPointer
-    /**********************************************************************
+    /**********************************************************
      */
 
     public void testNoPointerLoading() throws Exception {
@@ -315,10 +292,7 @@ public class ObjectReaderTest extends BaseMapTest
 
         JsonNode node = reader.readTree(source);
         assertTrue(node.has("name"));
-        JsonNode entry = node.get("name");
-        assertNotNull(entry);
-        assertTrue(entry.isObject());
-        assertEquals(1234, entry.get("value").asInt());
+        assertEquals("{\"value\":1234}", node.get("name").toString());
     }
 
     public void testPointerLoadingMappingIteratorOne() throws Exception {
@@ -387,31 +361,13 @@ public class ObjectReaderTest extends BaseMapTest
         public Set<String> set2;
     }
 
-    // [databind#2636]
-    public void testCanPassResultToOverloadedMethod() throws Exception {
-        final String source = "{\"foo\":{\"bar\":{\"caller\":{\"name\":{\"value\":1234}}}}}";
-
-        ObjectReader reader = MAPPER.readerFor(POJO.class).at("/foo/bar/caller");
-
-        process((POJO) reader.readValue(source));
-    }
-
-    void process(POJO pojo) {
-        // do nothing - just used to show that the compiler can choose the correct method overloading to invoke
-    }
-
-    void process(String pojo) {
-        // do nothing - just used to show that the compiler can choose the correct method overloading to invoke
-        throw new Error();
-    }
-
     /*
-    /**********************************************************************
+    /**********************************************************
     /* Test methods, ObjectCodec
-    /**********************************************************************
+    /**********************************************************
      */
 
-    public void testTreeToValue()
+    public void testTreeToValue() throws Exception
     {
         ArrayNode n = MAPPER.createArrayNode();
         n.add("xyz");
@@ -425,10 +381,23 @@ public class ObjectReaderTest extends BaseMapTest
         assertEquals("xyz", arr[0]);
     }
 
+    public void testCodecUnsupportedWrites() throws Exception
+    {
+        ObjectReader r = MAPPER.readerFor(String.class);
+        JsonGenerator g = MAPPER.createGenerator(new StringWriter());
+        ObjectNode n = MAPPER.createObjectNode();
+        try {
+            r.writeTree(g, n);
+            fail("Should not pass");
+        } catch (UnsupportedOperationException e) {
+            ;
+        }
+    }
+
     /*
-    /**********************************************************************
+    /**********************************************************
     /* Test methods, failures, other
-    /**********************************************************************
+    /**********************************************************
      */
 
     public void testMissingType() throws Exception
@@ -461,7 +430,7 @@ public class ObjectReaderTest extends BaseMapTest
     }
 
     // For [databind#2297]
-    public void testUnknownFields2297() throws Exception
+    public void testUnknownFields() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder().addHandler(new DeserializationProblemHandler(){
             @Override
@@ -470,334 +439,356 @@ public class ObjectReaderTest extends BaseMapTest
                 return true;
             }
         }).build();
-        A2297 aObject = mapper.readValue("{\"unknownField\" : 1, \"knownField\": \"test\"}", A2297.class);
+        A2297 aObject = mapper.readValue("{\"unknownField\" : 1, \"knownField\": \"test\"}",
+                A2297.class);
 
         assertEquals("test", aObject.knownField);
     }
 
-    public void test_createParser_InputStream() throws Exception
-    {
-        InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
-        JsonParser jsonParser =  MAPPER.reader().createParser(inputStream);
+    // For [databind#2297]
+    private static class A2297 {
+        String knownField;
 
-        assertEquals(jsonParser.nextTextValue(), "value");
-    }
-
-    public void test_createParser_File() throws Exception
-    {
-        Path path = Files.createTempFile("", "");
-        Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
-        JsonParser jsonParser = MAPPER.reader().createParser(path.toFile());
-
-        assertEquals(jsonParser.nextTextValue(), "value");
-    }
-
-    public void test_createParser_Path() throws Exception
-    {
-        Path path = Files.createTempFile("", "");
-        Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
-        JsonParser jsonParser = MAPPER.reader().createParser(path);
-
-        assertEquals(jsonParser.nextTextValue(), "value");
-    }
-
-    public void test_createParser_Url() throws Exception
-    {
-        Path path = Files.createTempFile("", "");
-        Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
-        JsonParser jsonParser = MAPPER.reader().createParser(path.toUri().toURL());
-
-        assertEquals(jsonParser.nextTextValue(), "value");
-    }
-
-    public void test_createParser_Reader() throws Exception
-    {
-        Reader reader = new StringReader("\"value\"");
-        JsonParser jsonParser = MAPPER.reader().createParser(reader);
-
-        assertEquals(jsonParser.nextTextValue(), "value");
-    }
-
-    public void test_createParser_ByteArray() throws Exception
-    {
-        byte[] bytes = "\"value\"".getBytes(StandardCharsets.UTF_8);
-        JsonParser jsonParser = MAPPER.reader().createParser(bytes);
-
-        assertEquals(jsonParser.nextTextValue(), "value");
-    }
-
-    public void test_createParser_String() throws Exception
-    {
-        String string = "\"value\"";
-        JsonParser jsonParser = MAPPER.reader().createParser(string);
-
-        assertEquals(jsonParser.nextTextValue(), "value");
-    }
-
-    public void test_createParser_CharArray() throws Exception
-    {
-        char[] chars = "\"value\"".toCharArray();
-        JsonParser jsonParser = MAPPER.reader().createParser(chars);
-
-        assertEquals(jsonParser.nextTextValue(), "value");
-    }
-
-    public void test_createParser_DataInput() throws Exception
-    {
-        InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
-        DataInput dataInput = new DataInputStream(inputStream);
-        JsonParser jsonParser = MAPPER.reader().createParser(dataInput);
-
-        assertEquals(jsonParser.nextTextValue(), "value");
-    }
-
-    public void test_createParser_failsIfArgumentIsNull() throws Exception
-    {
-        ObjectReader objectReader = MAPPER.reader();
-        test_method_failsIfArgumentIsNull(() -> objectReader.createParser((InputStream) null));
-        test_method_failsIfArgumentIsNull(() -> objectReader.createParser((DataInput) null));
-        test_method_failsIfArgumentIsNull(() -> objectReader.createParser((URL) null));
-        test_method_failsIfArgumentIsNull(() -> objectReader.createParser((Path) null));
-        test_method_failsIfArgumentIsNull(() -> objectReader.createParser((File) null));
-        test_method_failsIfArgumentIsNull(() -> objectReader.createParser((Reader) null));
-        test_method_failsIfArgumentIsNull(() -> objectReader.createParser((String) null));
-        test_method_failsIfArgumentIsNull(() -> objectReader.createParser((byte[]) null));
-        test_method_failsIfArgumentIsNull(() -> objectReader.createParser((byte[]) null, -1, -1));
-        test_method_failsIfArgumentIsNull(() -> objectReader.createParser((char[]) null));
-        test_method_failsIfArgumentIsNull(() -> objectReader.createParser((char[]) null, -1, -1));
-    }
-
-    public void test_readTree_InputStream() throws Exception
-    {
-        InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
-        JsonNode jsonNode =  MAPPER.reader().readTree(inputStream);
-
-        assertEquals(jsonNode.textValue(), "value");
-    }
-
-    public void test_readTree_Reader() throws Exception
-    {
-        Reader reader = new StringReader("\"value\"");
-        JsonNode jsonNode = MAPPER.reader().readTree(reader);
-
-        assertEquals(jsonNode.textValue(), "value");
-    }
-
-    public void test_readTree_ByteArray() throws Exception
-    {
-        // with offset and length
-        byte[] bytes = "\"value\"".getBytes(StandardCharsets.UTF_8);
-        JsonNode jsonNode1 = MAPPER.reader().readTree(bytes);
-
-        assertEquals(jsonNode1.textValue(), "value");
-
-        // without offset and length
-        JsonNode jsonNode2 = MAPPER.reader().readTree(bytes, 0, bytes.length);
-
-        assertEquals(jsonNode2.textValue(), "value");
-    }
-
-    public void test_readTree_String() throws Exception
-    {
-        String string = "\"value\"";
-        JsonNode jsonNode = MAPPER.reader().readTree(string);
-
-        assertEquals(jsonNode.textValue(), "value");
-    }
-
-    public void test_readTree_failsIfArgumentIsNull() throws Exception
-    {
-        ObjectReader objectReader = MAPPER.reader();
-        test_method_failsIfArgumentIsNull(() -> objectReader.readTree((InputStream) null));
-        test_method_failsIfArgumentIsNull(() -> objectReader.readTree((Reader) null));
-        test_method_failsIfArgumentIsNull(() -> objectReader.readTree((String) null));
-        test_method_failsIfArgumentIsNull(() -> objectReader.readTree((byte[]) null));
-        test_method_failsIfArgumentIsNull(() -> objectReader.readTree((byte[]) null, -1, -1));
-    }
-
-    public void test_readValue_InputStream() throws Exception
-    {
-        InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
-        String result = MAPPER.readerFor(String.class).readValue(inputStream);
-        assertEquals(result, "value");
-    }
-
-    public void test_readValue_File() throws Exception
-    {
-        Path path = Files.createTempFile("", "");
-        Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
-        String result = MAPPER.readerFor(String.class).readValue(path.toFile());
-        assertEquals(result, "value");
-    }
-
-    public void test_readValue_Path() throws Exception
-    {
-        Path path = Files.createTempFile("", "");
-        Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
-        String result = MAPPER.readerFor(String.class).readValue(path);
-        assertEquals(result, "value");
-    }
-
-    public void test_readValue_Url() throws Exception
-    {
-        Path path = Files.createTempFile("", "");
-        Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
-        String result = MAPPER.readerFor(String.class).readValue(path.toUri().toURL());
-        assertEquals(result, "value");
-    }
-
-    public void test_readValue_Reader() throws Exception
-    {
-        Reader reader = new StringReader("\"value\"");
-        String result = MAPPER.readerFor(String.class).readValue(reader);
-        assertEquals(result, "value");
-    }
-
-    public void test_readValue_ByteArray() throws Exception
-    {
-        byte[] bytes = "\"value\"".getBytes(StandardCharsets.UTF_8);
-        String result = MAPPER.readerFor(String.class).readValue(bytes);
-        assertEquals(result, "value");
-    }
-
-    public void test_readValue_String() throws Exception
-    {
-        String string = "\"value\"";
-        String result = MAPPER.readerFor(String.class).readValue(string);
-        assertEquals(result, "value");
-    }
-
-    public void test_readValue_DataInput() throws Exception
-    {
-        InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
-        DataInput dataInput = new DataInputStream(inputStream);
-        String result = MAPPER.readerFor(String.class).readValue(dataInput);
-        assertEquals(result, "value");
-    }
-
-    public void test_readValue_JsonParser() throws Exception
-    {
-        String string = "\"value\"";
-        JsonParser jsonParser = MAPPER.reader().createParser(string);
-        String result = MAPPER.readerFor(String.class).readValue(jsonParser);
-        assertEquals(result, "value");
-    }
-
-    public void test_readValue_failsIfArgumentIsNull() throws Exception
-    {
-        ObjectReader objectReader = MAPPER.reader();
-        test_method_failsIfArgumentIsNull(() -> objectReader.readValue((InputStream) null));
-        test_method_failsIfArgumentIsNull(() -> objectReader.readValue((DataInput) null));
-        test_method_failsIfArgumentIsNull(() -> objectReader.readValue((URL) null));
-        test_method_failsIfArgumentIsNull(() -> objectReader.readValue((Path) null));
-        test_method_failsIfArgumentIsNull(() -> objectReader.readValue((File) null));
-        test_method_failsIfArgumentIsNull(() -> objectReader.readValue((Reader) null));
-        test_method_failsIfArgumentIsNull(() -> objectReader.readValue((String) null));
-        test_method_failsIfArgumentIsNull(() -> objectReader.readValue((JsonParser) null));
-        test_method_failsIfArgumentIsNull(() -> objectReader.readValue((byte[]) null));
-        test_method_failsIfArgumentIsNull(() -> objectReader.readValue((byte[]) null, -1, -1));
-    }
-
-    public void test_readValues_InputStream() throws Exception
-    {
-        InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
-        MappingIterator<String> result = MAPPER.readerFor(String.class).readValues(inputStream);
-        assertEquals(result.next(), "value");
-        assertEquals(result.hasNext(), false);
-    }
-
-    public void test_readValues_File() throws Exception
-    {
-        Path path = Files.createTempFile("", "");
-        Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
-        MappingIterator<String> result = MAPPER.readerFor(String.class).readValues(path.toFile());
-        assertEquals(result.next(), "value");
-        assertEquals(result.hasNext(), false);
-    }
-
-    public void test_readValues_Path() throws Exception
-    {
-        Path path = Files.createTempFile("", "");
-        Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
-        MappingIterator<String> result = MAPPER.readerFor(String.class).readValues(path);
-        assertEquals(result.next(), "value");
-        assertEquals(result.hasNext(), false);
-    }
-
-    public void test_readValues_Url() throws Exception
-    {
-        Path path = Files.createTempFile("", "");
-        Files.write(path, "\"value\"".getBytes(StandardCharsets.UTF_8));
-        MappingIterator<String> result = MAPPER.readerFor(String.class).readValues(path.toUri().toURL());
-        assertEquals(result.next(), "value");
-        assertEquals(result.hasNext(), false);
-    }
-
-    public void test_readValues_Reader() throws Exception
-    {
-        Reader reader = new StringReader("\"value\"");
-        MappingIterator<String> result = MAPPER.readerFor(String.class).readValues(reader);
-        assertEquals(result.next(), "value");
-        assertEquals(result.hasNext(), false);
-    }
-
-    public void test_readValues_ByteArray() throws Exception
-    {
-        byte[] bytes = "\"value\"".getBytes(StandardCharsets.UTF_8);
-        MappingIterator<String> result = MAPPER.readerFor(String.class).readValues(bytes);
-        assertEquals(result.next(), "value");
-        assertEquals(result.hasNext(), false);
-    }
-
-    public void test_readValues_String() throws Exception
-    {
-        String string = "\"value\"";
-        MappingIterator<String> result = MAPPER.readerFor(String.class).readValues(string);
-        assertEquals(result.next(), "value");
-        assertEquals(result.hasNext(), false);
-    }
-
-    public void test_readValues_DataInput() throws Exception
-    {
-        InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
-        DataInput dataInput = new DataInputStream(inputStream);
-        MappingIterator<String> result = MAPPER.readerFor(String.class).readValues(dataInput);
-        assertEquals(result.next(), "value");
-        assertEquals(result.hasNext(), false);
-    }
-
-    public void test_readValues_JsonParser() throws Exception
-    {
-        String string = "\"value\"";
-        JsonParser jsonParser = MAPPER.reader().createParser(string);
-        MappingIterator<String> result = MAPPER.readerFor(String.class).readValues(jsonParser);
-        assertEquals(result.next(), "value");
-        assertEquals(result.hasNext(), false);
-    }
-
-    public void test_readValues_failsIfArgumentIsNull() throws Exception
-    {
-        ObjectReader objectReader = MAPPER.reader();
-        test_method_failsIfArgumentIsNull(() -> objectReader.readValues((InputStream) null));
-        test_method_failsIfArgumentIsNull(() -> objectReader.readValues((DataInput) null));
-        test_method_failsIfArgumentIsNull(() -> objectReader.readValues((URL) null));
-        test_method_failsIfArgumentIsNull(() -> objectReader.readValues((Path) null));
-        test_method_failsIfArgumentIsNull(() -> objectReader.readValues((File) null));
-        test_method_failsIfArgumentIsNull(() -> objectReader.readValues((Reader) null));
-        test_method_failsIfArgumentIsNull(() -> objectReader.readValues((String) null));
-        test_method_failsIfArgumentIsNull(() -> objectReader.readValues((JsonParser) null));
-        test_method_failsIfArgumentIsNull(() -> objectReader.readValues((byte[]) null));
-        test_method_failsIfArgumentIsNull(() -> objectReader.readValues((byte[]) null, -1, -1));
-    }
-
-    private static void test_method_failsIfArgumentIsNull(Runnable runnable) throws Exception
-    {
-        try {
-            runnable.run();
-            fail("IllegalArgumentException expected.");
-        } catch (IllegalArgumentException expected) {
-            verifyException(expected, "Argument \"");
-            verifyException(expected, "\" is null");
+        @JsonCreator
+        private A2297(@JsonProperty("knownField") String knownField) {
+            this.knownField = knownField;
         }
+    }
+
+    // [databind#3699]: custom object node classes
+    public void testCustomObjectNode() throws Exception
+    {
+        ObjectNode defaultNode = (ObjectNode) MAPPER.readTree("{\"x\": 1, \"y\": 2}");
+        CustomObjectNode customObjectNode = new CustomObjectNode(defaultNode);
+        Point point = MAPPER.readerFor(Point.class).readValue(customObjectNode);
+        assertEquals(1, point.x);
+        assertEquals(2, point.y);
+    }
+
+    // [databind#3699]: custom array node classes
+    public void testCustomArrayNode() throws Exception
+    {
+        ArrayNode defaultNode = (ArrayNode) MAPPER.readTree("[{\"x\": 1, \"y\": 2}]");
+        DelegatingArrayNode customArrayNode = new DelegatingArrayNode(defaultNode);
+        Point[] points = MAPPER.readerFor(Point[].class).readValue(customArrayNode);
+        Point point = points[0];
+        assertEquals(1, point.x);
+        assertEquals(2, point.y);
+    }
+
+    // for [databind#3699]
+    static class CustomObjectNode extends BaseJsonNode
+    {
+        private static final long serialVersionUID = 1L;
+
+        private final ObjectNode _delegate;
+
+        CustomObjectNode(ObjectNode delegate) {
+            this._delegate = delegate;
+        }
+
+        @Override
+        public boolean isObject() {
+            return true;
+        }
+
+        @Override
+        public int size() {
+            return _delegate.size();
+        }
+
+        @Override
+        public Iterator<Entry<String, JsonNode>> fields() {
+            return _delegate.fields();
+        }
+
+        @Override
+        public Iterator<JsonNode> elements() {
+            return Collections.emptyIterator();
+        }
+
+        @Override
+        public JsonToken asToken() {
+            return JsonToken.START_OBJECT;
+        }
+
+        @Override
+        public void serialize(JsonGenerator g, SerializerProvider ctxt) {
+            // ignore, will not be called
+        }
+
+        @Override
+        public void serializeWithType(JsonGenerator g, SerializerProvider ctxt, TypeSerializer typeSer) {
+            // ignore, will not be called
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public <T extends JsonNode> T deepCopy() {
+            return (T) new CustomObjectNode(_delegate);
+        }
+
+        @Override
+        public JsonNode get(int index) {
+            return null;
+        }
+
+        @Override
+        public JsonNode path(String fieldName) {
+            return null;
+        }
+
+        @Override
+        public JsonNode path(int index) {
+            return null;
+        }
+
+        @Override
+        protected JsonNode _at(JsonPointer ptr) {
+            return null;
+        }
+
+        @Override
+        public JsonNodeType getNodeType() {
+            return JsonNodeType.OBJECT;
+        }
+
+        @Override
+        public String asText() {
+            return "";
+        }
+
+        @Override
+        public JsonNode findValue(String fieldName) {
+            return null;
+        }
+
+        @Override
+        public JsonNode findParent(String fieldName) {
+            return null;
+        }
+
+        @Override
+        public List<JsonNode> findValues(String fieldName, List<JsonNode> foundSoFar) {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public List<String> findValuesAsText(String fieldName, List<String> foundSoFar) {
+            return foundSoFar;
+        }
+
+        @Override
+        public List<JsonNode> findParents(String fieldName, List<JsonNode> foundSoFar) {
+            return foundSoFar;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == this) {
+                return true;
+            }
+            if (!(o instanceof CustomObjectNode)) {
+                return false;
+            }
+            CustomObjectNode other = (CustomObjectNode) o;
+            return this._delegate.equals(other._delegate);
+        }
+
+        @Override
+        public int hashCode() {
+            return _delegate.hashCode();
+        }
+
+    }
+
+    // for [databind#3699]
+    static class DelegatingArrayNode extends BaseJsonNode
+    {
+        private static final long serialVersionUID = 1L;
+
+        private final ArrayNode _delegate;
+
+        DelegatingArrayNode(ArrayNode delegate) {
+            this._delegate = delegate;
+        }
+
+        @Override
+        public boolean isArray() {
+            return true;
+        }
+
+        @Override
+        public int size() {
+            return _delegate.size();
+        }
+
+        @Override
+        public Iterator<JsonNode> elements() {
+            return _delegate.elements();
+        }
+
+        @Override
+        public JsonToken asToken() {
+            return JsonToken.START_ARRAY;
+        }
+
+        @Override
+        public void serialize(JsonGenerator g, SerializerProvider ctxt) {
+            // ignore, will not be called
+        }
+
+        @Override
+        public void serializeWithType(JsonGenerator g, SerializerProvider ctxt, TypeSerializer typeSer) {
+            // ignore, will not be called
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public <T extends JsonNode> T deepCopy() {
+            return (T) new DelegatingArrayNode(_delegate);
+        }
+
+        @Override
+        public JsonNode get(int index) {
+            return _delegate.get(index);
+        }
+
+        @Override
+        public JsonNode path(String fieldName) {
+            return null;
+        }
+
+        @Override
+        public JsonNode path(int index) {
+            return _delegate.path(index);
+        }
+
+        @Override
+        protected JsonNode _at(JsonPointer ptr) {
+            return null;
+        }
+
+        @Override
+        public JsonNodeType getNodeType() {
+            return JsonNodeType.ARRAY;
+        }
+
+        @Override
+        public String asText() {
+            return "";
+        }
+
+        @Override
+        public JsonNode findValue(String fieldName) {
+            return null;
+        }
+
+        @Override
+        public JsonNode findParent(String fieldName) {
+            return null;
+        }
+
+        @Override
+        public List<JsonNode> findValues(String fieldName, List<JsonNode> foundSoFar) {
+            return foundSoFar;
+        }
+
+        @Override
+        public List<String> findValuesAsText(String fieldName, List<String> foundSoFar) {
+            return foundSoFar;
+        }
+
+        @Override
+        public List<JsonNode> findParents(String fieldName, List<JsonNode> foundSoFar) {
+            return foundSoFar;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == this) {
+                return true;
+            }
+            if (!(o instanceof DelegatingArrayNode)) {
+                return false;
+            }
+            DelegatingArrayNode other = (DelegatingArrayNode) o;
+            return this._delegate.equals(other._delegate);
+        }
+
+        @Override
+        public int hashCode() {
+            return _delegate.hashCode();
+        }
+    }
+
+    // // // Tests for reading from Files
+
+    public void testReadValueFromFile() throws Exception {
+        File file = _createFileWithNameAndJson(
+            "testReadValueFromFile",
+            a2q("{ 'name': 'John Doe'}"));
+
+        FilePerson bean = MAPPER.readerFor(FilePerson.class).readValue(file);
+
+        assertEquals("John Doe", bean.name);
+        assertTrue(file.delete());
+    }
+
+    public void testReadValueFromNonExistentFile() throws Exception {
+        File file = new File("SHOULD_NOT_EXIST");
+        assertFalse(file.exists());
+
+        try {
+            MAPPER.readValue(file, FilePerson.class);
+            fail("should not pass");
+        } catch (WrappedIOException e) {
+            verifyException(e, "SHOULD_NOT_EXIST");
+        }
+    }
+
+    public void testInputStreamFromEmptyFile() throws Exception {
+        File file = _createFileWithNameAndJson(
+            "testInputStreamFromEmptyFile",
+            "");
+
+        try {
+            MAPPER.readerFor(FilePerson.class).readValue(file);
+            fail("should not pass");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "No content to map due to end-of-input");
+        } finally {
+            assertTrue(file.delete());
+        }
+    }
+
+    public void testReadValuesFromFile() throws Exception {
+        File file = _createFileWithNameAndJson(
+            "testReadValuesFromFile",
+            a2q("{ 'name': 'One'} { 'name': 'Two'}"));
+
+        MappingIterator<FilePerson> iterator = MAPPER.readerFor(FilePerson.class).readValues(file);
+
+        _verifyWithMappingIterator(iterator, "One", "Two");
+        assertTrue(file.delete());
+    }
+
+    private void _verifyWithMappingIterator(MappingIterator<FilePerson> iterator, String... names) throws Exception {
+        for (String n : names) {
+            assertEquals(n, iterator.next().name);
+        }
+        assertFalse(iterator.hasNext());
+        iterator.close();
+    }
+
+    private File _createFileWithNameAndJson(String fileName, String json) throws Exception {
+        File file = File.createTempFile(fileName, ".json");
+        file.deleteOnExit();
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(file),
+                StandardCharsets.UTF_8)) {
+            writer.write(json);
+            writer.flush();
+        }
+        return file;
     }
 }

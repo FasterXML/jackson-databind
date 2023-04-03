@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -25,7 +26,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class ObjectReaderTest extends BaseMapTest
 {
-    final JsonMapper MAPPER = JsonMapper.builder().build();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     static class POJO {
         public Map<String, Object> name;
@@ -809,12 +810,14 @@ public class ObjectReaderTest extends BaseMapTest
         }
     }
 
+    // // // Tests for reading from Files
+
     public void testReadValueFromFile() throws Exception {
         File file = _createFileWithNameAndJson(
             "testReadValueFromFile",
             a2q("{ 'name': 'John Doe'}"));
 
-        FilePerson bean = newJsonMapper().readerFor(FilePerson.class).readValue(file);
+        FilePerson bean = MAPPER.readerFor(FilePerson.class).readValue(file);
 
         assertEquals("John Doe", bean.name);
         assertTrue(file.delete());
@@ -825,7 +828,7 @@ public class ObjectReaderTest extends BaseMapTest
             "testReadValueFromFile2",
             a2q("{ 'name': 'John Doe'}"));
 
-        FilePerson bean = newJsonMapper().reader().readValue(file, FilePerson.class);
+        FilePerson bean = MAPPER.reader().readValue(file, FilePerson.class);
 
         assertEquals("John Doe", bean.name);
         assertTrue(file.delete());
@@ -836,7 +839,7 @@ public class ObjectReaderTest extends BaseMapTest
         assertFalse(file.exists());
 
         try {
-            newJsonMapper().readValue(file, FilePerson.class);
+            MAPPER.readValue(file, FilePerson.class);
             fail("should not pass");
         } catch (FileNotFoundException e) {
             verifyException(e, "SHOULD_NOT_EXIST");
@@ -849,7 +852,7 @@ public class ObjectReaderTest extends BaseMapTest
             "");
 
         try {
-            newJsonMapper().readerFor(FilePerson.class).readValue(file);
+            MAPPER.readerFor(FilePerson.class).readValue(file);
             fail("should not pass");
         } catch (MismatchedInputException e) {
             verifyException(e, "No content to map due to end-of-input");
@@ -863,7 +866,7 @@ public class ObjectReaderTest extends BaseMapTest
             "testReadValuesFromFile",
             a2q("{ 'name': 'One'} { 'name': 'Two'}"));
 
-        MappingIterator<FilePerson> iterator = newJsonMapper().readerFor(FilePerson.class).readValues(file);
+        MappingIterator<FilePerson> iterator = MAPPER.readerFor(FilePerson.class).readValues(file);
 
         _verifyWithMappingIterator(iterator, "One", "Two");
         assertTrue(file.delete());
@@ -880,7 +883,8 @@ public class ObjectReaderTest extends BaseMapTest
     private File _createFileWithNameAndJson(String fileName, String json) throws Exception {
         File file = File.createTempFile(fileName, ".json");
         file.deleteOnExit();
-        try (FileWriter writer = new FileWriter(file)) {
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(file),
+                StandardCharsets.UTF_8)) {
             writer.write(json);
             writer.flush();
         }

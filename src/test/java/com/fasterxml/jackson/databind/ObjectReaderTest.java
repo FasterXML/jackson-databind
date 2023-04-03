@@ -812,39 +812,42 @@ public class ObjectReaderTest extends BaseMapTest
 
     public void testReadValueFromFile() throws Exception {
         File file = _createFileWithNameAndJson(
-            "testReadValueFromFile.json",
+            "testReadValueFromFile",
             a2q("{ 'name': 'John Doe'}"));
 
         FilePerson bean = newJsonMapper().readerFor(FilePerson.class).readValue(file);
 
         assertEquals("John Doe", bean.name);
-        _cleanUpFromFileSystem(file);
+        assertTrue(file.delete());
     }
 
     public void testReadValueFromFile2() throws Exception {
         File file = _createFileWithNameAndJson(
-            "testReadValueFromFile2.json",
+            "testReadValueFromFile2",
             a2q("{ 'name': 'John Doe'}"));
 
         FilePerson bean = newJsonMapper().reader().readValue(file, FilePerson.class);
 
         assertEquals("John Doe", bean.name);
-        _cleanUpFromFileSystem(file);
+        assertTrue(file.delete());
     }
 
     public void testReadValueFromNonExistentFile() throws Exception {
-        File file = new File("testReadValueFromNonExistentFile.json");
+        File file = new File("SHOULD_NOT_EXIST");
+        assertFalse(file.exists());
+
         try {
             newJsonMapper().readValue(file, FilePerson.class);
             fail("should not pass");
         } catch (FileNotFoundException e) {
-            verifyException(e, "testReadValueFromNonExistentFile");
+            verifyException(e, "SHOULD_NOT_EXIST");
         }
     }
 
     public void testInputStreamFromEmptyFile() throws Exception {
-        File file = new File("testInputStreamFromEmptyFile.json");
-        assertTrue(file.createNewFile());
+        File file = _createFileWithNameAndJson(
+            "testInputStreamFromEmptyFile",
+            "");
 
         try {
             newJsonMapper().readerFor(FilePerson.class).readValue(file);
@@ -852,19 +855,19 @@ public class ObjectReaderTest extends BaseMapTest
         } catch (MismatchedInputException e) {
             verifyException(e, "No content to map due to end-of-input");
         } finally {
-            _cleanUpFromFileSystem(file);
+            assertTrue(file.delete());
         }
     }
 
     public void testReadValuesFromFile() throws Exception {
         File file = _createFileWithNameAndJson(
-            "testReadValuesFromFile.json",
+            "testReadValuesFromFile",
             a2q("{ 'name': 'One'} { 'name': 'Two'}"));
 
         MappingIterator<FilePerson> iterator = newJsonMapper().readerFor(FilePerson.class).readValues(file);
 
         _verifyWithMappingIterator(iterator, "One", "Two");
-        _cleanUpFromFileSystem(file);
+        assertTrue(file.delete());
     }
 
     private void _verifyWithMappingIterator(MappingIterator<FilePerson> iterator, String... names) throws Exception {
@@ -876,16 +879,12 @@ public class ObjectReaderTest extends BaseMapTest
     }
 
     private File _createFileWithNameAndJson(String fileName, String json) throws Exception {
-        File file = new File(fileName);
+        File file = File.createTempFile(fileName, ".json");
+        file.deleteOnExit();
         try (FileWriter writer = new FileWriter(file)) {
             writer.write(json);
             writer.flush();
         }
         return file;
-    }
-
-    private void _cleanUpFromFileSystem(File file) {
-        assertTrue(file.exists());
-        assertTrue(file.delete());
     }
 }

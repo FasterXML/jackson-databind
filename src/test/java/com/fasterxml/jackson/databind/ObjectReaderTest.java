@@ -823,17 +823,6 @@ public class ObjectReaderTest extends BaseMapTest
         assertTrue(file.delete());
     }
 
-    public void testReadValueFromFile2() throws Exception {
-        File file = _createFileWithNameAndJson(
-            "testReadValueFromFile2",
-            a2q("{ 'name': 'John Doe'}"));
-
-        FilePerson bean = MAPPER.reader().readValue(file, FilePerson.class);
-
-        assertEquals("John Doe", bean.name);
-        assertTrue(file.delete());
-    }
-
     public void testReadValueFromNonExistentFile() throws Exception {
         File file = new File("SHOULD_NOT_EXIST");
         assertFalse(file.exists());

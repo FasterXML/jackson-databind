@@ -809,7 +809,6 @@ public class ObjectReaderTest extends BaseMapTest
         }
     }
 
-
     public void testReadValueFromFile() throws Exception {
         File file = _createFileWithNameAndJson(
             "testReadValueFromFile",

@@ -88,7 +88,7 @@ public abstract class StdNodeBasedDeserializer<T>
 
     /**
      *
-     * Added to support {@link #deserialize(JsonParser, DeserializationContext, Object)}
+     * Added to support {@link #convert(JsonNode, DeserializationContext, Object)}
      *
      * @since 2.15
      */

@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.deser.std.StdNodeBasedDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -112,6 +113,36 @@ public class TestUpdateViaObjectReader extends BaseMapTest
         public AnimalWrapper deserialize(JsonParser json, DeserializationContext context, AnimalWrapper intoValue) throws IOException {
             intoValue.setAnimal(json.readValueAs(AbstractAnimal.class));
             return intoValue;
+        }
+    }
+
+    @JsonDeserialize(using = Custom3814Deserializer.class)
+    static class Bean3814 {
+        public int age;
+
+        public Bean3814(int age) {
+            this.age = age;
+        }
+
+        public void updateTo(JsonNode root) {
+            age = root.get("age").asInt();
+        }
+    }
+
+    static class Custom3814Deserializer extends StdNodeBasedDeserializer<Bean3814> {
+        public Custom3814Deserializer() {
+            super(Bean3814.class);
+        }
+
+        @Override
+        public Bean3814 convert(JsonNode root, DeserializationContext ctxt) throws IOException {
+            return null;
+        }
+
+        @Override
+        public Bean3814 convert(JsonNode root, DeserializationContext ctxt, Bean3814 oldValue) throws IOException {
+            oldValue.updateTo(root);
+            return oldValue;
         }
     }
 
@@ -233,7 +264,7 @@ public class TestUpdateViaObjectReader extends BaseMapTest
     }
 
     // [databind#744]
-    public void testIssue744() throws IOException
+    public void testIssue744() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
@@ -274,7 +305,7 @@ public class TestUpdateViaObjectReader extends BaseMapTest
     }
 
     // [databind#1831]
-    public void test1831UsingNode() throws IOException {
+    public void test1831UsingNode() throws Exception {
         String catJson = MAPPER.writeValueAsString(new Cat());
         JsonNode jsonNode = MAPPER.readTree(catJson);
         AnimalWrapper optionalCat = new AnimalWrapper();
@@ -283,10 +314,24 @@ public class TestUpdateViaObjectReader extends BaseMapTest
         assertSame(optionalCat, result);
     }
 
-    public void test1831UsingString() throws IOException {
+    public void test1831UsingString() throws Exception {
         String catJson = MAPPER.writeValueAsString(new Cat());
         AnimalWrapper optionalCat = new AnimalWrapper();
         AnimalWrapper result = MAPPER.readerForUpdating(optionalCat).readValue(catJson);
         assertSame(optionalCat, result);
+    }
+
+    // [databind#3814]
+    public void testObjectReaderForUpdating() throws Exception {
+        // Arrange
+        JsonNode root = MAPPER.readTree(a2q("{'age': 30 }"));
+        Bean3814 obj = new Bean3814(25);
+
+        // Act
+        Bean3814 newObj = MAPPER.readerForUpdating(obj).readValue(root);
+
+        // Assert
+        assertSame(obj, newObj);
+        assertEquals(30, newObj.age);
     }
 }

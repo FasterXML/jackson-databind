@@ -116,11 +116,11 @@ public class TestUpdateViaObjectReader extends BaseMapTest
         }
     }
 
-    @JsonDeserialize(using = Custom3814Deserializer.class)
-    static class Bean3814 {
+    @JsonDeserialize(using = Custom3814DeserializerA.class)
+    static class Bean3814A {
         public int age;
 
-        public Bean3814(int age) {
+        public Bean3814A(int age) {
             this.age = age;
         }
 
@@ -129,21 +129,46 @@ public class TestUpdateViaObjectReader extends BaseMapTest
         }
     }
 
-    static class Custom3814Deserializer extends StdNodeBasedDeserializer<Bean3814> {
-        public Custom3814Deserializer() {
-            super(Bean3814.class);
+    static class Custom3814DeserializerA extends StdNodeBasedDeserializer<Bean3814A> {
+        public Custom3814DeserializerA() {
+            super(Bean3814A.class);
         }
 
         @Override
-        public Bean3814 convert(JsonNode root, DeserializationContext ctxt) throws IOException {
+        public Bean3814A convert(JsonNode root, DeserializationContext ctxt) throws IOException {
             return null;
         }
 
         @Override
-        public Bean3814 convert(JsonNode root, DeserializationContext ctxt, Bean3814 oldValue) throws IOException {
+        public Bean3814A convert(JsonNode root, DeserializationContext ctxt, Bean3814A oldValue) throws IOException {
             oldValue.updateTo(root);
             return oldValue;
         }
+    }
+
+    @JsonDeserialize(using = Custom3814DeserializerB.class)
+    static class Bean3814B {
+        public int age;
+
+        public Bean3814B(int age) {
+            this.age = age;
+        }
+
+        public void updateTo(JsonNode root) {
+            age = root.get("age").asInt();
+        }
+    }
+
+    static class Custom3814DeserializerB extends StdNodeBasedDeserializer<Bean3814B> {
+        public Custom3814DeserializerB() {
+            super(Bean3814B.class);
+        }
+
+        @Override
+        public Bean3814B convert(JsonNode root, DeserializationContext ctxt) throws IOException {
+            return new Bean3814B(root.get("age").asInt());
+        }
+
     }
 
     /*
@@ -322,16 +347,30 @@ public class TestUpdateViaObjectReader extends BaseMapTest
     }
 
     // [databind#3814]
-    public void testObjectReaderForUpdating() throws Exception {
+    public void testObjectReaderForUpdating3814A() throws Exception {
         // Arrange
         JsonNode root = MAPPER.readTree(a2q("{'age': 30 }"));
-        Bean3814 obj = new Bean3814(25);
+        Bean3814A obj = new Bean3814A(25);
 
         // Act
-        Bean3814 newObj = MAPPER.readerForUpdating(obj).readValue(root);
+        Bean3814A newObj = MAPPER.readerForUpdating(obj).readValue(root);
 
         // Assert
         assertSame(obj, newObj);
+        assertEquals(30, newObj.age);
+    }
+
+    // [databind#3814]
+    public void testObjectReaderForUpdating3814B() throws Exception {
+        // Arrange
+        JsonNode root = MAPPER.readTree(a2q("{'age': 30 }"));
+        Bean3814B obj = new Bean3814B(25);
+
+        // Act
+        Bean3814B newObj = MAPPER.readerForUpdating(obj).readValue(root);
+
+        // Assert
+        assertNotSame(obj, newObj);
         assertEquals(30, newObj.age);
     }
 }

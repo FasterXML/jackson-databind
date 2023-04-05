@@ -166,7 +166,7 @@ public class TestUpdateViaObjectReader extends BaseMapTest
 
         @Override
         public Bean3814B convert(JsonNode root, DeserializationContext ctxt) throws IOException {
-            return new Bean3814B(root.get("age").asInt());
+            return null;
         }
 
     }
@@ -347,7 +347,7 @@ public class TestUpdateViaObjectReader extends BaseMapTest
     }
 
     // [databind#3814]
-    public void testObjectReaderForUpdating3814A() throws Exception {
+    public void testReaderForUpdating3814() throws Exception {
         // Arrange
         JsonNode root = MAPPER.readTree(a2q("{'age': 30 }"));
         Bean3814A obj = new Bean3814A(25);
@@ -361,7 +361,7 @@ public class TestUpdateViaObjectReader extends BaseMapTest
     }
 
     // [databind#3814]
-    public void testObjectReaderForUpdating3814B() throws Exception {
+    public void testReaderForUpdating3814DoesNotOverride() throws Exception {
         // Arrange
         JsonNode root = MAPPER.readTree(a2q("{'age': 30 }"));
         Bean3814B obj = new Bean3814B(25);
@@ -371,6 +371,6 @@ public class TestUpdateViaObjectReader extends BaseMapTest
 
         // Assert
         assertNotSame(obj, newObj);
-        assertEquals(30, newObj.age);
+        assertNull(newObj);
     }
 }

@@ -1,6 +1,10 @@
 package tools.jackson.databind.node;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 import tools.jackson.core.*;
+
 import tools.jackson.databind.JacksonSerializable;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.SerializerProvider;
@@ -264,5 +268,10 @@ public abstract class BaseJsonNode
      */
     protected <T> T _reportWrongNodeType(String msgTemplate, Object...args) {
         throw JsonNodeException.from(this, String.format(msgTemplate, args));
+    }
+
+    protected BigInteger _bigIntFromBigDec(BigDecimal value) {
+        StreamReadConstraints.defaults().validateBigIntegerScale(value.scale());
+        return value.toBigInteger();
     }
 }

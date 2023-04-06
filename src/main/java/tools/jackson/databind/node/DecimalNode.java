@@ -85,7 +85,9 @@ public class DecimalNode
 
 
     @Override
-    public BigInteger bigIntegerValue() { return _value.toBigInteger(); }
+    public BigInteger bigIntegerValue() {
+        return _bigIntFromBigDec(_value);
+    }
 
     @Override
     public float floatValue() { return _value.floatValue(); }

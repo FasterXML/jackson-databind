@@ -588,6 +588,9 @@ public abstract class JsonNode
      * Returns integer value for this node (as {@link BigInteger}), <b>if and only if</b>
      * this node is numeric ({@link #isNumber} returns true). For other
      * types returns <code>BigInteger.ZERO</code>.
+     *<p>
+     * May also throw {@link tools.jackson.core.exc.StreamConstraintsException}
+     *   if the scale of the underlying {@link BigDecimal} is too large to convert.
      *
      * @return {@link BigInteger} value this node contains, if numeric node; <code>BigInteger.ZERO</code> for non-number nodes.
      */

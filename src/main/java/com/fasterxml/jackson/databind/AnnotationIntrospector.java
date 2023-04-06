@@ -39,7 +39,6 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
 public abstract class AnnotationIntrospector
     implements Versioned, java.io.Serializable
 {
-
     /*
     /**********************************************************************
     /* Helper types
@@ -1093,8 +1092,8 @@ public abstract class AnnotationIntrospector
     /**
      * @since 2.15
      */
-    public String[] findEnumValues(MapperConfig<?> config, Class<?> enumType, Enum<?>[] enumValues,
-                                   String[] names, AnnotatedClass annotatedClass){
+    public String[] findEnumValues(MapperConfig<?> config, Enum<?>[] enumValues, String[] names,
+                                   AnnotatedClass annotatedClass){
         return names;
     }
 
@@ -1120,9 +1119,9 @@ public abstract class AnnotationIntrospector
     /**
      * @since 2.15
      */
-    public void findEnumAliases(MapperConfig<?> config, Class<Enum<?>> enumCls, Enum<?>[] enumConstants,
-                                String[][] allAliases, AnnotatedClass annotatedClass) {
-        ;
+    public void findEnumAliases(MapperConfig<?> config, Enum<?>[] enumValues, String[][] aliases,
+                                AnnotatedClass annotatedClass) {
+        return;
     }
     /**
      * Finds the Enum value that should be considered the default value, if possible.

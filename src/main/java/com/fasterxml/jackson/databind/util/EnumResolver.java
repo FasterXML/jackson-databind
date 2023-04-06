@@ -84,23 +84,23 @@ public class EnumResolver implements java.io.Serializable
     /**
      * @since 2.15
      */
-    public static EnumResolver constructFor(DeserializationConfig config, Class<?> enumCls0, AnnotatedClass annotatedClass) {
-        return _constructFor(config, enumCls0, annotatedClass, config.getAnnotationIntrospector(),
-            config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS));
+    public static EnumResolver constructFor(DeserializationConfig config, AnnotatedClass annotatedClass) {
+        return _constructFor(config, annotatedClass);
     }
 
     /**
      * @since 2.15
      */
-    public static EnumResolver _constructFor(DeserializationConfig config, Class<?> enumCls0,
-                                             AnnotatedClass annotatedClass, AnnotationIntrospector ai, boolean isIgnoreCase)
+    public static EnumResolver _constructFor(DeserializationConfig config, AnnotatedClass annotatedClass)
     {
+        final AnnotationIntrospector ai = config.getAnnotationIntrospector();
+        final Class<?> enumCls0 = annotatedClass.getRawType();
         final Class<Enum<?>> enumCls = _enumClass(enumCls0);
         final Enum<?>[] enumConstants = _enumConstants(enumCls0);
-        String[] names = ai.findEnumValues(config, enumCls, enumConstants, new String[enumConstants.length], annotatedClass);
+        String[] names = ai.findEnumValues(config, enumConstants, new String[enumConstants.length], annotatedClass);
 
         final String[][] allAliases = new String[names.length][];
-        ai.findEnumAliases(config, enumCls, enumConstants, allAliases, annotatedClass);
+        ai.findEnumAliases(config, enumConstants, allAliases, annotatedClass);
 
         HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();
         for (int i = 0, len = enumConstants.length; i < len; ++i) {
@@ -121,7 +121,7 @@ public class EnumResolver implements java.io.Serializable
             }
         }
         return new EnumResolver(enumCls, enumConstants, map,
-            _enumDefault(ai, enumCls), isIgnoreCase,
+            _enumDefault(ai, enumCls), config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS),
             false);
     }
 

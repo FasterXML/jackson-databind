@@ -9,6 +9,11 @@ Not yet released
 #3566: Cannot use both `JsonCreator.Mode.DELEGATING` and `JsonCreator.Mode.PROPERTIES`
   static creator factory methods for Enums
  (reported by @andrewbents)
+#3791: Flush readonly map together with shared on `SerializerCache.flush()`
+ (suggested by @vdaniloff)
+#3814: Enhance `StdNodeBasedDeserializer` to support `readerForUpdating`
+ (requested by Matt N)
+ (contributed by Joo-Hyuk K)
 #3836: `Optional<Boolean>` is not recognized as boolean field
  (reported by @thnaeff)
  (fix contributed by Joo-Hyuk K)

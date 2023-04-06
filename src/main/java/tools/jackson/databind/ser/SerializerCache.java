@@ -217,5 +217,6 @@ public final class SerializerCache
      */
     public synchronized void flush() {
         _sharedMap.clear();
+        _readOnlyMap.set(null);
     }
 }

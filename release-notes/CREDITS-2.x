@@ -1559,6 +1559,9 @@ Joo Hyuk Kim (JooHyukKim@github)
   * Contributed #3638: Case-insensitive and number-based enum deserialization are
     (unnecessarily) mutually exclusive
    (2.15.0)
+  * Contributed #3814: Enhance `StdNodeBasedDeserializer` to support `readerForUpdating`
+   (2.15.0)
+   
   * Contributed #3819: Add convenience method `SimpleBeanPropertyFilter.filterOutAll()` as
     counterpart of `serializeAll()`
    (2.15.0)
@@ -1590,19 +1593,23 @@ Sim Yih Tsern (yihtsern@github)
 
 Ajay Siwach (Siwach16@github)
   * Contributed #3637: Add enum features into `@JsonFormat.Feature`
-  (2.15.0)
+   (2.15.0)
 
 Zhenyu Luo (luozhenyu@github)
   * Contributed #3745: Deprecate classes in package `com.fasterxml.jackson.databind.jsonschema`
-  (2.15.0)
+   (2.15.0)
 
 Christoph Schulz (ciis0@github)
   * Reported #3771: Classloader leak: DEFAULT_ANNOTATION_INTROSPECTOR holds annotation reference
-  (2.15.0)
+   (2.15.0)
 
 Patrick Strawderman (kilink@github)
   * Requested #2968: Deserialization of `@JsonTypeInfo` annotated type fails with
   missing type id even for explicit concrete subtypes
-  (2.15.0)
+   (2.15.0)
   * Reported #3816: TokenBuffer does not implement writeString(Reader reader, int len)
-  (2.15.0)
+   (2.15.0)
+
+Matt Nelson (mattnelson@github)
+  * Requested #3814: Enhance `StdNodeBasedDeserializer` to support `readerForUpdating`
+   (2.15.0)

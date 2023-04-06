@@ -4,10 +4,12 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.databind.deser.std.StdNodeBasedDeserializer;
 import tools.jackson.databind.module.SimpleModule;
 
 /**
@@ -110,6 +112,61 @@ public class TestUpdateViaObjectReader extends BaseMapTest
             intoValue.setAnimal(json.readValueAs(AbstractAnimal.class));
             return intoValue;
         }
+    }
+
+    @JsonDeserialize(using = Custom3814DeserializerA.class)
+    static class Bean3814A {
+        public int age;
+
+        public Bean3814A(int age) {
+            this.age = age;
+        }
+
+        public void updateTo(JsonNode root) {
+            age = root.get("age").asInt();
+        }
+    }
+
+    static class Custom3814DeserializerA extends StdNodeBasedDeserializer<Bean3814A> {
+        public Custom3814DeserializerA() {
+            super(Bean3814A.class);
+        }
+
+        @Override
+        public Bean3814A convert(JsonNode root, DeserializationContext ctxt) {
+            return null;
+        }
+
+        @Override
+        public Bean3814A convert(JsonNode root, DeserializationContext ctxt, Bean3814A oldValue) {
+            oldValue.updateTo(root);
+            return oldValue;
+        }
+    }
+
+    @JsonDeserialize(using = Custom3814DeserializerB.class)
+    static class Bean3814B {
+        public int age;
+
+        public Bean3814B(int age) {
+            this.age = age;
+        }
+
+        public void updateTo(JsonNode root) {
+            age = root.get("age").asInt();
+        }
+    }
+
+    static class Custom3814DeserializerB extends StdNodeBasedDeserializer<Bean3814B> {
+        public Custom3814DeserializerB() {
+            super(Bean3814B.class);
+        }
+
+        @Override
+        public Bean3814B convert(JsonNode root, DeserializationContext ctxt) {
+            return null;
+        }
+
     }
 
     /*
@@ -286,5 +343,33 @@ public class TestUpdateViaObjectReader extends BaseMapTest
         AnimalWrapper optionalCat = new AnimalWrapper();
         AnimalWrapper result = MAPPER.readerForUpdating(optionalCat).readValue(catJson);
         assertSame(optionalCat, result);
+    }
+
+    // [databind#3814]
+    public void testReaderForUpdating3814() throws Exception {
+        // Arrange
+        JsonNode root = MAPPER.readTree(a2q("{'age': 30 }"));
+        Bean3814A obj = new Bean3814A(25);
+
+        // Act
+        Bean3814A newObj = MAPPER.readerForUpdating(obj).readValue(root);
+
+        // Assert
+        assertSame(obj, newObj);
+        assertEquals(30, newObj.age);
+    }
+
+    // [databind#3814]
+    public void testReaderForUpdating3814DoesNotOverride() throws Exception {
+        // Arrange
+        JsonNode root = MAPPER.readTree(a2q("{'age': 30 }"));
+        Bean3814B obj = new Bean3814B(25);
+
+        // Act
+        Bean3814B newObj = MAPPER.readerForUpdating(obj).readValue(root);
+
+        // Assert
+        assertNotSame(obj, newObj);
+        assertNull(newObj);
     }
 }

@@ -98,6 +98,12 @@ public class RecordBasicsTest extends BaseMapTest
         assertEquals(EXP, MAPPER.readValue(json, Object.class));
     }
 
+    public void testDeserializeRecordOfRecord() throws Exception {
+        assertEquals(new RecordOfRecord(new SimpleRecord(123, "Bob")),
+                MAPPER.readValue("{\"record\":{\"id\":123,\"name\":\"Bob\"}}",
+                        RecordOfRecord.class));
+    }
+
     /*
     /**********************************************************************
     /* Test methods, reading/writing Record values with different config

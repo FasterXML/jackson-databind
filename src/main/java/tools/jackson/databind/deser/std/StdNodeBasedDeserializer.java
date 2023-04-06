@@ -54,6 +54,19 @@ public abstract class StdNodeBasedDeserializer<T>
     public abstract T convert(JsonNode root, DeserializationContext ctxt)
         throws JacksonException;
 
+    /**
+     * Facilitates usage with {@link ObjectMapper#readerForUpdating(Object)} and {@link #deserialize(JsonParser, DeserializationContext, Object)}
+     * by eliminating the need to manually convert the value to a {@link JsonNode}.
+     *
+     * If this method is not overridden, it falls back to the behavior of {@link #convert(JsonNode, DeserializationContext)}.
+     *
+     * @since 2.15
+     */
+    public T convert(JsonNode root, DeserializationContext ctxt, T newValue) throws JacksonException {
+        ctxt.handleBadMerge(this);
+        return convert(root, ctxt);
+    }
+
     /*
     /**********************************************************************
     /* ValueDeserializer impl
@@ -64,6 +77,18 @@ public abstract class StdNodeBasedDeserializer<T>
     public T deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
         JsonNode n = (JsonNode) _treeDeserializer.deserialize(p, ctxt);
         return convert(n, ctxt);
+    }
+
+    /**
+     *
+     * Added to support {@link #convert(JsonNode, DeserializationContext, Object)}
+     *
+     * @since 2.15
+     */
+    @Override
+    public T deserialize(JsonParser jp, DeserializationContext ctxt, T newValue) throws JacksonException {
+        JsonNode n = (JsonNode) _treeDeserializer.deserialize(jp, ctxt);
+        return convert(n, ctxt, newValue);
     }
 
     @Override

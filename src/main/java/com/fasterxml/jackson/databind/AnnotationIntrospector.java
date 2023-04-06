@@ -932,42 +932,6 @@ public abstract class AnnotationIntrospector
         return JsonInclude.Value.empty();
     }
 
-    /**
-     * Method for checking whether given annotated entity (class, method,
-     * field) defines which Bean/Map properties are to be included in
-     * serialization.
-     * If no annotation is found, method should return given second
-     * argument; otherwise value indicated by the annotation.
-     *<p>
-     * Note that meaning of inclusion value depends on whether it is for
-     * a Class or property (field/method/constructor): in former case,
-     * it is the default for all properties; in latter case it is specific
-     * override for annotated property.
-     *
-     * @return Enumerated value indicating which properties to include
-     *   in serialization
-     *
-     * @deprecated Since 2.7 Use {@link #findPropertyInclusion} instead
-     */
-    @Deprecated // since 2.7
-    public JsonInclude.Include findSerializationInclusion(Annotated a, JsonInclude.Include defValue) {
-        return defValue;
-    }
-
-    /**
-     * Method for checking whether content (entries) of a {@link java.util.Map} property
-     * are to be included during serialization or not.
-     * NOTE: this is NOT called for POJO properties, or array/Collection elements.
-     *
-     * @since 2.5
-     *
-     * @deprecated Since 2.7 Use {@link #findPropertyInclusion} instead
-     */
-    @Deprecated // since 2.7
-    public JsonInclude.Include findSerializationInclusionForContent(Annotated a, JsonInclude.Include defValue) {
-        return defValue;
-    }
-
     /*
     /**********************************************************
     /* Serialization: type refinements
@@ -985,30 +949,6 @@ public abstract class AnnotationIntrospector
             final Annotated a, final JavaType baseType) throws JsonMappingException
     {
         return baseType;
-    }
-
-    /**
-     * @deprecated Since 2.7 call {@link #refineSerializationType} instead
-     */
-    @Deprecated // since 2.7
-    public Class<?> findSerializationType(Annotated a) {
-        return null;
-    }
-
-    /**
-     * @deprecated Since 2.7 call {@link #refineSerializationType} instead
-     */
-    @Deprecated // since 2.7
-    public Class<?> findSerializationKeyType(Annotated am, JavaType baseType) {
-        return null;
-    }
-
-    /**
-     * @deprecated Since 2.7 call {@link #refineSerializationType} instead
-     */
-    @Deprecated // since 2.7
-    public Class<?> findSerializationContentType(Annotated am, JavaType baseType) {
-        return null;
     }
 
     /*
@@ -1325,62 +1265,6 @@ public abstract class AnnotationIntrospector
             final Annotated a, final JavaType baseType) throws JsonMappingException
     {
         return baseType;
-    }
-
-    /**
-     * Method for accessing annotated type definition that a
-     * property can have, to be used as the type for deserialization
-     * instead of the static (declared) type.
-     * Type is usually narrowing conversion (i.e.subtype of declared type).
-     * Declared return type of the method is also considered acceptable.
-     *
-     * @param ann Annotated entity to introspect
-     * @param baseType Assumed type before considering annotations
-     *
-     * @return Class to use for deserialization instead of declared type
-     *
-     * @deprecated Since 2.7 call {@link #refineDeserializationType} instead
-     */
-    @Deprecated
-    public Class<?> findDeserializationType(Annotated ann, JavaType baseType) {
-        return null;
-    }
-
-    /**
-     * Method for accessing additional narrowing type definition that a
-     * method can have, to define more specific key type to use.
-     * It should be only be used with {@link java.util.Map} types.
-     *
-     * @param ann Annotated entity to introspect
-     * @param baseKeyType Assumed key type before considering annotations
-     *
-     * @return Class specifying more specific type to use instead of
-     *   declared type, if annotation found; null if not
-     *
-     * @deprecated Since 2.7 call {@link #refineDeserializationType} instead
-     */
-    @Deprecated
-    public Class<?> findDeserializationKeyType(Annotated ann, JavaType baseKeyType) {
-        return null;
-    }
-
-    /**
-     * Method for accessing additional narrowing type definition that a
-     * method can have, to define more specific content type to use;
-     * content refers to Map values and Collection/array elements.
-     * It should be only be used with Map, Collection and array types.
-     *
-     * @param ann Annotated entity to introspect
-     * @param baseContentType Assumed content (value) type before considering annotations
-     *
-     * @return Class specifying more specific type to use instead of
-     *   declared type, if annotation found; null if not
-     *
-     * @deprecated Since 2.7 call {@link #refineDeserializationType} instead
-     */
-    @Deprecated
-    public Class<?> findDeserializationContentType(Annotated ann, JavaType baseContentType) {
-        return null;
     }
 
     /*

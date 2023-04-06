@@ -6,6 +6,7 @@ import java.math.BigInteger;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.MissingNode;
@@ -608,8 +609,9 @@ public abstract class JsonNode
      * types returns <code>BigInteger.ZERO</code>.
      *
      * @return {@link BigInteger} value this node contains, if numeric node; <code>BigInteger.ZERO</code> for non-number nodes.
+     * @throws StreamConstraintsException if the scale of the underlying {@link BigDecimal} is too large
      */
-    public BigInteger bigIntegerValue() { return BigInteger.ZERO; }
+    public BigInteger bigIntegerValue() throws StreamConstraintsException { return BigInteger.ZERO; }
 
     /*
     /**********************************************************

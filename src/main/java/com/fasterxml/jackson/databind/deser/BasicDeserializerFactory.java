@@ -2421,7 +2421,7 @@ factory.toString()));
             }
             return EnumResolver.constructUsingMethod(config, enumClass, jsonValueAccessor);
         }
-        return EnumResolver.constructFor(config, enumClass, beanDesc.getClassInfo());
+        return EnumResolver.constructFor(config, beanDesc.getClassInfo());
     }
 
     /**

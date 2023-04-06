@@ -54,7 +54,7 @@ and include these 2 jars explicitly.
 
 ## Non-Maven dependency resolution
 
-For use cases that do not automaticall resolve dependencies from Maven repositories, you can still
+For use cases that do not automatically resolve dependencies from Maven repositories, you can still
 download jars from [Central Maven repository](https://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-databind/).
 
 Databind jar is also a functional OSGi bundle, with proper import/export declarations, so it can be use on OSGi container as is.
@@ -293,7 +293,7 @@ Note, too, that you can use [Mix-in Annotations](https://github.com/FasterXML/ja
 
 ### Annotations: Ignoring properties
 
-There are two main annotations that can be used to to ignore properties: `@JsonIgnore` for individual properties; and `@JsonIgnoreProperties` for per-class definition
+There are two main annotations that can be used to ignore properties: `@JsonIgnore` for individual properties; and `@JsonIgnoreProperties` for per-class definition
 
 ```java
 // means that if we see "foo" or "bar" in JSON, they will be quietly skipped
@@ -385,7 +385,7 @@ ResultType result = mapper.convertValue(sourceObject, ResultType.class);
 ```
 
 and as long as source and result types are compatible -- that is, if to-JSON, from-JSON sequence would succeed -- things will "just work".
-But here are couple of potentially useful use cases:
+But here are a couple of potentially useful use cases:
 
 ```java
 // Convert from List<Integer> to int[]

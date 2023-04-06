@@ -43,7 +43,7 @@ class FactoryBasedEnumDeserializer
      *
      * @since 2.8
      */
-    private transient PropertyBasedCreator _propCreator;
+    private transient volatile PropertyBasedCreator _propCreator;
 
     public FactoryBasedEnumDeserializer(Class<?> cls, AnnotatedMethod f, JavaType paramType,
             ValueInstantiator valueInstantiator, SettableBeanProperty[] creatorProps)
@@ -132,18 +132,23 @@ class FactoryBasedEnumDeserializer
             // 30-Mar-2020, tatu: For properties-based one, MUST get JSON Object (before
             //   2.11, was just assuming match)
             if (_creatorProps != null) {
-                if (!p.isExpectedStartObjectToken()) {
+                if (p.isExpectedStartObjectToken()) {
+                    PropertyBasedCreator pc = _propCreator;
+                    if (pc == null) {
+                        _propCreator = pc = PropertyBasedCreator.construct(ctxt,
+                                _valueInstantiator, _creatorProps,
+                                ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
+                    }
+                    p.nextToken();
+                    return deserializeEnumUsingPropertyBased(p, ctxt, pc);
+                }
+                // If value cannot possibly be delegating-creator,
+                if (!_valueInstantiator.canCreateFromString()) {
                     final JavaType targetType = getValueType(ctxt);
                     ctxt.reportInputMismatch(targetType,
-"Input mismatch reading Enum %s: properties-based `@JsonCreator` (%s) expects JSON Object (JsonToken.START_OBJECT), got JsonToken.%s",
-ClassUtil.getTypeDescription(targetType), _factory, p.currentToken());
+                        "Input mismatch reading Enum %s: properties-based `@JsonCreator` (%s) expects JSON Object (JsonToken.START_OBJECT), got JsonToken.%s",
+                        ClassUtil.getTypeDescription(targetType), _factory, p.currentToken());
                 }
-                if (_propCreator == null) {
-                    _propCreator = PropertyBasedCreator.construct(ctxt, _valueInstantiator, _creatorProps,
-                            ctxt.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
-                }
-                p.nextToken();
-                return deserializeEnumUsingPropertyBased(p, ctxt, _propCreator);
             }
 
             // 12-Oct-2021, tatu: We really should only get here if and when String

@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
-class Jdk8ConstructorParameterNameAnnotationIntrospector extends JacksonAnnotationIntrospector {
+class Jdk8ConstructorParameterNameAnnotationIntrospector extends JacksonAnnotationIntrospector
+{
+    private static final long serialVersionUID = 1L;
 
     @Override
     public String findImplicitPropertyName(AnnotatedMember member) {

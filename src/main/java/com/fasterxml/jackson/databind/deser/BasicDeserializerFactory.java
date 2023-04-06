@@ -2413,13 +2413,13 @@ factory.toString()));
     protected EnumResolver constructEnumResolver(Class<?> enumClass,
             DeserializationConfig config, BeanDescription beanDesc)
     {
-        AnnotatedMember jsonValueAccessor = beanDesc.findJsonValueAccessor();
-        if (jsonValueAccessor != null) {
+        AnnotatedMember jvAcc = beanDesc.findJsonValueAccessor();
+        if (jvAcc != null) {
             if (config.canOverrideAccessModifiers()) {
-                ClassUtil.checkAndFixAccess(jsonValueAccessor.getMember(),
+                ClassUtil.checkAndFixAccess(jvAcc.getMember(),
                         config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
             }
-            return EnumResolver.constructUsingMethod(config, enumClass, jsonValueAccessor);
+            return EnumResolver.constructUsingMethod(config, enumClass, jvAcc);
         }
         return EnumResolver.constructFor(config, enumClass, beanDesc.getClassInfo());
     }

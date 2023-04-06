@@ -4,9 +4,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.BeanDescription;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
@@ -75,16 +77,30 @@ public class DefaultAccessorNamingStrategy
     public String findNameForIsGetter(AnnotatedMethod am, String name)
     {
         if (_isGetterPrefix != null) {
-            final Class<?> rt = am.getRawType();
-            if (_isGettersNonBoolean || rt == Boolean.class || rt == Boolean.TYPE) {
+            if (_isGettersNonBoolean || _booleanType(am.getType())) {
                 if (name.startsWith(_isGetterPrefix)) {
                     return _stdBeanNaming
-                            ? stdManglePropertyName(name, 2)
-                            : legacyManglePropertyName(name, 2);
+                            ? stdManglePropertyName(name, _isGetterPrefix.length())
+                            : legacyManglePropertyName(name, _isGetterPrefix.length());
                 }
             }
         }
         return null;
+    }
+
+    // @since 2.15
+    private boolean _booleanType(JavaType type) {
+        // but then, as per [databind#3836] Reference types too
+        if (type.isReferenceType()) {
+            type = type.getReferencedType();
+        }
+        // First, well-known JDK boolean types
+        if (type.hasRawClass(Boolean.TYPE)
+                || type.hasRawClass(Boolean.class)
+                || type.hasRawClass(AtomicBoolean.class)) {
+            return true;
+        }
+        return false;
     }
 
     @Override

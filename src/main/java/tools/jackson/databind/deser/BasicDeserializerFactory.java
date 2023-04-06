@@ -1677,8 +1677,7 @@ factory.toString()));
 
             // Need to consider @JsonValue if one found
             if (deser == null) {
-                deser = new EnumDeserializer(constructEnumResolver(ctxt, enumClass,
-                        beanDesc.findJsonValueAccessor()),
+                deser = new EnumDeserializer(constructEnumResolver(ctxt, enumClass, beanDesc),
                         config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS),
                         constructEnumNamingStrategyResolver(config, enumClass, beanDesc.getClassInfo())
                 );
@@ -1849,7 +1848,7 @@ factory.toString()));
                 return JDKKeyDeserializers.constructDelegatingKeyDeserializer(config, type, valueDesForKey);
             }
         }
-        EnumResolver enumRes = constructEnumResolver(ctxt, enumClass, beanDesc.findJsonValueAccessor());
+        EnumResolver enumRes = constructEnumResolver(ctxt, enumClass, beanDesc);
         EnumResolver byEnumNamingResolver = constructEnumNamingStrategyResolver(config, enumClass, beanDesc.getClassInfo());
         // May have @JsonCreator for static factory method:
         for (AnnotatedMethod factory : beanDesc.getFactoryMethods()) {
@@ -2280,15 +2279,16 @@ factory.toString()));
     }
 
     protected EnumResolver constructEnumResolver(DeserializationContext ctxt,
-            Class<?> enumClass, AnnotatedMember jsonValueAccessor)
+            Class<?> enumClass, BeanDescription beanDesc)
     {
-        if (jsonValueAccessor != null) {
+        AnnotatedMember jvAcc = beanDesc.findJsonValueAccessor();
+        if (jvAcc != null) {
             if (ctxt.canOverrideAccessModifiers()) {
-                ClassUtil.checkAndFixAccess(jsonValueAccessor.getMember(),
+                ClassUtil.checkAndFixAccess(jvAcc.getMember(),
                         ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
             }
             return EnumResolver.constructUsingMethod(ctxt.getConfig(),
-                    enumClass, jsonValueAccessor);
+                    enumClass, jvAcc);
         }
         // 14-Mar-2016, tatu: We used to check `DeserializationFeature.READ_ENUMS_USING_TO_STRING`
         //   here, but that won't do: it must be dynamically changeable...

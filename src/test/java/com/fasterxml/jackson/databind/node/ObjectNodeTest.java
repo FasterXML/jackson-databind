@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.node;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
@@ -202,7 +203,7 @@ public class ObjectNodeTest
         assertEquals("foobar", old.textValue());
     }
 
-    public void testBigNumbers()
+    public void testBigNumbers() throws IOException
     {
         ObjectNode n = new ObjectNode(JsonNodeFactory.instance);
         assertStandardEquals(n);

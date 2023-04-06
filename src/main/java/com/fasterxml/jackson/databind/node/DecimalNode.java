@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.databind.*;
 
 /**
@@ -85,7 +86,10 @@ public class DecimalNode
 
 
     @Override
-    public BigInteger bigIntegerValue() { return _value.toBigInteger(); }
+    public BigInteger bigIntegerValue() throws StreamConstraintsException {
+        StreamReadConstraints.defaults().validateBigIntegerScale(_value.scale());
+        return _value.toBigInteger();
+    }
 
     @Override
     public float floatValue() { return _value.floatValue(); }

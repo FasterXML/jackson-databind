@@ -38,6 +38,12 @@ public class EnumResolver implements java.io.Serializable
      */
     protected final boolean _isFromIntValue;
 
+    /*
+    /**********************************************************************
+    /* Constructors (non-deprecated)
+    /**********************************************************************
+     */
+
     protected EnumResolver(Class<Enum<?>> enumClass, Enum<?>[] enums,
             HashMap<String, Enum<?>> enumsById, Enum<?> defaultValue,
             boolean isIgnoreCase, boolean isFromIntValue)
@@ -50,16 +56,11 @@ public class EnumResolver implements java.io.Serializable
         _isFromIntValue = isFromIntValue;
     }
 
-    protected static EnumResolver _construct(DeserializationConfig config,
-            Class<Enum<?>> enumClass, Enum<?>[] enums,
-            HashMap<String, Enum<?>> enumsById,
-            boolean isFromIntValue)
-    {
-        return new EnumResolver(enumClass, enums, enumsById,
-                config.getAnnotationIntrospector().findDefaultEnumValue(config, enumClass),
-                config.isEnabled(ACCEPT_CASE_INSENSITIVE_ENUMS),
-                isFromIntValue);
-    }
+    /*
+    /**********************************************************************
+    /* Factory methods (non-deprecated)
+    /**********************************************************************
+     */
 
     /**
      * Factory method for constructing resolver that maps from Enum.name() into
@@ -199,6 +200,17 @@ public class EnumResolver implements java.io.Serializable
         return _construct(config, enumCls, enumConstants, byId,
                 // 26-Sep-2021, tatu: [databind#1850] Need to consider "from int" case
                 _isIntType(accessor.getRawType()));
+    }
+
+    protected static EnumResolver _construct(DeserializationConfig config,
+            Class<Enum<?>> enumClass, Enum<?>[] enums,
+            HashMap<String, Enum<?>> enumsById,
+            boolean isFromIntValue)
+    {
+        return new EnumResolver(enumClass, enums, enumsById,
+                config.getAnnotationIntrospector().findDefaultEnumValue(config, enumClass),
+                config.isEnabled(ACCEPT_CASE_INSENSITIVE_ENUMS),
+                isFromIntValue);
     }
 
     @SuppressWarnings("unchecked")

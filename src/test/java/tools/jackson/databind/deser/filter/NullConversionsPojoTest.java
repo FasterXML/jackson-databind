@@ -63,8 +63,8 @@ public class NullConversionsPojoTest extends BaseMapTest
 
     // [databind#3645]
     static class Issue3645BeanA {
-        private String name;
-        private Collection<Integer> prices;
+        String name;
+        Collection<Integer> prices;
 
         public Issue3645BeanA(
             @JsonProperty("name") String name,

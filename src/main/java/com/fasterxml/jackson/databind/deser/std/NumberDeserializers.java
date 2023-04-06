@@ -941,7 +941,7 @@ public class NumberDeserializers
                     return (BigInteger) getEmptyValue(ctxt);
                 }
                 final BigDecimal bd = p.getDecimalValue();
-                StreamReadConstraints.defaults().validateBigIntegerScale(bd.scale());
+                p.streamReadConstraints().validateBigIntegerScale(bd.scale());
                 return bd.toBigInteger();
             // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
             case JsonTokenId.ID_START_OBJECT:

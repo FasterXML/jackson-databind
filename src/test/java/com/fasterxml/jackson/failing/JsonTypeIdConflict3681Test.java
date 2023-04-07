@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+// [databind#3681]: JsonSubTypes declared on multiple interfaces of a class
+// results in order-dependent resolution and outcome
 public class JsonTypeIdConflict3681Test extends BaseMapTest {
 
     /*

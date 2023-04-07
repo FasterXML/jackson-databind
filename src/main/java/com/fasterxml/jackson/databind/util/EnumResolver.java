@@ -150,8 +150,7 @@ public class EnumResolver implements java.io.Serializable
             map.put(String.valueOf(i), enumValue);
         }
         return new EnumResolver(enumCls, enumConstants, map,
-            _enumDefault(ai, enumCls), isIgnoreCase,
-            false);
+            _enumDefault(ai, enumCls), isIgnoreCase, false);
     }
 
     /**
@@ -235,8 +234,7 @@ public class EnumResolver implements java.io.Serializable
     /**
      * @since 2.12
      */
-    protected static EnumResolver _constructUsingMethod(DeserializationConfig config, Class<?> enumCls0,
-                                                        AnnotatedMember accessor)
+    protected static EnumResolver _constructUsingMethod(DeserializationConfig config, Class<?> enumCls0, AnnotatedMember accessor)
     {
         final AnnotationIntrospector ai = config.getAnnotationIntrospector();
         final boolean isIgnoreCase = config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);

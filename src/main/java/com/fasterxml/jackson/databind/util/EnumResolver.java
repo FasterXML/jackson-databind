@@ -136,7 +136,8 @@ public class EnumResolver implements java.io.Serializable
         return _constructUsingIndex(config, enumCls);
     }
 
-    private static EnumResolver _constructUsingIndex(DeserializationConfig config, Class<Enum<?>> enumCls0) {
+    private static EnumResolver _constructUsingIndex(DeserializationConfig config, Class<Enum<?>> enumCls0)
+    {
         final AnnotationIntrospector ai = config.getAnnotationIntrospector();
         final boolean isIgnoreCase = config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
         final Class<Enum<?>> enumCls = _enumClass(enumCls0);
@@ -149,7 +150,8 @@ public class EnumResolver implements java.io.Serializable
             map.put(String.valueOf(i), enumValue);
         }
         return new EnumResolver(enumCls, enumConstants, map,
-            _enumDefault(ai, enumCls), isIgnoreCase, false);
+            _enumDefault(ai, enumCls), isIgnoreCase,
+            false);
     }
 
     /**

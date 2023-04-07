@@ -1,9 +1,6 @@
 package com.fasterxml.jackson.databind.deser;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
@@ -115,6 +112,39 @@ public class JsonIdentityInfoIdProperty3838Test extends BaseMapTest {
         }
     }
 
+    @JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id"
+    )
+    @JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.WRAPPER_OBJECT,
+        property = "type"
+    )
+    @JsonSubTypes({
+        @JsonSubTypes.Type(value = Concrete3838.class, name = "concrete_3838")
+    })
+    static class BaseType3838 implements ResultGetter {
+        public String id;
+
+        @Override
+        public String result() {
+            return id;
+        }
+    }
+
+    @JsonTypeName("concrete_3838")
+    static class Concrete3838 extends BaseType3838 {
+        public String location;
+
+        protected Concrete3838() {}
+
+        public Concrete3838(String id, String loc) {
+            this.id = id;
+            location = loc;
+        }
+    }
+
     /*
     /**********************************************************
     /* Test
@@ -128,7 +158,8 @@ public class JsonIdentityInfoIdProperty3838Test extends BaseMapTest {
         {CreatorBased.class, "{'id':'great'}"},
         {DefaultConstructorBased.class, "{'id':'great'}"},
         {StaticFactoryMethodBased.class, "{'id':'great'}"},
-        {MultiArgConstructorBased.class, "{'id':'great','value':42}"}
+        {MultiArgConstructorBased.class, "{'id':'great','value':42}"},
+        {BaseType3838.class, "{'concrete_3838':{'id':'great','location':'Bangkok'}}"}
     };
 
     public void testUniformHandlingForMissingObjectId() throws Exception {
@@ -147,8 +178,8 @@ public class JsonIdentityInfoIdProperty3838Test extends BaseMapTest {
             }
 
             // 2. but works with non-empty JSON object
-            ResultGetter resultGetter = (ResultGetter) MAPPER.readValue(a2q(jsonStr), cls);
-            assertEquals("great", resultGetter.result());
+            ResultGetter nonEmptyObj = (ResultGetter) MAPPER.readValue(a2q(jsonStr), cls);
+            assertEquals("great", nonEmptyObj.result());
         }
     }
 }

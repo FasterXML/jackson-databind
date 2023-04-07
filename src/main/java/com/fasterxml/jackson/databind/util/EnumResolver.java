@@ -83,7 +83,7 @@ public class EnumResolver implements java.io.Serializable
     }
 
     /**
-     * @since 2.12
+     * @since 2.15
      */
     protected static EnumResolver _constructFor(DeserializationConfig config, Class<?> enumCls0)
     {
@@ -132,11 +132,13 @@ public class EnumResolver implements java.io.Serializable
      *
      * @since 2.15
      */
-    public static EnumResolver constructUsingIndex(DeserializationConfig config, Class<Enum<?>> enumCls) {
+    public static EnumResolver constructUsingIndex(DeserializationConfig config,
+            Class<Enum<?>> enumCls) {
         return _constructUsingIndex(config, enumCls);
     }
 
-    private static EnumResolver _constructUsingIndex(DeserializationConfig config, Class<Enum<?>> enumCls0)
+    private static EnumResolver _constructUsingIndex(DeserializationConfig config,
+            Class<Enum<?>> enumCls0)
     {
         final AnnotationIntrospector ai = config.getAnnotationIntrospector();
         final boolean isIgnoreCase = config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
@@ -162,7 +164,7 @@ public class EnumResolver implements java.io.Serializable
      * @since 2.15
      */
     public static EnumResolver constructUsingEnumNamingStrategy(DeserializationConfig config,
-                                                                Class<?> enumCls, EnumNamingStrategy enumNamingStrategy) {
+            Class<?> enumCls, EnumNamingStrategy enumNamingStrategy) {
         return _constructUsingEnumNamingStrategy(config, enumCls, enumNamingStrategy);
     }
 

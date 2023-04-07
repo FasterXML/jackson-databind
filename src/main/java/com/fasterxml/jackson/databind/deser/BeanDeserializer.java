@@ -368,7 +368,7 @@ public class BeanDeserializer
         // [databind#631]: Assign current value, to be accessible by custom deserializers
         p.setCurrentValue(bean);
 
-        // [databind#3838]: Uniform handling of ObjectId-property
+        // [databind#3838]: Uniform handling of missing objectId
         if (_objectIdReader != null) {
             // check if there are any properties present in the JSON object
             if (!p.hasCurrentToken() || p.getCurrentToken() == JsonToken.END_OBJECT) {

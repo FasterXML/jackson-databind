@@ -79,15 +79,16 @@ public class EnumResolver implements java.io.Serializable
      */
     public static EnumResolver constructFor(DeserializationConfig config,
             Class<?> enumCls) {
-        return _constructFor(config, enumCls, config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS));
+        return _constructFor(config, enumCls);
     }
 
     /**
      * @since 2.12
      */
-    protected static EnumResolver _constructFor(DeserializationConfig config, Class<?> enumCls0, boolean isIgnoreCase)
+    protected static EnumResolver _constructFor(DeserializationConfig config, Class<?> enumCls0)
     {
         final AnnotationIntrospector ai = config.getAnnotationIntrospector();
+        final boolean isIgnoreCase = config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
         final Class<Enum<?>> enumCls = _enumClass(enumCls0);
         final Enum<?>[] enumConstants = _enumConstants(enumCls0);
         String[] names = ai.findEnumValues(enumCls, enumConstants, new String[enumConstants.length]);
@@ -122,8 +123,7 @@ public class EnumResolver implements java.io.Serializable
      */
     public static EnumResolver constructUsingToString(DeserializationConfig config,
             Class<?> enumCls) {
-        return _constructUsingToString(config, enumCls,
-                config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS));
+        return _constructUsingToString(config, enumCls);
     }
 
     /**
@@ -133,13 +133,12 @@ public class EnumResolver implements java.io.Serializable
      * @since 2.15
      */
     public static EnumResolver constructUsingIndex(DeserializationConfig config, Class<Enum<?>> enumCls) {
-        return _constructUsingIndex(config, enumCls,
-                config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS));
+        return _constructUsingIndex(config, enumCls);
     }
 
-    private static EnumResolver _constructUsingIndex(DeserializationConfig config, Class<Enum<?>> enumCls0,
-                                                        boolean isIgnoreCase) {
+    private static EnumResolver _constructUsingIndex(DeserializationConfig config, Class<Enum<?>> enumCls0) {
         final AnnotationIntrospector ai = config.getAnnotationIntrospector();
+        final boolean isIgnoreCase = config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
         final Class<Enum<?>> enumCls = _enumClass(enumCls0);
         final Enum<?>[] enumConstants = _enumConstants(enumCls0);
         HashMap<String, Enum<?>> map = new HashMap<>();
@@ -163,17 +162,17 @@ public class EnumResolver implements java.io.Serializable
      */
     public static EnumResolver constructUsingEnumNamingStrategy(DeserializationConfig config,
                                                                 Class<?> enumCls, EnumNamingStrategy enumNamingStrategy) {
-        return _constructUsingEnumNamingStrategy(config, enumCls,
-                config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS), enumNamingStrategy);
+        return _constructUsingEnumNamingStrategy(config, enumCls, enumNamingStrategy);
     }
 
     /**
      * @since 2.15
      */
     private static EnumResolver _constructUsingEnumNamingStrategy(
-        DeserializationConfig config, Class<?> enumCls0, boolean isIgnoreCase, EnumNamingStrategy enumNamingStrategy)
+        DeserializationConfig config, Class<?> enumCls0, EnumNamingStrategy enumNamingStrategy)
     {
         final AnnotationIntrospector ai = config.getAnnotationIntrospector();
+        final boolean isIgnoreCase = config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
         final Class<Enum<?>> enumCls = _enumClass(enumCls0);
         final Enum<?>[] enumConstants = _enumConstants(enumCls0);
         HashMap<String, Enum<?>> map = new HashMap<>();
@@ -192,9 +191,10 @@ public class EnumResolver implements java.io.Serializable
     /**
      * @since 2.12
      */
-    protected static EnumResolver _constructUsingToString(DeserializationConfig config, Class<?> enumCls0, boolean isIgnoreCase)
+    protected static EnumResolver _constructUsingToString(DeserializationConfig config, Class<?> enumCls0)
     {
         final AnnotationIntrospector ai = config.getAnnotationIntrospector();
+        final boolean isIgnoreCase = config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
         final Class<Enum<?>> enumCls = _enumClass(enumCls0);
         final Enum<?>[] enumConstants = _enumConstants(enumCls0);
         HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();
@@ -227,17 +227,17 @@ public class EnumResolver implements java.io.Serializable
      */
     public static EnumResolver constructUsingMethod(DeserializationConfig config,
             Class<?> enumCls, AnnotatedMember accessor) {
-        return _constructUsingMethod(config, enumCls, accessor,
-                config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS));
+        return _constructUsingMethod(config, enumCls, accessor);
     }
 
     /**
      * @since 2.12
      */
     protected static EnumResolver _constructUsingMethod(DeserializationConfig config, Class<?> enumCls0,
-                                                        AnnotatedMember accessor, boolean isIgnoreCase)
+                                                        AnnotatedMember accessor)
     {
         final AnnotationIntrospector ai = config.getAnnotationIntrospector();
+        final boolean isIgnoreCase = config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
         final Class<Enum<?>> enumCls = _enumClass(enumCls0);
         final Enum<?>[] enumConstants = _enumConstants(enumCls0);
         HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();

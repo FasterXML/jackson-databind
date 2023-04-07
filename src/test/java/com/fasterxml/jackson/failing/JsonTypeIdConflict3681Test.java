@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 
 public class JsonTypeIdConflict3681Test extends BaseMapTest {
 
@@ -17,27 +16,27 @@ public class JsonTypeIdConflict3681Test extends BaseMapTest {
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
     @JsonSubTypes({
-        @JsonSubTypes.Type(name = "c_impl", value = C_Impl.class)
+        @JsonSubTypes.Type(name = "a_impl", value = A_Impl.class)
     })
     private interface A {}
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
     @JsonSubTypes({
-        @JsonSubTypes.Type(name = "b_impl", value = B_impl.class),
+        @JsonSubTypes.Type(name = "b_impl", value = B_Impl.class),
     })
     private interface B {}
 
-    /***
-     * Note the order of declarations on inherited interfaces - it makes
+    /**
+     * NOTE: the <b>"order"</b> of declarations on inherited interfaces makes
      * the difference in how types are resolved here.
      */
-    private interface C extends A, B {}
+    private interface C extends B, A {}
 
-    private static class C_Impl implements C {}
+    private static class A_Impl implements C {}
 
-    private static class B_impl implements B {}
+    private static class B_Impl implements B {}
 
-    private static class Clazz {
+    private static class WrapperC {
         @JsonProperty
         public C c;
     }
@@ -50,12 +49,14 @@ public class JsonTypeIdConflict3681Test extends BaseMapTest {
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    public void testCheckSanity() throws Exception {
-        try {
-
-            MAPPER.readValue(a2q("{'c': {'type': 'c_impl'}}"), Clazz.class);
-        } catch (InvalidTypeIdException e) {
-            verifyException(e, "Cannot resolve type id 'c_impl' as a subtype of");
-        }
+    /**
+     * Type resolution fails due to a conflict between the types.
+     * <p>
+     * NOTE: This only pass when {@code C} extends {@code A} first.
+     * For example, {@code private interface C extends A, B}
+     */
+    public void testFailureWithTypeIdConflict() throws Exception {
+        WrapperC c = MAPPER.readValue(a2q("{'c': {'type': 'c_impl'}}"), WrapperC.class);
+        assertNotNull(c);
     }
 }

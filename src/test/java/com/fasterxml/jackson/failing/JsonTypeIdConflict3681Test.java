@@ -50,13 +50,17 @@ public class JsonTypeIdConflict3681Test extends BaseMapTest {
     private final ObjectMapper MAPPER = newJsonMapper();
 
     /**
-     * Type resolution fails due to a conflict between the types.
+     * Type resolution fails due to a conflict between the types --check the exception message below this test case.
      * <p>
-     * NOTE: This only pass when {@code C} extends {@code A} first.
-     * For example, {@code private interface C extends A, B}
+     * This will only pass when we modify {@code C} to extend {@code A} first, like so:
+     * <pre>
+     *  private interface C extends A, B {}
+     * </pre>
      */
     public void testFailureWithTypeIdConflict() throws Exception {
         WrapperC c = MAPPER.readValue(a2q("{'c': {'type': 'c_impl'}}"), WrapperC.class);
         assertNotNull(c);
     }
+    // com.fasterxml.jackson.databind.exc.InvalidTypeIdException: Could not resolve type id 'c_impl' as a subtype
+    // of `com.fasterxml.jackson.failing.JsonTypeIdConflict3681Test$C`: known type ids = [b_impl] (for POJO property 'c')
 }

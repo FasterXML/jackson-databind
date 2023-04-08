@@ -367,19 +367,18 @@ public class BeanDeserializer
         final Object bean = _valueInstantiator.createUsingDefault(ctxt);
         // [databind#631]: Assign current value, to be accessible by custom deserializers
         p.setCurrentValue(bean);
-
-        // [databind#3838]: Uniform handling of missing objectId
-        if (_objectIdReader != null) {
-            // check if there are any properties present in the JSON object
-            if (!p.hasCurrentToken() || p.getCurrentToken() == JsonToken.END_OBJECT) {
-            // throw an error here since there are no properties in the JSON object
-                ctxt.reportUnresolvedObjectId(_objectIdReader, bean);
-            }
-        }
         if (p.canReadObjectId()) {
             Object id = p.getObjectId();
             if (id != null) {
                 _handleTypedObjectId(p, ctxt, bean, id);
+            }
+        }
+        // [databind#3838]: Uniform handling of missing objectId
+        if (_objectIdReader != null) {
+            // check if there are any properties present in the JSON object
+            if (!p.hasCurrentToken() || p.getCurrentToken() == JsonToken.END_OBJECT) {
+                // throw an error here since there are no properties in the JSON object
+                ctxt.reportUnresolvedObjectId(_objectIdReader, bean);
             }
         }
         if (_injectables != null) {

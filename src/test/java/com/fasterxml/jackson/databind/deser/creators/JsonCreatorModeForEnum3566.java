@@ -17,7 +17,7 @@ public class JsonCreatorModeForEnum3566 extends BaseMapTest {
     */
 
     static class PojoA {
-        private final String name;
+        final String name;
 
         PojoA(String name) {
             this.name = name;

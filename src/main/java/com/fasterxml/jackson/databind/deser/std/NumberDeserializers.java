@@ -940,7 +940,9 @@ public class NumberDeserializers
                 if (act == CoercionAction.AsEmpty) {
                     return (BigInteger) getEmptyValue(ctxt);
                 }
-                return p.getDecimalValue().toBigInteger();
+                final BigDecimal bd = p.getDecimalValue();
+                p.streamReadConstraints().validateBigIntegerScale(bd.scale());
+                return bd.toBigInteger();
             // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
             case JsonTokenId.ID_START_OBJECT:
                 text = ctxt.extractScalarFromObject(p, this, _valueClass);

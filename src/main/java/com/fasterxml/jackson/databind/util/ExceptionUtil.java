@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.util;
 
+import java.io.IOException;
+
 /**
  * Utility methods for dealing with exceptions/throwables
  *
@@ -55,5 +57,15 @@ public class ExceptionUtil {
                 || throwable instanceof BootstrapMethodError
                 || throwable instanceof VerifyError
         );
+    }
+
+    public static <T> T throwSneaky(IOException e) {
+        _sneaky(e);
+        return null; // never gets here, needed for compiler tho
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <E extends Throwable> void _sneaky(Throwable e) throws E {
+        throw (E) e;
     }
 }

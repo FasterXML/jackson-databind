@@ -1,12 +1,16 @@
 package com.fasterxml.jackson.databind.node;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializable;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.util.ExceptionUtil;
 
 /**
  * Abstract base class common to all standard {@link JsonNode}
@@ -269,4 +273,16 @@ public abstract class BaseJsonNode
        return null;
    }
 
+   // @since 2.15
+   protected BigInteger _bigIntFromBigDec(BigDecimal value) {
+       try {
+           StreamReadConstraints.defaults().validateBigIntegerScale(value.scale());
+       } catch (StreamConstraintsException e) {
+           // 06-Apr-2023, tatu: Since `JsonNode` does not generally expose Jackson
+           //    exceptions, we need to either wrap possible `StreamConstraintsException`
+           //    or use "sneaky throw". Let's do latter.
+           ExceptionUtil.throwSneaky(e);
+       }
+       return value.toBigInteger();
+   }
 }

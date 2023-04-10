@@ -86,7 +86,12 @@ public class DecimalNode
 
     @Override
     public BigInteger bigIntegerValue() {
-        return _bigIntFromBigDec(_value);
+        return _bigIntFromBigDec(StreamReadConstraints.defaults(), _value);
+    }
+
+    @Override
+    public BigInteger bigIntegerValue(StreamReadConstraints streamReadConstraints) {
+        return _bigIntFromBigDec(streamReadConstraints, _value);
     }
 
     @Override

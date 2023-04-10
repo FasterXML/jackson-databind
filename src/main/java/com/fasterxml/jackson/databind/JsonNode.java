@@ -616,6 +616,21 @@ public abstract class JsonNode
      */
     public BigInteger bigIntegerValue() { return BigInteger.ZERO; }
 
+    /**
+     * Returns integer value for this node (as {@link BigInteger}), <b>if and only if</b>
+     * this node is numeric ({@link #isNumber} returns true). For other
+     * types returns <code>BigInteger.ZERO</code>.
+     *<p>
+     * NOTE: In Jackson 2.x MAY throw {@link com.fasterxml.jackson.core.exc.StreamConstraintsException}
+     *   if the scale of the underlying {@link BigDecimal} is too large to convert (NOTE: thrown
+     *   "sneakily" in Jackson 2.x due to API compatibility restrictions)
+     *
+     * @param streamReadConstraints the constraints to apply to the conversion
+     * @return {@link BigInteger} value this node contains, if numeric node; <code>BigInteger.ZERO</code> for non-number nodes.
+     * @since 2.15
+     */
+    public BigInteger bigIntegerValue(final StreamReadConstraints streamReadConstraints) { return BigInteger.ZERO; }
+
     /*
     /**********************************************************
     /* Public API, value access with conversion(s)/coercion(s)

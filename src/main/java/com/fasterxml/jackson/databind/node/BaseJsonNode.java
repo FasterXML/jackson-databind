@@ -274,9 +274,9 @@ public abstract class BaseJsonNode
    }
 
    // @since 2.15
-   protected BigInteger _bigIntFromBigDec(BigDecimal value) {
+   protected BigInteger _bigIntFromBigDec(StreamReadConstraints streamReadConstraints, BigDecimal value) {
        try {
-           StreamReadConstraints.defaults().validateBigIntegerScale(value.scale());
+           streamReadConstraints.validateBigIntegerScale(value.scale());
        } catch (StreamConstraintsException e) {
            // 06-Apr-2023, tatu: Since `JsonNode` does not generally expose Jackson
            //    exceptions, we need to either wrap possible `StreamConstraintsException`

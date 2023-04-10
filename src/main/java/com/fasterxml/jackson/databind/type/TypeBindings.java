@@ -57,9 +57,9 @@ public class TypeBindings
             throw new IllegalArgumentException("Mismatching names ("+_names.length+"), types ("+_types.length+")");
         }
         int h = 1;
-        for (int i = 0, len = _types.length; i < len; ++i) {
-            h += _types[i].hashCode();
-        }
+        h = 31 * h + Arrays.hashCode(names);
+        h = 31 * h + Arrays.hashCode(types);
+        h = 31 * h + Arrays.hashCode(uvars);
         _unboundVariables = uvars;
         _hashCode = h;
     }
@@ -253,6 +253,15 @@ name, i, t.getRawClass()));
         return null;
     }
 
+    boolean containsPlaceholders() {
+        for (JavaType type : _types) {
+            if (type instanceof PlaceholderForType) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public boolean isEmpty() {
         return (_types.length == 0);
     }
@@ -309,11 +318,17 @@ name, i, t.getRawClass()));
      * Factory method that will create an object that can be used as a key for
      * caching purposes by {@link TypeFactory}
      *
+     * @return An object which can be used as a key in TypeFactory, or {@code null} if no key can be created.
+     *
      * @since 2.8
      */
     public Object asKey(Class<?> rawBase) {
         // safe to pass _types array without copy since it is not exposed via
         // any access, nor modified by this class
+        if (containsPlaceholders()) {
+            // If placeholders are present, no key may be returned because the key is unhelpful without context.
+            return null;
+        }
         return new AsKey(rawBase, _types, _hashCode);
     }
 
@@ -351,17 +366,10 @@ name, i, t.getRawClass()));
             return false;
         }
         TypeBindings other = (TypeBindings) o;
-        int len = _types.length;
-        if (len != other.size()) {
-            return false;
-        }
-        JavaType[] otherTypes = other._types;
-        for (int i = 0; i < len; ++i) {
-            if (!otherTypes[i].equals(_types[i])) {
-                return false;
-            }
-        }
-        return true;
+        return _hashCode == other._hashCode
+                && Arrays.equals(_types, other._types)
+                && Arrays.equals(_names, other._names)
+                && Arrays.equals(_unboundVariables, other._unboundVariables);
     }
 
     /*
@@ -450,7 +458,7 @@ name, i, t.getRawClass()));
         public AsKey(Class<?> raw, JavaType[] params, int hash) {
             _raw = raw ;
             _params = params;
-            _hash = hash;
+            _hash = 31 * (31 + (raw == null ? 0 : raw.hashCode())) + hash;
         }
 
         @Override

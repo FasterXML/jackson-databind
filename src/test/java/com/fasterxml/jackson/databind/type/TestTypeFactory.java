@@ -7,6 +7,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 
+import static org.junit.Assert.assertNotEquals;
+
 /**
  * Simple tests to verify that the {@link TypeFactory} constructs
  * type information as expected.
@@ -355,6 +357,16 @@ public class TestTypeFactory
         assertEquals(AbstractList.class, superType.getRawClass());
     }
 
+    @SuppressWarnings("rawtypes")
+    public void testCollectionsHashCode()
+    {
+        TypeFactory tf = newTypeFactory();
+        JavaType listOfCollection = tf.constructType(new TypeReference<List<Collection>>() { });
+        JavaType collectionOfList = tf.constructType(new TypeReference<Collection<List>>() { });
+        assertNotEquals(listOfCollection, collectionOfList);
+        assertNotEquals(listOfCollection.hashCode(), collectionOfList.hashCode());
+    }
+
     /*
     /**********************************************************
     /* Unit tests: map type parameter resolution
@@ -395,6 +407,23 @@ public class TestTypeFactory
         MapType mapType = (MapType) type;
         assertEquals(tf.constructType(String.class), mapType.getKeyType());
         assertEquals(tf.constructType(Boolean.class), mapType.getContentType());
+    }
+
+    public void testMapsHashCode()
+    {
+        TypeFactory tf = newTypeFactory();
+        JavaType mapStringInt = tf.constructType(new TypeReference<Map<String,Integer>>() {});
+        JavaType mapIntString = tf.constructType(new TypeReference<Map<Integer,String>>() {});
+        assertNotEquals(mapStringInt, mapIntString);
+        assertNotEquals(
+                "hashCode should depend on parameter order",
+                mapStringInt.hashCode(),
+                mapIntString.hashCode());
+
+        JavaType mapStringString = tf.constructType(new TypeReference<Map<String,String>>() {});
+        JavaType mapIntInt = tf.constructType(new TypeReference<Map<Integer,Integer>>() {});
+        assertNotEquals(mapStringString, mapIntInt);
+        assertNotEquals(mapStringString.hashCode(), mapIntInt.hashCode());
     }
 
     // since 2.7

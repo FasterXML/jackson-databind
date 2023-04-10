@@ -1465,7 +1465,7 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
         } else {
             key = bindings.asKey(rawType);
         }
-        result = _typeCache.get(key); // ok, cache object is synced
+        result = key == null ? null : _typeCache.get(key); // ok, cache object is synced
         if (result != null) {
             return result;
         }
@@ -1529,7 +1529,7 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
         context.resolveSelfReferences(result);
         // 16-Jul-2016, tatu: [databind#1302] is solved different way, but ideally we shouldn't
         //     cache anything with partially resolved `ResolvedRecursiveType`... so maybe improve
-        if (!result.hasHandlers()) {
+        if (key != null && !result.hasHandlers()) {
             _typeCache.putIfAbsent(key, result); // cache object syncs
         }
         return result;

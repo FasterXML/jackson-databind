@@ -5,6 +5,8 @@ import java.util.*;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.JavaType;
 
+import static org.junit.Assert.assertNotEquals;
+
 /**
  * Simple tests to verify for generic type binding functionality
  * implemented by {@link TypeBindings} class.
@@ -86,5 +88,30 @@ public class TestTypeBindings
             verifyException(e, "Cannot create TypeBindings");
             verifyException(e, "class expects 2");
         }
+    }
+
+    public void testEqualityAndHashCode()
+    {
+        JavaType stringType = DEFAULT_TF.constructType(String.class);
+        TypeBindings listStringBindings = TypeBindings.create(List.class, stringType);
+        TypeBindings listStringBindingsWithUnbound = listStringBindings.withUnboundVariable("X");
+        TypeBindings iterableStringBindings = TypeBindings.create(Iterable.class, stringType);
+        // Ensure that type variable names used by List and Iterable do not change in future java versions
+        assertEquals("E", listStringBindings.getBoundName(0));
+        assertEquals("T", iterableStringBindings.getBoundName(0));
+        // These TypeBindings should differ:
+        assertNotEquals(listStringBindings, iterableStringBindings);
+        assertNotEquals(listStringBindings.hashCode(), iterableStringBindings.hashCode());
+        // Type bindings which differ by an unbound variable still differ:
+        assertNotEquals(listStringBindingsWithUnbound, listStringBindings);
+        assertNotEquals(listStringBindingsWithUnbound.hashCode(), listStringBindings.hashCode());
+
+        Object iterableStringBaseList = iterableStringBindings.asKey(List.class);
+        Object listStringBaseList = listStringBindings.asKey(List.class);
+        Object listStringBindingsWithUnboundBaseList = listStringBindingsWithUnbound.asKey(List.class);
+        assertNotEquals(iterableStringBaseList, listStringBaseList);
+        assertNotEquals(iterableStringBaseList.hashCode(), listStringBaseList.hashCode());
+        assertNotEquals(listStringBindingsWithUnboundBaseList, listStringBaseList);
+        assertNotEquals(listStringBindingsWithUnboundBaseList.hashCode(), listStringBaseList.hashCode());
     }
 }

@@ -620,27 +620,14 @@ public class ObjectMapperTest extends BaseMapTest
         }
     }
 
-    public void testRegisterDifferentModuleWithSameId() {
+    public void testRegisterTwoModulesWithSameIdOneRemains() {
         ObjectMapper objectMapper = newJsonMapper();
-        try {
-            objectMapper.registerModule(new Module() {
-                @Override
-                public String getModuleName() {
-                    return "some-module-name";
-                }
+        SimpleModule firstModule = _testModuleWithId("module-name");
+        SimpleModule secondModule = _testModuleWithId("module-name");
+        objectMapper.registerModule(firstModule);
+        objectMapper.registerModule(secondModule);
 
-                @Override
-                public Version version() {
-                    return null;
-                }
-
-                @Override
-                public void setupModule(SetupContext context) { }
-            });
-            fail("should not pass");
-        } catch (IllegalArgumentException e) {
-            verifyException(e, "Module without defined version");
-        }
+        assertEquals(1, objectMapper._registeredModuleTypes.size());
     }
 
     // since 2.12

@@ -53,7 +53,7 @@ public class SimpleType // note: until 2.6 was final
             Object valueHandler, Object typeHandler, boolean asStatic)
     {
         super(cls, bindings, superClass, superInts,
-                0, valueHandler, typeHandler, asStatic);
+                SimpleType.class.hashCode(), valueHandler, typeHandler, asStatic);
     }
 
     /**

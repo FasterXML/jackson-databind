@@ -540,15 +540,12 @@ public class ObjectMapperTest extends BaseMapTest
     }
 
     public void testCopyHasSameRegisteredModulesInDifferentSetInstances() {
-        // Arrange
         ObjectMapper originalMapper = newJsonMapper();
         originalMapper.registerModule(_testModuleWithId("first"));
         originalMapper.registerModule(_testModuleWithId("second"));
 
-        // Act
         ObjectMapper copyMapper = originalMapper.copy();
 
-        // Assert
         assertNotSame(originalMapper, copyMapper);
         assertNotSame(originalMapper._registeredModuleTypes, copyMapper._registeredModuleTypes);
         assertEquals(originalMapper.getRegisteredModuleIds(), copyMapper.getRegisteredModuleIds());

@@ -457,7 +457,7 @@ name, i, t.getRawClass()));
         public AsKey(Class<?> raw, JavaType[] params, int hash) {
             _raw = raw ;
             _params = params;
-            _hash = raw == null ? hash : 31 * raw.hashCode() + hash;
+            _hash = 31 * Objects.hashCode(raw) + hash;
         }
 
         @Override

@@ -335,7 +335,7 @@ public enum MapperFeature implements ConfigFeature
      *
      * @since 2.15
      */
-    STRICT_TYPE_ID_HANDLING(false),
+    REQUIRE_TYPE_ID_FOR_SUBTYPES(true),
 
     /*
     /******************************************************

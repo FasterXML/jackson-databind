@@ -19,7 +19,7 @@ public class StrictJsonTypeInfoHandling3853Test extends BaseMapTest {
     static class DoSomethingCommand implements Command {
     }
 
-    public void testDefaultNonStrictTypeHandling() throws Exception {
+    public void testDefaultHasStrictTypeHandling() throws Exception {
         ObjectMapper om = new ObjectMapper();
         om.registerSubtypes(DoSomethingCommand.class);
 
@@ -28,13 +28,13 @@ public class StrictJsonTypeInfoHandling3853Test extends BaseMapTest {
         // and throw an exception if the target was a super-type in all cases
         verifyInvalidTypeIdWithSuperclassTarget(om);
 
-        // Default is to allow the deserialization without a type if the target
+        // Default is to disallow the deserialization without a type if the target
         // is a concrete sub-type
-        verifyDeserializationWithConcreteTarget(om);
+        verifyInvalidTypeIdWithConcreteTarget(om);
     }
 
     public void testExplicitNonStrictTypeHandling() throws Exception {
-        ObjectMapper om = JsonMapper.builder().disable(MapperFeature.STRICT_TYPE_ID_HANDLING).build();
+        ObjectMapper om = JsonMapper.builder().disable(MapperFeature.REQUIRE_TYPE_ID_FOR_SUBTYPES).build();
         om.registerSubtypes(DoSomethingCommand.class);
 
         // This should pass in all scenarios
@@ -48,7 +48,7 @@ public class StrictJsonTypeInfoHandling3853Test extends BaseMapTest {
     }
 
     public void testStrictTypeHandling() throws Exception {
-        ObjectMapper om = JsonMapper.builder().enable(MapperFeature.STRICT_TYPE_ID_HANDLING).build();
+        ObjectMapper om = JsonMapper.builder().enable(MapperFeature.REQUIRE_TYPE_ID_FOR_SUBTYPES).build();
         om.registerSubtypes(DoSomethingCommand.class);
 
         // This should pass in all scenarios

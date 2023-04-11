@@ -37,7 +37,7 @@ public class MapLikeType extends TypeBase {
             JavaType valueT, Object valueHandler, Object typeHandler,
             boolean asStatic) {
         super(mapType, bindings, superClass, superInts,
-                31 * (31 + keyT.hashCode()) + valueT.hashCode(),
+                31 * keyT.hashCode() + valueT.hashCode(),
                 valueHandler, typeHandler, asStatic);
         _keyType = keyT;
         _valueType = valueT;

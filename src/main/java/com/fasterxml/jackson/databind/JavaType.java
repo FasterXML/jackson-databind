@@ -86,7 +86,7 @@ public abstract class JavaType
             Object valueHandler, Object typeHandler, boolean asStatic)
     {
         _class = raw;
-        _hash =  31 * (31 + additionalHash) + raw.getName().hashCode();
+        _hash =  31 * additionalHash + raw.hashCode();
         _valueHandler = valueHandler;
         _typeHandler = typeHandler;
         _asStatic = asStatic;

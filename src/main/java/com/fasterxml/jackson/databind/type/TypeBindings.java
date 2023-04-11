@@ -56,10 +56,9 @@ public class TypeBindings
         if (_names.length != _types.length) {
             throw new IllegalArgumentException("Mismatching names ("+_names.length+"), types ("+_types.length+")");
         }
-        int h = 1;
+        int h = Arrays.hashCode(uvars);
         h = 31 * h + Arrays.hashCode(names);
         h = 31 * h + Arrays.hashCode(types);
-        h = 31 * h + Arrays.hashCode(uvars);
         _unboundVariables = uvars;
         _hashCode = h;
     }
@@ -458,7 +457,7 @@ name, i, t.getRawClass()));
         public AsKey(Class<?> raw, JavaType[] params, int hash) {
             _raw = raw ;
             _params = params;
-            _hash = 31 * (31 + (raw == null ? 0 : raw.hashCode())) + hash;
+            _hash = raw == null ? hash : 31 * raw.hashCode() + hash;
         }
 
         @Override

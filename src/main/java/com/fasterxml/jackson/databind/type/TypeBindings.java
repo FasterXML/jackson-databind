@@ -250,7 +250,7 @@ name, i, t.getRawClass()));
         return null;
     }
 
-    boolean containsPlaceholders() {
+    private boolean containsPlaceholders() {
         for (JavaType type : _types) {
             if (type instanceof PlaceholderForType) {
                 return true;

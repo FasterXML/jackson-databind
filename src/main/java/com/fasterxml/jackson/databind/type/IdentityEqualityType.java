@@ -18,10 +18,6 @@ abstract class IdentityEqualityType extends TypeBase {
         super(raw, bindings, superClass, superInts, hash, valueHandler, typeHandler, asStatic);
     }
 
-    protected IdentityEqualityType(TypeBase base) {
-        super(base);
-    }
-
     @Override
     public final boolean equals(Object o) {
         return o == this;

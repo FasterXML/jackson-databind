@@ -58,7 +58,7 @@ public class TypeBindings
         }
         _unboundVariables = uvars;
         // hashCode and equality are based solely on _types.
-        _hashCode = Arrays.hashCode(types);
+        _hashCode = Arrays.hashCode(_types);
     }
 
     public static TypeBindings emptyBindings() {

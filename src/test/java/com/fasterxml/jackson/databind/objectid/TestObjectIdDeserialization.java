@@ -357,6 +357,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
         IdWrapper w = MAPPER.readerFor(IdWrapper.class)
             .with(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS)
             .readValue(a2q("{'node':123}"));
+        // should fail, but passes
         assertNotNull(w);
         assertNull(w.node);
     }
@@ -366,6 +367,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
         IdWrapper w = MAPPER.readerFor(IdWrapper.class)
             .with(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS)
             .readValue(a2q("{}"));
+        // should fail, but passes also?
         assertNotNull(w);
         assertNull(w.node);
     }

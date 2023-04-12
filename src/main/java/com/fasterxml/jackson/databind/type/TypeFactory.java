@@ -115,7 +115,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
     protected final static SimpleType CORE_TYPE_OBJECT = new SimpleType(CLS_OBJECT);
 
     /**
-     * Cache {@link Comparable} because it is both parameteric (relatively costly to
+     * Cache {@link Comparable} because it is both parametric (relatively costly to
      * resolve) and mostly useless (no special handling), better handle directly
      *
      * @since 2.7

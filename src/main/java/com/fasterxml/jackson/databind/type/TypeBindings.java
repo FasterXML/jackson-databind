@@ -56,11 +56,9 @@ public class TypeBindings
         if (_names.length != _types.length) {
             throw new IllegalArgumentException("Mismatching names ("+_names.length+"), types ("+_types.length+")");
         }
-        int h = Arrays.hashCode(uvars);
-        h = 31 * h + Arrays.hashCode(names);
-        h = 31 * h + Arrays.hashCode(types);
         _unboundVariables = uvars;
-        _hashCode = h;
+        // hashCode and equality are based solely on _types.
+        _hashCode = Arrays.hashCode(types);
     }
 
     public static TypeBindings emptyBindings() {
@@ -365,10 +363,8 @@ name, i, t.getRawClass()));
             return false;
         }
         TypeBindings other = (TypeBindings) o;
-        return _hashCode == other._hashCode
-                && Arrays.equals(_types, other._types)
-                && Arrays.equals(_names, other._names)
-                && Arrays.equals(_unboundVariables, other._unboundVariables);
+        // hashCode and equality are based solely on _types.
+        return _hashCode == other._hashCode && Arrays.equals(_types, other._types);
     }
 
     /*

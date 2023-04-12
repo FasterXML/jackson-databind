@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.jsontype.deftyping;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
@@ -28,6 +29,7 @@ public class DeserDefaultTypedConcrete2968Test extends BaseMapTest {
         ObjectMapper mapper = jsonMapperBuilder()
             .activateDefaultTyping(ptv, ObjectMapper.DefaultTyping.NON_FINAL,
                     JsonTypeInfo.As.PROPERTY)
+            .disable(MapperFeature.REQUIRE_TYPE_ID_FOR_SUBTYPES)
             .build();
 
         final String concreteTypeJson = a2q("{'size': 42}");

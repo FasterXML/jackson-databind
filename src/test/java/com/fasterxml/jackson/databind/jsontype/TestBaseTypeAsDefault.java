@@ -40,6 +40,11 @@ public class TestBaseTypeAsDefault extends BaseMapTest
             .disable(MapperFeature.USE_BASE_TYPE_AS_DEFAULT_IMPL)
             .build();
 
+    protected ObjectMapper MAPPER_WITHOUT_BASE_OR_SUBTYPE_ID = jsonMapperBuilder()
+            .disable(MapperFeature.USE_BASE_TYPE_AS_DEFAULT_IMPL)
+            .disable(MapperFeature.REQUIRE_TYPE_ID_FOR_SUBTYPES)
+            .build();
+
     public void testPositiveForParent() throws Exception {
         Object o = MAPPER_WITH_BASE.readerFor(Parent.class).readValue("{}");
         assertEquals(o.getClass(), Parent.class);
@@ -60,7 +65,16 @@ public class TestBaseTypeAsDefault extends BaseMapTest
     }
 
     public void testNegativeForChild() throws Exception {
-        Child child = MAPPER_WITHOUT_BASE.readerFor(Child.class).readValue("{}");
+        try {
+            /*Object o =*/ MAPPER_WITHOUT_BASE.readerFor(Child.class).readValue("{}");
+            fail("Should not pass");
+        } catch (InvalidTypeIdException ex) {
+            assertTrue(ex.getMessage().contains("missing type id property '@class'"));
+        }
+    }
+
+    public void testNegativeForChildWithoutRequiringTypeId() throws Exception {
+        Child child = MAPPER_WITHOUT_BASE_OR_SUBTYPE_ID.readerFor(Child.class).readValue("{}");
 
         assertEquals(Child.class, child.getClass());
     }

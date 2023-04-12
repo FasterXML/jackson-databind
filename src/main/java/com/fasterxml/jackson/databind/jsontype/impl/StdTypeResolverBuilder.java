@@ -177,7 +177,7 @@ public class StdTypeResolverBuilder
         case EXISTING_PROPERTY: // as per [#528] same class as PROPERTY
             return new AsPropertyTypeDeserializer(baseType, idRes,
                     _typeProperty, _typeIdVisible, defaultImpl, _includeAs,
-                    _hasTypeResolver(config, baseType));
+                    _strictTypeIdHandling(config, baseType));
         case WRAPPER_OBJECT:
             return new AsWrapperTypeDeserializer(baseType, idRes,
                     _typeProperty, _typeIdVisible, defaultImpl);
@@ -401,6 +401,28 @@ public class StdTypeResolverBuilder
     protected boolean allowPrimitiveTypes(MapperConfig<?> config,
             JavaType baseType) {
         return false;
+    }
+
+    /**
+     * Determines whether strict type ID handling should be used for this type or not.
+     * This will be enabled when either the type has type resolver annotations or if
+     * {@link com.fasterxml.jackson.databind.MapperFeature#REQUIRE_TYPE_ID_FOR_SUBTYPES}
+     * is enabled.
+     *
+     * @param config the deserialization configuration to use
+     * @param baseType the base type to check for type resolver annotations
+     *
+     * @return {@code true} if the class has type resolver annotations, or the strict
+     * handling feature is enabled, {@code false} otherwise.
+     *
+     * @since 2.15
+     */
+    protected boolean _strictTypeIdHandling(DeserializationConfig config, JavaType baseType) {
+        if (config.isEnabled(MapperFeature.REQUIRE_TYPE_ID_FOR_SUBTYPES)) {
+            return true;
+        }
+        // Otherwise we will be strict if there's a type resolver
+        return _hasTypeResolver(config, baseType);
     }
 
     /**

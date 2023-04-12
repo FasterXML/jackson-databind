@@ -42,7 +42,10 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
 
     /**
      * @since 2.8
+     *
+     * @deprecated Since 2.15 (not used)
      */
+    @Deprecated
     public AsPropertyTypeDeserializer(JavaType bt, TypeIdResolver idRes,
             String typePropertyName, boolean typeIdVisible, JavaType defaultImpl)
     {
@@ -51,7 +54,10 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
 
     /**
      * @since 2.8
+     *
+     * @deprecated Since 2.15 (not used)
      */
+    @Deprecated
     public AsPropertyTypeDeserializer(JavaType bt, TypeIdResolver idRes,
             String typePropertyName, boolean typeIdVisible, JavaType defaultImpl,
             As inclusion)

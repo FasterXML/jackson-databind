@@ -52,8 +52,18 @@ public class SimpleType // note: until 2.6 was final
             JavaType superClass, JavaType[] superInts,
             Object valueHandler, Object typeHandler, boolean asStatic)
     {
-        super(cls, bindings, superClass, superInts,
-                SimpleType.class.hashCode(), valueHandler, typeHandler, asStatic);
+        super(
+                cls,
+                bindings,
+                superClass,
+                superInts,
+                // Arbitrary additional hash component as a defensive measure against
+                // hash collisions with other JavaType implementations wrapping the
+                // same class.
+                474675244,
+                valueHandler,
+                typeHandler,
+                asStatic);
     }
 
     /**

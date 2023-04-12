@@ -352,6 +352,24 @@ public class TestObjectIdDeserialization extends BaseMapTest
         assertNull(w.node);
     }
 
+    public void testUnresolvableIdShouldFail() throws Exception
+    {
+        IdWrapper w = MAPPER.readerFor(IdWrapper.class)
+            .with(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS)
+            .readValue(a2q("{'node':123}"));
+        assertNotNull(w);
+        assertNull(w.node);
+    }
+
+    public void testUnresolvableIdShouldFail2() throws Exception
+    {
+        IdWrapper w = MAPPER.readerFor(IdWrapper.class)
+            .with(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS)
+            .readValue(a2q("{}"));
+        assertNotNull(w);
+        assertNull(w.node);
+    }
+
     public void testKeepCollectionOrdering() throws Exception
     {
         String json = "{\"employees\":[2,1,"

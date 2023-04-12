@@ -147,8 +147,13 @@ public class JsonIdentityInfoIdProperty3838Test extends BaseMapTest {
     }
 
     @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "id")
-    static class IntSequencedBean {
+    static class IntSequencedBean implements ResultGetter{
         public String value;
+
+        @Override
+        public String result() {
+            return value;
+        }
     }
     
     /*

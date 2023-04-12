@@ -25,9 +25,11 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
     protected final As _inclusion;
 
     /**
-     * Indicates if the current class has a TypeResolver attached or not.
+     * Indicates that we should be strict about handling missing type information.
+     *
+     * @since 2.15
      */
-    protected final boolean _hasTypeResolver;    
+    protected final boolean _strictTypeIdHandling;
 
     protected final String _msgForMissingId = (_property == null)
             ? String.format("missing type id property '%s'", _typePropertyName)
@@ -35,18 +37,17 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
 
     public AsPropertyTypeDeserializer(JavaType bt, TypeIdResolver idRes,
             String typePropertyName, boolean typeIdVisible, JavaType defaultImpl,
-            As inclusion,
-            boolean hasTypeResolver)
+            As inclusion, boolean strictTypeIdHandling)
     {
         super(bt, idRes, typePropertyName, typeIdVisible, defaultImpl);
         _inclusion = inclusion;
-        _hasTypeResolver = hasTypeResolver;
+        _strictTypeIdHandling = strictTypeIdHandling;
     }
-    
+
     public AsPropertyTypeDeserializer(AsPropertyTypeDeserializer src, BeanProperty property) {
         super(src, property);
         _inclusion = src._inclusion;
-        _hasTypeResolver = src._hasTypeResolver;
+        _strictTypeIdHandling = src._strictTypeIdHandling;
     }
 
     @Override
@@ -168,7 +169,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         // genuine, or faked for "dont fail on bad type id")
         ValueDeserializer<Object> deser = _findDefaultImplDeserializer(ctxt);
         if (deser == null) {
-            JavaType t = _hasTypeResolver
+            JavaType t = _strictTypeIdHandling
                     ? _handleMissingTypeId(ctxt, priorFailureMsg) : _baseType;
             if (t == null) {
                 // 09-Mar-2017, tatu: Is this the right thing to do?

@@ -4,12 +4,13 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.DefaultTyping;
+import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
 
-public class DeserDefaultTypedConcrete2968Test extends BaseMapTest {
-
+public class DeserDefaultTypedConcrete2968Test extends BaseMapTest
+{
     static abstract class SimpleBall {
         public int size = 3;
     }
@@ -31,6 +32,7 @@ public class DeserDefaultTypedConcrete2968Test extends BaseMapTest {
         ObjectMapper mapper = jsonMapperBuilder()
             .activateDefaultTyping(ptv, DefaultTyping.NON_FINAL,
                     JsonTypeInfo.As.PROPERTY)
+            .disable(MapperFeature.REQUIRE_TYPE_ID_FOR_SUBTYPES)
             .build();
 
         final String concreteTypeJson = a2q("{'size': 42}");

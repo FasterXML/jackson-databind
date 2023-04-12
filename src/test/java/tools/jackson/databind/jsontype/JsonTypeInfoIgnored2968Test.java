@@ -5,12 +5,12 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.DefaultTyping;
+import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.InvalidTypeIdException;
 import tools.jackson.databind.exc.MismatchedInputException;
-import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
-import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
+import tools.jackson.databind.json.JsonMapper;
 
 public class JsonTypeInfoIgnored2968Test extends BaseMapTest {
     /*
@@ -19,7 +19,7 @@ public class JsonTypeInfoIgnored2968Test extends BaseMapTest {
     /**********************************************************
      */
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final ObjectMapper MAPPER = JsonMapper.builder().disable(MapperFeature.REQUIRE_TYPE_ID_FOR_SUBTYPES).build();
 
     @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,

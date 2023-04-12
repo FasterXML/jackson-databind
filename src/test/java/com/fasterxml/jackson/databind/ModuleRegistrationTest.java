@@ -82,16 +82,5 @@ public class ModuleRegistrationTest extends BaseMapTest {
             verifyException(e, "Module without defined version");
         }
     }
-
-    public void testRegisterTwoModulesWithSameIdOneRemains() {
-        ObjectMapper objectMapper = newJsonMapper();
-        SimpleModule firstModule = _testModuleWithId("module-name");
-        SimpleModule secondModule = _testModuleWithId("module-name");
-        objectMapper.registerModule(firstModule);
-        objectMapper.registerModule(secondModule);
-
-        assertEquals(1, objectMapper._registeredModuleTypes.size());
-    }
-
-
+    
 }

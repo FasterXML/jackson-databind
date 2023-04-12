@@ -1613,3 +1613,9 @@ Patrick Strawderman (kilink@github)
 Matt Nelson (mattnelson@github)
   * Requested #3814: Enhance `StdNodeBasedDeserializer` to support `readerForUpdating`
    (2.15.0)
+
+Steve Storey (stevestorey@github)
+  * Contributed #3853: Add `MapperFeature.REQUIRE_TYPE_ID_FOR_SUBTYPES` to enable/disable
+    strict subtype Type Id handling
+   (2.15.0)
+

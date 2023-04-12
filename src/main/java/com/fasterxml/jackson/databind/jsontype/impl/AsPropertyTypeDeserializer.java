@@ -62,9 +62,8 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             String typePropertyName, boolean typeIdVisible, JavaType defaultImpl,
             As inclusion)
     {
-        super(bt, idRes, typePropertyName, typeIdVisible, defaultImpl);
-        _inclusion = inclusion;
-        _strictTypeIdHandling = false;
+        this(bt, idRes, typePropertyName, typeIdVisible, defaultImpl, inclusion,
+                true);
     }
 
     public AsPropertyTypeDeserializer(AsPropertyTypeDeserializer src, BeanProperty property) {

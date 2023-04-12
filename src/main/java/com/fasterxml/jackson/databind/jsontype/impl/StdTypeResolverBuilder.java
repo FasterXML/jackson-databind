@@ -421,13 +421,14 @@ public class StdTypeResolverBuilder
         if (config.isEnabled(MapperFeature.REQUIRE_TYPE_ID_FOR_SUBTYPES)) {
             return true;
         }
-        // Otherwise we will be strict if there's a type resolver
+        // Otherwise we will be strict if there's a type resolver: presumably
+        // target type is a (likely abstract) base type and cannot be used as target
         return _hasTypeResolver(config, baseType);
     }
 
     /**
      * Checks whether the given class has annotations indicating some type resolver
-     * is applied, for example {@link com.fasterxml.jackson.annotation.JsonSubTypes}.
+     * is applied, for example {@link com.fasterxml.jackson.annotation.JsonTypeInfo}.
      * Only initializes {@link #_hasTypeResolver} once if its value is null.
      *
      * @param config the deserialization configuration to use

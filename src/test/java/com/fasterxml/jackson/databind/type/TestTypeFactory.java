@@ -357,6 +357,7 @@ public class TestTypeFactory
         assertEquals(AbstractList.class, superType.getRawClass());
     }
 
+    // for [databind#3876]
     @SuppressWarnings("rawtypes")
     public void testCollectionsHashCode()
     {
@@ -409,6 +410,7 @@ public class TestTypeFactory
         assertEquals(tf.constructType(Boolean.class), mapType.getContentType());
     }
 
+    // for [databind#3876]
     public void testMapsHashCode()
     {
         TypeFactory tf = newTypeFactory();
@@ -699,5 +701,21 @@ public class TestTypeFactory
         assertEquals(SimpleType.class, t.getClass());
         assertEquals(1, t.containedTypeCount());
         assertEquals(CharSequence.class, t.containedType(0).getRawClass());
+    }
+
+    // for [databind#3876]
+    public void testParameterizedSimpleType() {
+        TypeFactory tf = TypeFactory.defaultInstance();
+
+        JavaType charSequenceClass = tf.constructType(new TypeReference<Class<? extends CharSequence>>() { });
+        JavaType numberClass = tf.constructType(new TypeReference<Class<? extends Number>>() { });
+
+        assertEquals(SimpleType.class, charSequenceClass.getClass());
+        assertEquals(SimpleType.class, numberClass.getClass());
+
+        assertNotEquals(charSequenceClass, numberClass);
+        assertNotEquals(
+                "hash values should be distributed",
+                charSequenceClass.hashCode(), numberClass.hashCode());
     }
 }

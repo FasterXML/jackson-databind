@@ -90,6 +90,7 @@ public class TestTypeBindings
         }
     }
 
+    // for [databind#3876]
     public void testEqualityAndHashCode()
     {
         JavaType stringType = DEFAULT_TF.constructType(String.class);

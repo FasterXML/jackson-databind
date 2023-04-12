@@ -57,10 +57,9 @@ public class SimpleType // note: until 2.6 was final
                 bindings,
                 superClass,
                 superInts,
-                // Arbitrary additional hash component as a defensive measure against
-                // hash collisions with other JavaType implementations wrapping the
-                // same class.
-                474675244,
+                // TypeBase normalizes null bindings to the singleton returned by TypeBindings.emptyBindings()
+                // so we must compute the same hashCode in both cases.
+                (bindings == null ? TypeBindings.emptyBindings() : bindings).hashCode(),
                 valueHandler,
                 typeHandler,
                 asStatic);

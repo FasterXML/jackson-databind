@@ -362,6 +362,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
         }
     }
 
+    
     // [databind#299]: Allow unresolved ids to become nulls
     public void testUnresolvableAsNull() throws Exception
     {

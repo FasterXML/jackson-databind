@@ -250,9 +250,18 @@ name, i, t.getRawClass()));
         return null;
     }
 
-    private boolean containsPlaceholders() {
+    /**
+     * Returns true if a shallow search of the type bindings includes a placeholder
+     * type which uses reference equality, thus cannot produce cache hits. This
+     * is an optimization to avoid churning memory in the cache unnecessarily.
+     * Note that it is still possible for nested type information to contain such
+     * placeholder types (see NestedTypes1604Test for an example) so it's vital
+     * that they produce a distribution of hashCode values, even if they may push
+     * reusable data out of the cache.
+     */
+    private boolean invalidCacheKey() {
         for (JavaType type : _types) {
-            if (type instanceof PlaceholderForType) {
+            if (type instanceof IdentityEqualityType) {
                 return true;
             }
         }
@@ -322,7 +331,7 @@ name, i, t.getRawClass()));
     public Object asKey(Class<?> rawBase) {
         // safe to pass _types array without copy since it is not exposed via
         // any access, nor modified by this class
-        if (containsPlaceholders()) {
+        if (invalidCacheKey()) {
             // If placeholders are present, no key may be returned because the key is unhelpful without context.
             return null;
         }

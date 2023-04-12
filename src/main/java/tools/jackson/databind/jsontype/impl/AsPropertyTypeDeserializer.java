@@ -34,19 +34,6 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             : String.format("missing type id property '%s' (for POJO property '%s')", _typePropertyName, _property.getName());
 
     public AsPropertyTypeDeserializer(JavaType bt, TypeIdResolver idRes,
-            String typePropertyName, boolean typeIdVisible, JavaType defaultImpl)
-    {
-        this(bt, idRes, typePropertyName, typeIdVisible, defaultImpl, As.PROPERTY);
-    }
-
-    public AsPropertyTypeDeserializer(JavaType bt, TypeIdResolver idRes,
-            String typePropertyName, boolean typeIdVisible, JavaType defaultImpl,
-            As inclusion)
-    {
-        this(bt, idRes, typePropertyName, typeIdVisible, defaultImpl, inclusion, true);
-    }
-
-    public AsPropertyTypeDeserializer(JavaType bt, TypeIdResolver idRes,
             String typePropertyName, boolean typeIdVisible, JavaType defaultImpl,
             As inclusion,
             boolean hasTypeResolver)

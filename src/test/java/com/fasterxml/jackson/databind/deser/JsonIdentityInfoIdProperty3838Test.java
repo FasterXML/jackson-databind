@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.deser;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
@@ -145,6 +146,11 @@ public class JsonIdentityInfoIdProperty3838Test extends BaseMapTest {
         }
     }
 
+    @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "id")
+    static class IntSequencedBean {
+        public String value;
+    }
+    
     /*
     /**********************************************************
     /* Test
@@ -159,7 +165,8 @@ public class JsonIdentityInfoIdProperty3838Test extends BaseMapTest {
         {DefaultConstructorBased.class, "{'id':'great'}"},
         {StaticFactoryMethodBased.class, "{'id':'great'}"},
         {MultiArgConstructorBased.class, "{'id':'great','value':42}"},
-        {BaseType3838.class, "{'concrete_3838':{'id':'great','location':'Bangkok'}}"}
+        {BaseType3838.class, "{'concrete_3838':{'id':'great','location':'Bangkok'}}"},
+        {IntSequencedBean.class, "{'id':-1,'value':'great'}"}
     };
 
     public void testUniformHandlingForMissingObjectId() throws Exception {

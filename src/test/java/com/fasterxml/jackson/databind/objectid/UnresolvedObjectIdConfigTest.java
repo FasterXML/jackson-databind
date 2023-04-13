@@ -19,20 +19,20 @@ public class UnresolvedObjectIdConfigTest extends BaseMapTest {
     /**********************************************************
     */
 
-    static class IdWrapper {
+    static class NodeWrapper {
         @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@id")
         public ValueNode node;
 
-        public IdWrapper() {}
+        public NodeWrapper() {}
 
-        public IdWrapper(int v) {
+        public NodeWrapper(int v) {
             node = new ValueNode(v);
         }
     }
 
     static class ValueNode {
         public int value;
-        public IdWrapper next;
+        public NodeWrapper next;
 
         public ValueNode() {this(0);}
 
@@ -45,31 +45,32 @@ public class UnresolvedObjectIdConfigTest extends BaseMapTest {
     /**********************************************************
     */
 
-    private final ObjectMapper MAPPER = newJsonMapper();
+    private final ObjectMapper DEFAULT_MAPPER = newJsonMapper();
+
+    private final ObjectMapper DISABLED_MAPPER = newJsonMapper()
+        .configure(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS, false);
+
+    private final ObjectMapper ENABLED_MAPPER = newJsonMapper()
+        .configure(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS, true);
 
     public void testDefaultSetting() {
-        assertTrue(MAPPER.isEnabled(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS));
+        assertTrue(DEFAULT_MAPPER.isEnabled(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS));
     }
 
     public void testSuccessResolvedObjectIds() throws Exception {
         String json = a2q("{'node':{'@id':1,'value':7,'next':{'node':1}}}");
 
-        IdWrapper wrapper = MAPPER.readerFor(IdWrapper.class)
-            .with(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS)
-            .readValue(json);
+        NodeWrapper wrapper = DEFAULT_MAPPER.readValue(json, NodeWrapper.class);
 
         assertSame(wrapper.node, wrapper.node.next.node);
         assertSame(wrapper.node.next.node, wrapper.node.next.node.next.node);
     }
 
     public void testUnresolvedObjectIdsFailure() throws Exception {
-        // Object id 2 is unresolved
         String json = a2q("{'node':{'@id':1,'value':7,'next':{'node':2}}}");
-
         try {
             // This will also throw exception, enabled by default
-            MAPPER.readerFor(IdWrapper.class)
-                .readValue(json);
+            DEFAULT_MAPPER.readValue(json, NodeWrapper.class);
             fail("should not pass");
         } catch (UnresolvedForwardReference e) {
             verifyException(e, "Unresolved forward reference", "Object id [2]");
@@ -77,9 +78,7 @@ public class UnresolvedObjectIdConfigTest extends BaseMapTest {
 
         try {
             // This will also throw exception, same as default
-            MAPPER.readerFor(IdWrapper.class)
-                .with(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS)
-                .readValue(json);
+            ENABLED_MAPPER.readValue(json, NodeWrapper.class);
             fail("should not pass");
         } catch (UnresolvedForwardReference e) {
             verifyException(e, "Unresolved forward reference", "Object id [2]");
@@ -90,28 +89,19 @@ public class UnresolvedObjectIdConfigTest extends BaseMapTest {
         // Object id 2 is unresolved
         String json = a2q("{'node':{'@id':1,'value':7,'next':{'node':2}}}");
 
-        // But does not fail, because configured such
-        IdWrapper wrapper = MAPPER.readerFor(IdWrapper.class)
-            .without(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS)
-            .readValue(json);
+        // But does not fail, because disabled to fail
+        NodeWrapper wrapper = DISABLED_MAPPER.readValue(json, NodeWrapper.class);
 
         assertNull(wrapper.node.next.node);
     }
 
-    public void testMissingObjectIdsShouldNotFailEitherWay() throws Exception {
-        // Object id is just "missing", not unresolved
-        String json = a2q("{'node':{'@id':1,'value':7,'next':{}}}");
 
-        // Missing id does not fail either enabled,
-        IdWrapper withWrapper = MAPPER.readerFor(IdWrapper.class)
-            .with(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS)
-            .readValue(json);
-        assertNull(withWrapper.node.next.node);
-
-        // or disabled.
-        IdWrapper withoutWrapper = MAPPER.readerFor(IdWrapper.class)
-            .without(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS)
-            .readValue(json);
-        assertNull(withoutWrapper.node.next.node);
+    public void testUnresolvableIdShouldFail() throws Exception
+    {
+        TestObjectIdDeserialization.IdWrapper w = ENABLED_MAPPER
+            .readValue(a2q("{'node':123}"), TestObjectIdDeserialization.IdWrapper.class);
+        assertNotNull(w);
+        assertNull(w.node);
     }
+
 }

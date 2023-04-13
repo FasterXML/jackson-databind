@@ -352,13 +352,34 @@ public class TestObjectIdDeserialization extends BaseMapTest
         assertNull(w.node);
     }
 
-    public void testUnresolvableIdShouldFail() throws Exception
+    public void testUnresolvableAsNullSymmetry() throws Exception
     {
         IdWrapper w = MAPPER.readerFor(IdWrapper.class)
-            .with(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS)
+            .without(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS)
             .readValue(a2q("{'node':123}"));
         assertNotNull(w);
         assertNull(w.node);
+
+        IdWrapper w2 = MAPPER.readerFor(IdWrapper.class)
+            .with(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS)
+            .readValue(a2q("{'node':123}"));
+        assertNotNull(w2);
+        assertNull(w2.node);
+    }
+
+    public void testUnresolvableAsNull2() throws Exception
+    {
+        IdWrapper w = MAPPER
+            .configure(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS, false)
+            .readValue(a2q("{'node':123}"), IdWrapper.class);
+        assertNotNull(w);
+        assertNull(w.node);
+
+        IdWrapper w2 = MAPPER
+            .configure(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS, true)
+            .readValue(a2q("{'node':123}"), IdWrapper.class);
+        assertNotNull(w2);
+        assertNull(w2.node);
     }
 
     public void testKeepCollectionOrdering() throws Exception

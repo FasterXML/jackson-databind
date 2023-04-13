@@ -352,14 +352,16 @@ public class TestObjectIdDeserialization extends BaseMapTest
         assertNull(w.node);
     }
 
-    public void testUnresolvableAsNullSymmetry() throws Exception
+    public void testUnresolvableWithFeatureSymmetry() throws Exception
     {
+        // specifically configured to "not" fail
         IdWrapper w = MAPPER.readerFor(IdWrapper.class)
             .without(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS)
             .readValue(a2q("{'node':123}"));
         assertNotNull(w);
         assertNull(w.node);
 
+        // specifically configured to fail, but doesn't
         IdWrapper w2 = MAPPER.readerFor(IdWrapper.class)
             .with(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS)
             .readValue(a2q("{'node':123}"));
@@ -367,14 +369,16 @@ public class TestObjectIdDeserialization extends BaseMapTest
         assertNull(w2.node);
     }
 
-    public void testUnresolvableAsNull2() throws Exception
+    public void testUnresolvableConfigureFeatureSymmetry() throws Exception
     {
+        // specifically configured to "not" fail
         IdWrapper w = MAPPER
             .configure(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS, false)
             .readValue(a2q("{'node':123}"), IdWrapper.class);
         assertNotNull(w);
         assertNull(w.node);
 
+        // specifically configured to fail
         try {
             IdWrapper w2 = MAPPER
                 .configure(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS, true)

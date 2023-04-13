@@ -6,7 +6,7 @@ import tools.jackson.databind.JavaType;
  * Helper type used when introspecting bindings for already resolved types,
  * needed for specialization.
  */
-public class PlaceholderForType extends TypeBase
+public class PlaceholderForType extends IdentityEqualityType
 {
     private static final long serialVersionUID = 1L;
 
@@ -89,11 +89,6 @@ public class PlaceholderForType extends TypeBase
     @Override
     public String toString() {
         return getErasedSignature(new StringBuilder()).toString();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        return (o == this);
     }
 
     private <T> T _unsupported() {

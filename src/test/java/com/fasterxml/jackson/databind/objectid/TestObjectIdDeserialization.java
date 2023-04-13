@@ -375,11 +375,14 @@ public class TestObjectIdDeserialization extends BaseMapTest
         assertNotNull(w);
         assertNull(w.node);
 
-        IdWrapper w2 = MAPPER
-            .configure(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS, true)
-            .readValue(a2q("{'node':123}"), IdWrapper.class);
-        assertNotNull(w2);
-        assertNull(w2.node);
+        try {
+            IdWrapper w2 = MAPPER
+                .configure(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS, true)
+                .readValue(a2q("{'node':123}"), IdWrapper.class);
+            fail("should not pass");
+        } catch (UnresolvedForwardReference e) {
+            verifyException(e, "Unresolved forward reference", "Object id [123]");
+        }
     }
 
     public void testKeepCollectionOrdering() throws Exception

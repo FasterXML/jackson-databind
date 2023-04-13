@@ -94,14 +94,4 @@ public class UnresolvedObjectIdConfigTest extends BaseMapTest {
 
         assertNull(wrapper.node.next.node);
     }
-
-
-    public void testUnresolvableIdShouldFail() throws Exception
-    {
-        TestObjectIdDeserialization.IdWrapper w = ENABLED_MAPPER
-            .readValue(a2q("{'node':123}"), TestObjectIdDeserialization.IdWrapper.class);
-        assertNotNull(w);
-        assertNull(w.node);
-    }
-
 }

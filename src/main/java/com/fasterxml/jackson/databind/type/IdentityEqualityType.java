@@ -4,17 +4,17 @@ import com.fasterxml.jackson.databind.JavaType;
 
 /**
  * Internal abstract type representing {@link TypeBase} implementations which use reference equality.
+ *
+ * @since 2.15
  */
-abstract class IdentityEqualityType extends TypeBase {
-    protected IdentityEqualityType(
-            Class<?> raw,
-            TypeBindings bindings,
-            JavaType superClass,
-            JavaType[] superInts,
+abstract class IdentityEqualityType extends TypeBase
+{
+    private static final long serialVersionUID = 1L;
+
+    protected IdentityEqualityType(Class<?> raw,
+            TypeBindings bindings, JavaType superClass, JavaType[] superInts,
             int hash,
-            Object valueHandler,
-            Object typeHandler,
-            boolean asStatic) {
+            Object valueHandler, Object typeHandler, boolean asStatic) {
         super(raw, bindings, superClass, superInts, hash, valueHandler, typeHandler, asStatic);
     }
 

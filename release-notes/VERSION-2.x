@@ -20,6 +20,8 @@ Not yet released
 #3853: Add `MapperFeature.REQUIRE_TYPE_ID_FOR_SUBTYPES` to enable/disable
   strict subtype Type Id handling
  (contributed by Steve S))
+#3876: `TypeFactory` cache performance degradation with `constructSpecializedType()`
+ (contributed by Carter K)
 
 2.15.0-rc2 (28-Mar-2023)
 

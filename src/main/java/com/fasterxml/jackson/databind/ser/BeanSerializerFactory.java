@@ -2,7 +2,10 @@ package com.fasterxml.jackson.databind.ser;
 
 import java.util.*;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIncludeProperties;
+import com.fasterxml.jackson.annotation.ObjectIdGenerator;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.TokenStreamFactory;
@@ -598,7 +601,6 @@ ClassUtil.getTypeDescription(beanDesc.getType()), ClassUtil.name(propName)));
 
         // ignore specified types
         removeIgnorableTypes(config, beanDesc, properties);
-        removeEnumsWithObjectShape(config, beanDesc, properties);
 
         // and possibly remove ones without matching mutator...
         if (config.isEnabled(MapperFeature.REQUIRE_SETTERS_FOR_GETTERS)) {
@@ -635,29 +637,6 @@ ClassUtil.getTypeDescription(beanDesc.getType()), ClassUtil.name(propName)));
             }
         }
         return result;
-    }
-
-    /**
-     * @since 2.15
-     */
-    protected void removeEnumsWithObjectShape(SerializationConfig config, BeanDescription beanDesc, List<BeanPropertyDefinition> properties) {
-        JavaType type = beanDesc.getType();
-        if (!type.isEnumType()) { // Do not proceed if type is not enum
-            return;
-        }
-        AnnotationIntrospector ai = config.getAnnotationIntrospector();
-        JsonFormat.Value format = ai.findFormat(beanDesc.getClassInfo());
-        // If enum is annotated with @JsonFormat with shape as OBJECT...
-        if (format != null && format.getShape() == JsonFormat.Shape.OBJECT) {
-            Iterator<BeanPropertyDefinition> it = properties.iterator();
-            while (it.hasNext()) {
-                BeanPropertyDefinition property = it.next();
-                // Remove enums, because they are self-referenced
-                if (type.isTypeOrSubTypeOf(property.getRawPrimaryType())) {
-                    it.remove();
-                }
-            }
-        }
     }
 
     /*

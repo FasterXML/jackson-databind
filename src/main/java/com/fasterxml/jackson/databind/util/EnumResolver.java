@@ -7,7 +7,8 @@ import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.EnumNamingStrategy;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
-import com.fasterxml.jackson.databind.introspect.*;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
+import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 
 /**
  * Helper class used to resolve String values (either JSON Object field
@@ -76,58 +77,11 @@ public class EnumResolver implements java.io.Serializable
      * Enum value.
      *
      * @since 2.12
+     * @deprecated Since 2.15 use {@link #constructFor(DeserializationConfig, Class)} instead
      */
     public static EnumResolver constructFor(DeserializationConfig config,
             Class<?> enumCls) {
         return _constructFor(config, enumCls);
-    }
-
-    /**
-     * Added mixin support.
-     *
-     * @since 2.15
-     */
-    public static EnumResolver constructFor(DeserializationConfig config, AnnotatedClass annotatedClass) {
-        return _constructFor(config, annotatedClass);
-    }
-
-    /**
-     * Added mixin support.
-     *
-     * @since 2.15
-     */
-    public static EnumResolver _constructFor(DeserializationConfig config, AnnotatedClass annotatedClass)
-    {
-        final AnnotationIntrospector ai = config.getAnnotationIntrospector();
-        final Class<?> enumCls0 = annotatedClass.getRawType();
-        final Class<Enum<?>> enumCls = _enumClass(enumCls0);
-        final Enum<?>[] enumConstants = _enumConstants(enumCls0);
-        String[] names = ai.findEnumValues(config, enumConstants, new String[enumConstants.length], annotatedClass);
-
-        final String[][] allAliases = new String[names.length][];
-        ai.findEnumAliases(config, enumConstants, allAliases, annotatedClass);
-
-        HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();
-        for (int i = 0, len = enumConstants.length; i < len; ++i) {
-            final Enum<?> enumValue = enumConstants[i];
-
-            String name = names[i];
-            if (name == null) {
-                name = enumValue.name();
-            }
-            map.put(name, enumValue);
-
-            String[] aliases = allAliases[i];
-            if (aliases != null) {
-                for (String alias : aliases) {
-                    // Avoid overriding any primary names
-                    map.putIfAbsent(alias, enumValue);
-                }
-            }
-        }
-        return new EnumResolver(enumCls, enumConstants, map,
-            _enumDefault(ai, enumCls), config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS),
-            false);
     }
 
     /**
@@ -161,6 +115,51 @@ public class EnumResolver implements java.io.Serializable
         return new EnumResolver(enumCls, enumConstants, map,
                 _enumDefault(ai, enumCls), isIgnoreCase,
                 false);
+    }
+
+    /**
+     * @since 2.15
+     */
+    public static EnumResolver constructFor(DeserializationConfig config, AnnotatedClass annotatedClass) {
+        return _constructFor(config, annotatedClass);
+    }
+
+    /**
+     * @since 2.15
+     */
+    public static EnumResolver _constructFor(DeserializationConfig config, AnnotatedClass annotatedClass)
+    {
+        // prepare data
+        final AnnotationIntrospector ai = config.getAnnotationIntrospector();
+        final boolean isIgnoreCase = config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
+        final Class<?> enumCls0 = annotatedClass.getRawType();
+        final Class<Enum<?>> enumCls = _enumClass(enumCls0);
+        final Enum<?>[] enumConstants = _enumConstants(enumCls0);
+
+        // introspect
+        String[] names = ai.findEnumValues(config, enumConstants, new String[enumConstants.length], annotatedClass);
+        final String[][] allAliases = new String[names.length][];
+        ai.findEnumAliases(config, enumConstants, allAliases, annotatedClass);
+
+        // finally, build
+        HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();
+        for (int i = 0, len = enumConstants.length; i < len; ++i) {
+            final Enum<?> enumValue = enumConstants[i];
+            String name = names[i];
+            if (name == null) {
+                name = enumValue.name();
+            }
+            map.put(name, enumValue);
+            String[] aliases = allAliases[i];
+            if (aliases != null) {
+                for (String alias : aliases) {
+                    // Avoid overriding any primary names
+                    map.putIfAbsent(alias, enumValue);
+                }
+            }
+        }
+        return new EnumResolver(enumCls, enumConstants, map,
+            _enumDefault(ai, enumCls), isIgnoreCase, false);
     }
 
     /**
@@ -219,7 +218,7 @@ public class EnumResolver implements java.io.Serializable
     /**
      * Internal method for
      * {@link EnumResolver#constructUsingEnumNamingStrategy(DeserializationConfig, Class, EnumNamingStrategy)}
-     * 
+     *
      * @since 2.15
      */
     private static EnumResolver _constructUsingEnumNamingStrategy(

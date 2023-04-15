@@ -251,14 +251,12 @@ public class JacksonAnnotationIntrospector
                 enumToPropertyMap.put(field.getName(), property.value());
             }
         }
-        // Finalize creating Map with enum name as key property as value
         final Class<?> enumType = annotatedClass.getRawType();
         HashMap<String,String> expl = null;
         for (Field f : enumType.getDeclaredFields()) {
             if (!f.isEnumConstant()) {
                 continue;
             }
-
             String n = enumToPropertyMap.get(f.getName());
             if (n == null || n.isEmpty()) {
                 continue;

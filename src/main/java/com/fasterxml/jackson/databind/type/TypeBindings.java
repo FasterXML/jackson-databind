@@ -56,12 +56,9 @@ public class TypeBindings
         if (_names.length != _types.length) {
             throw new IllegalArgumentException("Mismatching names ("+_names.length+"), types ("+_types.length+")");
         }
-        int h = 1;
-        for (int i = 0, len = _types.length; i < len; ++i) {
-            h += _types[i].hashCode();
-        }
         _unboundVariables = uvars;
-        _hashCode = h;
+        // hashCode and equality are based solely on _types.
+        _hashCode = Arrays.hashCode(_types);
     }
 
     public static TypeBindings emptyBindings() {
@@ -253,6 +250,24 @@ name, i, t.getRawClass()));
         return null;
     }
 
+    /**
+     * Returns true if a shallow search of the type bindings includes a placeholder
+     * type which uses reference equality, thus cannot produce cache hits. This
+     * is an optimization to avoid churning memory in the cache unnecessarily.
+     * Note that it is still possible for nested type information to contain such
+     * placeholder types (see NestedTypes1604Test for an example) so it's vital
+     * that they produce a distribution of hashCode values, even if they may push
+     * reusable data out of the cache.
+     */
+    private boolean invalidCacheKey() {
+        for (JavaType type : _types) {
+            if (type instanceof IdentityEqualityType) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public boolean isEmpty() {
         return (_types.length == 0);
     }
@@ -309,11 +324,17 @@ name, i, t.getRawClass()));
      * Factory method that will create an object that can be used as a key for
      * caching purposes by {@link TypeFactory}
      *
+     * @return An object which can be used as a key in TypeFactory, or {@code null} if no key can be created.
+     *
      * @since 2.8
      */
     public Object asKey(Class<?> rawBase) {
         // safe to pass _types array without copy since it is not exposed via
         // any access, nor modified by this class
+        if (invalidCacheKey()) {
+            // If placeholders are present, no key may be returned because the key is unhelpful without context.
+            return null;
+        }
         return new AsKey(rawBase, _types, _hashCode);
     }
 
@@ -351,17 +372,8 @@ name, i, t.getRawClass()));
             return false;
         }
         TypeBindings other = (TypeBindings) o;
-        int len = _types.length;
-        if (len != other.size()) {
-            return false;
-        }
-        JavaType[] otherTypes = other._types;
-        for (int i = 0; i < len; ++i) {
-            if (!otherTypes[i].equals(_types[i])) {
-                return false;
-            }
-        }
-        return true;
+        // hashCode and equality are based solely on _types.
+        return _hashCode == other._hashCode && Arrays.equals(_types, other._types);
     }
 
     /*
@@ -450,7 +462,7 @@ name, i, t.getRawClass()));
         public AsKey(Class<?> raw, JavaType[] params, int hash) {
             _raw = raw ;
             _params = params;
-            _hash = hash;
+            _hash = 31 * raw.hashCode() + hash;
         }
 
         @Override

@@ -833,6 +833,9 @@ Carter Kozak (carterkozak@github)
   * Contributed #3624: Legacy `ALLOW_COERCION_OF_SCALARS` interacts poorly with Integer to
    Float coercion
    (2.14.0)
+  * Contributed #3876: `TypeFactory` cache performance degradation with
+    `constructSpecializedType()`
+   (2.15.0)
 
 Reinhard Prechtl (dnno@github)
   * Reported #2034: Serialization problem with type specialization of nested generic types
@@ -1613,3 +1616,9 @@ Patrick Strawderman (kilink@github)
 Matt Nelson (mattnelson@github)
   * Requested #3814: Enhance `StdNodeBasedDeserializer` to support `readerForUpdating`
    (2.15.0)
+
+Steve Storey (stevestorey@github)
+  * Contributed #3853: Add `MapperFeature.REQUIRE_TYPE_ID_FOR_SUBTYPES` to enable/disable
+    strict subtype Type Id handling
+   (2.15.0)
+

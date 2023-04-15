@@ -52,8 +52,12 @@ public class SimpleType // note: until 2.6 was final
             JavaType superClass, JavaType[] superInts,
             Object valueHandler, Object typeHandler, boolean asStatic)
     {
-        super(cls, bindings, superClass, superInts,
-                0, valueHandler, typeHandler, asStatic);
+        super(cls, bindings,
+                superClass, superInts,
+                // TypeBase normalizes null bindings to the singleton returned by TypeBindings.emptyBindings()
+                // so we must compute the same hashCode in both cases.
+                (bindings == null ? TypeBindings.emptyBindings() : bindings).hashCode(),
+                valueHandler, typeHandler, asStatic);
     }
 
     /**

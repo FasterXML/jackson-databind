@@ -1209,6 +1209,10 @@ public abstract class BasicSerializerFactory
         if (format.getShape() == JsonFormat.Shape.OBJECT) {
             // one special case: suppress serialization of "getDeclaringClass()"...
             ((BasicBeanDescription) beanDesc).removeProperty("declaringClass");
+            // [databind#2787]: remove self-referencing enum fields introduced during annotation flattening of mixins
+            if (type.isEnumType()){
+                _removeEnumSelfReferences(((BasicBeanDescription) beanDesc));
+            }
             // returning null will mean that eventually BeanSerializer gets constructed
             return null;
         }
@@ -1222,6 +1226,24 @@ public abstract class BasicSerializerFactory
             }
         }
         return ser;
+    }
+
+    /**
+     * Helper method that removes Enum's self references.
+     *
+     * @since 2.15
+     */
+    private void _removeEnumSelfReferences(BasicBeanDescription beanDesc) {
+        Class<?> aClass = ClassUtil.findEnumType(beanDesc.getBeanClass());
+        Iterator<BeanPropertyDefinition> it = beanDesc.findProperties().iterator();
+        while (it.hasNext()) {
+            BeanPropertyDefinition property = it.next();
+            // Remove enums, because they are self-referenced
+            JavaType propType = property.getPrimaryType();
+            if (propType.isEnumType() && propType.isTypeOrSubTypeOf(aClass)) {
+                it.remove();
+            }
+        }
     }
 
     /*

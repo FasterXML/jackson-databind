@@ -218,7 +218,7 @@ public class EnumResolver implements java.io.Serializable
     /**
      * Internal method for
      * {@link EnumResolver#constructUsingEnumNamingStrategy(DeserializationConfig, Class, EnumNamingStrategy)}
-     *
+     * 
      * @since 2.15
      */
     private static EnumResolver _constructUsingEnumNamingStrategy(

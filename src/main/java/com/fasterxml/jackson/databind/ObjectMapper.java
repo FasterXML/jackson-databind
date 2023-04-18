@@ -2558,7 +2558,7 @@ public class ObjectMapper
      * {@link ObjectReader}/{@link ObjectWriter} which fully support reconfiguration as new instances are constructed.
      * <p>
      * <strong>This method will be removed in Jackson 3.0 due to unsafe usage.
-     * Configure using {@link MapperBuilder} instead.</strong>
+     * Configure using {@link MapperBuilder#configure(SerializationFeature, boolean)}.</strong>
      */
     public ObjectMapper configure(SerializationFeature f, boolean state) {
         _serializationConfig = state ?
@@ -2575,7 +2575,7 @@ public class ObjectMapper
      * {@link ObjectReader}/{@link ObjectWriter} which fully support reconfiguration as new instances are constructed.
      * <p>
      * <strong>This method will be removed in Jackson 3.0 due to unsafe usage.
-     * Configure using {@link MapperBuilder} instead.</strong>
+     * Configure using {@link MapperBuilder#enable(SerializationFeature...)}.</strong>
      */
     public ObjectMapper enable(SerializationFeature f) {
         _serializationConfig = _serializationConfig.with(f);
@@ -2591,7 +2591,7 @@ public class ObjectMapper
      * {@link ObjectReader}/{@link ObjectWriter} which fully support reconfiguration as new instances are constructed.
      * <p>
      * <strong>This method will be removed in Jackson 3.0 due to unsafe usage.
-     * Configure using {@link MapperBuilder} instead.</strong>
+     * Configure using {@link MapperBuilder#isEnabled(SerializationFeature)}.</strong>
      */
     public ObjectMapper enable(SerializationFeature first,
             SerializationFeature... f) {
@@ -2608,7 +2608,7 @@ public class ObjectMapper
      * {@link ObjectReader}/{@link ObjectWriter} which fully support reconfiguration as new instances are constructed.
      * <p>
      * <strong>This method will be removed in Jackson 3.0 due to unsafe usage.
-     * Configure using {@link MapperBuilder} instead.</strong>
+     * Configure using {@link MapperBuilder#disable(SerializationFeature...)}.</strong>
      */
     public ObjectMapper disable(SerializationFeature f) {
         _serializationConfig = _serializationConfig.without(f);
@@ -2624,7 +2624,7 @@ public class ObjectMapper
      * {@link ObjectReader}/{@link ObjectWriter} which fully support reconfiguration as new instances are constructed.
      * <p>
      * <strong>This method will be removed in Jackson 3.0 due to unsafe usage.
-     * Configure using {@link MapperBuilder} instead.</strong>
+     * Configure using {@link MapperBuilder#disable(SerializationFeature...)}.</strong>
      */
     public ObjectMapper disable(SerializationFeature first,
             SerializationFeature... f) {
@@ -2655,7 +2655,7 @@ public class ObjectMapper
      * {@link ObjectReader}/{@link ObjectWriter} which fully support reconfiguration as new instances are constructed.
      * <p>
      * <strong>This method will be removed in Jackson 3.0 due to unsafe usage.
-     * Configure using {@link MapperBuilder} instead.</strong>
+     * Configure using {@link MapperBuilder#configure(DeserializationFeature, boolean)}.</strong>
      */
     public ObjectMapper configure(DeserializationFeature f, boolean state) {
         _deserializationConfig = state ?
@@ -2672,7 +2672,7 @@ public class ObjectMapper
      * {@link ObjectReader}/{@link ObjectWriter} which fully support reconfiguration as new instances are constructed.
      * <p>
      * <strong>This method will be removed in Jackson 3.0 due to unsafe usage.
-     * Configure using {@link MapperBuilder} instead.</strong>
+     * Configure using {@link MapperBuilder#enable(DeserializationFeature...)}.</strong>
      */
     public ObjectMapper enable(DeserializationFeature feature) {
         _deserializationConfig = _deserializationConfig.with(feature);
@@ -2688,7 +2688,7 @@ public class ObjectMapper
      * {@link ObjectReader}/{@link ObjectWriter} which fully support reconfiguration as new instances are constructed.
      * <p>
      * <strong>This method will be removed in Jackson 3.0 due to unsafe usage.
-     * Configure using {@link MapperBuilder} instead.</strong>
+     * Configure using {@link MapperBuilder#enable(DeserializationFeature...)}.</strong>
      */
     public ObjectMapper enable(DeserializationFeature first,
             DeserializationFeature... f) {
@@ -2705,7 +2705,7 @@ public class ObjectMapper
      * {@link ObjectReader}/{@link ObjectWriter} which fully support reconfiguration as new instances are constructed.
      * <p>
      * <strong>This method will be removed in Jackson 3.0 due to unsafe usage.
-     * Configure using {@link MapperBuilder} instead.</strong>
+     * Configure using {@link MapperBuilder#disable(DeserializationFeature...)} instead.</strong>
      */
     public ObjectMapper disable(DeserializationFeature feature) {
         _deserializationConfig = _deserializationConfig.without(feature);
@@ -2721,7 +2721,7 @@ public class ObjectMapper
      * {@link ObjectReader}/{@link ObjectWriter} which fully support reconfiguration as new instances are constructed.
      * <p>
      * <strong>This method will be removed in Jackson 3.0 due to unsafe usage.
-     * Configure using {@link MapperBuilder} instead.</strong>
+     * Configure using {@link MapperBuilder#disable(DeserializationFeature...)} instead.</strong>
      */
     public ObjectMapper disable(DeserializationFeature first,
             DeserializationFeature... f) {
@@ -2744,7 +2744,7 @@ public class ObjectMapper
      * {@link ObjectReader}/{@link ObjectWriter} which fully support reconfiguration as new instances are constructed.
      * <p>
      * <strong>This method will be removed in Jackson 3.0 due to unsafe usage.
-     * Configure using {@link MapperBuilder} instead.</strong>
+     * Configure using {@link MapperBuilder#configure(DatatypeFeature, boolean)} instead.</strong>
      */
     public ObjectMapper configure(DatatypeFeature f, boolean state) {
         if (state) {
@@ -2778,8 +2778,8 @@ public class ObjectMapper
      * it will change observed configuration by {@link ObjectReader}s as well -- to avoid
      * this, use {@link ObjectReader#with(JsonParser.Feature)} instead.
      * <p>
-     * <strong>This method will be removed in Jackson 3.0 due to unsafe usage.
-     * Configure using {@link MapperBuilder} instead.</strong>
+     * <strong>Also, this method will be removed in Jackson 3.0 due to unsafe usage and
+     * replaced by {@link MapperBuilder#configure(JsonParser.Feature, boolean)}.</strong>
      */
     public ObjectMapper configure(JsonParser.Feature f, boolean state) {
         _jsonFactory.configure(f, state);
@@ -2796,8 +2796,8 @@ public class ObjectMapper
      * it will change observed configuration by {@link ObjectReader}s as well -- to avoid
      * this, use {@link ObjectReader#with(JsonParser.Feature)} instead.
      * <p>
-     * <strong>This method will be removed in Jackson 3.0 due to unsafe usage.
-     * Configure using {@link MapperBuilder} instead.</strong>
+     * <strong>Also, this method will be removed in Jackson 3.0 due to unsafe usage and
+     * replaced by {@link MapperBuilder#enable(JsonParser.Feature...)}.</strong>
      *
      * @since 2.5
      */
@@ -2818,8 +2818,8 @@ public class ObjectMapper
      * it will change observed configuration by {@link ObjectReader}s as well -- to avoid
      * this, use {@link ObjectReader#without(JsonParser.Feature)} instead.
      * <p>
-     * <strong>This method will be removed in Jackson 3.0 due to unsafe usage.
-     * Configure using {@link MapperBuilder} instead.</strong>
+     * <strong>Also, this method will be removed in Jackson 3.0 due to unsafe usage and
+     * replaced by {@link MapperBuilder#disable(JsonParser.Feature...)}.</strong>
      *
      * @since 2.5
      */
@@ -2852,7 +2852,7 @@ public class ObjectMapper
      * this, use {@link ObjectWriter#with(JsonGenerator.Feature)} instead.
      * <p>
      * <strong>This method will be removed in Jackson 3.0 due to unsafe usage.
-     * Configure using {@link MapperBuilder} instead.</strong>
+     * Configure using {@link MapperBuilder#configure(JsonGenerator.Feature, boolean)} instead.</strong>
      */
     public ObjectMapper configure(JsonGenerator.Feature f, boolean state) {
         _jsonFactory.configure(f,  state);
@@ -2870,7 +2870,7 @@ public class ObjectMapper
      * this, use {@link ObjectWriter#with(JsonGenerator.Feature)} instead.
      * <p>
      * <strong>This method will be removed in Jackson 3.0 due to unsafe usage.
-     * Configure using {@link MapperBuilder} instead.</strong>
+     * Configure using {@link MapperBuilder#enable(JsonGenerator.Feature...)} instead.</strong>
      *
      * @since 2.5
      */
@@ -2892,7 +2892,7 @@ public class ObjectMapper
      * this, use {@link ObjectWriter#without(JsonGenerator.Feature)} instead.
      * <p>
      * <strong>This method will be removed in Jackson 3.0 due to unsafe usage.
-     * Configure using {@link MapperBuilder} instead.</strong>
+     * Configure using {@link MapperBuilder#disable(JsonGenerator.Feature...)} instead.</strong>
      *
      * @since 2.5
      */

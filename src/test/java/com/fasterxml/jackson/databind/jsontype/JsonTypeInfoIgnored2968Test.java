@@ -3,10 +3,12 @@ package com.fasterxml.jackson.databind.jsontype;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 public class JsonTypeInfoIgnored2968Test extends BaseMapTest {
     /*
@@ -15,7 +17,7 @@ public class JsonTypeInfoIgnored2968Test extends BaseMapTest {
     /**********************************************************
      */
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final ObjectMapper MAPPER = JsonMapper.builder().disable(MapperFeature.REQUIRE_TYPE_ID_FOR_SUBTYPES).build();
 
     @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,

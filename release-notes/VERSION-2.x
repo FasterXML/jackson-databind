@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.15.0-rc1 (18-Mar-2023)
+2.15.0-rc3 (14-Apr-2023)
 
 #2536: Add `EnumFeature.READ_ENUM_KEYS_USING_INDEX` to work with
    existing "WRITE_ENUM_KEYS_USING_INDEX"#
@@ -30,6 +30,9 @@ Project: jackson-databind
 #3342: `JsonTypeInfo.As.EXTERNAL_PROPERTY` does not work with record wrappers
  (fix contributed by Sim Y-T)
 #3352: Do not require the usage of opens in a modular app when using records
+#3566: Cannot use both `JsonCreator.Mode.DELEGATING` and `JsonCreator.Mode.PROPERTIES`
+  static creator factory methods for Enums
+ (reported by @andrewbents)
 #3637: Add enum features into `@JsonFormat.Feature`
  (requested by @Anatoly4444)
  (fix contributed by Ajay S)
@@ -60,15 +63,28 @@ Project: jackson-databind
  (and couple of other methods)
 #3771: Classloader leak: DEFAULT_ANNOTATION_INTROSPECTOR holds annotation reference
  (reported by Christoph S)
+#3791: Flush readonly map together with shared on `SerializerCache.flush()`
+ (suggested by @vdaniloff)
 #3796: Enum Deserialisation Failing with Polymorphic type validator
  (reported by @sagarika4)
 #3809: Add Stream-friendly alternative to `ObjectNode.fields()`:
   `Set<Map.Entry<String, JsonNode>> properties()`
+#3814: Enhance `StdNodeBasedDeserializer` to support `readerForUpdating`
+ (requested by Matt N)
+ (contributed by Joo-Hyuk K)
 #3816: TokenBuffer does not implement writeString(Reader reader, int len)
  (reported by Patrick S)
 #3819: Add convenience method `SimpleBeanPropertyFilter.filterOutAll()` as
   counterpart of `serializeAll()`
  (contributed by Joo-Hyuk K)
+#3836: `Optional<Boolean>` is not recognized as boolean field
+ (reported by @thnaeff)
+ (fix contributed by Joo-Hyuk K)
+#3853: Add `MapperFeature.REQUIRE_TYPE_ID_FOR_SUBTYPES` to enable/disable
+  strict subtype Type Id handling
+ (contributed by Steve S))
+#3876: `TypeFactory` cache performance degradation with `constructSpecializedType()`
+ (contributed by Carter K)
 
 2.14.3 (not yet released)
 

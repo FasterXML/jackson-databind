@@ -328,6 +328,20 @@ public enum MapperFeature implements ConfigFeature
      */
     INFER_BUILDER_TYPE_BINDINGS(true),
 
+    /**
+     * Feature that determines what happens when deserializing to a registered sub-type
+     * (polymorphic deserialization), but no type information has been provided.
+     * If enabled, then an {@code InvalidTypeIdException} will be thrown;
+     * if disabled then the deserialization may proceed without the type information
+     * if sub-type is legit target (non-abstract).
+     *<p>
+     * Feature is enabled by default for backwards-compatibility (same behavior
+     * as in Jackson 2.14 and earlier).
+     *
+     * @since 2.15
+     */
+    REQUIRE_TYPE_ID_FOR_SUBTYPES(true),
+
     /*
     /******************************************************
     /* View-related features

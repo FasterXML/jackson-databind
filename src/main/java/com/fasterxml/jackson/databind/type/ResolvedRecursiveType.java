@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.JavaType;
  *
  * @since 2.7
  */
-public class ResolvedRecursiveType extends TypeBase
+public class ResolvedRecursiveType extends IdentityEqualityType
 {
     private static final long serialVersionUID = 1L;
 
@@ -126,16 +126,16 @@ public class ResolvedRecursiveType extends TypeBase
         return sb.toString();
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (o == this) return true;
-        if (o == null) return false;
-        if (o.getClass() == getClass()) {
+    //@Override
+    //public boolean equals(Object o) {
+        //if (o == this) return true;
+        //if (o == null) return false;
+        //if (o.getClass() == getClass()) {
             // 16-Jun-2017, tatu: as per [databind#1658], cannot do recursive call since
             //    there is likely to be a cycle...
 
             // but... true or false?
-            return false;
+            //return false;
 
             /*
             // Do NOT ever match unresolved references
@@ -145,7 +145,7 @@ public class ResolvedRecursiveType extends TypeBase
             return (o.getClass() == getClass()
                     && _referencedType.equals(((ResolvedRecursiveType) o).getSelfReferencedType()));
                     */
-        }
-        return false;
-    }
+        //}
+        //return false;
+    //}
 }

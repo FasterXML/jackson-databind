@@ -1704,8 +1704,7 @@ factory.toString()));
 
             // Need to consider @JsonValue if one found
             if (deser == null) {
-                deser = new EnumDeserializer(constructEnumResolver(enumClass,
-                        config, beanDesc.findJsonValueAccessor()),
+                deser = new EnumDeserializer(constructEnumResolver(enumClass, config, beanDesc),
                         config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS),
                         constructEnumNamingStrategyResolver(config, enumClass, beanDesc.getClassInfo())
                 );
@@ -1914,7 +1913,7 @@ factory.toString()));
                 return StdKeyDeserializers.constructDelegatingKeyDeserializer(config, type, valueDesForKey);
             }
         }
-        EnumResolver enumRes = constructEnumResolver(enumClass, config, beanDesc.findJsonValueAccessor());
+        EnumResolver enumRes = constructEnumResolver(enumClass, config, beanDesc);
         EnumResolver byEnumNamingResolver = constructEnumNamingStrategyResolver(config, enumClass, beanDesc.getClassInfo());
 
         // May have @JsonCreator for static factory method
@@ -2412,14 +2411,15 @@ factory.toString()));
     }
 
     protected EnumResolver constructEnumResolver(Class<?> enumClass,
-            DeserializationConfig config, AnnotatedMember jsonValueAccessor)
+            DeserializationConfig config, BeanDescription beanDesc)
     {
-        if (jsonValueAccessor != null) {
+        AnnotatedMember jvAcc = beanDesc.findJsonValueAccessor();
+        if (jvAcc != null) {
             if (config.canOverrideAccessModifiers()) {
-                ClassUtil.checkAndFixAccess(jsonValueAccessor.getMember(),
+                ClassUtil.checkAndFixAccess(jvAcc.getMember(),
                         config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
             }
-            return EnumResolver.constructUsingMethod(config, enumClass, jsonValueAccessor);
+            return EnumResolver.constructUsingMethod(config, enumClass, jvAcc);
         }
         // 14-Mar-2016, tatu: We used to check `DeserializationFeature.READ_ENUMS_USING_TO_STRING`
         //   here, but that won't do: it must be dynamically changeable...

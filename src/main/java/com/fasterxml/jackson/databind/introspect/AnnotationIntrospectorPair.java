@@ -29,9 +29,6 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * longer chains of introspectors by linking multiple pairs.
  * Currently most likely combination is that of using the default
  * Jackson provider, along with JAXB annotation introspector.
- *<p>
- * Note: up until 2.0, this class was an inner class of
- * {@link AnnotationIntrospector}; moved here for convenience.
  *
  * @since 2.1
  */
@@ -379,27 +376,6 @@ public class AnnotationIntrospectorPair
                 JsonSerializer.None.class);
     }
 
-    @Deprecated
-    @Override
-    public JsonInclude.Include findSerializationInclusion(Annotated a,
-            JsonInclude.Include defValue)
-    {
-        // note: call secondary first, to give lower priority
-        defValue = _secondary.findSerializationInclusion(a, defValue);
-        defValue = _primary.findSerializationInclusion(a, defValue);
-        return defValue;
-    }
-
-    @Deprecated
-    @Override
-    public JsonInclude.Include findSerializationInclusionForContent(Annotated a, JsonInclude.Include defValue)
-    {
-        // note: call secondary first, to give lower priority
-        defValue = _secondary.findSerializationInclusionForContent(a, defValue);
-        defValue = _primary.findSerializationInclusionForContent(a, defValue);
-        return defValue;
-    }
-
     @Override
     public JsonInclude.Value findPropertyInclusion(Annotated a)
     {
@@ -562,27 +538,6 @@ public class AnnotationIntrospectorPair
         return _primary.refineSerializationType(config, a, t);
     }
 
-    @Override
-    @Deprecated
-    public Class<?> findSerializationType(Annotated a) {
-        Class<?> r = _primary.findSerializationType(a);
-        return (r == null) ? _secondary.findSerializationType(a) : r;
-    }
-
-    @Override
-    @Deprecated
-    public Class<?> findSerializationKeyType(Annotated am, JavaType baseType) {
-        Class<?> r = _primary.findSerializationKeyType(am, baseType);
-        return (r == null) ? _secondary.findSerializationKeyType(am, baseType) : r;
-    }
-
-    @Override
-    @Deprecated
-    public Class<?> findSerializationContentType(Annotated am, JavaType baseType) {
-        Class<?> r = _primary.findSerializationContentType(am, baseType);
-        return (r == null) ? _secondary.findSerializationContentType(am, baseType) : r;
-    }
-
     // // // Serialization: class annotations
 
     @Override
@@ -743,27 +698,6 @@ public class AnnotationIntrospectorPair
     {
         JavaType t = _secondary.refineDeserializationType(config, a, baseType);
         return _primary.refineDeserializationType(config, a, t);
-    }
-
-    @Override
-    @Deprecated
-    public Class<?> findDeserializationType(Annotated am, JavaType baseType) {
-        Class<?> r = _primary.findDeserializationType(am, baseType);
-        return (r != null) ? r : _secondary.findDeserializationType(am, baseType);
-    }
-
-    @Override
-    @Deprecated
-    public Class<?> findDeserializationKeyType(Annotated am, JavaType baseKeyType) {
-        Class<?> result = _primary.findDeserializationKeyType(am, baseKeyType);
-        return (result == null) ? _secondary.findDeserializationKeyType(am, baseKeyType) : result;
-    }
-
-    @Override
-    @Deprecated
-    public Class<?> findDeserializationContentType(Annotated am, JavaType baseContentType) {
-        Class<?> result = _primary.findDeserializationContentType(am, baseContentType);
-        return (result == null) ? _secondary.findDeserializationContentType(am, baseContentType) : result;
     }
 
     // // // Deserialization: class annotations

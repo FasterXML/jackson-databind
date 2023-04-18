@@ -2,7 +2,8 @@ package com.fasterxml.jackson.databind.records;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.JsonMappingException;
+
+import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.cfg.ConstructorDetector;
@@ -108,13 +109,15 @@ public class RecordImplicitCreatorsTest extends BaseMapTest
     }
 
     public void testDeserializeUsingImplicitFactoryMethod_WithAutoDetectCreatorsDisabled_WillFail() throws Exception {
-        MAPPER.disable(MapperFeature.AUTO_DETECT_CREATORS);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .disable(MapperFeature.AUTO_DETECT_CREATORS)
+                .build();
 
         try {
-            MAPPER.readValue("123", RecordWithImplicitFactoryMethods.class);
+            mapper.readValue("123", RecordWithImplicitFactoryMethods.class);
 
             fail("should not pass");
-        } catch (JsonMappingException e) {
+        } catch (DatabindException e) {
             verifyException(e, "Cannot construct instance");
             verifyException(e, "RecordWithImplicitFactoryMethod");
             verifyException(e, "no int/Int-argument constructor/factory method");

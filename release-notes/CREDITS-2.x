@@ -833,6 +833,9 @@ Carter Kozak (carterkozak@github)
   * Contributed #3624: Legacy `ALLOW_COERCION_OF_SCALARS` interacts poorly with Integer to
    Float coercion
    (2.14.0)
+  * Contributed #3876: `TypeFactory` cache performance degradation with
+    `constructSpecializedType()`
+   (2.15.0)
 
 Reinhard Prechtl (dnno@github)
   * Reported #2034: Serialization problem with type specialization of nested generic types
@@ -1543,26 +1546,32 @@ Gili Tzabari (cowwoc@github)
 
 Joo Hyuk Kim (JooHyukKim@github)
   * Contributed #2536: Add `EnumFeature.READ_ENUM_KEYS_USING_INDEX` to work with
-   existing "WRITE_ENUM_KEYS_USING_INDEX"
-  (2.15.0)
+    existing "WRITE_ENUM_KEYS_USING_INDEX"
+   (2.15.0)
   * Contributed #2667: Add `@EnumNaming`, `EnumNamingStrategy` to allow use of naming
-   strategies for Enums
-  (2.15.0)
+    strategies for Enums
+   (2.15.0)
   * Contributed fix for #2968: Deserialization of `@JsonTypeInfo` annotated type fails with
-   missing type id even for explicit concrete subtypes
-  (2.15.0)
+    missing type id even for explicit concrete subtypes
+   (2.15.0)
   * Contributed #3053: Allow serializing enums to lowercase (`EnumFeature.WRITE_ENUMS_TO_LOWERCASE`)
-  (2.15.0)
+   (2.15.0)
+  * Contributed #3566: Cannot use both `JsonCreator.Mode.DELEGATING` and `JsonCreator.Mode.PROPERTIES`
+    static creator factory methods for Enums
+   (2.15.0)
   * Contributed #3638: Case-insensitive and number-based enum deserialization are
-   (unnecessarily) mutually exclusive
-  (2.15.0)
+    (unnecessarily) mutually exclusive
+   (2.15.0)
+  * Contributed #3814: Enhance `StdNodeBasedDeserializer` to support `readerForUpdating`
+   (2.15.0)
+   
   * Contributed #3819: Add convenience method `SimpleBeanPropertyFilter.filterOutAll()` as
-   counterpart of `serializeAll()`
-  (2.15.0)
+    counterpart of `serializeAll()`
+   (2.15.0)
 
 Vojtěch Knyttl (knyttl@github)
   * Requested #3053: Allow serializing enums to lowercase (`EnumFeature.WRITE_ENUMS_TO_LOWERCASE`)
-  (2.15.0)
+   (2.15.0)
 
 Phil Gref (pgrefviau@github)
   * Reported #3638: Case-insensitive and number-based enum deserialization are
@@ -1587,19 +1596,29 @@ Sim Yih Tsern (yihtsern@github)
 
 Ajay Siwach (Siwach16@github)
   * Contributed #3637: Add enum features into `@JsonFormat.Feature`
-  (2.15.0)
+   (2.15.0)
 
 Zhenyu Luo (luozhenyu@github)
   * Contributed #3745: Deprecate classes in package `com.fasterxml.jackson.databind.jsonschema`
-  (2.15.0)
+   (2.15.0)
 
 Christoph Schulz (ciis0@github)
   * Reported #3771: Classloader leak: DEFAULT_ANNOTATION_INTROSPECTOR holds annotation reference
-  (2.15.0)
+   (2.15.0)
 
 Patrick Strawderman (kilink@github)
   * Requested #2968: Deserialization of `@JsonTypeInfo` annotated type fails with
   missing type id even for explicit concrete subtypes
-  (2.15.0)
+   (2.15.0)
   * Reported #3816: TokenBuffer does not implement writeString(Reader reader, int len)
-  (2.15.0)
+   (2.15.0)
+
+Matt Nelson (mattnelson@github)
+  * Requested #3814: Enhance `StdNodeBasedDeserializer` to support `readerForUpdating`
+   (2.15.0)
+
+Steve Storey (stevestorey@github)
+  * Contributed #3853: Add `MapperFeature.REQUIRE_TYPE_ID_FOR_SUBTYPES` to enable/disable
+    strict subtype Type Id handling
+   (2.15.0)
+

@@ -7,6 +7,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 
+import static org.junit.Assert.assertNotEquals;
+
 /**
  * Simple tests to verify that the {@link TypeFactory} constructs
  * type information as expected.
@@ -305,6 +307,9 @@ public class TestTypeFactory
         assertSame(ArrayList.class, t.getRawClass());
         assertSame(Object.class, ((CollectionType) t).getContentType().getRawClass());
 
+        // Also check equality (so caching by JavaType will work)
+        assertEqualsAndHash(t, tf.constructType(ArrayList.class));
+
         // And then the proper way
         t = tf.constructType(new TypeReference<ArrayList<String>>() { });
         assertEquals(CollectionType.class, t.getClass());
@@ -315,10 +320,14 @@ public class TestTypeFactory
         assertSame(SimpleType.class, elemType.getClass());
         assertSame(String.class, elemType.getRawClass());
 
+        assertEqualsAndHash(t, tf.constructType(new TypeReference<ArrayList<String>>() { }));
+
         // And alternate method too
         t = tf.constructCollectionType(ArrayList.class, String.class);
         assertEquals(CollectionType.class, t.getClass());
         assertSame(String.class, ((CollectionType) t).getContentType().getRawClass());
+
+        assertEqualsAndHash(t, tf.constructCollectionType(ArrayList.class, String.class));
     }
 
     // [databind#2796]
@@ -343,16 +352,31 @@ public class TestTypeFactory
         assertEquals(Long.class, type.getContentType().getRawClass());
         // No super-class, since it's an interface:
         assertNull(type.getSuperClass());
+        // Ensure identity-eq works:
+        assertEqualsAndHash(type, tf.constructType(new TypeReference<List<Long>>() { }));
 
         // But then refine to reflect sub-classing
         JavaType subtype = tf.constructSpecializedType(type, ArrayList.class);
         assertEquals(ArrayList.class, subtype.getRawClass());
         assertEquals(Long.class, subtype.getContentType().getRawClass());
 
+        assertEqualsAndHash(subtype, tf.constructSpecializedType(type, ArrayList.class));
+
         // but with refinement, should have non-null super class
         JavaType superType = subtype.getSuperClass();
         assertNotNull(superType);
         assertEquals(AbstractList.class, superType.getRawClass());
+    }
+
+    // for [databind#3876]
+    @SuppressWarnings("rawtypes")
+    public void testCollectionsHashCode()
+    {
+        TypeFactory tf = newTypeFactory();
+        JavaType listOfCollection = tf.constructType(new TypeReference<List<Collection>>() { });
+        JavaType collectionOfList = tf.constructType(new TypeReference<Collection<List>>() { });
+        assertNotEquals(listOfCollection, collectionOfList);
+        assertNotEquals(listOfCollection.hashCode(), collectionOfList.hashCode());
     }
 
     /*
@@ -369,12 +393,14 @@ public class TestTypeFactory
         JavaType t = tf.constructType(HashMap.class);
         assertEquals(MapType.class, t.getClass());
         assertSame(HashMap.class, t.getRawClass());
+        assertEqualsAndHash(t, tf.constructType(HashMap.class));
 
         // Then explicit construction
         t = tf.constructMapType(TreeMap.class, String.class, Integer.class);
         assertEquals(MapType.class, t.getClass());
         assertSame(String.class, ((MapType) t).getKeyType().getRawClass());
         assertSame(Integer.class, ((MapType) t).getContentType().getRawClass());
+        assertEqualsAndHash(t, tf.constructMapType(TreeMap.class, String.class, Integer.class));
 
         // And then with TypeReference
         t = tf.constructType(new TypeReference<HashMap<String,Integer>>() { });
@@ -383,6 +409,7 @@ public class TestTypeFactory
         MapType mt = (MapType) t;
         assertEquals(tf.constructType(String.class), mt.getKeyType());
         assertEquals(tf.constructType(Integer.class), mt.getContentType());
+        assertEqualsAndHash(t, tf.constructType(new TypeReference<HashMap<String,Integer>>() { }));
 
         t = tf.constructType(new TypeReference<LongValuedMap<Boolean>>() { });
         assertEquals(MapType.class, t.getClass());
@@ -390,11 +417,31 @@ public class TestTypeFactory
         mt = (MapType) t;
         assertEquals(tf.constructType(Boolean.class), mt.getKeyType());
         assertEquals(tf.constructType(Long.class), mt.getContentType());
+        assertEqualsAndHash(t, tf.constructType(new TypeReference<LongValuedMap<Boolean>>() { }));
 
         JavaType type = tf.constructType(new TypeReference<Map<String,Boolean>>() { });
         MapType mapType = (MapType) type;
         assertEquals(tf.constructType(String.class), mapType.getKeyType());
         assertEquals(tf.constructType(Boolean.class), mapType.getContentType());
+        assertEqualsAndHash(type, tf.constructType(new TypeReference<Map<String,Boolean>>() { }));
+    }
+    
+    // for [databind#3876]
+    public void testMapsHashCode()
+    {
+        TypeFactory tf = newTypeFactory();
+        JavaType mapStringInt = tf.constructType(new TypeReference<Map<String,Integer>>() {});
+        JavaType mapIntString = tf.constructType(new TypeReference<Map<Integer,String>>() {});
+        assertNotEquals(mapStringInt, mapIntString);
+        assertNotEquals(
+                "hashCode should depend on parameter order",
+                mapStringInt.hashCode(),
+                mapIntString.hashCode());
+
+        JavaType mapStringString = tf.constructType(new TypeReference<Map<String,String>>() {});
+        JavaType mapIntInt = tf.constructType(new TypeReference<Map<Integer,Integer>>() {});
+        assertNotEquals(mapStringString, mapIntInt);
+        assertNotEquals(mapStringString.hashCode(), mapIntInt.hashCode());
     }
 
     // since 2.7
@@ -410,6 +457,7 @@ public class TestTypeFactory
         assertEquals(Integer.class, mapType.getContentType().getContentType().getRawClass());
         // No super-class, since it's an interface:
         assertNull(type.getSuperClass());
+        assertEqualsAndHash(type, tf.constructType(new TypeReference<Map<String,List<Integer>>>() { }));
 
         // But then refine to reflect sub-classing
         JavaType subtype = tf.constructSpecializedType(type, LinkedHashMap.class);
@@ -417,6 +465,7 @@ public class TestTypeFactory
         assertEquals(String.class, subtype.getKeyType().getRawClass());
         assertEquals(List.class, subtype.getContentType().getRawClass());
         assertEquals(Integer.class, subtype.getContentType().getContentType().getRawClass());
+        assertEqualsAndHash(subtype, tf.constructSpecializedType(type, LinkedHashMap.class));
 
         // but with refinement, should have non-null super class
 
@@ -670,5 +719,27 @@ public class TestTypeFactory
         assertEquals(SimpleType.class, t.getClass());
         assertEquals(1, t.containedTypeCount());
         assertEquals(CharSequence.class, t.containedType(0).getRawClass());
+    }
+
+    // for [databind#3876]
+    public void testParameterizedSimpleType() {
+        TypeFactory tf = TypeFactory.defaultInstance();
+
+        JavaType charSequenceClass = tf.constructType(new TypeReference<Class<? extends CharSequence>>() { });
+        JavaType numberClass = tf.constructType(new TypeReference<Class<? extends Number>>() { });
+
+        assertEquals(SimpleType.class, charSequenceClass.getClass());
+        assertEquals(SimpleType.class, numberClass.getClass());
+
+        assertNotEquals(charSequenceClass, numberClass);
+        assertNotEquals(
+                "hash values should be distributed",
+                charSequenceClass.hashCode(), numberClass.hashCode());
+    }
+
+    private void assertEqualsAndHash(JavaType t1, JavaType t2) {
+        assertEquals(t1, t2);
+        assertEquals(t2, t1);
+        assertEquals(t1.hashCode(), t2.hashCode());
     }
 }

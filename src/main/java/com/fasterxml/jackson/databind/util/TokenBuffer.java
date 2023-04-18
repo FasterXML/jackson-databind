@@ -1812,7 +1812,9 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             if (n instanceof BigInteger) {
                 return (BigInteger) n;
             } else if (n instanceof BigDecimal) {
-                return ((BigDecimal) n).toBigInteger();
+                final BigDecimal bd = (BigDecimal) n;
+                streamReadConstraints().validateBigIntegerScale(bd.scale());
+                return bd.toBigInteger();
             }
             // int/long is simple, but let's also just truncate float/double:
             return BigInteger.valueOf(n.longValue());

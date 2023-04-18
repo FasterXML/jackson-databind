@@ -372,25 +372,6 @@ public class TestObjectIdDeserialization extends BaseMapTest
         assertNull(w.node);
     }
 
-    public void testUnresolvableWithFeatureSymmetry() throws Exception
-    {
-        ObjectMapper mapper = newJsonMapper();
-
-        // configured to "not" fail
-        IdWrapper w = mapper.reader()
-            .without(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS)
-            .readValue(a2q("{'node':123}"), IdWrapper.class);
-        assertNotNull(w);
-        assertNull(w.node);
-
-        // configured to fail, but doesn't
-        IdWrapper w2 = mapper.reader()
-            .with(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS)
-            .readValue(a2q("{'node':123}"), IdWrapper.class);
-        assertNotNull(w2);
-        assertNull(w2.node);
-    }
-
     public void testKeepCollectionOrdering() throws Exception
     {
         String json = "{\"employees\":[2,1,"
@@ -537,15 +518,15 @@ public class TestObjectIdDeserialization extends BaseMapTest
     }
 
     public void testUnresolvedObjectIdsFailure() throws Exception {
-        // With node id of 2 that doesn't exist,
+        // Set-up : node id of 2 that doesn't exist,
         String json = a2q("{'node':{'@id':1,'value':7,'next':{'node':2}}}");
 
-        // This will not fail, because disabled to fail
+        // 1. Does not fail, because disabled such.
         SomeWrapper wrapper = DISABLED_MAPPER.readValue(json, SomeWrapper.class);
         assertNull(wrapper.node.next.node);
 
         try {
-            // This will also throw exception, enabled by default
+            // 2. Will fail by default.
             DEFAULT_MAPPER.readValue(json, SomeWrapper.class);
             fail("should not pass");
         } catch (UnresolvedForwardReference e) {
@@ -553,7 +534,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
         }
 
         try {
-            // This will also throw exception, same as default
+            // 3. Will also throw exception, because configured as such.
             ENABLED_MAPPER.readValue(json, SomeWrapper.class);
             fail("should not pass");
         } catch (UnresolvedForwardReference e) {

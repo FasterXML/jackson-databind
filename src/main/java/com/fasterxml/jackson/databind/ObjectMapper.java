@@ -2611,10 +2611,12 @@ public class ObjectMapper
      * Method for disabling specified {@link DeserializationConfig} features.
      * Modifies and returns this instance; no new object is created.
      * <p>
-     * <strong>WARNING: This method will be removed in Jackson 3.0 due to unsafe usage.</strong>
-     * Changing the configuration of this {@link ObjectMapper} instance after its first use (read &amp; write) is
-     * not safe and should not be attempted. Instead, use {@code with()} and {@code without()} methods of
+     * Changing the configuration of this {@link ObjectMapper} instance after its first use (read &amp; write)
+     * is not safe and should not be attempted. Instead, use {@code with()} and {@code without()} methods of
      * {@link ObjectReader}/{@link ObjectWriter} which fully support reconfiguration as new instances are constructed.
+     * <p>
+     * <strong>WARNING:</strong> This method will be removed in Jackson 3.0 due to potential unsafe usage.
+     * Use {@link MapperBuilder#configure(JsonParser.Feature, boolean)} and other overloads instead.
      */
     public ObjectMapper disable(SerializationFeature first,
             SerializationFeature... f) {

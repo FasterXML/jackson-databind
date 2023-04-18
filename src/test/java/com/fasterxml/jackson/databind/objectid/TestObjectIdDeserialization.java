@@ -374,17 +374,19 @@ public class TestObjectIdDeserialization extends BaseMapTest
 
     public void testUnresolvableWithFeatureSymmetry() throws Exception
     {
-        // specifically configured to "not" fail
-        IdWrapper w = MAPPER.readerFor(IdWrapper.class)
+        ObjectMapper mapper = newJsonMapper();
+
+        // configured to "not" fail
+        IdWrapper w = mapper.reader()
             .without(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS)
-            .readValue(a2q("{'node':123}"));
+            .readValue(a2q("{'node':123}"), IdWrapper.class);
         assertNotNull(w);
         assertNull(w.node);
 
-        // specifically configured to fail, but doesn't
-        IdWrapper w2 = MAPPER.readerFor(IdWrapper.class)
+        // configured to fail, but doesn't
+        IdWrapper w2 = mapper.reader()
             .with(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS)
-            .readValue(a2q("{'node':123}"));
+            .readValue(a2q("{'node':123}"), IdWrapper.class);
         assertNotNull(w2);
         assertNull(w2.node);
     }

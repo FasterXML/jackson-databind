@@ -2553,10 +2553,10 @@ public class ObjectMapper
      * Method for changing state of an on/off serialization feature for
      * this object mapper.
      * <p>
-     * WARNING: Changing configuration after first use (read &amp; write) is not safe and should not be attempted.
-     * These methods will be removed in Jackson 3.0.
-     * Instead, {@link ObjectReader}, {@link ObjectWriter} and their <code>with(...)</code> and <code>without(...)</code>
-     * methods should be used instead -- for which reconfiguration is fully supported as new instances are constructed.
+     * <strong>WARNING:</strong> Changing the configuration of this {@link ObjectMapper} instance after its first
+     * use (read &amp; write) is not safe and should not be attempted. These methods will be removed in Jackson 3.0.
+     * Instead, use {@link ObjectReader}, {@link ObjectWriter}, and their {@code with(...)} and {@code without(...)} methods,
+     * which fully support reconfiguration as new instances are constructed.
      */
     public ObjectMapper configure(SerializationFeature f, boolean state) {
         _serializationConfig = state ?
@@ -2568,10 +2568,10 @@ public class ObjectMapper
      * Method for enabling specified {@link DeserializationConfig} feature.
      * Modifies and returns this instance; no new object is created.
      * <p>
-     * WARNING: Changing configuration after first use (read &amp; write) is not safe and should not be attempted.
-     * These methods will be removed in Jackson 3.0.
-     * Instead, {@link ObjectReader}, {@link ObjectWriter} and their <code>with(...)</code> and <code>without(...)</code>
-     * methods should be used instead -- for which reconfiguration is fully supported as new instances are constructed.
+     * <strong>WARNING:</strong> Changing the configuration of this {@link ObjectMapper} instance after its first
+     * use (read &amp; write) is not safe and should not be attempted. These methods will be removed in Jackson 3.0.
+     * Instead, use {@link ObjectReader}, {@link ObjectWriter}, and their {@code with(...)} and {@code without(...)} methods,
+     * which fully support reconfiguration as new instances are constructed.
      */
     public ObjectMapper enable(SerializationFeature f) {
         _serializationConfig = _serializationConfig.with(f);
@@ -2582,10 +2582,10 @@ public class ObjectMapper
      * Method for enabling specified {@link DeserializationConfig} features.
      * Modifies and returns this instance; no new object is created.
      * <p>
-     * WARNING: Changing configuration after first use (read &amp; write) is not safe and should not be attempted.
-     * These methods will be removed in Jackson 3.0.
-     * Instead, {@link ObjectReader}, {@link ObjectWriter} and their <code>with(...)</code> and <code>without(...)</code>
-     * methods should be used instead -- for which reconfiguration is fully supported as new instances are constructed.
+     * <strong>WARNING:</strong> Changing the configuration of this {@link ObjectMapper} instance after its first
+     * use (read &amp; write) is not safe and should not be attempted. These methods will be removed in Jackson 3.0.
+     * Instead, use {@link ObjectReader}, {@link ObjectWriter}, and their {@code with(...)} and {@code without(...)} methods,
+     * which fully support reconfiguration as new instances are constructed.
      */
     public ObjectMapper enable(SerializationFeature first,
             SerializationFeature... f) {
@@ -2597,10 +2597,10 @@ public class ObjectMapper
      * Method for disabling specified {@link DeserializationConfig} features.
      * Modifies and returns this instance; no new object is created.
      * <p>
-     * WARNING: Changing configuration after first use (read &amp; write) is not safe and should not be attempted.
-     * These methods will be removed in Jackson 3.0.
-     * Instead, {@link ObjectReader}, {@link ObjectWriter} and their <code>with(...)</code> and <code>without(...)</code>
-     * methods should be used instead -- for which reconfiguration is fully supported as new instances are constructed.
+     * <strong>WARNING:</strong> Changing the configuration of this {@link ObjectMapper} instance after its first
+     * use (read &amp; write) is not safe and should not be attempted. These methods will be removed in Jackson 3.0.
+     * Instead, use {@link ObjectReader}, {@link ObjectWriter}, and their {@code with(...)} and {@code without(...)} methods,
+     * which fully support reconfiguration as new instances are constructed.
      */
     public ObjectMapper disable(SerializationFeature f) {
         _serializationConfig = _serializationConfig.without(f);
@@ -2611,10 +2611,10 @@ public class ObjectMapper
      * Method for disabling specified {@link DeserializationConfig} features.
      * Modifies and returns this instance; no new object is created.
      * <p>
-     * WARNING: Changing configuration after first use (read &amp; write) is not safe and should not be attempted.
-     * These methods will be removed in Jackson 3.0.
-     * Instead, {@link ObjectReader}, {@link ObjectWriter} and their <code>with(...)</code> and <code>without(...)</code>
-     * methods should be used instead -- for which reconfiguration is fully supported as new instances are constructed.
+     * <strong>WARNING:</strong> Changing the configuration of this {@link ObjectMapper} instance after its first
+     * use (read &amp; write) is not safe and should not be attempted. These methods will be removed in Jackson 3.0.
+     * Instead, use {@link ObjectReader}, {@link ObjectWriter}, and their {@code with(...)} and {@code without(...)} methods,
+     * which fully support reconfiguration as new instances are constructed.
      */
     public ObjectMapper disable(SerializationFeature first,
             SerializationFeature... f) {
@@ -2640,10 +2640,10 @@ public class ObjectMapper
      * Method for changing state of an on/off deserialization feature for
      * this object mapper.
      * <p>
-     * WARNING: Changing configuration after first use (read &amp; write) is not safe and should not be attempted.
-     * These methods will be removed in Jackson 3.0.
-     * Instead, {@link ObjectReader}, {@link ObjectWriter} and their <code>with(...)</code> and <code>without(...)</code>
-     * methods should be used instead -- for which reconfiguration is fully supported as new instances are constructed.
+     * <strong>WARNING:</strong> Changing the configuration of this {@link ObjectMapper} instance after its first
+     * use (read &amp; write) is not safe and should not be attempted. These methods will be removed in Jackson 3.0.
+     * Instead, use {@link ObjectReader}, {@link ObjectWriter}, and their {@code with(...)} and {@code without(...)} methods,
+     * which fully support reconfiguration as new instances are constructed.
      */
     public ObjectMapper configure(DeserializationFeature f, boolean state) {
         _deserializationConfig = state ?
@@ -2655,10 +2655,10 @@ public class ObjectMapper
      * Method for enabling specified {@link DeserializationConfig} features.
      * Modifies and returns this instance; no new object is created.
      * <p>
-     * WARNING: Changing configuration after first use (read &amp; write) is not safe and should not be attempted.
-     * These methods will be removed in Jackson 3.0.
-     * Instead, {@link ObjectReader}, {@link ObjectWriter} and their <code>with(...)</code> and <code>without(...)</code>
-     * methods should be used instead -- for which reconfiguration is fully supported as new instances are constructed.
+     * <strong>WARNING:</strong> Changing the configuration of this {@link ObjectMapper} instance after its first
+     * use (read &amp; write) is not safe and should not be attempted. These methods will be removed in Jackson 3.0.
+     * Instead, use {@link ObjectReader}, {@link ObjectWriter}, and their {@code with(...)} and {@code without(...)} methods,
+     * which fully support reconfiguration as new instances are constructed.
      */
     public ObjectMapper enable(DeserializationFeature feature) {
         _deserializationConfig = _deserializationConfig.with(feature);
@@ -2669,10 +2669,10 @@ public class ObjectMapper
      * Method for enabling specified {@link DeserializationConfig} features.
      * Modifies and returns this instance; no new object is created.
      * <p>
-     * WARNING: Changing configuration after first use (read &amp; write) is not safe and should not be attempted.
-     * These methods will be removed in Jackson 3.0.
-     * Instead, {@link ObjectReader}, {@link ObjectWriter} and their <code>with(...)</code> and <code>without(...)</code>
-     * methods should be used instead -- for which reconfiguration is fully supported as new instances are constructed.
+     * <strong>WARNING:</strong> Changing the configuration of this {@link ObjectMapper} instance after its first
+     * use (read &amp; write) is not safe and should not be attempted. These methods will be removed in Jackson 3.0.
+     * Instead, use {@link ObjectReader}, {@link ObjectWriter}, and their {@code with(...)} and {@code without(...)} methods,
+     * which fully support reconfiguration as new instances are constructed.
      */
     public ObjectMapper enable(DeserializationFeature first,
             DeserializationFeature... f) {
@@ -2684,10 +2684,10 @@ public class ObjectMapper
      * Method for disabling specified {@link DeserializationConfig} features.
      * Modifies and returns this instance; no new object is created.
      * <p>
-     * WARNING: Changing configuration after first use (read &amp; write) is not safe and should not be attempted.
-     * These methods will be removed in Jackson 3.0.
-     * Instead, {@link ObjectReader}, {@link ObjectWriter} and their <code>with(...)</code> and <code>without(...)</code>
-     * methods should be used instead -- for which reconfiguration is fully supported as new instances are constructed.
+     * <strong>WARNING:</strong> Changing the configuration of this {@link ObjectMapper} instance after its first
+     * use (read &amp; write) is not safe and should not be attempted. These methods will be removed in Jackson 3.0.
+     * Instead, use {@link ObjectReader}, {@link ObjectWriter}, and their {@code with(...)} and {@code without(...)} methods,
+     * which fully support reconfiguration as new instances are constructed.
      */
     public ObjectMapper disable(DeserializationFeature feature) {
         _deserializationConfig = _deserializationConfig.without(feature);
@@ -2698,10 +2698,10 @@ public class ObjectMapper
      * Method for disabling specified {@link DeserializationConfig} features.
      * Modifies and returns this instance; no new object is created.
      * <p>
-     * WARNING: Changing configuration after first use (read &amp; write) is not safe and should not be attempted.
-     * These methods will be removed in Jackson 3.0.
-     * Instead, {@link ObjectReader}, {@link ObjectWriter} and their <code>with(...)</code> and <code>without(...)</code>
-     * methods should be used instead -- for which reconfiguration is fully supported as new instances are constructed.
+     * <strong>WARNING:</strong> Changing the configuration of this {@link ObjectMapper} instance after its first
+     * use (read &amp; write) is not safe and should not be attempted. These methods will be removed in Jackson 3.0.
+     * Instead, use {@link ObjectReader}, {@link ObjectWriter}, and their {@code with(...)} and {@code without(...)} methods,
+     * which fully support reconfiguration as new instances are constructed.
      */
     public ObjectMapper disable(DeserializationFeature first,
             DeserializationFeature... f) {
@@ -2719,10 +2719,10 @@ public class ObjectMapper
      * Method for changing state of an on/off datatype-specific feature for
      * this object mapper.
      * <p>
-     * WARNING: Changing configuration after first use (read &amp; write) is not safe and should not be attempted.
-     * These methods will be removed in Jackson 3.0.
-     * Instead, {@link ObjectReader}, {@link ObjectWriter} and their <code>with(...)</code> and <code>without(...)</code>
-     * methods should be used instead -- for which reconfiguration is fully supported as new instances are constructed.
+     * <strong>WARNING:</strong> Changing the configuration of this {@link ObjectMapper} instance after its first
+     * use (read &amp; write) is not safe and should not be attempted. These methods will be removed in Jackson 3.0.
+     * Instead, use {@link ObjectReader}, {@link ObjectWriter}, and their {@code with(...)} and {@code without(...)} methods,
+     * which fully support reconfiguration as new instances are constructed.
      */
     public ObjectMapper configure(DatatypeFeature f, boolean state) {
         if (state) {

@@ -182,6 +182,26 @@ public class TestObjectIdDeserialization extends BaseMapTest
         }
     }
 
+    static class SomeWrapper {
+        @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@id")
+        public SomeNode node;
+
+        public SomeWrapper() {}
+
+        public SomeWrapper(int v) {
+            node = new SomeNode(v);
+        }
+    }
+
+    static class SomeNode {
+        public int value;
+        public SomeWrapper next;
+
+        public SomeNode() {this(0);}
+
+        public SomeNode(int v) {value = v;}
+    }
+
     /*
     /*****************************************************
     /* Unit tests, external id deserialization
@@ -369,26 +389,6 @@ public class TestObjectIdDeserialization extends BaseMapTest
         assertNull(w2.node);
     }
 
-    public void testUnresolvableConfigureFeatureSymmetry() throws Exception
-    {
-        // specifically configured to "not" fail
-        IdWrapper w = MAPPER
-            .configure(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS, false)
-            .readValue(a2q("{'node':123}"), IdWrapper.class);
-        assertNotNull(w);
-        assertNull(w.node);
-
-        // specifically configured to fail
-        try {
-            IdWrapper w2 = MAPPER
-                .configure(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS, true)
-                .readValue(a2q("{'node':123}"), IdWrapper.class);
-            fail("should not pass");
-        } catch (UnresolvedForwardReference e) {
-            verifyException(e, "Unresolved forward reference", "Object id [123]");
-        }
-    }
-
     public void testKeepCollectionOrdering() throws Exception
     {
         String json = "{\"employees\":[2,1,"
@@ -503,4 +503,60 @@ public class TestObjectIdDeserialization extends BaseMapTest
         assertNotNull(value);
         assertEquals(3, value.value);
     }
+
+    /*
+    /*****************************************************
+    /* Unit tests in conjunction with DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS
+    /*****************************************************
+     */
+
+
+    private final ObjectMapper DEFAULT_MAPPER = newJsonMapper();
+
+    private final ObjectMapper DISABLED_MAPPER = newJsonMapper()
+        .configure(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS, false);
+
+    private final ObjectMapper ENABLED_MAPPER = newJsonMapper()
+        .configure(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS, true);
+
+    public void testDefaultSetting() {
+        assertTrue(DEFAULT_MAPPER.isEnabled(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS));
+        assertTrue(ENABLED_MAPPER.isEnabled(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS));
+        assertFalse(DISABLED_MAPPER.isEnabled(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS));
+    }
+
+    public void testSuccessResolvedObjectIds() throws Exception {
+        String json = a2q("{'node':{'@id':1,'value':7,'next':{'node':1}}}");
+
+        SomeWrapper wrapper = DEFAULT_MAPPER.readValue(json, SomeWrapper.class);
+
+        assertSame(wrapper.node, wrapper.node.next.node);
+        assertSame(wrapper.node.next.node, wrapper.node.next.node.next.node);
+    }
+
+    public void testUnresolvedObjectIdsFailure() throws Exception {
+        // With node id of 2 that doesn't exist,
+        String json = a2q("{'node':{'@id':1,'value':7,'next':{'node':2}}}");
+
+        // This will not fail, because disabled to fail
+        SomeWrapper wrapper = DISABLED_MAPPER.readValue(json, SomeWrapper.class);
+        assertNull(wrapper.node.next.node);
+
+        try {
+            // This will also throw exception, enabled by default
+            DEFAULT_MAPPER.readValue(json, SomeWrapper.class);
+            fail("should not pass");
+        } catch (UnresolvedForwardReference e) {
+            verifyException(e, "Unresolved forward reference", "Object id [2]");
+        }
+
+        try {
+            // This will also throw exception, same as default
+            ENABLED_MAPPER.readValue(json, SomeWrapper.class);
+            fail("should not pass");
+        } catch (UnresolvedForwardReference e) {
+            verifyException(e, "Unresolved forward reference", "Object id [2]");
+        }
+    }
+
 }

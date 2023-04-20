@@ -57,7 +57,7 @@ public abstract class AnnotatedMember
     public abstract Annotated withAnnotations(AnnotationMap fallback);
 
     /**
-     * Actual physical class in which this memmber was declared.
+     * Actual physical class in which this member was declared.
      */
     public abstract Class<?> getDeclaringClass();
 

@@ -1547,6 +1547,8 @@ public class JacksonAnnotationIntrospector
             b = b.defaultImpl(defaultImpl);
         }
         b = b.typeIdVisibility(info.visible());
+        // [databind#3877]: allow configuration of per-type strict type handling
+        b.requireTypeIdForSubtypes(info.requireTypeIdForSubtypes().asBoolean());
         return b;
     }
 

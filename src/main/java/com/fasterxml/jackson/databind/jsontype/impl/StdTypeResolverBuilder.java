@@ -45,6 +45,15 @@ public class StdTypeResolverBuilder
 
     protected TypeIdResolver _customIdResolver;
 
+    /**
+     * Boolean value configured through {@link JsonTypeInfo#requireTypeIdForSubtypes}.
+     * If not {@code null}, this value overrides the global configuration of
+     * {@link com.fasterxml.jackson.databind.MapperFeature#REQUIRE_TYPE_ID_FOR_SUBTYPES}.
+     *
+     * @since 2.16
+     */
+    protected Boolean _requireTypeIdForSubtypes;
+
     /*
     /**********************************************************
     /* Construction, initialization, actual building
@@ -275,6 +284,11 @@ public class StdTypeResolverBuilder
         return new StdTypeResolverBuilder(this, defaultImpl);
     }
 
+    @Override
+    public void requireTypeIdForSubtypes(Boolean requireTypeId) {
+        _requireTypeIdForSubtypes = requireTypeId;
+    }
+
     /*
     /**********************************************************
     /* Accessors
@@ -405,7 +419,9 @@ public class StdTypeResolverBuilder
 
     /**
      * Determines whether strict type ID handling should be used for this type or not.
-     * This will be enabled when either the type has type resolver annotations or if
+     * This will return as configured by {@link JsonTypeInfo#requireTypeIdForSubtypes()}
+     * if the value is not {@code OptBoolean.DEFAULT}.
+     * Otherwise,This will be enabled when either the type has type resolver annotations or if
      * {@link com.fasterxml.jackson.databind.MapperFeature#REQUIRE_TYPE_ID_FOR_SUBTYPES}
      * is enabled.
      *
@@ -415,9 +431,13 @@ public class StdTypeResolverBuilder
      * @return {@code true} if the class has type resolver annotations, or the strict
      * handling feature is enabled, {@code false} otherwise.
      *
-     * @since 2.15
+     * @since 2.16
      */
     protected boolean _strictTypeIdHandling(DeserializationConfig config, JavaType baseType) {
+        // [databind#3877]: allow configuration of per-type strict type handling
+        if (_requireTypeIdForSubtypes != null && baseType.isConcrete()) {
+            return _requireTypeIdForSubtypes;
+        }
         if (config.isEnabled(MapperFeature.REQUIRE_TYPE_ID_FOR_SUBTYPES)) {
             return true;
         }

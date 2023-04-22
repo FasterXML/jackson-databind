@@ -183,6 +183,26 @@ public class TestObjectIdDeserialization extends BaseMapTest
         }
     }
 
+    static class SomeWrapper {
+        @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@id")
+        public SomeNode node;
+
+        public SomeWrapper() {}
+
+        public SomeWrapper(int v) {
+            node = new SomeNode(v);
+        }
+    }
+
+    static class SomeNode {
+        public int value;
+        public SomeWrapper next;
+
+        public SomeNode() {this(0);}
+
+        public SomeNode(int v) {value = v;}
+    }
+
     /*
     /*****************************************************
     /* Unit tests, external id deserialization
@@ -467,4 +487,60 @@ public class TestObjectIdDeserialization extends BaseMapTest
         assertNotNull(value);
         assertEquals(3, value.value);
     }
+
+    /*
+    /*****************************************************
+    /* Unit tests in conjunction with DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS
+    /*****************************************************
+     */
+
+
+    private final ObjectMapper DEFAULT_MAPPER = newJsonMapper();
+
+    private final ObjectMapper DISABLED_MAPPER = newJsonMapper()
+        .configure(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS, false);
+
+    private final ObjectMapper ENABLED_MAPPER = newJsonMapper()
+        .configure(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS, true);
+
+    public void testDefaultSetting() {
+        assertTrue(DEFAULT_MAPPER.isEnabled(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS));
+        assertTrue(ENABLED_MAPPER.isEnabled(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS));
+        assertFalse(DISABLED_MAPPER.isEnabled(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS));
+    }
+
+    public void testSuccessResolvedObjectIds() throws Exception {
+        String json = a2q("{'node':{'@id':1,'value':7,'next':{'node':1}}}");
+
+        SomeWrapper wrapper = DEFAULT_MAPPER.readValue(json, SomeWrapper.class);
+
+        assertSame(wrapper.node, wrapper.node.next.node);
+        assertSame(wrapper.node.next.node, wrapper.node.next.node.next.node);
+    }
+
+    public void testUnresolvedObjectIdsFailure() throws Exception {
+        // Set-up : node id of 2 that doesn't exist,
+        String json = a2q("{'node':{'@id':1,'value':7,'next':{'node':2}}}");
+
+        // 1. Does not fail, because disabled such.
+        SomeWrapper wrapper = DISABLED_MAPPER.readValue(json, SomeWrapper.class);
+        assertNull(wrapper.node.next.node);
+
+        try {
+            // 2. Will fail by default.
+            DEFAULT_MAPPER.readValue(json, SomeWrapper.class);
+            fail("should not pass");
+        } catch (UnresolvedForwardReference e) {
+            verifyException(e, "Unresolved forward reference", "Object id [2]");
+        }
+
+        try {
+            // 3. Will also throw exception, because configured as such.
+            ENABLED_MAPPER.readValue(json, SomeWrapper.class);
+            fail("should not pass");
+        } catch (UnresolvedForwardReference e) {
+            verifyException(e, "Unresolved forward reference", "Object id [2]");
+        }
+    }
+
 }

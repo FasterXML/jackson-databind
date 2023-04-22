@@ -170,13 +170,16 @@ int age = root.get("age").asInt();
 root.with("other").put("type", "student");
 String json = mapper.writeValueAsString(root);
 
-// with above, we end up with something like as 'json' String:
-// {
-//   "name" : "Bob", "age" : 13,
-//   "other" : {
-//      "type" : "student"
-//   }
-// }
+/*
+with above, we end up with something like as 'json' String:
+{
+  "name" : "Bob",
+  "age" : 13,
+    "other" : {
+    "type" : "student"
+  }
+} 
+*/
 ```
 
 Tree Model can be more convenient than data-binding, especially in cases where structure is highly dynamic, or does not map nicely to Java classes.

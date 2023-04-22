@@ -497,11 +497,13 @@ public class TestObjectIdDeserialization extends BaseMapTest
 
     private final ObjectMapper DEFAULT_MAPPER = newJsonMapper();
 
-    private final ObjectMapper DISABLED_MAPPER = newJsonMapper()
-        .configure(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS, false);
+    private final ObjectMapper DISABLED_MAPPER = jsonMapperBuilder()
+        .disable(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS)
+        .build();
 
-    private final ObjectMapper ENABLED_MAPPER = newJsonMapper()
-        .configure(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS, true);
+    private final ObjectMapper ENABLED_MAPPER = jsonMapperBuilder()
+        .enable(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS)
+        .build();
 
     public void testDefaultSetting() {
         assertTrue(DEFAULT_MAPPER.isEnabled(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS));

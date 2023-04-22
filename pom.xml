@@ -345,6 +345,7 @@
                 <configuration>
                   <sources>
                     <source>src/test-jdk14/java</source>
+                    <source>src/test-jdk17/java</source>
                   </sources>
                 </configuration>
               </execution>

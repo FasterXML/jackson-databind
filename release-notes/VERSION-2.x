@@ -4,7 +4,11 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.15.0-rc3 (14-Apr-2023)
+2.16.0 (not yet released)
+
+No changes since 2.15
+
+2.15.0 (23-Apr-2023)
 
 #2536: Add `EnumFeature.READ_ENUM_KEYS_USING_INDEX` to work with
    existing "WRITE_ENUM_KEYS_USING_INDEX"#

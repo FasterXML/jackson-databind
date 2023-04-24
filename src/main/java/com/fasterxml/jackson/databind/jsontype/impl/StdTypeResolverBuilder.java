@@ -434,7 +434,7 @@ public class StdTypeResolverBuilder
      * @since 2.15
      */
     protected boolean _strictTypeIdHandling(DeserializationConfig config, JavaType baseType) {
-        // [databind#3877]: allow configuration of per-type strict type handling
+        // [databind#3877]: since 2.16, allow configuration of per-type strict type handling
         if (_requireTypeIdForSubtypes != null && baseType.isConcrete()) {
             return _requireTypeIdForSubtypes;
         }

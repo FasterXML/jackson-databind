@@ -45,7 +45,6 @@ public class EnumDeserMixin2787Test extends BaseMapTest {
         public Enum2787 value;
     }
 
-
     static class Bean2787 {
         public String x;
     }

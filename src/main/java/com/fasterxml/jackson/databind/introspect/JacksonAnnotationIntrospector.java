@@ -240,7 +240,7 @@ public class JacksonAnnotationIntrospector
         return names;
     }
 
-    @Override // since 2.15
+    @Override
     public String[] findEnumValues(MapperConfig<?> config, Enum<?>[] enumValues, String[] names,
                                    AnnotatedClass annotatedClass) {
         // First collect all JsonProperty.value()
@@ -303,7 +303,7 @@ public class JacksonAnnotationIntrospector
         }
     }
 
-    @Override // since 2.15
+    @Override
     public void findEnumAliases(MapperConfig<?> config, Enum<?>[] enumValues, String[][] aliasList, AnnotatedClass annotatedClass)
     {
         HashMap<String, String[]> enumToAliasMap = new HashMap<>();

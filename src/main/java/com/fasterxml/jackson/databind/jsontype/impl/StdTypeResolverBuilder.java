@@ -47,7 +47,7 @@ public class StdTypeResolverBuilder
 
     /**
      * Boolean value configured through {@link JsonTypeInfo#requireTypeIdForSubtypes}.
-     * If not {@code null}, this value overrides the global configuration of
+     * If this value is not {@code null}, this value overrides the global configuration of
      * {@link com.fasterxml.jackson.databind.MapperFeature#REQUIRE_TYPE_ID_FOR_SUBTYPES}.
      *
      * @since 2.16
@@ -419,9 +419,9 @@ public class StdTypeResolverBuilder
 
     /**
      * Determines whether strict type ID handling should be used for this type or not.
-     * This will return as configured by {@link JsonTypeInfo#requireTypeIdForSubtypes()}
-     * if the value is not {@code OptBoolean.DEFAULT}.
-     * Otherwise,This will be enabled when either the type has type resolver annotations or if
+     * This will be enabld as configured by {@link JsonTypeInfo#requireTypeIdForSubtypes()}
+     * unless its value is {@code OptBoolean.DEFAULT}. Otherwise,
+     * this will be enabled when either the type has type resolver annotations or if
      * {@link com.fasterxml.jackson.databind.MapperFeature#REQUIRE_TYPE_ID_FOR_SUBTYPES}
      * is enabled.
      *
@@ -431,7 +431,7 @@ public class StdTypeResolverBuilder
      * @return {@code true} if the class has type resolver annotations, or the strict
      * handling feature is enabled, {@code false} otherwise.
      *
-     * @since 2.16
+     * @since 2.15
      */
     protected boolean _strictTypeIdHandling(DeserializationConfig config, JavaType baseType) {
         // [databind#3877]: allow configuration of per-type strict type handling

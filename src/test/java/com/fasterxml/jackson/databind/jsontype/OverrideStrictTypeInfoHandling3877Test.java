@@ -76,7 +76,7 @@ public class OverrideStrictTypeInfoHandling3877Test extends BaseMapTest {
         verifySuccessWithNonNullAndType("{}", DoDefaultCommand.class, DISABLED_MAPPER);
     }
 
-    public void testSuccessWithTypeId() throws Exception {
+    public void testSuccessWhenTypeIdIsProvided() throws Exception {
         verifySuccessWithNonNullAndType(a2q("{'@type': 'do-false'}"), FalseCommand.class, ENABLED_MAPPER);
         verifySuccessWithNonNullAndType(a2q("{'@type': 'do-false'}"), FalseCommand.class, DEFAULT_MAPPER);
         verifySuccessWithNonNullAndType(a2q("{'@type': 'do-false'}"), FalseCommand.class, DISABLED_MAPPER);

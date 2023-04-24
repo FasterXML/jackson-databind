@@ -80,7 +80,7 @@
              usage seems to benefit from actually specifying version here in case
              it is dependent on transitively
         -->
-      <version>2.16.0-SNAPSHOT-joohyukkim</version>
+      <version>${jackson.version.annotations}</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>

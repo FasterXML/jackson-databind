@@ -1,9 +1,7 @@
 package com.fasterxml.jackson.failing;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 public class TestSetterlessProperty
     extends BaseMapTest

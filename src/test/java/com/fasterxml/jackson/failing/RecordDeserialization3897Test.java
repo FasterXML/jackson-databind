@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.BaseMapTest;
 // `JsonProperty.Access.WRITE_ONLY`. Regression from Jackson 2.14.2
 public class RecordDeserialization3897Test extends BaseMapTest {
 
-    public record Example(
+    record Example(
         @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
         String value
     ) {}

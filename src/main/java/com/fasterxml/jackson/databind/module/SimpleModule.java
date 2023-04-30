@@ -312,6 +312,9 @@ public class SimpleModule
      *<p>
      * WARNING! "Last one wins" rule is applied.
      * Possible earlier addition of a serializer for a given Class will be replaced.
+     * <p>
+     * NOTE: (de)serializers registered using class-level annotations will always have preference over 
+     * (de)serializers registered using this method.  
      */
     public SimpleModule addSerializer(JsonSerializer<?> ser)
     {
@@ -325,6 +328,9 @@ public class SimpleModule
 
     /**
      * Method for adding serializer to handle values of specific type.
+     * <p>
+     * NOTE: (de)serializers registered using class-level annotations will always have preference over 
+     * (de)serializers registered using this method.
      *<p>
      * WARNING! Type matching only uses type-erased {@code Class} and should NOT
      * be used when registering serializers for generic types like
@@ -332,6 +338,9 @@ public class SimpleModule
      *<p>
      * WARNING! "Last one wins" rule is applied.
      * Possible earlier addition of a serializer for a given Class will be replaced.
+     * <p>
+     * NOTE: (de)serializers registered using class-level annotations will always have preference over 
+     * (de)serializers registered using this method.  
      */
     public <T> SimpleModule addSerializer(Class<? extends T> type, JsonSerializer<T> ser)
     {
@@ -344,6 +353,10 @@ public class SimpleModule
         return this;
     }
 
+    /**
+     * NOTE: (de)serializers registered using class-level annotations will always have preference over 
+     * (de)serializers registered using this method.  
+     */
     public <T> SimpleModule addKeySerializer(Class<? extends T> type, JsonSerializer<T> ser)
     {
         _checkNotNull(type, "type to register key serializer for");
@@ -370,6 +383,9 @@ public class SimpleModule
      *<p>
      * WARNING! "Last one wins" rule is applied.
      * Possible earlier addition of a serializer for a given Class will be replaced.
+     * <p>
+     * NOTE: (de)serializers registered using class-level annotations will always have preference over 
+     * (de)serializers registered using this method.  
      */
     public <T> SimpleModule addDeserializer(Class<T> type, JsonDeserializer<? extends T> deser)
     {
@@ -382,6 +398,10 @@ public class SimpleModule
         return this;
     }
 
+    /**
+     * NOTE: (de)serializers registered using class-level annotations will always have preference over 
+     * (de)serializers registered using this method.  
+     */
     public SimpleModule addKeyDeserializer(Class<?> type, KeyDeserializer deser)
     {
         _checkNotNull(type, "type to register key deserializer for");

@@ -15,12 +15,8 @@ import java.util.Map;
 /**
  * Behavioral test to prove that by design decision, (de)serializers from class-level annotations will always
  * have preference over default (de)serializers.
- * <p>
- * Mentioned in issues: <br/>
- * - [databind#3781] Custom deserializers are ignored by the class-level deserializer <br/>
- * - [databind#3901] @JsonDeserialize prioritized over addDeserializer
+ * 
  */
-
 public class TestSimpleModuleAddMethods extends BaseMapTest {
     
     /*

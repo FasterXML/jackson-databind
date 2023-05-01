@@ -22,10 +22,11 @@ import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
  * needed aspects (addition of custom {@link AbstractTypeResolver}s,
  * {@link com.fasterxml.jackson.databind.deser.ValueInstantiator}s).
  * <p>
- * Note that all serializers and deserializers are registered as "default" [de]serializers, 
- * thus have lower priority than ones indicated via annotations on both Class and property-associated annotations. 
- * This means that when both default and annotation-based [de]serializers are registered, one 
- * from annotation will remain.
+ * Please note that [de]serializers are registered as "default" [de]serializers. 
+ * As a result, they will have lower priority than the ones indicated through annotations on 
+ * both Class and property-associated annotations.
+ * In cases where both module-based [de]serializers and annotation-based [de]serializers are registered, 
+ * the [de]serializer specified by the annotation will take precedence.
  *<p>
  * NOTE: although it is not expected that sub-types should need to
  * override {@link #setupModule(SetupContext)} method, if they choose

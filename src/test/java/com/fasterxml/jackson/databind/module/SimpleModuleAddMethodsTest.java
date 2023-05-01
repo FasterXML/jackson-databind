@@ -17,14 +17,9 @@ import java.util.Map;
  * have preference over default (de)serializers.
  * 
  */
-public class TestSimpleModuleAddMethods extends BaseMapTest {
-    
-    /*
-    /**********************************************************
-    /* Set up
-    /**********************************************************
-     */
-
+@SuppressWarnings("serial")
+public class SimpleModuleAddMethodsTest extends BaseMapTest
+{
     @JsonDeserialize(using = ClassDogDeserializer.class)
     @JsonSerialize(using = ClassDogSerializer.class)
     static class Dog {
@@ -149,7 +144,7 @@ public class TestSimpleModuleAddMethods extends BaseMapTest {
      
     /*
     /**********************************************************
-    /* Tests
+    /* Test methods
     /**********************************************************
      */
 

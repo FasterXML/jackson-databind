@@ -62,7 +62,7 @@ public class TestBigNumbers extends BaseMapTest
             MAPPER.readValue(generateJson("d"), DoubleWrapper.class);
             fail("expected StreamReadException");
         } catch (StreamConstraintsException e) {
-            verifyException(e, "Invalid numeric value ", "exceeds the maximum length");
+            verifyException(e, "Number value length", "exceeds the maximum allowed");
         }
     }
 
@@ -79,7 +79,7 @@ public class TestBigNumbers extends BaseMapTest
             MAPPER.readValue(generateJson("number"), BigDecimalWrapper.class);
             fail("expected StreamReadException");
         } catch (StreamConstraintsException e) {
-            verifyException(e, "Invalid numeric value ", "exceeds the maximum length");
+            verifyException(e, "Number value length ", "exceeds the maximum allowed");
         }
     }
 
@@ -97,7 +97,7 @@ public class TestBigNumbers extends BaseMapTest
             MAPPER.readValue(generateJson("number"), BigIntegerWrapper.class);
             fail("expected StreamReadException");
         } catch (StreamConstraintsException e) {
-            verifyException(e, "Invalid numeric value ", "exceeds the maximum length");
+            verifyException(e, "Number value length", "exceeds the maximum allowed");
         }
     }
 

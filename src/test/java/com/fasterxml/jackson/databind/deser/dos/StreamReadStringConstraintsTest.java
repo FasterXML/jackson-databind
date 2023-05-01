@@ -48,7 +48,7 @@ public class StreamReadStringConstraintsTest extends BaseMapTest
             fail("expected JsonMappingException");
         } catch (DatabindException e) {
             assertTrue("unexpected exception message: " + e.getMessage(),
-                    e.getMessage().startsWith("String value length (5001000) exceeds the maximum allowed (5000000)"));
+                    e.getMessage().startsWith("String value length (5001000) exceeds the maximum allowed (5000000"));
         }
     }
 
@@ -62,7 +62,7 @@ public class StreamReadStringConstraintsTest extends BaseMapTest
             // this test fails when the TextBuffer is being resized, so we don't yet know just how big the string is
             // so best not to assert that the String length value in the message is the full 6000000 value
             assertTrue("unexpected exception message: " + message, message.startsWith("String value length"));
-            assertTrue("unexpected exception message: " + message, message.contains("exceeds the maximum allowed (5000000)"));
+            assertTrue("unexpected exception message: " + message, message.contains("exceeds the maximum allowed (5000000"));
         }
     }
 

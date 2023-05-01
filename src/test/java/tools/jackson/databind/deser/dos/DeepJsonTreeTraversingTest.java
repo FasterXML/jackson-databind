@@ -1,5 +1,7 @@
 package tools.jackson.databind.deser.dos;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.core.json.JsonFactory;
@@ -22,7 +24,8 @@ public class DeepJsonTreeTraversingTest extends BaseMapTest
         try {
             defaultMapper.readTree(doc);
         } catch (StreamConstraintsException e) {
-            assertEquals("Depth (1001) exceeds the maximum allowed nesting depth (1000)", e.getMessage());
+            assertThat(e.getMessage())
+                .startsWith("Document nesting depth (1001) exceeds the maximum allowed (1000");
         }
     }
 
@@ -32,7 +35,8 @@ public class DeepJsonTreeTraversingTest extends BaseMapTest
         try {
             defaultMapper.readTree(doc);
         } catch (StreamConstraintsException e) {
-            assertEquals("Depth (1001) exceeds the maximum allowed nesting depth (1000)", e.getMessage());
+            assertThat(e.getMessage())
+                .startsWith("Document nesting depth (1001) exceeds the maximum allowed (1000");
         }
     }
 

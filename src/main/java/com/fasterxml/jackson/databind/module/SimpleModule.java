@@ -22,9 +22,10 @@ import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
  * needed aspects (addition of custom {@link AbstractTypeResolver}s,
  * {@link com.fasterxml.jackson.databind.deser.ValueInstantiator}s).
  * <p>
- * Please note that [de]serializers are registered as "default" [de]serializers. 
+ * NOTE: that [de]serializers are registered as "default" [de]serializers. 
  * As a result, they will have lower priority than the ones indicated through annotations on 
- * both Class and property-associated annotations.
+ * both Class and property-associated annotations -- for example, 
+ * {@link com.fasterxml.jackson.databind.annotation.JsonDeserialize}.<br/>
  * In cases where both module-based [de]serializers and annotation-based [de]serializers are registered, 
  * the [de]serializer specified by the annotation will take precedence.
  *<p>
@@ -319,8 +320,7 @@ public class SimpleModule
      * WARNING! "Last one wins" rule is applied.
      * Possible earlier addition of a serializer for a given Class will be replaced.
      * <p>
-     * NOTE: (de)serializers registered using class-level annotations will always have preference over 
-     * (de)serializers registered using this method.  
+     * NOTE: This method registers "default" (de)serializers only. See a note on precedence in class JavaDoc.
      */
     public SimpleModule addSerializer(JsonSerializer<?> ser)
     {
@@ -335,8 +335,7 @@ public class SimpleModule
     /**
      * Method for adding serializer to handle values of specific type.
      * <p>
-     * NOTE: (de)serializers registered using class-level annotations will always have preference over 
-     * (de)serializers registered using this method.
+     * NOTE: This method registers "default" (de)serializers only. See a note on precedence in class JavaDoc.
      *<p>
      * WARNING! Type matching only uses type-erased {@code Class} and should NOT
      * be used when registering serializers for generic types like
@@ -345,8 +344,7 @@ public class SimpleModule
      * WARNING! "Last one wins" rule is applied.
      * Possible earlier addition of a serializer for a given Class will be replaced.
      * <p>
-     * NOTE: (de)serializers registered using class-level annotations will always have preference over 
-     * (de)serializers registered using this method.  
+     * NOTE: This method registers "default" (de)serializers only. See a note on precedence in class JavaDoc.
      */
     public <T> SimpleModule addSerializer(Class<? extends T> type, JsonSerializer<T> ser)
     {
@@ -360,8 +358,7 @@ public class SimpleModule
     }
 
     /**
-     * NOTE: (de)serializers registered using class-level annotations will always have preference over 
-     * (de)serializers registered using this method.  
+     * NOTE: This method registers "default" (de)serializers only. See a note on precedence in class JavaDoc.
      */
     public <T> SimpleModule addKeySerializer(Class<? extends T> type, JsonSerializer<T> ser)
     {
@@ -390,8 +387,7 @@ public class SimpleModule
      * WARNING! "Last one wins" rule is applied.
      * Possible earlier addition of a serializer for a given Class will be replaced.
      * <p>
-     * NOTE: (de)serializers registered using class-level annotations will always have preference over 
-     * (de)serializers registered using this method.  
+     * NOTE: This method registers "default" (de)serializers only. See a note on precedence in class JavaDoc.
      */
     public <T> SimpleModule addDeserializer(Class<T> type, JsonDeserializer<? extends T> deser)
     {
@@ -405,8 +401,7 @@ public class SimpleModule
     }
 
     /**
-     * NOTE: (de)serializers registered using class-level annotations will always have preference over 
-     * (de)serializers registered using this method.  
+     * NOTE: This method registers "default" (de)serializers only. See a note on precedence in class JavaDoc.
      */
     public SimpleModule addKeyDeserializer(Class<?> type, KeyDeserializer deser)
     {

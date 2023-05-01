@@ -21,6 +21,13 @@ import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
  * as well as some other commonly
  * needed aspects (addition of custom {@link AbstractTypeResolver}s,
  * {@link com.fasterxml.jackson.databind.deser.ValueInstantiator}s).
+ * <p>
+ * NOTE: that [de]serializers are registered as "default" [de]serializers. 
+ * As a result, they will have lower priority than the ones indicated through annotations on 
+ * both Class and property-associated annotations -- for example, 
+ * {@link com.fasterxml.jackson.databind.annotation.JsonDeserialize}.<br/>
+ * In cases where both module-based [de]serializers and annotation-based [de]serializers are registered, 
+ * the [de]serializer specified by the annotation will take precedence.
  *<p>
  * NOTE: although it is not expected that sub-types should need to
  * override {@link #setupModule(SetupContext)} method, if they choose
@@ -309,6 +316,8 @@ public class SimpleModule
      * WARNING! Type matching only uses type-erased {@code Class} and should NOT
      * be used when registering serializers for generic types like
      * {@link java.util.Collection} and {@link java.util.Map}.
+     * <p>
+     * NOTE: This method registers "default" (de)serializers only. See a note on precedence in class JavaDoc.
      */
     public SimpleModule addSerializer(JsonSerializer<?> ser)
     {
@@ -326,6 +335,8 @@ public class SimpleModule
      * WARNING! Type matching only uses type-erased {@code Class} and should NOT
      * be used when registering serializers for generic types like
      * {@link java.util.Collection} and {@link java.util.Map}.
+     * <p>
+     * NOTE: This method registers "default" (de)serializers only. See a note on precedence in class JavaDoc.
      */
     public <T> SimpleModule addSerializer(Class<? extends T> type, JsonSerializer<T> ser)
     {
@@ -338,6 +349,9 @@ public class SimpleModule
         return this;
     }
 
+    /**
+     * NOTE: This method registers "default" (de)serializers only. See a note on precedence in class JavaDoc.
+     */
     public <T> SimpleModule addKeySerializer(Class<? extends T> type, JsonSerializer<T> ser)
     {
         _checkNotNull(type, "type to register key serializer for");
@@ -361,6 +375,8 @@ public class SimpleModule
      * WARNING! Type matching only uses type-erased {@code Class} and should NOT
      * be used when registering serializers for generic types like
      * {@link java.util.Collection} and {@link java.util.Map}.
+     * <p>
+     * NOTE: This method registers "default" (de)serializers only. See a note on precedence in class JavaDoc.
      */
     public <T> SimpleModule addDeserializer(Class<T> type, JsonDeserializer<? extends T> deser)
     {
@@ -373,6 +389,9 @@ public class SimpleModule
         return this;
     }
 
+    /**
+     * NOTE: This method registers "default" (de)serializers only. See a note on precedence in class JavaDoc.
+     */
     public SimpleModule addKeyDeserializer(Class<?> type, KeyDeserializer deser)
     {
         _checkNotNull(type, "type to register key deserializer for");

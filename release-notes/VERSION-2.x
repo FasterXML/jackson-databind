@@ -4,6 +4,11 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.15.1 (not yet released)
+
+#3894: Only avoid Records fields detection for deserialization
+ (contributed by Sim Y-T)
+
 2.15.0 (23-Apr-2023)
 
 #2536: Add `EnumFeature.READ_ENUM_KEYS_USING_INDEX` to work with

@@ -1583,16 +1583,18 @@ Hervé Boutemy (hboutemy@github)
   (2.15.0)
 
 Sim Yih Tsern (yihtsern@github)
-  * Contributed fix for #2974: Null coercion with `@JsonSetter` does not work with `java.lang.Record`
+ * Contributed fix for #2974: Null coercion with `@JsonSetter` does not work with `java.lang.Record`
   (2.15.0)
-  * Contributed fix for #2992: Properties naming strategy do not work with Record
+ * Contributed fix for #2992: Properties naming strategy do not work with Record
   (2.15.0)
-  * Contributed fix for #3180: Support `@JsonCreator` annotation on record classes
+ * Contributed fix for #3180: Support `@JsonCreator` annotation on record classes
   (2.15.0)
-  * Contributed fix for #3297: `@JsonDeserialize(converter = ...)` does not work with Records
+ * Contributed fix for #3297: `@JsonDeserialize(converter = ...)` does not work with Records
   (2.15.0)
-  * Contributed fix for #3342: `JsonTypeInfo.As.EXTERNAL_PROPERTY` does not work with record wrappers
+ * Contributed fix for #3342: `JsonTypeInfo.As.EXTERNAL_PROPERTY` does not work with record wrappers
   (2.15.0)
+ * Contributed fix for #3894: Only avoid Records fields detection for deserialization
+  (2.15.1)
 
 Ajay Siwach (Siwach16@github)
   * Contributed #3637: Add enum features into `@JsonFormat.Feature`

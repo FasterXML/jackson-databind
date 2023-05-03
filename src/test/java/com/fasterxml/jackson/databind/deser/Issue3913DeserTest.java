@@ -9,25 +9,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
 
-public class Issue1009Test extends BaseMapTest {
-
-    public void testDeserialization() throws JsonProcessingException {
-        String rawResponse = "{\"list\":[{\"type\":\"impl\",\"unmappedKey\":\"unusedValue\"}]}";
-        MyResponse myResponse = objectMapper().readValue(rawResponse, MyResponse.class);
-        assertNotNull(myResponse);
-        assertEquals(1, myResponse.list.size());
-        assertEquals("impl", myResponse.list.get(0).getType());
-        assertNull(myResponse.list.get(0).getMissingInJson());
-    }
-
-    protected ObjectMapper objectMapper() {
-        ObjectMapper om = new ObjectMapper();
-        om.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        return om;
-    }
-
+public class Issue3913DeserTest extends BaseMapTest
+{
+    // [databind#3913]
     static class MyResponse {
-        private List<Base> list;
+        List<Base> list;
 
         public List<Base> getList() {
             return list;
@@ -85,5 +71,18 @@ public class Issue1009Test extends BaseMapTest {
         public void setMissingInJson(String missingInJson) {
             this.missingInJson = missingInJson;
         }
+    }
+
+    // [databind#3913]
+    public void testDeserialization() throws JsonProcessingException {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .build();
+        String rawResponse = "{\"list\":[{\"type\":\"impl\",\"unmappedKey\":\"unusedValue\"}]}";
+        MyResponse myResponse = mapper.readValue(rawResponse, MyResponse.class);
+        assertNotNull(myResponse);
+        assertEquals(1, myResponse.list.size());
+        assertEquals("impl", myResponse.list.get(0).getType());
+        assertNull(myResponse.list.get(0).getMissingInJson());
     }
 }

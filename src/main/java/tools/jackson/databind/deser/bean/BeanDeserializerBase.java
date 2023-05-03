@@ -1654,7 +1654,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
             if (unknownTokens != null) {
                 // need to add END_OBJECT marker first
                 unknownTokens.writeEndObject();
-                JsonParser p2 = unknownTokens.asParserOnFirstToken(ctxt);
+                JsonParser p2 = unknownTokens.asParserOnFirstToken(ctxt, p);
                 bean = subDeser.deserialize(p2, ctxt, bean);
             }
             // Original parser may also have some leftovers

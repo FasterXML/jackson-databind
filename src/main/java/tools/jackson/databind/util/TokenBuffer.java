@@ -265,8 +265,8 @@ public class TokenBuffer
      */
     public JsonParser asParser() {
         return new Parser(ObjectReadContext.empty(), this,
-                _first, _hasNativeTypeIds, _hasNativeObjectIds, _parentContext,
-                StreamReadConstraints.defaults());
+                _first, _hasNativeTypeIds, _hasNativeObjectIds,
+                _parentContext, _streamReadConstraints);
     }
 
     /**
@@ -288,15 +288,19 @@ public class TokenBuffer
     }
 
     /**
-     * @param src Parser to use for accessing source information
+     * @param p0 Parser to use for accessing source information
      *    like location, configured codec, streamReadConstraints
      */
-    public JsonParser asParser(ObjectReadContext readCtxt, JsonParser src)
+    public JsonParser asParser(ObjectReadContext readCtxt, JsonParser p0)
     {
+        StreamReadConstraints src = (p0 == null)
+                ? _streamReadConstraints : p0.streamReadConstraints();
         Parser p = new Parser(readCtxt, this,
                 _first, _hasNativeTypeIds, _hasNativeObjectIds,
-                _parentContext, src.streamReadConstraints());
-        p.setLocation(src.currentTokenLocation());
+                _parentContext, src);
+        if (p0 != null) {
+            p.setLocation(p0.currentTokenLocation());
+        }
         return p;
     }
 

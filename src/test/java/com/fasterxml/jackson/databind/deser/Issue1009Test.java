@@ -49,10 +49,12 @@ public class Issue1009Test extends BaseMapTest {
                 @JsonProperty("missingInJson") String missingInJson,
                 @JsonProperty("type") String type
         ) {
-            return switch (type) {
-                case "impl" -> new Impl(type, missingInJson);
-                default -> null;
-            };
+            switch (type) {
+                case "impl":
+                    return new Impl(type, missingInJson);
+                default:
+                    return null;
+            }
         }
     }
 

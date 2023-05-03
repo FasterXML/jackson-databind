@@ -23,6 +23,7 @@ public class RecordNullHandling3847Test extends BaseMapTest {
     }
 
     public record PlainRecord(String fieldName) {}
+    public record IntRecord(String description, int value) {}
 
     public record FixedRecord(@JsonProperty("field_name") String fieldName) {}
 
@@ -100,5 +101,16 @@ public class RecordNullHandling3847Test extends BaseMapTest {
         } catch (InvalidNullException e) {
             verifyException(e, "Invalid `null` value encountered for property \"field_name\"");
         }
+    }
+
+    public void testRecordDefaultNullDeserialization() throws Exception {
+        PlainRecord pr = new ObjectMapper().readValue("{}", PlainRecord.class);
+        assertNull(pr.fieldName);
+    }
+
+    public void testIntRecordDefaultNullDeserialization() throws Exception {
+        IntRecord ir = new ObjectMapper().readValue("{}", IntRecord.class);
+        assertNull(ir.description);
+        assertEquals(0, ir.value);
     }
 }

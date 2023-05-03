@@ -395,7 +395,7 @@ public class BuilderBasedDeserializer
                     }
                     //  polymorphic?
                     if (builder.getClass() != _beanType.getRawClass()) {
-                        return handlePolymorphic(p, ctxt, builder, unknown);
+                        return handlePolymorphic(p, ctxt, p.streamReadConstraints(), builder, unknown);
                     }
                     if (unknown != null) { // nope, just extra unknown stuff...
                         builder = handleUnknownProperties(ctxt, builder, unknown);
@@ -440,7 +440,7 @@ public class BuilderBasedDeserializer
         if (unknown != null) {
             // polymorphic?
             if (builder.getClass() != _beanType.getRawClass()) {
-                return handlePolymorphic(null, ctxt, builder, unknown);
+                return handlePolymorphic(null, ctxt, p.streamReadConstraints(), builder, unknown);
             }
             // no, just some extra unknown properties
             return handleUnknownProperties(ctxt, builder, unknown);
@@ -669,7 +669,7 @@ public class BuilderBasedDeserializer
                         continue; // never gets here
                     }
                     if (builder.getClass() != _beanType.getRawClass()) {
-                        return handlePolymorphic(p, ctxt, builder, tokens);
+                        return handlePolymorphic(p, ctxt, p.streamReadConstraints(), builder, tokens);
                     }
                     return deserializeWithUnwrapped(p, ctxt, builder, tokens);
                 }

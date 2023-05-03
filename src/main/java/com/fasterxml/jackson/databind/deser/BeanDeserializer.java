@@ -454,7 +454,7 @@ public class BeanDeserializer
 
                     //  polymorphic?
                     if (bean.getClass() != _beanType.getRawClass()) {
-                        return handlePolymorphic(p, ctxt, bean, unknown);
+                        return handlePolymorphic(p, ctxt, p.streamReadConstraints(), bean, unknown);
                     }
                     if (unknown != null) { // nope, just extra unknown stuff...
                         bean = handleUnknownProperties(ctxt, bean, unknown);
@@ -538,7 +538,7 @@ public class BeanDeserializer
         if (unknown != null) {
             // polymorphic?
             if (bean.getClass() != _beanType.getRawClass()) { // lgtm [java/dereferenced-value-may-be-null]
-                return handlePolymorphic(null, ctxt, bean, unknown);
+                return handlePolymorphic(null, ctxt, p.streamReadConstraints(), bean, unknown);
             }
             // no, just some extra unknown properties
             return handleUnknownProperties(ctxt, bean, unknown);

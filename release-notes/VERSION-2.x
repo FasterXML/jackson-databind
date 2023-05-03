@@ -12,6 +12,9 @@ No changes since 2.15
 
 #3894: Only avoid Records fields detection for deserialization
  (contributed by Sim Y-T)
+#3913: Issue with deserialization when there are unexpected properties (due
+  to null `StreamReadConstraints`)
+ (reported by @sbertault)
 
 2.15.0 (23-Apr-2023)
 

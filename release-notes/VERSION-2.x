@@ -15,6 +15,7 @@ No changes since 2.15
 #3913: Issue with deserialization when there are unexpected properties (due
   to null `StreamReadConstraints`)
  (reported by @sbertault)
+#3914: Fix TypeId serialization for `JsonTypeInfo.Id.DEDUCTION`, native type ids
 
 2.15.0 (23-Apr-2023)
 

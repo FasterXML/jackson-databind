@@ -8,6 +8,15 @@ Project: jackson-databind
 
 No changes since 2.15
 
+2.15.1 (not yet released)
+
+#3894: Only avoid Records fields detection for deserialization
+ (contributed by Sim Y-T)
+#3913: Issue with deserialization when there are unexpected properties (due
+  to null `StreamReadConstraints`)
+ (reported by @sbertault)
+#3914: Fix TypeId serialization for `JsonTypeInfo.Id.DEDUCTION`, native type ids
+
 2.15.0 (23-Apr-2023)
 
 #2536: Add `EnumFeature.READ_ENUM_KEYS_USING_INDEX` to work with

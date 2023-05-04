@@ -440,7 +440,8 @@ public class POJOPropertiesCollector
 
         // 15-Jan-2023, tatu: [databind#3736] Let's avoid detecting fields of Records
         //   altogether (unless we find a good reason to detect them)
-        if (!isRecordType()) {
+        // 17-Apr-2023: Need Records' fields for serialization for cases like [databind#3895] & [databind#3628]
+        if (!isRecordType() || _forSerialization) {
             _addFields(props); // note: populates _fieldRenameMappings
         }
         _addMethods(props);

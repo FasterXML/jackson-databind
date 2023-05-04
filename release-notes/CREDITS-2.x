@@ -1624,3 +1624,8 @@ Steve Storey (stevestorey@github)
     strict subtype Type Id handling
    (2.15.0)
 
+Matteo Bertozzi (matteobertozzi@github)
+  * Reported #3895: 2.15.0 breaking behaviour change for records and Getter Visibility
+   (2.15.1)
+
+

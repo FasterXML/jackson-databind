@@ -1595,6 +1595,9 @@ Sim Yih Tsern (yihtsern@github)
   (2.15.0)
  * Contributed fix for #3894: Only avoid Records fields detection for deserialization
   (2.15.1)
+ * Contributed fix for #3897: 2.15.0 breaks deserialization when POJO/Record only has a
+   single field and is marked `Access.WRITE_ONLY`
+  (2.15.1)
 
 Ajay Siwach (Siwach16@github)
   * Contributed #3637: Add enum features into `@JsonFormat.Feature`
@@ -1626,6 +1629,11 @@ Steve Storey (stevestorey@github)
 
 Matteo Bertozzi (matteobertozzi@github)
   * Reported #3895: 2.15.0 breaking behaviour change for records and Getter Visibility
+   (2.15.1)
+
+Antti Lampinen (arlampin@github)
+  * Reported #3897: 2.15.0 breaks deserialization when POJO/Record only has a single field
+    and is marked `Access.WRITE_ONLY`
    (2.15.1)
 
 

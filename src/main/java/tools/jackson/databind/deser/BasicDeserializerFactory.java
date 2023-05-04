@@ -964,6 +964,10 @@ candidate.creator());
                     return true;
                 }
             }
+            // [databind#3897]: Record canonical constructor will have implicitly named propDef
+            if (!propDef.isExplicitlyNamed() && beanDesc.isRecordType()) {
+                return true;
+            }
         }
         // in absence of everything else, default to delegating
         return false;

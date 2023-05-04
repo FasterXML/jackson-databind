@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.BeanProperty;
 
@@ -39,9 +40,19 @@ public class AsDeductionTypeSerializer extends TypeSerializerBase
         // write surrounding Object or Array start/end markers. But
         // we are not to generate type id to write (compared to base class)
 
-        if (idMetadata.valueShape.isStructStart()
-                // also: do not try to write native type id
-                && !g.canWriteTypeId()) {
+        if (idMetadata.valueShape.isStructStart()) {
+            // 03-May-2023, tatu: [databind#3914]: should not write Native Type Id;
+            //   but may need to write the value start marker
+            if (g.canWriteTypeId()) {
+                idMetadata.wrapperWritten = false;
+                if (idMetadata.valueShape == JsonToken.START_OBJECT) {
+                    g.writeStartObject(idMetadata.forValue);
+                } else if (idMetadata.valueShape == JsonToken.START_ARRAY) {
+                    g.writeStartArray(idMetadata.forValue);
+                }
+                return idMetadata;
+            }
+            // But for non-wrapper types can just use the default handling
             return g.writeTypePrefix(idMetadata);
         }
         return null;

@@ -14,6 +14,10 @@ No changes since 2.15
  (contributed by Sim Y-T)
 #3895: 2.15.0 breaking behaviour change for records and Getter Visibility
  (reported by Matteo B)
+#3897: 2.15.0 breaks deserialization when POJO/Record only has a single field
+  and is marked `Access.WRITE_ONLY`
+ (reported by Antti L)
+ (fix contributed by Sim Y-T)
 #3913: Issue with deserialization when there are unexpected properties (due
   to null `StreamReadConstraints`)
  (reported by @sbertault)

@@ -12,6 +12,8 @@ No changes since 2.15
 
 #3894: Only avoid Records fields detection for deserialization
  (contributed by Sim Y-T)
+#3895: 2.15.0 breaking behaviour change for records and Getter Visibility
+ (reported by Matteo B)
 #3913: Issue with deserialization when there are unexpected properties (due
   to null `StreamReadConstraints`)
  (reported by @sbertault)

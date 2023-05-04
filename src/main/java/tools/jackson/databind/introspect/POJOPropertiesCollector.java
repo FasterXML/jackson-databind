@@ -679,7 +679,7 @@ public class POJOPropertiesCollector
                 _addGetterMethod(props, m);
             } else if (argCount == 1) { // setters
                 _addSetterMethod(props, m);
-            } else if (argCount == 2) { // any getter?
+            } else if (argCount == 2) { // any setter?
                 if (Boolean.TRUE.equals(_annotationIntrospector.hasAnySetter(_config, m))) {
                     if (_anySetters == null) {
                         _anySetters = new LinkedList<>();

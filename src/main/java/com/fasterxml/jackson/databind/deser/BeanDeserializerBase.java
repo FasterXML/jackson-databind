@@ -1735,9 +1735,32 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      * @param p (optional) If not null, parser that has more properties to handle
      *   (in addition to buffered properties); if null, all properties are passed
      *   in buffer
+     * @deprecated use {@link #handlePolymorphic(JsonParser, DeserializationContext, StreamReadConstraints, Object, TokenBuffer)}
      */
+    @Deprecated
     protected Object handlePolymorphic(JsonParser p, DeserializationContext ctxt,
             Object bean, TokenBuffer unknownTokens)
+        throws IOException
+    {
+        final StreamReadConstraints streamReadConstraints = p == null ?
+                StreamReadConstraints.defaults() : p.streamReadConstraints();
+        return handlePolymorphic(p, ctxt, streamReadConstraints, bean, unknownTokens);
+    }
+
+    /**
+     * Method called in cases where we may have polymorphic deserialization
+     * case: that is, type of Creator-constructed bean is not the type
+     * of deserializer itself. It should be a sub-class or implementation
+     * class; either way, we may have more specific deserializer to use
+     * for handling it.
+     *
+     * @param p (optional) If not null, parser that has more properties to handle
+     *   (in addition to buffered properties); if null, all properties are passed
+     *   in buffer
+     * @since 2.15.1
+     */
+    protected Object handlePolymorphic(JsonParser p, DeserializationContext ctxt,
+            StreamReadConstraints streamReadConstraints, Object bean, TokenBuffer unknownTokens)
         throws IOException
     {
         // First things first: maybe there is a more specific deserializer available?
@@ -1746,7 +1769,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
             if (unknownTokens != null) {
                 // need to add END_OBJECT marker first
                 unknownTokens.writeEndObject();
-                JsonParser p2 = unknownTokens.asParser(p.streamReadConstraints());
+                JsonParser p2 = unknownTokens.asParser(streamReadConstraints);
                 p2.nextToken(); // to get to first data field
                 bean = subDeser.deserialize(p2, ctxt, bean);
             }

@@ -124,6 +124,7 @@ public class AnnotatedFieldCollector
 
     private boolean _isIncludableField(Field f)
     {
+        // [databind#2787]: Allow `Enum` mixins
         if (f.isEnumConstant()) {
             return true;
         }

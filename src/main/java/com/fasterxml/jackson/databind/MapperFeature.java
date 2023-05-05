@@ -401,6 +401,11 @@ public enum MapperFeature implements ConfigFeature
      *<p>
      * Note: does <b>not</b> apply to {@link java.util.Map} serialization (since
      * entries are not considered Bean/POJO properties.
+     * <p>
+     * WARNING: Disabling it may have a negative impact on deserialization performance.
+     * When disabled, all properties before the last creator property in the input need to be buffered,
+     * since all creator properties are required to create the instance.
+     * Enabling this feature ensures that there is as little buffering as possible. 
      *<p>
      * Feature is enabled by default.
      *

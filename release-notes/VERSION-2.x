@@ -105,7 +105,7 @@ No changes since 2.15
 #3876: `TypeFactory` cache performance degradation with `constructSpecializedType()`
  (contributed by Carter K)
 
-2.14.3 (not yet released)
+2.14.3 (05-May-2023)
 
 #3784: `PrimitiveArrayDeserializers$ByteDeser.deserialize` ignores
   `DeserializationProblemHandler` for invalid Base64 content

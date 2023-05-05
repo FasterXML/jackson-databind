@@ -322,7 +322,7 @@ public enum MapperFeature implements ConfigFeature
      * Feature is enabled by default which means that deserialization does
      * support deserializing types via builders with type parameters (generic types).
      *<p>
-     * See: https://github.com/FasterXML/jackson-databind/issues/921
+     * See: <a href="https://github.com/FasterXML/jackson-databind/issues/921">databind#921</a>
      *
      * @since 2.12
      */

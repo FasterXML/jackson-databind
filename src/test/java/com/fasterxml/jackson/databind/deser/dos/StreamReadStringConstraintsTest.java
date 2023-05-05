@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
 /**
- * Tests for {@a href="https://github.com/FasterXML/jackson-core/issues/863"}.
+ * Tests for <a href="https://github.com/FasterXML/jackson-core/issues/863">databind#863</a>"
  */
 public class StreamReadStringConstraintsTest extends BaseMapTest
 {

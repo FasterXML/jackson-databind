@@ -4623,7 +4623,7 @@ public class ObjectMapper
      * @param t The class to generate schema for
      * @return Constructed JSON schema.
      *
-     * @deprecated Since 2.6 use external JSON Schema generator (https://github.com/FasterXML/jackson-module-jsonSchema)
+     * @deprecated Since 2.6 use external JSON Schema generator (<a href="https://github.com/FasterXML/jackson-module-jsonSchema">jackson-module-jsonSchema</a>)
      *    (which under the hood calls {@link #acceptJsonFormatVisitor(JavaType, JsonFormatVisitorWrapper)})
      */
     @Deprecated

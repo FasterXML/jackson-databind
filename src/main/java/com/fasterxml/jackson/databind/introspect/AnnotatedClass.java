@@ -202,8 +202,7 @@ public final class AnnotatedClass
      * Method similar to {@link #construct}, but that will NOT include
      * information from supertypes; only class itself and any direct
      * mix-ins it may have.
-     */
-    /**
+     * 
      * @deprecated Since 2.9, use methods in {@link AnnotatedClassResolver} instead.
      */
     @Deprecated

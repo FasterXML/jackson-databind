@@ -91,7 +91,7 @@ public class POJOPropertiesCollector
 
     /**
      * A set of "field renamings" that have been discovered, indicating
-     * intended renaming of other accesors: key is the implicit original
+     * intended renaming of other accessors: key is the implicit original
      * name and value intended name to use instead.
      *<p>
      * Note that these renamings are applied earlier than "regular" (explicit)

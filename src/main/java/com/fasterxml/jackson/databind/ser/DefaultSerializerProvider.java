@@ -233,7 +233,7 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
 
     /*
     /**********************************************************
-    /* Extended API: simple accesors
+    /* Extended API: simple accessors
     /**********************************************************
      */
 

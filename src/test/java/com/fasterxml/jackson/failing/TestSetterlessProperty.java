@@ -44,8 +44,17 @@ public class TestSetterlessProperty
     static class ImmutableIdWithJsonPropertyFieldAnnotation {
         @JsonProperty("id") private final int id;
 
-        @JsonCreator
         public ImmutableIdWithJsonPropertyFieldAnnotation(int id) { this.id = id; }
+
+        public int getId() {
+            return id;
+        }
+    }
+
+    static class ImmutableIdWithJsonPropertyConstructorAnnotation {
+        private final int id;
+
+        public ImmutableIdWithJsonPropertyConstructorAnnotation(@JsonProperty("id") int id) { this.id = id; }
 
         public int getId() {
             return id;
@@ -90,14 +99,29 @@ public class TestSetterlessProperty
         ObjectMapper m = new ObjectMapper();
         String json = m.writerWithDefaultPrettyPrinter().writeValueAsString(input);
 
-        ImmutableIdWithJsonCreatorAnnotation output = m.readValue(json, ImmutableIdWithJsonCreatorAnnotation.class);
+        ImmutableIdWithJsonCreatorAnnotation output =
+                m.readValue(json, ImmutableIdWithJsonCreatorAnnotation.class);
         assertNotNull(output);
 
         assertEquals(input.id, output.id);
     }
 
-    // this still fails - despite the JsonCreator annotation
-    public void testSetterlessPropertyWithJsonProperty() throws Exception
+    // this passes - but needs an untidy JsonProperty annotation
+    public void testSetterlessPropertyWithJsonPropertyField() throws Exception
+    {
+        ImmutableIdWithJsonPropertyConstructorAnnotation input = new ImmutableIdWithJsonPropertyConstructorAnnotation(13);
+        ObjectMapper m = new ObjectMapper();
+        String json = m.writerWithDefaultPrettyPrinter().writeValueAsString(input);
+
+        ImmutableIdWithJsonPropertyConstructorAnnotation output =
+                m.readValue(json, ImmutableIdWithJsonPropertyConstructorAnnotation.class);
+        assertNotNull(output);
+
+        assertEquals(input.id, output.id);
+    }
+
+    // this still fails - despite the JsonProperty annotation
+    public void testSetterlessPropertyWithJsonPropertyConstructor() throws Exception
     {
         ImmutableIdWithJsonPropertyFieldAnnotation input = new ImmutableIdWithJsonPropertyFieldAnnotation(13);
         ObjectMapper m = new ObjectMapper();
@@ -108,5 +132,4 @@ public class TestSetterlessProperty
 
         assertEquals(input.id, output.id);
     }
-
 }

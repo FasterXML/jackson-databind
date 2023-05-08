@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.failing;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -34,6 +35,17 @@ public class TestSetterlessProperty
 
         @JsonCreator
         public ImmutableIdWithJsonCreatorAnnotation(int id) { this.id = id; }
+
+        public int getId() {
+            return id;
+        }
+    }
+
+    static class ImmutableIdWithJsonPropertyFieldAnnotation {
+        @JsonProperty("id") private final int id;
+
+        @JsonCreator
+        public ImmutableIdWithJsonPropertyFieldAnnotation(int id) { this.id = id; }
 
         public int getId() {
             return id;
@@ -79,6 +91,19 @@ public class TestSetterlessProperty
         String json = m.writerWithDefaultPrettyPrinter().writeValueAsString(input);
 
         ImmutableIdWithJsonCreatorAnnotation output = m.readValue(json, ImmutableIdWithJsonCreatorAnnotation.class);
+        assertNotNull(output);
+
+        assertEquals(input.id, output.id);
+    }
+
+    // this still fails - despite the JsonCreator annotation
+    public void testSetterlessPropertyWithJsonProperty() throws Exception
+    {
+        ImmutableIdWithJsonPropertyFieldAnnotation input = new ImmutableIdWithJsonPropertyFieldAnnotation(13);
+        ObjectMapper m = new ObjectMapper();
+        String json = m.writerWithDefaultPrettyPrinter().writeValueAsString(input);
+
+        ImmutableIdWithJsonPropertyFieldAnnotation output = m.readValue(json, ImmutableIdWithJsonPropertyFieldAnnotation.class);
         assertNotNull(output);
 
         assertEquals(input.id, output.id);

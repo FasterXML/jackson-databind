@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
+import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
+import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
 public class TestSetterlessProperty
     extends BaseMapTest
@@ -61,6 +64,14 @@ public class TestSetterlessProperty
         }
     }
 
+    static class MyParamIntrospector extends JacksonAnnotationIntrospector
+    {
+        @Override
+        public String findImplicitPropertyName(AnnotatedMember param) {
+            return "id";
+        }
+    }
+
     /*
     /**********************************************************
     /* Unit tests
@@ -71,6 +82,7 @@ public class TestSetterlessProperty
     {
         ImmutableId input = new ImmutableId(13);
         ObjectMapper m = new ObjectMapper();
+        m.setAnnotationIntrospector(new MyParamIntrospector());
         String json = m.writerWithDefaultPrettyPrinter().writeValueAsString(input);
 
         ImmutableId output = m.readValue(json, ImmutableId.class);
@@ -92,11 +104,14 @@ public class TestSetterlessProperty
         assertEquals(input.id, output.id);
     }
 
-    // this still fails - despite the JsonCreator annotation
+    // this only passes with MyParamIntrospector
+    // - the JsonCreator annotation only seems to work with MyParamIntrospector
+    // - or presumably with jackson-module-parameter-names registered
     public void testSetterlessPropertyWithJsonCreator() throws Exception
     {
         ImmutableIdWithJsonCreatorAnnotation input = new ImmutableIdWithJsonCreatorAnnotation(13);
         ObjectMapper m = new ObjectMapper();
+        m.setAnnotationIntrospector(new MyParamIntrospector());
         String json = m.writerWithDefaultPrettyPrinter().writeValueAsString(input);
 
         ImmutableIdWithJsonCreatorAnnotation output =
@@ -125,9 +140,11 @@ public class TestSetterlessProperty
     {
         ImmutableIdWithJsonPropertyFieldAnnotation input = new ImmutableIdWithJsonPropertyFieldAnnotation(13);
         ObjectMapper m = new ObjectMapper();
+        m.setAnnotationIntrospector(new MyParamIntrospector());
         String json = m.writerWithDefaultPrettyPrinter().writeValueAsString(input);
 
-        ImmutableIdWithJsonPropertyFieldAnnotation output = m.readValue(json, ImmutableIdWithJsonPropertyFieldAnnotation.class);
+        ImmutableIdWithJsonPropertyFieldAnnotation output =
+                m.readValue(json, ImmutableIdWithJsonPropertyFieldAnnotation.class);
         assertNotNull(output);
 
         assertEquals(input.id, output.id);

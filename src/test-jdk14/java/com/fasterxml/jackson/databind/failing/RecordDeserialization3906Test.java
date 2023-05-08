@@ -12,7 +12,12 @@ import com.fasterxml.jackson.databind.introspect.NopAnnotationIntrospector;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
-// [databind#3906]: Regression: 2.15.0 breaks deserialization for records when mapper.setVisibility(ALL, NONE); 
+/**
+ * Test case that covers both failing-by-regression tests and passing tests.
+ * <p>For more details, refer to
+ * <a href="https://github.com/FasterXML/jackson-databind/issues/3906">
+ * [databind#3906]: Regression: 2.15.0 breaks deserialization for records when mapper.setVisibility(ALL, NONE);</a>
+ */
 public class RecordDeserialization3906Test extends BaseMapTest {
 
     /*

@@ -39,7 +39,10 @@ public class JsonSubTypeOrdering2950Test extends BaseMapTest {
     static class SubMoverRegistered extends Mover {
         public int a;
     }
-    
+
+    static class AnotherMoverRegistered extends Mover {
+        public int a;
+    }
 
     /*
     /**********************************************************
@@ -150,6 +153,17 @@ public class JsonSubTypeOrdering2950Test extends BaseMapTest {
         mapper.registerSubtypes(new NamedType(SubMoverRegistered.class, "sub1"));
 
         SubMoverRegistered sub2 = (SubMoverRegistered) mapper.readValue("{\"_type\":\"sub2\",\"a\":15}", Mover.class);
+        assertEquals(15, sub2.a);
+    }
+
+    // registered deserialization : both type names work
+    public void testRegisteredSubtypesFailsSecondReverseComplex() throws Exception {
+        ObjectMapper mapper = newJsonMapper();
+        mapper.registerSubtypes(SubMoverRegistered.class);
+        mapper.registerSubtypes(AnotherMoverRegistered.class);
+        mapper.registerSubtypes(new NamedType(SubMoverRegistered.class, "sub8"));
+
+        SubMoverRegistered sub2 = (SubMoverRegistered) mapper.readValue("{\"_type\":\"sub8\",\"a\":15}", Mover.class);
         assertEquals(15, sub2.a);
     }
 }

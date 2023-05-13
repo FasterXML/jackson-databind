@@ -32,7 +32,7 @@ public class RecordSerializationOrderTest extends BaseMapTest
         NestedRecordOneWithJsonProperty nestedRecordOne =
                 new NestedRecordOneWithJsonProperty("1", "test@records.com", nestedRecordTwo);
         final String output = MAPPER.writeValueAsString(nestedRecordOne);
-        final String expected = "{\"id\":\"1\",\"email\":\"test@records.com\",\"nestedRecordTwo\":{\"id\":\"2\",\"passport\":\"111110\"}}";
+        final String expected = "{\"id\":\"1\",\"email\":\"test@records.com\",\"nestedProperty\":{\"id\":\"2\",\"passport\":\"111110\"}}";
         assertEquals(expected, output);
     }
 }

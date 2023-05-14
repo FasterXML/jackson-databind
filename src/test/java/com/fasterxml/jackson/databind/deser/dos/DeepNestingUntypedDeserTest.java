@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser.dos;
 
-import static com.fasterxml.jackson.core.StreamReadConstraints.DEFAULT_MAX_DEPTH;
 import java.util.List;
 import java.util.Map;
 

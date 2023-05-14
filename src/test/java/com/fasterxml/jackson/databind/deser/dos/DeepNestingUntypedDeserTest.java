@@ -26,6 +26,7 @@ public class DeepNestingUntypedDeserTest extends BaseMapTest
             .build();
     private final ObjectMapper MAPPER = JsonMapper.builder(jsonFactory).build();
 
+
     public void testFormerlyTooDeepUntypedWithArray() throws Exception
     {
         final String doc = _nestedDoc(TOO_DEEP_NESTING, "[ ", "] ");

@@ -136,7 +136,7 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
 
     /**
      * The number of read buffers to use.
-     * The max of 4 was introduced due to https://github.com/FasterXML/jackson-databind/issues/3665.
+     * The max of 4 was introduced due to <a href="https://github.com/FasterXML/jackson-databind/issues/3665">databind#3665</a>.
      */
     static final int NUMBER_OF_READ_BUFFERS = Math.min(4, ceilingNextPowerOfTwo(NCPU));
 
@@ -145,7 +145,7 @@ public final class PrivateMaxEntriesMap<K, V> extends AbstractMap<K, V>
 
     /**
      * The number of pending read operations before attempting to drain.
-     * The threshold of 4 was introduced due to https://github.com/FasterXML/jackson-databind/issues/3665.
+     * The threshold of 4 was introduced due to <a href="https://github.com/FasterXML/jackson-databind/issues/3665">databind#3665</a>.
      */
     static final int READ_BUFFER_THRESHOLD = 4;
 

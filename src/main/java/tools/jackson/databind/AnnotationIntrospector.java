@@ -58,7 +58,7 @@ public abstract class AnnotationIntrospector
              * Usually this can be defined by using
              * {@link com.fasterxml.jackson.annotation.JsonManagedReference}
              */
-            MANAGED_REFERENCE
+            MANAGED_REFERENCE,
 
             /**
              * Reference property that Jackson manages by suppressing it during serialization,
@@ -66,7 +66,7 @@ public abstract class AnnotationIntrospector
              * Usually this can be defined by using
              * {@link com.fasterxml.jackson.annotation.JsonBackReference}
              */
-            ,BACK_REFERENCE
+            BACK_REFERENCE
             ;
         }
 

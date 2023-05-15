@@ -6,7 +6,8 @@ Project: jackson-databind
 
 2.16.0 (not yet released)
 
-No changes since 2.15
+#3928: `@JsonProperty` on constructor parameter changes default field serialization order
+ (contributed by @pjfanning)
 
 2.15.1 (not yet released)
 

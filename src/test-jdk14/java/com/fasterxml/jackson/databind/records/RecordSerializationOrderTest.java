@@ -9,6 +9,9 @@ public class RecordSerializationOrderTest extends BaseMapTest
     record NestedRecordOne(String id, String email, NestedRecordTwo nestedRecordTwo) {}
     record NestedRecordOneWithJsonProperty(String id, String email,
                                            @JsonProperty("nestedProperty") NestedRecordTwo nestedRecordTwo) {}
+    record NestedRecordOneWithJsonPropertyOrder(@JsonProperty(index = 2) String id,
+                                                @JsonProperty(index = 0) String email,
+                                                @JsonProperty(value = "nestedProperty", index = 1) NestedRecordTwo nestedRecordTwo) {}
     record NestedRecordTwo(String id, String passport) {}
 
     private final ObjectMapper MAPPER = newJsonMapper();
@@ -33,6 +36,15 @@ public class RecordSerializationOrderTest extends BaseMapTest
                 new NestedRecordOneWithJsonProperty("1", "test@records.com", nestedRecordTwo);
         final String output = MAPPER.writeValueAsString(nestedRecordOne);
         final String expected = "{\"id\":\"1\",\"email\":\"test@records.com\",\"nestedProperty\":{\"id\":\"2\",\"passport\":\"111110\"}}";
+        assertEquals(expected, output);
+    }
+
+    public void testSerializationOrderWithJsonPropertyOrder() throws Exception {
+        NestedRecordTwo nestedRecordTwo = new NestedRecordTwo("2", "111110");
+        NestedRecordOneWithJsonPropertyOrder nestedRecordOne =
+                new NestedRecordOneWithJsonPropertyOrder("1", "test@records.com", nestedRecordTwo);
+        final String output = MAPPER.writeValueAsString(nestedRecordOne);
+        final String expected = "{\"email\":\"test@records.com\",\"nestedProperty\":{\"id\":\"2\",\"passport\":\"111110\"},\"id\":\"1\"}";
         assertEquals(expected, output);
     }
 }

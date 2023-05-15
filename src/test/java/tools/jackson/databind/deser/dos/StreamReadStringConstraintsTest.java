@@ -32,7 +32,7 @@ public class StreamReadStringConstraintsTest extends BaseMapTest
     /**********************************************************************
      */
 
-    private final static int TOO_LONG_STRING_VALUE = 20_100_000;
+    private final static int TOO_LONG_STRING_VALUE = StreamReadConstraints.DEFAULT_MAX_STRING_LEN + 100;
     
     private final ObjectMapper MAPPER = newJsonMapper();
 

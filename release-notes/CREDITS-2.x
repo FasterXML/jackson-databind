@@ -6,6 +6,8 @@ databind core component, version 2.x
 
 Tatu Saloranta, tatu.saloranta@iki.fi: author
 
+----------------------------------------------------------------------------
+
 Pascal Glinas:
   * Contributed fixes to 'MappingIterator' handling (Pull#58 and Pull#59)
    (2.1.0)
@@ -1495,6 +1497,7 @@ PJ Fanning (pjfanning@github)
   (2.14.0)
   * Contributed #3837: Set transformer factory attributes to improve protection against XXE
   (2.14.3)
+  * ... and countless more
 
 Igor Shymko (ancane@github)
   * Contributed #3500: Add optional explicit `JsonSubTypes` repeated names check

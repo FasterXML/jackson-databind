@@ -298,4 +298,23 @@ public class WithPathTest extends BaseMapTest
             verifyException(e, "(mode `OverwriteMode."+mode.name()+"`)");
         }
     }
+
+    // [databind#3882]
+    public void testWithArray3882() throws Exception
+    {
+        ObjectNode root = MAPPER.createObjectNode();
+        ArrayNode aN = root.withArray("/key/0/a",
+                JsonNode.OverwriteMode.ALL, true);
+        aN.add(123);
+        assertEquals(a2q("{'key':[{'a':[123]}]}"),
+                root.toString());
+
+        // And then the original case
+        root = MAPPER.createObjectNode();
+        aN = root.withArray(JsonPointer.compile("/key1/array1/0/element1"),
+            JsonNode.OverwriteMode.ALL, true);
+        aN.add("v1");
+        assertEquals(a2q("{'key1':{'array1':[{'element1':['v1']}]}}"),
+                root.toString());
+    }
 }

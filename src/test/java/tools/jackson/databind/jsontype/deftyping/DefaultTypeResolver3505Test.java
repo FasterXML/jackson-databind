@@ -68,7 +68,7 @@ public class DefaultTypeResolver3505Test
                 .registerSubtypes(Parent.ChildOne.class, Parent.ChildTwo.class)
                 .setDefaultTyping(new AssertingTypeResolverBuilder()
                         .init(JsonTypeInfo.Value.construct(JsonTypeInfo.Id.DEDUCTION,
-                                JsonTypeInfo.As.PROPERTY, "prop", null, false),
+                                JsonTypeInfo.As.PROPERTY, "prop", null, false, null),
                                 null))
                 .build();
 

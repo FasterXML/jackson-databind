@@ -4,8 +4,10 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.15.1 (not yet released)
+2.15.1 (16-May-2023)
 
+#3882: Error in creating nested `ArrayNode`s with `JsonNode.withArray()`
+ (reported by @SaiKrishna369)
 #3894: Only avoid Records fields detection for deserialization
  (contributed by Sim Y-T)
 #3895: 2.15.0 breaking behaviour change for records and Getter Visibility

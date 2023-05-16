@@ -7,7 +7,6 @@
   <!-- that they should prefer consuming it instead. -->
   <!-- do_not_remove: published-with-gradle-metadata -->
   <modelVersion>4.0.0</modelVersion>
-
   <parent>
     <groupId>tools.jackson</groupId>
     <artifactId>jackson-base</artifactId>

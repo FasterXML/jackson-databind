@@ -156,10 +156,8 @@ public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
 
     /**
      * Method for specifying whether strict type ID handling should be used for this type or not.
-     * This is per-type override of {@link com.fasterxml.jackson.databind.MapperFeature#REQUIRE_TYPE_ID_FOR_SUBTYPES}.
-     * Sets {@link Boolean} value provided by {@link OptBoolean#asBoolean()} of configured {@link JsonTypeInfo#requireTypeIdForSubtypes}.
-     * <p>
-     * WARNING: This method will be abstract in Jackson 3.0.
+     * Parameter {@code Boolean requireTypeId} is provided by {@link JsonTypeInfo#requireTypeIdForSubtypes()}.
+     * Configuration using this method will override {@link com.fasterxml.jackson.databind.MapperFeature#REQUIRE_TYPE_ID_FOR_SUBTYPES}.
      *
      * @since 2.16
      */

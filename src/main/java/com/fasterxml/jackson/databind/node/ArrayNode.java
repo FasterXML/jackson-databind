@@ -188,9 +188,9 @@ public class ArrayNode
             _withXxxSetArrayElement(index, next);
             return next._withArrayAddTailElement(tail, preferIndex);
         }
-        ArrayNode next = this.arrayNode();
+        ObjectNode next = this.objectNode();
         _withXxxSetArrayElement(index, next);
-        return next._withArrayAddTailElement(tail, preferIndex);
+        return next._withArrayAddTailProperty(tail, preferIndex);
     }
 
     protected void _withXxxSetArrayElement(int index, JsonNode value) {

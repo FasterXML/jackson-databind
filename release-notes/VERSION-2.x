@@ -4,6 +4,11 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.14.4 (not yet released)
+
+#3882: Error in creating nested `ArrayNode`s with `JsonNode.withArray()`
+ (reported by @SaiKrishna369)
+
 2.14.3 (05-May-2023)
 
 #3784: `PrimitiveArrayDeserializers$ByteDeser.deserialize` ignores

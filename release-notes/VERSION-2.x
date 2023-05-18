@@ -4,6 +4,10 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.15.2 (not yet released)
+
+#3938: Record setter not included from interface (2.15 regression)
+
 2.15.1 (16-May-2023)
 
 #3882: Error in creating nested `ArrayNode`s with `JsonNode.withArray()`

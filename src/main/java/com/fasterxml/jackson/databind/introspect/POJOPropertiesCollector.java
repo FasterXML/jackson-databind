@@ -91,7 +91,7 @@ public class POJOPropertiesCollector
 
     /**
      * A set of "field renamings" that have been discovered, indicating
-     * intended renaming of other accessors: key is the implicit original
+     * intended renaming of other accesors: key is the implicit original
      * name and value intended name to use instead.
      *<p>
      * Note that these renamings are applied earlier than "regular" (explicit)
@@ -437,18 +437,17 @@ public class POJOPropertiesCollector
         LinkedHashMap<String, POJOPropertyBuilder> props = new LinkedHashMap<String, POJOPropertyBuilder>();
 
         // First: gather basic data
-        final boolean isRecord = isRecordType();
+
         // 15-Jan-2023, tatu: [databind#3736] Let's avoid detecting fields of Records
         //   altogether (unless we find a good reason to detect them)
         // 17-Apr-2023: Need Records' fields for serialization for cases like [databind#3895] & [databind#3628]
-        if (!isRecord || _forSerialization) {
+        if (!isRecordType() || _forSerialization) {
             _addFields(props); // note: populates _fieldRenameMappings
         }
         _addMethods(props);
         // 25-Jan-2016, tatu: Avoid introspecting (constructor-)creators for non-static
         //    inner classes, see [databind#1502]
-        // 13-May-2023, PJ: Need to avoid adding creators for Records when serializing [databind#3925]
-        if (!_classDef.isNonStaticInnerClass() && !(_forSerialization && isRecord)) {
+        if (!_classDef.isNonStaticInnerClass()) {
             _addCreators(props);
         }
 
@@ -762,7 +761,7 @@ public class POJOPropertiesCollector
                 _addGetterMethod(props, m, _annotationIntrospector);
             } else if (argCount == 1) { // setters
                 _addSetterMethod(props, m, _annotationIntrospector);
-            } else if (argCount == 2) { // any setter?
+            } else if (argCount == 2) { // any getter?
                 if (Boolean.TRUE.equals(_annotationIntrospector.hasAnySetter(m))) {
                     if (_anySetters == null) {
                         _anySetters = new LinkedList<AnnotatedMethod>();

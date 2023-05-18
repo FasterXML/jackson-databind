@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- * Reproduction of <a href="https://github.com/FasterXML/jackson-databind/issues/676">databind#676</a>
+ * Reproduction of [https://github.com/FasterXML/jackson-databind/issues/676]
  * <p/>
  * Deserialization of class with generic collection inside
  * depends on how is was deserialized first time.

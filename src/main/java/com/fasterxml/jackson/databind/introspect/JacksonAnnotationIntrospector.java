@@ -1547,7 +1547,8 @@ public class JacksonAnnotationIntrospector
             b = b.defaultImpl(defaultImpl);
         }
         b = b.typeIdVisibility(info.visible());
-        // [databind#3877]: allow configuration of per-type strict type handling
+        // [databind#3877]: per-type strict type handling. No need for null-checking of {@code OptBoolean.asBoolean()} 
+        // value, because it will be done during construction of deserializer.
         b.requireTypeIdForSubtypes(info.requireTypeIdForSubtypes().asBoolean());
         return b;
     }

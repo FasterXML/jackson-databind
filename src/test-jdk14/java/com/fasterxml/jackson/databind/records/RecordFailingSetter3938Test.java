@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.records;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import com.fasterxml.jackson.databind.*;
 
 public class RecordFailingSetter3938Test extends BaseMapTest
@@ -19,8 +18,7 @@ public class RecordFailingSetter3938Test extends BaseMapTest
         }
     }
 
-    public record Command3938(int id, String filter) implements NoOptionsCommand {
-    }
+    public record Command3938(int id, String filter) implements NoOptionsCommand { }
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
@@ -29,13 +27,13 @@ public class RecordFailingSetter3938Test extends BaseMapTest
     {
         final ObjectReader R = MAPPER.readerFor(Command3938.class);
 
-        // First, missing value and `null` are fine
+        // First, missing value and `null` are fine, as long as we have all fields
         assertNotNull(R.readValue(a2q("{'id':1, 'filter':'abc'}")));
-        assertNotNull(R.readValue(a2q("{'id':2, 'filter':'def', 'options':null}")));
+        assertNotNull(R.readValue(a2q("{'id':2, 'filter':'abc', 'options':null}")));
 
         // But then failure for non-empty Array (f.ex)
         try {
-            R.readValue(a2q("{'id':3, 'filter':'xyz', 'options':[ 123 ]}"));
+            R.readValue(a2q("{'id':2,'options':[123]}}"));
             fail("Should not pass");
         } catch (DatabindException e) {
             verifyException(e, ERROR_3938_PREFIX);

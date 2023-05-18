@@ -18,7 +18,7 @@ public class DeepNestingUntypedDeserTest extends BaseMapTest
     // 31-May-2022, tatu: But no more! Can handle much much larger
     //   nesting levels, bounded by memory usage not stack. Tested with
     //   1 million (!) nesting levels, but to keep tests fast use 100k
-    private final static int TOO_DEEP_NESTING = 100_000;
+    private final static int TOO_DEEP_NESTING = StreamReadConstraints.DEFAULT_MAX_DEPTH * 100;
 
     private final JsonFactory jsonFactory = JsonFactory.builder()
             .streamReadConstraints(StreamReadConstraints.builder().maxNestingDepth(Integer.MAX_VALUE).build())

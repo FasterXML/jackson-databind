@@ -947,19 +947,15 @@ public abstract class SerializerProvider
     }
 
     /**
-     * Method called to get the serializer to use for serializing
-     * Map keys that are nulls: this is needed since JSON does not allow
-     * any non-String value as key, including null.
-     *<p>
-     * Typically, returned serializer
-     * will either throw an exception, or use an empty String; but
-     * other behaviors are possible.
-     */
-    /**
-     * Method called to find a serializer to use for null values for given
-     * declared type. Note that type is completely based on declared type,
+     * Method called to find a serializer to serializes Map keys that are nulls, 
+     * as JSON does not allow any non-String value as a key, including null.
+     * Note that type is completely based on declared type,
      * since nulls in Java have no type and thus runtime type cannot be
      * determined.
+     * 
+     * @return JsonSerializer that handles the serialization of null keys, 
+     * usually by throwing an exception or using an empty String,
+     * but other behaviors are also possible.
      *
      * @since 2.0
      */

@@ -13,7 +13,7 @@ public class DeepJsonNodeDeser3397Test extends BaseMapTest
     // ... currently gets a bit slow at 1M but passes.
     // But test with 100k as practical limit, to guard against regression
 //    private final static int TOO_DEEP_NESTING = 1_000_000;
-    private final static int TOO_DEEP_NESTING = 10_000;
+    private final static int TOO_DEEP_NESTING = StreamReadConstraints.DEFAULT_MAX_DEPTH * 10;
 
     private final JsonFactory jsonFactory = JsonFactory.builder()
             .streamReadConstraints(StreamReadConstraints.builder().maxNestingDepth(Integer.MAX_VALUE).build())

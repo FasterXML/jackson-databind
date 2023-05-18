@@ -12,6 +12,7 @@ import tools.jackson.databind.deser.SettableBeanProperty;
 import tools.jackson.databind.deser.UnresolvedForwardReference;
 import tools.jackson.databind.deser.ReadableObjectId.Referring;
 import tools.jackson.databind.deser.impl.ExternalTypeHandler;
+import tools.jackson.databind.deser.impl.MethodProperty;
 import tools.jackson.databind.deser.impl.ObjectIdReader;
 import tools.jackson.databind.deser.impl.UnwrappedPropertyHandler;
 import tools.jackson.databind.util.ClassUtil;
@@ -608,26 +609,29 @@ public class BeanDeserializer
             }
             // regular property? needs buffering
             int ix = _propNameMatcher.matchName(propName);
-            // [databind#3724]: Special handling because Records' ignored creator props
-            // weren't removed (to help in creating constructor-backed PropertyCreator)
-            // so they ended up in _beanProperties, unlike POJO (whose ignored
-            // props are removed)
-            if ((ix >= 0) && !_beanType.isRecordType()) {
+            if (ix >= 0) {
                 SettableBeanProperty prop = _propsByIndex[ix];
-                try {
-                    buffer.bufferProperty(prop, _deserializeWithErrorWrapping(p, ctxt, prop));
-                } catch (UnresolvedForwardReference reference) {
-                    // 14-Jun-2016, tatu: As per [databind#1261], looks like we need additional
-                    //    handling of forward references here. Not exactly sure why existing
-                    //    facilities did not cover, but this does appear to solve the problem
-                    BeanReferring referring = handleUnresolvedReference(ctxt,
-                            prop, buffer, reference);
-                    if (referrings == null) {
-                        referrings = new ArrayList<BeanReferring>();
+                // [databind#3724]: Special handling because Records' ignored creator props
+                // weren't removed (to help in creating constructor-backed PropertyCreator)
+                // so they ended up in _beanProperties, unlike POJO (whose ignored
+                // props are removed)
+                // [databind#3938]: except if it's MethodProperty
+                if (!_beanType.isRecordType() || (prop instanceof MethodProperty)) {
+                    try {
+                        buffer.bufferProperty(prop, _deserializeWithErrorWrapping(p, ctxt, prop));
+                    } catch (UnresolvedForwardReference reference) {
+                        // 14-Jun-2016, tatu: As per [databind#1261], looks like we need additional
+                        //    handling of forward references here. Not exactly sure why existing
+                        //    facilities did not cover, but this does appear to solve the problem
+                        BeanReferring referring = handleUnresolvedReference(ctxt,
+                                prop, buffer, reference);
+                        if (referrings == null) {
+                            referrings = new ArrayList<BeanReferring>();
+                        }
+                        referrings.add(referring);
                     }
-                    referrings.add(referring);
+                    continue;
                 }
-                continue;
             }
             // Things marked as ignorable should not be passed to any setter
             if (IgnorePropertiesUtil.shouldIgnore(propName, _ignorableProps, _includableProps)) {

@@ -1512,8 +1512,6 @@ public class JacksonAnnotationIntrospector
         final AnnotationIntrospector ai = config.getAnnotationIntrospector();
         JsonTypeInfo.Value typeInfo = ai.findPolymorphicTypeInfo(config, ann);
 
-        JsonTypeInfo info = _findAnnotation(ann, JsonTypeInfo.class);
-
         // First: maybe we have explicit type resolver?
         TypeResolverBuilder<?> b;
         JsonTypeResolver resAnn = _findAnnotation(ann, JsonTypeResolver.class);

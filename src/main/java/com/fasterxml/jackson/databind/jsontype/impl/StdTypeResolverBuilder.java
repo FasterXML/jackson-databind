@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.jsontype.impl;
 
+import com.fasterxml.jackson.databind.introspect.Annotated;
 import java.util.Collection;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -436,11 +437,11 @@ public class StdTypeResolverBuilder
      *
      * @return true if the class has type resolver annotations, false otherwise
      *
-     * @since 2.15
+     * @since 2.15, using {@code ai.findPolymorphicTypeInfo(config, ac)} since 2.16.
      */
     protected boolean _hasTypeResolver(DeserializationConfig config, JavaType baseType) {
         AnnotatedClass ac = AnnotatedClassResolver.resolveWithoutSuperTypes(config,  baseType.getRawClass());
         AnnotationIntrospector ai = config.getAnnotationIntrospector();
-        return ai.findTypeResolver(config, ac, baseType) != null;
+        return ai.findPolymorphicTypeInfo(config, ac) != null;
     }
 }

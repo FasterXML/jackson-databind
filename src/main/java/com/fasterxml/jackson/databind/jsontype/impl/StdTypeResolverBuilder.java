@@ -35,6 +35,8 @@ public class StdTypeResolverBuilder
      * Whether type id should be exposed to deserializers or not
      */
     protected boolean _typeIdVisible = false;
+    
+    protected Boolean _requireTypeIdForSubtypes;
 
     /**
      * Default class to use in case type information is not available
@@ -53,6 +55,27 @@ public class StdTypeResolverBuilder
      */
 
     public StdTypeResolverBuilder() { }
+
+    public StdTypeResolverBuilder(JsonTypeInfo.Value settings) {
+        if (settings != null) {
+            _idType = settings.getIdType();
+            if (_idType == null) {
+                throw new IllegalArgumentException("idType cannot be null");
+            }
+            _includeAs = settings.getInclusionType();
+            _typeProperty = _propName(settings.getPropertyName(), _idType);
+            _typeIdVisible = settings.getIdVisible();
+            _defaultImpl = settings.getDefaultImpl();
+            _requireTypeIdForSubtypes = settings.getRequireTypeIdForSubtypes();
+        }
+    }
+
+    protected static String _propName(String propName, JsonTypeInfo.Id idType) {
+        if (propName == null) {
+            propName = idType.getDefaultPropertyName();
+        }
+        return propName;
+    }
 
     /**
      * @since 2.9
@@ -79,6 +102,7 @@ public class StdTypeResolverBuilder
         _customIdResolver = base._customIdResolver;
 
         _defaultImpl = defaultImpl;
+        _requireTypeIdForSubtypes = base._requireTypeIdForSubtypes;
     }
 
     /**
@@ -147,6 +171,31 @@ public class StdTypeResolverBuilder
             }
             _typeIdVisible = settings.getIdVisible();
             _defaultImpl = settings.getDefaultImpl();
+        }
+        return this;
+    }
+
+    @Override
+    public StdTypeResolverBuilder init(JsonTypeInfo.Value settings,
+            TypeIdResolver idRes)
+    {
+        _customIdResolver = idRes;
+
+        if (settings != null) {
+            _idType = settings.getIdType();
+            if (_idType == null) {
+                throw new IllegalArgumentException("idType cannot be null");
+            }
+            _includeAs = settings.getInclusionType();
+
+            // Let's also initialize property name as per idType default
+            _typeProperty = settings.getPropertyName();
+            if (_typeProperty == null) {
+                _typeProperty = _idType.getDefaultPropertyName();
+            }
+            _typeIdVisible = settings.getIdVisible();
+            _defaultImpl = settings.getDefaultImpl();
+            _requireTypeIdForSubtypes = settings.getRequireTypeIdForSubtypes();
         }
         return this;
     }

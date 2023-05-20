@@ -97,6 +97,21 @@ public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
      *   but not necessarily)
      */
     public T init(JsonTypeInfo.Id idType, TypeIdResolver res);
+    
+    /**
+     * Initialization method that is called right after constructing
+     * the builder instance, in cases where information could not be
+     * passed directly (for example when instantiated for an annotation)
+     *
+     * @param settings Configuration settings to apply.
+     *
+     * @return Resulting builder instance (usually this builder,
+     *   but not necessarily)
+     *   
+     * @since 2.16
+     */
+    public T init(JsonTypeInfo.Value settings, TypeIdResolver res);
+ 
 
     /*
     /**********************************************************

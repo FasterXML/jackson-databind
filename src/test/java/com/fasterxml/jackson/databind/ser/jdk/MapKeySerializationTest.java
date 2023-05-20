@@ -256,6 +256,28 @@ public class MapKeySerializationTest extends BaseMapTest
         assertEquals("{\"@type\":\"HashMap\",\"xxxB\":\"bar\"}", json);
     }
 
+    // [databind#838]
+    public void testUnWrappedMapWithDefaultTypeWithValue() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        SimpleModule mod = new SimpleModule("test");
+        mod.addKeySerializer(ABC.class, new ABCKeySerializer());
+        mapper.registerModule(mod);
+
+        TypeResolverBuilder<?> typer = ObjectMapper.DefaultTypeResolverBuilder.construct(
+                ObjectMapper.DefaultTyping.NON_FINAL, mapper.getPolymorphicTypeValidator());
+        JsonTypeInfo.Value typeInfo = JsonTypeInfo.Value.construct(JsonTypeInfo.Id.NAME, JsonTypeInfo.As.PROPERTY,
+                null, null, true, null);
+        typer.init(typeInfo, null);
+        mapper.setDefaultTyping(typer);
+
+        Map<ABC, String> stuff = new HashMap<ABC, String>();
+        stuff.put(ABC.B, "bar");
+        String json = mapper.writerFor(new TypeReference<Map<ABC, String>>() {
+                })
+                .writeValueAsString(stuff);
+        assertEquals("{\"@type\":\"HashMap\",\"xxxB\":\"bar\"}", json);
+    }
+
     // [databind#1552]
     public void testMapsWithBinaryKeys() throws Exception
     {

@@ -1531,7 +1531,7 @@ public class JacksonAnnotationIntrospector
             if (typeInfo.getIdType() == JsonTypeInfo.Id.NONE) {
                 return _constructNoTypeResolverBuilder();
             }
-            b = _constructStdTypeResolverBuilder();
+            b = _constructStdTypeResolverBuilder(config, typeInfo, baseType);
         }
         // Does it define a custom type id resolver?
         JsonTypeIdResolver idResInfo = _findAnnotation(ann, JsonTypeIdResolver.class);
@@ -1540,35 +1540,38 @@ public class JacksonAnnotationIntrospector
         if (idRes != null) {
             idRes.init(baseType);
         }
-        b = b.init(typeInfo.getIdType(), idRes);
         // 13-Aug-2011, tatu: One complication; external id only works for properties;
         //    so if declared for a Class, we will need to map it to "PROPERTY"
         //    instead of "EXTERNAL_PROPERTY"
-        JsonTypeInfo.As inclusion = typeInfo.getInclusionType();
-        if (inclusion == JsonTypeInfo.As.EXTERNAL_PROPERTY && (ann instanceof AnnotatedClass)) {
-            inclusion = JsonTypeInfo.As.PROPERTY;
+        if (ann instanceof AnnotatedClass) {
+            JsonTypeInfo.As inclusion = typeInfo.getInclusionType();
+            if (inclusion == JsonTypeInfo.As.EXTERNAL_PROPERTY && (ann instanceof AnnotatedClass)) {
+                typeInfo = typeInfo.withInclusionType(JsonTypeInfo.As.PROPERTY);
+            }
         }
-        b = b.inclusion(inclusion);
-        b = b.typeProperty(typeInfo.getPropertyName());
-        Class<?> defaultImpl = typeInfo.getDefaultImpl();
-
+        
         // 08-Dec-2014, tatu: To deprecate `JsonTypeInfo.None` we need to use other placeholder(s);
         //   and since `java.util.Void` has other purpose (to indicate "deser as null"), we'll instead
         //   use `JsonTypeInfo.class` itself. But any annotation type will actually do, as they have no
         //   valid use (cannot instantiate as default)
+        Class<?> defaultImpl = typeInfo.getDefaultImpl();
         if (defaultImpl != null && defaultImpl != JsonTypeInfo.None.class && !defaultImpl.isAnnotation()) {
-            b = b.defaultImpl(defaultImpl);
+            typeInfo = typeInfo.withDefaultImpl(defaultImpl);
         }
-        b = b.typeIdVisibility(typeInfo.getIdVisible());
+        
+        b = b.init(typeInfo, idRes);
         return b;
     }
 
     /**
      * Helper method for constructing standard {@link TypeResolverBuilder}
      * implementation.
+     * 
+     * @since 2.16, backported from 3.0
      */
-    protected StdTypeResolverBuilder _constructStdTypeResolverBuilder() {
-        return new StdTypeResolverBuilder();
+    protected TypeResolverBuilder<?> _constructStdTypeResolverBuilder(MapperConfig<?> config,
+            JsonTypeInfo.Value typeInfo, JavaType baseType) {
+        return new StdTypeResolverBuilder(typeInfo);
     }
 
     /**

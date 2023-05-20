@@ -15,8 +15,9 @@ import com.fasterxml.jackson.databind.SerializationConfig;
  * handling type information embedded in JSON to allow for safe
  * polymorphic type handling.
  *<p>
- * Builder is first initialized by calling {@link #init} method, and then
- * configured using 'set' methods like {@link #inclusion}.
+ * Builder is first initialized by calling {@link #init(JsonTypeInfo.Value, TypeIdResolver)} method, with
+ * configurations passed in through {@link JsonTypeInfo.Value} that is constructed by 
+ * {@link JsonTypeInfo.Value#construct(JsonTypeInfo.Id, As, String, Class, boolean, Boolean)}.
  * Finally, after calling all configuration methods,
  * {@link #buildTypeSerializer} or {@link #buildTypeDeserializer}
  * will be called to get actual type resolver constructed

@@ -1543,18 +1543,16 @@ public class JacksonAnnotationIntrospector
         // 13-Aug-2011, tatu: One complication; external id only works for properties;
         //    so if declared for a Class, we will need to map it to "PROPERTY"
         //    instead of "EXTERNAL_PROPERTY"
-        if (ann instanceof AnnotatedClass) {
-            JsonTypeInfo.As inclusion = typeInfo.getInclusionType();
-            if (inclusion == JsonTypeInfo.As.EXTERNAL_PROPERTY && (ann instanceof AnnotatedClass)) {
-                typeInfo = typeInfo.withInclusionType(JsonTypeInfo.As.PROPERTY);
-            }
+        JsonTypeInfo.As inclusion = typeInfo.getInclusionType();
+        if (inclusion == JsonTypeInfo.As.EXTERNAL_PROPERTY && (ann instanceof AnnotatedClass)) {
+            typeInfo = typeInfo.withInclusionType(JsonTypeInfo.As.PROPERTY);
         }
-        
+        Class<?> defaultImpl = typeInfo.getDefaultImpl();
+
         // 08-Dec-2014, tatu: To deprecate `JsonTypeInfo.None` we need to use other placeholder(s);
         //   and since `java.util.Void` has other purpose (to indicate "deser as null"), we'll instead
         //   use `JsonTypeInfo.class` itself. But any annotation type will actually do, as they have no
         //   valid use (cannot instantiate as default)
-        Class<?> defaultImpl = typeInfo.getDefaultImpl();
         if (defaultImpl != null && defaultImpl != JsonTypeInfo.None.class && !defaultImpl.isAnnotation()) {
             typeInfo = typeInfo.withDefaultImpl(defaultImpl);
         }

@@ -256,6 +256,7 @@ public class MapKeySerializationTest extends BaseMapTest
         assertEquals("{\"@type\":\"HashMap\",\"xxxB\":\"bar\"}", json);
     }
 
+    // [databind#838]
     public void testUnWrappedMapWithDefaultTypeWithValue() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test");

@@ -35,10 +35,7 @@ public class StdTypeResolverBuilder
      * Whether type id should be exposed to deserializers or not
      */
     protected boolean _typeIdVisible = false;
-
-    /**
-     * @since 2.16 (backported from Jackson 3.0)
-     */
+    
     protected Boolean _requireTypeIdForSubtypes;
 
     /**
@@ -58,6 +55,27 @@ public class StdTypeResolverBuilder
      */
 
     public StdTypeResolverBuilder() { }
+
+    public StdTypeResolverBuilder(JsonTypeInfo.Value settings) {
+        if (settings != null) {
+            _idType = settings.getIdType();
+            if (_idType == null) {
+                throw new IllegalArgumentException("idType cannot be null");
+            }
+            _includeAs = settings.getInclusionType();
+            _typeProperty = _propName(settings.getPropertyName(), _idType);
+            _typeIdVisible = settings.getIdVisible();
+            _defaultImpl = settings.getDefaultImpl();
+            _requireTypeIdForSubtypes = settings.getRequireTypeIdForSubtypes();
+        }
+    }
+
+    protected static String _propName(String propName, JsonTypeInfo.Id idType) {
+        if (propName == null) {
+            propName = idType.getDefaultPropertyName();
+        }
+        return propName;
+    }
 
     /**
      * @since 2.9
@@ -87,37 +105,8 @@ public class StdTypeResolverBuilder
         _requireTypeIdForSubtypes = base._requireTypeIdForSubtypes;
     }
 
-    /**
-     * @since 2.16 (backported from Jackson 3.0)
-     */
-    public StdTypeResolverBuilder(JsonTypeInfo.Value settings) {
-        if (settings != null) {
-            _idType = settings.getIdType();
-            if (_idType == null) {
-                throw new IllegalArgumentException("idType cannot be null");
-            }
-            _includeAs = settings.getInclusionType();
-            _typeProperty = _propName(settings.getPropertyName(), _idType);
-            _defaultImpl = settings.getDefaultImpl();
-            _typeIdVisible = settings.getIdVisible();
-            _requireTypeIdForSubtypes = settings.getRequireTypeIdForSubtypes();
-        }
-    }
-
-    /**
-     * @since 2.16 (backported from Jackson 3.0)
-     */
-    protected static String _propName(String propName, JsonTypeInfo.Id idType) {
-        if (propName == null) {
-            propName = idType.getDefaultPropertyName();
-        }
-        return propName;
-    }
-
     public static StdTypeResolverBuilder noTypeInfoBuilder() {
-        JsonTypeInfo.Value typeInfo = JsonTypeInfo.Value.construct(JsonTypeInfo.Id.NONE, null,
-                null, null, false, null);
-        return new StdTypeResolverBuilder().init(typeInfo, null);
+        return new StdTypeResolverBuilder().init(JsonTypeInfo.Id.NONE, null);
     }
 
     @Override
@@ -134,9 +123,6 @@ public class StdTypeResolverBuilder
         return this;
     }
 
-    /**
-     * @since 2.16 (backported from Jackson 3.0)
-     */
     @Override
     public StdTypeResolverBuilder init(JsonTypeInfo.Value settings,
             TypeIdResolver idRes)

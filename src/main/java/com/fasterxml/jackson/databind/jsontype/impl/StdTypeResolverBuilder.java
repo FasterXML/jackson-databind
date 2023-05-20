@@ -140,7 +140,9 @@ public class StdTypeResolverBuilder
     }
 
     public static StdTypeResolverBuilder noTypeInfoBuilder() {
-        return new StdTypeResolverBuilder().init(JsonTypeInfo.Id.NONE, null);
+        JsonTypeInfo.Value typeInfo = JsonTypeInfo.Value.construct(JsonTypeInfo.Id.NONE, null,
+                null, null, false, null);
+        return new StdTypeResolverBuilder().init(typeInfo, null);
     }
 
     @Override

@@ -130,26 +130,28 @@ public class RecordDeserialization3906Test extends BaseMapTest {
     }
 
     public void testEmptyJsonToRecordUsingModuleOther() throws JsonProcessingException {
-        ObjectMapper mapper = newJsonMapper().registerModule(new SimpleModule() {
-            @Override
-            public void setupModule(SetupContext context) {
-                super.setupModule(context);
-                context.insertAnnotationIntrospector(new NopAnnotationIntrospector() {
+        ObjectMapper mapper = jsonMapperBuilder().addModule(
+                new SimpleModule() {
                     @Override
-                    public VisibilityChecker<?> findAutoDetectVisibility(AnnotatedClass ac,
-                                                                         VisibilityChecker<?> checker) {
-                        if (ac.getType() == null) {
-                            return checker;
-                        }
-                        if (!ac.getType().isRecordType()) {
-                            return checker;
-                        }
-                        // If this is a Record, then increase the "creator" visibility again
-                        return checker.withCreatorVisibility(Visibility.ANY);
+                    public void setupModule(SetupContext context) {
+                        super.setupModule(context);
+                        context.insertAnnotationIntrospector(new NopAnnotationIntrospector() {
+                            @Override
+                            public VisibilityChecker<?> findAutoDetectVisibility(AnnotatedClass ac,
+                                                                                 VisibilityChecker<?> checker) {
+                                if (ac.getType() == null) {
+                                    return checker;
+                                }
+                                if (!ac.getType().isRecordType()) {
+                                    return checker;
+                                }
+                                // If this is a Record, then increase the "creator" visibility again
+                                return checker.withCreatorVisibility(Visibility.ANY);
+                            }
+                        });
                     }
-                });
-            }
-        });
+                })
+                .build();
 
         assertEquals(new Record3906(null, 0),
                 mapper.readValue("{}", Record3906.class));

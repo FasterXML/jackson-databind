@@ -95,7 +95,7 @@ public class RecordDeserialization3906Test extends BaseMapTest {
     }
 
     public void testEmptyJsonToRecordUsingModule() throws JsonProcessingException {
-        ObjectMapper mapper = newJsonMapper().registerModule(new SimpleModule() {
+        ObjectMapper mapper = jsonMapperBuilder().addModule(new SimpleModule() {
             @Override
             public void setupModule(SetupContext context) {
                 super.setupModule(context);
@@ -109,7 +109,7 @@ public class RecordDeserialization3906Test extends BaseMapTest {
                     }
                 });
             }
-        });
+        }).build();
 
         Record3906 recordDeser = mapper.readValue("{}", Record3906.class);
         assertEquals(new Record3906(null, 0), recordDeser);

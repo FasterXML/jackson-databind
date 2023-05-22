@@ -40,6 +40,20 @@ public class RecordBasicsTest extends BaseMapTest
 
     record RecordWithJsonDeserialize(int id, @JsonDeserialize(converter = StringTrimmer.class) String name) { }
 
+    record RecordSingleWriteOnly(@JsonProperty(access = JsonProperty.Access.WRITE_ONLY) int id) { }
+
+    record RecordSomeWriteOnly(
+            @JsonProperty(access = JsonProperty.Access.WRITE_ONLY) int id,
+            @JsonProperty(access = JsonProperty.Access.WRITE_ONLY) String name,
+            String email) {
+    }
+
+    record RecordAllWriteOnly(
+            @JsonProperty(access = JsonProperty.Access.WRITE_ONLY) int id,
+            @JsonProperty(access = JsonProperty.Access.WRITE_ONLY) String name,
+            @JsonProperty(access = JsonProperty.Access.WRITE_ONLY) String email) {
+    }
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     /*
@@ -202,6 +216,53 @@ public class RecordBasicsTest extends BaseMapTest
         RecordWithJsonDeserialize value = MAPPER.readValue("{\"id\":123,\"name\":\"   Bob   \"}", RecordWithJsonDeserialize.class);
 
         assertEquals(new RecordWithJsonDeserialize(123, "Bob"), value);
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods, JsonProperty(access=WRITE_ONLY)
+    /**********************************************************************
+     */
+
+    public void testSerialize_SingleWriteOnlyParameter() throws Exception {
+        String json = MAPPER.writeValueAsString(new RecordSingleWriteOnly(123));
+
+        assertEquals("{}", json);
+    }
+
+    // [databind#3897]
+    public void testDeserialize_SingleWriteOnlyParameter() throws Exception {
+        RecordSingleWriteOnly value = MAPPER.readValue("{\"id\":123}", RecordSingleWriteOnly.class);
+
+        assertEquals(new RecordSingleWriteOnly(123), value);
+    }
+
+    public void testSerialize_SomeWriteOnlyParameter() throws Exception {
+        String json = MAPPER.writeValueAsString(new RecordSomeWriteOnly(123, "Bob", "bob@example.com"));
+
+        assertEquals("{\"email\":\"bob@example.com\"}", json);
+    }
+
+    public void testDeserialize_SomeWriteOnlyParameter() throws Exception {
+        RecordSomeWriteOnly value = MAPPER.readValue(
+                "{\"id\":123,\"name\":\"Bob\",\"email\":\"bob@example.com\"}",
+                RecordSomeWriteOnly.class);
+
+        assertEquals(new RecordSomeWriteOnly(123, "Bob", "bob@example.com"), value);
+    }
+
+    public void testSerialize_AllWriteOnlyParameter() throws Exception {
+        String json = MAPPER.writeValueAsString(new RecordAllWriteOnly(123, "Bob", "bob@example.com"));
+
+        assertEquals("{}", json);
+    }
+
+    public void testDeserialize_AllWriteOnlyParameter() throws Exception {
+        RecordAllWriteOnly value = MAPPER.readValue(
+                "{\"id\":123,\"name\":\"Bob\",\"email\":\"bob@example.com\"}",
+                RecordAllWriteOnly.class);
+
+        assertEquals(new RecordAllWriteOnly(123, "Bob", "bob@example.com"), value);
     }
 
     /*

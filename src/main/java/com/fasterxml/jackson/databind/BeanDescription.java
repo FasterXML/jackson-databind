@@ -40,7 +40,7 @@ public abstract class BeanDescription
 
     /*
     /**********************************************************
-    /* Simple accesors
+    /* Simple accessors
     /**********************************************************
      */
 

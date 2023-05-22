@@ -1509,8 +1509,7 @@ public class JacksonAnnotationIntrospector
             Annotated ann, JavaType baseType)
     {
         // since 2.16 : backporting {@link JsonTypeInfo.Value} from 3.0
-        final AnnotationIntrospector ai = config.getAnnotationIntrospector();
-        JsonTypeInfo.Value typeInfo = ai.findPolymorphicTypeInfo(config, ann);
+        JsonTypeInfo.Value typeInfo = findPolymorphicTypeInfo(config, ann);
 
         // First: maybe we have explicit type resolver?
         TypeResolverBuilder<?> b;

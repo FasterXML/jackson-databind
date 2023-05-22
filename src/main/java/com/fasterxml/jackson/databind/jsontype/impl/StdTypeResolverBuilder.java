@@ -80,7 +80,6 @@ public class StdTypeResolverBuilder
         _defaultImpl = defaultImpl;
     }
 
-
     /**
      * @since 2.16 (backported from Jackson 3.0)
      */

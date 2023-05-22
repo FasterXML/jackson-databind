@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
 /**
- * Tests for <a href="https://github.com/FasterXML/jackson-core/issues/863">databind#863</a>"
+ * Tests for {@a href="https://github.com/FasterXML/jackson-core/issues/863"}.
  */
 public class StreamReadStringConstraintsTest extends BaseMapTest
 {
@@ -32,8 +32,6 @@ public class StreamReadStringConstraintsTest extends BaseMapTest
     /**********************************************************************
      */
 
-    private final static int TOO_LONG_STRING_VALUE = StreamReadConstraints.DEFAULT_MAX_STRING_LEN + 100;
-    
     private final ObjectMapper MAPPER = newJsonMapper();
 
     private ObjectMapper newJsonMapperWithUnlimitedStringSizeSupport() {
@@ -46,32 +44,31 @@ public class StreamReadStringConstraintsTest extends BaseMapTest
     public void testBigString() throws Exception
     {
         try {
-            MAPPER.readValue(generateJson("string", TOO_LONG_STRING_VALUE), StringWrapper.class);
-            fail("expected DatabindException");
+            MAPPER.readValue(generateJson("string", 5001000), StringWrapper.class);
+            fail("expected JsonMappingException");
         } catch (DatabindException e) {
-            final String message = e.getMessage();
-            assertTrue("unexpected exception message: " + message, message.startsWith("String value length"));
-            assertTrue("unexpected exception message: " + message, message.contains("exceeds the maximum allowed ("));
+            assertTrue("unexpected exception message: " + e.getMessage(),
+                    e.getMessage().startsWith("String value length (5001000) exceeds the maximum allowed (5000000"));
         }
     }
 
     public void testBiggerString() throws Exception
     {
         try {
-            MAPPER.readValue(generateJson("string", TOO_LONG_STRING_VALUE), StringWrapper.class);
+            MAPPER.readValue(generateJson("string", 6_000_000), StringWrapper.class);
             fail("expected JsonMappingException");
         } catch (DatabindException e) {
             final String message = e.getMessage();
             // this test fails when the TextBuffer is being resized, so we don't yet know just how big the string is
             // so best not to assert that the String length value in the message is the full 6000000 value
             assertTrue("unexpected exception message: " + message, message.startsWith("String value length"));
-            assertTrue("unexpected exception message: " + message, message.contains("exceeds the maximum allowed ("));
+            assertTrue("unexpected exception message: " + message, message.contains("exceeds the maximum allowed (5000000"));
         }
     }
 
     public void testUnlimitedString() throws Exception
     {
-        final int len = TOO_LONG_STRING_VALUE;
+        final int len = 5_001_000;
         StringWrapper sw = newJsonMapperWithUnlimitedStringSizeSupport()
                 .readValue(generateJson("string", len), StringWrapper.class);
         assertEquals(len, sw.string.length());

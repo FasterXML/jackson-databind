@@ -6,25 +6,12 @@ Project: jackson-databind
 
 2.16.0 (not yet released)
 
-#3928: `@JsonProperty` on constructor parameter changes default field serialization order
- (contributed by @pjfanning)
+No changes since 2.15
 
-2.15.2 (not yet released)
+2.15.1 (not yet released)
 
-#3938: Record setter not included from interface (2.15 regression)
-
-2.15.1 (16-May-2023)
-
-#3882: Error in creating nested `ArrayNode`s with `JsonNode.withArray()`
- (reported by @SaiKrishna369)
 #3894: Only avoid Records fields detection for deserialization
  (contributed by Sim Y-T)
-#3895: 2.15.0 breaking behaviour change for records and Getter Visibility
- (reported by Matteo B)
-#3897: 2.15.0 breaks deserialization when POJO/Record only has a single field
-  and is marked `Access.WRITE_ONLY`
- (reported by Antti L)
- (fix contributed by Sim Y-T)
 #3913: Issue with deserialization when there are unexpected properties (due
   to null `StreamReadConstraints`)
  (reported by @sbertault)
@@ -112,7 +99,7 @@ Project: jackson-databind
 #3876: `TypeFactory` cache performance degradation with `constructSpecializedType()`
  (contributed by Carter K)
 
-2.14.3 (05-May-2023)
+2.14.3 (not yet released)
 
 #3784: `PrimitiveArrayDeserializers$ByteDeser.deserialize` ignores
   `DeserializationProblemHandler` for invalid Base64 content

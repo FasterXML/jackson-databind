@@ -474,9 +474,7 @@ public class BeanDeserializer
             // weren't removed (to help in creating constructor-backed PropertyCreator)
             // so they ended up in _beanProperties, unlike POJO (whose ignored
             // props are removed)
-            if ((prop != null) &&
-                // [databind#3938]: except if it's MethodProperty
-                (!_beanType.isRecordType() || (prop instanceof MethodProperty))) {
+            if ((prop != null) && !_beanType.isRecordType()) {
                 try {
                     buffer.bufferProperty(prop, _deserializeWithErrorWrapping(p, ctxt, prop));
                 } catch (UnresolvedForwardReference reference) {

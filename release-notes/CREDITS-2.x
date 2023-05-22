@@ -6,8 +6,6 @@ databind core component, version 2.x
 
 Tatu Saloranta, tatu.saloranta@iki.fi: author
 
-----------------------------------------------------------------------------
-
 Pascal Glinas:
   * Contributed fixes to 'MappingIterator' handling (Pull#58 and Pull#59)
    (2.1.0)
@@ -1497,7 +1495,6 @@ PJ Fanning (pjfanning@github)
   (2.14.0)
   * Contributed #3837: Set transformer factory attributes to improve protection against XXE
   (2.14.3)
-  * ... and countless more
 
 Igor Shymko (ancane@github)
   * Contributed #3500: Add optional explicit `JsonSubTypes` repeated names check
@@ -1598,9 +1595,6 @@ Sim Yih Tsern (yihtsern@github)
   (2.15.0)
  * Contributed fix for #3894: Only avoid Records fields detection for deserialization
   (2.15.1)
- * Contributed fix for #3897: 2.15.0 breaks deserialization when POJO/Record only has a
-   single field and is marked `Access.WRITE_ONLY`
-  (2.15.1)
 
 Ajay Siwach (Siwach16@github)
   * Contributed #3637: Add enum features into `@JsonFormat.Feature`
@@ -1629,14 +1623,4 @@ Steve Storey (stevestorey@github)
   * Contributed #3853: Add `MapperFeature.REQUIRE_TYPE_ID_FOR_SUBTYPES` to enable/disable
     strict subtype Type Id handling
    (2.15.0)
-
-Matteo Bertozzi (matteobertozzi@github)
-  * Reported #3895: 2.15.0 breaking behaviour change for records and Getter Visibility
-   (2.15.1)
-
-Antti Lampinen (arlampin@github)
-  * Reported #3897: 2.15.0 breaks deserialization when POJO/Record only has a single field
-    and is marked `Access.WRITE_ONLY`
-   (2.15.1)
-
 

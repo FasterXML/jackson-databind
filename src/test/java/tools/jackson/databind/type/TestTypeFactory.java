@@ -246,6 +246,7 @@ public class TestTypeFactory
 
         // [databind#2109]: also ReferenceTypes
         t = tf.constructType(new TypeReference<AtomicReference<Long>>() { });
+        assertTrue(t.isReferenceType());
         can = t.toCanonical();
         assertEquals("java.util.concurrent.atomic.AtomicReference<java.lang.Long>",
                 can);

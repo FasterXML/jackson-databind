@@ -5,14 +5,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.Serial;
 import java.io.Serializable;
 
 public class Transient3948Test extends BaseMapTest {
 
     public static class Obj implements Serializable {
 
-        @Serial
         private static final long serialVersionUID = -1L;
 
         private String a;

@@ -15,8 +15,9 @@ import com.fasterxml.jackson.databind.SerializationConfig;
  * handling type information embedded in JSON to allow for safe
  * polymorphic type handling.
  *<p>
- * Builder is first initialized by calling {@link #init} method, and then
- * configured using 'set' methods like {@link #inclusion}.
+ * Builder is first initialized by calling {@link #init(JsonTypeInfo.Value, TypeIdResolver)} method, with
+ * configurations passed in through {@link JsonTypeInfo.Value} that is constructed by 
+ * {@link JsonTypeInfo.Value#construct(JsonTypeInfo.Id, As, String, Class, boolean, Boolean)}.
  * Finally, after calling all configuration methods,
  * {@link #buildTypeSerializer} or {@link #buildTypeDeserializer}
  * will be called to get actual type resolver constructed
@@ -97,6 +98,24 @@ public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
      *   but not necessarily)
      */
     public T init(JsonTypeInfo.Id idType, TypeIdResolver res);
+    
+    /**
+     * Initialization method that is called right after constructing
+     * the builder instance, in cases where information could not be
+     * passed directly (for example when instantiated for an annotation)
+     * <p>
+     * NOTE: This method will be abstract in Jackson 3.0.
+     *
+     * @param settings Configuration settings to apply.
+     *
+     * @return Resulting builder instance (usually this builder,
+     *   but not necessarily)
+     *
+     * @since 2.16 (backported from Jackson 3.0)
+     */
+    default T init(JsonTypeInfo.Value settings, TypeIdResolver res) {
+        return init(settings.getIdType(), res);
+    }
 
     /**
      * Initialization method that is called right after constructing

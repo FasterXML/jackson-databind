@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.jsontype.impl;
 
-import com.fasterxml.jackson.databind.introspect.Annotated;
 import java.util.Collection;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -60,33 +59,6 @@ public class StdTypeResolverBuilder
     public StdTypeResolverBuilder() { }
 
     /**
-     * @since 2.16 (backported from Jackson 3.0)
-     */
-    public StdTypeResolverBuilder(JsonTypeInfo.Value settings) {
-        if (settings != null) {
-            _idType = settings.getIdType();
-            if (_idType == null) {
-                throw new IllegalArgumentException("idType cannot be null");
-            }
-            _includeAs = settings.getInclusionType();
-            _typeProperty = _propName(settings.getPropertyName(), _idType);
-            _typeIdVisible = settings.getIdVisible();
-            _defaultImpl = settings.getDefaultImpl();
-            _requireTypeIdForSubtypes = settings.getRequireTypeIdForSubtypes();
-        }
-    }
-
-    /**
-     * @since 2.16 (backported from Jackson 3.0)
-     */ 
-    protected static String _propName(String propName, JsonTypeInfo.Id idType) {
-        if (propName == null) {
-            propName = idType.getDefaultPropertyName();
-        }
-        return propName;
-    }
-
-    /**
      * @since 2.9
      */
     protected StdTypeResolverBuilder(JsonTypeInfo.Id idType,
@@ -126,6 +98,8 @@ public class StdTypeResolverBuilder
             _includeAs = settings.getInclusionType();
             _typeProperty = _propName(settings.getPropertyName(), _idType);
             _defaultImpl = settings.getDefaultImpl();
+            _typeIdVisible = settings.getIdVisible();
+            _requireTypeIdForSubtypes = settings.getRequireTypeIdForSubtypes();
         }
     }
 
@@ -162,30 +136,6 @@ public class StdTypeResolverBuilder
     /**
      * @since 2.16 (backported from Jackson 3.0)
      */
-    @Override
-    public StdTypeResolverBuilder init(JsonTypeInfo.Value settings,
-            TypeIdResolver idRes)
-    {
-        _customIdResolver = idRes;
-
-        if (settings != null) {
-            _idType = settings.getIdType();
-            if (_idType == null) {
-                throw new IllegalArgumentException("idType cannot be null");
-            }
-            _includeAs = settings.getInclusionType();
-
-            // Let's also initialize property name as per idType default
-            _typeProperty = settings.getPropertyName();
-            if (_typeProperty == null) {
-                _typeProperty = _idType.getDefaultPropertyName();
-            }
-            _typeIdVisible = settings.getIdVisible();
-            _defaultImpl = settings.getDefaultImpl();
-        }
-        return this;
-    }
-
     @Override
     public StdTypeResolverBuilder init(JsonTypeInfo.Value settings,
             TypeIdResolver idRes)

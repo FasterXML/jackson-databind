@@ -250,7 +250,6 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <inherited>true</inherited>
         <configuration>
-          <optimize>true</optimize>
           <compilerArgs>
             <arg>-parameters</arg>
           </compilerArgs>

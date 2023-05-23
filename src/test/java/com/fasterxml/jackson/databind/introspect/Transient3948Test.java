@@ -50,7 +50,7 @@ public class Transient3948Test extends BaseMapTest {
             .build();
 
     public void testJsonIgnoreSerialization() throws Exception {
-        var obj1 = new Obj();
+        Obj obj1 = new Obj();
 
         String json = DEFAULT_MAPPER.writeValueAsString(obj1);
 
@@ -58,7 +58,7 @@ public class Transient3948Test extends BaseMapTest {
     }
 
     public void testJsonIgnoreSerializationTransient() throws Exception {
-        var obj1 = new Obj();
+        Obj obj1 = new Obj();
 
         String json = MAPPER_TRANSIENT.writeValueAsString(obj1);
 

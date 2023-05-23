@@ -9,51 +9,35 @@ import java.io.Serializable;
 
 public class Transient3948Test extends BaseMapTest {
 
-    public static class Obj implements Serializable {
+    static class Obj implements Serializable {
 
         private static final long serialVersionUID = -1L;
 
-        private String a;
+        private String a = "hello";
 
         @JsonIgnore
-        private transient String b;
+        private transient String b = "world";
 
         @JsonProperty("cat")
-        private String c;
+        private String c = "jackson";
 
         @JsonProperty("dog")
-        private transient String d;
+        private transient String d = "databind";
 
         public String getA() {
             return a;
-        }
-
-        public void setA(String a) {
-            this.a = a;
         }
 
         public String getB() {
             return b;
         }
 
-        public void setB(String b) {
-            this.b = b;
-        }
-
         public String getC() {
             return c;
         }
 
-        public void setC(String c) {
-            this.c = c;
-        }
-
         public String getD() {
             return d;
-        }
-
-        public void setD(String d) {
-            this.d = d;
         }
     }
 
@@ -65,10 +49,6 @@ public class Transient3948Test extends BaseMapTest {
 
     public void testJsonIgnoreSerialization() throws Exception {
         var obj1 = new Obj();
-        obj1.setA("hello");
-        obj1.setB("world");
-        obj1.setC("jackson");
-        obj1.setD("databind");
 
         String json = DEFAULT_MAPPER.writeValueAsString(obj1);
 
@@ -77,11 +57,6 @@ public class Transient3948Test extends BaseMapTest {
 
     public void testJsonIgnoreSerializationTransient() throws Exception {
         var obj1 = new Obj();
-        obj1.setA("hello");
-        obj1.setB("world");
-        obj1.setC("jackson");
-        obj1.setD("databind");
-
 
         String json = MAPPER_TRANSIENT.writeValueAsString(obj1);
 

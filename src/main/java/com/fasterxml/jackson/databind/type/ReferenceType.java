@@ -25,7 +25,10 @@ public class ReferenceType extends SimpleType
      * if being sub-classed.
      *
      * @since 2.8
+     *
+     * @deprecated Since 2.16
      */
+    @Deprecated
     protected final JavaType _anchorType;
 
     protected ReferenceType(Class<?> cls, TypeBindings bindings,
@@ -176,22 +179,6 @@ public class ReferenceType extends SimpleType
 
     /*
     /**********************************************************
-    /* Narrow/widen
-    /**********************************************************
-     */
-
-    @Override
-    @Deprecated // since 2.7
-    protected JavaType _narrow(Class<?> subclass)
-    {
-        // Should we check that there is a sub-class relationship?
-        return new ReferenceType(subclass, _bindings,
-                _superClass, _superInterfaces, _referencedType, _anchorType,
-                _valueHandler, _typeHandler, _asStatic);
-    }
-
-    /*
-    /**********************************************************
     /* Public API overrides
     /**********************************************************
      */
@@ -237,6 +224,10 @@ public class ReferenceType extends SimpleType
     /**********************************************************
      */
 
+    /**
+     * @deprecated Since 2.16
+     */
+    @Deprecated
     public JavaType getAnchorType() {
         return _anchorType;
     }
@@ -244,7 +235,10 @@ public class ReferenceType extends SimpleType
     /**
      * Convenience accessor that allows checking whether this is the anchor type
      * itself; if not, it must be one of supertypes that is also a {@link ReferenceType}
+     *
+     * @deprecated Since 2.16
      */
+    @Deprecated
     public boolean isAnchorType() {
         return (_anchorType == this);
     }

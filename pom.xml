@@ -337,7 +337,6 @@
             <artifactId>maven-compiler-plugin</artifactId>
             <inherited>true</inherited>
             <configuration>
-              <optimize>true</optimize>
               <!-- Enable Java 14+ for all sources so that Intellij picks the right language level -->
               <source>14</source>
               <release>14</release>
@@ -389,7 +388,6 @@
             <artifactId>maven-compiler-plugin</artifactId>
             <inherited>true</inherited>
             <configuration>
-              <optimize>true</optimize>
               <!-- Enable Java 17 for all sources so that Intellij picks the right language level -->
               <source>17</source>
               <release>17</release>

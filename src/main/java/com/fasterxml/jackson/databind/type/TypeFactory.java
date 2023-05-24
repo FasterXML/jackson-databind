@@ -99,6 +99,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
     private final static Class<?> CLS_JSON_NODE = JsonNode.class; // since 2.10
 
     private final static Class<?> CLS_BOOL = Boolean.TYPE;
+    private final static Class<?> CLS_DOUBLE = Double.TYPE;
     private final static Class<?> CLS_INT = Integer.TYPE;
     private final static Class<?> CLS_LONG = Long.TYPE;
 
@@ -110,6 +111,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
 
     // note: these are primitive, hence no super types
     protected final static SimpleType CORE_TYPE_BOOL = new SimpleType(CLS_BOOL);
+    protected final static SimpleType CORE_TYPE_DOUBLE = new SimpleType(CLS_DOUBLE);
     protected final static SimpleType CORE_TYPE_INT = new SimpleType(CLS_INT);
     protected final static SimpleType CORE_TYPE_LONG = new SimpleType(CLS_LONG);
 
@@ -1401,6 +1403,7 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
             if (clz == CLS_BOOL) return CORE_TYPE_BOOL;
             if (clz == CLS_INT) return CORE_TYPE_INT;
             if (clz == CLS_LONG) return CORE_TYPE_LONG;
+            if (clz == CLS_DOUBLE) return CORE_TYPE_DOUBLE;
         } else {
             if (clz == CLS_STRING) return CORE_TYPE_STRING;
             if (clz == CLS_OBJECT) return CORE_TYPE_OBJECT; // since 2.7
@@ -1621,13 +1624,13 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
         if (BaseStream.class.isAssignableFrom(rawType)) {
             if (DoubleStream.class.isAssignableFrom(rawType)) {
                 return _iterationType(rawType, bindings, superClass, superInterfaces,
-                        constructType(Double.class));
+                        CORE_TYPE_DOUBLE);
             } else if (IntStream.class.isAssignableFrom(rawType)) {
                 return _iterationType(rawType, bindings, superClass, superInterfaces,
-                        constructType(Integer.class));
+                        CORE_TYPE_INT);
             } else if (LongStream.class.isAssignableFrom(rawType)) {
                 return _iterationType(rawType, bindings, superClass, superInterfaces,
-                        constructType(Long.class));
+                        CORE_TYPE_LONG);
             }
         }
         return null;

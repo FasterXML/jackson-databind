@@ -319,13 +319,13 @@ public class TestJavaType
         _verifyIteratorType(tf.constructType(new TypeReference<Stream<Long>>() { }),
                 Stream.class, Long.class);
 
-        // Then numeric typed:
+        // Then primitive stream:
         _verifyIteratorType(tf.constructType(DoubleStream.class),
-                DoubleStream.class, Double.class);
+                DoubleStream.class, Double.TYPE);
         _verifyIteratorType(tf.constructType(IntStream.class),
-                IntStream.class, Integer.class);
+                IntStream.class, Integer.TYPE);
         _verifyIteratorType(tf.constructType(LongStream.class),
-                LongStream.class, Long.class);
+                LongStream.class, Long.TYPE);
     }
 
     // for [databind#3950]: resolve `Iterator`, `Stream`

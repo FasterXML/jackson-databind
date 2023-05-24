@@ -101,6 +101,7 @@ public final class TypeFactory
     private final static Class<?> CLS_JSON_NODE = JsonNode.class; // since 2.10
 
     private final static Class<?> CLS_BOOL = Boolean.TYPE;
+    private final static Class<?> CLS_DOUBLE = Double.TYPE;
     private final static Class<?> CLS_INT = Integer.TYPE;
     private final static Class<?> CLS_LONG = Long.TYPE;
     private final static Class<?> CLS_DOUBLE = Double.TYPE;
@@ -113,6 +114,7 @@ public final class TypeFactory
 
     // note: these are primitive, hence no super types
     protected final static SimpleType CORE_TYPE_BOOL = new SimpleType(CLS_BOOL);
+    protected final static SimpleType CORE_TYPE_DOUBLE = new SimpleType(CLS_DOUBLE);
     protected final static SimpleType CORE_TYPE_INT = new SimpleType(CLS_INT);
     protected final static SimpleType CORE_TYPE_LONG = new SimpleType(CLS_LONG);
     protected final static SimpleType CORE_TYPE_DOUBLE = new SimpleType(CLS_DOUBLE);
@@ -1447,13 +1449,13 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
         if (BaseStream.class.isAssignableFrom(rawType)) {
             if (DoubleStream.class.isAssignableFrom(rawType)) {
                 return _iterationType(rawType, bindings, superClass, superInterfaces,
-                        constructType(Double.class));
+                        CORE_TYPE_DOUBLE);
             } else if (IntStream.class.isAssignableFrom(rawType)) {
                 return _iterationType(rawType, bindings, superClass, superInterfaces,
-                        constructType(Integer.class));
+                        CORE_TYPE_INT);
             } else if (LongStream.class.isAssignableFrom(rawType)) {
                 return _iterationType(rawType, bindings, superClass, superInterfaces,
-                        constructType(Long.class));
+                        CORE_TYPE_LONG);
             }
         }
         // 17-Sep-2017, tatu: Jackson 3.x brings Java 8 optional types in...

@@ -3,7 +3,12 @@ package com.fasterxml.jackson.databind.type;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.JavaType;
 
@@ -94,6 +99,7 @@ public class TestJavaType
         assertFalse(baseType.isContainerType());
         assertFalse(baseType.isEnumType());
         assertFalse(baseType.isInterface());
+        assertFalse(baseType.isIterationType());
         assertFalse(baseType.isPrimitive());
         assertFalse(baseType.isReferenceType());
         assertFalse(baseType.hasContentType());
@@ -125,6 +131,7 @@ public class TestJavaType
         JavaType arrayT = ArrayType.construct(tf.constructType(String.class), null);
         assertNotNull(arrayT);
         assertTrue(arrayT.isContainerType());
+        assertFalse(arrayT.isIterationType());
         assertFalse(arrayT.isReferenceType());
         assertTrue(arrayT.hasContentType());
 
@@ -146,6 +153,7 @@ public class TestJavaType
         TypeFactory tf = TypeFactory.defaultInstance();
         JavaType mapT = tf.constructType(HashMap.class);
         assertTrue(mapT.isContainerType());
+        assertFalse(mapT.isIterationType());
         assertFalse(mapT.isReferenceType());
         assertTrue(mapT.hasContentType());
 
@@ -170,6 +178,7 @@ public class TestJavaType
         assertTrue(enumT.getRawClass().isEnum());
         assertTrue(enumT.isEnumType());
         assertTrue(enumT.isEnumImplType());
+        assertFalse(enumT.isIterationType());
 
         assertFalse(enumT.hasHandlers());
         assertTrue(enumT.isTypeOrSubTypeOf(MyEnum.class));
@@ -240,6 +249,7 @@ public class TestJavaType
         assertEquals("Ljava/util/concurrent/atomic/AtomicReference<Ljava/lang/String;>;", t.getGenericSignature());
     }
 
+    @Deprecated
     public void testAnchorTypeForRefTypes() throws Exception
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -284,5 +294,53 @@ public class TestJavaType
         assertEquals(refdType, bindings.getBoundType(0));
         // Should we even verify this or not?
         assertEquals("V", bindings.getBoundName(0));
+    }
+
+    // for [databind#3950]: resolve `Iterator`, `Stream`
+    public void testIterationTypesDirect() throws Exception
+    {
+        TypeFactory tf = TypeFactory.defaultInstance();
+
+        // First, type-erased types
+        _verifyIteratorType(tf.constructType(Iterator.class),
+                Iterator.class, Object.class);
+        _verifyIteratorType(tf.constructType(Stream.class),
+                Stream.class, Object.class);
+
+        // Then generic but direct
+        _verifyIteratorType(tf.constructType(new TypeReference<Iterator<String>>() { }),
+                Iterator.class, String.class);
+        _verifyIteratorType(tf.constructType(new TypeReference<Stream<Long>>() { }),
+                Stream.class, Long.class);
+
+        // Then numeric typed:
+        _verifyIteratorType(tf.constructType(DoubleStream.class),
+                DoubleStream.class, Double.class);
+        _verifyIteratorType(tf.constructType(IntStream.class),
+                IntStream.class, Integer.class);
+        _verifyIteratorType(tf.constructType(LongStream.class),
+                LongStream.class, Long.class);
+    }
+
+    // for [databind#3950]: resolve `Iterator`, `Stream`
+    public void testIterationTypesFromValues() throws Exception
+    {
+        TypeFactory tf = TypeFactory.defaultInstance();
+        List<String> strings = Arrays.asList("foo", "bar");
+        // We will get type-erased, alas, so:
+        Iterator<String> stringIT = strings.iterator();
+        _verifyIteratorType(tf.constructType(stringIT.getClass()),
+                stringIT.getClass(), Object.class);
+        Stream<String> stringStream = strings.stream();
+        _verifyIteratorType(tf.constructType(stringStream.getClass()),
+                stringStream.getClass(), Object.class);
+    }
+
+    private void _verifyIteratorType(JavaType type,
+            Class<?> expType, Class<?> expContentType) {
+        assertTrue(type.isIterationType());
+        assertEquals(IterationType.class, type.getClass());
+        assertEquals(expType, type.getRawClass());
+        assertEquals(expContentType, type.getContentType().getRawClass());
     }
 }

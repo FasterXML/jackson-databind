@@ -160,6 +160,11 @@ public class IterationType extends SimpleType
     }
 
     @Override
+    public boolean isIterationType() {
+        return true;
+    }
+
+    @Override
     public StringBuilder getErasedSignature(StringBuilder sb) {
         return _classSignature(_class, sb, true);
     }

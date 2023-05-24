@@ -60,6 +60,9 @@ public class TestJavaType
     @SuppressWarnings("serial")
     static class AtomicStringReference extends AtomicReference<String> { }
 
+    static interface StringStream extends Stream<String> { }
+    static interface StringIterator extends Iterator<String> { }
+
     /*
     /**********************************************************
     /* Test methods
@@ -337,6 +340,16 @@ public class TestJavaType
         Stream<String> stringStream = strings.stream();
         _verifyIteratorType(tf.constructType(stringStream.getClass()),
                 stringStream.getClass(), Object.class);
+    }
+
+    // for [databind#3950]: resolve `Iterator`, `Stream`
+    public void testIterationSubTypes() throws Exception
+    {
+        TypeFactory tf = TypeFactory.defaultInstance();
+        _verifyIteratorType(tf.constructType(StringIterator.class),
+                StringIterator.class, String.class);
+        _verifyIteratorType(tf.constructType(StringStream.class),
+                StringStream.class, String.class);
     }
 
     private JavaType _verifyIteratorType(JavaType type,

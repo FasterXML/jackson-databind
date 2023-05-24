@@ -2,6 +2,11 @@ package com.fasterxml.jackson.databind.type;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.BaseStream;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
+import java.util.stream.Stream;
 import java.lang.reflect.*;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -1318,6 +1323,30 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
         return ReferenceType.construct(rawClass, bindings, superClass, superInterfaces, ct);
     }
 
+    private JavaType _iterationType(Class<?> rawClass, TypeBindings bindings,
+            JavaType superClass, JavaType[] superInterfaces)
+    {
+        List<JavaType> typeParams = bindings.getTypeParameters();
+        // ok to have no types ("raw")
+        JavaType ct;
+        if (typeParams.isEmpty()) {
+            ct = _unknownType();
+        } else if (typeParams.size() == 1) {
+            ct = typeParams.get(0);
+        } else {
+            throw new IllegalArgumentException("Strange Iteration type "+rawClass.getName()+": cannot determine type parameters");
+        }
+        return _iterationType(rawClass, bindings, superClass, superInterfaces, ct);
+    }
+
+    private JavaType _iterationType(Class<?> rawClass, TypeBindings bindings,
+            JavaType superClass, JavaType[] superInterfaces,
+            JavaType iteratedType)
+    {
+        return IterationType.construct(rawClass, bindings, superClass, superInterfaces,
+                iteratedType);
+    }
+
     /**
      * Factory method to call when no special {@link JavaType} is needed,
      * no generic parameters are passed. Default implementation may check
@@ -1582,9 +1611,25 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
             return _referenceType(rawType, bindings, superClass, superInterfaces);
         }
         // 01-Nov-2015, tatu: As of 2.7, couple of potential `CollectionLikeType`s (like
-        //    `Iterable`, `Iterator`), and `MapLikeType`s (`Map.Entry`) are not automatically
+        //    `Iterable`), and `MapLikeType`s (`Map.Entry`) are not automatically
         //    detected, related to difficulties in propagating type upwards (Iterable, for
         //    example, is a weak, tag-on type). They may be detectable in future.
+        // 23-May-2023, tatu: As of 2.16 we do, however, recognized certain `IterationType`s.
+        if (rawType == Iterator.class || rawType == Stream.class) {
+            return _iterationType(rawType, bindings, superClass, superInterfaces);
+        }
+        if (BaseStream.class.isAssignableFrom(rawType)) {
+            if (DoubleStream.class.isAssignableFrom(rawType)) {
+                return _iterationType(rawType, bindings, superClass, superInterfaces,
+                        constructType(Double.class));
+            } else if (IntStream.class.isAssignableFrom(rawType)) {
+                return _iterationType(rawType, bindings, superClass, superInterfaces,
+                        constructType(Integer.class));
+            } else if (LongStream.class.isAssignableFrom(rawType)) {
+                return _iterationType(rawType, bindings, superClass, superInterfaces,
+                        constructType(Long.class));
+            }
+        }
         return null;
     }
 

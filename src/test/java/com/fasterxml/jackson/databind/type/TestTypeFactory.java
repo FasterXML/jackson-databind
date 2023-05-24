@@ -142,11 +142,13 @@ public class TestTypeFactory
         assertSame(String.class, mt.getContentType().getRawClass());
     }
 
+    // note: changed for [databind#3950]
     public void testIterator()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
         JavaType t = tf.constructType(new TypeReference<Iterator<String>>() { });
-        assertEquals(SimpleType.class, t.getClass());
+        assertEquals(IterationType.class, t.getClass());
+        assertTrue(t.isIterationType());
         assertSame(Iterator.class, t.getRawClass());
         assertEquals(1, t.containedTypeCount());
         assertEquals(tf.constructType(String.class), t.containedType(0));

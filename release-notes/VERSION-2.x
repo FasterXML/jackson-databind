@@ -8,6 +8,7 @@ Project: jackson-databind
 
 #3928: `@JsonProperty` on constructor parameter changes default field serialization order
  (contributed by @pjfanning)
+#3950: Create new `JavaType` subtype `IterationType` (extending `SimpleType`)
 
 2.15.2 (not yet released)
 

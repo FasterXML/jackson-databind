@@ -312,6 +312,18 @@ public abstract class JavaType
         return ClassUtil.isRecordType(_class);
     }
 
+    /**
+     * Method that returns true if this instance is of type
+     * {@code IterationType}.
+     *
+     * @since 2.16
+     *
+     * @return True if this type is considered "iteration type"
+     */
+    public boolean isIterationType() {
+        return false;
+    }
+
     @Override
     public final boolean isInterface() { return _class.isInterface(); }
 

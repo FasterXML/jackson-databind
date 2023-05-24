@@ -1563,8 +1563,16 @@ public class JacksonAnnotationIntrospector
     /**
      * Helper method for constructing standard {@link TypeResolverBuilder}
      * implementation.
-     * 
-     * @since 2.16, backported from 3.0
+     */
+    protected StdTypeResolverBuilder _constructStdTypeResolverBuilder() {
+        return new StdTypeResolverBuilder();
+    }
+
+    /**
+     * Helper method for constructing standard {@link TypeResolverBuilder}
+     * implementation.
+     *
+     * @since 2.16 (backported from Jackson 3.0)
      */
     protected TypeResolverBuilder<?> _constructStdTypeResolverBuilder(MapperConfig<?> config,
             JsonTypeInfo.Value typeInfo, JavaType baseType) {

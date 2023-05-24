@@ -104,7 +104,6 @@ public final class TypeFactory
     private final static Class<?> CLS_DOUBLE = Double.TYPE;
     private final static Class<?> CLS_INT = Integer.TYPE;
     private final static Class<?> CLS_LONG = Long.TYPE;
-    private final static Class<?> CLS_DOUBLE = Double.TYPE;
 
     /*
     /**********************************************************************
@@ -117,7 +116,6 @@ public final class TypeFactory
     protected final static SimpleType CORE_TYPE_DOUBLE = new SimpleType(CLS_DOUBLE);
     protected final static SimpleType CORE_TYPE_INT = new SimpleType(CLS_INT);
     protected final static SimpleType CORE_TYPE_LONG = new SimpleType(CLS_LONG);
-    protected final static SimpleType CORE_TYPE_DOUBLE = new SimpleType(CLS_DOUBLE);
 
     // and as to String... well, for now, ignore its super types
     protected final static SimpleType CORE_TYPE_STRING = new SimpleType(CLS_STRING);

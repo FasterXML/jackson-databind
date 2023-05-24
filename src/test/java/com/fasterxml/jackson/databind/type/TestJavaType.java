@@ -308,8 +308,11 @@ public class TestJavaType
                 Stream.class, Object.class);
 
         // Then generic but direct
-        _verifyIteratorType(tf.constructType(new TypeReference<Iterator<String>>() { }),
+        JavaType t = _verifyIteratorType(tf.constructType(new TypeReference<Iterator<String>>() { }),
                 Iterator.class, String.class);
+        assertEquals("java.util.Iterator<java.lang.String>", t.toCanonical());
+        assertEquals("Ljava/util/Iterator;", t.getErasedSignature());
+        assertEquals("Ljava/util/Iterator<Ljava/lang/String;>;", t.getGenericSignature());
         _verifyIteratorType(tf.constructType(new TypeReference<Stream<Long>>() { }),
                 Stream.class, Long.class);
 
@@ -336,11 +339,12 @@ public class TestJavaType
                 stringStream.getClass(), Object.class);
     }
 
-    private void _verifyIteratorType(JavaType type,
+    private JavaType _verifyIteratorType(JavaType type,
             Class<?> expType, Class<?> expContentType) {
         assertTrue(type.isIterationType());
         assertEquals(IterationType.class, type.getClass());
         assertEquals(expType, type.getRawClass());
         assertEquals(expContentType, type.getContentType().getRawClass());
+        return type;
     }
 }

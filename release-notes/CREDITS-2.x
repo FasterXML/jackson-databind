@@ -4,7 +4,12 @@ databind core component, version 2.x
 
 (note: for older credits, check out release notes for 1.x versions)
 
-Tatu Saloranta, tatu.saloranta@iki.fi: author
+Author: Tatu Saloranta, tatu.saloranta@iki.fi
+
+VIP contributors (with partial listing below):
+
+* Joo Hyuk Kim (JooHyukKim@github)
+* PJ Fanning (pjfanning@github)
 
 ----------------------------------------------------------------------------
 
@@ -1567,10 +1572,10 @@ Joo Hyuk Kim (JooHyukKim@github)
    (2.15.0)
   * Contributed #3814: Enhance `StdNodeBasedDeserializer` to support `readerForUpdating`
    (2.15.0)
-   
   * Contributed #3819: Add convenience method `SimpleBeanPropertyFilter.filterOutAll()` as
     counterpart of `serializeAll()`
    (2.15.0)
+  * And NUMEROUS other contributions more!!!
 
 Vojtěch Knyttl (knyttl@github)
   * Requested #3053: Allow serializing enums to lowercase (`EnumFeature.WRITE_ENUMS_TO_LOWERCASE`)

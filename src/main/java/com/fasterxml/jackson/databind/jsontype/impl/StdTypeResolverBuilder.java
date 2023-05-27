@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.jsontype.impl;
 
+import com.fasterxml.jackson.databind.introspect.Annotated;
 import java.util.Collection;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -38,7 +39,7 @@ public class StdTypeResolverBuilder
     /**
      * 
      * Boolean value configured through {@link JsonTypeInfo#requireTypeIdForSubtypes}.
-     * If this value is not {@code null}, this value overrides the global configuration of
+     * If this value is not {@code null}, this value should override the global configuration of
      * {@link com.fasterxml.jackson.databind.MapperFeature#REQUIRE_TYPE_ID_FOR_SUBTYPES}. 
      * 
      * @since 2.16 (backported from Jackson 3.0)
@@ -103,7 +104,7 @@ public class StdTypeResolverBuilder
             _includeAs = settings.getInclusionType();
             _typeProperty = _propName(settings.getPropertyName(), _idType);
             _defaultImpl = settings.getDefaultImpl();
-            _typeIdVisible = settings.getIdVisible(); // was missing from Jackson 3.0
+            _typeIdVisible = settings.getIdVisible();
             _requireTypeIdForSubtypes = settings.getRequireTypeIdForSubtypes();
         }
     }
@@ -138,9 +139,6 @@ public class StdTypeResolverBuilder
         return this;
     }
 
-    /**
-     * @since 2.16 (backported from Jackson 3.0)
-     */
     @Override
     public StdTypeResolverBuilder init(JsonTypeInfo.Value settings,
             TypeIdResolver idRes)

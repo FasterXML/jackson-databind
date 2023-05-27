@@ -593,6 +593,16 @@ public class JacksonAnnotationIntrospector
     /**********************************************************
      */
 
+    /**
+     * @since 2.16 (backported from Jackson 3.0)
+     */
+    @Override
+    public JsonTypeInfo.Value findPolymorphicTypeInfo(MapperConfig<?> config, Annotated ann)
+    {
+        JsonTypeInfo t = _findAnnotation(ann, JsonTypeInfo.class);
+        return (t == null) ? null : JsonTypeInfo.Value.from(t);
+    }
+
     @Override
     public TypeResolverBuilder<?> findTypeResolver(MapperConfig<?> config,
             AnnotatedClass ac, JavaType baseType)

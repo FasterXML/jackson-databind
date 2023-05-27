@@ -99,6 +99,24 @@ public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
      */
     public T init(JsonTypeInfo.Id idType, TypeIdResolver res);
 
+    /**
+     * Initialization method that is called right after constructing
+     * the builder instance, in cases where information could not be
+     * passed directly (for example when instantiated for an annotation)
+     * <p>
+     * NOTE: This method is abstract in Jackson 3.0, at the moment of writing.
+     *
+     * @param settings Configuration settings to apply.
+     *
+     * @return Resulting builder instance (usually this builder,
+     *   but not necessarily)
+     *
+     * @since 2.16 (backported from Jackson 3.0)
+     */
+    default T init(JsonTypeInfo.Value settings, TypeIdResolver res) {
+        return init(settings.getIdType(), res);
+    }
+
     /*
     /**********************************************************
     /* Methods for configuring resolver to build

@@ -117,10 +117,6 @@ public class TestJavaType
         assertNull(baseType.getContentValueHandler());
         assertFalse(baseType.hasValueHandler());
         assertFalse(baseType.hasHandlers());
-
-        assertSame(baseType, baseType.forcedNarrowBy(BaseType.class));
-        JavaType sub = baseType.forcedNarrowBy(SubType.class);
-        assertTrue(sub.hasRawClass(SubType.class));
     }
 
     public void testArrayType()

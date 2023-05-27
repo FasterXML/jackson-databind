@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.jsontype.impl;
 
+import com.fasterxml.jackson.databind.introspect.Annotated;
 import java.util.Collection;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -34,6 +35,11 @@ public class StdTypeResolverBuilder
      * Whether type id should be exposed to deserializers or not
      */
     protected boolean _typeIdVisible = false;
+
+    /**
+     * @since 2.16 (backported from Jackson 3.0)
+     */
+    protected Boolean _requireTypeIdForSubtypes;
 
     /**
      * Default class to use in case type information is not available
@@ -87,6 +93,7 @@ public class StdTypeResolverBuilder
         _customIdResolver = base._customIdResolver;
 
         _defaultImpl = defaultImpl;
+        _requireTypeIdForSubtypes = base._requireTypeIdForSubtypes;
     }
 
     /**
@@ -101,6 +108,8 @@ public class StdTypeResolverBuilder
             _includeAs = settings.getInclusionType();
             _typeProperty = _propName(settings.getPropertyName(), _idType);
             _defaultImpl = settings.getDefaultImpl();
+            _typeIdVisible = settings.getIdVisible();
+            _requireTypeIdForSubtypes = settings.getRequireTypeIdForSubtypes();
         }
     }
 
@@ -115,7 +124,9 @@ public class StdTypeResolverBuilder
     }
 
     public static StdTypeResolverBuilder noTypeInfoBuilder() {
-        return new StdTypeResolverBuilder().init(JsonTypeInfo.Id.NONE, null);
+        JsonTypeInfo.Value typeInfo = JsonTypeInfo.Value.construct(JsonTypeInfo.Id.NONE, null,
+                null, null, false, null);
+        return new StdTypeResolverBuilder().init(typeInfo, null);
     }
 
     @Override
@@ -132,9 +143,6 @@ public class StdTypeResolverBuilder
         return this;
     }
 
-    /**
-     * @since 2.16 (backported from Jackson 3.0)
-     */
     @Override
     public StdTypeResolverBuilder init(JsonTypeInfo.Value settings,
             TypeIdResolver idRes)
@@ -155,6 +163,7 @@ public class StdTypeResolverBuilder
             }
             _typeIdVisible = settings.getIdVisible();
             _defaultImpl = settings.getDefaultImpl();
+            _requireTypeIdForSubtypes = settings.getRequireTypeIdForSubtypes();
         }
         return this;
     }
@@ -509,11 +518,11 @@ public class StdTypeResolverBuilder
      *
      * @return true if the class has type resolver annotations, false otherwise
      *
-     * @since 2.15
+     * @since 2.15, using {@code ai.findPolymorphicTypeInfo(config, ac)} since 2.16.
      */
     protected boolean _hasTypeResolver(DeserializationConfig config, JavaType baseType) {
         AnnotatedClass ac = AnnotatedClassResolver.resolveWithoutSuperTypes(config,  baseType.getRawClass());
         AnnotationIntrospector ai = config.getAnnotationIntrospector();
-        return ai.findTypeResolver(config, ac, baseType) != null;
+        return ai.findPolymorphicTypeInfo(config, ac) != null;
     }
 }

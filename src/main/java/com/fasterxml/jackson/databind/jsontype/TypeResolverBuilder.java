@@ -4,7 +4,6 @@ import java.util.Collection;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
-import com.fasterxml.jackson.annotation.OptBoolean;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.SerializationConfig;
@@ -171,21 +170,6 @@ public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
      * @since 2.0
      */
     public T typeIdVisibility(boolean isVisible);
-
-    /**
-     * Specifies whether strict type ID handling should be used for this type.
-     * Parameter {@code Boolean requireTypeId} is provided by {@link JsonTypeInfo#requireTypeIdForSubtypes()}.
-     * This configuration overrides the global setting defined by
-     * {@link com.fasterxml.jackson.databind.MapperFeature#REQUIRE_TYPE_ID_FOR_SUBTYPES}.
-     *
-     * @param requireTypeId {@code true} to enforce type ID handling, {@code false} otherwise.
-     *                     If {@code null}, the global setting will be used.
-     *
-     * @since 2.16
-     */
-    public default void requireTypeIdForSubtypes(Boolean requireTypeId) {
-        // no-op
-    }
 
     /*
     /**********************************************************************

@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.jsontype.impl;
 
-import com.fasterxml.jackson.databind.introspect.Annotated;
 import java.util.Collection;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -37,6 +36,11 @@ public class StdTypeResolverBuilder
     protected boolean _typeIdVisible = false;
 
     /**
+     * 
+     * Boolean value configured through {@link JsonTypeInfo#requireTypeIdForSubtypes}.
+     * If this value is not {@code null}, this value overrides the global configuration of
+     * {@link com.fasterxml.jackson.databind.MapperFeature#REQUIRE_TYPE_ID_FOR_SUBTYPES}. 
+     * 
      * @since 2.16 (backported from Jackson 3.0)
      */
     protected Boolean _requireTypeIdForSubtypes;
@@ -50,15 +54,6 @@ public class StdTypeResolverBuilder
     // Objects
 
     protected TypeIdResolver _customIdResolver;
-
-    /**
-     * Boolean value configured through {@link JsonTypeInfo#requireTypeIdForSubtypes}.
-     * If this value is not {@code null}, this value overrides the global configuration of
-     * {@link com.fasterxml.jackson.databind.MapperFeature#REQUIRE_TYPE_ID_FOR_SUBTYPES}.
-     *
-     * @since 2.16
-     */
-    protected Boolean _requireTypeIdForSubtypes;
 
     /*
     /**********************************************************
@@ -108,7 +103,7 @@ public class StdTypeResolverBuilder
             _includeAs = settings.getInclusionType();
             _typeProperty = _propName(settings.getPropertyName(), _idType);
             _defaultImpl = settings.getDefaultImpl();
-            _typeIdVisible = settings.getIdVisible();
+            _typeIdVisible = settings.getIdVisible(); // was missing from Jackson 3.0
             _requireTypeIdForSubtypes = settings.getRequireTypeIdForSubtypes();
         }
     }
@@ -143,6 +138,9 @@ public class StdTypeResolverBuilder
         return this;
     }
 
+    /**
+     * @since 2.16 (backported from Jackson 3.0)
+     */
     @Override
     public StdTypeResolverBuilder init(JsonTypeInfo.Value settings,
             TypeIdResolver idRes)
@@ -343,11 +341,6 @@ public class StdTypeResolverBuilder
 
         // NOTE: MUST create new instance, NOT modify this instance
         return new StdTypeResolverBuilder(this, defaultImpl);
-    }
-
-    @Override
-    public void requireTypeIdForSubtypes(Boolean requireTypeId) {
-        _requireTypeIdForSubtypes = requireTypeId;
     }
 
     /*

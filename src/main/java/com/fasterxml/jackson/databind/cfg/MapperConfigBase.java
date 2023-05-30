@@ -868,6 +868,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         return _configOverrides.getDefaultMergeable();
     }
 
+    // since 2.16
     @Override
     public JsonTypeInfo.Value getDefaultPolymorphicTypeHandling(Class<?> baseType, Annotated ann)
     {

@@ -598,6 +598,8 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
 
     /**
      * Accessor for polymorphic type handling settings to use for given base type.
+     * 
+     * @since 2.16
      */
     public JsonTypeInfo.Value getDefaultPolymorphicTypeHandling(Class<?> baseType, Annotated ann) {
         return null;

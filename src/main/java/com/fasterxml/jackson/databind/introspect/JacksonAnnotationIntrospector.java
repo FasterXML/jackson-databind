@@ -1510,6 +1510,7 @@ public class JacksonAnnotationIntrospector
     {
         // since 2.16 : backporting {@link JsonTypeInfo.Value} from 3.0
         JsonTypeInfo.Value typeInfo = findPolymorphicTypeInfo(config, ann);
+
         // First: maybe we have explicit type resolver?
         TypeResolverBuilder<?> b;
         JsonTypeResolver resAnn = _findAnnotation(ann, JsonTypeResolver.class);
@@ -1554,10 +1555,10 @@ public class JacksonAnnotationIntrospector
         if (defaultImpl != null && defaultImpl != JsonTypeInfo.None.class && !defaultImpl.isAnnotation()) {
             typeInfo = typeInfo.withDefaultImpl(defaultImpl);
         }
+        
         b = b.init(typeInfo, idRes);
-        // config-override for JsonTypeInfo
-        JsonTypeInfo.Value overrides = config.getDefaultPolymorphicTypeHandling(
-                baseType.getRawClass(), ann);
+        // [databind#3943] Add config-override system using JsonTypeInfo.Valu
+        JsonTypeInfo.Value overrides = config.getDefaultPolymorphicTypeHandling(baseType.getRawClass(), ann);
         if (overrides != null) {
             b = b.init(overrides, idRes);
         }

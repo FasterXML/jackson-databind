@@ -133,10 +133,16 @@ public abstract class ConfigOverride
      */
     public Boolean getMergeable() { return _mergeable; }
 
+    /**
+     * @since 2.16
+     */
     public JsonTypeInfo.Value getPolymorphicTypeHandling() {
         return _polymorphicTypeHandling;
     }
 
+    /**
+     * @since 2.16 (backported from Jackson 3.0)
+     */
     @Override
     public String toString() {
         return new StringBuilder("[ConfigOverrides ")

@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.15.2 (not yet released)
+2.15.2 (30-May-2023)
 
 #3938: Record setter not included from interface (2.15 regression)
 

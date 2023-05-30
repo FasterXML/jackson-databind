@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
  * Configuration object that is accessed by databinding functionality
@@ -73,6 +74,14 @@ public abstract class ConfigOverride
      */
     protected Boolean _mergeable;
 
+    /**
+     *
+     * Override polymorphic type handling for this type.
+     *
+     * @since 2.16
+     */
+    protected JsonTypeInfo.Value _polymorphicTypeHandling;
+
     protected ConfigOverride() { }
     protected ConfigOverride(ConfigOverride src) {
         _format = src._format;
@@ -83,6 +92,7 @@ public abstract class ConfigOverride
         _visibility = src._visibility;
         _isIgnoredType = src._isIgnoredType;
         _mergeable = src._mergeable;
+        _polymorphicTypeHandling = src._polymorphicTypeHandling;
     }
 
     /**
@@ -122,6 +132,24 @@ public abstract class ConfigOverride
      * @since 2.9
      */
     public Boolean getMergeable() { return _mergeable; }
+
+    public JsonTypeInfo.Value getPolymorphicTypeHandling() {
+        return _polymorphicTypeHandling;
+    }
+
+    @Override
+    public String toString() {
+        return new StringBuilder("[ConfigOverrides ")
+                .append("format=").append(_format)
+                .append(", include=").append(_include).append("/").append(_includeAsProperty)
+                .append(", ignorals=").append(_ignorals)
+                .append(", ignoredType=").append(_isIgnoredType)
+                .append(", nulls=").append(_ignorals)
+                .append(", visibility=").append(_visibility)
+                .append(", merge=").append(_mergeable)
+                .append(", polymorphic=").append(_polymorphicTypeHandling)
+                .toString();
+    }
 
     /**
      * Implementation used solely for "empty" instance; has no mutators

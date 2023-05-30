@@ -596,6 +596,13 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      */
     public abstract Boolean getDefaultMergeable(Class<?> baseType);
 
+    /**
+     * Accessor for polymorphic type handling settings to use for given base type.
+     */
+    public JsonTypeInfo.Value getDefaultPolymorphicTypeHandling(Class<?> baseType, Annotated ann) {
+        return null;
+    }
+
     /*
     /**********************************************************
     /* Configuration: other

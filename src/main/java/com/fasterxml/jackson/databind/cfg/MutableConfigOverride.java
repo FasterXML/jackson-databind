@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 /**
  * Extension of {@link ConfigOverride} that allows changing of
@@ -93,4 +94,14 @@ public class MutableConfigOverride
         _mergeable = v;
         return this;
     }
+
+    /**
+     * Override for polymorphic type handling of the associated type.
+     * 
+     * @since 2.16
+     */
+    public MutableConfigOverride setPolymorphicTypeHandling(JsonTypeInfo.Value v) {
+        _polymorphicTypeHandling = v;
+        return this;
+    }   
 }

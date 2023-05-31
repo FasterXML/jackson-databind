@@ -1421,6 +1421,7 @@ public abstract class StdDeserializer<T>
             return ob.toString();
         // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
         case JsonTokenId.ID_START_OBJECT:
+            act = _checkObjectToStringCoercion(p, ctxt, rawTargetType);
             return ctxt.extractScalarFromObject(p, this, _valueClass);
         case JsonTokenId.ID_NUMBER_INT:
             act = _checkIntToStringCoercion(p, ctxt, rawTargetType);
@@ -1428,6 +1429,8 @@ public abstract class StdDeserializer<T>
         case JsonTokenId.ID_NUMBER_FLOAT:
             act = _checkFloatToStringCoercion(p, ctxt, rawTargetType);
             break;
+        case JsonTokenId.ID_START_ARRAY:
+            act = _checkArrayToStringCoercion(p, ctxt, rawTargetType);
         case JsonTokenId.ID_TRUE:
         case JsonTokenId.ID_FALSE:
             act = _checkBooleanToStringCoercion(p, ctxt, rawTargetType);
@@ -1587,6 +1590,20 @@ value, _coercedTypeDesc());
         throws IOException
     {
         return _checkToStringCoercion(p, ctxt, rawTargetType, p.getBooleanValue(), CoercionInputShape.Boolean);
+    }
+    
+    protected CoercionAction _checkArrayToStringCoercion(JsonParser p, DeserializationContext ctxt,
+            Class<?> rawTargetType)
+        throws IOException
+    {
+        return _checkToStringCoercion(p, ctxt, rawTargetType, p.getText(), CoercionInputShape.Array);
+    }
+
+    protected CoercionAction _checkObjectToStringCoercion(JsonParser p, DeserializationContext ctxt,
+                                                         Class<?> rawTargetType)
+            throws IOException
+    {
+        return _checkToStringCoercion(p, ctxt, rawTargetType, p.getText(), CoercionInputShape.Object);
     }
 
     /**

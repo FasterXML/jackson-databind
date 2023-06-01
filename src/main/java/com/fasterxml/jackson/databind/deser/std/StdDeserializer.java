@@ -1606,8 +1606,8 @@ value, _coercedTypeDesc());
      * @since 2.16
      */
     protected CoercionAction _checkObjectToStringCoercion(JsonParser p, DeserializationContext ctxt,
-                                                         Class<?> rawTargetType)
-            throws IOException
+            Class<?> rawTargetType)
+        throws IOException
     {
         return _checkToStringCoercion(p, ctxt, rawTargetType, p.getText(), CoercionInputShape.Object);
     }

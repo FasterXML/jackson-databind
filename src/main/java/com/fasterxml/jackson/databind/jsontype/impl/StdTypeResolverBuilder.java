@@ -177,9 +177,10 @@ public class StdTypeResolverBuilder
             // 04-Jan-2023, tatu: Actually as per [databind#3711] that won't quite work so:
             return AsDeductionTypeSerializer.instance();
         }
-
+        
         TypeIdResolver idRes = idResolver(config, baseType, subTypeValidator(config),
                 subtypes, true, false);
+//        _includeAs =PR
         switch (_includeAs) {
         case WRAPPER_ARRAY:
             return new AsArrayTypeSerializer(idRes, null);
@@ -220,6 +221,12 @@ public class StdTypeResolverBuilder
         //    of basetypes might be denied or allowed
         final PolymorphicTypeValidator subTypeValidator = verifyBaseTypeValidity(config, baseType);
 
+        // [databind#3943]
+        JsonTypeInfo.Value overrides = config.getDefaultPolymorphicTypeHandling(baseType.getRawClass());
+        if (overrides != null) {
+            this.init(overrides, _customIdResolver);
+        }
+        
         TypeIdResolver idRes = idResolver(config, baseType, subTypeValidator, subtypes, false, true);
 
         JavaType defaultImpl = defineDefaultImpl(config, baseType);
@@ -365,6 +372,7 @@ public class StdTypeResolverBuilder
         // Custom id resolver?
         if (_customIdResolver != null) { return _customIdResolver; }
         if (_idType == null) throw new IllegalStateException("Cannot build, 'init()' not yet called");
+        
         switch (_idType) {
         case DEDUCTION: // Deduction produces class names to be resolved
         case CLASS:

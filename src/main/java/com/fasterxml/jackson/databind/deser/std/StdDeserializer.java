@@ -1591,14 +1591,20 @@ value, _coercedTypeDesc());
     {
         return _checkToStringCoercion(p, ctxt, rawTargetType, p.getBooleanValue(), CoercionInputShape.Boolean);
     }
-    
+
+    /**
+     * @since 2.16
+     */
     protected CoercionAction _checkArrayToStringCoercion(JsonParser p, DeserializationContext ctxt,
             Class<?> rawTargetType)
         throws IOException
     {
         return _checkToStringCoercion(p, ctxt, rawTargetType, p.getText(), CoercionInputShape.Array);
     }
-
+    
+    /**
+     * @since 2.16
+     */
     protected CoercionAction _checkObjectToStringCoercion(JsonParser p, DeserializationContext ctxt,
                                                          Class<?> rawTargetType)
             throws IOException

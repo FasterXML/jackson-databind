@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 
-public class PolymorphicHandlingOverrideTest extends BaseMapTest {
+public class PolymorphicHandlingOverride3943Test extends BaseMapTest {
     
     /*
     /**********************************************************
@@ -24,6 +24,18 @@ public class PolymorphicHandlingOverrideTest extends BaseMapTest {
     static class Squid extends Fish {
         public Squid() {
             this.id = "sqqq";
+        }
+    }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_ARRAY, property = "NOTHING")
+    @JsonSubTypes({@JsonSubTypes.Type(Impl3943.class)})
+    static abstract class Base3943 {
+        public String id;
+    }
+
+    static class Impl3943 extends Base3943 {
+        public Impl3943() {
+            this.id = "someImpl";
         }
     }
 
@@ -53,11 +65,23 @@ public class PolymorphicHandlingOverrideTest extends BaseMapTest {
         final JsonTypeInfo.Value typeInfo = JsonTypeInfo.Value.construct(JsonTypeInfo.Id.NAME, JsonTypeInfo.As.PROPERTY,
                 "_some_type", null, false, true);
         ObjectMapper m = jsonMapperBuilder()
-                .withConfigOverride(Squid.class, cfg -> cfg.setPolymorphicTypeHandling(typeInfo)).build();
+                .withConfigOverride(Fish.class, cfg -> cfg.setPolymorphicTypeHandling(typeInfo)).build();
 
         // Assert
-        assertEquals(a2q("{'_some_type':'PolymorphicHandlingOverrideTest$Squid','id':'sqqq'}"),
+        assertEquals(a2q("{'_some_type':'PolymorphicHandlingOverride3943Test$Squid','id':'sqqq'}"),
                 m.writeValueAsString(new Squid()));
+    }
+
+    public void testPolymorphicTypeHandlingViaConfigOverride2() throws Exception {
+        // Override property-name
+        final JsonTypeInfo.Value typeInfo = JsonTypeInfo.Value.construct(JsonTypeInfo.Id.NAME, JsonTypeInfo.As.PROPERTY,
+                "_some_type", null, false, true);
+        ObjectMapper m = jsonMapperBuilder()
+                .withConfigOverride(Base3943.class, cfg -> cfg.setPolymorphicTypeHandling(typeInfo)).build();
+
+        // Assert
+        assertEquals(a2q("{'_some_type':'PolymorphicHandlingOverride3943Test$Impl3943','id':'someImpl'}"),
+                m.writeValueAsString(new Impl3943()));
     }
 
     /**
@@ -71,7 +95,7 @@ public class PolymorphicHandlingOverrideTest extends BaseMapTest {
         // first: mismatch with value unless case-sensitivity disabled:
         try {
             jsonMapperBuilder()
-                    .withConfigOverride(Squid.class, cfg -> cfg.setPolymorphicTypeHandling(typeInfo))
+                    .withConfigOverride(Fish.class, cfg -> cfg.setPolymorphicTypeHandling(typeInfo))
                     .build()
                     .readValue(serialised, Filter.class);
             fail("Should not pass");
@@ -81,7 +105,7 @@ public class PolymorphicHandlingOverrideTest extends BaseMapTest {
 
         // Type id ("value") mismatch, should work now:
         Filter result = jsonMapperBuilder()
-                .withConfigOverride(Squid.class, cfg -> cfg.setPolymorphicTypeHandling(typeInfo))
+                .withConfigOverride(Fish.class, cfg -> cfg.setPolymorphicTypeHandling(typeInfo))
                 .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_VALUES)
                 .build()
                 .readValue(serialised, Filter.class);
@@ -98,7 +122,7 @@ public class PolymorphicHandlingOverrideTest extends BaseMapTest {
 
         try {
             jsonMapperBuilder()
-                    .withConfigOverride(Squid.class, cfg -> cfg.setPolymorphicTypeHandling(typeInfo))
+                    .withConfigOverride(Fish.class, cfg -> cfg.setPolymorphicTypeHandling(typeInfo))
                     .build()
                     .readValue(serialised, Filter.class);
             fail("Should not pass");
@@ -109,7 +133,7 @@ public class PolymorphicHandlingOverrideTest extends BaseMapTest {
         // Type property name mismatch (but value match); should work:
         Filter result = jsonMapperBuilder()
                 .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
-                .withConfigOverride(Squid.class, cfg -> cfg.setPolymorphicTypeHandling(typeInfo))
+                .withConfigOverride(Fish.class, cfg -> cfg.setPolymorphicTypeHandling(typeInfo))
                 .build()
                 .readValue(serialised, Filter.class);
 

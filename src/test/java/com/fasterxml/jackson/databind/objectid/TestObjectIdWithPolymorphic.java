@@ -110,15 +110,20 @@ public class TestObjectIdWithPolymorphic extends BaseMapTest
 
     public void testPolymorphicRoundtrip() throws Exception
     {
+        final JsonTypeInfo.Value typeInfo = JsonTypeInfo.Value.construct(JsonTypeInfo.Id.CLASS, JsonTypeInfo.As.PROPERTY,
+                "@class", null, false, null);
+        ObjectMapper mpr = jsonMapperBuilder()
+                .withConfigOverride(Base.class, cfg -> cfg.setPolymorphicTypeHandling(typeInfo)).build();
+
         // create simple 2 node loop:
         Impl in1 = new Impl(123, 456);
         in1.next = new Impl(111, 222);
         in1.next.next = in1;
 
-        String json = mapper.writeValueAsString(in1);
+        String json = mpr.writeValueAsString(in1);
 
         // then bring back...
-        Base result0 = mapper.readValue(json, Base.class);
+        Base result0 = mpr.readValue(json, Base.class);
         assertNotNull(result0);
         assertSame(Impl.class, result0.getClass());
         Impl result = (Impl) result0;
@@ -154,5 +159,61 @@ public class TestObjectIdWithPolymorphic extends BaseMapTest
         assertSame(p, p.children.get(0).owner);
         assertSame(p, p.children.get(1).owner);
         assertSame(p, p.children.get(2).owner);
+    }
+
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
+    @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "id")
+    static abstract class Base3943 {
+        public int value;
+        public Impl3943 next;
+
+        public Base3943() {
+            this(0);
+        }
+
+        public Base3943(int v) {
+            value = v;
+        }
+    }
+
+    static class Impl3943 extends Base3943 {
+        public int extra;
+
+        public Impl3943() {
+            this(0, 0);
+        }
+
+        public Impl3943(int v, int e) {
+            super(v);
+            extra = e;
+        }
+    }
+
+    // [databind#3943] use config overrides to force type info inclusion
+    public void testWithConfigOverrides() throws Exception {
+        final JsonTypeInfo.Value typeInfo = JsonTypeInfo.Value.construct(JsonTypeInfo.Id.CLASS, JsonTypeInfo.As.PROPERTY,
+                "@class", null, false, null);
+        ObjectMapper mpr = jsonMapperBuilder()
+                .withConfigOverride(Base3943.class, cfg -> cfg.setPolymorphicTypeHandling(typeInfo)).build();
+
+        // create simple 2 node loop:
+        Impl3943 in1 = new Impl3943(1, 2);
+        in1.next = new Impl3943(3, 4);
+        in1.next.next = in1;
+
+        String json = mpr.writeValueAsString(in1);
+
+        // then bring back...
+        Base3943 result0 = mpr.readValue(json, Base3943.class);
+        assertNotNull(result0);
+        assertSame(Impl3943.class, result0.getClass());
+        Impl3943 result = (Impl3943) result0;
+        assertEquals(1, result.value);
+        assertEquals(2, result.extra);
+        Impl3943 reImpl3943 = (Impl3943) result.next;
+        assertEquals(3, reImpl3943.value);
+        assertEquals(4, reImpl3943.extra);
+        assertSame(result, reImpl3943.next);
     }
 }

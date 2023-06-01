@@ -1510,13 +1510,13 @@ public class JacksonAnnotationIntrospector
     {
         // since 2.16 : backporting {@link JsonTypeInfo.Value} from 3.0
         JsonTypeInfo.Value typeInfo = findPolymorphicTypeInfo(config, ann);
-        // [databind#3943] Add config-override system using JsonTypeInfo.Valu
-        JavaType superClz = baseType.getSuperClass();
-        if (superClz != null) {
-            JsonTypeInfo.Value overrides2 = config.getDefaultPolymorphicTypeHandling(
-                    baseType.getSuperClass().getRawClass());
-            if (overrides2 != null) {
-                typeInfo = overrides2;
+        // [databind#3943] Add config-override system for JsonTypeInfo.Value
+        JavaType superClazz = baseType.getSuperClass();
+        if (superClazz != null) {
+            JsonTypeInfo.Value overrideTypeInfo = config.getDefaultPolymorphicTypeHandling(
+                    superClazz.getRawClass());
+            if (overrideTypeInfo != null) {
+                typeInfo = overrideTypeInfo;
             }
         }
         
@@ -1566,12 +1566,6 @@ public class JacksonAnnotationIntrospector
         }
         
         b = b.init(typeInfo, idRes);
-        // [databind#3943] Add config-override system using JsonTypeInfo.Valu
-//        JsonTypeInfo.Value overrides = config.getDefaultPolymorphicTypeHandling(
-//                baseType.getRawClass());
-//        if (overrides != null) {
-//            b = b.init(overrides, idRes);
-//        }
         return b;
     }
 

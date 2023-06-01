@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.cfg;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -54,8 +53,6 @@ public class ConfigOverrides
      * @since 2.10
      */
     protected Boolean _defaultLeniency;
-    
-    protected JsonTypeInfo.Value _polymorphicTypeHandling;
 
     /*
     /**********************************************************************
@@ -69,7 +66,7 @@ public class ConfigOverrides
                 JsonInclude.Value.empty(),
                 JsonSetter.Value.empty(),
                 VisibilityChecker.Std.defaultInstance(),
-                null, null, null
+                null, null
         );
     }
 
@@ -78,8 +75,7 @@ public class ConfigOverrides
      */
     protected ConfigOverrides(Map<Class<?>, MutableConfigOverride> overrides,
             JsonInclude.Value defIncl, JsonSetter.Value defSetter,
-            VisibilityChecker<?> defVisibility, Boolean defMergeable, Boolean defLeniency,
-                              JsonTypeInfo.Value defPolymorphicTypeHandling)
+            VisibilityChecker<?> defVisibility, Boolean defMergeable, Boolean defLeniency)
     {
         _overrides = overrides;
         _defaultInclusion = defIncl;
@@ -87,7 +83,6 @@ public class ConfigOverrides
         _visibilityChecker = defVisibility;
         _defaultMergeable = defMergeable;
         _defaultLeniency = defLeniency;
-        _polymorphicTypeHandling  = defPolymorphicTypeHandling;
     }
 
     /**
@@ -97,7 +92,7 @@ public class ConfigOverrides
     protected ConfigOverrides(Map<Class<?>, MutableConfigOverride> overrides,
             JsonInclude.Value defIncl, JsonSetter.Value defSetter,
             VisibilityChecker<?> defVisibility, Boolean defMergeable) {
-        this(overrides, defIncl, defSetter, defVisibility, defMergeable, null, null);
+        this(overrides, defIncl, defSetter, defVisibility, defMergeable, null);
     }
 
     public ConfigOverrides copy()
@@ -113,7 +108,7 @@ public class ConfigOverrides
         }
         return new ConfigOverrides(newOverrides,
                 _defaultInclusion, _defaultSetterInfo, _visibilityChecker,
-                _defaultMergeable, _defaultLeniency, _polymorphicTypeHandling);
+                _defaultMergeable, _defaultLeniency);
     }
 
     /*

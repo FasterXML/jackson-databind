@@ -220,12 +220,6 @@ public class StdTypeResolverBuilder
         //    of basetypes might be denied or allowed
         final PolymorphicTypeValidator subTypeValidator = verifyBaseTypeValidity(config, baseType);
 
-        // [databind#3943]
-        JsonTypeInfo.Value overrides = config.getDefaultPolymorphicTypeHandling(baseType.getRawClass());
-        if (overrides != null) {
-            this.init(overrides, _customIdResolver);
-        }
-        
         TypeIdResolver idRes = idResolver(config, baseType, subTypeValidator, subtypes, false, true);
 
         JavaType defaultImpl = defineDefaultImpl(config, baseType);

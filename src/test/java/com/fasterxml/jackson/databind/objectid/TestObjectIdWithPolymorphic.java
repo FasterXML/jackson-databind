@@ -190,7 +190,7 @@ public class TestObjectIdWithPolymorphic extends BaseMapTest
         }
     }
 
-    // [databind#3943] use config overrides to force type info inclusion
+    // [databind#3943] Add config-override system for JsonTypeInfo.Value
     public void testWithConfigOverrides() throws Exception {
         final JsonTypeInfo.Value typeInfo = JsonTypeInfo.Value.construct(JsonTypeInfo.Id.CLASS, JsonTypeInfo.As.PROPERTY,
                 "@class", null, false, null);

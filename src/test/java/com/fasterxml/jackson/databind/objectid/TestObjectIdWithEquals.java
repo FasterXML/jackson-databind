@@ -73,6 +73,33 @@ public class TestObjectIdWithEquals extends BaseMapTest
         }
     }
 
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.WRAPPER_OBJECT, property = "_class_to_override")
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "uri")
+    static class Element3943 {
+        public URI uri;
+        public String name;
+
+        @Override
+        public boolean equals(Object object) {
+            if (object == this) {
+                return true;
+            } else if (object == null || !(object instanceof Element3943)) {
+                return false;
+            } else {
+                Element3943 element = (Element3943) object;
+                if (element.uri.toString().equalsIgnoreCase(this.uri.toString())) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public int hashCode() {
+            return uri.hashCode();
+        }
+    }
+
     /*
     /******************************************************
     /* Test methods
@@ -131,6 +158,39 @@ public class TestObjectIdWithEquals extends BaseMapTest
                 .writeValueAsString(input);
 
         Element[] output = mapper.readValue(json, Element[].class);
+        assertNotNull(output);
+        assertEquals(2, output.length);
+    }
+
+    // [databind#3943] Add config-override system for JsonTypeInfo.Value
+    public void testEqualObjectIdsExternalWithOverrides() throws Exception
+    {
+        Element3943 element = new Element3943();
+        element.uri = URI.create("URI");
+        element.name = "Element39431";
+
+        Element3943 element2 = new Element3943();
+        element2.uri = URI.create("URI");
+        element2.name = "Element39432";
+
+        // 12-Nov-2015, tatu: array works fine regardless of Type Erasure, but if using List,
+        //   must provide additional piece of type info
+//        Element3943[] input = new Element3943[] { element, element2 };
+        List<Element3943> input = Arrays.asList(element, element2);
+
+        final JsonTypeInfo.Value typeInfo = JsonTypeInfo.Value.construct(JsonTypeInfo.Id.CLASS, JsonTypeInfo.As.PROPERTY,
+                "@class", null, false, null);
+        ObjectMapper mapper = jsonMapperBuilder()
+                .enable(SerializationFeature.USE_EQUALITY_FOR_OBJECT_ID)
+                .withConfigOverride(Element3943.class, cfg -> cfg.setPolymorphicTypeHandling(typeInfo)).build();
+                
+                
+
+//        String json = mapper.writeValueAsString(input);
+        String json = mapper.writerFor(new TypeReference<List<Element3943>>() { })
+                .writeValueAsString(input);
+
+        Element3943[] output = mapper.readValue(json, Element3943[].class);
         assertNotNull(output);
         assertEquals(2, output.length);
     }

@@ -872,9 +872,13 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     @Override
     public JsonTypeInfo.Value getDefaultPolymorphicTypeHandling(Class<?> baseType)
     {
-        ConfigOverride overrides = _configOverrides.findOverride(baseType);
-        if (overrides != null) {
-            return overrides.getPolymorphicTypeHandling();
+        ConfigOverride superOverride = _configOverrides.findOverride(baseType.getSuperclass());
+        if (superOverride != null) {
+            return superOverride.getPolymorphicTypeHandling();
+        }
+        ConfigOverride baseOverride = _configOverrides.findOverride(baseType);
+        if (baseOverride != null) {
+            return baseOverride.getPolymorphicTypeHandling();
         }
         return null;
     }

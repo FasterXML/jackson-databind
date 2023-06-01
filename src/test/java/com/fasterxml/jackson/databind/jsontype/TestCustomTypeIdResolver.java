@@ -24,6 +24,18 @@ public class TestCustomTypeIdResolver extends BaseMapTest
         public CustomBeanImpl(int x) { this.x = x; }
     }
 
+    // TODO : add test case for override on this one 
+//    @JsonTypeInfo(use=Id.CUSTOM, include=As.WRAPPER_OBJECT)
+//    @JsonTypeIdResolver(CustomResolver.class)
+//    static abstract class CustomBean { }
+//
+//    static class CustomBeanImpl extends CustomBean {
+//        public int x;
+//
+//        public CustomBeanImpl() { }
+//        public CustomBeanImpl(int x) { this.x = x; }
+//    }
+
     static class ExtBeanWrapper {
         @JsonTypeInfo(use=Id.CUSTOM, include=As.EXTERNAL_PROPERTY, property="type")
         @JsonTypeIdResolver(ExtResolver.class)

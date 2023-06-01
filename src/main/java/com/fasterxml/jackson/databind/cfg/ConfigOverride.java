@@ -141,23 +141,6 @@ public abstract class ConfigOverride
     }
 
     /**
-     * @since 2.16 (backported from Jackson 3.0)
-     */
-    @Override
-    public String toString() {
-        return new StringBuilder("[ConfigOverrides ")
-                .append("format=").append(_format)
-                .append(", include=").append(_include).append("/").append(_includeAsProperty)
-                .append(", ignorals=").append(_ignorals)
-                .append(", ignoredType=").append(_isIgnoredType)
-                .append(", nulls=").append(_ignorals)
-                .append(", visibility=").append(_visibility)
-                .append(", merge=").append(_mergeable)
-                .append(", polymorphic=").append(_polymorphicTypeHandling)
-                .toString();
-    }
-
-    /**
      * Implementation used solely for "empty" instance; has no mutators
      * and is not changed by core functionality.
      *

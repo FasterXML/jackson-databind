@@ -2209,11 +2209,6 @@ trailingToken, ClassUtil.nameOf(targetType)
     /**********************************************************
      */
 
-    @Deprecated // since 2.12, remove from 2.13 or later
-    protected DateFormat getDateFormat() {
-        return _getDateFormat();
-    }
-
     protected DateFormat _getDateFormat() {
         if (_dateFormat != null) {
             return _dateFormat;
@@ -2228,47 +2223,14 @@ trailingToken, ClassUtil.nameOf(targetType)
         return df;
     }
 
-    // @since 2.12
     /**
      * Helper method for constructing description like "Object value" given
      * {@link JsonToken} encountered.
+     *
+     * @since 2.12
      */
     protected String _shapeForToken(JsonToken t) {
-        if (t != null) {
-            switch (t) {
-            // Likely Object values
-            case START_OBJECT:
-            case END_OBJECT:
-            case FIELD_NAME:
-                return "Object value";
-
-            // Likely Array values
-            case START_ARRAY:
-            case END_ARRAY:
-                return "Array value";
-
-            case VALUE_FALSE:
-            case VALUE_TRUE:
-                return "Boolean value";
-
-            case VALUE_EMBEDDED_OBJECT:
-                return "Embedded Object";
-
-            case VALUE_NUMBER_FLOAT:
-                return "Floating-point value";
-            case VALUE_NUMBER_INT:
-                return "Integer value";
-            case VALUE_STRING:
-                return "String value";
-
-            case VALUE_NULL:
-                return "Null value";
-
-            case NOT_AVAILABLE:
-            default:
-                return "[Unavailable value]";
-            }
-        }
-        return "<end of input>";
+        // @since 2.16:
+        return JsonToken.valueDescFor(t);
     }
 }

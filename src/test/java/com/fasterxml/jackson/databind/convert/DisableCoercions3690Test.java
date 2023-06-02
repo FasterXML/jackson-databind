@@ -85,13 +85,15 @@ public class DisableCoercions3690Test extends BaseMapTest
     private void _verifyFailedCoercionWithInvalidFormat(ObjectMapper objectMapper, JavaType inputType, String[] input) 
         throws Exception
     {
+        String jsonStr = input[0];
+        String inputMessage = input[1];
+        String targetTypeMessage = input[2];
         try {
-            objectMapper.readValue(input[0], inputType);
+            objectMapper.readValue(jsonStr, inputType);
             fail("Should not pass");
         } catch (InvalidFormatException e) {
             assertEquals(String.class, e.getTargetType());
-            verifyException(e, input[1]);
-            verifyException(e, input[2]);
+            verifyException(e, inputMessage, targetTypeMessage);
         }
     }
 }

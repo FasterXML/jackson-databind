@@ -46,12 +46,10 @@ public class EnumDeserialization3369Test
     /**********************************************************************
      */
 
-    protected final ObjectMapper MAPPER = new ObjectMapper();
-
     // [databind#3369]
     public void testReadEnums3369() throws Exception
     {
-        final ObjectReader R = MAPPER.readerFor(Data3369.class);
+        final ObjectReader R = newJsonMapper().readerFor(Data3369.class);
 
         Data3369 data = R.readValue("{\"value\" : \"a\", \"person\" : \"Jeff\", \"age\" : 30}");
         _verify3369(data, Enum3369.A);

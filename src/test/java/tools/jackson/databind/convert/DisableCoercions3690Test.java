@@ -9,12 +9,13 @@ import tools.jackson.databind.exc.InvalidFormatException;
 
 public class DisableCoercions3690Test extends BaseMapTest
 {
+    // [databind#3690]
     static class Input3690 {
         public List<String> field;
     }
 
     // [databind#3690]
-    public void testFailMessage3690() throws Exception
+    public void testCoercionFail3690() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .withCoercionConfigDefaults(config -> {
@@ -31,6 +32,8 @@ public class DisableCoercions3690Test extends BaseMapTest
             mapper.readValue(json, Input3690.class);
             fail("Should not pass");
         } catch (InvalidFormatException e) {
+            assertEquals(String.class, e.getTargetType());
+            assertEquals(Integer.valueOf(1), e.getValue());
             verifyException(e, "Cannot coerce Integer value (1)");
             verifyException(e, "to `java.lang.String` value");
         }

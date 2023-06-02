@@ -2064,41 +2064,6 @@ trailingToken, ClassUtil.nameOf(targetType)
      * {@link JsonToken} encountered.
      */
     protected String _shapeForToken(JsonToken t) {
-        if (t != null) {
-            switch (t) {
-            // Likely Object values
-            case START_OBJECT:
-            case END_OBJECT:
-            case PROPERTY_NAME:
-                return "Object value";
-
-            // Likely Array values
-            case START_ARRAY:
-            case END_ARRAY:
-                return "Array value";
-
-            case VALUE_FALSE:
-            case VALUE_TRUE:
-                return "Boolean value";
-
-            case VALUE_EMBEDDED_OBJECT:
-                return "Embedded Object";
-
-            case VALUE_NUMBER_FLOAT:
-                return "Floating-point value";
-            case VALUE_NUMBER_INT:
-                return "Integer value";
-            case VALUE_STRING:
-                return "String value";
-
-            case VALUE_NULL:
-                return "Null value";
-
-            case NOT_AVAILABLE:
-            default:
-                return "[Unavailable value]";
-            }
-        }
-        return "<end of input>";
+        return JsonToken.valueDescFor(t);
     }
 }

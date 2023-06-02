@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.*;
 public class EnumDeserialization3369Test
     extends BaseMapTest
 {
-
     @JsonIgnoreProperties(ignoreUnknown = true)
     static class Data3369 {
         public Enum3369 value;
@@ -60,11 +59,16 @@ public class EnumDeserialization3369Test
         data = R.readValue("{\"value\" : \"e\", \"person\" : \"Jeff\", \"age\" : 30}");
         _verify3369(data, null);
 
+        // 01-Jun-2023, tatu: These are wrong, should not pass. See [databind#3956]
+        //   for further changes
+
+        /*
         data = R.readValue("{\"value\" : [\"a\"], \"person\" : \"Jeff\", \"age\" : 30}");
         _verify3369(data, null);
 
         data = R.readValue("{\"value\" : {\"a\":{}}, \"person\" : \"Jeff\", \"age\": 30}");
         _verify3369(data, null);
+        */
     }
 
     private void _verify3369(Data3369 data, Enum3369 expEnum) {

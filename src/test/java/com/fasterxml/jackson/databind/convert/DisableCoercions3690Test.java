@@ -89,6 +89,7 @@ public class DisableCoercions3690Test extends BaseMapTest
             objectMapper.readValue(input[0], inputType);
             fail("Should not pass");
         } catch (InvalidFormatException e) {
+            assertEquals(String.class, e.getTargetType());
             verifyException(e, input[1]);
             verifyException(e, input[2]);
         }

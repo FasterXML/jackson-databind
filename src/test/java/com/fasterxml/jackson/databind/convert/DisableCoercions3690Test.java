@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import java.util.List;
 
@@ -52,11 +53,11 @@ public class DisableCoercions3690Test extends BaseMapTest
             verifyException(e, "to `java.lang.String` value");
         }
     }
-    
+
     // [databind#3924]
     public void testFailMessage3924() throws Exception {
         // Arrange : Building a strict ObjectMapper.
-        ObjectMapper objectMapper = jsonMapperBuilder()
+        ObjectMapper mapper = jsonMapperBuilder()
                 .withCoercionConfigDefaults(config -> {
                     config.setCoercion(CoercionInputShape.Boolean, CoercionAction.Fail)
                         .setCoercion(CoercionInputShape.Integer, CoercionAction.Fail)
@@ -68,35 +69,34 @@ public class DisableCoercions3690Test extends BaseMapTest
                 .build();
 
         // Arrange : Type configuration 
-        TypeFactory typeFactory = objectMapper.getTypeFactory();
+        TypeFactory typeFactory = mapper.getTypeFactory();
         JavaType arrayType = typeFactory.constructParametricType(List.class, String.class);
         JavaType inputType = typeFactory.constructParametricType(Input3924.class, arrayType);
-        
-        // Arrange : Input data
-        String[][] inputs = new String[][]{
-                new String[]{"{ \"field\": [ 1 ] }", "Cannot coerce Integer value (1)", "to `java.lang.String` value"},
-                new String[]{"{ \"field\": [ [ 1 ] ] }", "Cannot coerce Array value ([)", "to `java.lang.String` value"},
-                new String[]{"{ \"field\": [ { \"field\": 1 } ] }", "Cannot coerce Object value ({)", "to `java.lang.String` value"}
-        };
 
         // Act & Assert
-        for (String[] input : inputs) {
-            _verifyFailedCoercionWithInvalidFormat(objectMapper, inputType, input);
-        }
+        _verifyFailedCoercionWithInvalidFormat("{ \"field\": [ 1 ] }", 
+                "Cannot coerce Integer value (1) to `java.lang.String` value",
+                mapper, inputType);
+        
+        _verifyFailedCoercionWithInvalidFormat("{ \"field\": [ [ 1 ] ] }", 
+                "Cannot deserialize value of type `java.lang.String` from START_ARRAY", 
+                mapper, inputType);
+        
+        _verifyFailedCoercionWithInvalidFormat("{ \"field\": [ { \"field\": 1 } ] }",
+                "Cannot deserialize value of type `java.lang.String` from START_OBJECT",
+                mapper, inputType);
+        
     }
 
-    private void _verifyFailedCoercionWithInvalidFormat(ObjectMapper objectMapper, JavaType inputType, String[] input) 
-        throws Exception
+    private void _verifyFailedCoercionWithInvalidFormat(String jsonStr, String expectedMsg, ObjectMapper mapper, 
+                                                        JavaType inputType) throws Exception 
     {
-        String jsonStr = input[0];
-        String inputMessage = input[1];
-        String targetTypeMessage = input[2];
         try {
-            objectMapper.readValue(jsonStr, inputType);
+            mapper.readValue(jsonStr, inputType);
             fail("Should not pass");
-        } catch (InvalidFormatException e) {
+        } catch (MismatchedInputException e) {
             assertEquals(String.class, e.getTargetType());
-            verifyException(e, inputMessage, targetTypeMessage);
+            verifyException(e, expectedMsg);
         }
     }
 }

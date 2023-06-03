@@ -79,11 +79,11 @@ public class DisableCoercions3690Test extends BaseMapTest
                 mapper, inputType);
         
         _verifyFailedCoercionWithInvalidFormat("{ \"field\": [ [ 1 ] ] }", 
-                "Cannot deserialize value of type `java.lang.String` from START_ARRAY", 
+                "Cannot deserialize value of type `java.lang.String` from Array value", 
                 mapper, inputType);
         
         _verifyFailedCoercionWithInvalidFormat("{ \"field\": [ { \"field\": 1 } ] }",
-                "Cannot deserialize value of type `java.lang.String` from START_OBJECT",
+                "Cannot deserialize value of type `java.lang.String` from Object value",
                 mapper, inputType);
         
     }

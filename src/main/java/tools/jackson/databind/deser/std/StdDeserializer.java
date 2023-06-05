@@ -1283,7 +1283,7 @@ public abstract class StdDeserializer<T>
             return ob.toString();
         // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
         case JsonTokenId.ID_START_OBJECT:
-            return ctxt.extractScalarFromObject(p, this, _valueClass);
+            return ctxt.extractScalarFromObject(p, this, rawTargetType);
         case JsonTokenId.ID_NUMBER_INT:
             act = _checkIntToStringCoercion(p, ctxt, rawTargetType);
             break;
@@ -1315,7 +1315,7 @@ public abstract class StdDeserializer<T>
                 return text;
             }
         }
-        return (String) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
+        return (String) ctxt.handleUnexpectedToken(rawTargetType, p);
     }
 
     /**

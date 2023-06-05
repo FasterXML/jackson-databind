@@ -6,12 +6,26 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.CoercionAction;
 import tools.jackson.databind.cfg.CoercionInputShape;
 import tools.jackson.databind.exc.InvalidFormatException;
+import tools.jackson.databind.exc.MismatchedInputException;
+import tools.jackson.databind.type.TypeFactory;
 
 public class DisableCoercions3690Test extends BaseMapTest
 {
     // [databind#3690]
     static class Input3690 {
         public List<String> field;
+    }
+
+    static class Input3924<T> {
+        private T field;
+
+        public T getField() {
+            return field;
+        }
+
+        public void setField(T field) {
+            this.field = field;
+        }
     }
 
     // [databind#3690]
@@ -36,6 +50,51 @@ public class DisableCoercions3690Test extends BaseMapTest
             assertEquals(Integer.valueOf(1), e.getValue());
             verifyException(e, "Cannot coerce Integer value (1)");
             verifyException(e, "to `java.lang.String` value");
+        }
+    }
+
+    // [databind#3924]
+    public void testFailMessage3924() throws Exception {
+        // Arrange : Building a strict ObjectMapper.
+        ObjectMapper mapper = jsonMapperBuilder()
+                .withCoercionConfigDefaults(config -> {
+                    config.setCoercion(CoercionInputShape.Boolean, CoercionAction.Fail)
+                        .setCoercion(CoercionInputShape.Integer, CoercionAction.Fail)
+                        .setCoercion(CoercionInputShape.Float, CoercionAction.Fail)
+                        .setCoercion(CoercionInputShape.String, CoercionAction.Fail)
+                        .setCoercion(CoercionInputShape.Array, CoercionAction.Fail)
+                        .setCoercion(CoercionInputShape.Object, CoercionAction.Fail);
+                })
+                .build();
+
+        // Arrange : Type configuration 
+        TypeFactory typeFactory = mapper.getTypeFactory();
+        JavaType arrayType = typeFactory.constructParametricType(List.class, String.class);
+        JavaType inputType = typeFactory.constructParametricType(Input3924.class, arrayType);
+
+        // Act & Assert
+        _verifyFailedCoercionWithInvalidFormat("{ \"field\": [ 1 ] }",
+                "Cannot coerce Integer value (1) to `java.lang.String` value",
+                mapper, inputType);
+
+        _verifyFailedCoercionWithInvalidFormat("{ \"field\": [ [ 1 ] ] }", 
+                "Cannot deserialize value of type `java.lang.String` from Array value", 
+                mapper, inputType);
+
+        _verifyFailedCoercionWithInvalidFormat("{ \"field\": [ { \"field\": 1 } ] }",
+                "Cannot deserialize value of type `java.lang.String` from Object value",
+                mapper, inputType);
+    }
+
+    private void _verifyFailedCoercionWithInvalidFormat(String jsonStr, String expectedMsg, ObjectMapper mapper, 
+                                                        JavaType inputType) throws Exception
+    {
+        try {
+            mapper.readValue(jsonStr, inputType);
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
+            assertEquals(String.class, e.getTargetType());
+            verifyException(e, expectedMsg);
         }
     }
 }

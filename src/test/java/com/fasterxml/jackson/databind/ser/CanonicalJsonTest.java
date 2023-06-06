@@ -1,11 +1,8 @@
 package com.fasterxml.jackson.databind.ser;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -14,27 +11,20 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test; // TODO JUnit 4 or 5 for tests?
 
-import com.google.common.collect.Lists;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.StreamWriteFeature;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper.Builder;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.google.common.collect.Lists;
 
 class CanonicalJsonTest {
 
-    private static final ObjectMapper MAPPER = JsonMapper.builder().build();
     private static final double NEGATIVE_ZERO = -0.;
+    private static final JsonAssert JSON_ASSERT = new JsonAssert();
+    private static final JsonTestResource CANONICAL_1 = new JsonTestResource("/data/canonical-1.json");
 
     // TODO There are several ways to make sure we really have a negative sign.
     // Double.toString(NEGATIVE_ZERO) seems to be the most simple.
@@ -110,7 +100,7 @@ class CanonicalJsonTest {
 
     @Test
     void testCanonicalJsonSerialization() throws Exception {
-        JsonNode expected = loadData("canonical-1.json");
+        JsonNode expected = JSON_ASSERT.loadResource(CANONICAL_1);
         JsonNode actual = buildTestData();
 
         assertCanonicalJson(expected, actual);
@@ -118,7 +108,7 @@ class CanonicalJsonTest {
 
     @Test
     void testCanonicalJsonSerializationRandomizedChildren() throws Exception {
-        JsonNode expected = loadData("canonical-1.json");
+        JsonNode expected = JSON_ASSERT.loadResource(CANONICAL_1);
         JsonNode actual = randomize(buildTestData());
 
         assertCanonicalJson(expected, actual);
@@ -126,51 +116,34 @@ class CanonicalJsonTest {
 
     @Test
     void testPrettyJsonSerialization() throws Exception {
-        JsonNode expected = loadData("canonical-1.json");
         JsonNode actual = buildTestData();
 
-        assertPrettyJson(expected, actual);
+        JSON_ASSERT.assertJson(CANONICAL_1, actual);
     }
 
     @Test
     void testPrettyJsonSerializationRandomizedChildren() throws Exception {
-        JsonNode expected = loadData("canonical-1.json");
         JsonNode actual = randomize(buildTestData());
 
-        assertPrettyJson(expected, actual);
+        JSON_ASSERT.assertJson(CANONICAL_1, actual);
     }
 
-    private void assertSerialized(String expected, Object input, JsonMapper.Builder builder) throws JsonProcessingException {
-        ObjectMapper mapper = builder.build();
-
-        String actual = mapper.writeValueAsString(input);
+    private void assertSerialized(String expected, Object input, JsonMapper mapper) {
+        String actual;
+        try {
+            actual = mapper.writeValueAsString(input);
+        } catch (JsonProcessingException e) {
+            throw new AssertionError("Unable to serialize " + input, e);
+        }
         assertEquals(expected, actual);
     }
 
-    private Builder newCanonicalMapperBuilder() {
-        CanonicalBigDecimalSerializer serializer = new CanonicalBigDecimalSerializer();
-        SimpleModule bigDecimalModule = new BigDecimalModule(serializer);
-
-        JsonFactory factory = new CanonicalJsonFactory(serializer);
-        return sharedConfig(JsonMapper.builder(factory))
-                .addModules(bigDecimalModule);
+    private JsonMapper newCanonicalMapperBuilder() {
+        return CanonicalJsonMapper.builder().build();
     }
 
-    private Builder newPrettyCanonicalMapperBuilder() {
-        PrettyBigDecimalSerializer serializer = new PrettyBigDecimalSerializer();
-        SimpleModule bigDecimalModule = new BigDecimalModule(serializer);
-
-        JsonFactory factory = new CanonicalJsonFactory(serializer);
-        return sharedConfig(JsonMapper.builder(factory)) //
-                .enable(SerializationFeature.INDENT_OUTPUT) // 
-                .enable(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN) //
-                .defaultPrettyPrinter(CanonicalPrettyPrinter.INSTANCE) //
-                .addModules(bigDecimalModule);
-    }
-
-    private JsonMapper.Builder sharedConfig(JsonMapper.Builder builder) {
-        return builder.enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)
-                .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
+    private JsonMapper newPrettyCanonicalMapperBuilder() {
+        return CanonicalJsonMapper.builder().prettyPrint().build();
     }
     
     private JsonNode randomize(JsonNode input) {
@@ -189,29 +162,18 @@ class CanonicalJsonTest {
         }
     }
 
-    private void assertCanonicalJson(JsonNode expected, JsonNode actual) throws JsonProcessingException, IllegalArgumentException {
-        ObjectMapper mapper = newCanonicalMapperBuilder().build();
+    private void assertCanonicalJson(JsonNode expected, JsonNode actual) {
+        ObjectMapper mapper = newCanonicalMapperBuilder();
         assertEquals(serialize(expected, mapper), serialize(actual, mapper));
     }
 
-    private void assertPrettyJson(JsonNode expected, JsonNode actual) throws JsonProcessingException, IllegalArgumentException {
-        ObjectMapper mapper = newPrettyCanonicalMapperBuilder().build();
-        assertEquals(serialize(expected, mapper), serialize(actual, mapper));
-    }
-
-    private String serialize(JsonNode input, ObjectMapper mapper) throws JsonProcessingException, IllegalArgumentException {
-        // TODO Is there a better way to sort the keys than deserializing the whole tree?
-        Object obj = mapper.treeToValue(input, Object.class);
-        return mapper.writeValueAsString(obj);
-    }
-
-    private JsonNode loadData(String fileName) throws IOException {
-        String resource = "/data/" + fileName;
-        try (InputStream stream = getClass().getResourceAsStream(resource)) {
-            // TODO Formatting ok? JUnit 4 or 5 here?
-            assertNotNull("Missing resource " + resource, stream);
-
-            return MAPPER.readTree(stream);
+    private String serialize(JsonNode input, ObjectMapper mapper) {
+        try {
+            // TODO Is there a better way to sort the keys than deserializing the whole tree?
+            Object obj = mapper.treeToValue(input, Object.class);
+            return mapper.writeValueAsString(obj);
+        } catch (JacksonException e) {
+            throw new AssertionError("Unable to serialize " + input, e);
         }
     }
 
@@ -227,36 +189,5 @@ class CanonicalJsonTest {
                 .put("lone surrogate", "\uDEAD") //
                 .put("whitespace", " \t\n\r") //
                 ;
-    }
-
-    public static class PrettyBigDecimalSerializer extends StdSerializer<BigDecimal>
-            implements ValueToString<BigDecimal> {
-        private static final long serialVersionUID = 1L;
-
-        protected PrettyBigDecimalSerializer() {
-            super(BigDecimal.class);
-        }
-
-        @Override
-        public void serialize(BigDecimal value, JsonGenerator gen, SerializerProvider provider)
-                throws IOException {
-            CanonicalNumberGenerator.verifyBigDecimalRange(value, provider);
-
-            String output = convert(value);
-            gen.writeNumber(output);
-        }
-
-        @Override
-        public String convert(BigDecimal value) {
-            return value.stripTrailingZeros().toPlainString();
-        }
-    }
-
-    public static class BigDecimalModule extends SimpleModule {
-        private static final long serialVersionUID = 1L;
-
-        public BigDecimalModule(StdSerializer<BigDecimal> serializer) {
-            addSerializer(BigDecimal.class, serializer);
-        }
     }
 }

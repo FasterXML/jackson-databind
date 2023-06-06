@@ -224,11 +224,6 @@ public class BeanDeserializer
         return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 
-    @Deprecated // since 2.8; remove unless getting used
-    protected Object _missingToken(JsonParser p, DeserializationContext ctxt) throws IOException {
-        throw ctxt.endOfInputException(handledType());
-    }
-
     /**
      * Secondary deserialization method, called in cases where POJO
      * instance is created as part of deserialization, potentially

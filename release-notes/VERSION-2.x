@@ -6,13 +6,17 @@ Project: jackson-databind
 
 2.16.0 (not yet released)
 
+#3924: Incorrect target type when disabling coercion, trying to deserialize
+  String from Array/Object
+ (reported by João G)
+ (fix contributed by Joo-Hyuk K)
 #3928: `@JsonProperty` on constructor parameter changes default field serialization order
  (contributed by @pjfanning)
 #3950: Create new `JavaType` subtype `IterationType` (extending `SimpleType`)
 #3953: Use `JsonTypeInfo.Value` for annotation handling
  (contributed by Joo-Hyuk K)
 
-2.15.2 (not yet released)
+2.15.2 (30-May-2023)
 
 #3938: Record setter not included from interface (2.15 regression)
 

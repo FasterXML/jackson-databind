@@ -6,6 +6,9 @@ Project: jackson-databind
 
 2.16.0 (not yet released)
 
+#3877: Add new `OptBoolean` valued property in `@JsonTypeInfo`, handling,
+   to allow per-polymorphic type loose Type Id handling
+ (contributed by Joo-Hyuk K)
 #3924: Incorrect target type when disabling coercion, trying to deserialize
   String from Array/Object
  (reported by João G)

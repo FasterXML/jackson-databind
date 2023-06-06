@@ -10,6 +10,20 @@ import tools.jackson.databind.ser.std.StdSerializer;
 public class CanonicalBigDecimalSerializer extends StdSerializer<BigDecimal>
         implements ValueToString<BigDecimal> {
 
+    public static final CanonicalBigDecimalSerializer INSTANCE = new CanonicalBigDecimalSerializer();
+    
+    public static final CanonicalNumberSerializerProvider PROVIDER = new CanonicalNumberSerializerProvider() {
+        @Override
+        public StdSerializer<BigDecimal> getNumberSerializer() {
+            return INSTANCE;
+        }
+
+        @Override
+        public ValueToString<BigDecimal> getValueToString() {
+            return INSTANCE;
+        }
+    };
+    
     protected CanonicalBigDecimalSerializer() {
         super(BigDecimal.class);
     }

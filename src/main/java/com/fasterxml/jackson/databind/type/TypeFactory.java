@@ -704,6 +704,23 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
     }
 
     /**
+     * Specialized alternative to {@link #findTypeParameters}
+     *
+     * @since 2.16 (backported from Jackson 3.0)
+     */
+    public JavaType findFirstTypeParameter(JavaType type, Class<?> expType)
+    {
+        JavaType match = type.findSuperType(expType);
+        if (match != null) {
+            JavaType t = match.getBindings().getBoundType(0);
+            if (t != null) {
+                return t;
+            }
+        }
+        return _unknownType();
+    }
+
+    /**
      * @deprecated Since 2.7 resolve raw type first, then find type parameters
      */
     @Deprecated // since 2.7

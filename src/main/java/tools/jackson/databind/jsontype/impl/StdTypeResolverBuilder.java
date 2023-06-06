@@ -31,6 +31,14 @@ public class StdTypeResolverBuilder
     protected boolean _typeIdVisible = false;
 
     /**
+     * 
+     * Boolean value configured through {@link JsonTypeInfo#requireTypeIdForSubtypes}.
+     * If this value is not {@code null}, this value should override the global configuration of
+     * {@link tools.jackson.databind.MapperFeature#REQUIRE_TYPE_ID_FOR_SUBTYPES}. 
+     */
+    protected Boolean _requireTypeIdForSubtypes;
+
+    /**
      * Default class to use in case type information is not available
      * or is broken.
      */
@@ -80,8 +88,6 @@ public class StdTypeResolverBuilder
 
     /**
      * Copy-constructor
-     *
-     * @since 2.13
      */
     protected StdTypeResolverBuilder(StdTypeResolverBuilder base,
             Class<?> defaultImpl)
@@ -379,7 +385,10 @@ public class StdTypeResolverBuilder
 
     /**
      * Determines whether strict type ID handling should be used for this type or not.
-     * This will be enabled when either the type has type resolver annotations or if
+     * This will be enabld as configured by {@link JsonTypeInfo#requireTypeIdForSubtypes()}
+     * unless its value is {@link com.fasterxml.jackson.annotation.OptBoolean#DEFAULT}. 
+     * In case the value of {@link JsonTypeInfo#requireTypeIdForSubtypes()} is {@code OptBoolean.DEFAULT},
+     * this will be enabled when either the type has type resolver annotations or if
      * {@link tools.jackson.databind.MapperFeature#REQUIRE_TYPE_ID_FOR_SUBTYPES}
      * is enabled.
      *
@@ -388,10 +397,12 @@ public class StdTypeResolverBuilder
      *
      * @return {@code true} if the class has type resolver annotations, or the strict
      * handling feature is enabled, {@code false} otherwise.
-     *
-     * @since 2.15
      */
     protected boolean _strictTypeIdHandling(DatabindContext ctxt, JavaType baseType) {
+        // [databind#3877]: per-type strict type handling, since 2.16
+        if (_requireTypeIdForSubtypes != null && baseType.isConcrete()) {
+            return _requireTypeIdForSubtypes;
+        }
         if (ctxt.isEnabled(MapperFeature.REQUIRE_TYPE_ID_FOR_SUBTYPES)) {
             return true;
         }

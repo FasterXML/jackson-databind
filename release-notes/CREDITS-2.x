@@ -1505,7 +1505,7 @@ PJ Fanning (pjfanning@github)
   (2.14.0)
   * Contributed #3837: Set transformer factory attributes to improve protection against XXE
   (2.14.3)
-  * ... and countless more
+  - And NUMEROUS other contributions not listed here! (for 2.15 and above)
 
 Igor Shymko (ancane@github)
   * Contributed #3500: Add optional explicit `JsonSubTypes` repeated names check
@@ -1578,7 +1578,7 @@ Joo Hyuk Kim (JooHyukKim@github)
   * Contributed #3819: Add convenience method `SimpleBeanPropertyFilter.filterOutAll()` as
     counterpart of `serializeAll()`
    (2.15.0)
-  * And NUMEROUS other contributions not listed here! (for 2.16 and above)
+  - And NUMEROUS other contributions not listed here! (for 2.16 and above)
 
 Vojtěch Knyttl (knyttl@github)
   * Requested #3053: Allow serializing enums to lowercase (`EnumFeature.WRITE_ENUMS_TO_LOWERCASE`)

@@ -65,6 +65,7 @@ public class StdTypeResolverBuilder
             _includeAs = settings.getInclusionType();
             _typeProperty = _propName(settings.getPropertyName(), _idType);
             _defaultImpl = settings.getDefaultImpl();
+            _requireTypeIdForSubtypes = settings.getRequireTypeIdForSubtypes();
         }
     }
 
@@ -125,6 +126,7 @@ public class StdTypeResolverBuilder
             }
             _typeIdVisible = settings.getIdVisible();
             _defaultImpl = settings.getDefaultImpl();
+            _requireTypeIdForSubtypes = settings.getRequireTypeIdForSubtypes();
         }
         return this;
     }

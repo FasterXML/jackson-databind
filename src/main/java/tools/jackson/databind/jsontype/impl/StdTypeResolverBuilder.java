@@ -100,6 +100,7 @@ public class StdTypeResolverBuilder
         _customIdResolver = base._customIdResolver;
 
         _defaultImpl = defaultImpl;
+        _requireTypeIdForSubtypes = base._requireTypeIdForSubtypes;
     }
 
     public static StdTypeResolverBuilder noTypeInfoBuilder() {

@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.introspect;
 
-import com.fasterxml.jackson.databind.objectid.TestObjectIdWithPolymorphic;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.*;

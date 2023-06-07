@@ -65,6 +65,7 @@ public class StdTypeResolverBuilder
             _includeAs = settings.getInclusionType();
             _typeProperty = _propName(settings.getPropertyName(), _idType);
             _defaultImpl = settings.getDefaultImpl();
+            _requireTypeIdForSubtypes = settings.getRequireTypeIdForSubtypes();
         }
     }
 
@@ -99,6 +100,7 @@ public class StdTypeResolverBuilder
         _customIdResolver = base._customIdResolver;
 
         _defaultImpl = defaultImpl;
+        _requireTypeIdForSubtypes = base._requireTypeIdForSubtypes;
     }
 
     public static StdTypeResolverBuilder noTypeInfoBuilder() {
@@ -125,6 +127,7 @@ public class StdTypeResolverBuilder
             }
             _typeIdVisible = settings.getIdVisible();
             _defaultImpl = settings.getDefaultImpl();
+            _requireTypeIdForSubtypes = settings.getRequireTypeIdForSubtypes();
         }
         return this;
     }

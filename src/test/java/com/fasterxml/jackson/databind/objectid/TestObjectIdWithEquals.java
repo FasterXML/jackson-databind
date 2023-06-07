@@ -183,8 +183,6 @@ public class TestObjectIdWithEquals extends BaseMapTest
         ObjectMapper mapper = jsonMapperBuilder()
                 .enable(SerializationFeature.USE_EQUALITY_FOR_OBJECT_ID)
                 .withConfigOverride(Element3943.class, cfg -> cfg.setPolymorphicTypeHandling(typeInfo)).build();
-                
-                
 
 //        String json = mapper.writeValueAsString(input);
         String json = mapper.writerFor(new TypeReference<List<Element3943>>() { })

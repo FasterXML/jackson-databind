@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.jsontype;
 
-import com.fasterxml.jackson.databind.introspect.TestAutoDetect;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
@@ -23,6 +22,12 @@ public class TestCustomTypeIdResolver extends BaseMapTest
 
         public CustomBeanImpl() { }
         public CustomBeanImpl(int x) { this.x = x; }
+    }
+
+    static class ExtBeanWrapper {
+        @JsonTypeInfo(use=Id.CUSTOM, include=As.EXTERNAL_PROPERTY, property="type")
+        @JsonTypeIdResolver(ExtResolver.class)
+        public ExtBean value;
     }
 
     static class CustomResolver extends TestCustomResolverBase {
@@ -68,12 +73,6 @@ public class TestCustomTypeIdResolver extends BaseMapTest
                 initTypes.add(baseType);
             }
         }
-    }
-
-    static class ExtBeanWrapper {
-        @JsonTypeInfo(use=Id.CUSTOM, include=As.EXTERNAL_PROPERTY, property="type")
-        @JsonTypeIdResolver(ExtResolver.class)
-        public ExtBean value;
     }
 
     static abstract class ExtBean { }

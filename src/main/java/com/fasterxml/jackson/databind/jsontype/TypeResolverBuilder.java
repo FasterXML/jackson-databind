@@ -191,4 +191,9 @@ public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
         //    possibly unsafe variant
         return defaultImpl(defaultImpl);
     }
+
+    /**
+     * @since 2.16
+     */
+    public T withSettings(JsonTypeInfo.Value typeInfo);
 }

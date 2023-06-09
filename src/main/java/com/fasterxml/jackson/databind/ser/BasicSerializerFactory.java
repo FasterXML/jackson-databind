@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.ser;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.InetAddress;
@@ -321,6 +322,11 @@ public abstract class BasicSerializerFactory
         }
         if (b == null) {
             return null;
+        }
+        // [databind#3943] Add config-override system for JsonTypeInfo.Value
+        JsonTypeInfo.Value typeInfo = config.getDefaultPolymorphicTypeHandling(baseType.getRawClass());
+        if (typeInfo != null) {
+            b = b.withSettings(typeInfo);
         }
         // 10-Jun-2015, tatu: Since not created for Bean Property, no need for post-processing
         //    wrt EXTERNAL_PROPERTY

@@ -1821,6 +1821,11 @@ factory.toString()));
                 b = b.withDefaultImpl(defaultType.getRawClass());
             }
         }
+        // [databind#3943] Add config-override system for JsonTypeInfo.Value
+        JsonTypeInfo.Value typeInfo = config.getDefaultPolymorphicTypeHandling(baseType.getRawClass());
+        if (typeInfo != null) {
+            b = b.withSettings(typeInfo);
+        }
         // 05-Apt-2018, tatu: Since we get non-mapping exception due to various limitations,
         //    map to better type here
         try {
@@ -2037,6 +2042,11 @@ factory.toString()));
         // but if annotations found, may need to resolve subtypes:
         Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByTypeId(
                 config, annotated, baseType);
+        // [databind#3943] Add config-override system for JsonTypeInfo.Value
+        JsonTypeInfo.Value typeInfo = config.getDefaultPolymorphicTypeHandling(baseType.getRawClass());
+        if (typeInfo != null) {
+            b = b.withSettings(typeInfo);
+        }
         try {
             return b.buildTypeDeserializer(config, baseType, subtypes);
         } catch (IllegalArgumentException | IllegalStateException e0) {
@@ -2071,6 +2081,11 @@ factory.toString()));
         // but if annotations found, may need to resolve subtypes:
         Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByTypeId(
                 config, propertyEntity, contentType);
+        // [databind#3943] Add config-override system for JsonTypeInfo.Value
+        JsonTypeInfo.Value typeInfo = config.getDefaultPolymorphicTypeHandling(contentType.getRawClass());
+        if (typeInfo != null) {
+            b = b.withSettings(typeInfo);
+        }
         return b.buildTypeDeserializer(config, contentType, subtypes);
     }
 

@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.ser;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -311,14 +312,19 @@ public class BeanSerializerFactory
     {
         AnnotationIntrospector ai = config.getAnnotationIntrospector();
         TypeResolverBuilder<?> b = ai.findPropertyTypeResolver(config, accessor, baseType);
+        
         TypeSerializer typeSer;
-
         // Defaulting: if no annotations on member, check value class
         if (b == null) {
             typeSer = createTypeSerializer(config, baseType);
         } else {
             Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByClass(
                     config, accessor, baseType);
+            // [databind#3943] Add config-override system for JsonTypeInfo.Value
+            JsonTypeInfo.Value typeInfo = config.getDefaultPolymorphicTypeHandling(baseType.getRawClass());
+            if (typeInfo != null) {
+                b = b.withSettings(typeInfo);
+            }
             typeSer = b.buildTypeSerializer(config, baseType, subtypes);
         }
         return typeSer;
@@ -349,6 +355,11 @@ public class BeanSerializerFactory
         } else {
             Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByClass(config,
                     accessor, contentType);
+            // [databind#3943] Add config-override system for JsonTypeInfo.Value
+            JsonTypeInfo.Value typeInfo = config.getDefaultPolymorphicTypeHandling(contentType.getRawClass());
+            if (typeInfo != null) {
+                b = b.withSettings(typeInfo);
+            } 
             typeSer = b.buildTypeSerializer(config, contentType, subtypes);
         }
         return typeSer;

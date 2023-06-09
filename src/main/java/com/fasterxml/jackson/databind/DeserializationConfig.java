@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
@@ -994,6 +995,11 @@ public final class DeserializationConfig
             }
         } else {
             subtypes = getSubtypeResolver().collectAndResolveSubtypesByTypeId(this, ac);
+        }
+        // [databind#3943] Add config-override system for JsonTypeInfo.Value
+        JsonTypeInfo.Value overrideTypeInfo = getDefaultPolymorphicTypeHandling(baseType.getRawClass());
+        if (overrideTypeInfo != null) {
+            b = b.withSettings(overrideTypeInfo);
         }
         return b.buildTypeDeserializer(this, baseType, subtypes);
     }

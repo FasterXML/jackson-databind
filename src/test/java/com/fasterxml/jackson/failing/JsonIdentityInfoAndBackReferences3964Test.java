@@ -242,7 +242,7 @@ public class JsonIdentityInfoAndBackReferences3964Test extends BaseMapTest
     /**
      * Fails : Lean version that fails and Without getters and setters
      */
-    public void testOnlyLean() throws JsonProcessingException {
+    public void testLeanWithoutGetterAndSetters() throws JsonProcessingException {
         String json = a2q("{" +
                 "              'id': 1," +
                 "              'cats': [" +
@@ -274,7 +274,7 @@ public class JsonIdentityInfoAndBackReferences3964Test extends BaseMapTest
      * Passes : Testing lean without getters and setters
      * and also without {@link JsonCreator}.
      */
-    public void testLeanAndWithoutCreator() throws Exception {
+    public void testLeanWithoutGetterAndSettersAndCreator() throws Exception {
         String json = a2q("{" +
                 "              'id': 1," +
                 "              'squids': [" +

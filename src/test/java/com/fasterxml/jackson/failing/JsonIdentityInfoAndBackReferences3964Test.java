@@ -1,11 +1,7 @@
 package com.fasterxml.jackson.failing;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,8 +20,8 @@ public class JsonIdentityInfoAndBackReferences3964Test extends BaseMapTest
             scope = Tree.class
     )
     public static class Tree {
-        private final int id;
-        private List<Fruit> fruits;
+        protected final int id;
+        protected List<Fruit> fruits;
 
         @JsonCreator
         public Tree(@JsonProperty("id") int id, @JsonProperty("fruits") List<Fruit> fruits) {
@@ -52,10 +48,11 @@ public class JsonIdentityInfoAndBackReferences3964Test extends BaseMapTest
             scope = Fruit.class
     )
     public static class Fruit {
-        private final int id;
-        private List<Calories> calories;
+        protected final int id;
+        protected List<Calories> calories;
+
         @JsonBackReference("id")
-        private Tree tree;
+        protected Tree tree;
 
         @JsonCreator
         public Fruit(@JsonProperty("id") int id, @JsonProperty("calories") List<Calories> calories) {
@@ -90,8 +87,8 @@ public class JsonIdentityInfoAndBackReferences3964Test extends BaseMapTest
             scope = Calories.class
     )
     public static class Calories {
-        private final int id;
-        private Fruit fruit;
+        protected final int id;
+        protected Fruit fruit;
 
         @JsonCreator
         public Calories(@JsonProperty("id") int id) {
@@ -211,7 +208,7 @@ public class JsonIdentityInfoAndBackReferences3964Test extends BaseMapTest
     /**
      * Fails : Original test
      */
-    public void testOriginal() throws JsonProcessingException {
+    public void testOriginal() throws Exception {
         String json =  "{" +
                 "              \"id\": 1,\n" +
                 "              \"fruits\": [\n" +
@@ -242,7 +239,7 @@ public class JsonIdentityInfoAndBackReferences3964Test extends BaseMapTest
     /**
      * Fails : Lean version that fails and Without getters and setters
      */
-    public void testLeanWithoutGetterAndSetters() throws JsonProcessingException {
+    public void testLeanWithoutGetterAndSetters() throws Exception {
         String json = a2q("{" +
                 "              'id': 1," +
                 "              'cats': [" +

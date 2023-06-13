@@ -1,19 +1,14 @@
-package com.fasterxml.jackson.databind.deser;
+package com.fasterxml.jackson.databind.objectid;
 
 import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
 // [databind#3838]: Difference in the handling of ObjectId-property in JsonIdentityInfo depending on the deserialization route.
-public class JsonIdentityInfoIdProperty3838Test extends BaseMapTest {
-
-    /*
-    /**********************************************************
-    /* Set Up
-    /**********************************************************
-    */
+public class ObjectId3838Test extends BaseMapTest
+{
     interface ResultGetter {
         String result();
     }
@@ -157,9 +152,9 @@ public class JsonIdentityInfoIdProperty3838Test extends BaseMapTest {
     }
     
     /*
-    /**********************************************************
-    /* Test
-    /**********************************************************
+    /**********************************************************************
+    /* Test methods
+    /**********************************************************************
     */
 
     private final ObjectMapper MAPPER = newJsonMapper();
@@ -174,7 +169,8 @@ public class JsonIdentityInfoIdProperty3838Test extends BaseMapTest {
         {IntSequencedBean.class, "{'id':-1,'value':'great'}"}
     };
 
-    public void testUniformHandlingForMissingObjectId() throws Exception {
+    public void testUniformHandlingForMissingObjectId() throws Exception
+    {
         for (Object[] classAndJsonStrEntry : CLASS_AND_JSON_STRING) {
             final Class<?> cls = (Class<?>) classAndJsonStrEntry[0];
             final String jsonStr = (String) classAndJsonStrEntry[1];

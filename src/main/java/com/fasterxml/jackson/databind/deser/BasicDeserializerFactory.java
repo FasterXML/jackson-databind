@@ -483,7 +483,8 @@ index, owner, defs[index], propDef);
         final VisibilityChecker<?> vchecker = ccState.vchecker;
         List<AnnotatedWithParams> implicitCtors = null;
         final boolean preferPropsBased = config.getConstructorDetector().singleArgCreatorDefaultsToProperties()
-                // [databind#3968]: Only Record's canonical constructor is allowed to be considered for properties-based creator
+                // [databind#3968]: Only Record's canonical constructor is allowed
+                //   to be considered for properties-based creator to avoid failure
                 && !beanDesc.isRecordType();
 
         for (CreatorCandidate candidate : ctorCandidates) {

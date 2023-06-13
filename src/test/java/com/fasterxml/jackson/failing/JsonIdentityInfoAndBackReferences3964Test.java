@@ -16,8 +16,103 @@ import java.util.List;
 public class JsonIdentityInfoAndBackReferences3964Test extends BaseMapTest 
 {
     /**
-     * Combination of one in question
-     * Testing lean without getters and setters only
+     * Fails : Original test
+     */
+    @JsonIdentityInfo(
+            generator = ObjectIdGenerators.PropertyGenerator.class,
+            property = "id",
+            scope = Tree.class
+    )
+    public static class Tree {
+        private final int id;
+        private List<Fruit> fruits;
+
+        @JsonCreator
+        public Tree(@JsonProperty("id") int id, @JsonProperty("fruits") List<Fruit> fruits) {
+            this.id = id;
+            this.fruits = fruits;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public List<Fruit> getFruits() {
+            return fruits;
+        }
+
+        public void setFruits(List<Fruit> fruits) {
+            this.fruits = fruits;
+        }
+    }
+
+    @JsonIdentityInfo(
+            generator = ObjectIdGenerators.PropertyGenerator.class,
+            property = "id",
+            scope = Fruit.class
+    )
+    public static class Fruit {
+        private final int id;
+        private List<Calories> calories;
+        @JsonBackReference("id")
+        private Tree tree;
+
+        @JsonCreator
+        public Fruit(@JsonProperty("id") int id, @JsonProperty("calories") List<Calories> calories) {
+            this.id = id;
+            this.calories = calories;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public Tree getTree() {
+            return tree;
+        }
+
+        public void setTree(Tree tree) {
+            this.tree = tree;
+        }
+
+        public List<Calories> getCalories() {
+            return calories;
+        }
+
+        public void setCalories(List<Calories> calories) {
+            this.calories = calories;
+        }
+    }
+
+    @JsonIdentityInfo(
+            generator = ObjectIdGenerators.PropertyGenerator.class,
+            property = "id",
+            scope = Calories.class
+    )
+    public static class Calories {
+        private final int id;
+        private Fruit fruit;
+
+        @JsonCreator
+        public Calories(@JsonProperty("id") int id) {
+            this.id = id;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public Fruit getFruit() {
+            return fruit;
+        }
+
+        public void setFruit(Fruit fruit) {
+            this.fruit = fruit;
+        }
+    }
+    
+    /**
+     * Fails : Lean version that fails and Without getters and setters
      */
     @JsonIdentityInfo(
             generator = ObjectIdGenerators.PropertyGenerator.class,
@@ -69,8 +164,8 @@ public class JsonIdentityInfoAndBackReferences3964Test extends BaseMapTest
     }
 
     /**
-     * Testing lean without getters and setters
-     * and also without {@link JsonCreator}
+     * Passes : Testing lean without getters and setters
+     * and also without {@link JsonCreator}.
      */
     @JsonIdentityInfo(
             generator = ObjectIdGenerators.PropertyGenerator.class,
@@ -114,8 +209,38 @@ public class JsonIdentityInfoAndBackReferences3964Test extends BaseMapTest
             .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
 
     /**
-     * This one in question by [databind#3964]
-     * Testing lean without getters and setters only
+     * Fails : Original test
+     */
+    public void testOriginal() throws JsonProcessingException {
+        String json =  "{" +
+                "              \"id\": 1,\n" +
+                "              \"fruits\": [\n" +
+                "                {\n" +
+                "                  \"id\": 2,\n" +
+                "                  \"tree\": 1,\n" +
+                "                  \"calories\": [\n" +
+                "                    {\n" +
+                "                      \"id\": 3,\n" +
+                "                      \"fruit\": 2\n" +
+                "                    }\n" +
+                "                  ]\n" +
+                "                }\n" +
+                "              ]\n" +
+                "            }";
+        
+        try {
+            Tree tree = MAPPER.readValue(json, Tree.class);
+            // should reach here and pass... but throws Exception and fails
+            assertEquals(tree, tree.fruits.get(0).tree);
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Cannot resolve ObjectId forward reference using property 'animal'");
+            verifyException(e, "Bean not yet resolved");
+            fail("Should not reach");
+        }
+    }
+
+    /**
+     * Fails : Lean version that fails and Without getters and setters
      */
     public void testOnlyLean() throws JsonProcessingException {
         String json = a2q("{" +
@@ -133,19 +258,11 @@ public class JsonIdentityInfoAndBackReferences3964Test extends BaseMapTest
                 "                }" +
                 "              ]" +
                 "            }");
-        /*
-         * This is what everyone expects (from the issue)
-         *********************************** 
-        Animal animal = MAPPER.readValue(json, Animal.class);
-        assertEquals(animal, animal.cats.get(0).animal);
-         *********************************** 
-         */
-
-        /*
-         * In reality... fails with MismatchedInputException like this
-         */
+        
         try {
-            MAPPER.readValue(json, Animal.class);
+            Animal animal = MAPPER.readValue(json, Animal.class);
+            // should reach here and pass... but throws Exception and fails
+            assertEquals(animal, animal.cats.get(0).animal);
         } catch (MismatchedInputException e) {
             verifyException(e, "Cannot resolve ObjectId forward reference using property 'animal'");
             verifyException(e, "Bean not yet resolved");
@@ -154,8 +271,8 @@ public class JsonIdentityInfoAndBackReferences3964Test extends BaseMapTest
     }
 
     /**
-     * Testing lean without getters and setters
-     * and also without {@link JsonCreator}
+     * Passes : Testing lean without getters and setters
+     * and also without {@link JsonCreator}.
      */
     public void testLeanAndWithoutCreator() throws Exception {
         String json = a2q("{" +

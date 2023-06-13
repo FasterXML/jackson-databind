@@ -134,7 +134,7 @@ public class JsonIdentityInfoAndBackReferences3964Test extends BaseMapTest
                 "              ]" +
                 "            }");
         /*
-         * Below is what everyone expects (from the issue)
+         * This is what everyone expects (from the issue)
          *********************************** 
         Animal animal = MAPPER.readValue(json, Animal.class);
         assertEquals(animal, animal.cats.get(0).animal);
@@ -142,7 +142,7 @@ public class JsonIdentityInfoAndBackReferences3964Test extends BaseMapTest
          */
 
         /*
-         * In reality... fails with MismatchedInputException like below
+         * In reality... fails with MismatchedInputException like this
          */
         try {
             MAPPER.readValue(json, Animal.class);

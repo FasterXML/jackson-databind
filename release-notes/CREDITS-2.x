@@ -1598,6 +1598,9 @@ Sim Yih Tsern (yihtsern@github)
  * Contributed fix for #3897: 2.15.0 breaks deserialization when POJO/Record only has a
    single field and is marked `Access.WRITE_ONLY`
   (2.15.1)
+ * Contributed fux fix #3968: Records with additional constructors failed to deserialize
+  (2.15.3)
+
 
 Ajay Siwach (Siwach16@github)
   * Contributed #3637: Add enum features into `@JsonFormat.Feature`

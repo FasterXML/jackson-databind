@@ -369,7 +369,7 @@ public class BeanDeserializer
             }
         }
         // [databind#3838]: since 2.16 Uniform handling of missing objectId
-        if (_objectIdReader != null && p.getCurrentToken() == JsonToken.END_OBJECT) {
+        if (_objectIdReader != null && p.hasTokenId(JsonTokenId.ID_END_OBJECT)) {
             ctxt.reportUnresolvedObjectId(_objectIdReader, bean);
         }
         if (_injectables != null) {

@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.ser;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGeneratorDecorator;
 import com.fasterxml.jackson.core.StreamWriteFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -22,10 +24,13 @@ public class CanonicalJsonMapper { // TODO It would be great if we could extend 
         }
         
         public JsonMapper build() {
-            CanonicalJsonFactory jsonFactory = new CanonicalJsonFactory(_numberSerializerProvider.getValueToString());
+            JsonGeneratorDecorator decorator = new CanonicalJsonGeneratorDecorator(_numberSerializerProvider.getValueToString());
             CanonicalJsonModule module = new CanonicalJsonModule(_numberSerializerProvider.getNumberSerializer());
 
-            JsonMapper.Builder builder = JsonMapper.builder(jsonFactory)
+            JsonFactory factory = JsonFactory.builder() //
+                .decorateWith(decorator)
+                .build();
+            JsonMapper.Builder builder = JsonMapper.builder(factory) //
                 .enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS) //
                 .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY) //
                 .addModule(module);

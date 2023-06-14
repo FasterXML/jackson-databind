@@ -240,40 +240,26 @@ public class JacksonAnnotationIntrospector
         return names;
     }
 
-    @Override
+    @Override // since 2.16
     public String[] findEnumValues(MapperConfig<?> config, Enum<?>[] enumValues, String[] names,
                                    AnnotatedClass annotatedClass) {
-        // First collect all JsonProperty.value()
-        HashMap<String, String> enumToPropertyMap = new HashMap<>();
+        Map<String, String> enumToPropertyMap = new LinkedHashMap<String, String>();
         for (AnnotatedField field : annotatedClass.fields()) {
             JsonProperty property = field.getAnnotation(JsonProperty.class);
             if (property != null) {
-                enumToPropertyMap.put(field.getName(), property.value());
-            }
-        }
-        final Class<?> enumType = annotatedClass.getRawType();
-        HashMap<String,String> expl = null;
-        for (Field f : enumType.getDeclaredFields()) {
-            if (!f.isEnumConstant()) {
-                continue;
-            }
-            String n = enumToPropertyMap.get(f.getName());
-            if (n == null || n.isEmpty()) {
-                continue;
-            }
-            if (expl == null) {
-                expl = new HashMap<String,String>();
-            }
-            expl.put(f.getName(), n);
-        }
-        // and then stitch them together if and as necessary
-        if (expl != null) {
-            for (int i = 0, end = enumValues.length; i < end; ++i) {
-                String defName = enumValues[i].name();
-                String explValue = expl.get(defName);
-                if (explValue != null) {
-                    names[i] = explValue;
+                String propValue = property.value();
+                if (propValue != null && !propValue.isEmpty()) {
+                    enumToPropertyMap.put(field.getName(), propValue);
                 }
+            }
+        }
+        
+        // and then stitch them together if and as necessary
+        for (int i = 0, end = enumValues.length; i < end; ++i) {
+            String defName = enumValues[i].name();
+            String explValue = enumToPropertyMap.get(defName);
+            if (explValue != null) {
+                names[i] = explValue;
             }
         }
         return names;

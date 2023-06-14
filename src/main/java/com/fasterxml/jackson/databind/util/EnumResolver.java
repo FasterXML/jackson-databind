@@ -77,7 +77,7 @@ public class EnumResolver implements java.io.Serializable
      * Enum value.
      *
      * @since 2.12
-     * @deprecated Since 2.16 use {@link #constructFor(DeserializationConfig, Class)} instead
+     * @deprecated Since 2.16 use {@link #constructFor(DeserializationConfig, AnnotatedClass)} instead
      */
     public static EnumResolver constructFor(DeserializationConfig config,
             Class<?> enumCls) {
@@ -86,6 +86,7 @@ public class EnumResolver implements java.io.Serializable
 
     /**
      * @since 2.15
+     * @deprecated Since 2.16 use {@link #_constructFor(DeserializationConfig, AnnotatedClass)} instead
      */
     protected static EnumResolver _constructFor(DeserializationConfig config, Class<?> enumCls0)
     {

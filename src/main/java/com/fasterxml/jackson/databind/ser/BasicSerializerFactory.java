@@ -1229,23 +1229,23 @@ public abstract class BasicSerializerFactory
     }
 
     /**
-     * Helper method used in the serialization of an {@link Enum} to remove any self-referencing properties from 
-     * the bean description before it is transformed into a JSON Object as configured by {@link JsonFormat.Shape#OBJECT}.
+     * Helper method used for serialization {@link Enum} as {@link JsonFormat.Shape#OBJECT}. Removes any 
+     * self-referencing properties from its bean description before it is transformed into a JSON Object 
+     * as configured by {@link JsonFormat.Shape#OBJECT}.
      * <p>
-     * Basically, this method iterates through the properties of the bean description and removes any that are
-     * an enum type and a subtype of the enum class to be serialized.
+     * Internally, this method iterates through {@link BeanDescription#findProperties()} and removes self.
      *
      * @param beanDesc the bean description to remove Enum properties from.
      *
-     * @since 2.16 : [databind#2787]: remove self-referencing enum fields introduced by annotation flattening of mixins 
+     * @since 2.16
      */
     private void _removeEnumSelfReferences(BasicBeanDescription beanDesc) {
         Class<?> aClass = ClassUtil.findEnumType(beanDesc.getBeanClass());
         Iterator<BeanPropertyDefinition> it = beanDesc.findProperties().iterator();
         while (it.hasNext()) {
             BeanPropertyDefinition property = it.next();
-            // Remove enums, because they are self-referenced
             JavaType propType = property.getPrimaryType();
+            // is the property a self-reference?
             if (propType.isEnumType() && propType.isTypeOrSubTypeOf(aClass)) {
                 it.remove();
             }

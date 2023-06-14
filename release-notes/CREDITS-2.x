@@ -4,7 +4,12 @@ databind core component, version 2.x
 
 (note: for older credits, check out release notes for 1.x versions)
 
-Tatu Saloranta, tatu.saloranta@iki.fi: author
+Author: Tatu Saloranta, tatu.saloranta@iki.fi
+
+VIP contributors (with partial listing below):
+
+* Joo Hyuk Kim (JooHyukKim@github)
+* PJ Fanning (pjfanning@github)
 
 ----------------------------------------------------------------------------
 
@@ -1032,20 +1037,23 @@ Andrey Kulikov (ankulikov@github)
    (2.10.1)
 
 João Guerra (joca-bt@github)
-  * Reported #2473: Array index missing in path of `JsonMappingException` for `Collection<String>`,
+ * Reported #2473: Array index missing in path of `JsonMappingException` for `Collection<String>`,
     with custom deserializer
   (2.10.1)
-  * Reported #2567: Incorrect target type for arrays when providing nulls and nulls are disabled
+ * Reported #2567: Incorrect target type for arrays when providing nulls and nulls are disabled
   (2.10.2)
-  * Reported #2635: JsonParser cannot getText() for input stream on MismatchedInputException
+ * Reported #2635: JsonParser cannot getText() for input stream on MismatchedInputException
   (2.11.0)
-  * Reported #2770: JsonParser from MismatchedInputException cannot getText() for
+ * Reported #2770: JsonParser from MismatchedInputException cannot getText() for
     floating-point value
   (2.11.1)
-  * Reported #3227: Content `null` handling not working for root values
+ * Reported #3227: Content `null` handling not working for root values
   (2.13.0)
-  * Reported #3690: Incorrect target type for arrays when disabling coercion
+ * Reported #3690: Incorrect target type for arrays when disabling coercion
   (2.15.0)
+ * Reported #3924: Incorrect target type when disabling coercion, trying to deserialize
+    String from Array/Object
+  (2.16.0)
 
 Ryan Bohn (bohnman@github)
   * Reported #2475: `StringCollectionSerializer` calls `JsonGenerator.setCurrentValue(value)`,
@@ -1497,7 +1505,7 @@ PJ Fanning (pjfanning@github)
   (2.14.0)
   * Contributed #3837: Set transformer factory attributes to improve protection against XXE
   (2.14.3)
-  * ... and countless more
+  - And NUMEROUS other contributions not listed here! (for 2.15 and above)
 
 Igor Shymko (ancane@github)
   * Contributed #3500: Add optional explicit `JsonSubTypes` repeated names check
@@ -1567,10 +1575,10 @@ Joo Hyuk Kim (JooHyukKim@github)
    (2.15.0)
   * Contributed #3814: Enhance `StdNodeBasedDeserializer` to support `readerForUpdating`
    (2.15.0)
-   
   * Contributed #3819: Add convenience method `SimpleBeanPropertyFilter.filterOutAll()` as
     counterpart of `serializeAll()`
    (2.15.0)
+  - And NUMEROUS other contributions not listed here! (for 2.16 and above)
 
 Vojtěch Knyttl (knyttl@github)
   * Requested #3053: Allow serializing enums to lowercase (`EnumFeature.WRITE_ENUMS_TO_LOWERCASE`)
@@ -1601,6 +1609,9 @@ Sim Yih Tsern (yihtsern@github)
  * Contributed fix for #3897: 2.15.0 breaks deserialization when POJO/Record only has a
    single field and is marked `Access.WRITE_ONLY`
   (2.15.1)
+ * Contributed fux fix #3968: Records with additional constructors failed to deserialize
+  (2.15.3)
+
 
 Ajay Siwach (Siwach16@github)
   * Contributed #3637: Add enum features into `@JsonFormat.Feature`

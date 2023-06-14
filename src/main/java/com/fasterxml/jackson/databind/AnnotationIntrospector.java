@@ -485,6 +485,20 @@ public abstract class AnnotationIntrospector
     */
 
     /**
+     * Method for checking whether given Class or Property Accessor specifies
+     * polymorphic type-handling information, to indicate need for polymorphic
+     * handling.
+     *
+     * @param config Effective mapper configuration in use
+     * @param ann Annotated entity to introspect
+     *
+     * @since 2.16 (backported from Jackson 3.0)
+     */
+    public JsonTypeInfo.Value findPolymorphicTypeInfo(MapperConfig<?> config, Annotated ann) {
+        return null;
+    }
+
+    /**
      * Method for checking if given class has annotations that indicate
      * that specific type resolver is to be used for handling instances.
      * This includes not only

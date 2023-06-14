@@ -649,6 +649,16 @@ public class JacksonAnnotationIntrospector
     /**********************************************************
      */
 
+    /**
+     * @since 2.16 (backported from Jackson 3.0)
+     */
+    @Override
+    public JsonTypeInfo.Value findPolymorphicTypeInfo(MapperConfig<?> config, Annotated ann)
+    {
+        JsonTypeInfo t = _findAnnotation(ann, JsonTypeInfo.class);
+        return (t == null) ? null : JsonTypeInfo.Value.from(t);
+    }
+
     @Override
     public TypeResolverBuilder<?> findTypeResolver(MapperConfig<?> config,
             AnnotatedClass ac, JavaType baseType)
@@ -1554,27 +1564,29 @@ public class JacksonAnnotationIntrospector
     protected TypeResolverBuilder<?> _findTypeResolver(MapperConfig<?> config,
             Annotated ann, JavaType baseType)
     {
+        // since 2.16 : backporting {@link JsonTypeInfo.Value} from 3.0
+        JsonTypeInfo.Value typeInfo = findPolymorphicTypeInfo(config, ann);
+
         // First: maybe we have explicit type resolver?
         TypeResolverBuilder<?> b;
-        JsonTypeInfo info = _findAnnotation(ann, JsonTypeInfo.class);
         JsonTypeResolver resAnn = _findAnnotation(ann, JsonTypeResolver.class);
 
         if (resAnn != null) {
-            if (info == null) {
+            if (typeInfo == null) {
                 return null;
             }
             // let's not try to force access override (would need to pass
             // settings through if we did, since that's not doable on some platforms)
             b = config.typeResolverBuilderInstance(ann, resAnn.value());
         } else { // if not, use standard one, if indicated by annotations
-            if (info == null) {
+            if (typeInfo == null) {
                 return null;
             }
             // bit special; must return 'marker' to block use of default typing:
-            if (info.use() == JsonTypeInfo.Id.NONE) {
+            if (typeInfo.getIdType() == JsonTypeInfo.Id.NONE) {
                 return _constructNoTypeResolverBuilder();
             }
-            b = _constructStdTypeResolverBuilder();
+            b = _constructStdTypeResolverBuilder(config, typeInfo, baseType);
         }
         // Does it define a custom type id resolver?
         JsonTypeIdResolver idResInfo = _findAnnotation(ann, JsonTypeIdResolver.class);
@@ -1583,26 +1595,24 @@ public class JacksonAnnotationIntrospector
         if (idRes != null) {
             idRes.init(baseType);
         }
-        b = b.init(info.use(), idRes);
         // 13-Aug-2011, tatu: One complication; external id only works for properties;
         //    so if declared for a Class, we will need to map it to "PROPERTY"
         //    instead of "EXTERNAL_PROPERTY"
-        JsonTypeInfo.As inclusion = info.include();
+        JsonTypeInfo.As inclusion = typeInfo.getInclusionType();
         if (inclusion == JsonTypeInfo.As.EXTERNAL_PROPERTY && (ann instanceof AnnotatedClass)) {
-            inclusion = JsonTypeInfo.As.PROPERTY;
+            typeInfo = typeInfo.withInclusionType(JsonTypeInfo.As.PROPERTY);
         }
-        b = b.inclusion(inclusion);
-        b = b.typeProperty(info.property());
-        Class<?> defaultImpl = info.defaultImpl();
+        Class<?> defaultImpl = typeInfo.getDefaultImpl();
 
         // 08-Dec-2014, tatu: To deprecate `JsonTypeInfo.None` we need to use other placeholder(s);
         //   and since `java.util.Void` has other purpose (to indicate "deser as null"), we'll instead
         //   use `JsonTypeInfo.class` itself. But any annotation type will actually do, as they have no
         //   valid use (cannot instantiate as default)
-        if (defaultImpl != JsonTypeInfo.None.class && !defaultImpl.isAnnotation()) {
-            b = b.defaultImpl(defaultImpl);
+        if (defaultImpl != null && defaultImpl != JsonTypeInfo.None.class && !defaultImpl.isAnnotation()) {
+            typeInfo = typeInfo.withDefaultImpl(defaultImpl);
         }
-        b = b.typeIdVisibility(info.visible());
+        
+        b = b.init(typeInfo, idRes);
         return b;
     }
 
@@ -1612,6 +1622,17 @@ public class JacksonAnnotationIntrospector
      */
     protected StdTypeResolverBuilder _constructStdTypeResolverBuilder() {
         return new StdTypeResolverBuilder();
+    }
+
+    /**
+     * Helper method for constructing standard {@link TypeResolverBuilder}
+     * implementation.
+     *
+     * @since 2.16 (backported from Jackson 3.0)
+     */
+    protected TypeResolverBuilder<?> _constructStdTypeResolverBuilder(MapperConfig<?> config,
+            JsonTypeInfo.Value typeInfo, JavaType baseType) {
+        return new StdTypeResolverBuilder(typeInfo);
     }
 
     /**

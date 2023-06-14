@@ -22,6 +22,8 @@ import com.google.common.collect.Lists;
 
 class CanonicalJsonTest {
 
+    private static final BigDecimal TEN_POINT_1_WITH_TRAILING_ZEROES = new BigDecimal("10.1000");
+    private static final BigDecimal VERY_BIG_DECIMAL = new BigDecimal("123456789123456789123456789123456789.123456789123456789123456789123456789123456789000");
     private static final double NEGATIVE_ZERO = -0.;
     private static final JsonAssert JSON_ASSERT = new JsonAssert();
     private static final JsonTestResource CANONICAL_1 = new JsonTestResource("/data/canonical-1.json");
@@ -78,24 +80,22 @@ class CanonicalJsonTest {
 
     @Test
     void testCanonicalDecimalHandling() throws Exception {
-        assertSerialized("1.01E1", new BigDecimal("10.1000"), newCanonicalMapperBuilder());
+        assertSerialized("1.01E1", TEN_POINT_1_WITH_TRAILING_ZEROES, newCanonicalMapperBuilder());
     }
 
     @Test
     void testCanonicalHugeDecimalHandling() throws Exception {
-        BigDecimal actual = new BigDecimal("123456789123456789123456789123456789.123456789123456789123456789123456789123456789000");
-        assertSerialized("1.23456789123456789123456789123456789123456789123456789123456789123456789123456789E35", actual, newCanonicalMapperBuilder());
+        assertSerialized("1.23456789123456789123456789123456789123456789123456789123456789123456789123456789E35", VERY_BIG_DECIMAL, newCanonicalMapperBuilder());
     }
 
     @Test
     void testPrettyDecimalHandling() throws Exception {
-        assertSerialized("10.1", new BigDecimal("10.1000"), newPrettyCanonicalMapperBuilder());
+        assertSerialized("10.1", TEN_POINT_1_WITH_TRAILING_ZEROES, newPrettyCanonicalMapperBuilder());
     }
 
     @Test
     void testPrettyHugeDecimalHandling() throws Exception {
-        BigDecimal actual = new BigDecimal("123456789123456789123456789123456789.123456789123456789123456789123456789123456789000");
-        assertSerialized("123456789123456789123456789123456789.123456789123456789123456789123456789123456789", actual, newPrettyCanonicalMapperBuilder());
+        assertSerialized("123456789123456789123456789123456789.123456789123456789123456789123456789123456789", VERY_BIG_DECIMAL, newPrettyCanonicalMapperBuilder());
     }
 
     @Test
@@ -183,7 +183,7 @@ class CanonicalJsonTest {
                 .put("-1", -1) //
                 .put("0.1", new BigDecimal("0.100")) //
                 .put("1", new BigDecimal("1")) //
-                .put("10.1", new BigDecimal("10.100")) //
+                .put("10.1", TEN_POINT_1_WITH_TRAILING_ZEROES) //
                 .put("emoji", "\uD83D\uDE03") //
                 .put("escape", "\u001B") //
                 .put("lone surrogate", "\uDEAD") //

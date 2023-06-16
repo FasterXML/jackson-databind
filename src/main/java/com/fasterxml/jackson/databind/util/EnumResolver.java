@@ -147,9 +147,10 @@ public class EnumResolver implements java.io.Serializable
         final Enum<?>[] enumConstants = _enumConstants(enumCls0);
 
         // introspect
-        String[] names = ai.findEnumValues(config, enumConstants, new String[enumConstants.length], annotatedClass);
+        String[] names = ai.findEnumValues(config, annotatedClass,
+                enumConstants, new String[enumConstants.length]);
         final String[][] allAliases = new String[names.length][];
-        ai.findEnumAliases(config, enumConstants, allAliases, annotatedClass);
+        ai.findEnumAliases(config, annotatedClass, enumConstants, allAliases);
 
         // finally, build
         HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();

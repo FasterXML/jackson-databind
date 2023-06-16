@@ -617,6 +617,7 @@ public class AnnotationIntrospectorPair
         return b;
     }
 
+    @Deprecated // since 2.16
     @Override
     public  String[] findEnumValues(Class<?> enumType, Enum<?>[] enumValues, String[] names) {
         // reverse order to give _primary higher precedence
@@ -626,13 +627,15 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
-    public String[] findEnumValues(MapperConfig<?> config, Enum<?>[] enumValues, String[] names,
-                                    AnnotatedClass annotatedClass) {
-        names = _secondary.findEnumValues(config, enumValues, names, annotatedClass);
-        names = _primary.findEnumValues(config, enumValues, names, annotatedClass);
+    public String[] findEnumValues(MapperConfig<?> config, AnnotatedClass annotatedClass,
+            Enum<?>[] enumValues, String[] names) {
+        // reverse order to give _primary higher precedence
+        names = _secondary.findEnumValues(config, annotatedClass, enumValues, names);
+        names = _primary.findEnumValues(config, annotatedClass, enumValues, names);
         return names;
     }
 
+    @Deprecated // since 2.16
     @Override
     public void findEnumAliases(Class<?> enumType, Enum<?>[] enumValues, String[][] aliases) {
         // reverse order to give _primary higher precedence
@@ -641,10 +644,11 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
-    public void findEnumAliases(MapperConfig<?> config, Enum<?>[] enumConstants, String[][] aliases,
-                                    AnnotatedClass annotatedClass) {
-        _secondary.findEnumAliases(config, enumConstants, aliases, annotatedClass);
-        _primary.findEnumAliases(config, enumConstants, aliases, annotatedClass);
+    public void findEnumAliases(MapperConfig<?> config, AnnotatedClass annotatedClass,
+            Enum<?>[] enumConstants, String[][] aliases) {
+        // reverse order to give _primary higher precedence
+        _secondary.findEnumAliases(config, annotatedClass, enumConstants, aliases);
+        _primary.findEnumAliases(config, annotatedClass, enumConstants, aliases);
     }
 
     @Override

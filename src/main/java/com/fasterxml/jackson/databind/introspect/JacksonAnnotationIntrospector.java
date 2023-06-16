@@ -241,8 +241,9 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override // since 2.16
-    public String[] findEnumValues(MapperConfig<?> config, Enum<?>[] enumValues, String[] names,
-                                   AnnotatedClass annotatedClass) {
+    public String[] findEnumValues(MapperConfig<?> config, AnnotatedClass annotatedClass,
+            Enum<?>[] enumValues, String[] names)
+    {
         Map<String, String> enumToPropertyMap = new LinkedHashMap<String, String>();
         for (AnnotatedField field : annotatedClass.fields()) {
             JsonProperty property = field.getAnnotation(JsonProperty.class);
@@ -290,7 +291,8 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public void findEnumAliases(MapperConfig<?> config, Enum<?>[] enumValues, String[][] aliasList, AnnotatedClass annotatedClass)
+    public void findEnumAliases(MapperConfig<?> config, AnnotatedClass annotatedClass,
+            Enum<?>[] enumValues, String[][] aliasList)
     {
         HashMap<String, String[]> enumToAliasMap = new HashMap<>();
         for (AnnotatedField field : annotatedClass.fields()) {

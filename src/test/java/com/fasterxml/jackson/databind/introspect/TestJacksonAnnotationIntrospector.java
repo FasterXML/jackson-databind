@@ -146,8 +146,8 @@ public class TestJacksonAnnotationIntrospector
         }
 
         @Override
-        public String[] findEnumValues(MapperConfig<?> config, Enum<?>[] enumValues, String[] names,
-                                        AnnotatedClass annotatedClass) {
+        public String[] findEnumValues(MapperConfig<?> config, AnnotatedClass annotatedClass,
+                Enum<?>[] enumValues, String[] names) {
             // kinda sorta wrong, but for testing's sake...
             for (int i = 0, len = enumValues.length; i < len; ++i) {
                 names[i] = enumValues[i].name().toLowerCase();

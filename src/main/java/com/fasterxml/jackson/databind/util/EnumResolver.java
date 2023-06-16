@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.EnumNamingStrategy;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
+import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 
 /**
  * Helper class used to resolve String values (either JSON Object field
@@ -76,6 +77,7 @@ public class EnumResolver implements java.io.Serializable
      * Enum value.
      *
      * @since 2.12
+     * @deprecated Since 2.16 use {@link #constructFor(DeserializationConfig, AnnotatedClass)} instead
      */
     public static EnumResolver constructFor(DeserializationConfig config,
             Class<?> enumCls) {
@@ -84,6 +86,7 @@ public class EnumResolver implements java.io.Serializable
 
     /**
      * @since 2.15
+     * @deprecated Since 2.16 use {@link #_constructFor(DeserializationConfig, AnnotatedClass)} instead
      */
     protected static EnumResolver _constructFor(DeserializationConfig config, Class<?> enumCls0)
     {
@@ -113,6 +116,60 @@ public class EnumResolver implements java.io.Serializable
         return new EnumResolver(enumCls, enumConstants, map,
                 _enumDefault(ai, enumCls), isIgnoreCase,
                 false);
+    }
+
+    /**
+     * Factory method for constructing an {@link EnumResolver} based on the given {@link DeserializationConfig} and
+     * {@link AnnotatedClass} of the enum to be resolved.
+     *
+     * @param config the deserialization configuration to use
+     * @param annotatedClass the annotated class of the enum to be resolved
+     * @return the constructed {@link EnumResolver}
+     *
+     * @since 2.16
+     */
+    public static EnumResolver constructFor(DeserializationConfig config, AnnotatedClass annotatedClass) {
+        return _constructFor(config, annotatedClass);
+    }
+
+    /**
+     * Internal method for {@link #_constructFor(DeserializationConfig, AnnotatedClass)}.
+     *
+     * @since 2.16
+     */
+    public static EnumResolver _constructFor(DeserializationConfig config, AnnotatedClass annotatedClass)
+    {
+        // prepare data
+        final AnnotationIntrospector ai = config.getAnnotationIntrospector();
+        final boolean isIgnoreCase = config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
+        final Class<?> enumCls0 = annotatedClass.getRawType();
+        final Class<Enum<?>> enumCls = _enumClass(enumCls0);
+        final Enum<?>[] enumConstants = _enumConstants(enumCls0);
+
+        // introspect
+        String[] names = ai.findEnumValues(config, enumConstants, new String[enumConstants.length], annotatedClass);
+        final String[][] allAliases = new String[names.length][];
+        ai.findEnumAliases(config, enumConstants, allAliases, annotatedClass);
+
+        // finally, build
+        HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();
+        for (int i = 0, len = enumConstants.length; i < len; ++i) {
+            final Enum<?> enumValue = enumConstants[i];
+            String name = names[i];
+            if (name == null) {
+                name = enumValue.name();
+            }
+            map.put(name, enumValue);
+            String[] aliases = allAliases[i];
+            if (aliases != null) {
+                for (String alias : aliases) {
+                    // Avoid overriding any primary names
+                    map.putIfAbsent(alias, enumValue);
+                }
+            }
+        }
+        return new EnumResolver(enumCls, enumConstants, map,
+            _enumDefault(ai, enumCls), isIgnoreCase, false);
     }
 
     /**

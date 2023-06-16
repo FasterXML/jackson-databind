@@ -1104,6 +1104,26 @@ public abstract class AnnotationIntrospector
     }
 
     /**
+     * Finds the explicitly defined name of the given set of {@code Enum} values, if any.
+     * The method overwrites entries in the incoming {@code names} array with the explicit
+     * names found, if any, leaving other entries unmodified.
+     *
+     * @param config the mapper configuration to use
+     * @param enumValues the set of {@code Enum} values to find the explicit names for
+     * @param names the matching declared names of enumeration values (with indexes matching
+     *              {@code enumValues} entries)
+     * @param annotatedClass the annotated class for which to find the explicit names
+     *
+     * @return an array of names to use (possibly {@code names} passed as argument)
+     *
+     * @since 2.16
+     */
+    public String[] findEnumValues(MapperConfig<?> config, Enum<?>[] enumValues, String[] names,
+                                   AnnotatedClass annotatedClass){
+        return names;
+    }
+
+    /**
      * Method that is related to {@link #findEnumValues} but is called to check if
      * there are alternative names (aliased) that can be accepted for entries, in
      * addition to primary names introspected earlier.
@@ -1121,6 +1141,25 @@ public abstract class AnnotationIntrospector
         ;
     }
 
+
+    /**
+     * Method that is called to check if there are alternative names (aliases) that can be accepted for entries
+     * in addition to primary names that were introspected earlier, related to {@link #findEnumValues}.
+     * These aliases should be returned in {@code String[][] aliases} passed in as argument. 
+     * The {@code aliases.length} is expected to match the number of {@code Enum} values.
+     *
+     * @param config The configuration of the mapper
+     * @param enumValues The values of the enumeration
+     * @param aliases (in/out) Pre-allocated array where aliases found, if any, may be added (in indexes
+     *     matching those of {@code enumValues})
+     * @param annotatedClass The annotated class of the enumeration type
+     *
+     * @since 2.16
+     */
+    public void findEnumAliases(MapperConfig<?> config, Enum<?>[] enumValues, String[][] aliases,
+                                AnnotatedClass annotatedClass) {
+        return;
+    }
     /**
      * Finds the Enum value that should be considered the default value, if possible.
      *

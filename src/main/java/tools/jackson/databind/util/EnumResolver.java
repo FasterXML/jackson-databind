@@ -5,7 +5,6 @@ import static tools.jackson.databind.MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS
 import java.util.*;
 
 import tools.jackson.databind.*;
-import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.introspect.AnnotatedClass;
 
@@ -63,46 +62,6 @@ public class EnumResolver implements java.io.Serializable
     /* Factory methods (non-deprecated)
     /**********************************************************************
      */
-
-    /**
-     * Factory method for constructing resolver that maps from Enum.name() into
-     * Enum value
-     */
-    /*
-    @Deprecated
-    public static EnumResolver constructFor(DeserializationConfig config, Class<?> enumCls0)
-    {
-        final Class<Enum<?>> enumCls = _enumClass(enumCls0);
-        final Enum<?>[] enumConstants = _enumConstants(enumCls);
-        final AnnotationIntrospector intr = config.getAnnotationIntrospector();
-        final String[] names = intr.findEnumValues(config,
-                enumCls, enumConstants, new String[enumConstants.length]);
-        final String[][] allAliases = new String[names.length][];
-        final HashMap<String, Enum<?>> byId = new HashMap<String, Enum<?>>();
-
-        intr.findEnumAliases(config, enumCls, enumConstants, allAliases);
-
-        for (int i = 0, len = enumConstants.length; i < len; ++i) {
-            final Enum<?> enumValue = enumConstants[i];
-            String name = names[i];
-            if (name == null) {
-                name = enumValue.name();
-            }
-            byId.put(name, enumValue);
-            String[] aliases = allAliases[i];
-            if (aliases != null) {
-                for (String alias : aliases) {
-                    // avoid accidental override of primary name (in case of conflicting annotations)
-                    byId.putIfAbsent(alias, enumValue);
-                }
-            }
-        }
-        return _construct(config, enumCls, enumConstants, byId, false);
-        //return new EnumResolver(enumCls, enumConstants, map,
-        //        _enumDefault(ai, enumCls), isIgnoreCase,
-        //        false);
-    }
-    */
 
     /**
      * Factory method for constructing an {@link EnumResolver} based on the given {@link DeserializationConfig} and

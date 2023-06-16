@@ -1,7 +1,5 @@
 package tools.jackson.databind.util;
 
-import java.io.IOException;
-
 /**
  * Utility methods for dealing with exceptions/throwables
  *

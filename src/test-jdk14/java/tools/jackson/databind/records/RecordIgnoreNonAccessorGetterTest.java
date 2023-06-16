@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.records;
+package tools.jackson.databind.records;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;

@@ -167,6 +167,7 @@ public class JacksonAnnotationIntrospector
     /**********************************************************************
      */
 
+    @Deprecated
     @Override
     public String[] findEnumValues(MapperConfig<?> config,
             Class<?> enumType, Enum<?>[] enumValues, String[] names)
@@ -202,6 +203,33 @@ public class JacksonAnnotationIntrospector
         return names;
     }
 
+    @Override // since 2.16
+    public String[] findEnumValues(MapperConfig<?> config, AnnotatedClass annotatedClass,
+            Enum<?>[] enumValues, String[] names)
+    {
+        Map<String, String> enumToPropertyMap = new LinkedHashMap<String, String>();
+        for (AnnotatedField field : annotatedClass.fields()) {
+            JsonProperty property = field.getAnnotation(JsonProperty.class);
+            if (property != null) {
+                String propValue = property.value();
+                if (propValue != null && !propValue.isEmpty()) {
+                    enumToPropertyMap.put(field.getName(), propValue);
+                }
+            }
+        }
+
+        // and then stitch them together if and as necessary
+        for (int i = 0, end = enumValues.length; i < end; ++i) {
+            String defName = enumValues[i].name();
+            String explValue = enumToPropertyMap.get(defName);
+            if (explValue != null) {
+                names[i] = explValue;
+            }
+        }
+        return names;
+    }
+
+    @Deprecated
     @Override
     public void findEnumAliases(MapperConfig<?> config,
             Class<?> enumType, Enum<?>[] enumValues, String[][] aliasList)
@@ -227,6 +255,24 @@ public class JacksonAnnotationIntrospector
         }
     }
 
+    @Override
+    public void findEnumAliases(MapperConfig<?> config, AnnotatedClass annotatedClass,
+            Enum<?>[] enumValues, String[][] aliasList)
+    {
+        HashMap<String, String[]> enumToAliasMap = new HashMap<>();
+        for (AnnotatedField field : annotatedClass.fields()) {
+            JsonAlias alias = field.getAnnotation(JsonAlias.class);
+            if (alias != null) {
+                enumToAliasMap.putIfAbsent(field.getName(), alias.value());
+            }
+        }
+
+        for (int i = 0, end = enumValues.length; i < end; ++i) {
+            Enum<?> enumValue = enumValues[i];
+            aliasList[i] = enumToAliasMap.getOrDefault(enumValue.name(), new String[]{});
+        }
+    }
+
     /**
      * Finds the Enum value that should be considered the default value, if possible.
      * <p>
@@ -234,7 +280,6 @@ public class JacksonAnnotationIntrospector
      *
      * @param enumCls The Enum class to scan for the default value.
      * @return null if none found or it's not possible to determine one.
-     * @since 2.8
      */
     @Override
     public Enum<?> findDefaultEnumValue(MapperConfig<?> config, Class<?> enumCls) {

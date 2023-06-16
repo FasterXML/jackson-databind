@@ -584,6 +584,7 @@ public class AnnotationIntrospectorPair
         return b;
     }
 
+    @Deprecated // since 2.16
     @Override
     public  String[] findEnumValues(MapperConfig<?> config,
             Class<?> enumType, Enum<?>[] enumValues, String[] names) {
@@ -594,17 +595,35 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
-    public Enum<?> findDefaultEnumValue(MapperConfig<?> config, Class<?> enumCls) {
-        Enum<?> en = _primary.findDefaultEnumValue(config, enumCls);
-        return (en == null) ? _secondary.findDefaultEnumValue(config, enumCls) : en;
+    public String[] findEnumValues(MapperConfig<?> config, AnnotatedClass annotatedClass,
+            Enum<?>[] enumValues, String[] names) {
+        // reverse order to give _primary higher precedence
+        names = _secondary.findEnumValues(config, annotatedClass, enumValues, names);
+        names = _primary.findEnumValues(config, annotatedClass, enumValues, names);
+        return names;
     }
 
+    @Deprecated
     @Override
     public void findEnumAliases(MapperConfig<?> config,
             Class<?> enumType, Enum<?>[] enumValues, String[][] aliases) {
         // reverse order to give _primary higher precedence
         _secondary.findEnumAliases(config, enumType, enumValues, aliases);
         _primary.findEnumAliases(config, enumType, enumValues, aliases);
+    }
+
+    @Override
+    public void findEnumAliases(MapperConfig<?> config, AnnotatedClass annotatedClass,
+            Enum<?>[] enumConstants, String[][] aliases) {
+        // reverse order to give _primary higher precedence
+        _secondary.findEnumAliases(config, annotatedClass, enumConstants, aliases);
+        _primary.findEnumAliases(config, annotatedClass, enumConstants, aliases);
+    }
+
+    @Override
+    public Enum<?> findDefaultEnumValue(MapperConfig<?> config, Class<?> enumCls) {
+        Enum<?> en = _primary.findDefaultEnumValue(config, enumCls);
+        return (en == null) ? _secondary.findDefaultEnumValue(config, enumCls) : en;
     }
 
     // // // Deserialization: general annotations

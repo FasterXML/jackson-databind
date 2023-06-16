@@ -2297,9 +2297,7 @@ factory.toString()));
             return EnumResolver.constructUsingMethod(ctxt.getConfig(),
                     enumClass, jvAcc);
         }
-        // 14-Mar-2016, tatu: We used to check `DeserializationFeature.READ_ENUMS_USING_TO_STRING`
-        //   here, but that won't do: it must be dynamically changeable...
-        return EnumResolver.constructFor(ctxt.getConfig(), enumClass);
+        return EnumResolver.constructFor(ctxt.getConfig(), beanDesc.getClassInfo());
     }
 
     /**

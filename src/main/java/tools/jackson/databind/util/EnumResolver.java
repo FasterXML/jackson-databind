@@ -5,7 +5,9 @@ import static tools.jackson.databind.MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS
 import java.util.*;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.AnnotatedMember;
+import tools.jackson.databind.introspect.AnnotatedClass;
 
 /**
  * Helper class used to resolve String values (either JSON Object field
@@ -66,6 +68,8 @@ public class EnumResolver implements java.io.Serializable
      * Factory method for constructing resolver that maps from Enum.name() into
      * Enum value
      */
+    /*
+    @Deprecated
     public static EnumResolver constructFor(DeserializationConfig config, Class<?> enumCls0)
     {
         final Class<Enum<?>> enumCls = _enumClass(enumCls0);
@@ -94,6 +98,55 @@ public class EnumResolver implements java.io.Serializable
             }
         }
         return _construct(config, enumCls, enumConstants, byId, false);
+        //return new EnumResolver(enumCls, enumConstants, map,
+        //        _enumDefault(ai, enumCls), isIgnoreCase,
+        //        false);
+    }
+    */
+
+    /**
+     * Factory method for constructing an {@link EnumResolver} based on the given {@link DeserializationConfig} and
+     * {@link AnnotatedClass} of the enum to be resolved.
+     *
+     * @param config the deserialization configuration to use
+     * @param annotatedClass the annotated class of the enum to be resolved
+     * @return the constructed {@link EnumResolver}
+     */
+    public static EnumResolver constructFor(DeserializationConfig config, AnnotatedClass annotatedClass)
+    {
+        // prepare data
+        final AnnotationIntrospector ai = config.getAnnotationIntrospector();
+        final boolean isIgnoreCase = config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
+        final Class<?> enumCls0 = annotatedClass.getRawType();
+        final Class<Enum<?>> enumCls = _enumClass(enumCls0);
+        final Enum<?>[] enumConstants = _enumConstants(enumCls);
+
+        // introspect
+        String[] names = ai.findEnumValues(config, annotatedClass,
+                enumConstants, new String[enumConstants.length]);
+        final String[][] allAliases = new String[names.length][];
+        ai.findEnumAliases(config, annotatedClass, enumConstants, allAliases);
+
+        // finally, build
+        HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();
+        for (int i = 0, len = enumConstants.length; i < len; ++i) {
+            final Enum<?> enumValue = enumConstants[i];
+            String name = names[i];
+            if (name == null) {
+                name = enumValue.name();
+            }
+            map.put(name, enumValue);
+            String[] aliases = allAliases[i];
+            if (aliases != null) {
+                for (String alias : aliases) {
+                    // Avoid overriding any primary names
+                    map.putIfAbsent(alias, enumValue);
+                }
+            }
+        }
+        final Enum<?> enumDefault = ai.findDefaultEnumValue(config, enumCls);
+        return new EnumResolver(enumCls, enumConstants, map,
+                enumDefault, isIgnoreCase, false);
     }
 
     /**

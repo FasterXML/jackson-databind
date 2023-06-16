@@ -34,7 +34,7 @@ public class Java9ListsTest extends BaseMapTest
          List<String> list = List.of("a");
 /*         {
              Class<?> cls = list.getClass();
-             com.fasterxml.jackson.databind.JavaType type = MAPPER.constructType(cls);
+             tools.jackson.databind.JavaType type = MAPPER.constructType(cls);
 System.err.println("LIST type: "+type);
 System.err.println(" final? "+type.isFinal());
          }

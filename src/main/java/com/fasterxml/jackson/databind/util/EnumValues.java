@@ -169,7 +169,8 @@ public final class EnumValues
     }
 
     /**
-     * @see EnumResolver#_enumConstants(Class) 
+     * Helper method <b>slightly</b> different from {@link EnumResolver#_enumConstants(Class)},
+     * with same method name to keep calling methods more consistent.
      */
     protected static Enum<?>[] _enumConstants(Class<?> enumCls) {
         final Enum<?>[] enumValues = ClassUtil.findEnumType(enumCls).getEnumConstants();

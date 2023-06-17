@@ -86,8 +86,7 @@ public final class EnumValues
         String[] names = ai.findEnumValues(config, annotatedClass, 
                 enumConstants, new String[enumConstants.length]);
 
-
-        // finally build
+        // build
         SerializableString[] textual = new SerializableString[enumConstants.length];
         for (int i = 0, len = enumConstants.length; i < len; ++i) {
             Enum<?> enumValue = enumConstants[i];

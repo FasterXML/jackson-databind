@@ -68,6 +68,30 @@ public class EnumDeserMixin2787Test extends BaseMapTest {
         Enum2787 result = mapper.readValue(q("B_MIXIN_PROP"), Enum2787.class);
 
         assertEquals(Enum2787.ITEM_B, result);
+        
+        String value = mapper.writeValueAsString(EnumMixin2787.ITEM_B);
+    }
+
+    public void testEnumMixinRoundTripSerDeser() throws Exception {
+        // ser -> deser
+        ObjectMapper mapper = MAPPER.addMixIn(Enum2787.class, EnumMixin2787.class);
+        // from
+        String result = mapper.writeValueAsString(Enum2787.ITEM_B);
+        assertEquals(q("B_MIXIN_PROP"), result);
+        // to
+        Enum2787 result2 = mapper.readValue(result, Enum2787.class);
+        assertEquals(Enum2787.ITEM_B, result2);
+    }
+
+    public void testEnumMixinRoundTripDeserSer() throws Exception {
+        // deser -> ser
+        ObjectMapper mapper = MAPPER.addMixIn(Enum2787.class, EnumMixin2787.class);
+        // from
+        Enum2787 result = mapper.readValue(q("B_MIXIN_PROP"), Enum2787.class);
+        assertEquals(Enum2787.ITEM_B, result);
+        // to
+        String value = mapper.writeValueAsString(result);
+        assertEquals(q("B_MIXIN_PROP"), value);
     }
 
     public void testBeanMixin() throws Exception {

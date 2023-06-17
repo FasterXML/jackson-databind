@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.util;
 
+import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import java.util.*;
 
 import com.fasterxml.jackson.core.SerializableString;
@@ -41,6 +42,9 @@ public final class EnumValues
         return constructFromName(config, enumClass);
     }
 
+    /**
+     * @deprecated Since 2.16, use {@link #constructFromName(MapperConfig, AnnotatedClass)} instead.
+     */
     public static EnumValues constructFromName(MapperConfig<?> config, Class<Enum<?>> enumClass)
     {
         // Enum types with per-instance sub-classes need special handling
@@ -63,6 +67,37 @@ public final class EnumValues
             textual[en.ordinal()] = config.compileString(name);
         }
         return construct(enumClass, textual);
+    }
+
+
+    /**
+     * @since 2.16
+     */
+    public static EnumValues constructFromName(MapperConfig<?> config, AnnotatedClass annotatedClass) 
+    {
+        // prepare data
+        final AnnotationIntrospector ai = config.getAnnotationIntrospector();
+        final Class<?> enumCls0 = annotatedClass.getRawType();
+        final Class<Enum<?>> enumCls = _enumClass(enumCls0);
+        final Enum<?>[] enumValues = _enumConstants(enumCls0);
+
+        // introspect
+        String[] names = ai.findEnumValues(config, annotatedClass, enumValues, new String[enumValues.length]);
+
+        // finally build
+        SerializableString[] textual = new SerializableString[enumValues.length];
+        for (int i = 0, len = enumValues.length; i < len; ++i) {
+            Enum<?> en = enumValues[i];
+            String name = names[i];
+            if (name == null) {
+                name = en.name();
+            }
+            if (config.isEnabled(EnumFeature.WRITE_ENUMS_TO_LOWERCASE)) {
+                name = name.toLowerCase();
+            }
+            textual[en.ordinal()] = config.compileString(name);
+        }
+        return construct(enumCls, textual);    
     }
 
     public static EnumValues constructFromToString(MapperConfig<?> config, Class<Enum<?>> enumClass)
@@ -120,6 +155,30 @@ public final class EnumValues
             SerializableString[] externalValues) {
         return new EnumValues(enumClass, externalValues);
     }
+
+    /* 
+    /**********************************************************************
+    /* Internal Helpers
+    /**********************************************************************
+     */
+
+    protected static Class<Enum<?>> _enumClass(Class<?> enumCls0) {
+        return (Class<Enum<?>>) enumCls0;
+    }
+
+    protected static Enum<?>[] _enumConstants(Class<?> enumCls) {
+        final Enum<?>[] enumValues = _enumClass(enumCls).getEnumConstants();
+        if (enumValues == null) {
+            throw new IllegalArgumentException("No enum constants for class "+enumCls.getName());
+        }
+        return enumValues;
+    }
+    
+    /*
+    /**********************************************************************
+    /* Public API
+    /**********************************************************************
+     */
 
     public SerializableString serializedValueFor(Enum<?> key) {
         return _textual[key.ordinal()];

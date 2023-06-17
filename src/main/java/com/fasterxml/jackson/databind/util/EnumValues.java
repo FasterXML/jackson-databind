@@ -77,27 +77,30 @@ public final class EnumValues
     {
         // prepare data
         final AnnotationIntrospector ai = config.getAnnotationIntrospector();
+        final boolean useLowerCase = config.isEnabled(EnumFeature.WRITE_ENUMS_TO_LOWERCASE);
         final Class<?> enumCls0 = annotatedClass.getRawType();
         final Class<Enum<?>> enumCls = _enumClass(enumCls0);
-        final Enum<?>[] enumValues = _enumConstants(enumCls0);
+        final Enum<?>[] enumConstants = _enumConstants(enumCls0);
 
         // introspect
-        String[] names = ai.findEnumValues(config, annotatedClass, enumValues, new String[enumValues.length]);
+        String[] names = ai.findEnumValues(config, annotatedClass, 
+                enumConstants, new String[enumConstants.length]);
+
 
         // finally build
-        SerializableString[] textual = new SerializableString[enumValues.length];
-        for (int i = 0, len = enumValues.length; i < len; ++i) {
-            Enum<?> en = enumValues[i];
+        SerializableString[] textual = new SerializableString[enumConstants.length];
+        for (int i = 0, len = enumConstants.length; i < len; ++i) {
+            Enum<?> enumValue = enumConstants[i];
             String name = names[i];
             if (name == null) {
-                name = en.name();
+                name = enumValue.name();
             }
-            if (config.isEnabled(EnumFeature.WRITE_ENUMS_TO_LOWERCASE)) {
+            if (useLowerCase) {
                 name = name.toLowerCase();
             }
-            textual[en.ordinal()] = config.compileString(name);
+            textual[enumValue.ordinal()] = config.compileString(name);
         }
-        return construct(enumCls, textual);    
+        return construct(enumCls, textual);
     }
 
     public static EnumValues constructFromToString(MapperConfig<?> config, Class<Enum<?>> enumClass)
@@ -166,8 +169,11 @@ public final class EnumValues
         return (Class<Enum<?>>) enumCls0;
     }
 
+    /**
+     * @see EnumResolver#_enumConstants(Class) 
+     */
     protected static Enum<?>[] _enumConstants(Class<?> enumCls) {
-        final Enum<?>[] enumValues = _enumClass(enumCls).getEnumConstants();
+        final Enum<?>[] enumValues = ClassUtil.findEnumType(enumCls).getEnumConstants();
         if (enumValues == null) {
             throw new IllegalArgumentException("No enum constants for class "+enumCls.getName());
         }

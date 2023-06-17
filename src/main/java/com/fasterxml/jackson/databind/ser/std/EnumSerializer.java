@@ -99,7 +99,6 @@ public class EnumSerializer
          *   handle toString() case dynamically (for example)
          */
         EnumValues v = EnumValues.constructFromName(config, beanDesc.getClassInfo());
-//        EnumValues v = EnumValues.constructFromName(config, (Class<Enum<?>>) enumClass);
         EnumValues valuesByEnumNaming = constructEnumNamingStrategyValues(config, (Class<Enum<?>>) enumClass, beanDesc.getClassInfo());
         Boolean serializeAsIndex = _isShapeWrittenUsingIndex(enumClass, format, true, null);
         return new EnumSerializer(v, serializeAsIndex, valuesByEnumNaming);

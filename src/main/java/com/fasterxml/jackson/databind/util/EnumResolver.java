@@ -79,6 +79,7 @@ public class EnumResolver implements java.io.Serializable
      * @since 2.12
      * @deprecated Since 2.16 use {@link #constructFor(DeserializationConfig, AnnotatedClass)} instead
      */
+    @Deprecated
     public static EnumResolver constructFor(DeserializationConfig config,
             Class<?> enumCls) {
         return _constructFor(config, enumCls);
@@ -88,6 +89,7 @@ public class EnumResolver implements java.io.Serializable
      * @since 2.15
      * @deprecated Since 2.16 use {@link #_constructFor(DeserializationConfig, AnnotatedClass)} instead
      */
+    @Deprecated
     protected static EnumResolver _constructFor(DeserializationConfig config, Class<?> enumCls0)
     {
         final AnnotationIntrospector ai = config.getAnnotationIntrospector();

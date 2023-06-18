@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser.enums;
 
-import com.fasterxml.jackson.databind.module.TestTypeModifierNameResolution;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;

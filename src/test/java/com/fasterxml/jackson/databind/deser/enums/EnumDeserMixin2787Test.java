@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 public class EnumDeserMixin2787Test extends BaseMapTest {
 
@@ -63,13 +64,11 @@ public class EnumDeserMixin2787Test extends BaseMapTest {
     protected final ObjectMapper MAPPER = jsonMapperBuilder().build();
 
     public void testEnumDeserSuccess() throws Exception {
-        ObjectMapper mapper = MAPPER.addMixIn(Enum2787.class, EnumMixin2787.class);
+        ObjectMapper mapper = mapperWithMixIn(Enum2787.class, EnumMixin2787.class);
 
         Enum2787 result = mapper.readValue(q("B_MIXIN_PROP"), Enum2787.class);
 
         assertEquals(Enum2787.ITEM_B, result);
-        
-        String value = mapper.writeValueAsString(EnumMixin2787.ITEM_B);
     }
 
     public void testEnumMixinRoundTripSerDeser() throws Exception {
@@ -103,11 +102,12 @@ public class EnumDeserMixin2787Test extends BaseMapTest {
     }
 
     public void testEnumDeserSuccessCaseInsensitive() throws Exception {
-        ObjectMapper mapper = MAPPER.addMixIn(Enum2787.class, EnumMixin2787.class)
-            .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
+        ObjectMapper mapper = builderWithMixIn(Enum2787.class, EnumMixin2787.class)
+                .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS)
+                .build();
 
-        Enum2787 result = mapper.readValue(q("B_mIxIn_pRoP"), Enum2787.class);
-        assertEquals(Enum2787.ITEM_B, result);
+            Enum2787 result = mapper.readValue(q("B_mIxIn_pRoP"), Enum2787.class);
+            assertEquals(Enum2787.ITEM_B, result);
     }
 
     public void testEnumDeserSuccessMissingFromMixIn() throws Exception {
@@ -172,5 +172,13 @@ public class EnumDeserMixin2787Test extends BaseMapTest {
         EnumWrapper result = mapper.readValue(a2q("{'value': 'C_MIXIN_ALIAS_1'}"), EnumWrapper.class);
 
         assertEquals(Enum2787.ITEM_C, result.value);
+    }
+
+    private ObjectMapper mapperWithMixIn(Class<?> target, Class<?> mixin) {
+        return builderWithMixIn(target, mixin).build();
+    }
+
+    private JsonMapper.Builder builderWithMixIn(Class<?> target, Class<?> mixin) {
+        return JsonMapper.builder().addMixIn(target, mixin);
     }
 }

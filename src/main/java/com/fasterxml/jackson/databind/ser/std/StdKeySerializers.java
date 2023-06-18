@@ -103,7 +103,7 @@ public abstract class StdKeySerializers
             //    for subtypes.
             if (ClassUtil.isEnumType(rawKeyType)) {
                 return EnumKeySerializer.construct(rawKeyType,
-                    EnumValues.constructFromName(config, (Class<Enum<?>>) rawKeyType),
+                    EnumValues.constructFromName(config, annotatedClass),
                     EnumSerializer.constructEnumNamingStrategyValues(config, (Class<Enum<?>>) rawKeyType, annotatedClass));
             }
         }

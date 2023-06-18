@@ -3,9 +3,11 @@ package tools.jackson.databind.util;
 import java.util.*;
 
 import tools.jackson.core.SerializableString;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.cfg.MapperConfig;
+import tools.jackson.databind.introspect.AnnotatedClass;
 
 /**
  * Helper class used for storing String serializations of {@code Enum}s,
@@ -34,36 +36,43 @@ public final class EnumValues
      * NOTE: do NOT call this if configuration may change, and choice between toString()
      *   and name() might change dynamically.
      */
-    public static EnumValues construct(SerializationConfig config, Class<Enum<?>> enumClass) {
+    public static EnumValues construct(SerializationConfig config, AnnotatedClass enumClass) {
         if (config.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)) {
-            return constructFromToString(config, enumClass);
+            return constructFromToString(config, _enumClass(enumClass.getRawType()));
         }
         return constructFromName(config, enumClass);
     }
 
-    public static EnumValues constructFromName(MapperConfig<?> config, Class<Enum<?>> enumClass)
+    /**
+     * @since 2.16
+     */
+    public static EnumValues constructFromName(MapperConfig<?> config, AnnotatedClass annotatedClass) 
     {
-        // Enum types with per-instance sub-classes need special handling
-        Class<? extends Enum<?>> enumCls = ClassUtil.findEnumType(enumClass);
-        Enum<?>[] enumValues = enumCls.getEnumConstants();
-        if (enumValues == null) {
-            throw new IllegalArgumentException("Cannot determine enum constants for Class "+enumClass.getName());
-        }
-        String[] names = config.getAnnotationIntrospector().findEnumValues(config,
-                enumCls, enumValues, new String[enumValues.length]);
-        SerializableString[] textual = new SerializableString[enumValues.length];
-        for (int i = 0, len = enumValues.length; i < len; ++i) {
-            Enum<?> en = enumValues[i];
+        // prepare data
+        final AnnotationIntrospector ai = config.getAnnotationIntrospector();
+        final boolean useLowerCase = config.isEnabled(EnumFeature.WRITE_ENUMS_TO_LOWERCASE);
+        final Class<?> enumCls0 = annotatedClass.getRawType();
+        final Class<Enum<?>> enumCls = _enumClass(enumCls0);
+        final Enum<?>[] enumConstants = _enumConstants(enumCls0);
+
+        // introspect
+        String[] names = ai.findEnumValues(config, annotatedClass, 
+                enumConstants, new String[enumConstants.length]);
+
+        // build
+        SerializableString[] textual = new SerializableString[enumConstants.length];
+        for (int i = 0, len = enumConstants.length; i < len; ++i) {
+            Enum<?> enumValue = enumConstants[i];
             String name = names[i];
             if (name == null) {
-                name = en.name();
+                name = enumValue.name();
             }
-            if (config.isEnabled(EnumFeature.WRITE_ENUMS_TO_LOWERCASE)) {
+            if (useLowerCase) {
                 name = name.toLowerCase();
             }
-            textual[en.ordinal()] = config.compileString(name);
+            textual[enumValue.ordinal()] = config.compileString(name);
         }
-        return construct(enumClass, textual);
+        return construct(enumCls, textual);
     }
 
     public static EnumValues constructFromToString(MapperConfig<?> config, Class<Enum<?>> enumClass)
@@ -121,6 +130,35 @@ public final class EnumValues
             SerializableString[] externalValues) {
         return new EnumValues(enumClass, externalValues);
     }
+
+    /* 
+    /**********************************************************************
+    /* Internal Helpers
+    /**********************************************************************
+     */
+
+    @SuppressWarnings("unchecked")
+    protected static Class<Enum<?>> _enumClass(Class<?> enumCls0) {
+        return (Class<Enum<?>>) enumCls0;
+    }
+
+    /**
+     * Helper method <b>slightly</b> different from {@link EnumResolver#_enumConstants(Class)},
+     * with same method name to keep calling methods more consistent.
+     */
+    protected static Enum<?>[] _enumConstants(Class<?> enumCls) {
+        final Enum<?>[] enumValues = ClassUtil.findEnumType(enumCls).getEnumConstants();
+        if (enumValues == null) {
+            throw new IllegalArgumentException("No enum constants for class "+enumCls.getName());
+        }
+        return enumValues;
+    }
+    
+    /*
+    /**********************************************************************
+    /* Public API
+    /**********************************************************************
+     */
 
     public SerializableString serializedValueFor(Enum<?> key) {
         return _textual[key.ordinal()];

@@ -7,6 +7,8 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationConfig;
 import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.cfg.EnumFeature;
+import tools.jackson.databind.introspect.AnnotatedClass;
+import tools.jackson.databind.introspect.AnnotatedClassResolver;
 
 public class EnumValuesTest extends BaseMapTest
 {
@@ -23,13 +25,12 @@ public class EnumValuesTest extends BaseMapTest
         public String toString() { return desc; }
     }
 
-    final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = new ObjectMapper();
 
-    @SuppressWarnings("unchecked")
     public void testConstructFromName() {
         SerializationConfig cfg = MAPPER.serializationConfig()
                 .without(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
-        Class<Enum<?>> enumClass = (Class<Enum<?>>)(Class<?>) ABC.class;
+        AnnotatedClass enumClass = resolve(MAPPER, ABC.class);
         EnumValues values = EnumValues.construct(cfg, enumClass);
         assertEquals("A", values.serializedValueFor(ABC.A).toString());
         assertEquals("B", values.serializedValueFor(ABC.B).toString());
@@ -38,11 +39,10 @@ public class EnumValuesTest extends BaseMapTest
         assertEquals(3, values.internalMap().size());
     }
 
-    @SuppressWarnings("unchecked")
     public void testConstructWithToString() {
         SerializationConfig cfg = MAPPER.serializationConfig()
                 .with(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
-        Class<Enum<?>> enumClass = (Class<Enum<?>>)(Class<?>) ABC.class;
+        AnnotatedClass enumClass = resolve(MAPPER, ABC.class);
         EnumValues values = EnumValues.construct(cfg, enumClass);
         assertEquals("A", values.serializedValueFor(ABC.A).toString());
         assertEquals("b", values.serializedValueFor(ABC.B).toString());
@@ -67,16 +67,20 @@ public class EnumValuesTest extends BaseMapTest
     }
 
     // [databind#3053]
-    @SuppressWarnings("unchecked")
     public void testConstructFromNameLowerCased() {
         SerializationConfig cfg = MAPPER.serializationConfig()
             .with(EnumFeature.WRITE_ENUMS_TO_LOWERCASE);
-        Class<Enum<?>> enumClass = (Class<Enum<?>>)(Class<?>) ABC.class;
+        AnnotatedClass enumClass = resolve(MAPPER, ABC.class);
         EnumValues values = EnumValues.construct(cfg, enumClass);
         assertEquals("a", values.serializedValueFor(ABC.A).toString());
         assertEquals("b", values.serializedValueFor(ABC.B).toString());
         assertEquals("c", values.serializedValueFor(ABC.C).toString());
         assertEquals(3, values.values().size());
         assertEquals(3, values.internalMap().size());
+    }
+
+    private AnnotatedClass resolve(ObjectMapper mapper, Class<?> enumClass) {
+        return AnnotatedClassResolver.resolve(mapper.serializationConfig(),
+                mapper.constructType(enumClass), null);
     }
 }

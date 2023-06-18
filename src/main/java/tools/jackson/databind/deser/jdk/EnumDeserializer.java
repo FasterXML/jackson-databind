@@ -147,6 +147,7 @@ public class EnumDeserializer
           JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)).orElse(_useDefaultValueForUnknownEnum);
         Boolean useNullForUnknownEnum = Optional.ofNullable(findFormatFeature(ctxt, property, handledType(),
           JsonFormat.Feature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)).orElse(_useNullForUnknownEnum);
+        
         return withResolved(caseInsensitive, useDefaultValueForUnknownEnum, useNullForUnknownEnum);
     }
 

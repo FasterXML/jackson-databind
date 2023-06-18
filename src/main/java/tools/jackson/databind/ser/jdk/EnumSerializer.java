@@ -84,7 +84,7 @@ public class EnumSerializer
         // 08-Apr-2015, tatu: As per [databind#749], we cannot statically determine
         //   between name() and toString(), need to construct `EnumValues` with names,
         //   handle toString() case dynamically (for example)
-        EnumValues v = EnumValues.constructFromName(config, (Class<Enum<?>>) enumClass);
+        EnumValues v = EnumValues.constructFromName(config, beanDesc.getClassInfo());
         EnumValues valuesByEnumNaming = constructEnumNamingStrategyValues(config, (Class<Enum<?>>) enumClass, beanDesc.getClassInfo());
         Boolean serializeAsIndex = _isShapeWrittenUsingIndex(enumClass, format, true, null);
         return new EnumSerializer(v, serializeAsIndex, valuesByEnumNaming);

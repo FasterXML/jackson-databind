@@ -2,14 +2,15 @@ package tools.jackson.databind.deser.enums;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.json.JsonMapper;
 
-public class EnumDeserMixin2787Test extends BaseMapTest {
-
+public class EnumDeserMixin2787Test extends BaseMapTest
+{
     static enum Enum2787 {
         ITEM_A,
 
@@ -69,6 +70,28 @@ public class EnumDeserMixin2787Test extends BaseMapTest {
         Enum2787 result = mapper.readValue(q("B_MIXIN_PROP"), Enum2787.class);
 
         assertEquals(Enum2787.ITEM_B, result);
+    }
+
+    public void testEnumMixinRoundTripSerDeser() throws Exception {
+        // ser -> deser
+        ObjectMapper mapper = mapperWithMixIn(Enum2787.class, EnumMixin2787.class);
+        // from
+        String result = mapper.writeValueAsString(Enum2787.ITEM_B);
+        assertEquals(q("B_MIXIN_PROP"), result);
+        // to
+        Enum2787 result2 = mapper.readValue(result, Enum2787.class);
+        assertEquals(Enum2787.ITEM_B, result2);
+    }
+
+    public void testEnumMixinRoundTripDeserSer() throws Exception {
+        // deser -> ser
+        ObjectMapper mapper = mapperWithMixIn(Enum2787.class, EnumMixin2787.class);
+        // from
+        Enum2787 result = mapper.readValue(q("B_MIXIN_PROP"), Enum2787.class);
+        assertEquals(Enum2787.ITEM_B, result);
+        // to
+        String value = mapper.writeValueAsString(result);
+        assertEquals(q("B_MIXIN_PROP"), value);
     }
 
     public void testBeanMixin() throws Exception {

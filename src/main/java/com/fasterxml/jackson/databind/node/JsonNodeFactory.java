@@ -2,6 +2,10 @@ package com.fasterxml.jackson.databind.node;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.function.Supplier;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.util.RawValue;
@@ -49,9 +53,32 @@ public class JsonNodeFactory
      */
     protected final static int MAX_ELEMENT_INDEX_FOR_INSERT = 9999;
 
+    /**
+     * Default factory for the {@link Map} to use for children of {@link ObjectNode}.
+     * 
+     * @since 2.16
+     */
+    public static final Supplier<Map<String, JsonNode>> DEFAULT_OBJECT_NODE_CHILDREN_FACTORY = LinkedHashMap::new;
+
+    /**
+     * Factory for the {@link Map} to use for children of {@link ObjectNode} which sorts the entries by name.
+     * 
+     * @since 2.16
+     */
+    public static final Supplier<Map<String, JsonNode>> SORTED_OBJECT_NODE_CHILDREN_FACTORY = TreeMap::new;
+
     @Deprecated // as of 2.15
     private final boolean _cfgBigDecimalExact;
 
+    /**
+     * A factory for the {@link Map} to use for children of {@link ObjectNode}.
+     * 
+     * <p>The default is a map which keeps the order in which children were added.
+     *
+     * @since 2.16
+     */
+    private final Supplier<Map<String, JsonNode>> _objectNodeChildrenFactory;
+    
     /**
      * Default singleton instance that construct "standard" node instances:
      * given that this class is stateless, a globally shared singleton
@@ -66,7 +93,7 @@ public class JsonNodeFactory
      */
     public JsonNodeFactory(boolean bigDecimalExact)
     {
-        _cfgBigDecimalExact = bigDecimalExact;
+        this(bigDecimalExact, DEFAULT_OBJECT_NODE_CHILDREN_FACTORY);
     }
 
     /**
@@ -76,7 +103,22 @@ public class JsonNodeFactory
      */
     protected JsonNodeFactory()
     {
-        this(false);
+        this(false, DEFAULT_OBJECT_NODE_CHILDREN_FACTORY);
+    }
+
+    /**
+     * @since 2.16
+     */
+    public JsonNodeFactory(Supplier<Map<String, JsonNode>> objectNodeChildrenFactory) {
+        this(false, objectNodeChildrenFactory);
+    }
+    
+    /**
+     * @since 2.16
+     */
+    public JsonNodeFactory(boolean bigDecimalExact, Supplier<Map<String, JsonNode>> objectNodeChildrenFactory) {
+        _cfgBigDecimalExact = bigDecimalExact;
+        _objectNodeChildrenFactory = objectNodeChildrenFactory;
     }
 
     /**
@@ -350,8 +392,13 @@ public class JsonNodeFactory
      * Factory method for constructing an empty JSON Object ("struct") node
      */
     @Override
-    public ObjectNode objectNode() { return new ObjectNode(this); }
+    public ObjectNode objectNode() { return new ObjectNode(this, _objectNodeChildrenFactory.get()); }
 
+    /** @since 2.16 */
+    public Map<String, JsonNode> objectNodeChildren() {
+        return _objectNodeChildrenFactory.get();
+    }
+    
     /**
      * Factory method for constructing a wrapper for POJO
      * ("Plain Old Java Object") objects; these will get serialized
@@ -377,6 +424,26 @@ public class JsonNodeFactory
         int i = (int) l;
         long l2 = (long) i;
         return (l2 == l);
+    }
+
+    /**
+     * Alternate method to copy trees of JsonNode. This method here applies the configuration of this
+     * {@link JsonNodeFactory} to the copied nodes.
+     * 
+     * @since 2.16
+     */
+    public JsonNode deepCopy(JsonNode orig) {
+        if (orig instanceof ObjectNode) {
+            ObjectNode result = objectNode();
+
+            for(Map.Entry<String, JsonNode> entry: orig.properties())
+                result.set(entry.getKey(), deepCopy(entry.getValue()));
+
+            return result;
+        }
+        
+        // No other node has any special handling, so we can let the other factory copy them.
+        return orig.deepCopy();
     }
 }
 

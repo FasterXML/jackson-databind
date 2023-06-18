@@ -29,7 +29,7 @@ public class ObjectNode
 
     public ObjectNode(JsonNodeFactory nc) {
         super(nc);
-        _children = new LinkedHashMap<String, JsonNode>();
+        _children = nc == null ? JsonNodeFactory.DEFAULT_OBJECT_NODE_CHILDREN_FACTORY.get() : nc.objectNodeChildren();
     }
 
     /**
@@ -53,7 +53,7 @@ public class ObjectNode
     @Override
     public ObjectNode deepCopy()
     {
-        ObjectNode ret = new ObjectNode(_nodeFactory);
+        ObjectNode ret = objectNode();
 
         for (Map.Entry<String, JsonNode> entry: _children.entrySet())
             ret._children.put(entry.getKey(), entry.getValue().deepCopy());

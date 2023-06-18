@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 /**
  * Additional tests for {@link ObjectNode} container class.
@@ -64,6 +65,10 @@ public class ObjectNodeTest
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
+    
+    private final ObjectMapper SORTED_MAPPER = JsonMapper.builder()
+            .nodeFactory(new JsonNodeFactory(JsonNodeFactory.SORTED_OBJECT_NODE_CHILDREN_FACTORY))
+            .build();
 
     public void testSimpleObject() throws Exception
     {
@@ -118,6 +123,26 @@ public class ObjectNodeTest
         assertEquals(1, obNode.size());
         assertEquals(IntNode.valueOf(1), root.get("key"));
         assertNull(root.get("b"));
+    }
+
+    public void testSortedReadTree() throws Exception
+    {
+        String JSON = "{ \"key\" : 1, \"b\" : \"x\" }";
+        JsonNode root = SORTED_MAPPER.readTree(JSON);
+        assertKeys("b, key", root);
+    }
+
+    private void assertKeys(String expected, JsonNode node) {
+        assertTrue(node instanceof ObjectNode);
+        String actual = keysOf(node).stream()
+                .collect(Collectors.joining(", "));
+        assertEquals(expected, actual);
+    }
+
+    private List<String> keysOf(JsonNode node) {
+        List<String> result = new ArrayList<>();
+        node.fieldNames().forEachRemaining(result::add);
+        return result;
     }
 
     // for [databind#346]
@@ -200,6 +225,40 @@ public class ObjectNodeTest
         old = root.replace("key", f.numberNode(72));
         assertNotNull(old);
         assertEquals("foobar", old.textValue());
+    }
+
+    public void testPreserveOrder()
+    {
+        final JsonNodeFactory f = new JsonNodeFactory();
+        ObjectNode root = f.objectNode();
+        
+        root.put("key", "foobar");
+        root.put("b", 1);
+
+        assertKeys("key, b", root);
+    }
+
+    public void testSorted()
+    {
+        final JsonNodeFactory f = new JsonNodeFactory(JsonNodeFactory.SORTED_OBJECT_NODE_CHILDREN_FACTORY);
+        ObjectNode root = f.objectNode();
+        
+        root.put("key", "foobar");
+        root.put("b", 1);
+        
+        assertKeys("b, key", root);
+    }
+    
+    public void testCopy()
+    {
+        final JsonNodeFactory f = new JsonNodeFactory(JsonNodeFactory.SORTED_OBJECT_NODE_CHILDREN_FACTORY);
+        ObjectNode root = f.objectNode();
+        
+        root.put("key", "foobar");
+        root.put("b", 1);
+        
+        ObjectNode copy = root.deepCopy();
+        assertKeys("b, key", copy);
     }
 
     public void testBigNumbers()
@@ -465,6 +524,25 @@ public class ObjectNodeTest
         assertTrue(ob1.equals(ob2));
         assertTrue(ob2.equals(ob1));
     }
+    
+    public void testEqualityWrtOrder2() throws Exception
+    {
+        ObjectNode ob1 = SORTED_MAPPER.createObjectNode();
+        ObjectNode ob2 = MAPPER.createObjectNode();
+        
+        // same contents, different insertion order; should not matter
+        
+        ob1.put("a", 1);
+        ob1.put("b", 2);
+        ob1.put("c", 3);
+        
+        ob2.put("b", 2);
+        ob2.put("c", 3);
+        ob2.put("a", 1);
+        
+        assertTrue(ob1.equals(ob2));
+        assertTrue(ob2.equals(ob1));
+    }
 
     public void testSimplePath() throws Exception
     {
@@ -522,6 +600,15 @@ public class ObjectNodeTest
         JsonNode n = MAPPER.readTree(a2q(
                 "{ 'a':1, 'b':true,'c':'stuff'}"));
         assertEquals("a/1,b/true,c/\"stuff\"", _toString(n));
+    }
+
+    public void testSortTree() throws Exception {
+        JsonNode orig = MAPPER.readTree(a2q(
+                "{ 'b':1, 'x':true, 'a':{ '2': null, '1': 'stuff' }}"));
+        JsonNodeFactory sortedFactory = new JsonNodeFactory(JsonNodeFactory.SORTED_OBJECT_NODE_CHILDREN_FACTORY);
+        JsonNode sortedCopy = sortedFactory.deepCopy(orig);
+        String actual = q2a(MAPPER.writeValueAsString(sortedCopy));
+        assertEquals("{'a':{'1':'stuff','2':null},'b':1,'x':true}", actual);
     }
 
     private String _toString(JsonNode n) {

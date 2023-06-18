@@ -34,17 +34,20 @@ public final class EnumValues
     /**
      * NOTE: do NOT call this if configuration may change, and choice between toString()
      *   and name() might change dynamically.
+     *
+     * @since 2.16
      */
-    public static EnumValues construct(SerializationConfig config, Class<Enum<?>> enumClass) {
+    public static EnumValues construct(SerializationConfig config, AnnotatedClass annotatedClass) {
         if (config.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)) {
-            return constructFromToString(config, enumClass);
+            return constructFromToString(config, _enumClass(annotatedClass.getRawType()));
         }
-        return constructFromName(config, enumClass);
+        return constructFromName(config, annotatedClass);
     }
 
     /**
      * @deprecated Since 2.16, use {@link #constructFromName(MapperConfig, AnnotatedClass)} instead.
      */
+    @Deprecated
     public static EnumValues constructFromName(MapperConfig<?> config, Class<Enum<?>> enumClass)
     {
         // Enum types with per-instance sub-classes need special handling
@@ -68,7 +71,6 @@ public final class EnumValues
         }
         return construct(enumClass, textual);
     }
-
 
     /**
      * @since 2.16
@@ -164,6 +166,7 @@ public final class EnumValues
     /**********************************************************************
      */
 
+    @SuppressWarnings("unchecked")
     protected static Class<Enum<?>> _enumClass(Class<?> enumCls0) {
         return (Class<Enum<?>>) enumCls0;
     }

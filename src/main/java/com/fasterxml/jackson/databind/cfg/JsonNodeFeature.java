@@ -27,6 +27,19 @@ public enum JsonNodeFeature implements DatatypeFeature
      */
     WRITE_NULL_PROPERTIES(true),
 
+    /**
+     * When writing {@code com.fasterxml.jackson.databind.JsonNode}s are Object properties
+     * (for {@code ObjectNode}s) sorted alphabetically (using natural order of
+     * {@link java.lang.String}) or not?
+     * If not sorted, order is the insertion order; when reading this also means retaining
+     * order from the input document.
+     *<p>
+     * Default value: {@code false}
+     *
+     * @since 2.16
+     */
+    WRITE_PROPERTIES_SORTED(false),
+
     // // // Merge configuration settings
 
     // // // 03-Aug-2022, tatu: Possible other additions:

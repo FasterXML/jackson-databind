@@ -10,6 +10,8 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -111,6 +113,36 @@ class CanonicalJsonTest {
 
         JSON_ASSERT.assertJson(CANONICAL_1, actual);
     }
+    
+    @Test
+    void testJsonTypeInfoSorting() throws Exception {
+        Impl1 inst = new Impl1();
+        inst.setValue(97);
+        
+        JSON_ASSERT.assertStableSerialization(
+                "{\n"
+                + "    \"type\": \"i1\",\n" // TODO this property should be after name
+                + "    \"name\": \"Impl1\",\n"
+                + "    \"value\": 97\n"
+                + "}",
+                inst,
+                TypeBase.class);
+    }
+    
+    @Test
+    void testJsonTypeInfoSorting2() throws Exception {
+        Impl2 inst = new Impl2();
+        inst.setDecimal(3.1415);
+        
+        JSON_ASSERT.assertStableSerialization(
+                "{\n"
+                + "    \"type\": \"i2\",\n" // TODO this property should be after name
+                + "    \"decimal\": 3.1415,\n"
+                + "    \"name\": \"Impl2\"\n"
+                + "}",
+                inst,
+                TypeBase.class);
+    }
 
     private void assertSerialized(String expected, Object input, JsonMapper mapper) {
         String actual;
@@ -167,5 +199,52 @@ class CanonicalJsonTest {
                 .put("lone surrogate", "\uDEAD") //
                 .put("whitespace", " \t\n\r") //
                 ;
+    }
+    
+    @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=JsonTypeInfo.As.PROPERTY, property="type")
+    @JsonSubTypes({
+        @JsonSubTypes.Type(value=Impl1.class, name="i1"), 
+        @JsonSubTypes.Type(value=Impl2.class, name="i2") 
+    })
+    public interface TypeBase {
+        String getName();
+    }
+    
+    public static class Impl1 implements TypeBase {
+        private String name = "Impl1";
+        private int value;
+        
+        @Override
+        public String getName() {
+            return name;
+        }
+        public void setName(String name) {
+            this.name = name;
+        }
+        public int getValue() {
+            return value;
+        }
+        public void setValue(int value) {
+            this.value = value;
+        }
+    }
+
+    public static class Impl2 implements TypeBase {
+        private String name = "Impl2";
+        private double decimal;
+        
+        @Override
+        public String getName() {
+            return name;
+        }
+        public void setName(String name) {
+            this.name = name;
+        }
+        public double getDecimal() {
+            return decimal;
+        }
+        public void setDecimal(double decimal) {
+            this.decimal = decimal;
+        }
     }
 }

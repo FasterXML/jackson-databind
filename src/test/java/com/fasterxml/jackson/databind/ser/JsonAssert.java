@@ -20,18 +20,30 @@ public class JsonAssert {
                 .build();
     }
 
+    /** Make sure the object will be serialized into the expected JSON */
     public void assertJson(JsonTestResource expected, Object actual) {
         assertJson(loadResource(expected), actual);
     }
 
+    /** Make sure the object will be serialized into the expected JSON */
     public void assertJson(JsonNode expected, Object actual) {
         assertEquals(serialize(expected), serialize(actual));
     }
 
+    /** Make sure the object will be serialized into the expected JSON */
     public void assertSerialized(String expectedJson, Object actual) {
         assertEquals(expectedJson, serialize(actual));
     }
+    
+    /** Make sure the object will be serialized into the expected JSON and that it can be deserialized. */
+    public void assertStableSerialization(String expectedJson, Object actual, Class<?> baseType) throws IOException {
+        assertEquals(expectedJson, serialize(actual));
+        
+        Object deserialized = _mapper.readValue(expectedJson, baseType);
+        assertEquals(expectedJson, serialize(deserialized));
+    }
 
+    /** Serialize a JsonNode tree */
     public String serialize(JsonNode input) {
         try {
             return _mapper.writeValueAsString(input);
@@ -40,6 +52,7 @@ public class JsonAssert {
         }
     }
 
+    /** Serialize any object. This even works when <code>data</code> is a {@link JsonNode}. */
     public String serialize(Object data) {
         if (data instanceof JsonNode) {
             return serialize((JsonNode)data);
@@ -53,6 +66,7 @@ public class JsonAssert {
         }
     }
 
+    /** Load test data from the classpath into a {@link JsonNode}. */
     public JsonNode loadResource(JsonTestResource resource) {
         try (InputStream stream = resource.getInputStream()) {
             // TODO Formatting ok? JUnit 4 or 5 here?

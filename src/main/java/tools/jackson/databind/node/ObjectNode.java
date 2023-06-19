@@ -389,7 +389,7 @@ public class ObjectNode
             }
         }
         g.writeStartObject(this, _children.size());
-        for (Map.Entry<String, JsonNode> en : _children.entrySet()) {
+        for (Map.Entry<String, JsonNode> en : _contentsToSerialize(ctxt).entrySet()) {
             g.writeName(en.getKey());
             en.getValue().serialize(g, ctxt);
         }
@@ -415,7 +415,7 @@ public class ObjectNode
         if (trimEmptyArray || skipNulls) {
             serializeFilteredContents(g, ctxt, trimEmptyArray, skipNulls);
         } else {
-            for (Map.Entry<String, JsonNode> en : _children.entrySet()) {
+            for (Map.Entry<String, JsonNode> en : _contentsToSerialize(ctxt).entrySet()) {
                 g.writeName(en.getKey());
                 en.getValue().serialize(g, ctxt);
             }
@@ -431,7 +431,7 @@ public class ObjectNode
             final boolean trimEmptyArray, final boolean skipNulls)
         throws JacksonException
     {
-        for (Map.Entry<String, JsonNode> en : _children.entrySet()) {
+        for (Map.Entry<String, JsonNode> en : _contentsToSerialize(ctxt).entrySet()) {
             // 17-Feb-2009, tatu: Can we trust that all nodes will always
             //   extend BaseJsonNode? Or if not, at least implement
             //   JsonSerializable? Let's start with former, change if
@@ -450,6 +450,21 @@ public class ObjectNode
             g.writeName(en.getKey());
             value.serialize(g, ctxt);
         }
+    }
+
+    /**
+     * Helper method for encapsulating details of accessing child node entries
+     * to serialize.
+     *
+     * @since 2.16
+     */
+    protected Map<String, JsonNode> _contentsToSerialize(SerializerProvider ctxt) {
+        if (ctxt.isEnabled(JsonNodeFeature.WRITE_PROPERTIES_SORTED)) {
+            if (!_children.isEmpty()) {
+                return new TreeMap<>(_children);
+            }
+        }
+        return _children;
     }
 
     /*

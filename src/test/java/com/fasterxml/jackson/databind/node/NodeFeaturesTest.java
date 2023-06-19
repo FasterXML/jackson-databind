@@ -129,9 +129,16 @@ public class NodeFeaturesTest extends BaseMapTest
         assertEquals(a2q("{'b':2,'c':3,'a':1}"), WRITER.writeValueAsString(doc));
 
         // but if forcing sorting, changes
+        final String SORTED = a2q("{'a':1,'b':2,'c':3}");
+        ObjectMapper sortingMapper = JsonMapper.builder()
+                .enable(JsonNodeFeature.WRITE_PROPERTIES_SORTED)
+                .build();
+        assertEquals(SORTED, sortingMapper.writeValueAsString(doc));
+
+        // Let's verify ObjectWriter config too
         ObjectWriter w2 = WRITER.with(JsonNodeFeature.WRITE_PROPERTIES_SORTED);
         assertTrue(w2.isEnabled(JsonNodeFeature.WRITE_PROPERTIES_SORTED));
-        assertEquals(a2q("{'a':1,'b':2,'c':3}"), w2.writeValueAsString(doc));
+        assertEquals(SORTED, w2.writeValueAsString(doc));
     }
 
     /*

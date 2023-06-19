@@ -1639,7 +1639,7 @@ paramIndex, candidate);
      */
 
     /**
-     * Factory method for constructing serializers of {@link Enum} types.
+     * Factory method for constructing deserializers of {@link Enum} types.
      */
     @Override
     public ValueDeserializer<?> createEnumDeserializer(DeserializationContext ctxt,
@@ -1967,7 +1967,7 @@ factory.toString()));
      */
 
     /**
-     * Helper method called to find one of default serializers for "well-known"
+     * Helper method called to find one of default deserializers for "well-known"
      * platform types: JDK-provided types, and small number of public Jackson
      * API types.
      */

@@ -112,4 +112,9 @@ public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
      *    different default implementation
      */
     public T withDefaultImpl(Class<?> defaultImpl);
+
+    /**
+     * Method for overriding type information.
+     */
+    public T withSettings(JsonTypeInfo.Value typeInfo);
 }

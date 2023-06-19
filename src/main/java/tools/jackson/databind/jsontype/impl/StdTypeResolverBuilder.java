@@ -243,17 +243,6 @@ public class StdTypeResolverBuilder
         return new StdTypeResolverBuilder(this, defaultImpl);
     }
 
-    /*
-    /**********************************************************************
-    /* Accessors
-    /**********************************************************************
-     */
-
-    @Override public Class<?> getDefaultImpl() { return _defaultImpl; }
-
-    public String getTypeProperty() { return _typeProperty; }
-    public boolean isTypeIdVisible() { return _typeIdVisible; }
-
     @Override
     public StdTypeResolverBuilder withSettings(JsonTypeInfo.Value settings) {
         _idType = settings.getIdType();
@@ -267,6 +256,17 @@ public class StdTypeResolverBuilder
         _requireTypeIdForSubtypes = settings.getRequireTypeIdForSubtypes();
         return this;
     }
+
+    /*
+    /**********************************************************************
+    /* Accessors
+    /**********************************************************************
+     */
+
+    @Override public Class<?> getDefaultImpl() { return _defaultImpl; }
+
+    public String getTypeProperty() { return _typeProperty; }
+    public boolean isTypeIdVisible() { return _typeIdVisible; }
 
     /*
     /**********************************************************************

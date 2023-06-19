@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.util;
 
+import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import java.util.*;
 
 import com.fasterxml.jackson.core.SerializableString;
@@ -33,14 +34,20 @@ public final class EnumValues
     /**
      * NOTE: do NOT call this if configuration may change, and choice between toString()
      *   and name() might change dynamically.
+     *
+     * @since 2.16
      */
-    public static EnumValues construct(SerializationConfig config, Class<Enum<?>> enumClass) {
+    public static EnumValues construct(SerializationConfig config, AnnotatedClass annotatedClass) {
         if (config.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)) {
-            return constructFromToString(config, enumClass);
+            return constructFromToString(config, _enumClass(annotatedClass.getRawType()));
         }
-        return constructFromName(config, enumClass);
+        return constructFromName(config, annotatedClass);
     }
 
+    /**
+     * @deprecated Since 2.16, use {@link #constructFromName(MapperConfig, AnnotatedClass)} instead.
+     */
+    @Deprecated
     public static EnumValues constructFromName(MapperConfig<?> config, Class<Enum<?>> enumClass)
     {
         // Enum types with per-instance sub-classes need special handling
@@ -63,6 +70,38 @@ public final class EnumValues
             textual[en.ordinal()] = config.compileString(name);
         }
         return construct(enumClass, textual);
+    }
+
+    /**
+     * @since 2.16
+     */
+    public static EnumValues constructFromName(MapperConfig<?> config, AnnotatedClass annotatedClass) 
+    {
+        // prepare data
+        final AnnotationIntrospector ai = config.getAnnotationIntrospector();
+        final boolean useLowerCase = config.isEnabled(EnumFeature.WRITE_ENUMS_TO_LOWERCASE);
+        final Class<?> enumCls0 = annotatedClass.getRawType();
+        final Class<Enum<?>> enumCls = _enumClass(enumCls0);
+        final Enum<?>[] enumConstants = _enumConstants(enumCls0);
+
+        // introspect
+        String[] names = ai.findEnumValues(config, annotatedClass, 
+                enumConstants, new String[enumConstants.length]);
+
+        // build
+        SerializableString[] textual = new SerializableString[enumConstants.length];
+        for (int i = 0, len = enumConstants.length; i < len; ++i) {
+            Enum<?> enumValue = enumConstants[i];
+            String name = names[i];
+            if (name == null) {
+                name = enumValue.name();
+            }
+            if (useLowerCase) {
+                name = name.toLowerCase();
+            }
+            textual[enumValue.ordinal()] = config.compileString(name);
+        }
+        return construct(enumCls, textual);
     }
 
     public static EnumValues constructFromToString(MapperConfig<?> config, Class<Enum<?>> enumClass)
@@ -120,6 +159,35 @@ public final class EnumValues
             SerializableString[] externalValues) {
         return new EnumValues(enumClass, externalValues);
     }
+
+    /* 
+    /**********************************************************************
+    /* Internal Helpers
+    /**********************************************************************
+     */
+
+    @SuppressWarnings("unchecked")
+    protected static Class<Enum<?>> _enumClass(Class<?> enumCls0) {
+        return (Class<Enum<?>>) enumCls0;
+    }
+
+    /**
+     * Helper method <b>slightly</b> different from {@link EnumResolver#_enumConstants(Class)},
+     * with same method name to keep calling methods more consistent.
+     */
+    protected static Enum<?>[] _enumConstants(Class<?> enumCls) {
+        final Enum<?>[] enumValues = ClassUtil.findEnumType(enumCls).getEnumConstants();
+        if (enumValues == null) {
+            throw new IllegalArgumentException("No enum constants for class "+enumCls.getName());
+        }
+        return enumValues;
+    }
+    
+    /*
+    /**********************************************************************
+    /* Public API
+    /**********************************************************************
+     */
 
     public SerializableString serializedValueFor(Enum<?> key) {
         return _textual[key.ordinal()];

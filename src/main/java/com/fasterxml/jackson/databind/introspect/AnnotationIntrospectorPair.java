@@ -617,6 +617,7 @@ public class AnnotationIntrospectorPair
         return b;
     }
 
+    @Deprecated // since 2.16
     @Override
     public  String[] findEnumValues(Class<?> enumType, Enum<?>[] enumValues, String[] names) {
         // reverse order to give _primary higher precedence
@@ -626,10 +627,28 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
+    public String[] findEnumValues(MapperConfig<?> config, AnnotatedClass annotatedClass,
+            Enum<?>[] enumValues, String[] names) {
+        // reverse order to give _primary higher precedence
+        names = _secondary.findEnumValues(config, annotatedClass, enumValues, names);
+        names = _primary.findEnumValues(config, annotatedClass, enumValues, names);
+        return names;
+    }
+
+    @Deprecated // since 2.16
+    @Override
     public void findEnumAliases(Class<?> enumType, Enum<?>[] enumValues, String[][] aliases) {
         // reverse order to give _primary higher precedence
         _secondary.findEnumAliases(enumType, enumValues, aliases);
         _primary.findEnumAliases(enumType, enumValues, aliases);
+    }
+
+    @Override
+    public void findEnumAliases(MapperConfig<?> config, AnnotatedClass annotatedClass,
+            Enum<?>[] enumConstants, String[][] aliases) {
+        // reverse order to give _primary higher precedence
+        _secondary.findEnumAliases(config, annotatedClass, enumConstants, aliases);
+        _primary.findEnumAliases(config, annotatedClass, enumConstants, aliases);
     }
 
     @Override

@@ -6,6 +6,8 @@ Project: jackson-databind
 
 2.16.0 (not yet released)
 
+#2787: Mix-ins do not work for `Enum`s
+ (fix contributed by Joo-Hyuk K)
 #3838: Difference in the handling of `ObjectId-property` in `JsonIdentityInfo`
   depending on the deserialization route
  (fix contributed by Joo-Hyuk K)
@@ -21,6 +23,8 @@ Project: jackson-databind
 #3950: Create new `JavaType` subtype `IterationType` (extending `SimpleType`)
 #3953: Use `JsonTypeInfo.Value` for annotation handling
  (contributed by Joo-Hyuk K)
+#3965: Add `JsonNodeFeature.WRITE_PROPERTIES_SORTED` for sorting `ObjectNode` properties
+  on serialization
 
 2.15.3 (not yet released)
 

@@ -105,6 +105,42 @@ public class EnumMapDeserializationTest extends BaseMapTest
         public String toString() { return name() + " as string"; }
     }
 
+    // [databind#2457]
+    enum MyEnum2457Base {
+        @JsonProperty("a_base")
+        A,
+        @JsonProperty("b_base")
+        B() {
+            // just to ensure subclass construction
+            @Override
+            public void foo() { }
+        };
+        
+        // needed to force subclassing
+        public void foo() { }
+        
+        @Override
+        public String toString() { return name() + " as string"; }
+    }
+
+    // [databind#2457]
+    enum MyEnum2457Mixin {
+        @JsonProperty("a_mixin")
+        A,
+        @JsonProperty("b_mixin")
+        B() {
+            // just to ensure subclass construction
+            @Override
+            public void foo() { }
+        };
+
+        // needed to force subclassing
+        public void foo() { }
+
+        @Override
+        public String toString() { return name() + " as string"; }
+    }
+
     /*
     /**********************************************************
     /* Test methods, basic
@@ -259,6 +295,28 @@ public class EnumMapDeserializationTest extends BaseMapTest
                 MAPPER.writer()
                     .with(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
                     .writeValueAsString(map));
+    }
+
+    /**
+     * @see #testCustomEnumAsRootMapKey
+     */
+    // [databind#2457]
+    public void testCustomEnumAsRootMapKeyMixin() throws Exception
+    {
+        ObjectMapper mixinMapper = JsonMapper.builder()
+                .addMixIn(MyEnum2457Base.class, MyEnum2457Mixin.class)
+                .build();
+        final Map<MyEnum2457Base, String> map = new LinkedHashMap<>();
+        map.put(MyEnum2457Base.A, "1");
+        map.put(MyEnum2457Base.B, "2");
+        assertEquals(a2q("{'a_mixin':'1','b_mixin':'2'}"),
+                mixinMapper.writeValueAsString(map));
+
+        // But should be able to override
+        assertEquals(a2q("{'"+MyEnum2457Base.A.toString()+"':'1','"+MyEnum2457Base.B.toString()+"':'2'}"),
+                mixinMapper.writer()
+                        .with(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
+                        .writeValueAsString(map));
     }
 
     /*

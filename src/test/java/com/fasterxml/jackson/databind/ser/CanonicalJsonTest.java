@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.ser;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -9,7 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.jupiter.api.Test; // TODO JUnit 4 or 5 for tests?
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -28,28 +27,8 @@ class CanonicalJsonTest {
     private static final JsonAssert JSON_ASSERT = new JsonAssert();
     private static final JsonTestResource CANONICAL_1 = new JsonTestResource("/data/canonical-1.json");
 
-    // TODO There are several ways to make sure we really have a negative sign.
-    // Double.toString(NEGATIVE_ZERO) seems to be the most simple.
     @Test
     void testSignOfNegativeZero() {
-        assertEquals("-0.0", Double.toString(Math.signum(NEGATIVE_ZERO)));
-    }
-
-    @Test
-    void testSignOfNegativeZero2() {
-        long bits = Double.doubleToRawLongBits(NEGATIVE_ZERO);
-        assertTrue(bits < 0);
-    }
-
-    @Test
-    void testSignOfNegativeZero3() {
-        long sign = 1L << (Double.SIZE - 1); // Highest bit represents the sign
-        long bits = Double.doubleToRawLongBits(NEGATIVE_ZERO);
-        assertEquals(sign, bits & sign);
-    }
-
-    @Test
-    void testSignOfNegativeZero4() {
         assertEquals("-0.0", Double.toString(NEGATIVE_ZERO));
     }
 
@@ -72,6 +51,11 @@ class CanonicalJsonTest {
     void testCanonicalNegativeZeroBigDecimal2() throws Exception {
         assertSerialized("0", new BigDecimal(NEGATIVE_ZERO), newCanonicalMapperBuilder());
     }
+    
+    @Test
+    void testCanonicalNegativeZeroBigDecimal3() throws Exception {
+        assertSerialized("0", BigDecimal.valueOf(NEGATIVE_ZERO), newCanonicalMapperBuilder());
+    }
 
     @Test
     void testCanonicalNegativeZeroDouble() throws Exception {
@@ -90,12 +74,12 @@ class CanonicalJsonTest {
 
     @Test
     void testPrettyDecimalHandling() throws Exception {
-        assertSerialized("10.1", TEN_POINT_1_WITH_TRAILING_ZEROES, newPrettyCanonicalMapperBuilder());
+        JSON_ASSERT.assertSerialized("10.1", TEN_POINT_1_WITH_TRAILING_ZEROES);
     }
 
     @Test
     void testPrettyHugeDecimalHandling() throws Exception {
-        assertSerialized("123456789123456789123456789123456789.123456789123456789123456789123456789123456789", VERY_BIG_DECIMAL, newPrettyCanonicalMapperBuilder());
+        JSON_ASSERT.assertSerialized("123456789123456789123456789123456789.123456789123456789123456789123456789123456789", VERY_BIG_DECIMAL);
     }
 
     @Test
@@ -141,10 +125,6 @@ class CanonicalJsonTest {
     private JsonMapper newCanonicalMapperBuilder() {
         return CanonicalJsonMapper.builder().build();
     }
-
-    private JsonMapper newPrettyCanonicalMapperBuilder() {
-        return CanonicalJsonMapper.builder().prettyPrint().build();
-    }
     
     private JsonNode randomize(JsonNode input) {
         if (input instanceof ObjectNode) {
@@ -169,9 +149,7 @@ class CanonicalJsonTest {
 
     private String serialize(JsonNode input, ObjectMapper mapper) {
         try {
-            // TODO Is there a better way to sort the keys than deserializing the whole tree?
-            Object obj = mapper.treeToValue(input, Object.class);
-            return mapper.writeValueAsString(obj);
+            return mapper.writeValueAsString(input);
         } catch (JacksonException e) {
             throw new AssertionError("Unable to serialize " + input, e);
         }

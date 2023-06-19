@@ -2,14 +2,25 @@ package com.fasterxml.jackson.databind.ser;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGeneratorDecorator;
+import com.fasterxml.jackson.core.PrettyPrinter;
 import com.fasterxml.jackson.core.StreamWriteFeature;
+import com.fasterxml.jackson.core.util.DefaultIndenter;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
+import com.fasterxml.jackson.core.util.Separators;
+import com.fasterxml.jackson.core.util.Separators.Spacing;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.cfg.JsonNodeFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
-public class CanonicalJsonMapper { // TODO It would be great if we could extend JsonMapper but the return type of builder() is incompatible
+public class CanonicalJsonMapper {
+    public static final DefaultIndenter CANONICAL_INDENTEER = new DefaultIndenter("    ", "\n");
 
-    public static class Builder { // TODO Can't extend MapperBuilder<JsonMapper, Builder> because that needs JsonFactory as ctor arg and we only have this later
+    public static final PrettyPrinter CANONICAL_PRETTY_PRINTER = new DefaultPrettyPrinter()
+        .withObjectIndenter(CANONICAL_INDENTEER)
+        .withSeparators(Separators.createDefaultInstance().withObjectFieldValueSpacing(Spacing.AFTER));    
+
+    public static class Builder {
         private CanonicalNumberSerializerProvider _numberSerializerProvider = CanonicalBigDecimalSerializer.PROVIDER;
         private boolean _enablePrettyPrinting = false;
         
@@ -33,13 +44,14 @@ public class CanonicalJsonMapper { // TODO It would be great if we could extend 
             JsonMapper.Builder builder = JsonMapper.builder(factory) //
                 .enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS) //
                 .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY) //
+                .enable(JsonNodeFeature.WRITE_PROPERTIES_SORTED) //
                 .addModule(module);
             
             if (_enablePrettyPrinting) {
                 builder = builder //
                     .enable(SerializationFeature.INDENT_OUTPUT) //
                     .enable(StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN) //
-                    .defaultPrettyPrinter(CanonicalPrettyPrinter.INSTANCE) //
+                    .defaultPrettyPrinter(CANONICAL_PRETTY_PRINTER) //
                 ;
             }
             

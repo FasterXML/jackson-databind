@@ -33,7 +33,6 @@ public class CanonicalNumberGenerator extends JsonGeneratorDelegate {
     @Override
     public void writeNumber(BigDecimal v) throws IOException {
         if (!verifyBigDecimalRange(v)) {
-            // TODO Is there a better way? I can't call delegate._reportError(). 
             String msg = bigDecimalOutOfRangeError(v);
             throw new JsonGenerationException(msg, this);
         }

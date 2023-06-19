@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
 /**
  * Builder class used for aggregating deserialization information about
  * a POJO, in order to build a {@link JsonSerializer} for serializing
- * intances.
+ * instances.
  * Main reason for using separate builder class is that this makes it easier
  * to make actual serializer class fully immutable.
  */

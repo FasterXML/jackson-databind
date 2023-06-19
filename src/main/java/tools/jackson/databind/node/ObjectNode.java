@@ -433,10 +433,10 @@ public class ObjectNode
     {
         for (Map.Entry<String, JsonNode> en : _contentsToSerialize(ctxt).entrySet()) {
             // 17-Feb-2009, tatu: Can we trust that all nodes will always
-            //   extend BaseJsonNode? Or if not, at least implement
-            //   JsonSerializable? Let's start with former, change if
-            //   we must.
-            BaseJsonNode value = (BaseJsonNode) en.getValue();
+            //   extend BaseJsonNode? Or if not, at least implement JsonSerializable?
+            //   Let's start with former, change if we must.
+            // 19-Jun-2023, tatu: Actually `JsonNode` is enough
+            JsonNode value = en.getValue();
 
             // as per [databind#867], see if WRITE_EMPTY_JSON_ARRAYS feature is disabled,
             // if the feature is disabled, then should not write an empty array

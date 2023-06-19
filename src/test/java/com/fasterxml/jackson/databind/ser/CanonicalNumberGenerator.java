@@ -51,12 +51,13 @@ public class CanonicalNumberGenerator extends JsonGeneratorDelegate {
         return result;
     }
 
+    // TODO Everyone should use the same method; move this to jackson-core. 
     public static boolean verifyBigDecimalRange(BigDecimal value) {
         int scale = value.scale();
         return ((scale >= -MAX_BIG_DECIMAL_SCALE) && (scale <= MAX_BIG_DECIMAL_SCALE));
     }
 
-    // TODO Everyone should use the same method
+    // TODO Everyone should use the same method; move this to jackson-core. 
     public static String bigDecimalOutOfRangeError(BigDecimal value) {
         return String.format(
                 "Attempt to write plain `java.math.BigDecimal` (see StreamWriteFeature.WRITE_BIGDECIMAL_AS_PLAIN) with illegal scale (%d): needs to be between [-%d, %d]",

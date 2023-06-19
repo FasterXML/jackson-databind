@@ -69,7 +69,6 @@ public class JsonAssert {
     /** Load test data from the classpath into a {@link JsonNode}. */
     public JsonNode loadResource(JsonTestResource resource) {
         try (InputStream stream = resource.getInputStream()) {
-            // TODO Formatting ok? JUnit 4 or 5 here?
             assertNotNull("Missing resource " + resource, stream);
 
             return _mapper.readTree(stream);

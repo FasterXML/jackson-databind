@@ -149,6 +149,7 @@ class CanonicalJsonTest {
         BigDecimalValue inst = new BigDecimalValue();
         
         inst.setValue(BigDecimal.valueOf(0.1));
+        assertEquals("0.1", inst.getValue().toString());
         JSON_ASSERT.assertStableSerialization(
                 "{\n"
                 + "    \"value\": 0.1\n"
@@ -162,6 +163,7 @@ class CanonicalJsonTest {
         BigDecimalValue inst = new BigDecimalValue();
         
         inst.setValue(new BigDecimal("10.0100"));
+        assertEquals("10.0100", inst.getValue().toString());
         JSON_ASSERT.assertStableSerialization(
                 "{\n"
                 + "    \"value\": 10.01\n"

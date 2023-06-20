@@ -375,18 +375,23 @@ public abstract class BaseTest
         assertTrue("Should have positive line number", location.getLineNr() > 0);
     }
 
-    public static void verifyException(Throwable e, String... matches)
+    /**
+     * @param e Exception to check
+     * @param anyMatches Array of Strings of which AT LEAST ONE ("any") has to be included
+     *    in {@code e.getMessage()} -- using case-INSENSITIVE comparison
+     */
+    public static void verifyException(Throwable e, String... anyMatches)
     {
         String msg = e.getMessage();
         String lmsg = (msg == null) ? "" : msg.toLowerCase();
-        for (String match : matches) {
+        for (String match : anyMatches) {
             String lmatch = match.toLowerCase();
             if (lmsg.indexOf(lmatch) >= 0) {
                 return;
             }
         }
         fail("Expected an exception with one of substrings ("
-                +Arrays.asList(matches)+"): got one (of type "+e.getClass().getName()
+                +Arrays.asList(anyMatches)+"): got one (of type "+e.getClass().getName()
                 +") with message \""+msg+"\"");
     }
 

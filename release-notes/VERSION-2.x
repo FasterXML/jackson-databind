@@ -6,6 +6,9 @@ Project: jackson-databind
 
 2.16.0 (not yet released)
 
+#3838: Difference in the handling of `ObjectId-property` in `JsonIdentityInfo`
+  depending on the deserialization route
+ (fix contributed by Joo-Hyuk K)
 #3877: Add new `OptBoolean` valued property in `@JsonTypeInfo`, handling,
    to allow per-polymorphic type loose Type Id handling
  (contributed by Joo-Hyuk K)
@@ -18,6 +21,11 @@ Project: jackson-databind
 #3950: Create new `JavaType` subtype `IterationType` (extending `SimpleType`)
 #3953: Use `JsonTypeInfo.Value` for annotation handling
  (contributed by Joo-Hyuk K)
+
+2.15.3 (not yet released)
+
+#3968: Records with additional constructors failed to deserialize
+ (fix contributed by Sim Y-T)
 
 2.15.2 (30-May-2023)
 

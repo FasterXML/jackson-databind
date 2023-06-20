@@ -26,7 +26,7 @@ public final class ConstructorDetector
      *<p>
      * Default choice is {@code HEURISTIC} (which is Jackson pre-2.12 always uses)
      *<p>
-     * NOTE: does NOT have any effect if explicit {@code @JsonCreator}} annotation
+     * NOTE: does NOT have any effect if explicit {@code @JsonCreator} annotation
      * is required.
      *
      * @since 2.12

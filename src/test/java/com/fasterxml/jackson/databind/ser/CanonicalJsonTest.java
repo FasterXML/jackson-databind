@@ -144,6 +144,32 @@ class CanonicalJsonTest {
                 TypeBase.class);
     }
 
+    @Test
+    void testBigDecimalValue() throws Exception {
+        BigDecimalValue inst = new BigDecimalValue();
+        
+        inst.setValue(BigDecimal.valueOf(0.1));
+        JSON_ASSERT.assertStableSerialization(
+                "{\n"
+                + "    \"value\": 0.1\n"
+                + "}",
+                inst,
+                BigDecimalValue.class);
+    }
+    
+    @Test
+    void testBigDecimalValue2() throws Exception {
+        BigDecimalValue inst = new BigDecimalValue();
+        
+        inst.setValue(new BigDecimal("10.0100"));
+        JSON_ASSERT.assertStableSerialization(
+                "{\n"
+                + "    \"value\": 10.01\n"
+                + "}",
+                inst,
+                BigDecimalValue.class);
+    }
+
     private void assertSerialized(String expected, Object input, JsonMapper mapper) {
         String actual;
         try {
@@ -245,6 +271,17 @@ class CanonicalJsonTest {
         }
         public void setDecimal(double decimal) {
             this.decimal = decimal;
+        }
+    }
+    
+    public static class BigDecimalValue {
+        private BigDecimal value;
+        
+        public BigDecimal getValue() {
+            return value;
+        }
+        public void setValue(BigDecimal value) {
+            this.value = value;
         }
     }
 }

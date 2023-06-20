@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 
 import org.junit.jupiter.api.Test;
 
-public class CanonicalBigDecimalSerializerTest {
+public class CanonicalBigDecimalToStringTest {
 
     @Test
     void testCanonicalDecimalHandling_1() throws Exception {
@@ -45,7 +45,7 @@ public class CanonicalBigDecimalSerializerTest {
     }
 
     private void assertSerialized(String expected, BigDecimal actual) {
-        CanonicalBigDecimalSerializer serializer = new CanonicalBigDecimalSerializer();
+        CanonicalBigDecimalToString serializer = new CanonicalBigDecimalToString();
         assertEquals(expected, serializer.convert(actual));
     }
 

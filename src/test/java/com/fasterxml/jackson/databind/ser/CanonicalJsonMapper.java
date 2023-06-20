@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.ser;
 
+import java.math.BigDecimal;
+
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGeneratorDecorator;
 import com.fasterxml.jackson.core.PrettyPrinter;
@@ -21,7 +23,7 @@ public class CanonicalJsonMapper {
         .withSeparators(Separators.createDefaultInstance().withObjectFieldValueSpacing(Spacing.AFTER));    
 
     public static class Builder {
-        private CanonicalNumberSerializerProvider _numberSerializerProvider = CanonicalBigDecimalSerializer.PROVIDER;
+        private ValueToString<BigDecimal> _numberToString = CanonicalBigDecimalToString.INSTANCE;
         private boolean _enablePrettyPrinting = false;
         
         private Builder() {
@@ -30,13 +32,12 @@ public class CanonicalJsonMapper {
         
         public Builder prettyPrint() {
             _enablePrettyPrinting = true;
-            _numberSerializerProvider = PrettyBigDecimalSerializer.PROVIDER;
+            _numberToString = PrettyBigDecimalToString.INSTANCE;
             return this;
         }
         
         public JsonMapper build() {
-            JsonGeneratorDecorator decorator = new CanonicalJsonGeneratorDecorator(_numberSerializerProvider.getValueToString());
-            CanonicalJsonModule module = new CanonicalJsonModule(_numberSerializerProvider.getNumberSerializer());
+            JsonGeneratorDecorator decorator = new CanonicalJsonGeneratorDecorator(_numberToString);
 
             JsonFactory factory = JsonFactory.builder() //
                 .decorateWith(decorator)
@@ -44,8 +45,7 @@ public class CanonicalJsonMapper {
             JsonMapper.Builder builder = JsonMapper.builder(factory) //
                 .enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS) //
                 .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY) //
-                .enable(JsonNodeFeature.WRITE_PROPERTIES_SORTED) //
-                .addModule(module);
+                .enable(JsonNodeFeature.WRITE_PROPERTIES_SORTED); //
             
             if (_enablePrettyPrinting) {
                 builder = builder //

@@ -5,7 +5,6 @@ import java.math.BigInteger;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.function.Supplier;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.util.RawValue;
@@ -58,14 +57,14 @@ public class JsonNodeFactory
      * 
      * @since 2.16
      */
-    public static final Supplier<Map<String, JsonNode>> DEFAULT_OBJECT_NODE_CHILDREN_FACTORY = LinkedHashMap::new;
+    public static final SerializableSupplier<Map<String, JsonNode>> DEFAULT_OBJECT_NODE_CHILDREN_FACTORY = LinkedHashMap::new;
 
     /**
      * Factory for the {@link Map} to use for children of {@link ObjectNode} which sorts the entries by name.
      * 
      * @since 2.16
      */
-    public static final Supplier<Map<String, JsonNode>> SORTED_OBJECT_NODE_CHILDREN_FACTORY = TreeMap::new;
+    public static final SerializableSupplier<Map<String, JsonNode>> SORTED_OBJECT_NODE_CHILDREN_FACTORY = TreeMap::new;
 
     @Deprecated // as of 2.15
     private final boolean _cfgBigDecimalExact;
@@ -77,7 +76,7 @@ public class JsonNodeFactory
      *
      * @since 2.16
      */
-    private final Supplier<Map<String, JsonNode>> _objectNodeChildrenFactory;
+    private final SerializableSupplier<Map<String, JsonNode>> _objectNodeChildrenFactory;
     
     /**
      * Default singleton instance that construct "standard" node instances:
@@ -109,14 +108,14 @@ public class JsonNodeFactory
     /**
      * @since 2.16
      */
-    public JsonNodeFactory(Supplier<Map<String, JsonNode>> objectNodeChildrenFactory) {
+    public JsonNodeFactory(SerializableSupplier<Map<String, JsonNode>> objectNodeChildrenFactory) {
         this(false, objectNodeChildrenFactory);
     }
     
     /**
      * @since 2.16
      */
-    public JsonNodeFactory(boolean bigDecimalExact, Supplier<Map<String, JsonNode>> objectNodeChildrenFactory) {
+    public JsonNodeFactory(boolean bigDecimalExact, SerializableSupplier<Map<String, JsonNode>> objectNodeChildrenFactory) {
         _cfgBigDecimalExact = bigDecimalExact;
         _objectNodeChildrenFactory = objectNodeChildrenFactory;
     }

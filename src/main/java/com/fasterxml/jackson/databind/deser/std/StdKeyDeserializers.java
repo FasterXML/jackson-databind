@@ -46,6 +46,7 @@ public class StdKeyDeserializers
 
     /**
      * @since 2.15
+     * @deprecated use {@link #constructEnumKeyDeserializer(EnumResolver, EnumResolver, EnumResolver)} instead.
      */
     public static KeyDeserializer constructEnumKeyDeserializer(EnumResolver enumResolver,
                                                                EnumResolver enumNamingResolver) {
@@ -53,11 +54,27 @@ public class StdKeyDeserializers
     }
 
     /**
+     * @since 2.16
+     */
+    public static KeyDeserializer constructEnumKeyDeserializer(EnumResolver enumRes, EnumResolver byEnumNamingResolver, EnumResolver byToStringResolver) {
+        return new StdKeyDeserializer.EnumKD(enumRes, null, byEnumNamingResolver, byToStringResolver);
+    }
+
+    /**
      * @since 2.15
+     * @deprecated use {@link #constructEnumKeyDeserializer(EnumResolver, AnnotatedMethod, EnumResolver, EnumResolver)} instead.
      */
     public static KeyDeserializer constructEnumKeyDeserializer(EnumResolver enumResolver,
                                             AnnotatedMethod factory, EnumResolver enumNamingResolver) {
         return new StdKeyDeserializer.EnumKD(enumResolver, factory, enumNamingResolver);
+    }
+
+    /**
+     * @since 2.16
+     */
+    public static KeyDeserializer constructEnumKeyDeserializer(EnumResolver enumResolver, AnnotatedMethod factory, 
+            EnumResolver enumNamingResolver, EnumResolver byToStringResolver) {
+        return new StdKeyDeserializer.EnumKD(enumResolver, factory, enumNamingResolver, byToStringResolver);
     }
 
     public static KeyDeserializer constructDelegatingKeyDeserializer(DeserializationConfig config,

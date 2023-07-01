@@ -327,11 +327,13 @@ public class ObjectNode
     @Override
     public JsonNode findValue(String propertyName)
     {
-        for (Map.Entry<String, JsonNode> entry : _children.entrySet()) {
-            if (propertyName.equals(entry.getKey())) {
-                return entry.getValue();
-            }
-            JsonNode value = entry.getValue().findValue(propertyName);
+        JsonNode jsonNode = _children.get(propertyName);
+        if (jsonNode != null) {
+            return jsonNode;
+        }
+
+        for (JsonNode child : _children.values()) {
+            JsonNode value = child.findValue(propertyName);
             if (value != null) {
                 return value;
             }
@@ -342,15 +344,18 @@ public class ObjectNode
     @Override
     public List<JsonNode> findValues(String propertyName, List<JsonNode> foundSoFar)
     {
-        for (Map.Entry<String, JsonNode> entry : _children.entrySet()) {
-            if (propertyName.equals(entry.getKey())) {
-                if (foundSoFar == null) {
-                    foundSoFar = new ArrayList<JsonNode>();
-                }
-                foundSoFar.add(entry.getValue());
-            } else { // only add children if parent not added
-                foundSoFar = entry.getValue().findValues(propertyName, foundSoFar);
+        JsonNode jsonNode = _children.get(propertyName);
+        if (jsonNode != null) {
+            if (foundSoFar == null) {
+                foundSoFar = new ArrayList<>();
             }
+            foundSoFar.add(jsonNode);
+            return foundSoFar;
+        }
+
+        // only add children if parent not added
+        for (JsonNode child : _children.values()) {
+            foundSoFar = child.findValues(propertyName, foundSoFar);
         }
         return foundSoFar;
     }
@@ -358,16 +363,18 @@ public class ObjectNode
     @Override
     public List<String> findValuesAsText(String propertyName, List<String> foundSoFar)
     {
-        for (Map.Entry<String, JsonNode> entry : _children.entrySet()) {
-            if (propertyName.equals(entry.getKey())) {
-                if (foundSoFar == null) {
-                    foundSoFar = new ArrayList<String>();
-                }
-                foundSoFar.add(entry.getValue().asText());
-            } else { // only add children if parent not added
-                foundSoFar = entry.getValue().findValuesAsText(propertyName,
-                    foundSoFar);
+        JsonNode jsonNode = _children.get(propertyName);
+        if (jsonNode != null) {
+            if (foundSoFar == null) {
+                foundSoFar = new ArrayList<>();
             }
+            foundSoFar.add(jsonNode.asText());
+            return foundSoFar;
+        }
+
+        // only add children if parent not added
+        for (JsonNode child : _children.values()) {
+            foundSoFar = child.findValuesAsText(propertyName, foundSoFar);
         }
         return foundSoFar;
     }
@@ -375,11 +382,12 @@ public class ObjectNode
     @Override
     public ObjectNode findParent(String propertyName)
     {
-        for (Map.Entry<String, JsonNode> entry : _children.entrySet()) {
-            if (propertyName.equals(entry.getKey())) {
-                return this;
-            }
-            JsonNode value = entry.getValue().findParent(propertyName);
+        JsonNode jsonNode = _children.get(propertyName);
+        if (jsonNode != null) {
+            return this;
+        }
+        for (JsonNode child : _children.values()) {
+            JsonNode value = child.findParent(propertyName);
             if (value != null) {
                 return (ObjectNode) value;
             }
@@ -390,16 +398,18 @@ public class ObjectNode
     @Override
     public List<JsonNode> findParents(String propertyName, List<JsonNode> foundSoFar)
     {
-        for (Map.Entry<String, JsonNode> entry : _children.entrySet()) {
-            if (propertyName.equals(entry.getKey())) {
-                if (foundSoFar == null) {
-                    foundSoFar = new ArrayList<JsonNode>();
-                }
-                foundSoFar.add(this);
-            } else { // only add children if parent not added
-                foundSoFar = entry.getValue()
-                    .findParents(propertyName, foundSoFar);
+        JsonNode jsonNode = _children.get(propertyName);
+        if (jsonNode != null) {
+            if (foundSoFar == null) {
+                foundSoFar = new ArrayList<>();
             }
+            foundSoFar.add(this);
+            return foundSoFar;
+        }
+
+        // only add children if parent not added
+        for (JsonNode child : _children.values()) {
+            foundSoFar = child.findParents(propertyName, foundSoFar);
         }
         return foundSoFar;
     }

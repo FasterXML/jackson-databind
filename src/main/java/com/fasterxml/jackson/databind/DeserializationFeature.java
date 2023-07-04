@@ -358,8 +358,8 @@ public enum DeserializationFeature implements ConfigFeature
      * whether they can be coerced depends on
      * {@link MapperFeature#ALLOW_COERCION_OF_SCALARS}.
      *<p>
-     * IMPORTANT: This feature might work even when an empty string may be a valid value
-     * for a specific type (e.g., java.util.Locale).
+     * IMPORTANT: This feature might work even when an empty string {@code ""}
+     * may be a valid value for a some types.
      *<p>
      * Feature is disabled by default.
      */

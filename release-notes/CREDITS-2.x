@@ -1646,8 +1646,13 @@ Matteo Bertozzi (matteobertozzi@github)
    (2.15.1)
 
 Antti Lampinen (arlampin@github)
-  * Reported #3897: 2.15.0 breaks deserialization when POJO/Record only has a single field
-    and is marked `Access.WRITE_ONLY`
-   (2.15.1)
+ * Reported #3897: 2.15.0 breaks deserialization when POJO/Record only has a single field
+   and is marked `Access.WRITE_ONLY`
+  (2.15.1)
+
+David Schlosnagle (schlosna@github)
+ * Contributed #4008: Optimize `ObjectNode` findValue(s) and findParent(s) fast paths
+  (2.16.0)
+
 
 

@@ -9,6 +9,7 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
 
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertThrows;
 
 /**
  * Simple tests to verify that the {@link TypeFactory} constructs
@@ -282,6 +283,40 @@ public class TestTypeFactory
         JavaType t2 = tf.constructFromCanonical(reflectTypeName);
         assertNotNull(t2);
         assertEquals(t2, t1);
+    }
+
+    // [databind#4011]
+    public void testMalicousCanonical()
+    {
+        final TypeFactory tf = TypeFactory.defaultInstance();
+
+        // First: too deep nesting
+        final int NESTING = TypeParser.MAX_TYPE_NESTING + 100;
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < NESTING; ++i) {
+            sb.append("java.util.List<");
+        }
+        sb.append("java.lang.String");
+        for (int i = 0; i < NESTING; ++i) {
+            sb.append('>');
+        }
+
+        final String deepCanonical = sb.toString();
+        Exception e = assertThrows(IllegalArgumentException.class,
+                   () -> tf.constructFromCanonical(deepCanonical));
+        verifyException(e, "too deeply nested");
+
+        // And second, too long in general
+        final int MAX_LEN = TypeParser.MAX_TYPE_LENGTH + 100;
+        sb = new StringBuilder().append("java.util.List<");
+        while (sb.length() < MAX_LEN) {
+            sb.append("java.lang.String,");
+        }
+        sb.append("java.lang.Integer>");
+        final String longCanonical = sb.toString();
+        e = assertThrows(IllegalArgumentException.class,
+                () -> tf.constructFromCanonical(longCanonical));
+         verifyException(e, "too long");
     }
 
     /*

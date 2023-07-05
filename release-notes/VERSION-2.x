@@ -25,6 +25,8 @@ Project: jackson-databind
  (contributed by Joo-Hyuk K)
 #3965: Add `JsonNodeFeature.WRITE_PROPERTIES_SORTED` for sorting `ObjectNode` properties
   on serialization
+#4008: Optimize `ObjectNode` findValue(s) and findParent(s) fast paths
+ (contributed by David S)
 
 2.15.3 (not yet released)
 

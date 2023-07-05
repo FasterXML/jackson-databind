@@ -359,7 +359,7 @@ public enum DeserializationFeature implements ConfigFeature
      * {@link MapperFeature#ALLOW_COERCION_OF_SCALARS}.
      *<p>
      * IMPORTANT: This feature might work even when an empty string {@code ""}
-     * may be a valid value for a some types.
+     * may be a valid value for some types.
      *<p>
      * Feature is disabled by default.
      */

@@ -208,6 +208,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override // since 2.7
+    @Deprecated // since 2.16
     public String[] findEnumValues(Class<?> enumType, Enum<?>[] enumValues, String[] names) {
         HashMap<String,String> expl = null;
         for (Field f : enumType.getDeclaredFields()) {
@@ -267,6 +268,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override // since 2.11
+    @Deprecated // since 2.16
     public void findEnumAliases(Class<?> enumType, Enum<?>[] enumValues, String[][] aliasList)
     {
         // Main complication: discrepancy between Field that represent enum value,

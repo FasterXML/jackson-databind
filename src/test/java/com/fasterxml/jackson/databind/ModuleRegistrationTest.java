@@ -18,6 +18,7 @@ public class ModuleRegistrationTest extends BaseMapTest {
         assertTrue(originalMapper._registeredModuleTypes.containsAll(copyMapper._registeredModuleTypes));
     }
 
+    @SuppressWarnings("serial")
     private SimpleModule _testModuleWithId(String id) {
         return new SimpleModule() {
             @Override

@@ -80,6 +80,7 @@ public class EnumDeserializer
      * @since 2.9
      * @deprecated since 2.16
      */
+    @Deprecated
     public EnumDeserializer(EnumResolver byNameResolver, Boolean caseInsensitive)
     {
         this(byNameResolver, caseInsensitive, null, null);
@@ -89,6 +90,7 @@ public class EnumDeserializer
      * @since 2.15
      * @deprecated since 2.16
      */
+    @Deprecated
     public EnumDeserializer(EnumResolver byNameResolver, boolean caseInsensitive,
                             EnumResolver byEnumNamingResolver)
     {
@@ -459,6 +461,7 @@ public class EnumDeserializer
      *
      * @deprecated Since 2.16
      */
+    @Deprecated
     protected CompactStringObjectMap _getToStringLookup(DeserializationContext ctxt) {
         CompactStringObjectMap lookup = _lookupByToString;
         if (lookup == null) {

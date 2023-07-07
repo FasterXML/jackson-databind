@@ -402,19 +402,6 @@ public class StdKeyDeserializer extends KeyDeserializer
         }
 
         /**
-         * @since 2.15
-         * @deprecated Since 2.16
-         */
-        protected EnumKD(EnumResolver er, AnnotatedMethod factory, EnumResolver byEnumNamingResolver) {
-            super(-1, er.getEnumClass());
-            _byNameResolver = er;
-            _factory = factory;
-            _enumDefaultValue = er.getDefaultValue();
-            _byEnumNamingResolver = byEnumNamingResolver;
-            _byToStringResolver = null;
-        }
-
-        /**
          * 
          * @since 2.16
          */
@@ -479,6 +466,7 @@ public class StdKeyDeserializer extends KeyDeserializer
          * 
          * @deprecated Since 2.16
          */
+        @Deprecated
         private EnumResolver _getToStringResolver(DeserializationContext ctxt)
         {
             EnumResolver res = _byToStringResolver;

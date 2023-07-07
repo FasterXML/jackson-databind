@@ -162,7 +162,9 @@ public class EnumResolver implements java.io.Serializable
      * Enum value
      *
      * @since 2.12
+     * @deprecated Since 2.16 use {@link #constructUsingToString(DeserializationConfig, AnnotatedClass)} instead
      */
+    @Deprecated
     public static EnumResolver constructUsingToString(DeserializationConfig config,
             Class<?> enumCls0)
     {
@@ -177,6 +179,44 @@ public class EnumResolver implements java.io.Serializable
         }
 
         // from last to first, so that in case of duplicate values, first wins
+        for (int i = enumConstants.length; --i >= 0; ) {
+            Enum<?> enumValue = enumConstants[i];
+            map.put(enumValue.toString(), enumValue);
+            String[] aliases = allAliases[i];
+            if (aliases != null) {
+                for (String alias : aliases) {
+                    // Avoid overriding any primary names
+                    map.putIfAbsent(alias, enumValue);
+                }
+            }
+        }
+        return new EnumResolver(enumCls, enumConstants, map,
+                _enumDefault(ai, enumCls), isIgnoreCase, false);
+    }
+
+    /**
+     * Factory method for constructing resolver that maps from Enum.toString() into
+     * Enum value
+     *
+     * @since 2.16
+     */
+    public static EnumResolver constructUsingToString(DeserializationConfig config, AnnotatedClass annotatedClass) {
+        // prepare data
+        final AnnotationIntrospector ai = config.getAnnotationIntrospector();
+        final boolean isIgnoreCase = config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
+        final Class<?> enumCls0 = annotatedClass.getRawType();
+        final Class<Enum<?>> enumCls = _enumClass(enumCls0);
+        final Enum<?>[] enumConstants = _enumConstants(enumCls0);
+
+        // introspect
+        final String[][] allAliases = new String[enumConstants.length][];
+        if (ai != null) {
+            ai.findEnumAliases(config, annotatedClass, enumConstants, allAliases);
+        }
+        
+        // finally, build
+        // from last to first, so that in case of duplicate values, first wins
+        HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();
         for (int i = enumConstants.length; --i >= 0; ) {
             Enum<?> enumValue = enumConstants[i];
             map.put(enumValue.toString(), enumValue);

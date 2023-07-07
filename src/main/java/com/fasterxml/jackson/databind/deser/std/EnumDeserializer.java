@@ -47,6 +47,8 @@ public class EnumDeserializer
     /**
      * Alternatively, we may need a different lookup object if "use toString"
      * is defined.
+     * <p>
+     * Note: this will be final in Jackson 3.x, by removing deprecated {@link #_getToStringLookup(DeserializationContext)}
      *
      * @since 2.7.3
      */
@@ -76,14 +78,16 @@ public class EnumDeserializer
 
     /**
      * @since 2.9
+     * @deprecated since 2.16
      */
     public EnumDeserializer(EnumResolver byNameResolver, Boolean caseInsensitive)
     {
-        this(byNameResolver, caseInsensitive, null);
+        this(byNameResolver, caseInsensitive, null, null);
     }
 
     /**
      * @since 2.15
+     * @deprecated since 2.16
      */
     public EnumDeserializer(EnumResolver byNameResolver, boolean caseInsensitive,
                             EnumResolver byEnumNamingResolver)
@@ -95,6 +99,23 @@ public class EnumDeserializer
         _caseInsensitive = caseInsensitive;
         _isFromIntValue = byNameResolver.isFromIntValue();
         _lookupByEnumNaming = byEnumNamingResolver == null ? null : byEnumNamingResolver.constructLookup();
+        _lookupByToString = null;
+    }
+
+    /**
+     * @since 2.16
+     */
+    public EnumDeserializer(EnumResolver byNameResolver, boolean caseInsensitive,
+                            EnumResolver byEnumNamingResolver, EnumResolver toStringResolver)
+    {
+        super(byNameResolver.getEnumClass());
+        _lookupByName = byNameResolver.constructLookup();
+        _enumsByIndex = byNameResolver.getRawEnums();
+        _enumDefaultValue = byNameResolver.getDefaultValue();
+        _caseInsensitive = caseInsensitive;
+        _isFromIntValue = byNameResolver.isFromIntValue();
+        _lookupByEnumNaming = byEnumNamingResolver == null ? null : byEnumNamingResolver.constructLookup();
+        _lookupByToString = toStringResolver == null ? null : toStringResolver.constructLookup();
     }
 
     /**
@@ -112,6 +133,7 @@ public class EnumDeserializer
         _useDefaultValueForUnknownEnum = useDefaultValueForUnknownEnum;
         _useNullForUnknownEnum = useNullForUnknownEnum;
         _lookupByEnumNaming = base._lookupByEnumNaming;
+        _lookupByToString = base._lookupByToString;
     }
 
     /**
@@ -430,6 +452,13 @@ public class EnumDeserializer
         return handledType();
     }
 
+    /**
+     * Since 2.16, {@link #_lookupByToString} it is passed via 
+     * {@link #EnumDeserializer(EnumResolver, boolean, EnumResolver, EnumResolver)}, so there is no need for lazy
+     * initialization. But kept for backward-compatilibility reasons. In case {@link #_lookupByToString} is null.
+     *
+     * @deprecated Since 2.16
+     */
     protected CompactStringObjectMap _getToStringLookup(DeserializationContext ctxt) {
         CompactStringObjectMap lookup = _lookupByToString;
         if (lookup == null) {

@@ -1654,5 +1654,10 @@ David Schlosnagle (schlosna@github)
  * Contributed #4008: Optimize `ObjectNode` findValue(s) and findParent(s) fast paths
   (2.16.0)
 
+Philipp Kräutli (pkraeutli@github)
+ * Reportedd #4009: Locale "" is deserialised as `null` if `ACCEPT_EMPTY_STRING_AS_NULL_OBJECT`
+   is enabled
+  (2.16.0)
+
 
 

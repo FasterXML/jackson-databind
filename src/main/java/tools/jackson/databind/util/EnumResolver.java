@@ -105,6 +105,45 @@ public class EnumResolver implements java.io.Serializable
         }
         final Enum<?> enumDefault = ai.findDefaultEnumValue(config, enumCls);
         return new EnumResolver(enumCls, enumConstants, map,
+            enumDefault, isIgnoreCase, false);
+    }
+
+    /**
+     * Factory method for constructing resolver that maps from Enum.toString() into
+     * Enum value
+     *
+     * @since 2.16
+     */
+    public static EnumResolver constructUsingToString(DeserializationConfig config, AnnotatedClass annotatedClass) {
+        // prepare data
+        final AnnotationIntrospector ai = config.getAnnotationIntrospector();
+        final boolean isIgnoreCase = config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
+        final Class<?> enumCls0 = annotatedClass.getRawType();
+        final Class<Enum<?>> enumCls = _enumClass(enumCls0);
+        final Enum<?>[] enumConstants = _enumConstants(enumCls);
+
+        // introspect
+        final String[][] allAliases = new String[enumConstants.length][];
+        if (ai != null) {
+            ai.findEnumAliases(config, annotatedClass, enumConstants, allAliases);
+        }
+        
+        // finally, build
+        // from last to first, so that in case of duplicate values, first wins
+        HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();
+        for (int i = enumConstants.length; --i >= 0; ) {
+            Enum<?> enumValue = enumConstants[i];
+            map.put(enumValue.toString(), enumValue);
+            String[] aliases = allAliases[i];
+            if (aliases != null) {
+                for (String alias : aliases) {
+                    // Avoid overriding any primary names
+                    map.putIfAbsent(alias, enumValue);
+                }
+            }
+        }
+        final Enum<?> enumDefault = ai.findDefaultEnumValue(config, enumCls);
+        return new EnumResolver(enumCls, enumConstants, map,
                 enumDefault, isIgnoreCase, false);
     }
 
@@ -156,38 +195,6 @@ public class EnumResolver implements java.io.Serializable
             map.put(translatedExternalValue, anEnum);
         }
         return _construct(config, enumCls, enumConstants, map, false);
-    }
-
-    /**
-     * Factory method for constructing resolver that maps from Enum.toString() into
-     * Enum value
-     */
-    public static EnumResolver constructUsingToString(DeserializationConfig config,
-            Class<?> enumCls0)
-    {
-        final Class<Enum<?>> enumCls = _enumClass(enumCls0);
-        final Enum<?>[] enumConstants = _enumConstants(enumCls);
-        final HashMap<String, Enum<?>> byId = new HashMap<String, Enum<?>>();
-        final String[][] allAliases = new String[enumConstants.length][];
-
-        final AnnotationIntrospector intr = config.getAnnotationIntrospector();
-        if (intr != null) {
-            intr.findEnumAliases(config, enumCls, enumConstants, allAliases);
-        }
-
-        // from last to first, so that in case of duplicate values, first wins
-        for (int i = enumConstants.length; --i >= 0; ) {
-            Enum<?> enumValue = enumConstants[i];
-            byId.put(enumValue.toString(), enumValue);
-            String[] aliases = allAliases[i];
-            if (aliases != null) {
-                for (String alias : aliases) {
-                    // avoid accidental override of primary name (in case of conflicting annotations)
-                    byId.putIfAbsent(alias, enumValue);
-                }
-            }
-        }
-        return _construct(config, enumCls, enumConstants, byId, false);
     }
 
     public static EnumResolver constructUsingMethod(DeserializationConfig config,

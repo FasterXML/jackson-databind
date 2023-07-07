@@ -939,24 +939,6 @@ public abstract class AnnotationIntrospector
     }
 
     /**
-     * Method for efficiently figuring out which if given set of <code>Enum</code> values
-     * have explicitly defined name. Method will overwrite entries in incoming <code>names</code>
-     * array with explicit names found, if any, leaving other entries unmodified.
-     *
-     * @param enumType Type of Enumeration
-     * @param enumValues Values of enumeration
-     * @param names Matching declared names of enumeration values (with indexes
-     *     matching {@code enumValues} entries)
-     *
-     * @return Array of names to use (possible {@code names} passed as argument)
-     */
-    @Deprecated
-    public String[] findEnumValues(MapperConfig<?> config,
-            Class<?> enumType, Enum<?>[] enumValues, String[] names) {
-        return names;
-    }
-
-    /**
      * Finds the explicitly defined name of the given set of {@code Enum} values, if any.
      * The method overwrites entries in the incoming {@code names} array with the explicit
      * names found, if any, leaving other entries unmodified.
@@ -974,24 +956,6 @@ public abstract class AnnotationIntrospector
     public String[] findEnumValues(MapperConfig<?> config, AnnotatedClass annotatedClass,
             Enum<?>[] enumValues, String[] names) {
         return names;
-    }
-
-    /**
-     * Method that is related to {@link #findEnumValues} but is called to check if
-     * there are alternative names (aliased) that can be accepted for entries, in
-     * addition to primary names introspected earlier.
-     * If so, these aliases should be returned in {@code aliases} {@link List} passed
-     * as argument (and initialized for proper size by caller).
-     *
-     * @param enumType Type of Enumeration
-     * @param enumValues Values of enumeration
-     * @param aliases (in/out) Pre-allocated array where aliases found, if any, may be
-     *     added (in indexes matching those of {@code enumValues})
-     */
-    @Deprecated
-    public void findEnumAliases(MapperConfig<?> config,
-            Class<?> enumType, Enum<?>[] enumValues, String[][] aliases) {
-        ;
     }
 
     /**

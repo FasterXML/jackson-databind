@@ -1,7 +1,6 @@
 package tools.jackson.databind.introspect;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 import java.lang.reflect.MalformedParametersException;
 import java.lang.reflect.Parameter;
 import java.util.*;
@@ -167,42 +166,6 @@ public class JacksonAnnotationIntrospector
     /**********************************************************************
      */
 
-    @Deprecated
-    @Override
-    public String[] findEnumValues(MapperConfig<?> config,
-            Class<?> enumType, Enum<?>[] enumValues, String[] names)
-    {
-        HashMap<String,String> expl = null;
-        for (Field f : enumType.getDeclaredFields()) {
-            if (!f.isEnumConstant()) {
-                continue;
-            }
-            JsonProperty prop = f.getAnnotation(JsonProperty.class);
-            if (prop == null) {
-                continue;
-            }
-            String n = prop.value();
-            if (n.isEmpty()) {
-                continue;
-            }
-            if (expl == null) {
-                expl = new HashMap<String,String>();
-            }
-            expl.put(f.getName(), n);
-        }
-        // and then stitch them together if and as necessary
-        if (expl != null) {
-            for (int i = 0, end = enumValues.length; i < end; ++i) {
-                String defName = enumValues[i].name();
-                String explValue = expl.get(defName);
-                if (explValue != null) {
-                    names[i] = explValue;
-                }
-            }
-        }
-        return names;
-    }
-
     @Override // since 2.16
     public String[] findEnumValues(MapperConfig<?> config, AnnotatedClass annotatedClass,
             Enum<?>[] enumValues, String[] names)
@@ -227,32 +190,6 @@ public class JacksonAnnotationIntrospector
             }
         }
         return names;
-    }
-
-    @Deprecated
-    @Override
-    public void findEnumAliases(MapperConfig<?> config,
-            Class<?> enumType, Enum<?>[] enumValues, String[][] aliasList)
-    {
-        // Main complication: discrepancy between Field that represent enum value,
-        // Enum abstraction; joint by name but not reference
-        for (Field f : enumType.getDeclaredFields()) {
-            if (f.isEnumConstant()) {
-                JsonAlias aliasAnnotation = f.getAnnotation(JsonAlias.class);
-                if (aliasAnnotation != null) {
-                    String[] aliases = aliasAnnotation.value();
-                    if (aliases.length != 0) {
-                        final String name = f.getName();
-                        // Find matching enum (could create Ma
-                        for (int i = 0, end = enumValues.length; i < end; ++i) {
-                            if (name.equals(enumValues[i].name())) {
-                                aliasList[i] = aliases;
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
 
     @Override

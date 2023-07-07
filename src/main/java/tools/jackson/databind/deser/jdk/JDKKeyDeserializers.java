@@ -34,23 +34,19 @@ import tools.jackson.databind.util.EnumResolver;
 public class JDKKeyDeserializers
     implements KeyDeserializers
 {
-    public static KeyDeserializer constructEnumKeyDeserializer(EnumResolver enumResolver) {
-        return new JDKKeyDeserializer.EnumKD(enumResolver, null);
+    /**
+     * @since 2.16
+     */
+    public static KeyDeserializer constructEnumKeyDeserializer(EnumResolver enumRes, EnumResolver byEnumNamingResolver, EnumResolver byToStringResolver) {
+        return new JDKKeyDeserializer.EnumKD(enumRes, null, byEnumNamingResolver, byToStringResolver);
     }
 
-    public static KeyDeserializer constructEnumKeyDeserializer(EnumResolver enumResolver,
-            AnnotatedMethod factory) {
-        return new JDKKeyDeserializer.EnumKD(enumResolver, factory);
-    }
-
-    public static KeyDeserializer constructEnumKeyDeserializer(EnumResolver enumResolver,
-            EnumResolver enumNamingResolver) {
-        return new JDKKeyDeserializer.EnumKD(enumResolver, null, enumNamingResolver);
-    }
-
-    public static KeyDeserializer constructEnumKeyDeserializer(EnumResolver enumResolver,
-            AnnotatedMethod factory, EnumResolver enumNamingResolver) {
-        return new JDKKeyDeserializer.EnumKD(enumResolver, factory, enumNamingResolver);
+    /**
+     * @since 2.16
+     */
+    public static KeyDeserializer constructEnumKeyDeserializer(EnumResolver enumResolver, AnnotatedMethod factory, 
+            EnumResolver enumNamingResolver, EnumResolver byToStringResolver) {
+        return new JDKKeyDeserializer.EnumKD(enumResolver, factory, enumNamingResolver, byToStringResolver);
     }
 
     public static KeyDeserializer constructDelegatingKeyDeserializer(DeserializationConfig config,

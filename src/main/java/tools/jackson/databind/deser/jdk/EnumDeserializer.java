@@ -38,7 +38,7 @@ public class EnumDeserializer
      * Alternatively, we may need a different lookup object if "use toString"
      * is defined.
      */
-    protected volatile CompactStringObjectMap _lookupByToString;
+    protected final CompactStringObjectMap _lookupByToString;
 
     protected final Boolean _caseInsensitive;
 
@@ -58,15 +58,11 @@ public class EnumDeserializer
      */
     protected final CompactStringObjectMap _lookupByEnumNaming;
 
-    /*
-    public EnumDeserializer(EnumResolver byNameResolver, Boolean caseInsensitive)
-    {
-        this(byNameResolver, caseInsensitive, null);
-    }
-    */
-
+    /**
+     * @since 2.16
+     */
     public EnumDeserializer(EnumResolver byNameResolver, boolean caseInsensitive,
-                            EnumResolver byEnumNamingResolver)
+                            EnumResolver byEnumNamingResolver, EnumResolver toStringResolver)
     {
         super(byNameResolver.getEnumClass());
         _lookupByName = byNameResolver.constructLookup();
@@ -75,6 +71,7 @@ public class EnumDeserializer
         _caseInsensitive = caseInsensitive;
         _isFromIntValue = byNameResolver.isFromIntValue();
         _lookupByEnumNaming = byEnumNamingResolver == null ? null : byEnumNamingResolver.constructLookup();
+        _lookupByToString = toStringResolver == null ? null : toStringResolver.constructLookup();
     }
 
     protected EnumDeserializer(EnumDeserializer base, Boolean caseInsensitive,
@@ -89,6 +86,7 @@ public class EnumDeserializer
         _useDefaultValueForUnknownEnum = useDefaultValueForUnknownEnum;
         _useNullForUnknownEnum = useNullForUnknownEnum;
         _lookupByEnumNaming = base._lookupByEnumNaming;
+        _lookupByToString = base._lookupByToString;
     }
 
     /**
@@ -219,15 +217,12 @@ public class EnumDeserializer
         return result;
     }
 
-    /**
-     * @since 2.15
-     */
     private CompactStringObjectMap _resolveCurrentLookup(DeserializationContext ctxt) {
         if (_lookupByEnumNaming != null) {
             return _lookupByEnumNaming;
         }
         return ctxt.isEnabled(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
-            ? _getToStringLookup(ctxt)
+            ? _lookupByToString
             : _lookupByName;
     }
 
@@ -366,21 +361,6 @@ public class EnumDeserializer
 
     protected Class<?> _enumClass() {
         return handledType();
-    }
-
-    protected CompactStringObjectMap _getToStringLookup(DeserializationContext ctxt) {
-        CompactStringObjectMap lookup = _lookupByToString;
-        if (lookup == null) {
-            synchronized (this) {
-                lookup = _lookupByToString;
-                if (lookup == null) {
-                    lookup = EnumResolver.constructUsingToString(ctxt.getConfig(), _enumClass())
-                        .constructLookup();
-                    _lookupByToString = lookup;
-                }
-            }
-        }
-        return lookup;
     }
 
     // @since 2.15

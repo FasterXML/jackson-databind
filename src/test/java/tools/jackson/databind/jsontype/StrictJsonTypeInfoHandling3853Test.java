@@ -8,7 +8,6 @@ import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.exc.InvalidTypeIdException;
-import tools.jackson.databind.json.JsonMapper;
 
 public class StrictJsonTypeInfoHandling3853Test extends BaseMapTest {
 

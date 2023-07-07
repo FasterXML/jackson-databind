@@ -362,10 +362,8 @@ public class JDKKeyDeserializer extends KeyDeserializer
         /**
          * Lazily constructed alternative in case there is need to
          * use 'toString()' method as the source.
-         *
-         * @since 2.7.3
          */
-        protected volatile EnumResolver _byToStringResolver;
+        protected final EnumResolver _byToStringResolver;
 
         /**
          * Lazily constructed alternative in case there is need to
@@ -386,24 +384,21 @@ public class JDKKeyDeserializer extends KeyDeserializer
 
         protected final Enum<?> _enumDefaultValue;
 
-        protected EnumKD(EnumResolver er, AnnotatedMethod factory) {
-            super(-1, er.getEnumClass());
-            _byNameResolver = er;
-            _factory = factory;
-            _enumDefaultValue = er.getDefaultValue();
-            _byEnumNamingResolver = null;
-        }
-
         /**
-         * @since 2.15
+         * 
+         * @since 2.16
          */
-        protected EnumKD(EnumResolver er, AnnotatedMethod factory, EnumResolver byEnumNamingResolver) {
+        protected EnumKD(EnumResolver er, AnnotatedMethod factory,
+                EnumResolver byEnumNamingResolver, 
+                EnumResolver byToStringResolver) {
             super(-1, er.getEnumClass());
             _byNameResolver = er;
             _factory = factory;
             _enumDefaultValue = er.getDefaultValue();
             _byEnumNamingResolver = byEnumNamingResolver;
+            _byToStringResolver = byToStringResolver;
         }
+        
 
         @Override
         public Object _parse(String key, DeserializationContext ctxt)
@@ -445,24 +440,8 @@ public class JDKKeyDeserializer extends KeyDeserializer
                 return _byEnumNamingResolver;
             }
             return ctxt.isEnabled(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
-                ? _getToStringResolver(ctxt)
+                ? _byToStringResolver
                 : _byNameResolver;
-        }
-
-        private EnumResolver _getToStringResolver(DeserializationContext ctxt)
-        {
-            EnumResolver res = _byToStringResolver;
-            if (res == null) {
-                synchronized (this) {
-                    res = _byToStringResolver;
-                    if (res == null) {
-                        res = EnumResolver.constructUsingToString(ctxt.getConfig(),
-                            _byNameResolver.getEnumClass());
-                        _byToStringResolver = res;
-                    }
-                }
-            }
-            return res;
         }
 
         private EnumResolver _getIndexResolver(DeserializationContext ctxt) {

@@ -51,10 +51,11 @@ public class EnumValuesTest extends BaseMapTest
         assertEquals(3, values.internalMap().size());
     }
 
-    public void testEnumResolver()
+    public void testEnumResolverNew()
     {
-       EnumResolver enumRes = EnumResolver.constructUsingToString(MAPPER.deserializationConfig(),
-                ABC.class);
+        AnnotatedClass annotatedClass = resolve(MAPPER, ABC.class);
+        EnumResolver enumRes = EnumResolver.constructUsingToString(MAPPER.deserializationConfig(),
+               annotatedClass);
         assertEquals(ABC.B, enumRes.getEnum(1));
         assertNull(enumRes.getEnum(-1));
         assertNull(enumRes.getEnum(3));

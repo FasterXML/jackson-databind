@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.deser.dos;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.StreamReadConstraints;
+import com.fasterxml.jackson.core.StreamWriteConstraints;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,6 +12,7 @@ public class DeepJsonNodeSerTest extends BaseMapTest
 {
     private final JsonFactory jsonFactory = JsonFactory.builder()
             .streamReadConstraints(StreamReadConstraints.builder().maxNestingDepth(Integer.MAX_VALUE).build())
+            .streamWriteConstraints(StreamWriteConstraints.builder().maxNestingDepth(Integer.MAX_VALUE).build())
             .build();
     private final ObjectMapper MAPPER = JsonMapper.builder(jsonFactory).build();
 

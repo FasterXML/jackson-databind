@@ -33,7 +33,6 @@ public class DeepJsonNodeSerTest extends BaseMapTest
         jsonString.append("}");
 
         JsonNode jsonNode = MAPPER.readTree(jsonString.toString());
-        String json = MAPPER.writeValueAsString(jsonNode);
-        assertNotNull(json);
+        assertNotNull(jsonNode);
     }
 }

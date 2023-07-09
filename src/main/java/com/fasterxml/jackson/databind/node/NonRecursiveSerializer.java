@@ -1,8 +1,11 @@
 package com.fasterxml.jackson.databind.node;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.type.WritableTypeId;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
 import java.io.IOException;
 import java.util.*;
@@ -43,43 +46,66 @@ class NonRecursiveSerializer {
         }
     }
 
-    static void serialize(final JsonNode node, final JsonGenerator gen, final SerializerProvider provider)
+    static void serialize(final JsonNode node, final JsonGenerator gen, final SerializerProvider provider,
+                          final TypeSerializer typeSer)
             throws IOException {
         if (node instanceof ArrayNode) {
             List<Object> events = new ArrayList<>();
             events.add(START_ARRAY);
             events.addAll(getDescendentNodes(node, provider));
             events.add(END_ARRAY);
-            serializeList(events, gen, provider);
+            serializeList(node, events, gen, provider, null);
         } else if (node instanceof ObjectNode) {
             List<Object> events = new ArrayList<>();
             events.add(START_OBJECT);
             Map<String, JsonNode> nodeMap = ((ObjectNode) node)._contentsToSerialize(provider);
             events.addAll(getDescendentNodes(nodeMap, provider));
             events.add(END_OBJECT);
-            serializeList(events, gen, provider);
+            serializeList(node, events, gen, provider, null);
         } else {
             node.serialize(gen, provider);
         }
     }
 
-    private static void serializeList(List<Object> events, final JsonGenerator gen, final SerializerProvider provider)
+    private static void serializeList(final JsonNode rootNode, final List<Object> events,
+                                      final JsonGenerator gen, final SerializerProvider provider,
+                                      final TypeSerializer typeSer)
             throws IOException {
-        for (Object ev : events) {
+        final int size = events.size();
+        WritableTypeId typeIdDef = null;
+        Object ev;
+        for (int i = 0; i < size; i++) {
+            ev = events.get(i);
             if (ev == START_ARRAY) {
-                gen.writeStartArray();
+                if (typeSer != null && i == 0) {
+                    typeIdDef = typeSer.writeTypePrefix(gen, typeSer.typeId(rootNode, START_ARRAY));
+                } else {
+                    gen.writeStartArray();
+                }
             } else if (ev == END_ARRAY) {
-                gen.writeEndArray();
+                if (typeIdDef != null && i == (size - 1)) {
+                    typeSer.writeTypeSuffix(gen, typeIdDef);
+                } else {
+                    gen.writeEndArray();
+                }
             } else if (ev == START_OBJECT) {
-                gen.writeStartObject();
+                if (typeSer != null && i == 0) {
+                    typeIdDef = typeSer.writeTypePrefix(gen, typeSer.typeId(rootNode, START_OBJECT));
+                } else {
+                    gen.writeStartObject();
+                }
             } else if (ev == END_OBJECT) {
-                gen.writeEndObject();
+                if (typeIdDef != null && i == (size - 1)) {
+                    typeSer.writeTypeSuffix(gen, typeIdDef);
+                } else {
+                    gen.writeEndObject();
+                }
             } else if (ev instanceof String) {
                 gen.writeFieldName((String) ev);
             } else if (ev instanceof JsonNode) {
                 ((JsonNode) ev).serialize(gen, provider);
             } else if (ev instanceof ContainerNodeWrapper) {
-                serializeList(((ContainerNodeWrapper) ev).getEvents(), gen, provider);
+                serializeList(rootNode, ((ContainerNodeWrapper) ev).getEvents(), gen, provider, null);
             }
         }
     }

@@ -312,7 +312,7 @@ public class ArrayNode
     @Override
     public void serialize(JsonGenerator g, SerializerProvider provider) throws IOException
     {
-        NonRecursiveSerializer.serialize(this, g, provider);
+        NonRecursiveSerializer.serialize(this, g, provider, null);
     }
 
     @Override

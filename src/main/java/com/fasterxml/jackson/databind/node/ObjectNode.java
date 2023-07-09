@@ -439,7 +439,7 @@ public class ObjectNode
                 return;
             }
         }
-        NonRecursiveSerializer.serialize(this, g, provider);
+        NonRecursiveSerializer.serialize(this, g, provider, null);
     }
 
     @SuppressWarnings("deprecation")

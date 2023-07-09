@@ -48,13 +48,13 @@ class NonRecursiveSerializer {
     static void serialize(final JsonNode node, final JsonGenerator gen, final SerializerProvider provider,
                           final TypeSerializer typeSer)
             throws IOException {
-        if (node instanceof ArrayNode) {
+        if (node.isArray()) {
             final List<Object> events = new ArrayList<>();
             events.add(START_ARRAY);
             events.addAll(getDescendentNodes(node, provider));
             events.add(END_ARRAY);
             serializeList(node, events, gen, provider, typeSer);
-        } else if (node instanceof ObjectNode) {
+        } else if (node.isObject()) {
             final List<Object> events = new ArrayList<>();
             events.add(START_OBJECT);
             Map<String, JsonNode> nodeMap = ((ObjectNode) node)._contentsToSerialize(provider);
@@ -116,7 +116,7 @@ class NonRecursiveSerializer {
         final Iterator<JsonNode> iterator = node.elements();
         while (iterator.hasNext()) {
             JsonNode child = iterator.next();
-            if (child instanceof ContainerNode<?>) {
+            if (child.isObject() || child.isArray()) {
                 ContainerNodeWrapper wrapper = new ContainerNodeWrapper((ContainerNode<?>) child);
                 containerNodeWrappers.add(wrapper);
                 stack.add(wrapper);
@@ -135,11 +135,11 @@ class NonRecursiveSerializer {
                 final List<Object> childEvents = new ArrayList<>();
                 containerNodeWrapper.setEvents(childEvents);
                 boolean nested = false;
-                if (containerNode instanceof ArrayNode) {
+                if (containerNode.isArray()) {
                     childEvents.add(START_ARRAY);
                     nested = processChildNode(containerNode, stack, containerNodeWrappers, childEvents);
                     childEvents.add(END_ARRAY);
-                } else if (containerNode instanceof ObjectNode) {
+                } else if (containerNode.isObject()) {
                     childEvents.add(START_OBJECT);
                     Map<String, JsonNode> nodeMap = ((ObjectNode) containerNode)._contentsToSerialize(provider);
                     nested = processNodeMap(nodeMap, stack, containerNodeWrappers, childEvents);
@@ -162,7 +162,7 @@ class NonRecursiveSerializer {
             Map.Entry<String, JsonNode> childEntry = iterator.next();
             events.add(childEntry.getKey());
             JsonNode child = childEntry.getValue();
-            if (child instanceof ContainerNode<?>) {
+            if (child.isObject() || child.isArray()) {
                 ContainerNodeWrapper wrapper = new ContainerNodeWrapper((ContainerNode<?>) child);
                 containerNodeWrappers.add(wrapper);
                 stack.add(wrapper);
@@ -181,11 +181,11 @@ class NonRecursiveSerializer {
                 final List<Object> childEvents = new ArrayList<>();
                 containerNodeWrapper.setEvents(childEvents);
                 boolean nested = false;
-                if (containerNode instanceof ArrayNode) {
+                if (containerNode.isArray()) {
                     childEvents.add(START_ARRAY);
                     nested = processChildNode(containerNode, stack, containerNodeWrappers, childEvents);
                     childEvents.add(END_ARRAY);
-                } else if (containerNode instanceof ObjectNode) {
+                } else if (containerNode.isObject()) {
                     childEvents.add(START_OBJECT);
                     Map<String, JsonNode> nodeMap2 = ((ObjectNode) containerNode)._contentsToSerialize(provider);
                     nested = processNodeMap(nodeMap2, stack, containerNodeWrappers, childEvents);
@@ -244,7 +244,7 @@ class NonRecursiveSerializer {
         Iterator<JsonNode> childIterator = node.elements();
         while (childIterator.hasNext()) {
             JsonNode child = childIterator.next();
-            if (child instanceof ContainerNode<?>) {
+            if (child.isObject() || child.isArray()) {
                 ContainerNodeWrapper wrapper = new ContainerNodeWrapper((ContainerNode<?>) child);
                 wrappers.add(wrapper);
                 childEvents.add(wrapper);
@@ -267,7 +267,7 @@ class NonRecursiveSerializer {
             Map.Entry<String, JsonNode> childEntry = childIterator.next();
             JsonNode child = childEntry.getValue();
             childEvents.add(childEntry.getKey());
-            if (child instanceof ContainerNode<?>) {
+            if (child.isObject() || child.isArray()) {
                 ContainerNodeWrapper wrapper = new ContainerNodeWrapper((ContainerNode<?>) child);
                 wrappers.add(wrapper);
                 childEvents.add(wrapper);

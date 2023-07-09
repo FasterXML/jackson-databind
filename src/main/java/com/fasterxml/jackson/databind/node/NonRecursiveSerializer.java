@@ -192,6 +192,7 @@ class NonRecursiveSerializer {
                     }
                 }
                 wrapper.setEvents(newEvents);
+                wrapper.setNested(needsWork);
                 if (needsWork) wrappers.addFirst(wrapper);
             }
         }

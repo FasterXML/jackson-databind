@@ -439,7 +439,7 @@ public class ObjectNode
                 return;
             }
         }
-        NonRecursiveSerializer.serialize(this, g, provider, null);
+        NonRecursiveSerializer.serialize(this, g, provider, null, false, false);
     }
 
     @SuppressWarnings("deprecation")
@@ -455,19 +455,14 @@ public class ObjectNode
             skipNulls = !provider.isEnabled(JsonNodeFeature.WRITE_NULL_PROPERTIES);
         }
 
-        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
-                typeSer.typeId(this, JsonToken.START_OBJECT));
-
         if (trimEmptyArray || skipNulls) {
+            WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
+                    typeSer.typeId(this, JsonToken.START_OBJECT));
             serializeFilteredContents(g, provider, trimEmptyArray, skipNulls);
+            typeSer.writeTypeSuffix(g, typeIdDef);
         } else {
-            for (Map.Entry<String, JsonNode> en : _contentsToSerialize(provider).entrySet()) {
-                JsonNode value = en.getValue();
-                g.writeFieldName(en.getKey());
-                value.serialize(g, provider);
-            }
+            NonRecursiveSerializer.serialize(this, g, provider, typeSer, false, false);
         }
-        typeSer.writeTypeSuffix(g, typeIdDef);
     }
 
     /**

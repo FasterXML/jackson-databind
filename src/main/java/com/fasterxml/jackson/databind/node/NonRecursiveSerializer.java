@@ -46,7 +46,7 @@ class NonRecursiveSerializer {
     }
 
     static void serialize(final JsonNode node, final JsonGenerator gen, final SerializerProvider provider,
-                          final TypeSerializer typeSer)
+                          final TypeSerializer typeSer, final boolean trimEmptyArray, final boolean skipNulls)
             throws IOException {
         if (node.isArray()) {
             final List<Object> events = new ArrayList<>();

@@ -311,14 +311,14 @@ public class ArrayNode
     @Override
     public void serialize(JsonGenerator g, SerializerProvider provider) throws IOException
     {
-        NonRecursiveSerializer.serialize(this, g, provider, null);
+        NonRecursiveSerializer.serialize(this, g, provider, null, false, false);
     }
 
     @Override
     public void serializeWithType(JsonGenerator g, SerializerProvider provider, TypeSerializer typeSer)
         throws IOException
     {
-        NonRecursiveSerializer.serialize(this, g, provider, typeSer);
+        NonRecursiveSerializer.serialize(this, g, provider, typeSer, false, false);
     }
 
     /*

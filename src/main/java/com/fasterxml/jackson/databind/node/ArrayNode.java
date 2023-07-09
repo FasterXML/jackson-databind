@@ -6,7 +6,6 @@ import java.math.BigInteger;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.type.WritableTypeId;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -319,12 +318,7 @@ public class ArrayNode
     public void serializeWithType(JsonGenerator g, SerializerProvider provider, TypeSerializer typeSer)
         throws IOException
     {
-        WritableTypeId typeIdDef = typeSer.writeTypePrefix(g,
-                typeSer.typeId(this, JsonToken.START_ARRAY));
-        for (JsonNode n : _children) {
-            ((BaseJsonNode)n).serialize(g, provider);
-        }
-        typeSer.writeTypeSuffix(g, typeIdDef);
+        NonRecursiveSerializer.serialize(this, g, provider, typeSer);
     }
 
     /*

@@ -312,14 +312,7 @@ public class ArrayNode
     @Override
     public void serialize(JsonGenerator g, SerializerProvider provider) throws IOException
     {
-        final List<JsonNode> c = _children;
-        final int size = c.size();
-        g.writeStartArray(this, size);
-        for (int i = 0; i < size; ++i) { // we'll typically have array list
-            JsonNode value = c.get(i);
-            value.serialize(g, provider);
-        }
-        g.writeEndArray();
+        NonRecursiveSerializer.serialize(this, g, provider);
     }
 
     @Override

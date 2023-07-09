@@ -181,8 +181,7 @@ class NonRecursiveSerializer {
                 if (containerNode.isArray()) {
                     if (!(trimEmptyArray && containerNode.isEmpty(provider))) {
                         childEvents.add(START_ARRAY);
-                        nested = processChildNode(containerNode, stack, containerNodeWrappers, childEvents,
-                                provider, trimEmptyArray, skipNulls);
+                        nested = processArrayChildNode(containerNode, stack, containerNodeWrappers, childEvents);
                         childEvents.add(END_ARRAY);
                     }
                 } else if (containerNode.isObject()) {
@@ -236,25 +235,21 @@ class NonRecursiveSerializer {
         return false;
     }
 
-    private static boolean processChildNode(final JsonNode node,
-                                            final Stack<ContainerNodeWrapper> stack,
-                                            final LinkedList<ContainerNodeWrapper> wrappers,
-                                            final List<Object> childEvents,
-                                            final SerializerProvider provider,
-                                            final boolean trimEmptyArray, final boolean skipNulls) {
+    private static boolean processArrayChildNode(final JsonNode node,
+                                                 final Stack<ContainerNodeWrapper> stack,
+                                                 final LinkedList<ContainerNodeWrapper> wrappers,
+                                                 final List<Object> childEvents) {
         boolean nested = false;
         Iterator<JsonNode> childIterator = node.elements();
         while (childIterator.hasNext()) {
             JsonNode child = childIterator.next();
             if (child.isObject() || child.isArray()) {
-                if (!(trimEmptyArray && child.isArray() && child.isEmpty(provider))) {
-                    ContainerNodeWrapper wrapper = new ContainerNodeWrapper((ContainerNode<?>) child);
-                    wrappers.add(wrapper);
-                    childEvents.add(wrapper);
-                    stack.add(wrapper);
-                    nested = true;
-                }
-            } else if (!(skipNulls && child.isNull())) {
+                ContainerNodeWrapper wrapper = new ContainerNodeWrapper((ContainerNode<?>) child);
+                wrappers.add(wrapper);
+                childEvents.add(wrapper);
+                stack.add(wrapper);
+                nested = true;
+            } else {
                 childEvents.add(child);
             }
         }

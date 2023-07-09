@@ -428,17 +428,13 @@ public class ObjectNode
     public void serialize(JsonGenerator g, SerializerProvider provider)
         throws IOException
     {
+        boolean trimEmptyArray = false;
+        boolean skipNulls = false;
         if (provider != null) {
-            boolean trimEmptyArray = !provider.isEnabled(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS);
-            boolean skipNulls = !provider.isEnabled(JsonNodeFeature.WRITE_NULL_PROPERTIES);
-            if (trimEmptyArray || skipNulls) {
-                g.writeStartObject(this);
-                serializeFilteredContents(g, provider, trimEmptyArray, skipNulls);
-                g.writeEndObject();
-                return;
-            }
+            trimEmptyArray = !provider.isEnabled(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS);
+            skipNulls = !provider.isEnabled(JsonNodeFeature.WRITE_NULL_PROPERTIES);
         }
-        NonRecursiveSerializer.serialize(this, g, provider, null, false, false);
+        NonRecursiveSerializer.serialize(this, g, provider, null, trimEmptyArray, skipNulls);
     }
 
     @SuppressWarnings("deprecation")

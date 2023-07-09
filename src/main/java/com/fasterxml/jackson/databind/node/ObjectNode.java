@@ -439,13 +439,7 @@ public class ObjectNode
                 return;
             }
         }
-        g.writeStartObject(this);
-        for (Map.Entry<String, JsonNode> en : _contentsToSerialize(provider).entrySet()) {
-            JsonNode value = en.getValue();
-            g.writeFieldName(en.getKey());
-            value.serialize(g, provider);
-        }
-        g.writeEndObject();
+        NonRecursiveSerializer.serialize(this, g, provider);
     }
 
     @SuppressWarnings("deprecation")

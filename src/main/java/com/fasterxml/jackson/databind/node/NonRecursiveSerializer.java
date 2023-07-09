@@ -118,10 +118,12 @@ class NonRecursiveSerializer {
         while (iterator.hasNext()) {
             JsonNode child = iterator.next();
             if (child.isObject() || child.isArray()) {
-                ContainerNodeWrapper wrapper = new ContainerNodeWrapper((ContainerNode<?>) child);
-                containerNodeWrappers.add(wrapper);
-                stack.add(wrapper);
-                events.add(wrapper);
+                if (!(trimEmptyArray && child.isArray() && child.isEmpty(provider))) {
+                    ContainerNodeWrapper wrapper = new ContainerNodeWrapper((ContainerNode<?>) child);
+                    containerNodeWrappers.add(wrapper);
+                    stack.add(wrapper);
+                    events.add(wrapper);
+                }
             } else {
                 events.add(child);
             }

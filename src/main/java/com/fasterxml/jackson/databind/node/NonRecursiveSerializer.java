@@ -137,13 +137,17 @@ class NonRecursiveSerializer {
                 containerNodeWrapper.setEvents(childEvents);
                 boolean nested = false;
                 if (containerNode.isArray()) {
-                    childEvents.add(START_ARRAY);
-                    nested = processChildNode(containerNode, stack, containerNodeWrappers, childEvents);
-                    childEvents.add(END_ARRAY);
+                    if (!(trimEmptyArray && containerNode.isEmpty(provider))) {
+                        childEvents.add(START_ARRAY);
+                        nested = processChildNode(containerNode, stack, containerNodeWrappers, childEvents,
+                                provider, trimEmptyArray, skipNulls);
+                        childEvents.add(END_ARRAY);
+                    }
                 } else if (containerNode.isObject()) {
                     childEvents.add(START_OBJECT);
                     Map<String, JsonNode> nodeMap = ((ObjectNode) containerNode)._contentsToSerialize(provider);
-                    nested = processNodeMap(nodeMap, stack, containerNodeWrappers, childEvents, trimEmptyArray, skipNulls);
+                    nested = processNodeMap(nodeMap, stack, containerNodeWrappers, childEvents,
+                            provider, trimEmptyArray, skipNulls);
                     childEvents.add(END_OBJECT);
                 }
                 containerNodeWrapper.setNested(nested);
@@ -164,11 +168,13 @@ class NonRecursiveSerializer {
             Map.Entry<String, JsonNode> childEntry = iterator.next();
             JsonNode child = childEntry.getValue();
             if (child.isObject() || child.isArray()) {
-                events.add(childEntry.getKey());
-                ContainerNodeWrapper wrapper = new ContainerNodeWrapper((ContainerNode<?>) child);
-                containerNodeWrappers.add(wrapper);
-                stack.add(wrapper);
-                events.add(wrapper);
+                if (!(trimEmptyArray && child.isArray() && child.isEmpty(provider))) {
+                    events.add(childEntry.getKey());
+                    ContainerNodeWrapper wrapper = new ContainerNodeWrapper((ContainerNode<?>) child);
+                    containerNodeWrappers.add(wrapper);
+                    stack.add(wrapper);
+                    events.add(wrapper);
+                }
             } else if (!(skipNulls && child.isNull())) {
                 events.add(childEntry.getKey());
                 events.add(child);
@@ -185,13 +191,17 @@ class NonRecursiveSerializer {
                 containerNodeWrapper.setEvents(childEvents);
                 boolean nested = false;
                 if (containerNode.isArray()) {
-                    childEvents.add(START_ARRAY);
-                    nested = processChildNode(containerNode, stack, containerNodeWrappers, childEvents);
-                    childEvents.add(END_ARRAY);
+                    if (!(trimEmptyArray && containerNode.isEmpty(provider))) {
+                        childEvents.add(START_ARRAY);
+                        nested = processChildNode(containerNode, stack, containerNodeWrappers, childEvents,
+                                provider, trimEmptyArray, skipNulls);
+                        childEvents.add(END_ARRAY);
+                    }
                 } else if (containerNode.isObject()) {
                     childEvents.add(START_OBJECT);
                     Map<String, JsonNode> nodeMap2 = ((ObjectNode) containerNode)._contentsToSerialize(provider);
-                    nested = processNodeMap(nodeMap2, stack, containerNodeWrappers, childEvents, trimEmptyArray, skipNulls);
+                    nested = processNodeMap(nodeMap2, stack, containerNodeWrappers, childEvents,
+                            provider, trimEmptyArray, skipNulls);
                     childEvents.add(END_OBJECT);
                 }
                 containerNodeWrapper.setNested(nested);
@@ -242,17 +252,21 @@ class NonRecursiveSerializer {
     private static boolean processChildNode(final JsonNode node,
                                             final Stack<ContainerNodeWrapper> stack,
                                             final LinkedList<ContainerNodeWrapper> wrappers,
-                                            final List<Object> childEvents) {
+                                            final List<Object> childEvents,
+                                            final SerializerProvider provider,
+                                            final boolean trimEmptyArray, final boolean skipNulls) {
         boolean nested = false;
         Iterator<JsonNode> childIterator = node.elements();
         while (childIterator.hasNext()) {
             JsonNode child = childIterator.next();
             if (child.isObject() || child.isArray()) {
-                ContainerNodeWrapper wrapper = new ContainerNodeWrapper((ContainerNode<?>) child);
-                wrappers.add(wrapper);
-                childEvents.add(wrapper);
-                stack.add(wrapper);
-                nested = true;
+                if (!(trimEmptyArray && child.isArray() && child.isEmpty(provider))) {
+                    ContainerNodeWrapper wrapper = new ContainerNodeWrapper((ContainerNode<?>) child);
+                    wrappers.add(wrapper);
+                    childEvents.add(wrapper);
+                    stack.add(wrapper);
+                    nested = true;
+                }
             } else {
                 childEvents.add(child);
             }
@@ -264,6 +278,7 @@ class NonRecursiveSerializer {
                                           final Stack<ContainerNodeWrapper> stack,
                                           final LinkedList<ContainerNodeWrapper> wrappers,
                                           final List<Object> childEvents,
+                                          final SerializerProvider provider,
                                           final boolean trimEmptyArray, final boolean skipNulls) {
         boolean nested = false;
         Iterator<Map.Entry<String, JsonNode>> childIterator = nodeMap.entrySet().iterator();
@@ -271,12 +286,14 @@ class NonRecursiveSerializer {
             Map.Entry<String, JsonNode> childEntry = childIterator.next();
             JsonNode child = childEntry.getValue();
             if (child.isObject() || child.isArray()) {
-                childEvents.add(childEntry.getKey());
-                ContainerNodeWrapper wrapper = new ContainerNodeWrapper((ContainerNode<?>) child);
-                wrappers.add(wrapper);
-                childEvents.add(wrapper);
-                stack.add(wrapper);
-                nested = true;
+                if (!(trimEmptyArray && child.isArray() && child.isEmpty(provider))) {
+                    childEvents.add(childEntry.getKey());
+                    ContainerNodeWrapper wrapper = new ContainerNodeWrapper((ContainerNode<?>) child);
+                    wrappers.add(wrapper);
+                    childEvents.add(wrapper);
+                    stack.add(wrapper);
+                    nested = true;
+                }
             } else if (!(skipNulls && child.isNull())) {
                 childEvents.add(childEntry.getKey());
                 childEvents.add(child);

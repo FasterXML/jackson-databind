@@ -128,34 +128,7 @@ class NonRecursiveSerializer {
                 events.add(child);
             }
         }
-
-        if (!containerNodeWrappers.isEmpty()) {
-            ContainerNodeWrapper containerNodeWrapper;
-            ContainerNode<?> containerNode;
-            while (!stack.isEmpty()) {
-                containerNodeWrapper = stack.pop();
-                containerNode = containerNodeWrapper.getNode();
-                final List<Object> childEvents = new ArrayList<>();
-                containerNodeWrapper.setEvents(childEvents);
-                boolean nested = false;
-                if (containerNode.isArray()) {
-                    if (!(trimEmptyArray && containerNode.isEmpty(provider))) {
-                        childEvents.add(START_ARRAY);
-                        nested = processChildNode(containerNode, stack, containerNodeWrappers, childEvents,
-                                provider, trimEmptyArray, skipNulls);
-                        childEvents.add(END_ARRAY);
-                    }
-                } else if (containerNode.isObject()) {
-                    childEvents.add(START_OBJECT);
-                    Map<String, JsonNode> nodeMap = ((ObjectNode) containerNode)._contentsToSerialize(provider);
-                    nested = processNodeMap(nodeMap, stack, containerNodeWrappers, childEvents,
-                            provider, trimEmptyArray, skipNulls);
-                    childEvents.add(END_OBJECT);
-                }
-                containerNodeWrapper.setNested(nested);
-            }
-            expandContainers(containerNodeWrappers);
-        }
+        expandChildNodes(provider, trimEmptyArray, skipNulls, containerNodeWrappers, stack);
         return events;
     }
 
@@ -182,7 +155,14 @@ class NonRecursiveSerializer {
                 events.add(child);
             }
         }
+        expandChildNodes(provider, trimEmptyArray, skipNulls, containerNodeWrappers, stack);
+        return events;
+    }
 
+    private static void expandChildNodes(final SerializerProvider provider,
+                                         final boolean trimEmptyArray, final boolean skipNulls,
+                                         final LinkedList<ContainerNodeWrapper> containerNodeWrappers,
+                                         final Stack<ContainerNodeWrapper> stack) {
         if (!containerNodeWrappers.isEmpty()) {
             ContainerNodeWrapper containerNodeWrapper;
             ContainerNode<?> containerNode;
@@ -210,7 +190,6 @@ class NonRecursiveSerializer {
             }
             expandContainers(containerNodeWrappers);
         }
-        return events;
     }
 
     private static void expandContainers(LinkedList<ContainerNodeWrapper> wrappers) {
@@ -269,7 +248,7 @@ class NonRecursiveSerializer {
                     stack.add(wrapper);
                     nested = true;
                 }
-            } else {
+            } else if (!(skipNulls && child.isNull())) {
                 childEvents.add(child);
             }
         }

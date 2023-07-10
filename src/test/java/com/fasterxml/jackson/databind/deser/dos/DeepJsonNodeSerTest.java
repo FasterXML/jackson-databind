@@ -18,7 +18,11 @@ public class DeepJsonNodeSerTest extends BaseMapTest
 
     public void testVeryDeepNodeSer() throws Exception
     {
-        int depth = 4000;
+        // 10-Jul-2023, tatu: With recursive implementation there will be practical upper
+        //   limit; but we are not testing specific size here but rather that users
+        //   may relax/remove limits. For that all we need is level bit higher than
+        //   the default there is
+        int depth = StreamWriteConstraints.DEFAULT_MAX_DEPTH + 100;
         StringBuilder jsonString = new StringBuilder();
         jsonString.append("{");
 

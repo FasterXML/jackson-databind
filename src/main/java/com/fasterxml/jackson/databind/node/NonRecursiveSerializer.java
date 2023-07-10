@@ -7,13 +7,14 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
 import java.io.IOException;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 
 import static com.fasterxml.jackson.core.JsonToken.*;
 
@@ -119,7 +120,7 @@ class NonRecursiveSerializer {
                                                    final boolean trimEmptyArray, final boolean skipNulls) {
         final LinkedList<ContainerNodeWrapper> containerNodeWrappers = new LinkedList<>();
         final List<Object> events = new ArrayList<>();
-        final Stack<ContainerNodeWrapper> stack = new Stack<>();
+        final Deque<ContainerNodeWrapper> stack = new ArrayDeque<>();
         final Iterator<JsonNode> iterator = node.elements();
         while (iterator.hasNext()) {
             JsonNode child = iterator.next();
@@ -143,7 +144,7 @@ class NonRecursiveSerializer {
                                                    final boolean trimEmptyArray, final boolean skipNulls) {
         final LinkedList<ContainerNodeWrapper> containerNodeWrappers = new LinkedList<>();
         final List<Object> events = new ArrayList<>();
-        final Stack<ContainerNodeWrapper> stack = new Stack<>();
+        final Deque<ContainerNodeWrapper> stack = new ArrayDeque<>();
         final Iterator<Map.Entry<String, JsonNode>> iterator = nodeMap.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry<String, JsonNode> childEntry = iterator.next();
@@ -168,7 +169,7 @@ class NonRecursiveSerializer {
     private static void expandChildNodes(final SerializerProvider provider,
                                          final boolean trimEmptyArray, final boolean skipNulls,
                                          final LinkedList<ContainerNodeWrapper> containerNodeWrappers,
-                                         final Stack<ContainerNodeWrapper> stack) {
+                                         final Deque<ContainerNodeWrapper> stack) {
         if (!containerNodeWrappers.isEmpty()) {
             ContainerNodeWrapper containerNodeWrapper;
             ContainerNode<?> containerNode;
@@ -236,7 +237,7 @@ class NonRecursiveSerializer {
     }
 
     private static boolean processArrayChildNode(final JsonNode node,
-                                                 final Stack<ContainerNodeWrapper> stack,
+                                                 final Deque<ContainerNodeWrapper> stack,
                                                  final LinkedList<ContainerNodeWrapper> wrappers,
                                                  final List<Object> childEvents) {
         boolean nested = false;
@@ -257,7 +258,7 @@ class NonRecursiveSerializer {
     }
 
     private static boolean processNodeMap(final Map<String, JsonNode> nodeMap,
-                                          final Stack<ContainerNodeWrapper> stack,
+                                          final Deque<ContainerNodeWrapper> stack,
                                           final LinkedList<ContainerNodeWrapper> wrappers,
                                           final List<Object> childEvents,
                                           final SerializerProvider provider,

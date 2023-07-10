@@ -52,6 +52,17 @@ public class EnumDefaultReadTest extends BaseMapTest
             return this.number;
         }
     }
+    
+    enum BaseEnumDefault {
+        A, B, C,
+        Z;
+    }
+
+    enum MixinEnumDefault {
+        A, B, C,
+        @JsonEnumDefaultValue
+        Z;
+    }
 
     /*
     /**********************************************************
@@ -246,5 +257,21 @@ public class EnumDefaultReadTest extends BaseMapTest
             verifyException(e, "Cannot deserialize value of type");
             /* Expected. */
         }
+    }
+    
+    public void testEnumDefaultValueViaMixin() throws Exception {
+        try {
+            MAPPER.readValue(q("UNKNOWN"),  BaseEnumDefault.class);
+            fail("Should not pass");
+        } catch (InvalidFormatException e) {
+            verifyException(e, "Cannot deserialize value of type");
+            verifyException(e, "\"UNKNOWN\": not one of the values accepted for Enum class: [A, B, C, Z]");
+        }
+        
+        ObjectMapper mixinMapper = jsonMapperBuilder()
+                .addMixIn(BaseEnumDefault.class, MixinEnumDefault.class)
+                .build();
+        BaseEnumDefault defaultEnum = mixinMapper.readValue(q("UNKNOWN"), BaseEnumDefault.class);
+        assertEquals(BaseEnumDefault.Z, defaultEnum);
     }
 }

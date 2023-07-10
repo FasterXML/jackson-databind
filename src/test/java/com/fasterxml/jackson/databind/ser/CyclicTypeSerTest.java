@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 public class CyclicTypeSerTest
     extends BaseMapTest
 {
-    static class Bean
+    public static class Bean
     {
         Bean _next;
         final String _name;

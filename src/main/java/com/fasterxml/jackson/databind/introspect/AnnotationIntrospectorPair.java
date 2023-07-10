@@ -652,9 +652,16 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
+    @Deprecated // since 2.16
     public Enum<?> findDefaultEnumValue(Class<Enum<?>> enumCls) {
         Enum<?> en = _primary.findDefaultEnumValue(enumCls);
         return (en == null) ? _secondary.findDefaultEnumValue(enumCls) : en;
+    }
+    
+    @Override // since 2.16
+    public Enum<?> findDefaultEnumValue(AnnotatedClass annotatedClass, Enum<?>[] enumValues) {
+        Enum<?> en = _primary.findDefaultEnumValue(annotatedClass, enumValues);
+        return (en == null) ? _secondary.findDefaultEnumValue(annotatedClass, enumValues) : en;
     }
 
     @Override

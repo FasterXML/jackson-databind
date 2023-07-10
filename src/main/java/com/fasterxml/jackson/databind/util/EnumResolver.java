@@ -129,6 +129,7 @@ public class EnumResolver implements java.io.Serializable
         final Class<?> enumCls0 = annotatedClass.getRawType();
         final Class<Enum<?>> enumCls = _enumClass(enumCls0);
         final Enum<?>[] enumConstants = _enumConstants(enumCls0);
+        final Enum<?> defaultEnum = _enumDefault(ai, annotatedClass, enumConstants);
 
         // introspect
         String[] names = ai.findEnumValues(config, annotatedClass,
@@ -154,7 +155,7 @@ public class EnumResolver implements java.io.Serializable
             }
         }
         return new EnumResolver(enumCls, enumConstants, map,
-            _enumDefault(ai, enumCls), isIgnoreCase, false);
+                defaultEnum, isIgnoreCase, false);
     }
 
     /**
@@ -207,6 +208,7 @@ public class EnumResolver implements java.io.Serializable
         final Class<?> enumCls0 = annotatedClass.getRawType();
         final Class<Enum<?>> enumCls = _enumClass(enumCls0);
         final Enum<?>[] enumConstants = _enumConstants(enumCls0);
+        final Enum<?> defaultEnum = _enumDefault(ai, annotatedClass, enumConstants);
 
         // introspect
         final String[][] allAliases = new String[enumConstants.length][];
@@ -229,7 +231,7 @@ public class EnumResolver implements java.io.Serializable
             }
         }
         return new EnumResolver(enumCls, enumConstants, map,
-                _enumDefault(ai, enumCls), isIgnoreCase, false);
+                defaultEnum, isIgnoreCase, false);
     }
 
     /**
@@ -345,8 +347,22 @@ public class EnumResolver implements java.io.Serializable
         return enumValues;
     }
 
+    /**
+     * @deprecated Since 2.16. Use {@link #_enumDefault(AnnotationIntrospector, AnnotatedClass, Enum[])} instead.
+     */
+    @Deprecated
     protected static Enum<?> _enumDefault(AnnotationIntrospector intr, Class<?> enumCls) {
         return (intr != null) ? intr.findDefaultEnumValue(_enumClass(enumCls)) : null;
+    }
+
+    /**
+     * Internal helper method used to resolve {@link com.fasterxml.jackson.annotation.JsonEnumDefaultValue}
+     * 
+     * @since 2.16
+     * @see AnnotationIntrospector#findDefaultEnumValue(AnnotatedClass, Enum[]) 
+     */
+    protected static Enum<?> _enumDefault(AnnotationIntrospector intr, AnnotatedClass annotatedClass, Enum<?>[] enums) {
+        return (intr != null) ? intr.findDefaultEnumValue(annotatedClass, enums) : null;
     }
 
     protected static boolean _isIntType(Class<?> erasedType) {

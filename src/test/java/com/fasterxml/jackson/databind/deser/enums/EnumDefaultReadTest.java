@@ -54,12 +54,27 @@ public class EnumDefaultReadTest extends BaseMapTest
     }
     
     enum BaseEnumDefault {
-        A, B, C,
-        Z;
+        A, B, C, Z;
     }
 
     enum MixinEnumDefault {
         A, B, C,
+        @JsonEnumDefaultValue
+        Z;
+    }
+
+    enum BaseOverloaded {
+        A, B, C,
+        Z;
+    }
+
+    enum MixinOverloadedDefault {
+        @JsonEnumDefaultValue
+        A,
+        @JsonEnumDefaultValue
+        B,
+        @JsonEnumDefaultValue
+        C,
         @JsonEnumDefaultValue
         Z;
     }
@@ -259,19 +274,25 @@ public class EnumDefaultReadTest extends BaseMapTest
         }
     }
     
-    public void testEnumDefaultValueViaMixin() throws Exception {
-        try {
-            MAPPER.readValue(q("UNKNOWN"),  BaseEnumDefault.class);
-            fail("Should not pass");
-        } catch (InvalidFormatException e) {
-            verifyException(e, "Cannot deserialize value of type");
-            verifyException(e, "\"UNKNOWN\": not one of the values accepted for Enum class: [A, B, C, Z]");
-        }
-        
+    public void testEnumDefaultValueViaMixin() throws Exception 
+    {
         ObjectMapper mixinMapper = jsonMapperBuilder()
+                .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
                 .addMixIn(BaseEnumDefault.class, MixinEnumDefault.class)
                 .build();
-        BaseEnumDefault defaultEnum = mixinMapper.readValue(q("UNKNOWN"), BaseEnumDefault.class);
-        assertEquals(BaseEnumDefault.Z, defaultEnum);
+        
+        assertEquals(BaseEnumDefault.Z, 
+                mixinMapper.readValue(q("UNKNOWN"), BaseEnumDefault.class));
+    }
+    
+    public void testFirstEnumDefaultValueViaMixin() throws Exception 
+    {
+        ObjectMapper mixinMapper = jsonMapperBuilder()
+                .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
+                .addMixIn(BaseOverloaded.class, MixinOverloadedDefault.class)
+                .build();
+        
+        assertEquals(BaseOverloaded.A, 
+                mixinMapper.readValue(q("UNKNOWN"), BaseOverloaded.class));
     }
 }

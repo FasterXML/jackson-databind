@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.EnumNaming;
 
-import com.fasterxml.jackson.databind.ser.jdk.EnumNamingSerializationTest;
 import java.util.Map;
 
 import static com.fasterxml.jackson.databind.MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS;
@@ -76,14 +75,12 @@ public class EnumNamingDeserializationTest extends BaseMapTest {
     }
 
     static enum BaseEnum {
-        REAL_NAME,
-        _REALNAME;
+        REAL_NAME
     }
 
     @EnumNaming(EnumNamingStrategies.CamelCaseStrategy.class)
     static enum MixInEnum {
-        REAL_NAME,
-        REALNAME_;
+        REAL_NAME
     }
     
     /*

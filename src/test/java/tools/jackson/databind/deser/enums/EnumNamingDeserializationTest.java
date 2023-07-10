@@ -11,14 +11,8 @@ import java.util.Map;
 
 import static tools.jackson.databind.MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS;
 
-public class EnumNamingDeserializationTest extends BaseMapTest {
-
-    /*
-    /**********************************************************
-    /* Set Up
-    /**********************************************************
-    */
-
+public class EnumNamingDeserializationTest extends BaseMapTest
+{
     private final ObjectMapper MAPPER = newJsonMapper();
     private final ObjectMapper CI_MAPPER = jsonMapperBuilder()
             .enable(ACCEPT_CASE_INSENSITIVE_ENUMS)
@@ -75,9 +69,18 @@ public class EnumNamingDeserializationTest extends BaseMapTest {
         Map<String, EnumSauceC> map;
     }
 
+    static enum BaseEnum {
+        REAL_NAME
+    }
+
+    @EnumNaming(EnumNamingStrategies.CamelCaseStrategy.class)
+    static enum MixInEnum {
+        REAL_NAME
+    }
+
     /*
     /**********************************************************
-    /* Test
+    /* Test methods
     /**********************************************************
     */
 
@@ -220,5 +223,19 @@ public class EnumNamingDeserializationTest extends BaseMapTest {
         assertEquals(2, result.map.size());
         assertEquals(EnumSauceC.KETCH_UP, result.map.get("lowerSauce"));
         assertEquals(EnumSauceC.MAYO_NEZZ, result.map.get("upperSauce"));
+    }
+
+    public void testEnumMixInDeserializationTest() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addMixIn(BaseEnum.class, MixInEnum.class)
+                .build();
+        
+        // serialization
+        String ser = mapper.writeValueAsString(BaseEnum.REAL_NAME);
+        assertEquals(q("realName"), ser);
+        
+        // deserialization
+        BaseEnum deser = mapper.readValue(q("realName"), BaseEnum.class);
+        assertEquals(BaseEnum.REAL_NAME, deser);
     }
 }

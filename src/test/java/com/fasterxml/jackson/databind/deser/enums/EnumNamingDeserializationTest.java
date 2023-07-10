@@ -10,14 +10,8 @@ import java.util.Map;
 
 import static com.fasterxml.jackson.databind.MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS;
 
-public class EnumNamingDeserializationTest extends BaseMapTest {
-
-    /*
-    /**********************************************************
-    /* Set Up
-    /**********************************************************
-    */
-
+public class EnumNamingDeserializationTest extends BaseMapTest
+{
     private final ObjectMapper MAPPER = newJsonMapper();
     private final ObjectMapper MAPPER_CI = jsonMapperBuilder()
             .enable(ACCEPT_CASE_INSENSITIVE_ENUMS)
@@ -82,10 +76,10 @@ public class EnumNamingDeserializationTest extends BaseMapTest {
     static enum MixInEnum {
         REAL_NAME
     }
-    
+
     /*
     /**********************************************************
-    /* Test
+    /* Test methods
     /**********************************************************
     */
 

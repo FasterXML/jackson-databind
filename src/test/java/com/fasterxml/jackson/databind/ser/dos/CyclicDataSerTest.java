@@ -1,14 +1,12 @@
 package com.fasterxml.jackson.databind.ser.dos;
 
-import com.fasterxml.jackson.core.StreamWriteConstraints;
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
-import com.fasterxml.jackson.databind.ser.CyclicTypeSerTest;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import com.fasterxml.jackson.core.StreamWriteConstraints;
+
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 
 /**
  * Simple unit tests to verify that we fail gracefully if you attempt to serialize
@@ -17,10 +15,26 @@ import java.util.List;
 public class CyclicDataSerTest
     extends BaseMapTest
 {
+    static class CyclicBean
+    {
+        CyclicBean _next;
+        final String _name;
+
+        public CyclicBean(CyclicBean next, String name) {
+            _next = next;
+            _name = name;
+        }
+
+        public CyclicBean getNext() { return _next; }
+        public String getName() { return _name; }
+
+        public void assignNext(CyclicBean n) { _next = n; }
+    }
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     public void testLinkedAndCyclic() throws Exception {
-        CyclicTypeSerTest.Bean bean = new CyclicTypeSerTest.Bean(null, "last");
+        CyclicBean bean = new CyclicBean(null, "last");
         bean.assignNext(bean);
         try {
             writeAndMap(MAPPER, bean);
@@ -36,12 +50,12 @@ public class CyclicDataSerTest
         list.add(list);
         try {
             writeAndMap(MAPPER, list);
-            fail("expected JsonMappingException");
-        } catch (JsonMappingException jmex) {
+            fail("expected DatabindException");
+        } catch (DatabindException e) {
             String exceptionPrefix = String.format("Document nesting depth (%d) exceeds the maximum allowed",
                     StreamWriteConstraints.DEFAULT_MAX_DEPTH + 1);
-            assertTrue("JsonMappingException message is as expected?",
-                    jmex.getMessage().startsWith(exceptionPrefix));
+            assertTrue("DatabindException message is as expected?",
+                    e.getMessage().startsWith(exceptionPrefix));
         }
     }
 }

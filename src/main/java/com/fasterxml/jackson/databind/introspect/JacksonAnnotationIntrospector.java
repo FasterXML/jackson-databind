@@ -326,7 +326,6 @@ public class JacksonAnnotationIntrospector
     
     @Override // since 2.16
     public Enum<?> findDefaultEnumValue(AnnotatedClass annotatedClass, Enum<?>[] enumValues) {
-        // find first annotation
         for (Annotated field : annotatedClass.fields()) {
             if (!field.getType().isEnumType()) {
                 continue;

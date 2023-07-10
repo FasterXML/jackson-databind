@@ -1182,9 +1182,10 @@ public abstract class AnnotationIntrospector
     }
 
     /**
-     * Finds the Enum value that should be considered the default value, if possible.
+     * Finds the first Enum value that should be considered as default value 
+     * for unknown Enum values, if present.
      * <p>
-     * This implementation relies on {@link JsonEnumDefaultValue} annotation to determine the default value if present.
+     * Note that this implementation directly relies on {@link JsonEnumDefaultValue} annotation.
      *
      * @param annotatedClass The Enum class to scan for the default value.
      * @param enumValues     The Enum values of the Enum class.

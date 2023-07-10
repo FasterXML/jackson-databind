@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.EnumNaming;
 
+import com.fasterxml.jackson.databind.ser.jdk.EnumNamingSerializationTest;
 import java.util.Map;
 
 import static com.fasterxml.jackson.databind.MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS;
@@ -74,6 +75,17 @@ public class EnumNamingDeserializationTest extends BaseMapTest {
         Map<String, EnumSauceC> map;
     }
 
+    static enum BaseEnum {
+        REAL_NAME,
+        _REALNAME;
+    }
+
+    @EnumNaming(EnumNamingStrategies.CamelCaseStrategy.class)
+    static enum MixInEnum {
+        REAL_NAME,
+        REALNAME_;
+    }
+    
     /*
     /**********************************************************
     /* Test
@@ -219,5 +231,19 @@ public class EnumNamingDeserializationTest extends BaseMapTest {
         assertEquals(2, result.map.size());
         assertEquals(EnumSauceC.KETCH_UP, result.map.get("lowerSauce"));
         assertEquals(EnumSauceC.MAYO_NEZZ, result.map.get("upperSauce"));
+    }
+
+    public void testEnumMixInDeserializationTest() throws Exception {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addMixIn(BaseEnum.class, MixInEnum.class)
+                .build();
+        
+        // serialization
+        String ser = mapper.writeValueAsString(BaseEnum.REAL_NAME);
+        assertEquals(q("realName"), ser);
+        
+        // deserialization
+        BaseEnum deser = mapper.readValue(q("realName"), BaseEnum.class);
+        assertEquals(BaseEnum.REAL_NAME, deser);
     }
 }

@@ -302,7 +302,10 @@ public class EnumResolver implements java.io.Serializable
      * on a method in Enum class.
      *
      * @since 2.12
+     * @deprecated Since 2.16. 
+     * Use {@link #constructUsingMethod(DeserializationConfig, AnnotatedClass, AnnotatedMember)} instead.
      */
+    @Deprecated
     public static EnumResolver constructUsingMethod(DeserializationConfig config,
             Class<?> enumCls0, AnnotatedMember accessor)
     {
@@ -325,6 +328,44 @@ public class EnumResolver implements java.io.Serializable
         }
         return new EnumResolver(enumCls, enumConstants, map,
                 _enumDefault(ai, enumCls), isIgnoreCase,
+                // 26-Sep-2021, tatu: [databind#1850] Need to consider "from int" case
+                _isIntType(accessor.getRawType())
+        );
+    }
+
+    /**
+     * Method used when actual String serialization is indicated using @JsonValue
+     * on a method in Enum class.
+     *
+     * @since 2.16
+     */
+    public static EnumResolver constructUsingMethod(DeserializationConfig config,
+                                                    AnnotatedClass annotatedClass, AnnotatedMember accessor)
+    {
+        // prepare data
+        final AnnotationIntrospector ai = config.getAnnotationIntrospector();
+        final boolean isIgnoreCase = config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
+        final Class<?> enumCls0 = annotatedClass.getRawType();
+        final Class<Enum<?>> enumCls = _enumClass(enumCls0);
+        final Enum<?>[] enumConstants = _enumConstants(enumCls0);
+        final Enum<?> defaultEnum = _enumDefault(ai, annotatedClass, enumConstants);
+        
+        // build
+        HashMap<String, Enum<?>> map = new HashMap<String, Enum<?>>();
+        // from last to first, so that in case of duplicate values, first wins
+        for (int i = enumConstants.length; --i >= 0; ) {
+            Enum<?> en = enumConstants[i];
+            try {
+                Object o = accessor.getValue(en);
+                if (o != null) {
+                    map.put(o.toString(), en);
+                }
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to access @JsonValue of Enum value "+en+": "+e.getMessage());
+            }
+        }
+        return new EnumResolver(enumCls, enumConstants, map,
+                defaultEnum, isIgnoreCase,
                 // 26-Sep-2021, tatu: [databind#1850] Need to consider "from int" case
                 _isIntType(accessor.getRawType())
         );

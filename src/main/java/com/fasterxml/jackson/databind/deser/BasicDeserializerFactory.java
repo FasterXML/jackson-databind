@@ -2429,7 +2429,7 @@ factory.toString()));
                 ClassUtil.checkAndFixAccess(jvAcc.getMember(),
                         config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
             }
-            return EnumResolver.constructUsingMethod(config, enumClass, jvAcc);
+            return EnumResolver.constructUsingMethod(config, beanDesc.getClassInfo(), jvAcc);
         }
         return EnumResolver.constructFor(config, beanDesc.getClassInfo());
     }

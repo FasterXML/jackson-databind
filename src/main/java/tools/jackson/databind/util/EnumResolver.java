@@ -5,6 +5,7 @@ import static tools.jackson.databind.MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS
 import java.util.*;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.introspect.AnnotatedClass;
 
@@ -79,6 +80,7 @@ public class EnumResolver implements java.io.Serializable
         final Class<?> enumCls0 = annotatedClass.getRawType();
         final Class<Enum<?>> enumCls = _enumClass(enumCls0);
         final Enum<?>[] enumConstants = _enumConstants(enumCls);
+        final Enum<?> defaultEnum = _enumDefault(config, annotatedClass, enumConstants);
 
         // introspect
         String[] names = ai.findEnumValues(config, annotatedClass,
@@ -103,9 +105,8 @@ public class EnumResolver implements java.io.Serializable
                 }
             }
         }
-        final Enum<?> enumDefault = ai.findDefaultEnumValue(config, enumCls);
         return new EnumResolver(enumCls, enumConstants, map,
-            enumDefault, isIgnoreCase, false);
+                defaultEnum, isIgnoreCase, false);
     }
 
     /**
@@ -121,6 +122,7 @@ public class EnumResolver implements java.io.Serializable
         final Class<?> enumCls0 = annotatedClass.getRawType();
         final Class<Enum<?>> enumCls = _enumClass(enumCls0);
         final Enum<?>[] enumConstants = _enumConstants(enumCls);
+        final Enum<?> defaultEnum = _enumDefault(config, annotatedClass, enumConstants);
 
         // introspect
         final String[][] allAliases = new String[enumConstants.length][];
@@ -142,9 +144,8 @@ public class EnumResolver implements java.io.Serializable
                 }
             }
         }
-        final Enum<?> enumDefault = ai.findDefaultEnumValue(config, enumCls);
         return new EnumResolver(enumCls, enumConstants, map,
-                enumDefault, isIgnoreCase, false);
+                defaultEnum, isIgnoreCase, false);
     }
 
     /**
@@ -247,6 +248,17 @@ public class EnumResolver implements java.io.Serializable
 
     public CompactStringObjectMap constructLookup() {
         return CompactStringObjectMap.construct(_enumsById);
+    }
+
+    /**
+     * Internal helper method used to resolve {@link com.fasterxml.jackson.annotation.JsonEnumDefaultValue}
+     *
+     * @since 2.16
+     */
+    protected static Enum<?> _enumDefault(MapperConfig<?> config,
+            AnnotatedClass annotatedClass, Enum<?>[] enums) {
+        final AnnotationIntrospector intr = config.getAnnotationIntrospector();
+        return (intr != null) ? intr.findDefaultEnumValue(config, annotatedClass, enums) : null;
     }
 
     protected static boolean _isIntType(Class<?> erasedType) {

@@ -602,9 +602,10 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
-    public Enum<?> findDefaultEnumValue(MapperConfig<?> config, Class<?> enumCls) {
-        Enum<?> en = _primary.findDefaultEnumValue(config, enumCls);
-        return (en == null) ? _secondary.findDefaultEnumValue(config, enumCls) : en;
+    public Enum<?> findDefaultEnumValue(MapperConfig<?> config,
+            AnnotatedClass annotatedClass, Enum<?>[] enumValues) {
+        Enum<?> en = _primary.findDefaultEnumValue(config, annotatedClass, enumValues);
+        return (en == null) ? _secondary.findDefaultEnumValue(config, annotatedClass, enumValues) : en;
     }
 
     // // // Deserialization: general annotations

@@ -304,11 +304,8 @@ public class EnumResolver implements java.io.Serializable
     }
 
     /**
-     * Factory method for constructing resolver that maps the name of enums converted to external property
-     * names into Enum value using an implementation of {@link EnumNamingStrategy}.
+     * Factory method for constructing an {@link EnumResolver} with {@link EnumNamingStrategy} applied.
      *
-     * The output {@link EnumResolver} should contain values that are symmetric to
-     * {@link EnumValues#constructUsingEnumNamingStrategy(MapperConfig, Class, EnumNamingStrategy)}.
      * @since 2.16
      */
     public static EnumResolver constructUsingEnumNamingStrategy(DeserializationConfig config,

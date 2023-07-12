@@ -323,6 +323,26 @@ public class JacksonAnnotationIntrospector
     public Enum<?> findDefaultEnumValue(Class<Enum<?>> enumCls) {
         return ClassUtil.findFirstAnnotatedEnumValue(enumCls, JsonEnumDefaultValue.class);
     }
+    
+    @Override // since 2.16
+    public Enum<?> findDefaultEnumValue(AnnotatedClass annotatedClass, Enum<?>[] enumValues) {
+        for (Annotated field : annotatedClass.fields()) {
+            if (!field.getType().isEnumType()) {
+                continue;
+            }
+            JsonEnumDefaultValue found = _findAnnotation(field, JsonEnumDefaultValue.class);
+            if (found == null) {
+                continue;
+            }
+            // Return the "first" enum with annotation
+            for (Enum<?> enumValue : enumValues) {
+                if (enumValue.name().equals(field.getName())) {
+                    return enumValue;
+                }
+            }
+        }
+        return null;
+    }
 
     /*
     /**********************************************************

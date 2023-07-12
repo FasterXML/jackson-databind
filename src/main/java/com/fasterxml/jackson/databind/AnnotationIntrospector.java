@@ -1174,8 +1174,25 @@ public abstract class AnnotationIntrospector
      * @return null if none found or it's not possible to determine one
      *
      * @since 2.8
+     * @deprecated Since 2.16. Use {@link #findDefaultEnumValue(AnnotatedClass, Enum[])} instead.
      */
+    @Deprecated
     public Enum<?> findDefaultEnumValue(Class<Enum<?>> enumCls) {
+        return null;
+    }
+
+    /**
+     * Finds the first Enum value that should be considered as default value 
+     * for unknown Enum values, if present.
+     * <p>
+     * Note that this implementation directly relies on {@link JsonEnumDefaultValue} annotation.
+     *
+     * @param annotatedClass The Enum class to scan for the default value.
+     * @param enumValues     The Enum values of the Enum class.
+     * @return null if none found or it's not possible to determine one.
+     * @since 2.16
+     */
+    public Enum<?> findDefaultEnumValue(AnnotatedClass annotatedClass, Enum<?>[] enumValues) {
         return null;
     }
 

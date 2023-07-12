@@ -265,7 +265,10 @@ public class EnumResolver implements java.io.Serializable
      * The output {@link EnumResolver} should contain values that are symmetric to
      * {@link EnumValues#constructUsingEnumNamingStrategy(MapperConfig, Class, EnumNamingStrategy)}.
      * @since 2.15
+     * @deprecated Since 2.16. Use 
+     * {@link #constructUsingEnumNamingStrategy(DeserializationConfig, AnnotatedClass, EnumNamingStrategy)}.
      */
+    @Deprecated
     public static EnumResolver constructUsingEnumNamingStrategy(DeserializationConfig config,
             Class<?> enumCls, EnumNamingStrategy enumNamingStrategy) {
         return _constructUsingEnumNamingStrategy(config, enumCls, enumNamingStrategy);
@@ -276,7 +279,10 @@ public class EnumResolver implements java.io.Serializable
      * {@link EnumResolver#constructUsingEnumNamingStrategy(DeserializationConfig, Class, EnumNamingStrategy)}
      * 
      * @since 2.15
+     * @deprecated Since 2.16. Use 
+     * {@link #_constructUsingEnumNamingStrategy(DeserializationConfig, AnnotatedClass, EnumNamingStrategy)}.
      */
+    @Deprecated
     private static EnumResolver _constructUsingEnumNamingStrategy(
         DeserializationConfig config, Class<?> enumCls0, EnumNamingStrategy enumNamingStrategy)
     {
@@ -295,6 +301,50 @@ public class EnumResolver implements java.io.Serializable
 
         return new EnumResolver(enumCls, enumConstants, map,
             _enumDefault(ai, enumCls), isIgnoreCase, false);
+    }
+
+    /**
+     * Factory method for constructing resolver that maps the name of enums converted to external property
+     * names into Enum value using an implementation of {@link EnumNamingStrategy}.
+     *
+     * The output {@link EnumResolver} should contain values that are symmetric to
+     * {@link EnumValues#constructUsingEnumNamingStrategy(MapperConfig, Class, EnumNamingStrategy)}.
+     * @since 2.16
+     */
+    public static EnumResolver constructUsingEnumNamingStrategy(DeserializationConfig config,
+        AnnotatedClass annotatedClass, EnumNamingStrategy enumNamingStrategy) 
+    {
+        return _constructUsingEnumNamingStrategy(config, annotatedClass, enumNamingStrategy);
+    }
+
+    /**
+     * Internal method for
+     * {@link EnumResolver#constructUsingEnumNamingStrategy(DeserializationConfig, AnnotatedClass, EnumNamingStrategy)}
+     *
+     * @since 2.16
+     */
+    private static EnumResolver _constructUsingEnumNamingStrategy(
+            DeserializationConfig config, AnnotatedClass annotatedClass, EnumNamingStrategy enumNamingStrategy)
+    {
+        // prepare data
+        final AnnotationIntrospector ai = config.getAnnotationIntrospector();
+        final boolean isIgnoreCase = config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
+        final Class<?> enumCls0 = annotatedClass.getRawType();
+        final Class<Enum<?>> enumCls = _enumClass(enumCls0);
+        final Enum<?>[] enumConstants = _enumConstants(enumCls0);
+        final Enum<?> defaultEnum = _enumDefault(ai, annotatedClass, enumConstants);
+
+        // finally build
+        // from last to first, so that in case of duplicate values, first wins
+        HashMap<String, Enum<?>> map = new HashMap<>();
+        for (int i = enumConstants.length; --i >= 0; ) {
+            Enum<?> anEnum = enumConstants[i];
+            String translatedExternalValue = enumNamingStrategy.convertEnumToExternalName(anEnum.name());
+            map.put(translatedExternalValue, anEnum);
+        }
+
+        return new EnumResolver(enumCls, enumConstants, map,
+                defaultEnum, isIgnoreCase, false);
     }
 
     /**

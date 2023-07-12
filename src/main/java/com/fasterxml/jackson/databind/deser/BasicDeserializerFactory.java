@@ -1713,7 +1713,7 @@ factory.toString()));
             if (deser == null) {
                 deser = new EnumDeserializer(constructEnumResolver(enumClass, config, beanDesc),
                         config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS),
-                        constructEnumNamingStrategyResolver(config, enumClass, beanDesc.getClassInfo()),
+                        constructEnumNamingStrategyResolver(config, beanDesc.getClassInfo()),
                         // since 2.16
                         EnumResolver.constructUsingToString(config, beanDesc.getClassInfo())
                 );
@@ -1923,7 +1923,7 @@ factory.toString()));
             }
         }
         EnumResolver enumRes = constructEnumResolver(enumClass, config, beanDesc);
-        EnumResolver byEnumNamingResolver = constructEnumNamingStrategyResolver(config, enumClass, beanDesc.getClassInfo());
+        EnumResolver byEnumNamingResolver = constructEnumNamingStrategyResolver(config, beanDesc.getClassInfo());
         EnumResolver byToStringResolver = EnumResolver.constructUsingToString(config, beanDesc.getClassInfo());
 
         // May have @JsonCreator for static factory method
@@ -2439,7 +2439,10 @@ factory.toString()));
      * with {@link EnumNamingStrategy} applied for the target class.
      *
      * @since 2.15
+     * @deprecated Since 2.16. 
+     * Use {@link #constructEnumNamingStrategyResolver(DeserializationConfig, AnnotatedClass)} instead.
      */
+    @Deprecated
     protected EnumResolver constructEnumNamingStrategyResolver(DeserializationConfig config, Class<?> enumClass,
             AnnotatedClass annotatedClass) {
         Object namingDef = config.getAnnotationIntrospector().findEnumNamingStrategy(config, annotatedClass);
@@ -2447,6 +2450,22 @@ factory.toString()));
             namingDef, config.canOverrideAccessModifiers());
         return enumNamingStrategy == null ? null
             : EnumResolver.constructUsingEnumNamingStrategy(config, enumClass, enumNamingStrategy);
+    }
+
+    /**
+     * Factory method used to resolve an instance of {@link CompactStringObjectMap}
+     * with {@link EnumNamingStrategy} applied for the target class.
+     *
+     * @since 2.16
+     */
+    protected EnumResolver constructEnumNamingStrategyResolver(DeserializationConfig config,
+                                                               AnnotatedClass annotatedClass)
+    {
+        Object namingDef = config.getAnnotationIntrospector().findEnumNamingStrategy(config, annotatedClass);
+        EnumNamingStrategy enumNamingStrategy = EnumNamingStrategyFactory.createEnumNamingStrategyInstance(
+                namingDef, config.canOverrideAccessModifiers());
+        return enumNamingStrategy == null ? null
+                : EnumResolver.constructUsingEnumNamingStrategy(config, annotatedClass, enumNamingStrategy);
     }
 
     /**

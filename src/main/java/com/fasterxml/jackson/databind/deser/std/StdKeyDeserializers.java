@@ -47,8 +47,8 @@ public class StdKeyDeserializers
     /**
      * @since 2.16
      */
-    public static KeyDeserializer constructEnumKeyDeserializer(EnumResolver enumRes, EnumResolver byEnumNamingResolver, 
-            EnumResolver byToStringResolver, EnumResolver byIndexResolver) 
+    public static KeyDeserializer constructEnumKeyDeserializer(EnumResolver enumRes, EnumResolver byEnumNamingResolver, EnumResolver byToStringResolver, 
+        EnumResolver byIndexResolver) 
     {
         return new StdKeyDeserializer.EnumKD(enumRes, null, byEnumNamingResolver, byToStringResolver, byIndexResolver);
     }

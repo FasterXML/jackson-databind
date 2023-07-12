@@ -1167,6 +1167,24 @@ public abstract class AnnotationIntrospector
     }
 
     /**
+     * Finds the first Enum value that should be considered as default value 
+     * for unknown Enum values, if present.
+     *
+     * @param ac The Enum class to scan for the default value.
+     * @param enumValues     The Enum values of the Enum class.
+     * @return null if none found or it's not possible to determine one.
+     *
+     * @since 2.16
+     */
+    public Enum<?> findDefaultEnumValue(AnnotatedClass ac, Enum<?>[] enumValues) {
+        // 11-Jul-2023, tatu: [databind#4025] redirect to old method for now (to
+        //    help backwards compatibility)
+        @SuppressWarnings("unchecked")
+        Class<Enum<?>> enumCls = (Class<Enum<?>>) ac.getRawType();
+        return findDefaultEnumValue(enumCls);
+    }
+
+    /**
      * Finds the Enum value that should be considered the default value, if possible.
      *
      * @param enumCls The Enum class to scan for the default value
@@ -1178,21 +1196,6 @@ public abstract class AnnotationIntrospector
      */
     @Deprecated
     public Enum<?> findDefaultEnumValue(Class<Enum<?>> enumCls) {
-        return null;
-    }
-
-    /**
-     * Finds the first Enum value that should be considered as default value 
-     * for unknown Enum values, if present.
-     * <p>
-     * Note that this implementation directly relies on {@link JsonEnumDefaultValue} annotation.
-     *
-     * @param annotatedClass The Enum class to scan for the default value.
-     * @param enumValues     The Enum values of the Enum class.
-     * @return null if none found or it's not possible to determine one.
-     * @since 2.16
-     */
-    public Enum<?> findDefaultEnumValue(AnnotatedClass annotatedClass, Enum<?>[] enumValues) {
         return null;
     }
 

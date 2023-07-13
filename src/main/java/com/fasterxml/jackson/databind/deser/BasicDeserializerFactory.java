@@ -1925,6 +1925,7 @@ factory.toString()));
         EnumResolver enumRes = constructEnumResolver(enumClass, config, beanDesc);
         EnumResolver byEnumNamingResolver = constructEnumNamingStrategyResolver(config, beanDesc.getClassInfo());
         EnumResolver byToStringResolver = EnumResolver.constructUsingToString(config, beanDesc.getClassInfo());
+        EnumResolver byIndexResolver = EnumResolver.constructUsingIndex(config, beanDesc.getClassInfo());
 
         // May have @JsonCreator for static factory method
         for (AnnotatedMethod factory : beanDesc.getFactoryMethods()) {
@@ -1946,7 +1947,7 @@ factory.toString()));
                             ClassUtil.checkAndFixAccess(factory.getMember(),
                                     ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
                         }
-                        return StdKeyDeserializers.constructEnumKeyDeserializer(enumRes, factory, byEnumNamingResolver, byToStringResolver);
+                        return StdKeyDeserializers.constructEnumKeyDeserializer(enumRes, factory, byEnumNamingResolver, byToStringResolver, byIndexResolver);
                     }
                 }
                 throw new IllegalArgumentException("Unsuitable method ("+factory+") decorated with @JsonCreator (for Enum type "
@@ -1954,7 +1955,7 @@ factory.toString()));
             }
         }
         // Also, need to consider @JsonValue, if one found
-        return StdKeyDeserializers.constructEnumKeyDeserializer(enumRes, byEnumNamingResolver, byToStringResolver);
+        return StdKeyDeserializers.constructEnumKeyDeserializer(enumRes, byEnumNamingResolver, byToStringResolver, byIndexResolver);
     }
 
     /*

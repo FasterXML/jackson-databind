@@ -313,11 +313,29 @@ public class EnumResolver implements java.io.Serializable
         final Enum<?>[] enumConstants = _enumConstants(enumCls0);
         HashMap<String, Enum<?>> map = new HashMap<>();
 
+        // introspect
+        final String[] names = new String[enumConstants.length];
+        final String[][] allAliases = new String[enumConstants.length][];
+        if (ai != null) {
+            ai.findEnumValues(enumCls, enumConstants, names);
+            ai.findEnumAliases(enumCls, enumConstants, allAliases);
+        }
+
         // from last to first, so that in case of duplicate values, first wins
         for (int i = enumConstants.length; --i >= 0; ) {
             Enum<?> anEnum = enumConstants[i];
-            String translatedExternalValue = enumNamingStrategy.convertEnumToExternalName(anEnum.name());
-            map.put(translatedExternalValue, anEnum);
+            String name = names[i];
+            if (name == null) {
+                name = enumNamingStrategy.convertEnumToExternalName(anEnum.name());
+            }
+            map.put(name, anEnum);
+            String[] aliases = allAliases[i];
+            if (aliases != null) {
+                for (String alias : aliases) {
+                    // avoid replacing any primary names
+                    map.putIfAbsent(alias, anEnum);
+                }
+            }
         }
 
         return new EnumResolver(enumCls, enumConstants, map,
@@ -339,14 +357,32 @@ public class EnumResolver implements java.io.Serializable
         final Class<?> enumCls0 = annotatedClass.getRawType();
         final Class<Enum<?>> enumCls = _enumClass(enumCls0);
         final Enum<?>[] enumConstants = _enumConstants(enumCls0);
+        
+        // introspect
+        final String[] names = new String[enumConstants.length];
+        final String[][] allAliases = new String[enumConstants.length][];
+        if (ai != null) {
+            ai.findEnumValues(config, annotatedClass, enumConstants, names);
+            ai.findEnumAliases(config, annotatedClass, enumConstants, allAliases);
+        }
 
         // finally build
         // from last to first, so that in case of duplicate values, first wins
         HashMap<String, Enum<?>> map = new HashMap<>();
         for (int i = enumConstants.length; --i >= 0; ) {
             Enum<?> anEnum = enumConstants[i];
-            String translatedExternalValue = enumNamingStrategy.convertEnumToExternalName(anEnum.name());
-            map.put(translatedExternalValue, anEnum);
+            String name = names[i];
+            if (name == null) {
+                name = enumNamingStrategy.convertEnumToExternalName(anEnum.name());
+            }
+            map.put(name, anEnum);
+            String[] aliases = allAliases[i];
+            if (aliases != null) {
+                for (String alias : aliases) {
+                    // avoid replacing any primary names
+                    map.putIfAbsent(alias, anEnum);
+                }
+            }
         }
 
         return new EnumResolver(enumCls, enumConstants, map,

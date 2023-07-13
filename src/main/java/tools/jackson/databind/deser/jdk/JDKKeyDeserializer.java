@@ -447,7 +447,7 @@ public class JDKKeyDeserializer extends KeyDeserializer
         /**
          * Since 2.16, {@link #_byIndexResolver} it is passed via 
          * {@link #EnumKD(EnumResolver, AnnotatedMethod, EnumResolver, EnumResolver, EnumResolver)}, so there is no need for lazy
-         * initialization. But kept for backward-compatilibility reasons.
+         * initialization. But kept for backward-compatibility reasons.
          *
          * @deprecated Since 2.16
          */

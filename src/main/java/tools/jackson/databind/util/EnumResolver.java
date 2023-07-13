@@ -42,7 +42,7 @@ public class EnumResolver implements java.io.Serializable
 
     /*
     /**********************************************************************
-    /* Constructors (non-deprecated)
+    /* Constructors
     /**********************************************************************
      */
 
@@ -60,7 +60,7 @@ public class EnumResolver implements java.io.Serializable
 
     /*
     /**********************************************************************
-    /* Factory methods (non-deprecated)
+    /* Factory methods
     /**********************************************************************
      */
 
@@ -160,14 +160,17 @@ public class EnumResolver implements java.io.Serializable
     {
         final Class<Enum<?>> enumCls = _enumClass(enumCls0);
         final Enum<?>[] enumConstants = _enumConstants(enumCls0);
-        HashMap<String, Enum<?>> map = new HashMap<>();
+        HashMap<String, Enum<?>> enumsById = new HashMap<>();
 
         // from last to first, so that in case of duplicate values, first wins
         for (int i = enumConstants.length; --i >= 0; ) {
             Enum<?> enumValue = enumConstants[i];
-            map.put(String.valueOf(i), enumValue);
+            enumsById.put(String.valueOf(i), enumValue);
         }
-        return _construct(config, enumCls, enumConstants, map, false);
+        return new EnumResolver(enumCls, enumConstants, enumsById,
+                config.getAnnotationIntrospector().findDefaultEnumValue(config, enumCls),
+                config.isEnabled(ACCEPT_CASE_INSENSITIVE_ENUMS),
+                false);
     }
 
     /**
@@ -234,50 +237,6 @@ public class EnumResolver implements java.io.Serializable
 
         return new EnumResolver(enumCls, enumConstants, map,
                 defaultEnum, isIgnoreCase, false);
-    }
-
-    /**
-     * Method used when actual String serialization is indicated using @JsonValue
-     * on a method in Enum class.
-     *
-     * @since 2.12
-     * @deprecated Since 2.16. 
-     * Use {@link #constructUsingMethod(DeserializationConfig, AnnotatedClass, AnnotatedMember)} instead.
-     */
-    @Deprecated
-    public static EnumResolver constructUsingMethod(DeserializationConfig config,
-            Class<?> enumCls0, AnnotatedMember accessor)
-    {
-        final Class<Enum<?>> enumCls = _enumClass(enumCls0);
-        final Enum<?>[] enumConstants = _enumConstants(enumCls);
-        final HashMap<String, Enum<?>> byId = new HashMap<String, Enum<?>>();
-
-        // from last to first, so that in case of duplicate values, first wins
-        for (int i = enumConstants.length; --i >= 0; ) {
-            Enum<?> en = enumConstants[i];
-            try {
-                Object o = accessor.getValue(en);
-                if (o != null) {
-                    byId.put(o.toString(), en);
-                }
-            } catch (Exception e) {
-                throw new IllegalArgumentException("Failed to access @JsonValue of Enum value "+en+": "+e.getMessage());
-            }
-        }
-        return _construct(config, enumCls, enumConstants, byId,
-                // 26-Sep-2021, tatu: [databind#1850] Need to consider "from int" case
-                _isIntType(accessor.getRawType()));
-    }
-
-    protected static EnumResolver _construct(DeserializationConfig config,
-            Class<Enum<?>> enumClass, Enum<?>[] enums,
-            HashMap<String, Enum<?>> enumsById,
-            boolean isFromIntValue)
-    {
-        return new EnumResolver(enumClass, enums, enumsById,
-                config.getAnnotationIntrospector().findDefaultEnumValue(config, enumClass),
-                config.isEnabled(ACCEPT_CASE_INSENSITIVE_ENUMS),
-                isFromIntValue);
     }
 
     /**

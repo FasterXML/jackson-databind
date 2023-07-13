@@ -539,6 +539,13 @@ public class EnumDeserializationTest
         assertSame(EnumWithPropertyAnno.B, result[0]);
         assertSame(EnumWithPropertyAnno.A, result[1]);
     }
+    
+    public void testEnumWithJsonPropertyRenameWithToString() throws Exception {
+        EnumWithPropertyAnno result = MAPPER.readerFor(EnumWithPropertyAnno.class)
+                .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+                .readValue(q("a"));
+        assertSame(EnumWithPropertyAnno.A, result);
+    }
 
     /**
      * {@link #testEnumWithJsonPropertyRename()}

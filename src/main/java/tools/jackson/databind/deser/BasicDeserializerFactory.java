@@ -2299,8 +2299,7 @@ factory.toString()));
                 ClassUtil.checkAndFixAccess(jvAcc.getMember(),
                         ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
             }
-            return EnumResolver.constructUsingMethod(ctxt.getConfig(),
-                    enumClass, jvAcc);
+            return EnumResolver.constructUsingMethod(ctxt.getConfig(), beanDesc.getClassInfo(), jvAcc);
         }
         return EnumResolver.constructFor(ctxt.getConfig(), beanDesc.getClassInfo());
     }

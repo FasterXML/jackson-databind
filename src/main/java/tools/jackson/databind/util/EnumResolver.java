@@ -168,36 +168,51 @@ public class EnumResolver implements java.io.Serializable
     }
 
     /**
-     * Factory method for constructing resolver that maps the name of enums converted to external property
-     * names into Enum value using an implementation of {@link EnumNamingStrategy}.
+     * Factory method for constructing an {@link EnumResolver} with {@link EnumNamingStrategy} applied.
+     *
+     * @since 2.16
      */
     public static EnumResolver constructUsingEnumNamingStrategy(DeserializationConfig config,
-            Class<?> enumCls, EnumNamingStrategy enumNamingStrategy) {
-        return _constructUsingEnumNamingStrategy(config, enumCls,
-                config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS),
-                enumNamingStrategy);
+        AnnotatedClass annotatedClass, EnumNamingStrategy enumNamingStrategy) 
+    {
+        return _constructUsingEnumNamingStrategy(config, annotatedClass, enumNamingStrategy);
     }
 
     /**
      * Internal method for
-     * {@link EnumResolver#_constructUsingEnumNamingStrategy(Class, AnnotationIntrospector, boolean, EnumNamingStrategy)}
+     * {@link EnumResolver#constructUsingEnumNamingStrategy(DeserializationConfig, AnnotatedClass, EnumNamingStrategy)}
+     *
+     * @since 2.16
      */
-    private static EnumResolver _constructUsingEnumNamingStrategy(DeserializationConfig config,
-        Class<?> enumCls0, boolean isIgnoreCase, EnumNamingStrategy enumNamingStrategy) {
-
+    private static EnumResolver _constructUsingEnumNamingStrategy(
+            DeserializationConfig config, AnnotatedClass annotatedClass, EnumNamingStrategy enumNamingStrategy)
+    {
+        // prepare data
+        final boolean isIgnoreCase = config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
+        final Class<?> enumCls0 = annotatedClass.getRawType();
         final Class<Enum<?>> enumCls = _enumClass(enumCls0);
         final Enum<?>[] enumConstants = _enumConstants(enumCls);
-        HashMap<String, Enum<?>> map = new HashMap<>();
+        final Enum<?> defaultEnum = _enumDefault(config, annotatedClass, enumConstants);
 
+        // finally build
         // from last to first, so that in case of duplicate values, first wins
+        HashMap<String, Enum<?>> map = new HashMap<>();
         for (int i = enumConstants.length; --i >= 0; ) {
             Enum<?> anEnum = enumConstants[i];
             String translatedExternalValue = enumNamingStrategy.convertEnumToExternalName(anEnum.name());
             map.put(translatedExternalValue, anEnum);
         }
-        return _construct(config, enumCls, enumConstants, map, false);
+
+        return new EnumResolver(enumCls, enumConstants, map,
+                defaultEnum, isIgnoreCase, false);
     }
 
+    /**
+     * Method used when actual String serialization is indicated using @JsonValue
+     * on a method in Enum class.
+     *
+     * @since 2.12
+     */
     public static EnumResolver constructUsingMethod(DeserializationConfig config,
             Class<?> enumCls0, AnnotatedMember accessor)
     {

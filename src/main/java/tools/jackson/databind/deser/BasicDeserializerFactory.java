@@ -2309,13 +2309,13 @@ factory.toString()));
      * with {@link EnumNamingStrategy} applied for the target class.
      */
     protected EnumResolver constructEnumNamingStrategyResolver(DeserializationConfig config,
-            AnnotatedClass annotatedClass)
+            AnnotatedClass enumClass)
     {
-        Object namingDef = config.getAnnotationIntrospector().findEnumNamingStrategy(config, annotatedClass);
+        Object namingDef = config.getAnnotationIntrospector().findEnumNamingStrategy(config, enumClass);
         EnumNamingStrategy enumNamingStrategy = EnumNamingStrategyFactory.createEnumNamingStrategyInstance(
-                namingDef, config.canOverrideAccessModifiers());
+            namingDef, config.canOverrideAccessModifiers());
         return enumNamingStrategy == null ? null
-                : EnumResolver.constructUsingEnumNamingStrategy(config, annotatedClass, enumNamingStrategy);
+            : EnumResolver.constructUsingEnumNamingStrategy(config, enumClass, enumNamingStrategy);
     }
 
     protected boolean _hasCreatorAnnotation(DeserializationContext ctxt,

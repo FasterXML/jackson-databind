@@ -172,7 +172,6 @@ public class EnumResolver implements java.io.Serializable
                 config.isEnabled(ACCEPT_CASE_INSENSITIVE_ENUMS),
                 false);
     }
-
     /**
      * Factory method for constructing resolver that maps from index of Enum.values() into
      * Enum value.
@@ -206,18 +205,6 @@ public class EnumResolver implements java.io.Serializable
      */
     public static EnumResolver constructUsingEnumNamingStrategy(DeserializationConfig config,
         AnnotatedClass annotatedClass, EnumNamingStrategy enumNamingStrategy) 
-    {
-        return _constructUsingEnumNamingStrategy(config, annotatedClass, enumNamingStrategy);
-    }
-
-    /**
-     * Internal method for
-     * {@link EnumResolver#constructUsingEnumNamingStrategy(DeserializationConfig, AnnotatedClass, EnumNamingStrategy)}
-     *
-     * @since 2.16
-     */
-    private static EnumResolver _constructUsingEnumNamingStrategy(
-            DeserializationConfig config, AnnotatedClass annotatedClass, EnumNamingStrategy enumNamingStrategy)
     {
         // prepare data
         final boolean isIgnoreCase = config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);

@@ -47,7 +47,7 @@ public class EnumResolver implements java.io.Serializable
 
     /*
     /**********************************************************************
-    /* Constructors (non-deprecated)
+    /* Constructors
     /**********************************************************************
      */
 
@@ -68,7 +68,7 @@ public class EnumResolver implements java.io.Serializable
 
     /*
     /**********************************************************************
-    /* Factory methods (non-deprecated)
+    /* Factory methods
     /**********************************************************************
      */
 
@@ -259,7 +259,6 @@ public class EnumResolver implements java.io.Serializable
         return new EnumResolver(enumCls, enumConstants, map,
             _enumDefault(ai, enumCls), isIgnoreCase, false);
     }
-
     /**
      * Factory method for constructing resolver that maps from index of Enum.values() into
      * Enum value.
@@ -299,21 +298,7 @@ public class EnumResolver implements java.io.Serializable
      */
     @Deprecated
     public static EnumResolver constructUsingEnumNamingStrategy(DeserializationConfig config,
-            Class<?> enumCls, EnumNamingStrategy enumNamingStrategy) {
-        return _constructUsingEnumNamingStrategy(config, enumCls, enumNamingStrategy);
-    }
-
-    /**
-     * Internal method for
-     * {@link EnumResolver#constructUsingEnumNamingStrategy(DeserializationConfig, Class, EnumNamingStrategy)}
-     * 
-     * @since 2.15
-     * @deprecated Since 2.16. Use 
-     * {@link #_constructUsingEnumNamingStrategy(DeserializationConfig, AnnotatedClass, EnumNamingStrategy)}.
-     */
-    @Deprecated
-    private static EnumResolver _constructUsingEnumNamingStrategy(
-        DeserializationConfig config, Class<?> enumCls0, EnumNamingStrategy enumNamingStrategy)
+            Class<?> enumCls0, EnumNamingStrategy enumNamingStrategy)
     {
         final AnnotationIntrospector ai = config.getAnnotationIntrospector();
         final boolean isIgnoreCase = config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
@@ -339,18 +324,6 @@ public class EnumResolver implements java.io.Serializable
      */
     public static EnumResolver constructUsingEnumNamingStrategy(DeserializationConfig config,
         AnnotatedClass annotatedClass, EnumNamingStrategy enumNamingStrategy) 
-    {
-        return _constructUsingEnumNamingStrategy(config, annotatedClass, enumNamingStrategy);
-    }
-
-    /**
-     * Internal method for
-     * {@link EnumResolver#constructUsingEnumNamingStrategy(DeserializationConfig, AnnotatedClass, EnumNamingStrategy)}
-     *
-     * @since 2.16
-     */
-    private static EnumResolver _constructUsingEnumNamingStrategy(
-            DeserializationConfig config, AnnotatedClass annotatedClass, EnumNamingStrategy enumNamingStrategy)
     {
         // prepare data
         final AnnotationIntrospector ai = config.getAnnotationIntrospector();
@@ -416,7 +389,7 @@ public class EnumResolver implements java.io.Serializable
      * @since 2.16
      */
     public static EnumResolver constructUsingMethod(DeserializationConfig config,
-                                                    AnnotatedClass annotatedClass, AnnotatedMember accessor)
+            AnnotatedClass annotatedClass, AnnotatedMember accessor)
     {
         // prepare data
         final AnnotationIntrospector ai = config.getAnnotationIntrospector();
@@ -465,14 +438,6 @@ public class EnumResolver implements java.io.Serializable
     }
 
     /**
-     * @deprecated Since 2.16. Use {@link #_enumDefault(AnnotationIntrospector, AnnotatedClass, Enum[])} instead.
-     */
-    @Deprecated
-    protected static Enum<?> _enumDefault(AnnotationIntrospector intr, Class<?> enumCls) {
-        return (intr != null) ? intr.findDefaultEnumValue(_enumClass(enumCls)) : null;
-    }
-
-    /**
      * Internal helper method used to resolve {@link com.fasterxml.jackson.annotation.JsonEnumDefaultValue}
      * 
      * @since 2.16
@@ -480,6 +445,14 @@ public class EnumResolver implements java.io.Serializable
      */
     protected static Enum<?> _enumDefault(AnnotationIntrospector intr, AnnotatedClass annotatedClass, Enum<?>[] enums) {
         return (intr != null) ? intr.findDefaultEnumValue(annotatedClass, enums) : null;
+    }
+
+    /**
+     * @deprecated Since 2.16. Use {@link #_enumDefault(AnnotationIntrospector, AnnotatedClass, Enum[])} instead.
+     */
+    @Deprecated
+    protected static Enum<?> _enumDefault(AnnotationIntrospector intr, Class<?> enumCls) {
+        return (intr != null) ? intr.findDefaultEnumValue(_enumClass(enumCls)) : null;
     }
 
     protected static boolean _isIntType(Class<?> erasedType) {
@@ -491,22 +464,6 @@ public class EnumResolver implements java.io.Serializable
                 || (erasedType == Short.class)
                 || (erasedType == Byte.class)
                 ;
-    }
-
-    /*
-    /**********************************************************************
-    /* Deprecated constructors, factory methods
-    /**********************************************************************
-     */
-
-    /**
-     * @deprecated Since 2.13 -- remove from 2.16
-     */
-    @Deprecated // since 2.13
-    protected EnumResolver(Class<Enum<?>> enumClass, Enum<?>[] enums,
-            HashMap<String, Enum<?>> map, Enum<?> defaultValue,
-            boolean isIgnoreCase) {
-        this(enumClass, enums, map, defaultValue, isIgnoreCase, false);
     }
 
     /*

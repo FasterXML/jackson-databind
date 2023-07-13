@@ -2439,9 +2439,24 @@ factory.toString()));
      * Factory method used to resolve an instance of {@link CompactStringObjectMap}
      * with {@link EnumNamingStrategy} applied for the target class.
      *
+     * @since 2.16
+     */
+    protected EnumResolver constructEnumNamingStrategyResolver(DeserializationConfig config,
+            AnnotatedClass annotatedClass)
+    {
+        Object namingDef = config.getAnnotationIntrospector().findEnumNamingStrategy(config, annotatedClass);
+        EnumNamingStrategy enumNamingStrategy = EnumNamingStrategyFactory.createEnumNamingStrategyInstance(
+                namingDef, config.canOverrideAccessModifiers());
+        return enumNamingStrategy == null ? null
+                : EnumResolver.constructUsingEnumNamingStrategy(config, annotatedClass, enumNamingStrategy);
+    }
+
+    /**
+     * Factory method used to resolve an instance of {@link CompactStringObjectMap}
+     * with {@link EnumNamingStrategy} applied for the target class.
+     *
      * @since 2.15
-     * @deprecated Since 2.16. 
-     * Use {@link #constructEnumNamingStrategyResolver(DeserializationConfig, AnnotatedClass)} instead.
+     * @deprecated Since 2.16: use {@link #constructEnumNamingStrategyResolver(DeserializationConfig, AnnotatedClass)} instead.
      */
     @Deprecated
     protected EnumResolver constructEnumNamingStrategyResolver(DeserializationConfig config, Class<?> enumClass,
@@ -2452,23 +2467,7 @@ factory.toString()));
         return enumNamingStrategy == null ? null
             : EnumResolver.constructUsingEnumNamingStrategy(config, enumClass, enumNamingStrategy);
     }
-
-    /**
-     * Factory method used to resolve an instance of {@link CompactStringObjectMap}
-     * with {@link EnumNamingStrategy} applied for the target class.
-     *
-     * @since 2.16
-     */
-    protected EnumResolver constructEnumNamingStrategyResolver(DeserializationConfig config,
-                                                               AnnotatedClass annotatedClass)
-    {
-        Object namingDef = config.getAnnotationIntrospector().findEnumNamingStrategy(config, annotatedClass);
-        EnumNamingStrategy enumNamingStrategy = EnumNamingStrategyFactory.createEnumNamingStrategyInstance(
-                namingDef, config.canOverrideAccessModifiers());
-        return enumNamingStrategy == null ? null
-                : EnumResolver.constructUsingEnumNamingStrategy(config, annotatedClass, enumNamingStrategy);
-    }
-
+    
     /**
      * @since 2.9
      */

@@ -388,15 +388,15 @@ public class JDKKeyDeserializer extends KeyDeserializer
          * 
          * @since 2.16
          */
-        protected EnumKD(EnumResolver er, AnnotatedMethod factory,
-                EnumResolver byEnumNamingResolver, 
-                EnumResolver byToStringResolver) {
+        protected EnumKD(EnumResolver er, AnnotatedMethod factory, EnumResolver byEnumNamingResolver, 
+                         EnumResolver byToStringResolver, EnumResolver byIndexResolver) {
             super(-1, er.getEnumClass());
             _byNameResolver = er;
             _factory = factory;
             _enumDefaultValue = er.getDefaultValue();
             _byEnumNamingResolver = byEnumNamingResolver;
             _byToStringResolver = byToStringResolver;
+            _byIndexResolver = byIndexResolver;
         }
         
 
@@ -444,6 +444,14 @@ public class JDKKeyDeserializer extends KeyDeserializer
                 : _byNameResolver;
         }
 
+        /**
+         * Since 2.16, {@link #_byIndexResolver} it is passed via 
+         * {@link #EnumKD(EnumResolver, AnnotatedMethod, EnumResolver, EnumResolver, EnumResolver)}, so there is no need for lazy
+         * initialization. But kept for backward-compatilibility reasons.
+         *
+         * @deprecated Since 2.16
+         */
+        @Deprecated
         private EnumResolver _getIndexResolver(DeserializationContext ctxt) {
             EnumResolver res = _byIndexResolver;
             if (res == null) {

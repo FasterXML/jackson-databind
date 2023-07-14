@@ -360,18 +360,18 @@ public class JDKKeyDeserializer extends KeyDeserializer
         protected final AnnotatedMethod _factory;
 
         /**
-         * Lazily constructed alternative in case there is need to
-         * use 'toString()' method as the source.
+         * Alternative to parse enums using {@code toString()} method as the source.
+         * Works when {@link DeserializationFeature#READ_ENUMS_USING_TO_STRING} is enabled.
          */
         protected final EnumResolver _byToStringResolver;
 
         /**
-         * Lazily constructed alternative in case there is need to
-         * parse using enum index method as the source.
+         * Alternative to parse enums using index with {@link Enum#ordinal()} method as the source.
+         * Works when {@link EnumFeature#READ_ENUM_KEYS_USING_INDEX} is enabled.
          *
          * @since 2.15
          */
-        protected volatile EnumResolver _byIndexResolver;
+        protected final EnumResolver _byIndexResolver;
 
         /**
          * Look up map with <b>key</b> as <code>Enum.name()</code> converted by
@@ -416,8 +416,9 @@ public class JDKKeyDeserializer extends KeyDeserializer
             Enum<?> e = res.findEnum(key);
             // If enum is found, no need to try deser using index
             if (e == null && ctxt.isEnabled(EnumFeature.READ_ENUM_KEYS_USING_INDEX)) {
-                res = _getIndexResolver(ctxt);
-                e = res.findEnum(key);
+                if (_byIndexResolver != null) {
+                    e = _byIndexResolver.findEnum(key);
+                }
             }
             if (e == null) {
                 if ((_enumDefaultValue != null)
@@ -442,29 +443,6 @@ public class JDKKeyDeserializer extends KeyDeserializer
             return ctxt.isEnabled(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
                 ? _byToStringResolver
                 : _byNameResolver;
-        }
-
-        /**
-         * Since 2.16, {@link #_byIndexResolver} it is passed via 
-         * {@link #EnumKD(EnumResolver, AnnotatedMethod, EnumResolver, EnumResolver, EnumResolver)}, so there is no need for lazy
-         * initialization. But kept for backward-compatibility reasons.
-         *
-         * @deprecated Since 2.16
-         */
-        @Deprecated
-        private EnumResolver _getIndexResolver(DeserializationContext ctxt) {
-            EnumResolver res = _byIndexResolver;
-            if (res == null) {
-                synchronized (this) {
-                    res = _byIndexResolver;
-                    if (res == null) {
-                        res = EnumResolver.constructUsingIndex(ctxt.getConfig(),
-                            _byNameResolver.getEnumClass());
-                        _byIndexResolver = res;
-                    }
-                }
-            }
-            return res;
         }
     }
 

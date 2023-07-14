@@ -360,13 +360,13 @@ public class JDKKeyDeserializer extends KeyDeserializer
         protected final AnnotatedMethod _factory;
 
         /**
-         * Alternative to parse enums using {@code toString()} method as the source.
+         * Alternative to parse using {@code toString()} method as the source.
          * Works when {@link DeserializationFeature#READ_ENUMS_USING_TO_STRING} is enabled.
          */
         protected final EnumResolver _byToStringResolver;
 
         /**
-         * Alternative to parse enums using index with {@link Enum#ordinal()} method as the source.
+         * Alternative to parse using index from {@link Enum#ordinal()} method as the source.
          * Works when {@link EnumFeature#READ_ENUM_KEYS_USING_INDEX} is enabled.
          *
          * @since 2.15

@@ -89,7 +89,10 @@ public class EnumDeserializationTest
             public String toString() {
                 return "bb";
             }
-        }
+        },
+        
+        @JsonProperty("cc")
+        C
         ;
     }
 
@@ -551,11 +554,16 @@ public class EnumDeserializationTest
                 .readValue(q("b"));
         assertSame(EnumWithPropertyAnno.B, b);
 
-        EnumWithPropertyAnno c = MAPPER.readerFor(EnumWithPropertyAnno.class)
+        EnumWithPropertyAnno bb = MAPPER.readerFor(EnumWithPropertyAnno.class)
                 .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
                 .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
                 .readValue(q("bb"));
-        assertNull(c);
+        assertNull(bb);
+
+        EnumWithPropertyAnno c = MAPPER.readerFor(EnumWithPropertyAnno.class)
+                .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+                .readValue(q("cc"));
+        assertSame(EnumWithPropertyAnno.C, c);
     }
 
     /**

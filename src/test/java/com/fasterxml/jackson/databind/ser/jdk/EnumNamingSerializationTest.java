@@ -48,6 +48,13 @@ public class EnumNamingSerializationTest extends BaseMapTest {
         PEANUT_BUTTER
     }
 
+    @EnumNaming(EnumNamingStrategies.CamelCaseStrategy.class)
+    static enum EnumFlavorE {
+        PEANUT_BUTTER,
+        @JsonProperty("almond")
+        ALMOND_BUTTER
+    }
+
     static class EnumFlavorWrapperBean {
         public EnumSauceB sauce;
 
@@ -101,5 +108,13 @@ public class EnumNamingSerializationTest extends BaseMapTest {
         String str = MAPPER.writeValueAsString(enums);
 
         assertEquals(a2q("{'mayoNezz':'value'}"), str);
+    }
+    
+    public void testEnumNamingStrategyWithOverride() throws Exception {
+        String almond = MAPPER.writeValueAsString(EnumFlavorE.ALMOND_BUTTER);
+        assertEquals(q("almond"), almond);
+
+        String peanut = MAPPER.writeValueAsString(EnumFlavorE.PEANUT_BUTTER);
+        assertEquals(q("peanutButter"), peanut);
     }
 }

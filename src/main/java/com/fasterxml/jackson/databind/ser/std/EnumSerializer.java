@@ -275,6 +275,6 @@ public class EnumSerializer
         EnumNamingStrategy enumNamingStrategy = EnumNamingStrategyFactory.createEnumNamingStrategyInstance(
             namingDef, config.canOverrideAccessModifiers());
         return enumNamingStrategy == null ? null : EnumValues.constructUsingEnumNamingStrategy(
-            config, enumClass, enumNamingStrategy);
+            config, annotatedClass, enumNamingStrategy);
     }
 }

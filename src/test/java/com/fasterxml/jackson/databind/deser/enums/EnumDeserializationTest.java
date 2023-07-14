@@ -541,10 +541,21 @@ public class EnumDeserializationTest
     }
     
     public void testEnumWithJsonPropertyRenameWithToString() throws Exception {
-        EnumWithPropertyAnno result = MAPPER.readerFor(EnumWithPropertyAnno.class)
+        EnumWithPropertyAnno a = MAPPER.readerFor(EnumWithPropertyAnno.class)
                 .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
                 .readValue(q("a"));
-        assertSame(EnumWithPropertyAnno.A, result);
+        assertSame(EnumWithPropertyAnno.A, a);
+
+        EnumWithPropertyAnno b = MAPPER.readerFor(EnumWithPropertyAnno.class)
+                .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+                .readValue(q("b"));
+        assertSame(EnumWithPropertyAnno.B, b);
+
+        EnumWithPropertyAnno c = MAPPER.readerFor(EnumWithPropertyAnno.class)
+                .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
+                .readValue(q("bb"));
+        assertNull(c);
     }
 
     /**

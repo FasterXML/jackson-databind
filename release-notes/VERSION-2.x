@@ -31,6 +31,8 @@ Project: jackson-databind
   is enabled
  (reported by Philipp K)
 #4011: Add guardrail setting for `TypeParser` handling of type parameters
+#4041: Actually cache EnumValues#internalMap
+ (contributed by @iProdigy)
 
 2.15.3 (not yet released)
 

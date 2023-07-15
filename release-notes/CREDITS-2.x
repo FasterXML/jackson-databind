@@ -1655,9 +1655,14 @@ David Schlosnagle (schlosna@github)
   (2.16.0)
 
 Philipp Kräutli (pkraeutli@github)
- * Reportedd #4009: Locale "" is deserialised as `null` if `ACCEPT_EMPTY_STRING_AS_NULL_OBJECT`
+ * Reported #4009: Locale "" is deserialised as `null` if `ACCEPT_EMPTY_STRING_AS_NULL_OBJECT`
    is enabled
   (2.16.0)
+
+iProdigy (iProdigy@github)
+ * Contributed fix #4041: Actually cache EnumValues#internalMap
+  (2.16.0)
+
 
 
 

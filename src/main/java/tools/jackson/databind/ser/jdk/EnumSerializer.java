@@ -48,6 +48,15 @@ public class EnumSerializer
      */
     protected final EnumValues _valuesByEnumNaming;
 
+    /**
+     * Map that contains pre-resolved values for {@link Enum#toString} to use for serialization,
+     * while respecting {@link com.fasterxml.jackson.annotation.JsonProperty}
+     * and {@link com.fasterxml.jackson.databind.cfg.EnumFeature#WRITE_ENUMS_TO_LOWERCASE}.
+     *
+     * @since 2.16
+     */
+    protected final EnumValues _valuesByToString;
+
     /*
     /**********************************************************************
     /* Life-cycle
@@ -60,6 +69,7 @@ public class EnumSerializer
         _values = v;
         _serializeAsIndex = serializeAsIndex;
         _valuesByEnumNaming = null;
+        _valuesByToString = null;
     }
 
     /**
@@ -71,6 +81,20 @@ public class EnumSerializer
         _values = v;
         _serializeAsIndex = serializeAsIndex;
         _valuesByEnumNaming = valuesByEnumNaming;
+        _valuesByToString = null;
+    }
+
+    /**
+     * @since 2.16
+     */
+    public EnumSerializer(EnumValues v, Boolean serializeAsIndex, EnumValues valuesByEnumNaming,
+            EnumValues valuesByToString)
+    {
+        super(v.getEnumClass(), false);
+        _values = v;
+        _serializeAsIndex = serializeAsIndex;
+        _valuesByEnumNaming = valuesByEnumNaming;
+        _valuesByToString = valuesByToString;
     }
 
     /**
@@ -86,8 +110,9 @@ public class EnumSerializer
         //   handle toString() case dynamically (for example)
         EnumValues v = EnumValues.constructFromName(config, beanDesc.getClassInfo());
         EnumValues valuesByEnumNaming = constructEnumNamingStrategyValues(config, (Class<Enum<?>>) enumClass, beanDesc.getClassInfo());
+        EnumValues valuesByToString = EnumValues.constructFromToString(config, beanDesc.getClassInfo());
         Boolean serializeAsIndex = _isShapeWrittenUsingIndex(enumClass, format, true, null);
-        return new EnumSerializer(v, serializeAsIndex, valuesByEnumNaming);
+        return new EnumSerializer(v, serializeAsIndex, valuesByEnumNaming, valuesByToString);
     }
 
     /**
@@ -141,7 +166,7 @@ public class EnumSerializer
         }
         // [databind#749]: or via toString()?
         if (ctxt.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)) {
-            g.writeString(en.toString());
+            g.writeString(_valuesByToString.serializedValueFor(en));
             return;
         }
         g.writeString(_values.serializedValueFor(en));
@@ -168,8 +193,8 @@ public class EnumSerializer
             // Use toString()?
             if ((serializers != null) &&
                     serializers.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)) {
-                for (Enum<?> e : _values.enums()) {
-                    enums.add(e.toString());
+                for (SerializableString value : _valuesByToString.values()) {
+                    enums.add(value.getValue());
                 }
             } else {
                 // No, serialize using name() or explicit overrides

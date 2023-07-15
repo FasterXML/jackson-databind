@@ -38,7 +38,7 @@ public final class EnumValues
      */
     public static EnumValues construct(SerializationConfig config, AnnotatedClass enumClass) {
         if (config.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)) {
-            return constructFromToString(config, _enumClass(enumClass.getRawType()));
+            return constructFromToString(config, enumClass);
         }
         return constructFromName(config, enumClass);
     }
@@ -75,18 +75,38 @@ public final class EnumValues
         return construct(enumCls, textual);
     }
 
-    public static EnumValues constructFromToString(MapperConfig<?> config, Class<Enum<?>> enumClass)
+    /**
+     * @since 2.16
+     */
+    public static EnumValues constructFromToString(MapperConfig<?> config, AnnotatedClass annotatedClass)
     {
-        Class<? extends Enum<?>> cls = ClassUtil.findEnumType(enumClass);
-        Enum<?>[] values = cls.getEnumConstants();
-        if (values == null) { // can this ever occur?
-            throw new IllegalArgumentException("Cannot determine enum constants for Class "+enumClass.getName());
+        // prepare data
+        final AnnotationIntrospector ai = config.getAnnotationIntrospector();
+        final boolean useLowerCase = config.isEnabled(EnumFeature.WRITE_ENUMS_TO_LOWERCASE);
+        final Class<?> enumCls0 = annotatedClass.getRawType();
+        final Class<Enum<?>> enumCls = _enumClass(enumCls0);
+        final Enum<?>[] enumConstants = _enumConstants(enumCls0);
+
+        // introspect
+        String[] names = new String[enumConstants.length];
+        if (ai != null) {
+            ai.findEnumValues(config, annotatedClass, enumConstants, names);
         }
-        ArrayList<String> external = new ArrayList<>(values.length);
-        for (Enum<?> en : values) {
-            external.add(en.toString());
+
+        // build
+        SerializableString[] textual = new SerializableString[enumConstants.length];
+        for (int i = 0; i < enumConstants.length; i++) {
+            String name = names[i];
+            if (name == null) {
+                Enum<?> en = enumConstants[i];
+                name = en.toString();
+            }
+            if (useLowerCase) {
+                name = name.toLowerCase();
+            }
+            textual[i] = config.compileString(name);
         }
-        return construct(config, enumClass, external);
+        return construct(enumCls, textual);
     }
 
     /**

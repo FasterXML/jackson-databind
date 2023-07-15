@@ -35,6 +35,10 @@ Project: jackson-databind
  (contributed by @iProdigy)
 #4037: Fix `Enum` deserialization to use `@JsonProperty`, `@JsonAlias` even if
   `EnumNamingStrategy` used
+ (contributed by @iProdigy)
+#4039: Use `@JsonProperty` and lowercase feature when serializing Enums despite
+  using toString()
+ (contributed by @iProdigy)
 #4041: Actually cache EnumValues#internalMap
  (contributed by @iProdigy)
 

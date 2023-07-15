@@ -1666,5 +1666,8 @@ iProdigy (iProdigy@github)
  * Contributed #4037: Fix `Enum` deserialization to use `@JsonProperty`, `@JsonAlias` even if
    `EnumNamingStrategy` used
   (2.16.0)
- * Contributed fix #4041: Actually cache EnumValues#internalMap
+ * Contributed #4039: Use `@JsonProperty` and lowercase feature when serializing Enums despite
+  using toString()
+  (2.16.0)
+* Contributed fix #4041: Actually cache EnumValues#internalMap
   (2.16.0)

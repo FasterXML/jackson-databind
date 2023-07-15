@@ -60,7 +60,7 @@ public class EnumSerializer
     protected final EnumValues _valuesByEnumNaming;
 
     /**
-     * Map that contains pre-resolved values for Enum#toString to use for serialization,
+     * Map that contains pre-resolved values for {@link Enum#toString} to use for serialization,
      * while respecting {@link com.fasterxml.jackson.annotation.JsonProperty}
      * and {@link com.fasterxml.jackson.databind.cfg.EnumFeature#WRITE_ENUMS_TO_LOWERCASE}.
      *

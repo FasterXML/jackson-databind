@@ -31,6 +31,8 @@ Project: jackson-databind
   is enabled
  (reported by Philipp K)
 #4011: Add guardrail setting for `TypeParser` handling of type parameters
+#4036: Use `@JsonProperty` for Enum values also when `READ_ENUMS_USING_TO_STRING` enabled
+ (contributed by @iProdigy)
 #4041: Actually cache EnumValues#internalMap
  (contributed by @iProdigy)
 

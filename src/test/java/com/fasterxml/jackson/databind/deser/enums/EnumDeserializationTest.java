@@ -89,7 +89,10 @@ public class EnumDeserializationTest
             public String toString() {
                 return "bb";
             }
-        }
+        },
+        
+        @JsonProperty("cc")
+        C
         ;
     }
 
@@ -538,6 +541,29 @@ public class EnumDeserializationTest
         assertEquals(2, result.length);
         assertSame(EnumWithPropertyAnno.B, result[0]);
         assertSame(EnumWithPropertyAnno.A, result[1]);
+    }
+    
+    public void testEnumWithJsonPropertyRenameWithToString() throws Exception {
+        EnumWithPropertyAnno a = MAPPER.readerFor(EnumWithPropertyAnno.class)
+                .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+                .readValue(q("a"));
+        assertSame(EnumWithPropertyAnno.A, a);
+
+        EnumWithPropertyAnno b = MAPPER.readerFor(EnumWithPropertyAnno.class)
+                .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+                .readValue(q("b"));
+        assertSame(EnumWithPropertyAnno.B, b);
+
+        EnumWithPropertyAnno bb = MAPPER.readerFor(EnumWithPropertyAnno.class)
+                .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
+                .readValue(q("bb"));
+        assertNull(bb);
+
+        EnumWithPropertyAnno c = MAPPER.readerFor(EnumWithPropertyAnno.class)
+                .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+                .readValue(q("cc"));
+        assertSame(EnumWithPropertyAnno.C, c);
     }
 
     /**

@@ -1,0 +1,11 @@
+name: Something Else
+description: If none of the other options is a match, please use this template
+labels: [ "to-evaluate" ]
+body:
+  - type: textarea
+    id: something-else
+    attributes:
+      label: Describe your Issue
+      description: "Please provide a clear and concise description of what the issue is."
+    validations:
+      required: true

@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.deser.enums;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -47,6 +48,15 @@ public class EnumNamingDeserializationTest extends BaseMapTest
         _PEANUT_BUTTER,
         PEANUT__BUTTER,
         PEANUT_BUTTER
+    }
+
+    @EnumNaming(EnumNamingStrategies.CamelCaseStrategy.class)
+    static enum EnumFlavorF {
+        PEANUT_BUTTER,
+        @JsonProperty("caramel")
+        SALTED_CARAMEL,
+        @JsonAlias({"darkChocolate", "milkChocolate", "whiteChocolate"})
+        CHOCOLATE;
     }
 
     static class EnumSauceWrapperBean {
@@ -121,6 +131,25 @@ public class EnumNamingDeserializationTest extends BaseMapTest
             .readValue(q("PEANUT_BUTTER"));
 
         assertNull(result);
+    }
+
+    public void testEnumNamingWithAliasOrProperty() throws Exception {
+        EnumFlavorF pb = MAPPER.readValue(q("peanutButter"), EnumFlavorF.class);
+        assertEquals(EnumFlavorF.PEANUT_BUTTER, pb);
+
+        EnumFlavorF chocolate = MAPPER.readValue(q("chocolate"), EnumFlavorF.class);
+        assertEquals(EnumFlavorF.CHOCOLATE, chocolate);
+
+        EnumFlavorF milk = MAPPER.readValue(q("milkChocolate"), EnumFlavorF.class);
+        assertEquals(EnumFlavorF.CHOCOLATE, milk);
+
+        EnumFlavorF caramel = MAPPER.readValue(q("caramel"), EnumFlavorF.class);
+        assertEquals(EnumFlavorF.SALTED_CARAMEL, caramel);
+
+        EnumFlavorF badCaramel = MAPPER.readerFor(EnumFlavorF.class)
+                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
+                .readValue(q("saltedCaramel"));
+        assertNull(badCaramel);
     }
 
     public void testEnumNamingStrategySymmetryReadThenWrite() throws Exception {

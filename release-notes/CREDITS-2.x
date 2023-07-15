@@ -1660,9 +1660,8 @@ Philipp Kräutli (pkraeutli@github)
   (2.16.0)
 
 iProdigy (iProdigy@github)
- * Contributed fix #4041: Actually cache EnumValues#internalMap
+ * Contributed #4036: Use `@JsonProperty` for Enum values also when `READ_ENUMS_USING_TO_STRING`
+   enabled
   (2.16.0)
-
-
-
-
+* Contributed fix #4041: Actually cache EnumValues#internalMap
+  (2.16.0)

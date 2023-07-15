@@ -1,8 +1,6 @@
 name: Feature request
 description: Suggest an improvement to an existing feature, or propose a new one
-title: ''
 labels: [ "to-evaluate" ]
-assignees: ''
 body:
   - type: textarea
     id: problem-description

@@ -1,6 +1,6 @@
 name: Bug report
 description: If you find something that does not work the way it should
-labels: ["to-evaluate"]
+labels: [ "to-evaluate" ]
 body:
   - type: checkboxes
     id: pre-check
@@ -57,11 +57,3 @@ body:
   - type: markdown
     attributes:
       value: "Thanks for reporting the bug!"
-      
-      
-      
-      Now convert below to our new format (in yaml)
-
-      ```markdown
-
-      ```

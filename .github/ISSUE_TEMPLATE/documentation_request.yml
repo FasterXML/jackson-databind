@@ -1,6 +1,6 @@
 name: Documentation request
 description: If you have a great idea of how to improve documentation
-labels: ["to-evaluate"]
+labels: [ "to-evaluate" ]
 body:
   - type: textarea
     id: documentation-improvement

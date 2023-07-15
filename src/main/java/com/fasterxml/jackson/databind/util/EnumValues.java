@@ -39,7 +39,7 @@ public final class EnumValues
      */
     public static EnumValues construct(SerializationConfig config, AnnotatedClass annotatedClass) {
         if (config.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)) {
-            return constructFromToString(config, _enumClass(annotatedClass.getRawType()));
+            return constructFromToString(config, annotatedClass);
         }
         return constructFromName(config, annotatedClass);
     }
@@ -104,6 +104,44 @@ public final class EnumValues
         return construct(enumCls, textual);
     }
 
+    /**
+     * @since 2.16
+     */
+    public static EnumValues constructFromToString(MapperConfig<?> config, AnnotatedClass annotatedClass)
+    {
+        // prepare data
+        final AnnotationIntrospector ai = config.getAnnotationIntrospector();
+        final boolean useLowerCase = config.isEnabled(EnumFeature.WRITE_ENUMS_TO_LOWERCASE);
+        final Class<?> enumCls0 = annotatedClass.getRawType();
+        final Class<Enum<?>> enumCls = _enumClass(enumCls0);
+        final Enum<?>[] enumConstants = _enumConstants(enumCls0);
+
+        // introspect
+        String[] names = new String[enumConstants.length];
+        if (ai != null) {
+            ai.findEnumValues(config, annotatedClass, enumConstants, names);
+        }
+
+        // build
+        SerializableString[] textual = new SerializableString[enumConstants.length];
+        for (int i = 0; i < enumConstants.length; i++) {
+            String name = names[i];
+            if (name == null) {
+                Enum<?> en = enumConstants[i];
+                name = en.toString();
+            }
+            if (useLowerCase) {
+                name = name.toLowerCase();
+            }
+            textual[i] = config.compileString(name);
+        }
+        return construct(enumCls, textual);
+    }
+
+    /**
+     * @deprecated since 2.16; use {@link #constructFromToString(MapperConfig, AnnotatedClass)} instead
+     */
+    @Deprecated
     public static EnumValues constructFromToString(MapperConfig<?> config, Class<Enum<?>> enumClass)
     {
         Class<? extends Enum<?>> cls = ClassUtil.findEnumType(enumClass);

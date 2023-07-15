@@ -230,8 +230,8 @@ public class EnumSerializer
             // Use toString()?
             if ((serializers != null) &&
                     serializers.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)) {
-                for (Enum<?> e : _valuesByToString.enums()) {
-                    enums.add(e.toString());
+                for (SerializableString value : _valuesByToString.values()) {
+                    enums.add(value.getValue());
                 }
             } else {
                 // No, serialize using name() or explicit overrides

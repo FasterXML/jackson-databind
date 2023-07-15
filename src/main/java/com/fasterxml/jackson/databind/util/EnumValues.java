@@ -256,7 +256,7 @@ public final class EnumValues
             for (Enum<?> en : _values) {
                 map.put(en, _textual[en.ordinal()]);
             }
-            _asMap = result = new EnumMap(map);
+            result = new EnumMap(map);
         }
         return result;
     }

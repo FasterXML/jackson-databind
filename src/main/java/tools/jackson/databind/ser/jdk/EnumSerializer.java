@@ -63,25 +63,23 @@ public class EnumSerializer
     /**********************************************************************
      */
 
+    /**
+     * @deprecated Since 2.16
+     */
+    @Deprecated // since 2.16
     public EnumSerializer(EnumValues v, Boolean serializeAsIndex)
     {
-        super(v.getEnumClass(), false);
-        _values = v;
-        _serializeAsIndex = serializeAsIndex;
-        _valuesByEnumNaming = null;
-        _valuesByToString = null;
+        this(v, serializeAsIndex, null, null);
     }
 
     /**
      * @since 2.15
+     * @deprecated Since 2.16
      */
+    @Deprecated
     public EnumSerializer(EnumValues v, Boolean serializeAsIndex, EnumValues valuesByEnumNaming)
     {
-        super(v.getEnumClass(), false);
-        _values = v;
-        _serializeAsIndex = serializeAsIndex;
-        _valuesByEnumNaming = valuesByEnumNaming;
-        _valuesByToString = null;
+        this(v, serializeAsIndex, valuesByEnumNaming, null);
     }
 
     /**
@@ -131,7 +129,8 @@ public class EnumSerializer
             Boolean serializeAsIndex = _isShapeWrittenUsingIndex(type,
                     format, false, _serializeAsIndex);
             if (!Objects.equals(serializeAsIndex, _serializeAsIndex)) {
-                return new EnumSerializer(_values, serializeAsIndex);
+                return new EnumSerializer(_values, serializeAsIndex,
+                        _valuesByEnumNaming, _valuesByToString);
             }
         }
         return this;

@@ -39,6 +39,8 @@ Project: jackson-databind
 #4039: Use `@JsonProperty` and lowercase feature when serializing Enums despite
   using toString()
  (contributed by @iProdigy)
+#4040: Use `@JsonProperty` over `EnumNamingStrategy` for Enum serialization
+ (contributed by @iProdigy)
 #4041: Actually cache EnumValues#internalMap
  (contributed by @iProdigy)
 

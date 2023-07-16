@@ -210,7 +210,15 @@ public class JacksonAnnotationIntrospector
         }
     }
 
-    @Override // since 2.16
+    /**
+     * Finds the Enum value that should be considered the default value, if possible.
+     * <p>
+     * This implementation relies on {@link JsonEnumDefaultValue} annotation to determine the default value if present.
+     *
+     * @param annotatedClass The Enum class to scan for the default value annotation.
+     * @return null if none found or it's not possible to determine one.
+     */
+    @Override
     public Enum<?> findDefaultEnumValue(MapperConfig<?> config,
             AnnotatedClass annotatedClass, Enum<?>[] enumValues)
     {

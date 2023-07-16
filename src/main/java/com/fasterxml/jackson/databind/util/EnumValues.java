@@ -169,6 +169,7 @@ public final class EnumValues
     {
         // prepare data
         final AnnotationIntrospector ai = config.getAnnotationIntrospector();
+        final boolean useLowerCase = config.isEnabled(EnumFeature.WRITE_ENUMS_TO_LOWERCASE);
         final Class<?> enumCls0 = annotatedClass.getRawType();
         final Class<Enum<?>> enumCls = _enumClass(enumCls0);
         final Enum<?>[] enumConstants = _enumConstants(enumCls0);
@@ -186,6 +187,9 @@ public final class EnumValues
             String name = names[i];
             if (name == null) {
                 name = namingStrategy.convertEnumToExternalName(enumValue.name());
+            }
+            if (useLowerCase) {
+                name = name.toLowerCase();
             }
             textual[i] = config.compileString(name);
         }

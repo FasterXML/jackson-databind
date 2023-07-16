@@ -989,23 +989,6 @@ public abstract class AnnotationIntrospector
      */
     public Enum<?> findDefaultEnumValue(MapperConfig<?> config,
             AnnotatedClass ac, Enum<?>[] enumValues) {
-        // 11-Jul-2023, tatu: [databind#4025] redirect to old method for now (to
-        //    help backwards compatibility)
-        @SuppressWarnings("unchecked")
-        Class<Enum<?>> enumCls = (Class<Enum<?>>) ac.getRawType();
-        return findDefaultEnumValue(config, enumCls);
-    }
-
-    /**
-     * Finds the Enum value that should be considered the default value, if possible.
-     *
-     * @param enumCls The Enum class to scan for the default value.
-     *
-     * @return null if none found or it's not possible to determine one.
-     */
-    @Deprecated // since 2.16
-    public Enum<?> findDefaultEnumValue(MapperConfig<?> config,
-            Class<?> enumCls) {
         return null;
     }
 

@@ -1,7 +1,5 @@
 package tools.jackson.databind.util;
 
-import static tools.jackson.databind.MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS;
-
 import java.util.*;
 
 import tools.jackson.databind.*;
@@ -152,31 +150,6 @@ public class EnumResolver implements java.io.Serializable
         }
         return new EnumResolver(enumCls, enumConstants, map,
                 defaultEnum, isIgnoreCase, false);
-    }
-
-    /**
-     * Factory method for constructing resolver that maps from index of Enum.values() into
-     * Enum value
-     *
-     * @deprecated Since 2.16
-     */
-    @Deprecated
-    public static EnumResolver constructUsingIndex(DeserializationConfig config,
-            Class<Enum<?>> enumCls0)
-    {
-        final Class<Enum<?>> enumCls = _enumClass(enumCls0);
-        final Enum<?>[] enumConstants = _enumConstants(enumCls0);
-        HashMap<String, Enum<?>> enumsById = new HashMap<>();
-
-        // from last to first, so that in case of duplicate values, first wins
-        for (int i = enumConstants.length; --i >= 0; ) {
-            Enum<?> enumValue = enumConstants[i];
-            enumsById.put(String.valueOf(i), enumValue);
-        }
-        return new EnumResolver(enumCls, enumConstants, enumsById,
-                config.getAnnotationIntrospector().findDefaultEnumValue(config, enumCls),
-                config.isEnabled(ACCEPT_CASE_INSENSITIVE_ENUMS),
-                false);
     }
 
     /**

@@ -917,39 +917,6 @@ se.getClass().getName(), se.getMessage()),
         return (Class<? extends Enum<?>>) cls;
     }
 
-    /**
-     * A method that will look for the first Enum value annotated with the given Annotation.
-     * <p>
-     * If there's more than one value annotated, the first one found will be returned. Which one exactly is used is undetermined.
-     *
-     * @param enumClass0 The Enum class to scan for a value with the given annotation
-     * @param annotationClass The annotation to look for.
-     * @return the Enum value annotated with the given Annotation or {@code null} if none is found.
-     *
-     * @throws IllegalArgumentException if there's a reflection issue accessing the Enum
-     */
-    public static <T extends Annotation> Enum<?> findFirstAnnotatedEnumValue(Class<?> enumClass0,
-            Class<T> annotationClass)
-    {
-        @SuppressWarnings("unchecked")
-        final Class<Enum<?>> enumClass = (Class<Enum<?>>) enumClass0;
-        Field[] fields = enumClass.getDeclaredFields();
-        for (Field field : fields) {
-            if (field.isEnumConstant()) {
-                Annotation defaultValueAnnotation = field.getAnnotation(annotationClass);
-                if (defaultValueAnnotation != null) {
-                    final String name = field.getName();
-                    for (Enum<?> enumValue : enumClass.getEnumConstants()) {
-                        if (name.equals(enumValue.name())) {
-                            return enumValue;
-                        }
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
     /*
     /**********************************************************************
     /* Methods for detecting special class categories

@@ -158,12 +158,50 @@ public final class EnumValues
 
     /**
      * Returns String serializations of Enum name using an instance of {@link EnumNamingStrategy}.
+     * <p>
+     * The output {@link EnumValues} should contain values that are symmetric to
+     * {@link EnumResolver#constructUsingEnumNamingStrategy(DeserializationConfig, AnnotatedClass, EnumNamingStrategy)}.
+     *
+     * @since 2.16
+     */
+    public static EnumValues constructUsingEnumNamingStrategy(MapperConfig<?> config, AnnotatedClass annotatedClass,
+            EnumNamingStrategy namingStrategy)
+    {
+        // prepare data
+        final AnnotationIntrospector ai = config.getAnnotationIntrospector();
+        final Class<?> enumCls0 = annotatedClass.getRawType();
+        final Class<Enum<?>> enumCls = _enumClass(enumCls0);
+        final Enum<?>[] enumConstants = _enumConstants(enumCls0);
+
+        // introspect
+        String[] names = new String[enumConstants.length];
+        if (ai != null) {
+            ai.findEnumValues(config, annotatedClass, enumConstants, names);
+        }
+
+        // build
+        SerializableString[] textual = new SerializableString[enumConstants.length];
+        for (int i = 0, len = enumConstants.length; i < len; i++) {
+            Enum<?> enumValue = enumConstants[i];
+            String name = names[i];
+            if (name == null) {
+                name = namingStrategy.convertEnumToExternalName(enumValue.name());
+            }
+            textual[i] = config.compileString(name);
+        }
+        return construct(enumCls, textual);
+    }
+
+    /**
+     * Returns String serializations of Enum name using an instance of {@link EnumNamingStrategy}.
      *
      * The output {@link EnumValues} should contain values that are symmetric to
      * {@link EnumResolver#constructUsingEnumNamingStrategy(DeserializationConfig, AnnotatedClass, EnumNamingStrategy)}.
      *
      * @since 2.15
+     * @deprecated Since 2.16; use {@link #constructUsingEnumNamingStrategy(MapperConfig, AnnotatedClass, EnumNamingStrategy)} instead.
      */
+    @Deprecated
     public static EnumValues constructUsingEnumNamingStrategy(MapperConfig<?> config, Class<Enum<?>> enumClass, EnumNamingStrategy namingStrategy) {
         Class<? extends Enum<?>> cls = ClassUtil.findEnumType(enumClass);
         Enum<?>[] values = cls.getEnumConstants();

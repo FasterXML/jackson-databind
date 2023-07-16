@@ -61,13 +61,6 @@ public final class CollectionType
                 null, null, false);
     }
 
-    @Deprecated // since 2.7
-    @Override
-    protected JavaType _narrow(Class<?> subclass) {
-        return new CollectionType(subclass, _bindings,
-                _superClass, _superInterfaces, _elementType, null, null, _asStatic);
-    }
-
     @Override
     public JavaType withContentType(JavaType contentType) {
         if (_elementType == contentType) {

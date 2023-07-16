@@ -9,10 +9,12 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ser.VirtualBeanPropertyWriter;
 
 /**
- * Annotation that may be used to add "virtual" properties to be written
- * after regular properties (although ordering may be changed using
- * both standard <code>@JsonPropertyOrder</code> annotation, and
- * properties of this annotation).
+ * Annotation used to add "virtual" properties that will be written
+ * after regular properties during serialization.
+ * <p>
+ * Please note that the "virtual" properties added using this annotation
+ * do not obey any specific order, including the order defined
+ * by {@link com.fasterxml.jackson.annotation.JsonPropertyOrder}.
  *
  * @since 2.5
  */

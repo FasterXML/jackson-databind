@@ -1993,8 +1993,9 @@ public class ObjectMapper
 
         TypeResolverBuilder<?> typer = _constructDefaultTypeResolverBuilder(applicability, ptv);
         // we'll always use full class name, when using defaulting
-        typer = typer.init(JsonTypeInfo.Id.CLASS, null);
-        typer = typer.inclusion(includeAs);
+        JsonTypeInfo.Value typeInfo = JsonTypeInfo.Value.construct(JsonTypeInfo.Id.CLASS, includeAs,
+                null, null, false, null);
+        typer = typer.withSettings(typeInfo);
         return setDefaultTyping(typer);
     }
 
@@ -2023,9 +2024,9 @@ public class ObjectMapper
         TypeResolverBuilder<?> typer = _constructDefaultTypeResolverBuilder(applicability,
                 ptv);
         // we'll always use full class name, when using defaulting
-        typer = typer.init(JsonTypeInfo.Id.CLASS, null);
-        typer = typer.inclusion(JsonTypeInfo.As.PROPERTY);
-        typer = typer.typeProperty(propertyName);
+        JsonTypeInfo.Value typeInfo = JsonTypeInfo.Value.construct(JsonTypeInfo.Id.CLASS, JsonTypeInfo.As.PROPERTY,
+                propertyName, null, false, null);
+        typer = typer.withSettings(typeInfo);
         return setDefaultTyping(typer);
     }
 

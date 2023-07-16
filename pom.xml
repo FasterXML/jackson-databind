@@ -88,10 +88,17 @@
       <version>${jackson.version.core}</version>
     </dependency>
 
-    <!-- and for testing we need a few libraries
-         libs for which we use reflection for code, but direct dep for testing
-      -->
-
+    <!-- Test dependencies -->
+    <dependency>
+      <groupId>org.junit.vintage</groupId>
+      <artifactId>junit-vintage-engine</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-core</artifactId>
@@ -143,6 +150,18 @@
       <snapshots><enabled>true</enabled></snapshots>
     </repository>
   </repositories>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
+        <version>5.9.2</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <build>
     <plugins>
@@ -302,7 +321,6 @@
             <artifactId>maven-compiler-plugin</artifactId>
             <inherited>true</inherited>
             <configuration>
-              <optimize>true</optimize>
               <!-- Enable Java 14+ for all sources so that Intellij picks the right language level -->
               <source>14</source>
               <release>14</release>
@@ -356,7 +374,6 @@
             <artifactId>maven-compiler-plugin</artifactId>
             <inherited>true</inherited>
             <configuration>
-              <optimize>true</optimize>
               <!-- Enable Java 17 for all sources so that Intellij picks the right language level -->
               <source>17</source>
               <release>17</release>

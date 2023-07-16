@@ -6,10 +6,57 @@ Project: jackson-databind
 
 2.16.0 (not yet released)
 
-No changes since 2.15
+#2787: Mix-ins do not work for `Enum`s
+ (fix contributed by Joo-Hyuk K)
+#3838: Difference in the handling of `ObjectId-property` in `JsonIdentityInfo`
+  depending on the deserialization route
+ (fix contributed by Joo-Hyuk K)
+#3877: Add new `OptBoolean` valued property in `@JsonTypeInfo`, handling,
+   to allow per-polymorphic type loose Type Id handling
+ (contributed by Joo-Hyuk K)
+#3924: Incorrect target type when disabling coercion, trying to deserialize
+  String from Array/Object
+ (reported by João G)
+ (fix contributed by Joo-Hyuk K)
+#3928: `@JsonProperty` on constructor parameter changes default field serialization order
+ (contributed by @pjfanning)
+#3950: Create new `JavaType` subtype `IterationType` (extending `SimpleType`)
+#3953: Use `JsonTypeInfo.Value` for annotation handling
+ (contributed by Joo-Hyuk K)
+#3965: Add `JsonNodeFeature.WRITE_PROPERTIES_SORTED` for sorting `ObjectNode` properties
+  on serialization
+#4008: Optimize `ObjectNode` findValue(s) and findParent(s) fast paths
+ (contributed by David S)
+#4009: Locale "" is deserialised as `null` if `ACCEPT_EMPTY_STRING_AS_NULL_OBJECT`
+  is enabled
+ (reported by Philipp K)
+#4011: Add guardrail setting for `TypeParser` handling of type parameters
+#4036: Use `@JsonProperty` for Enum values also when `READ_ENUMS_USING_TO_STRING` enabled
+ (contributed by @iProdigy)
+#4037: Fix `Enum` deserialization to use `@JsonProperty`, `@JsonAlias` even if
+  `EnumNamingStrategy` used
+ (contributed by @iProdigy)
+#4039: Use `@JsonProperty` and lowercase feature when serializing Enums despite
+  using toString()
+ (contributed by @iProdigy)
+#4040: Use `@JsonProperty` over `EnumNamingStrategy` for Enum serialization
+ (contributed by @iProdigy)
+#4041: Actually cache EnumValues#internalMap
+ (contributed by @iProdigy)
 
-2.15.1 (not yet released)
+2.15.3 (not yet released)
 
+#3968: Records with additional constructors failed to deserialize
+ (fix contributed by Sim Y-T)
+
+2.15.2 (30-May-2023)
+
+#3938: Record setter not included from interface (2.15 regression)
+
+2.15.1 (16-May-2023)
+
+#3882: Error in creating nested `ArrayNode`s with `JsonNode.withArray()`
+ (reported by @SaiKrishna369)
 #3894: Only avoid Records fields detection for deserialization
  (contributed by Sim Y-T)
 #3895: 2.15.0 breaking behaviour change for records and Getter Visibility

@@ -224,11 +224,6 @@ public class BeanDeserializer
         return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 
-    @Deprecated // since 2.8; remove unless getting used
-    protected Object _missingToken(JsonParser p, DeserializationContext ctxt) throws IOException {
-        throw ctxt.endOfInputException(handledType());
-    }
-
     /**
      * Secondary deserialization method, called in cases where POJO
      * instance is created as part of deserialization, potentially
@@ -373,6 +368,11 @@ public class BeanDeserializer
                 _handleTypedObjectId(p, ctxt, bean, id);
             }
         }
+        // [databind#3838]: since 2.16 Uniform handling of missing objectId
+        // only for the specific "empty JSON Object" case
+        if (_objectIdReader != null && p.hasTokenId(JsonTokenId.ID_END_OBJECT)) {
+            ctxt.reportUnresolvedObjectId(_objectIdReader, bean);
+        }
         if (_injectables != null) {
             injectValues(ctxt, bean);
         }
@@ -470,7 +470,9 @@ public class BeanDeserializer
             // weren't removed (to help in creating constructor-backed PropertyCreator)
             // so they ended up in _beanProperties, unlike POJO (whose ignored
             // props are removed)
-            if ((prop != null) && !_beanType.isRecordType()) {
+            if ((prop != null) &&
+                // [databind#3938]: except if it's MethodProperty
+                (!_beanType.isRecordType() || (prop instanceof MethodProperty))) {
                 try {
                     buffer.bufferProperty(prop, _deserializeWithErrorWrapping(p, ctxt, prop));
                 } catch (UnresolvedForwardReference reference) {

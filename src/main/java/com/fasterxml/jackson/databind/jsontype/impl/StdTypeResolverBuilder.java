@@ -36,6 +36,16 @@ public class StdTypeResolverBuilder
     protected boolean _typeIdVisible = false;
 
     /**
+     * 
+     * Boolean value configured through {@link JsonTypeInfo#requireTypeIdForSubtypes}.
+     * If this value is not {@code null}, this value should override the global configuration of
+     * {@link com.fasterxml.jackson.databind.MapperFeature#REQUIRE_TYPE_ID_FOR_SUBTYPES}. 
+     * 
+     * @since 2.16 (backported from Jackson 3.0)
+     */
+    protected Boolean _requireTypeIdForSubtypes;
+
+    /**
      * Default class to use in case type information is not available
      * or is broken.
      */
@@ -78,10 +88,32 @@ public class StdTypeResolverBuilder
         _customIdResolver = base._customIdResolver;
 
         _defaultImpl = defaultImpl;
+        _requireTypeIdForSubtypes = base._requireTypeIdForSubtypes;
+    }
+
+    /**
+     * @since 2.16 (backported from Jackson 3.0)
+     */
+    public StdTypeResolverBuilder(JsonTypeInfo.Value settings) {
+        if (settings != null) {
+            withSettings(settings);
+        }
+    }
+
+    /**
+     * @since 2.16 (backported from Jackson 3.0)
+     */
+    protected static String _propName(String propName, JsonTypeInfo.Id idType) {
+        if (propName == null) {
+            propName = idType.getDefaultPropertyName();
+        }
+        return propName;
     }
 
     public static StdTypeResolverBuilder noTypeInfoBuilder() {
-        return new StdTypeResolverBuilder().init(JsonTypeInfo.Id.NONE, null);
+        JsonTypeInfo.Value typeInfo = JsonTypeInfo.Value.construct(JsonTypeInfo.Id.NONE, null,
+                null, null, false, null);
+        return new StdTypeResolverBuilder().withSettings(typeInfo);
     }
 
     @Override
@@ -95,6 +127,18 @@ public class StdTypeResolverBuilder
         _customIdResolver = idRes;
         // Let's also initialize property name as per idType default
         _typeProperty = idType.getDefaultPropertyName();
+        return this;
+    }
+
+    @Override
+    public StdTypeResolverBuilder init(JsonTypeInfo.Value settings,
+            TypeIdResolver idRes)
+    {
+        _customIdResolver = idRes;
+
+        if (settings != null) {
+            withSettings(settings);
+        }
         return this;
     }
 
@@ -275,6 +319,20 @@ public class StdTypeResolverBuilder
         return new StdTypeResolverBuilder(this, defaultImpl);
     }
 
+    @Override
+    public StdTypeResolverBuilder withSettings(JsonTypeInfo.Value settings) {
+        _idType = settings.getIdType();
+        if (_idType == null) {
+            throw new IllegalArgumentException("idType cannot be null");
+        }
+        _includeAs = settings.getInclusionType();
+        _typeProperty = _propName(settings.getPropertyName(), _idType);
+        _defaultImpl = settings.getDefaultImpl();
+        _typeIdVisible = settings.getIdVisible();
+        _requireTypeIdForSubtypes = settings.getRequireTypeIdForSubtypes();
+        return this;
+    }
+
     /*
     /**********************************************************
     /* Accessors
@@ -405,7 +463,10 @@ public class StdTypeResolverBuilder
 
     /**
      * Determines whether strict type ID handling should be used for this type or not.
-     * This will be enabled when either the type has type resolver annotations or if
+     * This will be enabld as configured by {@link JsonTypeInfo#requireTypeIdForSubtypes()}
+     * unless its value is {@link com.fasterxml.jackson.annotation.OptBoolean#DEFAULT}. 
+     * In case the value of {@link JsonTypeInfo#requireTypeIdForSubtypes()} is {@code OptBoolean.DEFAULT},
+     * this will be enabled when either the type has type resolver annotations or if
      * {@link com.fasterxml.jackson.databind.MapperFeature#REQUIRE_TYPE_ID_FOR_SUBTYPES}
      * is enabled.
      *
@@ -418,6 +479,10 @@ public class StdTypeResolverBuilder
      * @since 2.15
      */
     protected boolean _strictTypeIdHandling(DeserializationConfig config, JavaType baseType) {
+        // [databind#3877]: per-type strict type handling, since 2.16
+        if (_requireTypeIdForSubtypes != null && baseType.isConcrete()) {
+            return _requireTypeIdForSubtypes;
+        }
         if (config.isEnabled(MapperFeature.REQUIRE_TYPE_ID_FOR_SUBTYPES)) {
             return true;
         }
@@ -436,11 +501,11 @@ public class StdTypeResolverBuilder
      *
      * @return true if the class has type resolver annotations, false otherwise
      *
-     * @since 2.15
+     * @since 2.15, using {@code ai.findPolymorphicTypeInfo(config, ac)} since 2.16.
      */
     protected boolean _hasTypeResolver(DeserializationConfig config, JavaType baseType) {
         AnnotatedClass ac = AnnotatedClassResolver.resolveWithoutSuperTypes(config,  baseType.getRawClass());
         AnnotationIntrospector ai = config.getAnnotationIntrospector();
-        return ai.findTypeResolver(config, ac, baseType) != null;
+        return ai.findPolymorphicTypeInfo(config, ac) != null;
     }
 }

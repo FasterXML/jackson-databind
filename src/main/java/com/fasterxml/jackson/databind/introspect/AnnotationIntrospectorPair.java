@@ -231,6 +231,19 @@ public class AnnotationIntrospectorPair
     /******************************************************
      */
 
+    /**
+     * @since 2.16 (backported from Jackson 3.0)
+     */
+    @Override
+    public JsonTypeInfo.Value findPolymorphicTypeInfo(MapperConfig<?> config, Annotated ann)
+    {
+        JsonTypeInfo.Value v = _primary.findPolymorphicTypeInfo(config, ann);
+        if (v == null) {
+            v = _secondary.findPolymorphicTypeInfo(config, ann);
+        }
+        return v;
+    }
+
     @Override
     public TypeResolverBuilder<?> findTypeResolver(MapperConfig<?> config,
             AnnotatedClass ac, JavaType baseType)
@@ -604,6 +617,7 @@ public class AnnotationIntrospectorPair
         return b;
     }
 
+    @Deprecated // since 2.16
     @Override
     public  String[] findEnumValues(Class<?> enumType, Enum<?>[] enumValues, String[] names) {
         // reverse order to give _primary higher precedence
@@ -613,6 +627,16 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
+    public String[] findEnumValues(MapperConfig<?> config, AnnotatedClass annotatedClass,
+            Enum<?>[] enumValues, String[] names) {
+        // reverse order to give _primary higher precedence
+        names = _secondary.findEnumValues(config, annotatedClass, enumValues, names);
+        names = _primary.findEnumValues(config, annotatedClass, enumValues, names);
+        return names;
+    }
+
+    @Deprecated // since 2.16
+    @Override
     public void findEnumAliases(Class<?> enumType, Enum<?>[] enumValues, String[][] aliases) {
         // reverse order to give _primary higher precedence
         _secondary.findEnumAliases(enumType, enumValues, aliases);
@@ -620,9 +644,24 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
+    public void findEnumAliases(MapperConfig<?> config, AnnotatedClass annotatedClass,
+            Enum<?>[] enumConstants, String[][] aliases) {
+        // reverse order to give _primary higher precedence
+        _secondary.findEnumAliases(config, annotatedClass, enumConstants, aliases);
+        _primary.findEnumAliases(config, annotatedClass, enumConstants, aliases);
+    }
+
+    @Override
+    @Deprecated // since 2.16
     public Enum<?> findDefaultEnumValue(Class<Enum<?>> enumCls) {
         Enum<?> en = _primary.findDefaultEnumValue(enumCls);
         return (en == null) ? _secondary.findDefaultEnumValue(enumCls) : en;
+    }
+    
+    @Override // since 2.16
+    public Enum<?> findDefaultEnumValue(AnnotatedClass annotatedClass, Enum<?>[] enumValues) {
+        Enum<?> en = _primary.findDefaultEnumValue(annotatedClass, enumValues);
+        return (en == null) ? _secondary.findDefaultEnumValue(annotatedClass, enumValues) : en;
     }
 
     @Override

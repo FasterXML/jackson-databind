@@ -43,17 +43,13 @@ public class EnumSerializer
     /**
      * Map with key as converted property class defined implementation of {@link EnumNamingStrategy}
      * and with value as Enum names collected using <code>Enum.name()</code>.
-     *
-     * @since 2.15
      */
     protected final EnumValues _valuesByEnumNaming;
 
     /**
      * Map that contains pre-resolved values for {@link Enum#toString} to use for serialization,
      * while respecting {@link com.fasterxml.jackson.annotation.JsonProperty}
-     * and {@link com.fasterxml.jackson.databind.cfg.EnumFeature#WRITE_ENUMS_TO_LOWERCASE}.
-     *
-     * @since 2.16
+     * and {@link tools.jackson.databind.cfg.EnumFeature#WRITE_ENUMS_TO_LOWERCASE}.
      */
     protected final EnumValues _valuesByToString;
 
@@ -63,28 +59,6 @@ public class EnumSerializer
     /**********************************************************************
      */
 
-    /**
-     * @deprecated Since 2.16
-     */
-    @Deprecated // since 2.16
-    public EnumSerializer(EnumValues v, Boolean serializeAsIndex)
-    {
-        this(v, serializeAsIndex, null, null);
-    }
-
-    /**
-     * @since 2.15
-     * @deprecated Since 2.16
-     */
-    @Deprecated
-    public EnumSerializer(EnumValues v, Boolean serializeAsIndex, EnumValues valuesByEnumNaming)
-    {
-        this(v, serializeAsIndex, valuesByEnumNaming, null);
-    }
-
-    /**
-     * @since 2.16
-     */
     public EnumSerializer(EnumValues v, Boolean serializeAsIndex, EnumValues valuesByEnumNaming,
             EnumValues valuesByToString)
     {

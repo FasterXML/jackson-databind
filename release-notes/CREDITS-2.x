@@ -1667,7 +1667,9 @@ iProdigy (iProdigy@github)
    `EnumNamingStrategy` used
   (2.16.0)
  * Contributed #4039: Use `@JsonProperty` and lowercase feature when serializing Enums despite
-  using toString()
+   using toString()
   (2.16.0)
-* Contributed fix #4041: Actually cache EnumValues#internalMap
+ * Contributed #4040: Use `@JsonProperty` over `EnumNamingStrategy` for Enum serialization
+  (2.16.0)
+ * Contributed fix #4041: Actually cache EnumValues#internalMap
   (2.16.0)

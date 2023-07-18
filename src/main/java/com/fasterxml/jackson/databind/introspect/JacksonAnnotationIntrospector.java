@@ -323,7 +323,7 @@ public class JacksonAnnotationIntrospector
      *
      * @param annotatedClass The Enum class to scan for the default value annotation.
      * @return null if none found or it's not possible to determine one.
-     * @since 2.17
+     * @since 2.16
      */
     @Override // since 2.16
     public Enum<?> findDefaultEnumValue(AnnotatedClass annotatedClass, Enum<?>[] enumValues) {

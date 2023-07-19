@@ -1,4 +1,4 @@
-package tools.jackson.databind.failing;
+package tools.jackson.databind.records;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

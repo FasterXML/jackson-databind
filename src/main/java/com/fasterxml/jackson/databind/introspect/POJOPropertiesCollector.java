@@ -614,7 +614,7 @@ public class POJOPropertiesCollector
                         ignored = true;
 
                     // 18-Jul-2023, tatu: [databind#3948] Need to retain if there was explicit
-                    //   ignormal marker
+                    //   ignoral marker
                     } else if (!ignored) {
                         continue;
                     }

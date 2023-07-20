@@ -80,9 +80,10 @@ public class TestRootType
     /**********************************************************
      */
 
-    private final ObjectMapper WRAP_ROOT_MAPPER = jsonMapperBuilder()
-            .configure(SerializationFeature.WRAP_ROOT_VALUE, true)
-            .build();
+    final ObjectMapper WRAP_ROOT_MAPPER = new ObjectMapper();
+    {
+        WRAP_ROOT_MAPPER.configure(SerializationFeature.WRAP_ROOT_VALUE, true);
+    }
 
     @SuppressWarnings("unchecked")
     public void testSuperClass() throws Exception

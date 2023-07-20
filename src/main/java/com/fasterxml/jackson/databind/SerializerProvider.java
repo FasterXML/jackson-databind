@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.cfg.DatatypeFeature;
 import com.fasterxml.jackson.databind.cfg.DatatypeFeatures;
@@ -29,7 +28,6 @@ import com.fasterxml.jackson.databind.ser.impl.WritableObjectId;
 import com.fasterxml.jackson.databind.ser.std.NullSerializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
-import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
  * Class that defines API used by {@link ObjectMapper} and
@@ -471,34 +469,6 @@ public abstract class SerializerProvider
      */
     public JsonGenerator getGenerator() {
         return null;
-    }
-
-    /*
-    /**********************************************************************
-    /* Factory methods for getting appropriate TokenBuffer instances
-    /* (possibly overridden by backends for alternate data formats)
-    /**********************************************************************
-     */
-
-    /**
-     * Specialized factory method used when we are converting values and do not
-     * typically have or use "real" parsers or generators.
-     *
-     * @since 2.13
-     */
-    public TokenBuffer bufferForValueConversion(ObjectCodec oc) {
-        // false -> no native type/object ids
-        return new TokenBuffer(oc, false);
-    }
-
-    /**
-     * Specialized factory method used when we are converting values and do not
-     * typically have or use "real" parsers or generators.
-     *
-     * @since 2.13
-     */
-    public final TokenBuffer bufferForValueConversion() {
-        return bufferForValueConversion(null);
     }
 
     /*

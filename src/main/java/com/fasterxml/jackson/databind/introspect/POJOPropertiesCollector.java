@@ -612,7 +612,10 @@ public class POJOPropertiesCollector
                     //     only retain if also have ignoral annotations (for name or ignoral)
                     if (transientAsIgnoral) {
                         ignored = true;
-                    } else {
+
+                    // 18-Jul-2023, tatu: [databind#3948] Need to retain if there was explicit
+                    //   ignoral marker
+                    } else if (!ignored) {
                         continue;
                     }
                 }

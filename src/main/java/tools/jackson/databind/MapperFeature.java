@@ -52,6 +52,10 @@ public enum MapperFeature
      * Feature is disabled by default, meaning that existence of `transient`
      * for a field does not necessarily lead to ignoral of getters or setters
      * but just ignoring the use of field for access.
+     *<p>
+     * NOTE! This should have no effect on <b>explicit</b> ignoral annotation
+     * possibly added to {@code transient} fields: those should always have expected
+     * semantics (same as if field was not {@code transient}).
      */
     PROPAGATE_TRANSIENT_MARKER(false),
 

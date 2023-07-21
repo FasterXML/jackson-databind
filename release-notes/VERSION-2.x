@@ -27,6 +27,8 @@ Project: jackson-databind
  (contributed by Joo-Hyuk K)
 #3965: Add `JsonNodeFeature.WRITE_PROPERTIES_SORTED` for sorting `ObjectNode` properties
   on serialization
+#3992: `@JsonIgnore` on Record property ignored if there is getter override
+ (reported by @ennishol)
 #4008: Optimize `ObjectNode` findValue(s) and findParent(s) fast paths
  (contributed by David S)
 #4009: Locale "" is deserialised as `null` if `ACCEPT_EMPTY_STRING_AS_NULL_OBJECT`

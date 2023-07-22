@@ -3,10 +3,8 @@ package com.fasterxml.jackson.failing;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
 // [databind#4047] : ObjectMapper.valueToTree will ignore the configuration SerializationFeature.WRAP_ROOT_VALUE
 public class TestRootType4047Test extends BaseMapTest {
@@ -23,7 +21,8 @@ public class TestRootType4047Test extends BaseMapTest {
     /**********************************************************
      */
 
-    private final String EVENT_JSON = "{\"event\":{\"id\":1,\"name\":\"foo\"}}";
+    private final String WRAPPED_EVENT_JSON = "{\"event\":{\"id\":1,\"name\":\"foo\"}}";
+    private final String UNWRAPPED_EVENT_JSON = "{\"id\":1,\"name\":\"foo\"}";
 
     public void testValueToTree() throws Exception {
         // Arrange
@@ -35,38 +34,26 @@ public class TestRootType4047Test extends BaseMapTest {
         value.name = "foo";
 
         // (1) works
-        assertEquals(EVENT_JSON,
+        assertEquals(WRAPPED_EVENT_JSON,
                 WRAP_ROOT_MAPPER.writeValueAsString(value));
 
         // (2) fails w/ {"id":1,"name":"foo"}
-        assertEquals(EVENT_JSON,
+        assertEquals(WRAPPED_EVENT_JSON,
                 WRAP_ROOT_MAPPER.valueToTree(value).toString());
     }
-
 
     public void testTreeToValue() throws Exception {
         // Arrange
         final ObjectMapper UNWRAP_MAPPER = jsonMapperBuilder()
                 .enable(DeserializationFeature.UNWRAP_ROOT_VALUE)
                 .build();
-        Event value = new Event();
-        value.id = 1L;
-        value.name = "foo";
 
-        // Act & Assert
-        // (1) works
-        Event event1 = UNWRAP_MAPPER.readValue(EVENT_JSON, Event.class);
-        assertEquals(value.id, event1.id);
-        assertEquals(value.name, event1.name);
-
-        try {
-            // (2) fails (but shouldn't)
-            JsonNode tree = UNWRAP_MAPPER.readTree(EVENT_JSON);
-            // doesn't read here....
-            UNWRAP_MAPPER.treeToValue(tree, Event.class);
-        } catch (MismatchedInputException e) {
-            verifyException(e, "Root name ('event') does not match expected ('JsonNode')");
-            throw e; // <-- should not throw
-        }
+        /*
+         * (1) both fails with
+         * com.fasterxml.jackson.databind.exc.MismatchedInputException: Root name ('event') does not match expected ('JsonNode') for type `com.fasterxml.jackson.databind.JsonNode`
+         *  at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 1, column: 2] (through reference chain: com.fasterxml.jackson.databind.JsonNode["event"])
+         */
+        UNWRAP_MAPPER.readTree(WRAPPED_EVENT_JSON);
+        UNWRAP_MAPPER.readTree(UNWRAPPED_EVENT_JSON);
     }
 }

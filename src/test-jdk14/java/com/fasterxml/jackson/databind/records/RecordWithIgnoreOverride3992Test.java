@@ -41,5 +41,9 @@ public class RecordWithIgnoreOverride3992Test extends BaseMapTest
         String json = MAPPER.writer()
                 .writeValueAsString(new HelloRecord("hello", beanWithRecursion));
         assertEquals(a2q("{'text':'hello'}"), json);
+
+        // Let's check deserialization works too, just in case.
+        HelloRecord result = MAPPER.readValue(json, HelloRecord.class);
+        assertNotNull(result);
     }
 }

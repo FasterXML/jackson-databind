@@ -3521,6 +3521,7 @@ public class ObjectMapper
 
         // inlined 'writeValue' with minor changes:
         // first: disable wrapping when writing
+        // [databind#4047] ObjectMapper.valueToTree will ignore the configuration SerializationFeature.WRAP_ROOT_VALUE
         final SerializationConfig config = getSerializationConfig();
         final DefaultSerializerProvider context = _serializerProvider(config);
 
@@ -4510,7 +4511,7 @@ public class ObjectMapper
     {
         // inlined 'writeValue' with minor changes:
         // first: disable wrapping when writing
-        final SerializationConfig config = getSerializationConfig();
+        final SerializationConfig config = getSerializationConfig().without(SerializationFeature.WRAP_ROOT_VALUE);
         final DefaultSerializerProvider context = _serializerProvider(config);
 
         // Then create TokenBuffer to use as JsonGenerator
@@ -4587,7 +4588,8 @@ public class ObjectMapper
     {
         T result = valueToUpdate;
         if ((valueToUpdate != null) && (overrides != null)) {
-            final SerializationConfig config = getSerializationConfig();
+            final SerializationConfig config = getSerializationConfig().
+                    without(SerializationFeature.WRAP_ROOT_VALUE);
             final DefaultSerializerProvider context = _serializerProvider(config);
             // Then create TokenBuffer to use as JsonGenerator
             TokenBuffer buf = context.bufferForValueConversion(this);

@@ -14,6 +14,9 @@ Project: jackson-databind
 #3877: Add new `OptBoolean` valued property in `@JsonTypeInfo`, handling,
    to allow per-polymorphic type loose Type Id handling
  (contributed by Joo-Hyuk K)
+#3906: Regression: 2.15.0 breaks deserialization for records when
+   `mapper.setVisibility(PropertyAccessor.ALL, Visibility.NONE)`
+ (reported by Endre S)
 #3924: Incorrect target type when disabling coercion, trying to deserialize
   String from Array/Object
  (reported by João G)

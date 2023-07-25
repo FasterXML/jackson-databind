@@ -38,7 +38,7 @@ public class VisibilityChecker
     );
 
     /**
-     * Visibility settings needed to support auto-discover of non-private
+     * Visibility settings needed to support auto-discovery of non-private
      * Records.
      *
      * @since 3.0

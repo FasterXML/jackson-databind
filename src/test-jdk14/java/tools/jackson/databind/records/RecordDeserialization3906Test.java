@@ -1,4 +1,4 @@
-package tools.jackson.databind.failing;
+package tools.jackson.databind.records;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
@@ -19,6 +19,7 @@ import tools.jackson.databind.module.SimpleModule;
  * <a href="https://github.com/FasterXML/jackson-databind/issues/3906">
  * [databind#3906]: Regression: 2.15.0 breaks deserialization for records when mapper.setVisibility(ALL, NONE);</a>
  */
+@SuppressWarnings("serial")
 public class RecordDeserialization3906Test extends BaseMapTest
 {
     record Record3906(String string, int integer) {

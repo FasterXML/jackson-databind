@@ -1102,20 +1102,23 @@ Tobias Preuss (johnjohndoe@github)
   (2.10.3)
 
 Eduard Tudenhöfner (nastra@github)
-  * Reported #2602, contributed fix for: ByteBufferSerializer produces unexpected results with
-    a duplicated ByteBuffer and a position > 0
+ * Reported #2602, contributed fix for: ByteBufferSerializer produces unexpected results with
+   a duplicated ByteBuffer and a position > 0
   (2.10.3)
 
 Alexander Shilov (ashlanderr@github)
-  * Reported, suggested fix for #2610: `EXTERNAL_PROPERTY` doesn't work with `@JsonIgnoreProperties`
+ * Reported, suggested fix for #2610: `EXTERNAL_PROPERTY` doesn't work with `@JsonIgnoreProperties`
   (2.10.3)
 
 Endre Stølsvik (stolsvik@github)
-  * Reported #2679: `ObjectMapper.readValue("123", Void.TYPE)` throws "should never occur"
+ * Reported #2679: `ObjectMapper.readValue("123", Void.TYPE)` throws "should never occur"
   (2.10.4)
+ * Reported #3906: Regression: 2.15.0 breaks deserialization for records when
+   `mapper.setVisibility(PropertyAccessor.ALL, Visibility.NONE)`
+  (2.16.0)
 
 Denis Kostousov (kostousov-ds@github)
-  * Reported #2787 (partial fix): NPE after add mixin for enum
+ * Reported #2787 (partial fix): NPE after add mixin for enum
   (2.10.5)
 
 Máté Rédecsi (rmatesz@github)

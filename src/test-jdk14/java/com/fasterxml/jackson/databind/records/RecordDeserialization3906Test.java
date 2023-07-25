@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.failing;
+package com.fasterxml.jackson.databind.records;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;

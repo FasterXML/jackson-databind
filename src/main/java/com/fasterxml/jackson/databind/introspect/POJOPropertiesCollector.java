@@ -976,12 +976,15 @@ public class POJOPropertiesCollector
             // Otherwise, check ignorals
             if (prop.anyIgnorals()) {
                 // Special handling for Records, as they do not have mutators so relying on constructors
-                // with (mostly)  implicitly-named parameters...
-                if (isRecordType()) {
-                    // ...so can only remove ignored field and/or accessors, not constructor parameters that are needed
-                    // for instantiation...
-                    prop.removeIgnored();
-                    // ...which will then be ignored (the incoming property value) during deserialization
+                // with (mostly) implicitly-named parameters...
+                // 20-Jul-2023, tatu: This can be harmful, see f.ex [databind#3992] so
+                //    only use special handling for deserialization
+
+                if (isRecordType() && !_forSerialization) {
+                      // ...so can only remove ignored field and/or accessors, not constructor parameters that are needed
+                      // for instantiation...
+                      prop.removeIgnored();
+                      // ...which will then be ignored (the incoming property value) during deserialization
                     _collectIgnorals(prop.getName());
                     continue;
                 }

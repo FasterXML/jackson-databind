@@ -40,33 +40,11 @@ public class RecordDeserialization3906Test extends BaseMapTest
     
     /*
     /**********************************************************
-    /* Failing tests that pass in 2.14 (regression)
+    /* Failing tests that pass in 2.x
     /**********************************************************
      */
 
-    // minimal config for reproduction
-    public void testEmptyJsonToRecordMiminal() throws Exception {
-        ObjectMapper mapper = jsonMapperBuilder()
-                .changeDefaultVisibility(vc -> 
-                   vc.withVisibility(PropertyAccessor.ALL, Visibility.NONE))
-                .build();
-
-        Record3906 recordDeser = mapper.readValue("{}", Record3906.class);
-
-        assertEquals(new Record3906(null, 0), recordDeser);
-    }
-
-    // actual config used reproduction
-    public void testEmptyJsonToRecordActualImpl() throws Exception {
-        ObjectMapper mapper = jsonMapperBuilder()
-                .changeDefaultVisibility(vc -> 
-                   vc.withVisibility(PropertyAccessor.ALL, Visibility.NONE)
-                   .withVisibility(PropertyAccessor.FIELD, Visibility.ANY))
-                .build();
-        Record3906 recordDeser = mapper.readValue("{}", Record3906.class);
-
-        assertEquals(new Record3906(null, 0), recordDeser);
-    }
+    // Forked to test class under "failing/" for 3.0
 
     /*
     /**********************************************************

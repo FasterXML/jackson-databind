@@ -1995,7 +1995,7 @@ public class ObjectMapper
         // we'll always use full class name, when using defaulting
         JsonTypeInfo.Value typeInfo = JsonTypeInfo.Value.construct(JsonTypeInfo.Id.CLASS, includeAs,
                 null, null, false, null);
-        typer = typer.init(typeInfo, null);
+        typer = typer.withSettings(typeInfo);
         return setDefaultTyping(typer);
     }
 
@@ -2026,7 +2026,7 @@ public class ObjectMapper
         // we'll always use full class name, when using defaulting
         JsonTypeInfo.Value typeInfo = JsonTypeInfo.Value.construct(JsonTypeInfo.Id.CLASS, JsonTypeInfo.As.PROPERTY,
                 propertyName, null, false, null);
-        typer = typer.init(typeInfo, null);
+        typer = typer.withSettings(typeInfo);
         return setDefaultTyping(typer);
     }
 

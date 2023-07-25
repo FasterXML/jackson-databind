@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.jsontype.impl;
 
-import com.fasterxml.jackson.databind.introspect.Annotated;
 import java.util.Collection;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -114,7 +113,7 @@ public class StdTypeResolverBuilder
     public static StdTypeResolverBuilder noTypeInfoBuilder() {
         JsonTypeInfo.Value typeInfo = JsonTypeInfo.Value.construct(JsonTypeInfo.Id.NONE, null,
                 null, null, false, null);
-        return new StdTypeResolverBuilder().init(typeInfo, null);
+        return new StdTypeResolverBuilder().withSettings(typeInfo);
     }
 
     @Override
@@ -318,6 +317,20 @@ public class StdTypeResolverBuilder
 
         // NOTE: MUST create new instance, NOT modify this instance
         return new StdTypeResolverBuilder(this, defaultImpl);
+    }
+
+    @Override
+    public StdTypeResolverBuilder withSettings(JsonTypeInfo.Value settings) {
+        _idType = settings.getIdType();
+        if (_idType == null) {
+            throw new IllegalArgumentException("idType cannot be null");
+        }
+        _includeAs = settings.getInclusionType();
+        _typeProperty = _propName(settings.getPropertyName(), _idType);
+        _defaultImpl = settings.getDefaultImpl();
+        _typeIdVisible = settings.getIdVisible();
+        _requireTypeIdForSubtypes = settings.getRequireTypeIdForSubtypes();
+        return this;
     }
 
     /*

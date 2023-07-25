@@ -296,6 +296,13 @@ public class EnumSerializationTest
         assertEquals(q("aleph"), MAPPER.writeValueAsString(EnumWithJsonProperty.A));
     }
 
+    public void testEnumsWithJsonPropertyEnableToString() throws Exception {
+        String result = MAPPER.writerFor(EnumWithJsonProperty.class)
+                .with(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
+                .writeValueAsString(EnumWithJsonProperty.A);
+        assertEquals(q("aleph"), result);
+    }
+
     // [databind#1535]
     public void testEnumKeysWithJsonProperty() throws Exception {
         Map<EnumWithJsonProperty,Integer> input = new HashMap<EnumWithJsonProperty,Integer>();

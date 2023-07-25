@@ -612,7 +612,10 @@ public class POJOPropertiesCollector
                     //     only retain if also have ignoral annotations (for name or ignoral)
                     if (transientAsIgnoral) {
                         ignored = true;
-                    } else {
+
+                    // 18-Jul-2023, tatu: [databind#3948] Need to retain if there was explicit
+                    //   ignoral marker
+                    } else if (!ignored) {
                         continue;
                     }
                 }
@@ -973,12 +976,15 @@ public class POJOPropertiesCollector
             // Otherwise, check ignorals
             if (prop.anyIgnorals()) {
                 // Special handling for Records, as they do not have mutators so relying on constructors
-                // with (mostly)  implicitly-named parameters...
-                if (isRecordType()) {
-                    // ...so can only remove ignored field and/or accessors, not constructor parameters that are needed
-                    // for instantiation...
-                    prop.removeIgnored();
-                    // ...which will then be ignored (the incoming property value) during deserialization
+                // with (mostly) implicitly-named parameters...
+                // 20-Jul-2023, tatu: This can be harmful, see f.ex [databind#3992] so
+                //    only use special handling for deserialization
+
+                if (isRecordType() && !_forSerialization) {
+                      // ...so can only remove ignored field and/or accessors, not constructor parameters that are needed
+                      // for instantiation...
+                      prop.removeIgnored();
+                      // ...which will then be ignored (the incoming property value) during deserialization
                     _collectIgnorals(prop.getName());
                     continue;
                 }

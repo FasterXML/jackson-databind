@@ -1646,8 +1646,34 @@ Matteo Bertozzi (matteobertozzi@github)
    (2.15.1)
 
 Antti Lampinen (arlampin@github)
-  * Reported #3897: 2.15.0 breaks deserialization when POJO/Record only has a single field
-    and is marked `Access.WRITE_ONLY`
-   (2.15.1)
+ * Reported #3897: 2.15.0 breaks deserialization when POJO/Record only has a single field
+   and is marked `Access.WRITE_ONLY`
+  (2.15.1)
 
+David Schlosnagle (schlosna@github)
+ * Contributed #4008: Optimize `ObjectNode` findValue(s) and findParent(s) fast paths
+  (2.16.0)
 
+Philipp Kräutli (pkraeutli@github)
+ * Reported #4009: Locale "" is deserialised as `null` if `ACCEPT_EMPTY_STRING_AS_NULL_OBJECT`
+   is enabled
+  (2.16.0)
+
+iProdigy (iProdigy@github)
+ * Contributed #4036: Use `@JsonProperty` for Enum values also when `READ_ENUMS_USING_TO_STRING`
+   enabled
+  (2.16.0)
+ * Contributed #4037: Fix `Enum` deserialization to use `@JsonProperty`, `@JsonAlias` even if
+   `EnumNamingStrategy` used
+  (2.16.0)
+ * Contributed #4039: Use `@JsonProperty` and lowercase feature when serializing Enums despite
+   using toString()
+  (2.16.0)
+ * Contributed #4040: Use `@JsonProperty` over `EnumNamingStrategy` for Enum serialization
+  (2.16.0)
+ * Contributed fix #4041: Actually cache EnumValues#internalMap
+  (2.16.0)
+
+Jason Laber (jlaber@github)
+ * Reported #3948: `@JsonIgnore` no longer works for transient backing fields
+  (2.16.0)

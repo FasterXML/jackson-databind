@@ -193,7 +193,12 @@ public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
     }
 
     /**
+     * Method for overriding type information.
+     * 
      * @since 2.16
      */
-    public T withSettings(JsonTypeInfo.Value typeInfo);
+    public default T withSettings(JsonTypeInfo.Value typeInfo) {
+        throw new IllegalStateException("TypeResolveBuilder implementation "
+                +getClass().getName()+" must implement `withSettings()`");
+    }
 }

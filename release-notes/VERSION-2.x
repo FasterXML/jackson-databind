@@ -6,6 +6,8 @@ Project: jackson-databind
 
 2.16.0 (not yet released)
 
+#2787: Mix-ins do not work for `Enum`s
+ (fix contributed by Joo-Hyuk K)
 #3838: Difference in the handling of `ObjectId-property` in `JsonIdentityInfo`
   depending on the deserialization route
  (fix contributed by Joo-Hyuk K)
@@ -18,9 +20,33 @@ Project: jackson-databind
  (fix contributed by Joo-Hyuk K)
 #3928: `@JsonProperty` on constructor parameter changes default field serialization order
  (contributed by @pjfanning)
+#3948: `@JsonIgnore` no longer works for transient backing fields
+ (reported by Jason L)
 #3950: Create new `JavaType` subtype `IterationType` (extending `SimpleType`)
 #3953: Use `JsonTypeInfo.Value` for annotation handling
  (contributed by Joo-Hyuk K)
+#3965: Add `JsonNodeFeature.WRITE_PROPERTIES_SORTED` for sorting `ObjectNode` properties
+  on serialization
+#3992: `@JsonIgnore` on Record property ignored if there is getter override
+ (reported by @ennishol)
+#4008: Optimize `ObjectNode` findValue(s) and findParent(s) fast paths
+ (contributed by David S)
+#4009: Locale "" is deserialised as `null` if `ACCEPT_EMPTY_STRING_AS_NULL_OBJECT`
+  is enabled
+ (reported by Philipp K)
+#4011: Add guardrail setting for `TypeParser` handling of type parameters
+#4036: Use `@JsonProperty` for Enum values also when `READ_ENUMS_USING_TO_STRING` enabled
+ (contributed by @iProdigy)
+#4037: Fix `Enum` deserialization to use `@JsonProperty`, `@JsonAlias` even if
+  `EnumNamingStrategy` used
+ (contributed by @iProdigy)
+#4039: Use `@JsonProperty` and lowercase feature when serializing Enums despite
+  using toString()
+ (contributed by @iProdigy)
+#4040: Use `@JsonProperty` over `EnumNamingStrategy` for Enum serialization
+ (contributed by @iProdigy)
+#4041: Actually cache EnumValues#internalMap
+ (contributed by @iProdigy)
 
 2.15.3 (not yet released)
 

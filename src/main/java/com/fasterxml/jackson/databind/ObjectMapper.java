@@ -3518,12 +3518,19 @@ public class ObjectMapper
         if (fromValue == null) {
             return (T) getNodeFactory().nullNode();
         }
-        TokenBuffer buf = new TokenBuffer(this, false);
+
+        // inlined 'writeValue' with minor changes:
+        // first: disable wrapping when writing
+        final SerializationConfig config = getSerializationConfig();
+        final DefaultSerializerProvider context = _serializerProvider(config);
+
+        // Then create TokenBuffer to use as JsonGenerator
+        TokenBuffer buf = context.bufferForValueConversion(this);
         if (isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
             buf = buf.forceUseOfBigDecimal(true);
         }
         try {
-            writeValue(buf, fromValue);
+            context.serializeValue(buf, fromValue);
             try (JsonParser p = buf.asParser()) {
                 return readTree(p);
             }
@@ -4501,19 +4508,19 @@ public class ObjectMapper
     protected Object _convert(Object fromValue, JavaType toValueType)
         throws IllegalArgumentException
     {
-        // 25-Jan-2019, tatu: [databind#2220] Let's NOT try to short-circuit anything
-        
-        // Then use TokenBuffer, which is a JsonGenerator:
-        TokenBuffer buf = new TokenBuffer(this, false);
+        // inlined 'writeValue' with minor changes:
+        // first: disable wrapping when writing
+        final SerializationConfig config = getSerializationConfig();
+        final DefaultSerializerProvider context = _serializerProvider(config);
+
+        // Then create TokenBuffer to use as JsonGenerator
+        TokenBuffer buf = context.bufferForValueConversion(this);
         if (isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
             buf = buf.forceUseOfBigDecimal(true);
         }
         try {
-            // inlined 'writeValue' with minor changes:
-            // first: disable wrapping when writing
-            SerializationConfig config = getSerializationConfig().without(SerializationFeature.WRAP_ROOT_VALUE);
             // no need to check for closing of TokenBuffer
-            _serializerProvider(config).serializeValue(buf, fromValue);
+            context.serializeValue(buf, fromValue);
 
             // then matching read, inlined 'readValue' with minor mods:
             final JsonParser p = buf.asParser();
@@ -4580,14 +4587,15 @@ public class ObjectMapper
     {
         T result = valueToUpdate;
         if ((valueToUpdate != null) && (overrides != null)) {
-            TokenBuffer buf = new TokenBuffer(this, false);
+            final SerializationConfig config = getSerializationConfig();
+            final DefaultSerializerProvider context = _serializerProvider(config);
+            // Then create TokenBuffer to use as JsonGenerator
+            TokenBuffer buf = context.bufferForValueConversion(this);
             if (isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
                 buf = buf.forceUseOfBigDecimal(true);
             }
             try {
-                SerializationConfig config = getSerializationConfig().
-                        without(SerializationFeature.WRAP_ROOT_VALUE);
-                _serializerProvider(config).serializeValue(buf, overrides);
+                context.serializeValue(buf, overrides);
                 JsonParser p = buf.asParser();
                 result = readerForUpdating(valueToUpdate).readValue(p);
                 p.close();

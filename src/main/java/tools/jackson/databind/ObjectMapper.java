@@ -154,7 +154,7 @@ public class ObjectMapper
     //   some amount of introspection
     private final static JavaType JSON_NODE_TYPE =
             SimpleType.constructUnsafe(JsonNode.class);
-//            TypeFactory.defaultInstance().constructType(JsonNode.class);
+//          TypeFactory.defaultInstance().constructType(JsonNode.class);
 
     /*
     /**********************************************************************

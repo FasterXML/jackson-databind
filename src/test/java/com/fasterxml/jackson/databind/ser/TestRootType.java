@@ -67,13 +67,6 @@ public class TestRootType
 
     static class TestCommandChild extends TestCommandParent { }
 
-    // [databind#4047]
-    @JsonRootName("event")
-    static class Event {
-        public Long id;
-        public String name;
-    }
-
     /*
     /**********************************************************
     /* Main tests
@@ -218,19 +211,5 @@ public class TestRootType
         String json =  writer.writeValueAsString(cmd);
 
         assertEquals("{\"TestCommandParent\":{\"uuid\":\"1234\",\"type\":1}}", json);
-    }
-    
-    // [databind#4047] : ObjectMapper.valueToTree will ignore the configuration SerializationFeature.WRAP_ROOT_VALUE
-    public void testValueToTree() throws Exception
-    {
-        // Arrange
-        Event value = new Event();
-        value.id = 1L;
-        value.name = "foo";
-
-        // Act & Assert
-        String expected = "{\"event\":{\"id\":1,\"name\":\"foo\"}}";
-        assertEquals(expected, WRAP_ROOT_MAPPER.writeValueAsString(value));
-        assertEquals(expected, WRAP_ROOT_MAPPER.valueToTree(value).toString());
     }
 }

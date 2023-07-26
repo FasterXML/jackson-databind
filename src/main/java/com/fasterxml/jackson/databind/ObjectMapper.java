@@ -1487,7 +1487,7 @@ public class ObjectMapper
     /**
      * Accessor for constructing and returning a {@link SerializerProvider}
      * instance that may be used for accessing serializers. This is same as
-     * calling {@link #getSerializerProvider}, and calling <code>createInstance</code>
+     * calling {@link #getSerializerProvider}, and calling {@code createInstance()}
      * on it.
      *
      * @since 2.7

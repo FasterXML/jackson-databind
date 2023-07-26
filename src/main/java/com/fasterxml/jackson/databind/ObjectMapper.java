@@ -44,7 +44,7 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  * It is also highly customizable to work both with different styles of JSON
  * content, and to support more advanced Object concepts such as
  * polymorphism and Object identity.
- * <code>ObjectMapper</code> also acts as a factory for more advanced {@link ObjectReader}
+ * {@code ObjectMapper} also acts as a factory for more advanced {@link ObjectReader}
  * and {@link ObjectWriter} classes.
  * Mapper (and {@link ObjectReader}s, {@link ObjectWriter}s it constructs) will
  * use instances of {@link JsonParser} and {@link JsonGenerator}

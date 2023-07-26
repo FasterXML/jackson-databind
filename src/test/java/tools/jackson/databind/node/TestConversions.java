@@ -1,5 +1,7 @@
 package tools.jackson.databind.node;
 
+import com.fasterxml.jackson.annotation.JsonRootName;
+
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -106,6 +108,13 @@ public class TestConversions extends BaseMapTest
             serialize(g, ctxt);
             typeSer.writeTypePrefix(g, ctxt, typeIdDef);
         }
+    }
+
+    // [databind#4047]
+    @JsonRootName("event")
+    static class Event {
+        public Long id;
+        public String name;
     }
 
     /*
@@ -380,5 +389,23 @@ public class TestConversions extends BaseMapTest
         // ditto w/ JavaType
         result = MAPPER.treeToValue(node, MAPPER.constructType(ObjectNode.class));
         assertSame(src, result);
+    }
+
+    // [databind#4047] : ObjectMapper.valueToTree will ignore the configuration SerializationFeature.WRAP_ROOT_VALUE
+    public void testValueToTree() throws Exception
+    {
+        // Arrange
+        Event value = new Event();
+        value.id = 1L;
+        value.name = "foo";
+
+        ObjectMapper wrapRootMapper = jsonMapperBuilder()
+                .enable(SerializationFeature.WRAP_ROOT_VALUE)
+                .build();
+
+        // Act & Assert
+        String expected = "{\"event\":{\"id\":1,\"name\":\"foo\"}}";
+        assertEquals(expected, wrapRootMapper.writeValueAsString(value));
+        assertEquals(expected, wrapRootMapper.valueToTree(value).toString());
     }
 }

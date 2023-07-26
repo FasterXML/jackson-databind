@@ -178,12 +178,24 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
         if (fromValue == null) {
             return (T) nodeF.nullNode();
         }
-
         try (TreeBuildingGenerator gen = TreeBuildingGenerator.forSerialization(this, nodeF)) {
-            // NOTE: inlined "writeValue(generator, value)" to streamline, force no root wrap:
             final Class<?> rawType = fromValue.getClass();
             final ValueSerializer<Object> ser = findTypedValueSerializer(rawType, true);
-            _serialize(gen, fromValue, ser);
+
+            // 25-Jul-2023, tatu: Copied from other places; as per [databind#4047]
+            //    need to add root-wrapping
+            PropertyName rootName = _config.getFullRootName();
+            if (rootName == null) { // not explicitly specified
+                if (_config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE)) {
+                    _serialize(gen, fromValue, ser, findRootName(rawType));
+                } else {
+                    _serialize(gen, fromValue, ser);
+                }
+            } else if (!rootName.isEmpty()) {
+                _serialize(gen, fromValue, ser, rootName);
+            } else {
+                _serialize(gen, fromValue, ser);
+            }
             return (T) gen.treeBuilt();
         }
     }

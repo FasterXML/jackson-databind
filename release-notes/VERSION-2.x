@@ -50,6 +50,9 @@ Project: jackson-databind
  (contributed by @iProdigy)
 #4041: Actually cache EnumValues#internalMap
  (contributed by @iProdigy)
+#4047: `ObjectMapper.valueToTree()` will ignore the configuration
+  `SerializationFeature.WRAP_ROOT_VALUE`
+ (contributed by Joo-Hyuk K)
 
 2.15.3 (not yet released)
 

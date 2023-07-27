@@ -1318,6 +1318,16 @@ public class ObjectMapper
     }
 
     /**
+     * Same as {@link #treeToValue(TreeNode, JavaType)} but target type specified
+     * using fully resolved {@link TypeReference}.
+     */
+    public <T> T treeToValue(TreeNode n, TypeReference<T> toValueTypeRef)
+        throws JacksonException
+    {
+        return treeToValue(n, constructType(toValueTypeRef));
+    }
+
+    /**
      * Method that is reverse of {@link #treeToValue}: it
      * will convert given Java value (usually bean) into its
      * equivalent Tree model {@link JsonNode} representation.

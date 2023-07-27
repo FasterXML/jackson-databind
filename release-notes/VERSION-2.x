@@ -53,6 +53,8 @@ Project: jackson-databind
 #4047: `ObjectMapper.valueToTree()` will ignore the configuration
   `SerializationFeature.WRAP_ROOT_VALUE`
  (contributed by Joo-Hyuk K)
+#4056: Provide the "ObjectMapper.treeToValue(TreeNode, TypeReference)" method
+ (contributed by @fantasy0v0)
 
 2.15.3 (not yet released)
 

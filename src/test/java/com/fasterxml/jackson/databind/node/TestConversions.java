@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.*;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.Assert;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -178,6 +179,17 @@ public class TestConversions extends BaseMapTest
         // ... also JavaType
         r1 = mapper.treeToValue(root, mapper.constructType(Root.class));
         assertEquals(13, r1.leaf.value);
+
+        // ... also TypeReference
+        r1 = mapper.treeToValue(root, new TypeReference<Root>() {});
+        assertEquals(13, r1.leaf.value);
+
+        JSON = "[{\"leaf\":{\"value\":13}}, {\"leaf\":{\"value\":12}}]";
+        root = mapper.readTree(JSON);
+        List<Root> array = mapper.treeToValue(root, new TypeReference<List<Root>>() {});
+        assertEquals(2, array.size());
+        assertEquals(13, array.get(0).leaf.value);
+        assertEquals(12, array.get(1).leaf.value);
     }
 
     // [databind#1208]: should coerce POJOs at least at root level

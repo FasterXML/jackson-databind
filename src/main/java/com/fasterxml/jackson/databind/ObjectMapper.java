@@ -3521,7 +3521,7 @@ public class ObjectMapper
 
         // inlined 'writeValue' with minor changes:
         // first: disable wrapping when writing
-        // [databind#4047] ObjectMapper.valueToTree will ignore the configuration SerializationFeature.WRAP_ROOT_VALUE
+        // [databind#4047] Fixes `SerializationFeature.WRAP_ROOT_VALUE` being ignored
         final SerializationConfig config = getSerializationConfig();
         final DefaultSerializerProvider context = _serializerProvider(config);
 

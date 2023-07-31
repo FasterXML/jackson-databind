@@ -565,7 +565,7 @@ are active maintenance branches in which much of development happens:
 Older branches are usually not maintained after being declared as closed
 on [Jackson Releases](https://github.com/FasterXML/jackson/wiki/Jackson-Releases) page,
 but exist just in case a rare emergency patch is needed.
-All released versions have matching git tags (ex. `jackson-dataformats-binary-2.12.3`).
+All released versions have matching git tags (e.g. `jackson-dataformats-binary-2.12.3`).
 
 -----
 

@@ -10,7 +10,7 @@ import java.lang.reflect.InvocationTargetException;
  */
 public class NativeImageUtil {
     
-    private static final boolean RUNNING_IN_SVM = isInNativeImage();
+    private static final boolean RUNNING_IN_SVM = System.getProperty("org.graalvm.nativeimage.imagecode") != null;
 
     private NativeImageUtil() {
     }

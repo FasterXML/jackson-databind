@@ -19,7 +19,8 @@ public class NativeImageUtil {
     }
 
     /**
-     * Check whether we're running in substratevm native image runtime mode. This check cannot be a constant, because
+     * Check whether we're running in substratevm native image runtime mode.
+     * This check cannot be a constant, because
      * the static initializer may run early during build time
      *<p>
      * NOTE: {@code public} since 2.16 (before that, {@code private}).

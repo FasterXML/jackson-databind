@@ -21,10 +21,8 @@ public class NativeImageUtil {
      * the static initializer may run early during build time
      *<p>
      * As optimization, {@link #RUNNING_IN_SVM} is used to short-circuit on normal JVMs.
-     *<p>
-     * NOTE: {@code public} since 2.16 (before that, {@code private}).
      */
-    public static boolean isInNativeImageAndIsAtRuntime() {
+    private static boolean isInNativeImageAndIsAtRuntime() {
         return RUNNING_IN_SVM && "runtime".equals(System.getProperty("org.graalvm.nativeimage.imagecode"));
     }
 

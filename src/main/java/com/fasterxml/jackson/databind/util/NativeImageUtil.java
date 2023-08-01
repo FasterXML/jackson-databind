@@ -9,31 +9,41 @@ import java.lang.reflect.InvocationTargetException;
  * @since 2.14
  */
 public class NativeImageUtil {
-    private static final boolean RUNNING_IN_SVM;
-
-    static {
-        RUNNING_IN_SVM = System.getProperty("org.graalvm.nativeimage.imagecode") != null;
-    }
+    
+    private static final boolean RUNNING_IN_SVM = isInSVM();
 
     private NativeImageUtil() {
     }
 
     /**
-     * Check whether we're running in substratevm native image runtime mode.
-     * This check cannot be a constant, because
+     * Check whether we're running in SubstrateVM native image and also in "runtime" mode.
+     * The "runtime" check cannot be a constant, because
      * the static initializer may run early during build time
+     *<p>
+     * As optimization, {@link #RUNNING_IN_SVM} is used to short-circuit on normal JVMs.
      *<p>
      * NOTE: {@code public} since 2.16 (before that, {@code private}).
      */
-    public static boolean isRunningInNativeImage() {
+    public static boolean isInNativeImageAndIsAtRuntime() {
         return RUNNING_IN_SVM && "runtime".equals(System.getProperty("org.graalvm.nativeimage.imagecode"));
+    }
+
+    /**
+     * Checks whether we're running in SubstrateVM native image <b>only by the presence</b> of 
+     * {@code "org.graalvm.nativeimage.imagecode"} system property, regardless of its value (buildtime or runtime).
+     * We are irrespective of the build or runtime phase, because native-image can initialize static initializers at build time.
+     *<p>
+     * @since 2.16
+     */
+    public static boolean isInSVM() {
+        return System.getProperty("org.graalvm.nativeimage.imagecode") != null;
     }
 
     /**
      * Check whether the given error is a substratevm UnsupportedFeatureError
      */
     public static boolean isUnsupportedFeatureError(Throwable e) {
-        if (!isRunningInNativeImage()) {
+        if (!isInNativeImageAndIsAtRuntime()) {
             return false;
         }
         if (e instanceof InvocationTargetException) {
@@ -47,7 +57,7 @@ public class NativeImageUtil {
      * members visible in reflection).
      */
     public static boolean needsReflectionConfiguration(Class<?> cl) {
-        if (!isRunningInNativeImage()) {
+        if (!isInNativeImageAndIsAtRuntime()) {
             return false;
         }
         // records list their fields but not other members

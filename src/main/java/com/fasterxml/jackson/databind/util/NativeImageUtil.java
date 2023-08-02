@@ -34,7 +34,7 @@ public class NativeImageUtil {
      * @since 2.16
      */
     public static boolean isInNativeImage() {
-        return System.getProperty("org.graalvm.nativeimage.imagecode") != null;
+        return RUNNING_IN_SVM;
     }
 
     /**

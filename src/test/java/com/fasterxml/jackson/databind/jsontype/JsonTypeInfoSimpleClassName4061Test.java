@@ -19,8 +19,9 @@ import java.util.List;
 /**
  * Test for <a href="https://github.com/FasterXML/jackson-databind/issues/4061">
  * [databind#4061] Add JsonTypeInfo.Id.SIMPLE_NAME using Class::getSimpleName</a>
+ * 
+ * @since 2.16
  */
-
 public class JsonTypeInfoSimpleClassName4061Test extends BaseMapTest
 {
 
@@ -259,7 +260,7 @@ public class JsonTypeInfoSimpleClassName4061Test extends BaseMapTest
         assertEquals(JsonTypeInfo.Id.SIMPLE_NAME, idResolver.getMechanism());
     }
 
-    public void testSameSimpleNameClass() throws Exception
+    public void testDuplicateNameLastOneWins() throws Exception
     {
         String jsonStr = a2q("{'@simpl':'DuplicateSubClass'}");
         

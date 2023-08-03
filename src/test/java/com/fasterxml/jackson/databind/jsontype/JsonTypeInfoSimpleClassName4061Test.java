@@ -14,7 +14,7 @@ public class JsonTypeInfoSimpleClassName4061Test extends BaseMapTest
 {
 
     @JsonTypeInfo(
-            use = JsonTypeInfo.Id.SIMPLE_CLASS_NAME)
+            use = JsonTypeInfo.Id.SIMPLE_NAME)
     @JsonSubTypes({
             @JsonSubTypes.Type(value = InnerSub4061A.class),
             @JsonSubTypes.Type(value = InnerSub4061B.class)
@@ -38,7 +38,7 @@ public class JsonTypeInfoSimpleClassName4061Test extends BaseMapTest
     static class MinimalInnerSub4061B extends MinimalInnerSuper4061 { }
 
     @JsonTypeInfo(
-            use = JsonTypeInfo.Id.SIMPLE_CLASS_NAME)
+            use = JsonTypeInfo.Id.SIMPLE_NAME)
     @JsonSubTypes({
             @JsonSubTypes.Type(value = MixedSub4061A.class),
             @JsonSubTypes.Type(value = MixedSub4061B.class)
@@ -131,7 +131,7 @@ public class JsonTypeInfoSimpleClassName4061Test extends BaseMapTest
 }
 
 @JsonTypeInfo(
-        use = JsonTypeInfo.Id.SIMPLE_CLASS_NAME)
+        use = JsonTypeInfo.Id.SIMPLE_NAME)
 @JsonSubTypes({
         @JsonSubTypes.Type(value = BasicSub4061A.class),
         @JsonSubTypes.Type(value = BasicSub4061B.class)

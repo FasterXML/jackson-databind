@@ -16,13 +16,10 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * {@link com.fasterxml.jackson.databind.jsontype.TypeIdResolver} implementation
  * that converts between (JSON) Strings and simple Java class names via {@link Class#getSimpleName()}.
- * <p>
- * Note that this implementation is identical to {@link TypeNameIdResolver} except that instead of 
- * {@link TypeNameIdResolver#_defaultTypeId(Class)}, this implementation uses {@link Class#getSimpleName()}.
  * 
  * @since 2.16
  */
-public class SimpleClassNameIdResolver
+public class SimpleNameIdResolver
     extends TypeIdResolverBase
 {
     protected final MapperConfig<?> _config;
@@ -42,12 +39,9 @@ public class SimpleClassNameIdResolver
      */
     protected final Map<String, JavaType> _idToType;
 
-    /**
-     * @since 2.11
-     */
     protected final boolean _caseInsensitive;
 
-    protected SimpleClassNameIdResolver(MapperConfig<?> config, JavaType baseType,
+    protected SimpleNameIdResolver(MapperConfig<?> config, JavaType baseType,
             ConcurrentHashMap<String, String> typeToId,
             HashMap<String, JavaType> idToType)
     {
@@ -58,7 +52,7 @@ public class SimpleClassNameIdResolver
         _caseInsensitive = config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_VALUES);
     }
 
-    public static SimpleClassNameIdResolver construct(MapperConfig<?> config, JavaType baseType,
+    public static SimpleNameIdResolver construct(MapperConfig<?> config, JavaType baseType,
             Collection<NamedType> subtypes, boolean forSer, boolean forDeser)
     {
         // sanity check
@@ -86,7 +80,7 @@ public class SimpleClassNameIdResolver
                 // no name? Need to figure out default; for now, let's just
                 // use non-qualified class name
                 Class<?> cls = t.getType();
-                String id = t.hasName() ? t.getName() : cls.getSimpleName(); // not {@code _defaultTypeId(cls);}
+                String id = t.hasName() ? t.getName() : _defaultTypeId(cls);
                 if (forSer) {
                     typeToId.put(cls.getName(), id);
                 }
@@ -107,11 +101,11 @@ public class SimpleClassNameIdResolver
                 }
             }
         }
-        return new SimpleClassNameIdResolver(config, baseType, typeToId, idToType);
+        return new SimpleNameIdResolver(config, baseType, typeToId, idToType);
     }
 
     @Override
-    public JsonTypeInfo.Id getMechanism() { return JsonTypeInfo.Id.SIMPLE_CLASS_NAME; }
+    public JsonTypeInfo.Id getMechanism() { return JsonTypeInfo.Id.SIMPLE_NAME; }
 
     @Override
     public String idFromValue(Object value) {
@@ -140,7 +134,7 @@ public class SimpleClassNameIdResolver
             }
             if (name == null) {
                 // And if still not found, let's choose default?
-                name = cls.getSimpleName();
+                name = _defaultTypeId(cls);
             }
             _typeToId.put(key, name);
         }
@@ -190,5 +184,22 @@ public class SimpleClassNameIdResolver
     @Override
     public String toString() {
         return String.format("[%s; id-to-type=%s]", getClass().getName(), _idToType);
+    }
+    
+    /*
+    /*********************************************************
+    /* Helper methods
+    /*********************************************************
+     */
+
+    /**
+     * If no name was explicitly given for a class, we will just
+     * use simple class name
+     */
+    protected static String _defaultTypeId(Class<?> cls)
+    {
+        String n = cls.getName();
+        int ix = Math.max(n.lastIndexOf('.'), n.lastIndexOf('$'));
+        return (ix < 0) ? n : n.substring(ix+1);
     }
 }

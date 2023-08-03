@@ -10,7 +10,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * [databind#4061] Add JsonTypeInfo.Id.SIMPLE_NAME using Class::getSimpleName</a>
  */
 
-public class JsonTypeInfoSimpleClassName4061Test extends BaseMapTest {
+public class JsonTypeInfoSimpleClassName4061Test extends BaseMapTest
+{
 
     @JsonTypeInfo(
             use = JsonTypeInfo.Id.SIMPLE_CLASS_NAME)
@@ -51,6 +52,12 @@ public class JsonTypeInfoSimpleClassName4061Test extends BaseMapTest {
             @JsonSubTypes.Type(value = MixedMinimalSub4061B.class)
     })
     static class MixedMinimalSuper4061 { }
+    
+    /*
+    /**********************************************************
+    /* Unit tests
+    /**********************************************************
+     */
     
     private final ObjectMapper MAPPER = newJsonMapper();
 
@@ -94,7 +101,7 @@ public class JsonTypeInfoSimpleClassName4061Test extends BaseMapTest {
         assertType(bean, BasicSub4061B.class);
     }
     
-    // Mixed : parent as inner, subtype as basic
+    // Mixed SimpleClassName : parent as inner, subtype as basic
     public void testMixedClass() throws Exception
     {
         // ser
@@ -107,7 +114,8 @@ public class JsonTypeInfoSimpleClassName4061Test extends BaseMapTest {
         assertType(bean, MixedSuper4061.class);
         assertType(bean, MixedSub4061B.class);
     }
-    // Mixed : parent as inner, subtype as basic
+    
+    // Mixed MinimalClass : parent as inner, subtype as basic
     public void testMixedMinimalClass() throws Exception
     {
         // ser
@@ -141,5 +149,3 @@ class MixedSub4061B extends JsonTypeInfoSimpleClassName4061Test.MixedSuper4061 {
 class MixedMinimalSub4061A extends JsonTypeInfoSimpleClassName4061Test.MixedMinimalSuper4061 { }
 
 class MixedMinimalSub4061B extends JsonTypeInfoSimpleClassName4061Test.MixedMinimalSuper4061 { }
-
-

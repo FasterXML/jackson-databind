@@ -12,17 +12,18 @@ public class NativeImageUtil {
     
     private static final boolean RUNNING_IN_SVM = System.getProperty("org.graalvm.nativeimage.imagecode") != null;
 
-    private NativeImageUtil() {
-    }
+    private NativeImageUtil() { }
 
     /**
      * Check whether we're running in SubstrateVM native image and also in "runtime" mode.
      * The "runtime" check cannot be a constant, because
      * the static initializer may run early during build time
      *<p>
-     * As optimization, {@link #RUNNING_IN_SVM} is used to short-circuit on normal JVMs.
+     * As optimization, {@code RUNNING_IN_SVM} is used to short-circuit on normal JVMs.
+     *
+     * @since 2.16
      */
-    private static boolean isInNativeImageAndIsAtRuntime() {
+    public static boolean isInNativeImageAndIsAtRuntime() {
         return RUNNING_IN_SVM && "runtime".equals(System.getProperty("org.graalvm.nativeimage.imagecode"));
     }
 

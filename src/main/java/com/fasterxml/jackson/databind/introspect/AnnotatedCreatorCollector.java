@@ -11,6 +11,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ext.KotlinSupport;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass.Creators;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -406,6 +407,6 @@ ctor.getDeclaringClass().getName(), paramCount, paramAnns.length));
 
     // for [databind#1005]: do not use or expose synthetic constructors
     private static boolean isIncludableConstructor(Constructor<?> c) {
-        return !c.isSynthetic();
+        return !c.isSynthetic() || KotlinSupport.isJvmInlineClassSyntheticConstructor(c);
     }
 }

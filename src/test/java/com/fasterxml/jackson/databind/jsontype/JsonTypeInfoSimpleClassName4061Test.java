@@ -136,7 +136,7 @@ public class JsonTypeInfoSimpleClassName4061Test extends BaseMapTest
     // inner class that has contains dollar sign
     public void testInnerClass() throws Exception
     {
-        String jsonStr = a2q("{'@simpl':'InnerSub4061A'}");
+        String jsonStr = a2q("{'@type':'InnerSub4061A'}");
         
         // ser
         assertEquals(jsonStr, MAPPER.writeValueAsString(new InnerSub4061A()));
@@ -163,7 +163,7 @@ public class JsonTypeInfoSimpleClassName4061Test extends BaseMapTest
     // Basic : non-inner class, without dollar sign
     public void testBasicClass() throws Exception
     {
-        String jsonStr = a2q("{'@simpl':'BasicSub4061A'}");
+        String jsonStr = a2q("{'@type':'BasicSub4061A'}");
         
         // ser
         assertEquals(jsonStr, MAPPER.writeValueAsString(new BasicSub4061A()));
@@ -177,7 +177,7 @@ public class JsonTypeInfoSimpleClassName4061Test extends BaseMapTest
     // Mixed SimpleClassName : parent as inner, subtype as basic
     public void testMixedClass() throws Exception
     {
-        String jsonStr = a2q("{'@simpl':'MixedSub4061A'}");
+        String jsonStr = a2q("{'@type':'MixedSub4061A'}");
         
         // ser
         assertEquals(jsonStr, MAPPER.writeValueAsString(new MixedSub4061A()));
@@ -204,7 +204,7 @@ public class JsonTypeInfoSimpleClassName4061Test extends BaseMapTest
 
     public void testPolymorphicNewObject() throws Exception
     {
-        String jsonStr = "{\"child\": { \"@simpl\": \"MergeChildA\", \"name\": \"I'm child A\" }}";
+        String jsonStr = "{\"child\": { \"@type\": \"MergeChildA\", \"name\": \"I'm child A\" }}";
         
         Root root = MAPPER.readValue(jsonStr, Root.class);
         
@@ -215,7 +215,7 @@ public class JsonTypeInfoSimpleClassName4061Test extends BaseMapTest
     // case insenstive type name
     public void testPolymorphicNewObjectCaseInsensitive() throws Exception
     {
-        String jsonStr = "{\"child\": { \"@simpl\": \"mergechilda\", \"name\": \"I'm child A\" }}";
+        String jsonStr = "{\"child\": { \"@type\": \"mergechilda\", \"name\": \"I'm child A\" }}";
         ObjectMapper mapper = jsonMapperBuilder()
                 .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_VALUES)
                 .build();
@@ -229,7 +229,7 @@ public class JsonTypeInfoSimpleClassName4061Test extends BaseMapTest
     public void testPolymorphicNewObjectUnknownTypeId() throws Exception
     {
         try {
-            MAPPER.readValue("{\"child\": { \"@simpl\": \"UnknownChildA\", \"name\": \"I'm child A\" }}", Root.class);    
+            MAPPER.readValue("{\"child\": { \"@type\": \"UnknownChildA\", \"name\": \"I'm child A\" }}", Root.class);    
         } catch (InvalidTypeIdException e) {
             verifyException(e, "Could not resolve type id 'UnknownChildA' as a subtype of");
         }
@@ -262,7 +262,7 @@ public class JsonTypeInfoSimpleClassName4061Test extends BaseMapTest
 
     public void testDuplicateNameLastOneWins() throws Exception
     {
-        String jsonStr = a2q("{'@simpl':'DuplicateSubClass'}");
+        String jsonStr = a2q("{'@type':'DuplicateSubClass'}");
         
         // deser
         DuplicateSuperClass bean = MAPPER.readValue(jsonStr, DuplicateSuperClass.class);

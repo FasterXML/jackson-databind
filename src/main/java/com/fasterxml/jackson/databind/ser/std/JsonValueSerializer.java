@@ -6,6 +6,7 @@ import java.lang.reflect.Type;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 
 import com.fasterxml.jackson.core.*;
@@ -246,12 +247,29 @@ public class JsonValueSerializer
             if (ser == null) {
                 ser = _findDynamicSerializer(ctxt, value.getClass());
             }
+            // [databind#3647] : Support `@JsonIgnoreProperties` to work with `@JsonValue`
+            ser = _updateserWithIgnorals(ser, ctxt);
+            
             if (_valueTypeSerializer != null) {
                 ser.serializeWithType(value, gen, ctxt, _valueTypeSerializer);
             } else {
                 ser.serialize(value, gen, ctxt);
             }
         }
+    }
+
+    private JsonSerializer<Object> _updateserWithIgnorals(JsonSerializer<Object> ser, SerializerProvider ctxt) {
+        final AnnotationIntrospector ai = ctxt.getAnnotationIntrospector();
+        final SerializationConfig config = ctxt.getConfig();
+        
+        JsonIgnoreProperties.Value ignorals = ai.findPropertyIgnoralByName(config, _accessor);
+        if (ignorals != null) {
+            Set<String> ignored = ignorals.findIgnoredForSerialization();
+            if (!ignored.isEmpty()) {
+                ser = (JsonSerializer<Object>) ser.withIgnoredProperties(ignored);
+            }
+        }
+        return ser;
     }
 
     @Override

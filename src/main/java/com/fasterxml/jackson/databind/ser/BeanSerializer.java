@@ -74,6 +74,10 @@ public class BeanSerializer
         super(src, properties, filteredProperties);
     }
 
+    public BeanSerializer(BeanSerializer src, Set<String> toIgnore) {
+        super(src, toIgnore, null);
+    }
+
     /*
     /**********************************************************
     /* Life-cycle: factory methods, fluent factories
@@ -124,6 +128,11 @@ public class BeanSerializer
     protected BeanSerializerBase withProperties(BeanPropertyWriter[] properties,
             BeanPropertyWriter[] filteredProperties) {
         return new BeanSerializer(this, properties, filteredProperties);
+    }
+
+    @Override
+    public JsonSerializer<?> withIgnoredProperties(Set<String> toIgnore) {
+        return new BeanSerializer(this, toIgnore);
     }
 
     /**

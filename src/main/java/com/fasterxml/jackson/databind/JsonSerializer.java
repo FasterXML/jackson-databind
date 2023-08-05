@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.Set;
 
 import com.fasterxml.jackson.core.*;
 
@@ -101,6 +102,13 @@ public abstract class JsonSerializer<T>
      * @since 2.6
      */
     public JsonSerializer<?> withFilterId(Object filterId) {
+        return this;
+    }
+
+    /**
+     * @since 2.16
+     */
+    public JsonSerializer<?> withIgnoredProperties(Set<String> ignoredProperties) {
         return this;
     }
 

@@ -247,29 +247,12 @@ public class JsonValueSerializer
             if (ser == null) {
                 ser = _findDynamicSerializer(ctxt, value.getClass());
             }
-            // [databind#3647] : Support `@JsonIgnoreProperties` to work with `@JsonValue`
-            ser = _updateserWithIgnorals(ser, ctxt);
-            
             if (_valueTypeSerializer != null) {
                 ser.serializeWithType(value, gen, ctxt, _valueTypeSerializer);
             } else {
                 ser.serialize(value, gen, ctxt);
             }
         }
-    }
-
-    private JsonSerializer<Object> _updateserWithIgnorals(JsonSerializer<Object> ser, SerializerProvider ctxt) {
-        final AnnotationIntrospector ai = ctxt.getAnnotationIntrospector();
-        final SerializationConfig config = ctxt.getConfig();
-        
-        JsonIgnoreProperties.Value ignorals = ai.findPropertyIgnoralByName(config, _accessor);
-        if (ignorals != null) {
-            Set<String> ignored = ignorals.findIgnoredForSerialization();
-            if (!ignored.isEmpty()) {
-                ser = (JsonSerializer<Object>) ser.withIgnoredProperties(ignored);
-            }
-        }
-        return ser;
     }
 
     @Override
@@ -436,6 +419,8 @@ public class JsonValueSerializer
                 _dynamicSerializers = result.map;
             } else {
                 serializer = ctxt.findPrimaryPropertySerializer(valueClass, _property);
+                // [databind#3647] : Support `@JsonIgnoreProperties` to work with `@JsonValue`
+                serializer = (JsonSerializer<Object>) _addIgnoreProperties(ctxt, serializer);
                 PropertySerializerMap.SerializerAndMapResult result = _dynamicSerializers.addSerializer(valueClass, serializer);
                 _dynamicSerializers = result.map;
             }
@@ -460,6 +445,20 @@ public class JsonValueSerializer
             return serializer;
         }
         */
+    }
+
+    private JsonSerializer<?> _addIgnoreProperties(SerializerProvider ctxt, JsonSerializer<?> ser) {
+        final AnnotationIntrospector ai = ctxt.getAnnotationIntrospector();
+        final SerializationConfig config = ctxt.getConfig();
+        
+        JsonIgnoreProperties.Value ignorals = ai.findPropertyIgnoralByName(config, _accessor);
+        if (ignorals != null) {
+            Set<String> ignored = ignorals.findIgnoredForSerialization();
+            if (!ignored.isEmpty()) {
+                ser = ser.withIgnoredProperties(ignored);
+            }
+        }
+        return ser;
     }
 
     /*

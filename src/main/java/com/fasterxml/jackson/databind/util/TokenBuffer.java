@@ -158,8 +158,7 @@ public class TokenBuffer
         _appendAt = 0;
         _hasNativeTypeIds = hasNativeIds;
         _hasNativeObjectIds = hasNativeIds;
-
-        _mayHaveNativeIds = _hasNativeTypeIds || _hasNativeObjectIds;
+        _mayHaveNativeIds = hasNativeIds;
     }
 
     /**

@@ -184,8 +184,7 @@ public class TokenBuffer
         _hasNativeTypeIds = p.canReadTypeId();
         _hasNativeObjectIds = p.canReadObjectId();
         _mayHaveNativeIds = _hasNativeTypeIds || _hasNativeObjectIds;
-        _forceBigDecimal = (ctxt == null) ? false
-                : ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
+        _forceBigDecimal = ctxt != null && ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
     }
 
     /**

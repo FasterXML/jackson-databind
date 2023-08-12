@@ -194,8 +194,8 @@ public class SequenceWriter
 
     public SequenceWriter writeAll(Object[] value) throws IOException
     {
-        for (int i = 0, len = value.length; i < len; ++i) {
-            write(value[i]);
+        for (Object o : value) {
+            write(o);
         }
         return this;
     }

@@ -56,8 +56,7 @@ public class ViewMatcher implements java.io.Serializable
         @Override
         public boolean isVisibleForView(Class<?> activeView)
         {
-            for (int i = 0, len = _views.length; i < len; ++i) {
-                Class<?> view = _views[i];
+            for (Class<?> view : _views) {
                 if ((activeView == view) || view.isAssignableFrom(activeView)) {
                     return true;
                 }

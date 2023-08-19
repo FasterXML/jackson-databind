@@ -48,7 +48,6 @@ public class JsonValueIgnore3647Test extends BaseMapTest
     }
     
     static class MixinContainer3647 {
-        @JsonValue
         @JsonIgnoreProperties("b")
         public Base3647 getBean() {
             return new Base3647();

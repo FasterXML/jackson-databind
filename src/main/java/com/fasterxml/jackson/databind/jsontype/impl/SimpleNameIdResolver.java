@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * {@link com.fasterxml.jackson.databind.jsontype.TypeIdResolver} implementation
- * that converts between (JSON) Strings and simple Java class names via {@link Class#getSimpleName()}.
+ * that converts between (JSON) Strings and simple Java class names.
  * 
  * @since 2.16
  */

@@ -13,7 +13,7 @@ import java.util.List;
 
 /**
  * Test for <a href="https://github.com/FasterXML/jackson-databind/issues/4061">
- * [databind#4061] Add JsonTypeInfo.Id.SIMPLE_NAME using Class::getSimpleName</a>
+ * [databind#4061] Add JsonTypeInfo.Id.SIMPLE_NAME
  * 
  * @since 2.16
  */

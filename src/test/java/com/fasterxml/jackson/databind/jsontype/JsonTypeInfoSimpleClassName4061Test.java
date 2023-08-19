@@ -1,11 +1,6 @@
 package com.fasterxml.jackson.databind.jsontype;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonMerge;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
@@ -119,7 +114,7 @@ public class JsonTypeInfoSimpleClassName4061Test extends BaseMapTest
             use = JsonTypeInfo.Id.SIMPLE_NAME)
     @JsonSubTypes({
             @JsonSubTypes.Type(value = DuplicateSubClass.class),
-            @JsonSubTypes.Type(value = JsonTypeInfoSimpleClassName4061TestContainer.DuplicateSubClass.class)
+            @JsonSubTypes.Type(value = com.fasterxml.jackson.databind.jsontype.DuplicateSubClass.class)
     })
     static class DuplicateSuperClass { }
     
@@ -266,7 +261,7 @@ public class JsonTypeInfoSimpleClassName4061Test extends BaseMapTest
         
         // deser
         DuplicateSuperClass bean = MAPPER.readValue(jsonStr, DuplicateSuperClass.class);
-        assertType(bean, JsonTypeInfoSimpleClassName4061TestContainer.DuplicateSubClass.class);
+        assertType(bean, com.fasterxml.jackson.databind.jsontype.DuplicateSubClass.class);
     }
 }
 
@@ -289,3 +284,5 @@ class MixedSub4061B extends JsonTypeInfoSimpleClassName4061Test.MixedSuper4061 {
 class MixedMinimalSub4061A extends JsonTypeInfoSimpleClassName4061Test.MixedMinimalSuper4061 { }
 
 class MixedMinimalSub4061B extends JsonTypeInfoSimpleClassName4061Test.MixedMinimalSuper4061 { }
+
+class DuplicateSubClass extends JsonTypeInfoSimpleClassName4061Test.DuplicateSuperClass { }

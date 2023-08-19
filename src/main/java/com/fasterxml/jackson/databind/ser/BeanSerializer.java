@@ -74,10 +74,6 @@ public class BeanSerializer
         super(src, properties, filteredProperties);
     }
 
-    public BeanSerializer(BeanSerializer src, Set<String> toIgnore) {
-        super(src, toIgnore, null);
-    }
-
     /*
     /**********************************************************
     /* Life-cycle: factory methods, fluent factories
@@ -130,9 +126,9 @@ public class BeanSerializer
         return new BeanSerializer(this, properties, filteredProperties);
     }
 
-    @Override
+    @Override // @since 2.16
     public JsonSerializer<?> withIgnoredProperties(Set<String> toIgnore) {
-        return new BeanSerializer(this, toIgnore);
+        return new BeanSerializer(this, toIgnore, null);
     }
 
     /**

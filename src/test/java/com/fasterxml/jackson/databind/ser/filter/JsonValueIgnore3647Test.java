@@ -5,10 +5,9 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-// for [databind#3647]
+// [databind#3647] : Support @JsonIgnoreProperties to work with @JsonValue
 public class JsonValueIgnore3647Test extends BaseMapTest
 {
-    // for [databind#3647]
     static class Foo3647 {
         public String p1 = "hello";
         public String p2 = "world";
@@ -22,6 +21,46 @@ public class JsonValueIgnore3647Test extends BaseMapTest
         }
     }
 
+    @JsonIgnoreProperties({"a"})
+    static class Bean3647 {
+        public String a = "hello";
+        public String b = "world";
+    }
+
+    static class Container3647 {
+        @JsonValue
+        @JsonIgnoreProperties("b")
+        public Bean3647 getBean() {
+            return new Bean3647();
+        }
+    }
+
+    static class Base3647 {
+        public String a = "hello";
+        public String b = "world";
+    }
+
+    static class BaseContainer3647 {
+        @JsonValue
+        public Base3647 getBean() {
+            return new Base3647();
+        }
+    }
+    
+    static class MixinContainer3647 {
+        @JsonValue
+        @JsonIgnoreProperties("b")
+        public Base3647 getBean() {
+            return new Base3647();
+        }
+    }
+
+    @JsonIgnoreProperties({"a", "b"})
+    static class Mixin3647 {
+        public String a = "hello";
+        public String b = "world";
+    }
+
     /*
     /**********************************************************************
     /* Test methods
@@ -30,9 +69,35 @@ public class JsonValueIgnore3647Test extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    // [databind#3647]
-    public void testIgnorePropsAnnotatedJsonValue() throws Exception
+    public void testIgnorePropsAndJsonValueAtSameLevel() throws Exception
     {
-        assertEquals("{\"p2\":\"world\"}", MAPPER.writeValueAsString(new Bar3647()));
+        assertEquals("{\"p2\":\"world\"}", 
+                MAPPER.writeValueAsString(new Bar3647()));
+    }
+    
+    public void testUnionOfIgnorals() throws Exception
+    {
+        assertEquals("{}", 
+                MAPPER.writeValueAsString(new Container3647()));
+    }
+    
+    public void testMixinContainerAndJsonValue() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addMixIn(BaseContainer3647.class, MixinContainer3647.class)
+                .build();
+        
+        assertEquals("{\"a\":\"hello\"}", 
+                mapper.writeValueAsString(new BaseContainer3647()));
+    }
+    
+    public void testMixinAndJsonValue() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+                .addMixIn(Base3647.class, Mixin3647.class)
+                .build();
+        
+        assertEquals("{}", 
+                mapper.writeValueAsString(new Base3647()));
     }
 }

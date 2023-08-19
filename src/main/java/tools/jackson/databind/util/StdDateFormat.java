@@ -273,7 +273,7 @@ public class StdDateFormat
     @Override
     public boolean isLenient() {
         // default is, I believe, true
-        return (_lenient == null) || _lenient.booleanValue();
+        return (_lenient == null) || _lenient;
     }
 
     /**

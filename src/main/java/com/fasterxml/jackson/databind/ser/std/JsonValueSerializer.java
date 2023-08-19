@@ -448,7 +448,9 @@ public class JsonValueSerializer
     }
 
     /**
-     * Internal helper method used to dynamically add ignorable properties
+     * Internal helper method used to dynamically add ignorable properties.
+     * 
+     * @since 2.16
      */
     private JsonSerializer<?> _addIgnoreProperties(SerializerProvider ctxt, JsonSerializer<?> ser) {
         final AnnotationIntrospector ai = ctxt.getAnnotationIntrospector();

@@ -1239,17 +1239,18 @@ public abstract class BasicSerializerFactory
      * (instead of dynamic runtime types).
      */
     protected boolean usesStaticTyping(SerializationConfig config,
-            BeanDescription beanDesc, TypeSerializer typeSer)
+            BeanDescription beanDesc)
     {
-        // 16-Aug-2010, tatu: If there is a (value) type serializer, we cannot force
-        //    static typing; that would make it impossible to handle expected subtypes
-        if (typeSer != null) {
-            return false;
-        }
-        AnnotationIntrospector intr = config.getAnnotationIntrospector();
-        JsonSerialize.Typing t = intr.findSerializationTyping(config, beanDesc.getClassInfo());
-        if (t != null && t != JsonSerialize.Typing.DEFAULT_TYPING) {
-            return (t == JsonSerialize.Typing.STATIC);
+        JsonSerialize.Typing t = config.getAnnotationIntrospector().findSerializationTyping(config, beanDesc.getClassInfo());
+        if (t != null) {
+            switch (t) {
+            case DYNAMIC:
+                return false;
+            case STATIC:
+                return true;
+            case DEFAULT_TYPING:
+                // fall through
+            }
         }
         return config.isEnabled(MapperFeature.USE_STATIC_TYPING);
     }

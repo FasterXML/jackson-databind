@@ -20,8 +20,11 @@ public abstract class JavaBeansAnnotations
         try {
             Class<?> cls = Class.forName("tools.jackson.databind.ext.beans.JavaBeansAnnotationsImpl");
             impl = (JavaBeansAnnotations) ClassUtil.createInstance(cls, false);
+        } catch (IllegalAccessError e) {
+            // [databind#4078]: make some jdk modules (such as java.desktop) optional, again.
+            // no-op
         } catch (Throwable t) {
-            // 09-Sep-2019, tatu: Used to log earlier, but with 2.10.0 let's not log
+            // 09-Sep-2019, tatu: Used to log earlier, but with 2.10 let's not log
 //            java.util.logging.Logger.getLogger(Java7Support.class.getName())
 //                .warning("Unable to load JDK7 annotations (@ConstructorProperties, @Transient): no Java7 annotation support added");
             ExceptionUtil.rethrowIfFatal(t);

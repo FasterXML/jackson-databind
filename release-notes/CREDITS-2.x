@@ -1680,3 +1680,7 @@ iProdigy (iProdigy@github)
 Jason Laber (jlaber@github)
  * Reported #3948: `@JsonIgnore` no longer works for transient backing fields
   (2.16.0)
+
+Andreas Zahnen (azahnen@github)
+ * Reported #4078: `java.desktop` module is no longer optional
+  (2.16.0)

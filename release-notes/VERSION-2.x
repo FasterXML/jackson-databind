@@ -56,6 +56,9 @@ Project: jackson-databind
 #4056: Provide the "ObjectMapper.treeToValue(TreeNode, TypeReference)" method
  (contributed by @fantasy0v0)
 #4060: Expose `NativeImageUtil.isRunningInNativeImage()` method
+#4078: `java.desktop` module is no longer optional
+ (reported by Andreas Z)
+ (fix contributed by Joo-Hyuk K)
 
 2.15.3 (not yet released)
 

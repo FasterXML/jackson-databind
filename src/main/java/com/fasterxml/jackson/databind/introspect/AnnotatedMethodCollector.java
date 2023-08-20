@@ -79,12 +79,10 @@ public class AnnotatedMethodCollector
                 try {
                     // And with that, we can generate it appropriately
                     Method m = Object.class.getDeclaredMethod(k.getName());
-                    if (m != null) {
-                        MethodBuilder b = entry.getValue();
-                        b.annotations = collectDefaultAnnotations(b.annotations,
-                                m.getDeclaredAnnotations());
-                        b.method = m;
-                   }
+                    MethodBuilder b = entry.getValue();
+                    b.annotations = collectDefaultAnnotations(b.annotations,
+                            m.getDeclaredAnnotations());
+                    b.method = m;
                 } catch (Exception e) { }
             }
         }

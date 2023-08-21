@@ -316,4 +316,40 @@ public class AnyGetterTest extends BaseMapTest
         String json = mapper.writeValueAsString(input);
         assertEquals("{\"non-empty\":\"property\"}", json);
     }
+
+    static class BeanWithProperty {
+        private String b;
+        final static Map<String, Boolean> extra = new HashMap<String, Boolean>();
+
+        static {
+            extra.put("a", Boolean.TRUE);
+            extra.put("b", Boolean.TRUE);
+        }
+
+        public String getB() {
+            return b;
+        }
+
+        public void setB(String b) {
+            this.b = b;
+        }
+
+        @JsonAnyGetter
+        public Map<String, Boolean> getExtra() {
+            return extra;
+        }
+    }
+
+    public void testAnyGetterWithDuplicateProperty() throws Exception {
+        String b = "false";
+        BeanWithProperty beanWithProperty = new BeanWithProperty();
+        beanWithProperty.setB("false");
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        String json = objectMapper.writeValueAsString(beanWithProperty);
+        System.out.println(json);
+        // should not fail
+        BeanWithProperty beanWithProperty1 = objectMapper.readValue(json, BeanWithProperty.class);
+        assertEquals(beanWithProperty1.getB(), b);
+    }
 }

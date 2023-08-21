@@ -59,7 +59,7 @@ public class AnyGetterWriter
         }
         // 23-Feb-2015, tatu: Nasty, but has to do (for now)
         if (_mapSerializer != null) {
-            _mapSerializer.serializeWithoutTypeInfo((Map<?,?>) value, gen, provider);
+            _mapSerializer.serializeWithoutTypeInfo((Map<?,?>) value, gen, provider,bean);
             return;
         }
         _serializer.serialize(value, gen, provider);

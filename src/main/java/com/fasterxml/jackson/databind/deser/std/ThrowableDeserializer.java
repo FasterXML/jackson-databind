@@ -156,7 +156,11 @@ public class ThrowableDeserializer
 
             // 23-Jan-2018, tatu: One concern would be `message`, but without any-setter or single-String-ctor
             //   (or explicit constructor). We could just ignore it but for now, let it fail
-
+            // [databind#4071]: In case of "message", skip for default constructor
+            if (PROP_NAME_MESSAGE.equalsIgnoreCase(propName)) {
+                p.skipChildren();
+                continue;
+            }
             // Unknown: let's call handler method
             handleUnknownProperty(p, ctxt, throwable, propName);
         }

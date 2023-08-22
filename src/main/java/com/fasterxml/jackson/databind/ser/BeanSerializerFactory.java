@@ -199,7 +199,7 @@ public class BeanSerializerFactory
         // (note: called method checks for module-provided serializers)
         if (type.isContainerType()) {
             if (!staticTyping) {
-                staticTyping = usesStaticTyping(config, beanDesc, null);
+                staticTyping = usesStaticTyping(config, beanDesc);
             }
             // 03-Aug-2012, tatu: As per [databind#40], may require POJO serializer...
             ser =  buildContainerSerializer(prov, type, beanDesc, staticTyping);
@@ -612,7 +612,7 @@ ClassUtil.getTypeDescription(beanDesc.getType()), ClassUtil.name(propName)));
             return null;
         }
         // null is for value type serializer, which we don't have access to from here (ditto for bean prop)
-        boolean staticTyping = usesStaticTyping(config, beanDesc, null);
+        boolean staticTyping = usesStaticTyping(config, beanDesc);
         PropertyBuilder pb = constructPropertyBuilder(config, beanDesc);
 
         ArrayList<BeanPropertyWriter> result = new ArrayList<BeanPropertyWriter>(properties.size());

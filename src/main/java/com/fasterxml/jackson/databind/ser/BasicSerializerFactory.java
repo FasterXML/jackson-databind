@@ -1306,20 +1306,21 @@ public abstract class BasicSerializerFactory
      * (declared types)  should be used for properties.
      * (instead of dynamic runtime types).
      *
-     * @since 2.1 (earlier had variant with additional 'property' parameter)
+     * @since 2.16 (earlier had variant with additional 'typeSer' parameter)
      */
     protected boolean usesStaticTyping(SerializationConfig config,
-            BeanDescription beanDesc, TypeSerializer typeSer)
+            BeanDescription beanDesc)
     {
-        // 16-Aug-2010, tatu: If there is a (value) type serializer, we cannot force
-        //    static typing; that would make it impossible to handle expected subtypes
-        if (typeSer != null) {
-            return false;
-        }
-        AnnotationIntrospector intr = config.getAnnotationIntrospector();
-        JsonSerialize.Typing t = intr.findSerializationTyping(beanDesc.getClassInfo());
-        if (t != null && t != JsonSerialize.Typing.DEFAULT_TYPING) {
-            return (t == JsonSerialize.Typing.STATIC);
+        JsonSerialize.Typing t = config.getAnnotationIntrospector().findSerializationTyping(beanDesc.getClassInfo());
+        if (t != null) {
+            switch (t) {
+            case DYNAMIC:
+                return false;
+            case STATIC:
+                return true;
+            case DEFAULT_TYPING:
+                // fall through
+            }
         }
         return config.isEnabled(MapperFeature.USE_STATIC_TYPING);
     }

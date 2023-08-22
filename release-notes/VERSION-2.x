@@ -65,6 +65,8 @@ Project: jackson-databind
  (fix contributed by Joo-Hyuk K)
 #4082: `ClassUtil` fails with `java.lang.reflect.InaccessibleObjectException`
   trying to setAccessible on `OptionalInt` with JDK 17+
+#4090: Support sequenced collections (JDK 21)S
+ (contributed by @pjfanning)
 
 2.15.3 (not yet released)
 

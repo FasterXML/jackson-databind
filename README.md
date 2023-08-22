@@ -18,7 +18,7 @@ Naming of classes uses word 'JSON' in many places even though there is no actual
 | Artifact | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-databind/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.core/jackson-databind) |
 | OSS Sponsorship | [![Tidelift](https://tidelift.com/badges/package/maven/com.fasterxml.jackson.core:jackson-databind)](https://tidelift.com/subscription/pkg/maven-com-fasterxml-jackson-core-jackson-databind?utm_source=maven-com-fasterxml-jackson-core-jackson-databind&utm_medium=referral&utm_campaign=readme) |
 | Javadocs | [![Javadoc](https://javadoc.io/badge/com.fasterxml.jackson.core/jackson-databind.svg)](http://www.javadoc.io/doc/com.fasterxml.jackson.core/jackson-databind) |
-| Code coverage (2.15) | [![codecov.io](https://codecov.io/github/FasterXML/jackson-databind/coverage.svg?branch=2.15)](https://codecov.io/github/FasterXML/jackson-databind?branch=2.15) |
+| Code coverage (2.16) | [![codecov.io](https://codecov.io/github/FasterXML/jackson-databind/coverage.svg?branch=2.16)](https://codecov.io/github/FasterXML/jackson-databind?branch=2.16) |
 | OpenSSF Score | [![OpenSSF  Scorecard](https://api.securityscorecards.dev/projects/github.com/FasterXML/jackson-databind/badge)](https://securityscorecards.dev/viewer/?uri=github.com/FasterXML/jackson-databind) |
 
 # Get it!
@@ -558,14 +558,14 @@ usually a Jackson module.
 `master` branch is for developing the next major Jackson version -- 3.0 -- but there
 are active maintenance branches in which much of development happens:
 
-* `2.15` is the branch for "next" minor version to release (as of November 2022)
-* `2.14` is the current stable minor 2.x version
-* `2.13` is for selected backported fixes
+* `2.16` is the branch for "next" minor version to release (as of July 2023)
+* `2.15` is the current stable minor 2.x version
+* `2.14` is for selected backported fixes
 
 Older branches are usually not maintained after being declared as closed
 on [Jackson Releases](https://github.com/FasterXML/jackson/wiki/Jackson-Releases) page,
 but exist just in case a rare emergency patch is needed.
-All released versions have matching git tags (`jackson-dataformats-binary-2.12.3`).
+All released versions have matching git tags (e.g. `jackson-dataformats-binary-2.12.3`).
 
 -----
 

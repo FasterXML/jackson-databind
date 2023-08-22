@@ -2577,6 +2577,10 @@ factory.toString()));
             fallbacks.put(Deque.class.getName(), LinkedList.class);
             fallbacks.put(NavigableSet.class.getName(), TreeSet.class);
 
+            // Sequenced types added in JDK21
+            fallbacks.put("java.util.SequencedCollection", DEFAULT_LIST);
+            fallbacks.put("java.util.SequencedSet", LinkedHashSet.class);
+
             _collectionFallbacks = fallbacks;
         }
 
@@ -2596,6 +2600,9 @@ factory.toString()));
             fallbacks.put(java.util.NavigableMap.class.getName(), TreeMap.class);
             fallbacks.put(java.util.concurrent.ConcurrentNavigableMap.class.getName(),
                     java.util.concurrent.ConcurrentSkipListMap.class);
+
+            // Sequenced types added in JDK21
+            fallbacks.put("java.util.SequencedMap", LinkedHashMap.class);
 
             _mapFallbacks = fallbacks;
         }

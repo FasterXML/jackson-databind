@@ -167,7 +167,7 @@ public class StdSubtypeResolver
         Class<?> rawBase = baseType.getRawClass();
 
         // Need to keep track of classes that have been handled already
-        Set<Class<?>> typesHandled = new HashSet<Class<?>>();
+        Set<Class<?>> typesHandled = new LinkedHashSet<Class<?>>();
         Map<String,NamedType> byName = new LinkedHashMap<String,NamedType>();
 
         // start with lowest-precedence, which is from type hierarchy
@@ -205,7 +205,7 @@ public class StdSubtypeResolver
             AnnotatedClass baseType)
     {
         final Class<?> rawBase = baseType.getRawType();
-        Set<Class<?>> typesHandled = new HashSet<Class<?>>();
+        Set<Class<?>> typesHandled = new LinkedHashSet<Class<?>>();
         Map<String,NamedType> byName = new LinkedHashMap<String,NamedType>();
 
         NamedType rootType = new NamedType(rawBase, null);

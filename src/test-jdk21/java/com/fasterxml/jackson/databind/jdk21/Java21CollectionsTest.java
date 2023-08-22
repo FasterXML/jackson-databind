@@ -1,10 +1,10 @@
-package com.fasterxml.jackson.databind.jdk21;
+package tools.jackson.databind.jdk21;
 
 import java.util.*;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.BaseMapTest;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 public class Java21CollectionsTest extends BaseMapTest
 {

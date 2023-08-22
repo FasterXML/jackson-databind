@@ -324,7 +324,7 @@ public abstract class BasicSerializerFactory
             return null;
         }
         // [databind#3943] Add config-override system for JsonTypeInfo.Value
-        JsonTypeInfo.Value typeInfo = config.getDefaultPolymorphicTypeHandling(baseType.getRawClass());
+        JsonTypeInfo.Value typeInfo = config.getDefaultPolymorphicTypeHandling(baseType);
         if (typeInfo != null) {
             b = b.withSettings(typeInfo);
         }

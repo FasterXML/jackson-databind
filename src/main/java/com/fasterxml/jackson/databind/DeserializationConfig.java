@@ -997,7 +997,7 @@ public final class DeserializationConfig
             subtypes = getSubtypeResolver().collectAndResolveSubtypesByTypeId(this, ac);
         }
         // [databind#3943] Add config-override system for JsonTypeInfo.Value
-        JsonTypeInfo.Value overrideTypeInfo = getDefaultPolymorphicTypeHandling(baseType.getRawClass());
+        JsonTypeInfo.Value overrideTypeInfo = getDefaultPolymorphicTypeHandling(baseType);
         if (overrideTypeInfo != null) {
             b = b.withSettings(overrideTypeInfo);
         }

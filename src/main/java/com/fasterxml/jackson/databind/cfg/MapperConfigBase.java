@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.cfg;
 
-import com.fasterxml.jackson.databind.introspect.Annotated;
 import java.text.DateFormat;
 import java.util.*;
 
@@ -878,15 +877,17 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
 
     // since 2.16
     @Override
-    public JsonTypeInfo.Value getDefaultPolymorphicTypeHandling(Class<?> baseType)
+    public JsonTypeInfo.Value getDefaultPolymorphicTypeHandling(JavaType baseType)
     {
-        ConfigOverride superOverride = _configOverrides.findOverride(baseType.getSuperclass());
-        if (superOverride != null) {
-            return superOverride.getPolymorphicTypeHandling();
-        }
-        ConfigOverride baseOverride = _configOverrides.findOverride(baseType);
-        if (baseOverride != null) {
-            return baseOverride.getPolymorphicTypeHandling();
+        List<JavaType> inheritance = ClassUtil.findSuperTypes(baseType, Object.class, true);
+        for (JavaType type : inheritance) {
+            ConfigOverride override = _configOverrides.findOverride(type.getRawClass());
+            if (override != null) {
+                JsonTypeInfo.Value v = override.getPolymorphicTypeHandling();
+                if (v != null) {
+                    return v;
+                }
+            }
         }
         return null;
     }

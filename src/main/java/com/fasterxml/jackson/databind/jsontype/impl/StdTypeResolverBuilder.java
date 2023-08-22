@@ -344,20 +344,6 @@ public class StdTypeResolverBuilder
     public String getTypeProperty() { return _typeProperty; }
     public boolean isTypeIdVisible() { return _typeIdVisible; }
 
-    @Override
-    public StdTypeResolverBuilder withSettings(JsonTypeInfo.Value settings) {
-        _idType = settings.getIdType();
-        if (_idType == null) {
-            throw new IllegalArgumentException("idType cannot be null");
-        }
-        _includeAs = settings.getInclusionType();
-        _typeProperty = _propName(settings.getPropertyName(), _idType);
-        _defaultImpl = settings.getDefaultImpl();
-        _typeIdVisible = settings.getIdVisible();
-        _requireTypeIdForSubtypes = settings.getRequireTypeIdForSubtypes();
-        return this;
-    }
-
     /*
     /**********************************************************
     /* Internal/subtype factory methods

@@ -321,7 +321,7 @@ public class BeanSerializerFactory
             Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByClass(
                     config, accessor, baseType);
             // [databind#3943] Add config-override system for JsonTypeInfo.Value
-            JsonTypeInfo.Value typeInfo = config.getDefaultPolymorphicTypeHandling(baseType.getRawClass());
+            JsonTypeInfo.Value typeInfo = config.getDefaultPolymorphicTypeHandling(baseType);
             if (typeInfo != null) {
                 b = b.withSettings(typeInfo);
             }
@@ -356,7 +356,7 @@ public class BeanSerializerFactory
             Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByClass(config,
                     accessor, contentType);
             // [databind#3943] Add config-override system for JsonTypeInfo.Value
-            JsonTypeInfo.Value typeInfo = config.getDefaultPolymorphicTypeHandling(contentType.getRawClass());
+            JsonTypeInfo.Value typeInfo = config.getDefaultPolymorphicTypeHandling(contentType);
             if (typeInfo != null) {
                 b = b.withSettings(typeInfo);
             } 

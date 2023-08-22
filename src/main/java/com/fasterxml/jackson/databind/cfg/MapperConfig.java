@@ -601,7 +601,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * 
      * @since 2.16
      */
-    public abstract JsonTypeInfo.Value getDefaultPolymorphicTypeHandling(Class<?> baseType);
+    public abstract JsonTypeInfo.Value getDefaultPolymorphicTypeHandling(JavaType baseType);
 
     /*
     /**********************************************************

@@ -1827,7 +1827,7 @@ factory.toString()));
             }
         }
         // [databind#3943] Add config-override system for JsonTypeInfo.Value
-        JsonTypeInfo.Value typeInfo = config.getDefaultPolymorphicTypeHandling(baseType.getRawClass());
+        JsonTypeInfo.Value typeInfo = config.getDefaultPolymorphicTypeHandling(baseType);
         if (typeInfo != null) {
             b = b.withSettings(typeInfo);
         }
@@ -2050,7 +2050,7 @@ factory.toString()));
         Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByTypeId(
                 config, annotated, baseType);
         // [databind#3943] Add config-override system for JsonTypeInfo.Value
-        JsonTypeInfo.Value typeInfo = config.getDefaultPolymorphicTypeHandling(baseType.getRawClass());
+        JsonTypeInfo.Value typeInfo = config.getDefaultPolymorphicTypeHandling(baseType);
         if (typeInfo != null) {
             b = b.withSettings(typeInfo);
         }
@@ -2089,7 +2089,7 @@ factory.toString()));
         Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByTypeId(
                 config, propertyEntity, contentType);
         // [databind#3943] Add config-override system for JsonTypeInfo.Value
-        JsonTypeInfo.Value typeInfo = config.getDefaultPolymorphicTypeHandling(contentType.getRawClass());
+        JsonTypeInfo.Value typeInfo = config.getDefaultPolymorphicTypeHandling(contentType);
         if (typeInfo != null) {
             b = b.withSettings(typeInfo);
         }

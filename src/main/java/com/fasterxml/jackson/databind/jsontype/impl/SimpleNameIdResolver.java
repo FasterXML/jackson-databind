@@ -1,22 +1,22 @@
 package com.fasterxml.jackson.databind.jsontype.impl;
 
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.DatabindContext;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.MapperFeature;
+
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * {@link com.fasterxml.jackson.databind.jsontype.TypeIdResolver} implementation
- * that converts between (JSON) Strings and simple Java class names.
- * 
+ * that converts using explicitly (annotation-) specified type names
+ * and maps to implementation classes; or, in absence of annotated type name,
+ * defaults to simple {@link Class} names (obtained with {@link Class#getSimpleName()}.
+ * Basically same as {@link TypeNameIdResolver} except for default to "simple"
+ * and not "full" class name.
+ *
  * @since 2.16
  */
 public class SimpleNameIdResolver
@@ -161,10 +161,6 @@ public class SimpleNameIdResolver
         if (_caseInsensitive) {
             id = id.toLowerCase();
         }
-        // Now: if no type is found, should we try to locate it by
-        // some other means? (specifically, if in same package as base type,
-        // could just try Class.forName)
-        // For now let's not add any such workarounds; can add if need be
         return _idToType.get(id);
     }
 

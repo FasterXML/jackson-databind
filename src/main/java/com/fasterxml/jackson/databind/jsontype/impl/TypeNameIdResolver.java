@@ -13,9 +13,9 @@ import com.fasterxml.jackson.databind.jsontype.NamedType;
 
 /**
  * {@link com.fasterxml.jackson.databind.jsontype.TypeIdResolver} implementation
- * that converts uses explicitly specified (by annotation) type names
+ * that converts using explicitly (annotation-) specified type names
  * and maps to implementation classes; or, in absence of annotated type name,
- * defaults to fully-qualified {@link Class} names.
+ * defaults to fully-qualified {@link Class} names (obtained with {@link Class#getName()}
  */
 public class TypeNameIdResolver extends TypeIdResolverBase
 {

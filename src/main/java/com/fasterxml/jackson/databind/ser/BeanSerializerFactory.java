@@ -312,8 +312,8 @@ public class BeanSerializerFactory
     {
         AnnotationIntrospector ai = config.getAnnotationIntrospector();
         TypeResolverBuilder<?> b = ai.findPropertyTypeResolver(config, accessor, baseType);
-        
         TypeSerializer typeSer;
+
         // Defaulting: if no annotations on member, check value class
         if (b == null) {
             typeSer = createTypeSerializer(config, baseType);

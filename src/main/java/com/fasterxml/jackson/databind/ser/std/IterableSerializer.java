@@ -50,9 +50,7 @@ public class IterableSerializer
             Iterator<?> it = value.iterator();
             if (it.hasNext()) {
                 it.next();
-                if (!it.hasNext()) {
-                    return true;
-                }
+                return !it.hasNext();
             }
         }
         return false;

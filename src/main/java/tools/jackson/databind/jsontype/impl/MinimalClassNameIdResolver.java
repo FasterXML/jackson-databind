@@ -7,6 +7,11 @@ import tools.jackson.databind.DatabindContext;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
 
+/**
+ * Specialization of {@link ClassNameIdResolver} that instead uses a
+ * "minimal" derivation of {@link Class} name, using relative reference
+ * from the base type (base class) that polymorphic value has.
+ */
 public class MinimalClassNameIdResolver
     extends ClassNameIdResolver
 {

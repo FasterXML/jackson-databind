@@ -5,9 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import tools.jackson.databind.DatabindContext;
-import tools.jackson.databind.JavaType;
-import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.jsontype.NamedType;
 
@@ -15,9 +13,14 @@ import tools.jackson.databind.jsontype.NamedType;
  * {@link tools.jackson.databind.jsontype.TypeIdResolver} implementation
  * that converts using explicitly (annotation-) specified type names
  * and maps to implementation classes; or, in absence of annotated type name,
- * defaults to fully-qualified {@link Class} names (obtained with {@link Class#getName()}
+ * defaults to simple {@link Class} names (obtained with {@link Class#getSimpleName()}.
+ * Basically same as {@link TypeNameIdResolver} except for default to "simple"
+ * and not "full" class name.
+ *
+ * @since 2.16
  */
-public class TypeNameIdResolver extends TypeIdResolverBase
+public class SimpleNameIdResolver
+    extends TypeIdResolverBase
 {
     /**
      * Mappings from class name to type id, used for serialization.
@@ -36,7 +39,7 @@ public class TypeNameIdResolver extends TypeIdResolverBase
 
     protected final boolean _caseInsensitive;
 
-    protected TypeNameIdResolver(JavaType baseType,
+    protected SimpleNameIdResolver(JavaType baseType,
             ConcurrentHashMap<String, String> typeToId,
             HashMap<String, JavaType> idToType,
             boolean caseInsensitive)
@@ -47,7 +50,7 @@ public class TypeNameIdResolver extends TypeIdResolverBase
         _caseInsensitive = caseInsensitive;
     }
 
-    public static TypeNameIdResolver construct(MapperConfig<?> config, JavaType baseType,
+    public static SimpleNameIdResolver construct(MapperConfig<?> config, JavaType baseType,
             Collection<NamedType> subtypes, boolean forSer, boolean forDeser)
     {
         // sanity check
@@ -96,11 +99,11 @@ public class TypeNameIdResolver extends TypeIdResolverBase
                 }
             }
         }
-        return new TypeNameIdResolver(baseType, typeToId, idToType, caseInsensitive);
+        return new SimpleNameIdResolver(baseType, typeToId, idToType, caseInsensitive);
     }
 
     @Override
-    public JsonTypeInfo.Id getMechanism() { return JsonTypeInfo.Id.NAME; }
+    public JsonTypeInfo.Id getMechanism() { return JsonTypeInfo.Id.SIMPLE_NAME; }
 
     @Override
     public String idFromValue(DatabindContext ctxt, Object value) {
@@ -154,7 +157,7 @@ public class TypeNameIdResolver extends TypeIdResolverBase
     }
 
     @Override
-    public JavaType typeFromId(DatabindContext context, String id) {
+    public JavaType typeFromId(DatabindContext ctxt, String id) {
         return _typeFromId(id);
     }
 
@@ -163,10 +166,6 @@ public class TypeNameIdResolver extends TypeIdResolverBase
         if (_caseInsensitive) {
             id = id.toLowerCase();
         }
-        // Now: if no type is found, should we try to locate it by
-        // some other means? (specifically, if in same package as base type,
-        // could just try Class.forName)
-        // For now let's not add any such workarounds; can add if need be
         return _idToType.get(id);
     }
 
@@ -191,12 +190,12 @@ public class TypeNameIdResolver extends TypeIdResolverBase
 
     /**
      * If no name was explicitly given for a class, we will just
-     * use non-qualified class name
+     * use simple class name
      */
     protected static String _defaultTypeId(Class<?> cls)
     {
         String n = cls.getName();
-        int ix = n.lastIndexOf('.');
+        int ix = Math.max(n.lastIndexOf('.'), n.lastIndexOf('$'));
         return (ix < 0) ? n : n.substring(ix+1);
     }
 }

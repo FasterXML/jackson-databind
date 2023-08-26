@@ -292,8 +292,12 @@ public class StdTypeResolverBuilder
             return ClassNameIdResolver.construct(baseType, subtypeValidator);
         case MINIMAL_CLASS:
             return MinimalClassNameIdResolver.construct(baseType, subtypeValidator);
+        case SIMPLE_NAME:
+            return SimpleNameIdResolver.construct(ctxt.getConfig(), baseType,
+                    subtypes, forSer, forDeser);
         case NAME:
-            return TypeNameIdResolver.construct(ctxt.getConfig(), baseType, subtypes, forSer, forDeser);
+            return TypeNameIdResolver.construct(ctxt.getConfig(), baseType,
+                    subtypes, forSer, forDeser);
         case NONE: // hmmh. should never get this far with 'none'
             return null;
         case CUSTOM: // need custom resolver...

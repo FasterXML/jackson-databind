@@ -56,6 +56,9 @@ Project: jackson-databind
 #4056: Provide the "ObjectMapper.treeToValue(TreeNode, TypeReference)" method
  (contributed by @fantasy0v0)
 #4060: Expose `NativeImageUtil.isRunningInNativeImage()` method
+#4061: Add JsonTypeInfo.Id.SIMPLE_NAME which defaults type id to `Class.getSimpleName()`
+ (requested by Omar A)
+ (contributed by Joo-Hyuk K)
 #4071: Impossible to deserialize custom `Throwable` sub-classes that do not
   have single-String constructors
  (reported by @PasKal)

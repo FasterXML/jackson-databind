@@ -546,7 +546,7 @@ public class MapSerializer
         if (format != null) {
             Boolean B = format.getFeature(JsonFormat.Feature.WRITE_SORTED_MAP_ENTRIES);
             if (B != null) {
-                sortKeys = B.booleanValue();
+                sortKeys = B;
             }
         }
         MapSerializer mser = withResolved(property, keySer, ser, ignored, included, sortKeys);

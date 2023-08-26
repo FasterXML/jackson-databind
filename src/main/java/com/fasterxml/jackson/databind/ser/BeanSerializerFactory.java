@@ -790,7 +790,7 @@ ClassUtil.getTypeDescription(beanDesc.getType()), ClassUtil.name(propName)));
                 ignores.put(type, result);
             }
             // lotsa work, and yes, it is ignorable type, so:
-            if (result.booleanValue()) {
+            if (result) {
                 it.remove();
             }
         }

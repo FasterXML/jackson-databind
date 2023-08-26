@@ -149,6 +149,6 @@ public abstract class ArraySerializerBase<T>
         if (_unwrapSingle == null) {
             return provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
         }
-        return _unwrapSingle.booleanValue();
+        return _unwrapSingle;
     }
 }

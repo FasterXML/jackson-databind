@@ -56,9 +56,17 @@ Project: jackson-databind
 #4056: Provide the "ObjectMapper.treeToValue(TreeNode, TypeReference)" method
  (contributed by @fantasy0v0)
 #4060: Expose `NativeImageUtil.isRunningInNativeImage()` method
+#4071: Impossible to deserialize custom `Throwable` sub-classes that do not
+  have single-String constructors
+ (reported by @PasKal)
+ (fix contributed by Joo-Hyuk K)
 #4078: `java.desktop` module is no longer optional
  (reported by Andreas Z)
  (fix contributed by Joo-Hyuk K)
+#4082: `ClassUtil` fails with `java.lang.reflect.InaccessibleObjectException`
+  trying to setAccessible on `OptionalInt` with JDK 17+
+#4090: Support sequenced collections (JDK 21)S
+ (contributed by @pjfanning)
 
 2.15.3 (not yet released)
 

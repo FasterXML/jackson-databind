@@ -6,6 +6,8 @@ import tools.jackson.databind.*;
 
 // [databind#2465]
 // NOTE: passes for Jackson 3.0, for reasons unknown
+//
+// 25-Aug-2023, tatu: Also appears to pass for 2.16.0-SNAPSHOT...
 public class JacksonInject2465Test extends BaseMapTest
 {
     // [databind#2465]

@@ -46,35 +46,6 @@ public class TestCustomTypeIdResolver extends BaseMapTest
         }
     }
 
-
-    @JsonTypeInfo(use=Id.CLASS, include=As.EXTERNAL_PROPERTY, property="type", defaultImpl=CustomBean3943Impl.class,
-            visible=true, requireTypeIdForSubtypes = OptBoolean.FALSE)
-    @JsonTypeIdResolver(Custom3943Resolver.class)
-    static abstract class CustomBean3943 { }
-
-    static class CustomBean3943Impl extends CustomBean3943 {
-        public int x;
-
-        public CustomBean3943Impl() { }
-        public CustomBean3943Impl(int x) { this.x = x; }
-    }
-
-    static class Custom3943Resolver extends TestCustomResolverBase {
-        // yes, static: just for test purposes, not real use
-        static List<JavaType> initTypes;
-
-        public Custom3943Resolver() {
-            super(CustomBean3943.class, CustomBean3943Impl.class);
-        }
-
-        @Override
-        public void init(JavaType baseType) {
-            if (initTypes != null) {
-                initTypes.add(baseType);
-            }
-        }
-    }
-
     static abstract class ExtBean { }
 
     static class ExtBeanImpl extends ExtBean {
@@ -221,37 +192,6 @@ public class TestCustomTypeIdResolver extends BaseMapTest
         assertEquals(28, ((CustomBeanImpl) result[0]).x);
         assertEquals(1, types.size());
         assertEquals(CustomBean.class, types.get(0).getRawClass());
-    }
-
-    /**
-     * For [databind#3943] Add config-override system for JsonTypeInfo.Value.
-     * config-override version of {@link #testCustomTypeIdResolver()} 
-     */
-    public void testCustomTypeIdResolverWithOverride() throws Exception
-    {
-        // config-override
-        final JsonTypeInfo.Value typeInfo = JsonTypeInfo.Value.construct(Id.CUSTOM, As.WRAPPER_OBJECT,
-                null, null, false, null);
-        ObjectMapper mpr = jsonMapperBuilder()
-                .withConfigOverride(CustomBean3943.class,
-                        cfg -> cfg.setPolymorphicTypeHandling(typeInfo)).build();
-        
-        // test
-        List<JavaType> types = new ArrayList<JavaType>();
-        Custom3943Resolver.initTypes = types;
-        String json = mpr.writeValueAsString(new CustomBean3943[] { new CustomBean3943Impl(28) });
-        assertEquals("[{\"*\":{\"x\":28}}]", json);
-        assertEquals(1, types.size());
-        assertEquals(CustomBean3943.class, types.get(0).getRawClass());
-
-        types = new ArrayList<JavaType>();
-        Custom3943Resolver.initTypes = types;
-        CustomBean3943[] result = mpr.readValue(json, CustomBean3943[].class);
-        assertNotNull(result);
-        assertEquals(1, result.length);
-        assertEquals(28, ((CustomBean3943Impl) result[0]).x);
-        assertEquals(1, types.size());
-        assertEquals(CustomBean3943.class, types.get(0).getRawClass());
     }
 
     public void testCustomWithExternal() throws Exception

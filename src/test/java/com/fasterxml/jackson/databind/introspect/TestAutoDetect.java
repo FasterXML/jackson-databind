@@ -108,51 +108,6 @@ public class TestAutoDetect
         CLASS_A;
     }
 
-    @JsonAutoDetect(
-            getterVisibility = JsonAutoDetect.Visibility.NONE,
-            creatorVisibility = JsonAutoDetect.Visibility.NONE,
-            isGetterVisibility = JsonAutoDetect.Visibility.NONE,
-            fieldVisibility = JsonAutoDetect.Visibility.NONE,
-            setterVisibility = JsonAutoDetect.Visibility.NONE)
-    @JsonTypeInfo(
-            use = JsonTypeInfo.Id.NONE,
-            include = JsonTypeInfo.As.WRAPPER_OBJECT,
-            property = "_no_type",
-            visible = false)
-    @JsonSubTypes({
-            @JsonSubTypes.Type(name = "CLASS_A", value = DataClassA3943.class)
-    })
-    private static abstract class DataParent3943 {
-
-        @JsonProperty("type")
-        @JsonTypeId
-        private final DataType3943 type;
-
-        DataParent3943() {
-            super();
-            this.type = null;
-        }
-
-        DataParent3943(final DataType3943 type) {
-            super();
-            this.type = Objects.requireNonNull(type);
-        }
-
-        public DataType3943 getType() {
-            return this.type;
-        }
-    }
-
-    private static final class DataClassA3943 extends DataParent3943 {
-        DataClassA3943() {
-            super(DataType3943.CLASS_A);
-        }
-    }
-
-    private enum DataType3943 {
-        CLASS_A;
-    }
-
     /*
     /********************************************************
     /* Unit tests
@@ -242,21 +197,5 @@ public class TestAutoDetect
         final String json = MAPPER.writeValueAsString(new DataClassA());
         final DataParent2789 copy = MAPPER.readValue(json, DataParent2789.class);
         assertEquals(DataType2789.CLASS_A, copy.getType());
-    }
-
-    /**
-     * config-override version of {@link #testAnnotatedFieldIssue2789}
-     */
-    // [databind#3943] Add config-override system for JsonTypeInfo.Value
-    public void testAnnotatedFieldIssue2789WithOverrides() throws Exception {
-        final JsonTypeInfo.Value typeInfo = JsonTypeInfo.Value.construct(JsonTypeInfo.Id.NAME, JsonTypeInfo.As.PROPERTY,
-                "type", null, true, null);
-        ObjectMapper mpr = jsonMapperBuilder()
-                .withConfigOverride(DataParent3943.class, 
-                        cfg -> cfg.setPolymorphicTypeHandling(typeInfo)).build(); 
-        
-        final String json = mpr.writeValueAsString(new DataClassA3943());
-        final DataParent3943 copy = mpr.readValue(json, DataParent3943.class);
-        assertEquals(DataType3943.CLASS_A, copy.getType());
     }
 }

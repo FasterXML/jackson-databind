@@ -553,6 +553,11 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         return _this();
     }
 
+    public B cacheProvider(CacheProvider cacheProvider) {
+        _mapper.setCacheProvider(cacheProvider);
+        return _this();
+    }
+
     public B defaultPrettyPrinter(PrettyPrinter pp) {
         _mapper.setDefaultPrettyPrinter(pp);
         return _this();
@@ -922,8 +927,10 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     /* Other helper methods
     /**********************************************************************
      */
+    
 
     // silly convenience cast method we need
     @SuppressWarnings("unchecked")
     protected final B _this() { return (B) this; }
+
 }

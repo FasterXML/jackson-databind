@@ -6,11 +6,13 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.databind.cfg.*;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
+import com.fasterxml.jackson.databind.deser.DeserializerCache;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.*;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.LinkedNode;
+import com.fasterxml.jackson.databind.util.LookupCache;
 import com.fasterxml.jackson.databind.util.RootNameLookup;
 
 /**
@@ -100,6 +102,8 @@ public final class DeserializationConfig
      * @since 2.7
      */
     protected final int _formatReadFeaturesToChange;
+    
+    protected CacheProvider _cacheProvider;
 
     /*
     /**********************************************************
@@ -323,6 +327,20 @@ public final class DeserializationConfig
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
         _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
+    }
+
+    public DeserializationConfig(DeserializationConfig src, CacheProvider cacheProvider) {
+        super(src);
+        _deserFeatures = src._deserFeatures;
+        _problemHandlers = src._problemHandlers;
+        _nodeFactory = src._nodeFactory;
+        _coercionConfigs = src._coercionConfigs;
+        _ctorDetector = src._ctorDetector;
+        _parserFeatures = src._parserFeatures;
+        _parserFeaturesToChange = src._parserFeaturesToChange;
+        _formatReadFeatures = src._formatReadFeatures;
+        _formatReadFeaturesToChange = src._formatReadFeaturesToChange; 
+        _cacheProvider = cacheProvider;
     }
 
     // for unit tests only:
@@ -921,6 +939,10 @@ public final class DeserializationConfig
         }
         return _ctorDetector;
     }
+    
+    public CacheProvider cacheProvider() {
+        return _cacheProvider;
+    }
 
     /*
     /**********************************************************
@@ -1045,5 +1067,10 @@ public final class DeserializationConfig
     {
         return _coercionConfigs.findCoercionFromBlankString(this,
                 targetType, targetClass, actionIfBlankNotAllowed);
+    }
+
+    public DeserializationConfig withCacheProvider(CacheProvider cacheProvider) {
+        return (cacheProvider == _cacheProvider) ? this
+                : new DeserializationConfig(this, cacheProvider);
     }
 }

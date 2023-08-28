@@ -4,13 +4,13 @@ import com.fasterxml.jackson.databind.util.LookupCache;
 
 public class CacheProvider {
 
-    protected LookupCache<JavaType, JsonDeserializer<Object>> _typeFactoryCache;
+    protected LookupCache<JavaType, JsonDeserializer<Object>> _deserializerCache;
 
     protected CacheProvider() {
     }
     
-    protected CacheProvider forTypeFactory(LookupCache<JavaType, JsonDeserializer<Object>> cache) {
-        _typeFactoryCache = cache;
+    protected CacheProvider forDeserializerCache(LookupCache<JavaType, JsonDeserializer<Object>> cache) {
+        _deserializerCache = cache;
         return this;
     }
 
@@ -25,7 +25,7 @@ public class CacheProvider {
     }
 
     public LookupCache<JavaType, JsonDeserializer<Object>> provideForDeserializerCache() {
-        return _typeFactoryCache;
+        return _deserializerCache;
     }
 
     public static class Builder {
@@ -47,8 +47,8 @@ public class CacheProvider {
         /**********************************************************
          */
         
-        public Builder withTypeFactoryCache(LookupCache<JavaType, JsonDeserializer<Object>> cache) {
-            cacheProvider._typeFactoryCache = cache;
+        public Builder forDeserializerCache(LookupCache<JavaType, JsonDeserializer<Object>> cache) {
+            cacheProvider._deserializerCache = cache;
             return this;
         }
     }

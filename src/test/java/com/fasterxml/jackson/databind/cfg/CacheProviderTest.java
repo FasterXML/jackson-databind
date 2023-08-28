@@ -46,7 +46,7 @@ public class CacheProviderTest extends BaseMapTest {
     @Test
     public void testCacheConfig() throws Exception {
         CacheProvider cacheProvider = CacheProvider.builder()
-                .withTypeFactoryCache(new SimpleExampleCache())
+                .forDeserializerCache(new SimpleExampleCache())
                 .build();
         
         ObjectMapper mapper = JsonMapper.builder().cacheProvider(cacheProvider).build();

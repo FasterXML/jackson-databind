@@ -335,7 +335,7 @@ public final class DeserializationConfig
     /**
      * @since 2.16
      */
-    public DeserializationConfig(DeserializationConfig src, CacheProvider cacheProvider) {
+    protected DeserializationConfig(DeserializationConfig src, CacheProvider cacheProvider) {
         super(src);
         _deserFeatures = src._deserFeatures;
         _problemHandlers = src._problemHandlers;

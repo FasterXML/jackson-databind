@@ -55,7 +55,7 @@ public class CacheProviderTest
     @Test
     public void testCacheConfig() throws Exception
     {
-        CacheProvider cacheProvider = CacheProvider.builder()
+        DefaultCacheProvider cacheProvider = DefaultCacheProvider.builder()
                 .forDeserializerCache(new SimpleTestCache())
                 .build();
 

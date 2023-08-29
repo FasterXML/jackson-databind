@@ -72,11 +72,11 @@ public final class DeserializerCache
     /**
      * @since 2.16
      */
-    public DeserializerCache withCache(CacheProvider cacheProvider) {
+    public DeserializerCache withCache(DefaultCacheProvider cacheProvider) {
         if (cacheProvider == null) {
             return this;
         }
-        return new DeserializerCache(cacheProvider.provideForDeserializerCache()); 
+        return new DeserializerCache(cacheProvider.provideDeserializerCache()); 
     }
 
     /*

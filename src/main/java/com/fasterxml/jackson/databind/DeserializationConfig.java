@@ -106,7 +106,7 @@ public final class DeserializationConfig
      * 
      * @since 2.16
      */
-    protected CacheProvider _cacheProvider;
+    protected DefaultCacheProvider _cacheProvider;
 
     /*
     /**********************************************************
@@ -335,7 +335,7 @@ public final class DeserializationConfig
     /**
      * @since 2.16
      */
-    protected DeserializationConfig(DeserializationConfig src, CacheProvider cacheProvider) {
+    protected DeserializationConfig(DeserializationConfig src, DefaultCacheProvider cacheProvider) {
         super(src);
         _deserFeatures = src._deserFeatures;
         _problemHandlers = src._problemHandlers;
@@ -949,7 +949,7 @@ public final class DeserializationConfig
     /**
      * @since 2.16
      */
-    public CacheProvider getCacheProvider() {
+    public DefaultCacheProvider getCacheProvider() {
         return _cacheProvider;
     }
 
@@ -1079,10 +1079,10 @@ public final class DeserializationConfig
     }
 
     /**
-     * @return New instance of {@link DeserializationConfig} with configured {@link CacheProvider}.
+     * @return New instance of {@link DeserializationConfig} with configured {@link DefaultCacheProvider}.
      * @since 2.16
      */
-    public DeserializationConfig withCacheProvider(CacheProvider cacheProvider) {
+    public DeserializationConfig withCacheProvider(DefaultCacheProvider cacheProvider) {
         return (cacheProvider == _cacheProvider) ? this : new DeserializationConfig(this, cacheProvider);
     }
 }

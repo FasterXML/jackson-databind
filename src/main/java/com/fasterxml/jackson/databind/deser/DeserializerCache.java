@@ -73,6 +73,9 @@ public final class DeserializerCache
      * @since 2.16
      */
     public DeserializerCache withCache(CacheProvider cacheProvider) {
+        if (cacheProvider == null) {
+            return this;
+        }
         return new DeserializerCache(cacheProvider.provideForDeserializerCache()); 
     }
 

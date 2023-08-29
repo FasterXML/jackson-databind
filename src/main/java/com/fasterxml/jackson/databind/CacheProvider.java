@@ -2,14 +2,22 @@ package com.fasterxml.jackson.databind;
 
 import com.fasterxml.jackson.databind.util.LookupCache;
 
-public class CacheProvider {
+/**
+ * Container for {@link LookupCache} instances to use to override default cache implementations used.
+ * Should only be configured via {@link com.fasterxml.jackson.databind.json.JsonMapper.Builder#cacheProvider(CacheProvider)}.
+ * 
+ * @since 2.16
+ */
+public class CacheProvider
+    implements java.io.Serializable
+{
+    private static final long serialVersionUID = 1L; // 2.6
 
     protected LookupCache<JavaType, JsonDeserializer<Object>> _deserializerCache;
 
-    protected CacheProvider() {
-    }
+    protected CacheProvider() { }
     
-    protected CacheProvider forDeserializerCache(LookupCache<JavaType, JsonDeserializer<Object>> cache) {
+    protected CacheProvider setDeserializerCache(LookupCache<JavaType, JsonDeserializer<Object>> cache) {
         _deserializerCache = cache;
         return this;
     }
@@ -40,7 +48,6 @@ public class CacheProvider {
             return cacheProvider;
         }
         
-        
         /*
         /**********************************************************
         /* Configuration using Builder
@@ -48,7 +55,7 @@ public class CacheProvider {
          */
         
         public Builder forDeserializerCache(LookupCache<JavaType, JsonDeserializer<Object>> cache) {
-            cacheProvider._deserializerCache = cache;
+            cacheProvider.setDeserializerCache(cache);
             return this;
         }
     }

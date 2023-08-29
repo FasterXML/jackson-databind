@@ -206,7 +206,10 @@ public abstract class DeserializationContext
             DeserializationConfig config, JsonParser p,
             InjectableValues injectableValues)
     {
-        _cache = src._cache.withCache(config.cacheProvider());
+//        _cache = src._cache;
+//        _cache = config.getCacheProvider() == null ? _cache : _cache.withCache(config.getCacheProvider());
+        _cache = src._cache.withCache(config.getCacheProvider());
+        
         _factory = src._factory;
         // 08-Jun-2020. tatu: Called only for `ObjectMapper.canDeserialize()`
         //    (see [databind#2749]), not sure what's the best work-around but
@@ -230,7 +233,7 @@ public abstract class DeserializationContext
     protected DeserializationContext(DeserializationContext src,
             DeserializationConfig config)
     {
-        _cache = src._cache.withCache(config.cacheProvider());
+        _cache = src._cache.withCache(config.getCacheProvider());
         _factory = src._factory;
         _readCapabilities = null;
 

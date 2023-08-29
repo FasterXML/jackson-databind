@@ -896,7 +896,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         }
         return _rootNames.findRootName(rawRootType, this);
     }
-
+    
     /*
     /**********************************************************************
     /* ClassIntrospector.MixInResolver impl:

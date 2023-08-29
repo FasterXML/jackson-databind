@@ -6,13 +6,11 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.databind.cfg.*;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
-import com.fasterxml.jackson.databind.deser.DeserializerCache;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.*;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.type.LogicalType;
 import com.fasterxml.jackson.databind.util.LinkedNode;
-import com.fasterxml.jackson.databind.util.LookupCache;
 import com.fasterxml.jackson.databind.util.RootNameLookup;
 
 /**
@@ -102,7 +100,12 @@ public final class DeserializationConfig
      * @since 2.7
      */
     protected final int _formatReadFeaturesToChange;
-    
+
+    /**
+     * Used to provide custom cache implementation in downstream components.
+     * 
+     * @since 2.16
+     */
     protected CacheProvider _cacheProvider;
 
     /*
@@ -329,6 +332,9 @@ public final class DeserializationConfig
         _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
     }
 
+    /**
+     * @since 2.16
+     */
     public DeserializationConfig(DeserializationConfig src, CacheProvider cacheProvider) {
         super(src);
         _deserFeatures = src._deserFeatures;
@@ -939,8 +945,11 @@ public final class DeserializationConfig
         }
         return _ctorDetector;
     }
-    
-    public CacheProvider cacheProvider() {
+
+    /**
+     * @since 2.16
+     */
+    public CacheProvider getCacheProvider() {
         return _cacheProvider;
     }
 
@@ -1069,8 +1078,11 @@ public final class DeserializationConfig
                 targetType, targetClass, actionIfBlankNotAllowed);
     }
 
+    /**
+     * @return New instance of {@link DeserializationConfig} with configured {@link CacheProvider}.
+     * @since 2.16
+     */
     public DeserializationConfig withCacheProvider(CacheProvider cacheProvider) {
-        return (cacheProvider == _cacheProvider) ? this
-                : new DeserializationConfig(this, cacheProvider);
+        return (cacheProvider == _cacheProvider) ? this : new DeserializationConfig(this, cacheProvider);
     }
 }

@@ -2268,12 +2268,9 @@ public class ObjectMapper
     }
 
     /**
-     * Method for specifying {@link ConstructorDetector} to use for
-     * determining some aspects of creator auto-detection (specifically
-     * auto-detection of constructor, and in particular behavior with
-     * single-argument constructors).
+     * Method for specifying {@link CacheProvider} to provide Cache instances to be used in components downstream.
      *
-     * @since 2.12
+     * @since 2.16
      */
     public ObjectMapper setCacheProvider(CacheProvider cacheProvider) {
         _deserializationConfig = _deserializationConfig.withCacheProvider(cacheProvider);

@@ -34,6 +34,8 @@ public final class DeserializerCache
      * We will also cache some dynamically constructed deserializers;
      * specifically, ones that are expensive to construct.
      * This currently means bean, Enum and container deserializers.
+     * <p>
+     * Since 2.16, changed its type from {@link LRUMap} to {@link LookupCache}
      */
     final protected LookupCache<JavaType, JsonDeserializer<Object>> _cachedDeserializers;
 
@@ -42,7 +44,8 @@ public final class DeserializerCache
      * completed deserializers, to resolve cyclic dependencies. This is the
      * map used for storing deserializers before they are fully complete.
      */
-    final protected HashMap<JavaType, JsonDeserializer<Object>> _incompleteDeserializers;
+    final protected HashMap<JavaType, JsonDeserializer<Object>> _incompleteDeserializers
+        = new HashMap<JavaType, JsonDeserializer<Object>>(8);
 
     /*
     /**********************************************************
@@ -57,21 +60,20 @@ public final class DeserializerCache
     public DeserializerCache(int maxSize) {
         int initial = Math.min(64, maxSize>>2);
         _cachedDeserializers = new LRUMap<>(initial, maxSize);
-        _incompleteDeserializers = new HashMap<JavaType, JsonDeserializer<Object>>(8);
     }
 
-    public DeserializerCache(LookupCache<JavaType, JsonDeserializer<Object>> cachedDeserializers,
-                             HashMap<JavaType, JsonDeserializer<Object>> incompleteDeserializers) {
+    /**
+     * @since 2.16
+     */
+    protected DeserializerCache(LookupCache<JavaType, JsonDeserializer<Object>> cachedDeserializers) {
         _cachedDeserializers = cachedDeserializers;
-        _incompleteDeserializers = incompleteDeserializers;
     }
-
+    
+    /**
+     * @since 2.16
+     */
     public DeserializerCache withCache(CacheProvider cacheProvider) {
-        LookupCache<JavaType, JsonDeserializer<Object>> cachedDeserializers = cacheProvider.provideForDeserializerCache();
-        HashMap<JavaType, JsonDeserializer<Object>> incompleteDeserializers =
-                new HashMap<JavaType, JsonDeserializer<Object>>(8);
-        
-        return new DeserializerCache(cachedDeserializers, incompleteDeserializers); 
+        return new DeserializerCache(cacheProvider.provideForDeserializerCache()); 
     }
 
     /*

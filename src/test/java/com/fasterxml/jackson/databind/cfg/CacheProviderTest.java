@@ -5,20 +5,29 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.util.LookupCache;
 import org.junit.Test;
 
-import java.util.Map;
+import java.util.HashMap;
 
-public class CacheProviderTest extends BaseMapTest {
-    
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+/**
+ * <a href="https://github.com/FasterXML/jackson-databind/issues/2502">
+ * [databind#2502] Test for adding a way to configure Caches Jackson uses</a>
+ * 
+ * @since 2.16
+ */
+public class CacheProviderTest
+{
+
     static class RandomBean {
         public int point;
     }
 
-    static class SimpleExampleCache implements LookupCache<JavaType, JsonDeserializer<Object>> {
-        int invocationCount = 0;
-        final Map<JavaType, JsonDeserializer<Object>> cache = new java.util.HashMap<>();
+    static class SimpleTestCache implements LookupCache<JavaType, JsonDeserializer<Object>> {
+
+        final HashMap<JavaType, JsonDeserializer<Object>> cache = new HashMap<>();
 
         @Override
-        public int size() {
+        public int size(){
             return cache.size();
         }
 
@@ -44,13 +53,14 @@ public class CacheProviderTest extends BaseMapTest {
     }
 
     @Test
-    public void testCacheConfig() throws Exception {
+    public void testCacheConfig() throws Exception
+    {
         CacheProvider cacheProvider = CacheProvider.builder()
-                .forDeserializerCache(new SimpleExampleCache())
+                .forDeserializerCache(new SimpleTestCache())
                 .build();
-        
+
         ObjectMapper mapper = JsonMapper.builder().cacheProvider(cacheProvider).build();
-        
+
         RandomBean bean = mapper.readValue("{\"point\":24}", RandomBean.class);
         assertEquals(24, bean.point);
     }

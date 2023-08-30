@@ -1,8 +1,6 @@
 package com.fasterxml.jackson.databind;
 
-import java.io.Serializable;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
@@ -812,7 +810,7 @@ public final class DeserializationConfig
 
     /**
      * Method called by {@link ObjectMapper} and {@link ObjectReader}
-     * to modify those {@link JsonParser.Feature} settings
+     * to modify those {@link com.fasterxml.jackson.core.JsonParser.Feature} settings
      * that have been configured via this config instance.
      *
      * @since 2.5
@@ -1017,7 +1015,7 @@ public final class DeserializationConfig
 
     /**
      * Helper method that is needed to properly handle polymorphic referenced
-     * types, such as types referenced by {@link AtomicReference},
+     * types, such as types referenced by {@link java.util.concurrent.atomic.AtomicReference},
      * or various "optional" types.
      *
      * @since 2.4

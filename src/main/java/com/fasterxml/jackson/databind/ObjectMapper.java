@@ -2268,11 +2268,11 @@ public class ObjectMapper
     }
 
     /**
-     * Method for specifying {@link DefaultCacheProvider} to provide Cache instances to be used in components downstream.
+     * Method for specifying {@link CacheProvider} instance, to provide Cache instances to be used in components downstream.
      *
      * @since 2.16
      */
-    public ObjectMapper setCacheProvider(DefaultCacheProvider cacheProvider) {
+    public ObjectMapper setCacheProvider(CacheProvider cacheProvider) {
         _deserializationConfig = _deserializationConfig.withCacheProvider(cacheProvider);
         return this;
     }

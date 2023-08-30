@@ -609,7 +609,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     /**
      * @since 2.16
      */
-    public B cacheProvider(DefaultCacheProvider cacheProvider) {
+    public B cacheProvider(CacheProvider cacheProvider) {
         _mapper.setCacheProvider(cacheProvider);
         return _this();
     }

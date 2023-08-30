@@ -1,6 +1,8 @@
 package com.fasterxml.jackson.databind;
 
+import java.io.Serializable;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
@@ -106,7 +108,7 @@ public final class DeserializationConfig
      * 
      * @since 2.16
      */
-    protected DefaultCacheProvider _cacheProvider;
+    protected final CacheProvider _cacheProvider;
 
     /*
     /**********************************************************
@@ -134,6 +136,7 @@ public final class DeserializationConfig
         _parserFeaturesToChange = 0;
         _formatReadFeatures = 0;
         _formatReadFeaturesToChange = 0;
+        _cacheProvider = null;
     }
 
     /**
@@ -156,6 +159,7 @@ public final class DeserializationConfig
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
         _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
+        _cacheProvider = src._cacheProvider;
     }
 
     /*
@@ -180,6 +184,7 @@ public final class DeserializationConfig
         _parserFeaturesToChange = parserFeatureMask;
         _formatReadFeatures = formatFeatures;
         _formatReadFeaturesToChange = formatFeatureMask;
+        _cacheProvider = src._cacheProvider;
     }
 
     /**
@@ -198,6 +203,7 @@ public final class DeserializationConfig
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
         _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
+        _cacheProvider = src._cacheProvider;
     }
 
     private DeserializationConfig(DeserializationConfig src, BaseSettings base)
@@ -212,6 +218,7 @@ public final class DeserializationConfig
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
         _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
+        _cacheProvider = src._cacheProvider;
     }
 
     private DeserializationConfig(DeserializationConfig src, JsonNodeFactory f)
@@ -226,6 +233,7 @@ public final class DeserializationConfig
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
         _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
+        _cacheProvider = src._cacheProvider;
     }
 
     // @since 2.12
@@ -241,6 +249,7 @@ public final class DeserializationConfig
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
         _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
+        _cacheProvider = src._cacheProvider;
     }
 
     private DeserializationConfig(DeserializationConfig src,
@@ -256,6 +265,7 @@ public final class DeserializationConfig
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
         _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
+        _cacheProvider = src._cacheProvider;
     }
 
     private DeserializationConfig(DeserializationConfig src, PropertyName rootName)
@@ -270,6 +280,7 @@ public final class DeserializationConfig
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
         _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
+        _cacheProvider = src._cacheProvider;
     }
 
     private DeserializationConfig(DeserializationConfig src, Class<?> view)
@@ -284,6 +295,7 @@ public final class DeserializationConfig
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
         _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
+        _cacheProvider = src._cacheProvider;
     }
 
     protected DeserializationConfig(DeserializationConfig src, ContextAttributes attrs)
@@ -298,6 +310,7 @@ public final class DeserializationConfig
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
         _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
+        _cacheProvider = src._cacheProvider;
     }
 
     protected DeserializationConfig(DeserializationConfig src, SimpleMixInResolver mixins)
@@ -312,6 +325,7 @@ public final class DeserializationConfig
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
         _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
+        _cacheProvider = src._cacheProvider;
     }
 
     /**
@@ -330,12 +344,13 @@ public final class DeserializationConfig
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
         _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
+        _cacheProvider = null;
     }
 
     /**
      * @since 2.16
      */
-    protected DeserializationConfig(DeserializationConfig src, DefaultCacheProvider cacheProvider) {
+    protected DeserializationConfig(DeserializationConfig src, CacheProvider cacheProvider) {
         super(src);
         _deserFeatures = src._deserFeatures;
         _problemHandlers = src._problemHandlers;
@@ -797,7 +812,7 @@ public final class DeserializationConfig
 
     /**
      * Method called by {@link ObjectMapper} and {@link ObjectReader}
-     * to modify those {@link com.fasterxml.jackson.core.JsonParser.Feature} settings
+     * to modify those {@link JsonParser.Feature} settings
      * that have been configured via this config instance.
      *
      * @since 2.5
@@ -949,7 +964,7 @@ public final class DeserializationConfig
     /**
      * @since 2.16
      */
-    public DefaultCacheProvider getCacheProvider() {
+    public CacheProvider getCacheProvider() {
         return _cacheProvider;
     }
 
@@ -1002,7 +1017,7 @@ public final class DeserializationConfig
 
     /**
      * Helper method that is needed to properly handle polymorphic referenced
-     * types, such as types referenced by {@link java.util.concurrent.atomic.AtomicReference},
+     * types, such as types referenced by {@link AtomicReference},
      * or various "optional" types.
      *
      * @since 2.4
@@ -1079,10 +1094,10 @@ public final class DeserializationConfig
     }
 
     /**
-     * @return New instance of {@link DeserializationConfig} with configured {@link DefaultCacheProvider}.
+     * @return New instance of {@link DeserializationConfig} with configured {@link CacheProvider}.
      * @since 2.16
      */
-    public DeserializationConfig withCacheProvider(DefaultCacheProvider cacheProvider) {
+    public DeserializationConfig withCacheProvider(CacheProvider cacheProvider) {
         return (cacheProvider == _cacheProvider) ? this : new DeserializationConfig(this, cacheProvider);
     }
 }

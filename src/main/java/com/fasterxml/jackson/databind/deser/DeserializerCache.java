@@ -65,18 +65,8 @@ public final class DeserializerCache
     /**
      * @since 2.16
      */
-    protected DeserializerCache(LookupCache<JavaType, JsonDeserializer<Object>> cachedDeserializers) {
-        _cachedDeserializers = cachedDeserializers;
-    }
-    
-    /**
-     * @since 2.16
-     */
-    public DeserializerCache withCache(CacheProvider cacheProvider) {
-        if (cacheProvider == null) {
-            return this;
-        }
-        return new DeserializerCache(cacheProvider.provideDeserializerCache()); 
+    public DeserializerCache(CacheProvider cacheProvider) {
+        _cachedDeserializers = cacheProvider.provideDeserializerCache();
     }
 
     /*

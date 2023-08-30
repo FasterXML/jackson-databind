@@ -148,6 +148,16 @@ public abstract class DatabindContext
      */
     public abstract DatabindContext setAttribute(Object key, Object value);
 
+    /**
+     * Method to configure a provider for custom cache implementations downstream.
+     * Should be overriden by sub-classes. 
+     * 
+     * @since 2.16
+     */
+    public DatabindContext withCacheProvider(CacheProvider cacheProvider) {
+        return this;
+    }
+
     /*
     /**********************************************************
     /* Type instantiation/resolution

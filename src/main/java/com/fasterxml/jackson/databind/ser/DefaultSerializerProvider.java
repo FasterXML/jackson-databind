@@ -627,5 +627,11 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
         public Impl createInstance(SerializationConfig config, SerializerFactory jsf) {
             return new Impl(this, config, jsf);
         }
+
+        @Override
+        public Impl withCacheProvider(CacheProvider cacheProvider) {
+            // TODO: implement like {@code DefaultDeserializationContext.Impl#withCacheProvider}
+            return this;
+        }
     }
 }

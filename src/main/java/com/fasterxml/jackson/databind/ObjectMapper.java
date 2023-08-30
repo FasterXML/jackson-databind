@@ -2274,6 +2274,8 @@ public class ObjectMapper
      */
     public ObjectMapper setCacheProvider(CacheProvider cacheProvider) {
         _deserializationConfig = _deserializationConfig.withCacheProvider(cacheProvider);
+        _deserializationContext = _deserializationContext.withCacheProvider(cacheProvider);
+        // TODO: implement also serialization side
         return this;
     }
 

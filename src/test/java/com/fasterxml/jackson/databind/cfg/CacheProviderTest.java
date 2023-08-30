@@ -65,7 +65,7 @@ public class CacheProviderTest {
     @Test
     public void testCacheConfig() throws Exception {
         DefaultCacheProvider cacheProvider = DefaultCacheProvider.builder()
-                .deserializerCache(() -> new SimpleTestCache())
+                .deserializerCache(new SimpleTestCache())
                 .build();
         ObjectMapper mapper = JsonMapper.builder()
                 .cacheProvider(cacheProvider).build();

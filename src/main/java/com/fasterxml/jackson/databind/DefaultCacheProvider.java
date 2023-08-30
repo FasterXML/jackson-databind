@@ -20,11 +20,11 @@ public class DefaultCacheProvider
     private static final long serialVersionUID = 1L;
 
     /**
-     * Supplier of cache instance to be used by {@link DeserializerCache}.
+     * Cache instance to be used by {@link DeserializerCache}.
      */
-    protected final Supplier<LookupCache<JavaType, JsonDeserializer<Object>>> _deserializerCacheSupplier;
+    protected final LookupCache<JavaType, JsonDeserializer<Object>> _deserializerCacheSupplier;
 
-    protected DefaultCacheProvider(Supplier<LookupCache<JavaType, JsonDeserializer<Object>>> deserializerCache)
+    protected DefaultCacheProvider(LookupCache<JavaType, JsonDeserializer<Object>> deserializerCache)
     {
         _deserializerCacheSupplier = deserializerCache;
     }
@@ -37,7 +37,7 @@ public class DefaultCacheProvider
     
     @Override
     public LookupCache<JavaType, JsonDeserializer<Object>> provideDeserializerCache() {
-        return _deserializerCacheSupplier.get();
+        return _deserializerCacheSupplier;
     }
 
     /*
@@ -59,16 +59,16 @@ public class DefaultCacheProvider
         /**
          * Supplier of cache instance to be used by {@link DeserializerCache}.
          */
-        private Supplier<LookupCache<JavaType, JsonDeserializer<Object>>> _deserializerCacheSupplier;
+        private LookupCache<JavaType, JsonDeserializer<Object>> _deserializerCache;
         
         protected Builder() { }
 
         public DefaultCacheProvider build() {
-            return new DefaultCacheProvider(_deserializerCacheSupplier);
+            return new DefaultCacheProvider(_deserializerCache);
         }
         
-        public Builder deserializerCache(Supplier<LookupCache<JavaType, JsonDeserializer<Object>>> deserializerCache) {
-            _deserializerCacheSupplier = deserializerCache;
+        public Builder deserializerCache(LookupCache<JavaType, JsonDeserializer<Object>> deserializerCache) {
+            _deserializerCache = deserializerCache;
             return this;
         }
     }

@@ -253,8 +253,7 @@ public abstract class DeserializationContext
         _readCapabilities = src._readCapabilities;
         _view = src._view;
         _injectableValues = null;
-        _cache = (src._config == null) ? new DeserializerCache() 
-                : new DeserializerCache(src._config.getCacheProvider());
+        _cache = (src._cache == null) ? new DeserializerCache() : src._cache;
     }
 
     /**

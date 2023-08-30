@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import java.util.HashMap;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * <a href="https://github.com/FasterXML/jackson-databind/issues/2502">
@@ -25,6 +25,8 @@ public class CacheProviderTest
     static class SimpleTestCache implements LookupCache<JavaType, JsonDeserializer<Object>> {
 
         final HashMap<JavaType, JsonDeserializer<Object>> cache = new HashMap<>();
+        // Checking the cache was actually used
+        boolean invoked = false;
 
         @Override
         public int size(){
@@ -33,16 +35,19 @@ public class CacheProviderTest
 
         @Override
         public JsonDeserializer<Object> get(Object key) {
+            invoked = true;
             return cache.get(key);
         }
 
         @Override
         public JsonDeserializer<Object> put(JavaType key, JsonDeserializer<Object> value) {
+            invoked = true;
             return cache.put(key, value);
         }
 
         @Override
         public JsonDeserializer<Object> putIfAbsent(JavaType key, JsonDeserializer<Object> value) {
+            invoked = true;
             return cache.putIfAbsent(key, value);
         }
 
@@ -55,13 +60,14 @@ public class CacheProviderTest
     @Test
     public void testCacheConfig() throws Exception
     {
+        LookupCache<JavaType, JsonDeserializer<Object>> cache = new SimpleTestCache();
         DefaultCacheProvider cacheProvider = DefaultCacheProvider.builder()
-                .forDeserializerCache(new SimpleTestCache())
+                .forDeserializerCache(cache)
                 .build();
-
         ObjectMapper mapper = JsonMapper.builder().cacheProvider(cacheProvider).build();
 
         RandomBean bean = mapper.readValue("{\"point\":24}", RandomBean.class);
         assertEquals(24, bean.point);
+        assertTrue(((SimpleTestCache) cache).invoked);
     }
 }

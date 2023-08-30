@@ -344,7 +344,7 @@ public final class DeserializationConfig
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
         _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
-        _cacheProvider = null;
+        _cacheProvider = src._cacheProvider;
     }
 
     /**

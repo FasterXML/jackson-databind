@@ -181,6 +181,8 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     protected ConstructorDetector _ctorDetector;
 
+    protected CacheProvider _cacheProvider;
+
     /*
     /**********************************************************************
     /* Handlers/factories, other:
@@ -298,6 +300,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _injectableValues = null;
         _problemHandlers = null;
         _ctorDetector = null;
+        _cacheProvider = null;
         _abstractTypeResolvers = NO_ABSTRACT_TYPE_RESOLVERS;
 
         _defaultAttributes = null;
@@ -345,6 +348,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _problemHandlers = state._problemHandlers;
         _abstractTypeResolvers = state._abstractTypeResolvers;
         _ctorDetector = state._ctorDetector;
+        _cacheProvider = state._cacheProvider;
 
         // Factories/handlers, other
         _defaultAttributes = Snapshottable.takeSnapshot(state._defaultAttributes);
@@ -394,6 +398,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
         _problemHandlers = base._problemHandlers;
         _abstractTypeResolvers = base._abstractTypeResolvers;
         _ctorDetector = base._ctorDetector;
+        _cacheProvider = base._cacheProvider;
     }
     */
 
@@ -1322,6 +1327,11 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      */
     public B constructorDetector(ConstructorDetector cd) {
         _ctorDetector = cd;
+        return _this();
+    }
+
+    public B cacheProvider(CacheProvider cacheProvider) {
+        _cacheProvider = cacheProvider;
         return _this();
     }
 

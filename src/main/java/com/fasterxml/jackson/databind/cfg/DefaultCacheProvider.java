@@ -19,7 +19,7 @@ public class DefaultCacheProvider
     private static final long serialVersionUID = 1L;
 
     /**
-     * Cache instance to be used by {@link DeserializerCache}.
+     * Cache instance to provide for {@link DeserializerCache}.
      */
     protected final LookupCache<JavaType, JsonDeserializer<Object>> _deserializerCache;
     
@@ -69,11 +69,8 @@ public class DefaultCacheProvider
      * Builder class to construct {@link DefaultCacheProvider} instance
      * and to keep {@link DefaultCacheProvider} immutable.
      */
-    protected static class Builder {
-
-        /**
-         * Supplier of cache instance to be used by {@link DeserializerCache}.
-         */
+    public static class Builder {
+        
         private LookupCache<JavaType, JsonDeserializer<Object>> _deserializerCache;
         
         protected Builder() { }

@@ -23,6 +23,8 @@ public final class DeserializerCache
     implements java.io.Serializable // since 2.1
 {
     private static final long serialVersionUID = 1L;
+    
+    public final static int MAX_SIZE = 2000;
 
     /*
     /**********************************************************
@@ -52,11 +54,19 @@ public final class DeserializerCache
      */
 
     public DeserializerCache() {
-        this(2000); // see [databind#1995]
+        this(MAX_SIZE); // see [databind#1995]
     }
 
     public DeserializerCache(int maxSize) {
-        this(new LRUMap<>(Math.min(64, maxSize>>2), maxSize));
+        this(defaultCache(maxSize));
+    }
+
+    public static LookupCache<JavaType, JsonDeserializer<Object>> defaultSizedCache() {
+        return new LRUMap<>(Math.min(64, MAX_SIZE >>2), MAX_SIZE);
+    }
+
+    public static LookupCache<JavaType, JsonDeserializer<Object>> defaultCache(int maxSize) {
+        return new LRUMap<>(Math.min(64, maxSize>>2), maxSize);
     }
 
     /**

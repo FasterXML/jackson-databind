@@ -299,6 +299,13 @@ public final class SerializationConfig
         _formatWriteFeaturesToChange = src._formatWriteFeaturesToChange;
     }
 
+    /**
+     * @since 2.16
+     */
+    protected BaseSettings getBaseSettings() {
+        return _base;
+    }
+
     /*
     /**********************************************************
     /* Life-cycle, factory methods from MapperConfig(Base)

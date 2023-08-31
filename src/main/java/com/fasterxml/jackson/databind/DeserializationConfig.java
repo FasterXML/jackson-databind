@@ -101,13 +101,6 @@ public final class DeserializationConfig
      */
     protected final int _formatReadFeaturesToChange;
 
-    /**
-     * Used to provide custom cache implementation in downstream components.
-     * 
-     * @since 2.16
-     */
-    protected final CacheProvider _cacheProvider;
-
     /*
     /**********************************************************
     /* Life-cycle, primary constructors for new instances
@@ -134,7 +127,6 @@ public final class DeserializationConfig
         _parserFeaturesToChange = 0;
         _formatReadFeatures = 0;
         _formatReadFeaturesToChange = 0;
-        _cacheProvider = null;
     }
 
     /**
@@ -157,7 +149,6 @@ public final class DeserializationConfig
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
         _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
-        _cacheProvider = src._cacheProvider;
     }
 
     /*
@@ -182,7 +173,6 @@ public final class DeserializationConfig
         _parserFeaturesToChange = parserFeatureMask;
         _formatReadFeatures = formatFeatures;
         _formatReadFeaturesToChange = formatFeatureMask;
-        _cacheProvider = src._cacheProvider;
     }
 
     /**
@@ -201,7 +191,6 @@ public final class DeserializationConfig
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
         _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
-        _cacheProvider = src._cacheProvider;
     }
 
     private DeserializationConfig(DeserializationConfig src, BaseSettings base)
@@ -216,7 +205,6 @@ public final class DeserializationConfig
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
         _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
-        _cacheProvider = src._cacheProvider;
     }
 
     private DeserializationConfig(DeserializationConfig src, JsonNodeFactory f)
@@ -231,7 +219,6 @@ public final class DeserializationConfig
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
         _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
-        _cacheProvider = src._cacheProvider;
     }
 
     // @since 2.12
@@ -247,7 +234,6 @@ public final class DeserializationConfig
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
         _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
-        _cacheProvider = src._cacheProvider;
     }
 
     private DeserializationConfig(DeserializationConfig src,
@@ -263,7 +249,6 @@ public final class DeserializationConfig
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
         _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
-        _cacheProvider = src._cacheProvider;
     }
 
     private DeserializationConfig(DeserializationConfig src, PropertyName rootName)
@@ -278,7 +263,6 @@ public final class DeserializationConfig
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
         _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
-        _cacheProvider = src._cacheProvider;
     }
 
     private DeserializationConfig(DeserializationConfig src, Class<?> view)
@@ -293,7 +277,6 @@ public final class DeserializationConfig
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
         _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
-        _cacheProvider = src._cacheProvider;
     }
 
     protected DeserializationConfig(DeserializationConfig src, ContextAttributes attrs)
@@ -308,7 +291,6 @@ public final class DeserializationConfig
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
         _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
-        _cacheProvider = src._cacheProvider;
     }
 
     protected DeserializationConfig(DeserializationConfig src, SimpleMixInResolver mixins)
@@ -323,7 +305,6 @@ public final class DeserializationConfig
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
         _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
-        _cacheProvider = src._cacheProvider;
     }
 
     /**
@@ -342,24 +323,6 @@ public final class DeserializationConfig
         _parserFeaturesToChange = src._parserFeaturesToChange;
         _formatReadFeatures = src._formatReadFeatures;
         _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
-        _cacheProvider = src._cacheProvider;
-    }
-
-    /**
-     * @since 2.16
-     */
-    protected DeserializationConfig(DeserializationConfig src, CacheProvider cacheProvider) {
-        super(src);
-        _deserFeatures = src._deserFeatures;
-        _problemHandlers = src._problemHandlers;
-        _nodeFactory = src._nodeFactory;
-        _coercionConfigs = src._coercionConfigs;
-        _ctorDetector = src._ctorDetector;
-        _parserFeatures = src._parserFeatures;
-        _parserFeaturesToChange = src._parserFeaturesToChange;
-        _formatReadFeatures = src._formatReadFeatures;
-        _formatReadFeaturesToChange = src._formatReadFeaturesToChange; 
-        _cacheProvider = cacheProvider;
     }
 
     // for unit tests only:
@@ -959,13 +922,6 @@ public final class DeserializationConfig
         return _ctorDetector;
     }
 
-    /**
-     * @since 2.16
-     */
-    public CacheProvider getCacheProvider() {
-        return _cacheProvider;
-    }
-
     /*
     /**********************************************************
     /* Introspection methods
@@ -1089,13 +1045,5 @@ public final class DeserializationConfig
     {
         return _coercionConfigs.findCoercionFromBlankString(this,
                 targetType, targetClass, actionIfBlankNotAllowed);
-    }
-
-    /**
-     * @return New instance of {@link DeserializationConfig} with configured {@link CacheProvider}.
-     * @since 2.16
-     */
-    public DeserializationConfig withCacheProvider(CacheProvider cacheProvider) {
-        return (cacheProvider == _cacheProvider) ? this : new DeserializationConfig(this, cacheProvider);
     }
 }

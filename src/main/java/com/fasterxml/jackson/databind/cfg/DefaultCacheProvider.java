@@ -28,6 +28,10 @@ public class DefaultCacheProvider
     {
         _deserializerCacheSupplier = deserializerCache;
     }
+
+    public static CacheProvider defaultInstance() {
+        return new DefaultCacheProvider(DeserializerCache.defaultSizedCache());
+    }
     
     /*
     /**********************************************************

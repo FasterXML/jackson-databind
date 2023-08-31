@@ -143,6 +143,13 @@ public final class BaseSettings
      */
     protected final Base64Variant _defaultBase64;
 
+    /**
+     * Used to provide custom cache implementation in downstream components.
+     *
+     * @since 2.16
+     */
+    protected final CacheProvider _cacheProvider;
+
     /*
     /**********************************************************
     /* Construction
@@ -150,13 +157,14 @@ public final class BaseSettings
      */
 
     /**
-     * @since 2.12
+     * @since 2.16
      */
     public BaseSettings(ClassIntrospector ci, AnnotationIntrospector ai,
-            PropertyNamingStrategy pns, TypeFactory tf,
-            TypeResolverBuilder<?> typer, DateFormat dateFormat, HandlerInstantiator hi,
-            Locale locale, TimeZone tz, Base64Variant defaultBase64,
-            PolymorphicTypeValidator ptv, AccessorNamingStrategy.Provider accNaming)
+                        PropertyNamingStrategy pns, TypeFactory tf,
+                        TypeResolverBuilder<?> typer, DateFormat dateFormat, HandlerInstantiator hi,
+                        Locale locale, TimeZone tz, Base64Variant defaultBase64,
+                        PolymorphicTypeValidator ptv, AccessorNamingStrategy.Provider accNaming,
+                        CacheProvider cacheProvider)
     {
         _classIntrospector = ci;
         _annotationIntrospector = ai;
@@ -170,6 +178,20 @@ public final class BaseSettings
         _defaultBase64 = defaultBase64;
         _typeValidator = ptv;
         _accessorNaming = accNaming;
+        _cacheProvider = cacheProvider;
+    }
+
+    /**
+     * @since 2.12
+     */
+    public BaseSettings(ClassIntrospector ci, AnnotationIntrospector ai,
+            PropertyNamingStrategy pns, TypeFactory tf,
+            TypeResolverBuilder<?> typer, DateFormat dateFormat, HandlerInstantiator hi,
+            Locale locale, TimeZone tz, Base64Variant defaultBase64,
+            PolymorphicTypeValidator ptv, AccessorNamingStrategy.Provider accNaming)
+    {
+        this(ci, ai, pns, tf, typer, dateFormat, hi, locale, tz, defaultBase64, ptv, accNaming, 
+                DefaultCacheProvider.defaultInstance());
     }
 
     @Deprecated // since 2.12
@@ -364,6 +386,21 @@ public final class BaseSettings
                 _timeZone, _defaultBase64, v, _accessorNaming);
     }
 
+    /**
+     * @return New instance of {@link BaseSettings} with configured {@link CacheProvider}.
+     * 
+     * @since 2.16
+     */
+    public BaseSettings with(CacheProvider cacheProvider) {
+        if (cacheProvider == _cacheProvider) {
+            return this;
+        }
+        return new BaseSettings(_classIntrospector, _annotationIntrospector,
+                _propertyNamingStrategy, _typeFactory,
+                _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
+                _timeZone, _defaultBase64, _typeValidator, _accessorNaming, cacheProvider);
+    }
+
     /*
     /**********************************************************
     /* API
@@ -431,6 +468,13 @@ public final class BaseSettings
 
     public Base64Variant getBase64Variant() {
         return _defaultBase64;
+    }
+    
+    /**
+     * @since 2.16
+     */
+    public CacheProvider getCacheProvider() {
+        return _cacheProvider;
     }
 
     /*

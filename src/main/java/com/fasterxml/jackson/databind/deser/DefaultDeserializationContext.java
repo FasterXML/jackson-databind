@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerator.IdKey;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.CacheProvider;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId.Referring;
@@ -88,7 +89,7 @@ public abstract class DefaultDeserializationContext
     public DefaultDeserializationContext withCacheProvider(CacheProvider cacheProvider) {
         throw new IllegalStateException("DefaultDeserializationContext sub-class not overriding withCacheProvider(CacheProvider)");
     }
-    
+
     /*
     /**********************************************************
     /* Abstract methods impls, Object Id

@@ -588,6 +588,14 @@ public abstract class MapperBuilder<M extends ObjectMapper,
     }
 
     /**
+     * @since 2.16
+     */
+    public B cacheProvider(CacheProvider cacheProvider) {
+        _mapper.setCacheProvider(cacheProvider);
+        return _this();
+    }
+
+    /**
      * Method used for adding a {@link DeserializationProblemHandler} for this
      * builder, at the head of the list (meaning it has priority over handler
      * registered earlier).
@@ -603,14 +611,6 @@ public abstract class MapperBuilder<M extends ObjectMapper,
      */
     public B clearProblemHandlers() {
         _mapper.clearProblemHandlers();
-        return _this();
-    }
-
-    /**
-     * @since 2.16
-     */
-    public B cacheProvider(CacheProvider cacheProvider) {
-        _mapper.setCacheProvider(cacheProvider);
         return _this();
     }
 

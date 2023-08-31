@@ -37,14 +37,14 @@ public final class DeserializerCache
      * <p>
      * Since 2.16, changed its type from {@link LRUMap} to {@link LookupCache}
      */
-    final protected LookupCache<JavaType, JsonDeserializer<Object>> _cachedDeserializers;
+    protected final LookupCache<JavaType, JsonDeserializer<Object>> _cachedDeserializers;
 
     /**
      * During deserializer construction process we may need to keep track of partially
      * completed deserializers, to resolve cyclic dependencies. This is the
      * map used for storing deserializers before they are fully complete.
      */
-    final protected HashMap<JavaType, JsonDeserializer<Object>> _incompleteDeserializers
+    protected final HashMap<JavaType, JsonDeserializer<Object>> _incompleteDeserializers
         = new HashMap<JavaType, JsonDeserializer<Object>>(8);
 
     /*
@@ -58,8 +58,14 @@ public final class DeserializerCache
     }
 
     public DeserializerCache(int maxSize) {
-        int initial = Math.min(64, maxSize>>2);
-        _cachedDeserializers = new LRUMap<>(initial, maxSize);
+        this(new LRUMap<>(Math.min(64, maxSize>>2), maxSize));
+    }
+
+    /**
+     * @since 2.16
+     */
+    public DeserializerCache(LookupCache<JavaType, JsonDeserializer<Object>> cache) {
+        _cachedDeserializers = cache;
     }
 
     /**

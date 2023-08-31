@@ -58,15 +58,11 @@ public final class DeserializerCache
     }
 
     public DeserializerCache(int maxSize) {
-        this(defaultCache(maxSize));
+        this(new LRUMap<>(Math.min(64, maxSize>>2), maxSize));
     }
 
-    public static LookupCache<JavaType, JsonDeserializer<Object>> defaultSizedCache() {
+    public static LookupCache<JavaType, JsonDeserializer<Object>> defaultCache() {
         return new LRUMap<>(Math.min(64, MAX_SIZE >>2), MAX_SIZE);
-    }
-
-    public static LookupCache<JavaType, JsonDeserializer<Object>> defaultCache(int maxSize) {
-        return new LRUMap<>(Math.min(64, maxSize>>2), maxSize);
     }
 
     /**

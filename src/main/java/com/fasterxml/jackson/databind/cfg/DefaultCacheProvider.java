@@ -22,15 +22,15 @@ public class DefaultCacheProvider
     /**
      * Cache instance to be used by {@link DeserializerCache}.
      */
-    protected final LookupCache<JavaType, JsonDeserializer<Object>> _deserializerCacheSupplier;
+    protected final LookupCache<JavaType, JsonDeserializer<Object>> _deserializerCache;
 
     protected DefaultCacheProvider(LookupCache<JavaType, JsonDeserializer<Object>> deserializerCache)
     {
-        _deserializerCacheSupplier = deserializerCache;
+        _deserializerCache = deserializerCache;
     }
 
     public static CacheProvider defaultInstance() {
-        return new DefaultCacheProvider(DeserializerCache.defaultSizedCache());
+        return new DefaultCacheProvider(DeserializerCache.defaultCache());
     }
     
     /*
@@ -41,7 +41,7 @@ public class DefaultCacheProvider
     
     @Override
     public LookupCache<JavaType, JsonDeserializer<Object>> provideDeserializerCache() {
-        return _deserializerCacheSupplier;
+        return _deserializerCache;
     }
 
     /*
@@ -58,7 +58,7 @@ public class DefaultCacheProvider
      * Builder class to construct {@link DefaultCacheProvider} instance
      * and to keep {@link DefaultCacheProvider} immutable.
      */
-    public static class Builder {
+    protected static class Builder {
 
         /**
          * Supplier of cache instance to be used by {@link DeserializerCache}.

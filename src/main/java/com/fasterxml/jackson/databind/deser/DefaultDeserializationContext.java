@@ -440,7 +440,7 @@ ClassUtil.name(expSimpleName), p.currentToken());
 
         @Override
         public DefaultDeserializationContext withCacheProvider(CacheProvider cacheProvider) {
-            return new Impl(this, new DeserializerCache(cacheProvider));
+            return new Impl(this, new DeserializerCache(cacheProvider.provideDeserializerCache()));
         }
     }
 }

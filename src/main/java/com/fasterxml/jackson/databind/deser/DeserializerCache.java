@@ -34,8 +34,6 @@ public final class DeserializerCache
      * We will also cache some dynamically constructed deserializers;
      * specifically, ones that are expensive to construct.
      * This currently means bean, Enum and container deserializers.
-     * <p>
-     * Since 2.16, changed its type from {@link LRUMap} to {@link LookupCache}
      */
     protected final LookupCache<JavaType, JsonDeserializer<Object>> _cachedDeserializers;
 
@@ -66,13 +64,6 @@ public final class DeserializerCache
      */
     public DeserializerCache(LookupCache<JavaType, JsonDeserializer<Object>> cache) {
         _cachedDeserializers = cache;
-    }
-
-    /**
-     * @since 2.16
-     */
-    public DeserializerCache(CacheProvider cacheProvider) {
-        _cachedDeserializers = cacheProvider.provideDeserializerCache();
     }
 
     /*

@@ -143,6 +143,13 @@ public final class BaseSettings
      */
     protected final Base64Variant _defaultBase64;
 
+    /**
+     * Used to provide custom cache implementation in downstream components.
+     *
+     * @since 2.16
+     */
+    protected final CacheProvider _cacheProvider;
+
     /*
     /**********************************************************
     /* Construction
@@ -150,13 +157,14 @@ public final class BaseSettings
      */
 
     /**
-     * @since 2.12
+     * @since 2.16
      */
     public BaseSettings(ClassIntrospector ci, AnnotationIntrospector ai,
             PropertyNamingStrategy pns, TypeFactory tf,
             TypeResolverBuilder<?> typer, DateFormat dateFormat, HandlerInstantiator hi,
             Locale locale, TimeZone tz, Base64Variant defaultBase64,
-            PolymorphicTypeValidator ptv, AccessorNamingStrategy.Provider accNaming)
+            PolymorphicTypeValidator ptv, AccessorNamingStrategy.Provider accNaming,
+            CacheProvider cacheProvider)
     {
         _classIntrospector = ci;
         _annotationIntrospector = ai;
@@ -170,6 +178,22 @@ public final class BaseSettings
         _defaultBase64 = defaultBase64;
         _typeValidator = ptv;
         _accessorNaming = accNaming;
+        _cacheProvider = cacheProvider;
+    }
+
+    /**
+     * @since 2.12
+     * @deprecated Since 2.16, use variant that takes {@link CacheProvider} instead.
+     */
+    @Deprecated
+    public BaseSettings(ClassIntrospector ci, AnnotationIntrospector ai,
+            PropertyNamingStrategy pns, TypeFactory tf,
+            TypeResolverBuilder<?> typer, DateFormat dateFormat, HandlerInstantiator hi,
+            Locale locale, TimeZone tz, Base64Variant defaultBase64,
+            PolymorphicTypeValidator ptv, AccessorNamingStrategy.Provider accNaming)
+    {
+        this(ci, ai, pns, tf, typer, dateFormat, hi, locale, tz, defaultBase64, ptv, accNaming, 
+                DefaultCacheProvider.defaultInstance());
     }
 
     @Deprecated // since 2.12
@@ -180,7 +204,7 @@ public final class BaseSettings
             PolymorphicTypeValidator ptv)
     {
         this(ci, ai, pns, tf, typer, dateFormat, hi, locale, tz, defaultBase64, ptv,
-                new DefaultAccessorNamingStrategy.Provider());
+                new DefaultAccessorNamingStrategy.Provider(), DefaultCacheProvider.defaultInstance());
     }
 
     /**
@@ -201,7 +225,8 @@ public final class BaseSettings
             _timeZone,
             _defaultBase64,
             _typeValidator,
-            _accessorNaming);
+            _accessorNaming,
+            _cacheProvider);
     }
 
     /*
@@ -216,7 +241,7 @@ public final class BaseSettings
         }
         return new BaseSettings(ci, _annotationIntrospector, _propertyNamingStrategy, _typeFactory,
                 _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
-                _timeZone, _defaultBase64, _typeValidator, _accessorNaming);
+                _timeZone, _defaultBase64, _typeValidator, _accessorNaming, _cacheProvider);
     }
 
     public BaseSettings withAnnotationIntrospector(AnnotationIntrospector ai) {
@@ -225,7 +250,7 @@ public final class BaseSettings
         }
         return new BaseSettings(_classIntrospector, ai, _propertyNamingStrategy, _typeFactory,
                 _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
-                _timeZone, _defaultBase64, _typeValidator, _accessorNaming);
+                _timeZone, _defaultBase64, _typeValidator, _accessorNaming, _cacheProvider);
     }
 
     public BaseSettings withInsertedAnnotationIntrospector(AnnotationIntrospector ai) {
@@ -252,7 +277,7 @@ public final class BaseSettings
         }
         return new BaseSettings(_classIntrospector, _annotationIntrospector, pns, _typeFactory,
                 _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
-                _timeZone, _defaultBase64, _typeValidator, _accessorNaming);
+                _timeZone, _defaultBase64, _typeValidator, _accessorNaming, _cacheProvider);
     }
 
     // @since 2.12
@@ -262,7 +287,7 @@ public final class BaseSettings
         }
         return new BaseSettings(_classIntrospector, _annotationIntrospector, _propertyNamingStrategy, _typeFactory,
                 _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
-                _timeZone, _defaultBase64, _typeValidator, p);
+                _timeZone, _defaultBase64, _typeValidator, p, _cacheProvider);
     }
 
     public BaseSettings withTypeFactory(TypeFactory tf) {
@@ -271,7 +296,7 @@ public final class BaseSettings
         }
         return new BaseSettings(_classIntrospector, _annotationIntrospector, _propertyNamingStrategy, tf,
                 _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
-                _timeZone, _defaultBase64, _typeValidator, _accessorNaming);
+                _timeZone, _defaultBase64, _typeValidator, _accessorNaming, _cacheProvider);
     }
 
     public BaseSettings withTypeResolverBuilder(TypeResolverBuilder<?> typer) {
@@ -280,7 +305,7 @@ public final class BaseSettings
         }
         return new BaseSettings(_classIntrospector, _annotationIntrospector, _propertyNamingStrategy, _typeFactory,
                 typer, _dateFormat, _handlerInstantiator, _locale,
-                _timeZone, _defaultBase64, _typeValidator, _accessorNaming);
+                _timeZone, _defaultBase64, _typeValidator, _accessorNaming, _cacheProvider);
     }
 
     public BaseSettings withDateFormat(DateFormat df) {
@@ -294,7 +319,7 @@ public final class BaseSettings
         }
         return new BaseSettings(_classIntrospector, _annotationIntrospector, _propertyNamingStrategy, _typeFactory,
                 _typeResolverBuilder, df, _handlerInstantiator, _locale,
-                _timeZone, _defaultBase64, _typeValidator, _accessorNaming);
+                _timeZone, _defaultBase64, _typeValidator, _accessorNaming, _cacheProvider);
     }
 
     public BaseSettings withHandlerInstantiator(HandlerInstantiator hi) {
@@ -303,7 +328,7 @@ public final class BaseSettings
         }
         return new BaseSettings(_classIntrospector, _annotationIntrospector, _propertyNamingStrategy, _typeFactory,
                 _typeResolverBuilder, _dateFormat, hi, _locale,
-                _timeZone, _defaultBase64, _typeValidator, _accessorNaming);
+                _timeZone, _defaultBase64, _typeValidator, _accessorNaming, _cacheProvider);
     }
 
     public BaseSettings with(Locale l) {
@@ -312,7 +337,7 @@ public final class BaseSettings
         }
         return new BaseSettings(_classIntrospector, _annotationIntrospector, _propertyNamingStrategy, _typeFactory,
                 _typeResolverBuilder, _dateFormat, _handlerInstantiator, l,
-                _timeZone, _defaultBase64, _typeValidator, _accessorNaming);
+                _timeZone, _defaultBase64, _typeValidator, _accessorNaming, _cacheProvider);
     }
 
     /**
@@ -335,7 +360,7 @@ public final class BaseSettings
         return new BaseSettings(_classIntrospector, _annotationIntrospector,
                 _propertyNamingStrategy, _typeFactory,
                 _typeResolverBuilder, df, _handlerInstantiator, _locale,
-                tz, _defaultBase64, _typeValidator, _accessorNaming);
+                tz, _defaultBase64, _typeValidator, _accessorNaming, _cacheProvider);
     }
 
     /**
@@ -348,7 +373,7 @@ public final class BaseSettings
         return new BaseSettings(_classIntrospector, _annotationIntrospector,
                 _propertyNamingStrategy, _typeFactory,
                 _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
-                _timeZone, base64, _typeValidator, _accessorNaming);
+                _timeZone, base64, _typeValidator, _accessorNaming, _cacheProvider);
     }
 
     /**
@@ -361,7 +386,23 @@ public final class BaseSettings
         return new BaseSettings(_classIntrospector, _annotationIntrospector,
                 _propertyNamingStrategy, _typeFactory,
                 _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
-                _timeZone, _defaultBase64, v, _accessorNaming);
+                _timeZone, _defaultBase64, v, _accessorNaming, _cacheProvider);
+    }
+
+    /**
+     * Fluent factory for constructing a new instance with provided {@link CacheProvider}.
+     * 
+     * @return a new instance with provided {@link CacheProvider}.
+     * @since 2.16
+     */
+    public BaseSettings with(CacheProvider cacheProvider) {
+        if (cacheProvider == _cacheProvider) {
+            return this;
+        }
+        return new BaseSettings(_classIntrospector, _annotationIntrospector,
+                _propertyNamingStrategy, _typeFactory,
+                _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
+                _timeZone, _defaultBase64, _typeValidator, _accessorNaming, cacheProvider);
     }
 
     /*
@@ -431,6 +472,13 @@ public final class BaseSettings
 
     public Base64Variant getBase64Variant() {
         return _defaultBase64;
+    }
+    
+    /**
+     * @since 2.16
+     */
+    public CacheProvider getCacheProvider() {
+        return _cacheProvider;
     }
 
     /*

@@ -15,12 +15,11 @@ import com.fasterxml.jackson.databind.util.LookupCache;
 public interface CacheProvider
         extends java.io.Serializable
 {
-    
     /**
      * Method to provide a {@link LookupCache} instance for {@link DeserializerCache}
      * 
      * @return {@link LookupCache} instance for caching {@link JsonDeserializer}s
      */
-    LookupCache<JavaType, JsonDeserializer<Object>> provideDeserializerCache();
+    LookupCache<JavaType, JsonDeserializer<Object>> provideForDeserializerCache();
     
 }

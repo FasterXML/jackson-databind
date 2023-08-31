@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.DefaultCacheProvider;
 import com.fasterxml.jackson.databind.deser.std.StdDelegatingDeserializer;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.type.*;
@@ -23,8 +24,13 @@ public final class DeserializerCache
     implements java.io.Serializable // since 2.1
 {
     private static final long serialVersionUID = 1L;
-    
-    public final static int MAX_SIZE = 2000;
+
+    /**
+     * Declared as field since 2.16, used to be passed inline in {@link #DeserializerCache(int)}.
+     * 
+     * @since 2.16
+     */
+    public final static int MAX_CACHE_SIZE = 2000;
 
     /*
     /**********************************************************
@@ -54,15 +60,11 @@ public final class DeserializerCache
      */
 
     public DeserializerCache() {
-        this(MAX_SIZE); // see [databind#1995]
+        this(MAX_CACHE_SIZE); // see [databind#1995]
     }
 
     public DeserializerCache(int maxSize) {
         this(new LRUMap<>(Math.min(64, maxSize>>2), maxSize));
-    }
-
-    public static LookupCache<JavaType, JsonDeserializer<Object>> defaultCache() {
-        return new LRUMap<>(Math.min(64, MAX_SIZE >>2), MAX_SIZE);
     }
 
     /**
@@ -115,6 +117,15 @@ public final class DeserializerCache
      */
     public void flushCachedDeserializers() {
         _cachedDeserializers.clear();
+    }
+
+    /**
+     * Method used to provide cache instance for {@link DefaultCacheProvider#defaultInstance()}.
+     * 
+     * @since 2.16
+     */
+    public static LookupCache<JavaType, JsonDeserializer<Object>> defaultCache() {
+        return new LRUMap<>(Math.min(64, MAX_CACHE_SIZE >>2), MAX_CACHE_SIZE);
     }
 
     /*

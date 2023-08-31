@@ -493,11 +493,9 @@ public abstract class BeanSerializerBase
             }
             // Or change Filter Id in use?
             Object filterId = intr.findFilterId(config, accessor);
-            if (filterId != null) {
-                // but only consider case of adding a new filter id (no removal via annotation)
-                if (_propertyFilterId == null || !filterId.equals(_propertyFilterId)) {
-                    newFilterId = filterId;
-                }
+            // but only consider case of adding a new filter id (no removal via annotation)
+            if (filterId != null && !filterId.equals(_propertyFilterId)) {
+                newFilterId = filterId;
             }
         }
         // either way, need to resolve serializer:

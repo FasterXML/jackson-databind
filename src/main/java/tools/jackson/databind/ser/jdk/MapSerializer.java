@@ -386,7 +386,7 @@ public class MapSerializer
         if (format != null) {
             Boolean B = format.getFeature(JsonFormat.Feature.WRITE_SORTED_MAP_ENTRIES);
             if (B != null) { // do NOT override if not defined
-                sortKeys = B.booleanValue();
+                sortKeys = B;
             }
         }
         MapSerializer mser = withResolved(property, keySer, ser, ignored, included, sortKeys);

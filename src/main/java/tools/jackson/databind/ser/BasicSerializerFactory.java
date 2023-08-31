@@ -821,9 +821,7 @@ public abstract class BasicSerializerFactory
             break;
         case CUSTOM: // new with 2.9
             valueToSuppress = ctxt.includeFilterInstance(null, inclV.getContentFilter());
-            if (valueToSuppress == null) { // is this legal?
-                suppressNulls = true;
-            } else {
+            if (valueToSuppress != null) { // is this legal?
                 suppressNulls = ctxt.includeFilterSuppressNulls(valueToSuppress);
             }
             break;
@@ -882,9 +880,7 @@ public abstract class BasicSerializerFactory
             break;
         case CUSTOM:
             valueToSuppress = ctxt.includeFilterInstance(null, inclV.getContentFilter());
-            if (valueToSuppress == null) { // is this legal?
-                suppressNulls = true;
-            } else {
+            if (valueToSuppress != null) { // is this legal?
                 suppressNulls = ctxt.includeFilterSuppressNulls(valueToSuppress);
             }
             break;

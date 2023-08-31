@@ -61,12 +61,11 @@ public final class DeserializerCache
     public DeserializerCache() { this(DEFAULT_MAX_CACHED); }
 
     public DeserializerCache(int maxSize) {
-        int initial = Math.min(64, maxSize>>2);
-        _cachedDeserializers = new SimpleLookupCache<>(initial, maxSize);
+        this(new SimpleLookupCache<>(Math.min(64, maxSize>>2), maxSize));
     }
 
-    private DeserializerCache(DeserializerCache src) {
-        _cachedDeserializers = src._cachedDeserializers;
+    public DeserializerCache(LookupCache<JavaType, ValueDeserializer<Object>> cache) {
+        _cachedDeserializers = cache;
     }
 
     /*
@@ -77,7 +76,7 @@ public final class DeserializerCache
 
     //  Need to re-create just to initialize `transient` fields
     protected Object readResolve() {
-        return new DeserializerCache(this);
+        return new DeserializerCache(_cachedDeserializers);
     }
 
     /*

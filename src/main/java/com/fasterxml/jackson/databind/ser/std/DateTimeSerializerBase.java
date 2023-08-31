@@ -183,7 +183,7 @@ df0.getClass().getName()));
     protected boolean _asTimestamp(SerializerProvider serializers)
     {
         if (_useTimestamp != null) {
-            return _useTimestamp.booleanValue();
+            return _useTimestamp;
         }
         if (_customFormat == null) {
             if (serializers != null) {

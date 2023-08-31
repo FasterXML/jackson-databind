@@ -2273,12 +2273,9 @@ public class ObjectMapper
      * @since 2.16
      */
     public ObjectMapper setCacheProvider(CacheProvider cacheProvider) {
-        BaseSettings ds = _deserializationConfig.getBaseSettings().with(cacheProvider);
-        _deserializationConfig = _deserializationConfig._withBase(ds);
-        
-        BaseSettings ss = _serializationConfig.getBaseSettings().with(cacheProvider);
-        _serializationConfig = _serializationConfig._withBase(ss);
-        
+        _deserializationConfig.getBaseSettings().with(cacheProvider);
+        BaseSettings s = _deserializationConfig.getBaseSettings().with();
+        _deserializationConfig = _deserializationConfig._withBase(s);
         return this;
     }
 

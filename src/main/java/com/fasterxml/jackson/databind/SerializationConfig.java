@@ -302,9 +302,7 @@ public final class SerializationConfig
     /**
      * @since 2.16
      */
-    protected BaseSettings getBaseSettings() {
-        return _base;
-    }
+    protected BaseSettings getBaseSettings() { return _base; }
 
     /*
     /**********************************************************

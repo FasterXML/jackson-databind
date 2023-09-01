@@ -85,7 +85,7 @@ public class TreeTraversingParser
 
     /*
     /**********************************************************************
-    /* Closeable implementation
+    /* Closing, related
     /**********************************************************************
      */
 
@@ -98,6 +98,12 @@ public class TreeTraversingParser
             _currToken = null;
         }
     }
+
+    @Override
+    protected void _closeInput() throws IOException { }
+
+    @Override
+    protected void _releaseBuffers() { }
 
     /*
     /**********************************************************************

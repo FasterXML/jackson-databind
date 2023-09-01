@@ -1572,7 +1572,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
 
         /*
         /******************************************************************
-        /* Closeable implementation
+        /* Closing, related
         /******************************************************************
          */
 
@@ -1580,6 +1580,12 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         public void close() {
             _closed = true;
         }
+
+        @Override
+        protected void _closeInput() throws IOException { }
+
+        @Override
+        protected void _releaseBuffers() { }
 
         /*
         /******************************************************************

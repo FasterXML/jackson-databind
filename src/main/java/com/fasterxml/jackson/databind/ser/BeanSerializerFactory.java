@@ -790,7 +790,7 @@ ClassUtil.getTypeDescription(beanDesc.getType()), ClassUtil.name(propName)));
                 ignores.put(type, result);
             }
             // lotsa work, and yes, it is ignorable type, so:
-            if (result.booleanValue()) {
+            if (result) {
                 it.remove();
             }
         }
@@ -802,15 +802,9 @@ ClassUtil.getTypeDescription(beanDesc.getType()), ClassUtil.name(propName)));
     protected void removeSetterlessGetters(SerializationConfig config, BeanDescription beanDesc,
             List<BeanPropertyDefinition> properties)
     {
-        Iterator<BeanPropertyDefinition> it = properties.iterator();
-        while (it.hasNext()) {
-            BeanPropertyDefinition property = it.next();
-            // one caveat: only remove implicit properties;
-            // explicitly annotated ones should remain
-            if (!property.couldDeserialize() && !property.isExplicitlyIncluded()) {
-                it.remove();
-            }
-        }
+        // one caveat: only remove implicit properties;
+        // explicitly annotated ones should remain
+        properties.removeIf(property -> !property.couldDeserialize() && !property.isExplicitlyIncluded());
     }
 
     /**

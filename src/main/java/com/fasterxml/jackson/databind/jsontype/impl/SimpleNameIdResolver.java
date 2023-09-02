@@ -4,10 +4,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.DatabindContext;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.MapperFeature;
+
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 
@@ -15,9 +13,14 @@ import com.fasterxml.jackson.databind.jsontype.NamedType;
  * {@link com.fasterxml.jackson.databind.jsontype.TypeIdResolver} implementation
  * that converts using explicitly (annotation-) specified type names
  * and maps to implementation classes; or, in absence of annotated type name,
- * defaults to fully-qualified {@link Class} names (obtained with {@link Class#getName()}
+ * defaults to simple {@link Class} names (obtained with {@link Class#getSimpleName()}.
+ * Basically same as {@link TypeNameIdResolver} except for default to "simple"
+ * and not "full" class name.
+ *
+ * @since 2.16
  */
-public class TypeNameIdResolver extends TypeIdResolverBase
+public class SimpleNameIdResolver
+    extends TypeIdResolverBase
 {
     protected final MapperConfig<?> _config;
 
@@ -36,12 +39,9 @@ public class TypeNameIdResolver extends TypeIdResolverBase
      */
     protected final Map<String, JavaType> _idToType;
 
-    /**
-     * @since 2.11
-     */
     protected final boolean _caseInsensitive;
 
-    protected TypeNameIdResolver(MapperConfig<?> config, JavaType baseType,
+    protected SimpleNameIdResolver(MapperConfig<?> config, JavaType baseType,
             ConcurrentHashMap<String, String> typeToId,
             HashMap<String, JavaType> idToType)
     {
@@ -52,7 +52,7 @@ public class TypeNameIdResolver extends TypeIdResolverBase
         _caseInsensitive = config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_VALUES);
     }
 
-    public static TypeNameIdResolver construct(MapperConfig<?> config, JavaType baseType,
+    public static SimpleNameIdResolver construct(MapperConfig<?> config, JavaType baseType,
             Collection<NamedType> subtypes, boolean forSer, boolean forDeser)
     {
         // sanity check
@@ -101,11 +101,11 @@ public class TypeNameIdResolver extends TypeIdResolverBase
                 }
             }
         }
-        return new TypeNameIdResolver(config, baseType, typeToId, idToType);
+        return new SimpleNameIdResolver(config, baseType, typeToId, idToType);
     }
 
     @Override
-    public JsonTypeInfo.Id getMechanism() { return JsonTypeInfo.Id.NAME; }
+    public JsonTypeInfo.Id getMechanism() { return JsonTypeInfo.Id.SIMPLE_NAME; }
 
     @Override
     public String idFromValue(Object value) {
@@ -161,10 +161,6 @@ public class TypeNameIdResolver extends TypeIdResolverBase
         if (_caseInsensitive) {
             id = id.toLowerCase();
         }
-        // Now: if no type is found, should we try to locate it by
-        // some other means? (specifically, if in same package as base type,
-        // could just try Class.forName)
-        // For now let's not add any such workarounds; can add if need be
         return _idToType.get(id);
     }
 
@@ -185,7 +181,7 @@ public class TypeNameIdResolver extends TypeIdResolverBase
     public String toString() {
         return String.format("[%s; id-to-type=%s]", getClass().getName(), _idToType);
     }
-
+    
     /*
     /*********************************************************
     /* Helper methods
@@ -194,12 +190,12 @@ public class TypeNameIdResolver extends TypeIdResolverBase
 
     /**
      * If no name was explicitly given for a class, we will just
-     * use non-qualified class name
+     * use simple class name
      */
     protected static String _defaultTypeId(Class<?> cls)
     {
         String n = cls.getName();
-        int ix = n.lastIndexOf('.');
+        int ix = Math.max(n.lastIndexOf('.'), n.lastIndexOf('$'));
         return (ix < 0) ? n : n.substring(ix+1);
     }
 }

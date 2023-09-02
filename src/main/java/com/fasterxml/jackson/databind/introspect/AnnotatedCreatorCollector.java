@@ -278,14 +278,14 @@ final class AnnotatedCreatorCollector
 
     private static boolean _isIncludableFactoryMethod(Method m)
     {
-        if (KotlinSupport.isJvmInlineClassSyntheticBoxingFunction(m)) {
-            return true;
+        if (!Modifier.isStatic(m.getModifiers())) {
+            return false;
         }
-
-        return Modifier.isStatic(m.getModifiers())
-                // 09-Nov-2020, ckozak: Avoid considering synthetic methods such as
-                // lambdas used within methods because they're not relevant.
-                && !m.isSynthetic();
+        // 09-Nov-2020, ckozak: Avoid considering synthetic methods such as
+        // lambdas used within methods because they're not relevant.
+        return !m.isSynthetic()
+                // 02-Sep-2023: As per [databind#4066] Kotlin needs some synthetic factory methods
+                || KotlinSupport.isJvmInlineClassSyntheticBoxingFunction(m);
     }
 
     protected AnnotatedConstructor constructDefaultConstructor(ClassUtil.Ctor ctor,

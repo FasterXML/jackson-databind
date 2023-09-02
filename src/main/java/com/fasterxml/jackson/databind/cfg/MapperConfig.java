@@ -684,6 +684,13 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      */
     public abstract PropertyName findRootName(Class<?> rawRootType);
 
+    /**
+     * @since 2.16
+     */
+    public CacheProvider getCacheProvider() {
+        return _base.getCacheProvider();
+    }
+
     /*
     /**********************************************************
     /* Methods for instantiating handlers

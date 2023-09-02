@@ -75,15 +75,6 @@ public final class DeserializerCache
         _cachedDeserializers = cache;
     }
 
-    /**
-     * Internal method to create actual cache instance for {@link #_cachedDeserializers}
-     *
-     * @since 2.16
-     */
-    private static LookupCache<JavaType, JsonDeserializer<Object>> _createCache(int maxSize) {
-        return new LRUMap<>(Math.min(64, maxSize>>2), maxSize);
-    }
-
     /*
     /**********************************************************
     /* JDK serialization handling
@@ -130,13 +121,22 @@ public final class DeserializerCache
     }
 
     /**
-     * Method used to provide cache instance for
-     * {@link DefaultCacheProvider#defaultInstance()}.
+     * Constructs and returns {@link LookupCache} instance using
+     * default settings used to construct {@link #_cachedDeserializers}.
      * 
      * @since 2.16
      */
     public static LookupCache<JavaType, JsonDeserializer<Object>> defaultCache() {
         return _createCache(MAX_CACHE_SIZE);
+    }
+
+    /**
+     * Internal method to create actual cache instance for {@link #_cachedDeserializers}
+     *
+     * @since 2.16
+     */
+    private static LookupCache<JavaType, JsonDeserializer<Object>> _createCache(int maxSize) {
+        return new LRUMap<>(Math.min(64, maxSize>>2), maxSize);
     }
 
     /*

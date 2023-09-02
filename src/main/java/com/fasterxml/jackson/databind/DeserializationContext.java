@@ -199,6 +199,9 @@ public abstract class DeserializationContext
         _attributes = src._attributes;
     }
 
+    /**
+     * @since 2.16
+     */
     protected DeserializationContext(DeserializationContext src,
                                      DeserializerCache cache)
     {

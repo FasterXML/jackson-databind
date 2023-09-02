@@ -96,18 +96,6 @@ public class CacheProviderTest
         
         assertTrue(invoked);
     }
-    
-    @Test
-    public void testNullCheckingForDeserializerCacheConfig() throws Exception
-    {
-        try {
-            DefaultCacheProvider.builder()
-                    .deserializerCache(null);
-            fail("Should not reach here");
-        } catch (IllegalArgumentException e) {
-            assertEquals("Cannot pass null deserializerCache", e.getMessage());
-        }
-    }
 
     @Test
     public void testDefaultCacheProviderSharesCache() throws Exception
@@ -139,5 +127,28 @@ public class CacheProviderTest
         // 5. Should not share cache entries
         JavaType type1 = mapper1.getTypeFactory().constructType(RandomBean.class);
         JavaType type2 = mapper1.getTypeFactory().constructType(AnotherBean.class);
+    }
+
+
+    @Test
+    public void testBuilderNullCheckingForDeserializerCacheConfig() throws Exception
+    {
+        try {
+            DefaultCacheProvider.builder()
+                    .deserializerCache(null);
+            fail("Should not reach here");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Cannot pass null deserializerCache", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testBuilderBuildWithDefaults() throws Exception
+    {
+        try {
+            DefaultCacheProvider.builder().build();
+        } catch (IllegalArgumentException e) {
+            fail("Should not reach here");
+        }
     }
 }

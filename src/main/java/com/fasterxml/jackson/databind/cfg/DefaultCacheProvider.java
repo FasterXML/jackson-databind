@@ -11,9 +11,9 @@ import java.util.Objects;
 /**
  * Default implementation of {@link CacheProvider}.
  * Provides builder-based custom cache configuration using {@link DefaultCacheProvider.Builder}.
- * Users can either use {@link DefaultCacheProvider.Builder} or write their own {@link CacheProvider} imlementation.
+ * Users can either use this class or implement their own {@link CacheProvider} imlementation.
  * <p>
- * WARNING: Configured cache instances using {@link DefaultCacheProvider.Builder} are "shared".
+ * WARNING: Configured cache instances are <br>shared</>.
  * Meaning that if you use same {@link DefaultCacheProvider} instance to construct multiple
  * {@link com.fasterxml.jackson.databind.ObjectMapper} instances, they will share the same cache instances.
  * 
@@ -25,7 +25,7 @@ public class DefaultCacheProvider
     private static final long serialVersionUID = 1L;
 
     /**
-     * {@link LookupCache} instance to be used create {@link DeserializerCache} instance when {@link #forDeserializerCache} is invoked.
+     * {@link LookupCache} instance used to create {@link DeserializerCache} instance when {@link #forDeserializerCache} is invoked.
      */
     protected final LookupCache<JavaType, JsonDeserializer<Object>> _deserializerCache;
     
@@ -47,7 +47,7 @@ public class DefaultCacheProvider
      */
 
     /**
-     * @return Default {@link DefaultCacheProvider} instance for default configuration and null-safety.
+     * @return Default {@link DefaultCacheProvider} instance with default configuration values.
      */
     public static CacheProvider defaultInstance() {
         return new DefaultCacheProvider(DeserializerCache.defaultCache());
@@ -84,11 +84,13 @@ public class DefaultCacheProvider
     public static class Builder {
 
         /**
+         * {@link LookupCache} instance used to create {@link DeserializerCache} instance when {@link #forDeserializerCache} is invoked.
+         * 
          * Counter part of {@link DefaultCacheProvider#_deserializerCache}.
          */
         private LookupCache<JavaType, JsonDeserializer<Object>> _deserializerCache;
         
-        protected Builder() { }
+        private Builder() { }
 
         /**
          * Fluent API for configuring {@link DefaultCacheProvider#_deserializerCache} instance for {@link DefaultCacheProvider}.
@@ -111,8 +113,8 @@ public class DefaultCacheProvider
          * @return Constructs and returns a {@link DefaultCacheProvider} instance with given configuration.
          */
         public DefaultCacheProvider build() {
-            LookupCache<JavaType, JsonDeserializer<Object>> deserializerCache = Objects.isNull(_deserializerCache) 
-                    ? DeserializerCache.defaultCache() : _deserializerCache;
+            LookupCache<JavaType, JsonDeserializer<Object>> deserializerCache = 
+                    Objects.isNull(_deserializerCache) ? DeserializerCache.defaultCache() : _deserializerCache;
             
             return new DefaultCacheProvider(deserializerCache);
         }

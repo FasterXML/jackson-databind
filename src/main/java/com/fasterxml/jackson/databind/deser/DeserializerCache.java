@@ -121,8 +121,7 @@ public final class DeserializerCache
     }
 
     /**
-     * Constructs and returns {@link LookupCache} instance using
-     * default settings used to construct {@link #_cachedDeserializers}.
+     * Constructs and returns {@link LookupCache} instance with default settings.
      * 
      * @since 2.16
      */

@@ -1,8 +1,10 @@
 package com.fasterxml.jackson.databind.cfg;
 
+import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.deser.DeserializerCache;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.util.LookupCache;
 import org.junit.Before;
@@ -69,32 +71,54 @@ public class CacheProviderTest
             _cachedDeserializers.clear();
         }
     }
-
-    @Before
-    public void setUp() {
-        createdCaches.clear();
-        invoked = false;
+    
+    static class CustomCacheProvider implements CacheProvider {
+        @Override
+        public DeserializerCache forDeserializerCache(DeserializationConfig config) {
+            return new DeserializerCache(DeserializerCache.defaultCache());
+        }
     }
+    
+    /*
+    /**********************************************************************
+    /* Unit tests
+    /**********************************************************************
+     */
 
     // For checking the cache was actually used
     private static boolean invoked = false;
 
     // For checking the cache was actually created
     private static final List<Map<JavaType, JsonDeserializer<Object>>> createdCaches = new ArrayList<>();
+    
+    @Before
+    public void setUp() {
+        createdCaches.clear();
+        invoked = false;
+    }
 
     @Test
-    public void testCacheConfig() throws Exception
+    public void testDefaultCacheProviderConfig() throws Exception
     {
         DefaultCacheProvider cacheProvider = DefaultCacheProvider.builder()
                 .deserializerCache(new SimpleTestCache(1234))
                 .build();
-        
         ObjectMapper mapper = JsonMapper.builder()
                 .cacheProvider(cacheProvider).build();
 
         mapper.readValue("{\"point\":24}", RandomBean.class);
         
         assertTrue(invoked);
+    }
+
+    @Test
+    public void testCustomCacheProviderConfig() throws Exception
+    {
+        ObjectMapper mapper = JsonMapper.builder()
+                .cacheProvider(new CustomCacheProvider())
+                .build();
+
+        assertNotNull(mapper.readValue("{\"point\":24}", RandomBean.class));
     }
 
     @Test
@@ -151,4 +175,6 @@ public class CacheProviderTest
             fail("Should not reach here");
         }
     }
+    
+    
 }

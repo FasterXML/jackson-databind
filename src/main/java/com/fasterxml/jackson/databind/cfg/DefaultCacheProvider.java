@@ -9,8 +9,11 @@ import com.fasterxml.jackson.databind.util.LookupCache;
 /**
  * Default implementation of {@link CacheProvider}.
  * Provides builder-based custom cache configuration using {@link DefaultCacheProvider.Builder}.
- * <p>
  * Users can either use {@link DefaultCacheProvider.Builder} or write their own {@link CacheProvider} imlementation.
+ * <p>
+ * WARNING: Configured cache instances using {@link DefaultCacheProvider.Builder} are "shared".
+ * Meaning that if you use same {@link DefaultCacheProvider} instance to construct multiple
+ * {@link com.fasterxml.jackson.databind.ObjectMapper} instances, they will share the same cache instances.
  * 
  * @since 2.16
  */
@@ -20,7 +23,7 @@ public class DefaultCacheProvider
     private static final long serialVersionUID = 1L;
 
     /**
-     * Cache instance to provide for {@link DeserializerCache}.
+     * {@link LookupCache} instance to be used create {@link DeserializerCache} instance when {@link #forDeserializerCache} is invoked.
      */
     protected final LookupCache<JavaType, JsonDeserializer<Object>> _deserializerCache;
     
@@ -55,8 +58,8 @@ public class DefaultCacheProvider
      */
     
     @Override
-    public LookupCache<JavaType, JsonDeserializer<Object>> forDeserializerCache(DeserializationConfig config) {
-        return _deserializerCache;
+    public DeserializerCache forDeserializerCache(DeserializationConfig config) {
+        return new DeserializerCache(_deserializerCache);
     }
 
     /*
@@ -85,7 +88,16 @@ public class DefaultCacheProvider
         
         protected Builder() { }
 
+        /**
+         * Fluent API for configuring {@link DefaultCacheProvider#_deserializerCache} instance for {@link DefaultCacheProvider}.
+         * 
+         * @param deserializerCache {@link LookupCache} instance to be used create {@link DeserializerCache} instance.
+         * @throws IllegalArgumentException if {@code deserializerCache} is null.
+         */
         public Builder deserializerCache(LookupCache<JavaType, JsonDeserializer<Object>> deserializerCache) {
+            if (deserializerCache == null) {
+                throw new IllegalArgumentException("Cannot pass null deserializerCache");
+            }
             _deserializerCache = deserializerCache;
             return this;
         }

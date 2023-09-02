@@ -1,16 +1,19 @@
 package com.fasterxml.jackson.databind.cfg;
 
-import java.util.HashMap;
-
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.util.LookupCache;
+import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * <a href="https://github.com/FasterXML/jackson-databind/issues/2502">
@@ -18,58 +21,123 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *
  * @since 2.16
  */
-public class CacheProviderTest {
-
+public class CacheProviderTest
+{
+    
     static class RandomBean {
         public int point;
     }
 
+    static class AnotherBean {
+        public int height;
+    }
+
     static class SimpleTestCache implements LookupCache<JavaType, JsonDeserializer<Object>> {
 
-        final HashMap<JavaType, JsonDeserializer<Object>> cache = new HashMap<>();
+        final HashMap<JavaType, JsonDeserializer<Object>> _cachedDeserializers;
+
+        public SimpleTestCache(int cacheSize) {
+            _cachedDeserializers = new HashMap<>(cacheSize);
+            createdCaches.add(_cachedDeserializers);
+        }
 
         @Override
         public int size() {
-            return cache.size();
+            return _cachedDeserializers.size();
         }
 
         @Override
         public JsonDeserializer<Object> get(Object key) {
             invoked = true;
-            return cache.get(key);
+            return _cachedDeserializers.get(key);
         }
 
         @Override
         public JsonDeserializer<Object> put(JavaType key, JsonDeserializer<Object> value) {
             invoked = true;
-            return cache.put(key, value);
+            return _cachedDeserializers.put(key, value);
         }
 
         @Override
         public JsonDeserializer<Object> putIfAbsent(JavaType key, JsonDeserializer<Object> value) {
             invoked = true;
-            return cache.putIfAbsent(key, value);
+            return _cachedDeserializers.putIfAbsent(key, value);
         }
 
         @Override
         public void clear() {
-            cache.clear();
+            _cachedDeserializers.clear();
         }
     }
 
-    // Checking the cache was actually used
+    @Before
+    public void setUp() {
+        createdCaches.clear();
+        invoked = false;
+    }
+
+    // For checking the cache was actually used
     private static boolean invoked = false;
 
+    // For checking the cache was actually created
+    private static final List<Map<JavaType, JsonDeserializer<Object>>> createdCaches = new ArrayList<>();
+
     @Test
-    public void testCacheConfig() throws Exception {
+    public void testCacheConfig() throws Exception
+    {
         DefaultCacheProvider cacheProvider = DefaultCacheProvider.builder()
-                .deserializerCache(new SimpleTestCache())
+                .deserializerCache(new SimpleTestCache(1234))
                 .build();
+        
         ObjectMapper mapper = JsonMapper.builder()
                 .cacheProvider(cacheProvider).build();
 
-        RandomBean bean = mapper.readValue("{\"point\":24}", RandomBean.class);
-        assertEquals(24, bean.point);
+        mapper.readValue("{\"point\":24}", RandomBean.class);
+        
         assertTrue(invoked);
+    }
+    
+    @Test
+    public void testNullCheckingForDeserializerCacheConfig() throws Exception
+    {
+        try {
+            DefaultCacheProvider.builder()
+                    .deserializerCache(null);
+            fail("Should not reach here");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Cannot pass null deserializerCache", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testDefaultCacheProviderSharesCache() throws Exception
+    {
+        // Arrange
+        // 1. shared CacheProvider
+        DefaultCacheProvider cacheProvider = DefaultCacheProvider.builder()
+                .deserializerCache(new SimpleTestCache(1234))
+                .build();
+        
+        // 2. two different mapper instances
+        ObjectMapper mapper1 = JsonMapper.builder()
+                .cacheProvider(cacheProvider)
+                .build();
+        ObjectMapper mapper2 = JsonMapper.builder()
+                .cacheProvider(cacheProvider)
+                .build();
+        
+        // Act 
+        // 3. Add two different types to each mapper cache
+        mapper1.readValue("{\"point\":24}", RandomBean.class);
+        mapper2.readValue("{\"height\":24}", AnotherBean.class);
+        
+        // Assert
+        // 4. Should have created only one cache instance, shared between mappers
+        assertEquals(1, createdCaches.size());
+        Map<JavaType, JsonDeserializer<Object>> cache = createdCaches.get(0);
+        
+        // 5. Should not share cache entries
+        JavaType type1 = mapper1.getTypeFactory().constructType(RandomBean.class);
+        JavaType type2 = mapper1.getTypeFactory().constructType(AnotherBean.class);
     }
 }

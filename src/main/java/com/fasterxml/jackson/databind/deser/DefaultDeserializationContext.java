@@ -62,6 +62,14 @@ public abstract class DefaultDeserializationContext
     }
 
     /**
+     * @since 2.16
+     */
+    protected DefaultDeserializationContext(DefaultDeserializationContext src,
+                                            DeserializerCache cache) {
+        super(src, cache);
+    }
+    
+    /**
      * @since 2.4.4
      */
     protected DefaultDeserializationContext(DefaultDeserializationContext src) {
@@ -297,6 +305,12 @@ public abstract class DefaultDeserializationContext
     public abstract DefaultDeserializationContext with(DeserializerFactory factory);
 
     /**
+     * Fluent factory method used for constructing a new instance with configured {@link DeserializerCache}.
+     * @since 2.16
+     */
+    public abstract DefaultDeserializationContext with(DeserializerCache deserializerCache);
+
+    /**
      * Method called to create actual usable per-deserialization
      * context instance.
      */
@@ -402,6 +416,13 @@ ClassUtil.name(expSimpleName), p.currentToken());
             super(src, config);
         }
 
+        /**
+         * @since 2.16
+         */
+        private Impl(Impl src, DeserializerCache deserializerCache) {
+            super(src, deserializerCache);
+        }
+
         @Override
         public DefaultDeserializationContext copy() {
             ClassUtil.verifyMustOverride(Impl.class, this, "copy");
@@ -423,6 +444,11 @@ ClassUtil.name(expSimpleName), p.currentToken());
         @Override
         public DefaultDeserializationContext with(DeserializerFactory factory) {
             return new Impl(this, factory);
+        }
+
+        @Override // Since 2.16
+        public DefaultDeserializationContext with(DeserializerCache deserializerCache) {
+            return new Impl(this, deserializerCache);
         }
     }
 }

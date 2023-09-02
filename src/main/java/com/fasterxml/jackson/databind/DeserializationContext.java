@@ -199,6 +199,20 @@ public abstract class DeserializationContext
         _attributes = src._attributes;
     }
 
+    protected DeserializationContext(DeserializationContext src,
+                                     DeserializerCache cache)
+    {
+        _cache = cache;
+        _factory = src._factory;
+
+        _config = src._config;
+        _featureFlags = src._featureFlags;
+        _readCapabilities = src._readCapabilities;
+        _view = src._view;
+        _parser = src._parser;
+        _injectableValues = src._injectableValues;
+        _attributes = src._attributes;
+    }
     /**
      * Constructor used for creating actual per-call instances.
      */

@@ -1,10 +1,7 @@
 package com.fasterxml.jackson.databind.cfg;
 
 import com.fasterxml.jackson.databind.DeserializationConfig;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.deser.DeserializerCache;
-import com.fasterxml.jackson.databind.util.LookupCache;
 
 /**
  * Interface that defines API Jackson uses for constructing various internal
@@ -18,10 +15,8 @@ public interface CacheProvider
     extends java.io.Serializable
 {
     /**
-     * Method to provide a {@link LookupCache} instance for {@link DeserializerCache}
-     * 
-     * @return {@link LookupCache} instance for caching {@link JsonDeserializer}s
+     * Method to provide a {@link DeserializerCache} instance.
      */
-    LookupCache<JavaType, JsonDeserializer<Object>> forDeserializerCache(DeserializationConfig config);
+    DeserializerCache forDeserializerCache(DeserializationConfig config);
     
 }

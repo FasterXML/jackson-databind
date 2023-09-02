@@ -60,6 +60,7 @@ public abstract class MapperBuilder<M extends ObjectMapper,
             Locale.getDefault(),
             null, // to indicate "use Jackson default TimeZone" (UTC)
             Base64Variants.getDefaultVariant(),
+            DefaultCacheProvider.defaultInstance(),
             JsonNodeFactory.instance
     );
 

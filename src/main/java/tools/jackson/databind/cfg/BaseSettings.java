@@ -69,9 +69,9 @@ public final class BaseSettings
     protected final PolymorphicTypeValidator _typeValidator;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Configuration settings; other
-    /**********************************************************
+    /**********************************************************************
      */
 
     /**
@@ -116,14 +116,21 @@ public final class BaseSettings
     protected final Base64Variant _defaultBase64;
 
     /**
+     * Used to provide custom cache implementation in downstream components.
+     *
+     * @since 2.16
+     */
+    protected final CacheProvider _cacheProvider;
+
+    /**
      * Factory used for constructing {@link tools.jackson.databind.JsonNode} instances.
      */
     protected final JsonNodeFactory _nodeFactory;
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Construction
-    /**********************************************************
+    /**********************************************************************
      */
 
     public BaseSettings(AnnotationIntrospector ai,
@@ -131,7 +138,7 @@ public final class BaseSettings
             TypeResolverBuilder<?> defaultTyper, PolymorphicTypeValidator ptv,
             DateFormat dateFormat, HandlerInstantiator hi,
             Locale locale, TimeZone tz, Base64Variant defaultBase64,
-            JsonNodeFactory nodeFactory)
+            CacheProvider cacheProvider, JsonNodeFactory nodeFactory)
     {
         _annotationIntrospector = ai;
         _propertyNamingStrategy = pns;
@@ -143,13 +150,14 @@ public final class BaseSettings
         _locale = locale;
         _timeZone = tz;
         _defaultBase64 = defaultBase64;
+        _cacheProvider = cacheProvider;
         _nodeFactory = nodeFactory;
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     public BaseSettings withAnnotationIntrospector(AnnotationIntrospector ai) {
@@ -158,7 +166,7 @@ public final class BaseSettings
         }
         return new BaseSettings(ai, _propertyNamingStrategy, _accessorNaming,
                 _defaultTyper, _typeValidator, _dateFormat, _handlerInstantiator, _locale,
-                _timeZone, _defaultBase64, _nodeFactory);
+                _timeZone, _defaultBase64, _cacheProvider, _nodeFactory);
     }
 
     public BaseSettings withInsertedAnnotationIntrospector(AnnotationIntrospector ai) {
@@ -175,7 +183,7 @@ public final class BaseSettings
         }
         return new BaseSettings(_annotationIntrospector, pns, _accessorNaming,
                 _defaultTyper, _typeValidator, _dateFormat, _handlerInstantiator, _locale,
-                _timeZone, _defaultBase64, _nodeFactory);
+                _timeZone, _defaultBase64, _cacheProvider, _nodeFactory);
     }
 
     public BaseSettings with(AccessorNamingStrategy.Provider p) {
@@ -184,7 +192,7 @@ public final class BaseSettings
         }
         return new BaseSettings(_annotationIntrospector, _propertyNamingStrategy, p,
                 _defaultTyper, _typeValidator, _dateFormat, _handlerInstantiator, _locale,
-                _timeZone, _defaultBase64, _nodeFactory);
+                _timeZone, _defaultBase64, _cacheProvider, _nodeFactory);
     }
 
     public BaseSettings with(TypeResolverBuilder<?> typer) {
@@ -193,7 +201,7 @@ public final class BaseSettings
         }
         return new BaseSettings(_annotationIntrospector, _propertyNamingStrategy, _accessorNaming,
                 typer, _typeValidator, _dateFormat, _handlerInstantiator, _locale,
-                _timeZone, _defaultBase64, _nodeFactory);
+                _timeZone, _defaultBase64, _cacheProvider, _nodeFactory);
     }
 
     public BaseSettings with(PolymorphicTypeValidator ptv) {
@@ -202,7 +210,7 @@ public final class BaseSettings
         }
         return new BaseSettings(_annotationIntrospector, _propertyNamingStrategy, _accessorNaming,
                 _defaultTyper, ptv, _dateFormat, _handlerInstantiator, _locale,
-                _timeZone, _defaultBase64, _nodeFactory);
+                _timeZone, _defaultBase64, _cacheProvider, _nodeFactory);
     }
 
     public BaseSettings with(DateFormat df) {
@@ -216,7 +224,7 @@ public final class BaseSettings
         }
         return new BaseSettings(_annotationIntrospector, _propertyNamingStrategy, _accessorNaming,
                 _defaultTyper, _typeValidator, df, _handlerInstantiator, _locale,
-                _timeZone, _defaultBase64, _nodeFactory);
+                _timeZone, _defaultBase64, _cacheProvider, _nodeFactory);
     }
 
     public BaseSettings with(HandlerInstantiator hi) {
@@ -225,7 +233,7 @@ public final class BaseSettings
         }
         return new BaseSettings(_annotationIntrospector, _propertyNamingStrategy, _accessorNaming,
                 _defaultTyper, _typeValidator, _dateFormat, hi, _locale,
-                _timeZone, _defaultBase64, _nodeFactory);
+                _timeZone, _defaultBase64, _cacheProvider, _nodeFactory);
     }
 
     public BaseSettings with(Locale l) {
@@ -234,7 +242,7 @@ public final class BaseSettings
         }
         return new BaseSettings(_annotationIntrospector, _propertyNamingStrategy, _accessorNaming,
                 _defaultTyper, _typeValidator, _dateFormat, _handlerInstantiator, l,
-                _timeZone, _defaultBase64, _nodeFactory);
+                _timeZone, _defaultBase64, _cacheProvider, _nodeFactory);
     }
 
     /**
@@ -250,7 +258,7 @@ public final class BaseSettings
         DateFormat df = _force(_dateFormat, (tz == null) ? DEFAULT_TIMEZONE : tz);
         return new BaseSettings(_annotationIntrospector, _propertyNamingStrategy, _accessorNaming,
                 _defaultTyper, _typeValidator, df, _handlerInstantiator, _locale,
-                tz, _defaultBase64, _nodeFactory);
+                tz, _defaultBase64, _cacheProvider, _nodeFactory);
     }
 
     public BaseSettings with(Base64Variant base64) {
@@ -259,7 +267,7 @@ public final class BaseSettings
         }
         return new BaseSettings(_annotationIntrospector, _propertyNamingStrategy, _accessorNaming,
                 _defaultTyper, _typeValidator, _dateFormat, _handlerInstantiator, _locale,
-                _timeZone, base64, _nodeFactory);
+                _timeZone, base64, _cacheProvider, _nodeFactory);
     }
 
     public BaseSettings with(JsonNodeFactory nodeFactory) {
@@ -268,13 +276,27 @@ public final class BaseSettings
         }
         return new BaseSettings(_annotationIntrospector, _propertyNamingStrategy, _accessorNaming,
                 _defaultTyper, _typeValidator, _dateFormat, _handlerInstantiator, _locale,
-                _timeZone, _defaultBase64, nodeFactory);
+                _timeZone, _defaultBase64, _cacheProvider, nodeFactory);
+    }
+
+    /**
+     * Fluent factory for constructing a new instance with provided {@link CacheProvider}.
+     *
+     * @return a new instance with provided {@link CacheProvider}.
+     */
+    public BaseSettings with(CacheProvider cacheProvider) {
+        if (cacheProvider == _cacheProvider) {
+            return this;
+        }
+        return new BaseSettings(_annotationIntrospector, _propertyNamingStrategy, _accessorNaming,
+                _defaultTyper, _typeValidator, _dateFormat, _handlerInstantiator, _locale,
+                _timeZone, _defaultBase64, _cacheProvider, _nodeFactory);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* API
-    /**********************************************************
+    /**********************************************************************
      */
 
     public AnnotationIntrospector getAnnotationIntrospector() {
@@ -327,14 +349,18 @@ public final class BaseSettings
         return _defaultBase64;
     }
 
+    public CacheProvider getCacheProvider() {
+        return _cacheProvider;
+    }
+
     public JsonNodeFactory getNodeFactory() {
         return _nodeFactory;
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     private DateFormat _force(DateFormat df, TimeZone tz)

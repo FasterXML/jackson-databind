@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.cfg;
 
+import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.deser.DeserializerCache;
@@ -54,7 +55,7 @@ public class DefaultCacheProvider
      */
     
     @Override
-    public LookupCache<JavaType, JsonDeserializer<Object>> forDeserializerCache() {
+    public LookupCache<JavaType, JsonDeserializer<Object>> forDeserializerCache(DeserializationConfig config) {
         return _deserializerCache;
     }
 

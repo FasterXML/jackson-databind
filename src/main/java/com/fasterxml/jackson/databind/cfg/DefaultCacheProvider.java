@@ -40,6 +40,9 @@ public class DefaultCacheProvider
     /**********************************************************************
      */
 
+    /**
+     * @return Default {@link DefaultCacheProvider} instance for default configuration and null-safety.
+     */
     public static CacheProvider defaultInstance() {
         return new DefaultCacheProvider(DeserializerCache.defaultCache());
     }
@@ -61,6 +64,9 @@ public class DefaultCacheProvider
     /**********************************************************
      */
 
+    /**
+     * @return Builder instance to construct {@link DefaultCacheProvider} instance.
+     */
     public static DefaultCacheProvider.Builder builder() {
         return new Builder();
     }
@@ -70,18 +76,25 @@ public class DefaultCacheProvider
      * and to keep {@link DefaultCacheProvider} immutable.
      */
     public static class Builder {
-        
+
+        /**
+         * Counter part of {@link DefaultCacheProvider#_deserializerCache}.
+         */
         private LookupCache<JavaType, JsonDeserializer<Object>> _deserializerCache;
         
         protected Builder() { }
 
-        public DefaultCacheProvider build() {
-            return new DefaultCacheProvider(_deserializerCache);
-        }
-        
         public Builder deserializerCache(LookupCache<JavaType, JsonDeserializer<Object>> deserializerCache) {
             _deserializerCache = deserializerCache;
             return this;
         }
+
+        /**
+         * @return Constructs and returns a {@link DefaultCacheProvider} instance with given configuration.
+         */
+        public DefaultCacheProvider build() {
+            return new DefaultCacheProvider(_deserializerCache);
+        }
+
     }
 }

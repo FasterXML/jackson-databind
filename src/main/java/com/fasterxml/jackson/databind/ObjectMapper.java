@@ -389,7 +389,9 @@ public class ObjectMapper
             // Only for 2.x; 3.x will use more restrictive default
             LaissezFaireSubTypeValidator.instance,
             // Since 2.12:
-            new DefaultAccessorNamingStrategy.Provider()
+            new DefaultAccessorNamingStrategy.Provider(),
+            // Since 2.16: [databind#2502] Add a way to configure Caches Jackson uses
+            DefaultCacheProvider.defaultInstance()
     );
 
     /*
@@ -2273,7 +2275,8 @@ public class ObjectMapper
      * @since 2.16
      */
     public ObjectMapper setCacheProvider(CacheProvider cacheProvider) {
-        // to implement
+        _deserializationConfig = _deserializationConfig.with(cacheProvider);
+        _serializationConfig = _serializationConfig.with(cacheProvider);
         return this;
     }
 

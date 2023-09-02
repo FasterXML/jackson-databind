@@ -54,7 +54,7 @@ public class DefaultCacheProvider
      */
     
     @Override
-    public LookupCache<JavaType, JsonDeserializer<Object>> provideForDeserializerCache() {
+    public LookupCache<JavaType, JsonDeserializer<Object>> forDeserializerCache() {
         return _deserializerCache;
     }
 

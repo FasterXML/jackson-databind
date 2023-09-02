@@ -26,11 +26,12 @@ public final class DeserializerCache
     private static final long serialVersionUID = 1L;
 
     /**
-     * Declared as field since 2.16, used to be passed inline in {@link #DeserializerCache(int)}.
+     * Previously was passed inline in {@link #DeserializerCache(int)}.
+     * Declared as field since 2.16.
      * 
      * @since 2.16
      */
-    public final static int MAX_CACHE_SIZE = 2000;
+    private final static int MAX_CACHE_SIZE = 2000;
 
     /*
     /**********************************************************
@@ -64,7 +65,7 @@ public final class DeserializerCache
     }
 
     public DeserializerCache(int maxSize) {
-        this(new LRUMap<>(Math.min(64, maxSize>>2), maxSize));
+        this(_createCache(maxSize));
     }
 
     /**
@@ -72,6 +73,15 @@ public final class DeserializerCache
      */
     public DeserializerCache(LookupCache<JavaType, JsonDeserializer<Object>> cache) {
         _cachedDeserializers = cache;
+    }
+
+    /**
+     * Internal method to create actual cache instance for {@link #_cachedDeserializers}
+     *
+     * @since 2.16
+     */
+    private static LookupCache<JavaType, JsonDeserializer<Object>> _createCache(int maxSize) {
+        return new LRUMap<>(Math.min(64, maxSize>>2), maxSize);
     }
 
     /*
@@ -120,12 +130,13 @@ public final class DeserializerCache
     }
 
     /**
-     * Method used to provide cache instance for {@link DefaultCacheProvider#defaultInstance()}.
+     * Method used to provide cache instance for
+     * {@link DefaultCacheProvider#defaultInstance()}.
      * 
      * @since 2.16
      */
     public static LookupCache<JavaType, JsonDeserializer<Object>> defaultCache() {
-        return new LRUMap<>(Math.min(64, MAX_CACHE_SIZE >>2), MAX_CACHE_SIZE);
+        return _createCache(MAX_CACHE_SIZE);
     }
 
     /*

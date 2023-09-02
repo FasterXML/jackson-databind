@@ -246,6 +246,7 @@ public abstract class DeserializationContext
      * Copy-constructor for use with <code>copy()</code> by {@link ObjectMapper#copy()}
      */
     protected DeserializationContext(DeserializationContext src) {
+        _cache = new DeserializerCache();
         _factory = src._factory;
 
         _config = src._config;
@@ -253,21 +254,6 @@ public abstract class DeserializationContext
         _readCapabilities = src._readCapabilities;
         _view = src._view;
         _injectableValues = null;
-        _cache = (src._cache == null) ? new DeserializerCache() : src._cache;
-    }
-
-    /**
-     * @since 2.16
-     */
-    public DeserializationContext(DefaultDeserializationContext src, DeserializerCache deserializerCache) {
-        _factory = src._factory;
-
-        _config = src._config;
-        _featureFlags = src._featureFlags;
-        _readCapabilities = src._readCapabilities;
-        _view = src._view;
-        _injectableValues = src._injectableValues;
-        _cache = deserializerCache;
     }
 
     /*

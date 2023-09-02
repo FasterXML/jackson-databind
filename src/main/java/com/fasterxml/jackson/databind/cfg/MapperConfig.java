@@ -675,6 +675,13 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     public abstract ContextAttributes getAttributes();
 
     /**
+     * Method for accessing configured {@link CacheProvider} via {@link MapperBuilder#cacheProvider(CacheProvider)}.
+     * 
+     * @since 2.16
+     */
+    public abstract CacheProvider getCacheProvider();
+
+    /**
      * @since 2.6
      */
     public abstract PropertyName findRootName(JavaType rootType);

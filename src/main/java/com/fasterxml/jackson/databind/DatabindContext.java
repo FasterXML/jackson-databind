@@ -5,7 +5,6 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.databind.cfg.CacheProvider;
 import com.fasterxml.jackson.databind.cfg.DatatypeFeature;
 import com.fasterxml.jackson.databind.cfg.DatatypeFeatures;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
@@ -148,16 +147,6 @@ public abstract class DatabindContext
      * @since 2.3
      */
     public abstract DatabindContext setAttribute(Object key, Object value);
-
-    /**
-     * Method to configure a provider for custom cache implementations downstream.
-     * Should be overriden by sub-classes. 
-     * 
-     * @since 2.16
-     */
-    public DatabindContext withCacheProvider(CacheProvider cacheProvider) {
-        return this;
-    }
 
     /*
     /**********************************************************

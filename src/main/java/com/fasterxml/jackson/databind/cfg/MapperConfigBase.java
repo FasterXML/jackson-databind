@@ -881,7 +881,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         }
         return _configOverrides.getDefaultMergeable();
     }
-    
+
     /*
     /**********************************************************************
     /* Other config access
@@ -902,11 +902,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
             return _rootName;
         }
         return _rootNames.findRootName(rawRootType, this);
-    }
-
-    @Override // Since 2.16
-    public CacheProvider getCacheProvider() {
-        return _base.getCacheProvider();
     }
 
     /*

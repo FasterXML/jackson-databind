@@ -11,7 +11,6 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerator.IdKey;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.cfg.CacheProvider;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId.Referring;
@@ -69,10 +68,6 @@ public abstract class DefaultDeserializationContext
         super(src);
     }
 
-    public DefaultDeserializationContext(DefaultDeserializationContext src, DeserializerCache deserializerCache) {
-        super(src, deserializerCache);
-    }
-
     /**
      * Method needed to ensure that {@link ObjectMapper#copy} will work
      * properly; specifically, that caches are cleared, but settings
@@ -83,11 +78,6 @@ public abstract class DefaultDeserializationContext
      */
     public DefaultDeserializationContext copy() {
         throw new IllegalStateException("DefaultDeserializationContext sub-class not overriding copy()");
-    }
-
-    @Override
-    public DefaultDeserializationContext withCacheProvider(CacheProvider cacheProvider) {
-        throw new IllegalStateException("DefaultDeserializationContext sub-class not overriding withCacheProvider(CacheProvider)");
     }
 
     /*
@@ -412,10 +402,6 @@ ClassUtil.name(expSimpleName), p.currentToken());
             super(src, config);
         }
 
-        private Impl(Impl src, DeserializerCache cache) {
-            super(src, cache);
-        }
-
         @Override
         public DefaultDeserializationContext copy() {
             ClassUtil.verifyMustOverride(Impl.class, this, "copy");
@@ -437,11 +423,6 @@ ClassUtil.name(expSimpleName), p.currentToken());
         @Override
         public DefaultDeserializationContext with(DeserializerFactory factory) {
             return new Impl(this, factory);
-        }
-
-        @Override
-        public DefaultDeserializationContext withCacheProvider(CacheProvider cacheProvider) {
-            return new Impl(this, new DeserializerCache(cacheProvider.provideForDeserializerCache()));
         }
     }
 }

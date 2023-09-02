@@ -7,7 +7,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.cfg.CacheProvider;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
@@ -624,12 +623,6 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
         @Override
         public Impl createInstance(SerializationConfig config, SerializerFactory jsf) {
             return new Impl(this, config, jsf);
-        }
-
-        @Override
-        public Impl withCacheProvider(CacheProvider cacheProvider) {
-            // TODO: implement like {@code DefaultDeserializationContext.Impl#withCacheProvider}
-            return this;
         }
     }
 }

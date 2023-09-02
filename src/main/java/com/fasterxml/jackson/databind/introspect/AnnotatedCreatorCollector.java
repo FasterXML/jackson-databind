@@ -409,8 +409,10 @@ ctor.getDeclaringClass().getName(), paramCount, paramAnns.length));
         return c.asAnnotationMap();
     }
 
-    // for [databind#1005]: do not use or expose synthetic constructors
     private static boolean isIncludableConstructor(Constructor<?> c) {
-        return !c.isSynthetic() || KotlinSupport.isJvmInlineClassSyntheticConstructor(c);
+        // for [databind#1005]: do not use or expose synthetic constructors
+        return !c.isSynthetic()
+                // 02-Sep-2023: As per [databind#4066] Kotlin needs some synthetic constructors
+                || KotlinSupport.isJvmInlineClassSyntheticConstructor(c);
     }
 }

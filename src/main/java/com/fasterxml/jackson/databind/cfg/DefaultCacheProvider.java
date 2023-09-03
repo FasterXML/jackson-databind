@@ -7,16 +7,10 @@ import com.fasterxml.jackson.databind.deser.DeserializerCache;
 import com.fasterxml.jackson.databind.util.LRUMap;
 import com.fasterxml.jackson.databind.util.LookupCache;
 
-import java.util.Objects;
-
 /**
  * Default implementation of {@link CacheProvider}.
  * Provides builder-based custom cache configuration using {@link DefaultCacheProvider.Builder}.
  * Users can either use this class or implement their own {@link CacheProvider} imlementation.
- * <p>
- * WARNING: Configured cache instances are <br>shared</>.
- * Meaning that if you use same {@link DefaultCacheProvider} instance to construct multiple
- * {@link com.fasterxml.jackson.databind.ObjectMapper} instances, they will share the same cache instances.
  * 
  * @since 2.16
  */

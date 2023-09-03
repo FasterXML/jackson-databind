@@ -56,7 +56,13 @@ public class DefaultCacheProvider
     /* Overriden methods
     /**********************************************************
      */
-    
+
+    /**
+     * Method to provide a {@link LookupCache} instance for constructing {@link DeserializerCache}.
+     * Implementation should match {@link DeserializerCache#DeserializerCache(int)}.
+     *
+     * @return {@link LookupCache} instance for constructing {@link DeserializerCache}.
+     */
     @Override
     public LookupCache<JavaType, JsonDeserializer<Object>> forDeserializerCache(DeserializationConfig config) {
         return new LRUMap<>(Math.min(64, _maxDeserializerCacheSize >> 2), _maxDeserializerCacheSize);
@@ -116,6 +122,5 @@ public class DefaultCacheProvider
         public DefaultCacheProvider build() {
             return new DefaultCacheProvider(_maxDeserializerCacheSize);
         }
-
     }
 }

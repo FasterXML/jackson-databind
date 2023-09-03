@@ -95,15 +95,21 @@ public class DefaultCacheProvider
         private Builder() { }
 
         /**
-         * @param deserializerCacheSize Size of {@link LookupCache} instance to create when
-         *    {@link #forDeserializerCache(DeserializationConfig)} is invoked
+         * Configures the size of {@link LookupCache} instance to create when {@link #forDeserializerCache(DeserializationConfig)} is invoked.
+         * Currently, the cache instance is constructed as
+         * <pre>
+         *     new LRUMap<>(Math.min(64, size >> 2), size)
+         * </pre>
+         * ...such in {@link #forDeserializerCache(DeserializationConfig)}
+         * 
+         * @param deserializerCacheSize Size of {@link LookupCache} instance to construct for {@link DeserializerCache}
          * @return this builder
          * @throws IllegalArgumentException if the {@code deserializerCacheSize} is negative value
          * @since 2.16
          */
         public Builder deserializerCacheSize(int deserializerCacheSize) {
             if (deserializerCacheSize < 0) {
-                throw new IllegalArgumentException("Cannot pass negative value for deserializerCacheSize.");
+                throw new IllegalArgumentException("Cannot set deserializerCacheSize to a negative value");
             }
             _deserializerCacheSize = deserializerCacheSize;
             return this;

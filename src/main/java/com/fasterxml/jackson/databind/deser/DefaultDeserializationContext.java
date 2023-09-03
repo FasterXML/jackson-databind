@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerator.IdKey;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.CacheProvider;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId.Referring;
@@ -305,10 +306,11 @@ public abstract class DefaultDeserializationContext
     public abstract DefaultDeserializationContext with(DeserializerFactory factory);
 
     /**
-     * Fluent factory method used for constructing a new instance with configured {@link DeserializerCache}.
+     * Fluent factory method used for constructing a new instance with cache instances provided by {@link CacheProvider}.
+     * 
      * @since 2.16
      */
-    public abstract DefaultDeserializationContext with(DeserializerCache deserializerCache);
+    public abstract DefaultDeserializationContext withCaches(CacheProvider cacheProvider);
 
     /**
      * Method called to create actual usable per-deserialization
@@ -447,7 +449,9 @@ ClassUtil.name(expSimpleName), p.currentToken());
         }
 
         @Override // Since 2.16
-        public DefaultDeserializationContext with(DeserializerCache deserializerCache) {
+        public DefaultDeserializationContext withCaches(CacheProvider cacheProvider) {
+            DeserializerCache deserializerCache = new DeserializerCache(cacheProvider.forDeserializerCache(_config));
+            
             return new Impl(this, deserializerCache);
         }
     }

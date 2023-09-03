@@ -74,8 +74,9 @@ public class CacheProviderTest
     
     static class CustomCacheProvider implements CacheProvider {
         @Override
-        public DeserializerCache forDeserializerCache(DeserializationConfig config) {
-            return new DeserializerCache(DeserializerCache.defaultCache());
+        public LookupCache<JavaType, JsonDeserializer<Object>> forDeserializerCache(DeserializationConfig config) {
+            invoked = true;
+            return new SimpleTestCache(123);
         }
     }
     
@@ -85,7 +86,7 @@ public class CacheProviderTest
     /**********************************************************************
      */
 
-    // For checking the cache was actually used
+    // For checking CustomCacheProvider.forDeserializerCache() was actually used
     private static boolean invoked = false;
 
     // For checking the cache was actually created
@@ -100,15 +101,13 @@ public class CacheProviderTest
     @Test
     public void testDefaultCacheProviderConfig() throws Exception
     {
-        DefaultCacheProvider cacheProvider = DefaultCacheProvider.builder()
-                .deserializerCacheSize(new SimpleTestCache(1234))
+        CacheProvider cacheProvider = DefaultCacheProvider.builder()
+                .deserializerCacheSize(1234)
                 .build();
         ObjectMapper mapper = JsonMapper.builder()
                 .cacheProvider(cacheProvider).build();
 
-        mapper.readValue("{\"point\":24}", RandomBean.class);
-        
-        assertTrue(invoked);
+        assertNotNull(mapper.readValue("{\"point\":24}", RandomBean.class));
     }
 
     @Test
@@ -118,6 +117,7 @@ public class CacheProviderTest
                 .cacheProvider(new CustomCacheProvider())
                 .build();
 
+        assertTrue(invoked);
         assertNotNull(mapper.readValue("{\"point\":24}", RandomBean.class));
     }
 
@@ -126,9 +126,7 @@ public class CacheProviderTest
     {
         // Arrange
         // 1. shared CacheProvider
-        DefaultCacheProvider cacheProvider = DefaultCacheProvider.builder()
-                .deserializerCacheSize(new SimpleTestCache(1234))
-                .build();
+        CacheProvider cacheProvider = new CustomCacheProvider();
         
         // 2. two different mapper instances
         ObjectMapper mapper1 = JsonMapper.builder()
@@ -144,13 +142,8 @@ public class CacheProviderTest
         mapper2.readValue("{\"height\":24}", AnotherBean.class);
         
         // Assert
-        // 4. Should have created only one cache instance, shared between mappers
-        assertEquals(1, createdCaches.size());
-        Map<JavaType, JsonDeserializer<Object>> cache = createdCaches.get(0);
-        
-        // 5. Should not share cache entries
-        JavaType type1 = mapper1.getTypeFactory().constructType(RandomBean.class);
-        JavaType type2 = mapper1.getTypeFactory().constructType(AnotherBean.class);
+        // 4. Should have created two cache instance
+        assertEquals(2, createdCaches.size());
     }
 
 
@@ -159,10 +152,10 @@ public class CacheProviderTest
     {
         try {
             DefaultCacheProvider.builder()
-                    .deserializerCacheSize(null);
+                    .deserializerCacheSize(-1);
             fail("Should not reach here");
         } catch (IllegalArgumentException e) {
-            assertEquals("Cannot pass null deserializerCacheSize", e.getMessage());
+            assertTrue(e.getMessage().contains("Cannot set deserializerCacheSize to a negative value"));
         }
     }
 
@@ -175,6 +168,4 @@ public class CacheProviderTest
             fail("Should not reach here");
         }
     }
-    
-    
 }

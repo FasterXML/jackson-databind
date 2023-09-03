@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.deser.DeserializerCache;
+import com.fasterxml.jackson.databind.util.LRUMap;
 import com.fasterxml.jackson.databind.util.LookupCache;
 
 import java.util.Objects;
@@ -25,9 +26,10 @@ public class DefaultCacheProvider
     private static final long serialVersionUID = 1L;
 
     /**
-     * {@link LookupCache} instance used to create {@link DeserializerCache} instance when {@link #forDeserializerCache} is invoked.
+     * Size of {@link LookupCache} instance to create when {@link #forDeserializerCache(DeserializationConfig)}
+     * is invoked.
      */
-    protected final LookupCache<JavaType, JsonDeserializer<Object>> _deserializerCache;
+    protected final int _deserializerCacheSize;
     
     /*
     /**********************************************************************
@@ -35,9 +37,9 @@ public class DefaultCacheProvider
     /**********************************************************************
      */
 
-    protected DefaultCacheProvider(LookupCache<JavaType, JsonDeserializer<Object>> deserializerCache)
+    protected DefaultCacheProvider(int deserializerCache)
     {
-        _deserializerCache = deserializerCache;
+        _deserializerCacheSize = deserializerCache;
     }
     
     /*
@@ -50,7 +52,7 @@ public class DefaultCacheProvider
      * @return Default {@link DefaultCacheProvider} instance with default configuration values.
      */
     public static CacheProvider defaultInstance() {
-        return new DefaultCacheProvider(DeserializerCache.defaultCache());
+        return new DefaultCacheProvider(DeserializerCache.DEFAULT_MAX_CACHE_SIZE);
     }
     
     /*
@@ -60,8 +62,8 @@ public class DefaultCacheProvider
      */
     
     @Override
-    public DeserializerCache forDeserializerCache(DeserializationConfig config) {
-        return new DeserializerCache(_deserializerCache);
+    public LookupCache<JavaType, JsonDeserializer<Object>> forDeserializerCache(DeserializationConfig config) {
+        return new LRUMap<>(Math.min(64, _deserializerCacheSize >> 2), _deserializerCacheSize);
     }
 
     /*
@@ -84,25 +86,26 @@ public class DefaultCacheProvider
     public static class Builder {
 
         /**
-         * {@link LookupCache} instance used to create {@link DeserializerCache} instance when {@link #forDeserializerCache} is invoked.
-         * 
-         * Counter part of {@link DefaultCacheProvider#_deserializerCache}.
+         * Size of {@link LookupCache} instance to create when {@link #forDeserializerCache(DeserializationConfig)}
+         * is invoked.
+         * Counter part of {@link DefaultCacheProvider#_deserializerCacheSize}.
          */
-        private LookupCache<JavaType, JsonDeserializer<Object>> _deserializerCache;
+        private int _deserializerCacheSize;
         
         private Builder() { }
 
         /**
-         * Fluent API for configuring {@link DefaultCacheProvider#_deserializerCache} instance for {@link DefaultCacheProvider}.
-         * 
-         * @param deserializerCache {@link LookupCache} instance to be used create {@link DeserializerCache} instance.
-         * @throws IllegalArgumentException if {@code deserializerCache} is null.
+         * @param deserializerCacheSize Size of {@link LookupCache} instance to create when
+         *    {@link #forDeserializerCache(DeserializationConfig)} is invoked
+         * @return this builder
+         * @throws IllegalArgumentException if the {@code deserializerCacheSize} is negative value
+         * @since 2.16
          */
-        public Builder deserializerCache(LookupCache<JavaType, JsonDeserializer<Object>> deserializerCache) {
-            if (deserializerCache == null) {
-                throw new IllegalArgumentException("Cannot pass null deserializerCache");
+        public Builder deserializerCacheSize(int deserializerCacheSize) {
+            if (deserializerCacheSize < 0) {
+                throw new IllegalArgumentException("Cannot pass negative value for deserializerCacheSize.");
             }
-            _deserializerCache = deserializerCache;
+            _deserializerCacheSize = deserializerCacheSize;
             return this;
         }
 
@@ -110,13 +113,10 @@ public class DefaultCacheProvider
          * Constructs and returns a {@link DefaultCacheProvider} instance with given configuration.
          * If any of the configuration is not set, it will use default configuration.
          * 
-         * @return Constructs and returns a {@link DefaultCacheProvider} instance with given configuration.
+         * @return Constructs and returns a {@link DefaultCacheProvider} instance with given configuration
          */
         public DefaultCacheProvider build() {
-            LookupCache<JavaType, JsonDeserializer<Object>> deserializerCache = 
-                    Objects.isNull(_deserializerCache) ? DeserializerCache.defaultCache() : _deserializerCache;
-            
-            return new DefaultCacheProvider(deserializerCache);
+            return new DefaultCacheProvider(_deserializerCacheSize);
         }
 
     }

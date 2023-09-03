@@ -101,7 +101,7 @@ public class CacheProviderTest
     public void testDefaultCacheProviderConfig() throws Exception
     {
         DefaultCacheProvider cacheProvider = DefaultCacheProvider.builder()
-                .deserializerCache(new SimpleTestCache(1234))
+                .deserializerCacheSize(new SimpleTestCache(1234))
                 .build();
         ObjectMapper mapper = JsonMapper.builder()
                 .cacheProvider(cacheProvider).build();
@@ -127,7 +127,7 @@ public class CacheProviderTest
         // Arrange
         // 1. shared CacheProvider
         DefaultCacheProvider cacheProvider = DefaultCacheProvider.builder()
-                .deserializerCache(new SimpleTestCache(1234))
+                .deserializerCacheSize(new SimpleTestCache(1234))
                 .build();
         
         // 2. two different mapper instances
@@ -159,10 +159,10 @@ public class CacheProviderTest
     {
         try {
             DefaultCacheProvider.builder()
-                    .deserializerCache(null);
+                    .deserializerCacheSize(null);
             fail("Should not reach here");
         } catch (IllegalArgumentException e) {
-            assertEquals("Cannot pass null deserializerCache", e.getMessage());
+            assertEquals("Cannot pass null deserializerCacheSize", e.getMessage());
         }
     }
 

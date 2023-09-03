@@ -4,7 +4,6 @@ import java.util.HashMap;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.cfg.DefaultCacheProvider;
 import com.fasterxml.jackson.databind.deser.std.StdDelegatingDeserializer;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.type.*;
@@ -31,7 +30,7 @@ public final class DeserializerCache
      * 
      * @since 2.16
      */
-    private final static int MAX_CACHE_SIZE = 2000;
+    public final static int DEFAULT_MAX_CACHE_SIZE = 2000;
 
     /*
     /**********************************************************
@@ -61,7 +60,7 @@ public final class DeserializerCache
      */
 
     public DeserializerCache() {
-        this(MAX_CACHE_SIZE); // see [databind#1995]
+        this(DEFAULT_MAX_CACHE_SIZE); // see [databind#1995]
     }
 
     public DeserializerCache(int maxSize) {
@@ -126,7 +125,7 @@ public final class DeserializerCache
      * @since 2.16
      */
     public static LookupCache<JavaType, JsonDeserializer<Object>> defaultCache() {
-        return _createCache(MAX_CACHE_SIZE);
+        return _createCache(DEFAULT_MAX_CACHE_SIZE);
     }
 
     /**

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.deser.DeserializerCache;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.util.LookupCache;
 import org.junit.Before;
@@ -99,15 +98,40 @@ public class CacheProviderTest
     }
 
     @Test
-    public void testDefaultCacheProviderConfig() throws Exception
+    public void testDefaultCacheProviderConfigDeserializerCache() throws Exception
     {
         CacheProvider cacheProvider = DefaultCacheProvider.builder()
-                .deserializerCacheSize(1234)
+                .maxDeserializerCacheSize(1234)
                 .build();
         ObjectMapper mapper = JsonMapper.builder()
                 .cacheProvider(cacheProvider).build();
 
         assertNotNull(mapper.readValue("{\"point\":24}", RandomBean.class));
+    }
+
+    @Test
+    public void testDefaultCacheProviderConfigDeserializerCacheSizeZero() throws Exception
+    {
+        CacheProvider cacheProvider = DefaultCacheProvider.builder()
+                .maxDeserializerCacheSize(0)
+                .build();
+        ObjectMapper mapper = JsonMapper.builder()
+                .cacheProvider(cacheProvider)
+                .build();
+
+        assertNotNull(mapper.readValue("{\"point\":24}", RandomBean.class));
+    }
+
+    @Test
+    public void testBuilderNullCheckingForDeserializerCacheConfig() throws Exception
+    {
+        try {
+            DefaultCacheProvider.builder()
+                    .maxDeserializerCacheSize(-1);
+            fail("Should not reach here");
+        } catch (IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("Cannot set maxDeserializerCacheSize to a negative value"));
+        }
     }
 
     @Test
@@ -144,19 +168,6 @@ public class CacheProviderTest
         // Assert
         // 4. Should have created two cache instance
         assertEquals(2, createdCaches.size());
-    }
-
-
-    @Test
-    public void testBuilderNullCheckingForDeserializerCacheConfig() throws Exception
-    {
-        try {
-            DefaultCacheProvider.builder()
-                    .deserializerCacheSize(-1);
-            fail("Should not reach here");
-        } catch (IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Cannot set deserializerCacheSize to a negative value"));
-        }
     }
 
     @Test

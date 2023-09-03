@@ -8,10 +8,11 @@ import com.fasterxml.jackson.databind.util.LRUMap;
 import com.fasterxml.jackson.databind.util.LookupCache;
 
 /**
- * Default implementation of {@link CacheProvider}.
- * Provides builder-based custom cache configuration using {@link DefaultCacheProvider.Builder}.
- * Users can either use this class or implement their own {@link CacheProvider} imlementation.
- * 
+ * The default implementation of {@link CacheProvider}.
+ * Configuration is builder-based via {@link DefaultCacheProvider.Builder}.
+ * <p>
+ * Users can either use this class or create their own {@link CacheProvider} implementation.
+ *
  * @since 2.16
  */
 public class DefaultCacheProvider
@@ -20,10 +21,11 @@ public class DefaultCacheProvider
     private static final long serialVersionUID = 1L;
 
     /**
-     * Size of {@link LookupCache} instance to create when {@link #forDeserializerCache(DeserializationConfig)}
-     * is invoked.
+     * Maximum size of the {@link LookupCache} instance constructed by {@link #forDeserializerCache(DeserializationConfig)}.
+     *
+     * @see Builder#maxDeserializerCacheSize(int)
      */
-    protected final int _deserializerCacheSize;
+    protected final int _maxDeserializerCacheSize;
     
     /*
     /**********************************************************************
@@ -33,7 +35,7 @@ public class DefaultCacheProvider
 
     protected DefaultCacheProvider(int deserializerCache)
     {
-        _deserializerCacheSize = deserializerCache;
+        _maxDeserializerCacheSize = deserializerCache;
     }
     
     /*
@@ -43,7 +45,7 @@ public class DefaultCacheProvider
      */
 
     /**
-     * @return Default {@link DefaultCacheProvider} instance with default configuration values.
+     * @return Default {@link DefaultCacheProvider} instance using default configuration values.
      */
     public static CacheProvider defaultInstance() {
         return new DefaultCacheProvider(DeserializerCache.DEFAULT_MAX_CACHE_SIZE);
@@ -51,72 +53,68 @@ public class DefaultCacheProvider
     
     /*
     /**********************************************************
-    /* Cache accessors
+    /* Overriden methods
     /**********************************************************
      */
     
     @Override
     public LookupCache<JavaType, JsonDeserializer<Object>> forDeserializerCache(DeserializationConfig config) {
-        return new LRUMap<>(Math.min(64, _deserializerCacheSize >> 2), _deserializerCacheSize);
+        return new LRUMap<>(Math.min(64, _maxDeserializerCacheSize >> 2), _maxDeserializerCacheSize);
     }
 
     /*
     /**********************************************************
-    /* Configuration using Builder
+    /* Builder Config
     /**********************************************************
      */
 
     /**
-     * @return Builder instance to construct {@link DefaultCacheProvider} instance.
+     * @return {@link Builder} instance for configuration.
      */
     public static DefaultCacheProvider.Builder builder() {
         return new Builder();
     }
 
     /**
-     * Builder class to construct {@link DefaultCacheProvider} instance
-     * and to keep {@link DefaultCacheProvider} immutable.
+     * Builder offering fluent factory methods to configure {@link DefaultCacheProvider}, keeping it immutable.
      */
     public static class Builder {
 
         /**
-         * Size of {@link LookupCache} instance to create when {@link #forDeserializerCache(DeserializationConfig)}
-         * is invoked.
-         * Counter part of {@link DefaultCacheProvider#_deserializerCacheSize}.
+         * Maximum Size of the {@link LookupCache} instance created by {@link #forDeserializerCache(DeserializationConfig)}.
+         * Corresponds to {@link DefaultCacheProvider#_maxDeserializerCacheSize}.
          */
-        private int _deserializerCacheSize;
+        private int _maxDeserializerCacheSize;
         
         private Builder() { }
 
         /**
-         * Configures the size of {@link LookupCache} instance to create when {@link #forDeserializerCache(DeserializationConfig)} is invoked.
-         * Currently, the cache instance is constructed as
+         * Define the maximum size of the {@link LookupCache} instance constructed by {@link #forDeserializerCache(DeserializationConfig)}.
+         * The cache is instantiated as:
          * <pre>
-         *     new LRUMap<>(Math.min(64, size >> 2), size)
+         *     return new LRUMap<>(Math.min(64, maxSize >> 2), maxSize);
          * </pre>
-         * ...such in {@link #forDeserializerCache(DeserializationConfig)}
-         * 
-         * @param deserializerCacheSize Size of {@link LookupCache} instance to construct for {@link DeserializerCache}
+         *
+         * @param maxDeserializerCacheSize Size for the {@link LookupCache} to use within {@link DeserializerCache}
          * @return this builder
-         * @throws IllegalArgumentException if the {@code deserializerCacheSize} is negative value
+         * @throws IllegalArgumentException if {@code maxDeserializerCacheSize} is negative
          * @since 2.16
          */
-        public Builder deserializerCacheSize(int deserializerCacheSize) {
-            if (deserializerCacheSize < 0) {
-                throw new IllegalArgumentException("Cannot set deserializerCacheSize to a negative value");
+        public Builder maxDeserializerCacheSize(int maxDeserializerCacheSize) {
+            if (maxDeserializerCacheSize < 0) {
+                throw new IllegalArgumentException("Cannot set maxDeserializerCacheSize to a negative value");
             }
-            _deserializerCacheSize = deserializerCacheSize;
+            _maxDeserializerCacheSize = maxDeserializerCacheSize;
             return this;
         }
 
         /**
-         * Constructs and returns a {@link DefaultCacheProvider} instance with given configuration.
-         * If any of the configuration is not set, it will use default configuration.
-         * 
-         * @return Constructs and returns a {@link DefaultCacheProvider} instance with given configuration
+         * Constructs a {@link DefaultCacheProvider} with the provided configuration values, using defaults where not specified.
+         *
+         * @return A {@link DefaultCacheProvider} instance with the specified configuration
          */
         public DefaultCacheProvider build() {
-            return new DefaultCacheProvider(_deserializerCacheSize);
+            return new DefaultCacheProvider(_maxDeserializerCacheSize);
         }
 
     }

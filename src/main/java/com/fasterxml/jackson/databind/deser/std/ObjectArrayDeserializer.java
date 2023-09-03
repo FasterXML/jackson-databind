@@ -385,15 +385,17 @@ public class ObjectArrayDeserializer
 
         if (_untyped) {
             result = new Object[1];
-        } else if (value != null && !value.getClass().isAssignableFrom(_elementClass)) {
+        } else {
+            result = (Object[]) Array.newInstance(_elementClass, 1);
+        }
+        try {
+            result[0] = value;
+        } catch (ArrayStoreException ase) {
             throw new IOException(String.format(
                     "The deserialized value class %s cannot be added to an array for classes of type %s",
                     value.getClass().getName(),
                     _elementClass.getName()));
-        } else {
-            result = (Object[]) Array.newInstance(_elementClass, 1);
         }
-        result[0] = value;
         return result;
     }
 }

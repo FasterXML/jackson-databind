@@ -20,6 +20,9 @@ public class DefaultCacheProvider
 {
     private static final long serialVersionUID = 1L;
 
+    private final static DefaultCacheProvider DEFAULT
+        = new DefaultCacheProvider(DeserializerCache.DEFAULT_MAX_CACHE_SIZE);
+
     /**
      * Maximum size of the {@link LookupCache} instance constructed by {@link #forDeserializerCache(DeserializationConfig)}.
      *
@@ -37,7 +40,7 @@ public class DefaultCacheProvider
     {
         _maxDeserializerCacheSize = deserializerCache;
     }
-    
+
     /*
     /**********************************************************************
     /* Defaults
@@ -48,12 +51,12 @@ public class DefaultCacheProvider
      * @return Default {@link DefaultCacheProvider} instance using default configuration values.
      */
     public static CacheProvider defaultInstance() {
-        return new DefaultCacheProvider(DeserializerCache.DEFAULT_MAX_CACHE_SIZE);
+        return DEFAULT;
     }
-    
+
     /*
     /**********************************************************
-    /* Overriden methods
+    /* API implementation
     /**********************************************************
      */
 
@@ -65,7 +68,20 @@ public class DefaultCacheProvider
      */
     @Override
     public LookupCache<JavaType, JsonDeserializer<Object>> forDeserializerCache(DeserializationConfig config) {
-        return new LRUMap<>(Math.min(64, _maxDeserializerCacheSize >> 2), _maxDeserializerCacheSize);
+        return _buildCache(_maxDeserializerCacheSize);
+    }
+
+    /*
+    /**********************************************************
+    /* Overridable factory methods
+    /**********************************************************
+     */
+
+    protected <K,V> LookupCache<K,V> _buildCache(int maxSize)
+    {
+        // Use 1/4 of maximum size (but at most 64) for initial size
+        final int initialSize = Math.min(64, maxSize >> 2);
+        return new LRUMap<>(initialSize, maxSize);
     }
 
     /*
@@ -91,8 +107,8 @@ public class DefaultCacheProvider
          * Corresponds to {@link DefaultCacheProvider#_maxDeserializerCacheSize}.
          */
         private int _maxDeserializerCacheSize;
-        
-        private Builder() { }
+
+        Builder() { }
 
         /**
          * Define the maximum size of the {@link LookupCache} instance constructed by {@link #forDeserializerCache(DeserializationConfig)}.

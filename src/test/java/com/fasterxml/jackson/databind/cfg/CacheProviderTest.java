@@ -173,10 +173,7 @@ public class CacheProviderTest
     @Test
     public void testBuilderBuildWithDefaults() throws Exception
     {
-        try {
-            DefaultCacheProvider.builder().build();
-        } catch (IllegalArgumentException e) {
-            // expected path
-        }
+        // does not throw
+        DefaultCacheProvider.builder().build();
     }
 }

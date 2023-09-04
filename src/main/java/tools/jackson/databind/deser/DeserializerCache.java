@@ -26,9 +26,11 @@ public final class DeserializerCache
     private static final long serialVersionUID = 3L;
 
     /**
-     * By default allow caching of up to 1000 deserializers.
+     * Default size of the underlying cache to use.
+     *<p>
+     * NOTE: reduced from 2.x default.
      */
-    public final static int DEFAULT_MAX_CACHED = 1000;
+    public final static int DEFAULT_MAX_CACHE_SIZE = 1000;
 
     /*
     /**********************************************************************
@@ -58,7 +60,9 @@ public final class DeserializerCache
     /**********************************************************************
      */
 
-    public DeserializerCache() { this(DEFAULT_MAX_CACHED); }
+    public DeserializerCache() {
+        this(DEFAULT_MAX_CACHE_SIZE);
+    }
 
     public DeserializerCache(int maxSize) {
         this(new SimpleLookupCache<>(Math.min(64, maxSize>>2), maxSize));

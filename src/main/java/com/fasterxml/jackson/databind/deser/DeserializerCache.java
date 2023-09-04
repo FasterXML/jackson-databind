@@ -25,8 +25,7 @@ public final class DeserializerCache
     private static final long serialVersionUID = 1L;
 
     /**
-     * Previously was passed to {@link DeserializerCache} constructors "inline".
-     * Declared as field since 2.16.
+     * Default size of the underlying cache to use.
      * 
      * @since 2.16
      */

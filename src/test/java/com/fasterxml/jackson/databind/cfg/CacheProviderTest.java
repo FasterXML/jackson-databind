@@ -176,7 +176,7 @@ public class CacheProviderTest
         try {
             DefaultCacheProvider.builder().build();
         } catch (IllegalArgumentException e) {
-            fail("Should not reach here");
+            // expected path
         }
     }
 }

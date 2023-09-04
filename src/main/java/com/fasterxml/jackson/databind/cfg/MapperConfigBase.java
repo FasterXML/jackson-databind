@@ -585,6 +585,13 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         return _withBase(_base.withHandlerInstantiator(hi));
     }
 
+    /**
+     * @since 2.16
+     */
+    public T with(CacheProvider provider) {
+        return _withBase(_base.with(Objects.requireNonNull(provider)));
+    }
+
     /*
     /**********************************************************************
     /* Additional shared fluent factory methods; other

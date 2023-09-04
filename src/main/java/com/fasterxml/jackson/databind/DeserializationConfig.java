@@ -326,7 +326,6 @@ public final class DeserializationConfig
         _formatReadFeaturesToChange = src._formatReadFeaturesToChange;
     }
 
-    // for unit tests only:
     protected BaseSettings getBaseSettings() { return _base; }
 
     /*

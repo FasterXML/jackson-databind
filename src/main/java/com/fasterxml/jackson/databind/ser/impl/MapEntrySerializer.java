@@ -270,10 +270,8 @@ public class MapEntrySerializer
             }
         }
 
-        MapEntrySerializer mser = withResolved(property, keySer, ser,
-                valueToSuppress, suppressNulls);
         // but note: no (full) filtering or sorting (unlike Maps)
-        return mser;
+        return withResolved(property, keySer, ser, valueToSuppress, suppressNulls);
     }
 
     /*

@@ -906,9 +906,7 @@ public abstract class BasicSerializerFactory
             break;
         case CUSTOM: // new with 2.9
             valueToSuppress = prov.includeFilterInstance(null, inclV.getContentFilter());
-            if (valueToSuppress == null) { // is this legal?
-                suppressNulls = true;
-            } else {
+            if (valueToSuppress != null) { // is this legal?
                 suppressNulls = prov.includeFilterSuppressNulls(valueToSuppress);
             }
             break;
@@ -973,9 +971,7 @@ public abstract class BasicSerializerFactory
             break;
         case CUSTOM:
             valueToSuppress = prov.includeFilterInstance(null, inclV.getContentFilter());
-            if (valueToSuppress == null) { // is this legal?
-                suppressNulls = true;
-            } else {
+            if (valueToSuppress != null) { // is this legal?
                 suppressNulls = prov.includeFilterSuppressNulls(valueToSuppress);
             }
             break;

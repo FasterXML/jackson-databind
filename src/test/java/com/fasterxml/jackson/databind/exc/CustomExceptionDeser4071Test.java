@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 // [databind#4071]: Ignore "message" for custom exceptions with only default constructor
+@SuppressWarnings("serial")
 public class CustomExceptionDeser4071Test extends BaseMapTest
 {
     static class CustomThrowable4071 extends Throwable { }

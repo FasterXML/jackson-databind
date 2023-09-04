@@ -277,10 +277,12 @@ final class AnnotatedCreatorCollector
 
     private static boolean _isIncludableFactoryMethod(Method m)
     {
-        return Modifier.isStatic(m.getModifiers())
-                // 09-Nov-2020, ckozak: Avoid considering synthetic methods such as
-                // lambdas used within methods because they're not relevant.
-                && !m.isSynthetic();
+        if (!Modifier.isStatic(m.getModifiers())) {
+            return false;
+        }
+        // 09-Nov-2020, ckozak: Avoid considering synthetic methods such as
+        // lambdas used within methods because they're not relevant.
+        return !m.isSynthetic();
     }
 
     protected AnnotatedConstructor constructDefaultConstructor(ClassUtil.Ctor ctor,

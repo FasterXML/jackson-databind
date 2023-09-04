@@ -1684,3 +1684,8 @@ Jason Laber (jlaber@github)
 Andreas Zahnen (azahnen@github)
  * Reported #4078: `java.desktop` module is no longer optional
   (2.16.0)
+
+Omar Aloraini (ooraini@github)
+ * Requested #4061: Add JsonTypeInfo.Id.SIMPLE_NAME which defaults type id
+   to `Class.getSimpleName()`
+  (2.16.0)

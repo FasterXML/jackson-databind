@@ -251,7 +251,7 @@ public class EnumSerializer
     protected final boolean _serializeAsIndex(SerializerProvider serializers)
     {
         if (_serializeAsIndex != null) {
-            return _serializeAsIndex.booleanValue();
+            return _serializeAsIndex;
         }
         return serializers.isEnabled(SerializationFeature.WRITE_ENUMS_USING_INDEX);
     }

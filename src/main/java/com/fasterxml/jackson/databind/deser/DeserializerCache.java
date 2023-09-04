@@ -24,6 +24,13 @@ public final class DeserializerCache
 {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Default size of the underlying cache to use.
+     * 
+     * @since 2.16
+     */
+    public final static int DEFAULT_MAX_CACHE_SIZE = 2000;
+
     /*
     /**********************************************************
     /* Caching
@@ -52,7 +59,7 @@ public final class DeserializerCache
      */
 
     public DeserializerCache() {
-        this(2000); // see [databind#1995]
+        this(DEFAULT_MAX_CACHE_SIZE); // see [databind#1995]
     }
 
     public DeserializerCache(int maxSize) {

@@ -50,7 +50,7 @@ public class LRUMap<K,V>
     public LookupCache<K,V> emptyCopy() {
         return new LRUMap<K,V>(_initialEntries, _maxEntries);
     }
-    
+
     @Override
     public V put(K key, V value) {
         return _map.put(key, value);

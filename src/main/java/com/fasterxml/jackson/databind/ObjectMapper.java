@@ -2272,11 +2272,17 @@ public class ObjectMapper
     /**
      * Method for specifying {@link CacheProvider} instance, to provide Cache instances to be used in components downstream.
      *
+     * @cacheProvider Cache provider for this mapper to use
+     *
+     * @throws IllegalArgumentException if given provider is null
+     *
      * @since 2.16
      */
     public ObjectMapper setCacheProvider(CacheProvider cacheProvider) {
+        _assertNotNull("cacheProvider", cacheProvider);
         _deserializationConfig = _deserializationConfig.with(cacheProvider);
         _serializationConfig = _serializationConfig.with(cacheProvider);
+        _deserializationContext = _deserializationContext.withCaches(cacheProvider);
         return this;
     }
 

@@ -178,39 +178,17 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      */
 
     private TypeFactory() {
-        this((LookupCache<Object,JavaType>) null);
-    }
-
-    /**
-     * @since 2.8
-     * @deprecated Since 2.12
-     */
-    @Deprecated // since 2.12
-    protected TypeFactory(LRUMap<Object,JavaType> typeCache) {
-        this((LookupCache<Object,JavaType>) typeCache);
+        this(new LRUMap<>(16, 200));
     }
 
     /**
      * @since 2.12
      */
     protected TypeFactory(LookupCache<Object,JavaType> typeCache) {
-        if (typeCache == null) {
-            typeCache = new LRUMap<>(16, 200);
-        }
-        _typeCache = typeCache;
+        _typeCache = Objects.requireNonNull(typeCache);
         _parser = new TypeParser(this);
         _modifiers = null;
         _classLoader = null;
-    }
-
-    /**
-     * @deprecated Since 2.12
-     */
-    @Deprecated // since 2.12
-    protected TypeFactory(LRUMap<Object,JavaType> typeCache, TypeParser p,
-            TypeModifier[] mods, ClassLoader classLoader)
-    {
-        this((LookupCache<Object,JavaType>) typeCache, p, mods, classLoader);
     }
 
     /**
@@ -289,7 +267,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
 
     /**
      * Method used to access the globally shared instance, which has
-     * no custom configuration. Used by <code>ObjectMapper</code> to
+     * no custom configuration. Used by {@code ObjectMapper} to
      * get the default factory when constructed.
      */
     public static TypeFactory defaultInstance() { return instance; }

@@ -36,12 +36,13 @@ public class CacheProviderTest
     static class SimpleTestCache implements LookupCache<JavaType, JsonDeserializer<Object>> {
 
         final HashMap<JavaType, JsonDeserializer<Object>> _cachedDeserializers;
+        
+        boolean invoked = false;
 
         public SimpleTestCache(int cacheSize) {
             _cachedDeserializers = new HashMap<>(cacheSize);
-            createdCaches.add(_cachedDeserializers);
         }
-
+        
         @Override
         public int size() {
             return _cachedDeserializers.size();
@@ -69,13 +70,29 @@ public class CacheProviderTest
         public void clear() {
             _cachedDeserializers.clear();
         }
+
+        boolean isInvoked() {
+            return invoked;
+        }
     }
     
     static class CustomCacheProvider implements CacheProvider {
+        
+        final SimpleTestCache _cache;
+        int createCacheCount = 0;
+        
+        public CustomCacheProvider(SimpleTestCache cache) {
+            _cache = cache;
+        }
+
         @Override
         public LookupCache<JavaType, JsonDeserializer<Object>> forDeserializerCache(DeserializationConfig config) {
-            invoked = true;
-            return new SimpleTestCache(123);
+            createCacheCount++;
+            return _cache;
+        }
+
+        int createCacheCount() {
+            return createCacheCount;
         }
     }
     
@@ -84,19 +101,7 @@ public class CacheProviderTest
     /* Unit tests
     /**********************************************************************
      */
-
-    // For checking CustomCacheProvider.forDeserializerCache() was actually used
-    private static boolean invoked = false;
-
-    // For checking the cache was actually created
-    private static final List<Map<JavaType, JsonDeserializer<Object>>> createdCaches = new ArrayList<>();
     
-    @Before
-    public void setUp() {
-        createdCaches.clear();
-        invoked = false;
-    }
-
     @Test
     public void testDefaultCacheProviderConfigDeserializerCache() throws Exception
     {
@@ -137,12 +142,13 @@ public class CacheProviderTest
     @Test
     public void testCustomCacheProviderConfig() throws Exception
     {
+        SimpleTestCache cache = new SimpleTestCache(123);
         ObjectMapper mapper = JsonMapper.builder()
-                .cacheProvider(new CustomCacheProvider())
+                .cacheProvider(new CustomCacheProvider(cache))
                 .build();
 
-        assertTrue(invoked);
         assertNotNull(mapper.readValue("{\"point\":24}", RandomBean.class));
+        assertTrue(cache.isInvoked());
     }
 
     @Test
@@ -150,8 +156,7 @@ public class CacheProviderTest
     {
         // Arrange
         // 1. shared CacheProvider
-        CacheProvider cacheProvider = new CustomCacheProvider();
-        
+        CustomCacheProvider cacheProvider = new CustomCacheProvider(new SimpleTestCache(123));
         // 2. two different mapper instances
         ObjectMapper mapper1 = JsonMapper.builder()
                 .cacheProvider(cacheProvider)
@@ -167,7 +172,7 @@ public class CacheProviderTest
         
         // Assert
         // 4. Should have created two cache instance
-        assertEquals(2, createdCaches.size());
+        assertEquals(2, cacheProvider.createCacheCount());
     }
 
     @Test

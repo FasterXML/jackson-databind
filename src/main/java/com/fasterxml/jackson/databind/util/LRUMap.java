@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.util.internal.PrivateMaxEntriesMap;
  * Since Jackson 2.12, there has been pluggable {@link LookupCache} interface which
  * allows users, frameworks, provide their own cache implementations.
  *<p>
- * Snce Jackson 2.14, the implementation
+ * Since Jackson 2.14, the implementation
  *<ul>
  *<li>Evicts the least recently used  entry when max size is reached
  * </li>
@@ -45,6 +45,12 @@ public class LRUMap<K,V>
                 .build();
     }
 
+    // @since 2.16
+    @Override
+    public LookupCache<K,V> emptyCopy() {
+        return new LRUMap<K,V>(_initialEntries, _maxEntries);
+    }
+    
     @Override
     public V put(K key, V value) {
         return _map.put(key, value);

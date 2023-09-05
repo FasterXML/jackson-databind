@@ -71,6 +71,8 @@ public abstract class DefaultDeserializationContext
     }
     
     /**
+     * Copy-constructor
+     *
      * @since 2.4.4
      */
     protected DefaultDeserializationContext(DefaultDeserializationContext src) {
@@ -400,7 +402,9 @@ ClassUtil.name(expSimpleName), p.currentToken());
          * {@link DeserializerCache}, given factory.
          */
         public Impl(DeserializerFactory df) {
-            super(df, null);
+            // 04-Sep-2023, tatu: Not ideal (wrt not going via CacheProvider) but
+            //     has to do for backwards compatibility:
+            super(df, new DeserializerCache());
         }
 
         private Impl(Impl src,
@@ -450,9 +454,8 @@ ClassUtil.name(expSimpleName), p.currentToken());
 
         @Override // Since 2.16
         public DefaultDeserializationContext withCaches(CacheProvider cacheProvider) {
-            DeserializerCache deserializerCache = new DeserializerCache(cacheProvider.forDeserializerCache(_config));
-            
-            return new Impl(this, deserializerCache);
+            return new Impl(this,
+                    new DeserializerCache(cacheProvider.forDeserializerCache(_config)));
         }
     }
 }

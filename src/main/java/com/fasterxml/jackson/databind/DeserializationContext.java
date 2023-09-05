@@ -161,21 +161,11 @@ public abstract class DeserializationContext
     /**********************************************************
      */
 
-    protected DeserializationContext(DeserializerFactory df) {
-        this(df, null);
-    }
-
     protected DeserializationContext(DeserializerFactory df,
             DeserializerCache cache)
     {
-        if (df == null) {
-            throw new NullPointerException("Cannot pass null DeserializerFactory");
-        }
-        _factory = df;
-        if (cache == null) {
-            cache = new DeserializerCache();
-        }
-        _cache = cache;
+        _factory = Objects.requireNonNull(df);
+        _cache = Objects.requireNonNull(cache);
         _featureFlags = 0;
         _readCapabilities = null;
         _config = null;

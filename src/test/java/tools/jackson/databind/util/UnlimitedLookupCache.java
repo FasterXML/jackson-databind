@@ -23,6 +23,11 @@ public class UnlimitedLookupCache<K,V> implements LookupCache<K,V> {
         return new UnlimitedLookupCache<K,V>(_initialEntries);
     }
 
+    @Override
+    public LookupCache<K, V> emptyCopy() {
+        return snapshot();
+    }
+
     /*
     @Override
     public void contents(BiConsumer<K, V> consumer) {

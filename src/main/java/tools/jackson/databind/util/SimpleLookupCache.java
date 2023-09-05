@@ -19,7 +19,17 @@ import tools.jackson.databind.util.internal.PrivateMaxEntriesMap;
  * {@code PrivateMaxEntriesMap} implementation.
  * Implementation is thread-safe and does NOT require external synchronization
  *<p>
+<<<<<<< HEAD:src/main/java/tools/jackson/databind/util/SimpleLookupCache.java
  * NOTE: in Jackson 2.x this class was named {@code com.fasterxml.jackson.databind.util.LRUMap}
+=======
+ * Since Jackson 2.14, the implementation
+ *<ul>
+ *<li>Evicts the least recently used  entry when max size is reached
+ * </li>
+ *<li>Is thread-safe and does NOT require external synchronization
+ * </li>
+ *</ul>
+>>>>>>> 2.16:src/main/java/com/fasterxml/jackson/databind/util/LRUMap.java
  */
 public class SimpleLookupCache<K,V>
     implements LookupCache<K,V>, java.io.Serializable
@@ -46,6 +56,11 @@ public class SimpleLookupCache<K,V>
                 // We'll use concurrency level of 4, seems reasonable
                 .concurrencyLevel(4)
                 .build();
+    }
+
+    @Override
+    public LookupCache<K,V> emptyCopy() {
+        return new SimpleLookupCache<K,V>(_initialEntries, _maxEntries);
     }
 
     @Override

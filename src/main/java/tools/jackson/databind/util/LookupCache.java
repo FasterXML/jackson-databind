@@ -12,13 +12,18 @@ import tools.jackson.core.util.Snapshottable;
  * @see tools.jackson.databind.type.TypeFactory#withCache
  * @see SimpleLookupCache
  */
-public interface LookupCache <K,V>
+public interface LookupCache<K,V>
     extends Snapshottable<LookupCache<K,V>>
 {
     // 17-Sep-2019, tatu: There is one usage, by `ReadOnlyClassToSerializerMap`, so
     //    for now NOT exposed, but can reconsider if it proves generally useful
 
 //    void contents(BiConsumer<K,V> consumer);
+
+    /**
+     * Method needed for creating clones but without contents.
+     */
+    LookupCache<K,V> emptyCopy();
 
     /**
      * @return Number of entries currently in cache: may be approximate, only

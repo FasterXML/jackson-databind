@@ -6,13 +6,9 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.util.LookupCache;
-import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -37,7 +33,7 @@ public class CacheProviderTest
 
         final HashMap<JavaType, JsonDeserializer<Object>> _cachedDeserializers;
         
-        boolean invoked = false;
+        boolean invokedAtLeastOnce = false;
 
         public SimpleTestCache(int cacheSize) {
             _cachedDeserializers = new HashMap<>(cacheSize);
@@ -50,19 +46,19 @@ public class CacheProviderTest
 
         @Override
         public JsonDeserializer<Object> get(Object key) {
-            invoked = true;
+            invokedAtLeastOnce = true;
             return _cachedDeserializers.get(key);
         }
 
         @Override
         public JsonDeserializer<Object> put(JavaType key, JsonDeserializer<Object> value) {
-            invoked = true;
+            invokedAtLeastOnce = true;
             return _cachedDeserializers.put(key, value);
         }
 
         @Override
         public JsonDeserializer<Object> putIfAbsent(JavaType key, JsonDeserializer<Object> value) {
-            invoked = true;
+            invokedAtLeastOnce = true;
             return _cachedDeserializers.putIfAbsent(key, value);
         }
 
@@ -71,8 +67,8 @@ public class CacheProviderTest
             _cachedDeserializers.clear();
         }
 
-        boolean isInvoked() {
-            return invoked;
+        boolean isInvokedAtLeastOnce() {
+            return invokedAtLeastOnce;
         }
     }
     
@@ -148,7 +144,7 @@ public class CacheProviderTest
                 .build();
 
         assertNotNull(mapper.readValue("{\"point\":24}", RandomBean.class));
-        assertTrue(cache.isInvoked());
+        assertTrue(cache.isInvokedAtLeastOnce());
     }
 
     @Test

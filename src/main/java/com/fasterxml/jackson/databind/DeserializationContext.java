@@ -161,21 +161,11 @@ public abstract class DeserializationContext
     /**********************************************************
      */
 
-    protected DeserializationContext(DeserializerFactory df) {
-        this(df, null);
-    }
-
     protected DeserializationContext(DeserializerFactory df,
             DeserializerCache cache)
     {
-        if (df == null) {
-            throw new NullPointerException("Cannot pass null DeserializerFactory");
-        }
-        _factory = df;
-        if (cache == null) {
-            cache = new DeserializerCache();
-        }
-        _cache = cache;
+        _factory = Objects.requireNonNull(df);
+        _cache = Objects.requireNonNull(cache);
         _featureFlags = 0;
         _readCapabilities = null;
         _config = null;
@@ -199,6 +189,24 @@ public abstract class DeserializationContext
         _attributes = src._attributes;
     }
 
+    /**
+     * @since 2.16
+     */
+    protected DeserializationContext(DeserializationContext src,
+             DeserializerCache cache)
+    {
+        _cache = cache;
+        _factory = src._factory;
+
+        _config = src._config;
+        _featureFlags = src._featureFlags;
+        _readCapabilities = src._readCapabilities;
+        _view = src._view;
+        _parser = src._parser;
+        _injectableValues = src._injectableValues;
+        _attributes = src._attributes;
+    }
+    
     /**
      * Constructor used for creating actual per-call instances.
      */
@@ -243,17 +251,19 @@ public abstract class DeserializationContext
     }
 
     /**
-     * Copy-constructor for use with <code>copy()</code> by {@link ObjectMapper#copy()}
+     * Copy-constructor for use with <code>copy()</code> by {@link ObjectMapper#copy()}.
+     * Only called on blueprint objects.
      */
     protected DeserializationContext(DeserializationContext src) {
-        _cache = new DeserializerCache();
+        _cache = src._cache.emptyCopy();
         _factory = src._factory;
 
         _config = src._config;
         _featureFlags = src._featureFlags;
         _readCapabilities = src._readCapabilities;
         _view = src._view;
-        _injectableValues = null;
+        _injectableValues = src._injectableValues;
+        _attributes = null;
     }
 
     /*

@@ -73,6 +73,13 @@ public final class DeserializerCache
         _cachedDeserializers = cache;
     }
 
+    /**
+     * @since 2.16
+     */
+    public DeserializerCache emptyCopy() {
+        return new DeserializerCache(_cachedDeserializers.emptyCopy());
+    }
+
     /*
     /**********************************************************
     /* JDK serialization handling

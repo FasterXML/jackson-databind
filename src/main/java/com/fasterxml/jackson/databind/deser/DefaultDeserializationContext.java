@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerator.IdKey;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.CacheProvider;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId.Referring;
@@ -62,6 +63,16 @@ public abstract class DefaultDeserializationContext
     }
 
     /**
+     * @since 2.16
+     */
+    protected DefaultDeserializationContext(DefaultDeserializationContext src,
+            DeserializerCache cache) {
+        super(src, cache);
+    }
+    
+    /**
+     * Copy-constructor
+     *
      * @since 2.4.4
      */
     protected DefaultDeserializationContext(DefaultDeserializationContext src) {
@@ -297,6 +308,13 @@ public abstract class DefaultDeserializationContext
     public abstract DefaultDeserializationContext with(DeserializerFactory factory);
 
     /**
+     * Fluent factory method used for constructing a new instance with cache instances provided by {@link CacheProvider}.
+     * 
+     * @since 2.16
+     */
+    public abstract DefaultDeserializationContext withCaches(CacheProvider cacheProvider);
+
+    /**
      * Method called to create actual usable per-deserialization
      * context instance.
      */
@@ -384,7 +402,9 @@ ClassUtil.name(expSimpleName), p.currentToken());
          * {@link DeserializerCache}, given factory.
          */
         public Impl(DeserializerFactory df) {
-            super(df, null);
+            // 04-Sep-2023, tatu: Not ideal (wrt not going via CacheProvider) but
+            //     has to do for backwards compatibility:
+            super(df, new DeserializerCache());
         }
 
         private Impl(Impl src,
@@ -400,6 +420,13 @@ ClassUtil.name(expSimpleName), p.currentToken());
 
         private Impl(Impl src, DeserializationConfig config) {
             super(src, config);
+        }
+
+        /**
+         * @since 2.16
+         */
+        private Impl(Impl src, DeserializerCache deserializerCache) {
+            super(src, deserializerCache);
         }
 
         @Override
@@ -423,6 +450,12 @@ ClassUtil.name(expSimpleName), p.currentToken());
         @Override
         public DefaultDeserializationContext with(DeserializerFactory factory) {
             return new Impl(this, factory);
+        }
+
+        @Override // Since 2.16
+        public DefaultDeserializationContext withCaches(CacheProvider cacheProvider) {
+            return new Impl(this,
+                    new DeserializerCache(cacheProvider.forDeserializerCache(_config)));
         }
     }
 }

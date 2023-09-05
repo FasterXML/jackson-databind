@@ -2282,6 +2282,7 @@ public class ObjectMapper
         _assertNotNull("cacheProvider", cacheProvider);
         _deserializationConfig = _deserializationConfig.with(cacheProvider);
         _serializationConfig = _serializationConfig.with(cacheProvider);
+        _deserializationContext = _deserializationContext.withCaches(cacheProvider);
         return this;
     }
 

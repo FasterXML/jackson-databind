@@ -335,16 +335,6 @@ public class ObjectMapper
         // NOTE: TypeResolverProvider apparently ok without snapshot, hence config objects fetch
         // it directly from MapperBuilder, not passed by us.
 
-        // Serialization factories
-        _serializationContexts = builder.serializationContexts()
-                .forMapper(this, _streamFactory, builder.serializerFactory());
-
-        // Deserialization factories
-
-        _deserializationContexts = builder.deserializationContexts()
-                .forMapper(this, _streamFactory, builder.deserializerFactory());
-        _injectableValues = Snapshottable.takeSnapshot(builder.injectableValues());
-
         // And then finalize serialization/deserialization Config containers
 
         RootNameLookup rootNames = new RootNameLookup();
@@ -355,6 +345,17 @@ public class ObjectMapper
         _serializationConfig = builder.buildSerializationConfig(configOverrides,
                 mixIns, _typeFactory, classIntr, subtypeResolver,
                 rootNames, filterProvider);
+
+        // Serialization factories
+        _serializationContexts = builder.serializationContexts()
+                .forMapper(this, _streamFactory, builder.serializerFactory());
+
+        // Deserialization factories
+
+        _deserializationContexts = builder.deserializationContexts()
+                .forMapper(this, _deserializationConfig,
+                        _streamFactory, builder.deserializerFactory());
+        _injectableValues = Snapshottable.takeSnapshot(builder.injectableValues());
     }
 
     /**

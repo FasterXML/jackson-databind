@@ -111,8 +111,6 @@ public abstract class MapperBuilderState
 
     protected final ConstructorDetector _ctorDetector;
 
-    protected final CacheProvider _cacheProvider;
-    
     /*
     /**********************************************************************
     /* Handlers, other
@@ -170,7 +168,6 @@ public abstract class MapperBuilderState
         _problemHandlers = src._problemHandlers;
         _abstractTypeResolvers = src._abstractTypeResolvers;
         _ctorDetector = src._ctorDetector;
-        _cacheProvider = src._cacheProvider;
 
         // Other handlers
         _defaultAttributes = Snapshottable.takeSnapshot(src._defaultAttributes);

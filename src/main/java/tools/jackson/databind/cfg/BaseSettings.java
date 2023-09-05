@@ -270,15 +270,6 @@ public final class BaseSettings
                 _timeZone, base64, _cacheProvider, _nodeFactory);
     }
 
-    public BaseSettings with(JsonNodeFactory nodeFactory) {
-        if (nodeFactory == _nodeFactory) {
-            return this;
-        }
-        return new BaseSettings(_annotationIntrospector, _propertyNamingStrategy, _accessorNaming,
-                _defaultTyper, _typeValidator, _dateFormat, _handlerInstantiator, _locale,
-                _timeZone, _defaultBase64, _cacheProvider, nodeFactory);
-    }
-
     /**
      * Fluent factory for constructing a new instance with provided {@link CacheProvider}.
      *
@@ -290,7 +281,16 @@ public final class BaseSettings
         }
         return new BaseSettings(_annotationIntrospector, _propertyNamingStrategy, _accessorNaming,
                 _defaultTyper, _typeValidator, _dateFormat, _handlerInstantiator, _locale,
-                _timeZone, _defaultBase64, _cacheProvider, _nodeFactory);
+                _timeZone, _defaultBase64, cacheProvider, _nodeFactory);
+    }
+
+    public BaseSettings with(JsonNodeFactory nodeFactory) {
+        if (nodeFactory == _nodeFactory) {
+            return this;
+        }
+        return new BaseSettings(_annotationIntrospector, _propertyNamingStrategy, _accessorNaming,
+                _defaultTyper, _typeValidator, _dateFormat, _handlerInstantiator, _locale,
+                _timeZone, _defaultBase64, _cacheProvider, nodeFactory);
     }
 
     /*

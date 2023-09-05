@@ -72,8 +72,11 @@ public abstract class DeserializationContexts
      * Necessary usually to initialize non-configuration state, such as caching.
      */
     public DeserializationContexts forMapper(Object mapper,
-            TokenStreamFactory tsf, DeserializerFactory deserializerFactory) {
-        return forMapper(mapper, tsf, deserializerFactory, _defaultCache());
+            DeserializationConfig config,
+            TokenStreamFactory tsf,
+            DeserializerFactory deserializerFactory) {
+        return forMapper(mapper, tsf, deserializerFactory,
+                new DeserializerCache(config.getCacheProvider().forDeserializerCache(config)));
     }
 
     protected abstract DeserializationContexts forMapper(Object mapper,
@@ -85,19 +88,6 @@ public abstract class DeserializationContexts
      */
     public abstract DeserializationContextExt createContext(DeserializationConfig config,
             FormatSchema schema, InjectableValues injectables);
-
-    /*
-    /**********************************************************************
-    /* Overridable default methods
-    /**********************************************************************
-     */
-
-    /**
-     * Factory method for constructing per-mapper serializer cache to use.
-     */
-    protected DeserializerCache _defaultCache() {
-        return new DeserializerCache();
-    }
 
     /*
     /**********************************************************************

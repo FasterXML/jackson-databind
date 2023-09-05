@@ -61,15 +61,18 @@ public final class DeserializerCache
      */
 
     public DeserializerCache() {
-        this(DEFAULT_MAX_CACHE_SIZE);
-    }
-
-    public DeserializerCache(int maxSize) {
-        this(new SimpleLookupCache<>(Math.min(64, maxSize>>2), maxSize));
+        this(new SimpleLookupCache<>(64, DEFAULT_MAX_CACHE_SIZE));
     }
 
     public DeserializerCache(LookupCache<JavaType, ValueDeserializer<Object>> cache) {
         _cachedDeserializers = cache;
+    }
+
+    /**
+     * @since 2.16
+     */
+    public DeserializerCache emptyCopy() {
+        return new DeserializerCache(_cachedDeserializers.emptyCopy());
     }
 
     /*

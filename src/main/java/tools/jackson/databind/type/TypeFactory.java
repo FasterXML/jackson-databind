@@ -171,25 +171,17 @@ public final class TypeFactory
      */
 
     private TypeFactory() {
-        this(null);
+        this(new SimpleLookupCache<Object,JavaType>(16, 200));
     }
 
     protected TypeFactory(LookupCache<Object,JavaType> typeCache) {
-        if (typeCache == null) {
-            typeCache = new SimpleLookupCache<Object,JavaType>(16, 200);
-        }
-        _typeCache = typeCache;
-        _modifiers = null;
-        _classLoader = null;
+        this(typeCache, null, null);
     }
 
     protected TypeFactory(LookupCache<Object,JavaType> typeCache,
             TypeModifier[] mods, ClassLoader classLoader)
     {
-        if (typeCache == null) {
-            typeCache = new SimpleLookupCache<Object,JavaType>(16, 200);
-        }
-        _typeCache = typeCache;
+        _typeCache = Objects.requireNonNull(typeCache);
         _modifiers = mods;
         _classLoader = classLoader;
     }
@@ -220,12 +212,12 @@ public final class TypeFactory
             mods = null;
             // 30-Jun-2016, tatu: for some reason expected semantics are to clear cache
             //    in this case; can't recall why, but keeping the same
-            typeCache = null;
+            typeCache = typeCache.emptyCopy();
         } else if (_modifiers == null) {
             mods = new TypeModifier[] { mod };
             // 29-Jul-2019, tatu: Actually I think we better clear cache in this case
             //    as well to ensure no leakage occurs (see [databind#2395])
-            typeCache = null;
+            typeCache = typeCache.emptyCopy();
         } else {
             // but may keep existing cache otherwise
             mods = ArrayBuilders.insertInListNoDup(_modifiers, mod);

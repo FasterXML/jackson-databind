@@ -14,9 +14,11 @@ public interface LookupCache<K,V>
     /**
      * Method needed for creating clones but without contents.
      *<p>
-     * Default implementation th
-     *
+     * Default implementation throws {@link UnsupportedOperationException},
+     * so implementations should override this method.
+     * 
      * @since 2.16
+     * @throws UnsupportedOperationException if implementation does not override this method.
      */
     default LookupCache<K,V> emptyCopy() {
         throw new UnsupportedOperationException("LookupCache implementation "

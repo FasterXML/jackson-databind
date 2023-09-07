@@ -54,6 +54,14 @@ public final class SerializerCache
     }
 
     /**
+     * @since 2.16
+     */
+    public SerializerCache(LRUMap<TypeKey, JsonSerializer<Object>> cache) {
+        _sharedMap = cache;
+        _readOnlyMap = new AtomicReference<ReadOnlyClassToSerializerMap>();
+    }
+
+    /**
      * Method that can be called to get a read-only instance populated from the
      * most recent version of the shared lookup Map.
      */

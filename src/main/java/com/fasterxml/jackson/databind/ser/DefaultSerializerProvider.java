@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.CacheProvider;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
@@ -92,6 +93,20 @@ public abstract class DefaultSerializerProvider
     public DefaultSerializerProvider copy() {
         throw new IllegalStateException("DefaultSerializerProvider sub-class not overriding copy()");
     }
+    
+    /*
+    /**********************************************************
+    /* Extended API, life-cycle
+    /**********************************************************
+     */
+    
+    /**
+     * Fluent factory method used for constructing a new instance with cache instances provided by {@link CacheProvider}.
+     *
+     * @since 2.16
+     */
+    public abstract DefaultSerializerProvider withCaches(CacheProvider cacheProvider);
+    
 
     /*
     /**********************************************************
@@ -592,7 +607,6 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
         return new com.fasterxml.jackson.databind.jsonschema.JsonSchema((ObjectNode) schemaNode);
     }
 
-
     /*
     /**********************************************************
     /* Helper classes
@@ -623,6 +637,12 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
         @Override
         public Impl createInstance(SerializationConfig config, SerializerFactory jsf) {
             return new Impl(this, config, jsf);
+        }
+
+        @Override
+        public DefaultSerializerProvider withCaches(CacheProvider cacheProvider) {
+            return new Impl(this,
+                    new SerializerCache(cacheProvider.forSerializerCache(_config)));
         }
     }
 }

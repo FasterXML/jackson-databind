@@ -177,4 +177,17 @@ public class CacheProviderTest
         // does not throw
         DefaultCacheProvider.builder().build();
     }
+
+    @Test
+    public void testDefaultCacheProviderConfigSerializerCache() throws Exception
+    {
+        CacheProvider cacheProvider = DefaultCacheProvider.builder()
+                .maxDeserializerCacheSize(1234)
+                .build();
+        ObjectMapper mapper = JsonMapper.builder()
+                .cacheProvider(cacheProvider).build();
+
+        assertNotNull(mapper.readValue("{\"point\":24}", RandomBean.class));
+    }
+
 }

@@ -261,6 +261,28 @@ public abstract class SerializerProvider
         _stdNullValueSerializer = src._stdNullValueSerializer;
     }
 
+
+    /**
+     * @since 2.16
+     */
+    protected SerializerProvider(SerializerProvider src, SerializerCache serializerCache)
+    {
+        _serializerFactory = src._serializerFactory;
+        _config = src._config;
+
+        _serializerCache = serializerCache;
+        _unknownTypeSerializer = src._unknownTypeSerializer;
+        _keySerializer = src._keySerializer;
+        _nullValueSerializer = src._nullValueSerializer;
+        _nullKeySerializer = src._nullKeySerializer;
+
+        _stdNullValueSerializer = (_nullValueSerializer == DEFAULT_NULL_KEY_SERIALIZER);
+
+        _serializationView = src._serializationView;
+        _attributes = src._attributes;
+        _knownSerializers = src._knownSerializers;
+    }
+
     /*
     /**********************************************************
     /* Methods for configuring default settings

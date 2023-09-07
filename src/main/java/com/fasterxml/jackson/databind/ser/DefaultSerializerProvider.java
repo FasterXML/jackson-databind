@@ -74,6 +74,11 @@ public abstract class DefaultSerializerProvider
         super(src);
     }
 
+    protected DefaultSerializerProvider(SerializerProvider src,
+            SerializerCache serializerCache) {
+        super(src, serializerCache);
+    }
+
     /**
      * Method that sub-classes need to implement: used to create a non-blueprint instances
      * from the blueprint.
@@ -626,6 +631,10 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
         protected Impl(SerializerProvider src, SerializationConfig config,
                 SerializerFactory f) {
             super(src, config, f);
+        }
+
+        protected Impl(SerializerProvider src, SerializerCache serializerCache) {
+            super(src, serializerCache);
         }
 
         @Override

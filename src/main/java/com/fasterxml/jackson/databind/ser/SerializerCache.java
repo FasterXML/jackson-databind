@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.impl.ReadOnlyClassToSerializerMap;
 import com.fasterxml.jackson.databind.util.LRUMap;
+import com.fasterxml.jackson.databind.util.LookupCache;
 import com.fasterxml.jackson.databind.util.TypeKey;
 
 /**
@@ -36,7 +37,7 @@ public final class SerializerCache
      * NOTE: keys are of various types (see below for key types), in addition to
      * basic {@link JavaType} used for "untyped" serializers.
      */
-    private final LRUMap<TypeKey, JsonSerializer<Object>> _sharedMap;
+    private final LookupCache<TypeKey, JsonSerializer<Object>> _sharedMap;
 
     /**
      * Most recent read-only instance, created from _sharedMap, if any.
@@ -56,7 +57,7 @@ public final class SerializerCache
     /**
      * @since 2.16
      */
-    public SerializerCache(LRUMap<TypeKey, JsonSerializer<Object>> cache) {
+    public SerializerCache(LookupCache<TypeKey, JsonSerializer<Object>> cache) {
         _sharedMap = cache;
         _readOnlyMap = new AtomicReference<ReadOnlyClassToSerializerMap>();
     }
@@ -79,7 +80,8 @@ public final class SerializerCache
         // not correctness
         ReadOnlyClassToSerializerMap m = _readOnlyMap.get();
         if (m == null) {
-            m = ReadOnlyClassToSerializerMap.from(_sharedMap);
+            // TODO: Figure out how to pass something that can provides content-iterable without hard type casting.
+            m = ReadOnlyClassToSerializerMap.from((LRUMap<TypeKey, JsonSerializer<Object>>) _sharedMap);
             _readOnlyMap.set(m);
         }
         return m;

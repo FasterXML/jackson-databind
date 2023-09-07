@@ -1,11 +1,10 @@
 package com.fasterxml.jackson.databind.cfg;
 
-import com.fasterxml.jackson.databind.DeserializationConfig;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.util.LRUMap;
 import com.fasterxml.jackson.databind.util.LookupCache;
+import com.fasterxml.jackson.databind.util.TypeKey;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -27,6 +26,10 @@ public class CacheProviderTest
 
     static class AnotherBean {
         public int height;
+    }
+    
+    static class SerBean {
+        public int slide = 123;
     }
 
     static class SimpleTestCache implements LookupCache<JavaType, JsonDeserializer<Object>> {
@@ -87,10 +90,41 @@ public class CacheProviderTest
             return _cache;
         }
 
+        @Override
+        public LookupCache<TypeKey, JsonSerializer<Object>> forSerializerCache(SerializationConfig config) {
+            return new LRUMap<>(8, 64);
+        }
+
         int createCacheCount() {
             return createCacheCount;
         }
     }
+
+    static class CustomSerializerCacheProvider implements CacheProvider {
+
+        final CustomTestSerializerCache _cache;
+
+        public CustomSerializerCacheProvider(CustomTestSerializerCache cache) {
+            _cache = cache;
+        }
+
+        @Override
+        public LookupCache<JavaType, JsonDeserializer<Object>> forDeserializerCache(DeserializationConfig config) {
+            return new LRUMap<>(16, 64);
+        }
+
+        @Override
+        public LookupCache<TypeKey, JsonSerializer<Object>> forSerializerCache(SerializationConfig config) {
+            return _cache;
+        }
+    }
+
+    static class CustomTestSerializerCache extends LRUMap<TypeKey, JsonSerializer<Object>> {
+
+        public CustomTestSerializerCache() {
+            super(8, 64);
+        }
+    } 
     
     /*
     /**********************************************************************
@@ -182,12 +216,53 @@ public class CacheProviderTest
     public void testDefaultCacheProviderConfigSerializerCache() throws Exception
     {
         CacheProvider cacheProvider = DefaultCacheProvider.builder()
-                .maxDeserializerCacheSize(1234)
+                .maxSerializerCacheSize(1234)
                 .build();
         ObjectMapper mapper = JsonMapper.builder()
                 .cacheProvider(cacheProvider).build();
-
-        assertNotNull(mapper.readValue("{\"point\":24}", RandomBean.class));
+        
+        String json = mapper.writeValueAsString(new SerBean());
+        
+        assertEquals("{\"slide\":123}", json);
     }
 
+    @Test
+    public void testDefaultCacheProviderConfigSerializerCacheSizeZero() throws Exception
+    {
+        CacheProvider cacheProvider = DefaultCacheProvider.builder()
+                .maxSerializerCacheSize(0)
+                .build();
+        ObjectMapper mapper = JsonMapper.builder()
+                .cacheProvider(cacheProvider)
+                .build();
+
+        String json = mapper.writeValueAsString(new SerBean());
+        
+        assertEquals("{\"slide\":123}", json);
+    }
+
+    @Test
+    public void testBuilderNullCheckingForSerializerCacheConfig() throws Exception
+    {
+        try {
+            DefaultCacheProvider.builder()
+                    .maxSerializerCacheSize(-1);
+            fail("Should not reach here");
+        } catch (IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("Cannot set maxSerializerCacheSize to a negative value"));
+        }
+    }
+
+    @Test
+    public void testCustomCacheProviderSerializerCacheConfig() throws Exception
+    {
+        CustomTestSerializerCache cache = new CustomTestSerializerCache();
+        ObjectMapper mapper = JsonMapper.builder()
+                .cacheProvider(new CustomSerializerCacheProvider(cache))
+                .build();
+
+        String json = mapper.writeValueAsString(new SerBean());
+
+        assertEquals("{\"slide\":123}", json);
+    }
 }

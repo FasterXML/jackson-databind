@@ -165,7 +165,12 @@ public abstract class DeserializationContext
             DeserializerCache cache)
     {
         _factory = Objects.requireNonNull(df);
-        _cache = Objects.requireNonNull(cache);
+        // 04-Sep-2023, tatu: Not ideal but
+        //     has to do for backwards compatibility:
+        if (cache == null) {
+            cache = new DeserializerCache();
+        }
+        _cache = cache;
         _featureFlags = 0;
         _readCapabilities = null;
         _config = null;

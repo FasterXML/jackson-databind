@@ -63,20 +63,21 @@ public abstract class DefaultDeserializationContext
     }
 
     /**
-     * @since 2.16
-     */
-    protected DefaultDeserializationContext(DefaultDeserializationContext src,
-            DeserializerCache cache) {
-        super(src, cache);
-    }
-    
-    /**
      * Copy-constructor
      *
      * @since 2.4.4
      */
     protected DefaultDeserializationContext(DefaultDeserializationContext src) {
         super(src);
+    }
+
+    /**
+     * @since 2.16
+     */
+    protected DefaultDeserializationContext(DefaultDeserializationContext src,
+            CacheProvider cp) {
+        super(src,
+            new DeserializerCache(cp.forDeserializerCache(src._config)));
     }
 
     /**
@@ -425,8 +426,8 @@ ClassUtil.name(expSimpleName), p.currentToken());
         /**
          * @since 2.16
          */
-        private Impl(Impl src, DeserializerCache deserializerCache) {
-            super(src, deserializerCache);
+        private Impl(Impl src, CacheProvider cp) {
+            super(src, cp);
         }
 
         @Override
@@ -453,9 +454,8 @@ ClassUtil.name(expSimpleName), p.currentToken());
         }
 
         @Override // Since 2.16
-        public DefaultDeserializationContext withCaches(CacheProvider cacheProvider) {
-            return new Impl(this,
-                    new DeserializerCache(cacheProvider.forDeserializerCache(_config)));
+        public DefaultDeserializationContext withCaches(CacheProvider cp) {
+            return new Impl(this, cp);
         }
     }
 }

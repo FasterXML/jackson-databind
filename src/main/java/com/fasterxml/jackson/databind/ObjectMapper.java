@@ -2152,7 +2152,7 @@ public class ObjectMapper
      * (by logical and physical type) configuration have
      * not been defined.
      * <p>
-     * NOTE: Preferred way to set the defaults is through {@code Builder} style
+     * NOTE: Preferred access method and point is through {@code Builder} style
      * construction, see {@link com.fasterxml.jackson.databind.json.JsonMapper.Builder}
      * and {@link MapperBuilder#withCoercionConfigDefaults(Consumer)}.
      *
@@ -2166,7 +2166,7 @@ public class ObjectMapper
      * Accessor for {@link MutableCoercionConfig} through which
      * coercion configuration for specified logical target type can be set.
      * <p>
-     * NOTE: Preferred way to set the defaults is through {@code Builder} style
+     * NOTE: Preferred access method and point is through {@code Builder} style
      * construction, see {@link com.fasterxml.jackson.databind.json.JsonMapper.Builder}
      * and {@link MapperBuilder#withCoercionConfig(LogicalType, Consumer)}.
      *
@@ -2180,7 +2180,7 @@ public class ObjectMapper
      * Accessor for {@link MutableCoercionConfig} through which
      * coercion configuration for specified physical target type can be set.
      * <p>
-     * NOTE: Preferred way to set the defaults is through {@code Builder} style
+     * NOTE: Preferred access method and point is through {@code Builder} style
      * construction, see {@link com.fasterxml.jackson.databind.json.JsonMapper.Builder}
      * and {@link MapperBuilder#withCoercionConfig(Class, Consumer)} (Consumer)}.
      *

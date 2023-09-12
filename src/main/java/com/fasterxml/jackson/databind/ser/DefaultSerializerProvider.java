@@ -74,6 +74,9 @@ public abstract class DefaultSerializerProvider
         super(src);
     }
 
+    /**
+     * @since 2.16
+     */
     protected DefaultSerializerProvider(SerializerProvider src,
             SerializerCache serializerCache) {
         super(src, serializerCache);

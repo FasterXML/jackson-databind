@@ -74,12 +74,7 @@ public class LRUMap<K,V>
     @Override
     public int size() { return _map.size(); }
 
-    /*
-    /**********************************************************************
-    /* Extended API (2.14)
-    /**********************************************************************
-     */
-
+    @Override
     public void contents(BiConsumer<K,V> consumer) {
         for (Map.Entry<K,V> entry : _map.entrySet()) {
             consumer.accept(entry.getKey(), entry.getValue());

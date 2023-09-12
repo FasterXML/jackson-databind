@@ -43,10 +43,10 @@ public class DefaultCacheProvider
     /**********************************************************************
      */
 
-    protected DefaultCacheProvider(int deserializerCacheSize, int serializerCacheSize)
+    protected DefaultCacheProvider(int maxDeserializerCacheSize, int maxSerializerCacheSize)
     {
-        _maxDeserializerCacheSize = deserializerCacheSize;
-        _maxSerializerCacheSize = serializerCacheSize;
+        _maxDeserializerCacheSize = maxDeserializerCacheSize;
+        _maxSerializerCacheSize = maxSerializerCacheSize;
     }
 
     /*
@@ -135,6 +135,7 @@ public class DefaultCacheProvider
          * <pre>
          *     return new LRUMap<>(Math.min(64, maxSize >> 2), maxSize);
          * </pre>
+         * ... such. Refer to {@link #_buildCache(int)}
          *
          * @param maxDeserializerCacheSize Size for the {@link LookupCache} to use within {@link DeserializerCache}
          * @return this builder
@@ -155,6 +156,7 @@ public class DefaultCacheProvider
          * <pre>
          *     return new LRUMap<>(Math.min(64, maxSize >> 2), maxSize);
          * </pre>
+         * ... such. Refer to {@link #_buildCache(int)}
          *
          * @param maxSerializerCacheSize Size for the {@link LookupCache} to use within {@link SerializerCache}
          * @return this builder

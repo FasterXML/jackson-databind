@@ -270,6 +270,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      * bigger maximum size.
      *
      * @since 2.12
+     * @deprecated Since 2.16. Use {@link #withCaches(CacheProvider)} instead.
      */
     public TypeFactory withCache(LookupCache<Object,JavaType> cache)  {
         return new TypeFactory(cache, _parser, _modifiers, _classLoader);

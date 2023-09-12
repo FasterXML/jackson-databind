@@ -42,7 +42,8 @@ public final class SerializerCache
     /**
      * Most recent read-only instance, created from _sharedMap, if any.
      */
-    private final AtomicReference<ReadOnlyClassToSerializerMap> _readOnlyMap;
+    private final AtomicReference<ReadOnlyClassToSerializerMap> _readOnlyMap =
+        new AtomicReference<ReadOnlyClassToSerializerMap>();
 
     public SerializerCache() {
         this(DEFAULT_MAX_CACHED);
@@ -51,7 +52,6 @@ public final class SerializerCache
     public SerializerCache(int maxCached) {
         int initial = Math.min(64, maxCached>>2);
         _sharedMap = new LRUMap<TypeKey, JsonSerializer<Object>>(initial, maxCached);
-        _readOnlyMap = new AtomicReference<ReadOnlyClassToSerializerMap>();
     }
 
     /**
@@ -59,7 +59,6 @@ public final class SerializerCache
      */
     public SerializerCache(LookupCache<TypeKey, JsonSerializer<Object>> cache) {
         _sharedMap = cache;
-        _readOnlyMap = new AtomicReference<ReadOnlyClassToSerializerMap>();
     }
 
     /**
@@ -80,8 +79,7 @@ public final class SerializerCache
         // not correctness
         ReadOnlyClassToSerializerMap m = _readOnlyMap.get();
         if (m == null) {
-            // TODO: Figure out how to pass something that can provides content-iterable without hard type casting.
-            m = ReadOnlyClassToSerializerMap.from((LRUMap<TypeKey, JsonSerializer<Object>>) _sharedMap);
+            m = ReadOnlyClassToSerializerMap.from(_sharedMap);
             _readOnlyMap.set(m);
         }
         return m;

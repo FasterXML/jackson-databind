@@ -29,7 +29,7 @@ public final class SerializerCache
      * By default, allow caching of up to 4000 serializer entries (for possibly up to
      * 1000 types; but depending access patterns may be as few as half of that).
      */
-    public final static int DEFAULT_MAX_CACHED = 4000;
+    public final static int DEFAULT_MAX_CACHE_SIZE = 4000;
 
     /**
      * Shared, modifiable map; all access needs to be through synchronized blocks.
@@ -46,7 +46,7 @@ public final class SerializerCache
         new AtomicReference<ReadOnlyClassToSerializerMap>();
 
     public SerializerCache() {
-        this(DEFAULT_MAX_CACHED);
+        this(DEFAULT_MAX_CACHE_SIZE);
     }
 
     public SerializerCache(int maxCached) {

@@ -21,7 +21,7 @@ public class DefaultCacheProvider
     private static final long serialVersionUID = 1L;
 
     private final static DefaultCacheProvider DEFAULT
-        = new DefaultCacheProvider(DeserializerCache.DEFAULT_MAX_CACHE_SIZE, SerializerCache.DEFAULT_MAX_CACHED);
+        = new DefaultCacheProvider(DeserializerCache.DEFAULT_MAX_CACHE_SIZE, SerializerCache.DEFAULT_MAX_CACHE_SIZE);
 
     /**
      * Maximum size of the {@link LookupCache} instance constructed by {@link #forDeserializerCache(DeserializationConfig)}.

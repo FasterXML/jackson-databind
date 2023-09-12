@@ -9,6 +9,7 @@ import java.text.DateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.*;
@@ -2150,6 +2151,10 @@ public class ObjectMapper
      * Note that such settings are only applied if more specific
      * (by logical and physical type) configuration have
      * not been defined.
+     * <p>
+     * NOTE: Preferred access method and point is through {@code Builder} style
+     * construction, see {@link com.fasterxml.jackson.databind.json.JsonMapper.Builder}
+     * and {@link MapperBuilder#withCoercionConfigDefaults(Consumer)}.
      *
      * @since 2.12
      */
@@ -2160,6 +2165,10 @@ public class ObjectMapper
     /**
      * Accessor for {@link MutableCoercionConfig} through which
      * coercion configuration for specified logical target type can be set.
+     * <p>
+     * NOTE: Preferred access method and point is through {@code Builder} style
+     * construction, see {@link com.fasterxml.jackson.databind.json.JsonMapper.Builder}
+     * and {@link MapperBuilder#withCoercionConfig(LogicalType, Consumer)}.
      *
      * @since 2.12
      */
@@ -2170,6 +2179,10 @@ public class ObjectMapper
     /**
      * Accessor for {@link MutableCoercionConfig} through which
      * coercion configuration for specified physical target type can be set.
+     * <p>
+     * NOTE: Preferred access method and point is through {@code Builder} style
+     * construction, see {@link com.fasterxml.jackson.databind.json.JsonMapper.Builder}
+     * and {@link MapperBuilder#withCoercionConfig(Class, Consumer)} (Consumer)}.
      *
      * @since 2.12
      */

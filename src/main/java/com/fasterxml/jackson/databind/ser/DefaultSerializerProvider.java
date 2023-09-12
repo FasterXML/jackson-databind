@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.CacheProvider;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
+import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
@@ -77,9 +78,10 @@ public abstract class DefaultSerializerProvider
     /**
      * @since 2.16
      */
-    protected DefaultSerializerProvider(SerializerProvider src,
-            SerializerCache serializerCache) {
-        super(src, serializerCache);
+    protected DefaultSerializerProvider(DefaultSerializerProvider src,
+            CacheProvider cp) {
+        super(src,
+                new SerializerCache(cp.forSerializerCache(src._config)));
     }
 
     /**
@@ -636,8 +638,11 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
             super(src, config, f);
         }
 
-        protected Impl(SerializerProvider src, SerializerCache serializerCache) {
-            super(src, serializerCache);
+        /**
+         * @since 2.16
+         */
+        protected Impl(Impl src, CacheProvider cp) {
+            super(src, cp);
         }
 
         @Override
@@ -652,9 +657,8 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
         }
 
         @Override
-        public DefaultSerializerProvider withCaches(CacheProvider cacheProvider) {
-            return new Impl(this,
-                    new SerializerCache(cacheProvider.forSerializerCache(_config)));
+        public DefaultSerializerProvider withCaches(CacheProvider cp) {
+            return new Impl(this, cp);
         }
     }
 }

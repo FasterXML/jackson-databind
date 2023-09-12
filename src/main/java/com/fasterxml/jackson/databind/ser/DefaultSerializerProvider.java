@@ -103,20 +103,6 @@ public abstract class DefaultSerializerProvider
     public DefaultSerializerProvider copy() {
         throw new IllegalStateException("DefaultSerializerProvider sub-class not overriding copy()");
     }
-    
-    /*
-    /**********************************************************
-    /* Extended API, life-cycle
-    /**********************************************************
-     */
-    
-    /**
-     * Fluent factory method used for constructing a new instance with cache instances provided by {@link CacheProvider}.
-     *
-     * @since 2.16
-     */
-    public abstract DefaultSerializerProvider withCaches(CacheProvider cacheProvider);
-    
 
     /*
     /**********************************************************
@@ -197,6 +183,19 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
             return false; // never gets here
         }
     }
+
+    /*
+    /**********************************************************
+    /* Extended API, life-cycle
+    /**********************************************************
+     */
+
+    /**
+     * Fluent factory method used for constructing a new instance with cache instances provided by {@link CacheProvider}.
+     *
+     * @since 2.16
+     */
+    public abstract DefaultSerializerProvider withCaches(CacheProvider cacheProvider);
 
     /*
     /**********************************************************

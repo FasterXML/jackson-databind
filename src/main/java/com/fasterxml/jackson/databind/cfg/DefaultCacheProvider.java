@@ -130,12 +130,8 @@ public class DefaultCacheProvider
         Builder() { }
 
         /**
-         * Define the maximum size of the {@link LookupCache} instance constructed by {@link #forDeserializerCache(DeserializationConfig)}.
-         * The cache is instantiated as:
-         * <pre>
-         *     return new LRUMap<>(Math.min(64, maxSize >> 2), maxSize);
-         * </pre>
-         * ... such. Refer to {@link #_buildCache(int)}
+         * Define the maximum size of the {@link LookupCache} instance constructed by {@link #forDeserializerCache(DeserializationConfig)}
+         * and {@link #_buildCache(int)}.
          *
          * @param maxDeserializerCacheSize Size for the {@link LookupCache} to use within {@link DeserializerCache}
          * @return this builder
@@ -152,11 +148,7 @@ public class DefaultCacheProvider
 
         /**
          * Define the maximum size of the {@link LookupCache} instance constructed by {@link #forSerializerCache(SerializationConfig)}
-         * The cache is instantiated as:
-         * <pre>
-         *     return new LRUMap<>(Math.min(64, maxSize >> 2), maxSize);
-         * </pre>
-         * ... such. Refer to {@link #_buildCache(int)}
+         * and {@link #_buildCache(int)}
          *
          * @param maxSerializerCacheSize Size for the {@link LookupCache} to use within {@link SerializerCache}
          * @return this builder

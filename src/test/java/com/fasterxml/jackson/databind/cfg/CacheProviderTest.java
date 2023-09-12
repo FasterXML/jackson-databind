@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class CacheProviderTest
 {
-    
+
     static class RandomBean {
         public int point;
     }
@@ -27,7 +27,7 @@ public class CacheProviderTest
     static class AnotherBean {
         public int height;
     }
-    
+
     static class SerBean {
         public int slide = 123;
     }
@@ -35,13 +35,13 @@ public class CacheProviderTest
     static class SimpleTestCache implements LookupCache<JavaType, JsonDeserializer<Object>> {
 
         final HashMap<JavaType, JsonDeserializer<Object>> _cachedDeserializers;
-        
+
         boolean invokedAtLeastOnce = false;
 
         public SimpleTestCache(int cacheSize) {
             _cachedDeserializers = new HashMap<>(cacheSize);
         }
-        
+
         @Override
         public int size() {
             return _cachedDeserializers.size();
@@ -74,12 +74,12 @@ public class CacheProviderTest
             return invokedAtLeastOnce;
         }
     }
-    
+
     static class CustomCacheProvider implements CacheProvider {
-        
+
         final SimpleTestCache _cache;
         int createCacheCount = 0;
-        
+
         public CustomCacheProvider(SimpleTestCache cache) {
             _cache = cache;
         }
@@ -131,7 +131,7 @@ public class CacheProviderTest
     /* Unit tests
     /**********************************************************************
      */
-    
+
     @Test
     public void testDefaultCacheProviderConfigDeserializerCache() throws Exception
     {
@@ -155,18 +155,6 @@ public class CacheProviderTest
                 .build();
 
         assertNotNull(mapper.readValue("{\"point\":24}", RandomBean.class));
-    }
-
-    @Test
-    public void testBuilderNullCheckingForDeserializerCacheConfig() throws Exception
-    {
-        try {
-            DefaultCacheProvider.builder()
-                    .maxDeserializerCacheSize(-1);
-            fail("Should not reach here");
-        } catch (IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Cannot set maxDeserializerCacheSize to a negative value"));
-        }
     }
 
     @Test
@@ -194,22 +182,42 @@ public class CacheProviderTest
         ObjectMapper mapper2 = JsonMapper.builder()
                 .cacheProvider(cacheProvider)
                 .build();
-        
+
         // Act 
         // 3. Add two different types to each mapper cache
         mapper1.readValue("{\"point\":24}", RandomBean.class);
         mapper2.readValue("{\"height\":24}", AnotherBean.class);
-        
+
         // Assert
         // 4. Should have created two cache instance
         assertEquals(2, cacheProvider.createCacheCount());
     }
 
     @Test
-    public void testBuilderBuildWithDefaults() throws Exception
+    public void testBuilderValueValidation() throws Exception
     {
         // does not throw
-        DefaultCacheProvider.builder().build();
+        DefaultCacheProvider.builder()
+                .build();
+        DefaultCacheProvider.builder()
+                .maxDeserializerCacheSize(Integer.MAX_VALUE)
+                .maxSerializerCacheSize(Integer.MAX_VALUE)
+                .build();
+
+        // validation fails
+        _verifyValidationFail(() -> DefaultCacheProvider.builder().maxDeserializerCacheSize(-1),
+                "Cannot set maxDeserializerCacheSize to a negative value");
+        _verifyValidationFail(() -> DefaultCacheProvider.builder().maxSerializerCacheSize(-1),
+                "Cannot set maxSerializerCacheSize to a negative value");
+    }
+
+    private void _verifyValidationFail(Runnable cacheProviderBuilder, String expectedErrorMsg) {
+        try {
+            cacheProviderBuilder.run();
+            fail("Should not reach here");
+        } catch (IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains(expectedErrorMsg));
+        }
     }
 
     @Test
@@ -219,10 +227,11 @@ public class CacheProviderTest
                 .maxSerializerCacheSize(1234)
                 .build();
         ObjectMapper mapper = JsonMapper.builder()
-                .cacheProvider(cacheProvider).build();
-        
+                .cacheProvider(cacheProvider)
+                .build();
+
         String json = mapper.writeValueAsString(new SerBean());
-        
+
         assertEquals("{\"slide\":123}", json);
     }
 
@@ -237,20 +246,8 @@ public class CacheProviderTest
                 .build();
 
         String json = mapper.writeValueAsString(new SerBean());
-        
-        assertEquals("{\"slide\":123}", json);
-    }
 
-    @Test
-    public void testBuilderNullCheckingForSerializerCacheConfig() throws Exception
-    {
-        try {
-            DefaultCacheProvider.builder()
-                    .maxSerializerCacheSize(-1);
-            fail("Should not reach here");
-        } catch (IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("Cannot set maxSerializerCacheSize to a negative value"));
-        }
+        assertEquals("{\"slide\":123}", json);
     }
 
     @Test

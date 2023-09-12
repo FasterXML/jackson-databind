@@ -5,7 +5,7 @@ import java.util.function.Consumer;
 /**
  * Mutable version of {@link CoercionConfig} (or rather, extended API)
  * exposed during configuration phase of {@link tools.jackson.databind.ObjectMapper}
- * (via {@link JsonMapper#builder()}).
+ * (via {@link tools.jackson.databind.json.JsonMapper#builder()}).
  */
 public class MutableCoercionConfig
     extends CoercionConfig

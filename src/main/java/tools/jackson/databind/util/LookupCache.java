@@ -2,6 +2,8 @@ package tools.jackson.databind.util;
 
 import tools.jackson.core.util.Snapshottable;
 
+import java.util.function.BiConsumer;
+
 /**
  * An interface describing the required API for the Jackson-Databind Type cache.
  *<p>
@@ -19,6 +21,20 @@ public interface LookupCache<K,V>
     //    for now NOT exposed, but can reconsider if it proves generally useful
 
 //    void contents(BiConsumer<K,V> consumer);
+
+    /**
+     * Method to apply operation on cache contents without exposing them.
+     *<p>
+     * Default implementation throws {@link UnsupportedOperationException}.
+     * Implementations are required to override this method.
+     *
+     * @param consumer Operation to apply on cache contents.
+     *
+     * @throws UnsupportedOperationException if implementation does not override this method.
+     */
+    default void contents(BiConsumer<K,V> consumer) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Method needed for creating clones but without contents.

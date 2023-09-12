@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.deser.DeserializerCache;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.LRUMap;
 import com.fasterxml.jackson.databind.util.LookupCache;
 
@@ -21,7 +22,7 @@ public class DefaultCacheProvider
     private static final long serialVersionUID = 1L;
 
     private final static DefaultCacheProvider DEFAULT
-        = new DefaultCacheProvider(DeserializerCache.DEFAULT_MAX_CACHE_SIZE);
+        = new DefaultCacheProvider(DeserializerCache.DEFAULT_MAX_CACHE_SIZE, TypeFactory.DEFAULT_MAX_CACHE_SIZE);
 
     /**
      * Maximum size of the {@link LookupCache} instance constructed by {@link #forDeserializerCache(DeserializationConfig)}.
@@ -29,16 +30,24 @@ public class DefaultCacheProvider
      * @see Builder#maxDeserializerCacheSize(int)
      */
     protected final int _maxDeserializerCacheSize;
-    
+
+    /**
+     * Maximum size of the {@link LookupCache} instance constructed by {@link #forTypeFactory()}.
+     *
+     * @see Builder#maxTypeFactoryCacheSize(int)
+     */
+    protected final int _maxTypeFactoryCacheSize;
+
     /*
     /**********************************************************************
     /* Life cycle
     /**********************************************************************
      */
 
-    protected DefaultCacheProvider(int deserializerCache)
+    protected DefaultCacheProvider(int deserializerCache, int maxTypeFactoryCacheSize)
     {
         _maxDeserializerCacheSize = deserializerCache;
+        _maxTypeFactoryCacheSize = maxTypeFactoryCacheSize;
     }
 
     /*
@@ -69,6 +78,11 @@ public class DefaultCacheProvider
     @Override
     public LookupCache<JavaType, JsonDeserializer<Object>> forDeserializerCache(DeserializationConfig config) {
         return _buildCache(_maxDeserializerCacheSize);
+    }
+
+    @Override
+    public LookupCache<Object, JavaType> forTypeFactory() {
+        return _buildCache(_maxTypeFactoryCacheSize);
     }
 
     /*
@@ -108,6 +122,12 @@ public class DefaultCacheProvider
          */
         private int _maxDeserializerCacheSize;
 
+        /**
+         * Maximum Size of the {@link LookupCache} instance created by {@link #forTypeFactory()}.
+         * Corresponds to {@link DefaultCacheProvider#_maxTypeFactoryCacheSize}.
+         */
+        private int _maxTypeFactoryCacheSize;
+
         Builder() { }
 
         /**
@@ -131,12 +151,28 @@ public class DefaultCacheProvider
         }
 
         /**
+         * Define the maximum size of the {@link LookupCache} instance constructed by {@link #forTypeFactory()}.
+         * The cache is instantiated as:
+         *
+         * @param maxTypeFactoryCacheSize Size for the {@link LookupCache} to use within {@link com.fasterxml.jackson.databind.type.TypeFactory}
+         * @return this builder
+         * @throws IllegalArgumentException if {@code maxTypeFactoryCacheSize} is negative
+         */
+        public Builder maxTypeFactoryCacheSize(int maxTypeFactoryCacheSize) {
+            if (maxTypeFactoryCacheSize < 0) {
+                throw new IllegalArgumentException("Cannot set maxTypeFactoryCacheSize to a negative value");
+            }
+            _maxTypeFactoryCacheSize = maxTypeFactoryCacheSize;
+            return this;
+        }
+
+        /**
          * Constructs a {@link DefaultCacheProvider} with the provided configuration values, using defaults where not specified.
          *
          * @return A {@link DefaultCacheProvider} instance with the specified configuration
          */
         public DefaultCacheProvider build() {
-            return new DefaultCacheProvider(_maxDeserializerCacheSize);
+            return new DefaultCacheProvider(_maxDeserializerCacheSize, _maxTypeFactoryCacheSize);
         }
     }
 }

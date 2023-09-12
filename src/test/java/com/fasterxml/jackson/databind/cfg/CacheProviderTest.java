@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.util.LRUMap;
 import com.fasterxml.jackson.databind.util.LookupCache;
 import org.junit.Test;
 
@@ -71,7 +72,7 @@ public class CacheProviderTest
             return invokedAtLeastOnce;
         }
     }
-    
+
     static class CustomCacheProvider implements CacheProvider {
         
         final SimpleTestCache _cache;
@@ -87,9 +88,33 @@ public class CacheProviderTest
             return _cache;
         }
 
+        @Override
+        public LookupCache<Object, JavaType> forTypeFactory() {
+            return new LRUMap<>(16, 64);
+        }
+
         int createCacheCount() {
             return createCacheCount;
         }
+    }
+
+    static class CustomTypeFactoryCacheProvider implements CacheProvider {
+
+        boolean createdTypeCacheCount = false;
+
+        public CustomTypeFactoryCacheProvider() { }
+
+        @Override
+        public LookupCache<JavaType, JsonDeserializer<Object>> forDeserializerCache(DeserializationConfig config) {
+            return new LRUMap<>(16, 64);
+        }
+
+        @Override
+        public LookupCache<Object, JavaType> forTypeFactory() {
+            createdTypeCacheCount = true;
+            return new LRUMap<>(16, 64);
+        }
+
     }
     
     /*
@@ -160,8 +185,8 @@ public class CacheProviderTest
         ObjectMapper mapper2 = JsonMapper.builder()
                 .cacheProvider(cacheProvider)
                 .build();
-        
-        // Act 
+
+        // Act
         // 3. Add two different types to each mapper cache
         mapper1.readValue("{\"point\":24}", RandomBean.class);
         mapper2.readValue("{\"height\":24}", AnotherBean.class);
@@ -176,5 +201,18 @@ public class CacheProviderTest
     {
         // does not throw
         DefaultCacheProvider.builder().build();
+    }
+
+    @Test
+    public void testCacheProvider() throws Exception
+    {
+        CustomTypeFactoryCacheProvider cacheProvider = new CustomTypeFactoryCacheProvider();
+        ObjectMapper mapper = JsonMapper.builder()
+                .cacheProvider(cacheProvider)
+                .build();
+
+        mapper.writeValueAsString(new RandomBean());
+
+        assertTrue(cacheProvider.createdTypeCacheCount);
     }
 }

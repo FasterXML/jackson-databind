@@ -12,6 +12,7 @@ import java.lang.reflect.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.cfg.CacheProvider;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.LRUMap;
@@ -69,6 +70,15 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
     implements java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
+
+    /**
+     * Default size used to construct {@link #_typeCache}.
+     *
+     * Used to be passed inline.
+     *
+     * @since 2.16
+     */
+    public static final int DEFAULT_MAX_CACHE_SIZE = 200;
 
     private final static JavaType[] NO_TYPES = new JavaType[0];
 
@@ -178,7 +188,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      */
 
     private TypeFactory() {
-        this(new LRUMap<>(16, 200));
+        this(new LRUMap<>(16, DEFAULT_MAX_CACHE_SIZE));
     }
 
     /**
@@ -198,7 +208,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
                           TypeModifier[] mods, ClassLoader classLoader)
     {
         if (typeCache == null) {
-            typeCache = new LRUMap<>(16, 200);
+            typeCache = new LRUMap<>(16, DEFAULT_MAX_CACHE_SIZE);
         }
         _typeCache = typeCache;
         // As per [databind#894] must ensure we have back-linkage from TypeFactory:
@@ -263,6 +273,18 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      */
     public TypeFactory withCache(LookupCache<Object,JavaType> cache)  {
         return new TypeFactory(cache, _parser, _modifiers, _classLoader);
+    }
+
+
+    /**
+     * Mutant factory method that will construct a new {@link TypeFactory}
+     * with cache instances provided by {@link CacheProvider}.
+     *
+     * @since 2.16
+     */
+    public TypeFactory withCaches(CacheProvider cacheProvider) {
+        return new TypeFactory(cacheProvider.forTypeFactory(),
+                _parser, _modifiers, _classLoader);
     }
 
     /**

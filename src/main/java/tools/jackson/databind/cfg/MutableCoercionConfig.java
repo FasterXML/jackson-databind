@@ -1,8 +1,5 @@
 package tools.jackson.databind.cfg;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.type.LogicalType;
-
 import java.util.function.Consumer;
 
 /**

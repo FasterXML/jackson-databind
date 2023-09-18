@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -258,8 +259,7 @@ public class ObjectArrayDeserializer
                 return intoValue;
             }
             final int offset = intoValue.length;
-            Object[] result = new Object[offset + arr.length];
-            System.arraycopy(intoValue, 0, result, 0, offset);
+            Object[] result = Arrays.copyOf(intoValue, offset + arr.length);
             System.arraycopy(arr, 0, result, offset, arr.length);
             return result;
         }

@@ -116,6 +116,7 @@ public class CacheProviderTest
     }
 
     static class CustomTestSerializerCache extends LRUMap<TypeKey, JsonSerializer<Object>> {
+
         public boolean _isInvoked = false;
         public CustomTestSerializerCache() {
             super(8, 64);
@@ -198,23 +199,25 @@ public class CacheProviderTest
     @Test
     public void testBuilderValueValidation() throws Exception
     {
-        // does not throw
+        // success cases
         DefaultCacheProvider.builder()
                 .build();
-        // does not throw, also
+        DefaultCacheProvider.builder()
+                .maxDeserializerCacheSize(0)
+                .maxSerializerCacheSize(0)
+                .build();
         DefaultCacheProvider.builder()
                 .maxDeserializerCacheSize(Integer.MAX_VALUE)
                 .maxSerializerCacheSize(Integer.MAX_VALUE)
                 .build();
 
-        // validation fails
+        // fail cases
         try {
             DefaultCacheProvider.builder().maxDeserializerCacheSize(-1);
             fail("Should not reach here");
         } catch (IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("Cannot set maxDeserializerCacheSize to a negative value"));
         }
-        // validation fails
         try {
             DefaultCacheProvider.builder().maxSerializerCacheSize(-1);
             fail("Should not reach here");
@@ -224,14 +227,13 @@ public class CacheProviderTest
     }
 
     /**
-     * Sanity test for {@link CacheProvider#forSerializerCache(SerializationConfig)}
+     * Sanity test for serialization with {@link CacheProvider#forSerializerCache(SerializationConfig)}
      */
     @Test
     public void sanityCheckSerializerCacheSize() throws Exception
     {
         // with positive value
         _verifySerializeSuccess(_defaultProviderWithSerCache(1234));
-
         // with zero value
         _verifySerializeSuccess(_defaultProviderWithSerCache(0));
 

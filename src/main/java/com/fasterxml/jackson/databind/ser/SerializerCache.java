@@ -32,6 +32,12 @@ public final class SerializerCache
     public final static int DEFAULT_MAX_CACHE_SIZE = 4000;
 
     /**
+     * @deprecated Use {@link #DEFAULT_MAX_CACHE_SIZE} instead.
+     */
+    @Deprecated
+    public final static int DEFAULT_MAX_CACHED = DEFAULT_MAX_CACHE_SIZE;
+
+    /**
      * Shared, modifiable map; all access needs to be through synchronized blocks.
      *<p>
      * NOTE: keys are of various types (see below for key types), in addition to

@@ -100,13 +100,9 @@ public class CacheProviderTest
         }
     }
 
-    static class CustomSerializerCacheProvider implements CacheProvider {
+    static class CustomSerCacheProvider implements CacheProvider {
 
-        final CustomTestSerializerCache _cache;
-
-        public CustomSerializerCacheProvider(CustomTestSerializerCache cache) {
-            _cache = cache;
-        }
+        final CustomTestSerializerCache _cache = new CustomTestSerializerCache();
 
         @Override
         public LookupCache<JavaType, JsonDeserializer<Object>> forDeserializerCache(DeserializationConfig config) {
@@ -120,10 +116,17 @@ public class CacheProviderTest
     }
 
     static class CustomTestSerializerCache extends LRUMap<TypeKey, JsonSerializer<Object>> {
+        public boolean _isInvoked = false;
         public CustomTestSerializerCache() {
             super(8, 64);
         }
-    } 
+
+        @Override
+        public JsonSerializer<Object> put(TypeKey key, JsonSerializer<Object> value) {
+            _isInvoked = true;
+            return super.put(key, value);
+        }
+    }
     
     /*
     /**********************************************************************
@@ -205,19 +208,18 @@ public class CacheProviderTest
                 .build();
 
         // validation fails
-        _verifyValidationFail(() -> DefaultCacheProvider.builder().maxDeserializerCacheSize(-1),
-                "Cannot set maxDeserializerCacheSize to a negative value");
-        // validation fails
-        _verifyValidationFail(() -> DefaultCacheProvider.builder().maxSerializerCacheSize(-1),
-                "Cannot set maxSerializerCacheSize to a negative value");
-    }
-
-    private void _verifyValidationFail(Runnable cacheProviderBuilder, String expectedErrorMsg) {
         try {
-            cacheProviderBuilder.run();
+            DefaultCacheProvider.builder().maxDeserializerCacheSize(-1);
             fail("Should not reach here");
         } catch (IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains(expectedErrorMsg));
+            assertTrue(e.getMessage().contains("Cannot set maxDeserializerCacheSize to a negative value"));
+        }
+        // validation fails
+        try {
+            DefaultCacheProvider.builder().maxSerializerCacheSize(-1);
+            fail("Should not reach here");
+        } catch (IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("Cannot set maxSerializerCacheSize to a negative value"));
         }
     }
 
@@ -234,7 +236,9 @@ public class CacheProviderTest
         _verifySerializeSuccess(_defaultProviderWithSerCache(0));
 
         // custom
-        _verifySerializeSuccess(new CustomSerializerCacheProvider(new CustomTestSerializerCache()));
+        CustomSerCacheProvider customProvider = new CustomSerCacheProvider();
+        _verifySerializeSuccess(customProvider);
+        assertTrue(customProvider._cache._isInvoked); // -- verify that custom cache is actually used
     }
 
     private CacheProvider _defaultProviderWithSerCache(int maxSerializerCacheSize)

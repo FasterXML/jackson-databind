@@ -120,7 +120,6 @@ public class CacheProviderTest
     }
 
     static class CustomTestSerializerCache extends LRUMap<TypeKey, JsonSerializer<Object>> {
-
         public CustomTestSerializerCache() {
             super(8, 64);
         }
@@ -199,6 +198,7 @@ public class CacheProviderTest
         // does not throw
         DefaultCacheProvider.builder()
                 .build();
+        // does not throw, also
         DefaultCacheProvider.builder()
                 .maxDeserializerCacheSize(Integer.MAX_VALUE)
                 .maxSerializerCacheSize(Integer.MAX_VALUE)
@@ -207,6 +207,7 @@ public class CacheProviderTest
         // validation fails
         _verifyValidationFail(() -> DefaultCacheProvider.builder().maxDeserializerCacheSize(-1),
                 "Cannot set maxDeserializerCacheSize to a negative value");
+        // validation fails
         _verifyValidationFail(() -> DefaultCacheProvider.builder().maxSerializerCacheSize(-1),
                 "Cannot set maxSerializerCacheSize to a negative value");
     }
@@ -220,46 +221,35 @@ public class CacheProviderTest
         }
     }
 
+    /**
+     * Sanity test for {@link CacheProvider#forSerializerCache(SerializationConfig)}
+     */
     @Test
-    public void testDefaultCacheProviderConfigSerializerCache() throws Exception
+    public void sanityCheckSerializerCacheSize() throws Exception
     {
-        CacheProvider cacheProvider = DefaultCacheProvider.builder()
-                .maxSerializerCacheSize(1234)
+        // with positive value
+        _verifySerializeSuccess(_defaultProviderWithSerCache(1234));
+
+        // with zero value
+        _verifySerializeSuccess(_defaultProviderWithSerCache(0));
+
+        // custom
+        _verifySerializeSuccess(new CustomSerializerCacheProvider(new CustomTestSerializerCache()));
+    }
+
+    private CacheProvider _defaultProviderWithSerCache(int maxSerializerCacheSize)
+    {
+        return DefaultCacheProvider.builder()
+                .maxSerializerCacheSize(maxSerializerCacheSize)
                 .build();
+    }
+
+    private void _verifySerializeSuccess(CacheProvider cacheProvider) throws Exception
+    {
         ObjectMapper mapper = JsonMapper.builder()
                 .cacheProvider(cacheProvider)
                 .build();
-
-        String json = mapper.writeValueAsString(new SerBean());
-
-        assertEquals("{\"slide\":123}", json);
-    }
-
-    @Test
-    public void testDefaultCacheProviderConfigSerializerCacheSizeZero() throws Exception
-    {
-        CacheProvider cacheProvider = DefaultCacheProvider.builder()
-                .maxSerializerCacheSize(0)
-                .build();
-        ObjectMapper mapper = JsonMapper.builder()
-                .cacheProvider(cacheProvider)
-                .build();
-
-        String json = mapper.writeValueAsString(new SerBean());
-
-        assertEquals("{\"slide\":123}", json);
-    }
-
-    @Test
-    public void testCustomCacheProviderSerializerCacheConfig() throws Exception
-    {
-        CustomTestSerializerCache cache = new CustomTestSerializerCache();
-        ObjectMapper mapper = JsonMapper.builder()
-                .cacheProvider(new CustomSerializerCacheProvider(cache))
-                .build();
-
-        String json = mapper.writeValueAsString(new SerBean());
-
-        assertEquals("{\"slide\":123}", json);
+        assertEquals("{\"slide\":123}",
+                mapper.writeValueAsString(new SerBean()));
     }
 }

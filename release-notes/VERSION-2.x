@@ -8,6 +8,8 @@ Project: jackson-databind
 
 #3882: Error in creating nested `ArrayNode`s with `JsonNode.withArray()`
  (reported by @SaiKrishna369)
+#4121: Preserve the original component type in merging to an array
+ (contributed by Yury M)
 
 2.14.3 (05-May-2023)
 

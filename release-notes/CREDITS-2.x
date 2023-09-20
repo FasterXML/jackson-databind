@@ -1538,3 +1538,7 @@ Philippe Marschall (marschall@github)
 Gili Tzabari (cowwoc@github)
   * Reported #3063: `@JsonValue` fails for Java Record
   (2.14.2)
+
+Yury Molchan (yurkom@github)
+  * Contributed #4121: Preserve the original component type in merging to an array
+  (2.14.4)

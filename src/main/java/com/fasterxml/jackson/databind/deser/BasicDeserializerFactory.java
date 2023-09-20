@@ -1665,7 +1665,7 @@ paramIndex, candidate);
      */
 
     /**
-     * Factory method for constructing serializers of {@link Enum} types.
+     * Factory method for constructing deserializers of {@link Enum} types.
      */
     @Override
     public JsonDeserializer<?> createEnumDeserializer(DeserializationContext ctxt,
@@ -1713,7 +1713,9 @@ factory.toString()));
             if (deser == null) {
                 deser = new EnumDeserializer(constructEnumResolver(enumClass, config, beanDesc),
                         config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS),
-                        constructEnumNamingStrategyResolver(config, enumClass, beanDesc.getClassInfo())
+                        constructEnumNamingStrategyResolver(config, beanDesc.getClassInfo()),
+                        // since 2.16
+                        EnumResolver.constructUsingToString(config, beanDesc.getClassInfo())
                 );
             }
         }
@@ -1921,7 +1923,9 @@ factory.toString()));
             }
         }
         EnumResolver enumRes = constructEnumResolver(enumClass, config, beanDesc);
-        EnumResolver byEnumNamingResolver = constructEnumNamingStrategyResolver(config, enumClass, beanDesc.getClassInfo());
+        EnumResolver byEnumNamingResolver = constructEnumNamingStrategyResolver(config, beanDesc.getClassInfo());
+        EnumResolver byToStringResolver = EnumResolver.constructUsingToString(config, beanDesc.getClassInfo());
+        EnumResolver byIndexResolver = EnumResolver.constructUsingIndex(config, beanDesc.getClassInfo());
 
         // May have @JsonCreator for static factory method
         for (AnnotatedMethod factory : beanDesc.getFactoryMethods()) {
@@ -1943,7 +1947,7 @@ factory.toString()));
                             ClassUtil.checkAndFixAccess(factory.getMember(),
                                     ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
                         }
-                        return StdKeyDeserializers.constructEnumKeyDeserializer(enumRes, factory, byEnumNamingResolver);
+                        return StdKeyDeserializers.constructEnumKeyDeserializer(enumRes, factory, byEnumNamingResolver, byToStringResolver, byIndexResolver);
                     }
                 }
                 throw new IllegalArgumentException("Unsuitable method ("+factory+") decorated with @JsonCreator (for Enum type "
@@ -1951,7 +1955,7 @@ factory.toString()));
             }
         }
         // Also, need to consider @JsonValue, if one found
-        return StdKeyDeserializers.constructEnumKeyDeserializer(enumRes, byEnumNamingResolver);
+        return StdKeyDeserializers.constructEnumKeyDeserializer(enumRes, byEnumNamingResolver, byToStringResolver, byIndexResolver);
     }
 
     /*
@@ -2078,7 +2082,7 @@ factory.toString()));
     }
 
     /**
-     * Helper method called to find one of default serializers for "well-known"
+     * Helper method called to find one of default deserializers for "well-known"
      * platform types: JDK-provided types, and small number of public Jackson
      * API types.
      *
@@ -2426,11 +2430,25 @@ factory.toString()));
                 ClassUtil.checkAndFixAccess(jvAcc.getMember(),
                         config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
             }
-            return EnumResolver.constructUsingMethod(config, enumClass, jvAcc);
+            return EnumResolver.constructUsingMethod(config, beanDesc.getClassInfo(), jvAcc);
         }
-        // 14-Mar-2016, tatu: We used to check `DeserializationFeature.READ_ENUMS_USING_TO_STRING`
-        //   here, but that won't do: it must be dynamically changeable...
-        return EnumResolver.constructFor(config, enumClass);
+        return EnumResolver.constructFor(config, beanDesc.getClassInfo());
+    }
+
+    /**
+     * Factory method used to resolve an instance of {@link CompactStringObjectMap}
+     * with {@link EnumNamingStrategy} applied for the target class.
+     *
+     * @since 2.16
+     */
+    protected EnumResolver constructEnumNamingStrategyResolver(DeserializationConfig config,
+            AnnotatedClass annotatedClass)
+    {
+        Object namingDef = config.getAnnotationIntrospector().findEnumNamingStrategy(config, annotatedClass);
+        EnumNamingStrategy enumNamingStrategy = EnumNamingStrategyFactory.createEnumNamingStrategyInstance(
+                namingDef, config.canOverrideAccessModifiers());
+        return enumNamingStrategy == null ? null
+                : EnumResolver.constructUsingEnumNamingStrategy(config, annotatedClass, enumNamingStrategy);
     }
 
     /**
@@ -2438,7 +2456,9 @@ factory.toString()));
      * with {@link EnumNamingStrategy} applied for the target class.
      *
      * @since 2.15
+     * @deprecated Since 2.16: use {@link #constructEnumNamingStrategyResolver(DeserializationConfig, AnnotatedClass)} instead.
      */
+    @Deprecated
     protected EnumResolver constructEnumNamingStrategyResolver(DeserializationConfig config, Class<?> enumClass,
             AnnotatedClass annotatedClass) {
         Object namingDef = config.getAnnotationIntrospector().findEnumNamingStrategy(config, annotatedClass);
@@ -2447,7 +2467,7 @@ factory.toString()));
         return enumNamingStrategy == null ? null
             : EnumResolver.constructUsingEnumNamingStrategy(config, enumClass, enumNamingStrategy);
     }
-
+    
     /**
      * @since 2.9
      */
@@ -2542,6 +2562,10 @@ factory.toString()));
             fallbacks.put(Deque.class.getName(), LinkedList.class);
             fallbacks.put(NavigableSet.class.getName(), TreeSet.class);
 
+            // Sequenced types added in JDK21
+            fallbacks.put("java.util.SequencedCollection", DEFAULT_LIST);
+            fallbacks.put("java.util.SequencedSet", LinkedHashSet.class);
+
             _collectionFallbacks = fallbacks;
         }
 
@@ -2561,6 +2585,9 @@ factory.toString()));
             fallbacks.put(java.util.NavigableMap.class.getName(), TreeMap.class);
             fallbacks.put(java.util.concurrent.ConcurrentNavigableMap.class.getName(),
                     java.util.concurrent.ConcurrentSkipListMap.class);
+
+            // Sequenced types added in JDK21
+            fallbacks.put("java.util.SequencedMap", LinkedHashMap.class);
 
             _mapFallbacks = fallbacks;
         }

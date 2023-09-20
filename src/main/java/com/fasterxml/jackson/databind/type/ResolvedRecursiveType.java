@@ -95,12 +95,6 @@ public class ResolvedRecursiveType extends IdentityEqualityType
         return this;
     }
 
-    @Deprecated // since 2.7
-    @Override
-    protected JavaType _narrow(Class<?> subclass) {
-        return this;
-    }
-
     @Override
     public JavaType refine(Class<?> rawType, TypeBindings bindings,
             JavaType superClass, JavaType[] superInterfaces) {

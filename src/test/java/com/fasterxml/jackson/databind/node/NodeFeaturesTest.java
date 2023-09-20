@@ -56,7 +56,7 @@ public class NodeFeaturesTest extends BaseMapTest
 
     /*
     /**********************************************************************
-    /* ObjectNode property handling
+    /* ObjectNode property handling: null-handling
     /**********************************************************************
      */
 
@@ -107,6 +107,38 @@ public class NodeFeaturesTest extends BaseMapTest
         doc.putNull("b");
         doc.put("c", true);
         assertEquals(a2q("{'a':1,'c':true}"), w.writeValueAsString(doc));
+    }
+
+    /*
+    /**********************************************************************
+    /* ObjectNode property handling: sorting on write
+    /**********************************************************************
+     */
+
+    // [databind#3476]
+    public void testWriteSortedProperties() throws Exception
+    {
+        assertFalse(WRITER.isEnabled(JsonNodeFeature.WRITE_PROPERTIES_SORTED));
+
+        ObjectNode doc = MAPPER.createObjectNode();
+        doc.put("b", 2);
+        doc.put("c", 3);
+        doc.put("a", 1);
+
+        // by default, retain insertion order:
+        assertEquals(a2q("{'b':2,'c':3,'a':1}"), WRITER.writeValueAsString(doc));
+
+        // but if forcing sorting, changes
+        final String SORTED = a2q("{'a':1,'b':2,'c':3}");
+        ObjectMapper sortingMapper = JsonMapper.builder()
+                .enable(JsonNodeFeature.WRITE_PROPERTIES_SORTED)
+                .build();
+        assertEquals(SORTED, sortingMapper.writeValueAsString(doc));
+
+        // Let's verify ObjectWriter config too
+        ObjectWriter w2 = WRITER.with(JsonNodeFeature.WRITE_PROPERTIES_SORTED);
+        assertTrue(w2.isEnabled(JsonNodeFeature.WRITE_PROPERTIES_SORTED));
+        assertEquals(SORTED, w2.writeValueAsString(doc));
     }
 
     /*

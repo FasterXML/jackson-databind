@@ -366,7 +366,9 @@ public class StdKeyDeserializer extends KeyDeserializer
         /**
          * Lazily constructed alternative in case there is need to
          * use 'toString()' method as the source.
-         *
+         * <p>
+         * Note: this will be final in Jackson 3.x, by removing deprecated {@link #_getToStringResolver(DeserializationContext)}
+         * 
          * @since 2.7.3
          */
         protected volatile EnumResolver _byToStringResolver;
@@ -396,18 +398,24 @@ public class StdKeyDeserializer extends KeyDeserializer
             _factory = factory;
             _enumDefaultValue = er.getDefaultValue();
             _byEnumNamingResolver = null;
+            _byToStringResolver = null;
         }
 
         /**
-         * @since 2.15
+         * 
+         * @since 2.16
          */
-        protected EnumKD(EnumResolver er, AnnotatedMethod factory, EnumResolver byEnumNamingResolver) {
+        protected EnumKD(EnumResolver er, AnnotatedMethod factory, EnumResolver byEnumNamingResolver, 
+                         EnumResolver byToStringResolver, EnumResolver byIndexResolver) {
             super(-1, er.getEnumClass());
             _byNameResolver = er;
             _factory = factory;
             _enumDefaultValue = er.getDefaultValue();
             _byEnumNamingResolver = byEnumNamingResolver;
+            _byToStringResolver = byToStringResolver;
+            _byIndexResolver = byIndexResolver;
         }
+        
 
         @Override
         public Object _parse(String key, DeserializationContext ctxt) throws IOException
@@ -451,7 +459,15 @@ public class StdKeyDeserializer extends KeyDeserializer
                 ? _getToStringResolver(ctxt)
                 : _byNameResolver;
         }
-
+        
+        /**
+         * Since 2.16, {@link #_byToStringResolver} it is passed via 
+         * {@link #EnumKD(EnumResolver, AnnotatedMethod, EnumResolver, EnumResolver, EnumResolver)}, so there is no need for lazy
+         * initialization. But kept for backward-compatilibility reasons.
+         * 
+         * @deprecated Since 2.16
+         */
+        @Deprecated
         private EnumResolver _getToStringResolver(DeserializationContext ctxt)
         {
             EnumResolver res = _byToStringResolver;
@@ -468,6 +484,14 @@ public class StdKeyDeserializer extends KeyDeserializer
             return res;
         }
 
+        /**
+         * Since 2.16, {@link #_byIndexResolver} it is passed via 
+         * {@link #EnumKD(EnumResolver, AnnotatedMethod, EnumResolver, EnumResolver, EnumResolver)}, so there is no need for lazy
+         * initialization. But kept for backward-compatilibility reasons.
+         *
+         * @deprecated Since 2.16
+         */
+        @Deprecated
         private EnumResolver _getIndexResolver(DeserializationContext ctxt) {
             EnumResolver res = _byIndexResolver;
             if (res == null) {

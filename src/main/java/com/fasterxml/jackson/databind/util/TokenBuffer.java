@@ -451,11 +451,11 @@ public class TokenBuffer
                 {
                     Object n = segment.get(ptr);
                     if (n instanceof Double) {
-                        gen.writeNumber(((Double) n).doubleValue());
+                        gen.writeNumber((Double) n);
                     } else if (n instanceof BigDecimal) {
                         gen.writeNumber((BigDecimal) n);
                     } else if (n instanceof Float) {
-                        gen.writeNumber(((Float) n).floatValue());
+                        gen.writeNumber((Float) n);
                     } else if (n == null) {
                         gen.writeNull();
                     } else if (n instanceof String) {
@@ -745,8 +745,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     {
         _writeContext.writeValue();
         _appendStartMarker(JsonToken.START_OBJECT);
-        JsonWriteContext ctxt = _writeContext.createChildObjectContext(forValue);
-        _writeContext = ctxt;
+        _writeContext = _writeContext.createChildObjectContext(forValue);
     }
 
     @Override // since 2.10.1
@@ -754,8 +753,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     {
         _writeContext.writeValue();
         _appendStartMarker(JsonToken.START_OBJECT);
-        JsonWriteContext ctxt = _writeContext.createChildObjectContext(forValue);
-        _writeContext = ctxt;
+        _writeContext = _writeContext.createChildObjectContext(forValue);
     }
 
     @Override
@@ -2182,8 +2180,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             if (index > 0) {
                 l >>= (index << 2);
             }
-            int ix = ((int) l) & 0xF;
-            return ix;
+            return ((int) l) & 0xF;
         }
 
         public Object get(int index) {

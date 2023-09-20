@@ -81,47 +81,13 @@ public abstract class StdKeySerializers
 
     /**
      * Method called if no specified key serializer was located; will return a
-     * "default" key serializer.
-     *
-     * @deprecated Since 2.15 -- use {@link StdKeySerializers#getFallbackKeySerializer(SerializationConfig, Class, AnnotatedClass)}
-     * instead.
-     * @since 2.7
-     */
-    @SuppressWarnings("unchecked")
-    @Deprecated
-    public static JsonSerializer<Object> getFallbackKeySerializer(SerializationConfig config,
-            Class<?> rawKeyType)
-    {
-        if (rawKeyType != null) {
-            // 29-Sep-2015, tatu: Odd case here, of `Enum`, which we may get for `EnumMap`; not sure
-            //   if that is a bug or feature. Regardless, it seems to require dynamic handling
-            //   (compared to getting actual fully typed Enum).
-            //  Note that this might even work from the earlier point, but let's play it safe for now
-            // 11-Aug-2016, tatu: Turns out we get this if `EnumMap` is the root value because
-            //    then there is no static type
-            if (rawKeyType == Enum.class) {
-                return new Dynamic();
-            }
-            // 29-Sep-2019, tatu: [databind#2457] can not use 'rawKeyType.isEnum()`, won't work
-            //    for subtypes.
-            if (ClassUtil.isEnumType(rawKeyType)) {
-                return EnumKeySerializer.construct(rawKeyType,
-                        EnumValues.constructFromName(config, (Class<Enum<?>>) rawKeyType));
-            }
-        }
-        // 19-Oct-2016, tatu: Used to just return DEFAULT_KEY_SERIALIZER but why not:
-        return new Default(Default.TYPE_TO_STRING, rawKeyType);
-    }
-
-    /**
-     * Method called if no specified key serializer was located; will return a
      * "default" key serializer initialized by {@link EnumKeySerializer#construct(Class, EnumValues, EnumValues)}
      *
      * @since 2.15
      */
     @SuppressWarnings("unchecked")
     public static JsonSerializer<Object> getFallbackKeySerializer(SerializationConfig config,
-                                                    Class<?> rawKeyType, AnnotatedClass annotatedClass)
+            Class<?> rawKeyType, AnnotatedClass annotatedClass)
     {
         if (rawKeyType != null) {
             // 29-Sep-2015, tatu: Odd case here, of `Enum`, which we may get for `EnumMap`; not sure
@@ -137,7 +103,7 @@ public abstract class StdKeySerializers
             //    for subtypes.
             if (ClassUtil.isEnumType(rawKeyType)) {
                 return EnumKeySerializer.construct(rawKeyType,
-                    EnumValues.constructFromName(config, (Class<Enum<?>>) rawKeyType),
+                    EnumValues.constructFromName(config, annotatedClass),
                     EnumSerializer.constructEnumNamingStrategyValues(config, (Class<Enum<?>>) rawKeyType, annotatedClass));
             }
         }

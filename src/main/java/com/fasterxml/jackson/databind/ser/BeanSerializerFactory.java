@@ -199,7 +199,7 @@ public class BeanSerializerFactory
         // (note: called method checks for module-provided serializers)
         if (type.isContainerType()) {
             if (!staticTyping) {
-                staticTyping = usesStaticTyping(config, beanDesc, null);
+                staticTyping = usesStaticTyping(config, beanDesc);
             }
             // 03-Aug-2012, tatu: As per [databind#40], may require POJO serializer...
             ser =  buildContainerSerializer(prov, type, beanDesc, staticTyping);
@@ -612,7 +612,7 @@ ClassUtil.getTypeDescription(beanDesc.getType()), ClassUtil.name(propName)));
             return null;
         }
         // null is for value type serializer, which we don't have access to from here (ditto for bean prop)
-        boolean staticTyping = usesStaticTyping(config, beanDesc, null);
+        boolean staticTyping = usesStaticTyping(config, beanDesc);
         PropertyBuilder pb = constructPropertyBuilder(config, beanDesc);
 
         ArrayList<BeanPropertyWriter> result = new ArrayList<BeanPropertyWriter>(properties.size());
@@ -790,7 +790,7 @@ ClassUtil.getTypeDescription(beanDesc.getType()), ClassUtil.name(propName)));
                 ignores.put(type, result);
             }
             // lotsa work, and yes, it is ignorable type, so:
-            if (result.booleanValue()) {
+            if (result) {
                 it.remove();
             }
         }
@@ -802,15 +802,9 @@ ClassUtil.getTypeDescription(beanDesc.getType()), ClassUtil.name(propName)));
     protected void removeSetterlessGetters(SerializationConfig config, BeanDescription beanDesc,
             List<BeanPropertyDefinition> properties)
     {
-        Iterator<BeanPropertyDefinition> it = properties.iterator();
-        while (it.hasNext()) {
-            BeanPropertyDefinition property = it.next();
-            // one caveat: only remove implicit properties;
-            // explicitly annotated ones should remain
-            if (!property.couldDeserialize() && !property.isExplicitlyIncluded()) {
-                it.remove();
-            }
-        }
+        // one caveat: only remove implicit properties;
+        // explicitly annotated ones should remain
+        properties.removeIf(property -> !property.couldDeserialize() && !property.isExplicitlyIncluded());
     }
 
     /**

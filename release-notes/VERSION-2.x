@@ -75,6 +75,8 @@ Project: jackson-databind
 
 #3968: Records with additional constructors failed to deserialize
  (fix contributed by Sim Y-T)
+#4121: Preserve the original component type in merging to an array
+ (contributed by Yury M)
 
 2.15.2 (30-May-2023)
 

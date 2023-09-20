@@ -1,9 +1,5 @@
 package com.fasterxml.jackson.databind.type;
 
-import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
-import java.lang.reflect.*;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -11,6 +7,26 @@ import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.LRUMap;
 import com.fasterxml.jackson.databind.util.LookupCache;
+
+import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Class used for creating concrete {@link JavaType} instances,
@@ -1635,7 +1651,17 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
         } else {
             JavaType[] pt = new JavaType[paramCount];
             for (int i = 0; i < paramCount; ++i) {
-                pt[i] = _fromAny(context, args[i], parentBindings);
+                JavaType javaType = _fromAny(context, args[i], parentBindings);
+                if (args[i] instanceof WildcardType && !javaType.hasGenericTypes()) {
+                    JavaType typeVariableBound = _fromAny(null, rawType.getTypeParameters()[i], TypeBindings.emptyBindings());
+                    if (typeVariableBound.isTypeOrSubTypeOf(javaType.getRawClass())) {
+                        pt[i] = typeVariableBound;
+                    } else {
+                        pt[i] = javaType;
+                    }
+                } else {
+                    pt[i] = javaType;
+                }
             }
             newBindings = TypeBindings.create(rawType, pt);
         }

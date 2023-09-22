@@ -41,7 +41,7 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  * details are delegated to {@link SerializerFactory} instance.
  *<p>
  * Object life-cycle is such that an initial instance ("blueprint") is created
- * and referenced by {@link ObjectMapper} and {@link ObjectWriter} intances;
+ * and referenced by {@link ObjectMapper} and {@link ObjectWriter} instances;
  * but for actual usage, a configured instance is created by using
  * a create method in sub-class
  * {@link com.fasterxml.jackson.databind.ser.DefaultSerializerProvider}.

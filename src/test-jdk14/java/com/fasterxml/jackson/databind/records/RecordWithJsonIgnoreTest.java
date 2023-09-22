@@ -39,7 +39,8 @@ public class RecordWithJsonIgnoreTest extends BaseMapTest
     }
 
     public void testDeserializeJsonIgnoreRecord() throws Exception {
-        RecordWithIgnore value = MAPPER.readValue("{\"id\":123,\"name\":\"Bob\"}", RecordWithIgnore.class);
+        RecordWithIgnore value = MAPPER.readValue("{\"id\":123,\"name\":\"Bob\"}",
+                RecordWithIgnore.class);
         assertEquals(new RecordWithIgnore(123, null), value);
     }
 
@@ -71,7 +72,8 @@ public class RecordWithJsonIgnoreTest extends BaseMapTest
     }
 
     public void testDeserializeJsonIgnoreAccessorRecord() throws Exception {
-        RecordWithIgnoreAccessor value = MAPPER.readValue("{\"id\":123,\"name\":\"Bob\"}", RecordWithIgnoreAccessor.class);
+        RecordWithIgnoreAccessor value = MAPPER.readValue("{\"id\":123,\"name\":\"Bob\"}",
+                RecordWithIgnoreAccessor.class);
         assertEquals(new RecordWithIgnoreAccessor(123, null), value);
     }
 

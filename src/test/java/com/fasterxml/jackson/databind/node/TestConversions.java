@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.node;
 
+import com.fasterxml.jackson.annotation.JsonRootName;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
@@ -7,6 +8,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.*;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.Assert;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -108,6 +110,13 @@ public class TestConversions extends BaseMapTest
         }
     }
 
+    // [databind#4047]
+    @JsonRootName("event")
+    static class Event {
+        public Long id;
+        public String name;
+    }
+
     /*
     /**********************************************************
     /* Unit tests
@@ -170,6 +179,17 @@ public class TestConversions extends BaseMapTest
         // ... also JavaType
         r1 = mapper.treeToValue(root, mapper.constructType(Root.class));
         assertEquals(13, r1.leaf.value);
+
+        // ... also TypeReference
+        r1 = mapper.treeToValue(root, new TypeReference<Root>() {});
+        assertEquals(13, r1.leaf.value);
+
+        JSON = "[{\"leaf\":{\"value\":13}}, {\"leaf\":{\"value\":12}}]";
+        root = mapper.readTree(JSON);
+        List<Root> array = mapper.treeToValue(root, new TypeReference<List<Root>>() {});
+        assertEquals(2, array.size());
+        assertEquals(13, array.get(0).leaf.value);
+        assertEquals(12, array.get(1).leaf.value);
     }
 
     // [databind#1208]: should coerce POJOs at least at root level
@@ -362,5 +382,23 @@ public class TestConversions extends BaseMapTest
         // ditto w/ JavaType
         result = MAPPER.treeToValue(node, MAPPER.constructType(ObjectNode.class));
         assertSame(src, result);
+    }
+
+    // [databind#4047] : ObjectMapper.valueToTree will ignore the configuration SerializationFeature.WRAP_ROOT_VALUE
+    public void testValueToTree() throws Exception
+    {
+        // Arrange
+        Event value = new Event();
+        value.id = 1L;
+        value.name = "foo";
+
+        ObjectMapper wrapRootMapper = jsonMapperBuilder()
+                .enable(SerializationFeature.WRAP_ROOT_VALUE)
+                .build();
+
+        // Act & Assert
+        String expected = "{\"event\":{\"id\":1,\"name\":\"foo\"}}";
+        assertEquals(expected, wrapRootMapper.writeValueAsString(value));
+        assertEquals(expected, wrapRootMapper.valueToTree(value).toString());
     }
 }

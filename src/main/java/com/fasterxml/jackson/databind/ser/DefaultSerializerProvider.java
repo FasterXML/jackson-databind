@@ -233,7 +233,7 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
 
     /*
     /**********************************************************
-    /* Extended API: simple accesors
+    /* Extended API: simple accessors
     /**********************************************************
      */
 
@@ -617,9 +617,6 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
         @Override
         public DefaultSerializerProvider copy()
         {
-            if (getClass() != Impl.class) {
-                return super.copy();
-            }
             return new Impl(this);
         }
 

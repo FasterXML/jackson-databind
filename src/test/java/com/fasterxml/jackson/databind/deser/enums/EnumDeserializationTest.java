@@ -89,8 +89,39 @@ public class EnumDeserializationTest
             public String toString() {
                 return "bb";
             }
-        }
+        },
+        
+        @JsonProperty("cc")
+        C
         ;
+    }
+
+    // [databind#677]
+    static enum EnumWithPropertyAnnoBase {
+        @JsonProperty("a") 
+        A,
+        // For this value, force use of anonymous sub-class, to ensure things still work
+        @JsonProperty("b")
+        B {
+            @Override
+            public String toString() {
+                return "bb";
+            }
+        }
+    }
+
+    // [databind#677]
+    static enum EnumWithPropertyAnnoMixin {
+        @JsonProperty("a_mixin")
+        A,
+        // For this value, force use of anonymous sub-class, to ensure things still work
+        @JsonProperty("b_mixin")
+        B {
+            @Override
+            public String toString() {
+                return "bb";
+            }
+        }
     }
 
     // [databind#1161]
@@ -510,6 +541,50 @@ public class EnumDeserializationTest
         assertEquals(2, result.length);
         assertSame(EnumWithPropertyAnno.B, result[0]);
         assertSame(EnumWithPropertyAnno.A, result[1]);
+    }
+    
+    public void testEnumWithJsonPropertyRenameWithToString() throws Exception {
+        EnumWithPropertyAnno a = MAPPER.readerFor(EnumWithPropertyAnno.class)
+                .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+                .readValue(q("a"));
+        assertSame(EnumWithPropertyAnno.A, a);
+
+        EnumWithPropertyAnno b = MAPPER.readerFor(EnumWithPropertyAnno.class)
+                .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+                .readValue(q("b"));
+        assertSame(EnumWithPropertyAnno.B, b);
+
+        EnumWithPropertyAnno bb = MAPPER.readerFor(EnumWithPropertyAnno.class)
+                .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+                .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
+                .readValue(q("bb"));
+        assertNull(bb);
+
+        EnumWithPropertyAnno c = MAPPER.readerFor(EnumWithPropertyAnno.class)
+                .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+                .readValue(q("cc"));
+        assertSame(EnumWithPropertyAnno.C, c);
+    }
+
+    /**
+     * {@link #testEnumWithJsonPropertyRename()}
+     */
+    public void testEnumWithJsonPropertyRenameMixin() throws Exception
+    {
+        ObjectMapper mixinMapper = jsonMapperBuilder()
+                .addMixIn(EnumWithPropertyAnnoBase.class, EnumWithPropertyAnnoMixin.class)
+                .build();
+        String json = mixinMapper.writeValueAsString(new EnumWithPropertyAnnoBase[] {
+                EnumWithPropertyAnnoBase.B, EnumWithPropertyAnnoBase.A
+        });
+        assertEquals("[\"b_mixin\",\"a_mixin\"]", json);
+
+        // and while not really proper place, let's also verify deser while we're at it
+        EnumWithPropertyAnnoBase[] result = mixinMapper.readValue(json, EnumWithPropertyAnnoBase[].class);
+        assertNotNull(result);
+        assertEquals(2, result.length);
+        assertSame(EnumWithPropertyAnnoBase.B, result[0]);
+        assertSame(EnumWithPropertyAnnoBase.A, result[1]);
     }
 
     // [databind#1161], unable to switch READ_ENUMS_USING_TO_STRING

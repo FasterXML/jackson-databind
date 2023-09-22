@@ -4,6 +4,73 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.16.0 (not yet released)
+
+#2787: Mix-ins do not work for `Enum`s
+ (fix contributed by Joo-Hyuk K)
+#3838: Difference in the handling of `ObjectId-property` in `JsonIdentityInfo`
+  depending on the deserialization route
+ (fix contributed by Joo-Hyuk K)
+#3877: Add new `OptBoolean` valued property in `@JsonTypeInfo`, handling,
+   to allow per-polymorphic type loose Type Id handling
+ (contributed by Joo-Hyuk K)
+#3906: Regression: 2.15.0 breaks deserialization for records when
+   `mapper.setVisibility(PropertyAccessor.ALL, Visibility.NONE)`
+ (reported by Endre S)
+#3924: Incorrect target type when disabling coercion, trying to deserialize
+  String from Array/Object
+ (reported by João G)
+ (fix contributed by Joo-Hyuk K)
+#3928: `@JsonProperty` on constructor parameter changes default field serialization order
+ (contributed by @pjfanning)
+#3948: `@JsonIgnore` no longer works for transient backing fields
+ (reported by Jason L)
+#3950: Create new `JavaType` subtype `IterationType` (extending `SimpleType`)
+#3953: Use `JsonTypeInfo.Value` for annotation handling
+ (contributed by Joo-Hyuk K)
+#3965: Add `JsonNodeFeature.WRITE_PROPERTIES_SORTED` for sorting `ObjectNode` properties
+  on serialization
+#3992: `@JsonIgnore` on Record property ignored if there is getter override
+ (reported by @ennishol)
+#4008: Optimize `ObjectNode` findValue(s) and findParent(s) fast paths
+ (contributed by David S)
+#4009: Locale "" is deserialised as `null` if `ACCEPT_EMPTY_STRING_AS_NULL_OBJECT`
+  is enabled
+ (reported by Philipp K)
+#4011: Add guardrail setting for `TypeParser` handling of type parameters
+#4036: Use `@JsonProperty` for Enum values also when `READ_ENUMS_USING_TO_STRING` enabled
+ (contributed by @iProdigy)
+#4037: Fix `Enum` deserialization to use `@JsonProperty`, `@JsonAlias` even if
+  `EnumNamingStrategy` used
+ (contributed by @iProdigy)
+#4039: Use `@JsonProperty` and lowercase feature when serializing Enums despite
+  using toString()
+ (contributed by @iProdigy)
+#4040: Use `@JsonProperty` over `EnumNamingStrategy` for Enum serialization
+ (contributed by @iProdigy)
+#4041: Actually cache EnumValues#internalMap
+ (contributed by @iProdigy)
+#4047: `ObjectMapper.valueToTree()` will ignore the configuration
+  `SerializationFeature.WRAP_ROOT_VALUE`
+ (contributed by Joo-Hyuk K)
+#4056: Provide the "ObjectMapper.treeToValue(TreeNode, TypeReference)" method
+ (contributed by @fantasy0v0)
+#4060: Expose `NativeImageUtil.isRunningInNativeImage()` method
+#4061: Add JsonTypeInfo.Id.SIMPLE_NAME which defaults type id to `Class.getSimpleName()`
+ (requested by Omar A)
+ (contributed by Joo-Hyuk K)
+#4071: Impossible to deserialize custom `Throwable` sub-classes that do not
+  have single-String constructors
+ (reported by @PasKal)
+ (fix contributed by Joo-Hyuk K)
+#4078: `java.desktop` module is no longer optional
+ (reported by Andreas Z)
+ (fix contributed by Joo-Hyuk K)
+#4082: `ClassUtil` fails with `java.lang.reflect.InaccessibleObjectException`
+  trying to setAccessible on `OptionalInt` with JDK 17+
+#4090: Support sequenced collections (JDK 21)S
+ (contributed by @pjfanning)
+
 2.15.3 (not yet released)
 
 #3968: Records with additional constructors failed to deserialize

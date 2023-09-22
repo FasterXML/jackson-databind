@@ -12,13 +12,17 @@ public class RecursiveWildcardTest extends BaseMapTest {
     public void test() throws JsonProcessingException {
         ObjectMapper mapper = newJsonMapper();
 
-        mapper.readValue("[[[]]]", new TypeReference<Tree<?>>() {
+        Tree<?> tree = mapper.readValue("[[[]]]", new TypeReference<Tree<?>>() {
         });
+
+        assertEquals(1, tree.children.size());
+        assertEquals(1, tree.children.get(0).children.size());
+        assertEquals(0, tree.children.get(0).children.get(0).children.size());
     }
 
     public static class Tree<T extends Tree<?>> {
 
-        private final List<T> children;
+        final List<T> children;
 
         @SuppressWarnings("DataFlowIssue")
         @JsonCreator(mode = JsonCreator.Mode.DELEGATING)

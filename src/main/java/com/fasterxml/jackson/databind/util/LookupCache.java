@@ -19,9 +19,11 @@ public interface LookupCache<K,V>
      * Default implementation throws {@link UnsupportedOperationException}.
      * Implementations are required to override this method.
      *
-     * @since 2.16
-     * @throws UnsupportedOperationException if implementation does not override this method.
      * @param consumer Operation to apply on cache contents.
+     *
+     * @throws UnsupportedOperationException if implementation does not override this method.
+     *
+     * @since 2.16
      */
     default void contents(BiConsumer<K,V> consumer) {
         throw new UnsupportedOperationException();
@@ -33,8 +35,9 @@ public interface LookupCache<K,V>
      * Default implementation throws {@link UnsupportedOperationException}.
      * Implementations are required to override this method.
      * 
-     * @since 2.16
      * @throws UnsupportedOperationException if implementation does not override this method.
+     *
+     * @since 2.16
      */
     default LookupCache<K,V> emptyCopy() {
         throw new UnsupportedOperationException("LookupCache implementation "
@@ -50,7 +53,6 @@ public interface LookupCache<K,V>
     /**
      * NOTE: key is of type Object only to retain binary backwards-compatibility
      *
-     * @param key
      * @return value associated with key (can return null)
      */
     V get(Object key);

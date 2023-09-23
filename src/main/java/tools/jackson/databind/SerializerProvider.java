@@ -203,6 +203,23 @@ public abstract class SerializerProvider
         _knownSerializers = _serializerCache.getReadOnlyLookupMap();
     }
 
+    protected SerializerProvider(SerializerProvider src, SerializerCache serializerCache)
+    {
+        _streamFactory = src._streamFactory;
+        _serializerFactory = src._serializerFactory;
+        _config = src._config;
+        _generatorConfig = src._generatorConfig;
+
+        _serializerCache = serializerCache;
+
+        _stdNullValueSerializer = src._stdNullValueSerializer;
+        _nullValueSerializer = src._nullValueSerializer;
+        _activeView = src._activeView;
+        _attributes = src._attributes;
+
+        _knownSerializers = src._knownSerializers;
+    }
+
     /*
     /**********************************************************************
     /* ObjectWriteContext impl, config access

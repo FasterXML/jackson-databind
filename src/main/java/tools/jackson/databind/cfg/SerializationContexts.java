@@ -72,8 +72,10 @@ public abstract class SerializationContexts
      * Necessary usually to initialize non-configuration state, such as caching.
      */
     public SerializationContexts forMapper(Object mapper,
+            SerializationConfig config,
             TokenStreamFactory tsf, SerializerFactory serializerFactory) {
-        return forMapper(mapper, tsf, serializerFactory, _defaultCache());
+        return forMapper(mapper, tsf, serializerFactory,
+                new SerializerCache(config.getCacheProvider().forSerializerCache(config)));
     }
 
     protected abstract SerializationContexts forMapper(Object mapper,
@@ -86,19 +88,6 @@ public abstract class SerializationContexts
      */
     public abstract SerializationContextExt createContext(SerializationConfig config,
             GeneratorSettings genSettings);
-
-    /*
-    /**********************************************************************
-    /* Overridable default methods
-    /**********************************************************************
-     */
-
-    /**
-     * Factory method for constructing per-mapper serializer cache to use.
-     */
-    protected SerializerCache _defaultCache() {
-        return new SerializerCache();
-    }
 
     /*
     /**********************************************************************

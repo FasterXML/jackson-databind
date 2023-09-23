@@ -348,10 +348,10 @@ public class ObjectMapper
 
         // Serialization factories
         _serializationContexts = builder.serializationContexts()
-                .forMapper(this, _streamFactory, builder.serializerFactory());
+                .forMapper(this, _serializationConfig,
+                        _streamFactory, builder.serializerFactory());
 
         // Deserialization factories
-
         _deserializationContexts = builder.deserializationContexts()
                 .forMapper(this, _deserializationConfig,
                         _streamFactory, builder.deserializerFactory());

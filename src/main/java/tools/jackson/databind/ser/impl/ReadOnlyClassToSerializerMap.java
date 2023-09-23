@@ -3,7 +3,7 @@ package tools.jackson.databind.ser.impl;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ValueSerializer;
 import tools.jackson.databind.ser.SerializerCache;
-import tools.jackson.databind.util.SimpleLookupCache;
+import tools.jackson.databind.util.LookupCache;
 import tools.jackson.databind.util.TypeKey;
 
 /**
@@ -27,7 +27,7 @@ public final class ReadOnlyClassToSerializerMap
     private final int _mask;
 
     protected ReadOnlyClassToSerializerMap(SerializerCache shared,
-            SimpleLookupCache<TypeKey, ValueSerializer<Object>> src)
+            LookupCache<TypeKey, ValueSerializer<Object>> src)
     {
         _sharedCache = shared;
         _size = findSize(src.size());
@@ -55,7 +55,7 @@ public final class ReadOnlyClassToSerializerMap
      * Factory method for constructing an instance.
      */
     public static ReadOnlyClassToSerializerMap from(SerializerCache shared,
-            SimpleLookupCache<TypeKey, ValueSerializer<Object>> src) {
+            LookupCache<TypeKey, ValueSerializer<Object>> src) {
         return new ReadOnlyClassToSerializerMap(shared, src);
     }
 

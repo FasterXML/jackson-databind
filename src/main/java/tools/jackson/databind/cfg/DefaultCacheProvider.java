@@ -1,11 +1,11 @@
 package tools.jackson.databind.cfg;
 
-import tools.jackson.databind.DeserializationConfig;
-import tools.jackson.databind.JavaType;
-import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.*;
 import tools.jackson.databind.deser.DeserializerCache;
+import tools.jackson.databind.ser.SerializerCache;
 import tools.jackson.databind.util.LookupCache;
 import tools.jackson.databind.util.SimpleLookupCache;
+import tools.jackson.databind.util.TypeKey;
 
 /**
  * The default implementation of {@link CacheProvider}.
@@ -19,7 +19,7 @@ public class DefaultCacheProvider
     private static final long serialVersionUID = 1L;
 
     private final static DefaultCacheProvider DEFAULT
-        = new DefaultCacheProvider(DeserializerCache.DEFAULT_MAX_CACHE_SIZE);
+        = new DefaultCacheProvider(DeserializerCache.DEFAULT_MAX_CACHE_SIZE, SerializerCache.DEFAULT_MAX_CACHE_SIZE);
 
     /**
      * Maximum size of the {@link LookupCache} instance constructed by {@link #forDeserializerCache(DeserializationConfig)}.
@@ -27,6 +27,13 @@ public class DefaultCacheProvider
      * @see Builder#maxDeserializerCacheSize(int)
      */
     protected final int _maxDeserializerCacheSize;
+
+    /**
+     * Maximum size of the {@link LookupCache} instance constructed by {@link #forSerializerCache(SerializationConfig)}
+     *
+     * @see Builder#maxSerializerCacheSize(int)
+     */
+    protected final int _maxSerializerCacheSize;
     
     /*
     /**********************************************************************
@@ -34,9 +41,10 @@ public class DefaultCacheProvider
     /**********************************************************************
      */
 
-    protected DefaultCacheProvider(int deserializerCache)
+    protected DefaultCacheProvider(int maxDeserializerCacheSize, int maxSerializerCacheSize)
     {
-        _maxDeserializerCacheSize = deserializerCache;
+        _maxDeserializerCacheSize = maxDeserializerCacheSize;
+        _maxSerializerCacheSize = maxSerializerCacheSize;
     }
 
     /*
@@ -60,13 +68,17 @@ public class DefaultCacheProvider
 
     /**
      * Method to provide a {@link LookupCache} instance for constructing {@link DeserializerCache}.
-     * Implementation should match {@link DeserializerCache#DeserializerCache(int)}.
      *
      * @return {@link LookupCache} instance for constructing {@link DeserializerCache}.
      */
     @Override
     public LookupCache<JavaType, ValueDeserializer<Object>> forDeserializerCache(DeserializationConfig config) {
         return _buildCache(_maxDeserializerCacheSize);
+    }
+
+    @Override
+    public LookupCache<TypeKey, ValueSerializer<Object>> forSerializerCache(SerializationConfig config) {
+        return _buildCache(_maxSerializerCacheSize);
     }
 
     /*
@@ -106,19 +118,21 @@ public class DefaultCacheProvider
          */
         private int _maxDeserializerCacheSize;
 
+        /**
+         * Maximum Size of the {@link LookupCache} instance created by {@link #forSerializerCache(SerializationConfig)}
+         * Corresponds to {@link DefaultCacheProvider#_maxSerializerCacheSize}.
+         */
+        private int _maxSerializerCacheSize;
+
         Builder() { }
 
         /**
-         * Define the maximum size of the {@link LookupCache} instance constructed by {@link #forDeserializerCache(DeserializationConfig)}.
-         * The cache is instantiated as:
-         * <pre>
-         *     return new LRUMap<>(Math.min(64, maxSize >> 2), maxSize);
-         * </pre>
+         * Define the maximum size of the {@link LookupCache} instance constructed by {@link #forDeserializerCache(DeserializationConfig)}
+         * and {@link #_buildCache(int)}.
          *
          * @param maxDeserializerCacheSize Size for the {@link LookupCache} to use within {@link DeserializerCache}
          * @return this builder
          * @throws IllegalArgumentException if {@code maxDeserializerCacheSize} is negative
-         * @since 2.16
          */
         public Builder maxDeserializerCacheSize(int maxDeserializerCacheSize) {
             if (maxDeserializerCacheSize < 0) {
@@ -129,12 +143,28 @@ public class DefaultCacheProvider
         }
 
         /**
+         * Define the maximum size of the {@link LookupCache} instance constructed by {@link #forSerializerCache(SerializationConfig)}
+         * and {@link #_buildCache(int)}
+         *
+         * @param maxSerializerCacheSize Size for the {@link LookupCache} to use within {@link SerializerCache}
+         * @return this builder
+         * @throws IllegalArgumentException if {@code maxSerializerCacheSize} is negative
+         */
+        public Builder maxSerializerCacheSize(int maxSerializerCacheSize) {
+            if (maxSerializerCacheSize < 0) {
+                throw new IllegalArgumentException("Cannot set maxSerializerCacheSize to a negative value");
+            }
+            _maxSerializerCacheSize = maxSerializerCacheSize;
+            return this;
+        }
+
+        /**
          * Constructs a {@link DefaultCacheProvider} with the provided configuration values, using defaults where not specified.
          *
          * @return A {@link DefaultCacheProvider} instance with the specified configuration
          */
         public DefaultCacheProvider build() {
-            return new DefaultCacheProvider(_maxDeserializerCacheSize);
+            return new DefaultCacheProvider(_maxDeserializerCacheSize, _maxSerializerCacheSize);
         }
     }
 }

@@ -479,9 +479,7 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
      */
     public void acceptJsonFormatVisitor(JavaType javaType, JsonFormatVisitorWrapper visitor)
     {
-        if (javaType == null) {
-            throw new IllegalArgumentException("A class must be provided");
-        }
+        Objects.requireNonNull(javaType);
         // no need for embedded type information for JSON schema generation (all
         // type information it needs is accessible via "untyped" serializer)
         visitor.setProvider(this);

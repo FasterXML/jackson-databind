@@ -143,8 +143,8 @@ public class DefaultCacheProvider
 
         /**
          * Maximum Size of the {@link LookupCache} instance created by {@link #forTypeFactory()}.
-                * Corresponds to {@link DefaultCacheProvider#_maxTypeFactoryCacheSize}.
-                */
+         * Corresponds to {@link DefaultCacheProvider#_maxTypeFactoryCacheSize}.
+         */
         private int _maxTypeFactoryCacheSize;
 
         Builder() { }

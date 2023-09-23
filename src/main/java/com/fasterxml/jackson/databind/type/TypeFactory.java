@@ -276,7 +276,6 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
         return new TypeFactory(cache, _parser, _modifiers, _classLoader);
     }
 
-
     /**
      * Mutant factory method that will construct a new {@link TypeFactory}
      * with cache instances provided by {@link CacheProvider}.

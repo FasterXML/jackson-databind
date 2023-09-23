@@ -48,7 +48,7 @@ public class CacheProviderTest
         }
 
         @Override
-        public ValueDeserializer<Object> get(Object key) {
+        public ValueDeserializer<Object> get(JavaType key) {
             invokedAtLeastOnce = true;
             return _cachedDeserializers.get(key);
         }

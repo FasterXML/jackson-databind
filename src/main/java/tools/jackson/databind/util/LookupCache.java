@@ -48,12 +48,10 @@ public interface LookupCache<K,V>
     int size();
 
     /**
-     * NOTE: key is of type Object only to retain binary backwards-compatibility
-     *
      * @param key
      * @return value associated with key (can return null)
      */
-    V get(Object key);
+    V get(K key);
 
     V put(K key, V value);
 

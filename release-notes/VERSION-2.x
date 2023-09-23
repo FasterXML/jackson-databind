@@ -6,6 +6,8 @@ Project: jackson-databind
 
 2.16.0 (not yet released)
 
+#2502: Add a way to configure caches Jackson uses
+ (contributed by Joo-Hyuk K)
 #2787: Mix-ins do not work for `Enum`s
  (fix contributed by Joo-Hyuk K)
 #3838: Difference in the handling of `ObjectId-property` in `JsonIdentityInfo`
@@ -75,6 +77,8 @@ Project: jackson-databind
 
 #3968: Records with additional constructors failed to deserialize
  (fix contributed by Sim Y-T)
+#4121: Preserve the original component type in merging to an array
+ (contributed by Yury M)
 
 2.15.2 (30-May-2023)
 

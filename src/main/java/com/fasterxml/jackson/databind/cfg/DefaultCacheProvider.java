@@ -153,8 +153,7 @@ public class DefaultCacheProvider
          * Define the maximum size of the {@link LookupCache} instance constructed by {@link #forDeserializerCache(DeserializationConfig)}
          * and {@link #_buildCache(int)}.
          * <p>
-         * Note that value zero is not considered a magic number, unlike some other libraries where it means "disabling cache".
-         * Instead setting value to zero only means setting cache size to zero.
+         * Note that specifying a maximum size of zero prevents values from being retained in the cache.
          *
          * @param maxDeserializerCacheSize Size for the {@link LookupCache} to use within {@link DeserializerCache}
          * @return this builder
@@ -173,8 +172,7 @@ public class DefaultCacheProvider
          * Define the maximum size of the {@link LookupCache} instance constructed by {@link #forSerializerCache(SerializationConfig)}
          * and {@link #_buildCache(int)}
          * <p>
-         * Note that value zero is not considered a magic number, unlike some other libraries where it means "disabling cache".
-         * Instead setting value to zero only means setting cache size to zero.
+         * Note that specifying a maximum size of zero prevents values from being retained in the cache.
          *
          * @param maxSerializerCacheSize Size for the {@link LookupCache} to use within {@link SerializerCache}
          * @return this builder
@@ -193,8 +191,7 @@ public class DefaultCacheProvider
          * Define the maximum size of the {@link LookupCache} instance constructed by {@link #forTypeFactory()}
          * and {@link #_buildCache(int)}
          * <p>
-         * Note that value zero is not considered a magic number, unlike some other libraries where it means "disabling cache".
-         * Instead setting value to zero only means setting cache size to zero.
+         * Note that specifying a maximum size of zero prevents values from being retained in the cache.
          *
          * @param maxTypeFactoryCacheSize Size for the {@link LookupCache} to use within {@link com.fasterxml.jackson.databind.type.TypeFactory}
          * @return this builder

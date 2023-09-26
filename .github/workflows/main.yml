@@ -30,7 +30,7 @@ jobs:
     env:
       JAVA_OPTS: "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
     steps:
-    - uses: actions/checkout@v4.0.0
+    - uses: actions/checkout@v4.1.0
     - name: Set up JDK
       uses: actions/setup-java@v3
       with:

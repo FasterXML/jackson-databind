@@ -1,15 +1,18 @@
 package com.fasterxml.jackson.databind.type;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.core.JsonProcessingException;
+
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.util.List;
-
-public class RecursiveWildcardTest extends BaseMapTest {
-    public void test() throws JsonProcessingException {
+public class RecursiveWildcardTest extends BaseMapTest
+{
+    public void test() throws Exception
+    {
         ObjectMapper mapper = newJsonMapper();
 
         Tree<?> tree = mapper.readValue("[[[]]]", new TypeReference<Tree<?>>() {

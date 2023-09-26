@@ -2297,6 +2297,7 @@ public class ObjectMapper
         _serializationConfig = _serializationConfig.with(cacheProvider);
         _deserializationContext = _deserializationContext.withCaches(cacheProvider);
         _serializerProvider = _serializerProvider.withCaches(cacheProvider);
+        _typeFactory = _typeFactory.withCaches(cacheProvider);
         return this;
     }
 

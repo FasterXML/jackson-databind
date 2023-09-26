@@ -22,11 +22,19 @@ public interface CacheProvider
      * @return {@link LookupCache} instance for constructing {@link DeserializerCache}.
      */
     LookupCache<JavaType, JsonDeserializer<Object>> forDeserializerCache(DeserializationConfig config);
-    
+
     /**
      * Method to provide a {@link LookupCache} instance for constructing {@link com.fasterxml.jackson.databind.ser.SerializerCache}.
      *
      * @return {@link LookupCache} instance for constructing {@link com.fasterxml.jackson.databind.ser.SerializerCache}.
      */
     LookupCache<TypeKey, JsonSerializer<Object>> forSerializerCache(SerializationConfig config);
+
+    /**
+     * Method to provide a {@link LookupCache} instance for constructing {@link com.fasterxml.jackson.databind.type.TypeFactory}.
+     *
+     * @return {@link LookupCache} instance for constructing {@link com.fasterxml.jackson.databind.type.TypeFactory}.
+     */
+    LookupCache<Object, JavaType> forTypeFactory();
+
 }

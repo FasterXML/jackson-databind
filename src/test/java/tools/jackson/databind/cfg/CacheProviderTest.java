@@ -1,6 +1,7 @@
 package tools.jackson.databind.cfg;
 
 import java.util.HashMap;
+import java.util.List;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.json.JsonMapper;
@@ -106,6 +107,11 @@ public class CacheProviderTest
             return new SimpleLookupCache<>(8, 64);
         }
 
+        @Override
+        public LookupCache<Object, JavaType> forTypeFactory() {
+            return new SimpleLookupCache<>(16, 64);
+        }
+
         int createCacheCount() {
             return createCacheCount;
         }
@@ -125,6 +131,11 @@ public class CacheProviderTest
         public LookupCache<TypeKey, ValueSerializer<Object>> forSerializerCache(SerializationConfig config) {
             return _cache;
         }
+
+        @Override
+        public LookupCache<Object, JavaType> forTypeFactory() {
+            return new SimpleLookupCache<>(16, 64);
+        }
     }
 
     static class CustomTestSerializerCache extends SimpleLookupCache<TypeKey, ValueSerializer<Object>> {
@@ -141,7 +152,56 @@ public class CacheProviderTest
             return super.put(key, value);
         }
     }
-    
+
+    static class CustomTypeFactoryCacheProvider implements CacheProvider
+    {
+        private static final long serialVersionUID = 1L;
+
+        final CustomTestTypeFactoryCache _cache = new CustomTestTypeFactoryCache();
+
+        @Override
+        public LookupCache<JavaType, ValueDeserializer<Object>> forDeserializerCache(DeserializationConfig config) {
+            return new SimpleLookupCache<>(16, 64);
+        }
+
+        @Override
+        public LookupCache<Object, JavaType> forTypeFactory() {
+            return _cache;
+        }
+
+        @Override
+        public LookupCache<TypeKey, ValueSerializer<Object>> forSerializerCache(SerializationConfig config) {
+            return new SimpleLookupCache<>(16, 64);
+        }
+    }
+
+    static class CustomTestTypeFactoryCache extends SimpleLookupCache<Object,JavaType> {
+        private static final long serialVersionUID = 1L;
+
+        public boolean _isInvoked = false;
+
+        public CustomTestTypeFactoryCache() {
+            super(8, 16);
+        }
+
+        @Override
+        public JavaType putIfAbsent(Object key, JavaType value) {
+            _isInvoked = true;
+            return super.putIfAbsent(key, value);
+        }
+
+        // Needed to retain identity for tests
+        @Override
+        public CustomTestTypeFactoryCache snapshot() {
+            return this;
+        }
+
+        @Override
+        public CustomTestTypeFactoryCache emptyCopy() {
+            return this;
+        }
+    }
+
     /*
     /**********************************************************************
     /* Unit tests
@@ -199,7 +259,7 @@ public class CacheProviderTest
                 .cacheProvider(cacheProvider)
                 .build();
 
-        // Act 
+        // Act
         // 3. Add two different types to each mapper cache
         mapper1.readValue("{\"point\":24}", RandomBean.class);
         mapper2.readValue("{\"height\":24}", AnotherBean.class);
@@ -218,10 +278,12 @@ public class CacheProviderTest
         DefaultCacheProvider.builder()
                 .maxDeserializerCacheSize(0)
                 .maxSerializerCacheSize(0)
+                .maxTypeFactoryCacheSize(0)
                 .build();
         DefaultCacheProvider.builder()
                 .maxDeserializerCacheSize(Integer.MAX_VALUE)
                 .maxSerializerCacheSize(Integer.MAX_VALUE)
+                .maxTypeFactoryCacheSize(Integer.MAX_VALUE)
                 .build();
 
         // fail cases
@@ -236,6 +298,12 @@ public class CacheProviderTest
             fail("Should not reach here");
         } catch (IllegalArgumentException e) {
             assertTrue(e.getMessage().contains("Cannot set maxSerializerCacheSize to a negative value"));
+        }
+        try {
+            DefaultCacheProvider.builder().maxTypeFactoryCacheSize(-1);
+            fail("Should not reach here");
+        } catch (IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("Cannot set maxTypeFactoryCacheSize to a negative value"));
         }
     }
 
@@ -270,5 +338,20 @@ public class CacheProviderTest
                 .build();
         assertEquals("{\"slide\":123}",
                 mapper.writeValueAsString(new SerBean()));
+    }
+
+    /**
+     * Sanity test for serialization with {@link CacheProvider#forTypeFactory()}
+     */
+    @Test
+    public void sanityCheckTypeFactoryCacheSize() throws Exception
+    {
+        // custom
+        CustomTypeFactoryCacheProvider customProvider = new CustomTypeFactoryCacheProvider();
+        ObjectMapper mapper = JsonMapper.builder()
+                .cacheProvider(customProvider)
+                .build();
+        mapper.getTypeFactory().constructParametricType(List.class, HashMap.class);
+        assertTrue(customProvider._cache._isInvoked);
     }
 }

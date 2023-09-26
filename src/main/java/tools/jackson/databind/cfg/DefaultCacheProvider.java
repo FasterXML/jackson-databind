@@ -3,6 +3,7 @@ package tools.jackson.databind.cfg;
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.DeserializerCache;
 import tools.jackson.databind.ser.SerializerCache;
+import tools.jackson.databind.type.TypeFactory;
 import tools.jackson.databind.util.LookupCache;
 import tools.jackson.databind.util.SimpleLookupCache;
 import tools.jackson.databind.util.TypeKey;
@@ -19,7 +20,9 @@ public class DefaultCacheProvider
     private static final long serialVersionUID = 1L;
 
     private final static DefaultCacheProvider DEFAULT
-        = new DefaultCacheProvider(DeserializerCache.DEFAULT_MAX_CACHE_SIZE, SerializerCache.DEFAULT_MAX_CACHE_SIZE);
+        = new DefaultCacheProvider(DeserializerCache.DEFAULT_MAX_CACHE_SIZE,
+                SerializerCache.DEFAULT_MAX_CACHE_SIZE,
+                TypeFactory.DEFAULT_MAX_CACHE_SIZE);
 
     /**
      * Maximum size of the {@link LookupCache} instance constructed by {@link #forDeserializerCache(DeserializationConfig)}.
@@ -34,17 +37,25 @@ public class DefaultCacheProvider
      * @see Builder#maxSerializerCacheSize(int)
      */
     protected final int _maxSerializerCacheSize;
-    
+
+    /**
+     * Maximum size of the {@link LookupCache} instance constructed by {@link #forTypeFactory()}.
+     *
+     * @see Builder#maxTypeFactoryCacheSize(int)
+     */
+    protected final int _maxTypeFactoryCacheSize;
+
     /*
     /**********************************************************************
     /* Life cycle
     /**********************************************************************
      */
 
-    protected DefaultCacheProvider(int maxDeserializerCacheSize, int maxSerializerCacheSize)
+    protected DefaultCacheProvider(int maxDeserializerCacheSize, int maxSerializerCacheSize, int maxTypeFactoryCacheSize)
     {
         _maxDeserializerCacheSize = maxDeserializerCacheSize;
         _maxSerializerCacheSize = maxSerializerCacheSize;
+        _maxTypeFactoryCacheSize = maxTypeFactoryCacheSize;
     }
 
     /*
@@ -79,6 +90,11 @@ public class DefaultCacheProvider
     @Override
     public LookupCache<TypeKey, ValueSerializer<Object>> forSerializerCache(SerializationConfig config) {
         return _buildCache(_maxSerializerCacheSize);
+    }
+
+    @Override
+    public LookupCache<Object, JavaType> forTypeFactory() {
+        return _buildCache(_maxTypeFactoryCacheSize);
     }
 
     /*
@@ -124,11 +140,19 @@ public class DefaultCacheProvider
          */
         private int _maxSerializerCacheSize;
 
+        /**
+         * Maximum Size of the {@link LookupCache} instance created by {@link #forTypeFactory()}.
+         * Corresponds to {@link DefaultCacheProvider#_maxTypeFactoryCacheSize}.
+         */
+        private int _maxTypeFactoryCacheSize;
+
         Builder() { }
 
         /**
          * Define the maximum size of the {@link LookupCache} instance constructed by {@link #forDeserializerCache(DeserializationConfig)}
          * and {@link #_buildCache(int)}.
+         * <p>
+         * Note that specifying a maximum size of zero prevents values from being retained in the cache.
          *
          * @param maxDeserializerCacheSize Size for the {@link LookupCache} to use within {@link DeserializerCache}
          * @return this builder
@@ -145,6 +169,8 @@ public class DefaultCacheProvider
         /**
          * Define the maximum size of the {@link LookupCache} instance constructed by {@link #forSerializerCache(SerializationConfig)}
          * and {@link #_buildCache(int)}
+         * <p>
+         * Note that specifying a maximum size of zero prevents values from being retained in the cache.
          *
          * @param maxSerializerCacheSize Size for the {@link LookupCache} to use within {@link SerializerCache}
          * @return this builder
@@ -159,12 +185,30 @@ public class DefaultCacheProvider
         }
 
         /**
+         * Define the maximum size of the {@link LookupCache} instance constructed by {@link #forTypeFactory()}
+         * and {@link #_buildCache(int)}
+         * <p>
+         * Note that specifying a maximum size of zero prevents values from being retained in the cache.
+         *
+         * @param maxTypeFactoryCacheSize Size for the {@link LookupCache} to use within {@link tools.jackson.databind.type.TypeFactory}
+         * @return this builder
+         * @throws IllegalArgumentException if {@code maxTypeFactoryCacheSize} is negative
+         */
+        public Builder maxTypeFactoryCacheSize(int maxTypeFactoryCacheSize) {
+            if (maxTypeFactoryCacheSize < 0) {
+                throw new IllegalArgumentException("Cannot set maxTypeFactoryCacheSize to a negative value");
+            }
+            _maxTypeFactoryCacheSize = maxTypeFactoryCacheSize;
+            return this;
+        }
+
+        /**
          * Constructs a {@link DefaultCacheProvider} with the provided configuration values, using defaults where not specified.
          *
          * @return A {@link DefaultCacheProvider} instance with the specified configuration
          */
         public DefaultCacheProvider build() {
-            return new DefaultCacheProvider(_maxDeserializerCacheSize, _maxSerializerCacheSize);
+            return new DefaultCacheProvider(_maxDeserializerCacheSize, _maxSerializerCacheSize, _maxTypeFactoryCacheSize);
         }
     }
 }

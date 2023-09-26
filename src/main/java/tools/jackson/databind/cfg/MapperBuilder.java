@@ -1329,7 +1329,10 @@ public abstract class MapperBuilder<M extends ObjectMapper,
 
     public B cacheProvider(CacheProvider cacheProvider) {
         _baseSettings = _baseSettings.with(cacheProvider);
-        return _this();
+        // Unlike Deserializer-/SerializerCaches, need to eagerly update
+        // TypeFactory now. Need to call `typeFactory()` to force instantiation
+        TypeFactory tf = typeFactory().withCache(cacheProvider.forTypeFactory());
+        return typeFactory(tf);
     }
 
     /**

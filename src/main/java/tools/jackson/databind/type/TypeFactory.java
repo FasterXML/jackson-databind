@@ -11,6 +11,7 @@ import java.lang.reflect.*;
 
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.core.util.Snapshottable;
+
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.util.ArrayBuilders;
@@ -71,6 +72,11 @@ public final class TypeFactory
         java.io.Serializable
 {
     private static final long serialVersionUID = 3L;
+
+    /**
+     * Default size used to construct {@link #_typeCache}.
+     */
+    public static final int DEFAULT_MAX_CACHE_SIZE = 200;
 
     private final static JavaType[] NO_TYPES = new JavaType[0];
 
@@ -171,7 +177,7 @@ public final class TypeFactory
      */
 
     private TypeFactory() {
-        this(new SimpleLookupCache<Object,JavaType>(16, 200));
+        this(new SimpleLookupCache<Object,JavaType>(16, DEFAULT_MAX_CACHE_SIZE));
     }
 
     protected TypeFactory(LookupCache<Object,JavaType> typeCache) {
@@ -235,8 +241,7 @@ public final class TypeFactory
 
     /**
      * Mutant factory method that will construct new {@link TypeFactory} with
-     * identical settings except for different cache; most likely one with
-     * bigger maximum size.
+     * identical settings except for different cache.
      */
     public TypeFactory withCache(LookupCache<Object,JavaType> cache)  {
         return new TypeFactory(cache, _modifiers, _classLoader);

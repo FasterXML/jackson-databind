@@ -27,4 +27,11 @@ public interface CacheProvider
      * @return {@link LookupCache} instance for constructing {@link tools.jackson.databind.ser.SerializerCache}.
      */
     LookupCache<TypeKey, ValueSerializer<Object>> forSerializerCache(SerializationConfig config);
+
+    /**
+     * Method to provide a {@link LookupCache} instance for constructing {@link tools.jackson.databind.type.TypeFactory}.
+     *
+     * @return {@link LookupCache} instance for constructing {@link tools.jackson.databind.type.TypeFactory}.
+     */
+    LookupCache<Object, JavaType> forTypeFactory();
 }

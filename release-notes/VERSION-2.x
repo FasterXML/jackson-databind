@@ -72,6 +72,8 @@ Project: jackson-databind
   trying to setAccessible on `OptionalInt` with JDK 17+
 #4090: Support sequenced collections (JDK 21)S
  (contributed by @pjfanning)
+#4122: Do not resolve wildcards if upper bound is too non-specific
+ (contributed by @yawkat)
 
 2.15.3 (not yet released)
 

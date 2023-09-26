@@ -11,13 +11,8 @@ import java.lang.reflect.*;
 
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.core.util.Snapshottable;
-
-import tools.jackson.databind.JavaType;
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.util.ArrayBuilders;
-import tools.jackson.databind.util.ClassUtil;
-import tools.jackson.databind.util.LookupCache;
-import tools.jackson.databind.util.SimpleLookupCache;
+import tools.jackson.databind.*;
+import tools.jackson.databind.util.*;
 
 /**
  * Class used for creating concrete {@link JavaType} instances,
@@ -294,8 +289,18 @@ public final class TypeFactory
     public static Class<?> rawClass(Type t) {
         if (t instanceof Class<?>) {
             return (Class<?>) t;
+        } else if (t instanceof JavaType) {
+            return ((JavaType) t).getRawClass();
+        } else if (t instanceof GenericArrayType) {
+            return Array.newInstance(rawClass(((GenericArrayType) t).getGenericComponentType()), 0).getClass();
+        } else if (t instanceof ParameterizedType) {
+            return rawClass(((ParameterizedType) t).getRawType());
+        } else if (t instanceof TypeVariable<?>) {
+            return rawClass(((TypeVariable<?>) t).getBounds()[0]);
+        } else if (t instanceof WildcardType) {
+            return rawClass(((WildcardType) t).getUpperBounds()[0]);
         }
-        // Should be able to optimize bit more in future...
+        // fallback
         return defaultInstance().constructType(t).getRawClass();
     }
 
@@ -1518,6 +1523,17 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
                 pt[i] = _fromAny(context, args[i], parentBindings);
             }
             newBindings = TypeBindings.create(rawType, pt);
+
+            // jackson-databind#4118: Unbind any wildcards with a less specific upper bound than
+            // declared on the type variable
+            for (int i = 0; i < paramCount; ++i) {
+                if (args[i] instanceof WildcardType && !pt[i].hasGenericTypes()) {
+                    TypeVariable<? extends Class<?>> typeVariable = rawType.getTypeParameters()[i];
+                    if (pt[i].getRawClass().isAssignableFrom(rawClass(typeVariable))) {
+                        newBindings = newBindings.withoutVariable(typeVariable.getName());
+                    }
+                }
+            }
         }
         return _fromClass(context, rawType, newBindings);
     }

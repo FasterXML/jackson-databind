@@ -10,9 +10,9 @@ import java.util.stream.Stream;
 import java.lang.reflect.*;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.cfg.CacheProvider;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.LRUMap;
@@ -266,25 +266,12 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
 
     /**
      * Mutant factory method that will construct new {@link TypeFactory} with
-     * identical settings except for different cache; most likely one with
-     * bigger maximum size.
+     * identical settings except for different cache.
      *
      * @since 2.12
-     * @deprecated Since 2.16. Use {@link #withCaches(CacheProvider)} instead.
      */
     public TypeFactory withCache(LookupCache<Object,JavaType> cache)  {
         return new TypeFactory(cache, _parser, _modifiers, _classLoader);
-    }
-
-    /**
-     * Mutant factory method that will construct a new {@link TypeFactory}
-     * with cache instances provided by {@link CacheProvider}.
-     *
-     * @since 2.16
-     */
-    public TypeFactory withCaches(CacheProvider cacheProvider) {
-        return new TypeFactory(cacheProvider.forTypeFactory(),
-                _parser, _modifiers, _classLoader);
     }
 
     /**

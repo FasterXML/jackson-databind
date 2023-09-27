@@ -217,6 +217,8 @@ public class TypeBindings
      * Create a new instance with the same bindings as this object, except with
      * the given variable removed. This is used to create generic types that are
      * "partially raw", i.e. only have some variables bound.
+     *
+     * @since 2.16
      */
     public TypeBindings withoutVariable(String name)
     {

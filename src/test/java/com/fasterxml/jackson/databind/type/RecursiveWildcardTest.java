@@ -9,8 +9,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.checkerframework.common.value.qual.ArrayLenRange;
-import org.mockito.exceptions.verification.junit.ArgumentsAreDifferent;
 
 public class RecursiveWildcardTest extends BaseMapTest
 {
@@ -28,24 +26,24 @@ public class RecursiveWildcardTest extends BaseMapTest
         }
     }
 
-    static class TestAttribute<T extends TestAttribute<?>> {
+    static class TestAttribute4118<T extends TestAttribute4118<?>> {
 
         public List<T> attributes;
 
-        public TestAttribute() { }
+        public TestAttribute4118() { }
 
-        public TestAttribute(List<T> attributes) {
+        public TestAttribute4118(List<T> attributes) {
             this.attributes = attributes;
         }
     }
 
-    static class TestObject {
+    static class TestObject4118 {
 
-        public List<TestAttribute<?>> attributes = new ArrayList<>();
+        public List<TestAttribute4118<?>> attributes = new ArrayList<>();
 
-        public TestObject() { }
+        public TestObject4118() { }
 
-        public TestObject(List<TestAttribute<?>> attributes) {
+        public TestObject4118(List<TestAttribute4118<?>> attributes) {
             this.attributes = attributes;
         }
     }
@@ -62,18 +60,22 @@ public class RecursiveWildcardTest extends BaseMapTest
         assertEquals(0, tree.children.get(0).children.get(0).children.size());
     }
 
-    public void testWildcard() throws Exception
+    // for [databind#4118]
+    public void testDeserWildcard4118() throws Exception
     {
-        TestAttribute a = new TestAttribute(null);
-        TestAttribute b = new TestAttribute(_listOf(a));
-        TestAttribute c = new TestAttribute(_listOf(b));
-        TestObject test = new TestObject(_listOf(c));
+        // Given
+        TestAttribute4118 a = new TestAttribute4118(null);
+        TestAttribute4118 b = new TestAttribute4118(_listOf(a));
+        TestAttribute4118 c = new TestAttribute4118(_listOf(b));
+        TestObject4118 test = new TestObject4118(_listOf(c));
 
         String serialized = MAPPER.writeValueAsString(test);
-        System.out.println(serialized);
 
-        TestObject deserialized = MAPPER.readValue(serialized, TestObject.class);
-        System.out.println(deserialized.attributes.get(0).attributes.get(0).getClass().getName());
+        // When
+        TestObject4118 deserialized = MAPPER.readValue(serialized, TestObject4118.class);
+
+        // Then
+        assertType(deserialized.attributes.get(0).attributes.get(0), TestAttribute4118.class);
     }
 
     private <T> List<T> _listOf(T elem) {

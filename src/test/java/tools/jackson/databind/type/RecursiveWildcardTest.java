@@ -1,6 +1,7 @@
 package tools.jackson.databind.type;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -77,8 +78,6 @@ public class RecursiveWildcardTest extends BaseMapTest
     }
 
     private <T> List<T> _listOf(T elem) {
-        ArrayList<T> list = new ArrayList<>();
-        list.add(elem);
-        return list;
+        return Arrays.asList(elem);
     }
 }

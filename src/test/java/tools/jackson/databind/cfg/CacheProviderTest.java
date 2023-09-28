@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * @since 2.16
  */
+@SuppressWarnings("serial")
 public class CacheProviderTest
 {
     static class RandomBean {

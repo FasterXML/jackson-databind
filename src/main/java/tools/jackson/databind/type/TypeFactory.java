@@ -99,7 +99,7 @@ public final class TypeFactory
 
     private final static Class<?> CLS_COMPARABLE = Comparable.class;
     private final static Class<?> CLS_ENUM = Enum.class;
-    private final static Class<?> CLS_JSON_NODE = JsonNode.class; // since 2.10
+    private final static Class<?> CLS_JSON_NODE = JsonNode.class;
 
     private final static Class<?> CLS_BOOL = Boolean.TYPE;
     private final static Class<?> CLS_DOUBLE = Double.TYPE;
@@ -408,8 +408,6 @@ public final class TypeFactory
      *    serialization uses relaxed, deserialization strict checking.
      *
      * @return Resolved sub-type
-     *
-     * @since 2.11
      */
     public JavaType constructSpecializedType(JavaType baseType, Class<?> subclass,
             boolean relaxedCompatibilityCheck)
@@ -969,8 +967,6 @@ public final class TypeFactory
      *  JavaType inner = TypeFactory.constructParametricType(Set.class, Integer.class);
      *  return TypeFactory.constructParametricType(List.class, inner);
      *</pre>
-     *<p>
-     * NOTE: since 2.11.2 {@link TypeModifier}s ARE called on result (fix for [databind#2796])
      *
      * @param parametrized Type-erased type to parameterize
      * @param parameterClasses Type parameters to apply
@@ -992,8 +988,6 @@ public final class TypeFactory
      *  JavaType inner = TypeFactory.constructParametricType(Set.class, Integer.class);
      *  return TypeFactory.constructParametricType(List.class, inner);
      *</pre>
-     *<p>
-     * NOTE: since 2.11.2 {@link TypeModifier}s ARE called on result (fix for [databind#2796])
      *
      * @param rawType Actual type-erased type
      * @param parameterTypes Type parameters to apply
@@ -1233,8 +1227,8 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
             if (clz == CLS_DOUBLE) return CORE_TYPE_DOUBLE;
         } else {
             if (clz == CLS_STRING) return CORE_TYPE_STRING;
-            if (clz == CLS_OBJECT) return CORE_TYPE_OBJECT; // since 2.7
-            if (clz == CLS_JSON_NODE) return CORE_TYPE_JSON_NODE; // since 2.10
+            if (clz == CLS_OBJECT) return CORE_TYPE_OBJECT;
+            if (clz == CLS_JSON_NODE) return CORE_TYPE_JSON_NODE;
         }
         return null;
     }
@@ -1524,7 +1518,7 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
             }
             newBindings = TypeBindings.create(rawType, pt);
 
-            // jackson-databind#4118: Unbind any wildcards with a less specific upper bound than
+            // [databind#4118] Unbind any wildcards with a less specific upper bound than
             // declared on the type variable
             for (int i = 0; i < paramCount; ++i) {
                 if (args[i] instanceof WildcardType && !pt[i].hasGenericTypes()) {

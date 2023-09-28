@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.type;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -16,7 +17,6 @@ public class RecursiveWildcardTest extends BaseMapTest
 
         final List<T> children;
 
-        @SuppressWarnings("DataFlowIssue")
         @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
         public Tree(List<T> children) {
             if (!children.stream().allMatch(c -> c instanceof Tree<?>)) {
@@ -64,9 +64,9 @@ public class RecursiveWildcardTest extends BaseMapTest
     public void testDeserWildcard4118() throws Exception
     {
         // Given
-        TestAttribute4118 a = new TestAttribute4118(null);
-        TestAttribute4118 b = new TestAttribute4118(_listOf(a));
-        TestAttribute4118 c = new TestAttribute4118(_listOf(b));
+        TestAttribute4118<?> a = new TestAttribute4118<>(null);
+        TestAttribute4118<?> b = new TestAttribute4118<>(_listOf(a));
+        TestAttribute4118<?> c = new TestAttribute4118<>(_listOf(b));
         TestObject4118 test = new TestObject4118(_listOf(c));
 
         String serialized = MAPPER.writeValueAsString(test);
@@ -79,8 +79,6 @@ public class RecursiveWildcardTest extends BaseMapTest
     }
 
     private <T> List<T> _listOf(T elem) {
-        ArrayList<T> list = new ArrayList<>();
-        list.add(elem);
-        return list;
+        return Arrays.asList(elem);
     }
 }

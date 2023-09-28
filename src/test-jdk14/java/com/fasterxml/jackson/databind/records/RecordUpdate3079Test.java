@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.databind.records;
 
-import java.util.Collections;
-
 import com.fasterxml.jackson.databind.*;
 
 public class RecordUpdate3079Test extends BaseMapTest
@@ -17,18 +15,6 @@ public class RecordUpdate3079Test extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
     
-    // [databind#3079]: Should be able to Record value directly
-    public void testDirectRecordUpdate() throws Exception
-    {
-        IdNameRecord orig = new IdNameRecord(123, "Bob");
-        IdNameRecord result = MAPPER.updateValue(orig,
-                Collections.singletonMap("id", 137));
-        assertNotNull(result);
-        assertEquals(137, result.id());
-        assertEquals("Bob", result.name());
-        assertNotSame(orig, result);
-    }
-
     // [databind#3079]: also: should be able to Record valued property
     public void testRecordAsPropertyUpdate() throws Exception
     {

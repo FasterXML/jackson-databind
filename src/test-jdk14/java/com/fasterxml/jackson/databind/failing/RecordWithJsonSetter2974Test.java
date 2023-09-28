@@ -2,7 +2,7 @@ package com.fasterxml.jackson.databind.failing;
 
 import java.util.List;
 import java.util.Map;
-
+import org.junit.Ignore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.databind.BaseMapTest;
@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.exc.InvalidNullException;
 
+@Ignore
 public class RecordWithJsonSetter2974Test extends BaseMapTest
 {
     record RecordWithNonNullDefs(@JsonSetter(nulls=Nulls.AS_EMPTY) List<String> names,

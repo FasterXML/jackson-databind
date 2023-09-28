@@ -593,7 +593,15 @@ public enum MapperFeature implements ConfigFeature
      *
      * @since 2.13
      */
-    APPLY_DEFAULT_VALUES(true)
+    APPLY_DEFAULT_VALUES(true),
+    
+    /**
+     * Feature that determines whether subtypes are discovered from sealed class permitted
+     * subclasses automatically.
+     * 
+     * @since 2.14
+     */
+    DISCOVER_SEALED_CLASS_PERMITTED_SUBCLASSES(true)    
     ;
 
     private final boolean _defaultState;

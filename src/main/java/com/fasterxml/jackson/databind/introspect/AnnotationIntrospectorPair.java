@@ -260,8 +260,27 @@ public class AnnotationIntrospectorPair
     @Override
     public List<NamedType> findSubtypes(Annotated a)
     {
-        List<NamedType> types1 = _primary.findSubtypes(a);
-        List<NamedType> types2 = _secondary.findSubtypes(a);
+        return findSubtypesByAnnotations(a);
+    }
+    
+    @Override
+    public List<NamedType> findSubtypesByAnnotations(Annotated a)
+    {
+        List<NamedType> types1 = _primary.findSubtypesByAnnotations(a);
+        List<NamedType> types2 = _secondary.findSubtypesByAnnotations(a);
+        if (types1 == null || types1.isEmpty()) return types2;
+        if (types2 == null || types2.isEmpty()) return types1;
+        ArrayList<NamedType> result = new ArrayList<NamedType>(types1.size() + types2.size());
+        result.addAll(types1);
+        result.addAll(types2);
+        return result;
+    }
+    
+    @Override
+    public List<NamedType> findSubtypesByPermittedSubclasses(Class<?> klass)
+    {
+        List<NamedType> types1 = _primary.findSubtypesByPermittedSubclasses(klass);
+        List<NamedType> types2 = _secondary.findSubtypesByPermittedSubclasses(klass);
         if (types1 == null || types1.isEmpty()) return types2;
         if (types2 == null || types2.isEmpty()) return types1;
         ArrayList<NamedType> result = new ArrayList<NamedType>(types1.size() + types2.size());

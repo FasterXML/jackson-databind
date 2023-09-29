@@ -292,6 +292,57 @@
     </profile>
     <!-- 07-Dec-2021, tatu: This is a huge mess, sorry folks... -->
     <profile>
+      <id>java11</id>
+      <activation>
+        <jdk>11</jdk>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>add-test-source</id>
+                <phase>generate-test-sources</phase>
+                <goals>
+                  <goal>add-test-source</goal>
+                </goals>
+                <configuration>
+                  <sources>
+                    <source>src/test-jdk11/java</source>
+                  </sources>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <inherited>true</inherited>
+            <configuration>
+              <!-- Enable Java 11+ for all sources so that Intellij picks the right language level -->
+              <source>11</source>
+              <release>11</release>
+              <compilerArgs>
+                <arg>-parameters</arg>
+                <arg>--enable-preview</arg>
+              </compilerArgs>
+              <fork>true</fork>
+              <useIncrementalCompilation>true</useIncrementalCompilation>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <argLine>--enable-preview</argLine>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
       <id>java14</id>
       <activation>
         <jdk>14</jdk>
@@ -310,6 +361,7 @@
                 </goals>
                 <configuration>
                   <sources>
+                    <source>src/test-jdk11/java</source>
                     <source>src/test-jdk14/java</source>
                   </sources>
                 </configuration>
@@ -362,6 +414,7 @@
                 </goals>
                 <configuration>
                   <sources>
+                    <source>src/test-jdk11/java</source>
                     <source>src/test-jdk14/java</source>
                     <source>src/test-jdk17/java</source>
                   </sources>
@@ -414,6 +467,7 @@
                 </goals>
                 <configuration>
                   <sources>
+                    <source>src/test-jdk11/java</source>
                     <source>src/test-jdk14/java</source>
                     <source>src/test-jdk17/java</source>
                     <source>src/test-jdk21/java</source>

@@ -1105,18 +1105,29 @@ public abstract class JsonNode
      */
 
     /**
-     * Short-cut equivalent to:
+     * Method that works in one of possible ways, depending on whether
+     * {@code exprOrProperty} is a valid {@link JsonPointer} expression or
+     * not (valid expression is either empty String {@code ""} or starts
+     * with leading slash {@code /} character).
+     * If it is, works as a short-cut to:
      *<pre>
-     *   withObject(JsonPointer.compile(expr);
+     *  withObject(JsonPointer.compile(exprOrProperty));
      *</pre>
-     * see {@link #withObject(JsonPointer)} for full explanation.
+     * If it is NOT a valid {@link JsonPointer} expression, value is taken
+     * as a literal Object property name and calls is alias for
+     *<pre>
+     *  withObjectProperty(exprOrProperty);
+     *</pre>
      *
-     * @param expr {@link JsonPointer} expression to use
+     * @param exprOrProperty {@link JsonPointer} expression to use (if valid as one),
+     *    or, if not (no leading "/"), property name to match.
      *
      * @return {@link ObjectNode} found or created
      */
-    public final ObjectNode withObject(String expr) {
-        return withObject(JsonPointer.compile(expr));
+    public ObjectNode withObject(String exprOrProperty) {
+        // To avoid abstract method, base implementation just fails
+        return _reportUnsupportedOperation("`JsonNode` not of type `ObjectNode` (but `"
+                +getClass().getName()+")`, cannot call `withObject()` on it");
     }
 
     /**
@@ -1215,9 +1226,8 @@ public abstract class JsonNode
     public ObjectNode withObject(JsonPointer ptr,
             OverwriteMode overwriteMode, boolean preferIndex) {
         // To avoid abstract method, base implementation just fails
-        return _reportUnsupportedOperation(
-                "`withObject(JsonPointer)` not implemented by `%s`",
-                getClass().getName());
+        return _reportUnsupportedOperation("`JsonNode` not of type `ObjectNode` (but `"
+                +getClass().getName()+")`, cannot call `withObject()` on it");
     }
 
     /**
@@ -1246,8 +1256,8 @@ public abstract class JsonNode
      */
     public ObjectNode withObjectProperty(String propName) {
         // To avoid abstract method, base implementation just fails
-        throw new UnsupportedOperationException("`JsonNode` not of type `ObjectNode` (but `"
-                +getClass().getName()+")`, cannot call `withObjectProperty(String)` on it");
+        return _reportUnsupportedOperation("`JsonNode` not of type `ObjectNode` (but `"
+                +getClass().getName()+")`, cannot call `withObjectProperty()` on it");
     }
 
     /** Short-cut equivalent to:
@@ -1255,8 +1265,10 @@ public abstract class JsonNode
      *  withArray(JsonPointer.compile(expr), overwriteMode, preferIndex);
      *</pre>
      */
-    public final ArrayNode withArray(String exprOrProperty) {
-        return withArray(JsonPointer.compile(exprOrProperty));
+    public ArrayNode withArray(String exprOrProperty) {
+        // To avoid abstract method, base implementation just fails
+        return _reportUnsupportedOperation("`JsonNode` not of type `ObjectNode` (but `"
+                +getClass().getName()+")`, cannot call `withArray()` on it");
     }
 
     /**
@@ -1375,7 +1387,7 @@ public abstract class JsonNode
      */
     public ArrayNode withArrayProperty(String propName) {
         // To avoid abstract method, base implementation just fails
-        throw new UnsupportedOperationException("`JsonNode` not of type `ObjectNode` (but `"
+        return _reportUnsupportedOperation("`JsonNode` not of type `ObjectNode` (but `"
                 +getClass().getName()+")`, cannot call `withArrayProperty(String)` on it");
     }
 

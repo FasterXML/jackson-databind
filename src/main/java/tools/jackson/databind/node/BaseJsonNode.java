@@ -274,4 +274,11 @@ public abstract class BaseJsonNode
         StreamReadConstraints.defaults().validateBigIntegerScale(value.scale());
         return value.toBigInteger();
     }
+
+    protected JsonPointer _jsonPointerIfValid(String exprOrProperty) {
+        if (exprOrProperty.isEmpty() || exprOrProperty.charAt(0) == '/') {
+            return JsonPointer.compile(exprOrProperty);
+        }
+        return null;
+    }
 }

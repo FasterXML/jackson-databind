@@ -64,6 +64,15 @@ public class ObjectNode
      */
 
     @Override
+    public ObjectNode withObject(String exprOrProperty) {
+        JsonPointer ptr = _jsonPointerIfValid(exprOrProperty);
+        if (ptr != null) {
+            return withObject(ptr);
+        }
+        return withObjectProperty(exprOrProperty);
+    }
+
+    @Override
     public ObjectNode withObjectProperty(String propName) {
         JsonNode child = _children.get(propName);
         if (child == null || child.isNull()) {
@@ -75,6 +84,15 @@ public class ObjectNode
         return _reportWrongNodeType(
 "Cannot replace `JsonNode` of type `%s` with `ObjectNode` for property \"%s\" (default mode `OverwriteMode.%s`)",
 child.getClass().getName(), propName, OverwriteMode.NULLS);
+    }
+
+    @Override
+    public ArrayNode withArray(String exprOrProperty) {
+        JsonPointer ptr = _jsonPointerIfValid(exprOrProperty);
+        if (ptr != null) {
+            return withArray(ptr);
+        }
+        return withArrayProperty(exprOrProperty);
     }
 
     @Override

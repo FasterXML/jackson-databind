@@ -320,7 +320,7 @@ public class ObjectNodeTest
             root.withObject("/prop");
             fail("Expected exception");
         } catch (JsonNodeException e) {
-            verifyException(e, "Cannot replace context node (of type");
+            verifyException(e, "`JsonNode` not of type `ObjectNode`");
             verifyException(e, "ArrayNode");
         }
         // also: should fail of we already have non-object property
@@ -342,7 +342,7 @@ public class ObjectNodeTest
             root.withArray("/prop");
             fail("Expected exception");
         } catch (JsonNodeException e) {
-            verifyException(e, "Cannot replace context node (of type");
+            verifyException(e, "`JsonNode` not of type `ObjectNode`");
             verifyException(e, "ArrayNode");
         }
         // also: should fail of we already have non-Array property

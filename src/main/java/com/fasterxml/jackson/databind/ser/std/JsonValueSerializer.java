@@ -420,7 +420,7 @@ public class JsonValueSerializer
             } else {
                 serializer = ctxt.findPrimaryPropertySerializer(valueClass, _property);
                 // [databind#3647] : Support `@JsonIgnoreProperties` to work with `@JsonValue`
-                serializer = (JsonSerializer<Object>) _addIgnoreProperties(ctxt, serializer);
+                serializer = (JsonSerializer<Object>) _withIgnoreProperties(ctxt, serializer);
                 PropertySerializerMap.SerializerAndMapResult result = _dynamicSerializers.addSerializer(valueClass, serializer);
                 _dynamicSerializers = result.map;
             }
@@ -448,21 +448,20 @@ public class JsonValueSerializer
     }
 
     /**
-     * Internal helper method used to dynamically add ignorable properties.
-     * 
+     * Internal helper that configures the provided {@code ser} to ignore properties specified by {@link JsonIgnoreProperties}.
+     *
+     * @param ctxt For introspection.
+     * @param ser  Serializer to be configured
+     * @return Configured serializer with specified properties ignored
      * @since 2.16
      */
-    private JsonSerializer<?> _addIgnoreProperties(SerializerProvider ctxt, JsonSerializer<?> ser) {
+    private JsonSerializer<?> _withIgnoreProperties(SerializerProvider ctxt, JsonSerializer<?> ser) {
         final AnnotationIntrospector ai = ctxt.getAnnotationIntrospector();
         final SerializationConfig config = ctxt.getConfig();
         
         JsonIgnoreProperties.Value ignorals = ai.findPropertyIgnoralByName(config, _accessor);
-        if (ignorals != null) {
-            Set<String> ignored = ignorals.findIgnoredForSerialization();
-            if (!ignored.isEmpty()) {
-                ser = ser.withIgnoredProperties(ignored);
-            }
-        }
+        Set<String> ignored = ignorals.findIgnoredForSerialization();
+        ser = ser.withIgnoredProperties(ignored);
         return ser;
     }
 

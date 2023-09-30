@@ -106,6 +106,11 @@ public abstract class JsonSerializer<T>
     }
 
     /**
+     * Mutant factory method called to create a new instance after excluding specified set of
+     * properties by name, if there is any.
+     *
+     * @return Serializer instance that without specified set of properties to ignore (if any)
+     * @param ignoredProperties Set of property names to ignore for serialization;
      * @since 2.16
      */
     public JsonSerializer<?> withIgnoredProperties(Set<String> ignoredProperties) {

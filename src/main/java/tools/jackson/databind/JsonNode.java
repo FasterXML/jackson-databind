@@ -1221,7 +1221,36 @@ public abstract class JsonNode
     }
 
     /**
-     * Short-cut equivalent to:
+     * Method similar to {@link #withObject(JsonPointer, OverwriteMode, boolean)} -- basically
+     * short-cut to:
+     *<pre>
+     *   withObject(JsonPointer.compile("/"+propName), OverwriteMode.NULLS, false);
+     *</pre>
+     * that is, only matches immediate property on {@link ObjectNode}
+     * and will either use an existing {@link ObjectNode} that is
+     * value of the property, or create one if no value or value is {@code NullNode}.
+     * <br>
+     * Will fail with an exception if:
+     * <ul>
+     *  <li>Node method called on is NOT {@link ObjectNode}
+     *   </li>
+     *  <li>Property has an existing value that is NOT {@code NullNode} (explicit {@code null})
+     *   </li>
+     * </ul>
+     *
+     * @param propName Name of property that has or will have {@link ObjectNode} as value
+     *
+     * @return {@link ObjectNode} value of given property (existing or created)
+     *
+     * @since 2.16
+     */
+    public ObjectNode withObjectProperty(String propName) {
+        // To avoid abstract method, base implementation just fails
+        throw new UnsupportedOperationException("`JsonNode` not of type `ObjectNode` (but `"
+                +getClass().getName()+")`, cannot call `withObjectProperty(String)` on it");
+    }
+
+    /** Short-cut equivalent to:
      *<pre>
      *  withArray(JsonPointer.compile(expr), overwriteMode, preferIndex);
      *</pre>
@@ -1320,6 +1349,34 @@ public abstract class JsonNode
         return _reportUnsupportedOperation(
                 "`withArray(JsonPointer)` not implemented by `%s`",
                 ClassUtil.nameOf(getClass()));
+    }
+
+    /**
+     * Method similar to {@link #withArray(JsonPointer, OverwriteMode, boolean)} -- basically
+     * short-cut to:
+     *<pre>
+     *   withArray(JsonPointer.compile("/"+propName), OverwriteMode.NULLS, false);
+     *</pre>
+     * that is, only matches immediate property on {@link ObjectNode}
+     * and will either use an existing {@link ArrayNode} that is
+     * value of the property, or create one if no value or value is {@code NullNode}.
+     * <br>
+     * Will fail with an exception if:
+     * <ul>
+     *  <li>Node method called on is NOT {@link ObjectNode}
+     *   </li>
+     *  <li>Property has an existing value that is NOT {@code NullNode} (explicit {@code null})
+     *   </li>
+     * </ul>
+     *
+     * @param propName Name of property that has or will have {@link ArrayNode} as value
+     *
+     * @return {@link ArrayNode} value of given property (existing or created)
+     */
+    public ArrayNode withArrayProperty(String propName) {
+        // To avoid abstract method, base implementation just fails
+        throw new UnsupportedOperationException("`JsonNode` not of type `ObjectNode` (but `"
+                +getClass().getName()+")`, cannot call `withArrayProperty(String)` on it");
     }
 
     /*

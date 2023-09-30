@@ -64,6 +64,34 @@ public class ObjectNode
      */
 
     @Override
+    public ObjectNode withObjectProperty(String propName) {
+        JsonNode child = _children.get(propName);
+        if (child == null || child.isNull()) {
+            return putObject(propName);
+        }
+        if (child.isObject()) {
+            return (ObjectNode) child;
+        }
+        return _reportWrongNodeType(
+"Cannot replace `JsonNode` of type `%s` with `ObjectNode` for property \"%s\" (default mode `OverwriteMode.%s`)",
+child.getClass().getName(), propName, OverwriteMode.NULLS);
+    }
+
+    @Override
+    public ArrayNode withArrayProperty(String propName) {
+        JsonNode child = _children.get(propName);
+        if (child == null || child.isNull()) {
+            return putArray(propName);
+        }
+        if (child.isArray()) {
+            return (ArrayNode) child;
+        }
+        return _reportWrongNodeType(
+"Cannot replace `JsonNode` of type `%s` with `ArrayNode` for property \"%s\" with (default mode `OverwriteMode.%s`)",
+child.getClass().getName(), propName, OverwriteMode.NULLS);
+    }
+
+    @Override
     protected ObjectNode _withObject(JsonPointer origPtr,
             JsonPointer currentPtr,
             OverwriteMode overwriteMode, boolean preferIndex)

@@ -200,6 +200,47 @@ public class WithPathTest extends BaseMapTest
 
     /*
     /**********************************************************************
+    /* Test methods, withObjectProperty()
+    /**********************************************************************
+     */
+
+    public void testWithObjectProperty() throws Exception
+    {
+        ObjectNode root = MAPPER.createObjectNode();
+
+        // First: create new property value
+        ObjectNode match = root.withObjectProperty("a");
+        assertTrue(match.isObject());
+        assertEquals(a2q("{}"), match.toString());
+        match.put("value", 42);
+        assertEquals(a2q("{'a':{'value':42}}"), root.toString());
+
+        // Second: match existing Object property
+        ObjectNode match2 = root.withObjectProperty("a");
+        assertSame(match, match2);
+        match.put("value2", true);
+
+        assertEquals(a2q("{'a':{'value':42,'value2':true}}"),
+                root.toString());
+
+        // Third: match and overwrite existing null node
+        JsonNode root2 = MAPPER.readTree("{\"b\": null}");
+        ObjectNode match3 = root2.withObjectProperty("b");
+        assertNotSame(match, match3);
+        assertEquals("{\"b\":{}}", root2.toString());
+        
+        // and then failing case
+        JsonNode root3 = MAPPER.readTree("{\"c\": 123}");
+        try {
+            root3.withObjectProperty("c");
+            fail("Should not pass");
+        } catch (JsonNodeException e) {
+            verifyException(e, "Cannot replace `JsonNode` of type ");
+        }
+    }
+
+    /*
+    /**********************************************************************
     /* Test methods, withArray()
     /**********************************************************************
      */
@@ -316,5 +357,45 @@ public class WithPathTest extends BaseMapTest
         aN.add("v1");
         assertEquals(a2q("{'key1':{'array1':[{'element1':['v1']}]}}"),
                 root.toString());
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods, withArrayProperty()
+    /**********************************************************************
+     */
+
+    public void testWithArrayProperty() throws Exception
+    {
+        ObjectNode root = MAPPER.createObjectNode();
+
+        // First: create new property value
+        ArrayNode match = root.withArrayProperty("a");
+        assertTrue(match.isArray());
+        assertEquals(a2q("[]"), match.toString());
+        match.add(42);
+        assertEquals(a2q("{'a':[42]}"), root.toString());
+
+        // Second: match existing Object property
+        ArrayNode match2 = root.withArrayProperty("a");
+        assertSame(match, match2);
+        match.add(true);
+
+        assertEquals(a2q("{'a':[42,true]}"), root.toString());
+
+        // Third: match and overwrite existing null node
+        JsonNode root2 = MAPPER.readTree("{\"b\": null}");
+        ArrayNode match3 = root2.withArrayProperty("b");
+        assertNotSame(match, match3);
+        assertEquals("{\"b\":[]}", root2.toString());
+        
+        // and then failing case
+        JsonNode root3 = MAPPER.readTree("{\"c\": 123}");
+        try {
+            root3.withArrayProperty("c");
+            fail("Should not pass");
+        } catch (JsonNodeException e) {
+            verifyException(e, "Cannot replace `JsonNode` of type ");
+        }
     }
 }

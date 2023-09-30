@@ -10,6 +10,9 @@ Project: jackson-databind
  (contributed by Joo-Hyuk K)
 #2787: Mix-ins do not work for `Enum`s
  (fix contributed by Joo-Hyuk K)
+#3780: Deprecated JsonNode.with(String) suggests using JsonNode.withObject(String)
+  but it is not the same thing
+ (reported by @bmatasar)
 #3838: Difference in the handling of `ObjectId-property` in `JsonIdentityInfo`
   depending on the deserialization route
  (fix contributed by Joo-Hyuk K)

@@ -198,10 +198,11 @@ public class WithPathTest extends BaseMapTest
 
     /*
     /**********************************************************************
-    /* Test methods, withObjectProperty()
+    /* Test methods, withObjectProperty()/withObject(exprOrProperty)
     /**********************************************************************
      */
 
+    // [databind#4095]
     public void testWithObjectProperty() throws Exception
     {
         ObjectNode root = MAPPER.createObjectNode();
@@ -226,11 +227,51 @@ public class WithPathTest extends BaseMapTest
         ObjectNode match3 = root2.withObjectProperty("b");
         assertNotSame(match, match3);
         assertEquals("{\"b\":{}}", root2.toString());
-        
+
         // and then failing case
         JsonNode root3 = MAPPER.readTree("{\"c\": 123}");
         try {
             root3.withObjectProperty("c");
+            fail("Should not pass");
+        } catch (UnsupportedOperationException e) {
+            verifyException(e, "Cannot replace `JsonNode` of type ");
+        }
+    }
+
+    // [databind#4096]
+    public void testWithObjectAdnExprOrProp() throws Exception
+    {
+        ObjectNode root = MAPPER.createObjectNode();
+
+        // First: create new property value
+        ObjectNode match = root.withObject("a");
+        assertTrue(match.isObject());
+        assertEquals(a2q("{}"), match.toString());
+        match.put("value", 42);
+        assertEquals(a2q("{'a':{'value':42}}"), root.toString());
+
+        // and then with JsonPointer expr
+        match = root.withObject("/a/b");
+        assertTrue(match.isObject());
+        assertEquals(a2q("{}"), match.toString());
+        assertEquals(a2q("{'a':{'value':42,'b':{}}}"), root.toString());
+
+        // Then existing prop:
+        assertEquals(a2q("{'value':42,'b':{}}"),
+                root.withObject("a").toString());
+        assertEquals(a2q("{}"),
+                root.withObject("/a/b").toString());
+
+        // and then failing case
+        JsonNode root3 = MAPPER.readTree("{\"c\": 123}");
+        try {
+            root3.withObject("c");
+            fail("Should not pass");
+        } catch (UnsupportedOperationException e) {
+            verifyException(e, "Cannot replace `JsonNode` of type ");
+        }
+        try {
+            root3.withObject("/c");
             fail("Should not pass");
         } catch (UnsupportedOperationException e) {
             verifyException(e, "Cannot replace `JsonNode` of type ");
@@ -359,10 +400,11 @@ public class WithPathTest extends BaseMapTest
 
     /*
     /**********************************************************************
-    /* Test methods, withArrayProperty()
+    /* Test methods, withArrayProperty()/withArray(exprOrProperty)
     /**********************************************************************
      */
 
+    // [databind#4095]
     public void testWithArrayProperty() throws Exception
     {
         ObjectNode root = MAPPER.createObjectNode();
@@ -387,6 +429,35 @@ public class WithPathTest extends BaseMapTest
         assertNotSame(match, match3);
         assertEquals("{\"b\":[]}", root2.toString());
         
+        // and then failing case
+        JsonNode root3 = MAPPER.readTree("{\"c\": 123}");
+        try {
+            root3.withArrayProperty("c");
+            fail("Should not pass");
+        } catch (UnsupportedOperationException e) {
+            verifyException(e, "Cannot replace `JsonNode` of type ");
+        }
+    }
+
+    // [databind#4096]
+    public void testWithArrayAndExprOrProp() throws Exception
+    {
+        ObjectNode root = MAPPER.createObjectNode();
+
+        // First: create new property value
+        ArrayNode match = root.withArray("a");
+        assertTrue(match.isArray());
+        assertEquals(a2q("[]"), match.toString());
+        match.add(42);
+        assertEquals(a2q("{'a':[42]}"), root.toString());
+
+        match = root.withArray("/b");
+        assertEquals(a2q("{'a':[42],'b':[]}"), root.toString());
+
+        // Second: match existing Object property
+        assertEquals(a2q("[42]"), root.withArray("a").toString());
+        assertEquals(a2q("[42]"), root.withArray("/a").toString());
+
         // and then failing case
         JsonNode root3 = MAPPER.readTree("{\"c\": 123}");
         try {

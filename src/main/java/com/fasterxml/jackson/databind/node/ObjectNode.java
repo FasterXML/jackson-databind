@@ -90,6 +90,15 @@ public class ObjectNode
     }
 
     @Override
+    public ObjectNode withObject(String exprOrProperty) {
+        JsonPointer ptr = _jsonPointerIfValid(exprOrProperty);
+        if (ptr != null) {
+            return withObject(ptr);
+        }
+        return withObjectProperty(exprOrProperty);
+    }
+
+    @Override
     public ObjectNode withObjectProperty(String propName) {
         JsonNode child = _children.get(propName);
         if (child == null || child.isNull()) {

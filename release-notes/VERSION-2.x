@@ -10,6 +10,9 @@ Project: jackson-databind
  (contributed by Joo-Hyuk K)
 #2787: Mix-ins do not work for `Enum`s
  (fix contributed by Joo-Hyuk K)
+#3780: Deprecated JsonNode.with(String) suggests using JsonNode.withObject(String)
+  but it is not the same thing
+ (reported by @bmatasar)
 #3838: Difference in the handling of `ObjectId-property` in `JsonIdentityInfo`
   depending on the deserialization route
  (fix contributed by Joo-Hyuk K)
@@ -1270,7 +1273,7 @@ No changes since 2.13.2.1 but fixed Gradle Module Metadata ("module.json")
   `TokenBuffer` content
  (reported by Patrick G)
 #1444: Change `ObjectMapper.setSerializationInclusion()` to apply to content inclusion too
-#1450: `SimpleModule.addKeyDeserializer()' should throw `IllegalArgumentException` if `null`
+#1450: `SimpleModule.addKeyDeserializer()` should throw `IllegalArgumentException` if `null`
   reference of `KeyDeserializer` passed
  (suggested by PawelJagus@github)
 #1454: Support `@JsonFormat.lenient` for `java.util.Date`, `java.util.Calendar`

@@ -244,12 +244,12 @@ public abstract class BaseMapTest
         return new JsonMapper();
     }
 
+    // `public` since 2.16, was only `protected` before then.
     // @since 2.10
     public static JsonMapper.Builder jsonMapperBuilder() {
         return JsonMapper.builder();
     }
 
-    // `public` since 2.16, was only `protected` before then.
     // @since 2.7
     protected TypeFactory newTypeFactory() {
         // this is a work-around; no null modifier added

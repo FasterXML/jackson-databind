@@ -89,6 +89,29 @@ public class ObjectNode
         return result;
     }
 
+    @Override
+    public ObjectNode withObject(String exprOrProperty) {
+        JsonPointer ptr = _jsonPointerIfValid(exprOrProperty);
+        if (ptr != null) {
+            return withObject(ptr);
+        }
+        return withObjectProperty(exprOrProperty);
+    }
+
+    @Override
+    public ObjectNode withObjectProperty(String propName) {
+        JsonNode child = _children.get(propName);
+        if (child == null || child.isNull()) {
+            return putObject(propName);
+        }
+        if (child.isObject()) {
+            return (ObjectNode) child;
+        }
+        return _reportWrongNodeType(
+"Cannot replace `JsonNode` of type `%s` with `ObjectNode` for property \"%s\" (default mode `OverwriteMode.%s`)",
+child.getClass().getName(), propName, OverwriteMode.NULLS);
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public ArrayNode withArray(String exprOrProperty)
@@ -109,6 +132,20 @@ public class ObjectNode
         ArrayNode result = arrayNode();
         _children.put(exprOrProperty, result);
         return result;
+    }
+
+    @Override
+    public ArrayNode withArrayProperty(String propName) {
+        JsonNode child = _children.get(propName);
+        if (child == null || child.isNull()) {
+            return putArray(propName);
+        }
+        if (child.isArray()) {
+            return (ArrayNode) child;
+        }
+        return _reportWrongNodeType(
+"Cannot replace `JsonNode` of type `%s` with `ArrayNode` for property \"%s\" with (default mode `OverwriteMode.%s`)",
+child.getClass().getName(), propName, OverwriteMode.NULLS);
     }
 
     @Override

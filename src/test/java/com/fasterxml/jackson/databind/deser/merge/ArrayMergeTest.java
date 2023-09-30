@@ -9,6 +9,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.*;
 
+import java.util.Date;
+
 public class ArrayMergeTest extends BaseMapTest
 {
     static class MergedX<T>
@@ -18,6 +20,13 @@ public class ArrayMergeTest extends BaseMapTest
 
         public MergedX(T v) { value = v; }
         protected MergedX() { }
+    }
+
+    // [databind#4121]
+    static class Merged4121
+    {
+        @JsonMerge(OptBoolean.TRUE)
+        public Date[] value;
     }
 
     /*
@@ -55,6 +64,31 @@ public class ArrayMergeTest extends BaseMapTest
         assertEquals("foo", result.value[0]);
         assertEquals("bar", result.value[1]);
         assertEquals("zap", result.value[2]);
+    }
+
+    // [databind#4121]
+    public void testComponentTypeArrayMerging() throws Exception
+    {
+        Merged4121 input = new Merged4121();
+        input.value = new Date[] {new Date(1000L)};
+        Merged4121 result = MAPPER.readerFor(Merged4121.class)
+                .withValueToUpdate(input)
+                .readValue(a2q("{'value':[2000]}"));
+        assertSame(input, result);
+        assertEquals(2, result.value.length);
+        assertEquals(1000L, result.value[0].getTime());
+        assertEquals(2000L, result.value[1].getTime());
+
+        // and with one trick
+        result = MAPPER.readerFor(Merged4121.class)
+                .with(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+                .withValueToUpdate(input)
+                .readValue(a2q("{'value':3000}"));
+        assertSame(input, result);
+        assertEquals(3, result.value.length);
+        assertEquals(1000L, result.value[0].getTime());
+        assertEquals(2000L, result.value[1].getTime());
+        assertEquals(3000L, result.value[2].getTime());
     }
 
     public void testStringArrayMerging() throws Exception

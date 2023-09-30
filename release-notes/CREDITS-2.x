@@ -1558,6 +1558,10 @@ Gili Tzabari (cowwoc@github)
   * Reported #3063: `@JsonValue` fails for Java Record
   (2.14.2)
 
+Yury Molchan (yurkom@github)
+  * Contributed #4121: Preserve the original component type in merging to an array
+  (2.14.4)
+
 Joo Hyuk Kim (JooHyukKim@github)
   * Contributed #2536: Add `EnumFeature.READ_ENUM_KEYS_USING_INDEX` to work with
     existing "WRITE_ENUM_KEYS_USING_INDEX"

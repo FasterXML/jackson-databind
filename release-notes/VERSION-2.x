@@ -6,8 +6,13 @@ Project: jackson-databind
 
 2.16.0 (not yet released)
 
+#2502: Add a way to configure caches Jackson uses
+ (contributed by Joo-Hyuk K)
 #2787: Mix-ins do not work for `Enum`s
  (fix contributed by Joo-Hyuk K)
+#3780: Deprecated JsonNode.with(String) suggests using JsonNode.withObject(String)
+  but it is not the same thing
+ (reported by @bmatasar)
 #3838: Difference in the handling of `ObjectId-property` in `JsonIdentityInfo`
   depending on the deserialization route
  (fix contributed by Joo-Hyuk K)
@@ -70,11 +75,18 @@ Project: jackson-databind
   trying to setAccessible on `OptionalInt` with JDK 17+
 #4090: Support sequenced collections (JDK 21)S
  (contributed by @pjfanning)
+#4095: Add `withObjectProperty(String)`, `withArrayProperty(String)` in `JsonNode`
+#4096: Change `JsonNode.withObject(String)` to work similar to `withArray()`
+  wrt argument
+#4122: Do not resolve wildcards if upper bound is too non-specific
+ (contributed by @yawkat)
 
 2.15.3 (not yet released)
 
 #3968: Records with additional constructors failed to deserialize
  (fix contributed by Sim Y-T)
+#4121: Preserve the original component type in merging to an array
+ (contributed by Yury M)
 
 2.15.2 (30-May-2023)
 
@@ -1261,7 +1273,7 @@ No changes since 2.13.2.1 but fixed Gradle Module Metadata ("module.json")
   `TokenBuffer` content
  (reported by Patrick G)
 #1444: Change `ObjectMapper.setSerializationInclusion()` to apply to content inclusion too
-#1450: `SimpleModule.addKeyDeserializer()' should throw `IllegalArgumentException` if `null`
+#1450: `SimpleModule.addKeyDeserializer()` should throw `IllegalArgumentException` if `null`
   reference of `KeyDeserializer` passed
  (suggested by PawelJagus@github)
 #1454: Support `@JsonFormat.lenient` for `java.util.Date`, `java.util.Calendar`

@@ -1,5 +1,11 @@
 package com.fasterxml.jackson.databind.type;
 
+import java.lang.reflect.Array;
+import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.BaseStream;
@@ -7,9 +13,9 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
-import java.lang.reflect.*;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
@@ -69,6 +75,15 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
     implements java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
+
+    /**
+     * Default size used to construct {@link #_typeCache}.
+     *
+     * Used to be passed inline.
+     *
+     * @since 2.16
+     */
+    public static final int DEFAULT_MAX_CACHE_SIZE = 200;
 
     private final static JavaType[] NO_TYPES = new JavaType[0];
 
@@ -178,7 +193,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
      */
 
     private TypeFactory() {
-        this(new LRUMap<>(16, 200));
+        this(new LRUMap<>(16, DEFAULT_MAX_CACHE_SIZE));
     }
 
     /**
@@ -198,7 +213,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
                           TypeModifier[] mods, ClassLoader classLoader)
     {
         if (typeCache == null) {
-            typeCache = new LRUMap<>(16, 200);
+            typeCache = new LRUMap<>(16, DEFAULT_MAX_CACHE_SIZE);
         }
         _typeCache = typeCache;
         // As per [databind#894] must ensure we have back-linkage from TypeFactory:
@@ -256,8 +271,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
 
     /**
      * Mutant factory method that will construct new {@link TypeFactory} with
-     * identical settings except for different cache; most likely one with
-     * bigger maximum size.
+     * identical settings except for different cache.
      *
      * @since 2.12
      */
@@ -314,8 +328,18 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
     public static Class<?> rawClass(Type t) {
         if (t instanceof Class<?>) {
             return (Class<?>) t;
+        } else if (t instanceof JavaType) {
+            return ((JavaType) t).getRawClass();
+        } else if (t instanceof GenericArrayType) {
+            return Array.newInstance(rawClass(((GenericArrayType) t).getGenericComponentType()), 0).getClass();
+        } else if (t instanceof ParameterizedType) {
+            return rawClass(((ParameterizedType) t).getRawType());
+        } else if (t instanceof TypeVariable<?>) {
+            return rawClass(((TypeVariable<?>) t).getBounds()[0]);
+        } else if (t instanceof WildcardType) {
+            return rawClass(((WildcardType) t).getUpperBounds()[0]);
         }
-        // Should be able to optimize bit more in future...
+        // fallback
         return defaultInstance().constructType(t).getRawClass();
     }
 
@@ -1681,6 +1705,17 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
                 pt[i] = _fromAny(context, args[i], parentBindings);
             }
             newBindings = TypeBindings.create(rawType, pt);
+
+            // [databind#4118] Unbind any wildcards with a less specific upper bound than
+            // declared on the type variable (since 2.16)
+            for (int i = 0; i < paramCount; ++i) {
+                if (args[i] instanceof WildcardType && !pt[i].hasGenericTypes()) {
+                    TypeVariable<? extends Class<?>> typeVariable = rawType.getTypeParameters()[i];
+                    if (pt[i].getRawClass().isAssignableFrom(rawClass(typeVariable))) {
+                        newBindings = newBindings.withoutVariable(typeVariable.getName());
+                    }
+                }
+            }
         }
         return _fromClass(context, rawType, newBindings);
     }

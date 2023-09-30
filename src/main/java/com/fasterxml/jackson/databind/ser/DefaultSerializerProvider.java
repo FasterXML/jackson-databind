@@ -7,7 +7,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.CacheProvider;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
+import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
@@ -71,6 +73,15 @@ public abstract class DefaultSerializerProvider
 
     protected DefaultSerializerProvider(DefaultSerializerProvider src) {
         super(src);
+    }
+
+    /**
+     * @since 2.16
+     */
+    protected DefaultSerializerProvider(DefaultSerializerProvider src,
+            CacheProvider cp) {
+        super(src,
+                new SerializerCache(cp.forSerializerCache(src._config)));
     }
 
     /**
@@ -172,6 +183,19 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
             return false; // never gets here
         }
     }
+
+    /*
+    /**********************************************************
+    /* Extended API, life-cycle
+    /**********************************************************
+     */
+
+    /**
+     * Fluent factory method used for constructing a new instance with cache instances provided by {@link CacheProvider}.
+     *
+     * @since 2.16
+     */
+    public abstract DefaultSerializerProvider withCaches(CacheProvider cacheProvider);
 
     /*
     /**********************************************************
@@ -592,7 +616,6 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
         return new com.fasterxml.jackson.databind.jsonschema.JsonSchema((ObjectNode) schemaNode);
     }
 
-
     /*
     /**********************************************************
     /* Helper classes
@@ -614,6 +637,13 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
             super(src, config, f);
         }
 
+        /**
+         * @since 2.16
+         */
+        protected Impl(Impl src, CacheProvider cp) {
+            super(src, cp);
+        }
+
         @Override
         public DefaultSerializerProvider copy()
         {
@@ -623,6 +653,11 @@ filter.getClass().getName(), e.getClass().getName(), ClassUtil.exceptionMessage(
         @Override
         public Impl createInstance(SerializationConfig config, SerializerFactory jsf) {
             return new Impl(this, config, jsf);
+        }
+
+        @Override
+        public DefaultSerializerProvider withCaches(CacheProvider cp) {
+            return new Impl(this, cp);
         }
     }
 }

@@ -6,6 +6,7 @@ import java.lang.reflect.Type;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 
 import com.fasterxml.jackson.core.*;
@@ -418,6 +419,8 @@ public class JsonValueSerializer
                 _dynamicSerializers = result.map;
             } else {
                 serializer = ctxt.findPrimaryPropertySerializer(valueClass, _property);
+                // [databind#3647] : Support `@JsonIgnoreProperties` to work with `@JsonValue`
+                serializer = (JsonSerializer<Object>) _withIgnoreProperties(ctxt, serializer);
                 PropertySerializerMap.SerializerAndMapResult result = _dynamicSerializers.addSerializer(valueClass, serializer);
                 _dynamicSerializers = result.map;
             }
@@ -442,6 +445,24 @@ public class JsonValueSerializer
             return serializer;
         }
         */
+    }
+
+    /**
+     * Internal helper that configures the provided {@code ser} to ignore properties specified by {@link JsonIgnoreProperties}.
+     *
+     * @param ctxt For introspection.
+     * @param ser  Serializer to be configured
+     * @return Configured serializer with specified properties ignored
+     * @since 2.16
+     */
+    private JsonSerializer<?> _withIgnoreProperties(SerializerProvider ctxt, JsonSerializer<?> ser) {
+        final AnnotationIntrospector ai = ctxt.getAnnotationIntrospector();
+        final SerializationConfig config = ctxt.getConfig();
+        
+        JsonIgnoreProperties.Value ignorals = ai.findPropertyIgnoralByName(config, _accessor);
+        Set<String> ignored = ignorals.findIgnoredForSerialization();
+        ser = ser.withIgnoredProperties(ignored);
+        return ser;
     }
 
     /*

@@ -56,6 +56,8 @@ public class JsonValueSerializer
      */
     protected final boolean _forceTypeInformation;
 
+    protected final Set<String> _ignoredProperties;
+
     /*
     /**********************************************************************
     /* Life-cycle
@@ -68,16 +70,18 @@ public class JsonValueSerializer
      *    {@link tools.jackson.databind.annotation.JsonSerialize#using}), otherwise
      *    null
      */
-    public JsonValueSerializer(JavaType nominalType,
+    protected JsonValueSerializer(JavaType nominalType,
             JavaType valueType, boolean staticTyping,
             TypeSerializer vts, ValueSerializer<?> ser,
-            AnnotatedMember accessor)
+            AnnotatedMember accessor,
+            Set<String> ignoredProperties)
     {
         super(nominalType, null, vts, ser);
         _valueType = valueType;
         _staticTyping = staticTyping;
         _accessor = accessor;
         _forceTypeInformation = true; // gets reconsidered when we are contextualized
+        _ignoredProperties = ignoredProperties;
     }
 
     protected JsonValueSerializer(JsonValueSerializer src, BeanProperty property,
@@ -88,6 +92,20 @@ public class JsonValueSerializer
         _accessor = src._accessor;
         _staticTyping = src._staticTyping;
         _forceTypeInformation = forceTypeInfo;
+        _ignoredProperties = src._ignoredProperties;
+    }
+
+    public static JsonValueSerializer construct(SerializationConfig config,
+            JavaType nominalType,
+            JavaType valueType, boolean staticTyping,
+            TypeSerializer vts, ValueSerializer<?> ser,
+            AnnotatedMember accessor)
+    {
+        JsonIgnoreProperties.Value ignorals = config.getAnnotationIntrospector()
+            .findPropertyIgnoralByName(config, accessor);
+        return new JsonValueSerializer(nominalType, valueType, staticTyping,
+                vts, ser, accessor,
+                ignorals.findIgnoredForSerialization());
     }
 
     public JsonValueSerializer withResolved(BeanProperty property,

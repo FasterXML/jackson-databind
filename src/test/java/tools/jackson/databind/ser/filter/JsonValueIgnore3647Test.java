@@ -9,7 +9,7 @@ import tools.jackson.databind.ObjectMapper;
 // [databind#3647] : Support @JsonIgnoreProperties to work with @JsonValue
 public class JsonValueIgnore3647Test extends BaseMapTest
 {
-    static class Foo3647 {
+    final static class Foo3647 {
         public String p1 = "hello";
         public String p2 = "world";
     }

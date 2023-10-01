@@ -218,7 +218,8 @@ public abstract class BasicSerializerFactory
                         }
                         // need to pass both type of key Object (on which accessor called), and actual
                         // value type that `JsonType`-annotated accessor returns (or contains, in case of field)
-                        ser = new JsonValueSerializer(keyType, acc.getType(), false, null, delegate, acc);
+                        ser = JsonValueSerializer.construct(config, keyType, acc.getType(),
+                                false, null, delegate, acc);
                     } else {
                         ser = JDKKeySerializers.getFallbackKeySerializer(config, keyType.getRawClass(),
                                 beanDesc.getClassInfo());
@@ -328,8 +329,8 @@ public abstract class BasicSerializerFactory
             ValueSerializer<Object> ser = findSerializerFromAnnotation(ctxt, valueAccessor);
             JavaType valueType = valueAccessor.getType();
             TypeSerializer vts = ctxt.findTypeSerializer(valueType);
-            return new JsonValueSerializer(type, valueType, /* static typing */ false,
-                    vts, ser, valueAccessor);
+            return JsonValueSerializer.construct(ctxt.getConfig(), type, valueType,
+                    /* static typing */ false, vts, ser, valueAccessor);
         }
         // No well-known annotations...
         return null;

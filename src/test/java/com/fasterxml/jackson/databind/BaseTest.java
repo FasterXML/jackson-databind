@@ -437,7 +437,8 @@ public abstract class BaseTest
         return result;
     }
 
-    public String q(String str) {
+    // `static` since 2.16, was only `public` before then.
+    public static String q(String str) {
         return '"'+str+'"';
     }
 
@@ -446,7 +447,8 @@ public abstract class BaseTest
         return q(str);
     }
 
-    protected static String a2q(String json) {
+    // `public` since 2.16, was only `protected` before then.
+    public static String a2q(String json) {
         return json.replace("'", "\"");
     }
 

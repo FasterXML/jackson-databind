@@ -57,7 +57,8 @@ public class JsonValueSerializer
     protected final boolean _forceTypeInformation;
 
     /**
-     * Names of properties to ignore from Value class accessed using accessor.
+     * Names of properties to ignore from Value class accessed using
+     * accessor.
      */
     protected final Set<String> _ignoredProperties;
 
@@ -176,8 +177,7 @@ public class JsonValueSerializer
                  */
                 // I _think_ this can be considered a primary property...
                 ser = ctxt.findPrimaryPropertySerializer(_valueType, property);
-                // [databind#3647] : Support @JsonIgnoreProperties to work with @JsonValue
-                ser = _withIgnoreProperties(ctxt, _accessor, ser);
+                ser = _withIgnoreProperties(ser, _ignoredProperties);
 
                 /* 09-Dec-2010, tatu: Turns out we must add special handling for
                  *   cases where "native" (aka "natural") type is being serialized,
@@ -223,7 +223,7 @@ public class JsonValueSerializer
         ValueSerializer<Object> ser = _valueSerializer;
         if (ser == null) {
             final UnaryOperator<ValueSerializer<Object>> serTransformer =
-                    valueSer -> _withIgnoreProperties(ctxt, _accessor, valueSer);
+                    valueSer -> _withIgnoreProperties(valueSer, _ignoredProperties);
             Class<?> cc = value.getClass();
             if (_valueType.hasGenericTypes()) {
                 ser = _findAndAddDynamic(ctxt,
@@ -243,21 +243,16 @@ public class JsonValueSerializer
     /**
      * Internal helper that configures the provided {@code ser} to ignore properties specified by {@link JsonIgnoreProperties}.
      *
-     * @param ctxt For introspection.
      * @param ser  Serializer to be configured
      * @return Configured serializer with specified properties ignored
      */
     @SuppressWarnings("unchecked")
-    protected ValueSerializer<Object> _withIgnoreProperties(SerializerProvider ctxt,
-            AnnotatedMember accessor,
-            ValueSerializer<?> ser) {
-        final AnnotationIntrospector ai = ctxt.getAnnotationIntrospector();
-        final SerializationConfig config = ctxt.getConfig();
-
-        JsonIgnoreProperties.Value ignorals = ai.findPropertyIgnoralByName(config, accessor);
-        Set<String> ignored = ignorals.findIgnoredForSerialization();
-        if (!ignored.isEmpty()) {
-            ser = ser.withIgnoredProperties(ignored);
+    protected ValueSerializer<Object> _withIgnoreProperties(ValueSerializer<?> ser,
+            Set<String> ignoredProperties) {
+        if (ser != null) {
+            if (!ignoredProperties.isEmpty()) {
+                ser = ser.withIgnoredProperties(ignoredProperties);
+            }
         }
         return (ValueSerializer<Object>) ser;
     }

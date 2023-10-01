@@ -123,6 +123,12 @@ public class UnrolledBeanSerializer
     }
 
     @Override
+    public ValueSerializer<?> withIgnoredProperties(Set<String> toIgnore) {
+        // Revert to Vanilla variant here as well
+        return new BeanSerializer(this, toIgnore, null);
+    }
+    
+    @Override
     protected BeanSerializerBase withByNameInclusion(Set<String> toIgnore, Set<String> toInclude) {
         return new UnrolledBeanSerializer(this, toIgnore, toInclude);
     }

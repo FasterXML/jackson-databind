@@ -1,5 +1,7 @@
 package tools.jackson.databind.ser.std;
 
+import java.util.function.UnaryOperator;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.impl.PropertySerializerMap;
@@ -91,11 +93,35 @@ public abstract class StdDynamicSerializer<T>
         return result.serializer;
     }
 
+    protected final ValueSerializer<Object> _findAndAddDynamic(SerializerProvider ctxt, Class<?> type,
+            UnaryOperator<ValueSerializer<Object>> serTransformer)
+    {
+        PropertySerializerMap map = _dynamicValueSerializers;
+        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type,
+                ctxt, _property, serTransformer);
+        if (map != result.map) {
+            _dynamicValueSerializers = result.map;
+        }
+        return result.serializer;
+    }
+
     protected final ValueSerializer<Object> _findAndAddDynamic(SerializerProvider ctxt, JavaType type)
     {
         PropertySerializerMap map = _dynamicValueSerializers;
         PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type,
                 ctxt, _property);
+        if (map != result.map) {
+            _dynamicValueSerializers = result.map;
+        }
+        return result.serializer;
+    }
+
+    protected final ValueSerializer<Object> _findAndAddDynamic(SerializerProvider ctxt, JavaType type,
+            UnaryOperator<ValueSerializer<Object>> serTransformer)
+    {
+        PropertySerializerMap map = _dynamicValueSerializers;
+        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type,
+                ctxt, _property, serTransformer);
         if (map != result.map) {
             _dynamicValueSerializers = result.map;
         }

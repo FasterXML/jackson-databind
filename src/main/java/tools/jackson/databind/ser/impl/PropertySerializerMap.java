@@ -1,6 +1,7 @@
 package tools.jackson.databind.ser.impl;
 
 import java.util.Arrays;
+import java.util.function.UnaryOperator;
 
 import tools.jackson.databind.BeanProperty;
 import tools.jackson.databind.JavaType;
@@ -77,6 +78,24 @@ public abstract class PropertySerializerMap
         return new SerializerAndMapResult(serializer, newWith(type.getRawClass(), serializer));
     }
 
+    public final SerializerAndMapResult findAndAddSecondarySerializer(Class<?> type,
+            SerializerProvider provider, BeanProperty property,
+            UnaryOperator<ValueSerializer<Object>> serTransformer)
+    {
+        ValueSerializer<Object> serializer = provider.findContentValueSerializer(type, property);
+        serializer = serTransformer.apply(serializer);
+        return new SerializerAndMapResult(serializer, newWith(type, serializer));
+    }
+
+    public final SerializerAndMapResult findAndAddSecondarySerializer(JavaType type,
+            SerializerProvider provider, BeanProperty property,
+            UnaryOperator<ValueSerializer<Object>> serTransformer)
+    {
+        ValueSerializer<Object> serializer = provider.findContentValueSerializer(type, property);
+        serializer = serTransformer.apply(serializer);
+        return new SerializerAndMapResult(serializer, newWith(type.getRawClass(), serializer));
+    }
+    
     /**
      * Method called if initial lookup fails, when looking for a root value
      * serializer: one that is not directly attached to a property, but needs to

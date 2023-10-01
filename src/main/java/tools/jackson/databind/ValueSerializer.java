@@ -1,6 +1,7 @@
 package tools.jackson.databind;
 
 import java.util.Iterator;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -150,6 +151,17 @@ public abstract class ValueSerializer<T>
      * filtering will need to create and return new instance if filter changes.
      */
     public ValueSerializer<?> withFilterId(Object filterId) {
+        return this;
+    }
+
+    /**
+     * Mutant factory method called to create a new instance after excluding specified set of
+     * properties by name, if there is any.
+     *
+     * @param ignoredProperties Set of property names to ignore for serialization;
+     * @return Serializer instance that without specified set of properties to ignore (if any)
+     */
+    public ValueSerializer<?> withIgnoredProperties(Set<String> ignoredProperties) {
         return this;
     }
 

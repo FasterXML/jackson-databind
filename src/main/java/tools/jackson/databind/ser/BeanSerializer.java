@@ -68,7 +68,6 @@ public class BeanSerializer
         super(src, toIgnore, toInclude);
     }
 
-    // @since 2.11.1
     protected BeanSerializer(BeanSerializerBase src,
             BeanPropertyWriter[] properties, BeanPropertyWriter[] filteredProperties) {
         super(src, properties, filteredProperties);
@@ -113,6 +112,11 @@ public class BeanSerializer
     protected BeanSerializerBase withProperties(BeanPropertyWriter[] properties,
             BeanPropertyWriter[] filteredProperties) {
         return new BeanSerializer(this, properties, filteredProperties);
+    }
+
+    @Override
+    public ValueSerializer<?> withIgnoredProperties(Set<String> toIgnore) {
+        return new BeanSerializer(this, toIgnore, null);
     }
 
     /**

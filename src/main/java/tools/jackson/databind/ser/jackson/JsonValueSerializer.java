@@ -3,7 +3,9 @@ package tools.jackson.databind.ser.jackson;
 import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.function.UnaryOperator;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import tools.jackson.core.*;
 import tools.jackson.core.type.WritableTypeId;
@@ -179,7 +181,8 @@ public class JsonValueSerializer
      */
 
     @Override
-    public void serialize(Object bean, JsonGenerator gen, SerializerProvider ctxt)
+    public void serialize(final Object bean, final JsonGenerator gen,
+            final SerializerProvider ctxt)
         throws JacksonException
     {
         Object value;
@@ -195,12 +198,15 @@ public class JsonValueSerializer
         }
         ValueSerializer<Object> ser = _valueSerializer;
         if (ser == null) {
+            final UnaryOperator<ValueSerializer<Object>> serTransformer =
+                    valueSer -> _withIgnoreProperties(ctxt, _accessor, valueSer);
             Class<?> cc = value.getClass();
             if (_valueType.hasGenericTypes()) {
                 ser = _findAndAddDynamic(ctxt,
-                        ctxt.constructSpecializedType(_valueType, cc));
+                        ctxt.constructSpecializedType(_valueType, cc),
+                        serTransformer);
             } else {
-                ser = _findAndAddDynamic(ctxt, cc);
+                ser = _findAndAddDynamic(ctxt, cc, serTransformer);
             }
         }
         if (_valueTypeSerializer != null) {
@@ -208,6 +214,28 @@ public class JsonValueSerializer
         } else {
             ser.serialize(value, gen, ctxt);
         }
+    }
+
+    /**
+     * Internal helper that configures the provided {@code ser} to ignore properties specified by {@link JsonIgnoreProperties}.
+     *
+     * @param ctxt For introspection.
+     * @param ser  Serializer to be configured
+     * @return Configured serializer with specified properties ignored
+     */
+    @SuppressWarnings("unchecked")
+    protected ValueSerializer<Object> _withIgnoreProperties(SerializerProvider ctxt,
+            AnnotatedMember accessor,
+            ValueSerializer<?> ser) {
+        final AnnotationIntrospector ai = ctxt.getAnnotationIntrospector();
+        final SerializationConfig config = ctxt.getConfig();
+
+        JsonIgnoreProperties.Value ignorals = ai.findPropertyIgnoralByName(config, accessor);
+        Set<String> ignored = ignorals.findIgnoredForSerialization();
+        if (!ignored.isEmpty()) {
+            ser = ser.withIgnoredProperties(ignored);
+        }
+        return (ValueSerializer<Object>) ser;
     }
 
     @Override

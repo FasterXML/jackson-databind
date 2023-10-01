@@ -48,7 +48,6 @@ public class JsonValueSerializer
      */
     protected final AnnotatedMember _accessor;
 
-
     /**
      * @since 2.12
      */

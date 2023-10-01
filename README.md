@@ -185,6 +185,31 @@ with above, we end up with something like as 'json' String:
 
 Tree Model can be more convenient than data-binding, especially in cases where structure is highly dynamic, or does not map nicely to Java classes.
 
+Finally, feel free to mix and match, and even in the same json document (useful when only part of the document is known and modeled in your code)
+```java
+// Some parts of this json are modeled in our code, some are not
+JsonNode root = mapper.readTree(complexJson);
+Person p = mapper.treeToValue(root.get("person"), Person.class); // known single pojo
+List<Person> friends = mapper.treeToValue(root.get("friends"), new TypeReference<List<Person>>() { }); // generics
+Map<String, Object> dynamicmetadata = mapper.treeToValue(root.get("dynamicmetadata"), Map.class); // unknown smallish subfield, convert all to collections
+int singledeep = root.get("deep").get("large").get("hiearchy").get("important").intValue(); // single value in very deep optional subfield, ignoring the rest
+int singledeeppath = root.at("/deep/large/hiearchy/important").intValue(); // json path
+int singledeeppathunique = root.findValue("important").intValue(); // by unique field name
+
+// Send an aggregate json from heterogenous sources
+ObjectNode root = mapper.createObjectNode();
+root.putPOJO("person", new Person("Joe")); // simple pojo
+root.putPOJO("friends", List.of(new Person("Jane"), new Person("Jack"))); // generics
+Map<String, Object> dynamicmetadata = Map.of("Some", "Metadata");
+root.putPOJO("dynamicmetadata", dynamicmetadata);  // collections
+root.putPOJO("dynamicmetadata", mapper.valueToTree(dynamicmetadata)); // same thing
+root.set("dynamicmetadata", mapper.valueToTree(dynamicmetadata)); // same thing
+root.withObject("deep").withObject("large").withObject("hiearchy").put("important", 42); // create as you go
+root.withObjectProperty("deep").withObjectProperty("large").withObjectProperty("hiearchy").put("important", 42); // same but without trying json path
+root.withObject("/deep/large/hiearchy").put("important", 42); // json path
+mapper.writeValueAsString(root);
+```
+
 ## 5 minute tutorial: Streaming parser, generator
 
 As convenient as data-binding (to/from POJOs) can be; and as flexible as Tree model can be, there is one more canonical processing model available: incremental (aka "streaming") model.

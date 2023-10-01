@@ -56,6 +56,9 @@ public class JsonValueSerializer
      */
     protected final boolean _forceTypeInformation;
 
+    /**
+     * Names of properties to ignore from Value class accessed using accessor.
+     */
     protected final Set<String> _ignoredProperties;
 
     /*
@@ -68,7 +71,7 @@ public class JsonValueSerializer
      * @param ser Explicit serializer to use, if caller knows it (which
      *    occurs if and only if the "value method" was annotated with
      *    {@link tools.jackson.databind.annotation.JsonSerialize#using}), otherwise
-     *    null
+     *    {@code null}
      */
     protected JsonValueSerializer(JavaType nominalType,
             JavaType valueType, boolean staticTyping,
@@ -173,6 +176,9 @@ public class JsonValueSerializer
                  */
                 // I _think_ this can be considered a primary property...
                 ser = ctxt.findPrimaryPropertySerializer(_valueType, property);
+                // [databind#3647] : Support @JsonIgnoreProperties to work with @JsonValue
+                ser = _withIgnoreProperties(ctxt, _accessor, ser);
+
                 /* 09-Dec-2010, tatu: Turns out we must add special handling for
                  *   cases where "native" (aka "natural") type is being serialized,
                  *   using standard serializer

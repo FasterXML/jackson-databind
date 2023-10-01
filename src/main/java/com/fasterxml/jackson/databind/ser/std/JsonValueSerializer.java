@@ -57,6 +57,7 @@ public class JsonValueSerializer
 
     protected final BeanProperty _property;
 
+
     /**
      * Declared type of the value accessed, as declared by accessor.
      *

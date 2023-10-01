@@ -455,14 +455,15 @@ public class JsonValueSerializer
      * @return Configured serializer with specified properties ignored
      * @since 2.16
      */
-    private JsonSerializer<?> _withIgnoreProperties(SerializerProvider ctxt, JsonSerializer<?> ser) {
-        final AnnotationIntrospector ai = ctxt.getAnnotationIntrospector();
-        final SerializationConfig config = ctxt.getConfig();
-        
-        JsonIgnoreProperties.Value ignorals = ai.findPropertyIgnoralByName(config, _accessor);
+    @SuppressWarnings("unchecked")
+    protected JsonSerializer<Object> _withIgnoreProperties(SerializerProvider ctxt, JsonSerializer<?> ser) {
+        JsonIgnoreProperties.Value ignorals = ctxt.getAnnotationIntrospector()
+                .findPropertyIgnoralByName(ctxt.getConfig(), _accessor);
         Set<String> ignored = ignorals.findIgnoredForSerialization();
-        ser = ser.withIgnoredProperties(ignored);
-        return ser;
+        if (!ignored.isEmpty()) {
+            ser = ser.withIgnoredProperties(ignored);
+        }
+        return (JsonSerializer<Object>) ser;
     }
 
     /*

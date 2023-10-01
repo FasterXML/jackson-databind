@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import tools.jackson.core.*;
 
 import tools.jackson.databind.deser.std.StdScalarDeserializer;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.ser.std.StdScalarSerializer;
 import tools.jackson.databind.type.TypeFactory;
 
@@ -209,7 +210,6 @@ public abstract class BaseMapTest
     /**********************************************************************
      */
 
-    // @since 2.7
     protected TypeFactory newTypeFactory() {
         // this is a work-around; no null modifier added
         return TypeFactory.defaultInstance().withModifier(null);

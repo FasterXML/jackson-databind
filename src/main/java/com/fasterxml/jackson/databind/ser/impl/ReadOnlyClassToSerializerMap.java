@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.ser.impl;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.util.LRUMap;
 import com.fasterxml.jackson.databind.util.LookupCache;
 import com.fasterxml.jackson.databind.util.TypeKey;
 

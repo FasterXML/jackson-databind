@@ -459,7 +459,6 @@ public class ExistingPropertyTest extends BaseMapTest
     }
 
     // [databind#3271]: verify that `null` token does not become "null" String
-
     public void testDeserializationWithValidType() throws Exception {
         Shape3271 deserShape = MAPPER.readValue("{\"type\":\"square\"}", Shape3271.class);
         assertEquals("square", deserShape.getType());

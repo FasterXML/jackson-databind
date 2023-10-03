@@ -1,11 +1,19 @@
 package com.fasterxml.jackson.databind.util;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.FiveMinuteUser;
 
 public class ByteBufferUtilsTest extends BaseMapTest
 {
+    private final FiveMinuteUser TEST_USER = new FiveMinuteUser("Bob", "Burger",
+            true, FiveMinuteUser.Gender.MALE,
+            new byte[] { 1, 2, 3, 4, 5 });
+
     public void testByteBufferInput() throws Exception {
         byte[] input = new byte[] { 1, 2, 3 };
         ByteBufferBackedInputStream wrapped = new ByteBufferBackedInputStream(ByteBuffer.wrap(input));
@@ -24,5 +32,34 @@ public class ByteBufferUtilsTest extends BaseMapTest
         assertEquals(3, b.position());
         assertEquals(7, b.remaining());
         wrappedOut.close();
+    }
+
+    public void testReadFromByteBuffer() throws Exception
+    {
+        final ObjectMapper mapper = sharedMapper();
+        byte[] bytes = mapper.writeValueAsBytes(TEST_USER);
+        ByteBuffer bb = ByteBuffer.wrap(bytes);
+
+        try (InputStream in = new ByteBufferBackedInputStream(bb)) {
+            FiveMinuteUser result = mapper.readValue(in, FiveMinuteUser.class);
+            assertEquals(TEST_USER, result);
+        }
+    }
+
+    public void testWriteToByteBuffer() throws Exception
+    {
+        final ObjectMapper mapper = sharedMapper();
+        byte[] bytes = mapper.writeValueAsBytes(TEST_USER);
+
+        // Does require ByteBuffer that is big enough so
+        ByteBuffer bb = ByteBuffer.allocate(bytes.length);
+        assertEquals(0, bb.position());
+        assertEquals(bytes.length, bb.limit());
+        try (OutputStream out = new ByteBufferBackedOutputStream(bb)) {
+            mapper.writeValue(out, TEST_USER);
+            assertEquals(0, bb.remaining());
+            assertEquals(bytes.length, bb.position());
+            assertEquals(bytes.length, bb.limit());
+        }
     }
 }

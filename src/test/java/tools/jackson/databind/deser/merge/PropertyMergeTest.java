@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.MismatchedInputException;
+import tools.jackson.databind.testutil.FiveMinuteUser;
 
 /**
  * Tests to make sure that the new "merging" property of
@@ -69,15 +70,6 @@ public class PropertyMergeTest extends BaseMapTest
     {
         @JsonMerge
         public StringReference value = new StringReference("default");
-    }
-
-    static class MergedX<T>
-    {
-        @JsonMerge
-        public T value;
-
-        public MergedX(T v) { value = v; }
-        protected MergedX() { }
     }
 
     // // // Classes with invalid merge definition(s)

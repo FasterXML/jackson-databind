@@ -11,6 +11,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class ExistingPropertyTest extends BaseMapTest
 {
     /**
@@ -197,6 +199,45 @@ public class ExistingPropertyTest extends BaseMapTest
     }
     @JsonTypeName("myType")
     static class Impl2785 implements Base2785 {
+    }
+
+    // [databind#3251]: Double vs BigDecimal
+    @JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        property = "type_alias"
+    )
+    static class GenericWrapperWithNew3251<T> {
+        private final T value;
+
+        @JsonCreator
+        public GenericWrapperWithNew3251(@JsonProperty("value") T value) {
+            this.value = value;
+        }
+
+        public T getValue() {
+            return value;
+        }
+    }
+
+    @JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.EXISTING_PROPERTY,
+        property = "fieldType",
+        visible = true,
+        defaultImpl = GenericWrapperWithExisting3251.class
+    )
+    static class GenericWrapperWithExisting3251<T> {
+        public String fieldType;
+        private final T value;
+
+        @JsonCreator
+        public GenericWrapperWithExisting3251(@JsonProperty("value") T value) {
+            this.value = value;
+        }
+
+        public T getValue() {
+            return value;
+        }
     }
 
     // [databind#3271]
@@ -490,4 +531,30 @@ public class ExistingPropertyTest extends BaseMapTest
         Shape3271 deserShape = MAPPER.readValue("{\"type\":null}", Shape3271.class);
         assertNull(deserShape.getType()); // error: "expected null, but was:<null>"
     }
+
+    // [databind#3251]: Double vs BigDecimal
+    public void test3251WithNewProperty() throws Exception
+    {
+        GenericWrapperWithNew3251<?> wrapper = new GenericWrapperWithNew3251<>(123.5);
+
+        String json = MAPPER.writeValueAsString(wrapper);
+        GenericWrapperWithNew3251<?> actualWrapper = MAPPER.readValue(json, GenericWrapperWithNew3251.class);
+
+        assertThat(actualWrapper).satisfies(it -> assertThat(it.getValue()).isEqualTo(123.5));
+        assertThat(actualWrapper.getValue()).isInstanceOf(Double.class);
+        assertThat(json).contains("\"value\":123.5");
+    }
+
+    public void test3251WithExistingProperty() throws Exception
+    {
+        GenericWrapperWithExisting3251<?> wrapper = new GenericWrapperWithExisting3251<>(123.5);
+
+        String json = MAPPER.writeValueAsString(wrapper);
+        GenericWrapperWithExisting3251<?> actualWrapper = MAPPER.readValue(json, GenericWrapperWithExisting3251.class);
+
+        assertThat(actualWrapper).satisfies(it -> assertThat(it.getValue()).isEqualTo(123.5));
+        assertThat(actualWrapper.getValue()).isInstanceOf(Double.class);
+        assertThat(json).contains("\"value\":123.5");
+    }
+
 }

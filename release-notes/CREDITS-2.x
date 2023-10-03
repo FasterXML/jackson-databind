@@ -1657,6 +1657,11 @@ Antti Lampinen (arlampin@github)
    and is marked `Access.WRITE_ONLY`
   (2.15.1)
 
+Kevin Baes (BaesKevin@github)
+ * Reported #3251: Generic class with generic field of runtime type `Double` is deserialized
+   as `BigDecimal` when used with `@JsonTypeInfo` and `JsonTypeInfo.As.EXISTING_PROPERTY`
+ (2.16.0)
+
 David Schlosnagle (schlosna@github)
  * Contributed #4008: Optimize `ObjectNode` findValue(s) and findParent(s) fast paths
   (2.16.0)

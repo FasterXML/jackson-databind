@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.deser.merge;
 
+import com.fasterxml.jackson.databind.testutil.FiveMinuteUser;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.*;
@@ -136,6 +137,24 @@ public class PropertyMergeTest extends BaseMapTest
         assertEquals(2, config.loc.b); // original, merged
     }
 
+    public void testBeanMergingViaGlobal() throws Exception
+    {
+        // but with type-overrides
+        ObjectMapper mapper = newJsonMapper()
+                .setDefaultMergeable(true);
+        NonMergeConfig config = mapper.readValue(a2q("{'loc':{'a':3}}"), NonMergeConfig.class);
+        assertEquals(3, config.loc.a);
+        assertEquals(2, config.loc.b); // original, merged
+
+        // also, test with bigger POJO type; just as smoke test
+        FiveMinuteUser user0 = new FiveMinuteUser("Bob", "Bush", true, FiveMinuteUser.Gender.MALE,
+                new byte[] { 1, 2, 3, 4, 5 });
+        FiveMinuteUser user = mapper.readerFor(FiveMinuteUser.class)
+                .withValueToUpdate(user0)
+                .readValue(a2q("{'name':{'last':'Brown'}}"));
+        assertEquals("Bob", user.getName().getFirst());
+        assertEquals("Brown", user.getName().getLast());
+    }
 
     // should even work with no setter
     public void testBeanMergingWithoutSetter() throws Exception

@@ -10,6 +10,9 @@ Project: jackson-databind
  (contributed by Joo-Hyuk K)
 #2787: Mix-ins do not work for `Enum`s
  (fix contributed by Joo-Hyuk K)
+#3251: Generic class with generic field of runtime type `Double` is deserialized
+  as `BigDecimal` when used with `@JsonTypeInfo` and `JsonTypeInfo.As.EXISTING_PROPERTY`
+ (reported by Kevin B)
 #3647: `@JsonIgnoreProperties` not working with `@JsonValue`
  (reported by @ThatSneakyRaccoon)
  (fix contributed by Joo-Hyuk K)

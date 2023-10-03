@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -190,6 +189,15 @@ public class ExistingPropertyTest extends BaseMapTest
     }
 
     static class Bean1635Default extends Bean1635 { }
+
+    // [databind#2785]
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY,
+            property = "packetType")
+    public interface Base2785  {
+    }
+    @JsonTypeName("myType")
+    static class Impl2785 implements Base2785 {
+    }
 
     // [databind#3271]
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY,
@@ -459,8 +467,15 @@ public class ExistingPropertyTest extends BaseMapTest
         assertEquals(ABC.C, result.type);
     }
 
-    // [databind#3271]: verify that `null` token does not become "null" String
+    // [databind#2785]
+    public void testCopyOfSubtypeResolver2785() throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper().copy();
+        objectMapper.registerSubtypes(Impl2785.class);
+        Object result = objectMapper.readValue("{ \"packetType\": \"myType\" }", Base2785.class);
+        assertNotNull(result);
+    }
 
+    // [databind#3271]: verify that `null` token does not become "null" String
     public void testDeserializationWithValidType() throws Exception {
         Shape3271 deserShape = MAPPER.readValue("{\"type\":\"square\"}", Shape3271.class);
         assertEquals("square", deserShape.getType());

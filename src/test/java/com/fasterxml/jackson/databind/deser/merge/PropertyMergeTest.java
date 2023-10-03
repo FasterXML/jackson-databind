@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.deser.merge;
 
+import com.fasterxml.jackson.databind.testutil.FiveMinuteUser;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.*;
@@ -69,15 +70,6 @@ public class PropertyMergeTest extends BaseMapTest
     {
         @JsonMerge
         public StringReference value = new StringReference("default");
-    }
-
-    static class MergedX<T>
-    {
-        @JsonMerge
-        public T value;
-
-        public MergedX(T v) { value = v; }
-        protected MergedX() { }
     }
 
     // // // Classes with invalid merge definition(s)

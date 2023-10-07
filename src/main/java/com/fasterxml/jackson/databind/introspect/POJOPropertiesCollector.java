@@ -1451,47 +1451,10 @@ public class POJOPropertiesCollector
             }
         }
 
-        // PropertyNamingStrategy
-        if (namingClass == PropertyNamingStrategy.SnakeCaseStrategy.class) {
-            return PropertyNamingStrategies.SNAKE_CASE;
-        }
-        if (namingClass == PropertyNamingStrategy.UpperCamelCaseStrategy.class) {
-            return PropertyNamingStrategies.UPPER_CAMEL_CASE;
-        }
-        if (namingClass == PropertyNamingStrategy.KebabCaseStrategy.class) {
-            return PropertyNamingStrategies.KEBAB_CASE;
-        }
-        if (namingClass == PropertyNamingStrategy.LowerDotCaseStrategy.class) {
-            return PropertyNamingStrategies.LOWER_DOT_CASE;
-        }
-        if (namingClass == PropertyNamingStrategy.LowerCaseWithUnderscoresStrategy.class) {
-            return PropertyNamingStrategies.SNAKE_CASE;
-        }
-        if (namingClass == PropertyNamingStrategy.PascalCaseStrategy.class) {
-            return PropertyNamingStrategies.UPPER_CAMEL_CASE;
-        }
-
-        // PropertyNamingStrategies
-        if (namingClass == PropertyNamingStrategies.SnakeCaseStrategy.class) {
-            return PropertyNamingStrategies.SNAKE_CASE;
-        }
-        if (namingClass == PropertyNamingStrategies.UpperSnakeCaseStrategy.class) {
-            return PropertyNamingStrategies.UPPER_SNAKE_CASE;
-        }
-        if (namingClass == PropertyNamingStrategies.LowerCamelCaseStrategy.class) {
-            return PropertyNamingStrategies.LOWER_CAMEL_CASE;
-        }
-        if (namingClass == PropertyNamingStrategies.UpperCamelCaseStrategy.class) {
-            return PropertyNamingStrategies.UPPER_CAMEL_CASE;
-        }
-        if (namingClass == PropertyNamingStrategies.LowerCaseStrategy.class) {
-            return PropertyNamingStrategies.LOWER_CASE;
-        }
-        if (namingClass == PropertyNamingStrategies.KebabCaseStrategy.class) {
-            return PropertyNamingStrategies.KEBAB_CASE;
-        }
-        if (namingClass == PropertyNamingStrategies.LowerDotCaseStrategy.class) {
-            return PropertyNamingStrategies.LOWER_DOT_CASE;
+        PropertyNamingStrategy defaultInstance = PropertyNamingStrategies
+                .getDefaultInstanceOf((Class<? extends PropertyNamingStrategy>) namingClass);
+        if (defaultInstance != null) {
+            return defaultInstance;
         }
 
         return (PropertyNamingStrategy) ClassUtil.createInstance(namingClass,

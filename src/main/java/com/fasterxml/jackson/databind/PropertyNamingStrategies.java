@@ -88,6 +88,59 @@ public abstract class PropertyNamingStrategies
      */
     public static final PropertyNamingStrategy LOWER_DOT_CASE = LowerDotCaseStrategy.INSTANCE;
 
+    /**
+     * Returns a default instance of standard {@link PropertyNamingStrategy} which is statically defined in
+     * {@link PropertyNamingStrategies}. Otherwise, returns null.
+     *
+     * @param type type of {@link PropertyNamingStrategy}
+     * @return a default instance of standard {@link PropertyNamingStrategy}, or null
+     */
+    public static PropertyNamingStrategy getDefaultInstanceOf(Class<? extends PropertyNamingStrategy> type) {
+        // PropertyNamingStrategy
+        if (type == PropertyNamingStrategy.SnakeCaseStrategy.class) {
+            return PropertyNamingStrategies.SNAKE_CASE;
+        }
+        if (type == PropertyNamingStrategy.UpperCamelCaseStrategy.class) {
+            return PropertyNamingStrategies.UPPER_CAMEL_CASE;
+        }
+        if (type == PropertyNamingStrategy.KebabCaseStrategy.class) {
+            return PropertyNamingStrategies.KEBAB_CASE;
+        }
+        if (type == PropertyNamingStrategy.LowerDotCaseStrategy.class) {
+            return PropertyNamingStrategies.LOWER_DOT_CASE;
+        }
+        if (type == PropertyNamingStrategy.LowerCaseWithUnderscoresStrategy.class) {
+            return PropertyNamingStrategies.SNAKE_CASE;
+        }
+        if (type == PropertyNamingStrategy.PascalCaseStrategy.class) {
+            return PropertyNamingStrategies.UPPER_CAMEL_CASE;
+        }
+
+        // PropertyNamingStrategies
+        if (type == PropertyNamingStrategies.SnakeCaseStrategy.class) {
+            return PropertyNamingStrategies.SNAKE_CASE;
+        }
+        if (type == PropertyNamingStrategies.UpperSnakeCaseStrategy.class) {
+            return PropertyNamingStrategies.UPPER_SNAKE_CASE;
+        }
+        if (type == PropertyNamingStrategies.LowerCamelCaseStrategy.class) {
+            return PropertyNamingStrategies.LOWER_CAMEL_CASE;
+        }
+        if (type == PropertyNamingStrategies.UpperCamelCaseStrategy.class) {
+            return PropertyNamingStrategies.UPPER_CAMEL_CASE;
+        }
+        if (type == PropertyNamingStrategies.LowerCaseStrategy.class) {
+            return PropertyNamingStrategies.LOWER_CASE;
+        }
+        if (type == PropertyNamingStrategies.KebabCaseStrategy.class) {
+            return PropertyNamingStrategies.KEBAB_CASE;
+        }
+        if (type == PropertyNamingStrategies.LowerDotCaseStrategy.class) {
+            return PropertyNamingStrategies.LOWER_DOT_CASE;
+        }
+        return null;
+    }
+
     /*
     /**********************************************************************
     /* Public base class for simple implementations

@@ -627,4 +627,53 @@ public class TestNamingStrategyStd extends BaseMapTest
             assertEquals(" ", namingStrategy.translate(" "));
         }
     }
+
+    public void testGetDefaultInstance() {
+        // PropertyNamingStrategy
+        assertSame(
+            PropertyNamingStrategies.SNAKE_CASE,
+            PropertyNamingStrategies.getDefaultInstanceOf(PropertyNamingStrategy.SnakeCaseStrategy.class));
+        assertSame(
+            PropertyNamingStrategies.UPPER_CAMEL_CASE,
+            PropertyNamingStrategies.getDefaultInstanceOf(PropertyNamingStrategy.UpperCamelCaseStrategy.class));
+        assertSame(
+            PropertyNamingStrategies.KEBAB_CASE,
+            PropertyNamingStrategies.getDefaultInstanceOf(PropertyNamingStrategy.KebabCaseStrategy.class));
+        assertSame(
+            PropertyNamingStrategies.LOWER_DOT_CASE,
+            PropertyNamingStrategies.getDefaultInstanceOf(PropertyNamingStrategy.LowerDotCaseStrategy.class));
+        assertSame(
+            PropertyNamingStrategies.SNAKE_CASE,
+            PropertyNamingStrategies.getDefaultInstanceOf(PropertyNamingStrategy.LowerCaseWithUnderscoresStrategy.class));
+        assertSame(
+            PropertyNamingStrategies.UPPER_CAMEL_CASE,
+            PropertyNamingStrategies.getDefaultInstanceOf(PropertyNamingStrategy.PascalCaseStrategy.class));
+
+        // PropertyNamingStrategies
+        assertSame(
+                PropertyNamingStrategies.SNAKE_CASE,
+                PropertyNamingStrategies.getDefaultInstanceOf(PropertyNamingStrategies.SnakeCaseStrategy.class));
+        assertSame(
+                PropertyNamingStrategies.UPPER_SNAKE_CASE,
+                PropertyNamingStrategies.getDefaultInstanceOf(PropertyNamingStrategies.UpperSnakeCaseStrategy.class));
+        assertSame(
+                PropertyNamingStrategies.LOWER_CAMEL_CASE,
+                PropertyNamingStrategies.getDefaultInstanceOf(PropertyNamingStrategies.LowerCamelCaseStrategy.class));
+        assertSame(
+                PropertyNamingStrategies.UPPER_CAMEL_CASE,
+                PropertyNamingStrategies.getDefaultInstanceOf(PropertyNamingStrategies.UpperCamelCaseStrategy.class));
+        assertSame(
+                PropertyNamingStrategies.LOWER_CASE,
+                PropertyNamingStrategies.getDefaultInstanceOf(PropertyNamingStrategies.LowerCaseStrategy.class));
+        assertSame(
+                PropertyNamingStrategies.KEBAB_CASE,
+                PropertyNamingStrategies.getDefaultInstanceOf(PropertyNamingStrategies.KebabCaseStrategy.class));
+        assertSame(
+                PropertyNamingStrategies.LOWER_DOT_CASE,
+                PropertyNamingStrategies.getDefaultInstanceOf(PropertyNamingStrategies.LowerDotCaseStrategy.class));
+
+        // others
+        assertNull(
+                PropertyNamingStrategies.getDefaultInstanceOf(PropertyNamingStrategy.class));
+    }
 }

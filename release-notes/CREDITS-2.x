@@ -818,6 +818,9 @@ Freddy Boucher (freddyboucher@github)
 Ondrej Zizka (OndraZizk@github)
   * Reported #1999: "Duplicate property" issue should mention which class it complains about
    (2.9.6)
+  * Repoted #4145: NPE when transforming a tree to a model class object,
+    at `ArrayNode.elements()`
+   (2.16.0)
 
 Jakub Skierbiszewski (jskierbi@github)
   * Reported, contributed fix for #2001: Deserialization issue with `@JsonIgnore` and

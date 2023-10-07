@@ -86,6 +86,8 @@ Project: jackson-databind
   wrt argument
 #4122: Do not resolve wildcards if upper bound is too non-specific
  (contributed by @yawkat)
+#4145: NPE when transforming a tree to a model class object, at `ArrayNode.elements()`
+ (reported by Ondrej Z)
 
 2.15.3 (not yet released)
 

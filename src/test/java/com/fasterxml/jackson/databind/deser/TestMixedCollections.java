@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+// tests based on tests in vavr-jackson
 public class TestMixedCollections extends BaseMapTest {
 
     public void testMapOfLists() throws IOException {

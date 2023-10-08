@@ -159,7 +159,7 @@ But wait! There is more!
 
 (enters Tree Model...)
 
-## Tree Model
+### Tree Model
 
 While dealing with `Map`s, `List`s and other "simple" Object types (Strings, Numbers, Booleans) can be simple, Object traversal can be cumbersome.
 This is where Jackson's [Tree model](https://github.com/FasterXML/jackson-databind/wiki/JacksonTreeModel) can come in handy:

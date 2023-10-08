@@ -167,20 +167,20 @@ This is where Jackson's [Tree model](https://github.com/FasterXML/jackson-databi
 ```java
 // can be read as generic JsonNode, if it can be Object or Array; or,
 // if known to be Object, as ObjectNode, if array, ArrayNode etc:
-ObjectNode root = mapper.readTree("stuff.json");
+JsonNode root = mapper.readTree("{ \"name\": \"Joe\", \"age\": 13 }");
 String name = root.get("name").asText();
 int age = root.get("age").asInt();
 
 // can modify as well: this adds child Object as property 'other', set property 'type'
-root.with("other").put("type", "student");
-String json = mapper.writeValueAsString(root);
+root.withObject("/other").put("type", "student");
+String json = mapper.writeValueAsString(root); // prints below
 
 /*
 with above, we end up with something like as 'json' String:
 {
   "name" : "Bob",
   "age" : 13,
-    "other" : {
+  "other" : {
     "type" : "student"
   }
 } 
@@ -216,10 +216,10 @@ mapper.writeValueAsString(root);
 **Supported for Jackson 2.16+ versions**
 
 ```java
-List<Person> friends = mapper.treeToValue(root.get("friends"), new TypeReference<List<Person>>() { }); // generics
-
-ObjectNode root = mapper.createObjectNode();
-root.withObjectProperty("deep").withObjectProperty("large").withObjectProperty("hiearchy").put("important", 42); // create as you go but without trying json path
+// generics
+List<Person> friends = mapper.treeToValue(root.get("friends"), new TypeReference<List<Person>>() { });
+// create as you go but without trying json path
+root.withObjectProperty("deep").withObjectProperty("large").withObjectProperty("hiearchy").put("important", 42);
 ```
 
 ## 5 minute tutorial: Streaming parser, generator

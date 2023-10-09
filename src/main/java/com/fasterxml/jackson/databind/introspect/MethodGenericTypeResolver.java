@@ -92,7 +92,7 @@ final class MethodGenericTypeResolver
                     return null;
                 }
 
-                JavaType bindTarget = requestedType.getBindings().getBoundType(i);
+                JavaType bindTarget = requestedType.getBindings().getBoundTypeOrNull(i);
                 if (bindTarget == null) {
                     return null;
                 }

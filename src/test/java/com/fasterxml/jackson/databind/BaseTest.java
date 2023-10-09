@@ -361,5 +361,9 @@ public abstract class BaseTest
     public static String a2q(String json) {
         return json.replace("'", "\"");
     }
+    
+    protected static String q2a(String json) {
+        return json.replace("\"", "'");
+    }
 
 }

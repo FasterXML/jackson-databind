@@ -12,6 +12,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.json.JsonWriteFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
@@ -35,6 +37,10 @@ public class ObjectWriterTest
 
     final ObjectMapper MAPPER = new ObjectMapper();
 
+    private final ObjectMapper SORTED_MAPPER = JsonMapper.builder()
+            .nodeFactory(new JsonNodeFactory(JsonNodeFactory.SORTED_OBJECT_NODE_CHILDREN_FACTORY))
+            .build();
+    
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
     static class PolyBase {
     }
@@ -118,6 +124,21 @@ public class ObjectWriterTest
         assertEquals(a2q("{'type':'A','value':3}"), json);
         json = writer.writeValueAsString(new ImplB(-5));
         assertEquals(a2q("{'type':'B','b':-5}"), json);
+    }
+    
+    public void testJsonTypeInfoWithSorting() throws Exception
+    {
+        assertSerialization("{'type':'A','value':3}", new ImplA(3), SORTED_MAPPER);
+    }
+    
+    public void testJsonTypeInfoWithSorting2() throws Exception
+    {
+        assertSerialization("{'b':-5,'type':'B'}", new ImplB(-5), SORTED_MAPPER);
+    }
+
+    private void assertSerialization(String expected, Object value, ObjectMapper mapper) throws Exception {
+        JsonNode json = mapper.valueToTree(value);
+        assertEquals(a2q(expected), mapper.writeValueAsString(json));
     }
 
     public void testCanSerialize() throws Exception

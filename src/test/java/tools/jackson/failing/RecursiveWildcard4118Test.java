@@ -1,4 +1,4 @@
-package tools.jackson.databind.type;
+package tools.jackson.failing;
 
 import java.util.ArrayList;
 import java.util.Arrays;

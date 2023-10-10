@@ -1318,7 +1318,7 @@ public abstract class JsonNode
      * NOTE: before Jackson 2.14 behavior was always that of non-expression usage;
      * that is, {@code exprOrProperty} was always considered as a simple property name.
      *
-     * @deprecated Since 2.14 use {@code withObject(String)} instead
+     * @deprecated Since 2.14 use {@link #withObject(String)} instead
      */
     @Deprecated // since 2.14
     public <T extends JsonNode> T with(String exprOrProperty) {

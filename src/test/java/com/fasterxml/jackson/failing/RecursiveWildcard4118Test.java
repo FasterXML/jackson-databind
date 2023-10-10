@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.type;
+package com.fasterxml.jackson.failing;
 
 import java.util.ArrayList;
 import java.util.Arrays;

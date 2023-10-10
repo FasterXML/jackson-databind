@@ -86,6 +86,9 @@ Project: jackson-databind
   wrt argument
 #4145: NPE when transforming a tree to a model class object, at `ArrayNode.elements()`
  (reported by Ondrej Z)
+#4153: Deprecated `ObjectReader.withType(Type)` has no direct replacement;
+  need `forType(Type)`
+ (reported by Garren W)
 
 2.15.3 (not yet released)
 

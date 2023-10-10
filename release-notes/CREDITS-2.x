@@ -1701,3 +1701,8 @@ Omar Aloraini (ooraini@github)
  * Requested #4061: Add JsonTypeInfo.Id.SIMPLE_NAME which defaults type id
    to `Class.getSimpleName()`
   (2.16.0)
+
+Garret Wilson (garretwilson@github)
+ * Reported #4153: Deprecated `ObjectReader.withType(Type)` has no direct
+   replacement; need `forType(Type)`
+  (2.16.0)

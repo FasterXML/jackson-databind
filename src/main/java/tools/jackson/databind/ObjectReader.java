@@ -602,7 +602,7 @@ public class ObjectReader
      * Method for constructing a new reader instance that is configured
      * to data bind into specified type.
      *<p>
-     * Note that the method does NOT change state of this reader, but
+     * Note that the method does not change state of this reader, but
      * rather construct and returns a newly configured instance.
      */
     public ObjectReader forType(JavaType valueType)
@@ -619,7 +619,7 @@ public class ObjectReader
      * Method for constructing a new reader instance that is configured
      * to data bind into specified type.
      *<p>
-     * Note that the method does NOT change state of this reader, but
+     * Note that the method does not change state of this reader, but
      * rather construct and returns a newly configured instance.
      */
     public ObjectReader forType(Class<?> valueType) {
@@ -630,7 +630,7 @@ public class ObjectReader
      * Method for constructing a new reader instance that is configured
      * to data bind into specified type.
      *<p>
-     * Note that the method does NOT change state of this reader, but
+     * Note that the method does not change state of this reader, but
      * rather construct and returns a newly configured instance.
      */
     public ObjectReader forType(TypeReference<?> valueTypeRef) {

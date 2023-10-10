@@ -157,26 +157,30 @@ Map<String, ResultValue> results = mapper.readValue(jsonSource,
 
 But wait! There is more!
 
+(enters Tree Model...)
+
+### Tree Model
+
 While dealing with `Map`s, `List`s and other "simple" Object types (Strings, Numbers, Booleans) can be simple, Object traversal can be cumbersome.
 This is where Jackson's [Tree model](https://github.com/FasterXML/jackson-databind/wiki/JacksonTreeModel) can come in handy:
 
 ```java
 // can be read as generic JsonNode, if it can be Object or Array; or,
 // if known to be Object, as ObjectNode, if array, ArrayNode etc:
-ObjectNode root = mapper.readTree("stuff.json");
+JsonNode root = mapper.readTree("{ \"name\": \"Joe\", \"age\": 13 }");
 String name = root.get("name").asText();
 int age = root.get("age").asInt();
 
 // can modify as well: this adds child Object as property 'other', set property 'type'
-root.with("other").put("type", "student");
-String json = mapper.writeValueAsString(root);
+root.withObject("/other").put("type", "student");
+String json = mapper.writeValueAsString(root); // prints below
 
 /*
 with above, we end up with something like as 'json' String:
 {
   "name" : "Bob",
   "age" : 13,
-    "other" : {
+  "other" : {
     "type" : "student"
   }
 } 
@@ -186,11 +190,11 @@ with above, we end up with something like as 'json' String:
 Tree Model can be more convenient than data-binding, especially in cases where structure is highly dynamic, or does not map nicely to Java classes.
 
 Finally, feel free to mix and match, and even in the same json document (useful when only part of the document is known and modeled in your code)
+
 ```java
 // Some parts of this json are modeled in our code, some are not
 JsonNode root = mapper.readTree(complexJson);
 Person p = mapper.treeToValue(root.get("person"), Person.class); // known single pojo
-List<Person> friends = mapper.treeToValue(root.get("friends"), new TypeReference<List<Person>>() { }); // generics
 Map<String, Object> dynamicmetadata = mapper.treeToValue(root.get("dynamicmetadata"), Map.class); // unknown smallish subfield, convert all to collections
 int singledeep = root.get("deep").get("large").get("hiearchy").get("important").intValue(); // single value in very deep optional subfield, ignoring the rest
 int singledeeppath = root.at("/deep/large/hiearchy/important").intValue(); // json path
@@ -205,9 +209,17 @@ root.putPOJO("dynamicmetadata", dynamicmetadata);  // collections
 root.putPOJO("dynamicmetadata", mapper.valueToTree(dynamicmetadata)); // same thing
 root.set("dynamicmetadata", mapper.valueToTree(dynamicmetadata)); // same thing
 root.withObject("deep").withObject("large").withObject("hiearchy").put("important", 42); // create as you go
-root.withObjectProperty("deep").withObjectProperty("large").withObjectProperty("hiearchy").put("important", 42); // same but without trying json path
 root.withObject("/deep/large/hiearchy").put("important", 42); // json path
 mapper.writeValueAsString(root);
+```
+
+**Supported for Jackson 2.16+ versions**
+
+```java
+// generics
+List<Person> friends = mapper.treeToValue(root.get("friends"), new TypeReference<List<Person>>() { });
+// create as you go but without trying json path
+root.withObjectProperty("deep").withObjectProperty("large").withObjectProperty("hiearchy").put("important", 42);
 ```
 
 ## 5 minute tutorial: Streaming parser, generator

@@ -818,6 +818,9 @@ Freddy Boucher (freddyboucher@github)
 Ondrej Zizka (OndraZizk@github)
   * Reported #1999: "Duplicate property" issue should mention which class it complains about
    (2.9.6)
+  * Repoted #4145: NPE when transforming a tree to a model class object,
+    at `ArrayNode.elements()`
+   (2.16.0)
 
 Jakub Skierbiszewski (jskierbi@github)
   * Reported, contributed fix for #2001: Deserialization issue with `@JsonIgnore` and
@@ -1656,6 +1659,11 @@ Antti Lampinen (arlampin@github)
  * Reported #3897: 2.15.0 breaks deserialization when POJO/Record only has a single field
    and is marked `Access.WRITE_ONLY`
   (2.15.1)
+
+Kevin Baes (BaesKevin@github)
+ * Reported #3251: Generic class with generic field of runtime type `Double` is deserialized
+   as `BigDecimal` when used with `@JsonTypeInfo` and `JsonTypeInfo.As.EXISTING_PROPERTY`
+ (2.16.0)
 
 David Schlosnagle (schlosna@github)
  * Contributed #4008: Optimize `ObjectNode` findValue(s) and findParent(s) fast paths

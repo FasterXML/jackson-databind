@@ -10,6 +10,12 @@ Project: jackson-databind
  (contributed by Joo-Hyuk K)
 #2787: Mix-ins do not work for `Enum`s
  (fix contributed by Joo-Hyuk K)
+#3251: Generic class with generic field of runtime type `Double` is deserialized
+  as `BigDecimal` when used with `@JsonTypeInfo` and `JsonTypeInfo.As.EXISTING_PROPERTY`
+ (reported by Kevin B)
+#3647: `@JsonIgnoreProperties` not working with `@JsonValue`
+ (reported by @ThatSneakyRaccoon)
+ (fix contributed by Joo-Hyuk K)
 #3780: Deprecated JsonNode.with(String) suggests using JsonNode.withObject(String)
   but it is not the same thing
  (reported by @bmatasar)
@@ -78,8 +84,8 @@ Project: jackson-databind
 #4095: Add `withObjectProperty(String)`, `withArrayProperty(String)` in `JsonNode`
 #4096: Change `JsonNode.withObject(String)` to work similar to `withArray()`
   wrt argument
-#4122: Do not resolve wildcards if upper bound is too non-specific
- (contributed by @yawkat)
+#4145: NPE when transforming a tree to a model class object, at `ArrayNode.elements()`
+ (reported by Ondrej Z)
 
 2.15.3 (not yet released)
 

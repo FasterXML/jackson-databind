@@ -44,7 +44,8 @@ public class ArrayNode
      */
     public ArrayNode(JsonNodeFactory nf, List<JsonNode> children) {
         super(nf);
-        _children = children;
+        _children = Objects.requireNonNull(children,
+                "Must not pass `null` for 'children' argument");
     }
 
     @Override

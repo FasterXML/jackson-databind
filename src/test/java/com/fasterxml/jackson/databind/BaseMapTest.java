@@ -238,13 +238,15 @@ public abstract class BaseMapTest
         return sharedMapper().readerFor(cls);
     }
 
+    // `public` since 2.16, was only `protected` before then.
     // @since 2.10
-    protected static ObjectMapper newJsonMapper() {
+    public static ObjectMapper newJsonMapper() {
         return new JsonMapper();
     }
 
+    // `public` since 2.16, was only `protected` before then.
     // @since 2.10
-    protected static JsonMapper.Builder jsonMapperBuilder() {
+    public static JsonMapper.Builder jsonMapperBuilder() {
         return JsonMapper.builder();
     }
 

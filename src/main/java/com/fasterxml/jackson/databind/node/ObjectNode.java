@@ -35,9 +35,10 @@ public class ObjectNode
     /**
      * @since 2.4
      */
-    public ObjectNode(JsonNodeFactory nc, Map<String, JsonNode> kids) {
+    public ObjectNode(JsonNodeFactory nc, Map<String, JsonNode> children) {
         super(nc);
-        _children = kids;
+        _children = Objects.requireNonNull(children,
+                "Must not pass `null` for 'children' argument");
     }
 
     @Override

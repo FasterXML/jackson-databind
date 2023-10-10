@@ -1708,6 +1708,10 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
 
             // [databind#4118] Unbind any wildcards with a less specific upper bound than
             // declared on the type variable (since 2.16)
+
+            // [databind#4147] Regressum Maximum, alas! Need to undo fix due to side effects;
+            // plan is to re-tackle in 2.17
+            /*
             for (int i = 0; i < paramCount; ++i) {
                 if (args[i] instanceof WildcardType && !pt[i].hasGenericTypes()) {
                     TypeVariable<? extends Class<?>> typeVariable = rawType.getTypeParameters()[i];
@@ -1716,6 +1720,7 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
                     }
                 }
             }
+            */
         }
         return _fromClass(context, rawType, newBindings);
     }

@@ -244,7 +244,7 @@ public abstract class BasicSerializerFactory
                                         config.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
                             }
                             // null -> no TypeSerializer for key-serializer use case
-                            ser = new JsonValueSerializer(acc, null, delegate);
+                            ser = JsonValueSerializer.construct(config, acc, null, delegate);
                         } else {
                             ser = StdKeySerializers.getFallbackKeySerializer(config, keyType.getRawClass(),
                                                                                 beanDesc.getClassInfo());
@@ -405,7 +405,8 @@ public abstract class BasicSerializerFactory
             if (typeSerializer == null) {
                 typeSerializer = createTypeSerializer(prov.getConfig(), valueType);
             }
-            return new JsonValueSerializer(valueAccessor, typeSerializer, valueSerializer);
+            return JsonValueSerializer.construct(prov.getConfig(), valueAccessor,
+                    typeSerializer, valueSerializer);
         }
         // No well-known annotations...
         return null;

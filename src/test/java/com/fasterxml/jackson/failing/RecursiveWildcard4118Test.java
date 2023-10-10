@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.type;
+package com.fasterxml.jackson.failing;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,7 +11,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class RecursiveWildcardTest extends BaseMapTest
+// Tests for [databind#4118]
+public class RecursiveWildcard4118Test extends BaseMapTest
 {
     static class Tree<T extends Tree<?>> {
 
@@ -50,7 +51,8 @@ public class RecursiveWildcardTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    public void testRecursiveWildcard() throws Exception
+    // for [databind#4118]
+    public void testRecursiveWildcard4118() throws Exception
     {
         Tree<?> tree = MAPPER.readValue("[[[]]]", new TypeReference<Tree<?>>() {
         });

@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.jdk17;
+package tools.jackson.databind.jdk17;
 
 import java.util.*;
 import java.util.stream.Collectors;

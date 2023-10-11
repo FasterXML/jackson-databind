@@ -297,9 +297,9 @@
     </profile>
     <!-- 07-Dec-2021, tatu: This is a huge mess, sorry folks... -->
     <profile>
-      <id>java14</id>
+      <id>java11</id>
       <activation>
-        <jdk>14</jdk>
+        <jdk>11</jdk>
       </activation>
       <build>
         <plugins>

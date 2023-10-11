@@ -41,8 +41,7 @@
 
       Baseline compatibility:
 
-      * Jackson 2.13: compatible with Android SDK 24 and up
-      * Jackson 2.14: compatible with Android SDK 26 and up
+      * Jackson 2.16: compatible with Android SDK 26 and up
       * Jackson 3.0:  compatible with Android SDK 28 and up
       -->
 
@@ -307,9 +306,9 @@
     </profile>
     <!-- 07-Dec-2021, tatu: This is a huge mess, sorry folks... -->
     <profile>
-      <id>java14</id>
+      <id>java11</id>
       <activation>
-        <jdk>14</jdk>
+        <jdk>11</jdk>
       </activation>
       <build>
         <plugins>
@@ -325,7 +324,7 @@
                 </goals>
                 <configuration>
                   <sources>
-                    <source>src/test-jdk14/java</source>
+                    <source>src/test-jdk11/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -336,9 +335,9 @@
             <artifactId>maven-compiler-plugin</artifactId>
             <inherited>true</inherited>
             <configuration>
-              <!-- Enable Java 14+ for all sources so that Intellij picks the right language level -->
-              <source>14</source>
-              <release>14</release>
+              <!-- Enable Java 11+ for all sources so that Intellij picks the right language level -->
+              <source>11</source>
+              <release>11</release>
               <compilerArgs>
                 <arg>-parameters</arg>
                 <arg>--enable-preview</arg>
@@ -375,7 +374,7 @@
                 </goals>
                 <configuration>
                   <sources>  
-                    <source>src/test-jdk14/java</source>
+                    <source>src/test-jdk11/java</source>
                     <source>src/test-jdk17/java</source>
                 </sources>
                 </configuration>
@@ -427,7 +426,7 @@
                 </goals>
                 <configuration>
                   <sources>
-                    <source>src/test-jdk14/java</source>
+                    <source>src/test-jdk11/java</source>
                     <source>src/test-jdk17/java</source>
                     <source>src/test-jdk21/java</source>
                   </sources>

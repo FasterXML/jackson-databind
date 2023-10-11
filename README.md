@@ -77,10 +77,12 @@ Jackson-databind package baseline JDK requirements are as follows:
 
 ### Android
 
-List is incomplete due to recent addition of compatibility checker.
+List is incomplete due to compatibility checker addition being done for Jackson 2.13.
 
 * 2.13: Android SDK 24+
 * 2.14: Android SDK 26+
+* 2.15: Android SDK 26+
+* 2.16: Android SDK 26+
 
 for information on Android SDK versions to Android Release names see [https://en.wikipedia.org/wiki/Android_version_history]
 

@@ -315,7 +315,7 @@
                 </goals>
                 <configuration>
                   <sources>
-                    <source>src/test-jdk14/java</source>
+                    <source>src/test-jdk11/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -326,15 +326,15 @@
             <artifactId>maven-compiler-plugin</artifactId>
             <inherited>true</inherited>
             <configuration>
-              <!-- Enable Java 14+ for all sources so that Intellij picks the right language level -->
-              <source>14</source>
-              <release>14</release>
+              <!-- Enable Java 11+ for all sources so that Intellij picks the right language level -->
+              <source>11</source>
+              <release>11</release>
               <compilerArgs>
                 <arg>-parameters</arg>
                 <arg>--enable-preview</arg>
               </compilerArgs>
-            	<fork>true</fork>
-            	<useIncrementalCompilation>true</useIncrementalCompilation>
+              <fork>true</fork>
+              <useIncrementalCompilation>true</useIncrementalCompilation>
             </configuration>
           </plugin>
           <plugin>
@@ -367,7 +367,7 @@
                 </goals>
                 <configuration>
                   <sources>
-                    <source>src/test-jdk14/java</source>
+                    <source>src/test-jdk11/java</source>
                     <source>src/test-jdk17/java</source>
                   </sources>
                 </configuration>
@@ -419,7 +419,7 @@
                 </goals>
                 <configuration>
                   <sources>
-                    <source>src/test-jdk14/java</source>
+                    <source>src/test-jdk11/java</source>
                     <source>src/test-jdk17/java</source>
                     <source>src/test-jdk21/java</source>
                   </sources>

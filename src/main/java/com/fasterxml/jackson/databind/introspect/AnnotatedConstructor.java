@@ -33,10 +33,7 @@ public final class AnnotatedConstructor
             AnnotationMap classAnn, AnnotationMap[] paramAnn)
     {
         super(ctxt, classAnn, paramAnn);
-        if (constructor == null) {
-            throw new IllegalArgumentException("Null constructor not allowed");
-        }
-        _constructor = constructor;
+        _constructor = Objects.requireNonNull(constructor);
     }
 
     /**
@@ -178,7 +175,7 @@ public final class AnnotatedConstructor
 
     @Override
     public int hashCode() {
-        // _constructor is nullable, so it is calculated with util
+        // _constructor can be null for special case of JDK serialization so:
         return Objects.hashCode(_constructor);
     }
 
@@ -188,13 +185,8 @@ public final class AnnotatedConstructor
         if (!ClassUtil.hasClass(o, getClass())) {
             return false;
         }
-
         AnnotatedConstructor other = (AnnotatedConstructor) o;
-        if (other._constructor == null) {
-            return _constructor == null;
-        } else {
-            return other._constructor.equals(_constructor);
-        }
+        return Objects.equals(_constructor, other._constructor);
     }
 
     /*

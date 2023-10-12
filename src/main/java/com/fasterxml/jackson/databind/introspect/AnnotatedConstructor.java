@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.introspect;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Member;
 import java.lang.reflect.Type;
+import java.util.Objects;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -177,7 +178,8 @@ public final class AnnotatedConstructor
 
     @Override
     public int hashCode() {
-        return _constructor.getName().hashCode();
+        // _constructor is nullable, so it is calculated with util
+        return Objects.hashCode(_constructor);
     }
 
     @Override

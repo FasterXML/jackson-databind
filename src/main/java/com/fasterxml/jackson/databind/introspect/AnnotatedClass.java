@@ -421,7 +421,7 @@ public final class AnnotatedClass
 
     @Override
     public int hashCode() {
-        return _class.getName().hashCode();
+        return _class.hashCode();
     }
 
     @Override

@@ -129,7 +129,7 @@ public final class AnnotatedField
 
     @Override
     public int hashCode() {
-        return _field.getName().hashCode();
+        return _field.hashCode();
     }
 
     @Override

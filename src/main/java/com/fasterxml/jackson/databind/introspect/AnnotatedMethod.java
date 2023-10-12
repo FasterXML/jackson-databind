@@ -247,7 +247,7 @@ public final class AnnotatedMethod
 
     @Override
     public int hashCode() {
-        return _method.getName().hashCode();
+        return _method.hashCode();
     }
 
     @Override

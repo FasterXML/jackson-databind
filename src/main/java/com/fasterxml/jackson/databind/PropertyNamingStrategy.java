@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedField;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 
+import java.util.logging.Logger;
+
 /**
  * Class that defines how names of JSON properties ("external names")
  * are derived from names of POJO methods and fields ("internal names"),
@@ -318,6 +320,14 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
     @Deprecated // since 2.12
     public static class UpperCamelCaseStrategy extends PropertyNamingStrategyBase
     {
+        public UpperCamelCaseStrategy() {
+            Logger.getLogger(UpperCamelCaseStrategy.class.getName())
+                .warning(
+                    "PropertyNamingStrategy.UpperCamelCaseStrategy is used but it has been deprecated due to " +
+                    "risk of deadlock. Consider using PropertyNamingStrategies.UpperCamelCaseStrategy instead. " +
+                    "See https://github.com/FasterXML/jackson-databind/issues/2715 for more details.");
+        }
+
         /**
          * Converts camelCase to PascalCase
          *
@@ -353,6 +363,14 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
     @Deprecated // since 2.12
     public static class LowerCaseStrategy extends PropertyNamingStrategyBase
     {
+        public LowerCaseStrategy() {
+            Logger.getLogger(LowerCaseStrategy.class.getName())
+                .warning(
+                "PropertyNamingStrategy.LowerCaseStrategy is used but it has been deprecated " +
+                    "due to risk of deadlock. Consider using PropertyNamingStrategies.LowerCaseStrategy instead. " +
+                    "See https://github.com/FasterXML/jackson-databind/issues/2715 for more details.");
+        }
+
         @Override
         public String translate(String input) {
             return input.toLowerCase();
@@ -368,6 +386,14 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
     @Deprecated // since 2.12
     public static class KebabCaseStrategy extends PropertyNamingStrategyBase
     {
+        public KebabCaseStrategy() {
+            Logger.getLogger(KebabCaseStrategy.class.getName())
+                .warning(
+                "PropertyNamingStrategy.KebabCaseStrategy is used but it has been deprecated" +
+                    "due to risk of deadlock. Consider using PropertyNamingStrategies.KebabCaseStrategy instead. " +
+                    "See https://github.com/FasterXML/jackson-databind/issues/2715 for more details.");
+        }
+
         @Override
         public String translate(String input) {
             return translateLowerCaseWithSeparator(input, '-');
@@ -381,7 +407,16 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
      * for reason for deprecation)
      */
     @Deprecated // since 2.12
-    public static class LowerDotCaseStrategy extends PropertyNamingStrategyBase {
+    public static class LowerDotCaseStrategy extends PropertyNamingStrategyBase
+    {
+        public LowerDotCaseStrategy() {
+            Logger.getLogger(LowerDotCaseStrategy.class.getName())
+                .warning(
+                "PropertyNamingStrategy.LowerDotCaseStrategy is used but it has been deprecated" +
+                    "due to risk of deadlock. Consider using PropertyNamingStrategies.LowerDotCaseStrategy instead. " +
+                    "See https://github.com/FasterXML/jackson-databind/issues/2715 for more details.");
+        }
+
         @Override
         public String translate(String input){
             return translateLowerCaseWithSeparator(input, '.');

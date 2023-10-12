@@ -7,6 +7,8 @@ import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.FullyNamed;
 
+import java.util.Objects;
+
 /**
  * Simple value class used for containing names of properties as defined
  * by annotations (and possibly other configuration sources).
@@ -253,10 +255,7 @@ public class PropertyName
 
     @Override
     public int hashCode() {
-        if (_namespace == null) {
-            return _simpleName.hashCode();
-        }
-        return _namespace.hashCode() ^  _simpleName.hashCode();
+        return Objects.hash(_namespace, _simpleName);
     }
 
     @Override

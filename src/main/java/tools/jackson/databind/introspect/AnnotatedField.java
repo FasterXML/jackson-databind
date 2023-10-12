@@ -1,6 +1,7 @@
 package tools.jackson.databind.introspect;
 
 import java.lang.reflect.*;
+import java.util.Objects;
 
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.util.ClassUtil;
@@ -26,7 +27,7 @@ public final class AnnotatedField
     public AnnotatedField(TypeResolutionContext contextClass, Field field, AnnotationMap annMap)
     {
         super(contextClass, annMap);
-        _field = field;
+        _field = Objects.requireNonNull(field);
     }
 
     @Override
@@ -108,7 +109,7 @@ public final class AnnotatedField
 
     @Override
     public int hashCode() {
-        return _field.getName().hashCode();
+        return Objects.hashCode(_field);
     }
 
     @Override
@@ -117,13 +118,8 @@ public final class AnnotatedField
         if (!ClassUtil.hasClass(o, getClass())) {
             return false;
         }
-
         AnnotatedField other = (AnnotatedField) o;
-        if (other._field == null) {
-            return _field == null;
-        } else {
-            return other._field.equals(_field);
-        }
+        return Objects.equals(_field, other._field);
     }
 
     @Override

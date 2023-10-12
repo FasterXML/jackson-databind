@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Member;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
+import java.util.Objects;
 
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.util.ClassUtil;
@@ -23,10 +24,7 @@ public final class AnnotatedConstructor
             AnnotationMap classAnn, AnnotationMap[] paramAnn)
     {
         super(ctxt, classAnn, paramAnn);
-        if (constructor == null) {
-            throw new IllegalArgumentException("Null constructor not allowed");
-        }
-        _constructor = constructor;
+        _constructor = Objects.requireNonNull(constructor);
     }
 
     @Override
@@ -152,7 +150,8 @@ public final class AnnotatedConstructor
 
     @Override
     public int hashCode() {
-        return _constructor.getName().hashCode();
+        // _constructor can be null for special case of JDK serialization so:
+        return Objects.hashCode(_constructor);
     }
 
     @Override
@@ -161,12 +160,7 @@ public final class AnnotatedConstructor
         if (!ClassUtil.hasClass(o, getClass())) {
             return false;
         }
-
         AnnotatedConstructor other = (AnnotatedConstructor) o;
-        if (other._constructor == null) {
-            return _constructor == null;
-        } else {
-            return other._constructor.equals(_constructor);
-        }
+        return Objects.equals(_constructor, other._constructor);
     }
 }

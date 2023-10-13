@@ -92,7 +92,7 @@ Project: jackson-databind
   need `forType(Type)`
  (reported by Garren W)
 
-2.15.3 (not yet released)
+2.15.3 (12-Oct-2023)
 
 #3968: Records with additional constructors failed to deserialize
  (fix contributed by Sim Y-T)

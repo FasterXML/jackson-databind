@@ -14,6 +14,8 @@ import org.junit.Test;
 /**
  * [databind#3569]: Unable to deserialize enum object with default-typed
  * {@link com.fasterxml.jackson.annotation.JsonTypeInfo.As#WRAPPER_ARRAY} and {@link JsonCreator} together.
+ *
+ * @since 2.15.4
  */
 public class AsWrapperArrayEnumDeser3569Test
 {
@@ -22,9 +24,7 @@ public class AsWrapperArrayEnumDeser3569Test
     }
 
     enum Bar {
-        ENABLED,
-        DISABLED,
-        HIDDEN;
+        ENABLED, DISABLED, HIDDEN;
 
         @JsonCreator
         public static Bar fromValue(String value) {

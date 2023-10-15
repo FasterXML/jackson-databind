@@ -354,7 +354,7 @@ public class ObjectMapper
                 }
                 // [databind#88] Should not apply to JSON tree models:
                 return (!t.isFinal() && !TreeNode.class.isAssignableFrom(t.getRawClass()))
-                        // [databind#3569] Allow use of default typing for Enums
+                        // [databind#3569] Allow use of default typing for Enums -- since 2.15.4
                         || t.isEnumType();
             case EVERYTHING:
                 // So, excluding primitives (handled earlier) and "Natural types" (handled

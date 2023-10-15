@@ -353,7 +353,9 @@ public class ObjectMapper
                     t = t.getReferencedType();
                 }
                 // [databind#88] Should not apply to JSON tree models:
-                return !t.isFinal() && !TreeNode.class.isAssignableFrom(t.getRawClass());
+                return (!t.isFinal() && !TreeNode.class.isAssignableFrom(t.getRawClass()))
+                        // [databind#3569] Allow use of default typing for Enums
+                        || t.isEnumType();
             case EVERYTHING:
                 // So, excluding primitives (handled earlier) and "Natural types" (handled
                 // before this method is called), applied to everything

@@ -21,7 +21,7 @@ import tools.jackson.databind.util.AccessPattern;
 import tools.jackson.databind.util.ObjectBuffer;
 
 /**
- * Basic serializer that can serialize non-primitive arrays.
+ * Serializer that can serialize non-primitive arrays.
  */
 @JacksonStdImpl
 public class ObjectArrayDeserializer

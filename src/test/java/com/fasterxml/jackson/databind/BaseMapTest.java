@@ -244,7 +244,7 @@ public abstract class BaseMapTest
     }
 
     // @since 2.10
-    public static JsonMapper.Builder jsonMapperBuilder() {
+    protected static JsonMapper.Builder jsonMapperBuilder() {
         return JsonMapper.builder();
     }
 

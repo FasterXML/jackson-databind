@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.util.AccessPattern;
 import com.fasterxml.jackson.databind.util.ObjectBuffer;
 
 /**
- * Basic serializer that can serialize non-primitive arrays.
+ * Serializer that can serialize non-primitive arrays.
  */
 @JacksonStdImpl
 public class ObjectArrayDeserializer

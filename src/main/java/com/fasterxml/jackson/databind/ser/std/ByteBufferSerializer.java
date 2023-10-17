@@ -25,7 +25,7 @@ public class ByteBufferSerializer extends StdScalarSerializer<ByteBuffer>
             return;
         }
         // the other case is more complicated however. Best to handle with InputStream wrapper.
-        // But should we rewind it; and/or make a copy?
+        // Prior to jackson-databind#4164 we rewound here, but that didn't match heap buffer behavior.
         ByteBuffer copy = bbuf.asReadOnlyBuffer();
         InputStream in = new ByteBufferBackedInputStream(copy);
         gen.writeBinary(in, copy.remaining());

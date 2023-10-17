@@ -422,34 +422,4 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
             return translateLowerCaseWithSeparator(input, '.');
         }
     }
-
-    /*
-    /**********************************************************
-    /* Deprecated variants, aliases
-    /**********************************************************
-     */
-
-    /**
-     * @deprecated Since 2.7 use {@link PropertyNamingStrategies#SNAKE_CASE} instead.
-     */
-    @Deprecated // since 2.7
-    public static final PropertyNamingStrategy CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES = SNAKE_CASE;
-
-    /**
-     * @deprecated Since 2.7 use {@link PropertyNamingStrategies#UPPER_CAMEL_CASE} instead;
-     */
-    @Deprecated // since 2.7
-    public static final PropertyNamingStrategy PASCAL_CASE_TO_CAMEL_CASE = UPPER_CAMEL_CASE;
-
-    /**
-     * @deprecated In 2.7 use {@link PropertyNamingStrategies.SnakeCaseStrategy} instead
-     */
-    @Deprecated // since 2.7
-    public static class LowerCaseWithUnderscoresStrategy extends SnakeCaseStrategy {}
-
-    /**
-     * @deprecated In 2.7 use {@link PropertyNamingStrategies.UpperCamelCaseStrategy} instead
-     */
-    @Deprecated // since 2.7
-    public static class PascalCaseStrategy extends UpperCamelCaseStrategy { }
 }

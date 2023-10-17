@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.jsontype.deftyping;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -13,7 +12,6 @@ import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
-import org.junit.Test;
 
 public class TestDefaultForEnums
     extends BaseMapTest
@@ -106,16 +104,18 @@ public class TestDefaultForEnums
         assertSame(TestEnum.B, holder.value);
     }
 
-    /*
+    /**
      * [databind#3569]: Unable to deserialize enum object with default-typed
      * {@link com.fasterxml.jackson.annotation.JsonTypeInfo.As#WRAPPER_ARRAY} and {@link JsonCreator} together,
+     *
+     * @since 2.16
      */
     public void testEnumAsWrapperArrayWithCreator() throws JsonProcessingException
     {
         ObjectMapper objectMapper = jsonMapperBuilder()
                 .activateDefaultTyping(
                         new DefaultBaseTypeLimitingValidator(),
-                        ObjectMapper.DefaultTyping.EVERYTHING,
+                        ObjectMapper.DefaultTyping.NON_FINAL_AND_ENUMS,
                         JsonTypeInfo.As.WRAPPER_ARRAY)
                 .build();
 

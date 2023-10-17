@@ -27,9 +27,6 @@ public class ByteBufferSerializer extends StdScalarSerializer<ByteBuffer>
         // the other case is more complicated however. Best to handle with InputStream wrapper.
         // But should we rewind it; and/or make a copy?
         ByteBuffer copy = bbuf.asReadOnlyBuffer();
-        if (copy.position() > 0) {
-            copy.rewind();
-        }
         InputStream in = new ByteBufferBackedInputStream(copy);
         gen.writeBinary(in, copy.remaining());
         in.close();

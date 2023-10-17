@@ -183,6 +183,7 @@ public class JDKTypeSerializationTest
         assertEquals(exp, MAPPER.writeValueAsString(bbuf.duplicate()));
     }
 
+    // [databind#4164]: No rewinding for direct buffer
     public void testDuplicatedByteBufferWithCustomPositionDirect() throws IOException
     {
         final byte[] INPUT_BYTES = new byte[] { 1, 2, 3, 4, 5 };

@@ -58,7 +58,7 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
      * for reasons for deprecation.
      */
     @Deprecated // since 2.12
-    public static final PropertyNamingStrategy UPPER_CAMEL_CASE = new UpperCamelCaseStrategy();
+    public static final PropertyNamingStrategy UPPER_CAMEL_CASE = new UpperCamelCaseStrategy(false);
 
     /**
      * @deprecated Since 2.12 deprecated. Use {@link PropertyNamingStrategies#SNAKE_CASE} instead.
@@ -67,7 +67,7 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
      * for reasons for deprecation.
      */
     @Deprecated // since 2.12
-    public static final PropertyNamingStrategy SNAKE_CASE = new SnakeCaseStrategy();
+    public static final PropertyNamingStrategy SNAKE_CASE = new SnakeCaseStrategy(false);
 
     /**
      * @deprecated Since 2.12 deprecated. Use {@link PropertyNamingStrategies#LOWER_CASE} instead.
@@ -76,7 +76,7 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
      * for reasons for deprecation.
      */
     @Deprecated // since 2.12
-    public static final PropertyNamingStrategy LOWER_CASE = new LowerCaseStrategy();
+    public static final PropertyNamingStrategy LOWER_CASE = new LowerCaseStrategy(false);
 
     /**
      * @deprecated Since 2.12 deprecated. Use {@link PropertyNamingStrategies#KEBAB_CASE} instead.
@@ -85,7 +85,7 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
      * for reasons for deprecation.
      */
     @Deprecated // since 2.12
-    public static final PropertyNamingStrategy KEBAB_CASE = new KebabCaseStrategy();
+    public static final PropertyNamingStrategy KEBAB_CASE = new KebabCaseStrategy(false);
 
     /**
      * @deprecated Since 2.12 deprecated. Use {@link PropertyNamingStrategies#LOWER_DOT_CASE} instead.
@@ -94,7 +94,7 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
      * for reasons for deprecation.
      */
     @Deprecated // since 2.12
-    public static final PropertyNamingStrategy LOWER_DOT_CASE = new LowerDotCaseStrategy();
+    public static final PropertyNamingStrategy LOWER_DOT_CASE = new LowerDotCaseStrategy(false);
 
     /*
     /**********************************************************
@@ -194,6 +194,23 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
     @Deprecated
     public static abstract class PropertyNamingStrategyBase extends PropertyNamingStrategy
     {
+        protected PropertyNamingStrategyBase() {
+            // For use via annotations: WARN
+            this(true);
+        }
+
+        protected PropertyNamingStrategyBase(boolean logWarning) {
+            super();
+            if (logWarning) {
+                final String simple = getClass().getSimpleName();
+                Logger.getLogger(getClass().getName())
+                    .warning(
+"PropertyNamingStrategy."+simple+" is used but it has been deprecated due to " +
+"risk of deadlock. Consider using PropertyNamingStrategies."+simple+" instead. " +
+"See https://github.com/FasterXML/jackson-databind/issues/2715 for more details.");
+            }
+        }
+        
         @Override
         public String nameForField(MapperConfig<?> config, AnnotatedField field, String defaultName)
         {
@@ -276,6 +293,9 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
     @Deprecated // since 2.12
     public static class SnakeCaseStrategy extends PropertyNamingStrategyBase
     {
+        public SnakeCaseStrategy() { }
+        protected SnakeCaseStrategy(boolean logWarning) { super(logWarning); }
+        
         @Override
         public String translate(String input)
         {
@@ -320,19 +340,13 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
     @Deprecated // since 2.12
     public static class UpperCamelCaseStrategy extends PropertyNamingStrategyBase
     {
-        public UpperCamelCaseStrategy() {
-            Logger.getLogger(UpperCamelCaseStrategy.class.getName())
-                .warning(
-                    "PropertyNamingStrategy.UpperCamelCaseStrategy is used but it has been deprecated due to " +
-                    "risk of deadlock. Consider using PropertyNamingStrategies.UpperCamelCaseStrategy instead. " +
-                    "See https://github.com/FasterXML/jackson-databind/issues/2715 for more details.");
-        }
+        public UpperCamelCaseStrategy() { }
+        protected UpperCamelCaseStrategy(boolean logWarning) { super(logWarning); }
 
         /**
          * Converts camelCase to PascalCase
          *
-         * For example, "userName" would be converted to
-         * "UserName".
+         * For example, "userName" would be converted to "UserName".
          *
          * @param input formatted as camelCase string
          * @return input converted to PascalCase format
@@ -363,13 +377,8 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
     @Deprecated // since 2.12
     public static class LowerCaseStrategy extends PropertyNamingStrategyBase
     {
-        public LowerCaseStrategy() {
-            Logger.getLogger(LowerCaseStrategy.class.getName())
-                .warning(
-                "PropertyNamingStrategy.LowerCaseStrategy is used but it has been deprecated " +
-                    "due to risk of deadlock. Consider using PropertyNamingStrategies.LowerCaseStrategy instead. " +
-                    "See https://github.com/FasterXML/jackson-databind/issues/2715 for more details.");
-        }
+        public LowerCaseStrategy() { }
+        protected LowerCaseStrategy(boolean logWarning) { super(logWarning); }
 
         @Override
         public String translate(String input) {
@@ -386,13 +395,8 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
     @Deprecated // since 2.12
     public static class KebabCaseStrategy extends PropertyNamingStrategyBase
     {
-        public KebabCaseStrategy() {
-            Logger.getLogger(KebabCaseStrategy.class.getName())
-                .warning(
-                "PropertyNamingStrategy.KebabCaseStrategy is used but it has been deprecated" +
-                    "due to risk of deadlock. Consider using PropertyNamingStrategies.KebabCaseStrategy instead. " +
-                    "See https://github.com/FasterXML/jackson-databind/issues/2715 for more details.");
-        }
+        public KebabCaseStrategy() { }
+        protected KebabCaseStrategy(boolean logWarning) { super(logWarning); }
 
         @Override
         public String translate(String input) {
@@ -409,13 +413,8 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
     @Deprecated // since 2.12
     public static class LowerDotCaseStrategy extends PropertyNamingStrategyBase
     {
-        public LowerDotCaseStrategy() {
-            Logger.getLogger(LowerDotCaseStrategy.class.getName())
-                .warning(
-                "PropertyNamingStrategy.LowerDotCaseStrategy is used but it has been deprecated" +
-                    "due to risk of deadlock. Consider using PropertyNamingStrategies.LowerDotCaseStrategy instead. " +
-                    "See https://github.com/FasterXML/jackson-databind/issues/2715 for more details.");
-        }
+        public LowerDotCaseStrategy() { }
+        protected LowerDotCaseStrategy(boolean logWarning) { super(logWarning); }
 
         @Override
         public String translate(String input){

@@ -91,6 +91,8 @@ Project: jackson-databind
 #4153: Deprecated `ObjectReader.withType(Type)` has no direct replacement;
   need `forType(Type)`
  (reported by Garren W)
+#4164: Do not rewind `position` when serializing direct `ByteBuffer`
+ (fix contributed by Jonas K)
 
 2.15.3 (12-Oct-2023)
 

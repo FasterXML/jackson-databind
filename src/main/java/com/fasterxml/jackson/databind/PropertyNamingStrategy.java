@@ -194,21 +194,21 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
     @Deprecated
     public static abstract class PropertyNamingStrategyBase extends PropertyNamingStrategy
     {
-        // For use via annotations: WARN
         protected PropertyNamingStrategyBase() {
+            // For use via annotations: WARN
+            this(true);
+        }
+
+        protected PropertyNamingStrategyBase(boolean logWarning) {
             super();
-            final String simple = getClass().getSimpleName();
-            Logger.getLogger(getClass().getName())
-                .warning(
+            if (logWarning) {
+                final String simple = getClass().getSimpleName();
+                Logger.getLogger(getClass().getName())
+                    .warning(
 "PropertyNamingStrategy."+simple+" is used but it has been deprecated due to " +
 "risk of deadlock. Consider using PropertyNamingStrategies."+simple+" instead. " +
 "See https://github.com/FasterXML/jackson-databind/issues/2715 for more details.");
-
-        }
-
-        // For use by static instances: no warning
-        protected PropertyNamingStrategyBase(boolean bogus) {
-            super();
+            }
         }
         
         @Override
@@ -294,7 +294,7 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
     public static class SnakeCaseStrategy extends PropertyNamingStrategyBase
     {
         public SnakeCaseStrategy() { }
-        protected SnakeCaseStrategy(boolean bogus) { super(bogus); }
+        protected SnakeCaseStrategy(boolean logWarning) { super(logWarning); }
         
         @Override
         public String translate(String input)
@@ -341,7 +341,7 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
     public static class UpperCamelCaseStrategy extends PropertyNamingStrategyBase
     {
         public UpperCamelCaseStrategy() { }
-        protected UpperCamelCaseStrategy(boolean bogus) { super(bogus); }
+        protected UpperCamelCaseStrategy(boolean logWarning) { super(logWarning); }
 
         /**
          * Converts camelCase to PascalCase
@@ -378,7 +378,7 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
     public static class LowerCaseStrategy extends PropertyNamingStrategyBase
     {
         public LowerCaseStrategy() { }
-        protected LowerCaseStrategy(boolean bogus) { super(bogus); }
+        protected LowerCaseStrategy(boolean logWarning) { super(logWarning); }
 
         @Override
         public String translate(String input) {
@@ -396,7 +396,7 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
     public static class KebabCaseStrategy extends PropertyNamingStrategyBase
     {
         public KebabCaseStrategy() { }
-        protected KebabCaseStrategy(boolean bogus) { super(bogus); }
+        protected KebabCaseStrategy(boolean logWarning) { super(logWarning); }
 
         @Override
         public String translate(String input) {
@@ -414,7 +414,7 @@ public class PropertyNamingStrategy // NOTE: was abstract until 2.7
     public static class LowerDotCaseStrategy extends PropertyNamingStrategyBase
     {
         public LowerDotCaseStrategy() { }
-        protected LowerDotCaseStrategy(boolean bogus) { super(bogus); }
+        protected LowerDotCaseStrategy(boolean logWarning) { super(logWarning); }
 
         @Override
         public String translate(String input){

@@ -339,8 +339,7 @@ public final class ClassUtil
             return false;
         }
         // Must take no args
-        Class<?>[] pts = m.getParameterTypes();
-        if (pts != null && pts.length != 0) {
+        if (m.getParameterTypes().length != 0) {
             return false;
         }
         // Can't be a void method

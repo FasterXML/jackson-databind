@@ -40,7 +40,7 @@ public enum MapperFeature implements ConfigFeature
      * and Map to modify the property, without requiring a setter
      * method.
      * This is similar to how JAXB framework sets Collections and
-     * Maps: no setter is involved, just setter.
+     * Maps: no setter is involved, just getter.
      *<p>
      * Note that such getters-as-setters methods have lower
      * precedence than setters, so they are only used if no
@@ -58,6 +58,10 @@ public enum MapperFeature implements ConfigFeature
      * Feature is disabled by default, meaning that existence of `transient`
      * for a field does not necessarily lead to ignoral of getters or setters
      * but just ignoring the use of field for access.
+     *<p>
+     * NOTE! This should have no effect on <b>explicit</b> ignoral annotation
+     * possibly added to {@code transient} fields: those should always have expected
+     * semantics (same as if field was not {@code transient}).
      *
      * @since 2.6
      */

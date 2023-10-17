@@ -139,7 +139,8 @@ public class ObjectReaderTest extends BaseMapTest
             fail("Should not have passed");
         } catch (DatabindException e) {
             // DatabindException since it gets wrapped
-            verifyException(e, "foo");
+            verifyException(e, "Unexpected character");
+            verifyException(e, "maybe a (non-standard) comment");
         }
     }
 

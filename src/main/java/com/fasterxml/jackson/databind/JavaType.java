@@ -254,7 +254,9 @@ public abstract class JavaType
     }
 
     @Deprecated // since 2.7
-    protected abstract JavaType _narrow(Class<?> subclass);
+    protected JavaType _narrow(Class<?> subclass) {
+        return this;
+    }
 
     /*
     /**********************************************************************
@@ -355,6 +357,18 @@ public abstract class JavaType
      */
     public final boolean isRecordType() {
         return ClassUtil.isRecordType(_class);
+    }
+
+    /**
+     * Method that returns true if this instance is of type
+     * {@code IterationType}.
+     *
+     * @since 2.16
+     *
+     * @return True if this type is considered "iteration type"
+     */
+    public boolean isIterationType() {
+        return false;
     }
 
     @Override

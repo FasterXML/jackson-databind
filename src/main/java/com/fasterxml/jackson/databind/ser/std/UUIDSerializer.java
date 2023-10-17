@@ -51,11 +51,8 @@ public class UUIDSerializer
     public boolean isEmpty(SerializerProvider prov, UUID value)
     {
         // Null UUID is empty, so...
-        if (value.getLeastSignificantBits() == 0L
-                && value.getMostSignificantBits() == 0L) {
-            return true;
-        }
-        return false;
+        return value.getLeastSignificantBits() == 0L
+                && value.getMostSignificantBits() == 0L;
     }
 
     @Override

@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.*;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
@@ -137,6 +138,16 @@ public class TestJacksonAnnotationIntrospector
 
         @Override
         public  String[] findEnumValues(Class<?> enumType, Enum<?>[] enumValues, String[] names) {
+            // kinda sorta wrong, but for testing's sake...
+            for (int i = 0, len = enumValues.length; i < len; ++i) {
+                names[i] = enumValues[i].name().toLowerCase();
+            }
+            return names;
+        }
+
+        @Override
+        public String[] findEnumValues(MapperConfig<?> config, AnnotatedClass annotatedClass,
+                Enum<?>[] enumValues, String[] names) {
             // kinda sorta wrong, but for testing's sake...
             for (int i = 0, len = enumValues.length; i < len; ++i) {
                 names[i] = enumValues[i].name().toLowerCase();

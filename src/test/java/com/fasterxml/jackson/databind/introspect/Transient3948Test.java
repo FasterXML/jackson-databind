@@ -8,6 +8,8 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.Serializable;
 
+// With [databind#3948] we should not drop `@JsonIgnore` regardless
+// of "transient" keyword.
 public class Transient3948Test extends BaseMapTest {
 
     @JsonPropertyOrder(alphabetic = true)
@@ -43,9 +45,9 @@ public class Transient3948Test extends BaseMapTest {
         }
     }
 
-    final ObjectMapper DEFAULT_MAPPER = newJsonMapper();
+    private final ObjectMapper DEFAULT_MAPPER = newJsonMapper();
 
-    final ObjectMapper MAPPER_TRANSIENT = jsonMapperBuilder()
+    private final ObjectMapper MAPPER_TRANSIENT = jsonMapperBuilder()
             .configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true)
             .build();
 
@@ -54,7 +56,7 @@ public class Transient3948Test extends BaseMapTest {
 
         String json = DEFAULT_MAPPER.writeValueAsString(obj1);
 
-        assertEquals(a2q("{'a':'hello','b':'world','cat':'jackson','dog':'databind'}"), json);
+        assertEquals(a2q("{'a':'hello','cat':'jackson','dog':'databind'}"), json);
     }
 
     public void testJsonIgnoreSerializationTransient() throws Exception {

@@ -224,11 +224,6 @@ public class BeanDeserializer
         return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 
-    @Deprecated // since 2.8; remove unless getting used
-    protected Object _missingToken(JsonParser p, DeserializationContext ctxt) throws IOException {
-        throw ctxt.endOfInputException(handledType());
-    }
-
     /**
      * Secondary deserialization method, called in cases where POJO
      * instance is created as part of deserialization, potentially
@@ -372,6 +367,11 @@ public class BeanDeserializer
             if (id != null) {
                 _handleTypedObjectId(p, ctxt, bean, id);
             }
+        }
+        // [databind#3838]: since 2.16 Uniform handling of missing objectId
+        // only for the specific "empty JSON Object" case
+        if (_objectIdReader != null && p.hasTokenId(JsonTokenId.ID_END_OBJECT)) {
+            ctxt.reportUnresolvedObjectId(_objectIdReader, bean);
         }
         if (_injectables != null) {
             injectValues(ctxt, bean);

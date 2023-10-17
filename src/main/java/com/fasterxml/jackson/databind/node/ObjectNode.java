@@ -35,9 +35,10 @@ public class ObjectNode
     /**
      * @since 2.4
      */
-    public ObjectNode(JsonNodeFactory nc, Map<String, JsonNode> kids) {
+    public ObjectNode(JsonNodeFactory nc, Map<String, JsonNode> children) {
         super(nc);
-        _children = kids;
+        _children = Objects.requireNonNull(children,
+                "Must not pass `null` for 'children' argument");
     }
 
     @Override
@@ -89,6 +90,29 @@ public class ObjectNode
         return result;
     }
 
+    @Override
+    public ObjectNode withObject(String exprOrProperty) {
+        JsonPointer ptr = _jsonPointerIfValid(exprOrProperty);
+        if (ptr != null) {
+            return withObject(ptr);
+        }
+        return withObjectProperty(exprOrProperty);
+    }
+
+    @Override
+    public ObjectNode withObjectProperty(String propName) {
+        JsonNode child = _children.get(propName);
+        if (child == null || child.isNull()) {
+            return putObject(propName);
+        }
+        if (child.isObject()) {
+            return (ObjectNode) child;
+        }
+        return _reportWrongNodeType(
+"Cannot replace `JsonNode` of type `%s` with `ObjectNode` for property \"%s\" (default mode `OverwriteMode.%s`)",
+child.getClass().getName(), propName, OverwriteMode.NULLS);
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public ArrayNode withArray(String exprOrProperty)
@@ -109,6 +133,20 @@ public class ObjectNode
         ArrayNode result = arrayNode();
         _children.put(exprOrProperty, result);
         return result;
+    }
+
+    @Override
+    public ArrayNode withArrayProperty(String propName) {
+        JsonNode child = _children.get(propName);
+        if (child == null || child.isNull()) {
+            return putArray(propName);
+        }
+        if (child.isArray()) {
+            return (ArrayNode) child;
+        }
+        return _reportWrongNodeType(
+"Cannot replace `JsonNode` of type `%s` with `ArrayNode` for property \"%s\" with (default mode `OverwriteMode.%s`)",
+child.getClass().getName(), propName, OverwriteMode.NULLS);
     }
 
     @Override
@@ -327,11 +365,13 @@ public class ObjectNode
     @Override
     public JsonNode findValue(String propertyName)
     {
-        for (Map.Entry<String, JsonNode> entry : _children.entrySet()) {
-            if (propertyName.equals(entry.getKey())) {
-                return entry.getValue();
-            }
-            JsonNode value = entry.getValue().findValue(propertyName);
+        JsonNode jsonNode = _children.get(propertyName);
+        if (jsonNode != null) {
+            return jsonNode;
+        }
+
+        for (JsonNode child : _children.values()) {
+            JsonNode value = child.findValue(propertyName);
             if (value != null) {
                 return value;
             }
@@ -342,15 +382,18 @@ public class ObjectNode
     @Override
     public List<JsonNode> findValues(String propertyName, List<JsonNode> foundSoFar)
     {
-        for (Map.Entry<String, JsonNode> entry : _children.entrySet()) {
-            if (propertyName.equals(entry.getKey())) {
-                if (foundSoFar == null) {
-                    foundSoFar = new ArrayList<JsonNode>();
-                }
-                foundSoFar.add(entry.getValue());
-            } else { // only add children if parent not added
-                foundSoFar = entry.getValue().findValues(propertyName, foundSoFar);
+        JsonNode jsonNode = _children.get(propertyName);
+        if (jsonNode != null) {
+            if (foundSoFar == null) {
+                foundSoFar = new ArrayList<>();
             }
+            foundSoFar.add(jsonNode);
+            return foundSoFar;
+        }
+
+        // only add children if parent not added
+        for (JsonNode child : _children.values()) {
+            foundSoFar = child.findValues(propertyName, foundSoFar);
         }
         return foundSoFar;
     }
@@ -358,16 +401,18 @@ public class ObjectNode
     @Override
     public List<String> findValuesAsText(String propertyName, List<String> foundSoFar)
     {
-        for (Map.Entry<String, JsonNode> entry : _children.entrySet()) {
-            if (propertyName.equals(entry.getKey())) {
-                if (foundSoFar == null) {
-                    foundSoFar = new ArrayList<String>();
-                }
-                foundSoFar.add(entry.getValue().asText());
-            } else { // only add children if parent not added
-                foundSoFar = entry.getValue().findValuesAsText(propertyName,
-                    foundSoFar);
+        JsonNode jsonNode = _children.get(propertyName);
+        if (jsonNode != null) {
+            if (foundSoFar == null) {
+                foundSoFar = new ArrayList<>();
             }
+            foundSoFar.add(jsonNode.asText());
+            return foundSoFar;
+        }
+
+        // only add children if parent not added
+        for (JsonNode child : _children.values()) {
+            foundSoFar = child.findValuesAsText(propertyName, foundSoFar);
         }
         return foundSoFar;
     }
@@ -375,11 +420,12 @@ public class ObjectNode
     @Override
     public ObjectNode findParent(String propertyName)
     {
-        for (Map.Entry<String, JsonNode> entry : _children.entrySet()) {
-            if (propertyName.equals(entry.getKey())) {
-                return this;
-            }
-            JsonNode value = entry.getValue().findParent(propertyName);
+        JsonNode jsonNode = _children.get(propertyName);
+        if (jsonNode != null) {
+            return this;
+        }
+        for (JsonNode child : _children.values()) {
+            JsonNode value = child.findParent(propertyName);
             if (value != null) {
                 return (ObjectNode) value;
             }
@@ -390,16 +436,18 @@ public class ObjectNode
     @Override
     public List<JsonNode> findParents(String propertyName, List<JsonNode> foundSoFar)
     {
-        for (Map.Entry<String, JsonNode> entry : _children.entrySet()) {
-            if (propertyName.equals(entry.getKey())) {
-                if (foundSoFar == null) {
-                    foundSoFar = new ArrayList<JsonNode>();
-                }
-                foundSoFar.add(this);
-            } else { // only add children if parent not added
-                foundSoFar = entry.getValue()
-                    .findParents(propertyName, foundSoFar);
+        JsonNode jsonNode = _children.get(propertyName);
+        if (jsonNode != null) {
+            if (foundSoFar == null) {
+                foundSoFar = new ArrayList<>();
             }
+            foundSoFar.add(this);
+            return foundSoFar;
+        }
+
+        // only add children if parent not added
+        for (JsonNode child : _children.values()) {
+            foundSoFar = child.findParents(propertyName, foundSoFar);
         }
         return foundSoFar;
     }
@@ -430,7 +478,7 @@ public class ObjectNode
             }
         }
         g.writeStartObject(this);
-        for (Map.Entry<String, JsonNode> en : _children.entrySet()) {
+        for (Map.Entry<String, JsonNode> en : _contentsToSerialize(provider).entrySet()) {
             JsonNode value = en.getValue();
             g.writeFieldName(en.getKey());
             value.serialize(g, provider);
@@ -457,7 +505,7 @@ public class ObjectNode
         if (trimEmptyArray || skipNulls) {
             serializeFilteredContents(g, provider, trimEmptyArray, skipNulls);
         } else {
-            for (Map.Entry<String, JsonNode> en : _children.entrySet()) {
+            for (Map.Entry<String, JsonNode> en : _contentsToSerialize(provider).entrySet()) {
                 JsonNode value = en.getValue();
                 g.writeFieldName(en.getKey());
                 value.serialize(g, provider);
@@ -472,29 +520,44 @@ public class ObjectNode
      *
      * @since 2.14
      */
-    protected void serializeFilteredContents(final JsonGenerator g, final SerializerProvider provider,
+    protected void serializeFilteredContents(final JsonGenerator g, final SerializerProvider ctxt,
             final boolean trimEmptyArray, final boolean skipNulls)
         throws IOException
     {
-        for (Map.Entry<String, JsonNode> en : _children.entrySet()) {
+        for (Map.Entry<String, JsonNode> en : _contentsToSerialize(ctxt).entrySet()) {
             // 17-Feb-2009, tatu: Can we trust that all nodes will always
-            //   extend BaseJsonNode? Or if not, at least implement
-            //   JsonSerializable? Let's start with former, change if
-            //   we must.
-            BaseJsonNode value = (BaseJsonNode) en.getValue();
+            //   extend BaseJsonNode? Or if not, at least implement JsonSerializable?
+            //   Let's start with former, change if we must.
+            // 19-Jun-2023, tatu: Actually `JsonNode` is enough
+            JsonNode value = en.getValue();
 
             // as per [databind#867], see if WRITE_EMPTY_JSON_ARRAYS feature is disabled,
             // if the feature is disabled, then should not write an empty array
             // to the output, so continue to the next element in the iteration
-            if (trimEmptyArray && value.isArray() && value.isEmpty(provider)) {
+            if (trimEmptyArray && value.isArray() && value.isEmpty(ctxt)) {
                continue;
             }
             if (skipNulls && value.isNull()) {
                 continue;
             }
             g.writeFieldName(en.getKey());
-            value.serialize(g, provider);
+            value.serialize(g, ctxt);
         }
+    }
+
+    /**
+     * Helper method for encapsulating details of accessing child node entries
+     * to serialize.
+     *
+     * @since 2.16
+     */
+    protected Map<String, JsonNode> _contentsToSerialize(SerializerProvider ctxt) {
+        if (ctxt.isEnabled(JsonNodeFeature.WRITE_PROPERTIES_SORTED)) {
+            if (!_children.isEmpty()) {
+                return new TreeMap<>(_children);
+            }
+        }
+        return _children;
     }
 
     /*

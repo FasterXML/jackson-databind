@@ -1,14 +1,11 @@
 package com.fasterxml.jackson.databind;
 
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import java.io.*;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.Nulls;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonWriteFeature;
@@ -17,6 +14,7 @@ import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.*;
 
 public class ObjectMapperTest extends BaseMapTest
@@ -52,15 +50,6 @@ public class ObjectMapperTest extends BaseMapTest
     // for [databind#206]
     @SuppressWarnings("serial")
     static class NoCopyMapper extends ObjectMapper { }
-
-    // [databind#2785]
-    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY,
-            property = "packetType")
-    public interface Base2785  {
-    }
-    @JsonTypeName("myType")
-    static class Impl2785 implements Base2785 {
-    }
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
@@ -196,15 +185,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertSame(customVis, config2.getDefaultVisibilityChecker());
     }
 
-    // [databind#2785]
-    public void testCopyOfSubtypeResolver2785() throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper().copy();
-        objectMapper.registerSubtypes(Impl2785.class);
-        Object result = objectMapper.readValue("{ \"packetType\": \"myType\" }", Base2785.class);
-        assertNotNull(result);
-    }
-
-    public void testCopyWith() throws JsonProcessingException {
+    public void testCopyWith() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         //configuring some settings to non-defaults
         mapper.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, true);

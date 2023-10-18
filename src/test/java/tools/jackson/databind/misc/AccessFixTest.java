@@ -27,11 +27,19 @@ public class AccessFixTest extends BaseMapTest
         ObjectMapper mapper = jsonMapperBuilder()
                 .disable(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS)
                 .build();
+        // 17-Oct-2023, tatu: JDK 21 has hard fail, try to work around:
+        boolean setSucceeded = false;
         try {
             System.setSecurityManager(new CauseBlockingSecurityManager());
+            setSucceeded = true;
             _testCauseOfThrowableIgnoral(mapper);
+        } catch (UnsupportedOperationException e) {
+            // JDK 21+ fail?
+            verifyException(e, "Security Manager is deprecated");
         } finally {
-            System.setSecurityManager(origSecMan);
+            if (setSucceeded) {
+                System.setSecurityManager(origSecMan);
+            }
         }
     }
 

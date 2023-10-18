@@ -190,6 +190,16 @@ public class ObjectMapper
         NON_FINAL,
 
         /**
+         * Enables default typing for non-final types as {@link #NON_FINAL},
+         * but also includes Enums.
+         * Designed to allow default typing of Enums without resorting to
+         * {@link #EVERYTHING}, which has security implications.
+         *<p>
+         * @since 2.16
+         */
+        NON_FINAL_AND_ENUMS,
+
+        /**
          * Value that means that default typing will be used for
          * all types, with exception of small number of
          * "natural" types (String, Boolean, Integer, Double) that
@@ -355,6 +365,20 @@ public class ObjectMapper
                 }
                 // [databind#88] Should not apply to JSON tree models:
                 return !t.isFinal() && !TreeNode.class.isAssignableFrom(t.getRawClass());
+
+            case NON_FINAL_AND_ENUMS: // since 2.16
+                while (t.isArrayType()) {
+                    t = t.getContentType();
+                }
+                // 19-Apr-2016, tatu: ReferenceType like Optional also requires similar handling:
+                while (t.isReferenceType()) {
+                    t = t.getReferencedType();
+                }
+                // [databind#88] Should not apply to JSON tree models:
+                return (!t.isFinal() && !TreeNode.class.isAssignableFrom(t.getRawClass()))
+                        // [databind#3569] Allow use of default typing for Enums
+                        || t.isEnumType();
+
             case EVERYTHING:
                 // So, excluding primitives (handled earlier) and "Natural types" (handled
                 // before this method is called), applied to everything

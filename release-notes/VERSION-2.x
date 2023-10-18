@@ -93,6 +93,8 @@ Project: jackson-databind
  (reported by Garren W)
 #4164: Do not rewind `position` when serializing direct `ByteBuffer`
  (fix contributed by Jonas K)
+#4159: Add new `DefaultTyping.NON_FINAL_AND_ENUMS` to allow Default Typing for `Enum`s
+ (contributed by Joo-Hyuk K)
 
 2.15.3 (12-Oct-2023)
 

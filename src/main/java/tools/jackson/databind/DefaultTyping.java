@@ -45,6 +45,14 @@ public enum DefaultTyping {
     NON_FINAL,
 
     /**
+     * Enables default typing for non-final types as {@link #NON_FINAL},
+     * but also includes Enums.
+     * Designed to allow default typing of Enums without resorting to
+     * {@link #EVERYTHING}, which has security implications.
+     */
+    NON_FINAL_AND_ENUMS,
+
+    /**
      * Value that means that default typing will be used for
      * all types, with exception of small number of
      * "natural" types (String, Boolean, Integer, Double) that

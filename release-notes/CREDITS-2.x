@@ -1702,6 +1702,11 @@ Omar Aloraini (ooraini@github)
    to `Class.getSimpleName()`
   (2.16.0)
 
+Naoki Takezoe (takezoe@github)
+ * Contributed #4144: Log WARN if deprecated subclasses of `PropertyNamingStrategy`
+   is used
+  (2.16.0)
+
 Garret Wilson (garretwilson@github)
  * Reported #4153: Deprecated `ObjectReader.withType(Type)` has no direct
    replacement; need `forType(Type)`

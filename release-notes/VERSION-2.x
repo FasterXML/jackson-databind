@@ -84,13 +84,17 @@ Project: jackson-databind
 #4095: Add `withObjectProperty(String)`, `withArrayProperty(String)` in `JsonNode`
 #4096: Change `JsonNode.withObject(String)` to work similar to `withArray()`
   wrt argument
+#4144: Log WARN if deprecated subclasses of `PropertyNamingStrategy` is used
+ (contributed by Naoki T)
 #4145: NPE when transforming a tree to a model class object, at `ArrayNode.elements()`
  (reported by Ondrej Z)
 #4153: Deprecated `ObjectReader.withType(Type)` has no direct replacement;
   need `forType(Type)`
  (reported by Garren W)
+#4164: Do not rewind `position` when serializing direct `ByteBuffer`
+ (fix contributed by Jonas K)
 
-2.15.3 (not yet released)
+2.15.3 (12-Oct-2023)
 
 #3968: Records with additional constructors failed to deserialize
  (fix contributed by Sim Y-T)

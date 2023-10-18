@@ -13,7 +13,10 @@ public class CollectionFormatShapeTest extends BaseMapTest
     // [databind#40]: Allow serialization 'as POJO' (resulting in JSON Object)
     @JsonPropertyOrder({ "size", "value" })
     @JsonFormat(shape=Shape.OBJECT)
-    @JsonIgnoreProperties({ "empty" }) // from 'isEmpty()'
+    @JsonIgnoreProperties({
+        "empty", // from 'isEmpty()'
+        "first", "last" // JDK 21 additions
+    })
     static class CollectionAsPOJO
         extends ArrayList<String>
     {
@@ -49,8 +52,15 @@ public class CollectionFormatShapeTest extends BaseMapTest
         list.add("a");
         list.add("b");
         String json = MAPPER.writeValueAsString(list);
-        assertEquals("{\"size\":2,\"values\":[\"a\",\"b\"]}", json);
 
+        // 2023-10-17, tatu: JDK 21 introduced new properties, so check
+        //  just that we have certain things, ignore extra
+        JsonNode doc = MAPPER.readTree(json);
+        //assertEquals("{\"size\":2,\"values\":[\"a\",\"b\"]}", json);
+
+        assertEquals(2, doc.path("size").intValue());
+        assertEquals("[\"a\",\"b\"]", doc.path("values").toString());
+        
         // and then bring it back!
         CollectionAsPOJO result = MAPPER.readValue(json, CollectionAsPOJO.class);
         assertEquals(2, result.size());

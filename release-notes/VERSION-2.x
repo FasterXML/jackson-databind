@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.16.0 (not yet released)
+2.16.0-rc1 (20-Oct-2023)
 
 #2502: Add a way to configure caches Jackson uses
  (contributed by Joo-Hyuk K)

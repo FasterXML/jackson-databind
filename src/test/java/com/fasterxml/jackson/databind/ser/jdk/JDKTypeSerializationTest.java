@@ -143,6 +143,7 @@ public class JDKTypeSerializationTest
         // so far so good, but must ensure Native buffers also work:
         ByteBuffer bbuf2 = ByteBuffer.allocateDirect(5);
         bbuf2.put(INPUT_BYTES);
+        bbuf2.flip();
         assertEquals(exp, MAPPER.writeValueAsString(bbuf2));
     }
 
@@ -180,6 +181,19 @@ public class JDKTypeSerializationTest
         exp = MAPPER.writeValueAsString(new byte[] { 2, 3, 4 });
         bbuf = ByteBuffer.wrap(INPUT_BYTES, 1, 3);
         assertEquals(exp, MAPPER.writeValueAsString(bbuf.duplicate()));
+    }
+
+    // [databind#4164]: No rewinding for direct buffer
+    public void testDuplicatedByteBufferWithCustomPositionDirect() throws IOException
+    {
+        final byte[] INPUT_BYTES = new byte[] { 1, 2, 3, 4, 5 };
+
+        String exp = MAPPER.writeValueAsString(new byte[] { 3, 4, 5 });
+        ByteBuffer bbuf = ByteBuffer.allocateDirect(INPUT_BYTES.length);
+        bbuf.put(INPUT_BYTES);
+        bbuf.position(2);
+        ByteBuffer duplicated = bbuf.duplicate();
+        assertEquals(exp, MAPPER.writeValueAsString(duplicated));
     }
 
     // [databind#2197]

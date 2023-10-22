@@ -46,8 +46,8 @@
          Baseline compatibility:
 
          * Jackson 2.13 compatible with Android SDK 24 and up
-         * Jackson 2.14 compatible with Android SDK 26 and up
-         * Jackson 2.15 compatible with Android SDK 26 and up
+         * Jackson 2.14, 2.15 compatible with Android SDK 26 and up
+         * Jackson 2.16 compatible with Android SDK 26 and up
 
       -->
     <version.android.sdk>26</version.android.sdk>
@@ -68,7 +68,7 @@
     <version.powermock>2.0.9</version.powermock>
 
     <!-- for Reproducible Builds -->
-    <project.build.outputTimestamp>2023-04-23T21:43:15Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2023-10-20T22:43:15Z</project.build.outputTimestamp>
   </properties>
 
   <dependencies>
@@ -97,6 +97,11 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency> <!-- added in 2.16 -->
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -223,8 +228,8 @@
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
           <links combine.children="append">
-            <link>https://fasterxml.github.io/jackson-annotations/javadoc/2.14</link>
-            <link>https://fasterxml.github.io/jackson-core/javadoc/2.14</link>
+            <link>https://fasterxml.github.io/jackson-annotations/javadoc/2.16</link>
+            <link>https://fasterxml.github.io/jackson-core/javadoc/2.16</link>
           </links>
         </configuration>
       </plugin>
@@ -292,9 +297,9 @@
     </profile>
     <!-- 07-Dec-2021, tatu: This is a huge mess, sorry folks... -->
     <profile>
-      <id>java14</id>
+      <id>java11</id>
       <activation>
-        <jdk>14</jdk>
+        <jdk>11</jdk>
       </activation>
       <build>
         <plugins>
@@ -310,7 +315,7 @@
                 </goals>
                 <configuration>
                   <sources>
-                    <source>src/test-jdk14/java</source>
+                    <source>src/test-jdk11/java</source>
                   </sources>
                 </configuration>
               </execution>
@@ -321,15 +326,15 @@
             <artifactId>maven-compiler-plugin</artifactId>
             <inherited>true</inherited>
             <configuration>
-              <!-- Enable Java 14+ for all sources so that Intellij picks the right language level -->
-              <source>14</source>
-              <release>14</release>
+              <!-- Enable Java 11+ for all sources so that Intellij picks the right language level -->
+              <source>11</source>
+              <release>11</release>
               <compilerArgs>
                 <arg>-parameters</arg>
                 <arg>--enable-preview</arg>
               </compilerArgs>
-            	<fork>true</fork>
-            	<useIncrementalCompilation>true</useIncrementalCompilation>
+              <fork>true</fork>
+              <useIncrementalCompilation>true</useIncrementalCompilation>
             </configuration>
           </plugin>
           <plugin>
@@ -362,7 +367,7 @@
                 </goals>
                 <configuration>
                   <sources>
-                    <source>src/test-jdk14/java</source>
+                    <source>src/test-jdk11/java</source>
                     <source>src/test-jdk17/java</source>
                   </sources>
                 </configuration>
@@ -414,7 +419,7 @@
                 </goals>
                 <configuration>
                   <sources>
-                    <source>src/test-jdk14/java</source>
+                    <source>src/test-jdk11/java</source>
                     <source>src/test-jdk17/java</source>
                     <source>src/test-jdk21/java</source>
                   </sources>

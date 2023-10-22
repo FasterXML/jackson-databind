@@ -818,6 +818,9 @@ Freddy Boucher (freddyboucher@github)
 Ondrej Zizka (OndraZizk@github)
   * Reported #1999: "Duplicate property" issue should mention which class it complains about
    (2.9.6)
+  * Repoted #4145: NPE when transforming a tree to a model class object,
+    at `ArrayNode.elements()`
+   (2.16.0)
 
 Jakub Skierbiszewski (jskierbi@github)
   * Reported, contributed fix for #2001: Deserialization issue with `@JsonIgnore` and
@@ -1558,6 +1561,10 @@ Gili Tzabari (cowwoc@github)
   * Reported #3063: `@JsonValue` fails for Java Record
   (2.14.2)
 
+Yury Molchan (yurkom@github)
+  * Contributed #4121: Preserve the original component type in merging to an array
+  (2.14.4)
+
 Joo Hyuk Kim (JooHyukKim@github)
   * Contributed #2536: Add `EnumFeature.READ_ENUM_KEYS_USING_INDEX` to work with
     existing "WRITE_ENUM_KEYS_USING_INDEX"
@@ -1653,6 +1660,11 @@ Antti Lampinen (arlampin@github)
    and is marked `Access.WRITE_ONLY`
   (2.15.1)
 
+Kevin Baes (BaesKevin@github)
+ * Reported #3251: Generic class with generic field of runtime type `Double` is deserialized
+   as `BigDecimal` when used with `@JsonTypeInfo` and `JsonTypeInfo.As.EXISTING_PROPERTY`
+ (2.16.0)
+
 David Schlosnagle (schlosna@github)
  * Contributed #4008: Optimize `ObjectNode` findValue(s) and findParent(s) fast paths
   (2.16.0)
@@ -1688,4 +1700,14 @@ Andreas Zahnen (azahnen@github)
 Omar Aloraini (ooraini@github)
  * Requested #4061: Add JsonTypeInfo.Id.SIMPLE_NAME which defaults type id
    to `Class.getSimpleName()`
+  (2.16.0)
+
+Naoki Takezoe (takezoe@github)
+ * Contributed #4144: Log WARN if deprecated subclasses of `PropertyNamingStrategy`
+   is used
+  (2.16.0)
+
+Garret Wilson (garretwilson@github)
+ * Reported #4153: Deprecated `ObjectReader.withType(Type)` has no direct
+   replacement; need `forType(Type)`
   (2.16.0)

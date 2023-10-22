@@ -5,6 +5,7 @@ import java.io.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.cfg.CacheProvider;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
 import com.fasterxml.jackson.databind.ser.SerializerFactory;
@@ -42,6 +43,11 @@ public class NullSerializationTest
         @Override
         public DefaultSerializerProvider copy() {
             return this;
+        }
+
+        @Override
+        public DefaultSerializerProvider withCaches(CacheProvider cacheProvider) {
+            throw new UnsupportedOperationException();
         }
 
         @Override

@@ -9,7 +9,8 @@ syntax: glob
 .DS_Store
 
 # building
-target
+/target
+.mvn/wrapper/maven-wrapper.jar
 
 # Eclipse
 .classpath

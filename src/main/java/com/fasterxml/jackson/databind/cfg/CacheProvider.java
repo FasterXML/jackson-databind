@@ -1,5 +1,10 @@
 package com.fasterxml.jackson.databind.cfg;
 
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.DeserializerCache;
+import com.fasterxml.jackson.databind.util.LookupCache;
+import com.fasterxml.jackson.databind.util.TypeKey;
+
 /**
  * Interface that defines API Jackson uses for constructing various internal
  * caches. This allows configuring custom caches and cache configurations.
@@ -11,5 +16,27 @@ package com.fasterxml.jackson.databind.cfg;
 public interface CacheProvider
     extends java.io.Serializable
 {
-    // !!! TODO: add methods
+    /**
+     * Method for constructing a {@link LookupCache} instance to be used by
+     * {@link DeserializerCache}.
+     *
+     * @return {@link LookupCache} instance for use by {@link DeserializerCache}.
+     */
+    LookupCache<JavaType, JsonDeserializer<Object>> forDeserializerCache(DeserializationConfig config);
+
+    /**
+     * Method for constructing a {@link LookupCache} instance to be used by
+     * {@link com.fasterxml.jackson.databind.ser.SerializerCache}.
+     *
+     * @return {@link LookupCache} instance for constructing {@link com.fasterxml.jackson.databind.ser.SerializerCache}.
+     */
+    LookupCache<TypeKey, JsonSerializer<Object>> forSerializerCache(SerializationConfig config);
+
+    /**
+     * Method for constructing a {@link LookupCache} instance to be used by
+     * {@link com.fasterxml.jackson.databind.type.TypeFactory}.
+     *
+     * @return {@link LookupCache} instance for constructing {@link com.fasterxml.jackson.databind.type.TypeFactory}.
+     */
+    LookupCache<Object, JavaType> forTypeFactory();
 }

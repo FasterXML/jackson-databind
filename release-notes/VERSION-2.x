@@ -4,10 +4,21 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.16.0 (not yet released)
+2.16.0-rc1 (20-Oct-2023)
 
+#2502: Add a way to configure caches Jackson uses
+ (contributed by Joo-Hyuk K)
 #2787: Mix-ins do not work for `Enum`s
  (fix contributed by Joo-Hyuk K)
+#3251: Generic class with generic field of runtime type `Double` is deserialized
+  as `BigDecimal` when used with `@JsonTypeInfo` and `JsonTypeInfo.As.EXISTING_PROPERTY`
+ (reported by Kevin B)
+#3647: `@JsonIgnoreProperties` not working with `@JsonValue`
+ (reported by @ThatSneakyRaccoon)
+ (fix contributed by Joo-Hyuk K)
+#3780: Deprecated JsonNode.with(String) suggests using JsonNode.withObject(String)
+  but it is not the same thing
+ (reported by @bmatasar)
 #3838: Difference in the handling of `ObjectId-property` in `JsonIdentityInfo`
   depending on the deserialization route
  (fix contributed by Joo-Hyuk K)
@@ -70,11 +81,27 @@ Project: jackson-databind
   trying to setAccessible on `OptionalInt` with JDK 17+
 #4090: Support sequenced collections (JDK 21)S
  (contributed by @pjfanning)
+#4095: Add `withObjectProperty(String)`, `withArrayProperty(String)` in `JsonNode`
+#4096: Change `JsonNode.withObject(String)` to work similar to `withArray()`
+  wrt argument
+#4144: Log WARN if deprecated subclasses of `PropertyNamingStrategy` is used
+ (contributed by Naoki T)
+#4145: NPE when transforming a tree to a model class object, at `ArrayNode.elements()`
+ (reported by Ondrej Z)
+#4153: Deprecated `ObjectReader.withType(Type)` has no direct replacement;
+  need `forType(Type)`
+ (reported by Garren W)
+#4164: Do not rewind `position` when serializing direct `ByteBuffer`
+ (fix contributed by Jonas K)
+#4159: Add new `DefaultTyping.NON_FINAL_AND_ENUMS` to allow Default Typing for `Enum`s
+ (contributed by Joo-Hyuk K)
 
-2.15.3 (not yet released)
+2.15.3 (12-Oct-2023)
 
 #3968: Records with additional constructors failed to deserialize
  (fix contributed by Sim Y-T)
+#4121: Preserve the original component type in merging to an array
+ (contributed by Yury M)
 
 2.15.2 (30-May-2023)
 
@@ -1261,7 +1288,7 @@ No changes since 2.13.2.1 but fixed Gradle Module Metadata ("module.json")
   `TokenBuffer` content
  (reported by Patrick G)
 #1444: Change `ObjectMapper.setSerializationInclusion()` to apply to content inclusion too
-#1450: `SimpleModule.addKeyDeserializer()' should throw `IllegalArgumentException` if `null`
+#1450: `SimpleModule.addKeyDeserializer()` should throw `IllegalArgumentException` if `null`
   reference of `KeyDeserializer` passed
  (suggested by PawelJagus@github)
 #1454: Support `@JsonFormat.lenient` for `java.util.Date`, `java.util.Calendar`

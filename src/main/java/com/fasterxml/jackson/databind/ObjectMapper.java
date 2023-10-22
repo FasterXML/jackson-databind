@@ -9,6 +9,7 @@ import java.text.DateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.*;
@@ -189,6 +190,16 @@ public class ObjectMapper
         NON_FINAL,
 
         /**
+         * Enables default typing for non-final types as {@link #NON_FINAL},
+         * but also includes Enums.
+         * Designed to allow default typing of Enums without resorting to
+         * {@link #EVERYTHING}, which has security implications.
+         *<p>
+         * @since 2.16
+         */
+        NON_FINAL_AND_ENUMS,
+
+        /**
          * Value that means that default typing will be used for
          * all types, with exception of small number of
          * "natural" types (String, Boolean, Integer, Double) that
@@ -354,6 +365,20 @@ public class ObjectMapper
                 }
                 // [databind#88] Should not apply to JSON tree models:
                 return !t.isFinal() && !TreeNode.class.isAssignableFrom(t.getRawClass());
+
+            case NON_FINAL_AND_ENUMS: // since 2.16
+                while (t.isArrayType()) {
+                    t = t.getContentType();
+                }
+                // 19-Apr-2016, tatu: ReferenceType like Optional also requires similar handling:
+                while (t.isReferenceType()) {
+                    t = t.getReferencedType();
+                }
+                // [databind#88] Should not apply to JSON tree models:
+                return (!t.isFinal() && !TreeNode.class.isAssignableFrom(t.getRawClass()))
+                        // [databind#3569] Allow use of default typing for Enums
+                        || t.isEnumType();
+
             case EVERYTHING:
                 // So, excluding primitives (handled earlier) and "Natural types" (handled
                 // before this method is called), applied to everything
@@ -2150,6 +2175,10 @@ public class ObjectMapper
      * Note that such settings are only applied if more specific
      * (by logical and physical type) configuration have
      * not been defined.
+     * <p>
+     * NOTE: Preferred access method and point is through {@code Builder} style
+     * construction, see {@link com.fasterxml.jackson.databind.json.JsonMapper.Builder}
+     * and {@link MapperBuilder#withCoercionConfigDefaults(Consumer)}.
      *
      * @since 2.12
      */
@@ -2160,6 +2189,10 @@ public class ObjectMapper
     /**
      * Accessor for {@link MutableCoercionConfig} through which
      * coercion configuration for specified logical target type can be set.
+     * <p>
+     * NOTE: Preferred access method and point is through {@code Builder} style
+     * construction, see {@link com.fasterxml.jackson.databind.json.JsonMapper.Builder}
+     * and {@link MapperBuilder#withCoercionConfig(LogicalType, Consumer)}.
      *
      * @since 2.12
      */
@@ -2170,6 +2203,10 @@ public class ObjectMapper
     /**
      * Accessor for {@link MutableCoercionConfig} through which
      * coercion configuration for specified physical target type can be set.
+     * <p>
+     * NOTE: Preferred access method and point is through {@code Builder} style
+     * construction, see {@link com.fasterxml.jackson.databind.json.JsonMapper.Builder}
+     * and {@link MapperBuilder#withCoercionConfig(Class, Consumer)} (Consumer)}.
      *
      * @since 2.12
      */
@@ -2272,11 +2309,19 @@ public class ObjectMapper
     /**
      * Method for specifying {@link CacheProvider} instance, to provide Cache instances to be used in components downstream.
      *
+     * @cacheProvider Cache provider for this mapper to use
+     *
+     * @throws IllegalArgumentException if given provider is null
+     *
      * @since 2.16
      */
     public ObjectMapper setCacheProvider(CacheProvider cacheProvider) {
+        _assertNotNull("cacheProvider", cacheProvider);
         _deserializationConfig = _deserializationConfig.with(cacheProvider);
         _serializationConfig = _serializationConfig.with(cacheProvider);
+        _deserializationContext = _deserializationContext.withCaches(cacheProvider);
+        _serializerProvider = _serializerProvider.withCaches(cacheProvider);
+        _typeFactory = _typeFactory.withCache(cacheProvider.forTypeFactory());
         return this;
     }
 

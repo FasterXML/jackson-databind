@@ -37,4 +37,4 @@ jobs:
         java-version: ${{ matrix.java_version }}
         cache: 'maven'
     - name: Build
-      run: mvnw -B -ff -ntp clean verify
+      run: mvnw.cmd -B -ff -ntp clean verify

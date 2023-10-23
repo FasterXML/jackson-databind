@@ -202,8 +202,8 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals("Black", readResult.get("color").asText());
         assertEquals(true, readResult.get("free").asBoolean());
         assertEquals(204, readResult.get("pages").asInt());
-        String readResultAsString = "{\n  \"color\" : \"Black\",\n  \"free\" : \"true\",\n  \"pages\" : \"204.04\"\n}";
-        assertEquals(readResultAsString, mapper.writeValueAsString(readResult));
+        String readResultAsString = _unifyLFs("{\n  \"color\" : \"Black\",\n  \"free\" : \"true\",\n  \"pages\" : \"204.04\"\n}");
+        assertEquals(readResultAsString, _unifyLFs(mapper.writeValueAsString(readResult)));
 
         // validate properties
         Boolean mapperConfig1 = mapper._deserializationConfig.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
@@ -222,6 +222,10 @@ public class ObjectMapperTest extends BaseMapTest
         assertNotSame(mapper.getFactory().isEnabled(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING),
             copiedMapper.getFactory().isEnabled(JsonFactory.Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING)
         );
+    }
+
+    private String _unifyLFs(String doc) {
+        return doc.replaceAll("[\r\n]+", "\n");
     }
 
     public void testFailedCopy() throws Exception

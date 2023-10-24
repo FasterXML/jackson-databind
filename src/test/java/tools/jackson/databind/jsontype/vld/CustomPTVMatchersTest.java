@@ -1,6 +1,6 @@
 package tools.jackson.databind.jsontype.vld;
 
-import java.net.URL;
+import java.util.TimeZone;
 
 import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.DefaultTyping;
@@ -51,7 +51,7 @@ public class CustomPTVMatchersTest extends BaseMapTest
                 .allowIfBaseType((ctxt, base) -> base.getName().startsWith("tools.jackson." ))
                 .build();
         ObjectMapper mapper = jsonMapperBuilder()
-                .activateDefaultTyping(ptv, DefaultTyping.EVERYTHING)
+                .activateDefaultTyping(ptv, DefaultTyping.NON_FINAL)
                 .build();
         // First: in this case, allow "Bad" one too (note: default typing based on
         // runtime type here)
@@ -60,12 +60,13 @@ public class CustomPTVMatchersTest extends BaseMapTest
         assertEquals(CustomBad.class, result.getClass());
 
         // but other types not so good
-        final String badJson = mapper.writeValueAsString(new URL("http://localhost") );
+        // NOTE! Need to use non-final type (2.x used java.net.URL)
+        final String badJson = mapper.writeValueAsString(TimeZone.getDefault());
         try {
-            mapper.readValue(badJson, URL.class);
+            mapper.readValue(badJson, TimeZone.class);
             fail("Should not pass");
         } catch (InvalidTypeIdException e) {
-            verifyException(e, "Could not resolve type id 'java.net.URL'");
+            verifyException(e, "Could not resolve type id 'java.util.TimeZone'");
             verifyException(e, "as a subtype of");
         }
         assertEquals(CustomBad.class, result.getClass());

@@ -157,11 +157,6 @@ public class DefaultTypeResolverBuilder
                     // [databind#3569] Allow use of default typing for Enums
                     || t.isEnumType();
 
-        case EVERYTHING:
-            // So, excluding primitives (handled earlier) and "Natural types" (handled
-            // before this method is called), applied to everything
-            return true;
-
         default:
         case JAVA_LANG_OBJECT:
             return t.isJavaLangObject();

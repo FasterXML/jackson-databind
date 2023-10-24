@@ -4,6 +4,11 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+Not yet released
+
+#1172: `@JsonView` doesn't work with `@JsonCreator`
+ (reported by Dmitry B)
+
 2.15.3 (12-Oct-2023)
 
 #3968: Records with additional constructors failed to deserialize

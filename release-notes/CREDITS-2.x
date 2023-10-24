@@ -1642,3 +1642,7 @@ Antti Lampinen (arlampin@github)
   * Reported #3897: 2.15.0 breaks deserialization when POJO/Record only has a single field
     and is marked `Access.WRITE_ONLY`
    (2.15.1)
+
+Dmitry Bolotin (dbolotin@github)
+  * Reported #1172: `@JsonView` doesn't work with `@JsonCreator`
+   (2.15.4)

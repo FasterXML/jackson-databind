@@ -415,12 +415,15 @@ public class TestDefaultForObject
         assertEquals(a2q("{'name':'abc'}"),
                 mapper.writeValueAsString(new FinalStringBean("abc")));
 
+        // 23-Oct-2023, tatu: [databind#4160] Remove "EVERYTHING" option
+        /*
         mapper = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                         DefaultTyping.EVERYTHING)
                 .build();
         assertEquals(a2q("['"+FinalStringBean.class.getName()+"',{'name':'abc'}]"),
                 mapper.writeValueAsString(new FinalStringBean("abc")));
+                */
     }
 
     /*

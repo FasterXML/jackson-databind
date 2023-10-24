@@ -13,7 +13,7 @@ public class BasicPTVKnownTypesTest extends BaseMapTest
             .activateDefaultTyping(BasicPolymorphicTypeValidator.builder()
                     .allowSubTypesWithExplicitDeserializer()
                     .build(),
-                    DefaultTyping.EVERYTHING)
+                    DefaultTyping.NON_FINAL_AND_ENUMS)
             .build();
 
     static class Dangerous {

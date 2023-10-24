@@ -8,6 +8,7 @@ import java.util.Set;
 import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.DefaultTyping;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectWriter;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
@@ -17,7 +18,7 @@ public class Java9ListsTest extends BaseMapTest
     private final ObjectMapper MAPPER = JsonMapper.builder()
             .activateDefaultTypingAsProperty(
                     NoCheckSubTypeValidator.instance,
-                    DefaultTyping.EVERYTHING,
+                    DefaultTyping.NON_FINAL,
                  "@class"
             ).build();
 
@@ -39,47 +40,49 @@ System.err.println("LIST type: "+type);
 System.err.println(" final? "+type.isFinal());
          }
          */
-         String actualJson = MAPPER.writeValueAsString(list);
+         ObjectWriter w = MAPPER.writerFor(List.class);
+         String actualJson = w.writeValueAsString(list);
          List<?>  output = MAPPER.readValue(actualJson, List.class);
          assertEquals(1, output.size());
 
          // and couple of alternatives:
          list = List.of("a", "b");
-         actualJson = MAPPER.writeValueAsString(list);
+         actualJson = w.writeValueAsString(list);
          output = MAPPER.readValue(actualJson, List.class);
          assertEquals(2, output.size());
 
          list = List.of("a", "b", "c");
-         actualJson = MAPPER.writeValueAsString(list);
+         actualJson = w.writeValueAsString(list);
          output = MAPPER.readValue(actualJson, List.class);
          assertEquals(3, output.size());
 
          list = List.of();
-         actualJson = MAPPER.writeValueAsString(list);
+         actualJson = w.writeValueAsString(list);
          output = MAPPER.readValue(actualJson, List.class);
          assertEquals(0, output.size());
     }
 
     public void testJava9MapOf() throws Exception
     {
+        ObjectWriter w = MAPPER.writerFor(Map.class);
         Map<String,String> map = Map.of("key", "value");
-        String actualJson = MAPPER.writeValueAsString(map);
+        String actualJson = w.writeValueAsString(map);
         Map<?,?>  output = MAPPER.readValue(actualJson, Map.class);
         assertEquals(1, output.size());
 
         // and alternatives
         map = Map.of("key", "value", "foo", "bar");
-        actualJson = MAPPER.writeValueAsString(map);
+        actualJson = w.writeValueAsString(map);
         output = MAPPER.readValue(actualJson, Map.class);
         assertEquals(2, output.size());
 
         map = Map.of("key", "value", "foo", "bar", "last", "one");
-        actualJson = MAPPER.writeValueAsString(map);
+        actualJson = w.writeValueAsString(map);
         output = MAPPER.readValue(actualJson, Map.class);
         assertEquals(3, output.size());
 
         map = Map.of();
-        actualJson = MAPPER.writeValueAsString(map);
+        actualJson = w.writeValueAsString(map);
         output = MAPPER.readValue(actualJson, Map.class);
         assertEquals(0, output.size());
     }
@@ -87,8 +90,9 @@ System.err.println(" final? "+type.isFinal());
     // [databind#3344]
     public void testJava9SetOf() throws Exception
     {
+        ObjectWriter w = MAPPER.writerFor(Set.class);
         Set<?> set = Set.of("a", "b", "c");
-        String actualJson = MAPPER.writeValueAsString(set);
+        String actualJson = w.writeValueAsString(set);
         Set<?> output = MAPPER.readValue(actualJson, Set.class);
         assertTrue(output instanceof Set<?>);
         assertEquals(set, output);

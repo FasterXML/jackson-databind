@@ -239,7 +239,7 @@ public abstract class BaseMapTest
     }
 
     // @since 2.10
-    protected static ObjectMapper newJsonMapper() {
+    public static ObjectMapper newJsonMapper() {
         return new JsonMapper();
     }
 

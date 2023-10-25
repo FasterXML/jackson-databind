@@ -20,6 +20,8 @@ public class RecordBasicsTest extends BaseMapTest
 
     record SimpleRecord(int id, String name) { }
 
+    private record PrivateTextRecord(String text) { }
+
     record RecordOfRecord(SimpleRecord record) { }
 
     record RecordWithRename(int id, @JsonProperty("rename")String name) { }
@@ -93,6 +95,18 @@ public class RecordBasicsTest extends BaseMapTest
     public void testDeserializeSimpleRecord() throws Exception {
         assertEquals(new SimpleRecord(123, "Bob"),
                 MAPPER.readValue("{\"id\":123,\"name\":\"Bob\"}", SimpleRecord.class));
+    }
+
+    public void testSerializePrivateTextRecord() throws Exception {
+        PrivateTextRecord textRecord = new PrivateTextRecord("anything");
+        String json = MAPPER.writeValueAsString(textRecord);
+        final Object EXP = Collections.singletonMap("text", "anything");
+        assertEquals(EXP, MAPPER.readValue(json, Object.class));
+    }
+
+    public void testDeserializePrivateTextRecord() throws Exception {
+        assertEquals(new PrivateTextRecord("anything"),
+                MAPPER.readValue("{\"text\":\"anything\"}", PrivateTextRecord.class));
     }
 
     public void testSerializeEmptyRecord() throws Exception {

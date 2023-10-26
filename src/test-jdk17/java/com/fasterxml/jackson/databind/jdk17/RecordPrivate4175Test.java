@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.failing;
+package com.fasterxml.jackson.databind.jdk17;
 
 import java.util.Collections;
 

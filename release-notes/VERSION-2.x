@@ -95,6 +95,9 @@ Project: jackson-databind
  (fix contributed by Jonas K)
 #4159: Add new `DefaultTyping.NON_FINAL_AND_ENUMS` to allow Default Typing for `Enum`s
  (contributed by Joo-Hyuk K)
+#4175: Exception when deserialization of private record with default constructor
+ (reported by Jan P)
+ (contributed by Joo-Hyuk K)
 
 2.15.4 (not yet released)
 

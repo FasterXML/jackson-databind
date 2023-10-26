@@ -839,6 +839,15 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
             vc = VisibilityChecker.Std.allPublicInstance();
         } else {
             vc = getDefaultVisibilityChecker();
+            // 20-May-2023, tatu: [databind#3906] Must reset visibility for Records
+            //    to avoid hiding Constructors.
+            if (ClassUtil.isRecordType(baseType)) {
+                // But only if creator auto-detection enabled:
+                if (isEnabled(MapperFeature.AUTO_DETECT_CREATORS)) {
+                    // [databind#4175] Changed Visibility from NON_PRIVATE to DEFAULT since 2.16
+                    vc = vc.withCreatorVisibility(Visibility.DEFAULT);
+                }
+            }
         }
         AnnotationIntrospector intr = getAnnotationIntrospector();
         if (intr != null) {

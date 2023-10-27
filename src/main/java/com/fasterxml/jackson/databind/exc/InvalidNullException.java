@@ -30,7 +30,7 @@ public class InvalidNullException
     protected InvalidNullException(DeserializationContext ctxt, String msg,
             PropertyName pname)
     {
-        super(ctxt.getParser(), msg);
+        super(ctxt == null ? null : ctxt.getParser(), msg);
         _propertyName = pname;
     }
 

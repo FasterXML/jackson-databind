@@ -844,7 +844,8 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
             if (ClassUtil.isRecordType(baseType)) {
                 // But only if creator auto-detection enabled:
                 if (isEnabled(MapperFeature.AUTO_DETECT_CREATORS)) {
-                    vc = vc.withCreatorVisibility(Visibility.NON_PRIVATE);
+                    // [databind#4175] Changed Visibility from NON_PRIVATE to DEFAULT since 2.16
+                    vc = vc.withCreatorVisibility(Visibility.DEFAULT);
                 }
             }
         }

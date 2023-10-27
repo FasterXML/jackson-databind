@@ -48,8 +48,9 @@ public class VisibilityChecker
             Visibility.PUBLIC_ONLY, // getter
             Visibility.PUBLIC_ONLY, // is-getter
             Visibility.PUBLIC_ONLY, // setter
-            Visibility.NON_PRIVATE, // creator
-            Visibility.NON_PRIVATE // scalar-constructor (1 arg)
+            // 26-Oct-2023, tatu: For [databind#4175] change from NON_PRIVATE to ANY
+            Visibility.ANY, // creator
+            Visibility.ANY // scalar-constructor (1 arg)
     );
 
     protected final Visibility _fieldMinLevel;

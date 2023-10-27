@@ -1718,3 +1718,8 @@ Garret Wilson (garretwilson@github)
  * Reported #4153: Deprecated `ObjectReader.withType(Type)` has no direct
    replacement; need `forType(Type)`
   (2.16.0)
+
+Jan Pachol (janpacho@github)
+ * Reported #4175: Exception when deserialization of `private` record with
+   default constructor
+  (2.16.0)

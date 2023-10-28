@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamReadException;
-import tools.jackson.core.exc.WrappedIOException;
+import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.io.CharacterEscapes;
 import tools.jackson.core.io.SegmentedStringWriter;
 import tools.jackson.core.json.JsonFactory;
@@ -901,7 +901,7 @@ public class ObjectMapper
      *   as a non-null {@link JsonNode} (one that returns <code>true</code>
      *   for {@link JsonNode#isNull()}
      *
-     * @throws WrappedIOException if a low-level I/O problem (unexpected end-of-input,
+     * @throws JacksonIOException if a low-level I/O problem (unexpected end-of-input,
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
@@ -956,7 +956,7 @@ public class ObjectMapper
      * The reason is that due to type erasure, key and value types
      * cannot be introspected when using this method.
      *
-     * @throws WrappedIOException if a low-level I/O problem (unexpected end-of-input,
+     * @throws JacksonIOException if a low-level I/O problem (unexpected end-of-input,
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
@@ -979,7 +979,7 @@ public class ObjectMapper
      * and specifically needs to be used if the root type is a
      * parameterized (generic) container type.
      *
-     * @throws WrappedIOException if a low-level I/O problem (unexpected end-of-input,
+     * @throws JacksonIOException if a low-level I/O problem (unexpected end-of-input,
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
@@ -1001,7 +1001,7 @@ public class ObjectMapper
      * Jackson specific type; instance of which can be constructed using
      * {@link TypeFactory}.
      *
-     * @throws WrappedIOException if a low-level I/O problem (unexpected end-of-input,
+     * @throws JacksonIOException if a low-level I/O problem (unexpected end-of-input,
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
@@ -1020,7 +1020,7 @@ public class ObjectMapper
     /**
      * Type-safe overloaded method, basically alias for {@link #readValue(JsonParser, Class)}.
      *
-     * @throws WrappedIOException if a low-level I/O problem (unexpected end-of-input,
+     * @throws JacksonIOException if a low-level I/O problem (unexpected end-of-input,
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
@@ -1370,7 +1370,7 @@ public class ObjectMapper
     /**
      * Method to deserialize JSON content from given file into given Java type.
      *
-     * @throws WrappedIOException if a low-level I/O problem (unexpected end-of-input,
+     * @throws JacksonIOException if a low-level I/O problem (unexpected end-of-input,
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
@@ -1391,7 +1391,7 @@ public class ObjectMapper
     /**
      * Method to deserialize JSON content from given file into given Java type.
      *
-     * @throws WrappedIOException if a low-level I/O problem (unexpected end-of-input,
+     * @throws JacksonIOException if a low-level I/O problem (unexpected end-of-input,
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
@@ -1412,7 +1412,7 @@ public class ObjectMapper
     /**
      * Method to deserialize JSON content from given file into given Java type.
      *
-     * @throws WrappedIOException if a low-level I/O problem (unexpected end-of-input,
+     * @throws JacksonIOException if a low-level I/O problem (unexpected end-of-input,
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
@@ -1432,7 +1432,7 @@ public class ObjectMapper
     /**
      * Method to deserialize JSON content from given path into given Java type.
      *
-     * @throws WrappedIOException if a low-level I/O problem (unexpected end-of-input,
+     * @throws JacksonIOException if a low-level I/O problem (unexpected end-of-input,
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
@@ -1455,7 +1455,7 @@ public class ObjectMapper
     /**
      * Method to deserialize JSON content from given path into given Java type.
      *
-     * @throws WrappedIOException if a low-level I/O problem (unexpected end-of-input,
+     * @throws JacksonIOException if a low-level I/O problem (unexpected end-of-input,
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
@@ -1478,7 +1478,7 @@ public class ObjectMapper
     /**
      * Method to deserialize JSON content from given path into given Java type.
      *
-     * @throws WrappedIOException if a low-level I/O problem (unexpected end-of-input,
+     * @throws JacksonIOException if a low-level I/O problem (unexpected end-of-input,
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
@@ -1506,7 +1506,7 @@ public class ObjectMapper
      * is done. If different HTTP connection options are needed you will need
      * to create {@link java.io.InputStream} separately.
      *
-     * @throws WrappedIOException if a low-level I/O problem (unexpected end-of-input,
+     * @throws JacksonIOException if a low-level I/O problem (unexpected end-of-input,
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
@@ -1551,7 +1551,7 @@ public class ObjectMapper
     /**
      * Method to deserialize JSON content from given JSON content String.
      *
-     * @throws WrappedIOException if a low-level I/O problem (unexpected end-of-input,
+     * @throws JacksonIOException if a low-level I/O problem (unexpected end-of-input,
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
@@ -1573,7 +1573,7 @@ public class ObjectMapper
     /**
      * Method to deserialize JSON content from given JSON content String.
      *
-     * @throws WrappedIOException if a low-level I/O problem (unexpected end-of-input,
+     * @throws JacksonIOException if a low-level I/O problem (unexpected end-of-input,
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
@@ -1594,7 +1594,7 @@ public class ObjectMapper
     /**
      * Method to deserialize JSON content from given JSON content String.
      *
-     * @throws WrappedIOException if a low-level I/O problem (unexpected end-of-input,
+     * @throws JacksonIOException if a low-level I/O problem (unexpected end-of-input,
      *   network error) occurs (passed through as-is without additional wrapping -- note
      *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
      *   does NOT result in wrapping of exception even if enabled)
@@ -1926,7 +1926,7 @@ public class ObjectMapper
         try {
             toClose.close();
         } catch (IOException e) {
-            throw WrappedIOException.construct(e);
+            throw JacksonIOException.construct(e);
         }
     }
 

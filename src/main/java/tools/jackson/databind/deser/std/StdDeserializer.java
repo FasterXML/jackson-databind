@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.Nulls;
 import tools.jackson.core.*;
 import tools.jackson.core.JsonParser.NumberType;
 import tools.jackson.core.exc.InputCoercionException;
-import tools.jackson.core.exc.WrappedIOException;
+import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.io.NumberInput;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JacksonStdImpl;
@@ -1978,7 +1978,7 @@ handledType().getName());
 
     // @since 3.0
     protected JacksonException _wrapIOFailure(DeserializationContext ctxt, IOException e) {
-        return WrappedIOException.construct(e, ctxt);
+        return JacksonIOException.construct(e, ctxt);
     }
 
     /*

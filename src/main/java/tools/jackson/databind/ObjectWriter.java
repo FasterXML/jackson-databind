@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import tools.jackson.core.*;
-import tools.jackson.core.exc.WrappedIOException;
+import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.io.CharacterEscapes;
 import tools.jackson.core.io.SegmentedStringWriter;
 import tools.jackson.core.type.TypeReference;
@@ -965,7 +965,7 @@ public class ObjectWriter
             try {
                 toClose.close();
             } catch (IOException e) {
-                throw WrappedIOException.construct(e, g);
+                throw JacksonIOException.construct(e, g);
             }
         } else {
             _prefetch.serialize(g, value, _serializerProvider());

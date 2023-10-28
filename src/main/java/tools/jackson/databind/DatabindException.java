@@ -5,13 +5,13 @@ import java.io.Serializable;
 import java.util.*;
 
 import tools.jackson.core.*;
-import tools.jackson.core.exc.WrappedIOException;
+import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.databind.util.ClassUtil;
 
 /**
  * Exception used to signal fatal problems with mapping of
  * content, distinct from low-level I/O problems (signaled using
- * simple {@link WrappedIOException}s) or data encoding/decoding
+ * simple {@link JacksonIOException}s) or data encoding/decoding
  * problems (signaled with {@link tools.jackson.core.exc.StreamReadException},
  * {@link tools.jackson.core.exc.StreamWriteException}).
  *<p>

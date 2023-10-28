@@ -1,7 +1,7 @@
 package tools.jackson.databind.exc;
 
 import tools.jackson.core.*;
-import tools.jackson.core.exc.WrappedIOException;
+import tools.jackson.core.exc.JacksonIOException;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.BrokenStringReader;
@@ -78,7 +78,7 @@ public class DeserExceptionTypeTest
         } catch (JacksonException e) {
             // For "bona fide" IO problems (due to low-level problem,
             // thrown by reader/stream), IOException must be thrown
-            verifyException(e, WrappedIOException.class, "TEST");
+            verifyException(e, JacksonIOException.class, "TEST");
         }
     }
 

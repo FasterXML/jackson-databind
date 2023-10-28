@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.Collection;
 
 import tools.jackson.core.*;
-import tools.jackson.core.exc.WrappedIOException;
+import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.ser.SerializationContextExt;
 import tools.jackson.databind.ser.impl.PropertySerializerMap;
@@ -264,7 +264,7 @@ public class SequenceWriter
             try {
                 tmpToClose.close();
             } catch (IOException e) {
-                throw WrappedIOException.construct(e, _generator);
+                throw JacksonIOException.construct(e, _generator);
             }
         } finally {
             if (toClose != null) { // only if there was other throwable
@@ -295,7 +295,7 @@ public class SequenceWriter
             try {
                 tmpToClose.close();
             } catch (IOException e) {
-                throw WrappedIOException.construct(e);
+                throw JacksonIOException.construct(e);
             }
         } finally {
             if (toClose != null) { // only if there was another throwable

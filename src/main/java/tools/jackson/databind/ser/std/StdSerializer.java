@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 import tools.jackson.core.*;
 import tools.jackson.core.JsonParser.NumberType;
-import tools.jackson.core.exc.WrappedIOException;
+import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JacksonStdImpl;
 import tools.jackson.databind.introspect.AnnotatedMember;
@@ -241,7 +241,7 @@ public abstract class StdSerializer<T>
             t = t.getCause();
         }
         // 16-Jan-2021, tatu: Let's peel off useless wrapper as well
-        while (t instanceof WrappedIOException && t.getCause() != null) {
+        while (t instanceof JacksonIOException && t.getCause() != null) {
             t = t.getCause();
         }
         // Errors to be passed as is, most others not
@@ -263,7 +263,7 @@ public abstract class StdSerializer<T>
         while (t instanceof InvocationTargetException && t.getCause() != null) {
             t = t.getCause();
         }
-        while (t instanceof WrappedIOException && t.getCause() != null) {
+        while (t instanceof JacksonIOException && t.getCause() != null) {
             t = t.getCause();
         }
         // Errors to be passed as is, most others not
@@ -448,6 +448,6 @@ public abstract class StdSerializer<T>
 
     // @since 3.0
     protected JacksonException _wrapIOFailure(SerializerProvider ctxt, IOException e) {
-        return WrappedIOException.construct(e, ctxt);
+        return JacksonIOException.construct(e, ctxt);
     }
 }

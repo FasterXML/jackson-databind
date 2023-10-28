@@ -9,7 +9,7 @@ import java.util.*;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.StreamWriteFeature;
-import tools.jackson.core.exc.WrappedIOException;
+import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.util.Named;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.PropertyName;
@@ -360,7 +360,7 @@ public final class ClassUtil
      *<p>
      * Note that exception is thrown as-is if unchecked (likely case); if it is
      * checked, however, {@link RuntimeException} is thrown (except for
-     * {@link IOException} which will be wrapped as {@link WrappedIOException}.
+     * {@link IOException} which will be wrapped as {@link JacksonIOException}.
      *
      * @since 3.0 (with this name)
      */
@@ -378,7 +378,7 @@ public final class ClassUtil
         throwIfJacksonE(fail);
         throwIfRTE(fail);
         if (fail instanceof IOException) {
-            throw WrappedIOException.construct((IOException) fail, g);
+            throw JacksonIOException.construct((IOException) fail, g);
         }
         throw new RuntimeException(fail);
     }
@@ -412,7 +412,7 @@ public final class ClassUtil
         throwIfJacksonE(fail);
         throwIfRTE(fail);
         if (fail instanceof IOException) {
-            throw WrappedIOException.construct((IOException) fail, g);
+            throw JacksonIOException.construct((IOException) fail, g);
         }
         throw new RuntimeException(fail);
     }

@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamReadException;
-import tools.jackson.core.exc.WrappedIOException;
+import tools.jackson.core.exc.JacksonIOException;
 import tools.jackson.core.json.JsonReadFeature;
 
 import tools.jackson.databind.cfg.ContextAttributes;
@@ -743,7 +743,7 @@ public class ObjectReaderTest extends BaseMapTest
         try {
             MAPPER.readValue(file, FilePerson.class);
             fail("should not pass");
-        } catch (WrappedIOException e) {
+        } catch (JacksonIOException e) {
             verifyException(e, "SHOULD_NOT_EXIST");
         }
     }

@@ -39,12 +39,7 @@ public class CurrentValueDeser4184Test extends BaseMapTest
     static class UserTypeDeserializer extends ValueDeserializer<UserType> {
         @Override
         public UserType deserialize(JsonParser p, DeserializationContext ctxt) {
-            Object currentValue;
-            if (p.currentToken().isStructStart()) {
-                currentValue = p.streamReadContext().getParent().currentValue();
-            } else {
-                currentValue = p.streamReadContext().currentValue();
-            }
+            Object currentValue = p.streamReadContext().getParent().currentValue();
             if (null == currentValue) {
                 ctxt.reportInputMismatch(UserType.class, "No currentValue() available");
             }

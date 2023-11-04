@@ -386,12 +386,12 @@ public class BeanDeserializer
         throws JacksonException
     {
         final Object bean = _valueInstantiator.createUsingDefault(ctxt);
-        // [databind#631]: Assign current value, to be accessible by custom serializers
-        p.assignCurrentValue(bean);
-
         if (t != JsonToken.PROPERTY_NAME) {
             return bean;
         }
+        // [databind#631]: Assign current value, to be accessible by custom serializers
+        // [databind#4184]: but only if we have at least one property
+        p.assignCurrentValue(bean);
         int ix = p.currentNameMatch(_propNameMatcher);
         while (ix >= 0) { // minor unrolling here (by-2), less likely on critical path
             SettableBeanProperty prop = _propsByIndex[ix];

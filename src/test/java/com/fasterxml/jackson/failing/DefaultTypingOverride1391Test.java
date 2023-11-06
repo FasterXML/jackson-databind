@@ -14,7 +14,7 @@ public class DefaultTypingOverride1391Test extends BaseMapTest
     static class ListWrapper {
         /* 03-Oct-2016, tatu: This doesn't work because it applies to contents
          *   (elements), NOT the container. But there is no current mechanism
-         *   to change that; need to add a new feature or properties in 2.9
+         *   to change that; would need to add a new feature or properties
          */
         @JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
         public Collection<String> stuff = Collections.emptyList();

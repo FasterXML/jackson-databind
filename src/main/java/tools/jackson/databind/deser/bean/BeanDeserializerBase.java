@@ -182,7 +182,7 @@ public abstract class BeanDeserializerBase
     protected UnwrappedPropertyHandler _unwrappedPropertyHandler;
 
     /**
-     * Handler that we need iff any of properties uses external
+     * Handler that we need if any of properties uses external
      * type id.
      */
     protected ExternalTypeHandler _externalTypeIdHandler;
@@ -287,6 +287,8 @@ public abstract class BeanDeserializerBase
         _serializationShape = src._serializationShape;
 
         _vanillaProcessing = src._vanillaProcessing;
+
+        _externalTypeIdHandler = src._externalTypeIdHandler;
     }
 
     /**
@@ -323,6 +325,8 @@ public abstract class BeanDeserializerBase
 
         // probably adds a twist, so:
         _vanillaProcessing = false;
+
+        _externalTypeIdHandler = src._externalTypeIdHandler;
     }
 
     protected BeanDeserializerBase(BeanDeserializerBase src, ObjectIdReader oir)
@@ -361,6 +365,8 @@ public abstract class BeanDeserializerBase
             _beanProperties = src._beanProperties.withProperty(idProp);
             _vanillaProcessing = false;
         }
+
+        _externalTypeIdHandler = src._externalTypeIdHandler;
     }
 
     /**
@@ -395,6 +401,8 @@ public abstract class BeanDeserializerBase
         // 01-May-2016, tatu: [databind#1217]: Remove properties from mapping,
         //    to avoid them being deserialized
         _beanProperties = src._beanProperties.withoutProperties(ignorableProps, includableProps);
+
+        _externalTypeIdHandler = src._externalTypeIdHandler;
     }
 
     protected BeanDeserializerBase(BeanDeserializerBase src, BeanPropertyMap beanProps)
@@ -422,6 +430,8 @@ public abstract class BeanDeserializerBase
         _serializationShape = src._serializationShape;
 
         _vanillaProcessing = src._vanillaProcessing;
+
+        _externalTypeIdHandler = src._externalTypeIdHandler;
     }
 
     public abstract BeanDeserializerBase withObjectIdReader(ObjectIdReader oir);

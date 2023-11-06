@@ -8,6 +8,10 @@ Not yet released
 
 #1172: `@JsonView` doesn't work with `@JsonCreator`
  (reported by Dmitry B)
+#4185: `@JsonIgnoreProperties` with `@JsonTypeInfo(include = JsonTypeInfo.As.EXTERNAL_PROPERTY)`
+  does not work
+ (reported by @jonasho)
+ (fix contributed by Joo-Hyuk K)
 
 2.15.3 (12-Oct-2023)
 

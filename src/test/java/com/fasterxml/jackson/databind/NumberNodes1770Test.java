@@ -1,5 +1,9 @@
 package com.fasterxml.jackson.databind;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+
 import java.math.BigDecimal;
 
 /**
@@ -22,5 +26,18 @@ public class NumberNodes1770Test extends BaseMapTest
             .readTree(value);
         assertTrue("Expected DecimalNode, got: "+jsonNode.getClass().getName()+": "+jsonNode, jsonNode.isBigDecimal());
         assertEquals(new BigDecimal(value), jsonNode.decimalValue());
+    }
+
+    public void testBigDecimalCoercionInf() throws Exception
+    {
+        final String value = "+INF";
+        JsonFactory factory = JsonFactory.builder()
+                .enable(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)
+                .build();
+        final JsonNode jsonNode = new JsonMapper(factory).reader()
+                .with(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
+                .readTree(value);
+        assertTrue("Expected DoubleNode, got: "+jsonNode.getClass().getName()+": "+jsonNode, jsonNode.isDouble());
+        assertEquals(Double.POSITIVE_INFINITY, jsonNode.doubleValue());
     }
 }

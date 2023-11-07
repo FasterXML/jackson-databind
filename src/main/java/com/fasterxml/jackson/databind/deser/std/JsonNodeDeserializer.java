@@ -755,11 +755,6 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             return _fromBigDecimal(ctxt, nodeFactory, p.getDecimalValue());
         }
         if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
-            // 20-May-2016, tatu: As per [databind#1028], need to be careful
-            //   (note: JDK 1.8 would have `Double.isFinite()`)
-            if (p.isNaN()) {
-                return nodeFactory.numberNode(p.getDoubleValue());
-            }
             return _fromBigDecimal(ctxt, nodeFactory, p.getDecimalValue());
         }
         if (nt == JsonParser.NumberType.FLOAT) {

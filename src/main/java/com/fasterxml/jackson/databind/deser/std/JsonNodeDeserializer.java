@@ -755,7 +755,11 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             return _fromBigDecimal(ctxt, nodeFactory, p.getDecimalValue());
         }
         if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
-            return _fromBigDecimal(ctxt, nodeFactory, p.getDecimalValue());
+            try {
+                return _fromBigDecimal(ctxt, nodeFactory, p.getDecimalValue());
+            } catch (NumberFormatException nfe) {
+                // fall through - BigDecimal does not support values like NaN
+            }
         }
         if (nt == JsonParser.NumberType.FLOAT) {
             return nodeFactory.numberNode(p.getFloatValue());

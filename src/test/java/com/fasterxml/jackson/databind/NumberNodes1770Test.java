@@ -1,6 +1,4 @@
-package com.fasterxml.jackson.failing;
-
-import com.fasterxml.jackson.databind.*;
+package com.fasterxml.jackson.databind;
 
 import java.math.BigDecimal;
 

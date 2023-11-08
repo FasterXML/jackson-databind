@@ -6,6 +6,9 @@ Project: jackson-databind
 
 (not yet released)
 
+#1770: Incorrect deserialization for `BigDecimal` numbers
+ (reported by @cristian-mocanu-mob)
+ (fix contributed by @pjfanning)
 #4184: `BeanDeserializer` updates `currentValue` incorrectly when
   deserialising empty Object
  (reported by @nocny-x)

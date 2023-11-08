@@ -538,16 +538,18 @@ public abstract class BaseNodeDeserializer<T extends JsonNode>
             return nodeFactory.numberNode(nr);
         }
         if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
-            // 20-May-2016, tatu: As per [databind#1028], need to be careful
-            //   (note: JDK 1.8 would have `Double.isFinite()`)
-            if (p.isNaN()) {
-                return nodeFactory.numberNode(p.getDoubleValue());
+            BigDecimal nr;
+            try {
+                nr = p.getDecimalValue();
+                if (ctxt.isEnabled(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES)) {
+                    nr = _normalize(nr);
+                }
+                return nodeFactory.numberNode(nr);
+            } catch (NumberFormatException nfe) {
+                // 07-Nov-2023, tatu: [databind#1770]:
+                // fall through - BigDecimal does not support values like NaN
             }
-            BigDecimal nr = p.getDecimalValue();
-            if (ctxt.isEnabled(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES)) {
-                nr = _normalize(nr);
-            }
-            return nodeFactory.numberNode(nr);
+            return nodeFactory.numberNode(p.getDoubleValue());
         }
         if (nt == JsonParser.NumberType.FLOAT) {
             return nodeFactory.numberNode(p.getFloatValue());

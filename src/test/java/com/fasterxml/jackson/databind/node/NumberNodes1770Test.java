@@ -1,15 +1,14 @@
-package com.fasterxml.jackson.databind;
-
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.json.JsonReadFeature;
-import com.fasterxml.jackson.databind.json.JsonMapper;
+package com.fasterxml.jackson.databind.node;
 
 import java.math.BigDecimal;
 
-/**
- * Basic tests for {@link JsonNode} implementations that
- * contain numeric values.
- */
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.json.JsonReadFeature;
+
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+
+// Tests for [databind#1770]
 public class NumberNodes1770Test extends BaseMapTest
 {
     private final ObjectMapper MAPPER = newJsonMapper();

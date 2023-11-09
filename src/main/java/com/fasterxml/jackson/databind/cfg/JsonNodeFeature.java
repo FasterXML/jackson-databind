@@ -65,7 +65,7 @@ public enum JsonNodeFeature implements DatatypeFeature
 
     /**
      *
-     * Feature that determines we should fail on attempt to coercing {@code NaN} into {@link java.math.BigDecimal}
+     * Feature that determines whether to fail on attempt to coercing {@code NaN} into {@link java.math.BigDecimal}
      * because {@link com.fasterxml.jackson.databind.DeserializationFeature#USE_BIG_DECIMAL_FOR_FLOATS} is enabled.
      *<p>
      * Default value is {@code true} for backwards-compatibility, but will be changed to {@code false} in 3.0.

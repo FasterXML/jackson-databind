@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.node;
 
+import com.fasterxml.jackson.databind.cfg.JsonNodeFeature;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import java.math.BigDecimal;
 
 import com.fasterxml.jackson.core.JsonFactory;
@@ -38,5 +40,37 @@ public class NumberNodes1770Test extends BaseMapTest
                 .readTree(value);
         assertTrue("Expected DoubleNode, got: "+jsonNode.getClass().getName()+": "+jsonNode, jsonNode.isDouble());
         assertEquals(Double.POSITIVE_INFINITY, jsonNode.doubleValue());
+    }
+
+    // [databind#4194]: should be able to, by configuration, fail coercing NaN to BigDecimal
+    public void testBigDecimalCoercionNaN() throws Exception
+    {
+        _tryBigDecimalCoercionNaNWithOption(true);
+
+        try {
+            _tryBigDecimalCoercionNaNWithOption(false);
+            fail("Should not pass");
+        } catch (InvalidFormatException e) {
+            verifyException(e, "Cannot convert NaN");
+        }
+    }
+
+    private void _tryBigDecimalCoercionNaNWithOption(boolean isEnabled) throws Exception
+    {
+        JsonFactory factory = JsonFactory.builder()
+                .enable(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)
+                .build();
+        final ObjectReader reader = new JsonMapper(factory)
+                .reader()
+                .with(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
+
+        final String value = "NaN";
+        // depending on option
+        final JsonNode jsonNode = isEnabled
+                ? reader.with(JsonNodeFeature.ALLOW_NaN_TO_BIG_DECIMAL_COERCION).readTree(value)
+                : reader.without(JsonNodeFeature.ALLOW_NaN_TO_BIG_DECIMAL_COERCION).readTree(value);
+
+        assertTrue("Expected DoubleNode, got: "+jsonNode.getClass().getName()+": "+jsonNode, jsonNode.isDouble());
+        assertEquals(Double.NaN, jsonNode.doubleValue());
     }
 }

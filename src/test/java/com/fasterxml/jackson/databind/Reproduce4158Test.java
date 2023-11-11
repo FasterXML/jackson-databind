@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind;
 
 import static org.junit.Assert.assertEquals;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;

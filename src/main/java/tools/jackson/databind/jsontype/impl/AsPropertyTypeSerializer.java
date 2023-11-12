@@ -14,7 +14,7 @@ import tools.jackson.databind.jsontype.TypeIdResolver;
  * {@link As#WRAPPER_ARRAY} always works) as a fallback.
  */
 public class AsPropertyTypeSerializer
-    extends AsArrayTypeSerializer
+    extends TypeSerializerBase
 {
     protected final String _typePropertyName;
 
@@ -28,7 +28,7 @@ public class AsPropertyTypeSerializer
     public AsPropertyTypeSerializer forProperty(SerializerProvider ctxt,
             BeanProperty prop) {
         return (_property == prop) ? this :
-            new AsPropertyTypeSerializer(this._idResolver, prop, this._typePropertyName);
+            new AsPropertyTypeSerializer(_idResolver, prop, _typePropertyName);
     }
 
     @Override

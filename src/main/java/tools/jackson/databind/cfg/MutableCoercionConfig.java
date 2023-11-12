@@ -27,7 +27,7 @@ public class MutableCoercionConfig
      * Method to set coercions to target type or class during builder-style mapper construction with
      * <ul>
      *     <li>{@link MapperBuilder#withCoercionConfig(Class, Consumer)},</li>
-     *     <li>{@link MapperBuilder#withCoercionConfig(LogicalType, Consumer)} and</li>
+     *     <li>{@link MapperBuilder#withCoercionConfig(tools.jackson.databind.type.LogicalType, Consumer)} and</li>
      *     <li>{@link MapperBuilder#withCoercionConfigDefaults(Consumer)}</li>
      * </ul>
      * ... these builder methods. Refrain from using this method outside of builder phase.

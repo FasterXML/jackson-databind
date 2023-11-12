@@ -9,14 +9,18 @@ import tools.jackson.databind.jsontype.TypeIdResolver;
 /**
  * Type serializer used with {@link As#EXISTING_PROPERTY} inclusion mechanism.
  * Expects type information to be a well-defined property on all sub-classes.
+ * Inclusion of type information otherwise follows behavior of {@link As#PROPERTY}.
  */
 public class AsExistingPropertyTypeSerializer
-    extends AsPropertyTypeSerializer
+    extends TypeSerializerBase
 {
+    protected final String _typePropertyName;
+
     public AsExistingPropertyTypeSerializer(TypeIdResolver idRes,
             BeanProperty property, String propName)
     {
-        super(idRes, property, propName);
+        super(idRes, property);
+        _typePropertyName = propName;
     }
 
     @Override

@@ -167,7 +167,7 @@ public class RequiredCreatorTest extends BaseMapTest
         assertEquals("absent", r1.foo);
         assertEquals("value", r1.bar);
 
-        // -> throws MismatchedInputException: Missing required creator property 'bar' (index 1)
+        // Previously, would throw MismatchedInputException: Missing required creator property 'bar' (index 1)
         Dto4201 r2 = mapper.readValue("{}", Dto4201.class);
         assertEquals("absent", r2.foo);
         assertEquals("absent", r2.bar);

@@ -210,9 +210,8 @@ public class PropertyValueBuffer
             }
 
             // Fourth: default value
-            // [databind#4201] One may argue that.... required validation should come only
-            // "after" absent value and default value are accessed.
-            // But let's keep things to work as before while addressing issue here.
+            // [databind#4201] One may argue that.... required validation should come only "after" absent value and
+            // default value are accessed, but let's keep things to work as before while addressing the issue.
             JsonDeserializer<Object> deser = prop.getValueDeserializer();
             return deser.getAbsentValue(_context);
         } catch (DatabindException e) {

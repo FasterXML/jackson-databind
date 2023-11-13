@@ -2,8 +2,17 @@ package com.fasterxml.jackson.databind.deser.creators;
 
 import com.fasterxml.jackson.annotation.*;
 
+import com.fasterxml.jackson.core.JacksonException;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import com.fasterxml.jackson.databind.jsontype.ext.ExternalTypeIdWithIgnoreUnknownTest;
+import java.io.IOException;
+import java.util.List;
 
 public class RequiredCreatorTest extends BaseMapTest
 {
@@ -46,6 +55,41 @@ public class RequiredCreatorTest extends BaseMapTest
 
         public void setUserType(String userType) {
             this.userType = userType;
+        }
+    }
+
+    // [databind#4201]
+    static class MyDeser4201 extends StdDeserializer<String> {
+        public MyDeser4201() {
+            super(String.class);
+        }
+
+        @Override
+        public String deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {
+            return p.getValueAsString();
+        }
+
+        @Override
+        public Object getAbsentValue(DeserializationContext ctxt) {
+            return "absent";
+        }
+    }
+
+    static class Dto4201 {
+        private final String foo;
+        private final String bar;
+
+        @JsonCreator
+        Dto4201(
+                @JsonProperty(value = "foo", required = false)
+                @JsonDeserialize(using = MyDeser4201.class)
+                String foo,
+                @JsonDeserialize(using = MyDeser4201.class)
+                @JsonProperty(value = "bar", required = true)
+                String bar
+        ) {
+            this.foo = foo;
+            this.bar = bar;
         }
     }
 
@@ -113,5 +157,19 @@ public class RequiredCreatorTest extends BaseMapTest
         } catch (MismatchedInputException e) {
             verifyException(e, "Missing required creator property 'otp'");
         }
+    }
+
+    // [databind#4201]
+    public void testRequiredValueAbsentValueOrder() throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+
+        Dto4201 r1 = mapper.readValue("{\"bar\":\"value\"}", Dto4201.class);
+        assertEquals("absent", r1.foo);
+        assertEquals("value", r1.bar);
+
+        // -> throws MismatchedInputException: Missing required creator property 'bar' (index 1)
+        Dto4201 r2 = mapper.readValue("{}", Dto4201.class);
+        assertEquals("absent", r2.foo);
+        assertEquals("absent", r2.bar);
     }
 }

@@ -187,22 +187,26 @@ public class PropertyValueBuffer
             return _context.findInjectableValue(prop.getInjectableValueId(),
                     prop, null);
         }
-        // Second: required?
-        if (prop.isRequired()) {
-            _context.reportInputMismatch(prop, "Missing required creator property '%s' (index %d)",
-                    prop.getName(), prop.getCreatorIndex());
-        }
         if (_context.isEnabled(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES)) {
             _context.reportInputMismatch(prop,
                     "Missing creator property '%s' (index %d); `DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES` enabled",
                     prop.getName(), prop.getCreatorIndex());
         }
+
         try {
-            // Third: NullValueProvider? (22-Sep-2019, [databind#2458])
-            // 08-Aug-2021, tatu: consider [databind#3214]; not null but "absent" value...
-            Object absentValue = prop.getNullValueProvider().getAbsentValue(_context);
-            if (absentValue != null) {
-                return absentValue;
+            // For now, only non-primitive would look for absent values, because default is already provided
+            if (!prop.getType().isPrimitive()) {
+                // Second: NullValueProvider? (22-Sep-2019, [databind#2458])
+                // 08-Aug-2021, tatu: consider [databind#3214]; not null but "absent" value...
+                Object absentValue = prop.getNullValueProvider().getAbsentValue(_context);
+                if (absentValue != null) {
+                    return absentValue;
+                }
+            }
+            // Third: required?
+            if (prop.isRequired()) {
+                _context.reportInputMismatch(prop, "Missing required creator property '%s' (index %d)",
+                        prop.getName(), prop.getCreatorIndex());
             }
 
             // Fourth: default value

@@ -161,15 +161,20 @@ public class RequiredCreatorTest extends BaseMapTest
 
     // [databind#4201]
     public void testRequiredValueAbsentValueOrder() throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
+        // Case 1 : only required value is present
+        Dto4201 r1 = MAPPER.readValue("{\"bar\":\"value\"}", Dto4201.class);
+        assertEquals("absent", r1.foo); // not required
+        assertEquals("value", r1.bar); // required
 
-        Dto4201 r1 = mapper.readValue("{\"bar\":\"value\"}", Dto4201.class);
-        assertEquals("absent", r1.foo);
-        assertEquals("value", r1.bar);
+        // Case 2 : only non-required value is present
+        Dto4201 r2 = MAPPER.readValue("{\"foo\":\"value\"}", Dto4201.class);
+        assertEquals("value", r2.foo); // not required
+        assertEquals("absent", r2.bar); // required
 
+        // Case 3 : both values are missing
         // Previously, would throw MismatchedInputException: Missing required creator property 'bar' (index 1)
-        Dto4201 r2 = mapper.readValue("{}", Dto4201.class);
-        assertEquals("absent", r2.foo);
-        assertEquals("absent", r2.bar);
+        Dto4201 r3 = MAPPER.readValue("{}", Dto4201.class);
+        assertEquals("absent", r3.foo); // not required
+        assertEquals("absent", r3.bar); // required
     }
 }

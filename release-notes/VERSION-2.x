@@ -8,7 +8,7 @@ Project: jackson-databind
 
 -
 
-2.16.0 (15-Npv-2023)
+2.16.0 (15-Nov-2023)
 
 #1770: Incorrect deserialization for `BigDecimal` numbers
  (reported by @cristian-mocanu-mob)

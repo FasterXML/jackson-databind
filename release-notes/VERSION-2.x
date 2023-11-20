@@ -4,7 +4,11 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.16.0 (15-Npv-2023)
+2.17.0 (not yet released)
+
+-
+
+2.16.0 (15-Nov-2023)
 
 #1770: Incorrect deserialization for `BigDecimal` numbers
  (reported by @cristian-mocanu-mob)

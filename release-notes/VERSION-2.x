@@ -4,17 +4,15 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-(not yet released)
+2.17.0 (not yet released)
+
+-
+
+2.16.0 (15-Nov-2023)
 
 #1770: Incorrect deserialization for `BigDecimal` numbers
  (reported by @cristian-mocanu-mob)
  (fix contributed by @pjfanning)
-#4184: `BeanDeserializer` updates `currentValue` incorrectly when
-  deserialising empty Object
- (reported by @nocny-x)
-
-2.16.0-rc1 (20-Oct-2023)
-
 #2502: Add a way to configure caches Jackson uses
  (contributed by Joo-Hyuk K)
 #2787: Mix-ins do not work for `Enum`s
@@ -107,6 +105,9 @@ Project: jackson-databind
 #4175: Exception when deserialization of private record with default constructor
  (reported by Jan P)
  (contributed by Joo-Hyuk K)
+#4184: `BeanDeserializer` updates `currentValue` incorrectly when
+  deserialising empty Object
+ (reported by @nocny-x)
 
 2.15.4 (not yet released)
 

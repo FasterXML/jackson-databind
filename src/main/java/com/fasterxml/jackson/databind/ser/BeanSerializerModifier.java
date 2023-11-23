@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.ser;
 
+import java.io.Serializable;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.*;
@@ -33,7 +34,7 @@ import com.fasterxml.jackson.databind.type.*;
  * Default method implementations are "no-op"s, meaning that methods are implemented
  * but have no effect.
  */
-public abstract class BeanSerializerModifier
+public abstract class BeanSerializerModifier implements Serializable
 {
     /**
      * Method called by {@link BeanSerializerFactory} with tentative set

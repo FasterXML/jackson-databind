@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.deser;
 
+import java.io.Serializable;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.*;
@@ -45,7 +46,7 @@ import com.fasterxml.jackson.databind.type.ReferenceType;
  * but have no effect; this is mostly so that new methods can be added in later
  * versions.
  */
-public abstract class BeanDeserializerModifier
+public abstract class BeanDeserializerModifier implements Serializable
 {
     /**
      * Method called by {@link BeanDeserializerFactory} when it has collected

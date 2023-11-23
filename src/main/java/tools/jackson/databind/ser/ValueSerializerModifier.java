@@ -1,5 +1,6 @@
 package tools.jackson.databind.ser;
 
+import java.io.Serializable;
 import java.util.List;
 
 import tools.jackson.databind.*;
@@ -41,7 +42,10 @@ import tools.jackson.databind.type.*;
  * NOTE: In Jackson 2.x was named {@code BeanSerializerModifier}
  */
 public abstract class ValueSerializerModifier
+    implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     /**
      * Method called by {@link BeanSerializerFactory} with tentative set
      * of discovered properties.

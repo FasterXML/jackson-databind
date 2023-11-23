@@ -1723,3 +1723,8 @@ Jan Pachol (janpacho@github)
  * Reported #4175: Exception when deserialization of `private` record with
    default constructor
   (2.16.0)
+
+Muhammad Khalikov (mukham12@github)
+ * Contributed fix for #4209: Make `BeanDeserializerModifier`/`BeanSerializerModifier`
+  implement `java.io.Serializable`
+ (2.17.0)

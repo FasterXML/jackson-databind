@@ -1,5 +1,6 @@
 package tools.jackson.databind.deser;
 
+import java.io.Serializable;
 import java.util.List;
 
 import tools.jackson.databind.*;
@@ -47,7 +48,10 @@ import tools.jackson.databind.type.ReferenceType;
  * NOTE: In Jackson 2.x was named {@code BeanDeserializerModifier}
  */
 public abstract class ValueDeserializerModifier
+    implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     /**
      * Method called by {@link BeanDeserializerFactory} when it has collected
      * initial list of {@link BeanPropertyDefinition}s, and done basic by-name

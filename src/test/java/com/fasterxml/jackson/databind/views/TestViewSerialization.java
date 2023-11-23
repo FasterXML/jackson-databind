@@ -1,18 +1,23 @@
 package com.fasterxml.jackson.databind.views;
 
+import static com.fasterxml.jackson.databind.BaseMapTest.jsonMapperBuilder;
+import static com.fasterxml.jackson.databind.BaseMapTest.newJsonMapper;
+import static com.fasterxml.jackson.databind.BaseMapTest.writeAndMap2;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import java.io.*;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for verifying JSON view functionality: ability to declaratively
  * suppress subset of properties from being serialized.
  */
 public class TestViewSerialization
-    extends BaseMapTest
 {
     // Classes that represent views
     static class ViewA { }
@@ -75,15 +80,16 @@ public class TestViewSerialization
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @SuppressWarnings("unchecked")
+    @Test
     public void testSimple() throws IOException
     {
         StringWriter sw = new StringWriter();
         // Ok, first, using no view whatsoever; all 3
         Bean bean = new Bean();
-        Map<String,Object> map = writeAndMap(MAPPER, bean);
+        Map<String,Object> map = writeAndMap2(MAPPER, bean);
         assertEquals(3, map.size());
 
         // Then with "ViewA", just one property
@@ -128,6 +134,7 @@ public class TestViewSerialization
      * a view.
      */
     @SuppressWarnings("unchecked")
+    @Test
     public void testDefaultExclusion() throws IOException
     {
         MixedBean bean = new MixedBean();
@@ -163,12 +170,14 @@ public class TestViewSerialization
      * As per [JACKSON-261], @JsonView annotation should imply that associated
      * method/field does indicate a property.
      */
+    @Test
     public void testImplicitAutoDetection() throws Exception
     {
         assertEquals("{\"a\":1}",
                 MAPPER.writeValueAsString(new ImplicitBean()));
     }
 
+    @Test
     public void testVisibility() throws Exception
     {
         VisibilityBean bean = new VisibilityBean();
@@ -179,6 +188,7 @@ public class TestViewSerialization
     }
 
     // [JACKSON-868]
+    @Test
     public void test868() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();

@@ -757,7 +757,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
         if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
             // [databind#4194] Add an option to fail coercing NaN to BigDecimal
             // Currently, Jackson 2.x allows such coercion, but Jackson 3.x will not
-            if (p.isNaN() && !ctxt.isEnabled(JsonNodeFeature.ALLOW_NaN_TO_BIG_DECIMAL_COERCION)) {
+            if (p.isNaN() && ctxt.isEnabled(JsonNodeFeature.FAIL_ON_NAN_TO_BIG_DECIMAL_COERCION)) {
                 ctxt.handleWeirdNumberValue(handledType(), p.getDoubleValue(),
                         "Cannot convert NaN into BigDecimal");
             }

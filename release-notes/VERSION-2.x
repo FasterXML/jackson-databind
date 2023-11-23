@@ -6,7 +6,9 @@ Project: jackson-databind
 
 2.17.0 (not yet released)
 
--
+#4209: Make `BeanDeserializerModifier`/`BeanSerializerModifier`
+  implement `java.io.Serializable`
+ (fix contributed by Muhammad K)
 
 2.16.0 (15-Nov-2023)
 

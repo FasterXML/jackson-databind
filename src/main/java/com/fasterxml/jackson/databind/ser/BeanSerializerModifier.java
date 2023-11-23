@@ -34,8 +34,11 @@ import com.fasterxml.jackson.databind.type.*;
  * Default method implementations are "no-op"s, meaning that methods are implemented
  * but have no effect.
  */
-public abstract class BeanSerializerModifier implements Serializable
+public abstract class BeanSerializerModifier
+    implements Serializable // @since 2.17
 {
+    private static final long serialVersionUID = 1L;
+
     /**
      * Method called by {@link BeanSerializerFactory} with tentative set
      * of discovered properties.

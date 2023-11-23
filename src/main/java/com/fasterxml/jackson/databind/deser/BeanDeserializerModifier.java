@@ -46,8 +46,11 @@ import com.fasterxml.jackson.databind.type.ReferenceType;
  * but have no effect; this is mostly so that new methods can be added in later
  * versions.
  */
-public abstract class BeanDeserializerModifier implements Serializable
+public abstract class BeanDeserializerModifier
+    implements Serializable // @since 2.17
 {
+    private static final long serialVersionUID = 1L;
+
     /**
      * Method called by {@link BeanDeserializerFactory} when it has collected
      * initial list of {@link BeanPropertyDefinition}s, and done basic by-name

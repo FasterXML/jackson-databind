@@ -1,10 +1,9 @@
 package com.fasterxml.jackson.databind.views;
 
 import static com.fasterxml.jackson.databind.BaseMapTest.newJsonMapper;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.Assert.assertEquals;
 import com.fasterxml.jackson.annotation.*;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import org.junit.jupiter.api.Test;

@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.databind.views;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.Assert.assertEquals;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;

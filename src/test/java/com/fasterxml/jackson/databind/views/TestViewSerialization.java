@@ -3,8 +3,8 @@ package com.fasterxml.jackson.databind.views;
 import static com.fasterxml.jackson.databind.BaseMapTest.jsonMapperBuilder;
 import static com.fasterxml.jackson.databind.BaseMapTest.newJsonMapper;
 import static com.fasterxml.jackson.databind.BaseMapTest.writeAndMap2;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import java.io.*;
 import java.util.*;
 

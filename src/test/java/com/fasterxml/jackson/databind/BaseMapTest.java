@@ -292,18 +292,9 @@ public abstract class BaseMapTest
     /**********************************************************
      */
 
+    @SuppressWarnings("unchecked")
     protected Map<String,Object> writeAndMap(ObjectMapper m, Object value)
         throws IOException
-    {
-        return writeAndMap2(m, value);
-    }
-
-    /**
-     * To prepare for 3.0 that will move away from JUnit 4, we need to avoid using protected methods.
-     */
-    @SuppressWarnings("unchecked")
-    public static Map<String,Object> writeAndMap2(ObjectMapper m, Object value)
-            throws IOException
     {
         String str = m.writeValueAsString(value);
         return (Map<String,Object>) m.readValue(str, LinkedHashMap.class);

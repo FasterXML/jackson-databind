@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.databind.views;
 
-import static com.fasterxml.jackson.databind.BaseMapTest.jsonMapperBuilder;
-import static com.fasterxml.jackson.databind.BaseMapTest.newJsonMapper;
-import static com.fasterxml.jackson.databind.BaseMapTest.writeAndMap2;
+import static com.fasterxml.jackson.databind.DatabindTestUtil.jsonMapperBuilder;
+import static com.fasterxml.jackson.databind.DatabindTestUtil.newJsonMapper;
+import static com.fasterxml.jackson.databind.DatabindTestUtil.writeAndMap;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import java.io.*;
@@ -89,7 +89,7 @@ public class TestViewSerialization
         StringWriter sw = new StringWriter();
         // Ok, first, using no view whatsoever; all 3
         Bean bean = new Bean();
-        Map<String,Object> map = writeAndMap2(MAPPER, bean);
+        Map<String,Object> map = writeAndMap(MAPPER, bean);
         assertEquals(3, map.size());
 
         // Then with "ViewA", just one property

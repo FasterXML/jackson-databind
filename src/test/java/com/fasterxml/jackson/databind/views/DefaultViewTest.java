@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.databind.views;
 
-import static com.fasterxml.jackson.databind.BaseTest.a2q;
+import static com.fasterxml.jackson.databind.DatabindTestUtil.a2q;
 import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 

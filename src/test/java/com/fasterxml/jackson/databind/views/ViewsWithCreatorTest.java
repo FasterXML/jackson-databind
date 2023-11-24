@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.databind.views;
 
-import static com.fasterxml.jackson.databind.BaseMapTest.newJsonMapper;
+import static com.fasterxml.jackson.databind.DatabindTestUtil.newJsonMapper;
 import static org.junit.Assert.assertEquals;
 import com.fasterxml.jackson.annotation.*;
 

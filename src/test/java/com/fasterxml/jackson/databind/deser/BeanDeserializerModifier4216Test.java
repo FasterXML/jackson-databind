@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.deser;
 
 import static com.fasterxml.jackson.databind.BaseMapTest.jsonMapperBuilder;
-import static junit.framework.TestCase.assertEquals;
+import static org.junit.Assert.assertEquals;
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JsonDeserializer;

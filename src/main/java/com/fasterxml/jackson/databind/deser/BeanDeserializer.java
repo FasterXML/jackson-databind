@@ -525,8 +525,7 @@ public class BeanDeserializer
         try {
             bean = creator.build(ctxt, buffer);
         } catch (Exception e) {
-            wrapInstantiationProblem(e, ctxt);
-            bean = null; // never gets here
+            return wrapInstantiationProblem(e, ctxt);
         }
         // 13-Apr-2020, tatu: [databind#2678] need to handle injection here
         if (_injectables != null) {
@@ -881,9 +880,8 @@ public class BeanDeserializer
                     if (bean.getClass() != _beanType.getRawClass()) {
                         // !!! 08-Jul-2011, tatu: Could probably support; but for now
                         //   it's too complicated, so bail out
-                        ctxt.reportInputMismatch(creatorProp,
+                        return ctxt.reportInputMismatch(creatorProp,
                                 "Cannot create polymorphic instances with unwrapped values");
-                        return null;
                     }
                     return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens);
                 }
@@ -928,8 +926,7 @@ public class BeanDeserializer
         try {
             bean = creator.build(ctxt, buffer);
         } catch (Exception e) {
-            wrapInstantiationProblem(e, ctxt);
-            return null; // never gets here
+            return wrapInstantiationProblem(e, ctxt);
         }
         return _unwrappedPropertyHandler.processUnwrapped(p, ctxt, bean, tokens);
     }

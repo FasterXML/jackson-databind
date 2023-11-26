@@ -1346,11 +1346,9 @@ paramIndex, candidate);
                 config, beanDesc, elemTypeDeser, contentDeser);
         if (deser == null) {
             if (contentDeser == null) {
-                Class<?> raw = elemType.getRawClass();
                 if (elemType.isPrimitive()) {
-                    deser = PrimitiveArrayDeserializers.forType(raw);
-                }
-                if (raw == String.class) {
+                    deser = PrimitiveArrayDeserializers.forType(elemType.getRawClass());
+                } else if (elemType.hasRawClass(String.class)) {
                     deser = StringArrayDeserializer.instance;
                 }
             }

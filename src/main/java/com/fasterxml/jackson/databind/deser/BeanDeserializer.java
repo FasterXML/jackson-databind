@@ -569,9 +569,7 @@ public class BeanDeserializer
         try {
             return prop.deserialize(p, ctxt);
         } catch (Exception e) {
-            wrapAndThrow(e, _beanType.getRawClass(), prop.getName(), ctxt);
-            // never gets here, unless caller declines to throw an exception
-            return null;
+            return wrapAndThrow(e, _beanType.getRawClass(), prop.getName(), ctxt);
         }
     }
 

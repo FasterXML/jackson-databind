@@ -9,6 +9,9 @@ Project: jackson-databind
 #4209: Make `BeanDeserializerModifier`/`BeanSerializerModifier`
   implement `java.io.Serializable`
  (fix contributed by Muhammad K)
+#4214: `EnumSet` deserialization does not work when we activate
+  default typing in `ObjectMapper`
+ (reported by @dvhvsekhar)
 
 2.16.1 (not yet released)
 

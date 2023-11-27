@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
-
+import java.util.Map;
 /**
  * Tests {@link SimpleFilterProvider} on registration of filters.
  */
@@ -72,7 +72,10 @@ public class SimpleFilterProviderTest extends BaseMapTest
 
         String jsonString = MAPPER.writer(prov).writeValueAsString(beanB);
 
-        assertEquals(a2q("{'a':'1a','b':'2b'}"), jsonString);
+        Map<String, Object> expectedMap = Map.of("a", "1a", "b", "2b");
+        Map<String, Object> actualMap = MAPPER.readValue(jsonString, Map.class);
+
+        assertEquals(expectedMap, actualMap);
     }
 
     public void testAddFilterWithEmptyStringId() throws Exception {

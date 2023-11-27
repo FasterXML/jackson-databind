@@ -31,7 +31,7 @@ Functionality of this package is contained in Java package `com.fasterxml.jackso
 <properties>
   ...
   <!-- Use the latest version whenever possible. -->
-  <jackson.version>2.14.2</jackson.version>
+  <jackson.version>2.16.0</jackson.version>
   ...
 </properties>
 

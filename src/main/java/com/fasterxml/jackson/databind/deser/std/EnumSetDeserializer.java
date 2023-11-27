@@ -26,11 +26,22 @@ public class EnumSetDeserializer
     extends StdDeserializer<EnumSet<?>>
     implements ContextualDeserializer
 {
-    private static final long serialVersionUID = 1L; // since 2.5
+    private static final long serialVersionUID = 2L; // since 2.17
 
     protected final JavaType _enumType;
 
     protected JsonDeserializer<Enum<?>> _enumDeserializer;
+
+    /**
+     * If element instances have polymorphic type information, this
+     * is the type deserializer that can handle it.
+     *<p>
+     * NOTE: only added in 2.17 due to new {@code DefaultType} choices
+     * that allow polymorphic deserialization of {@code Enum} types.
+     *
+     * @since 2.17
+     */
+    protected final TypeDeserializer _valueTypeDeserializer;
 
     /**
      * Handler we need for dealing with nulls.
@@ -62,8 +73,12 @@ public class EnumSetDeserializer
     /**********************************************************
      */
 
+    /**
+     * @since 2.17
+     */
     @SuppressWarnings("unchecked" )
-    public EnumSetDeserializer(JavaType enumType, JsonDeserializer<?> deser)
+    public EnumSetDeserializer(JavaType enumType, JsonDeserializer<?> deser,
+            TypeDeserializer valueTypeDeser)
     {
         super(EnumSet.class);
         _enumType = enumType;
@@ -72,9 +87,19 @@ public class EnumSetDeserializer
             throw new IllegalArgumentException("Type "+enumType+" not Java Enum type");
         }
         _enumDeserializer = (JsonDeserializer<Enum<?>>) deser;
+        _valueTypeDeserializer = valueTypeDeser;
         _unwrapSingle = null;
         _nullProvider = null;
         _skipNullValues = false;
+    }
+
+    /**
+     * @deprecated Since 2.17
+     */
+    @Deprecated
+    public EnumSetDeserializer(JavaType enumType, JsonDeserializer<?> deser)
+    {
+        this(enumType, deser, null);
     }
 
     /**
@@ -96,6 +121,7 @@ public class EnumSetDeserializer
         super(base);
         _enumType = base._enumType;
         _enumDeserializer = (JsonDeserializer<Enum<?>>) deser;
+        _valueTypeDeserializer = base._valueTypeDeserializer;
         _nullProvider = nuller;
         _skipNullValues = NullsConstantProvider.isSkipper(nuller);
         _unwrapSingle = unwrapSingle;
@@ -106,11 +132,6 @@ public class EnumSetDeserializer
             return this;
         }
         return new EnumSetDeserializer(this, deser, _nullProvider, _unwrapSingle);
-    }
-
-    @Deprecated // since 2.10.1
-    public EnumSetDeserializer withResolved(JsonDeserializer<?> deser, Boolean unwrapSingle) {
-        return withResolved(deser, _nullProvider, unwrapSingle);
     }
 
     /**

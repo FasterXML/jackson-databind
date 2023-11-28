@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import java.util.Map;
+import java.util.LinkedHashMap;
 /**
  * Tests {@link SimpleFilterProvider} on registration of filters.
  */
@@ -71,9 +72,11 @@ public class SimpleFilterProviderTest extends BaseMapTest
         AnyBeanB beanB = new AnyBeanB("1a", "2b");
 
         String jsonString = MAPPER.writer(prov).writeValueAsString(beanB);
-
-        Map<String, Object> expectedMap = Map.of("a", "1a", "b", "2b");
+        
         Map<String, Object> actualMap = MAPPER.readValue(jsonString, Map.class);
+        Map<String, Object> expectedMap = new LinkedHashMap<>();
+        expectedMap.put("a", "1a");
+        expectedMap.put("b", "2b");
 
         assertEquals(expectedMap, actualMap);
     }

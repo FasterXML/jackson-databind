@@ -1146,20 +1146,24 @@ se.getClass().getName(), se.getMessage()),
 
     /**
      * Accessor for checking whether given {@code Class} is under Java package
-     * of {@code java.*} or {@code javax.*} (including all sub-packages).
+     * of {@code java.*} or {@code javax.*} (including all sub-packages), or
+     * (starting with Jackson 2.17), {@code sun.*}).
      *<p>
      * Added since some aspects of handling need to be changed for JDK types (and
      * possibly some extensions under {@code javax.}?): for example, forcing of access
      * will not work well for future JDKs (12 and later).
      *<p>
      * Note: in Jackson 2.11 only returned true for {@code java.*} (and not {@code javax.*});
-     * was changed in 2.12.
+     * was changed in 2.12. {@code sun.*} was added in 2.17.
      *
      * @since 2.11
      */
     public static boolean isJDKClass(Class<?> rawType) {
         final String clsName = rawType.getName();
-        return clsName.startsWith("java.") || clsName.startsWith("javax.");
+        return clsName.startsWith("java.")
+                || clsName.startsWith("javax.")
+                || clsName.startsWith("sun.")
+                ;
     }
 
     /**

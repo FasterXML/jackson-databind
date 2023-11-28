@@ -87,7 +87,12 @@ public class SimpleFilterProviderTest extends BaseMapTest
 
         String jsonString = MAPPER.writer(prov).writeValueAsString(bean);
 
-        assertEquals(a2q("{'c':null,'d':'D is filtered'}"), jsonString);
+        Map<String, Object> actualMap = MAPPER.readValue(jsonString, Map.class);
+        Map<String, Object> expectedMap = new LinkedHashMap<>();
+        expectedMap.put("c", null);
+        expectedMap.put("d", "D is filtered");
+        
+        assertEquals(expectedMap, actualMap);
     }
 
     public void testAddingNullFilter2ThrowsException() throws Exception {

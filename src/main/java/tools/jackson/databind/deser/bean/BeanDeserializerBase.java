@@ -712,7 +712,7 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
      * needed to find {@link PropertyMetadata} for Delegating Creator,
      * for access to annotation-derived info.
      *
-     * @since 2.17
+     * @since 2.16.1
      */
     protected PropertyMetadata _getSetterInfo(DeserializationContext ctxt,
             AnnotatedMember accessor, JavaType type)
@@ -762,7 +762,7 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
         }
         return metadata;
     }
-    
+
     /**
      * Helper method that can be used to see if specified property is annotated
      * to indicate use of a converter for property value (in case of container types,

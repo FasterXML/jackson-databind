@@ -6,6 +6,8 @@ Project: jackson-databind
 
 2.17.0 (not yet released)
 
+#4205: Consider types in `sun.*` package(s) to be JDK (platform) types
+  for purposes of handling
 #4209: Make `BeanDeserializerModifier`/`BeanSerializerModifier`
   implement `java.io.Serializable`
  (fix contributed by Muhammad K)

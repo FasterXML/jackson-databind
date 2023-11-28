@@ -1,5 +1,8 @@
 package tools.jackson.databind.ser.filter;
 
+import java.util.Map;
+import java.util.LinkedHashMap;
+
 import com.fasterxml.jackson.annotation.JsonFilter;
 
 import tools.jackson.databind.*;
@@ -58,7 +61,7 @@ public class SimpleFilterProviderTest extends BaseMapTest
 
         String jsonString = MAPPER.writer(prov).writeValueAsString(beanB);
 
-        assertEquals(a2q("{}"), jsonString);
+        assertEquals("{}", jsonString);
     }
 
     public void testAddFilterLastOneRemainsFlip() throws Exception {
@@ -68,8 +71,13 @@ public class SimpleFilterProviderTest extends BaseMapTest
         AnyBeanB beanB = new AnyBeanB("1a", "2b");
 
         String jsonString = MAPPER.writer(prov).writeValueAsString(beanB);
+        
+        Map<String, Object> actualMap = MAPPER.readValue(jsonString, Map.class);
+        Map<String, Object> expectedMap = new LinkedHashMap<>();
+        expectedMap.put("a", "1a");
+        expectedMap.put("b", "2b");
 
-        assertEquals(a2q("{'a':'1a','b':'2b'}"), jsonString);
+        assertEquals(expectedMap, actualMap);
     }
 
     public void testAddFilterWithEmptyStringId() throws Exception {

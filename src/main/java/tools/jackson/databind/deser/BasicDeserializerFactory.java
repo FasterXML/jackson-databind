@@ -1364,8 +1364,8 @@ paramIndex, candidate);
                 }
                 // One special type: EnumSet:
                 if (EnumSet.class.isAssignableFrom(collectionClass)) {
-                    // 25-Jan-2018, tatu: shouldn't we pass `contentDeser`?
-                    deser = new EnumSetDeserializer(contentType, null);
+                    deser = new EnumSetDeserializer(contentType, null,
+                            contentTypeDeser);
                 }
             }
         }

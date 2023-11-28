@@ -24,6 +24,8 @@ public class ValueSerializerModifier1612Test extends BaseMapTest
     }
 
     static class Modifier1612 extends ValueSerializerModifier {
+        private static final long serialVersionUID = 1L;
+
         @Override
         public BeanSerializerBuilder updateBuilder(SerializationConfig config, BeanDescription beanDesc,
                 BeanSerializerBuilder builder) {

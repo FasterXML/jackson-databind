@@ -42,11 +42,12 @@ public class BeanDeserializerModifier4216Test
         assertEquals(2, counter.get());
     }
 
-    @SuppressWarnings("serial")
     private static SimpleModule getSimpleModuleWithCounter(AtomicInteger counter) {
         SimpleModule module = new SimpleModule();
         module.setDeserializerModifier(
             new ValueDeserializerModifier() {
+                private static final long serialVersionUID = 1L;
+
                 @Override
                 public ValueDeserializer<?> modifyArrayDeserializer(DeserializationConfig config,
                         ArrayType valueType, BeanDescription beanDesc, ValueDeserializer<?> deserializer)

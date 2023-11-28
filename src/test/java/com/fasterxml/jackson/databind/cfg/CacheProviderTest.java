@@ -121,6 +121,7 @@ public class CacheProviderTest
             return new LRUMap<>(16, 64);
         }
 
+        @Override
         public LookupCache<TypeKey, JsonSerializer<Object>> forSerializerCache(SerializationConfig config) {
             return _cache;
         }
@@ -154,6 +155,7 @@ public class CacheProviderTest
             return _cache;
         }
 
+        @Override
         public LookupCache<TypeKey, JsonSerializer<Object>> forSerializerCache(SerializationConfig config) {
             return new LRUMap<>(16, 64);
         }

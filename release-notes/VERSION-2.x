@@ -8,6 +8,9 @@ Not yet released
 
 #1172: `@JsonView` doesn't work with `@JsonCreator`
  (reported by Dmitry B)
+#3133: Map deserialization results in different numeric classes based on
+  json ordering (BigDecimal / Double) when used in combination with @JsonSubTypes
+ (reported by @mreiterer)
 #4185: `@JsonIgnoreProperties` with `@JsonTypeInfo(include = JsonTypeInfo.As.EXTERNAL_PROPERTY)`
   does not work
  (reported by @jonasho)

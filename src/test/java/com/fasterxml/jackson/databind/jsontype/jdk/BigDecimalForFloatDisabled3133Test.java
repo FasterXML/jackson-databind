@@ -1,4 +1,7 @@
-package com.fasterxml.jackson.databind.deser.jdk;
+package com.fasterxml.jackson.databind.jsontype.jdk;
+
+import static com.fasterxml.jackson.databind.BaseMapTest.jsonMapperBuilder;
+import static com.fasterxml.jackson.databind.BaseTest.a2q;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,9 +12,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import static com.fasterxml.jackson.databind.BaseMapTest.jsonMapperBuilder;
-import static com.fasterxml.jackson.databind.BaseTest.a2q;
 
 /**
  * Unit test proving that below issue is fixed.
@@ -27,11 +27,11 @@ public class BigDecimalForFloatDisabled3133Test
             property = "type")
 
     @JsonSubTypes({
-            @JsonSubTypes.Type(value = TestMapContainer.class, name = "MAP"),
+            @JsonSubTypes.Type(value = TestMapContainer3133.class, name = "MAP"),
     })
-    interface TestJsonTypeInfoInterface { }
+    interface BaseType3133 { }
 
-    static class TestMapContainer implements TestJsonTypeInfoInterface {
+    static class TestMapContainer3133 implements BaseType3133 {
 
         private Map<String, ? extends Object> map = new HashMap<>();
 
@@ -48,16 +48,18 @@ public class BigDecimalForFloatDisabled3133Test
             .disable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
             .build();
 
+    // [databind#3133]
     @Test
-    public void testDeserializeWithDifferentOrdering() throws Exception {
+    public void testDeserializeWithDifferentOrdering3133() throws Exception
+    {
         // case 1 : type first
         String ordering1 = a2q("{'type': 'MAP','map': { 'doubleValue': 0.1 }}");
-        TestMapContainer model1 = mapper.readValue(ordering1, TestMapContainer.class);
+        TestMapContainer3133 model1 = mapper.readValue(ordering1, TestMapContainer3133.class);
         Assertions.assertTrue(model1.getMap().get("doubleValue") instanceof Double);
 
         // case 2 : value first
         String ordering2 = a2q("{'map': { 'doubleValue': 0.1 }, 'type': 'MAP'}");
-        TestMapContainer model2 = mapper.readValue(ordering2, TestMapContainer.class);
+        TestMapContainer3133 model2 = mapper.readValue(ordering2, TestMapContainer3133.class);
         Assertions.assertTrue(model2.getMap().get("doubleValue") instanceof Double);
     }
 }

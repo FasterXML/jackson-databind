@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.deser.enums;
 
 import java.util.EnumSet;
 import java.util.Objects;
@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 
 // For [databind#4214]
-public class EnumSetSerialization4214Test extends BaseMapTest
+public class EnumSetPolymorphicDeser4214Test extends BaseMapTest
 {
 	static enum MyEnum {
 		ITEM_A, ITEM_B;

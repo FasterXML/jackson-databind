@@ -1,11 +1,11 @@
 package com.fasterxml.jackson.databind.ser.filter;
 
+import java.util.Map;
+import java.util.LinkedHashMap;
+
 import com.fasterxml.jackson.annotation.JsonFilter;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
+
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
@@ -71,8 +71,13 @@ public class SimpleFilterProviderTest extends BaseMapTest
         AnyBeanB beanB = new AnyBeanB("1a", "2b");
 
         String jsonString = MAPPER.writer(prov).writeValueAsString(beanB);
+        
+        Map<String, Object> actualMap = MAPPER.readValue(jsonString, Map.class);
+        Map<String, Object> expectedMap = new LinkedHashMap<>();
+        expectedMap.put("a", "1a");
+        expectedMap.put("b", "2b");
 
-        assertEquals(a2q("{'a':'1a','b':'2b'}"), jsonString);
+        assertEquals(expectedMap, actualMap);
     }
 
     public void testAddFilterWithEmptyStringId() throws Exception {
@@ -85,7 +90,7 @@ public class SimpleFilterProviderTest extends BaseMapTest
         assertEquals(a2q("{'c':null,'d':'D is filtered'}"), jsonString);
     }
 
-    public void testAddingNullFilter2ThrowsException() throws JsonProcessingException {
+    public void testAddingNullFilter2ThrowsException() throws Exception {
         FilterProvider prov = new SimpleFilterProvider()
                 .addFilter("filterB", null);
         ObjectWriter writer = MAPPER.writer(prov);
@@ -99,7 +104,7 @@ public class SimpleFilterProviderTest extends BaseMapTest
         }
     }
 
-    public void testAddingNullFilterIdThrowsException() throws JsonProcessingException {
+    public void testAddingNullFilterIdThrowsException() throws Exception {
         FilterProvider prov = new SimpleFilterProvider()
                 .addFilter(null, SimpleBeanPropertyFilter.serializeAll());
         ObjectWriter writer = MAPPER.writer(prov);

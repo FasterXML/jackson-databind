@@ -1,14 +1,16 @@
 package com.fasterxml.jackson.databind.node;
 
-import static com.fasterxml.jackson.databind.BaseMapTest.jsonMapperBuilder;
-import static com.fasterxml.jackson.databind.BaseTest.a2q;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.ArrayList;
-import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import static com.fasterxml.jackson.databind.BaseMapTest.jsonMapperBuilder;
+import static com.fasterxml.jackson.databind.BaseTest.a2q;
 
 // [databind#4229] JsonNode findValues and findParents missing expected values
 public class MissingValues4229Test

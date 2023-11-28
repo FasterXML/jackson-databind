@@ -1,15 +1,17 @@
 package com.fasterxml.jackson.databind.deser.jdk;
 
-import static com.fasterxml.jackson.databind.BaseMapTest.jsonMapperBuilder;
-import static com.fasterxml.jackson.databind.BaseTest.a2q;
-import static org.junit.Assert.assertTrue;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.HashMap;
-import java.util.Map;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import static com.fasterxml.jackson.databind.BaseMapTest.jsonMapperBuilder;
+import static com.fasterxml.jackson.databind.BaseTest.a2q;
 
 /**
  * Unit test proving that below issue is fixed.
@@ -51,11 +53,11 @@ public class BigDecimalForFloatDisabled3133Test
         // case 1 : type first
         String ordering1 = a2q("{'type': 'MAP','map': { 'doubleValue': 0.1 }}");
         TestMapContainer model1 = mapper.readValue(ordering1, TestMapContainer.class);
-        assertTrue(model1.getMap().get("doubleValue") instanceof Double);
+        Assertions.assertTrue(model1.getMap().get("doubleValue") instanceof Double);
 
         // case 2 : value first
         String ordering2 = a2q("{'map': { 'doubleValue': 0.1 }, 'type': 'MAP'}");
         TestMapContainer model2 = mapper.readValue(ordering2, TestMapContainer.class);
-        assertTrue(model2.getMap().get("doubleValue") instanceof Double);
+        Assertions.assertTrue(model2.getMap().get("doubleValue") instanceof Double);
     }
 }

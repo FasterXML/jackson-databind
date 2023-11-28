@@ -1,12 +1,18 @@
 package tools.jackson.databind.views;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static tools.jackson.databind.DatabindTestUtil.jsonMapperBuilder;
+
 import java.io.*;
+
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
 
-public class TestViewsSerialization2 extends BaseMapTest
+public class TestViewsSerialization2
 {
     /*
     /************************************************************************
@@ -121,6 +127,7 @@ public class TestViewsSerialization2 extends BaseMapTest
     /************************************************************************
      */
 
+    @Test
     public void testDataBindingUsage( ) throws Exception
     {
         ObjectMapper mapper = createMapper();
@@ -128,6 +135,7 @@ public class TestViewsSerialization2 extends BaseMapTest
         assertEquals(-1, result.indexOf( "nameHidden" ));
     }
 
+    @Test
     public void testDataBindingUsageWithoutView( ) throws Exception
     {
         ObjectMapper mapper = createMapper();

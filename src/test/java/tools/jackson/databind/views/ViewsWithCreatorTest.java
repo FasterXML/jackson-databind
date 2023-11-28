@@ -1,11 +1,15 @@
 package tools.jackson.databind.views;
 
+import static org.junit.Assert.assertEquals;
+import static tools.jackson.databind.DatabindTestUtil.newJsonMapper;
+
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
 
 public class ViewsWithCreatorTest
-    extends BaseMapTest
 {
     static class View { }
     static class View1 extends View { }
@@ -72,6 +76,7 @@ public class ViewsWithCreatorTest
     private final ObjectMapper MAPPER = newJsonMapper();
     
     // [databind#1172]
+    @Test
     public void testWithJsonCreator() throws Exception
     {
         ObjectReader reader = MAPPER.readerFor(ObjWithCreator.class).withView(View1.class);
@@ -83,6 +88,7 @@ public class ViewsWithCreatorTest
     }
 
     // [databind#1172]
+    @Test
     public void testWithoutJsonCreator() throws Exception
     {
         ObjectReader reader = MAPPER.readerFor(ObjWithoutCreator.class).withView(View1.class);

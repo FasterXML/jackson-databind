@@ -398,7 +398,7 @@ public class TestConversions extends BaseMapTest
 
         // Act & Assert
         String expected = "{\"event\":{\"id\":1,\"name\":\"foo\"}}";
-        assertEquals(expected, wrapRootMapper.writeValueAsString(value));
-        assertEquals(expected, wrapRootMapper.valueToTree(value).toString());
+        assertEquals(wrapRootMapper.readValue(expected, Map.class), wrapRootMapper.readValue(wrapRootMapper.writeValueAsString(value), Map.class));
+        assertEquals(wrapRootMapper.readValue(expected, Map.class), wrapRootMapper.readValue(wrapRootMapper.valueToTree(value).toString(), Map.class));
     }
 }

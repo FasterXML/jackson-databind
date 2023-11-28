@@ -1,7 +1,7 @@
 package tools.jackson.databind.views;
 
 import static org.junit.Assert.assertEquals;
-import static tools.jackson.databind.DatabindTestUtil.newJsonMapper;
+import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
 import org.junit.jupiter.api.Test;
 

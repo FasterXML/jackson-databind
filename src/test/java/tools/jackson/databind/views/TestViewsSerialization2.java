@@ -2,7 +2,7 @@ package tools.jackson.databind.views;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static tools.jackson.databind.DatabindTestUtil.jsonMapperBuilder;
+import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 
 import java.io.*;
 

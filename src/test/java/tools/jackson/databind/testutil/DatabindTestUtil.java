@@ -1,9 +1,11 @@
-package tools.jackson.databind;
+package tools.jackson.databind.testutil;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import tools.jackson.databind.*;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
@@ -15,6 +17,20 @@ import tools.jackson.databind.json.JsonMapper;
  */
 public class DatabindTestUtil
 {
+    /*
+    /**********************************************************
+    /* Mapper construction helpers
+    /**********************************************************
+     */
+
+    public static ObjectMapper newJsonMapper() {
+        return new JsonMapper();
+    }
+
+    public static JsonMapper.Builder jsonMapperBuilder() {
+        return JsonMapper.builder();
+    }
+
     /*
     /**********************************************************
     /* Helper methods, serialization
@@ -30,25 +46,19 @@ public class DatabindTestUtil
 
     /*
     /**********************************************************
-    /* Construction
-    /**********************************************************
-     */
-
-    public static ObjectMapper newJsonMapper() {
-        return new JsonMapper();
-    }
-
-    public static JsonMapper.Builder jsonMapperBuilder() {
-        return JsonMapper.builder();
-    }
-
-    /*
-    /**********************************************************
     /* Encoding or String representations
     /**********************************************************
      */
 
     public static String a2q(String json) {
         return json.replace("'", "\"");
+    }
+
+    public static String q(String str) {
+        return '"'+str+'"';
+    }
+
+    public static byte[] utf8Bytes(String str) {
+        return str.getBytes(StandardCharsets.UTF_8);
     }
 }

@@ -1,8 +1,8 @@
 package tools.jackson.databind.views;
 
-import static tools.jackson.databind.DatabindTestUtil.jsonMapperBuilder;
-import static tools.jackson.databind.DatabindTestUtil.newJsonMapper;
-import static tools.jackson.databind.DatabindTestUtil.writeAndMap;
+import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
+import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+import static tools.jackson.databind.testutil.DatabindTestUtil.writeAndMap;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 

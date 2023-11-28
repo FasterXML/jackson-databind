@@ -1,7 +1,7 @@
 package tools.jackson.databind.views;
 
 import static org.junit.Assert.assertEquals;
-import static tools.jackson.databind.DatabindTestUtil.a2q;
+import static tools.jackson.databind.testutil.DatabindTestUtil.a2q;
 
 import java.io.IOException;
 

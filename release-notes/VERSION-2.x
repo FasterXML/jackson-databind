@@ -6,10 +6,10 @@ Project: jackson-databind
 
 2.17.0 (not yet released)
 
--
-
 2.16.1 (not yet released)
 
+#4200: `JsonSetter(contentNulls = FAIL)` is ignored in delegating
+  `@JsonCreator` argument
 #4216: Primitive array deserializer cannot being captured by `DeserializerModifier`
  (reported by @SakuraKoi)
  (fix contributed by Joo-Hyuk K)

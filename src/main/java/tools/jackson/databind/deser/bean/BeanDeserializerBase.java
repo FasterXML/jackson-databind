@@ -711,8 +711,6 @@ ClassUtil.getTypeDescription(_beanType), ClassUtil.classNameOf(_valueInstantiato
      * Method essentially copied from {@code BasicDeserializerFactory},
      * needed to find {@link PropertyMetadata} for Delegating Creator,
      * for access to annotation-derived info.
-     *
-     * @since 2.16.1
      */
     protected PropertyMetadata _getSetterInfo(DeserializationContext ctxt,
             AnnotatedMember accessor, JavaType type)

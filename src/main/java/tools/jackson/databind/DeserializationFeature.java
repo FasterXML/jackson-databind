@@ -263,6 +263,15 @@ public enum DeserializationFeature implements ConfigFeature
      * However, sometimes calling application may just want "raw"
      * unchecked exceptions passed as is.
      *<p>
+     * NOTE: most of the time exceptions that may or may not be wrapped are of
+     * type {@link RuntimeException}: as mentioned earlier,
+     * {@link com.f.jackson.core.JacksonException}s) will
+     * always be passed as-is.
+     *<p>
+     * Disabling this feature will mean that you will need to adjust your try/catch
+     * blocks to properly handle {@link RuntimeException}s. Failing to do so,
+     * may cause your application to crash due to unhandled exceptions.
+     *<p>
      * Feature is enabled by default.
      */
     WRAP_EXCEPTIONS(true),

@@ -4,13 +4,32 @@ import java.util.*;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TestFindMethods
     extends BaseMapTest
 {
+    private final String JSON_SAMPLE = "{ \"a\" : { \"value\" : 3 },"
+            +"\"array\" : [ { \"b\" : 3 }, {\"value\" : 42}, { \"other\" : true } ]"
+            +"}";
+    
+    private final String JSON_4229 = a2q("{"
+            + "    'target': 'target1'," // Found in <= 2.15.3 and 2.16.0
+            + "    'object1': {"
+            + "        'target': 'target2' " // Found in <= 2.15.3, but not in 2.16.0
+            + "    },"
+            + "    'object2': {"
+            + "        'target': { " // Found in <= 2.15.3, but not in 2.16.0
+            + "            'target': 'ignoredAsParentIsTarget'" // Expect not to be found (as sub-tree search ends when parent is found)
+            + "        }"
+            + "    }"
+            + "}");
+
+    private final ObjectMapper MAPPER = newJsonMapper();
+
     public void testNonMatching() throws Exception
     {
-        JsonNode root = _buildTree();
+        JsonNode root = MAPPER.readTree(JSON_SAMPLE);
 
         assertNull(root.findValue("boogaboo"));
         assertNull(root.findParent("boogaboo"));
@@ -24,7 +43,7 @@ public class TestFindMethods
 
     public void testMatchingSingle() throws Exception
     {
-        JsonNode root = _buildTree();
+        JsonNode root = MAPPER.readTree(JSON_SAMPLE);
 
         JsonNode node = root.findValue("b");
         assertNotNull(node);
@@ -38,7 +57,7 @@ public class TestFindMethods
 
     public void testMatchingMultiple() throws Exception
     {
-        JsonNode root = _buildTree();
+        JsonNode root = MAPPER.readTree(JSON_SAMPLE);
 
         List<JsonNode> nodes = root.findValues("value");
         assertEquals(2, nodes.size());
@@ -61,11 +80,25 @@ public class TestFindMethods
         assertEquals("42", values.get(1));
     }
 
-    private JsonNode _buildTree() throws Exception
+    // [databind#4229]: regression in 2.16.0
+    public void testFindValues4229() throws Exception
     {
-        final String SAMPLE = "{ \"a\" : { \"value\" : 3 },"
-            +"\"array\" : [ { \"b\" : 3 }, {\"value\" : 42}, { \"other\" : true } ]"
-            +"}";
-        return objectMapper().readTree(SAMPLE);
+        JsonNode rootNode = MAPPER.readTree(JSON_4229);
+        assertEquals(Arrays.asList(
+                rootNode.at("/target"),
+                rootNode.at("/object1/target"),
+                rootNode.at("/object2/target")),
+                rootNode.findValues("target"));
+    }
+
+    // [databind#4229]: regression in 2.16.0
+    public void testFindParents4229() throws Exception
+    {
+        JsonNode rootNode = MAPPER.readTree(JSON_4229);
+        assertEquals(Arrays.asList(
+                rootNode,
+                rootNode.at("/object1"),
+                rootNode.at("/object2")),
+            rootNode.findParents("target"));
     }
 }

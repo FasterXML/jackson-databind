@@ -6,6 +6,9 @@ Project: jackson-databind
 
 2.17.0 (not yet released)
 
+#4194: Add `JsonNodeFeature.FAIL_ON_NAN_TO_BIG_DECIMAL_COERCION` option to
+  fail on attempting to coerce `NaN` into `BigDecimal`
+ (contributed by Joo-Hyuk K)
 #4205: Consider types in `sun.*` package(s) to be JDK (platform) types
   for purposes of handling
 #4209: Make `BeanDeserializerModifier`/`BeanSerializerModifier`

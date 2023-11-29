@@ -1,8 +1,8 @@
 package tools.jackson.databind.deser.filter;
 
 import java.beans.ConstructorProperties;
-import java.io.IOException;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.databind.BaseMapTest;
@@ -11,7 +11,17 @@ import tools.jackson.databind.ObjectMapper;
 public class ReadOnlyDeser1890Test
     extends BaseMapTest
 {
-    public static class PersonAnnotations {
+    // [databind#95]
+    @JsonIgnoreProperties(value={ "computed" }, allowGetters=true)
+    static class ReadOnly95Bean
+    {
+        public int value = 3;
+
+        public int getComputed() { return 32; }
+    }
+
+    // [databind#1890]
+    static class PersonAnnotations {
         public String name;
         @JsonProperty(access = JsonProperty.Access.READ_ONLY)
         private TestEnum testEnum = TestEnum.DEFAULT;
@@ -31,9 +41,9 @@ public class ReadOnlyDeser1890Test
         public void setTestEnum(TestEnum testEnum) {
             this.testEnum = testEnum;
         }
-   }
+    }
 
-    public static class Person {
+    static class Person {
         public String name;
         @JsonProperty(access = JsonProperty.Access.READ_ONLY)
         private TestEnum testEnum = TestEnum.DEFAULT;
@@ -64,16 +74,29 @@ public class ReadOnlyDeser1890Test
    /**********************************************************
     */
 
-   private final ObjectMapper MAPPER = objectMapper();
+   private final ObjectMapper MAPPER = newJsonMapper();
 
-   public void testDeserializeAnnotationsOneField() throws IOException {
+   // [databind#95]
+   public void testReadOnlyProps95() throws Exception
+   {
+       ObjectMapper m = new ObjectMapper();
+       String json = m.writeValueAsString(new ReadOnly95Bean());
+       if (json.indexOf("computed") < 0) {
+           fail("Should have property 'computed', didn't: "+json);
+       }
+       ReadOnly95Bean bean = m.readValue(json, ReadOnly95Bean.class);
+       assertNotNull(bean);
+   }
+
+   // [databind#1890]
+   public void testDeserializeAnnotationsOneField() throws Exception {
        PersonAnnotations person = MAPPER.readValue("{\"testEnum\":\"\"}", PersonAnnotations.class);
        // can not remain as is, so becomes `null`
        assertEquals(null, person.getTestEnum());
        assertNull(person.name);
    }
 
-   public void testDeserializeAnnotationsTwoFields() throws IOException {
+   public void testDeserializeAnnotationsTwoFields() throws Exception {
        PersonAnnotations person = MAPPER.readValue("{\"testEnum\":\"\",\"name\":\"changyong\"}",
                PersonAnnotations.class);
        // can not remain as is, so becomes `null`
@@ -81,13 +104,13 @@ public class ReadOnlyDeser1890Test
        assertEquals("changyong", person.name);
    }
 
-   public void testDeserializeOneField() throws IOException {
+   public void testDeserializeOneField() throws Exception {
        Person person = MAPPER.readValue("{\"testEnum\":\"\"}", Person.class);
        assertEquals(TestEnum.DEFAULT, person.getTestEnum());
        assertNull(person.name);
    }
 
-   public void testDeserializeTwoFields() throws IOException {
+   public void testDeserializeTwoFields() throws Exception {
        Person person = MAPPER.readValue("{\"testEnum\":\"\",\"name\":\"changyong\"}",
                Person.class);
        assertEquals(TestEnum.DEFAULT, person.getTestEnum());

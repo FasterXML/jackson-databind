@@ -354,7 +354,12 @@ ctor.getDeclaringClass().getName(), paramCount, paramAnns.length));
     protected AnnotatedMethod constructFactoryCreator(Method m,
             TypeResolutionContext typeResCtxt, Method mixin)
     {
-        final int paramCount = m.getParameterCount();
+        int paramCount = 0;
+        try{
+            paramCount=m.getParameterCount();
+        }catch (NoSuchMethodError e){
+            paramCount=m.getParameterTypes().length;
+        }
         if (_intr == null) { // when annotation processing is disabled
             return new AnnotatedMethod(typeResCtxt, m, _emptyAnnotationMap(),
                     _emptyAnnotationMaps(paramCount));

@@ -1045,7 +1045,13 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
                 // and is inner class of the bean class...
                 if ((enclosing != null) && (enclosing == _beanType.getRawClass())) {
                     for (Constructor<?> ctor : valueClass.getConstructors()) {
-                        if (ctor.getParameterCount() == 1) {
+                        int paramCount=0;
+                        try{
+                            paramCount=ctor.getParameterCount();
+                        }catch (NoSuchMethodError e){
+                            paramCount=ctor.getParameterTypes().length;
+                        }
+                        if (paramCount == 1) {
                             Class<?>[] paramTypes = ctor.getParameterTypes();
                             if (enclosing.equals(paramTypes[0])) {
                                 if (ctxt.canOverrideAccessModifiers()) {

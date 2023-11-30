@@ -126,7 +126,11 @@ public final class AnnotatedMethod
 
     @Override
     public int getParameterCount() {
-        return _method.getParameterCount();
+        try{
+            return _method.getParameterCount();
+        }catch (NoSuchMethodError e){
+            return _method.getParameterTypes().length;
+        }
     }
 
     @Override

@@ -182,7 +182,13 @@ public class AnnotatedMethodCollector
         }
         // also, for now we have no use for methods with more than 2 arguments:
         // (2 argument methods for "any setter", fwtw)
-        return (m.getParameterCount() <= 2);
+        int paramCount=0;
+        try{
+            paramCount=m.getParameterCount();
+        }catch (NoSuchMethodError e){
+            paramCount=m.getParameterTypes().length;
+        }
+        return (paramCount <= 2);
     }
 
     private final static class MethodBuilder {

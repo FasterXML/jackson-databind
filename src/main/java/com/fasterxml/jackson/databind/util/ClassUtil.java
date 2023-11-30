@@ -1502,7 +1502,11 @@ cls.getName(), rootCause.getClass().getName(), rootCause.getMessage()),
         public int getParamCount() {
             int c = _paramCount;
             if (c < 0) {
-                c = _ctor.getParameterCount();
+                try{
+                    c = _ctor.getParameterCount();
+                }catch (NoSuchMethodError e){
+                    c=_ctor.getParameterTypes().length;
+                }
                 _paramCount = c;
             }
             return c;

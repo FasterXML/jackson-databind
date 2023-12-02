@@ -1792,12 +1792,12 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             if (_currToken == JsonToken.VALUE_NUMBER_FLOAT) {
                 Object value = _currentObject();
                 if (value instanceof Double) {
-                    Double v = (Double) value;
-                    return v.isNaN() || v.isInfinite();
+                    double v = (Double) value;
+                    return !Double.isFinite(v);
                 }
                 if (value instanceof Float) {
-                    Float v = (Float) value;
-                    return v.isNaN() || v.isInfinite();
+                    float v = (Float) value;
+                    return !Double.isFinite(v);
                 }
             }
             return false;

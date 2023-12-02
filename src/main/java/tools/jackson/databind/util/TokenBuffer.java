@@ -1759,10 +1759,10 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             if (_currToken == JsonToken.VALUE_NUMBER_FLOAT) {
                 Object value = _currentObject();
                 if (value instanceof Double) {
-                    return NumberOutput.notFinite( (Double) value);
+                    return NumberOutput.notFinite((Double) value);
                 }
                 if (value instanceof Float) {
-                    return NumberOutput.notFinite( (Float) value);
+                    return NumberOutput.notFinite((Float) value);
                 }
             }
             return false;

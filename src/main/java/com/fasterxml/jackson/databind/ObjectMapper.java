@@ -221,7 +221,9 @@ public class ObjectMapper
          * separately specified.
          *
          * @since 2.10
+         * @deprecated Since 2.17 (Discouraged to use and is to be removed from 3.0)
          */
+        @Deprecated
         EVERYTHING
     }
 

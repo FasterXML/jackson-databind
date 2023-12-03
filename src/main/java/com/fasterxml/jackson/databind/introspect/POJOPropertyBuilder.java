@@ -62,7 +62,7 @@ public class POJOPropertyBuilder
     protected transient PropertyMetadata _metadata;
 
     /**
-     * Lazily accessed information about this property iff it is a forward or
+     * Lazily accessed information about this property if it is a forward or
      * back reference.
      *
      * @since 2.9

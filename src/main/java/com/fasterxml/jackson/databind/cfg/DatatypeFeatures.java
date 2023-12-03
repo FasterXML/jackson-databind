@@ -258,7 +258,7 @@ public class DatatypeFeatures
 
     /**
      * Accessor for getting explicit state of given feature in this set
-     * iff explicitly set, or {@code null} if not explicitly set (default value)
+     * if explicitly set, or {@code null} if not explicitly set (default value)
      *
      * @param f Feature to check
      *

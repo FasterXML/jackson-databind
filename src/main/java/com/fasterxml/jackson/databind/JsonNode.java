@@ -493,7 +493,7 @@ public abstract class JsonNode
      * false) null will be returned.
      * For String values, null is never returned (but empty Strings may be)
      *
-     * @return Textual value this node contains, iff it is a textual
+     * @return Textual value this node contains, if (and only if) it is a textual
      *   JSON node (comes from JSON String value entry)
      */
     public String textValue() { return null; }
@@ -505,7 +505,7 @@ public abstract class JsonNode
      * to read decoded base64 data.
      * For other types of nodes, returns null.
      *
-     * @return Binary data this node contains, iff it is a binary
+     * @return Binary data this node contains, if (and only if) it is a binary
      *   node; null otherwise
      */
     public byte[] binaryValue() throws IOException {
@@ -517,7 +517,7 @@ public abstract class JsonNode
      * literals 'true' and 'false').
      * For other types, always returns false.
      *
-     * @return Textual value this node contains, iff it is a textual
+     * @return Textual value this node contains, if (and only if) it is a textual
      *   json node (comes from JSON String value entry)
      */
     public boolean booleanValue() { return false; }
@@ -1009,7 +1009,7 @@ public abstract class JsonNode
     public final Iterator<JsonNode> iterator() { return elements(); }
 
     /**
-     * Method for accessing all value nodes of this Node, iff
+     * Method for accessing all value nodes of this Node, if
      * this node is a JSON Array or Object node. In case of Object node,
      * field names (keys) are not included, only values.
      * For other types of nodes, returns empty iterator.

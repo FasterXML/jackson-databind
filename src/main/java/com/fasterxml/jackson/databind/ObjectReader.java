@@ -1912,7 +1912,7 @@ public class ObjectReader
      * Sequence can be either wrapped or unwrapped root-level sequence:
      * wrapped means that the elements are enclosed in JSON Array;
      * and unwrapped that elements are directly accessed at main level.
-     * Assumption is that iff the first token of the document is
+     * Assumption is that if the first token of the document is
      * <code>START_ARRAY</code>, we have a wrapped sequence; otherwise
      * unwrapped. For wrapped sequences, leading <code>START_ARRAY</code>
      * is skipped, so that for both cases, underlying {@link JsonParser}

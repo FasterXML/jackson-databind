@@ -544,7 +544,7 @@ public class ObjectMapper
 
     /**
      * Set of module types (as per {@link Module#getTypeId()} that have been
-     * registered; kept track of iff {@link MapperFeature#IGNORE_DUPLICATE_MODULE_REGISTRATIONS}
+     * registered; kept track of if (and only if) {@link MapperFeature#IGNORE_DUPLICATE_MODULE_REGISTRATIONS}
      * is enabled, so that duplicate registration calls can be ignored
      * (to avoid adding same handlers multiple times, mostly).
      *

@@ -454,7 +454,7 @@ public class TestCreators
     }
 
     /**
-     * Test to verify that multiple creators may co-exist, iff
+     * Test to verify that multiple creators may co-exist, if
      * they use different JSON type as input
      */
     @Test

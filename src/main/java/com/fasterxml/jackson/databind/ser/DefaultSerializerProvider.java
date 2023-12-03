@@ -42,7 +42,7 @@ public abstract class DefaultSerializerProvider
      */
 
     /**
-     * Per-serialization map Object Ids that have seen so far, iff
+     * Per-serialization map Object Ids that have seen so far, if
      * Object Id handling is enabled.
      */
     protected transient Map<Object, WritableObjectId> _seenObjectIds;

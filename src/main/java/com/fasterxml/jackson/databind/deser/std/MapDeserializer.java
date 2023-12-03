@@ -70,7 +70,7 @@ public class MapDeserializer
     protected final ValueInstantiator _valueInstantiator;
 
     /**
-     * Deserializer that is used iff delegate-based creator is
+     * Deserializer that is used if delegate-based creator is
      * to be used for deserializing from JSON Object.
      */
     protected JsonDeserializer<Object> _delegateDeserializer;

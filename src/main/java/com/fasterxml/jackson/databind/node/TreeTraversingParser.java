@@ -176,15 +176,23 @@ public class TreeTraversingParser extends ParserMinimalBase
     }
 
     @Override
-    public JsonLocation getTokenLocation() {
+    public JsonLocation currentLocation() {
         return JsonLocation.NA;
     }
 
     @Override
-    public JsonLocation getCurrentLocation() {
+    public JsonLocation currentTokenLocation() {
         return JsonLocation.NA;
     }
 
+    @Deprecated // since 2.17
+    @Override
+    public JsonLocation getTokenLocation() { return currentTokenLocation(); }
+
+    @Deprecated // since 2.17
+    @Override
+    public JsonLocation getCurrentLocation() { return currentLocation(); }
+    
     /*
     /**********************************************************
     /* Public API, access to textual content

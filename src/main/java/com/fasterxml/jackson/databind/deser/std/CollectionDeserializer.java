@@ -338,7 +338,7 @@ _containerType,
         throws IOException
     {
         // [databind#631]: Assign current value, to be accessible by custom serializers
-        p.setCurrentValue(result);
+        p.assignCurrentValue(result);
 
         JsonDeserializer<Object> valueDes = _valueDeserializer;
         // Let's offline handling of values with Object Ids (simplifies code here)
@@ -433,7 +433,7 @@ _containerType,
             return handleNonArray(p, ctxt, result);
         }
         // [databind#631]: Assign current value, to be accessible by custom serializers
-        p.setCurrentValue(result);
+        p.assignCurrentValue(result);
 
         final JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;

@@ -62,7 +62,7 @@ public class IgnoredPropertyException
         String msg = String.format("Ignored field \"%s\" (class %s) encountered; mapper configured not to allow this",
                 propertyName, ref.getName());
         IgnoredPropertyException e = new IgnoredPropertyException(p, msg,
-                p.getCurrentLocation(), ref, propertyName, propertyIds);
+                p.currentLocation(), ref, propertyName, propertyIds);
         // but let's also ensure path includes this last (missing) segment
         e.prependPath(fromObjectOrClass, propertyName);
         return e;

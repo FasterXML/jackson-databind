@@ -1472,7 +1472,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         if (pojo == null) { // not yet; should wait...
             throw new UnresolvedForwardReference(p,
                     "Could not resolve Object Id ["+id+"] (for "+_beanType+").",
-                    p.getCurrentLocation(), roid);
+                    p.currentLocation(), roid);
         }
         return pojo;
     }

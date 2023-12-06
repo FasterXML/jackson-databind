@@ -6,6 +6,8 @@ Project: jackson-databind
 
 2.17.0 (not yet released)
 
+#4160: Deprecate `DefaultTyping.EVERYTHING` in `2.x` and remove in `3.0`
+ (contributed by Joo-Hyuk K)
 #4194: Add `JsonNodeFeature.FAIL_ON_NAN_TO_BIG_DECIMAL_COERCION` option to
   fail on attempting to coerce `NaN` into `BigDecimal`
  (contributed by Joo-Hyuk K)

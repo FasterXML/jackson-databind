@@ -1005,7 +1005,7 @@ public abstract class JsonNode
     public final Iterator<JsonNode> iterator() { return elements(); }
 
     /**
-     * Method for accessing all value nodes of this Node, iff
+     * Method for accessing all value nodes of this Node, if
      * this node is a JSON Array or Object node. In case of Object node,
      * field names (keys) are not included, only values.
      * For other types of nodes, returns empty iterator.

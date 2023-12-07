@@ -43,17 +43,22 @@ public class NumberNodes1770Test extends BaseMapTest
     // [databind#4194]: should be able to, by configuration, fail coercing NaN to BigDecimal
     public void testBigDecimalCoercionNaN() throws Exception
     {
-        _tryBigDecimalCoercionNaNWithOption(false);
+        JsonNode n = _tryBigDecimalCoercionNaNWithOption(false);
+        if (!n.isDouble()) {
+            fail("Expected DoubleNode, got: "+n.getClass().getName());
+        }
+        assertEquals(Double.NaN, n.doubleValue());
 
         try {
-            _tryBigDecimalCoercionNaNWithOption(true);
-            fail("Should not pass");
+            n = _tryBigDecimalCoercionNaNWithOption(true);
+            fail("Should not pass without allowing coercion: produced JsonNode of type "
+                    +n.getClass().getName());
         } catch (InvalidFormatException e) {
             verifyException(e, "Cannot convert NaN");
         }
     }
 
-    private void _tryBigDecimalCoercionNaNWithOption(boolean isEnabled) throws Exception
+    private JsonNode _tryBigDecimalCoercionNaNWithOption(boolean isEnabled) throws Exception
     {
         JsonFactory factory = JsonFactory.builder()
                 .enable(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS)
@@ -64,11 +69,8 @@ public class NumberNodes1770Test extends BaseMapTest
 
         final String value = "NaN";
         // depending on option
-        final JsonNode jsonNode = isEnabled
+        return isEnabled
                 ? reader.with(JsonNodeFeature.FAIL_ON_NAN_TO_BIG_DECIMAL_COERCION).readTree(value)
                 : reader.without(JsonNodeFeature.FAIL_ON_NAN_TO_BIG_DECIMAL_COERCION).readTree(value);
-
-        assertTrue("Expected DoubleNode, got: "+jsonNode.getClass().getName()+": "+jsonNode, jsonNode.isDouble());
-        assertEquals(Double.NaN, jsonNode.doubleValue());
     }
 }

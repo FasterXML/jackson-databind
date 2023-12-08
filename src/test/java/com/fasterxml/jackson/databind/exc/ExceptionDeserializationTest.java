@@ -56,7 +56,7 @@ public class ExceptionDeserializationTest
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
-    public void testIOException() throws IOException
+    public void testIOException() throws Exception
     {
         IOException ioe = new IOException("TEST");
         String json = MAPPER.writerWithDefaultPrettyPrinter()
@@ -65,7 +65,7 @@ public class ExceptionDeserializationTest
         assertEquals(ioe.getMessage(), result.getMessage());
     }
 
-    public void testWithCreator() throws IOException
+    public void testWithCreator() throws Exception
     {
         final String MSG = "the message";
         String json = MAPPER.writeValueAsString(new MyException(MSG, 3));
@@ -82,7 +82,7 @@ public class ExceptionDeserializationTest
         assertTrue(result.stuff.containsKey("suppressed"));
     }
 
-    public void testWithNullMessage() throws IOException
+    public void testWithNullMessage() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -92,14 +92,14 @@ public class ExceptionDeserializationTest
         assertNull(result.getMessage());
     }
 
-    public void testNoArgsException() throws IOException
+    public void testNoArgsException() throws Exception
     {
         MyNoArgException exc = MAPPER.readValue("{}", MyNoArgException.class);
         assertNotNull(exc);
     }
 
     // try simulating JDK 7 behavior
-    public void testJDK7SuppressionProperty() throws IOException
+    public void testJDK7SuppressionProperty() throws Exception
     {
         Exception exc = MAPPER.readValue("{\"suppressed\":[]}", IOException.class);
         assertNotNull(exc);
@@ -124,7 +124,7 @@ public class ExceptionDeserializationTest
         _assertEquality(exp.getStackTrace(), cloned.getStackTrace());
     }
 
-    public void testExceptionCauseDeserialization() throws IOException
+    public void testExceptionCauseDeserialization() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
 
@@ -139,7 +139,7 @@ public class ExceptionDeserializationTest
     }
 
 
-    public void testSuppressedGenericThrowableDeserialization() throws IOException
+    public void testSuppressedGenericThrowableDeserialization() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
 
@@ -155,7 +155,7 @@ public class ExceptionDeserializationTest
         _assertEquality(exp.getSuppressed()[0].getStackTrace(), act.getSuppressed()[0].getStackTrace());
     }
 
-    public void testSuppressedTypedExceptionDeserialization() throws IOException
+    public void testSuppressedTypedExceptionDeserialization() throws Exception
     {
         PolymorphicTypeValidator typeValidator = BasicPolymorphicTypeValidator.builder()
                 .allowIfSubTypeIsArray()
@@ -231,7 +231,7 @@ public class ExceptionDeserializationTest
     }
 
     // mostly to help with XML module (and perhaps CSV)
-    public void testLineNumberAsString() throws IOException
+    public void testLineNumberAsString() throws Exception
     {
         Exception exc = MAPPER.readValue(a2q(
                 "{'message':'Test',\n'stackTrace': "
@@ -241,7 +241,7 @@ public class ExceptionDeserializationTest
     }
 
     // [databind#1842]
-    public void testNullAsMessage() throws IOException
+    public void testNullAsMessage() throws Exception
     {
         Exception exc = MAPPER.readValue(a2q(
                 "{'message':null, 'localizedMessage':null }"
@@ -277,5 +277,25 @@ public class ExceptionDeserializationTest
         assertEquals(leaf.getMessage(), result.getMessage());
         assertNotNull(result.getCause());
         assertEquals(root.getMessage(), result.getCause().getMessage());
+    }
+
+    // [databind#4248]
+    public void testWithDups() throws Exception
+    {
+        // NOTE: by default JSON parser does NOT fail on duplicate properties;
+        // we only use them to mimic formats like XML where duplicates can occur
+        // (or, malicious JSON...)
+        final StringBuilder sb = new StringBuilder(100);
+        sb.append("{");
+        sb.append("'suppressed': [],\n");
+        sb.append("'cause': null,\n");
+        for (int i = 0; i < 10; ++i) { // just needs to be more than max distinct props
+            sb.append("'stackTrace': [],\n");
+        }
+        sb.append("'message': 'foo',\n");
+        sb.append("'localizedMessage': 'bar'\n}");
+        IOException exc = MAPPER.readValue(a2q(sb.toString()), IOException.class);
+        assertNotNull(exc);
+        assertEquals("foo", exc.getLocalizedMessage());
     }
 }

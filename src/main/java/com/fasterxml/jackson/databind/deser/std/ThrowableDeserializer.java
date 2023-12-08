@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import com.fasterxml.jackson.core.*;
 
@@ -97,18 +98,22 @@ public class ThrowableDeserializer
             return ctxt.handleMissingInstantiator(handledType(), getValueInstantiator(), p,
                     "Throwable needs a default constructor, a single-String-arg constructor; or explicit @JsonCreator");
         }
-
         Throwable throwable = null;
         Object[] pending = null;
         Throwable[] suppressed = null;
         int pendingIx = 0;
-
         for (; !p.hasToken(JsonToken.END_OBJECT); p.nextToken()) {
             String propName = p.currentName();
             SettableBeanProperty prop = _beanProperties.find(propName);
             p.nextToken(); // to point to field value
 
             if (prop != null) { // normal case
+                // 07-Dec-2023, tatu: [databind#4248] Interesting that "cause"
+                //    with `null` blows up. So, avoid.
+                if ("cause".equals(prop.getName())
+                        && p.hasToken(JsonToken.VALUE_NULL)) {
+                    continue;
+                }
                 if (throwable != null) {
                     prop.deserializeAndSet(p, ctxt, throwable);
                     continue;
@@ -117,6 +122,13 @@ public class ThrowableDeserializer
                 if (pending == null) {
                     int len = _beanProperties.size();
                     pending = new Object[len + len];
+                } else if (pendingIx == pending.length) {
+                    // NOTE: only occurs with duplicate properties, possible
+                    // with some formats (most notably XML; but possibly with
+                    // JSON if duplicate detection not enabled). Most likely
+                    // only occurs with malicious content so use linear buffer
+                    // resize (no need to optimize performance)
+                    pending = Arrays.copyOf(pending, pendingIx + 16);
                 }
                 pending[pendingIx++] = prop;
                 pending[pendingIx++] = prop.deserialize(p, ctxt);
@@ -142,7 +154,13 @@ public class ThrowableDeserializer
                 continue;
             }
             if (PROP_NAME_SUPPRESSED.equalsIgnoreCase(propName)) { // or "suppressed"?
-                suppressed = ctxt.readValue(p, Throwable[].class);
+                // 07-Dec-2023, tatu: Not sure how/why, but JSON Null is otherwise
+                //    not handled with such call so...
+                if (p.hasToken(JsonToken.VALUE_NULL)) {
+                    suppressed = null;
+                } else {
+                    suppressed = ctxt.readValue(p, Throwable[].class);
+                }
                 continue;
             }
             if (PROP_NAME_LOCALIZED_MESSAGE.equalsIgnoreCase(propName)) {

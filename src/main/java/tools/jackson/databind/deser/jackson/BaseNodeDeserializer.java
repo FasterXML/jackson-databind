@@ -541,25 +541,16 @@ public abstract class BaseNodeDeserializer<T extends JsonNode>
             // Currently, Jackson 2.x allows such coercion, but Jackson 3.x will not
             if (p.isNaN()) {
                 if (ctxt.isEnabled(JsonNodeFeature.FAIL_ON_NAN_TO_BIG_DECIMAL_COERCION)) {
-                    ctxt.handleWeirdNumberValue(handledType(), p.getDoubleValue(),
+                    return (JsonNode) ctxt.handleWeirdNumberValue(handledType(), p.getDoubleValue(),
                         "Cannot convert NaN into BigDecimal");
                 }
-                // 28-Nov-2023, tatu: It might look like we should now return NaN
-                //   directly but... alas. NaN might come from Double value overflow.
-                //   so must fall through to let BigDecimal try and possibly fail
+                return nodeFactory.numberNode(p.getDoubleValue());
             }
-            BigDecimal nr;
-            try {
-                nr = p.getDecimalValue();
-                if (ctxt.isEnabled(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES)) {
-                    nr = _normalize(nr);
-                }
-                return nodeFactory.numberNode(nr);
-            } catch (NumberFormatException nfe) {
-                // 07-Nov-2023, tatu: [databind#1770]:
-                // fall through - BigDecimal does not support values like NaN
+            BigDecimal nr = p.getDecimalValue();
+            if (ctxt.isEnabled(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES)) {
+                nr = _normalize(nr);
             }
-            return nodeFactory.numberNode(p.getDoubleValue());
+            return nodeFactory.numberNode(nr);
         }
         if (nt == JsonParser.NumberType.FLOAT) {
             return nodeFactory.numberNode(p.getFloatValue());

@@ -19,6 +19,7 @@ Project: jackson-databind
 #4214: `EnumSet` deserialization does not work when we activate
   default typing in `ObjectMapper`
  (reported by @dvhvsekhar)
+#4248: `ThrowableDeserializer` does not handle `null` well for `cause`
 
 2.16.1 (not yet released)
 

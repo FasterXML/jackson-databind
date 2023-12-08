@@ -555,8 +555,19 @@ public final class ClassUtil
         if (fullType == null) {
             return "[null]";
         }
+        // 07-Dec-2023, tatu: Instead of cryptic notation for array types
+        //    (JLS-specified for JDK deserialization), let's use trailing "[]"s
+        //    to indicate dimensions instead
+        int arrays = 0;
+        while (fullType.isArrayType()) {
+            ++arrays;
+            fullType = fullType.getContentType();
+        }
         StringBuilder sb = new StringBuilder(80).append('`');
         sb.append(fullType.toCanonical());
+        while (arrays-- > 0) {
+            sb.append("[]");
+        }
         return sb.append('`').toString();
     }
 

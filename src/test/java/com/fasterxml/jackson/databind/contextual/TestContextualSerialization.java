@@ -5,7 +5,6 @@ import java.lang.annotation.*;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -13,12 +12,18 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
 
+import org.junit.jupiter.api.Test;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 /**
  * Test cases to verify that it is possible to define serializers
  * that can use contextual information (like field/method
  * annotations) for configuration.
  */
-public class TestContextualSerialization extends BaseMapTest
+public class TestContextualSerialization
 {
     // NOTE: important; MUST be considered a 'Jackson' annotation to be seen
     // (or recognized otherwise via AnnotationIntrospect.isHandled())
@@ -219,6 +224,7 @@ public class TestContextualSerialization extends BaseMapTest
 
     // Test to verify that contextual serializer can make use of property
     // (method, field) annotations.
+    @Test
     public void testMethodAnnotations() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -230,6 +236,7 @@ public class TestContextualSerialization extends BaseMapTest
 
     // Test to verify that contextual serializer can also use annotations
     // for enclosing class.
+    @Test
     public void testClassAnnotations() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -239,6 +246,7 @@ public class TestContextualSerialization extends BaseMapTest
         assertEquals("{\"value\":\"Voila->xyz\"}", mapper.writeValueAsString(new BeanWithClassConfig("xyz")));
     }
 
+    @Test
     public void testWrappedBean() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -249,6 +257,7 @@ public class TestContextualSerialization extends BaseMapTest
     }
 
     // Serializer should get passed property context even if contained in an array.
+    @Test
     public void testMethodAnnotationInArray() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -260,6 +269,7 @@ public class TestContextualSerialization extends BaseMapTest
     }
 
     // Serializer should get passed property context even if contained in a Collection.
+    @Test
     public void testMethodAnnotationInList() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -271,6 +281,7 @@ public class TestContextualSerialization extends BaseMapTest
     }
 
     // Serializer should get passed property context even if contained in a Collection.
+    @Test
     public void testMethodAnnotationInMap() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -282,6 +293,7 @@ public class TestContextualSerialization extends BaseMapTest
         assertEquals("{\"beans\":{\"first\":\"map->In Map\"}}", mapper.writeValueAsString(map));
     }
 
+    @Test
     public void testContextualViaAnnotation() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -289,6 +301,7 @@ public class TestContextualSerialization extends BaseMapTest
         assertEquals("{\"value\":\"prefix->abc\"}", mapper.writeValueAsString(bean));
     }
 
+    @Test
     public void testResolveOnContextual() throws Exception
     {
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
@@ -302,6 +315,7 @@ public class TestContextualSerialization extends BaseMapTest
         assertEquals(q("contextual=1,resolved=1"), mapper.writeValueAsString("foo"));
     }
 
+    @Test
     public void testContextualArrayElement() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
@@ -310,6 +324,7 @@ public class TestContextualSerialization extends BaseMapTest
     }
 
     // Test to verify aspects of [databind#2429]
+    @Test
     public void testRootContextualization2429() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()

@@ -11,11 +11,16 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 /**
  * Tests to ensure that we can do contextual key serializers and
  * deserializers as well as value ser/deser.
  */
-public class TestContextualKeyTypes extends BaseMapTest
+public class TestContextualKeyTypes
 {
     /*
     /**********************************************************
@@ -85,6 +90,7 @@ public class TestContextualKeyTypes extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testSimpleKeySer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -104,6 +110,7 @@ public class TestContextualKeyTypes extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testSimpleKeyDeser() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();

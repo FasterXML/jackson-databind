@@ -180,6 +180,7 @@ public class LazyIgnoralForNumbers3730Test extends BaseMapTest
             ExtractFieldsNoDefaultConstructor3730 ef =
                     reader.readValue(genJson(json));
             assertNotNull(ef);
+
             // But then ensure we'll fail with unknown (except does it work with unwrapped?)
             reader = reader.with(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 

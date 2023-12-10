@@ -138,6 +138,13 @@
       <version>4.11.0</version>
       <scope>test</scope>
     </dependency>
+    <!-- We need to specify later Bytebuddy version because Mockito 4.11.0 depends on earlier Bytebuddy which
+    does not support JDK 21, since 2.17-->
+    <dependency>
+      <groupId>net.bytebuddy</groupId>
+      <artifactId>byte-buddy</artifactId>
+      <version>1.14.9</version>
+    </dependency>
   </dependencies>
 
   <!-- Alas, need to include snapshot reference since otherwise can not find

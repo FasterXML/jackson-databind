@@ -20,6 +20,8 @@ Project: jackson-databind
   default typing in `ObjectMapper`
  (reported by @dvhvsekhar)
 #4248: `ThrowableDeserializer` does not handle `null` well for `cause`
+#4250: Add input validation for `NumberDeserializers` deserializers
+ for "stringified" FP numbers
 
 2.16.1 (not yet released)
 

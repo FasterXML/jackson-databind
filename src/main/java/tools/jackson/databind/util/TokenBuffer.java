@@ -1887,6 +1887,8 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 String str = (String) value;
                 final int len = str.length();
                 if (_currToken == JsonToken.VALUE_NUMBER_INT) {
+                    // 08-Dec-2024, tatu: Note -- deferred numbers' validity (wrt input token)
+                    //    has been verified by underlying `JsonParser`: no need to check again
                     if (preferBigNumbers
                             // 01-Feb-2023, tatu: Not really accurate but we'll err on side
                             //   of not losing accuracy (should really check 19-char case,

@@ -10,6 +10,7 @@ import tools.jackson.core.io.NumberInput;
 import tools.jackson.databind.*;
 import tools.jackson.databind.json.JsonMapper;
 
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -25,6 +26,7 @@ import java.math.BigDecimal;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(fullyQualifiedNames = "tools.jackson.core.io.NumberInput")
+@Ignore("Powermock stopped working with NumberUtil refactoring see [databind#4250]")
 public class LazyIgnoralForNumbers3730Test extends BaseMapTest
 {
     static class ExtractFieldsNoDefaultConstructor3730 {

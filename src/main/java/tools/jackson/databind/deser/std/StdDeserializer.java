@@ -551,6 +551,7 @@ public abstract class StdDeserializer<T>
             _verifyNullForPrimitiveCoercion(ctxt, text);
             return (byte) 0;
         }
+        p.streamReadConstraints().validateIntegerLength(text.length());
         int value;
         try {
             value = NumberInput.parseInt(text);
@@ -622,6 +623,7 @@ public abstract class StdDeserializer<T>
             _verifyNullForPrimitiveCoercion(ctxt, text);
             return (short) 0;
         }
+        p.streamReadConstraints().validateIntegerLength(text.length());
         int value;
         try {
             value = NumberInput.parseInt(text);
@@ -699,6 +701,7 @@ public abstract class StdDeserializer<T>
     {
         try {
             if (text.length() > 9) {
+                ctxt.getParser().streamReadConstraints().validateIntegerLength(text.length());
                 long l = NumberInput.parseLong(text);
                 if (_intOverflow(l)) {
                     Number v = (Number) ctxt.handleWeirdStringValue(Integer.TYPE, text,
@@ -770,6 +773,7 @@ public abstract class StdDeserializer<T>
     {
         try {
             if (text.length() > 9) {
+                ctxt.getParser().streamReadConstraints().validateIntegerLength(text.length());
                 long l = NumberInput.parseLong(text);
                 if (_intOverflow(l)) {
                     return (Integer) ctxt.handleWeirdStringValue(Integer.class, text,
@@ -846,6 +850,7 @@ public abstract class StdDeserializer<T>
     protected final long _parseLongPrimitive(JsonParser p, DeserializationContext ctxt,
             String text) throws JacksonException
     {
+        ctxt.getParser().streamReadConstraints().validateIntegerLength(text.length());
         try {
             return NumberInput.parseLong(text);
         } catch (IllegalArgumentException iae) { }
@@ -908,6 +913,7 @@ public abstract class StdDeserializer<T>
 
     protected final Long _parseLong(DeserializationContext ctxt, String text)
     {
+        ctxt.getParser().streamReadConstraints().validateIntegerLength(text.length());
         try {
             return NumberInput.parseLong(text);
         } catch (IllegalArgumentException iae) { }
@@ -986,9 +992,13 @@ public abstract class StdDeserializer<T>
     protected final float _parseFloatPrimitive(JsonParser p, DeserializationContext ctxt, String text)
         throws JacksonException
     {
-        try {
-            return NumberInput.parseFloat(text, p.isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
-        } catch (IllegalArgumentException iae) { }
+        // 09-Dec-2023, tatu: To avoid parser having to validate input, pre-validate:
+        if (NumberInput.looksLikeValidNumber(text)) {
+            ctxt.getParser().streamReadConstraints().validateFPLength(text.length());
+            try {
+                return NumberInput.parseFloat(text, p.isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
+            } catch (IllegalArgumentException iae) { }
+        }
         Number v = (Number) ctxt.handleWeirdStringValue(Float.TYPE, text,
                 "not a valid `float` value");
         return _nonNullNumber(v).floatValue();

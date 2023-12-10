@@ -608,6 +608,7 @@ public abstract class StdDeserializer<T>
             _verifyNullForPrimitiveCoercion(ctxt, text);
             return (byte) 0;
         }
+        p.streamReadConstraints().validateIntegerLength(text.length());
         int value;
         try {
             value = NumberInput.parseInt(text);
@@ -679,6 +680,7 @@ public abstract class StdDeserializer<T>
             _verifyNullForPrimitiveCoercion(ctxt, text);
             return (short) 0;
         }
+        p.streamReadConstraints().validateIntegerLength(text.length());
         int value;
         try {
             value = NumberInput.parseInt(text);
@@ -758,6 +760,7 @@ public abstract class StdDeserializer<T>
     {
         try {
             if (text.length() > 9) {
+                ctxt.getParser().streamReadConstraints().validateIntegerLength(text.length());
                 long l = NumberInput.parseLong(text);
                 if (_intOverflow(l)) {
                     Number v = (Number) ctxt.handleWeirdStringValue(Integer.TYPE, text,
@@ -831,6 +834,7 @@ public abstract class StdDeserializer<T>
     {
         try {
             if (text.length() > 9) {
+                ctxt.getParser().streamReadConstraints().validateIntegerLength(text.length());
                 long l = NumberInput.parseLong(text);
                 if (_intOverflow(l)) {
                     return (Integer) ctxt.handleWeirdStringValue(Integer.class, text,
@@ -909,6 +913,7 @@ public abstract class StdDeserializer<T>
      */
     protected final long _parseLongPrimitive(DeserializationContext ctxt, String text) throws IOException
     {
+        ctxt.getParser().streamReadConstraints().validateIntegerLength(text.length());
         try {
             return NumberInput.parseLong(text);
         } catch (IllegalArgumentException iae) { }
@@ -974,6 +979,7 @@ public abstract class StdDeserializer<T>
      */
     protected final Long _parseLong(DeserializationContext ctxt, String text) throws IOException
     {
+        ctxt.getParser().streamReadConstraints().validateIntegerLength(text.length());
         try {
             return NumberInput.parseLong(text);
         } catch (IllegalArgumentException iae) { }
@@ -1051,13 +1057,20 @@ public abstract class StdDeserializer<T>
 
     /**
      * @since 2.9
+     *
+     * @deprecated Since 2.17 use {@link #_parseFloatPrimitive(JsonParser, DeserializationContext, String)}
      */
+    @Deprecated // since 2.17
     protected final float _parseFloatPrimitive(DeserializationContext ctxt, String text)
         throws IOException
     {
-        try {
-            return NumberInput.parseFloat(text);
-        } catch (IllegalArgumentException iae) { }
+        // 09-Dec-2023, tatu: To avoid parser having to validate input, pre-validate:
+        if (NumberInput.looksLikeValidNumber(text)) {
+            ctxt.getParser().streamReadConstraints().validateFPLength(text.length());
+            try {
+                return NumberInput.parseFloat(text, false);
+            } catch (IllegalArgumentException iae) { }
+        }
         Number v = (Number) ctxt.handleWeirdStringValue(Float.TYPE, text,
                 "not a valid `float` value");
         return _nonNullNumber(v).floatValue();
@@ -1069,9 +1082,13 @@ public abstract class StdDeserializer<T>
     protected final float _parseFloatPrimitive(JsonParser p, DeserializationContext ctxt, String text)
             throws IOException
     {
-        try {
-            return NumberInput.parseFloat(text, p.isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
-        } catch (IllegalArgumentException iae) { }
+        // 09-Dec-2023, tatu: To avoid parser having to validate input, pre-validate:
+        if (NumberInput.looksLikeValidNumber(text)) {
+            ctxt.getParser().streamReadConstraints().validateFPLength(text.length());
+            try {
+                return NumberInput.parseFloat(text, p.isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
+            } catch (IllegalArgumentException iae) { }
+        }
         Number v = (Number) ctxt.handleWeirdStringValue(Float.TYPE, text,
                 "not a valid `float` value");
         return _nonNullNumber(v).floatValue();

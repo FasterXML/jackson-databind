@@ -60,8 +60,6 @@
     <packageVersion.dir>tools/jackson/databind/cfg</packageVersion.dir>
     <packageVersion.package>tools.jackson.databind.cfg</packageVersion.package>
 
-    <version.powermock>2.0.9</version.powermock>
-
     <!-- for Reproducible Builds -->
     <project.build.outputTimestamp>2022-09-18T00:00:00Z</project.build.outputTimestamp>
   </properties>
@@ -96,24 +94,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-core</artifactId>
-      <version>${version.powermock}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-module-junit4</artifactId>
-      <version>${version.powermock}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-api-mockito2</artifactId>
-      <version>${version.powermock}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
       <scope>test</scope>
@@ -140,6 +120,29 @@
       <version>0.16</version>
       <scope>test</scope>
     </dependency>
+
+    <!-- Since 2.17, started using Mockito instead of Powermock -->
+    <!-- For testing with static methods -->
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>4.11.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-inline</artifactId>
+      <version>4.11.0</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- We need to specify later Bytebuddy version because Mockito 4.11.0 depends on earlier Bytebuddy which
+    does not support JDK 21, since 2.17-->
+    <dependency>
+      <groupId>net.bytebuddy</groupId>
+      <artifactId>byte-buddy</artifactId>
+      <version>1.14.9</version>
+    </dependency>
+
   </dependencies>
 
   <!-- Alas, need to include snapshot reference since otherwise can not find

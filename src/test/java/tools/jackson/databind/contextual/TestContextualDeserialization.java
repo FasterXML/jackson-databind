@@ -6,6 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.core.JsonParser;
@@ -16,12 +18,18 @@ import tools.jackson.databind.deser.std.StdScalarDeserializer;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.a2q;
+import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
+
 /**
  * Test cases to verify that it is possible to define deserializers
  * that can use contextual information (like field/method
  * annotations) for configuration.
  */
-public class TestContextualDeserialization extends BaseMapTest
+public class TestContextualDeserialization
 {
     @Target({ElementType.FIELD, ElementType.PARAMETER, ElementType.TYPE})
     @Retention(RetentionPolicy.RUNTIME)
@@ -181,6 +189,7 @@ public class TestContextualDeserialization extends BaseMapTest
             ))
             .build();
 
+    @Test
     public void testSimple() throws Exception
     {
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
@@ -198,6 +207,7 @@ public class TestContextualDeserialization extends BaseMapTest
         assertEquals("b=4", bean.b.value);
     }
 
+    @Test
     public void testSimpleWithAnnotations() throws Exception
     {
         ObjectMapper mapper = _mapperWithAnnotatedContextual();
@@ -211,6 +221,7 @@ public class TestContextualDeserialization extends BaseMapTest
         assertEquals("NameB=y", bean.b.value);
     }
 
+    @Test
     public void testSimpleWithClassAnnotations() throws Exception
     {
         ObjectMapper mapper = _mapperWithAnnotatedContextual();
@@ -223,6 +234,7 @@ public class TestContextualDeserialization extends BaseMapTest
         assertEquals("NameB=345", bean.b.value);
     }
 
+    @Test
     public void testAnnotatedCtor() throws Exception
     {
         ObjectMapper mapper = _mapperWithAnnotatedContextual();
@@ -235,6 +247,7 @@ public class TestContextualDeserialization extends BaseMapTest
         assertEquals("CtorB=0", bean.b);
     }
 
+    @Test
     public void testAnnotatedArray() throws Exception
     {
         ObjectMapper mapper = _mapperWithAnnotatedContextual();
@@ -248,6 +261,7 @@ public class TestContextualDeserialization extends BaseMapTest
         assertEquals("array=b", bean.beans[1].value);
     }
 
+    @Test
     public void testAnnotatedList() throws Exception
     {
         ObjectMapper mapper = _mapperWithAnnotatedContextual();
@@ -262,6 +276,7 @@ public class TestContextualDeserialization extends BaseMapTest
         assertEquals("list=z", bean.beans.get(2).value);
     }
 
+    @Test
     public void testAnnotatedMap() throws Exception
     {
         ObjectMapper mapper = _mapperWithAnnotatedContextual();
@@ -283,6 +298,7 @@ public class TestContextualDeserialization extends BaseMapTest
     }
 
     // for [databind#165]
+    @Test
     public void testContextualType() throws Exception {
         GenericBean bean = new ObjectMapper().readValue(a2q("{'stuff':{'1':'b'}}"),
                 GenericBean.class);

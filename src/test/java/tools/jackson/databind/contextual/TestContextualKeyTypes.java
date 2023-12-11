@@ -2,6 +2,8 @@ package tools.jackson.databind.contextual;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.Version;
 import tools.jackson.databind.*;
@@ -9,11 +11,16 @@ import tools.jackson.databind.deser.ContextualKeyDeserializer;
 import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.type.TypeFactory;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
+
 /**
  * Tests to ensure that we can do contextual key serializers and
  * deserializers as well as value ser/deser.
  */
-public class TestContextualKeyTypes extends BaseMapTest
+public class TestContextualKeyTypes
 {
     /*
     /**********************************************************
@@ -81,6 +88,7 @@ public class TestContextualKeyTypes extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testSimpleKeySer() throws Exception
     {
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
@@ -101,6 +109,7 @@ public class TestContextualKeyTypes extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testSimpleKeyDeser() throws Exception
     {
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());

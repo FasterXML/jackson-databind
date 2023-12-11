@@ -1,12 +1,18 @@
 package tools.jackson.databind.contextual;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.cfg.ContextAttributes;
 import tools.jackson.databind.deser.std.StdScalarDeserializer;
 
-public class TestContextAttributeWithDeser extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.*;
+
+public class TestContextAttributeWithDeser
 {
     final static String KEY = "foobar";
 
@@ -42,8 +48,9 @@ public class TestContextAttributeWithDeser extends BaseMapTest
     /**********************************************************
      */
 
-    final ObjectMapper MAPPER = sharedMapper();
+    final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testSimplePerCall() throws Exception
     {
         final String INPUT = a2q("[{'value':'a'},{'value':'b'}]");
@@ -59,6 +66,7 @@ public class TestContextAttributeWithDeser extends BaseMapTest
         assertEquals("b/1", pojos2[1].value);
     }
 
+    @Test
     public void testSimpleDefaults() throws Exception
     {
         final String INPUT = a2q("{'value':'x'}");
@@ -74,6 +82,7 @@ public class TestContextAttributeWithDeser extends BaseMapTest
         assertEquals("x/5", pojo2.value);
     }
 
+    @Test
     public void testHierarchic() throws Exception
     {
         final String INPUT = a2q("[{'value':'x'},{'value':'y'}]");
@@ -90,6 +99,7 @@ public class TestContextAttributeWithDeser extends BaseMapTest
         assertEquals("y/3", pojos2[1].value);
     }
 
+    @Test
     // [databind#3001]
     public void testDefaultsViaMapper() throws Exception
     {

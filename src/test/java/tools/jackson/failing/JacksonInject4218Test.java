@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package tools.jackson.failing;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

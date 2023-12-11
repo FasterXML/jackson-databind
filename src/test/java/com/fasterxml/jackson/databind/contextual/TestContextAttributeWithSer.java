@@ -2,13 +2,20 @@ package com.fasterxml.jackson.databind.contextual;
 
 import java.io.IOException;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 
-public class TestContextAttributeWithSer extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+
+public class TestContextAttributeWithSer
 {
     final static String KEY = "foobar";
 
@@ -48,8 +55,9 @@ public class TestContextAttributeWithSer extends BaseMapTest
     /**********************************************************
      */
 
-    final ObjectMapper MAPPER = sharedMapper();
+    final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testSimplePerCall() throws Exception
     {
         final String EXP = a2q("[{'value':'0:a'},{'value':'1:b'}]");
@@ -62,6 +70,7 @@ public class TestContextAttributeWithSer extends BaseMapTest
         assertEquals(EXP, w.writeValueAsString(INPUT));
     }
 
+    @Test
     public void testSimpleDefaults() throws Exception
     {
         final String EXP = a2q("{'value':'3:xyz'}");
@@ -75,6 +84,7 @@ public class TestContextAttributeWithSer extends BaseMapTest
         assertEquals(EXP, json2);
     }
 
+    @Test
     public void testHierarchic() throws Exception
     {
         final TestPOJO[] INPUT = new TestPOJO[] { new TestPOJO("a"), new TestPOJO("b") };
@@ -87,6 +97,7 @@ public class TestContextAttributeWithSer extends BaseMapTest
     }
 
     // [databind#3001]
+    @Test
     public void testDefaultsViaMapper() throws Exception
     {
         final TestPOJO[] INPUT = new TestPOJO[] { new TestPOJO("a"), new TestPOJO("b") };

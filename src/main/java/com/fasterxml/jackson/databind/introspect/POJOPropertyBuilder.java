@@ -397,7 +397,7 @@ public class POJOPropertyBuilder
         return (_ctorParameters != null)
             || (_setters != null)
             || ((_fields != null)
-                // [databind#736] Fix `REQUIRE_SETTERS_FOR_GETTERS` taking no effect
+                // [databind#736] Since 2.16 : Fix `REQUIRE_SETTERS_FOR_GETTERS` taking no effect
                 && (_fields.isVisible));
     }
 

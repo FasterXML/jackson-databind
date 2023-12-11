@@ -394,7 +394,7 @@ public class POJOPropertyBuilder
 
     @Override
     public boolean couldDeserialize() {
-        return (_ctorParameters != null) || (_setters != null) || (_fields != null);
+        return (_ctorParameters != null) || (_setters != null) || ((_fields != null) && _fields.isVisible);
     }
 
     @Override

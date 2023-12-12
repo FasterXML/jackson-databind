@@ -111,7 +111,7 @@ public class CollectionSerializer
     @Override
     public void serializeContents(Collection<?> value, JsonGenerator g, SerializerProvider provider) throws IOException
     {
-        g.setCurrentValue(value);
+        g.assignCurrentValue(value);
         if (_elementSerializer != null) {
             serializeContentsUsing(value, g, provider, _elementSerializer);
             return;

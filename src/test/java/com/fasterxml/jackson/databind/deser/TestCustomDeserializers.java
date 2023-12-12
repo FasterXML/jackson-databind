@@ -241,7 +241,7 @@ public class TestCustomDeserializers
         @Override
         public Object deserialize(JsonParser p, DeserializationContext ctxt)
                 throws IOException {
-            Object parent = p.getCurrentValue();
+            Object parent = p.currentValue();
             String desc = (parent == null) ? "NULL" : parent.getClass().getSimpleName();
             return "prop/"+ desc;
         }

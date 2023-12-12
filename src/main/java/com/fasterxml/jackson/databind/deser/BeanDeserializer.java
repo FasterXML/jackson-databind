@@ -233,7 +233,7 @@ public class BeanDeserializer
     public Object deserialize(JsonParser p, DeserializationContext ctxt, Object bean) throws IOException
     {
         // [databind#631]: Assign current value, to be accessible by custom serializers
-        p.setCurrentValue(bean);
+        p.assignCurrentValue(bean);
         if (_injectables != null) {
             injectValues(ctxt, bean);
         }
@@ -299,7 +299,7 @@ public class BeanDeserializer
         if (p.hasTokenId(JsonTokenId.ID_FIELD_NAME)) {
             // [databind#631]: Assign current value, to be accessible by custom serializers
             // [databind#4184]: but only if we have at least one property
-            p.setCurrentValue(bean);
+            p.assignCurrentValue(bean);
             String propName = p.currentName();
             do {
                 p.nextToken();
@@ -362,7 +362,7 @@ public class BeanDeserializer
         }
         final Object bean = _valueInstantiator.createUsingDefault(ctxt);
         // [databind#631]: Assign current value, to be accessible by custom deserializers
-        p.setCurrentValue(bean);
+        p.assignCurrentValue(bean);
         if (p.canReadObjectId()) {
             Object id = p.getObjectId();
             if (id != null) {
@@ -451,7 +451,7 @@ public class BeanDeserializer
                                 _creatorReturnedNullException());
                     }
                     // [databind#631]: Assign current value, to be accessible by custom serializers
-                    p.setCurrentValue(bean);
+                    p.assignCurrentValue(bean);
 
                     //  polymorphic?
                     if (bean.getClass() != _beanType.getRawClass()) {
@@ -569,9 +569,7 @@ public class BeanDeserializer
         try {
             return prop.deserialize(p, ctxt);
         } catch (Exception e) {
-            wrapAndThrow(e, _beanType.getRawClass(), prop.getName(), ctxt);
-            // never gets here, unless caller declines to throw an exception
-            return null;
+            return wrapAndThrow(e, _beanType.getRawClass(), prop.getName(), ctxt);
         }
     }
 
@@ -715,7 +713,7 @@ public class BeanDeserializer
         final Object bean = _valueInstantiator.createUsingDefault(ctxt);
 
         // [databind#631]: Assign current value, to be accessible by custom serializers
-        p.setCurrentValue(bean);
+        p.assignCurrentValue(bean);
 
         if (_injectables != null) {
             injectValues(ctxt, bean);
@@ -862,7 +860,7 @@ public class BeanDeserializer
                         bean = wrapInstantiationProblem(e, ctxt);
                     }
                     // [databind#631]: Assign current value, to be accessible by custom serializers
-                    p.setCurrentValue(bean);
+                    p.assignCurrentValue(bean);
                     // if so, need to copy all remaining tokens into buffer
                     while (t == JsonToken.FIELD_NAME) {
                         // NOTE: do NOT skip name as it needs to be copied; `copyCurrentStructure` does that

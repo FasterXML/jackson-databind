@@ -299,7 +299,7 @@ public class TokenBuffer
     {
         Parser p = new Parser(_first, src.getCodec(), _hasNativeTypeIds, _hasNativeObjectIds,
                 _parentContext, src.streamReadConstraints());
-        p.setLocation(src.getTokenLocation());
+        p.setLocation(src.currentTokenLocation());
         return p;
     }
 
@@ -1692,12 +1692,20 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         public JsonStreamContext getParsingContext() { return _parsingContext; }
 
         @Override
-        public JsonLocation getTokenLocation() { return getCurrentLocation(); }
-
-        @Override
-        public JsonLocation getCurrentLocation() {
+        public JsonLocation currentLocation() {
             return (_location == null) ? JsonLocation.NA : _location;
         }
+
+        @Override
+        public JsonLocation currentTokenLocation() { return currentLocation(); }
+
+        @Deprecated // since 2.17
+        @Override
+        public JsonLocation getTokenLocation() { return currentTokenLocation(); }
+
+        @Deprecated // since 2.17
+        @Override
+        public JsonLocation getCurrentLocation() { return currentLocation(); }
 
         @Override
         public String currentName() {
@@ -1708,9 +1716,6 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             }
             return _parsingContext.getCurrentName();
         }
-
-        @Override // since 2.12 delegate to the new method
-        public String getCurrentName() { return currentName(); }
 
         @Override
         public void overrideCurrentName(String name)
@@ -1728,6 +1733,10 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 }
             }
         }
+
+        @Deprecated // since 2.17
+        @Override
+        public String getCurrentName() { return currentName(); }
 
         /*
         /**********************************************************
@@ -1792,12 +1801,12 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             if (_currToken == JsonToken.VALUE_NUMBER_FLOAT) {
                 Object value = _currentObject();
                 if (value instanceof Double) {
-                    Double v = (Double) value;
-                    return v.isNaN() || v.isInfinite();
+                    double v = (Double) value;
+                    return !Double.isFinite(v);
                 }
                 if (value instanceof Float) {
-                    Float v = (Float) value;
-                    return v.isNaN() || v.isInfinite();
+                    float v = (Float) value;
+                    return !Double.isFinite(v);
                 }
             }
             return false;
@@ -1908,6 +1917,8 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 String str = (String) value;
                 final int len = str.length();
                 if (_currToken == JsonToken.VALUE_NUMBER_INT) {
+                    // 08-Dec-2024, tatu: Note -- deferred numbers' validity (wrt input token)
+                    //    has been verified by underlying `JsonParser`: no need to check again
                     if (preferBigNumbers
                             // 01-Feb-2023, tatu: Not really accurate but we'll err on side
                             //   of not losing accuracy (should really check 19-char case,

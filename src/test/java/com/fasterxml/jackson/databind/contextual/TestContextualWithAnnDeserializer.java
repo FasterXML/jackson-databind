@@ -6,13 +6,18 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JacksonAnnotation;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 
-public class TestContextualWithAnnDeserializer extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+public class TestContextualWithAnnDeserializer
 {
     @Target({ElementType.FIELD, ElementType.PARAMETER, ElementType.TYPE})
     @Retention(RetentionPolicy.RUNTIME)
@@ -65,6 +70,7 @@ public class TestContextualWithAnnDeserializer extends BaseMapTest
     }
 
     // ensure that direct associations also work
+    @Test
     public void testAnnotatedContextual() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();

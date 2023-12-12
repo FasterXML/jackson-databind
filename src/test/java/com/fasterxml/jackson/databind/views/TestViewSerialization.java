@@ -1,18 +1,23 @@
 package com.fasterxml.jackson.databind.views;
 
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.writeAndMap;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import java.io.*;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for verifying JSON view functionality: ability to declaratively
  * suppress subset of properties from being serialized.
  */
 public class TestViewSerialization
-    extends BaseMapTest
 {
     // Classes that represent views
     static class ViewA { }
@@ -75,9 +80,10 @@ public class TestViewSerialization
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @SuppressWarnings("unchecked")
+    @Test
     public void testSimple() throws IOException
     {
         StringWriter sw = new StringWriter();
@@ -128,6 +134,7 @@ public class TestViewSerialization
      * a view.
      */
     @SuppressWarnings("unchecked")
+    @Test
     public void testDefaultExclusion() throws IOException
     {
         MixedBean bean = new MixedBean();
@@ -163,12 +170,14 @@ public class TestViewSerialization
      * As per [JACKSON-261], @JsonView annotation should imply that associated
      * method/field does indicate a property.
      */
+    @Test
     public void testImplicitAutoDetection() throws Exception
     {
         assertEquals("{\"a\":1}",
                 MAPPER.writeValueAsString(new ImplicitBean()));
     }
 
+    @Test
     public void testVisibility() throws Exception
     {
         VisibilityBean bean = new VisibilityBean();
@@ -179,6 +188,7 @@ public class TestViewSerialization
     }
 
     // [JACKSON-868]
+    @Test
     public void test868() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();

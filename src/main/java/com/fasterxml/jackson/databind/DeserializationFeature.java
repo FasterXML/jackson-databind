@@ -290,6 +290,10 @@ public enum DeserializationFeature implements ConfigFeature
      * {@link com.fasterxml.jackson.core.JacksonException}s) will
      * always be passed as-is.
      *<p>
+     * Disabling this feature will mean that you will need to adjust your try/catch
+     * blocks to properly handle {@link RuntimeException}s. Failing to do so,
+     * may cause your application to crash due to unhandled exceptions.
+     *<p>
      * Feature is enabled by default.
      */
     WRAP_EXCEPTIONS(true),

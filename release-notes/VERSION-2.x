@@ -6,6 +6,23 @@ Project: jackson-databind
 
 2.17.0 (not yet released)
 
+#4160: Deprecate `DefaultTyping.EVERYTHING` in `2.x` and remove in `3.0`
+ (contributed by Joo-Hyuk K)
+#4194: Add `JsonNodeFeature.FAIL_ON_NAN_TO_BIG_DECIMAL_COERCION` option to
+  fail on attempting to coerce `NaN` into `BigDecimal`
+ (contributed by Joo-Hyuk K)
+#4205: Consider types in `sun.*` package(s) to be JDK (platform) types
+  for purposes of handling
+#4209: Make `BeanDeserializerModifier`/`BeanSerializerModifier`
+  implement `java.io.Serializable`
+ (fix contributed by Muhammad K)
+#4214: `EnumSet` deserialization does not work when we activate
+  default typing in `ObjectMapper`
+ (reported by @dvhvsekhar)
+#4248: `ThrowableDeserializer` does not handle `null` well for `cause`
+#4250: Add input validation for `NumberDeserializers` deserializers
+ for "stringified" FP numbers
+
 2.16.1 (not yet released)
 
 #4200: `JsonSetter(contentNulls = FAIL)` is ignored in delegating

@@ -1472,7 +1472,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         if (pojo == null) { // not yet; should wait...
             throw new UnresolvedForwardReference(p,
                     "Could not resolve Object Id ["+id+"] (for "+_beanType+").",
-                    p.getCurrentLocation(), roid);
+                    p.currentLocation(), roid);
         }
         return pojo;
     }
@@ -1930,7 +1930,7 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
      *   {@link JsonMappingException} are to be passed as is
      *</ul>
      */
-    public void wrapAndThrow(Throwable t, Object bean, String fieldName, DeserializationContext ctxt)
+    public <T> T wrapAndThrow(Throwable t, Object bean, String fieldName, DeserializationContext ctxt)
         throws IOException
     {
         // Need to add reference information
@@ -1961,7 +1961,8 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         return t;
     }
 
-    protected Object wrapInstantiationProblem(Throwable t, DeserializationContext ctxt)
+    @SuppressWarnings("unchecked")
+    protected <T> T wrapInstantiationProblem(Throwable t, DeserializationContext ctxt)
         throws IOException
     {
         while (t instanceof InvocationTargetException && t.getCause() != null) {
@@ -1979,6 +1980,6 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         if (!ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS)) {
             ClassUtil.throwIfRTE(t);
         }
-        return ctxt.handleInstantiationProblem(_beanType.getRawClass(), null, t);
+        return (T) ctxt.handleInstantiationProblem(_beanType.getRawClass(), null, t);
     }
 }

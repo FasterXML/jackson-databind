@@ -29,6 +29,9 @@ Project: jackson-databind
 #3133: Map deserialization results in different numeric classes based on
   json ordering (BigDecimal / Double) when used in combination with @JsonSubTypes
  (reported by @mreiterer)
+#3277: Combination of `@JsonUnwrapped` and `@JsonAnySetter` results in `BigDecimal`
+  instead of `Double`
+ (reported John H)
 #3251: Generic class with generic field of runtime type `Double` is deserialized
   as `BigDecimal` when used with `@JsonTypeInfo` and `JsonTypeInfo.As.EXISTING_PROPERTY`
  (reported by Kevin B)

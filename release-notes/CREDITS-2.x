@@ -1672,6 +1672,11 @@ Kevin Baes (BaesKevin@github)
    as `BigDecimal` when used with `@JsonTypeInfo` and `JsonTypeInfo.As.EXISTING_PROPERTY`
  (2.16.0)
 
+John Hendrikx (hjohn@github)
+ * Reported #3277: Combination of `@JsonUnwrapped` and `@JsonAnySetter` results in `BigDecimal`
+  instead of `Double`
+ (2.16.0)
+
 David Schlosnagle (schlosna@github)
  * Contributed #4008: Optimize `ObjectNode` findValue(s) and findParent(s) fast paths
   (2.16.0)

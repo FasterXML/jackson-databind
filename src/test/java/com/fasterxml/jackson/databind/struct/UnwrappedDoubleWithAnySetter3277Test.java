@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.deser.jdk;
+package com.fasterxml.jackson.databind.struct;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,15 +17,13 @@ import static com.fasterxml.jackson.databind.BaseMapTest.newJsonMapper;
 /**
  * Test to verify that [databind#3277] is fixed.
  */
-public class DoubleUnwrappedWithAnySetter3277Test
+public class UnwrappedDoubleWithAnySetter3277Test
 {
-
     static class Holder {
-
-        private Object value1;
+        Object value1;
 
         @JsonUnwrapped
-        private Holder2 holder2;
+        Holder2 holder2;
 
         public Object getValue1() {
             return value1;
@@ -37,7 +35,7 @@ public class DoubleUnwrappedWithAnySetter3277Test
     }
 
     static class Holder2 {
-        private Map<String, Object> data = new HashMap<>();
+        Map<String, Object> data = new HashMap<>();
 
         @JsonAnyGetter
         public Map<String, Object> getData() {

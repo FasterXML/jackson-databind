@@ -57,7 +57,11 @@ public class DoubleUnwrappedWithAnySetter3277Test
     {
         Holder holder = MAPPER.readValue("{\"value1\": -60.0, \"value2\": -60.0}", Holder.class);
 
+        // Validate type
         assertEquals(Double.class, holder.value1.getClass());
         assertEquals(Double.class, holder.holder2.data.get("value2").getClass());
+        // Validate value
+        assertEquals(-60.0, holder.value1);
+        assertEquals(-60.0, holder.holder2.data.get("value2"));
     }
 }

@@ -7,6 +7,7 @@ import java.util.TreeMap;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.base.ParserMinimalBase;
+import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.core.json.JsonWriteContext;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
@@ -1161,7 +1162,8 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             t = p.nextToken();
             // fall-through to copy the associated value
         } else if (t == null) {
-            throw new IllegalStateException("No token available from argument `JsonParser`");
+            // 13-Dec-2024, tatu: For some unexpected EOF cases we may end up here, so:
+            throw new JsonEOFException(p, null, "Unexpected end-of-input");
         }
 
         // We'll do minor handling here to separate structured, scalar values,

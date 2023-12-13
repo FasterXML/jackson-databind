@@ -10,6 +10,7 @@ import tools.jackson.core.*;
 import tools.jackson.core.base.ParserMinimalBase;
 import tools.jackson.core.exc.InputCoercionException;
 import tools.jackson.core.exc.StreamWriteException;
+import tools.jackson.core.exc.UnexpectedEndOfInputException;
 import tools.jackson.core.io.NumberInput;
 import tools.jackson.core.io.NumberOutput;
 import tools.jackson.core.sym.PropertyNameMatcher;
@@ -1185,7 +1186,8 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             t = p.nextToken();
             // fall-through to copy the associated value
         } else if (t == null) {
-            throw new IllegalStateException("No token available from argument `JsonParser`");
+            // 13-Dec-2023, tatu: For some unexpected EOF cases we may end up here, so:
+            throw new UnexpectedEndOfInputException(p, null, "Unexpected end-of-input");
         }
 
         // We'll do minor handling here to separate structured, scalar values,

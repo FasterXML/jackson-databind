@@ -230,7 +230,10 @@ public class ThrowableDeserializer
         // any suppressed exceptions?
         if (suppressed != null) {
             for (Throwable s : suppressed) {
-                throwable.addSuppressed(s);
+                // 13-Dec-2023, tatu: But skip any `null` entries we might have gotten
+                if (s != null) {
+                    throwable.addSuppressed(s);
+                }
             }
         }
 

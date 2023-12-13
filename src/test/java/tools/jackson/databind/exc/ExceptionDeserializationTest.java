@@ -301,4 +301,13 @@ public class ExceptionDeserializationTest
         assertNotNull(exc);
         assertEquals("foo", exc.getLocalizedMessage());
     }
+
+    // Found by OSS-Fuzz: https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=65042
+    public void testWithNullSuppressed() throws Exception
+    {
+        final String json = a2q("{'message': 'Message!', 'suppressed':[null]}");
+        IOException exc = MAPPER.readValue(json, IOException.class);
+        assertNotNull(exc);
+        assertEquals("Message!", exc.getMessage());
+    }
 }

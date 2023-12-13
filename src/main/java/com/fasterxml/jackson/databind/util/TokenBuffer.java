@@ -1162,7 +1162,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             t = p.nextToken();
             // fall-through to copy the associated value
         } else if (t == null) {
-            // 13-Dec-2024, tatu: For some unexpected EOF cases we may end up here, so:
+            // 13-Dec-2023, tatu: For some unexpected EOF cases we may end up here, so:
             throw new JsonEOFException(p, null, "Unexpected end-of-input");
         }
 
@@ -1919,7 +1919,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 String str = (String) value;
                 final int len = str.length();
                 if (_currToken == JsonToken.VALUE_NUMBER_INT) {
-                    // 08-Dec-2024, tatu: Note -- deferred numbers' validity (wrt input token)
+                    // 08-Dec-2023, tatu: Note -- deferred numbers' validity (wrt input token)
                     //    has been verified by underlying `JsonParser`: no need to check again
                     if (preferBigNumbers
                             // 01-Feb-2023, tatu: Not really accurate but we'll err on side

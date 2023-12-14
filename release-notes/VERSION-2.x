@@ -22,6 +22,8 @@ Project: jackson-databind
 #4248: `ThrowableDeserializer` does not handle `null` well for `cause`
 #4250: Add input validation for `NumberDeserializers` deserializers
  for "stringified" FP numbers
+#4263: Change `ObjectArrayDeserializer` to use "generic" type parameter
+  (`java.lang.Object`) to remove co-variant return type
 
 2.16.1 (not yet released)
 

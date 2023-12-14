@@ -25,7 +25,7 @@ import tools.jackson.databind.util.ObjectBuffer;
  */
 @JacksonStdImpl
 public class ObjectArrayDeserializer
-    extends ContainerDeserializerBase<Object[]>
+    extends ContainerDeserializerBase<Object>
 {
     // // Configuration
 
@@ -182,8 +182,8 @@ public class ObjectArrayDeserializer
      */
 
     @Override
-    public Object[] deserialize(JsonParser p, DeserializationContext ctxt)
-        throws JacksonException
+    public Object deserialize(JsonParser p, DeserializationContext ctxt)
+            throws JacksonException
     {
         // Ok: must point to START_ARRAY (or equivalent)
         if (!p.isExpectedStartArrayToken()) {
@@ -233,7 +233,7 @@ public class ObjectArrayDeserializer
     }
 
     @Override
-    public Object[] deserializeWithType(JsonParser p, DeserializationContext ctxt,
+    public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
         throws JacksonException
     {
@@ -243,11 +243,13 @@ public class ObjectArrayDeserializer
     }
 
     @Override
-    public Object[] deserialize(JsonParser p, DeserializationContext ctxt,
-            Object[] intoValue) throws JacksonException
+    public Object deserialize(JsonParser p, DeserializationContext ctxt,
+            Object intoValue0)
+        throws JacksonException
     {
+        final Object[] intoValue = (Object[]) intoValue0;
         if (!p.isExpectedStartArrayToken()) {
-            Object[] arr = handleNonArray(p, ctxt);
+            Object[] arr = (Object[]) handleNonArray(p, ctxt);
             if (arr == null) {
                 return intoValue;
             }
@@ -317,7 +319,7 @@ public class ObjectArrayDeserializer
         return result;
     }
 
-    protected Object[] handleNonArray(JsonParser p, DeserializationContext ctxt)
+    protected Object handleNonArray(JsonParser p, DeserializationContext ctxt)
         throws JacksonException
     {
         // Can we do implicit coercion to a single-element array still?
@@ -335,7 +337,7 @@ public class ObjectArrayDeserializer
                 // Second: empty (and maybe blank) String
                 return _deserializeFromString(p, ctxt);
             }
-            return (Object[]) ctxt.handleUnexpectedToken(_containerType, p);
+            return ctxt.handleUnexpectedToken(_containerType, p);
         }
         JsonToken t = p.currentToken();
         Object value;

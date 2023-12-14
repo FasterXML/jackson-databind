@@ -262,7 +262,7 @@ public class JDKKeyDeserializer extends KeyDeserializer
     }
 
     protected double _parseDouble(String key) throws IllegalArgumentException {
-        return NumberInput.parseDouble(key);
+        return NumberInput.parseDouble(key, false);
     }
 
     // @since 2.9

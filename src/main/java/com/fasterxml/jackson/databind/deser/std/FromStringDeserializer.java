@@ -395,7 +395,7 @@ _coercedTypeDesc());
         // @since 2.13.1
         @Override
         protected boolean _shouldTrim() {
-            // 04-Dec-2021, tatu: For [databund#3290]
+            // 04-Dec-2021, tatu: For [databind#3290]
             return (_kind != STD_PATTERN);
         }
 

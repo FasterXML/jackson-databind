@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.util.ObjectBuffer;
  */
 @JacksonStdImpl
 public class ObjectArrayDeserializer
-    extends ContainerDeserializerBase<Object[]>
+    extends ContainerDeserializerBase<Object>
     implements ContextualDeserializer
 {
     private static final long serialVersionUID = 1L;
@@ -189,7 +189,7 @@ public class ObjectArrayDeserializer
      */
 
     @Override
-    public Object[] deserialize(JsonParser p, DeserializationContext ctxt)
+    public Object deserialize(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
         // Ok: must point to START_ARRAY (or equivalent)
@@ -240,7 +240,7 @@ public class ObjectArrayDeserializer
     }
 
     @Override
-    public Object[] deserializeWithType(JsonParser p, DeserializationContext ctxt,
+    public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
         throws IOException
     {
@@ -250,11 +250,12 @@ public class ObjectArrayDeserializer
     }
 
     @Override // since 2.9
-    public Object[] deserialize(JsonParser p, DeserializationContext ctxt,
-            Object[] intoValue) throws IOException
+    public Object deserialize(JsonParser p, DeserializationContext ctxt,
+            Object intoValue0) throws IOException
     {
+        final Object[] intoValue = (Object[]) intoValue0;
         if (!p.isExpectedStartArrayToken()) {
-            Object[] arr = handleNonArray(p, ctxt);
+            Object[] arr = (Object[]) handleNonArray(p, ctxt);
             if (arr == null) {
                 return intoValue;
             }
@@ -324,7 +325,7 @@ public class ObjectArrayDeserializer
         return result;
     }
 
-    protected Object[] handleNonArray(JsonParser p, DeserializationContext ctxt)
+    protected Object handleNonArray(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
         // Can we do implicit coercion to a single-element array still?
@@ -342,7 +343,7 @@ public class ObjectArrayDeserializer
                 // Second: empty (and maybe blank) String
                 return _deserializeFromString(p, ctxt);
             }
-            return (Object[]) ctxt.handleUnexpectedToken(_containerType, p);
+            return ctxt.handleUnexpectedToken(_containerType, p);
         }
 
         Object value;

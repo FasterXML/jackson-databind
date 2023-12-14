@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.util.ObjectBuffer;
  */
 @JacksonStdImpl
 public class ObjectArrayDeserializer
+// Nominal type changes to `java.lang.Object` in 2.17; was `Object[]` before
     extends ContainerDeserializerBase<Object>
     implements ContextualDeserializer
 {

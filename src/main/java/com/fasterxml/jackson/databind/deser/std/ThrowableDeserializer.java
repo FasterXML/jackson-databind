@@ -30,11 +30,18 @@ public class ThrowableDeserializer
     /**********************************************************************
      */
 
-    @Deprecated // since 2.14
-    public ThrowableDeserializer(BeanDeserializer baseDeserializer) {
-        super(baseDeserializer);
+    /**
+     * Alternative constructor used when creating "unwrapping" deserializers
+     */
+    protected ThrowableDeserializer(BeanDeserializer src, NameTransformer unwrapper) {
+        super(src, unwrapper);
         // need to disable this, since we do post-processing
         _vanillaProcessing = false;
+    }
+
+    @Deprecated // since 2.14
+    public ThrowableDeserializer(BeanDeserializer baseDeserializer) {
+        this(baseDeserializer, null);
     }
 
     public static ThrowableDeserializer construct(DeserializationContext ctxt,
@@ -48,19 +55,13 @@ public class ThrowableDeserializer
         if (pts != null) {
         }
         */
-        return new ThrowableDeserializer(baseDeserializer);
-    }
-
-
-    /**
-     * Alternative constructor used when creating "unwrapping" deserializers
-     */
-    protected ThrowableDeserializer(BeanDeserializer src, NameTransformer unwrapper) {
-        super(src, unwrapper);
+        return new ThrowableDeserializer(baseDeserializer, (NameTransformer) null);
     }
 
     @Override
     public JsonDeserializer<Object> unwrappingDeserializer(NameTransformer unwrapper) {
+        // Should possibly for failure? But for now at least don't "undo"
+        // custom deserializer
         if (getClass() != ThrowableDeserializer.class) {
             return this;
         }

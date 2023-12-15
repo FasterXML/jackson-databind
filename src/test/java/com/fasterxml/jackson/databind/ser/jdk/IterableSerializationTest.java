@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.ser;
+package com.fasterxml.jackson.databind.ser.jdk;
 
 import java.io.IOException;
 import java.util.*;
@@ -9,7 +9,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-public class TestIterable extends BaseMapTest
+public class IterableSerializationTest extends BaseMapTest
 {
     final static class IterableWrapper
         implements Iterable<Integer>
@@ -93,10 +93,10 @@ public class TestIterable extends BaseMapTest
 
     static class ASerializer extends JsonSerializer<A> {
         @Override
-        public void serialize(A a, JsonGenerator jsonGenerator, SerializerProvider provider) throws IOException {
-            jsonGenerator.writeStartArray();
-            jsonGenerator.writeString("Hello world.");
-            jsonGenerator.writeEndArray();
+        public void serialize(A a, JsonGenerator g, SerializerProvider provider) throws IOException {
+            g.writeStartArray();
+            g.writeString("Hello world.");
+            g.writeEndArray();
         }
     }
 
@@ -110,7 +110,7 @@ public class TestIterable extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     private final ObjectMapper STATIC_MAPPER = jsonMapperBuilder()
             .enable(MapperFeature.USE_STATIC_TYPING)

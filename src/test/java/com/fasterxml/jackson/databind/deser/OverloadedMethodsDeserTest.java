@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.*;
  * and specifically addressing problems [JACKSON-189]
  * and [JACKSON-739]
  */
-public class TestOverloaded
+public class OverloadedMethodsDeserTest
     extends BaseMapTest
 {
     static class BaseListBean

@@ -4,7 +4,7 @@ package com.fasterxml.jackson.databind.deser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 
-public class TestGenerics
+public class GenericValuesDeserTest
     extends BaseMapTest
 {
     static abstract class BaseNumberBean<T extends Number>

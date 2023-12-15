@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.deser;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.*;
 
-public class TestInnerClass extends BaseMapTest
+public class InnerClassDeserTest extends BaseMapTest
 {
     static class Dog
     {

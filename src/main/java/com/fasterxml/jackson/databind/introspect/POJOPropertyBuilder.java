@@ -394,7 +394,11 @@ public class POJOPropertyBuilder
 
     @Override
     public boolean couldDeserialize() {
-        return (_ctorParameters != null) || (_setters != null) || (_fields != null);
+        return (_ctorParameters != null)
+            || (_setters != null)
+            || ((_fields != null)
+                // [databind#736] Since 2.16 : Fix `REQUIRE_SETTERS_FOR_GETTERS` taking no effect
+                && (_anyVisible(_fields)));
     }
 
     @Override

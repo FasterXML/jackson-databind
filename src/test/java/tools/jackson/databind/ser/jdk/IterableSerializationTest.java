@@ -1,13 +1,14 @@
-package tools.jackson.databind.ser;
+package tools.jackson.databind.ser.jdk;
 
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonSerialize;
 
-public class TestIterable extends BaseMapTest
+public class IterableSerializationTest extends BaseMapTest
 {
     final static class IterableWrapper
         implements Iterable<Integer>

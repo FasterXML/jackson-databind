@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.ObjectMapper;
 
-public class TestObjectOrArrayDeserialization extends BaseMapTest
+public class ObjectOrArrayDeserTest extends BaseMapTest
 {
     public static class SomeObject {
         public String someField;

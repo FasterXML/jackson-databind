@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.databind.*;
 
-public class TestInnerClass extends BaseMapTest
+public class InnerClassDeserTest extends BaseMapTest
 {
     static class Dog
     {

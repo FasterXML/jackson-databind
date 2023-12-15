@@ -1,10 +1,9 @@
 package tools.jackson.databind.deser;
 
-
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
 
-public class TestGenerics
+public class GenericValuesDeserTest
     extends BaseMapTest
 {
     static abstract class BaseNumberBean<T extends Number>

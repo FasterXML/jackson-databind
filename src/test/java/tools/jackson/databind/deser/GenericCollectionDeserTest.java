@@ -9,7 +9,7 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 
 @SuppressWarnings("serial")
-public class TestGenericCollectionDeser
+public class GenericCollectionDeserTest
     extends BaseMapTest
 {
     static class ListSubClass extends ArrayList<StringWrapper> { }

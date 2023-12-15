@@ -8,7 +8,7 @@ import tools.jackson.databind.*;
  * Tests for checking that static methods are not recognized as accessors
  * for properties
  */
-public class TestStatics
+public class NoStaticsDeserTest
     extends BaseMapTest
 {
     static class Bean

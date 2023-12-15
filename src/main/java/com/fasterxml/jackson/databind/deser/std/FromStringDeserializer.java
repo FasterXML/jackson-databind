@@ -12,6 +12,7 @@ import java.util.IllformedLocaleException;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.VersionUtil;
@@ -331,8 +332,12 @@ _coercedTypeDesc());
                 // will throw IAE if unknown:
                 return Currency.getInstance(value);
             case STD_PATTERN:
-                // will throw IAE (or its subclass) if malformed
-                return Pattern.compile(value);
+                try {
+                    return Pattern.compile(value);
+                } catch (PatternSyntaxException e) {
+                    return ctxt.handleWeirdStringValue(_valueClass, value,
+                            "Invalid Pattern, problem: "+e.getDescription());
+                }
             case STD_LOCALE:
                 return _deserializeLocale(value, ctxt);
             case STD_CHARSET:

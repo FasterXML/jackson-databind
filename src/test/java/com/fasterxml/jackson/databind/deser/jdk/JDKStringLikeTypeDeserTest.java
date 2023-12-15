@@ -199,12 +199,13 @@ public class JDKStringLikeTypeDeserTest extends BaseMapTest
         assertEquals(exp.pattern(), result.pattern());
 
         // [databind#3598]: should also handle invalid pattern serialization
-        // somehwat gracefully
+        // somewhat gracefully
         try {
             MAPPER.readValue(q("[abc"), Pattern.class);
             fail("Should not pass");
         } catch (InvalidFormatException e) {
-            verifyException(e, "not a valid textual representation, problem: Unclosed character class");
+            verifyException(e, "Cannot deserialize value of type `java.util.regex.Pattern` from String \"[abc\"");
+            verifyException(e, "Invalid pattern, problem");
         }
     }
 

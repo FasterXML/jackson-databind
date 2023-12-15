@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 /**
@@ -63,5 +64,17 @@ public class JDKCollectionsDeserTest extends BaseMapTest
         Set<?> result = mapper.readValue(json, Set.class);
         assertNotNull(result);
         assertEquals(1, result.size());
+    }
+
+    // [databind#4262]: Handle problem of `null`s for `TreeSet`
+    public void testNullsWithTreeSet() throws Exception
+    {
+        try {
+            MAPPER.readValue("[ \"acb\", null, 123 ]", TreeSet.class);
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "`java.util.Collection` of type ");
+            verifyException(e, " does not accept `null` values");
+        }
     }
 }

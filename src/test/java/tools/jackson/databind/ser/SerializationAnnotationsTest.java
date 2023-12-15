@@ -3,7 +3,6 @@ package tools.jackson.databind.ser;
 import java.io.*;
 import java.util.*;
 
-
 import com.fasterxml.jackson.annotation.*;
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
@@ -14,7 +13,7 @@ import tools.jackson.databind.ser.std.StdSerializer;
  * This unit test suite tests use of Annotations for
  * bean serialization.
  */
-public class TestAnnotations
+public class SerializationAnnotationsTest
     extends BaseMapTest
 {
     /// Class for testing {@link JsonProperty} annotations with getters
@@ -156,7 +155,7 @@ public class TestAnnotations
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     public void testSimpleGetter() throws Exception
     {

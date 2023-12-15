@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
  * This unit test suite tests use of Annotations for
  * bean serialization.
  */
-public class TestAnnotations
+public class SerializationAnnotationsTest
     extends BaseMapTest
 {
     /*
@@ -162,7 +162,7 @@ public class TestAnnotations
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     public void testSimpleGetter() throws Exception
     {

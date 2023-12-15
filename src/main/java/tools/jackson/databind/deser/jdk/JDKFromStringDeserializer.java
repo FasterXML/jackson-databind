@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import tools.jackson.core.*;
 import tools.jackson.core.util.VersionUtil;
@@ -177,11 +178,20 @@ public class JDKFromStringDeserializer
         case STD_JAVA_TYPE:
             return ctxt.getTypeFactory().constructFromCanonical(value);
         case STD_CURRENCY:
-            // will throw IAE if unknown:
-            return Currency.getInstance(value);
+            try {
+                return Currency.getInstance(value);
+            } catch (IllegalArgumentException e) {
+                // Looks like there is no more information
+                return ctxt.handleWeirdStringValue(_valueClass, value,
+                        "Unrecognized currency");
+            }
         case STD_PATTERN:
-            // will throw IAE (or its subclass) if malformed
-            return Pattern.compile(value);
+            try {
+                return Pattern.compile(value);
+            } catch (PatternSyntaxException e) {
+                return ctxt.handleWeirdStringValue(_valueClass, value,
+                        "Invalid Pattern, problem: "+e.getDescription());
+            }
         case STD_LOCALE:
             return _deserializeLocale(value, ctxt);
         case STD_CHARSET:

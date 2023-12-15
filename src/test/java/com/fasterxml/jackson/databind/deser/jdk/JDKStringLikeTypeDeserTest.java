@@ -114,7 +114,15 @@ public class JDKStringLikeTypeDeserTest extends BaseMapTest
     public void testCurrency() throws IOException
     {
         Currency usd = Currency.getInstance("USD");
-        assertEquals(usd, new ObjectMapper().readValue(q("USD"), Currency.class));
+        assertEquals(usd, MAPPER.readValue(q("USD"), Currency.class));
+
+        try {
+            MAPPER.readValue(q("poobah"), Currency.class);
+            fail("Should not pass!");
+        } catch (InvalidFormatException e) {
+            verifyException(e, "Cannot deserialize value of type `java.util.Currency` from String \"Poobah\"");
+            verifyException(e, "Unrecognized currency");
+        }
     }
 
     public void testFile() throws Exception

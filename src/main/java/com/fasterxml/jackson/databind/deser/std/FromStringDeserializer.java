@@ -330,7 +330,13 @@ _coercedTypeDesc());
                 return ctxt.getTypeFactory().constructFromCanonical(value);
             case STD_CURRENCY:
                 // will throw IAE if unknown:
-                return Currency.getInstance(value);
+                try {
+                    return Currency.getInstance(value);
+                } catch (IllegalArgumentException e) {
+                    // Looks like there is no more information
+                    return ctxt.handleWeirdStringValue(_valueClass, value,
+                            "Unrecognized currency");
+                }
             case STD_PATTERN:
                 try {
                     return Pattern.compile(value);

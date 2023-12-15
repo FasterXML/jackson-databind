@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JacksonStdImpl;
@@ -345,6 +346,10 @@ _containerType,
                         continue;
                     }
                     value = _nullProvider.getNullValue(ctxt);
+                    if (value == null) {
+                        _tryToAddNull(p, ctxt, result);
+                        continue;
+                    }
                 } else if (typeDeser == null) {
                     value = valueDes.deserialize(p, ctxt);
                 } else {
@@ -398,6 +403,10 @@ _containerType,
                     return result;
                 }
                 value = _nullProvider.getNullValue(ctxt);
+                if (value == null) {
+                    _tryToAddNull(p, ctxt, result);
+                    return result;
+                }
             } else if (typeDeser == null) {
                 value = valueDes.deserialize(p, ctxt);
             } else {
@@ -460,6 +469,22 @@ _containerType,
         return result;
     }
 
+    /**
+     * {@code java.util.TreeSet} does not allow addition of {@code null} values,
+     * so isolate handling here.
+     */
+    protected void _tryToAddNull(JsonParser p, DeserializationContext ctxt, Collection<?> set)
+    {
+        // Ideally we'd have better idea of where nulls are accepted, but first
+        // let's just produce something better than NPE:
+        try {
+            set.add(null);
+        } catch (NullPointerException e) {
+            ctxt.handleUnexpectedToken(_valueType, JsonToken.VALUE_NULL, p,
+                    "`java.util.Collection` of type %s does not accept `null` values",
+                    ClassUtil.getTypeDescription(getValueType(ctxt)));
+        }
+    }    
     /**
      * Helper class for dealing with Object Id references for values contained in
      * collections being deserialized.

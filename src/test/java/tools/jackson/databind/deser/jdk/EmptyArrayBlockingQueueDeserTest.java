@@ -5,7 +5,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 import tools.jackson.databind.*;
 
-public class TestEmptyArrayBlockingQueueDeser extends BaseMapTest
+public class EmptyArrayBlockingQueueDeserTest extends BaseMapTest
 {
     static class RemoteEntity{
         private Collection<Double> values = new ArrayBlockingQueue<>(20);

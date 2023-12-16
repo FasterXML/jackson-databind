@@ -4,18 +4,23 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newTypeFactory;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
 
 /**
  * Simple tests to verify that the {@link TypeFactory} constructs
  * type information as expected.
  */
 public class TestTypeFactory
-    extends BaseMapTest
 {
     /*
     /**********************************************************
@@ -84,6 +89,7 @@ public class TestTypeFactory
     /**********************************************************
      */
 
+    @Test
     public void testSimpleTypes()
     {
         Class<?>[] classes = new Class<?>[] {
@@ -109,6 +115,7 @@ public class TestTypeFactory
         }
     }
 
+    @Test
     public void testArrays()
     {
         Class<?>[] classes = new Class<?>[] {
@@ -129,6 +136,7 @@ public class TestTypeFactory
     }
 
     // [databind#810]: Fake Map type for Properties as <String,String>
+    @Test
     public void testProperties()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -144,6 +152,7 @@ public class TestTypeFactory
     }
 
     // note: changed for [databind#3950]
+    @Test
     public void testIterator()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -161,6 +170,7 @@ public class TestTypeFactory
      * programmatically
      */
     @SuppressWarnings("deprecation")
+    @Test
     public void testParametricTypes()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -208,6 +218,7 @@ public class TestTypeFactory
     }
 
     @SuppressWarnings("deprecation")
+    @Test
     public void testInvalidParametricTypes()
     {
         final TypeFactory tf = TypeFactory.defaultInstance();
@@ -232,6 +243,7 @@ public class TestTypeFactory
     /**
      * Test for checking that canonical name handling works ok
      */
+    @Test
     public void testCanonicalNames()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -284,6 +296,7 @@ public class TestTypeFactory
 
     // [databind#1768]
     @SuppressWarnings("serial")
+    @Test
     public void testCanonicalWithSpaces()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -297,6 +310,7 @@ public class TestTypeFactory
     }
 
     // [databind#4011]
+    @Test
     public void testMalicousCanonical()
     {
         final TypeFactory tf = TypeFactory.defaultInstance();
@@ -336,6 +350,7 @@ public class TestTypeFactory
     /**********************************************************
      */
 
+    @Test
     public void testCollections()
     {
         // Ok, first: let's test what happens when we pass 'raw' Collection:
@@ -370,6 +385,7 @@ public class TestTypeFactory
 
     // [databind#2796]
     @SuppressWarnings("deprecation")
+    @Test
     public void testCollectionsWithBindings()
     {
         final TypeFactory tf = TypeFactory.defaultInstance();
@@ -382,6 +398,7 @@ public class TestTypeFactory
     }
 
     // since 2.7
+    @Test
     public void testCollectionTypesRefined()
     {
         TypeFactory tf = newTypeFactory();
@@ -408,6 +425,7 @@ public class TestTypeFactory
 
     // for [databind#3876]
     @SuppressWarnings("rawtypes")
+    @Test
     public void testCollectionsHashCode()
     {
         TypeFactory tf = newTypeFactory();
@@ -423,6 +441,7 @@ public class TestTypeFactory
     /**********************************************************
      */
 
+    @Test
     public void testMaps()
     {
         TypeFactory tf = newTypeFactory();
@@ -465,6 +484,7 @@ public class TestTypeFactory
     }
     
     // for [databind#3876]
+    @Test
     public void testMapsHashCode()
     {
         TypeFactory tf = newTypeFactory();
@@ -483,6 +503,7 @@ public class TestTypeFactory
     }
 
     // since 2.7
+    @Test
     public void testMapTypesRefined()
     {
         TypeFactory tf = newTypeFactory();
@@ -516,6 +537,7 @@ public class TestTypeFactory
         assertEquals(Integer.class, superType.getContentType().getContentType().getRawClass());
     }
 
+    @Test
     public void testTypeGeneralization()
     {
         TypeFactory tf = newTypeFactory();
@@ -535,6 +557,7 @@ public class TestTypeFactory
         }
     }
 
+    @Test
     public void testMapTypesRaw()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -545,6 +568,7 @@ public class TestTypeFactory
         assertEquals(tf.constructType(Object.class), mapType.getContentType());
     }
 
+    @Test
     public void testMapTypesAdvanced()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -570,6 +594,7 @@ public class TestTypeFactory
      * Specific test to verify that complicate name mangling schemes
      * do not fool type resolver
      */
+    @Test
     public void testMapTypesSneaky()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -583,6 +608,7 @@ public class TestTypeFactory
     /**
      * Plus sneaky types may be found via introspection as well.
      */
+    @Test
     public void testSneakyFieldTypes() throws Exception
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -603,6 +629,7 @@ public class TestTypeFactory
     /**
      * Looks like type handling actually differs for properties, too.
      */
+    @Test
     public void testSneakyBeanProperties() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -620,6 +647,7 @@ public class TestTypeFactory
         assertEquals("...", list.get(0));
     }
 
+    @Test
     public void testSneakySelfRefs() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -633,6 +661,7 @@ public class TestTypeFactory
     /**********************************************************
      */
 
+    @Test
     public void testAtomicArrayRefParameters()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -645,6 +674,7 @@ public class TestTypeFactory
 
     static abstract class StringIntMapEntry implements Map.Entry<String,Integer> { }
 
+    @Test
     public void testMapEntryResolution()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -663,6 +693,7 @@ public class TestTypeFactory
     /**********************************************************
      */
 
+    @Test
     public void testRawCollections()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -679,6 +710,7 @@ public class TestTypeFactory
         assertEquals(TypeFactory.unknownType(), type.getContentType());
     }
 
+    @Test
     public void testRawMaps()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -705,6 +737,7 @@ public class TestTypeFactory
     /**********************************************************
      */
 
+    @Test
     public void testMoreSpecificType()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -727,6 +760,7 @@ public class TestTypeFactory
     }
 
     // [databind#489]
+    @Test
     public void testCacheClearing()
     {
         TypeFactory tf = TypeFactory.defaultInstance().withModifier(null);
@@ -739,6 +773,7 @@ public class TestTypeFactory
     }
 
     // for [databind#1297]
+    @Test
     public void testRawMapType()
     {
         TypeFactory tf = TypeFactory.defaultInstance().withModifier(null); // to get a new copy
@@ -749,6 +784,7 @@ public class TestTypeFactory
     }
 
     // for [databind#3443]
+    @Test
     public void testParameterizedClassType() {
         TypeFactory tf = TypeFactory.defaultInstance();
 
@@ -760,6 +796,7 @@ public class TestTypeFactory
     }
 
     // for [databind#3876]
+    @Test
     public void testParameterizedSimpleType() {
         TypeFactory tf = TypeFactory.defaultInstance();
 

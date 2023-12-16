@@ -3,14 +3,19 @@ package com.fasterxml.jackson.databind.type;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 // Tests for [databind#1456]: resolution using methods deprecated
 // in 2.7, but used to work in 2.6
-public class DeprecatedConstructType1456Test extends BaseMapTest
+public class DeprecatedConstructType1456Test
 {
     public static class BaseController<Entity extends BaseEntity> {
         public void process(Entity entity) {}
@@ -25,6 +30,7 @@ public class DeprecatedConstructType1456Test extends BaseMapTest
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @SuppressWarnings("deprecation")
+    @Test
     public void testGenericResolutionUsingDeprecated() throws Exception
     {
         Method proceed = BaseController.class.getMethod("process", BaseEntity.class);
@@ -35,6 +41,7 @@ public class DeprecatedConstructType1456Test extends BaseMapTest
     }
 
     // and this is how new code should resolve types if at all possible
+    @Test
     public void testGenericParameterViaClass() throws Exception
     {
         BeanDescription desc = MAPPER.getDeserializationConfig().introspect(

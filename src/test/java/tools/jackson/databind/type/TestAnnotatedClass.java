@@ -1,16 +1,19 @@
 package tools.jackson.databind.type;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.introspect.*;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit test for verifying that {@link AnnotatedClass}
  * works as expected.
  */
 public class TestAnnotatedClass
-    extends BaseMapTest
 {
     /*
     /**********************************************************
@@ -78,6 +81,7 @@ public class TestAnnotatedClass
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
+    @Test
     public void testFieldIntrospection()
     {
         SerializationConfig config = MAPPER.serializationConfig();
@@ -94,6 +98,7 @@ public class TestAnnotatedClass
     }
 
     // For [databind#1005]
+    @Test
     public void testConstructorIntrospection()
     {
         // Need this call to ensure there is a synthetic constructor being generated
@@ -105,6 +110,7 @@ public class TestAnnotatedClass
         assertEquals(1, ac.getConstructors().size());
     }
 
+    @Test
     public void testArrayTypeIntrospection() throws Exception
     {
         AnnotatedClass ac = AnnotatedClassResolver.resolve(MAPPER.serializationConfig(),
@@ -115,6 +121,7 @@ public class TestAnnotatedClass
         assertFalse(ac.fields().iterator().hasNext());
     }
 
+    @Test
     public void testIntrospectionWithRawClass() throws Exception
     {
         AnnotatedClass ac = AnnotatedClassResolver.resolveWithoutSuperTypes(MAPPER.serializationConfig(),

@@ -2,13 +2,21 @@ package tools.jackson.databind.type;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
 import tools.jackson.databind.jsontype.TypeResolverBuilder;
 import tools.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
 
-public class RecursiveType1658Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
+
+public class RecursiveType1658Test
 {
     @SuppressWarnings("serial")
     static class Tree<T> extends HashMap<T, Tree<T>> // implements Serializable
@@ -27,6 +35,7 @@ public class RecursiveType1658Test extends BaseMapTest
         }
     }
 
+    @Test
     public void testRecursive1658() throws Exception
     {
         Tree<String> t = new Tree<String>(Arrays.asList("hello", "world"));

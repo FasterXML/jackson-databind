@@ -8,16 +8,18 @@ import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.JavaType;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Simple tests to verify that {@link JavaType} types work to
  * some degree
  */
 public class TestJavaType
-    extends BaseMapTest
 {
     static class BaseType { }
 
@@ -69,6 +71,7 @@ public class TestJavaType
     /**********************************************************
      */
 
+    @Test
     public void testLocalType728() throws Exception
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -90,6 +93,7 @@ public class TestJavaType
         assertEquals(CharSequence.class, t.getRawClass());
     }
 
+    @Test
     public void testSimpleClass()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -115,6 +119,7 @@ public class TestJavaType
         assertEquals("Ltools/jackson/databind/type/TestJavaType$BaseType;", baseType.getErasedSignature());
     }
 
+    @Test
     public void testArrayType()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -138,6 +143,7 @@ public class TestJavaType
         assertFalse(arrayT.equals(ArrayType.construct(tf.constructType(Integer.class), null)));
     }
 
+    @Test
     public void testMapType()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -160,6 +166,7 @@ public class TestJavaType
         assertFalse(mapT.equals(bogus));
     }
 
+    @Test
     public void testEnumType()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -196,6 +203,7 @@ public class TestJavaType
     }
 
     @SuppressWarnings("SelfComparison")
+    @Test
     public void testClassKey()
     {
         ClassKey key = new ClassKey(String.class);
@@ -211,6 +219,7 @@ public class TestJavaType
     }
 
     // [databind#116]
+    @Test
     public void testJavaTypeAsJLRType()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -221,6 +230,7 @@ public class TestJavaType
     }
 
     // [databind#1194]
+    @Test
     public void testGenericSignature1194() throws Exception
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -243,6 +253,7 @@ public class TestJavaType
     }
 
     @Deprecated
+    @Test
     public void testAnchorTypeForRefTypes() throws Exception
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -258,6 +269,7 @@ public class TestJavaType
     }
 
     // for [databind#1290]
+    @Test
     public void testObjectToReferenceSpecialization() throws Exception
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -270,6 +282,7 @@ public class TestJavaType
     }
 
     // for [databind#2091]
+    @Test
     public void testConstructReferenceType() throws Exception
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -290,6 +303,7 @@ public class TestJavaType
     }
 
     // for [databind#3950]: resolve `Iterator`, `Stream`
+    @Test
     public void testIterationTypesDirect() throws Exception
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -319,6 +333,7 @@ public class TestJavaType
     }
 
     // for [databind#3950]: resolve `Iterator`, `Stream`
+    @Test
     public void testIterationTypesFromValues() throws Exception
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -333,6 +348,7 @@ public class TestJavaType
     }
 
     // for [databind#3950]: resolve `Iterator`, `Stream`
+    @Test
     public void testIterationSubTypes() throws Exception
     {
         TypeFactory tf = TypeFactory.defaultInstance();

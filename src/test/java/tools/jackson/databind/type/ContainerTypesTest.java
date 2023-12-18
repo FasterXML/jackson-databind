@@ -2,13 +2,19 @@ package tools.jackson.databind.type;
 
 import java.util.*;
 
-import tools.jackson.databind.BaseMapTest;
+import org.junit.Test;
+
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.util.SimpleLookupCache;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.verifyException;
+
 // for [databind#1415]
-public class ContainerTypesTest extends BaseMapTest
+public class ContainerTypesTest
 {
     static abstract class LongList implements List<Long> { }
 
@@ -22,6 +28,7 @@ public class ContainerTypesTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
+    @Test
     public void testExplicitCollectionType() throws Exception
     {
         JavaType t = MAPPER.getTypeFactory()
@@ -30,6 +37,7 @@ public class ContainerTypesTest extends BaseMapTest
         assertEquals(Long.class, t.getContentType().getRawClass());
     }
 
+    @Test
     public void testImplicitCollectionType() throws Exception
     {
         JavaType t = MAPPER.getTypeFactory()
@@ -40,6 +48,7 @@ public class ContainerTypesTest extends BaseMapTest
     }
 
     // [databind#1725]
+    @Test
     public void testMissingCollectionType() throws Exception
     {
         TypeFactory tf = MAPPER.getTypeFactory().withCache(new SimpleLookupCache<Object,JavaType>(4, 8));
@@ -49,6 +58,7 @@ public class ContainerTypesTest extends BaseMapTest
         assertEquals(HashMap.class, t.getContentType().getRawClass());
     }
 
+    @Test
     public void testExplicitMapType() throws Exception
     {
         JavaType t = MAPPER.getTypeFactory()
@@ -59,6 +69,7 @@ public class ContainerTypesTest extends BaseMapTest
         assertEquals(Long.class, t.getContentType().getRawClass());
     }
 
+    @Test
     public void testImplicitMapType() throws Exception
     {
         JavaType t = MAPPER.getTypeFactory()
@@ -74,6 +85,7 @@ public class ContainerTypesTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testMismatchedCollectionType() throws Exception
     {
         try {
@@ -86,6 +98,7 @@ public class ContainerTypesTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testMismatchedMapType() throws Exception
     {
         // first, mismatched key type

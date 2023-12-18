@@ -3,14 +3,18 @@ package tools.jackson.databind.type;
 import java.io.Serializable;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 @SuppressWarnings("serial")
 public class TestGenericsBounded
-    extends BaseMapTest
 {
     static class Range<E extends Comparable<E>> implements Serializable
     {
@@ -110,6 +114,7 @@ public class TestGenericsBounded
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
+    @Test
     public void testLowerBound() throws Exception
     {
         IntBeanWrapper<?> result = MAPPER.readValue("{\"wrapped\":{\"x\":3}}",
@@ -120,6 +125,7 @@ public class TestGenericsBounded
     }
 
     // Test related to type bound handling problem within [JACKSON-190]
+    @Test
     public void testBounded() throws Exception
     {
         BoundedWrapper<IntBean> result = MAPPER.readValue
@@ -131,6 +137,7 @@ public class TestGenericsBounded
         assertEquals(3, result.values.get(0).x);
     }
 
+    @Test
     public void testGenericsComplex() throws Exception
     {
         DoubleRange in = new DoubleRange(-0.5, 0.5);
@@ -141,6 +148,7 @@ public class TestGenericsBounded
         assertEquals(0.5, out.end);
     }
 
+    @Test
     public void testIssue778() throws Exception
     {
         String json = "{\"rows\":[{\"d\":{}}]}";
@@ -170,6 +178,7 @@ public class TestGenericsBounded
     }
 
     // [databind#537]
+    @Test
     public void test() throws Exception
     {
         AnnotatedValueSimple<Integer> item = new AnnotatedValueSimple<Integer>(5);

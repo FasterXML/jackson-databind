@@ -1,22 +1,34 @@
 package tools.jackson.databind.testutil;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.type.TypeFactory;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Class containing test utility methods.
  * The methods are migrated from {@link BaseMapTest} and {@link BaseTest},
  * as part of JUnit 5 migration.
- *
- * @since 2.17
  */
 public class DatabindTestUtil
 {
+    /*
+    /**********************************************************
+    /* Factory methods
+    /**********************************************************
+     */
+
+    public static TypeFactory newTypeFactory() {
+        // this is a work-around; no null modifier added
+        return TypeFactory.defaultInstance().withModifier(null);
+    }
+
     /*
     /**********************************************************
     /* Mapper construction helpers
@@ -60,5 +72,31 @@ public class DatabindTestUtil
 
     public static byte[] utf8Bytes(String str) {
         return str.getBytes(StandardCharsets.UTF_8);
+    }
+
+    /*
+    /**********************************************************
+    /* Additional assertion methods
+    /**********************************************************
+     */
+
+    /**
+     * @param e Exception to check
+     * @param anyMatches Array of Strings of which AT LEAST ONE ("any") has to be included
+     *    in {@code e.getMessage()} -- using case-INSENSITIVE comparison
+     */
+    public static void verifyException(Throwable e, String... anyMatches)
+    {
+        String msg = e.getMessage();
+        String lmsg = (msg == null) ? "" : msg.toLowerCase();
+        for (String match : anyMatches) {
+            String lmatch = match.toLowerCase();
+            if (lmsg.contains(lmatch)) {
+                return;
+            }
+        }
+        fail("Expected an exception with one of substrings ("
+            + Arrays.asList(anyMatches)+"): got one (of type "+e.getClass().getName()
+            +") with message \""+msg+"\"");
     }
 }

@@ -3,13 +3,17 @@ package tools.jackson.databind.type;
 import java.io.Serializable;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.type.TypeReference;
 
-import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.JavaType;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+
 @SuppressWarnings("serial")
-public class TestTypeResolution extends BaseMapTest
+public class TestTypeResolution
 {
     public static class LongValuedMap<K> extends HashMap<K, Long> { }
 
@@ -35,6 +39,7 @@ public class TestTypeResolution extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testMaps()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -45,6 +50,7 @@ public class TestTypeResolution extends BaseMapTest
         assertEquals(tf.constructType(Long.class), type.getContentType());
     }
 
+    @Test
     public void testListViaTypeRef()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -54,6 +60,7 @@ public class TestTypeResolution extends BaseMapTest
         assertEquals(tf.constructType(Long.class), type.getContentType());
     }
 
+    @Test
     public void testListViaClass()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -63,6 +70,7 @@ public class TestTypeResolution extends BaseMapTest
         assertEquals(tf.constructType(Long.class), type.getContentType());
     }
 
+    @Test
     public void testGeneric()
     {
         TypeFactory tf = TypeFactory.defaultInstance();

@@ -2,17 +2,20 @@ package tools.jackson.databind.type;
 
 import java.util.*;
 
-import tools.jackson.databind.BaseMapTest;
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.databind.JavaType;
 
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.*;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.verifyException;
 
 /**
  * Simple tests to verify for generic type binding functionality
  * implemented by {@link TypeBindings} class.
  */
 public class TestTypeBindings
-    extends BaseMapTest
 {
     static class AbstractType<A,B> { }
 
@@ -44,6 +47,7 @@ public class TestTypeBindings
 
     private final TypeFactory DEFAULT_TF = TypeFactory.defaultInstance();
 
+    @Test
     public void testInnerType() throws Exception
     {
         JavaType type = DEFAULT_TF.constructType(InnerGenericTyping.InnerClass.class);
@@ -57,12 +61,14 @@ public class TestTypeBindings
     }
 
     // for [databind#76]
+    @Test
     public void testRecursiveType()
     {
         JavaType type = DEFAULT_TF.constructType(HashTree.class);
         assertNotNull(type);
     }
 
+    @Test
     public void testBindingsBasics()
     {
         TypeBindings b = TypeBindings.create(Collection.class,
@@ -78,6 +84,7 @@ public class TestTypeBindings
         assertFalse(b.equals("foo"));
     }
 
+    @Test
     public void testInvalidBindings()
     {
         JavaType unknown = TypeFactory.unknownType();
@@ -91,6 +98,7 @@ public class TestTypeBindings
     }
 
     // for [databind#3876]
+    @Test
     public void testEqualityAndHashCode()
     {
         JavaType stringType = DEFAULT_TF.constructType(String.class);

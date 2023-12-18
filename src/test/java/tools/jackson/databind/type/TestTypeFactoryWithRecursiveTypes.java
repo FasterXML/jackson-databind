@@ -2,13 +2,18 @@ package tools.jackson.databind.type;
 
 import java.io.IOException;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import tools.jackson.databind.BaseMapTest;
+import tools.jackson.databind.ObjectMapper;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
 // https://github.com/FasterXML/jackson-databind/issues/1647
-public class TestTypeFactoryWithRecursiveTypes extends BaseMapTest
+public class TestTypeFactoryWithRecursiveTypes
 {
     static interface IFace<T> { }
 
@@ -20,12 +25,15 @@ public class TestTypeFactoryWithRecursiveTypes extends BaseMapTest
         @JsonProperty int sub = 2;
     }
 
+    private final ObjectMapper MAPPER = newJsonMapper();
+
+    @Test
     public void testBasePropertiesIncludedWhenSerializingSubWhenSubTypeLoadedAfterBaseType() throws IOException {
         TypeFactory tf = TypeFactory.defaultInstance();
         tf.constructType(Base.class);
         tf.constructType(Sub.class);
         Sub sub = new Sub();
-        String serialized = objectMapper().writeValueAsString(sub);
+        String serialized = MAPPER.writeValueAsString(sub);
         assertEquals("{\"base\":1,\"sub\":2}", serialized);
     }
 }

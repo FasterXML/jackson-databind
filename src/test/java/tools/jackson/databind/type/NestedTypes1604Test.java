@@ -3,10 +3,16 @@ package tools.jackson.databind.type;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.databind.*;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+
 // for [databind#1604]
-public class NestedTypes1604Test extends BaseMapTest
+public class NestedTypes1604Test
 {
     public static class Data<T> {
         private T data;
@@ -91,6 +97,7 @@ public class NestedTypes1604Test extends BaseMapTest
 
     private final ObjectMapper objectMapper = newJsonMapper();
 
+    @Test
     public void testIssue1604Simple() throws Exception
     {
         List<Inner> inners = new ArrayList<>();
@@ -106,6 +113,7 @@ public class NestedTypes1604Test extends BaseMapTest
         assertNotNull(json);
    }
 
+   @Test
     public void testIssue1604Subtype() throws Exception
     {
         List<Inner> inners = new ArrayList<>();
@@ -117,6 +125,7 @@ public class NestedTypes1604Test extends BaseMapTest
         assertNotNull(json);
    }
 
+   @Test
     public void testIssue1604Sneaky() throws Exception
     {
         List<Inner> inners = new ArrayList<>();

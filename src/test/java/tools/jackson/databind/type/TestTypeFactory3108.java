@@ -3,13 +3,16 @@ package tools.jackson.databind.type;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import tools.jackson.databind.BaseMapTest;
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.databind.JavaType;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 // [databind#3108]: canonical type description for non-generic subtypes
 @SuppressWarnings("serial")
 public class TestTypeFactory3108
-    extends BaseMapTest
 {
     static class StringList3108 extends ArrayList<String> {}
 
@@ -20,6 +23,7 @@ public class TestTypeFactory3108
     static class ConcreteType3108 extends ParamType3108<Integer> {}
 
     // [databind#3108] with custom Collection
+    @Test
     public void testCanonicalWithCustomCollection()
     {
         final TypeFactory tf = TypeFactory.defaultInstance();
@@ -31,6 +35,7 @@ public class TestTypeFactory3108
     }
 
     // [databind#3108] with custom Map
+    @Test
     public void testCanonicalWithCustomMap()
     {
         final TypeFactory tf = TypeFactory.defaultInstance();
@@ -42,6 +47,7 @@ public class TestTypeFactory3108
     }
 
     // [databind#3108] with custom generic type
+    @Test
     public void testCanonicalWithCustomGenericType()
     {
         final TypeFactory tf = TypeFactory.defaultInstance();

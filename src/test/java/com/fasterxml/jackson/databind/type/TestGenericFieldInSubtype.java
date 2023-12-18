@@ -1,10 +1,16 @@
 package com.fasterxml.jackson.databind.type;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.*;
 
-public class TestGenericFieldInSubtype extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+public class TestGenericFieldInSubtype
 {
     // [JACKSON-677]
+    @Test
     public void test677() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -17,6 +23,7 @@ public class TestGenericFieldInSubtype extends BaseMapTest
     }
 
  // [JACKSON-887]
+    @Test
     public void testInnerType() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();

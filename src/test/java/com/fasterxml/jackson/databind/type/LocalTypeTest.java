@@ -1,8 +1,12 @@
 package com.fasterxml.jackson.databind.type;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.*;
 
-public class LocalTypeTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class LocalTypeTest
 {
     // [databind#609]
     static class EntityContainer {
@@ -21,6 +25,7 @@ public class LocalTypeTest extends BaseMapTest
     }
 
     // [databind#609]
+    @Test
     public void testLocalPartialType609() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
 

@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -38,13 +40,20 @@ public class NumberSerializer
 
     protected final boolean _isInt;
 
+    protected final NumberFormat format;
+
     /**
      * @since 2.5
      */
     public NumberSerializer(Class<? extends Number> rawType) {
+        this(rawType, null);
+    }
+
+    public NumberSerializer(Class<? extends Number> rawType, NumberFormat format) {
         super(rawType, false);
         // since this will NOT be constructed for Integer or Long, only case is:
         _isInt = (rawType == BigInteger.class);
+        this.format = format;
     }
 
     @Override
@@ -55,6 +64,9 @@ public class NumberSerializer
         if (format != null) {
             switch (format.getShape()) {
             case STRING:
+                if (format.hasPattern()) {
+                    return new NumberSerializer(handledType(), new DecimalFormat(format.getPattern()));
+                }
                 // [databind#2264]: Need special handling for `BigDecimal`
                 if (((Class<?>) handledType()) == BigDecimal.class) {
                     return bigDecimalAsStringSerializer();
@@ -69,6 +81,10 @@ public class NumberSerializer
     @Override
     public void serialize(Number value, JsonGenerator g, SerializerProvider provider) throws IOException
     {
+        if (format != null) {
+            g.writeString(format.format(value));
+            return;
+        }
         // should mostly come in as one of these two:
         if (value instanceof BigDecimal) {
             g.writeNumber((BigDecimal) value);

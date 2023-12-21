@@ -5,6 +5,7 @@ import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -40,6 +41,9 @@ public class NumberSerializer
 
     protected final boolean _isInt;
 
+    /**
+     * @since 2.17
+     */
     protected final NumberFormat format;
 
     /**
@@ -49,6 +53,9 @@ public class NumberSerializer
         this(rawType, null);
     }
 
+    /**
+     * @since 2.17
+     */
     public NumberSerializer(Class<? extends Number> rawType, NumberFormat format) {
         super(rawType, false);
         // since this will NOT be constructed for Integer or Long, only case is:
@@ -65,7 +72,16 @@ public class NumberSerializer
             switch (format.getShape()) {
             case STRING:
                 if (format.hasPattern()) {
-                    return new NumberSerializer(handledType(), new DecimalFormat(format.getPattern()));
+                    try {
+                        if (format.hasLocale()) {
+                            return new NumberSerializer(handledType(), new DecimalFormat(format.getPattern(),
+                                    DecimalFormatSymbols.getInstance(format.getLocale())));
+                        }
+                        return new NumberSerializer(handledType(), new DecimalFormat(format.getPattern()));
+                    } catch (IllegalArgumentException e) {
+                        prov.reportMappingProblem(e, "Invalid DecimalFormat %s",
+                                format.getPattern());
+                    }
                 }
                 // [databind#2264]: Need special handling for `BigDecimal`
                 if (((Class<?>) handledType()) == BigDecimal.class) {
@@ -82,7 +98,7 @@ public class NumberSerializer
     public void serialize(Number value, JsonGenerator g, SerializerProvider provider) throws IOException
     {
         if (format != null) {
-            g.writeString(format.format(value));
+            g.writeNumber(format.format(value));
             return;
         }
         // should mostly come in as one of these two:

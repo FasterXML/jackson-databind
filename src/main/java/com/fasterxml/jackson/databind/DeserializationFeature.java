@@ -312,6 +312,7 @@ public enum DeserializationFeature implements ConfigFeature
      * deserialization, thereby preventing unintended data from being processed.
      *<p>
      * In Jackson 2.x, this feature is disabled by default to maintain backward compatibility.
+     * In Jackson 3.x, this feature may be enabled by default.
      *
      * @since 2.17
      */

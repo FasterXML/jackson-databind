@@ -298,6 +298,25 @@ public enum DeserializationFeature implements ConfigFeature
      */
     WRAP_EXCEPTIONS(true),
 
+    /**
+     * Feature that determines the handling of properties not included in the active JSON view
+     * during deserialization.
+     *<p>
+     * When enabled, if a property is encountered during deserialization that is not part of the
+     * active view (as defined by {@link com.fasterxml.jackson.annotation.JsonView}).
+     *<p>
+     * This feature is particularly useful in scenarios where strict adherence to the specified
+     * view is required and any deviation, such as the presence of properties not belonging to
+     * the view, should be reported as an error. It enhances the robustness of data binding
+     * by ensuring that only the properties relevant to the active view are considered during
+     * deserialization, thereby preventing unintended data from being processed.
+     *<p>
+     * In Jackson 2.x, this feature is disabled by default to maintain backward compatibility.
+     *
+     * @since 2.17
+     */
+    FAIL_ON_UNEXPECTED_VIEW_PROPERTIES(false),
+
     /*
     /******************************************************
     /* Structural conversion features

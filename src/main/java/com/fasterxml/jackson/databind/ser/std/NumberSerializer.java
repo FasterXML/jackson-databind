@@ -98,7 +98,7 @@ public class NumberSerializer
     public void serialize(Number value, JsonGenerator g, SerializerProvider provider) throws IOException
     {
         if (format != null) {
-            g.writeNumber(format.format(value));
+            g.writeString(format.format(value));
             return;
         }
         // should mostly come in as one of these two:

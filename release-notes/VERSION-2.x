@@ -6,6 +6,9 @@ Project: jackson-databind
 
 2.17.0 (not yet released)
 
+#437: Support throwing `MismatchedInputException` when deserializing
+  properties that are not part of the view
+ (contributed by Joo-Hyuk K)
 #736: `MapperFeature.REQUIRE_SETTERS_FOR_GETTERS` has no effect
  (reported by @migel)
  (fix contributed by Joo-Hyuk K)

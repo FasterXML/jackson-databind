@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -14,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
 public class MultipleViewsDeser4108Test {
+
     static class View1 {
     }
 
@@ -28,6 +30,58 @@ public class MultipleViewsDeser4108Test {
         public String view2Field;
     }
 
+    @JsonDeserialize(builder = SimpleBuilderXY.class)
+    static class ValueClassXY {
+        final int _x, _y, _z;
+
+        protected ValueClassXY(int x, int y, int z) {
+            _x = x + 1;
+            _y = y + 1;
+            _z = z + 1;
+        }
+    }
+
+    static class ViewX {
+    }
+
+    static class ViewY {
+    }
+
+    static class ViewZ {
+    }
+
+    static class SimpleBuilderXY {
+        public int x, y, z;
+
+        @JsonView(ViewX.class)
+        public SimpleBuilderXY withX(int x0) {
+            this.x = x0;
+            return this;
+        }
+
+        @JsonView(ViewY.class)
+        public SimpleBuilderXY withY(int y0) {
+            this.y = y0;
+            return this;
+        }
+
+        @JsonView(ViewZ.class)
+        public SimpleBuilderXY withZ(int z0) {
+            this.z = z0;
+            return this;
+        }
+
+        public ValueClassXY build() {
+            return new ValueClassXY(x, y, z);
+        }
+    }
+
+    private final ObjectMapper ENABLED_MAPPER = jsonMapperBuilder()
+        .enable(DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES).build();
+
+    private final ObjectMapper DISABLED_MAPPER = jsonMapperBuilder()
+        .disable(DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES).build();
+
     @Test
     public void testDeserWithMultipleViews() throws Exception
     {
@@ -35,18 +89,39 @@ public class MultipleViewsDeser4108Test {
             "'view1Field':'view1FieldValue'," +
             "'view2Field':'view2FieldValue'}");
 
-        ObjectMapper mapper = jsonMapperBuilder()
-            .enable(DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES).build();
-        ObjectReader reader = mapper
-            .readerWithView(View1.class)
-            .forType(Bean4108.class);
+        ObjectReader reader = ENABLED_MAPPER.readerWithView(View1.class).forType(Bean4108.class);
 
+        _testMismatchException(reader, json);
+    }
+
+    @Test
+    public void testDeserMultipleViewsWithBuilders() throws Exception
+    {
+        final String json = a2q("{'x':5,'y':10,'z':0}");
+
+        // When enabled, should fail on unexpected view
+        _testMismatchException(
+            ENABLED_MAPPER.readerFor(ValueClassXY.class).withView(ViewX.class),
+            json);
+        _testMismatchException(
+            ENABLED_MAPPER.readerFor(ValueClassXY.class).withView(ViewY.class),
+            json);
+
+        // When disabled, should not fail on unexpected view
+        ValueClassXY withX = DISABLED_MAPPER.readerFor(ValueClassXY.class).withView(ViewX.class).readValue(json);
+        assertEquals(6, withX._x);
+        assertEquals(1, withX._y);
+        assertEquals(1, withX._z);
+
+        ValueClassXY withY = DISABLED_MAPPER.readerFor(ValueClassXY.class).withView(ViewY.class).readValue(json);
+        assertEquals(1, withY._x);
+        assertEquals(11, withY._y);
+        assertEquals(1, withY._z);
+    }
+
+    private void _testMismatchException(ObjectReader reader, String json) throws Exception {
         try {
-            final Bean4108 bean = reader.readValue(json);
-
-            assertEquals("nonViewFieldValue", bean.nonViewField);
-            assertEquals("view1FieldValue", bean.view1Field);
-            assertEquals(null, bean.view2Field);
+            reader.readValue(json);
             fail("should not pass, but fail with exception with unexpected view");
         } catch (MismatchedInputException e) {
             verifyException(e, "Input mismatch while deserializing");

@@ -3846,8 +3846,6 @@ public class ObjectMapper
         _assertNotNull("content", content);
         try { // since 2.10 remove "impossible" IOException as per [databind#1675]
             return (T) _readMapAndClose(_jsonFactory.createParser(content), valueType);
-        } catch (JsonProcessingException e) {
-            throw e;
         } catch (IOException e) { // shouldn't really happen but being declared need to
             throw JsonMappingException.fromUnexpectedIOE(e);
         }

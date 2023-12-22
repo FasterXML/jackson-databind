@@ -44,23 +44,25 @@ public class NumberSerializer
     /**
      * @since 2.17
      */
-    protected final NumberFormat format;
+    protected final NumberFormat _format;
 
     /**
      * @since 2.5
      */
     public NumberSerializer(Class<? extends Number> rawType) {
-        this(rawType, null);
+        super(rawType, false);
+        // since this will NOT be constructed for Integer or Long, only case is:
+        _isInt = (rawType == BigInteger.class);
+        _format = null;
     }
 
     /**
      * @since 2.17
      */
-    public NumberSerializer(Class<? extends Number> rawType, NumberFormat format) {
-        super(rawType, false);
-        // since this will NOT be constructed for Integer or Long, only case is:
-        _isInt = (rawType == BigInteger.class);
-        this.format = format;
+    public NumberSerializer(NumberSerializer src, NumberFormat format) {
+        super(src);
+        _isInt = src._isInt;
+        _format = format;
     }
 
     @Override
@@ -72,16 +74,19 @@ public class NumberSerializer
             switch (format.getShape()) {
             case STRING:
                 if (format.hasPattern()) {
+                    DecimalFormat decimalFormat;
                     try {
                         if (format.hasLocale()) {
-                            return new NumberSerializer(handledType(), new DecimalFormat(format.getPattern(),
-                                    DecimalFormatSymbols.getInstance(format.getLocale())));
+                            decimalFormat = new DecimalFormat(format.getPattern(),
+                                    DecimalFormatSymbols.getInstance(format.getLocale()));
+                        } else {
+                            decimalFormat = new DecimalFormat(format.getPattern());
                         }
-                        return new NumberSerializer(handledType(), new DecimalFormat(format.getPattern()));
                     } catch (IllegalArgumentException e) {
-                        prov.reportMappingProblem(e, "Invalid DecimalFormat %s",
-                                format.getPattern());
+                        return prov.reportBadDefinition(handledType(),
+                                String.format("Invalid `DecimalFormat`: \"%s\"", format.getPattern()));
                     }
+                    return new NumberSerializer(this, decimalFormat);
                 }
                 // [databind#2264]: Need special handling for `BigDecimal`
                 if (((Class<?>) handledType()) == BigDecimal.class) {
@@ -97,8 +102,8 @@ public class NumberSerializer
     @Override
     public void serialize(Number value, JsonGenerator g, SerializerProvider provider) throws IOException
     {
-        if (format != null) {
-            g.writeString(format.format(value));
+        if (_format != null) {
+            g.writeString(_format.format(value));
             return;
         }
         // should mostly come in as one of these two:

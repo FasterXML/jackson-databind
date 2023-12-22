@@ -4,6 +4,7 @@ import java.util.*;
 
 import tools.jackson.core.*;
 import tools.jackson.core.sym.PropertyNameMatcher;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.CoercionAction;
 import tools.jackson.databind.deser.BeanDeserializerBuilder;
@@ -12,6 +13,7 @@ import tools.jackson.databind.deser.impl.ExternalTypeHandler;
 import tools.jackson.databind.deser.impl.ObjectIdReader;
 import tools.jackson.databind.deser.impl.UnwrappedPropertyHandler;
 import tools.jackson.databind.introspect.AnnotatedMethod;
+import tools.jackson.databind.util.ClassUtil;
 import tools.jackson.databind.util.IgnorePropertiesUtil;
 import tools.jackson.databind.util.NameTransformer;
 import tools.jackson.databind.util.TokenBuffer;
@@ -583,6 +585,12 @@ public class BuilderBasedDeserializer
                 p.nextToken();
                 SettableBeanProperty prop = _propertiesByIndex[ix];
                 if (!prop.visibleInView(activeView)) {
+                    // [databind#4108]: fields in other views to be considered as unknown properties
+                    if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES)){
+                        ctxt.reportInputMismatch(handledType(),
+                            String.format("Input mismatch while deserializing %s. Property '%s' is not part of current active view [%s]",
+                                ClassUtil.nameOf(handledType()), prop.getName(), activeView.getName()));
+                    }
                     p.skipChildren();
                     continue;
                 }

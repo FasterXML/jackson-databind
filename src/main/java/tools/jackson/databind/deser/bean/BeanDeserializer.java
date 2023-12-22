@@ -814,6 +814,12 @@ public class BeanDeserializer
                 p.nextToken();
                 SettableBeanProperty prop = _propsByIndex[ix];
                 if (!prop.visibleInView(activeView)) {
+                    // [databind#4108]: fields in other views to be considered as unknown properties
+                    if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES)){
+                        ctxt.reportInputMismatch(handledType(),
+                            String.format("Input mismatch while deserializing %s. Property '%s' is not part of current active view [%s]",
+                                ClassUtil.nameOf(handledType()), prop.getName(), activeView.getName()));
+                    }
                     p.skipChildren();
                     continue;
                 }

@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
-public class MultipleViewsDeser4108Test {
+public class MultipleViewsDeser437Test {
 
     static class View1 {
     }
@@ -20,7 +20,7 @@ public class MultipleViewsDeser4108Test {
     static class View2 {
     }
 
-    static class Bean4108 {
+    static class Bean437 {
         public String nonViewField;
         @JsonView(View1.class)
         public String view1Field;
@@ -87,7 +87,7 @@ public class MultipleViewsDeser4108Test {
             "'view1Field':'view1FieldValue'," +
             "'view2Field':'view2FieldValue'}");
 
-        ObjectReader reader = ENABLED_MAPPER.readerWithView(View1.class).forType(Bean4108.class);
+        ObjectReader reader = ENABLED_MAPPER.readerWithView(View1.class).forType(Bean437.class);
 
         _testMismatchException(reader, json);
     }

@@ -95,7 +95,7 @@ public class TestExceptionsDuringWriting
             mapper.writeValue(sw, createLongObject());
             fail("Should have gotten an exception");
         } catch (IOException e) {
-            verifyException(e, IOException.class, "TEST");
+            verifyException(e, "TEST");
         }
     }
 

@@ -3,6 +3,7 @@ package tools.jackson.databind.deser.builder;
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.BaseMapTest;
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.annotation.JsonDeserialize;
 
@@ -78,7 +79,9 @@ public class BuilderWithViewTest extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
+        .disable(DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES)
+        .build();
 
     public void testSimpleViews() throws Exception
     {

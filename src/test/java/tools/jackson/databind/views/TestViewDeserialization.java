@@ -66,7 +66,9 @@ public class TestViewDeserialization
     /************************************************************************
      */
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = jsonMapperBuilder()
+        .disable(DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES)
+        .build();
 
     @Test
     public void testSimple() throws Exception
@@ -113,7 +115,8 @@ public class TestViewDeserialization
         assertEquals(9, bean.b);
 
         ObjectMapper myMapper = jsonMapperBuilder()
-                .disable(MapperFeature.DEFAULT_VIEW_INCLUSION)
+            .disable(MapperFeature.DEFAULT_VIEW_INCLUSION)
+            .disable(DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES)
                 .build();
 
         // but with, say, AA, will not get 'b'

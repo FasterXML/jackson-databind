@@ -289,12 +289,9 @@ public enum DeserializationFeature implements ConfigFeature
      * by ensuring that only the properties relevant to the active view are considered during
      * deserialization, thereby preventing unintended data from being processed.
      *<p>
-     * In Jackson 2.x, this feature is disabled by default to maintain backward compatibility.
-     * In Jackson 3.x, this feature may be enabled by default.
-     *
-     * @since 2.17
+     * Feature is enabled by default.
      */
-    FAIL_ON_UNEXPECTED_VIEW_PROPERTIES(false),
+    FAIL_ON_UNEXPECTED_VIEW_PROPERTIES(true),
 
     /*
     /**********************************************************************

@@ -277,8 +277,10 @@ public class TestUpdateViaObjectReader extends BaseMapTest
         Updateable bean = new Updateable();
         bean.num = 100;
         bean.str = "test";
-        Updateable result = MAPPER.readerForUpdating(bean)
+        Updateable result = MAPPER
+                .readerForUpdating(bean)
                 .withView(TextView.class)
+                .without(DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES)
                 .readValue("{\"num\": 10, \"str\":\"foobar\"}");
         assertSame(bean, result);
 

@@ -91,7 +91,9 @@ public class ViewsWithCreatorTest
     @Test
     public void testWithoutJsonCreator() throws Exception
     {
-        ObjectReader reader = MAPPER.readerFor(ObjWithoutCreator.class).withView(View1.class);
+        ObjectReader reader = MAPPER.readerFor(ObjWithoutCreator.class)
+            .without(DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES)
+            .withView(View1.class);
 
         // serialize first,
         String json = MAPPER.writeValueAsString(new ObjWithoutCreator("a", "b", "c"));

@@ -2,6 +2,7 @@ package tools.jackson.databind.views;
 
 import static org.junit.Assert.assertEquals;
 import static tools.jackson.databind.testutil.DatabindTestUtil.a2q;
+import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 
 import java.io.IOException;
 
@@ -35,7 +36,9 @@ public class DefaultViewTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = jsonMapperBuilder()
+        .disable(DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES)
+        .build();
 
     @Test
     public void testDeserialization() throws IOException

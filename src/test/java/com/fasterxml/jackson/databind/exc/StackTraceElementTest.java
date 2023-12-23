@@ -1,10 +1,16 @@
 package com.fasterxml.jackson.databind.exc;
 
 import com.fasterxml.jackson.annotation.*;
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.*;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+
 // for [databind#1794]
-public class StackTraceElementTest extends BaseMapTest
+public class StackTraceElementTest
 {
     public static class ErrorObject {
 
@@ -24,6 +30,7 @@ public class StackTraceElementTest extends BaseMapTest
     }
 
     // for [databind#1794] where extra `declaringClass` is serialized from private field.
+    @Test
     public void testCustomStackTraceDeser() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();

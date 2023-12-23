@@ -2,14 +2,20 @@ package com.fasterxml.jackson.databind.exc;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+
 public class TestExceptionHandlingWithJsonCreatorDeserialization
-    extends BaseMapTest
 {
     static class Foo {
         private Bar bar;
@@ -50,6 +56,7 @@ public class TestExceptionHandlingWithJsonCreatorDeserialization
         }
     }
 
+    @Test
     public void testShouldThrowExceptionWithPathReference() throws IOException {
         // given
         ObjectMapper mapper = newJsonMapper();

@@ -1,10 +1,17 @@
 package com.fasterxml.jackson.databind.exc;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 
-public class ExceptionPathTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+
+public class ExceptionPathTest
 {
     static class Outer {
         public Inner inner = new Inner();
@@ -24,8 +31,9 @@ public class ExceptionPathTest extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testReferenceChainForInnerClass() throws Exception
     {
         String json = MAPPER.writeValueAsString(new Outer());

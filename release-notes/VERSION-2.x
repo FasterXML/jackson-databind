@@ -32,7 +32,7 @@ Project: jackson-databind
 #4263: Change `ObjectArrayDeserializer` to use "generic" type parameter
   (`java.lang.Object`) to remove co-variant return type
 
-2.16.1 (not yet released)
+2.16.1 (24-Dec-2023)
 
 #4200: `JsonSetter(contentNulls = FAIL)` is ignored in delegating
   `@JsonCreator` argument

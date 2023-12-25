@@ -1,10 +1,18 @@
 package tools.jackson.databind.exc;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.exc.JacksonIOException;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.BrokenStringReader;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+import static tools.jackson.databind.testutil.DatabindTestUtil.verifyException;
 
 /**
  * Unit test for verifying that exceptions are properly handled (caught,
@@ -13,7 +21,6 @@ import tools.jackson.databind.testutil.BrokenStringReader;
  * (and streaming-level equivalents).
  */
 public class DeserExceptionTypeTest
-    extends BaseMapTest
 {
     static class Bean {
         public String propX;
@@ -36,6 +43,7 @@ public class DeserExceptionTypeTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testHandlingOfUnrecognized() throws Exception
     {
         UnrecognizedPropertyException exc = null;
@@ -57,6 +65,7 @@ public class DeserExceptionTypeTest
      * Simple test to check behavior when end-of-stream is encountered
      * without content.
      */
+    @Test
     public void testExceptionWithEmpty() throws Exception
     {
         try {
@@ -67,6 +76,7 @@ public class DeserExceptionTypeTest
         }
     }
 
+    @Test
     public void testExceptionWithIncomplete()
         throws Exception
     {
@@ -82,6 +92,7 @@ public class DeserExceptionTypeTest
         }
     }
 
+    @Test
     public void testExceptionWithEOF() throws Exception
     {
         JsonParser p = MAPPER.createParser("  3");
@@ -105,6 +116,7 @@ public class DeserExceptionTypeTest
     }
 
     // [databind#1414]
+    @Test
     public void testExceptionForNoCreators() throws Exception
     {
         try {

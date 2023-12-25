@@ -5,13 +5,19 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.introspect.BeanPropertyDefinition;
 import tools.jackson.databind.type.TypeFactory;
 
-public class BasicExceptionTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+
+public class BasicExceptionTest
 {
     static class User {
         public String user;
@@ -23,6 +29,7 @@ public class BasicExceptionTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testBadDefinition() throws Exception
     {
         JavaType t = TypeFactory.defaultInstance().constructType(String.class);
@@ -59,6 +66,7 @@ public class BasicExceptionTest extends BaseMapTest
         g.close();
     }
 
+    @Test
     public void testIgnoredProperty() throws Exception
     {
         // first just construct valid instance with some variations
@@ -84,6 +92,7 @@ public class BasicExceptionTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testUnrecognizedProperty() throws Exception
     {
         JsonParser p = MAPPER.createParser("{ }");
@@ -105,6 +114,7 @@ public class BasicExceptionTest extends BaseMapTest
 
     // [databind#2128]: ensure Location added once and only once
     // [databind#2482]: ensure Location is the original one
+    @Test
     public void testLocationAddition() throws Exception
     {
         String problemJson = "{\n\t\"userList\" : [\n\t{\n\t user : \"1\"\n\t},\n\t{\n\t \"user\" : \"2\"\n\t}\n\t]\n}";

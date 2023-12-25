@@ -80,6 +80,17 @@ public class DatabindTestUtil
     /**********************************************************
      */
 
+    public static void verifyException(Exception e, Class<?> expType, String expMsg)
+        throws Exception
+    {
+        if (e.getClass() != expType) {
+            fail("Expected exception of type "+expType.getName()+", got "+e.getClass().getName());
+        }
+        if (expMsg != null) {
+            verifyException(e, expMsg);
+        }
+    }
+
     /**
      * @param e Exception to check
      * @param anyMatches Array of Strings of which AT LEAST ONE ("any") has to be included

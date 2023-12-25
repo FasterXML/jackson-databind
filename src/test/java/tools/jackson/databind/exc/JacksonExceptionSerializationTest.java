@@ -2,12 +2,17 @@ package tools.jackson.databind.exc;
 
 import java.util.Map;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.JacksonException;
-import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
-public class JacksonExceptionSerializationTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+
+public class JacksonExceptionSerializationTest
 {
     /*
     /**********************************************************************
@@ -18,6 +23,7 @@ public class JacksonExceptionSerializationTest extends BaseMapTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#3244]: StackOverflow for basic JsonProcessingException?
+    @Test
     public void testIssue3244() throws Exception {
         JacksonException e = null;
         try {

@@ -18,7 +18,7 @@ import tools.jackson.databind.jsontype.TypeResolverBuilder;
 import tools.jackson.databind.jsontype.impl.TypeIdResolverBase;
 import tools.jackson.databind.type.TypeFactory;
 
-public class TestHandlerInstantiation extends BaseMapTest
+public class HandlerInstantiationTest extends BaseMapTest
 {
     /*
     /**********************************************************************

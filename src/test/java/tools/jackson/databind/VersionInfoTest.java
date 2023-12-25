@@ -12,7 +12,7 @@ import tools.jackson.databind.cfg.PackageVersion;
  * Tests to ensure that we get proper Version information via
  * things defined as Versioned.
  */
-public class TestVersions extends BaseMapTest
+public class VersionInfoTest extends BaseMapTest
 {
     public void testMapperVersions()
     {

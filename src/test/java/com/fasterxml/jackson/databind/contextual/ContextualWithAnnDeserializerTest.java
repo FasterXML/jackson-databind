@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class TestContextualWithAnnDeserializer
+public class ContextualWithAnnDeserializerTest
 {
     @Target({ElementType.FIELD, ElementType.PARAMETER, ElementType.TYPE})
     @Retention(RetentionPolicy.RUNTIME)

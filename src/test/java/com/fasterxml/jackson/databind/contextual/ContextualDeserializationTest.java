@@ -30,7 +30,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
  * annotations) for configuration.
  */
 @SuppressWarnings("serial")
-public class TestContextualDeserialization
+public class ContextualDeserializationTest
 {
     @Target({ElementType.FIELD, ElementType.PARAMETER, ElementType.TYPE})
     @Retention(RetentionPolicy.RUNTIME)

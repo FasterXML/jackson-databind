@@ -29,7 +29,7 @@ import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder
  * that can use contextual information (like field/method
  * annotations) for configuration.
  */
-public class TestContextualDeserialization
+public class ContextualDeserializationTest
 {
     @Target({ElementType.FIELD, ElementType.PARAMETER, ElementType.TYPE})
     @Retention(RetentionPolicy.RUNTIME)

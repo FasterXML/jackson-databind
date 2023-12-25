@@ -14,7 +14,7 @@ import static tools.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
-public class TestContextAttributeWithSer
+public class ContextAttributeWithSerTest
 {
     final static String KEY = "foobar";
 

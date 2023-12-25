@@ -20,7 +20,7 @@ import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder
  * Tests to ensure that we can do contextual key serializers and
  * deserializers as well as value ser/deser.
  */
-public class TestContextualKeyTypes
+public class ContextualKeyTypesTest
 {
     /*
     /**********************************************************

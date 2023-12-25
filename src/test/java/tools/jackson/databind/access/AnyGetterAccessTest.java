@@ -2,16 +2,21 @@ package tools.jackson.databind.access;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.json.JsonMapper;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 /**
  * Separate tests located in different package than code being
  * exercised; needed to trigger some access-related failures.
  */
-public class TestAnyGetterAccess
-    extends BaseMapTest
+public class AnyGetterAccessTest
 {
     /*
     /**********************************************************
@@ -22,7 +27,7 @@ public class TestAnyGetterAccess
     static class DynaBean {
         public int id;
 
-        protected HashMap<String,String> other = new HashMap<String,String>();
+        protected Map<String,String> other = new HashMap<String,String>();
 
         @JsonAnyGetter
         public Map<String,String> any() {
@@ -52,8 +57,9 @@ public class TestAnyGetterAccess
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = newJsonMapper();
+    private final ObjectMapper MAPPER = JsonMapper.builder().build();
 
+    @Test
     public void testDynaBean() throws Exception
     {
         DynaBean b = new DynaBean();
@@ -66,9 +72,10 @@ public class TestAnyGetterAccess
         assertEquals("Joe", result.other.get("name"));
     }
 
+    @Test
     public void testPrivate() throws Exception
     {
-        String json = MAPPER.writeValueAsString(new PrivateThing());
-        assertEquals("{\"a\":\"A\"}", json);
+        assertEquals("{\"a\":\"A\"}",
+                MAPPER.writeValueAsString(new PrivateThing()));
     }
 }

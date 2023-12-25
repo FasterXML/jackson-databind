@@ -2,14 +2,19 @@ package tools.jackson.databind.cfg;
 
 import java.util.Collections;
 
+import org.junit.Test;
+
 import tools.jackson.core.StreamWriteFeature;
 import tools.jackson.core.json.JsonWriteFeature;
 import tools.jackson.databind.*;
 
-public class SerConfigTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class SerConfigTest
 {
     private final ObjectMapper MAPPER = new ObjectMapper();
 
+    @Test
     public void testSerConfig() throws Exception
     {
         SerializationConfig config = MAPPER.serializationConfig();
@@ -34,6 +39,7 @@ public class SerConfigTest extends BaseMapTest
 //        assertNotNull(config.introspectDirectClassAnnotations(getClass()));
     }
 
+    @Test
     public void testStreamWriteFeatures() throws Exception
     {
         SerializationConfig config = MAPPER.serializationConfig();
@@ -48,6 +54,7 @@ public class SerConfigTest extends BaseMapTest
         assertSame(config, config.withoutFeatures(StreamWriteFeature.IGNORE_UNKNOWN));
     }
 
+    @Test
     public void testFormatFeatures() throws Exception
     {
         final JsonWriteFeature DUSABLED_BY_DEFAULT = JsonWriteFeature.ESCAPE_NON_ASCII;

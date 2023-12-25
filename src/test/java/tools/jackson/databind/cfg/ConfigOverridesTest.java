@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 
-import tools.jackson.databind.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ConfigOverridesTest extends BaseMapTest
+public class ConfigOverridesTest
 {
     public void testSnapshot() throws Exception
     {

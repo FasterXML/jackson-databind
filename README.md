@@ -330,9 +330,9 @@ public class MyBean {
 }
 ```
 
-There are other mechanisms to use for systematic naming changes: see [Custom Naming Convention](https://github.com/FasterXML/jackson-docs/wiki/JacksonCustomNamingConvention) for details.
+There are other mechanisms to use for systematic naming changes, including use of "Naming Strategy" (via `@JsonNaming` annotation).
 
-Note, too, that you can use [Mix-in Annotations](https://github.com/FasterXML/jackson-docs/wiki/JacksonMixinAnnotations) to associate all annotations.
+You can use [Mix-in Annotations](https://github.com/FasterXML/jackson-docs/wiki/JacksonMixinAnnotations) to associate any and all Jackson-provided annotations.
 
 ### Annotations: Ignoring properties
 

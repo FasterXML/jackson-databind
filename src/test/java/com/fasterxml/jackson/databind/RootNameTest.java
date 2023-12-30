@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
  * Unit tests dealing with handling of "root element wrapping",
  * including configuration of root name to use.
  */
-public class TestRootName extends BaseMapTest
+public class RootNameTest extends BaseMapTest
 {
     @JsonRootName("rudy")
     static class Bean {

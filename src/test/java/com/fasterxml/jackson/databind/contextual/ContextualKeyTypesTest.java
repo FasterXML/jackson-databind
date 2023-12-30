@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * Tests to ensure that we can do contextual key serializers and
  * deserializers as well as value ser/deser.
  */
-public class TestContextualKeyTypes
+public class ContextualKeyTypesTest
 {
     /*
     /**********************************************************

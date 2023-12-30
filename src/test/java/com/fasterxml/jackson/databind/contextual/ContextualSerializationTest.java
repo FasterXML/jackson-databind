@@ -23,7 +23,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
  * that can use contextual information (like field/method
  * annotations) for configuration.
  */
-public class TestContextualSerialization
+public class ContextualSerializationTest
 {
     // NOTE: important; MUST be considered a 'Jackson' annotation to be seen
     // (or recognized otherwise via AnnotationIntrospect.isHandled())

@@ -2,15 +2,21 @@ package com.fasterxml.jackson.databind.cfg;
 
 import java.util.Collections;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.json.JsonWriteFeature;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
-public class SerConfigTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class SerConfigTest
 {
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = JsonMapper.builder().build();
 
+    @Test
     public void testSerConfig() throws Exception
     {
         SerializationConfig config = MAPPER.getSerializationConfig();
@@ -47,6 +53,7 @@ public class SerConfigTest extends BaseMapTest
         assertNotNull(config.introspectDirectClassAnnotations(getClass()));
     }
 
+    @Test
     public void testGeneratorFeatures() throws Exception
     {
         SerializationConfig config = MAPPER.getSerializationConfig();
@@ -58,6 +65,7 @@ public class SerConfigTest extends BaseMapTest
         assertNotSame(config, config.withoutFeatures(JsonGenerator.Feature.IGNORE_UNKNOWN));
     }
 
+    @Test
     public void testFormatFeatures() throws Exception
     {
         SerializationConfig config = MAPPER.getSerializationConfig();

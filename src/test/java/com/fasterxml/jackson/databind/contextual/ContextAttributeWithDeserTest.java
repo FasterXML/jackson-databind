@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
-public class TestContextAttributeWithDeser
+public class ContextAttributeWithDeserTest
 {
     final static String KEY = "foobar";
 

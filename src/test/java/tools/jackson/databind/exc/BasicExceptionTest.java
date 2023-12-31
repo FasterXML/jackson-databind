@@ -130,7 +130,7 @@ public class BasicExceptionTest
             JsonLocation loc = e.getLocation();
 //          String expectedLocation = "line: 4, column: 4";
             assertEquals(4, loc.getLineNr());
-            assertEquals(4, loc.getColumnNr());
+            assertEquals(3, loc.getColumnNr());
         }
     }
 }

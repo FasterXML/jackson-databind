@@ -2,9 +2,9 @@ package com.fasterxml.jackson.databind.deser.filter;
 
 import java.beans.ConstructorProperties;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.*;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;

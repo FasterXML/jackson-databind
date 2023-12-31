@@ -3,17 +3,23 @@ package com.fasterxml.jackson.databind.deser.filter;
 import java.io.*;
 import java.util.Collection;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
+
 // for [databind#2221]
-public class ProblemHandlerUnknownTypeId2221Test extends BaseMapTest
+public class ProblemHandlerUnknownTypeId2221Test
 {
     @SuppressWarnings("rawtypes")
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "_class")
@@ -83,6 +89,7 @@ public class ProblemHandlerUnknownTypeId2221Test extends BaseMapTest
 "     }"
 );
 
+    @Test
     public void testWithDeserializationProblemHandler() throws Exception {
         final ObjectMapper mapper = new ObjectMapper()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance);
@@ -98,6 +105,7 @@ public class ProblemHandlerUnknownTypeId2221Test extends BaseMapTest
         assertEquals(2, processableContent.getInnerObjects().size());
     }
 
+    @Test
     public void testWithDisabledFAIL_ON_INVALID_SUBTYPE() throws Exception {
         final ObjectMapper mapper = new ObjectMapper()
                 .disable(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE)

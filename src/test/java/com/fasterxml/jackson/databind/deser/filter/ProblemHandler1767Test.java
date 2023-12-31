@@ -1,9 +1,16 @@
 package com.fasterxml.jackson.databind.deser.filter;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 
-public class ProblemHandler1767Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
+
+public class ProblemHandler1767Test
 {
     static class IntHandler
             extends DeserializationProblemHandler
@@ -34,6 +41,7 @@ public class ProblemHandler1767Test extends BaseMapTest
 
     }
 
+    @Test
     public void testPrimitivePropertyWithHandler() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.addHandler(new IntHandler());

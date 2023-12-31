@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -15,12 +17,16 @@ import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+
 /**
  * Tests to exercise handler methods of {@link DeserializationProblemHandler}.
  *
  * @since 2.8
  */
-public class ProblemHandlerTest extends BaseMapTest
+public class ProblemHandlerTest
 {
     /*
     /**********************************************************
@@ -235,6 +241,7 @@ public class ProblemHandlerTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testWeirdKeyHandling() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -248,6 +255,7 @@ public class ProblemHandlerTest extends BaseMapTest
         assertEquals(Integer.valueOf(7), map.keySet().iterator().next());
     }
 
+    @Test
     public void testWeirdNumberHandling() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -257,6 +265,7 @@ public class ProblemHandlerTest extends BaseMapTest
         assertEquals(SingleValuedEnum.A, result);
     }
 
+    @Test
     public void testWeirdStringHandling() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -273,6 +282,7 @@ public class ProblemHandlerTest extends BaseMapTest
     }
 
     // [databind#3784]: Base64 decoding
+    @Test
     public void testWeirdStringForBase64() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -288,6 +298,7 @@ public class ProblemHandlerTest extends BaseMapTest
         assertEquals(0, binary.length);
     }
 
+    @Test
     public void testInvalidTypeId() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -299,6 +310,7 @@ public class ProblemHandlerTest extends BaseMapTest
         assertEquals(BaseImpl.class, w.value.getClass());
     }
 
+    @Test
     public void testInvalidClassAsId() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -312,6 +324,7 @@ public class ProblemHandlerTest extends BaseMapTest
 
     // 2.9: missing type id, distinct from unknown
 
+    @Test
     public void testMissingTypeId() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -323,6 +336,7 @@ public class ProblemHandlerTest extends BaseMapTest
         assertEquals(BaseImpl.class, w.value.getClass());
     }
 
+    @Test
     public void testMissingClassAsId() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -335,6 +349,7 @@ public class ProblemHandlerTest extends BaseMapTest
     }
 
     // verify that by default we get special exception type
+    @Test
     public void testInvalidTypeIdFail() throws Exception
     {
         try {
@@ -348,6 +363,7 @@ public class ProblemHandlerTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testInstantiationExceptionHandling() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -358,6 +374,7 @@ public class ProblemHandlerTest extends BaseMapTest
         assertNotNull(w);
     }
 
+    @Test
     public void testMissingInstantiatorHandling() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -368,6 +385,7 @@ public class ProblemHandlerTest extends BaseMapTest
         assertEquals(13, w.value);
     }
 
+    @Test
     public void testUnexpectedTokenHandling() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()

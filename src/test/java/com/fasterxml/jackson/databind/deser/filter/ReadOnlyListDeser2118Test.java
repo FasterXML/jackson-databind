@@ -2,11 +2,16 @@ package com.fasterxml.jackson.databind.deser.filter;
 
 import java.util.*;
 
-import com.fasterxml.jackson.annotation.*;
+import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 
-public class ReadOnlyListDeser2118Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+
+public class ReadOnlyListDeser2118Test
 {
     // [databind#2118]
     static class SecurityGroup {
@@ -49,6 +54,7 @@ public class ReadOnlyListDeser2118Test extends BaseMapTest
     private final ObjectMapper mapper = newJsonMapper();
 
     // [databind#2118]
+    @Test
     public void testAccessReadOnly() throws Exception {
         String data ="{\"security_group_rules\": [{\"id\": \"id1\"}]}";
 // This would work around the issue:

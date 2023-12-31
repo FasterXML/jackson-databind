@@ -7,10 +7,16 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.*;
 
-public class NullConversionsViaCreator2458Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
+
+public class NullConversionsViaCreator2458Test
 {
     // [databind#2458]
     static class Pojo {
@@ -36,6 +42,7 @@ public class NullConversionsViaCreator2458Test extends BaseMapTest
             .build();
 
     // [databind#2458]
+    @Test
     public void testMissingToEmptyViaCreator() throws Exception {
         Pojo pojo = MAPPER_WITH_AS_EMPTY.readValue("{}", Pojo.class);
         assertNotNull(pojo);
@@ -44,6 +51,7 @@ public class NullConversionsViaCreator2458Test extends BaseMapTest
     }
 
     // [databind#2458]
+    @Test
     public void testNullToEmptyViaCreator() throws Exception {
         Pojo pojo = MAPPER_WITH_AS_EMPTY.readValue("{\"value\":null}", Pojo.class);
         assertNotNull(pojo);

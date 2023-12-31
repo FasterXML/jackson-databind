@@ -2,10 +2,11 @@ package com.fasterxml.jackson.databind.testutil;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
+import com.fasterxml.jackson.core.FormatSchema;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -21,11 +22,52 @@ import static org.junit.jupiter.api.Assertions.fail;
  */
 public class DatabindTestUtil
 {
+   /*
+    /**********************************************************
+    /* Shared helper classes
+    /**********************************************************
+     */
+
+    public static enum ABC { A, B, C; }
+
+    public static class Point {
+        public int x, y;
+
+        protected Point() { } // for deser
+        public Point(int x0, int y0) {
+            x = x0;
+            y = y0;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof BaseMapTest.Point)) {
+                return false;
+            }
+            BaseMapTest.Point other = (BaseMapTest.Point) o;
+            return (other.x == x) && (other.y == y);
+        }
+
+        @Override
+        public String toString() {
+            return String.format("[x=%d, y=%d]", x, y);
+        }
+    }
+
     /*
     /**********************************************************
     /* Factory methods
     /**********************************************************
      */
+
+    private static ObjectMapper SHARED_MAPPER;
+
+    public static ObjectMapper sharedMapper() {
+        if (SHARED_MAPPER == null) {
+            SHARED_MAPPER = newJsonMapper();
+        }
+        return SHARED_MAPPER;
+    }
 
     public static TypeFactory newTypeFactory() {
         // this is a work-around; no null modifier added

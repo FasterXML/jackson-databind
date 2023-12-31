@@ -1,13 +1,21 @@
 package tools.jackson.databind.deser.filter;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
 
 import tools.jackson.databind.*;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.a2q;
+import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
+import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+
 // for [databind#1402]; configurable null handling, specifically with SKIP
-public class NullConversionsSkipTest extends BaseMapTest
-{
+public class NullConversionsSkipTest {
     static class NullSkipField {
         public String nullsOk = "a";
 
@@ -55,6 +63,7 @@ public class NullConversionsSkipTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testSkipNullField() throws Exception
     {
         // first, ok if assigning non-null to not-nullable, null for nullable
@@ -70,6 +79,7 @@ public class NullConversionsSkipTest extends BaseMapTest
         assertEquals("a", result.nullsOk);
     }
 
+    @Test
     public void testSkipNullMethod() throws Exception
     {
         NullSkipMethod result = MAPPER.readValue(a2q("{'noNulls':'foo', 'nullsOk':null}"),
@@ -84,6 +94,7 @@ public class NullConversionsSkipTest extends BaseMapTest
     }
 
     // for [databind#2015]
+    @Test
     public void testEnumAsNullThenSkip() throws Exception
     {
         Pojo2015 p = MAPPER.readerFor(Pojo2015.class)
@@ -98,6 +109,7 @@ public class NullConversionsSkipTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testSkipNullWithDefaults() throws Exception
     {
         String json = a2q("{'value':null}");

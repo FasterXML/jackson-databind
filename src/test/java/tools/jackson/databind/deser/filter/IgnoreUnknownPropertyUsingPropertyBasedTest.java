@@ -1,19 +1,21 @@
 package tools.jackson.databind.deser.filter;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
-
-import tools.jackson.databind.BaseMapTest;
-import tools.jackson.databind.ObjectMapper;
-
 import java.util.HashMap;
 import java.util.Map;
 
-public class IgnoreUnknownPropertyUsingPropertyBasedTest extends BaseMapTest {
+import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.annotation.*;
+
+import tools.jackson.databind.ObjectMapper;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+
+public class IgnoreUnknownPropertyUsingPropertyBasedTest
+{
 
   private final ObjectMapper MAPPER = newJsonMapper();
 
@@ -60,6 +62,7 @@ public class IgnoreUnknownPropertyUsingPropertyBasedTest extends BaseMapTest {
     }
   }
 
+  @Test
   public void testAnySetterWithFailOnUnknownDisabled() throws Exception {
     IgnoreUnknownAnySetter value = MAPPER.readValue("{\"a\":1, \"b\":2, \"x\":3, \"y\": 4}", IgnoreUnknownAnySetter.class);
     assertNotNull(value);
@@ -70,6 +73,7 @@ public class IgnoreUnknownPropertyUsingPropertyBasedTest extends BaseMapTest {
     assertEquals(2, value.props.size());
   }
 
+  @Test
   public void testUnwrappedWithFailOnUnknownDisabled() throws Exception {
     IgnoreUnknownUnwrapped value = MAPPER.readValue("{\"a\":1, \"b\": 2, \"x\":3, \"y\":4}", IgnoreUnknownUnwrapped.class);
     assertNotNull(value);

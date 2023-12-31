@@ -1,12 +1,20 @@
 package tools.jackson.databind.deser.filter;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.DeserializationProblemHandler;
 import tools.jackson.databind.exc.MismatchedInputException;
 
-public class ProblemHandler2973Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.*;
+
+public class ProblemHandler2973Test
 {
     // [databind#2973]
     static class WeirdTokenHandler
@@ -30,6 +38,7 @@ public class ProblemHandler2973Test extends BaseMapTest
      */
 
     // [databind#2973]
+    @Test
     public void testUnexpectedToken2973() throws Exception
     {
         // First: without handler, should get certain failure
@@ -45,7 +54,7 @@ public class ProblemHandler2973Test extends BaseMapTest
         mapper = jsonMapperBuilder()
             .addHandler(new WeirdTokenHandler())
             .build();
-        ;
+
         String str = mapper.readValue("{ }", String.class);
         assertEquals("START_OBJECT", str);
     }

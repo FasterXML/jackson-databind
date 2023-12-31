@@ -1,11 +1,18 @@
 package tools.jackson.databind.deser.filter;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.MismatchedInputException;
 
-public class ReadOnlyDeserFailOnUnknown2719Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.*;
+
+public class ReadOnlyDeserFailOnUnknown2719Test
 {
     // [databind#2719]
     static class UserWithReadOnly {
@@ -24,6 +31,7 @@ public class ReadOnlyDeserFailOnUnknown2719Test extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testFailOnIgnore() throws Exception
     {
         ObjectReader r = MAPPER.readerFor(UserWithReadOnly.class);

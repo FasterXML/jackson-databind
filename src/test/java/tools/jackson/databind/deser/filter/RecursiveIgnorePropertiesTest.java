@@ -2,12 +2,20 @@ package tools.jackson.databind.deser.filter;
 
 import java.util.Set;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.databind.*;
 
-public class RecursiveIgnorePropertiesTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.a2q;
+import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+
+public class RecursiveIgnorePropertiesTest
 {
     static class Person {
         public String name;
@@ -33,6 +41,7 @@ public class RecursiveIgnorePropertiesTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testRecursiveForDeser() throws Exception
     {
         String st = a2q("{ 'name': 'admin',\n"
@@ -44,6 +53,7 @@ public class RecursiveIgnorePropertiesTest extends BaseMapTest
         assertEquals("wyatt", result.personZ.name);
     }
 
+    @Test
     public void testRecursiveWithCollectionDeser() throws Exception
     {
         String st = a2q("{ 'name': 'admin',\n"
@@ -55,6 +65,7 @@ public class RecursiveIgnorePropertiesTest extends BaseMapTest
         assertEquals(2, result.personZ.size());
     }
 
+    @Test
     public void testRecursiveForSer() throws Exception
     {
         Person input = new Person();

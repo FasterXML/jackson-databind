@@ -1,9 +1,7 @@
 package tools.jackson.databind.testutil;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.json.JsonMapper;
@@ -13,16 +11,57 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Class containing test utility methods.
- * The methods are migrated from {@link BaseMapTest} and {@link BaseTest},
+ * The methods are migrated from {@code BaseMapTest} and {@code BaseTest},
  * as part of JUnit 5 migration.
  */
 public class DatabindTestUtil
 {
+   /*
+    /**********************************************************
+    /* Shared helper classes
+    /**********************************************************
+     */
+
+    public static enum ABC { A, B, C; }
+
+    public static class Point {
+        public int x, y;
+
+        protected Point() { } // for deser
+        public Point(int x0, int y0) {
+            x = x0;
+            y = y0;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof Point)) {
+                return false;
+            }
+            Point other = (Point) o;
+            return (other.x == x) && (other.y == y);
+        }
+
+        @Override
+        public String toString() {
+            return String.format("[x=%d, y=%d]", x, y);
+        }
+    }
+
     /*
     /**********************************************************
     /* Factory methods
     /**********************************************************
      */
+
+    private static ObjectMapper SHARED_MAPPER;
+
+    public static ObjectMapper sharedMapper() {
+        if (SHARED_MAPPER == null) {
+            SHARED_MAPPER = newJsonMapper();
+        }
+        return SHARED_MAPPER;
+    }
 
     public static TypeFactory newTypeFactory() {
         // this is a work-around; no null modifier added

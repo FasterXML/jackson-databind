@@ -357,14 +357,14 @@ _containerType,
                         continue;
                     }
                     value = _nullProvider.getNullValue(ctxt);
-                    if (value == null) {
-                        _tryToAddNull(p, ctxt, result);
-                        continue;
-                    }
                 } else if (typeDeser == null) {
                     value = valueDes.deserialize(p, ctxt);
                 } else {
                     value = valueDes.deserializeWithType(p, ctxt, typeDeser);
+                }
+                if (value == null) {
+                    _tryToAddNull(p, ctxt, result);
+                    continue;
                 }
                 result.add(value);
 

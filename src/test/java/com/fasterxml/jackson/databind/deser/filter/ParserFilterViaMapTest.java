@@ -3,12 +3,18 @@ package com.fasterxml.jackson.databind.deser.filter;
 import java.util.Collections;
 import java.util.Map;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.filter.FilteringParserDelegate;
 import com.fasterxml.jackson.core.filter.TokenFilter;
 import com.fasterxml.jackson.databind.*;
 
-public class ParserFilterViaMapTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+
+public class ParserFilterViaMapTest
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 
@@ -24,6 +30,7 @@ public class ParserFilterViaMapTest extends BaseMapTest
 
     // From [core#700], to verify at databind level
     // (and actually found a bug in doing so -- fixed for 2.13.0)
+    @Test
     public void testSimplePropertyExcludeFilter() throws Exception
     {
         final String json = "{\"@type\":\"xxx\",\"a\":{\"@type\":\"yyy\",\"b\":11}}";

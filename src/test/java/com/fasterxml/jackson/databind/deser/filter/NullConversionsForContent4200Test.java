@@ -2,13 +2,18 @@ package com.fasterxml.jackson.databind.deser.filter;
 
 import java.util.Map;
 
-import com.fasterxml.jackson.annotation.*;
+import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidNullException;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+
 // [databind#4200]: Nulls.FAIL not taken into account with DELEGATING creator
-public class NullConversionsForContent4200Test extends BaseMapTest
+public class NullConversionsForContent4200Test
 {
     static class DelegatingWrapper4200 {
         private final Map<String, String> value;
@@ -40,6 +45,7 @@ public class NullConversionsForContent4200Test extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testDelegatingCreatorNulls4200() throws Exception
     {
         try {
@@ -50,6 +56,7 @@ public class NullConversionsForContent4200Test extends BaseMapTest
         }
     }
 
+    @Test
     public void testSetterNulls4200() throws Exception
     {
         try {

@@ -71,6 +71,8 @@ public abstract class JDKValueInstantiators
         extends ValueInstantiator.Base
         implements java.io.Serializable
     {
+        private static final long serialVersionUID = 2L;
+
         public JDKValueInstantiator(Class<?> type) {
             super(type);
         }

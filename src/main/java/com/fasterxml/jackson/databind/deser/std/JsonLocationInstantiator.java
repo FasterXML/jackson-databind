@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.deser.CreatorProperty;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
-import com.fasterxml.jackson.databind.deser.impl.JDKValueInstantiators;
 
 /**
  * For {@link JsonLocation}, we should be able to just implement

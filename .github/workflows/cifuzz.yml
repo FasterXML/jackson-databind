@@ -2,8 +2,8 @@ name: CIFuzz
 on:
   pull_request:
     branches:
-    - "2.15"
-    - "2.14"
+    - master
+    - "2.17"
 
 permissions: {}
 

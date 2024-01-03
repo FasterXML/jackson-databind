@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.deser.impl;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.core.JsonLocation;
 
@@ -23,7 +24,7 @@ public abstract class JDKValueInstantiators
             Class<?> raw)
     {
         if (raw == JsonLocation.class) {
-            return new JsonLocationInstantiator();
+            return JsonLocationInstantiator.INSTANCE;
         }
         // [databind#1868]: empty List/Set/Map
         // [databind#2416]: optimize commonly needed default creators
@@ -31,11 +32,20 @@ public abstract class JDKValueInstantiators
             if (raw == ArrayList.class) {
                 return ArrayListInstantiator.INSTANCE;
             }
+            if (raw == LinkedList.class) {
+                return LinkedListInstantiator.INSTANCE;
+            }
+            if (raw == HashSet.class) {
+                return HashSetInstantiator.INSTANCE;
+            }
+            if (raw == TreeSet.class) {
+                return TreeSetInstantiator.INSTANCE;
+            }
             if (Collections.EMPTY_SET.getClass() == raw) {
-                return new ConstantValueInstantiator(Collections.EMPTY_SET);
+                return ConstantValueInstantiator.EMPTY_SET;
             }
             if (Collections.EMPTY_LIST.getClass() == raw) {
-                return new ConstantValueInstantiator(Collections.EMPTY_LIST);
+                return ConstantValueInstantiator.EMPTY_LIST;
             }
         } else if (Map.class.isAssignableFrom(raw)) {
             if (raw == LinkedHashMap.class) {
@@ -44,22 +54,25 @@ public abstract class JDKValueInstantiators
             if (raw == HashMap.class) {
                 return HashMapInstantiator.INSTANCE;
             }
+            if (raw == ConcurrentHashMap.class) {
+                return ConcurrentHashMapInstantiator.INSTANCE;
+            }
+            if (raw == TreeMap.class) {
+                return TreeMapInstantiator.INSTANCE;
+            }
             if (Collections.EMPTY_MAP.getClass() == raw) {
-                return new ConstantValueInstantiator(Collections.EMPTY_MAP);
+                return ConstantValueInstantiator.EMPTY_MAP;
             }
         }
         return null;
     }
 
-    private static class ArrayListInstantiator
+    private abstract static class JDKValueInstantiator
         extends ValueInstantiator.Base
         implements java.io.Serializable
     {
-        private static final long serialVersionUID = 2L;
-
-        public final static ArrayListInstantiator INSTANCE = new ArrayListInstantiator();
-        public ArrayListInstantiator() {
-            super(ArrayList.class);
+        public JDKValueInstantiator(Class<?> type) {
+            super(type);
         }
 
         @Override
@@ -67,6 +80,18 @@ public abstract class JDKValueInstantiators
 
         @Override
         public boolean canCreateUsingDefault() {  return true; }
+    }
+
+    private static class ArrayListInstantiator
+        extends JDKValueInstantiator
+    {
+        private static final long serialVersionUID = 2L;
+
+        public static final ArrayListInstantiator INSTANCE = new ArrayListInstantiator();
+
+        public ArrayListInstantiator() {
+            super(ArrayList.class);
+        }
 
         @Override
         public Object createUsingDefault(DeserializationContext ctxt) throws IOException {
@@ -74,23 +99,84 @@ public abstract class JDKValueInstantiators
         }
     }
 
-    private static class HashMapInstantiator
-        extends ValueInstantiator.Base
-        implements java.io.Serializable
+    private static class LinkedListInstantiator
+        extends JDKValueInstantiator
     {
         private static final long serialVersionUID = 2L;
 
-        public final static HashMapInstantiator INSTANCE = new HashMapInstantiator();
+        public static final LinkedListInstantiator INSTANCE = new LinkedListInstantiator();
+
+        public LinkedListInstantiator() {
+            super(LinkedList.class);
+        }
+
+        @Override
+        public Object createUsingDefault(DeserializationContext ctxt) throws IOException {
+            return new LinkedList<>();
+        }
+    }
+
+    private static class HashSetInstantiator
+        extends JDKValueInstantiator
+    {
+        private static final long serialVersionUID = 2L;
+
+        public static final HashSetInstantiator INSTANCE = new HashSetInstantiator();
+
+        public HashSetInstantiator() {
+            super(HashSet.class);
+        }
+
+        @Override
+        public Object createUsingDefault(DeserializationContext ctxt) throws IOException {
+            return new HashSet<>();
+        }
+    }
+
+    private static class TreeSetInstantiator
+        extends JDKValueInstantiator
+    {
+        private static final long serialVersionUID = 2L;
+
+        public static final TreeSetInstantiator INSTANCE = new TreeSetInstantiator();
+
+        public TreeSetInstantiator() {
+            super(TreeSet.class);
+        }
+
+        @Override
+        public Object createUsingDefault(DeserializationContext ctxt) throws IOException {
+            return new TreeSet<>();
+        }
+    }
+
+    private static class ConcurrentHashMapInstantiator
+        extends JDKValueInstantiator
+    {
+        private static final long serialVersionUID = 2L;
+
+        public static final ConcurrentHashMapInstantiator INSTANCE = new ConcurrentHashMapInstantiator();
+
+        public ConcurrentHashMapInstantiator() {
+            super(ConcurrentHashMap.class);
+        }
+
+        @Override
+        public Object createUsingDefault(DeserializationContext ctxt) throws IOException {
+            return new ConcurrentHashMap<>();
+        }
+    }
+
+    private static class HashMapInstantiator
+        extends JDKValueInstantiator
+    {
+        private static final long serialVersionUID = 2L;
+
+        public static final HashMapInstantiator INSTANCE = new HashMapInstantiator();
 
         public HashMapInstantiator() {
             super(HashMap.class);
         }
-
-        @Override
-        public boolean canInstantiate() { return true; }
-
-        @Override
-        public boolean canCreateUsingDefault() {  return true; }
 
         @Override
         public Object createUsingDefault(DeserializationContext ctxt) throws IOException {
@@ -99,22 +185,15 @@ public abstract class JDKValueInstantiators
     }
 
     private static class LinkedHashMapInstantiator
-        extends ValueInstantiator.Base
-        implements java.io.Serializable
+        extends JDKValueInstantiator
     {
         private static final long serialVersionUID = 2L;
 
-        public final static LinkedHashMapInstantiator INSTANCE = new LinkedHashMapInstantiator();
+        public static final LinkedHashMapInstantiator INSTANCE = new LinkedHashMapInstantiator();
 
         public LinkedHashMapInstantiator() {
             super(LinkedHashMap.class);
         }
-
-        @Override
-        public boolean canInstantiate() { return true; }
-
-        @Override
-        public boolean canCreateUsingDefault() {  return true; }
 
         @Override
         public Object createUsingDefault(DeserializationContext ctxt) throws IOException {
@@ -122,11 +201,33 @@ public abstract class JDKValueInstantiators
         }
     }
 
-    private static class ConstantValueInstantiator
-        extends ValueInstantiator.Base
-        implements java.io.Serializable
+    private static class TreeMapInstantiator
+        extends JDKValueInstantiator
     {
         private static final long serialVersionUID = 2L;
+
+        public static final TreeMapInstantiator INSTANCE = new TreeMapInstantiator();
+
+        public TreeMapInstantiator() {
+            super(TreeMap.class);
+        }
+
+        @Override
+        public Object createUsingDefault(DeserializationContext ctxt) throws IOException {
+            return new TreeMap<>();
+        }
+    }
+
+    private static class ConstantValueInstantiator
+        extends JDKValueInstantiator
+    {
+        private static final long serialVersionUID = 2L;
+
+        public static final ConstantValueInstantiator EMPTY_SET = new ConstantValueInstantiator(Collections.EMPTY_SET);
+
+        public static final ConstantValueInstantiator EMPTY_LIST = new ConstantValueInstantiator(Collections.EMPTY_LIST);
+
+        public static final ConstantValueInstantiator EMPTY_MAP = new ConstantValueInstantiator(Collections.EMPTY_MAP);
 
         protected final Object _value;
 
@@ -134,12 +235,6 @@ public abstract class JDKValueInstantiators
             super(value.getClass());
             _value = value;
         }
-
-        @Override // yes, since default ctor works
-        public boolean canInstantiate() { return true; }
-
-        @Override
-        public boolean canCreateUsingDefault() {  return true; }
 
         @Override
         public Object createUsingDefault(DeserializationContext ctxt) throws IOException {

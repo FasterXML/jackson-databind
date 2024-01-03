@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.deser.CreatorProperty;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
+import com.fasterxml.jackson.databind.deser.impl.JDKValueInstantiators;
 
 /**
  * For {@link JsonLocation}, we should be able to just implement
@@ -20,6 +21,8 @@ public class JsonLocationInstantiator
     extends ValueInstantiator.Base
 {
     private static final long serialVersionUID = 1L;
+
+    public static final JsonLocationInstantiator INSTANCE = new JsonLocationInstantiator();
 
     public JsonLocationInstantiator() {
         super(JsonLocation.class);

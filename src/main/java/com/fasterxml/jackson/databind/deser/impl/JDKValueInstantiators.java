@@ -42,10 +42,10 @@ public abstract class JDKValueInstantiators
                 return TreeSetInstantiator.INSTANCE;
             }
             if (Collections.EMPTY_SET.getClass() == raw) {
-                return ConstantValueInstantiator.EMPTY_SET;
+                return ConstantValueInstantiator.EMPTY_SET_INSTANCE;
             }
             if (Collections.EMPTY_LIST.getClass() == raw) {
-                return ConstantValueInstantiator.EMPTY_LIST;
+                return ConstantValueInstantiator.EMPTY_LIST_INSTANCE;
             }
         } else if (Map.class.isAssignableFrom(raw)) {
             if (raw == LinkedHashMap.class) {
@@ -61,7 +61,7 @@ public abstract class JDKValueInstantiators
                 return TreeMapInstantiator.INSTANCE;
             }
             if (Collections.EMPTY_MAP.getClass() == raw) {
-                return ConstantValueInstantiator.EMPTY_MAP;
+                return ConstantValueInstantiator.EMPTY_MAP_INSTANCE;
             }
         }
         return null;
@@ -99,6 +99,7 @@ public abstract class JDKValueInstantiators
         }
     }
 
+    // @since 2.17 [databind#4299] Instantiators for additional container classes
     private static class LinkedListInstantiator
         extends JDKValueInstantiator
     {
@@ -116,6 +117,7 @@ public abstract class JDKValueInstantiators
         }
     }
 
+    // @since 2.17 [databind#4299] Instantiators for additional container classes
     private static class HashSetInstantiator
         extends JDKValueInstantiator
     {
@@ -133,6 +135,7 @@ public abstract class JDKValueInstantiators
         }
     }
 
+    // @since 2.17 [databind#4299] Instantiators for additional container classes
     private static class TreeSetInstantiator
         extends JDKValueInstantiator
     {
@@ -150,6 +153,7 @@ public abstract class JDKValueInstantiators
         }
     }
 
+    // @since 2.17 [databind#4299] Instantiators for additional container classes
     private static class ConcurrentHashMapInstantiator
         extends JDKValueInstantiator
     {
@@ -201,6 +205,7 @@ public abstract class JDKValueInstantiators
         }
     }
 
+    // @since 2.17 [databind#4299] Instantiators for additional container classes
     private static class TreeMapInstantiator
         extends JDKValueInstantiator
     {
@@ -223,11 +228,14 @@ public abstract class JDKValueInstantiators
     {
         private static final long serialVersionUID = 2L;
 
-        public static final ConstantValueInstantiator EMPTY_SET = new ConstantValueInstantiator(Collections.EMPTY_SET);
+        public static final ConstantValueInstantiator EMPTY_SET_INSTANCE
+                = new ConstantValueInstantiator(Collections.EMPTY_SET);
 
-        public static final ConstantValueInstantiator EMPTY_LIST = new ConstantValueInstantiator(Collections.EMPTY_LIST);
+        public static final ConstantValueInstantiator EMPTY_LIST_INSTANCE
+                = new ConstantValueInstantiator(Collections.EMPTY_LIST);
 
-        public static final ConstantValueInstantiator EMPTY_MAP = new ConstantValueInstantiator(Collections.EMPTY_MAP);
+        public static final ConstantValueInstantiator EMPTY_MAP_INSTANCE
+                = new ConstantValueInstantiator(Collections.EMPTY_MAP);
 
         protected final Object _value;
 

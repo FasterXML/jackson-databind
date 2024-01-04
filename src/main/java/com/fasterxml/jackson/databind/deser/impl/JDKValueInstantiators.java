@@ -24,7 +24,7 @@ public abstract class JDKValueInstantiators
             Class<?> raw)
     {
         if (raw == JsonLocation.class) {
-            return JsonLocationInstantiator.INSTANCE;
+            return JsonLocationInstantiator.instance();
         }
         // [databind#1868]: empty List/Set/Map
         // [databind#2416]: optimize commonly needed default creators
@@ -33,19 +33,19 @@ public abstract class JDKValueInstantiators
                 return ArrayListInstantiator.INSTANCE;
             }
             if (raw == LinkedList.class) {
-                return LinkedListInstantiator.INSTANCE;
+                return LinkedListInstantiator.instance();
             }
             if (raw == HashSet.class) {
                 return HashSetInstantiator.INSTANCE;
             }
             if (raw == TreeSet.class) {
-                return TreeSetInstantiator.INSTANCE;
+                return TreeSetInstantiator.instance();
             }
-            if (Collections.EMPTY_SET.getClass() == raw) {
-                return ConstantValueInstantiator.EMPTY_SET_INSTANCE;
+            if (raw == Collections.emptySet().getClass()) {
+                return EmptySetInstantiator.instance();
             }
-            if (Collections.EMPTY_LIST.getClass() == raw) {
-                return ConstantValueInstantiator.EMPTY_LIST_INSTANCE;
+            if (raw == Collections.emptyList().getClass()) {
+                return EmptyListInstantiator.instance();
             }
         } else if (Map.class.isAssignableFrom(raw)) {
             if (raw == LinkedHashMap.class) {
@@ -55,13 +55,13 @@ public abstract class JDKValueInstantiators
                 return HashMapInstantiator.INSTANCE;
             }
             if (raw == ConcurrentHashMap.class) {
-                return ConcurrentHashMapInstantiator.INSTANCE;
+                return ConcurrentHashMapInstantiator.instance();
             }
             if (raw == TreeMap.class) {
-                return TreeMapInstantiator.INSTANCE;
+                return TreeMapInstantiator.instance();
             }
-            if (Collections.EMPTY_MAP.getClass() == raw) {
-                return ConstantValueInstantiator.EMPTY_MAP_INSTANCE;
+            if (raw == Collections.emptyMap().getClass()) {
+                return EmptyMapInstantiator.instance();
             }
         }
         return null;
@@ -89,7 +89,7 @@ public abstract class JDKValueInstantiators
     {
         private static final long serialVersionUID = 2L;
 
-        public static final ArrayListInstantiator INSTANCE = new ArrayListInstantiator();
+        private static final ArrayListInstantiator INSTANCE = new ArrayListInstantiator();
 
         public ArrayListInstantiator() {
             super(ArrayList.class);
@@ -107,7 +107,14 @@ public abstract class JDKValueInstantiators
     {
         private static final long serialVersionUID = 2L;
 
-        public static final LinkedListInstantiator INSTANCE = new LinkedListInstantiator();
+        private static LinkedListInstantiator _instance;
+
+        private static LinkedListInstantiator instance() {
+            if (_instance == null) {
+                _instance = new LinkedListInstantiator();
+            }
+            return _instance;
+        }
 
         public LinkedListInstantiator() {
             super(LinkedList.class);
@@ -125,7 +132,7 @@ public abstract class JDKValueInstantiators
     {
         private static final long serialVersionUID = 2L;
 
-        public static final HashSetInstantiator INSTANCE = new HashSetInstantiator();
+        private static final HashSetInstantiator INSTANCE = new HashSetInstantiator();
 
         public HashSetInstantiator() {
             super(HashSet.class);
@@ -143,7 +150,14 @@ public abstract class JDKValueInstantiators
     {
         private static final long serialVersionUID = 2L;
 
-        public static final TreeSetInstantiator INSTANCE = new TreeSetInstantiator();
+        private static TreeSetInstantiator _instance;
+
+        private static TreeSetInstantiator instance() {
+            if (_instance == null) {
+                _instance = new TreeSetInstantiator();
+            }
+            return _instance;
+        }
 
         public TreeSetInstantiator() {
             super(TreeSet.class);
@@ -161,7 +175,14 @@ public abstract class JDKValueInstantiators
     {
         private static final long serialVersionUID = 2L;
 
-        public static final ConcurrentHashMapInstantiator INSTANCE = new ConcurrentHashMapInstantiator();
+        private static ConcurrentHashMapInstantiator _instance;
+
+        private static ConcurrentHashMapInstantiator instance() {
+            if (_instance == null) {
+                _instance = new ConcurrentHashMapInstantiator();
+            }
+            return _instance;
+        }
 
         public ConcurrentHashMapInstantiator() {
             super(ConcurrentHashMap.class);
@@ -178,7 +199,7 @@ public abstract class JDKValueInstantiators
     {
         private static final long serialVersionUID = 2L;
 
-        public static final HashMapInstantiator INSTANCE = new HashMapInstantiator();
+        private static final HashMapInstantiator INSTANCE = new HashMapInstantiator();
 
         public HashMapInstantiator() {
             super(HashMap.class);
@@ -195,7 +216,7 @@ public abstract class JDKValueInstantiators
     {
         private static final long serialVersionUID = 2L;
 
-        public static final LinkedHashMapInstantiator INSTANCE = new LinkedHashMapInstantiator();
+        private static final LinkedHashMapInstantiator INSTANCE = new LinkedHashMapInstantiator();
 
         public LinkedHashMapInstantiator() {
             super(LinkedHashMap.class);
@@ -213,7 +234,14 @@ public abstract class JDKValueInstantiators
     {
         private static final long serialVersionUID = 2L;
 
-        public static final TreeMapInstantiator INSTANCE = new TreeMapInstantiator();
+        private static TreeMapInstantiator _instance;
+
+        private static TreeMapInstantiator instance() {
+            if (_instance == null) {
+                _instance = new TreeMapInstantiator();
+            }
+            return _instance;
+        }
 
         public TreeMapInstantiator() {
             super(TreeMap.class);
@@ -230,15 +258,6 @@ public abstract class JDKValueInstantiators
     {
         private static final long serialVersionUID = 2L;
 
-        public static final ConstantValueInstantiator EMPTY_SET_INSTANCE
-                = new ConstantValueInstantiator(Collections.EMPTY_SET);
-
-        public static final ConstantValueInstantiator EMPTY_LIST_INSTANCE
-                = new ConstantValueInstantiator(Collections.EMPTY_LIST);
-
-        public static final ConstantValueInstantiator EMPTY_MAP_INSTANCE
-                = new ConstantValueInstantiator(Collections.EMPTY_MAP);
-
         protected final Object _value;
 
         public ConstantValueInstantiator(Object value) {
@@ -252,4 +271,63 @@ public abstract class JDKValueInstantiators
         }
     }
 
+    // @since 2.17 [databind#4299] Instantiators for additional container classes
+    private static class EmptySetInstantiator
+            extends ConstantValueInstantiator
+    {
+        private static final long serialVersionUID = 2L;
+
+        private static EmptySetInstantiator _instance;
+
+        private static EmptySetInstantiator instance() {
+            if (_instance == null) {
+                _instance = new EmptySetInstantiator();
+            }
+            return _instance;
+        }
+
+        public EmptySetInstantiator() {
+            super(Collections.emptySet());
+        }
+    }
+
+    // @since 2.17 [databind#4299] Instantiators for additional container classes
+    private static class EmptyListInstantiator
+            extends ConstantValueInstantiator
+    {
+        private static final long serialVersionUID = 2L;
+
+        private static EmptyListInstantiator _instance;
+
+        private static EmptyListInstantiator instance() {
+            if (_instance == null) {
+                _instance = new EmptyListInstantiator();
+            }
+            return _instance;
+        }
+
+        public EmptyListInstantiator() {
+            super(Collections.emptyList());
+        }
+    }
+
+    // @since 2.17 [databind#4299] Instantiators for additional container classes
+    private static class EmptyMapInstantiator
+            extends ConstantValueInstantiator
+    {
+        private static final long serialVersionUID = 2L;
+
+        private static EmptyMapInstantiator _instance;
+
+        private static EmptyMapInstantiator instance() {
+            if (_instance == null) {
+                _instance = new EmptyMapInstantiator();
+            }
+            return _instance;
+        }
+
+        public EmptyMapInstantiator() {
+            super(Collections.emptyMap());
+        }
+    }
 }

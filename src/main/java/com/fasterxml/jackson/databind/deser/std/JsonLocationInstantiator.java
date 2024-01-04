@@ -21,7 +21,14 @@ public class JsonLocationInstantiator
 {
     private static final long serialVersionUID = 1L;
 
-    public static final JsonLocationInstantiator INSTANCE = new JsonLocationInstantiator();
+    private static JsonLocationInstantiator _instance;
+
+    public static JsonLocationInstantiator instance() {
+        if (_instance == null) {
+            _instance = new JsonLocationInstantiator();
+        }
+        return _instance;
+    }
 
     public JsonLocationInstantiator() {
         super(JsonLocation.class);

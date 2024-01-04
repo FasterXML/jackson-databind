@@ -273,7 +273,7 @@ public abstract class JDKValueInstantiators
 
     // @since 2.17 [databind#4299] Instantiators for additional container classes
     private static class EmptySetInstantiator
-            extends ConstantValueInstantiator
+        extends ConstantValueInstantiator
     {
         private static final long serialVersionUID = 2L;
 
@@ -293,7 +293,7 @@ public abstract class JDKValueInstantiators
 
     // @since 2.17 [databind#4299] Instantiators for additional container classes
     private static class EmptyListInstantiator
-            extends ConstantValueInstantiator
+        extends ConstantValueInstantiator
     {
         private static final long serialVersionUID = 2L;
 
@@ -313,7 +313,7 @@ public abstract class JDKValueInstantiators
 
     // @since 2.17 [databind#4299] Instantiators for additional container classes
     private static class EmptyMapInstantiator
-            extends ConstantValueInstantiator
+        extends ConstantValueInstantiator
     {
         private static final long serialVersionUID = 2L;
 

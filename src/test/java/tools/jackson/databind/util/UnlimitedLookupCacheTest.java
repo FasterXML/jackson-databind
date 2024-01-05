@@ -3,6 +3,7 @@ package tools.jackson.databind.util;
 import org.junit.Test;
 
 import tools.jackson.databind.JavaType;
+import tools.jackson.databind.testutil.UnlimitedLookupCache;
 import tools.jackson.databind.type.TypeFactory;
 
 import static org.junit.Assert.assertEquals;

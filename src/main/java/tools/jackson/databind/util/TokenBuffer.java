@@ -1858,6 +1858,18 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         }
 
         @Override
+        public NumberTypeFP getNumberTypeFP()
+        {
+            if (_currToken == JsonToken.VALUE_NUMBER_FLOAT) {
+                Object n = _currentObject();
+                if (n instanceof Double) return NumberTypeFP.DOUBLE64;
+                if (n instanceof BigDecimal) return NumberTypeFP.BIG_DECIMAL;
+                if (n instanceof Float) return NumberTypeFP.FLOAT32;
+            }
+            return NumberTypeFP.UNKNOWN;
+        }
+
+        @Override
         public final Number getNumberValue() {
             return _numberValue(-1, false);
         }

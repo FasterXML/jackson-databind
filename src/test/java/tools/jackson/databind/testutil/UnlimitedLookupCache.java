@@ -1,6 +1,8 @@
-package tools.jackson.databind.util;
+package tools.jackson.databind.testutil;
 
 import java.util.concurrent.ConcurrentHashMap;
+
+import tools.jackson.databind.util.LookupCache;
 
 /**
  * A LookupCache implementation that has no synchronization (like SimpleLookupCache does)

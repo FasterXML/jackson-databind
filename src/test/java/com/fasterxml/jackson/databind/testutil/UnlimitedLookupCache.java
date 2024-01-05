@@ -1,6 +1,8 @@
-package com.fasterxml.jackson.databind.util;
+package com.fasterxml.jackson.databind.testutil;
 
 import java.util.concurrent.ConcurrentHashMap;
+
+import com.fasterxml.jackson.databind.util.LookupCache;
 
 /**
  * A LookupCache implementation that has no synchronization (like LRUMap does)

@@ -21,7 +21,10 @@ import tools.jackson.databind.jsontype.NamedType;
  */
 public class SimpleNameIdResolver
     extends TypeIdResolverBase
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 3L;
+
     /**
      * Mappings from class name to type id, used for serialization.
      *<p>

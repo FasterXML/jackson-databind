@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.databind.convert;
 
-import com.fasterxml.jackson.annotation.*;
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.*;
 import com.fasterxml.jackson.databind.util.StdConverter;

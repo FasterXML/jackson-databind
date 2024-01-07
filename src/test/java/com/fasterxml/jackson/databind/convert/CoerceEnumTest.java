@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.convert;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.cfg.CoercionInputShape;

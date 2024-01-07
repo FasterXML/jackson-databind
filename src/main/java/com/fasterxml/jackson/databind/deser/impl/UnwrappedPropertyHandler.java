@@ -20,7 +20,9 @@ public class UnwrappedPropertyHandler {
      * We need a placeholder for creator properties that don't have name
      * but are marked with `@JsonWrapped` annotation.
      */
-    public final static PropertyName UNWRAPPED_CREATOR_PARAM_NAME = new PropertyName("@JsonUnwrapped");
+    public static PropertyName creatorParamName(int index) {
+        return new PropertyName("unnamed @JsonUnwrapped property at " + index);
+    }
 
     protected final List<SettableBeanProperty> _creatorProperties;
     protected final List<SettableBeanProperty> _properties;

@@ -551,7 +551,7 @@ index, owner, defs[index], propDef);
                 }
                 NameTransformer unwrapper = intr.findUnwrappingNameTransformer(param);
                 if (unwrapper != null) {
-                    properties[i] = constructCreatorProperty(ctxt, beanDesc, UnwrappedPropertyHandler.UNWRAPPED_CREATOR_PARAM_NAME, i, param, null);
+                    properties[i] = constructCreatorProperty(ctxt, beanDesc, UnwrappedPropertyHandler.creatorParamName(i), i, param, null);
                     ++explicitNameCount;
                     continue;
                 }
@@ -730,7 +730,7 @@ nonAnnotatedParamIndex, ctor);
                 }
                 NameTransformer unwrapper = intr.findUnwrappingNameTransformer(param);
                 if (unwrapper != null) {
-                    properties[i] = constructCreatorProperty(ctxt, beanDesc, UnwrappedPropertyHandler.UNWRAPPED_CREATOR_PARAM_NAME, i, param, null);
+                    properties[i] = constructCreatorProperty(ctxt, beanDesc, UnwrappedPropertyHandler.creatorParamName(i), i, param, null);
                     ++implicitNameCount;
                     continue;
                 }
@@ -861,7 +861,7 @@ nonAnnotatedParamIndex, ctor);
                 //   as that will not work with Creators well at all
                 NameTransformer unwrapper = ctxt.getAnnotationIntrospector().findUnwrappingNameTransformer(param);
                 if (unwrapper != null) {
-                    properties[i] = constructCreatorProperty(ctxt, beanDesc, UnwrappedPropertyHandler.UNWRAPPED_CREATOR_PARAM_NAME, i, param, null);
+                    properties[i] = constructCreatorProperty(ctxt, beanDesc, UnwrappedPropertyHandler.creatorParamName(i), i, param, null);
                     continue;
                 }
                 name = candidate.findImplicitParamName(i);

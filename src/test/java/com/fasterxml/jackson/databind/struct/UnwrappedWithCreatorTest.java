@@ -65,6 +65,36 @@ public class UnwrappedWithCreatorTest extends BaseMapTest
         }
     }
 
+    static class WithTwoUnwrappedProperties {
+        private final String _unrelated;
+        private final Inner _inner1;
+        private final Inner _inner2;
+
+        public WithTwoUnwrappedProperties(
+                @JsonProperty("unrelated") String unrelated,
+                @JsonUnwrapped(prefix = "first-") Inner inner1,
+                @JsonUnwrapped(prefix = "second-") Inner inner2
+        ) {
+            _unrelated = unrelated;
+            _inner1 = inner1;
+            _inner2 = inner2;
+        }
+
+        public String getUnrelated() {
+            return _unrelated;
+        }
+
+        @JsonUnwrapped(prefix = "first-")
+        public Inner getInner1() {
+            return _inner1;
+        }
+
+        @JsonUnwrapped(prefix = "second-")
+        public Inner getInner2() {
+            return _inner2;
+        }
+    }
+
     static class Inner {
         private final String _property1;
         private final String _property2;
@@ -90,7 +120,7 @@ public class UnwrappedWithCreatorTest extends BaseMapTest
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
-	
+
     public void testUnwrappedWithJsonCreatorWithExplicitWithoutName() throws Exception
     {
         String json = "{\"unrelated\": \"unrelatedValue\", \"property1\": \"value1\", \"property2\": \"value2\"}";
@@ -119,5 +149,19 @@ public class UnwrappedWithCreatorTest extends BaseMapTest
         assertEquals("unrelatedValue", outer.getUnrelated());
         assertEquals("value1", outer.getInner().getProperty1());
         assertEquals("value2", outer.getInner().getProperty2());
+    }
+
+    public void testUnwrappedWithTwoUnwrappedProperties() throws Exception
+    {
+        String json = "{\"unrelated\": \"unrelatedValue\", " +
+                "\"first-property1\": \"first-value1\", \"first-property2\": \"first-value2\", " +
+                "\"second-property1\": \"second-value1\", \"second-property2\": \"second-value2\"}";
+        WithTwoUnwrappedProperties outer = MAPPER.readValue(json, WithTwoUnwrappedProperties.class);
+
+        assertEquals("unrelatedValue", outer.getUnrelated());
+        assertEquals("first-value1", outer.getInner1().getProperty1());
+        assertEquals("first-value2", outer.getInner1().getProperty2());
+        assertEquals("second-value1", outer.getInner2().getProperty1());
+        assertEquals("second-value2", outer.getInner2().getProperty2());
     }
 }

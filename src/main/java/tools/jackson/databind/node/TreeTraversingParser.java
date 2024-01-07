@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import tools.jackson.core.*;
+import tools.jackson.core.JsonParser.NumberTypeFP;
 import tools.jackson.core.base.ParserMinimalBase;
 import tools.jackson.core.exc.InputCoercionException;
 import tools.jackson.core.util.JacksonFeatureSet;
@@ -257,6 +258,21 @@ public class TreeTraversingParser
             return n.numberType();
         }
         return null;
+    }
+
+    @Override
+    public NumberTypeFP getNumberTypeFP() {
+        NumberType nt = getNumberType();
+        if (nt == NumberType.BIG_DECIMAL) {
+            return NumberTypeFP.BIG_DECIMAL;
+        }
+        if (nt == NumberType.DOUBLE) {
+            return NumberTypeFP.DOUBLE64;
+        }
+        if (nt == NumberType.FLOAT) {
+            return NumberTypeFP.FLOAT32;
+        }
+        return NumberTypeFP.UNKNOWN;
     }
 
     @Override

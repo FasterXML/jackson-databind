@@ -15,6 +15,10 @@ Not yet released
   does not work
  (reported by @jonasho)
  (fix contributed by Joo-Hyuk K)
+#4303: `ObjectReader` is not serializable if it's configured for polymorphism
+ (reported by @asardaes)
+ (fix contributed by Joo-Hyuk K)
+
 
 2.15.3 (12-Oct-2023)
 

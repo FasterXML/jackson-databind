@@ -1,10 +1,8 @@
 package com.fasterxml.jackson.databind;
 
-import java.io.*;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
-import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
@@ -101,7 +99,7 @@ public class TestJDKSerialization extends BaseMapTest
      */
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    public void testConfigs() throws IOException
+    public void testConfigs() throws Exception
     {
         byte[] base = jdkSerialize(MAPPER.getDeserializationConfig().getBaseSettings());
         assertNotNull(jdkDeserialize(base));
@@ -122,7 +120,7 @@ public class TestJDKSerialization extends BaseMapTest
     }
 
     // for [databind#899]
-    public void testEnumHandlers() throws IOException
+    public void testEnumHandlers() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         // ensure we have serializers and/or deserializers, first
@@ -155,7 +153,7 @@ public class TestJDKSerialization extends BaseMapTest
         assertNotNull(result2);
     }
 
-    public void testObjectWriter() throws IOException
+    public void testObjectWriter() throws Exception
     {
         ObjectWriter origWriter = MAPPER.writer();
         final String EXP_JSON = "{\"x\":2,\"y\":3}";
@@ -169,7 +167,7 @@ public class TestJDKSerialization extends BaseMapTest
         assertEquals(EXP_JSON, writer2.writeValueAsString(p));
     }
 
-    public void testObjectReader() throws IOException
+    public void testObjectReader() throws Exception
     {
         ObjectReader origReader = MAPPER.readerFor(MyPojo.class);
         String JSON = "{\"x\":1,\"y\":2}";
@@ -189,7 +187,7 @@ public class TestJDKSerialization extends BaseMapTest
         assertEquals(Integer.valueOf(2), any2.properties().get("y"));
     }
 
-    public void testObjectMapper() throws IOException
+    public void testObjectMapper() throws Exception
     {
         final String EXP_JSON = "{\"x\":2,\"y\":3}";
         final MyPojo p = new MyPojo(2, 3);
@@ -236,13 +234,14 @@ public class TestJDKSerialization extends BaseMapTest
         };
 
         for (Class<?> clazz : classes) {
+            // Should be enough to ask for reader for polymorphic type
+            // (no need to actually serialize/deserialize)
             ObjectReader reader = newJsonMapper()
                 .readerFor(clazz);
 
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(baos);
-            oos.writeObject(reader); // This line should throw NotSerializableException
-            oos.close();
+            byte[] bytes = jdkSerialize(reader);
+            ObjectReader result = jdkDeserialize(bytes);
+            assertNotNull(result);
         }
     }
 }

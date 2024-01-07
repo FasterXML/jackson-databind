@@ -19,8 +19,11 @@ import tools.jackson.databind.jsontype.TypeIdResolver;
  * is only used sub-classes.
  */
 public abstract class TypeIdResolverBase
-    implements TypeIdResolver
+    implements TypeIdResolver,
+        java.io.Serializable
 {
+    private static final long serialVersionUID = 3L;
+
     /**
      * Common base type for all polymorphic instances handled.
      */

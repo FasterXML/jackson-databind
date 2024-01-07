@@ -1,11 +1,8 @@
 package tools.jackson.databind;
 
-import java.io.*;
 import java.util.*;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.core.Version;
 
@@ -63,6 +60,37 @@ public class SerializeUsingJDKTest extends BaseMapTest
         }
     }
 
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+    @JsonSubTypes({@JsonSubTypes.Type(value = FooClassImpl.class)})
+    public class FooClass { }
+    class FooClassImpl extends FooClass { }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.DEDUCTION)
+    @JsonSubTypes({@JsonSubTypes.Type(value = FooDeductionImpl.class)})
+    public class FooDeduction { }
+    class FooDeductionImpl extends FooDeduction { }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
+    @JsonSubTypes({@JsonSubTypes.Type(value = FooNoneImpl.class)})
+    public class FooNone { }
+    class FooNoneImpl extends FooNone { }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM)
+    @JsonSubTypes({@JsonSubTypes.Type(value = FooCustomImpl.class)})
+    public class FooCustom { }
+    class FooCustomImpl extends FooCustom { }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
+    @JsonSubTypes({@JsonSubTypes.Type(value = FooMinimalClassImpl.class)})
+    public class FooMinimalClass { }
+    class FooMinimalClassImpl extends FooMinimalClass { }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
+    @JsonSubTypes({@JsonSubTypes.Type(value = FooNameImpl.class)})
+    public class FooName { }
+    class FooNameImpl extends FooName { }
+
     /*
     /**********************************************************
     /* Tests for individual objects
@@ -75,7 +103,7 @@ public class SerializeUsingJDKTest extends BaseMapTest
      */
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    public void testConfigs() throws IOException
+    public void testConfigs() throws Exception
     {
         byte[] base = jdkSerialize(MAPPER.deserializationConfig().getBaseSettings());
         assertNotNull(jdkDeserialize(base));
@@ -96,7 +124,7 @@ public class SerializeUsingJDKTest extends BaseMapTest
     }
 
     // for [databind#899]
-    public void testEnumHandlers() throws IOException
+    public void testEnumHandlers() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
         // ensure we have serializers and/or deserializers, first
@@ -119,7 +147,7 @@ public class SerializeUsingJDKTest extends BaseMapTest
         assertNotNull(result2);
     }
 
-    public void testObjectMapper() throws IOException
+    public void testObjectMapper() throws Exception
     {
         final String EXP_JSON = "{\"x\":2,\"y\":3}";
         final MyPojo p = new MyPojo(2, 3);
@@ -133,7 +161,7 @@ public class SerializeUsingJDKTest extends BaseMapTest
         assertEquals(p.y, p2.y);
     }
 
-    public void testObjectWriter() throws IOException
+    public void testObjectWriter() throws Exception
     {
         // 20-Apr-2018, tatu: ObjectReader no longer JDK serializable so
         //    can only check via thawed ObjectMapper
@@ -149,7 +177,7 @@ public class SerializeUsingJDKTest extends BaseMapTest
         assertEquals("{\"a\":\"b\"}", json);
     }
 
-    public void testObjectReader() throws IOException
+    public void testObjectReader() throws Exception
     {
         // 20-Apr-2018, tatu: ObjectReader no longer JDK serializable so
         //    can only check via thawed ObjectMapper
@@ -166,7 +194,7 @@ public class SerializeUsingJDKTest extends BaseMapTest
         assertEquals(Integer.valueOf(2), any.properties().get("y"));
     }
 
-    public void testMapperWithModule() throws IOException
+    public void testMapperWithModule() throws Exception
     {
         SimpleModule module = new SimpleModule("JDKSerTestModule", Version.unknownVersion());
         {
@@ -222,5 +250,30 @@ public class SerializeUsingJDKTest extends BaseMapTest
         assertNotNull(result);
         t = orig.constructType(JavaType.class);
         assertEquals(JavaType.class, t.getRawClass());
+    }
+
+    // [databind#4303]
+    public void testObjectReaderSerializationWithPolymorphism()
+        throws Exception
+    {
+        Class<?>[] classes = new Class<?>[] {
+            FooClass.class,
+            FooDeduction.class,
+            FooNone.class,
+            FooCustom.class,
+            FooMinimalClass.class,
+            FooName.class
+        };
+
+        for (Class<?> clazz : classes) {
+            // Should be enough to ask for reader for polymorphic type
+            // (no need to actually serialize/deserialize)
+            ObjectReader reader = newJsonMapper()
+                .readerFor(clazz);
+
+            byte[] bytes = jdkSerialize(reader);
+            ObjectReader result = jdkDeserialize(bytes);
+            assertNotNull(result);
+        }
     }
 }

@@ -16,7 +16,10 @@ import tools.jackson.databind.util.ClassUtil;
  */
 public class ClassNameIdResolver
     extends TypeIdResolverBase
+    implements java.io.Serializable // @since 2.17
 {
+    private static final long serialVersionUID = 1L;
+
     private final static String JAVA_UTIL_PKG = "java.util.";
 
     protected final PolymorphicTypeValidator _subTypeValidator;

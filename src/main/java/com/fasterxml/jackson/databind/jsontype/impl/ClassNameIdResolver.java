@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.jsontype.impl;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -18,7 +17,7 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  */
 public class ClassNameIdResolver
     extends TypeIdResolverBase
-    implements Serializable // @since 2.17
+    implements java.io.Serializable // @since 2.17
 {
     private static final long serialVersionUID = 1L;
 

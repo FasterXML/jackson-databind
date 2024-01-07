@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.jsontype.impl;
 
-import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -13,7 +12,7 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 
 public class TypeNameIdResolver extends TypeIdResolverBase
-    implements Serializable // @since 2.17
+    implements java.io.Serializable // @since 2.17
 {
     private static final long serialVersionUID = 1L;
 

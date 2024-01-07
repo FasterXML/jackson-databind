@@ -6,6 +6,12 @@ Project: jackson-databind
 
 2.17.0 (not yet released)
 
+2.16.2 (not yet released)
+
+#4303: `ObjectReader` is not serializable if it's configured for polymorphism
+ (reported by @asardaes)
+ (fix contributed by Joo-Hyuk K)
+
 2.16.1 (24-Dec-2023)
 
 #4200: `JsonSetter(contentNulls = FAIL)` is ignored in delegating
@@ -135,7 +141,6 @@ Project: jackson-databind
 #4303: `ObjectReader` is not serializable if it's configured for polymorphism
  (reported by @asardaes)
  (fix contributed by Joo-Hyuk K)
-
 
 2.15.3 (12-Oct-2023)
 

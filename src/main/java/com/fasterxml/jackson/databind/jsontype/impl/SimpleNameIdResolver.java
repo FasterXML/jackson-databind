@@ -21,7 +21,10 @@ import com.fasterxml.jackson.databind.jsontype.NamedType;
  */
 public class SimpleNameIdResolver
     extends TypeIdResolverBase
+    implements java.io.Serializable // @since 2.16
 {
+    private static final long serialVersionUID = 1L;
+
     protected final MapperConfig<?> _config;
 
     /**

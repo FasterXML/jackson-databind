@@ -3,9 +3,13 @@ package com.fasterxml.jackson.databind.jsontype;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.databind.ObjectReader;
 

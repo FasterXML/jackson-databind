@@ -4,6 +4,8 @@ import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
@@ -12,7 +14,11 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.type.LogicalType;
 
-public class CoerceFloatToIntTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+
+public class CoerceFloatToIntTest
 {
     private final ObjectMapper DEFAULT_MAPPER = newJsonMapper();
     private final ObjectReader READER_LEGACY_FAIL = DEFAULT_MAPPER.reader()
@@ -44,6 +50,7 @@ public class CoerceFloatToIntTest extends BaseMapTest
     /********************************************************
      */
 
+    @Test
     public void testLegacyDoubleToIntCoercion() throws Exception
     {
         // by default, should be ok
@@ -72,6 +79,7 @@ public class CoerceFloatToIntTest extends BaseMapTest
         assertEquals(95L, biggie.longValue());
     }
 
+    @Test
     public void testLegacyFailDoubleToInt() throws Exception
     {
         _verifyCoerceFail(READER_LEGACY_FAIL, Integer.class, "1.5", "java.lang.Integer");
@@ -80,6 +88,7 @@ public class CoerceFloatToIntTest extends BaseMapTest
         _verifyCoerceFail(READER_LEGACY_FAIL, int[].class, "[ 2.5 ]", "to `int` value");
     }
 
+    @Test
     public void testLegacyFailDoubleToLong() throws Exception
     {
         _verifyCoerceFail(READER_LEGACY_FAIL, Long.class, "0.5");
@@ -88,6 +97,7 @@ public class CoerceFloatToIntTest extends BaseMapTest
         _verifyCoerceFail(READER_LEGACY_FAIL, long[].class, "[ -1.35 ]", "to `long` value");
     }
 
+    @Test
     public void testLegacyFailDoubleToOther() throws Exception
     {
         _verifyCoerceFail(READER_LEGACY_FAIL, Short.class, "0.5");
@@ -110,6 +120,7 @@ public class CoerceFloatToIntTest extends BaseMapTest
      */
 
     // [databind#2804]
+    @Test
     public void testLegacyFail2804() throws Exception
     {
         _testLegacyFail2804("5.5", Integer.class);
@@ -148,6 +159,7 @@ public class CoerceFloatToIntTest extends BaseMapTest
     /********************************************************
      */
 
+    @Test
     public void testCoerceConfigFloatToNull() throws Exception
     {
         assertNull(MAPPER_TO_NULL.readValue("1.5", Integer.class));
@@ -201,6 +213,7 @@ public class CoerceFloatToIntTest extends BaseMapTest
     /********************************************************
      */
 
+    @Test
     public void testCoerceConfigFloatToEmpty() throws Exception
     {
         assertEquals(Integer.valueOf(0), MAPPER_TO_EMPTY.readValue("1.2", Integer.class));
@@ -238,6 +251,7 @@ public class CoerceFloatToIntTest extends BaseMapTest
     /********************************************************
      */
 
+    @Test
     public void testCoerceConfigFloatSuccess() throws Exception
     {
         assertEquals(Integer.valueOf(1), MAPPER_TRY_CONVERT.readValue("1.2", Integer.class));
@@ -275,6 +289,7 @@ public class CoerceFloatToIntTest extends BaseMapTest
     /********************************************************
      */
 
+    @Test
     public void testCoerceConfigFailFromFloat() throws Exception
     {
         _verifyCoerceFail(MAPPER_TO_FAIL, Integer.class, "1.5");

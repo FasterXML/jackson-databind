@@ -4,11 +4,14 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+import com.fasterxml.jackson.core.JsonLocation;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Class containing test utility methods.
@@ -24,6 +27,47 @@ public class DatabindTestUtil
     /* Shared helper classes
     /**********************************************************
      */
+
+    public static class IntWrapper {
+        public int i;
+
+        public IntWrapper() { }
+        public IntWrapper(int value) { i = value; }
+    }
+
+    public static class LongWrapper {
+        public long l;
+
+        public LongWrapper() { }
+        public LongWrapper(long value) { l = value; }
+    }
+
+    public static class FloatWrapper {
+        public float f;
+
+        public FloatWrapper() { }
+        public FloatWrapper(float value) { f = value; }
+    }
+
+    public static class DoubleWrapper {
+        public double d;
+
+        public DoubleWrapper() { }
+        public DoubleWrapper(double value) { d = value; }
+    }
+
+    /**
+     * Simple wrapper around String type, usually to test value
+     * conversions or wrapping
+     */
+    public static class StringWrapper {
+        public String str;
+
+        public StringWrapper() { }
+        public StringWrapper(String value) {
+            str = value;
+        }
+    }
 
     public static enum ABC { A, B, C; }
 
@@ -64,6 +108,22 @@ public class DatabindTestUtil
             SHARED_MAPPER = newJsonMapper();
         }
         return SHARED_MAPPER;
+    }
+
+    public static ObjectMapper objectMapper() {
+        return sharedMapper();
+    }
+
+    public static ObjectWriter objectWriter() {
+        return sharedMapper().writer();
+    }
+
+    public static ObjectReader objectReader() {
+        return sharedMapper().reader();
+    }
+
+    public static ObjectReader objectReader(Class<?> cls) {
+        return sharedMapper().readerFor(cls);
     }
 
     public static TypeFactory newTypeFactory() {
@@ -123,6 +183,18 @@ public class DatabindTestUtil
     /**********************************************************
      */
 
+    public static void assertToken(JsonToken expToken, JsonToken actToken)
+    {
+        if (actToken != expToken) {
+            fail("Expected token "+expToken+", current token "+actToken);
+        }
+    }
+
+    public static void assertToken(JsonToken expToken, JsonParser jp)
+    {
+        assertToken(expToken, jp.currentToken());
+    }
+
     /**
      * @param e Exception to check
      * @param anyMatches Array of Strings of which AT LEAST ONE ("any") has to be included
@@ -141,5 +213,10 @@ public class DatabindTestUtil
         fail("Expected an exception with one of substrings ("
             + Arrays.asList(anyMatches)+"): got one (of type "+e.getClass().getName()
             +") with message \""+msg+"\"");
+    }
+
+    public static void assertValidLocation(JsonLocation location) {
+        assertNotNull(location, "Should have non-null location");
+        assertTrue(location.getLineNr() > 0, "Should have positive line number");
     }
 }

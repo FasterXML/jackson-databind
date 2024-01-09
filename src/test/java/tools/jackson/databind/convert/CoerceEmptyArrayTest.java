@@ -6,6 +6,8 @@ import java.net.URI;
 import java.net.URL;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.CoercionAction;
@@ -13,13 +15,17 @@ import tools.jackson.databind.cfg.CoercionInputShape;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.type.LogicalType;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.*;
+
 /**
  * Tests to verify implementation of [databind#540]; also for
  * follow up work of:
  *
  * - [databind#994]
  */
-public class CoerceEmptyArrayTest extends BaseMapTest
+public class CoerceEmptyArrayTest
 {
     private final ObjectMapper DEFAULT_MAPPER = sharedMapper();
     private final ObjectReader DEFAULT_READER = DEFAULT_MAPPER.reader();
@@ -64,6 +70,7 @@ public class CoerceEmptyArrayTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testSettings() {
         assertFalse(DEFAULT_MAPPER.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT));
         assertFalse(DEFAULT_READER.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT));
@@ -77,6 +84,7 @@ public class CoerceEmptyArrayTest extends BaseMapTest
      */
 
     // [databind#540]
+    @Test
     public void testPOJOFromEmptyArray() throws Exception
     {
         final Class<?> targetType = Bean.class;
@@ -113,6 +121,7 @@ public class CoerceEmptyArrayTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testMapFromEmptyArray() throws Exception
     {
         final Class<?> targetType = Map.class;
@@ -129,6 +138,7 @@ public class CoerceEmptyArrayTest extends BaseMapTest
         // assume overrides work ok since POJOs test it
     }
 
+    @Test
     public void testEnumMapFromEmptyArray() throws Exception
     {
         final JavaType targetType = DEFAULT_READER.typeFactory()
@@ -147,6 +157,7 @@ public class CoerceEmptyArrayTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testNumbersFromEmptyArray() throws Exception
     {
         for (Class<?> targetType : new Class<?>[] {
@@ -180,6 +191,7 @@ public class CoerceEmptyArrayTest extends BaseMapTest
         _verifyToEmptyCoercion(MAPPER_TO_EMPTY, BigDecimal.class, new BigDecimal(BigInteger.ZERO));
     }
 
+    @Test
     public void testOtherScalarsFromEmptyArray() throws Exception
     {
         for (Class<?> targetType : new Class<?>[] {

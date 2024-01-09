@@ -1,6 +1,7 @@
 package tools.jackson.databind.convert;
 
-import tools.jackson.databind.BaseMapTest;
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.cfg.CoercionAction;
@@ -8,7 +9,11 @@ import tools.jackson.databind.cfg.CoercionInputShape;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.type.LogicalType;
 
-public class CoerceBoolToStringTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.*;
+
+public class CoerceBoolToStringTest
 {
     private final ObjectMapper DEFAULT_MAPPER = newJsonMapper();
 
@@ -32,16 +37,19 @@ public class CoerceBoolToStringTest extends BaseMapTest
                     cfg.setCoercion(CoercionInputShape.Boolean, CoercionAction.AsEmpty))
             .build();
 
+    @Test
     public void testDefaultBooleanToStringCoercion() throws Exception
     {
         assertSuccessfulBooleanToStringCoercionWith(DEFAULT_MAPPER);
     }
 
+    @Test
     public void testCoerceConfigToConvert() throws Exception
     {
         assertSuccessfulBooleanToStringCoercionWith(MAPPER_TRY_CONVERT);
     }
 
+    @Test
     public void testCoerceConfigToNull() throws Exception
     {
         assertNull(MAPPER_TO_NULL.readValue("true", String.class));
@@ -52,6 +60,7 @@ public class CoerceBoolToStringTest extends BaseMapTest
         assertNull(arr[0]);
     }
 
+    @Test
     public void testCoerceConfigToEmpty() throws Exception
     {
         assertEquals("", MAPPER_TO_EMPTY.readValue("true", String.class));
@@ -62,6 +71,7 @@ public class CoerceBoolToStringTest extends BaseMapTest
         assertEquals("", arr[0]);
     }
 
+    @Test
     public void testCoerceConfigToFail() throws Exception
     {
         _verifyCoerceFail(MAPPER_TO_FAIL, String.class, "true");

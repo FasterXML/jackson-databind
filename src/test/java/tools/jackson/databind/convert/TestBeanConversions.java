@@ -3,7 +3,12 @@ package tools.jackson.databind.convert;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import tools.jackson.core.JsonParser;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
@@ -12,14 +17,15 @@ import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.exc.UnrecognizedPropertyException;
 import tools.jackson.databind.util.StdConverter;
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import static org.junit.jupiter.api.Assertions.*;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
 /**
  * Tests for various conversions, especially ones using
  * {@link ObjectMapper#convertValue(Object, Class)}.
  */
 public class TestBeanConversions
-    extends tools.jackson.databind.BaseMapTest
 {
     static class PointZ {
         public int x, y;
@@ -121,8 +127,9 @@ public class TestBeanConversions
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testBeanConvert()
     {
         // should have no problems convert between compatible beans...
@@ -136,6 +143,7 @@ public class TestBeanConversions
 
     // For [JACKSON-371]; verify that we know property that caused issue...
     // (note: not optimal place for test, but will have to do for now)
+    @Test
     public void testErrorReporting() throws Exception
     {
         //String json = "{\"boolProp\":\"oops\"}";
@@ -154,6 +162,7 @@ public class TestBeanConversions
         }
     }
 
+    @Test
     public void testIssue458() throws Exception
     {
         ObjectWrapper a = new ObjectWrapper("foo");
@@ -164,6 +173,7 @@ public class TestBeanConversions
     }
 
     // should work regardless of wrapping...
+    @Test
     public void testWrapping() throws Exception
     {
         ObjectMapper wrappingMapper = jsonMapperBuilder()
@@ -190,6 +200,7 @@ public class TestBeanConversions
     }
 
     // [Issue-11]: simple cast, for POJOs etc
+    @Test
     public void testConvertUsingCast() throws Exception
     {
         String str = new String("foo");
@@ -212,6 +223,7 @@ public class TestBeanConversions
      * Need to test "shortcuts" introduced by [databind#11] -- but
      * removed with [databind#2220]
      */
+    @Test
     public void testIssue11() throws Exception
     {
         // then some other no-op conversions
@@ -260,6 +272,7 @@ public class TestBeanConversions
         assertEquals(0, m.size());
     }
 
+    @Test
     public void testConversionIssue288() throws Exception
     {
         String json = MAPPER.writeValueAsString(new ConvertingBean(1, 2));
@@ -268,6 +281,7 @@ public class TestBeanConversions
     }
 
     // Test null conversions from [databind#1433]
+    @Test
     public void testConversionIssue1433() throws Exception
     {
         assertNull(MAPPER.convertValue(null, Object.class));

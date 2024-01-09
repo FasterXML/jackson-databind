@@ -2,7 +2,8 @@ package tools.jackson.databind.convert;
 
 import java.math.BigDecimal;
 
-import tools.jackson.databind.BaseMapTest;
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectReader;
@@ -11,7 +12,11 @@ import tools.jackson.databind.cfg.CoercionInputShape;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.type.LogicalType;
 
-public class CoerceIntToFloatTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.*;
+
+public class CoerceIntToFloatTest
 {
     private final ObjectMapper DEFAULT_MAPPER = newJsonMapper();
 
@@ -39,16 +44,19 @@ public class CoerceIntToFloatTest extends BaseMapTest
             .disable(MapperFeature.ALLOW_COERCION_OF_SCALARS)
             .build();
 
+    @Test
     public void testDefaultIntToFloatCoercion() throws Exception
     {
         assertSuccessfulIntToFloatConversionsWith(DEFAULT_MAPPER);
     }
 
+    @Test
     public void testCoerceConfigToConvert() throws Exception
     {
         assertSuccessfulIntToFloatConversionsWith(MAPPER_TRY_CONVERT);
     }
 
+    @Test
     public void testCoerceConfigToNull() throws Exception
     {
         assertNull(MAPPER_TO_NULL.readValue("1", Float.class));
@@ -80,6 +88,7 @@ public class CoerceIntToFloatTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testCoerceConfigToEmpty() throws Exception
     {
         assertEquals(0.0f, MAPPER_TO_EMPTY.readValue("3", Float.class));
@@ -105,6 +114,7 @@ public class CoerceIntToFloatTest extends BaseMapTest
         assertEquals(BigDecimal.valueOf(0), MAPPER_TO_EMPTY.readValue("3643", BigDecimal.class));
     }
 
+    @Test
     public void testCoerceConfigToFail() throws Exception
     {
         _verifyCoerceFail(MAPPER_TO_FAIL, Float.class, "3");
@@ -120,6 +130,7 @@ public class CoerceIntToFloatTest extends BaseMapTest
         _verifyCoerceFail(MAPPER_TO_FAIL, BigDecimal.class, "73455342");
     }
 
+    @Test
     public void testLegacyConfiguration() throws Exception
     {
         assertSuccessfulIntToFloatConversionsWith(LEGACY_SCALAR_COERCION_FAIL);

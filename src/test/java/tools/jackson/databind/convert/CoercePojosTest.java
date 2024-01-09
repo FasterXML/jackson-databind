@@ -1,5 +1,7 @@
 package tools.jackson.databind.convert;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -11,7 +13,11 @@ import tools.jackson.databind.cfg.CoercionInputShape;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.type.LogicalType;
 
-public class CoercePojosTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.*;
+
+public class CoercePojosTest
 {
     static class Bean {
         public String a;
@@ -37,6 +43,7 @@ public class CoercePojosTest extends BaseMapTest
     /********************************************************
      */
 
+    @Test
     public void testPOJOFromEmptyStringLegacy() throws Exception
     {
         // first, verify default settings which do not accept empty String:
@@ -49,16 +56,19 @@ public class CoercePojosTest extends BaseMapTest
 
     }
 
+    @Test
     public void testPOJOFromEmptyGlobalConfig() throws Exception
     {
         _testPOJOFromEmptyGlobalConfig(CoercionInputShape.EmptyString, JSON_EMPTY, null);
     }
 
+    @Test
     public void testPOJOFromEmptyLogicalTypeConfig() throws Exception
     {
         _testPOJOFromEmptyLogicalTypeConfig(CoercionInputShape.EmptyString, JSON_EMPTY, null);
     }
 
+    @Test
     public void testPOJOFromEmptyPhysicalTypeConfig() throws Exception
     {
         _testPOJOFromEmptyPhysicalTypeConfig(CoercionInputShape.EmptyString, JSON_EMPTY, null);
@@ -66,6 +76,7 @@ public class CoercePojosTest extends BaseMapTest
 
     // [databind#3676] Alternative test for "Mode.PROPERTIES" variant where we
     //  have no "default" constructor
+    @Test
     public void testPOJOFromEmptyWithProperties() throws Exception
     {
         // Then coerce as empty
@@ -86,16 +97,19 @@ public class CoercePojosTest extends BaseMapTest
     /********************************************************
      */
 
+    @Test
     public void testPOJOFromBlankGlobalConfig() throws Exception
     {
         _testPOJOFromEmptyGlobalConfig(CoercionInputShape.EmptyString, JSON_BLANK, Boolean.TRUE);
     }
 
+    @Test
     public void testPOJOFromBlankLogicalTypeConfig() throws Exception
     {
         _testPOJOFromEmptyLogicalTypeConfig(CoercionInputShape.EmptyString, JSON_BLANK, Boolean.TRUE);
     }
 
+    @Test
     public void testPOJOFromBlankPhysicalTypeConfig() throws Exception
     {
         _testPOJOFromEmptyPhysicalTypeConfig(CoercionInputShape.EmptyString, JSON_BLANK, Boolean.TRUE);

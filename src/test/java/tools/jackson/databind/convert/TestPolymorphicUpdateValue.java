@@ -1,14 +1,20 @@
 package tools.jackson.databind.convert;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
 /**
  * Unit tests for verifying handling of update value on polymorphic
  * objects.
  */
-public class TestPolymorphicUpdateValue extends BaseMapTest
+public class TestPolymorphicUpdateValue
 {
     @JsonTypeInfo(include=JsonTypeInfo.As.WRAPPER_ARRAY //PROPERTY
             ,use=JsonTypeInfo.Id.NAME, property="type")
@@ -30,8 +36,9 @@ public class TestPolymorphicUpdateValue extends BaseMapTest
     /********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testPolymorphicTest() throws Exception
     {
          Child c = new Child();

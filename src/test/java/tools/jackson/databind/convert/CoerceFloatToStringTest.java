@@ -1,12 +1,18 @@
 package tools.jackson.databind.convert;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.CoercionAction;
 import tools.jackson.databind.cfg.CoercionInputShape;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.type.LogicalType;
 
-public class CoerceFloatToStringTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.*;
+
+public class CoerceFloatToStringTest
 {
     private final ObjectMapper DEFAULT_MAPPER = newJsonMapper();
 
@@ -30,16 +36,19 @@ public class CoerceFloatToStringTest extends BaseMapTest
                     cfg.setCoercion(CoercionInputShape.Float, CoercionAction.AsEmpty))
             .build();
 
+    @Test
     public void testDefaultFloatToStringCoercion() throws Exception
     {
         assertSuccessfulFloatToStringCoercionWith(DEFAULT_MAPPER);
     }
 
+    @Test
     public void testCoerceConfigToConvert() throws Exception
     {
         assertSuccessfulFloatToStringCoercionWith(MAPPER_TRY_CONVERT);
     }
 
+    @Test
     public void testCoerceConfigToNull() throws Exception
     {
         assertNull(MAPPER_TO_NULL.readValue("1.2", String.class));
@@ -50,6 +59,7 @@ public class CoerceFloatToStringTest extends BaseMapTest
         assertNull(arr[0]);
     }
 
+    @Test
     public void testCoerceConfigToEmpty() throws Exception
     {
         assertEquals("", MAPPER_TO_EMPTY.readValue("3.5", String.class));
@@ -60,7 +70,7 @@ public class CoerceFloatToStringTest extends BaseMapTest
         assertEquals("", arr[0]);
     }
 
-
+    @Test
     public void testCoerceConfigToFail() throws Exception
     {
         _verifyCoerceFail(MAPPER_TO_FAIL, String.class, "3.5");

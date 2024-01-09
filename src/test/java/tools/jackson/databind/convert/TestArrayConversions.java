@@ -4,19 +4,25 @@ import java.math.*;
 import java.util.*;
 import java.lang.reflect.Array;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.*;
+
 public class TestArrayConversions
-    extends tools.jackson.databind.BaseMapTest
 {
     final static String OVERFLOW_MSG_BYTE = "out of range of `byte`";
     final static String OVERFLOW_MSG_SHORT = "out of range of `short`";
     final static String OVERFLOW_MSG_INT = "out of range of `int`";
     final static String OVERFLOW_MSG_LONG = "out of range of `long`";
 
-    final ObjectMapper MAPPER = new ObjectMapper();
+    final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testNullXform() throws Exception
     {
         /* when given null, null should be returned without conversion
@@ -32,6 +38,7 @@ public class TestArrayConversions
      * correctly, i.e. type -> type gives equal (although
      * not necessarily same) output
      */
+    @Test
     public void testArrayIdentityTransforms() throws Exception
     {
         // first integral types
@@ -45,6 +52,7 @@ public class TestArrayConversions
         verifyDoubleArrayConversion(doubles(), float[].class);
     }
 
+    @Test
     public void testByteArrayFrom() throws Exception
     {
         /* Note: byte arrays are tricky, since they are considered
@@ -56,6 +64,7 @@ public class TestArrayConversions
         verifyIntegralArrays(exp, data, exp.length);
     }
 
+    @Test
     public void testShortArrayToX() throws Exception
     {
         short[] data = shorts();
@@ -64,6 +73,7 @@ public class TestArrayConversions
         verifyShortArrayConversion(data, long[].class);
     }
 
+    @Test
     public void testIntArrayToX() throws Exception
     {
         int[] data = ints();
@@ -77,6 +87,7 @@ public class TestArrayConversions
         assertEquals(expNums, actNums);
     }
 
+    @Test
     public void testLongArrayToX() throws Exception
     {
         long[] data = longs();
@@ -89,6 +100,7 @@ public class TestArrayConversions
         assertEquals(expNums, actNums);
     }
 
+    @Test
     public void testOverflows()
     {
         // Byte overflow
@@ -205,7 +217,7 @@ public class TestArrayConversions
             Number n2 = (Number) Array.get(outputArray, i);
             double value1 = n1.longValue();
             double value2 = n2.longValue();
-            assertEquals("Entry #"+i+"/"+size+" not equal", value1, value2);
+            assertEquals(value1, value2, "Entry #"+i+"/"+size+" not equal");
         }
     }
 
@@ -216,7 +228,7 @@ public class TestArrayConversions
             Number n2 = (Number) Array.get(outputArray, i);
             double value1 = n1.doubleValue();
             double value2 = n2.doubleValue();
-            assertEquals("Entry #"+i+"/"+size+" not equal", value1, value2);
+            assertEquals(value1, value2, "Entry #"+i+"/"+size+" not equal");
         }
     }
 }

@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.databind.deser.enums;
 
-import java.io.IOException;
-
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,7 +9,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import static com.fasterxml.jackson.databind.BaseMapTest.jsonMapperBuilder;
 import static com.fasterxml.jackson.databind.BaseTest.q;
-
 
 // [databind#4302]
 public class EnumSameName4302Test
@@ -60,7 +57,8 @@ public class EnumSameName4302Test
         .build();
 
     @Test
-    void testShouldWork() throws IOException {
+    void testShouldWork() throws Exception
+    {
         // First, try roundtrip with same-ignore-case name field
         assertEquals(Field4302Enum.FOO,
             MAPPER.readValue("\"FOO\"", Field4302Enum.class));

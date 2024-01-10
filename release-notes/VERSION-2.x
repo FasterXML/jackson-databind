@@ -11,6 +11,9 @@ Project: jackson-databind
 #4303: `ObjectReader` is not serializable if it's configured for polymorphism
  (reported by @asardaes)
  (fix contributed by Joo-Hyuk K)
+#4302: Problem deserializing some type of Enums when using `PropertyNamingStrategy`
+ (reported by Pieter D-S)
+ (fix contributed by Joo-Hyuk K)
 
 2.16.1 (24-Dec-2023)
 

@@ -1128,7 +1128,7 @@ public class POJOPropertiesCollector
         for (POJOPropertyBuilder prop : props) {
             PropertyName fullName = prop.getFullName();
             String rename = null;
-            // [databind#4302] since 2.16, Need to skip renaming for Enum instances, but rename fields
+            // [databind#4302] since 2.16, Need to skip renaming for Enum instances (but not for Enum fields)
             if (!prop.hasSetter()
                     && Objects.nonNull(prop.getField())
                     && (Objects.equals(_type, prop.getField().getType()) && prop.getPrimaryType().isEnumType())

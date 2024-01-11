@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import static com.fasterxml.jackson.databind.BaseMapTest.jsonMapperBuilder;
+import static com.fasterxml.jackson.databind.BaseTest.a2q;
 import static com.fasterxml.jackson.databind.BaseTest.q;
 
 // [databind#4302]
@@ -58,8 +59,8 @@ public class EnumSameName4302Test
     }
 
     static class AsField4302Bean {
-        public AsField4302Enum somePerson = AsField4302Enum.APPLE_SUGAR;
-        public String someOtherField = "someOtherField";
+        public AsField4302Enum someEnum = AsField4302Enum.APPLE_SUGAR;
+        public String otherProp = "someOtherField";
     }
 
     private final ObjectMapper MAPPER = jsonMapperBuilder()
@@ -98,15 +99,16 @@ public class EnumSameName4302Test
     {
         AsField4302Bean bean = new AsField4302Bean();
 
-        // ser
-        assertEquals("{\"somePerson\":\"APPLE_SUGAR\",\"some_other_field\":\"someOtherField\"}",
+        // test serialization
+        assertEquals(
+            a2q("{'some_enum':'APPLE_SUGAR','other_prop':'someOtherField'}"),
             SNAKE_MAPPER.writeValueAsString(bean));
 
-        // deser
-        AsField4302Bean result = SNAKE_MAPPER.readValue("{\"somePerson\":\"SOME_PERSON\", \"some_other_field\":\"thisField\"}",
-            AsField4302Bean.class);
-        assertEquals(AsField4302Enum.SOME_PERSON, result.somePerson);
-        assertEquals("thisField", result.someOtherField);
+        // test deserialization
+        AsField4302Bean result = SNAKE_MAPPER.readValue(
+            a2q("{'some_enum':'SOME_PERSON', 'other_prop':'thisField'}"), AsField4302Bean.class);
+        assertEquals(AsField4302Enum.SOME_PERSON, result.someEnum);
+        assertEquals("thisField", result.otherProp);
     }
 }
 

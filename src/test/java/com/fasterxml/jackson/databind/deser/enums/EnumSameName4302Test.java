@@ -53,11 +53,12 @@ public class EnumSameName4302Test
     }
 
     enum AsField4302Enum {
+        APPLE_SUGAR,
         SOME_PERSON;
     }
 
     static class AsField4302Bean {
-        public AsField4302Enum somePerson = AsField4302Enum.SOME_PERSON;
+        public AsField4302Enum somePerson = AsField4302Enum.APPLE_SUGAR;
         public String someOtherField = "someOtherField";
     }
 
@@ -97,11 +98,15 @@ public class EnumSameName4302Test
     {
         AsField4302Bean bean = new AsField4302Bean();
 
-        assertEquals("{\"some_person\":\"SOME_PERSON\",\"some_other_field\":\"someOtherField\"}",
+        // ser
+        assertEquals("{\"somePerson\":\"APPLE_SUGAR\",\"some_other_field\":\"someOtherField\"}",
             SNAKE_MAPPER.writeValueAsString(bean));
 
-        AsField4302Bean result = SNAKE_MAPPER.readValue("{\"somePerson\":\"SOME_PERSON\"}",
+        // deser
+        AsField4302Bean result = SNAKE_MAPPER.readValue("{\"somePerson\":\"SOME_PERSON\", \"some_other_field\":\"thisField\"}",
             AsField4302Bean.class);
+        assertEquals(AsField4302Enum.SOME_PERSON, result.somePerson);
+        assertEquals("thisField", result.someOtherField);
     }
 }
 

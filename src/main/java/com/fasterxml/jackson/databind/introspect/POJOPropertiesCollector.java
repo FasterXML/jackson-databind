@@ -1123,15 +1123,16 @@ public class POJOPropertiesCollector
     protected void _renameUsing(Map<String, POJOPropertyBuilder> propMap,
             PropertyNamingStrategy naming)
     {
+        // [databind#4302] since 2.17, Need to skip renaming for Enum properties
+        if (_type.isEnumType()) {
+            return;
+        }
+
         POJOPropertyBuilder[] props = propMap.values().toArray(new POJOPropertyBuilder[propMap.size()]);
         propMap.clear();
         for (POJOPropertyBuilder prop : props) {
             PropertyName fullName = prop.getFullName();
             String rename = null;
-            // [databind#4302] since 2.17, Need to skip renaming for Enum properties
-            if (!prop.hasSetter() && prop.getPrimaryType().isEnumType()) {
-                continue;
-            }
             // As per [databind#428] need to skip renaming if property has
             // explicitly defined name, unless feature  is enabled
             if (!prop.isExplicitlyNamed() || _config.isEnabled(MapperFeature.ALLOW_EXPLICIT_PROPERTY_RENAMING)) {

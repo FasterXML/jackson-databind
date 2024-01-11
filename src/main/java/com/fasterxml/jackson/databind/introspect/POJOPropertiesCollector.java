@@ -1130,6 +1130,8 @@ public class POJOPropertiesCollector
             String rename = null;
             // [databind#4302] since 2.17, Need to skip renaming for Enum properties
             if (!prop.hasSetter() && prop.getPrimaryType().isEnumType()) {
+                // Just put back
+                propMap.put(fullName.getSimpleName(), prop);
                 continue;
             }
             // As per [databind#428] need to skip renaming if property has

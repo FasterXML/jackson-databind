@@ -7,13 +7,13 @@ import tools.jackson.databind.PropertyNamingStrategies;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import static tools.jackson.databind.BaseMapTest.a2q;
 import static tools.jackson.databind.BaseMapTest.jsonMapperBuilder;
-import static tools.jackson.databind.BaseTest.q;
+import static tools.jackson.databind.BaseMapTest.q;
 
 // [databind#4302]
 public class EnumSameName4302Test
 {
-
     enum Field4302Enum {
         FOO(0);
 
@@ -52,12 +52,21 @@ public class EnumSameName4302Test
         }
     }
 
+    static class Field4302Wrapper {
+        public Field4302Enum wrapped;
+
+        Field4302Wrapper() { }
+        public Field4302Wrapper(Field4302Enum w) {
+            wrapped = w;
+        }
+    }
+
     private final ObjectMapper MAPPER = jsonMapperBuilder()
         .propertyNamingStrategy(PropertyNamingStrategies.LOWER_CASE)
         .build();
 
     @Test
-    void testShouldWork() throws Exception
+    void testStandaloneShouldWork() throws Exception
     {
         // First, try roundtrip with same-ignore-case name field
         assertEquals(Field4302Enum.FOO,
@@ -77,6 +86,18 @@ public class EnumSameName4302Test
             MAPPER.readValue("\"CAT\"", Setter4302Enum.class));
         assertEquals(q("CAT"),
             MAPPER.writeValueAsString(Setter4302Enum.CAT));
+    }
+
+    @Test
+    void testWrappedShouldWork() throws Exception
+    {
+        // First, try roundtrip with same-ignore-case name field
+        Field4302Wrapper input = new Field4302Wrapper(Field4302Enum.FOO);
+        String json = MAPPER.writeValueAsString(input);
+        assertEquals(a2q("{'wrapped':'FOO'}"), json);
+
+        Field4302Wrapper result = MAPPER.readValue(json, Field4302Wrapper.class);
+        assertEquals(Field4302Enum.FOO, result.wrapped);
     }
 }
 

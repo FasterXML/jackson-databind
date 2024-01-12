@@ -1123,11 +1123,6 @@ public class POJOPropertiesCollector
     protected void _renameUsing(Map<String, POJOPropertyBuilder> propMap,
             PropertyNamingStrategy naming)
     {
-        // [databind#4302] since 2.17, Need to skip renaming for Enum properties
-        if (_type.isEnumType()) {
-            return;
-        }
-
         POJOPropertyBuilder[] props = propMap.values().toArray(new POJOPropertyBuilder[propMap.size()]);
         propMap.clear();
         for (POJOPropertyBuilder prop : props) {

@@ -72,7 +72,7 @@ public class SimpleFilterProviderTest extends BaseMapTest
 
         String jsonString = MAPPER.writer(prov).writeValueAsString(beanB);
         
-        Map<String, Object> actualMap = MAPPER.readValue(jsonString, Map.class);
+        Map<?,?> actualMap = MAPPER.readValue(jsonString, Map.class);
         Map<String, Object> expectedMap = new LinkedHashMap<>();
         expectedMap.put("a", "1a");
         expectedMap.put("b", "2b");
@@ -87,7 +87,7 @@ public class SimpleFilterProviderTest extends BaseMapTest
 
         String jsonString = MAPPER.writer(prov).writeValueAsString(bean);
 
-        Map<String, Object> actualMap = MAPPER.readValue(jsonString, Map.class);
+        Map<?,?> actualMap = MAPPER.readValue(jsonString, Map.class);
         Map<String, Object> expectedMap = new LinkedHashMap<>();
         expectedMap.put("c", null);
         expectedMap.put("d", "D is filtered");

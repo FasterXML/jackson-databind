@@ -1,11 +1,16 @@
 package com.fasterxml.jackson.databind.deser;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.InputStream;
 
-public class TestFloats extends BaseMapTest
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+
+public class TestFloats
 {
 
     /*
@@ -16,6 +21,7 @@ public class TestFloats extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testFloatPrimitive() throws Exception
     {
         assertEquals(7.038531e-26f, MAPPER.readValue("\"7.038531e-26\"", float.class));
@@ -25,6 +31,7 @@ public class TestFloats extends BaseMapTest
         assertEquals("1.4E-45", MAPPER.readValue("\"7.006492321624086e-46\"", float.class).toString());
     }
 
+    @Test
     public void testFloatClass() throws Exception
     {
         assertEquals(Float.valueOf(7.038531e-26f), MAPPER.readValue("\"7.038531e-26\"", Float.class));
@@ -34,6 +41,7 @@ public class TestFloats extends BaseMapTest
         assertEquals("1.4E-45", MAPPER.readValue("\"7.006492321624086e-46\"", Float.class).toString());
     }
 
+    @Test
     public void testArrayOfFloatPrimitives() throws Exception
     {
         StringBuilder sb = new StringBuilder();
@@ -52,6 +60,7 @@ public class TestFloats extends BaseMapTest
     }
 
     // for [jackson-core#757]
+    @Test
     public void testBigArrayOfFloatPrimitives() throws Exception {
         try (InputStream stream = TestFloats.class.getResourceAsStream("/data/float-array-755.txt")) {
             float[] floats = MAPPER.readValue(stream, float[].class);
@@ -63,6 +72,7 @@ public class TestFloats extends BaseMapTest
         }
     }
 
+    @Test
     public void testArrayOfFloats() throws Exception
     {
         StringBuilder sb = new StringBuilder();

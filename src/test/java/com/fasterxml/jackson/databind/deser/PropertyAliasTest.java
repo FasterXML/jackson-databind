@@ -5,12 +5,20 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
-public class PropertyAliasTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+
+public class PropertyAliasTest
 {
     static class AliasBean {
         @JsonAlias({ "nm", "Name" })
@@ -83,6 +91,7 @@ public class PropertyAliasTest extends BaseMapTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#1029]
+    @Test
     public void testSimpleAliases() throws Exception
     {
         AliasBean bean;
@@ -109,6 +118,7 @@ public class PropertyAliasTest extends BaseMapTest
         assertEquals(37, bean._xyz);
     }
 
+    @Test
     public void testAliasWithPolymorphic() throws Exception
     {
         PolyWrapperForAlias value = MAPPER.readValue(a2q(
@@ -121,6 +131,7 @@ public class PropertyAliasTest extends BaseMapTest
     }
 
     // [databind#2378]
+    @Test
     public void testAliasInFactoryMethod() throws Exception
     {
         AliasBean2378 bean = MAPPER.readValue(a2q(
@@ -131,6 +142,7 @@ public class PropertyAliasTest extends BaseMapTest
     }
 
     // [databind#2669]
+    @Test
     public void testCaseInsensitiveAliases() throws Exception {
 
         ObjectMapper mapper = JsonMapper.builder()
@@ -148,6 +160,7 @@ public class PropertyAliasTest extends BaseMapTest
         public String value;
     }
 
+    @Test
     public void testAliasDeserializedToLastMatchingKey_ascendingKeys() throws Exception {
         String ascendingOrderInput = a2q(
             "{\"a\": \"a-value\", " +
@@ -158,6 +171,7 @@ public class PropertyAliasTest extends BaseMapTest
         assertEquals("c-value", ascObj.value);
     }
 
+    @Test
     public void testAliasDeserializedToLastMatchingKey_descendingKeys() throws Exception {
         String descendingOrderInput = a2q(
             "{\"c\": \"c-value\", " +
@@ -173,6 +187,7 @@ public class PropertyAliasTest extends BaseMapTest
         public String value;
     }
 
+    @Test
     public void testAliasDeserializedToLastMatchingKey_ascendingAliases() throws Exception {
         String input = a2q(
                 "{\"a\": \"a-value\", " +
@@ -188,6 +203,7 @@ public class PropertyAliasTest extends BaseMapTest
         public String value;
     }
 
+    @Test
     public void testAliasDeserializedToLastMatchingKey_descendingAliases() throws Exception {
         String input = a2q(
             "{\"a\": \"a-value\", " +
@@ -206,6 +222,7 @@ public class PropertyAliasTest extends BaseMapTest
         public String fullName;
     }
 
+    @Test
     public void testAliasFallBackToField() throws Exception {
         AliasTestBeanA obj = MAPPER.readValue(a2q(
             "{\"fullName\": \"Faster Jackson\", \"name\":\"Jackson\"}"

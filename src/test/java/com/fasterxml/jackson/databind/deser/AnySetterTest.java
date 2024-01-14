@@ -3,17 +3,21 @@ package com.fasterxml.jackson.databind.deser;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
 /**
  * Unit tests for verifying that {@link JsonAnySetter} annotation
  * works as expected.
  */
 public class AnySetterTest
-    extends BaseMapTest
 {
     static class MapImitator
     {
@@ -259,6 +263,7 @@ public class AnySetterTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testSimpleMapImitation() throws Exception
     {
         MapImitator mapHolder = MAPPER.readValue
@@ -274,6 +279,7 @@ public class AnySetterTest
         assertEquals(Integer.valueOf(3), l.get(2));
     }
 
+    @Test
     public void testAnySetterDisable() throws Exception
     {
         try {
@@ -286,6 +292,7 @@ public class AnySetterTest
 
     }
 
+    @Test
     public void testSimpleTyped() throws Exception
     {
         MapImitatorWithValue mapHolder = MAPPER.readValue
@@ -296,6 +303,7 @@ public class AnySetterTest
         assertEquals(new int[0], result.get("b"));
     }
 
+    @Test
     public void testBrokenWithDoubleAnnotations() throws Exception
     {
         try {
@@ -307,20 +315,23 @@ public class AnySetterTest
         }
     }
 
+    @Test
     public void testIgnored() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = newJsonMapper();
         mapper.enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         _testIgnorals(mapper);
     }
 
+    @Test
     public void testIgnoredPart2() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = newJsonMapper();
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         _testIgnorals(mapper);
     }
 
+    @Test
     public void testProblem744() throws Exception
     {
         Bean744 bean = MAPPER.readValue("{\"name\":\"Bob\"}", Bean744.class);
@@ -329,6 +340,7 @@ public class AnySetterTest
         assertEquals("Bob", bean.additionalProperties.get("name"));
     }
 
+    @Test
     public void testIssue797() throws Exception
     {
         String json = MAPPER.writeValueAsString(new Bean797BaseImpl());
@@ -336,6 +348,7 @@ public class AnySetterTest
     }
 
     // [Issue#337]
+    @Test
     public void testPolymorphic() throws Exception
     {
         PolyAnyBean input = new PolyAnyBean();
@@ -353,6 +366,7 @@ public class AnySetterTest
         assertEquals("xyz", ((Impl) ob).value);
     }
 
+    @Test
     public void testJsonAnySetterOnMap() throws Exception {
 		JsonAnySetterOnMap result = MAPPER.readValue("{\"id\":2,\"name\":\"Joe\", \"city\":\"New Jersey\"}",
 		        JsonAnySetterOnMap.class);
@@ -361,6 +375,7 @@ public class AnySetterTest
 		assertEquals("New Jersey", result.other.get("city"));
     }
 
+    @Test
     public void testJsonAnySetterOnNullMap() throws Exception {
         final String DOC = a2q("{'id':2,'name':'Joe', 'city':'New Jersey'}");
         JsonAnySetterOnNullMap result = MAPPER.readValue(DOC,
@@ -391,9 +406,10 @@ public class AnySetterTest
             );
 
     // [databind#349]
+    @Test
     public void testUnwrappedWithAny() throws Exception
     {
-        final ObjectMapper mapper = objectMapper();
+        final ObjectMapper mapper = newJsonMapper();
         Bean349 value = mapper.readValue(UNWRAPPED_JSON_349,  Bean349.class);
         assertNotNull(value);
         assertEquals(3, value.x);
@@ -402,9 +418,10 @@ public class AnySetterTest
     }
 
     // [databind#349]
+    @Test
     public void testUnwrappedWithAnyAsUpdate() throws Exception
     {
-        final ObjectMapper mapper = objectMapper();
+        final ObjectMapper mapper = newJsonMapper();
         Bean349 bean = mapper.readerFor(Bean349.class)
                 .withValueToUpdate(new Bean349())
                 .readValue(UNWRAPPED_JSON_349);
@@ -414,9 +431,10 @@ public class AnySetterTest
     }
 
     // [databind#1035]
+    @Test
     public void testGenericAnySetter() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = newJsonMapper();
 
         Map<String, Integer> stringGenericMap = new HashMap<String, Integer>();
         stringGenericMap.put("testStringKey", 5);
@@ -432,8 +450,8 @@ public class AnySetterTest
         assertNotNull(stringGeneric);
         assertEquals(stringGeneric.getStaticallyMappedProperty(), "Test");
         for(Map.Entry<String, Integer> entry : stringGeneric.getDynamicallyMappedProperties().entrySet()) {
-            assertTrue("A key in MyGeneric<String> is not an String.", entry.getKey() instanceof String);
-            assertTrue("A value in MyGeneric<Integer> is not an Integer.", entry.getValue() instanceof Integer);
+            assertTrue(entry.getKey() instanceof String, "A key in MyGeneric<String> is not an String.");
+            assertTrue(entry.getValue() instanceof Integer, "A value in MyGeneric<Integer> is not an Integer.");
         }
         assertEquals(stringGeneric.getDynamicallyMappedProperties(), stringGenericMap);
 
@@ -441,9 +459,9 @@ public class AnySetterTest
         assertEquals(integerGeneric.getStaticallyMappedProperty(), "Test2");
         for(Map.Entry<Integer, Integer> entry : integerGeneric.getDynamicallyMappedProperties().entrySet()) {
             Object key = entry.getKey();
-            assertEquals("A key in MyGeneric<Integer> is not an Integer.", Integer.class, key.getClass());
+            assertEquals(Integer.class, key.getClass(), "A key in MyGeneric<Integer> is not an Integer.");
             Object value = entry.getValue();
-            assertEquals("A value in MyGeneric<Integer> is not an Integer.", Integer.class, value.getClass());
+            assertEquals(Integer.class, value.getClass(), "A value in MyGeneric<Integer> is not an Integer.");
         }
         assertEquals(integerGeneric.getDynamicallyMappedProperties(), integerGenericMap);
     }

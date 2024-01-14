@@ -4,10 +4,18 @@ import java.io.*;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.q;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.IntWrapper;
 
 /**
  * This unit test suite tests use of basic Annotations for
@@ -16,7 +24,6 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
  */
 @SuppressWarnings("serial")
 public class TestBasicAnnotations
-    extends BaseMapTest
 {
     /// Class for testing {@link JsonProperty} annotations
     final static class SizeClassSetter
@@ -125,6 +132,7 @@ public class TestBasicAnnotations
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
+    @Test
     public void testSimpleSetter() throws Exception
     {
         SizeClassSetter result = MAPPER.readValue
@@ -137,6 +145,7 @@ public class TestBasicAnnotations
     }
 
     // Test for checking [JACKSON-64]
+    @Test
     public void testSimpleSetter2() throws Exception
     {
         SizeClassSetter2 result = MAPPER.readValue("{ \"x\": -3 }",
@@ -145,6 +154,7 @@ public class TestBasicAnnotations
     }
 
     // Checking parts of [JACKSON-120]
+    @Test
     public void testSimpleSetter3() throws Exception
     {
         SizeClassSetter3 result = MAPPER.readValue
@@ -157,6 +167,7 @@ public class TestBasicAnnotations
      * Test for verifying that super-class setters are used as
      * expected.
      */
+    @Test
     public void testSetterInheritance() throws Exception
     {
         BeanSubClass result = MAPPER.readValue
@@ -167,6 +178,7 @@ public class TestBasicAnnotations
         assertEquals(3, result._z);
     }
 
+    @Test
     public void testImpliedProperty() throws Exception
     {
         BeanWithDeserialize bean = MAPPER.readValue("{\"a\":3}", BeanWithDeserialize.class);
@@ -175,6 +187,7 @@ public class TestBasicAnnotations
     }
 
     // [databind#442]
+    @Test
     public void testIssue442PrivateUnwrapped() throws Exception
     {
         Issue442Bean bean = MAPPER.readValue("{\"i\":5}", Issue442Bean.class);
@@ -187,6 +200,7 @@ public class TestBasicAnnotations
     /**********************************************************
      */
 
+    @Test
     public void testAnnotationsDisabled() throws Exception
     {
         // first: verify that annotation introspection is enabled by default
@@ -203,6 +217,7 @@ public class TestBasicAnnotations
         assertEquals(0, bean.value);
     }
 
+    @Test
     public void testEnumsWhenDisabled() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
@@ -215,6 +230,7 @@ public class TestBasicAnnotations
         assertEquals(Alpha.B, m.readValue(q("B"), Alpha.class));
     }
 
+    @Test
     public void testNoAccessOverrides() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()

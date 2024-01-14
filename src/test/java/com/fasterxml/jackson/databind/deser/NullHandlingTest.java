@@ -5,6 +5,8 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
@@ -12,7 +14,12 @@ import com.fasterxml.jackson.databind.exc.InvalidNullException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
-public class NullHandlingTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
+
+public class NullHandlingTest
 {
     static class FunnyNullDeserializer extends JsonDeserializer<String>
     {
@@ -93,6 +100,7 @@ public class NullHandlingTest extends BaseMapTest
     /**********************************************************************
      */
 
+    @Test
     public void testNull() throws Exception
     {
         // null doesn't really have a type, fake by assuming Object
@@ -100,6 +108,7 @@ public class NullHandlingTest extends BaseMapTest
         assertNull(result);
     }
 
+    @Test
     public void testAnySetterNulls() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
@@ -125,6 +134,7 @@ public class NullHandlingTest extends BaseMapTest
         assertEquals("funny", result.getAny().get(fieldName));
     }
 
+    @Test
     public void testCustomRootNulls() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -145,6 +155,7 @@ public class NullHandlingTest extends BaseMapTest
     }
 
     // [databind#407]
+    @Test
     public void testListOfNulls() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -170,6 +181,7 @@ public class NullHandlingTest extends BaseMapTest
     }
 
     // Test for [#407]
+    @Test
     public void testMapOfNulls() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -193,6 +205,7 @@ public class NullHandlingTest extends BaseMapTest
     }
 
     // [databind#1601]
+    @Test
     public void testPolymorphicDataNull() throws Exception
     {
         String typeA =
@@ -206,10 +219,11 @@ public class NullHandlingTest extends BaseMapTest
         String typeBNull =
                 "{\"name\":\"TypeBData\", \"type\":\"TypeB\", \"proxy\": null}";
         RootData typeBNullData = MAPPER.readValue(typeBNull, RootData.class);
-        assertNull("Proxy should be null!", typeBNullData.proxy);
+        assertNull(typeBNullData.proxy, "Proxy should be null!");
     }
 
     // Test for [databind#3227]
+    @Test
     public void testContentsNullFailForMaps() throws Exception
     {
         try {
@@ -228,6 +242,7 @@ public class NullHandlingTest extends BaseMapTest
     }
 
     // Test for [databind#3227]
+    @Test
     public void testContentsNullFailForCollections() throws Exception
     {
         try {
@@ -262,6 +277,7 @@ public class NullHandlingTest extends BaseMapTest
     }
 
     // Test for [databind#3227]
+    @Test
     public void testContentsNullFailForArrays() throws Exception
     {
         try {

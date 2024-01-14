@@ -1,9 +1,13 @@
 package com.fasterxml.jackson.databind.deser;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.*;
 
-public class InnerClassDeserTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class InnerClassDeserTest
 {
     static class Dog
     {
@@ -32,6 +36,7 @@ public class InnerClassDeserTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testSimpleNonStaticInner() throws Exception
     {
         // Let's actually verify by first serializing, then deserializing back

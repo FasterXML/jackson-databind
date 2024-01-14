@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.deser;
 
 import com.fasterxml.jackson.annotation.*;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.IgnoredPropertyException;
@@ -11,12 +12,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+
 /**
  * This unit test suite that tests use of {@link com.fasterxml.jackson.annotation.JsonIncludeProperties}
  * annotation with deserialization.
  */
 public class IncludeWithDeserTest
-        extends BaseMapTest
 {
     @JsonIncludeProperties({"y", "z"})
     static class OnlyYAndZ
@@ -109,6 +113,7 @@ public class IncludeWithDeserTest
 
     private final ObjectMapper MAPPER = objectMapper();
 
+    @Test
     public void testSimpleInclude() throws Exception
     {
         OnlyYAndZ result = MAPPER.readValue(
@@ -119,6 +124,7 @@ public class IncludeWithDeserTest
         assertEquals(3, result._z);
     }
 
+    @Test
     public void testIncludeIgnoredAndUnrecognizedField() throws Exception
     {
         ObjectReader r = MAPPER.readerFor(OnlyY.class);
@@ -152,7 +158,7 @@ public class IncludeWithDeserTest
         assertEquals(4, result.y);
     }
 
-
+    @Test
     public void testMergeInclude() throws Exception
     {
         OnlyYWrapperForOnlyYAndZ onlyY = MAPPER.readValue(
@@ -164,6 +170,7 @@ public class IncludeWithDeserTest
         assertEquals(0, onlyY.onlyY._z);
     }
 
+    @Test
     public void testListInclude() throws Exception
     {
         IncludeForListValuesY result = MAPPER.readValue(
@@ -174,6 +181,7 @@ public class IncludeWithDeserTest
         assertEquals(0, result.onlyYs.get(0)._z);
     }
 
+    @Test
     public void testMapWrapper() throws Exception
     {
         MapWrapper result = MAPPER.readValue(a2q("{'value': {'a': 2, 'b': 3}}"), MapWrapper.class);
@@ -181,6 +189,7 @@ public class IncludeWithDeserTest
         assertFalse(result.value.containsKey("b"));
     }
 
+    @Test
     public void testMyMap() throws Exception
     {
         MyMap result = MAPPER.readValue(a2q("{'a': 2, 'b': 3}"), MyMap.class);
@@ -188,6 +197,7 @@ public class IncludeWithDeserTest
         assertFalse(result.containsKey("b"));
     }
 
+    @Test
     public void testForwardReferenceAnySetterComboWithInclude() throws Exception
     {
         String json = a2q("{'@id':1, 'foo':2, 'foo2':2, 'bar':{'@id':2, 'foo':1}}");

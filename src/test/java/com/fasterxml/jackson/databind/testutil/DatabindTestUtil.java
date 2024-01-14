@@ -269,10 +269,10 @@ public class DatabindTestUtil
 
         @Override
         public boolean equals(Object o) {
-            if (!(o instanceof BaseMapTest.Point)) {
+            if (!(o instanceof Point)) {
                 return false;
             }
-            BaseMapTest.Point other = (BaseMapTest.Point) o;
+            Point other = (Point) o;
             return (other.x == x) && (other.y == y);
         }
 
@@ -436,7 +436,7 @@ public class DatabindTestUtil
         if (str.length() !=  actLen) {
             fail("Internal problem (jp.token == "+jp.currentToken()+"): jp.getText().length() ['"+str+"'] == "+str.length()+"; jp.getTextLength() == "+actLen);
         }
-        assertEquals("String access via getText(), getTextXxx() must be the same", str, str2);
+        assertEquals(str, str2, "String access via getText(), getTextXxx() must be the same");
 
         return str;
     }

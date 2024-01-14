@@ -299,8 +299,8 @@ public class AnySetterTest
             ("{ \"a\" : [ 3, -1 ], \"b\" : [ ] }", MapImitatorWithValue.class);
         Map<String,int[]> result = mapHolder._map;
         assertEquals(2, result.size());
-        assertEquals(new int[] { 3, -1 }, result.get("a"));
-        assertEquals(new int[0], result.get("b"));
+        assertArrayEquals(new int[] { 3, -1 }, result.get("a"));
+        assertArrayEquals(new int[0], result.get("b"));
     }
 
     @Test

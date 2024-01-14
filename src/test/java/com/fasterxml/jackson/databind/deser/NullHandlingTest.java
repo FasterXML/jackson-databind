@@ -211,11 +211,11 @@ public class NullHandlingTest
         String typeA =
                 "{\"name\":\"TypeAData\", \"type\":\"TypeA\", \"proxy\":{\"aValue\":\"This works!\"}}";
         RootData typeAData = MAPPER.readValue(typeA, RootData.class);
-        assertEquals("No value for aValue!?", "This works!", ((TypeA) typeAData.proxy).aValue);
+        assertEquals("This works!", ((TypeA) typeAData.proxy).aValue, "No value for aValue!?");
         String typeB =
                 "{\"name\":\"TypeBData\", \"type\":\"TypeB\", \"proxy\":{\"bValue\":\"This works too!\"}}";
         RootData typeBData = MAPPER.readValue(typeB, RootData.class);
-        assertEquals("No value for bValue!?", "This works too!", ((TypeB) typeBData.proxy).bValue);
+        assertEquals("This works too!", ((TypeB) typeBData.proxy).bValue, "No value for bValue!?");
         String typeBNull =
                 "{\"name\":\"TypeBData\", \"type\":\"TypeB\", \"proxy\": null}";
         RootData typeBNullData = MAPPER.readValue(typeBNull, RootData.class);

@@ -4,9 +4,10 @@ import java.io.*;
 import java.lang.annotation.*;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.*;
 

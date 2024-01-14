@@ -2,10 +2,9 @@ package com.fasterxml.jackson.databind.deser;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.junit.jupiter.api.Assertions.*;

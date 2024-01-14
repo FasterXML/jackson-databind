@@ -1,6 +1,9 @@
 package com.fasterxml.jackson.databind.convert;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
@@ -8,9 +11,12 @@ import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import java.util.List;
 
-public class DisableCoercions3690Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+
+public class DisableCoercions3690Test
 {
     // [databind#3690]
     static class Input3690 {
@@ -30,6 +36,7 @@ public class DisableCoercions3690Test extends BaseMapTest
     }
 
     // [databind#3690]
+    @Test
     public void testCoercionFail3690() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -55,6 +62,7 @@ public class DisableCoercions3690Test extends BaseMapTest
     }
 
     // [databind#3924]
+    @Test
     public void testFailMessage3924() throws Exception {
         // Arrange : Building a strict ObjectMapper.
         ObjectMapper mapper = jsonMapperBuilder()

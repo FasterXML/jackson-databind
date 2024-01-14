@@ -750,8 +750,20 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             JsonNodeFactory nodeFactory)
         throws IOException
     {
-        JsonParser.NumberType nt = p.getNumberType();
-        if (nt == JsonParser.NumberType.BIG_DECIMAL) {
+        // 13-Jan-2024, tatu: With 2.17 we have `JsonParser.getNumberTypeFP()` which
+        //   will return concrete FP type if format has one (JSON doesn't; most binary
+        //   formats do.
+        //   But with `DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS` we have mechanism
+        //   that may override optimal physical representation. So heuristics to use are:
+        //
+        //   1. If physical type is `BigDecimal`, use `BigDecimal`
+        //   2. If `DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS` enabled, use `BigDecimal`
+        //      UNLESS we have "Not-a-Number" (in which case  will coerce to `Double` if allowed
+        //   3. Otherwise if physical type `Float`, use (32-bit) `Float`
+        //   4. Otherwise use `Double`
+
+        JsonParser.NumberTypeFP nt = p.getNumberTypeFP();
+        if (nt == JsonParser.NumberTypeFP.BIG_DECIMAL) {
             return _fromBigDecimal(ctxt, nodeFactory, p.getDecimalValue());
         }
         if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
@@ -766,7 +778,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             }
             return _fromBigDecimal(ctxt, nodeFactory, p.getDecimalValue());
         }
-        if (nt == JsonParser.NumberType.FLOAT) {
+        if (nt == JsonParser.NumberTypeFP.FLOAT32) {
             return nodeFactory.numberNode(p.getFloatValue());
         }
         return nodeFactory.numberNode(p.getDoubleValue());

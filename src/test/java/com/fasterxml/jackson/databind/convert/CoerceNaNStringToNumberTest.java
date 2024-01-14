@@ -1,10 +1,15 @@
 package com.fasterxml.jackson.databind.convert;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class CoerceNaNStringToNumberTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+
+public class CoerceNaNStringToNumberTest
 {
     static class DoubleBean {
         double _v;
@@ -32,6 +37,7 @@ public class CoerceNaNStringToNumberTest extends BaseMapTest
     /**********************************************************************
      */
 
+    @Test
     public void testDoublePrimitiveNonNumeric() throws Exception
     {
         // first, simple case:
@@ -47,6 +53,7 @@ public class CoerceNaNStringToNumberTest extends BaseMapTest
         assertEquals(Double.POSITIVE_INFINITY, array[0]);
     }
 
+    @Test
     public void testDoublePrimFromNaNCoercionDisabled() throws Exception
     {
         // first, simple case:
@@ -61,6 +68,7 @@ public class CoerceNaNStringToNumberTest extends BaseMapTest
         assertEquals(Double.POSITIVE_INFINITY, array[0]);
     }
 
+    @Test
     public void testDoubleWrapperFromNaNCoercionDisabled() throws Exception
     {
         double value = Double.POSITIVE_INFINITY;
@@ -68,6 +76,7 @@ public class CoerceNaNStringToNumberTest extends BaseMapTest
         assertTrue(dv.isInfinite());
     }
 
+    @Test
     public void testFloatPrimitiveNonNumeric() throws Exception
     {
         // bit tricky with binary fps but...
@@ -82,6 +91,7 @@ public class CoerceNaNStringToNumberTest extends BaseMapTest
         assertEquals(Float.POSITIVE_INFINITY, array[0]);
     }
 
+    @Test
     public void testFloatPriFromNaNCoercionDisabled() throws Exception
     {
         // first, simple case:
@@ -96,6 +106,7 @@ public class CoerceNaNStringToNumberTest extends BaseMapTest
         assertEquals(Float.POSITIVE_INFINITY, array[0]);
     }
 
+    @Test
     public void testFloatWrapperFromNaNCoercionDisabled() throws Exception
     {
         float value = Float.POSITIVE_INFINITY;

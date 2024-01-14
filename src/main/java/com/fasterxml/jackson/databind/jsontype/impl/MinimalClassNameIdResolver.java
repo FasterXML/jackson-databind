@@ -17,6 +17,8 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 public class MinimalClassNameIdResolver
     extends ClassNameIdResolver
 {
+    private static final long serialVersionUID = 1L;
+
     /**
      * Package name of the base class, to be used for determining common
      * prefix that can be omitted from included type id.

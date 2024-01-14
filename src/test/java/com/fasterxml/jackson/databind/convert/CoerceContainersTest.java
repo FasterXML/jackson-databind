@@ -1,14 +1,23 @@
 package com.fasterxml.jackson.databind.convert;
 
-import java.util.*;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
+
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.*;
-
+import com.fasterxml.jackson.databind.DatabindException;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 
-public class CoerceContainersTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+
+public class CoerceContainersTest
 {
     private final String JSON_EMPTY = q("");
 
@@ -25,6 +34,7 @@ public class CoerceContainersTest extends BaseMapTest
     /********************************************************
      */
 
+    @Test
     public void testScalarCollections() throws Exception
     {
         final JavaType listType = VANILLA_MAPPER.getTypeFactory()
@@ -48,6 +58,7 @@ public class CoerceContainersTest extends BaseMapTest
         assertEquals(0, result.size());
     }
 
+    @Test
     public void testStringCollections() throws Exception
     {
         final JavaType listType = VANILLA_MAPPER.getTypeFactory()
@@ -64,6 +75,7 @@ public class CoerceContainersTest extends BaseMapTest
     /********************************************************
      */
 
+    @Test
     public void testScalarMap() throws Exception
     {
         final JavaType mapType = VANILLA_MAPPER.getTypeFactory()
@@ -74,6 +86,7 @@ public class CoerceContainersTest extends BaseMapTest
         assertEquals(0, result.size());
     }
 
+    @Test
     public void testEnumMap() throws Exception
     {
         final JavaType mapType = VANILLA_MAPPER.getTypeFactory()
@@ -90,6 +103,7 @@ public class CoerceContainersTest extends BaseMapTest
     /********************************************************
      */
 
+    @Test
     public void testObjectArray() throws Exception
     {
         final JavaType arrayType = VANILLA_MAPPER.getTypeFactory()
@@ -100,6 +114,7 @@ public class CoerceContainersTest extends BaseMapTest
         assertEquals(0, result.length);
     }
 
+    @Test
     public void testStringArray() throws Exception
     {
         final JavaType arrayType = VANILLA_MAPPER.getTypeFactory()
@@ -110,6 +125,7 @@ public class CoerceContainersTest extends BaseMapTest
         assertEquals(0, result.length);
     }
 
+    @Test
     public void testBooleanArray() throws Exception
     {
         _verifyNoCoercion(boolean[].class);
@@ -118,6 +134,7 @@ public class CoerceContainersTest extends BaseMapTest
         assertEquals(0, result.length);
     }
 
+    @Test
     public void testIntArray() throws Exception
     {
         _verifyNoCoercion(int[].class);
@@ -126,6 +143,7 @@ public class CoerceContainersTest extends BaseMapTest
         assertEquals(0, result.length);
     }
 
+    @Test
     public void testLongArray() throws Exception
     {
         _verifyNoCoercion(long[].class);
@@ -134,6 +152,7 @@ public class CoerceContainersTest extends BaseMapTest
         assertEquals(0, result.length);
     }
 
+    @Test
     public void testFloatArray() throws Exception
     {
         _verifyNoCoercion(float[].class);
@@ -142,6 +161,7 @@ public class CoerceContainersTest extends BaseMapTest
         assertEquals(0, result.length);
     }
 
+    @Test
     public void testDoubleArray() throws Exception
     {
         _verifyNoCoercion(double[].class);
@@ -150,6 +170,7 @@ public class CoerceContainersTest extends BaseMapTest
         assertEquals(0, result.length);
     }
 
+    @Test
     public void testPOJOArray() throws Exception
     {
         _verifyNoCoercion(StringWrapper[].class);

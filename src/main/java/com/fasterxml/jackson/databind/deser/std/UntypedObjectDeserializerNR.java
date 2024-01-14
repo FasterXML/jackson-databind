@@ -86,10 +86,7 @@ final class UntypedObjectDeserializerNR
             }
             return p.getNumberValue();
         case JsonTokenId.ID_NUMBER_FLOAT:
-            if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
-                return p.getDecimalValue();
-            }
-            return p.getNumberValue();
+            return _deserializeFP(p, ctxt);
         case JsonTokenId.ID_TRUE:
             return Boolean.TRUE;
         case JsonTokenId.ID_FALSE:
@@ -249,8 +246,7 @@ final class UntypedObjectDeserializerNR
                         value = intCoercions ?  _coerceIntegral(p, ctxt) : p.getNumberValue();
                         break;
                     case JsonTokenId.ID_NUMBER_FLOAT:
-                        value = ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
-                            ? p.getDecimalValue() : p.getNumberValue();
+                        value = _deserializeFP(p, ctxt);
                         break;
                     case JsonTokenId.ID_TRUE:
                         value = Boolean.TRUE;
@@ -303,8 +299,7 @@ final class UntypedObjectDeserializerNR
                         value = intCoercions ?  _coerceIntegral(p, ctxt) : p.getNumberValue();
                         break;
                     case JsonTokenId.ID_NUMBER_FLOAT:
-                        value = ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
-                            ? p.getDecimalValue() : p.getNumberValue();
+                        value = _deserializeFP(p, ctxt);
                         break;
                     case JsonTokenId.ID_TRUE:
                         value = Boolean.TRUE;
@@ -341,10 +336,7 @@ final class UntypedObjectDeserializerNR
             return p.getNumberValue();
 
         case JsonTokenId.ID_NUMBER_FLOAT:
-            if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
-                return p.getDecimalValue();
-            }
-            return p.getNumberValue();
+            return _deserializeFP(p, ctxt);
         case JsonTokenId.ID_TRUE:
             return Boolean.TRUE;
         case JsonTokenId.ID_FALSE:
@@ -360,6 +352,24 @@ final class UntypedObjectDeserializerNR
         return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 
+    // @since 2.17
+    protected Object _deserializeFP(JsonParser p, DeserializationContext ctxt) throws IOException
+    {
+        JsonParser.NumberTypeFP nt = p.getNumberTypeFP();
+        if (nt == JsonParser.NumberTypeFP.BIG_DECIMAL) {
+            return p.getDecimalValue();
+        }
+        if (!p.isNaN()) {
+            if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
+                return p.getDecimalValue();
+            }
+        }
+        if (nt == JsonParser.NumberTypeFP.FLOAT32) {
+            return p.getFloatValue();
+        }
+        return p.getDoubleValue();
+    }
+    
     // NOTE: copied from above (alas, no easy way to share/reuse)
     // @since 2.12 (wrt [databind#2733]
     protected Object _mapObjectWithDups(JsonParser p, DeserializationContext ctxt,

@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
+import com.fasterxml.jackson.core.JsonParser.NumberTypeFP;
 import com.fasterxml.jackson.core.exc.InputCoercionException;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -150,6 +151,9 @@ public class TokenBufferTest extends BaseMapTest
 
         for (double v : values1) {
             assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+            assertEquals(NumberType.DOUBLE, p.getNumberType());
+            // not retained from JSON, but is when comes as specific number:
+            assertEquals(NumberTypeFP.DOUBLE64, p.getNumberTypeFP());
             double actual = p.getDoubleValue();
             boolean expNan = Double.isNaN(v) || Double.isInfinite(v);
             assertEquals(expNan, p.isNaN());
@@ -157,6 +161,9 @@ public class TokenBufferTest extends BaseMapTest
         }
         for (float v : values2) {
             assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
+            // Exact number type info retained when buffering:
+            assertEquals(NumberType.FLOAT, p.getNumberType());
+            assertEquals(NumberTypeFP.FLOAT32, p.getNumberTypeFP());
             float actual = p.getFloatValue();
             boolean expNan = Float.isNaN(v) || Float.isInfinite(v);
             assertEquals(expNan, p.isNaN());

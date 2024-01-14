@@ -627,6 +627,21 @@ public class POJOPropertyBuilder
                     continue;
                 }
             }
+            // 11-Jan-2024, tatu: Wrt [databind#4302] problem here is that we have
+            //   Enum constant fields (static!) added due to change in 2.16.0 (see
+            //  {@code AnnotatedFieldCollector#_isIncludableField}) and they can
+            //  conflict with actual fields.
+            /// Let's resolve conflict in favor of non-static Field.
+            final boolean currStatic = field.isStatic();
+            final boolean nextStatic = nextField.isStatic();
+
+            if (currStatic != nextStatic) {
+                if (currStatic) {
+                    field = nextField;
+                }
+                continue;
+            }
+
             throw new IllegalArgumentException("Multiple fields representing property \""+getName()+"\": "
                     +field.getFullName()+" vs "+nextField.getFullName());
         }

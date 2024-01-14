@@ -2,7 +2,7 @@ package com.fasterxml.jackson.databind.convert;
 
 import java.util.*;
 
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.Base64Variants;
 import com.fasterxml.jackson.databind.*;
@@ -10,8 +10,9 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.util.StdConverter;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class TestStringConversions
-    extends com.fasterxml.jackson.databind.BaseMapTest
 {
     static class LCConverter extends StdConverter<String,String>
     {
@@ -32,6 +33,7 @@ public class TestStringConversions
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
+    @Test
     public void testSimple()
     {
         assertEquals(Boolean.TRUE, MAPPER.convertValue("true", Boolean.class));
@@ -47,6 +49,7 @@ public class TestStringConversions
         assertArrayEquals(ints, MAPPER.convertValue(Ints, int[].class));
     }
 
+    @Test
     public void testStringsToInts()
     {
         // let's verify our "neat trick" actually works...
@@ -54,6 +57,7 @@ public class TestStringConversions
                           MAPPER.convertValue("1  2 3    4  -1 0".split("\\s+"), int[].class));
     }
 
+    @Test
     public void testBytesToBase64AndBack() throws Exception
     {
         byte[] input = new byte[] { 1, 2, 3, 4, 5, 6, 7 };
@@ -69,6 +73,7 @@ public class TestStringConversions
         assertArrayEquals(input, result);
     }
 
+    @Test
     public void testBytestoCharArray() throws Exception
     {
         byte[] input = new byte[] { 1, 2, 3, 4, 5, 6, 7 };
@@ -79,11 +84,13 @@ public class TestStringConversions
         assertArrayEquals(expEncoded, actEncoded);
     }
 
+    @Test
     public void testLowerCasingSerializer() throws Exception
     {
         assertEquals("{\"value\":\"abc\"}", MAPPER.writeValueAsString(new StringWrapperWithConvert("ABC")));
     }
 
+    @Test
     public void testLowerCasingDeserializer() throws Exception
     {
         StringWrapperWithConvert value = MAPPER.readValue("{\"value\":\"XyZ\"}", StringWrapperWithConvert.class);

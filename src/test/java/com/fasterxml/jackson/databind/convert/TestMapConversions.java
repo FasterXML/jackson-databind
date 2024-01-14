@@ -2,13 +2,16 @@ package com.fasterxml.jackson.databind.convert;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.util.StdConverter;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class TestMapConversions
-    extends com.fasterxml.jackson.databind.BaseMapTest
 {
     final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -48,6 +51,7 @@ public class TestMapConversions
     /**
      * Test that verifies that we can go between couple of types of Maps...
      */
+    @Test
     public void testMapToMap()
     {
         Map<String,Integer> input = new LinkedHashMap<String,Integer>();
@@ -67,6 +71,7 @@ public class TestMapConversions
         assertEquals(Integer.valueOf(-4), roundtrip.get("B"));
     }
 
+    @Test
     public void testMapToBean()
     {
         EnumMap<AB,String> map = new EnumMap<AB,String>(AB.class);
@@ -77,6 +82,7 @@ public class TestMapConversions
         assertEquals("-1", bean.B);
     }
 
+    @Test
     public void testBeanToMap()
     {
         Bean bean = new Bean();
@@ -89,6 +95,7 @@ public class TestMapConversions
     }
 
     // [Issue#287]: Odd problems with `Object` type, static typing
+    @Test
     public void testIssue287() throws Exception
     {
         // use local instance to ensure no caching affects it:
@@ -99,6 +106,7 @@ public class TestMapConversions
     }
 
     // [databind#810]
+    @Test
     public void testMapToProperties() throws Exception
     {
         Bean bean = new Bean();

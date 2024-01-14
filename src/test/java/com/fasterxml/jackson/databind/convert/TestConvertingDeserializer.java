@@ -3,11 +3,17 @@ package com.fasterxml.jackson.databind.convert;
 import java.math.BigDecimal;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.util.StdConverter;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+
 public class TestConvertingDeserializer
-extends com.fasterxml.jackson.databind.BaseMapTest
 {
     @JsonDeserialize(converter=ConvertingBeanConverter.class)
     static class ConvertingBean
@@ -121,6 +127,9 @@ extends com.fasterxml.jackson.databind.BaseMapTest
     /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = newJsonMapper();
+
+    @Test
     public void testClassAnnotationSimple() throws Exception
     {
         ConvertingBean bean = objectReader(ConvertingBean.class).readValue("[1,2]");
@@ -129,6 +138,7 @@ extends com.fasterxml.jackson.databind.BaseMapTest
         assertEquals(2, bean.y);
     }
 
+    @Test
     public void testClassAnnotationForLists() throws Exception
     {
         ConvertingBeanContainer container = objectReader(ConvertingBeanContainer.class)
@@ -139,6 +149,7 @@ extends com.fasterxml.jackson.databind.BaseMapTest
         assertEquals(4, container.values.get(1).y);
     }
 
+    @Test
     public void testPropertyAnnotationSimple() throws Exception
     {
         PointWrapper wrapper = objectReader(PointWrapper.class).readValue("{\"value\":[3,4]}");
@@ -148,6 +159,7 @@ extends com.fasterxml.jackson.databind.BaseMapTest
         assertEquals(4, wrapper.value.y);
     }
 
+    @Test
     public void testPropertyAnnotationLowerCasing() throws Exception
     {
         LowerCaseText text = objectReader(LowerCaseText.class).readValue("{\"text\":\"Yay!\"}");
@@ -156,6 +168,7 @@ extends com.fasterxml.jackson.databind.BaseMapTest
         assertEquals("yay!", text.text);
     }
 
+    @Test
     public void testPropertyAnnotationArrayLC() throws Exception
     {
         LowerCaseTextArray texts = objectReader(LowerCaseTextArray.class).readValue("{\"texts\":[\"ABC\"]}");
@@ -165,6 +178,7 @@ extends com.fasterxml.jackson.databind.BaseMapTest
         assertEquals("abc", texts.texts[0]);
     }
 
+    @Test
     public void testPropertyAnnotationForArrays() throws Exception
     {
         PointListWrapperArray array = objectReader(PointListWrapperArray.class)
@@ -175,6 +189,7 @@ extends com.fasterxml.jackson.databind.BaseMapTest
         assertEquals(5, array.values[1].x);
     }
 
+    @Test
     public void testPropertyAnnotationForLists() throws Exception
     {
         PointListWrapperList array = objectReader(PointListWrapperList.class)
@@ -185,6 +200,7 @@ extends com.fasterxml.jackson.databind.BaseMapTest
         assertEquals(7, array.values.get(0).x);
     }
 
+    @Test
     public void testPropertyAnnotationForMaps() throws Exception
     {
         PointListWrapperMap map = objectReader(PointListWrapperMap.class)
@@ -199,13 +215,14 @@ extends com.fasterxml.jackson.databind.BaseMapTest
     }
 
     // [databind#795]
+    @Test
     public void testConvertToAbstract() throws Exception
     {
         Issue795Bean bean = objectReader(Issue795Bean.class)
                 .readValue("{\"value\":\"1.25\"}");
         assertNotNull(bean.value);
-        assertTrue("Type not BigDecimal but "+bean.value.getClass(),
-                bean.value instanceof BigDecimal);
+        assertTrue(bean.value instanceof BigDecimal,
+            "Type not BigDecimal but "+bean.value.getClass());
         assertEquals(new BigDecimal("1.25"), bean.value);
     }
 }

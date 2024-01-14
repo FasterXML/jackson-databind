@@ -1,14 +1,19 @@
 package com.fasterxml.jackson.databind.convert;
 
-import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
+import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.type.LogicalType;
 
-public class CoerceEnumTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+
+public class CoerceEnumTest
 {
     protected enum EnumCoerce {
         A, B, C,
@@ -33,20 +38,24 @@ public class CoerceEnumTest extends BaseMapTest
     /********************************************************
      */
 
+    @Test
     public void testLegacyDefaults() throws Exception
     {
         // first, verify default settings which do not accept empty String:
         assertFalse(MAPPER.isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS));
     }
 
+    @Test
     public void testEnumFromEmptyGlobalConfig() throws Exception {
         _testEnumFromEmptyGlobalConfig(CoercionInputShape.EmptyString, JSON_EMPTY, null);
     }
 
+    @Test
     public void testEnumFromEmptyLogicalTypeConfig() throws Exception {
         _testEnumFromEmptyLogicalTypeConfig(CoercionInputShape.EmptyString, JSON_EMPTY, null);
     }
 
+    @Test
     public void testEnumFromEmptyPhysicalTypeConfig() throws Exception {
         _testEnumFromEmptyPhysicalTypeConfig(CoercionInputShape.EmptyString, JSON_EMPTY, null);
     }
@@ -57,14 +66,17 @@ public class CoerceEnumTest extends BaseMapTest
     /********************************************************
      */
 
+    @Test
     public void testEnumFromBlankGlobalConfig() throws Exception {
         _testEnumFromEmptyGlobalConfig(CoercionInputShape.EmptyString, JSON_BLANK, Boolean.TRUE);
     }
 
+    @Test
     public void testEnumFromBlankLogicalTypeConfig() throws Exception {
         _testEnumFromEmptyLogicalTypeConfig(CoercionInputShape.EmptyString, JSON_BLANK, Boolean.TRUE);
     }
 
+    @Test
     public void testEnumFromBlankPhysicalTypeConfig() throws Exception {
         _testEnumFromEmptyPhysicalTypeConfig(CoercionInputShape.EmptyString, JSON_BLANK, Boolean.TRUE);
     }
@@ -75,6 +87,7 @@ public class CoerceEnumTest extends BaseMapTest
     /********************************************************
      */
 
+    @Test
     public void testEnumFromIntFailLegacy() throws Exception
     {
         final ObjectReader r = MAPPER.readerFor(EnumCoerce.class);
@@ -92,6 +105,7 @@ public class CoerceEnumTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testEnumFromIntAsNull() throws Exception
     {
         final String json = "1";
@@ -107,6 +121,7 @@ public class CoerceEnumTest extends BaseMapTest
         assertNull(_readEnumPass(mapper, json));
     }
 
+    @Test
     public void testEnumFromIntAsEmpty() throws Exception
     {
         final String json = "1";
@@ -122,6 +137,7 @@ public class CoerceEnumTest extends BaseMapTest
         assertEquals(ENUM_DEFAULT, _readEnumPass(mapper, json));
     }
 
+    @Test
     public void testEnumFromIntCoerce() throws Exception
     {
         final String json = "1";
@@ -138,6 +154,7 @@ public class CoerceEnumTest extends BaseMapTest
         assertEquals(exp, _readEnumPass(mapper, json));
     }
 
+    @Test
     public void testEnumFromIntFailCoercionConfig() throws Exception
     {
         final String json = "1";

@@ -1,7 +1,10 @@
 package com.fasterxml.jackson.databind.convert;
 
+import java.math.BigDecimal;
+
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
@@ -9,9 +12,12 @@ import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.type.LogicalType;
-import java.math.BigDecimal;
 
-public class CoerceIntToFloatTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+
+public class CoerceIntToFloatTest
 {
     private final ObjectMapper DEFAULT_MAPPER = newJsonMapper();
 
@@ -39,16 +45,19 @@ public class CoerceIntToFloatTest extends BaseMapTest
             .disable(MapperFeature.ALLOW_COERCION_OF_SCALARS)
             .build();
 
+    @Test
     public void testDefaultIntToFloatCoercion() throws JsonProcessingException
     {
         assertSuccessfulIntToFloatConversionsWith(DEFAULT_MAPPER);
     }
 
+    @Test
     public void testCoerceConfigToConvert() throws JsonProcessingException
     {
         assertSuccessfulIntToFloatConversionsWith(MAPPER_TRY_CONVERT);
     }
 
+    @Test
     public void testCoerceConfigToNull() throws JsonProcessingException
     {
         assertNull(MAPPER_TO_NULL.readValue("1", Float.class));
@@ -80,6 +89,7 @@ public class CoerceIntToFloatTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testCoerceConfigToEmpty() throws JsonProcessingException
     {
         assertEquals(0.0f, MAPPER_TO_EMPTY.readValue("3", Float.class));
@@ -105,6 +115,7 @@ public class CoerceIntToFloatTest extends BaseMapTest
         assertEquals(BigDecimal.valueOf(0), MAPPER_TO_EMPTY.readValue("3643", BigDecimal.class));
     }
 
+    @Test
     public void testCoerceConfigToFail() throws JsonProcessingException
     {
         _verifyCoerceFail(MAPPER_TO_FAIL, Float.class, "3");
@@ -120,6 +131,7 @@ public class CoerceIntToFloatTest extends BaseMapTest
         _verifyCoerceFail(MAPPER_TO_FAIL, BigDecimal.class, "73455342");
     }
 
+    @Test
     public void testLegacyConfiguration() throws JsonProcessingException
     {
         assertSuccessfulIntToFloatConversionsWith(LEGACY_SCALAR_COERCION_FAIL);

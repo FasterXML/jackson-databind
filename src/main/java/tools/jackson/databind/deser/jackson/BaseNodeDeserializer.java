@@ -1,5 +1,8 @@
 package tools.jackson.databind.deser.jackson;
 
+import java.math.BigDecimal;
+import java.util.Arrays;
+
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.JsonNodeFeature;
@@ -11,9 +14,6 @@ import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
 import tools.jackson.databind.type.LogicalType;
 import tools.jackson.databind.util.RawValue;
-
-import java.math.BigDecimal;
-import java.util.Arrays;
 
 /**
  * Base class for all actual {@link JsonNode} deserializer implementations.
@@ -39,7 +39,7 @@ public abstract class BaseNodeDeserializer<T extends JsonNode>
     }
 
     protected BaseNodeDeserializer(BaseNodeDeserializer<?> base,
-                                   boolean mergeArrays, boolean mergeObjects)
+            boolean mergeArrays, boolean mergeObjects)
     {
         super(base);
         _supportsUpdates = base._supportsUpdates;
@@ -49,8 +49,8 @@ public abstract class BaseNodeDeserializer<T extends JsonNode>
 
     @Override
     public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
-                                      TypeDeserializer typeDeserializer)
-            throws JacksonException
+            TypeDeserializer typeDeserializer)
+        throws JacksonException
     {
         // Output can be as JSON Object, Array or scalar: no way to know a priori:
         return typeDeserializer.deserializeTypedFromAny(p, ctxt);
@@ -74,7 +74,7 @@ public abstract class BaseNodeDeserializer<T extends JsonNode>
 
     @Override // @since 2.14
     public ValueDeserializer<?> createContextual(DeserializationContext ctxt,
-                                                 BeanProperty property)
+            BeanProperty property)
     {
         // 13-Jun-2022, tatu: Should we care about property? For now, let's not yet.
         //   (merge info there accessible via "property.getMetadata().getMergeInfo()")
@@ -525,11 +525,23 @@ public abstract class BaseNodeDeserializer<T extends JsonNode>
     }
 
     protected final JsonNode _fromFloat(JsonParser p, DeserializationContext ctxt,
-                                        final JsonNodeFactory nodeFactory)
-            throws JacksonException
+            final JsonNodeFactory nodeFactory)
+        throws JacksonException
     {
-        JsonParser.NumberType nt = p.getNumberType();
-        if (nt == JsonParser.NumberType.BIG_DECIMAL) {
+        // 13-Jan-2024, tatu: With 2.17 we have `JsonParser.getNumberTypeFP()` which
+        //   will return concrete FP type if format has one (JSON doesn't; most binary
+        //   formats do.
+        //   But with `DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS` we have mechanism
+        //   that may override optimal physical representation. So heuristics to use are:
+        //
+        //   1. If physical type is `BigDecimal`, use `BigDecimal`
+        //   2. If `DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS` enabled, use `BigDecimal`
+        //      UNLESS we have "Not-a-Number" (in which case  will coerce to `Double` if allowed
+        //   3. Otherwise if physical type `Float`, use (32-bit) `Float`
+        //   4. Otherwise use `Double`
+
+        JsonParser.NumberTypeFP nt = p.getNumberTypeFP();
+        if (nt == JsonParser.NumberTypeFP.BIG_DECIMAL) {
             BigDecimal nr = p.getDecimalValue();
             if (ctxt.isEnabled(JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES)) {
                 nr = _normalize(nr);
@@ -552,7 +564,7 @@ public abstract class BaseNodeDeserializer<T extends JsonNode>
             }
             return nodeFactory.numberNode(nr);
         }
-        if (nt == JsonParser.NumberType.FLOAT) {
+        if (nt == JsonParser.NumberTypeFP.FLOAT32) {
             return nodeFactory.numberNode(p.getFloatValue());
         }
         return nodeFactory.numberNode(p.getDoubleValue());

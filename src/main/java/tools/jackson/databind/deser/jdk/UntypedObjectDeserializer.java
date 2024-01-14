@@ -256,13 +256,7 @@ public class UntypedObjectDeserializer
             if (_numberDeserializer != null) {
                 return _numberDeserializer.deserialize(p, ctxt);
             }
-            // Need to allow overriding the behavior regarding which type to use
-            if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
-                return p.getDecimalValue();
-            }
-            // as per [databind#1453] should not assume Double but:
-            return p.getNumberValue();
-
+            return _deserializeFP(p, ctxt);
         case JsonTokenId.ID_TRUE:
             return Boolean.TRUE;
         case JsonTokenId.ID_FALSE:
@@ -314,10 +308,7 @@ public class UntypedObjectDeserializer
             if (_numberDeserializer != null) {
                 return _numberDeserializer.deserialize(p, ctxt);
             }
-            if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
-                return p.getDecimalValue();
-            }
-            return p.getNumberValue();
+            return _deserializeFP(p, ctxt);
 
         case JsonTokenId.ID_TRUE:
             return Boolean.TRUE;
@@ -385,10 +376,7 @@ public class UntypedObjectDeserializer
             if (_numberDeserializer != null) {
                 return _numberDeserializer.deserialize(p, ctxt, intoValue);
             }
-            if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
-                return p.getDecimalValue();
-            }
-            return p.getNumberValue();
+            return _deserializeFP(p, ctxt);
         case JsonTokenId.ID_TRUE:
             return Boolean.TRUE;
         case JsonTokenId.ID_FALSE:
@@ -623,5 +611,24 @@ public class UntypedObjectDeserializer
             }
         } while ((key = p.nextName()) != null);
         return m;
+    }
+
+    // @since 2.17
+    protected Object _deserializeFP(JsonParser p, DeserializationContext ctxt)
+        throws JacksonException
+    {
+        JsonParser.NumberTypeFP nt = p.getNumberTypeFP();
+        if (nt == JsonParser.NumberTypeFP.BIG_DECIMAL) {
+            return p.getDecimalValue();
+        }
+        if (!p.isNaN()) {
+            if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
+                return p.getDecimalValue();
+            }
+        }
+        if (nt == JsonParser.NumberTypeFP.FLOAT32) {
+            return p.getFloatValue();
+        }
+        return p.getDoubleValue();
     }
 }

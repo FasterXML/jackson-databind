@@ -15,15 +15,8 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  * deserializing "unwrapped" values; sets of properties that are
  * embedded (inlined) as properties of parent JSON object.
  */
-public class UnwrappedPropertyHandler {
-    /**
-     * We need a placeholder for creator properties that don't have name
-     * but are marked with `@JsonWrapped` annotation.
-     */
-    public static PropertyName creatorParamName(int index) {
-        return new PropertyName("unnamed @JsonUnwrapped property at " + index);
-    }
-
+public class UnwrappedPropertyHandler
+{
     protected final List<SettableBeanProperty> _creatorProperties;
     protected final List<SettableBeanProperty> _properties;
 
@@ -93,5 +86,13 @@ public class UnwrappedPropertyHandler {
             prop.deserializeAndSet(p, ctxt, bean);
         }
         return bean;
+    }
+
+    /**
+     * We need a placeholder for creator properties that don't have name
+     * but are marked with `@JsonWrapped` annotation.
+     */
+    public static PropertyName creatorParamName(int index) {
+        return new PropertyName("@JsonUnwrapped/" + index);
     }
 }

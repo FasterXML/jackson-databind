@@ -715,7 +715,7 @@ public class POJOPropertiesCollector
         }
 
         PropertyName pn = _annotationIntrospector.findNameForDeserialization(param);
-        boolean expl = (pn != null && !pn.isEmpty());
+        boolean expl = (pn != null) && !pn.isEmpty();
         if (!expl) {
             if (impl.isEmpty()) {
                 boolean unwrapping = _annotationIntrospector.findUnwrappingNameTransformer(param) != null;

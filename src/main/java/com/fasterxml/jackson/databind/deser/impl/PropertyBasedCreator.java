@@ -93,16 +93,19 @@ public final class PropertyBasedCreator
         }
     }
 
+    /**
+     * @since 2.17
+     */
     protected PropertyBasedCreator(
             int propertyCount,
             ValueInstantiator valueInstantiator,
             HashMap<String, SettableBeanProperty> propertyLookup,
             SettableBeanProperty[] allProperties
     ) {
-        this._propertyCount = propertyCount;
-        this._valueInstantiator = valueInstantiator;
-        this._propertyLookup = propertyLookup;
-        this._allProperties = allProperties;
+        _propertyCount = propertyCount;
+        _valueInstantiator = valueInstantiator;
+        _propertyLookup = propertyLookup;
+        _allProperties = allProperties;
     }
 
     /**

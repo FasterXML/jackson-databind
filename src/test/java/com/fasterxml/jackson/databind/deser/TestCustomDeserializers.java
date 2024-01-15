@@ -4,6 +4,8 @@ import java.io.*;
 import java.lang.annotation.*;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -18,12 +20,15 @@ import com.fasterxml.jackson.databind.util.AccessPattern;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 import com.fasterxml.jackson.databind.util.StdConverter;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+
 /**
  * Test to check that customizations work as expected.
  */
 @SuppressWarnings("serial")
 public class TestCustomDeserializers
-    extends BaseMapTest
 {
     static class DummyDeserializer<T>
         extends StdDeserializer<T>
@@ -400,6 +405,7 @@ public class TestCustomDeserializers
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testCustomBeanDeserializer() throws Exception
     {
         String json = "{\"beans\":[{\"c\":{\"a\":10,\"b\":20},\"d\":\"hello, tatu\"}]}";
@@ -441,6 +447,7 @@ public class TestCustomDeserializers
     }
 
     // [Issue#87]: delegating deserializer
+    @Test
     public void testDelegating() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -465,6 +472,7 @@ public class TestCustomDeserializers
     }
 
     // [databind#623]
+    @Test
     public void testJsonNodeDelegating() throws Exception
     {
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
@@ -485,6 +493,7 @@ public class TestCustomDeserializers
         assertEquals(3, imm.y);
     }
 
+    @Test
     public void testIssue882() throws Exception
     {
         Model original = new Model(Collections.singletonMap(new CustomKey(123), "test"));
@@ -496,6 +505,7 @@ public class TestCustomDeserializers
     }
 
     // [#337]: convenience methods for custom deserializers to use
+    @Test
     public void testContextReadValue() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -516,6 +526,7 @@ public class TestCustomDeserializers
     }
 
     // [#631]: "current value" access
+    @Test
     public void testCurrentValueAccess() throws Exception
     {
         Issue631Bean bean = MAPPER.readValue(a2q("{'prop':'stuff'}"),
@@ -524,6 +535,7 @@ public class TestCustomDeserializers
         assertEquals("prop/Issue631Bean", bean.prop);
     }
 
+    @Test
     public void testCustomStringDeser() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper().registerModule(
@@ -535,6 +547,7 @@ public class TestCustomDeserializers
         assertEquals("FOO", sw.str);
     }
 
+    @Test
     public void testDelegatingDeserializer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper().registerModule(
@@ -544,6 +557,7 @@ public class TestCustomDeserializers
     }
 
     // [databind#2392]
+    @Test
     public void testModifyingCustomDeserializer() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -565,6 +579,7 @@ public class TestCustomDeserializers
     }
 
     // [databind#2452]
+    @Test
     public void testCustomDeserializerWithReadTree() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -581,6 +596,7 @@ public class TestCustomDeserializers
     }
 
     // [databind#3002]
+    @Test
     public void testCustomDeserializerWithReadTreeAsValue() throws Exception
     {
         final String json = a2q("{'point':{'x':13, 'y':-4}, 'name':'Foozibald' }");
@@ -603,6 +619,7 @@ public class TestCustomDeserializers
     }
 
     // [databind#3748]
+    @Test
     public void testBasicDelegatingDeser() throws Exception
     {
         Delegating3748 deser = new Delegating3748();

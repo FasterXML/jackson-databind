@@ -3,15 +3,23 @@ package com.fasterxml.jackson.databind.deser;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil.DoubleWrapper;
 
-public class TestBigNumbers extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
+
+public class TestBigNumbers
 {
     static class BigDecimalWrapper {
         BigDecimal number;
@@ -56,6 +64,7 @@ public class TestBigNumbers extends BaseMapTest
         return JsonMapper.builder(jsonFactory).build();
     }
 
+    @Test
     public void testDouble() throws Exception
     {
         try {
@@ -66,6 +75,7 @@ public class TestBigNumbers extends BaseMapTest
         }
     }
 
+    @Test
     public void testDoubleUnlimited() throws Exception
     {
         DoubleWrapper dw =
@@ -73,6 +83,7 @@ public class TestBigNumbers extends BaseMapTest
         assertNotNull(dw);
     }
 
+    @Test
     public void testBigDecimal() throws Exception
     {
         try {
@@ -83,6 +94,7 @@ public class TestBigNumbers extends BaseMapTest
         }
     }
 
+    @Test
     public void testBigDecimalUnlimited() throws Exception
     {
         BigDecimalWrapper bdw =
@@ -91,6 +103,7 @@ public class TestBigNumbers extends BaseMapTest
         assertNotNull(bdw);
     }
 
+    @Test
     public void testBigInteger() throws Exception
     {
         try {
@@ -101,6 +114,7 @@ public class TestBigNumbers extends BaseMapTest
         }
     }
 
+    @Test
     public void testBigIntegerUnlimited() throws Exception
     {
         BigIntegerWrapper bdw =

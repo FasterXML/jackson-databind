@@ -1,15 +1,20 @@
 package com.fasterxml.jackson.databind.deser;
 
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.util.List;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class Issue3913DeserTest extends BaseMapTest
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
+
+public class Issue3913DeserTest
 {
     // [databind#3913]
     static class MyResponse {
@@ -74,6 +79,7 @@ public class Issue3913DeserTest extends BaseMapTest
     }
 
     // [databind#3913]
+    @Test
     public void testDeserialization() throws JsonProcessingException {
         ObjectMapper mapper = jsonMapperBuilder()
                 .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)

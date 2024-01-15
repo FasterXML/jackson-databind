@@ -15,7 +15,7 @@ import tools.jackson.databind.json.JsonMapper;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // [databind#4309] : Use @JsonSetter(nulls=...) handling of null values during deserialization with
-public class NullsSkip4309Test
+public class NullSkipForCollections4309Test
 {
     static class Data1 {
         public List<Type> types;

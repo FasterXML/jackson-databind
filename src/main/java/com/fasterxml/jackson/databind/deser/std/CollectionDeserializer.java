@@ -363,7 +363,9 @@ _containerType,
                     value = valueDes.deserializeWithType(p, ctxt, typeDeser);
                 }
                 if (value == null) {
-                    _tryToAddNull(p, ctxt, result);
+                    if (!_skipNullValues) {
+                        _tryToAddNull(p, ctxt, result);
+                    }
                     continue;
                 }
                 result.add(value);

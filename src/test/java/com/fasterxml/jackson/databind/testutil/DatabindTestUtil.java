@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -260,18 +258,6 @@ public class DatabindTestUtil
         @Override
         public String toString() {
             return String.format("[x=%d, y=%d]", x, y);
-        }
-    }
-
-    public static class ObjectWrapper {
-        final Object object;
-        protected ObjectWrapper(final Object object) {
-            this.object = object;
-        }
-        public Object getObject() { return object; }
-        @JsonCreator
-        static ObjectWrapper jsonValue(final Object object) {
-            return new ObjectWrapper(object);
         }
     }
 

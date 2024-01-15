@@ -30,6 +30,18 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 @SuppressWarnings("serial")
 public class TestCustomDeserializers
 {
+    static class ObjectWrapper {
+        final Object object;
+        protected ObjectWrapper(final Object object) {
+            this.object = object;
+        }
+        public Object getObject() { return object; }
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+        static ObjectWrapper jsonValue(final Object object) {
+            return new ObjectWrapper(object);
+        }
+    }
+
     static class DummyDeserializer<T>
         extends StdDeserializer<T>
     {

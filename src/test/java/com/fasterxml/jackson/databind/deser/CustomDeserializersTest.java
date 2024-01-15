@@ -28,7 +28,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
  * Test to check that customizations work as expected.
  */
 @SuppressWarnings("serial")
-public class TestCustomDeserializers
+public class CustomDeserializersTest
 {
     static class ObjectWrapper {
         final Object object;

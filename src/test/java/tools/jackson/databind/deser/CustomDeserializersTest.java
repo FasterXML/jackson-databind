@@ -3,6 +3,8 @@ package tools.jackson.databind.deser;
 import java.lang.annotation.*;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -18,13 +20,29 @@ import tools.jackson.databind.util.AccessPattern;
 import tools.jackson.databind.util.NameTransformer;
 import tools.jackson.databind.util.StdConverter;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.*;
+
 /**
  * Test to check that customizations work as expected.
  */
 @SuppressWarnings("serial")
 public class CustomDeserializersTest
-    extends BaseMapTest
 {
+    static class ObjectWrapper {
+        final Object object;
+        protected ObjectWrapper(final Object object) {
+            this.object = object;
+        }
+        public Object getObject() { return object; }
+
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+        static ObjectWrapper jsonValue(final Object object) {
+            return new ObjectWrapper(object);
+        }
+    }
+    
     static class DummyDeserializer<T>
         extends StdDeserializer<T>
     {
@@ -395,6 +413,7 @@ public class CustomDeserializersTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testCustomBeanDeserializer() throws Exception
     {
         String json = "{\"beans\":[{\"c\":{\"a\":10,\"b\":20},\"d\":\"hello, tatu\"}]}";
@@ -436,6 +455,7 @@ public class CustomDeserializersTest
     }
 
     // [Issue#87]: delegating deserializer
+    @Test
     public void testDelegating() throws Exception
     {
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
@@ -460,6 +480,7 @@ public class CustomDeserializersTest
     }
 
     // [databind#623]
+    @Test
     public void testJsonNodeDelegating() throws Exception
     {
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
@@ -480,6 +501,7 @@ public class CustomDeserializersTest
         assertEquals(3, imm.y);
     }
 
+    @Test
     public void testIssue882() throws Exception
     {
         Model original = new Model(Collections.singletonMap(new CustomKey(123), "test"));
@@ -491,6 +513,7 @@ public class CustomDeserializersTest
     }
 
     // [#337]: convenience methods for custom deserializers to use
+    @Test
     public void testContextReadValue() throws Exception
     {
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
@@ -512,6 +535,7 @@ public class CustomDeserializersTest
     }
 
     // [#631]: "current value" access
+    @Test
     public void testCurrentValueAccess() throws Exception
     {
         Issue631Bean bean = MAPPER.readValue(a2q("{'prop':'stuff'}"),
@@ -520,6 +544,7 @@ public class CustomDeserializersTest
         assertEquals("prop/Issue631Bean", bean.prop);
     }
 
+    @Test
     public void testCustomStringDeser() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -532,6 +557,7 @@ public class CustomDeserializersTest
         assertEquals("FOO", sw.str);
     }
 
+    @Test
     public void testDelegatingDeserializer() throws Exception
     {
        ObjectMapper mapper = jsonMapperBuilder()
@@ -542,6 +568,7 @@ public class CustomDeserializersTest
     }
 
     // [databind#2392]
+    @Test
     public void testModifyingCustomDeserializer() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -563,6 +590,7 @@ public class CustomDeserializersTest
     }
 
     // [databind#2452]
+    @Test
     public void testCustomDeserializerWithReadTree() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -579,6 +607,7 @@ public class CustomDeserializersTest
     }
 
     // [databind#3002]
+    @Test
     public void testCustomDeserializerWithReadTreeAsValue() throws Exception
     {
         final String json = a2q("{'point':{'x':13, 'y':-4}, 'name':'Foozibald' }");
@@ -601,6 +630,7 @@ public class CustomDeserializersTest
     }
 
     // [databind#3748]
+    @Test
     public void testBasicDelegatingDeser() throws Exception
     {
         Delegating3748 deser = new Delegating3748();

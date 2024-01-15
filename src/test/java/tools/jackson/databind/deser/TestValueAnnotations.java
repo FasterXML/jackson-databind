@@ -2,10 +2,17 @@ package tools.jackson.databind.deser;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.deser.std.StdDeserializer;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+import static tools.jackson.databind.testutil.DatabindTestUtil.verifyException;
 
 /**
  * This unit test suite tests use of "value" Annotations;
@@ -13,7 +20,6 @@ import tools.jackson.databind.deser.std.StdDeserializer;
  * deserialization.
  */
 public class TestValueAnnotations
-    extends BaseMapTest
 {
     /*
     /**********************************************************
@@ -240,6 +246,7 @@ public class TestValueAnnotations
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testOverrideClassValid() throws Exception
     {
         CollectionHolder result = MAPPER.readValue
@@ -251,6 +258,7 @@ public class TestValueAnnotations
         assertEquals("test", strs.iterator().next());
     }
 
+    @Test
     public void testOverrideMapValid() throws Exception
     {
         // note: expecting conversion from number to String, as well
@@ -264,6 +272,7 @@ public class TestValueAnnotations
         assertEquals("3", value);
     }
 
+    @Test
     public void testOverrideArrayClass() throws Exception
     {
         ArrayHolder result = MAPPER.readValue
@@ -275,6 +284,7 @@ public class TestValueAnnotations
         assertEquals("test", strs[0]);
     }
 
+    @Test
     public void testOverrideClassInvalid() throws Exception
     {
         // should fail due to incompatible Annotation
@@ -293,6 +303,7 @@ public class TestValueAnnotations
     /**********************************************************
      */
 
+    @Test
     public void testRootInterfaceAs() throws Exception
     {
         RootInterface value = MAPPER.readValue("{\"a\":\"abc\" }", RootInterface.class);
@@ -300,6 +311,7 @@ public class TestValueAnnotations
         assertEquals("abc", value.getA());
     }
 
+    @Test
     public void testRootInterfaceUsing() throws Exception
     {
         RootString value = MAPPER.readValue("\"xxx\"", RootString.class);
@@ -307,6 +319,7 @@ public class TestValueAnnotations
         assertEquals("xxx", value.contents());
     }
 
+    @Test
     public void testRootListAs() throws Exception
     {
         RootMap value = MAPPER.readValue("{\"a\":\"b\"}", RootMap.class);
@@ -316,6 +329,7 @@ public class TestValueAnnotations
         assertEquals("b", ((RootString) v2).contents());
     }
 
+    @Test
     public void testRootMapAs() throws Exception
     {
         RootList value = MAPPER.readValue("[ \"c\" ]", RootList.class);
@@ -332,6 +346,7 @@ public class TestValueAnnotations
      */
 
     @SuppressWarnings("unchecked")
+    @Test
 	public void testOverrideKeyClassValid() throws Exception
     {
         MapKeyHolder result = MAPPER.readValue("{ \"map\" : { \"xxx\" : \"yyy\" } }", MapKeyHolder.class);
@@ -345,6 +360,7 @@ public class TestValueAnnotations
         assertEquals("yyy", en.getValue());
     }
 
+    @Test
     public void testOverrideKeyClassInvalid() throws Exception
     {
         // should fail due to incompatible Annotation
@@ -364,6 +380,7 @@ public class TestValueAnnotations
      */
 
     @SuppressWarnings("unchecked")
+    @Test
     public void testOverrideContentClassValid() throws Exception
     {
         ListContentHolder result = MAPPER.readValue("{ \"list\" : [ \"abc\" ] }", ListContentHolder.class);
@@ -374,6 +391,7 @@ public class TestValueAnnotations
         assertEquals("abc", ((StringWrapper) value)._string);
     }
 
+    @Test
     public void testOverrideArrayContents() throws Exception
     {
         ArrayContentHolder result = MAPPER.readValue("{ \"data\" : [ 1, 2, 3 ] }",
@@ -386,6 +404,7 @@ public class TestValueAnnotations
         assertEquals(3L, data[2]);
     }
 
+    @Test
     public void testOverrideMapContents() throws Exception
     {
         MapContentHolder result = MAPPER.readValue("{ \"map\" : { \"a\" : 9 } }",
@@ -398,6 +417,7 @@ public class TestValueAnnotations
     }
 
     // [databind#2553]
+    @Test
     public void testRawListTypeContentAs() throws Exception
     {
         List2553 list =  MAPPER.readValue("{\"items\": [{\"name\":\"item1\"}]}", List2553.class);

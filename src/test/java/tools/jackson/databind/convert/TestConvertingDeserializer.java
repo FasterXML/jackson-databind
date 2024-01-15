@@ -5,6 +5,8 @@ import java.util.*;
 
 import org.junit.jupiter.api.Test;
 
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.annotation.JsonDeserialize;
 
 import tools.jackson.databind.util.StdConverter;
@@ -127,6 +129,8 @@ public class TestConvertingDeserializer
     /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = newJsonMapper();
+    
     @Test
     public void testClassAnnotationSimple() throws Exception
     {
@@ -222,5 +226,9 @@ public class TestConvertingDeserializer
         assertTrue(bean.value instanceof BigDecimal,
             "Type not BigDecimal but "+bean.value.getClass());
         assertEquals(new BigDecimal("1.25"), bean.value);
+    }
+
+    private ObjectReader objectReader(Class<?> type) {
+        return MAPPER.readerFor(type);
     }
 }

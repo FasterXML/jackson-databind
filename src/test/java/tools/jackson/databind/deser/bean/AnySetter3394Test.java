@@ -1,12 +1,19 @@
 package tools.jackson.databind.deser.bean;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.node.ObjectNode;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.a2q;
+import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+
 // for [databind#3394]
-public class AnySetter3394Test extends BaseMapTest
+public class AnySetter3394Test
 {
     static class AnySetter3394Bean {
         public int id;
@@ -23,6 +30,7 @@ public class AnySetter3394Test extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testAnySetterWithJsonNode() throws Exception
     {
         final String DOC = a2q("{'test':3,'nullable':null,'id':42,'value':true}");

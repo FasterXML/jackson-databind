@@ -2,6 +2,8 @@ package tools.jackson.databind.deser.bean;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -19,8 +21,13 @@ import tools.jackson.databind.type.ArrayType;
 import tools.jackson.databind.type.CollectionType;
 import tools.jackson.databind.type.MapType;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.*;
+
 @SuppressWarnings("serial")
-public class TestBeanDeserializer extends BaseMapTest
+public class TestBeanDeserializer
 {
     static abstract class Abstract {
         public int x;
@@ -335,6 +342,7 @@ public class TestBeanDeserializer extends BaseMapTest
      * abstract type should fail (if there is no way to determine
      * actual type information for the concrete type to use)
      */
+    @Test
     public void testAbstractFailure() throws Exception
     {
         try {
@@ -344,6 +352,7 @@ public class TestBeanDeserializer extends BaseMapTest
             verifyException(e, "cannot construct");
         }
     }
+    @Test
     public void testPropertyRemoval() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -355,6 +364,7 @@ public class TestBeanDeserializer extends BaseMapTest
         assertEquals("a", bean.a);
     }
 
+    @Test
     public void testDeserializerReplacement() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -366,6 +376,7 @@ public class TestBeanDeserializer extends BaseMapTest
         assertEquals("bar", bean.b);
     }
 
+    @Test
     public void testIssue476() throws Exception
     {
         final String JSON = "{\"value1\" : {\"name\" : \"fruit\", \"value\" : \"apple\"}, \"value2\" : {\"name\" : \"color\", \"value\" : \"red\"}}";
@@ -380,6 +391,7 @@ public class TestBeanDeserializer extends BaseMapTest
     }
 
     // [databind#120]
+    @Test
     public void testModifyArrayDeserializer() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -391,6 +403,7 @@ public class TestBeanDeserializer extends BaseMapTest
         assertEquals("foo", result[0]);
     }
 
+    @Test
     public void testModifyCollectionDeserializer() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -402,6 +415,7 @@ public class TestBeanDeserializer extends BaseMapTest
         assertEquals("foo", result.get(0));
     }
 
+    @Test
     public void testModifyMapDeserializer() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -413,6 +427,7 @@ public class TestBeanDeserializer extends BaseMapTest
         assertEquals("foo", result.get("a"));
     }
 
+    @Test
     public void testModifyEnumDeserializer() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -423,6 +438,7 @@ public class TestBeanDeserializer extends BaseMapTest
         assertEquals("foo", result);
     }
 
+    @Test
     public void testModifyKeyDeserializer() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -438,6 +454,7 @@ public class TestBeanDeserializer extends BaseMapTest
      * Test to verify that even standard deserializers will result in `modifyDeserializer`
      * getting appropriately called.
      */
+    @Test
     public void testModifyStdScalarDeserializer() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -457,6 +474,7 @@ public class TestBeanDeserializer extends BaseMapTest
         assertEquals("ABCDEF", result);
     }
 
+    @Test
     public void testAddOrReplacePropertyIsUsedOnDeserialization() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new Issue1912Module())

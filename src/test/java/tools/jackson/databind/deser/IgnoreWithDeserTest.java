@@ -1,16 +1,24 @@
 package tools.jackson.databind.deser;
 
-import com.fasterxml.jackson.annotation.*;
+import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.IgnoredPropertyException;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
 /**
  * This unit test suite that tests use of {@link JsonIgnore}
  * annotation with deserialization.
  */
 public class IgnoreWithDeserTest
-    extends BaseMapTest
 {
     // Class for testing {@link JsonIgnore} annotations with setters
     final static class SizeClassIgnore
@@ -43,8 +51,9 @@ public class IgnoreWithDeserTest
     /**********************************************************************
      */
 
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testSimpleIgnore() throws Exception
     {
         SizeClassIgnore result = MAPPER.readValue("{ \"x\":1, \"y\" : 2 }",
@@ -54,6 +63,7 @@ public class IgnoreWithDeserTest
         assertEquals(0, result._y);
     }
 
+    @Test
     public void testFailOnIgnore() throws Exception
     {
         ObjectReader r = MAPPER.readerFor(NoYOrZ.class);

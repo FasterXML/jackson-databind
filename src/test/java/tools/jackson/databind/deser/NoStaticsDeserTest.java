@@ -1,15 +1,18 @@
 package tools.jackson.databind.deser;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Tests for checking that static methods are not recognized as accessors
  * for properties
  */
 public class NoStaticsDeserTest
-    extends BaseMapTest
 {
     static class Bean
     {
@@ -26,6 +29,7 @@ public class NoStaticsDeserTest
     /**********************************************************
      */
 
+    @Test
     public void testSimpleIgnore() throws Exception
     {
         ObjectMapper m = new ObjectMapper();

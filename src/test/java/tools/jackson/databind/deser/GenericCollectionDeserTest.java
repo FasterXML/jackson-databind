@@ -2,15 +2,21 @@ package tools.jackson.databind.deser;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 
+import tools.jackson.databind.testutil.DatabindTestUtil.StringWrapper;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
 @SuppressWarnings("serial")
 public class GenericCollectionDeserTest
-    extends BaseMapTest
 {
     static class ListSubClass extends ArrayList<StringWrapper> { }
 
@@ -42,6 +48,7 @@ public class GenericCollectionDeserTest
     /**
      * Verifying that sub-classing works ok wrt generics information
      */
+    @Test
     public void testListSubClass() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -60,6 +67,7 @@ public class GenericCollectionDeserTest
      */
 
     // Verifying that sub-classing works ok wrt generics information
+    @Test
     public void testAnnotatedLStringist() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -70,6 +78,7 @@ public class GenericCollectionDeserTest
         assertEquals("...", ((StringWrapper) ob).str);
     }
 
+    @Test
     public void testAnnotatedBooleanList() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();

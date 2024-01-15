@@ -2,6 +2,8 @@ package tools.jackson.databind.deser;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.io.ContentReference;
 import tools.jackson.core.json.JsonFactory;
@@ -10,14 +12,18 @@ import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.type.TypeFactory;
 import tools.jackson.databind.util.TokenBuffer;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.*;
+
 /**
  * Unit tests for those Jackson types we want to ensure can be deserialized.
  */
 public class JacksonTypesDeserTest
-    extends tools.jackson.databind.BaseMapTest
 {
     private final ObjectMapper MAPPER = sharedMapper();
 
+    @Test
     public void testJsonLocation() throws Exception
     {
         // note: source reference is untyped, only String guaranteed to work
@@ -38,6 +44,7 @@ public class JacksonTypesDeserTest
     }
 
     // doesn't really belong here but...
+    @Test
     public void testJsonLocationProps()
     {
         JsonLocation loc = new JsonLocation(null,  -1, -1, 100, 13);
@@ -50,6 +57,7 @@ public class JacksonTypesDeserTest
         loc.hashCode();
     }
 
+    @Test
     public void testJavaType() throws Exception
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -66,6 +74,7 @@ public class JacksonTypesDeserTest
      * Verify that {@link TokenBuffer} can be properly deserialized
      * automatically, using the "standard" JSON sample document
      */
+    @Test
     public void testTokenBufferWithSample() throws Exception
     {
         // First, try standard sample doc:
@@ -75,10 +84,11 @@ public class JacksonTypesDeserTest
     }
 
     @SuppressWarnings("resource")
+    @Test
     public void testTokenBufferWithSequence() throws Exception
     {
         // and then sequence of other things
-        JsonParser p = createParserUsingReader("[ 32, [ 1 ], \"abc\", { \"a\" : true } ]");
+        JsonParser p = MAPPER.createParser("[ 32, [ 1 ], \"abc\", { \"a\" : true } ]");
         assertToken(JsonToken.START_ARRAY, p.nextToken());
 
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
@@ -130,6 +140,7 @@ public class JacksonTypesDeserTest
     }
 
     // [databind#2398]
+    @Test
     public void testDeeplyNestedArrays() throws Exception
     {
         JsonFactory jsonFactory = JsonFactory.builder()
@@ -144,6 +155,7 @@ public class JacksonTypesDeserTest
         }
     }
 
+    @Test
     public void testDeeplyNestedObjects() throws Exception
     {
         JsonFactory jsonFactory = JsonFactory.builder()

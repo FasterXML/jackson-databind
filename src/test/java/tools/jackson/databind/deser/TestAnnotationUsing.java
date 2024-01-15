@@ -2,10 +2,16 @@ package tools.jackson.databind.deser;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.deser.std.StdDeserializer;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Unit test suite that tests "usingXxx" properties of
@@ -13,7 +19,6 @@ import tools.jackson.databind.deser.std.StdDeserializer;
  */
 @SuppressWarnings("serial")
 public class TestAnnotationUsing
-    extends BaseMapTest
 {
     /*
     /**********************************************************************
@@ -124,6 +129,7 @@ public class TestAnnotationUsing
 
     // Unit test to verify that {@link JsonDeserialize#using} annotation works
     // when applied to a class
+    @Test
     public void testClassDeserializer() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
@@ -133,6 +139,7 @@ public class TestAnnotationUsing
 
     // Unit test to verify that {@link JsonDeserialize#using} annotation works
     // when applied to a Method
+    @Test
     public void testMethodDeserializer() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
@@ -151,6 +158,7 @@ public class TestAnnotationUsing
     /**********************************************************************
      */
 
+    @Test
     public void testArrayContentUsing() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
@@ -167,6 +175,7 @@ public class TestAnnotationUsing
         assertEquals(3, ((ValueClass) obs[2])._a);
     }
 
+    @Test
     public void testListContentUsing() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
@@ -183,6 +192,7 @@ public class TestAnnotationUsing
         assertEquals(3, ((ValueClass) obs.get(2))._a);
     }
 
+    @Test
     public void testMapContentUsing() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
@@ -197,6 +207,7 @@ public class TestAnnotationUsing
         assertEquals(2, ((ValueClass) map.get("b"))._a);
     }
 
+    @Test
     public void testMapKeyUsing() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
@@ -211,6 +222,7 @@ public class TestAnnotationUsing
     }
 
     // @since 1.8
+    @Test
     public void testRootValueWithCustomKey() throws Exception
     {
         ObjectMapper m = new ObjectMapper();

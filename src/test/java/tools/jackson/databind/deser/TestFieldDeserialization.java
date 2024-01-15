@@ -1,5 +1,7 @@
 package tools.jackson.databind.deser;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 
@@ -7,12 +9,15 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.*;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.*;
+
 /**
  * Unit tests for verifying that field-backed properties can also be
  * deserialized as well as setter-accessible properties.
  */
 public class TestFieldDeserialization
-    extends BaseMapTest
 {
     static class SimpleFieldBean
     {
@@ -89,6 +94,7 @@ public class TestFieldDeserialization
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testSimpleAutoDetect() throws Exception
     {
         SimpleFieldBean result = MAPPER.readValue("{ \"x\" : -13 }",
@@ -97,6 +103,7 @@ public class TestFieldDeserialization
         assertEquals(0, result.y);
     }
 
+    @Test
     public void testSimpleAnnotation() throws Exception
     {
         SimpleFieldBean2 bean = MAPPER.readValue("{ \"values\" : [ \"x\", \"y\" ] }",
@@ -108,6 +115,7 @@ public class TestFieldDeserialization
         assertEquals("y", values[1]);
     }
 
+    @Test
     public void testNoAutoDetect() throws Exception
     {
         NoAutoDetectBean bean = MAPPER.readValue("{ \"z\" : 7 }",
@@ -115,6 +123,7 @@ public class TestFieldDeserialization
         assertEquals(7, bean._z);
     }
 
+    @Test
     public void testTypeAnnotation() throws Exception
     {
         AbstractWrapper w = MAPPER.readValue("{ \"value\" : \"abc\" }",
@@ -125,6 +134,7 @@ public class TestFieldDeserialization
         assertEquals("abc", ((Concrete)bean).value);
     }
 
+    @Test
     public void testResolvedDups1() throws Exception
     {
         DupFieldBean result = MAPPER.readValue(a2q("{'z':3}"), DupFieldBean.class);
@@ -132,6 +142,7 @@ public class TestFieldDeserialization
         assertEquals(0, result.z);
     }
 
+    @Test
     public void testFailingDups2() throws Exception
     {
         // Fails because both fields have explicit annotation
@@ -143,6 +154,7 @@ public class TestFieldDeserialization
         }
     }
 
+    @Test
     public void testOkFieldOverride() throws Exception
     {
         OkDupFieldBean result = MAPPER.readValue("{ \"x\" : 1, \"y\" : 2 }",

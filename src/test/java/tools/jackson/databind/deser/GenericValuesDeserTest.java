@@ -1,10 +1,17 @@
 package tools.jackson.databind.deser;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
+import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+
 public class GenericValuesDeserTest
-    extends BaseMapTest
 {
     static abstract class BaseNumberBean<T extends Number>
     {
@@ -51,9 +58,10 @@ public class GenericValuesDeserTest
     /***************************************************
      */
 
+    @Test
     public void testSimpleNumberBean() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = newJsonMapper();
         NumberBean result = mapper.readValue("{\"number\":17}", NumberBean.class);
         assertEquals(17, result._number);
     }
@@ -61,9 +69,10 @@ public class GenericValuesDeserTest
     /**
      * Unit test for verifying fix to [JACKSON-109].
      */
+    @Test
     public void testGenericWrapper() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = newJsonMapper();
         Wrapper<SimpleBean> result = mapper.readValue
             ("{\"value\": { \"x\" : 13 } }",
              new TypeReference<Wrapper<SimpleBean>>() { });
@@ -76,6 +85,7 @@ public class GenericValuesDeserTest
         assertEquals(13, bean.x);
     }
 
+    @Test
     public void testGenericWrapperWithSingleElementArray() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -95,9 +105,10 @@ public class GenericValuesDeserTest
 
     // Test for verifying that we can use different
     // type bindings for individual generic types.
+    @Test
     public void testMultipleWrappers() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = newJsonMapper();
 
         // First, numeric wrapper
         Wrapper<Boolean> result = mapper.readValue
@@ -116,6 +127,7 @@ public class GenericValuesDeserTest
     }
 
     //[databind#381]
+    @Test
     public void testMultipleWrappersSingleValueArray() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -141,9 +153,10 @@ public class GenericValuesDeserTest
     /**
      * Unit test for verifying fix to [JACKSON-109].
      */
+    @Test
     public void testArrayOfGenericWrappers() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = newJsonMapper();
         Wrapper<SimpleBean>[] result = mapper.readValue
             ("[ {\"value\": { \"x\" : 9 } } ]",
              new TypeReference<Wrapper<SimpleBean>[]>() { });
@@ -158,6 +171,8 @@ public class GenericValuesDeserTest
         assertEquals(9, bean.x);
     }
 
+    // [Issue#381]
+    @Test
     public void testArrayOfGenericWrappersSingleValueArray() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()

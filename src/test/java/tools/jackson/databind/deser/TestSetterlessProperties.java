@@ -2,10 +2,17 @@ package tools.jackson.databind.deser;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.UnrecognizedPropertyException;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
+import static tools.jackson.databind.testutil.DatabindTestUtil.verifyException;
 
 /**
  * Unit tests for verifying that ("setterless collections") work as
@@ -13,7 +20,6 @@ import tools.jackson.databind.exc.UnrecognizedPropertyException;
  * with JAXB.
  */
 public class TestSetterlessProperties
-    extends BaseMapTest
 {
     static class CollectionBean
     {
@@ -47,6 +53,7 @@ public class TestSetterlessProperties
     /**********************************************************
      */
 
+    @Test
     public void testSimpleSetterlessCollectionOk() throws Exception
     {
         CollectionBean result = jsonMapperBuilder()
@@ -64,6 +71,7 @@ public class TestSetterlessProperties
      * Let's also verify that disabling the feature makes
      * deserialization fail for setterless bean
      */
+    @Test
     public void testSimpleSetterlessCollectionFailure() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
@@ -81,6 +89,7 @@ public class TestSetterlessProperties
         }
     }
 
+    @Test
     public void testSimpleSetterlessMapOk() throws Exception
     {
         MapBean result = jsonMapperBuilder()
@@ -94,6 +103,7 @@ public class TestSetterlessProperties
         assertEquals(Integer.valueOf(-3), m.get("b"));
     }
 
+    @Test
     public void testSimpleSetterlessMapFailure() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
@@ -112,6 +122,7 @@ public class TestSetterlessProperties
     /* Test for [JACKSON-328], precedence of "getter-as-setter" (for Lists) versus
      * field for same property.
      */
+    @Test
     public void testSetterlessPrecedence() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()

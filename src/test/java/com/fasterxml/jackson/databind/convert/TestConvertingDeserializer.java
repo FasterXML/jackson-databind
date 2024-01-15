@@ -6,6 +6,7 @@ import java.util.*;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.util.StdConverter;
 
@@ -224,5 +225,9 @@ public class TestConvertingDeserializer
         assertTrue(bean.value instanceof BigDecimal,
             "Type not BigDecimal but "+bean.value.getClass());
         assertEquals(new BigDecimal("1.25"), bean.value);
+    }
+
+    private ObjectReader objectReader(Class<?> type) {
+        return MAPPER.readerFor(type);
     }
 }

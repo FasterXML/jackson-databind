@@ -48,7 +48,7 @@ public class IgnoreWithDeserTest
     /**********************************************************************
      */
 
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
     public void testSimpleIgnore() throws Exception

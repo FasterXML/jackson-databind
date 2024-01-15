@@ -87,7 +87,7 @@ public class JacksonTypesDeserTest
     public void testTokenBufferWithSequence() throws Exception
     {
         // and then sequence of other things
-        JsonParser jp = createParserUsingReader("[ 32, [ 1 ], \"abc\", { \"a\" : true } ]");
+        JsonParser jp = MAPPER.createParser("[ 32, [ 1 ], \"abc\", { \"a\" : true } ]");
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
 
         assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());

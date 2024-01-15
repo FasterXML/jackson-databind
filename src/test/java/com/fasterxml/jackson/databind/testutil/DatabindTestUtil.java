@@ -1,13 +1,11 @@
 package com.fasterxml.jackson.databind.testutil;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 
-import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -27,10 +25,11 @@ import static org.junit.jupiter.api.Assertions.*;
 public class DatabindTestUtil
 {
     /*
-    /**********************************************************
-    /* Some sample documents:
-    /**********************************************************
+    /**********************************************************************
+    /* A sample documents
+    /**********************************************************************
      */
+
     protected static final int SAMPLE_SPEC_VALUE_WIDTH = 800;
     protected static final int SAMPLE_SPEC_VALUE_HEIGHT = 600;
     protected static final String SAMPLE_SPEC_VALUE_TITLE = "View from 15th Floor";
@@ -192,27 +191,9 @@ public class DatabindTestUtil
     }
 
     /*
-    /**********************************************************
-    /* Parser/generator construction
-    /**********************************************************
-     */
-
-    public static JsonParser createParserUsingReader(String input)
-        throws IOException
-    {
-        return createParserUsingReader(new JsonFactory(), input);
-    }
-
-    private static JsonParser createParserUsingReader(JsonFactory f, String input)
-        throws IOException
-    {
-        return f.createParser(new StringReader(input));
-    }
-
-    /*
-    /**********************************************************
+    /**********************************************************************
     /* Shared helper classes
-    /**********************************************************
+    /**********************************************************************
      */
 
     public static class IntWrapper {
@@ -295,9 +276,9 @@ public class DatabindTestUtil
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     private static ObjectMapper SHARED_MAPPER;
@@ -309,31 +290,15 @@ public class DatabindTestUtil
         return SHARED_MAPPER;
     }
 
-    public static ObjectMapper objectMapper() {
-        return sharedMapper();
-    }
-
-    public static ObjectWriter objectWriter() {
-        return sharedMapper().writer();
-    }
-
-    public static ObjectReader objectReader() {
-        return sharedMapper().reader();
-    }
-
-    public static ObjectReader objectReader(Class<?> cls) {
-        return sharedMapper().readerFor(cls);
-    }
-
     public static TypeFactory newTypeFactory() {
         // this is a work-around; no null modifier added
         return TypeFactory.defaultInstance().withModifier(null);
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Mapper construction helpers
-    /**********************************************************
+    /**********************************************************************
      */
 
     public static ObjectMapper newJsonMapper() {
@@ -345,9 +310,9 @@ public class DatabindTestUtil
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods, serialization
-    /**********************************************************
+    /**********************************************************************
      */
 
     @SuppressWarnings("unchecked")
@@ -359,9 +324,9 @@ public class DatabindTestUtil
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Encoding or String representations
-    /**********************************************************
+    /**********************************************************************
      */
 
     public static String a2q(String json) {
@@ -377,9 +342,9 @@ public class DatabindTestUtil
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Additional assertion methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     public static void assertToken(JsonToken expToken, JsonToken actToken)

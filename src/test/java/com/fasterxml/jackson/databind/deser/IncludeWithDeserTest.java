@@ -108,7 +108,7 @@ public class IncludeWithDeserTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
     public void testSimpleInclude() throws Exception

@@ -48,19 +48,32 @@ public abstract class JDKValueInstantiators
         return null;
     }
 
-    private static class ArrayListInstantiator
+    private abstract static class JDKValueInstantiator
         extends ValueInstantiator.Base
+    {
+        public JDKValueInstantiator(Class<?> type) {
+            super(type);
+        }
+
+        @Override
+        public final boolean canInstantiate() { return true; }
+
+        @Override
+        public final boolean canCreateUsingDefault() {  return true; }
+
+        // Make abstract to force (re)implementation
+        @Override
+        public abstract Object createUsingDefault(DeserializationContext ctxt)
+            throws JacksonException;
+    }
+
+    private static class ArrayListInstantiator
+        extends JDKValueInstantiator
     {
         public final static ArrayListInstantiator INSTANCE = new ArrayListInstantiator();
         public ArrayListInstantiator() {
             super(ArrayList.class);
         }
-
-        @Override
-        public boolean canInstantiate() { return true; }
-
-        @Override
-        public boolean canCreateUsingDefault() {  return true; }
 
         @Override
         public Object createUsingDefault(DeserializationContext ctxt) throws JacksonException {
@@ -69,7 +82,7 @@ public abstract class JDKValueInstantiators
     }
 
     private static class HashMapInstantiator
-        extends ValueInstantiator.Base
+        extends JDKValueInstantiator
     {
         public final static HashMapInstantiator INSTANCE = new HashMapInstantiator();
 
@@ -78,19 +91,13 @@ public abstract class JDKValueInstantiators
         }
 
         @Override
-        public boolean canInstantiate() { return true; }
-
-        @Override
-        public boolean canCreateUsingDefault() {  return true; }
-
-        @Override
         public Object createUsingDefault(DeserializationContext ctxt) throws JacksonException {
             return new HashMap<>();
         }
     }
 
     private static class LinkedHashMapInstantiator
-        extends ValueInstantiator.Base
+        extends JDKValueInstantiator
     {
         public final static LinkedHashMapInstantiator INSTANCE = new LinkedHashMapInstantiator();
 
@@ -99,19 +106,13 @@ public abstract class JDKValueInstantiators
         }
 
         @Override
-        public boolean canInstantiate() { return true; }
-
-        @Override
-        public boolean canCreateUsingDefault() {  return true; }
-
-        @Override
         public Object createUsingDefault(DeserializationContext ctxt) throws JacksonException {
             return new LinkedHashMap<>();
         }
     }
 
     private static class ConstantValueInstantiator
-        extends ValueInstantiator.Base
+        extends JDKValueInstantiator
     {
         protected final Object _value;
 
@@ -120,16 +121,9 @@ public abstract class JDKValueInstantiators
             _value = value;
         }
 
-        @Override // yes, since default ctor works
-        public boolean canInstantiate() { return true; }
-
-        @Override
-        public boolean canCreateUsingDefault() {  return true; }
-
         @Override
         public Object createUsingDefault(DeserializationContext ctxt) throws JacksonException {
             return _value;
         }
     }
-
 }

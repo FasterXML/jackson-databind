@@ -32,11 +32,11 @@ public abstract class JDKValueInstantiators
             if (raw == ArrayList.class) { // default impl, pre-constructed instance
                 return ArrayListInstantiator.INSTANCE;
             }
-            if (raw == LinkedList.class) {
-                return new LinkedListInstantiator();
-            }
             if (raw == HashSet.class) { // default impl, pre-constructed instance
                 return HashSetInstantiator.INSTANCE;
+            }
+            if (raw == LinkedList.class) {
+                return new LinkedListInstantiator();
             }
             if (raw == TreeSet.class) {
                 return new TreeSetInstantiator();
@@ -67,6 +67,7 @@ public abstract class JDKValueInstantiators
         return null;
     }
 
+    // @since 2.17
     private abstract static class JDKValueInstantiator
         extends ValueInstantiator.Base
         implements java.io.Serializable

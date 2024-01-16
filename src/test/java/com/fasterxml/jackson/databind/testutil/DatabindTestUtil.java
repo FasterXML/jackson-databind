@@ -4,14 +4,14 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-
-import com.fasterxml.jackson.core.FormatSchema;
+import com.fasterxml.jackson.core.JsonLocation;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Class containing test utility methods.
@@ -22,11 +22,218 @@ import static org.junit.jupiter.api.Assertions.fail;
  */
 public class DatabindTestUtil
 {
-   /*
-    /**********************************************************
-    /* Shared helper classes
-    /**********************************************************
+    /*
+    /**********************************************************************
+    /* A sample documents
+    /**********************************************************************
      */
+
+    protected static final int SAMPLE_SPEC_VALUE_WIDTH = 800;
+    protected static final int SAMPLE_SPEC_VALUE_HEIGHT = 600;
+    protected static final String SAMPLE_SPEC_VALUE_TITLE = "View from 15th Floor";
+    protected static final String SAMPLE_SPEC_VALUE_TN_URL = "http://www.example.com/image/481989943";
+    protected static final int SAMPLE_SPEC_VALUE_TN_HEIGHT = 125;
+    protected static final String SAMPLE_SPEC_VALUE_TN_WIDTH = "100";
+    protected static final int SAMPLE_SPEC_VALUE_TN_ID1 = 116;
+    protected static final int SAMPLE_SPEC_VALUE_TN_ID2 = 943;
+    protected static final int SAMPLE_SPEC_VALUE_TN_ID3 = 234;
+    protected static final int SAMPLE_SPEC_VALUE_TN_ID4 = 38793;
+
+    public static final String SAMPLE_DOC_JSON_SPEC =
+        "{\n"
+            +"  \"Image\" : {\n"
+            +"    \"Width\" : "+SAMPLE_SPEC_VALUE_WIDTH+",\n"
+            +"    \"Height\" : "+SAMPLE_SPEC_VALUE_HEIGHT+","
+            +"\"Title\" : \""+SAMPLE_SPEC_VALUE_TITLE+"\",\n"
+            +"    \"Thumbnail\" : {\n"
+            +"      \"Url\" : \""+SAMPLE_SPEC_VALUE_TN_URL+"\",\n"
+            +"\"Height\" : "+SAMPLE_SPEC_VALUE_TN_HEIGHT+",\n"
+            +"      \"Width\" : \""+SAMPLE_SPEC_VALUE_TN_WIDTH+"\"\n"
+            +"    },\n"
+            +"    \"IDs\" : ["+SAMPLE_SPEC_VALUE_TN_ID1+","+SAMPLE_SPEC_VALUE_TN_ID2+","+SAMPLE_SPEC_VALUE_TN_ID3+","+SAMPLE_SPEC_VALUE_TN_ID4+"]\n"
+            +"  }"
+            +"}"
+        ;
+
+    public static void verifyJsonSpecSampleDoc(JsonParser jp, boolean verifyContents)
+        throws IOException
+    {
+        verifyJsonSpecSampleDoc(jp, verifyContents, true);
+    }
+
+    public static void verifyJsonSpecSampleDoc(JsonParser jp, boolean verifyContents,
+                                           boolean requireNumbers)
+        throws IOException
+    {
+        if (!jp.hasCurrentToken()) {
+            jp.nextToken();
+        }
+        assertToken(JsonToken.START_OBJECT, jp.currentToken()); // main object
+
+        assertToken(JsonToken.FIELD_NAME, jp.nextToken()); // 'Image'
+        if (verifyContents) {
+            verifyFieldName(jp, "Image");
+        }
+
+        assertToken(JsonToken.START_OBJECT, jp.nextToken()); // 'image' object
+
+        assertToken(JsonToken.FIELD_NAME, jp.nextToken()); // 'Width'
+        if (verifyContents) {
+            verifyFieldName(jp, "Width");
+        }
+
+        verifyIntToken(jp.nextToken(), requireNumbers);
+        if (verifyContents) {
+            verifyIntValue(jp, SAMPLE_SPEC_VALUE_WIDTH);
+        }
+
+        assertToken(JsonToken.FIELD_NAME, jp.nextToken()); // 'Height'
+        if (verifyContents) {
+            verifyFieldName(jp, "Height");
+        }
+
+        verifyIntToken(jp.nextToken(), requireNumbers);
+        if (verifyContents) {
+            verifyIntValue(jp, SAMPLE_SPEC_VALUE_HEIGHT);
+        }
+        assertToken(JsonToken.FIELD_NAME, jp.nextToken()); // 'Title'
+        if (verifyContents) {
+            verifyFieldName(jp, "Title");
+        }
+        assertToken(JsonToken.VALUE_STRING, jp.nextToken());
+        assertEquals(SAMPLE_SPEC_VALUE_TITLE, getAndVerifyText(jp));
+        assertToken(JsonToken.FIELD_NAME, jp.nextToken()); // 'Thumbnail'
+        if (verifyContents) {
+            verifyFieldName(jp, "Thumbnail");
+        }
+
+        assertToken(JsonToken.START_OBJECT, jp.nextToken()); // 'thumbnail' object
+        assertToken(JsonToken.FIELD_NAME, jp.nextToken()); // 'Url'
+        if (verifyContents) {
+            verifyFieldName(jp, "Url");
+        }
+        assertToken(JsonToken.VALUE_STRING, jp.nextToken());
+        if (verifyContents) {
+            assertEquals(SAMPLE_SPEC_VALUE_TN_URL, getAndVerifyText(jp));
+        }
+        assertToken(JsonToken.FIELD_NAME, jp.nextToken()); // 'Height'
+        if (verifyContents) {
+            verifyFieldName(jp, "Height");
+        }
+        verifyIntToken(jp.nextToken(), requireNumbers);
+        if (verifyContents) {
+            verifyIntValue(jp, SAMPLE_SPEC_VALUE_TN_HEIGHT);
+        }
+        assertToken(JsonToken.FIELD_NAME, jp.nextToken()); // 'Width'
+        if (verifyContents) {
+            verifyFieldName(jp, "Width");
+        }
+        // Width value is actually a String in the example
+        assertToken(JsonToken.VALUE_STRING, jp.nextToken());
+        if (verifyContents) {
+            assertEquals(SAMPLE_SPEC_VALUE_TN_WIDTH, getAndVerifyText(jp));
+        }
+
+        assertToken(JsonToken.END_OBJECT, jp.nextToken()); // 'thumbnail' object
+        assertToken(JsonToken.FIELD_NAME, jp.nextToken()); // 'IDs'
+        assertToken(JsonToken.START_ARRAY, jp.nextToken()); // 'ids' array
+        verifyIntToken(jp.nextToken(), requireNumbers); // ids[0]
+        if (verifyContents) {
+            verifyIntValue(jp, SAMPLE_SPEC_VALUE_TN_ID1);
+        }
+        verifyIntToken(jp.nextToken(), requireNumbers); // ids[1]
+        if (verifyContents) {
+            verifyIntValue(jp, SAMPLE_SPEC_VALUE_TN_ID2);
+        }
+        verifyIntToken(jp.nextToken(), requireNumbers); // ids[2]
+        if (verifyContents) {
+            verifyIntValue(jp, SAMPLE_SPEC_VALUE_TN_ID3);
+        }
+        verifyIntToken(jp.nextToken(), requireNumbers); // ids[3]
+        if (verifyContents) {
+            verifyIntValue(jp, SAMPLE_SPEC_VALUE_TN_ID4);
+        }
+        assertToken(JsonToken.END_ARRAY, jp.nextToken()); // 'ids' array
+
+        assertToken(JsonToken.END_OBJECT, jp.nextToken()); // 'image' object
+
+        assertToken(JsonToken.END_OBJECT, jp.nextToken()); // main object
+    }
+
+    private static void verifyIntToken(JsonToken t, boolean requireNumbers)
+    {
+        if (t == JsonToken.VALUE_NUMBER_INT) {
+            return;
+        }
+        if (requireNumbers) { // to get error
+            assertToken(JsonToken.VALUE_NUMBER_INT, t);
+        }
+        // if not number, must be String
+        if (t != JsonToken.VALUE_STRING) {
+            fail("Expected INT or STRING value, got "+t);
+        }
+    }
+
+    private static void verifyFieldName(JsonParser p, String expName)
+        throws IOException
+    {
+        assertEquals(expName, p.getText());
+        assertEquals(expName, p.currentName());
+    }
+
+    private static void verifyIntValue(JsonParser p, long expValue)
+        throws IOException
+    {
+        // First, via textual
+        assertEquals(String.valueOf(expValue), p.getText());
+    }
+
+    /*
+    /**********************************************************************
+    /* Shared helper classes
+    /**********************************************************************
+     */
+
+    public static class IntWrapper {
+        public int i;
+
+        public IntWrapper() { }
+        public IntWrapper(int value) { i = value; }
+    }
+
+    public static class LongWrapper {
+        public long l;
+
+        public LongWrapper() { }
+        public LongWrapper(long value) { l = value; }
+    }
+
+    public static class FloatWrapper {
+        public float f;
+
+        public FloatWrapper() { }
+        public FloatWrapper(float value) { f = value; }
+    }
+
+    public static class DoubleWrapper {
+        public double d;
+
+        public DoubleWrapper() { }
+        public DoubleWrapper(double value) { d = value; }
+    }
+
+    /**
+     * Simple wrapper around String type, usually to test value
+     * conversions or wrapping
+     */
+    public static class StringWrapper {
+        public String str;
+
+        public StringWrapper() { }
+        public StringWrapper(String value) {
+            str = value;
+        }
+    }
 
     public static enum ABC { A, B, C; }
 
@@ -41,10 +248,10 @@ public class DatabindTestUtil
 
         @Override
         public boolean equals(Object o) {
-            if (!(o instanceof BaseMapTest.Point)) {
+            if (!(o instanceof Point)) {
                 return false;
             }
-            BaseMapTest.Point other = (BaseMapTest.Point) o;
+            Point other = (Point) o;
             return (other.x == x) && (other.y == y);
         }
 
@@ -55,9 +262,9 @@ public class DatabindTestUtil
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Factory methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     private static ObjectMapper SHARED_MAPPER;
@@ -75,9 +282,9 @@ public class DatabindTestUtil
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Mapper construction helpers
-    /**********************************************************
+    /**********************************************************************
      */
 
     public static ObjectMapper newJsonMapper() {
@@ -89,9 +296,9 @@ public class DatabindTestUtil
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Helper methods, serialization
-    /**********************************************************
+    /**********************************************************************
      */
 
     @SuppressWarnings("unchecked")
@@ -103,9 +310,9 @@ public class DatabindTestUtil
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Encoding or String representations
-    /**********************************************************
+    /**********************************************************************
      */
 
     public static String a2q(String json) {
@@ -121,10 +328,22 @@ public class DatabindTestUtil
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Additional assertion methods
-    /**********************************************************
+    /**********************************************************************
      */
+
+    public static void assertToken(JsonToken expToken, JsonToken actToken)
+    {
+        if (actToken != expToken) {
+            fail("Expected token "+expToken+", current token "+actToken);
+        }
+    }
+
+    public static void assertToken(JsonToken expToken, JsonParser jp)
+    {
+        assertToken(expToken, jp.currentToken());
+    }
 
     /**
      * @param e Exception to check
@@ -144,5 +363,32 @@ public class DatabindTestUtil
         fail("Expected an exception with one of substrings ("
             + Arrays.asList(anyMatches)+"): got one (of type "+e.getClass().getName()
             +") with message \""+msg+"\"");
+    }
+
+    public static void assertValidLocation(JsonLocation location) {
+        assertNotNull(location, "Should have non-null location");
+        assertTrue(location.getLineNr() > 0, "Should have positive line number");
+    }
+
+    /**
+     * Method that gets textual contents of the current token using
+     * available methods, and ensures results are consistent, before
+     * returning them
+     */
+    private static String getAndVerifyText(JsonParser jp)
+        throws IOException
+    {
+        // Ok, let's verify other accessors
+        int actLen = jp.getTextLength();
+        char[] ch = jp.getTextCharacters();
+        String str2 = new String(ch, jp.getTextOffset(), actLen);
+        String str = jp.getText();
+
+        if (str.length() !=  actLen) {
+            fail("Internal problem (jp.token == "+jp.currentToken()+"): jp.getText().length() ['"+str+"'] == "+str.length()+"; jp.getTextLength() == "+actLen);
+        }
+        assertEquals(str, str2, "String access via getText(), getTextXxx() must be the same");
+
+        return str;
     }
 }

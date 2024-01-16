@@ -78,10 +78,14 @@ public abstract class JDKValueInstantiators
         }
 
         @Override
-        public boolean canInstantiate() { return true; }
+        public final boolean canInstantiate() { return true; }
 
         @Override
-        public boolean canCreateUsingDefault() {  return true; }
+        public final boolean canCreateUsingDefault() {  return true; }
+
+        // Make abstract to force (re)implementation
+        @Override
+        public abstract Object createUsingDefault(DeserializationContext ctxt) throws IOException;
     }
 
     private static class ArrayListInstantiator

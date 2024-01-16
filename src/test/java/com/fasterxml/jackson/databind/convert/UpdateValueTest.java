@@ -2,12 +2,19 @@ package com.fasterxml.jackson.databind.convert;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.Point;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
 /**
  * Tests for {@link ObjectMapper#updateValue}.
  */
-public class UpdateValueTest extends BaseMapTest
+public class UpdateValueTest
 {
     /*
     /********************************************************
@@ -15,8 +22,9 @@ public class UpdateValueTest extends BaseMapTest
     /********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testMapUpdate() throws Exception
     {
         Map<String,Object> base = new LinkedHashMap<>();
@@ -34,6 +42,7 @@ public class UpdateValueTest extends BaseMapTest
         assertEquals(Boolean.TRUE, ob.get("xyz"));
     }
 
+    @Test
     public void testListUpdate() throws Exception
     {
         List<Object> base = new ArrayList<>();
@@ -51,6 +60,7 @@ public class UpdateValueTest extends BaseMapTest
         assertEquals(overrides[1], ob.get(3));
     }
 
+    @Test
     public void testArrayUpdate() throws Exception
     {
         // Since Arrays are immutable, not sure what "right answer" ought to be
@@ -71,6 +81,7 @@ public class UpdateValueTest extends BaseMapTest
     /********************************************************
      */
 
+    @Test
     public void testPOJO() throws Exception
     {
         Point base = new Point(42, 28);
@@ -88,6 +99,7 @@ public class UpdateValueTest extends BaseMapTest
     /********************************************************
      */
 
+    @Test
     public void testMisc() throws Exception
     {
         // if either is `null`, should return first arg
@@ -95,5 +107,4 @@ public class UpdateValueTest extends BaseMapTest
         List<String> input = new ArrayList<>();
         assertSame(input, MAPPER.updateValue(input, null));
     }
-
 }

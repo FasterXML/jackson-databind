@@ -31,6 +31,8 @@ Project: jackson-databind
 #4262: Improve handling of `null` insertion failure for `TreeSet`
 #4263: Change `ObjectArrayDeserializer` to use "generic" type parameter
   (`java.lang.Object`) to remove co-variant return type
+#4299: Some `Collection` and `Map` fallbacks don't work in GraalVM native image
+ (contributed by Eduard D)
 #4309: `@JsonSetter(nulls=...)` handling of `Collection` `null` values during
   deserialization with `READ_UNKNOWN_ENUM_VALUES_AS_NULL` and `FAIL_ON_INVALID_SUBTYPE` wrong
  (reported by @ivan-zaitsev)

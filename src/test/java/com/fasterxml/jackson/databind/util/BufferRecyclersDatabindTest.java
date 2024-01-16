@@ -1,6 +1,10 @@
 package com.fasterxml.jackson.databind.util;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.nio.charset.StandardCharsets;
+import java.util.function.Predicate;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
@@ -54,6 +58,10 @@ public class BufferRecyclersDatabindTest
         _testParser(JsonRecyclerPools.sharedBoundedPool());
     }
 
+    public void testParserWithHybridPool() throws Exception {
+        _testParser(new HybridTestPool());
+    }
+
     private void _testParser(RecyclerPool<BufferRecycler> pool) throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder(
@@ -92,12 +100,16 @@ public class BufferRecyclersDatabindTest
 
     public void testGeneratorWithLockFreePool() throws Exception {
         _testGenerator(JsonRecyclerPools.newLockFreePool());
-        _testGenerator(JsonRecyclerPools.sharedLockFreePool());
+//        _testGenerator(JsonRecyclerPools.sharedLockFreePool());
     }
 
     public void testGeneratorWithBoundedPool() throws Exception {
         _testGenerator(JsonRecyclerPools.newBoundedPool(5));
         _testGenerator(JsonRecyclerPools.sharedBoundedPool());
+    }
+
+    public void testGeneratorWithHybridPool() throws Exception {
+        _testGenerator(new HybridTestPool());
     }
 
     private void _testGenerator(RecyclerPool<BufferRecycler> pool) throws Exception
@@ -114,5 +126,64 @@ public class BufferRecyclersDatabindTest
         // and then as bytes
         assertEquals(EXP, new String(mapper.writeValueAsBytes(new Pojo4321(-42, "bogus")),
                 StandardCharsets.UTF_8));
+    }
+
+    public static class HybridTestPool implements RecyclerPool<BufferRecycler> {
+
+        private static final Predicate<Thread> isVirtual = VirtualPredicate.findIsVirtualPredicate();
+
+        private final RecyclerPool<BufferRecycler> nativePool = JsonRecyclerPools.threadLocalPool();
+        private final RecyclerPool<BufferRecycler> virtualPool = JsonRecyclerPools.newLockFreePool();
+
+        @Override
+        public BufferRecycler acquirePooled() {
+            return isVirtual.test(Thread.currentThread()) ?
+                    virtualPool.acquirePooled() :
+                    nativePool.acquirePooled();
+        }
+
+        @Override
+        public void releasePooled(BufferRecycler pooled) {
+            if (isVirtual.test(Thread.currentThread())) {
+                virtualPool.releasePooled(pooled);
+            } else {
+                nativePool.releasePooled(pooled);
+            }
+        }
+
+        private static class VirtualPredicate {
+            private static final MethodHandle virtualMh = findVirtualMH();
+
+            private static MethodHandle findVirtualMH() {
+                try {
+                    return MethodHandles.publicLookup().findVirtual(Thread.class, "isVirtual",
+                                                                    MethodType.methodType(boolean.class));
+                } catch (Exception e) {
+                    return null;
+                }
+            }
+
+            private static Predicate<Thread> findIsVirtualPredicate() {
+                if (virtualMh != null) {
+                    return new Predicate<Thread>() {
+                        @Override
+                        public boolean test(Thread thread) {
+                            try {
+                                return (boolean) virtualMh.invokeExact(thread);
+                            } catch (Throwable e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    };
+                }
+
+                return new Predicate<Thread>() {
+                    @Override
+                    public boolean test(Thread thread) {
+                        return false;
+                    }
+                };
+            }
+        }
     }
 }

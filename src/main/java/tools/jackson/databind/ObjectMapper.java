@@ -1837,10 +1837,11 @@ public class ObjectMapper
     public String writeValueAsString(Object value) throws JacksonException
     {
         // alas, we have to pull the recycler directly here...
-        SegmentedStringWriter sw = new SegmentedStringWriter(_streamFactory._getBufferRecycler());
-        SerializationContextExt prov = _serializerProvider();
-        _configAndWriteValue(prov, _streamFactory.createGenerator(prov, sw), value);
-        return sw.getAndClear();
+        try (SegmentedStringWriter sw = new SegmentedStringWriter(_streamFactory._getBufferRecycler())) {
+            SerializationContextExt prov = _serializerProvider();
+            _configAndWriteValue(prov, _streamFactory.createGenerator(prov, sw), value);
+            return sw.getAndClear();
+        }
     }
 
     /**

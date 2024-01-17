@@ -6,6 +6,36 @@ Project: jackson-databind
 
 2.17.0 (not yet released)
 
+#437: Support throwing `MismatchedInputException` when deserializing
+  properties that are not part of the view
+ (contributed by Joo-Hyuk K)
+#736: `MapperFeature.REQUIRE_SETTERS_FOR_GETTERS` has no effect
+ (reported by @migel)
+ (fix contributed by Joo-Hyuk K)
+#4160: Deprecate `DefaultTyping.EVERYTHING` in `2.x` and remove in `3.0`
+ (contributed by Joo-Hyuk K)
+#4194: Add `JsonNodeFeature.FAIL_ON_NAN_TO_BIG_DECIMAL_COERCION` option to
+  fail on attempting to coerce `NaN` into `BigDecimal`
+ (contributed by Joo-Hyuk K)
+#4205: Consider types in `sun.*` package(s) to be JDK (platform) types
+  for purposes of handling
+#4209: Make `BeanDeserializerModifier`/`BeanSerializerModifier`
+  implement `java.io.Serializable`
+ (fix contributed by Muhammad K)
+#4214: `EnumSet` deserialization does not work when we activate
+  default typing in `ObjectMapper`
+ (reported by @dvhvsekhar)
+#4248: `ThrowableDeserializer` does not handle `null` well for `cause`
+#4250: Add input validation for `NumberDeserializers` deserializers
+ for "stringified" FP numbers
+#4262: Improve handling of `null` insertion failure for `TreeSet`
+#4263: Change `ObjectArrayDeserializer` to use "generic" type parameter
+  (`java.lang.Object`) to remove co-variant return type
+#4309: `@JsonSetter(nulls=...)` handling of `Collection` `null` values during
+  deserialization with `READ_UNKNOWN_ENUM_VALUES_AS_NULL` and `FAIL_ON_INVALID_SUBTYPE` wrong
+ (reported by @ivan-zaitsev)
+ (fix contributed by Joo-Hyuk K)
+
 2.16.2 (not yet released)
 
 #4302: Problem deserializing some type of Enums when using `PropertyNamingStrategy`
@@ -13,6 +43,9 @@ Project: jackson-databind
  (fix contributed by Joo-Hyuk K)
 #4303: `ObjectReader` is not serializable if it's configured for polymorphism
  (reported by @asardaes)
+ (fix contributed by Joo-Hyuk K)
+#4316: NPE when deserializing `JsonAnySetter` in `Throwable`
+ (reported by @jpraet)
  (fix contributed by Joo-Hyuk K)
 
 2.16.1 (24-Dec-2023)

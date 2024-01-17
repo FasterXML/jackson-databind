@@ -1189,7 +1189,7 @@ public abstract class DeserializationContext
                     return key;
                 }
                 throw weirdStringException(keyValue, keyClass, String.format(
-                        "DeserializationProblemHandler.handleWeirdStringValue() for type %s returned value of type %s",
+                        "DeserializationProblemHandler.handleWeirdKey() for type %s returned value of type %s",
                         ClassUtil.getClassDescription(keyClass),
                         ClassUtil.getClassDescription(key)
                 ));

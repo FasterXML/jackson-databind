@@ -9,11 +9,11 @@
   <parent>
     <groupId>com.fasterxml.jackson</groupId>
     <artifactId>jackson-base</artifactId>
-    <version>2.16.2-SNAPSHOT</version>
+    <version>2.17.0-SNAPSHOT</version>
   </parent>
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-databind</artifactId>
-  <version>2.16.2-SNAPSHOT</version>
+  <version>2.17.0-SNAPSHOT</version>
   <name>jackson-databind</name>
   <packaging>jar</packaging>
   <description>General data-binding functionality for Jackson: works on core streaming API</description>
@@ -68,7 +68,7 @@
     <version.powermock>2.0.9</version.powermock>
 
     <!-- for Reproducible Builds -->
-    <project.build.outputTimestamp>2023-12-24T04:29:37Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2023-11-15T22:38:22Z</project.build.outputTimestamp>
   </properties>
 
   <dependencies>
@@ -105,24 +105,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-core</artifactId>
-      <version>${version.powermock}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-module-junit4</artifactId>
-      <version>${version.powermock}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-api-mockito2</artifactId>
-      <version>${version.powermock}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava-testlib</artifactId>
       <version>31.1-jre</version>
@@ -141,6 +123,27 @@
       <artifactId>jol-core</artifactId>
       <version>0.16</version>
       <scope>test</scope>
+    </dependency>
+    <!-- Since 2.17, started using Mockito instead of Powermock -->
+    <!-- For testing with static methods -->
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>4.11.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-inline</artifactId>
+      <version>4.11.0</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- We need to specify later Bytebuddy version because Mockito 4.11.0 depends on earlier Bytebuddy which
+    does not support JDK 21, since 2.17-->
+    <dependency>
+      <groupId>net.bytebuddy</groupId>
+      <artifactId>byte-buddy</artifactId>
+      <version>1.14.9</version>
     </dependency>
   </dependencies>
 

@@ -53,6 +53,7 @@ public class TestInjectables extends BaseMapTest
         public int value;
     }
 
+    // [databind#471]
     static class Bean471 {
 
         protected final Object constructorInjected;

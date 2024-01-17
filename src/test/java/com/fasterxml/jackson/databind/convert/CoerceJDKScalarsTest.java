@@ -7,6 +7,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonParser;
@@ -14,8 +16,12 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+
 // Tests for "old" coercions (pre-2.12), with `MapperFeature.ALLOW_COERCION_OF_SCALARS`
-public class CoerceJDKScalarsTest extends BaseMapTest
+public class CoerceJDKScalarsTest
 {
     static class BooleanPOJO {
         public Boolean value;
@@ -47,6 +53,7 @@ public class CoerceJDKScalarsTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testNullValueFromEmpty() throws Exception
     {
         // wrappers accept `null` fine
@@ -86,6 +93,7 @@ public class CoerceJDKScalarsTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testNullFailFromEmpty() throws Exception
     {
         _verifyNullFail(Boolean.class);
@@ -127,6 +135,7 @@ public class CoerceJDKScalarsTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testStringToNumbersCoercionOk() throws Exception
     {
         _verifyCoerceSuccess(q("123"), Byte.TYPE, Byte.valueOf((byte) 123));
@@ -150,6 +159,7 @@ public class CoerceJDKScalarsTest extends BaseMapTest
         assertTrue(ab.get());
     }
 
+    @Test
     public void testStringCoercionFailInteger() throws Exception
     {
         _verifyRootStringCoerceFail("123", Byte.TYPE);
@@ -162,6 +172,7 @@ public class CoerceJDKScalarsTest extends BaseMapTest
         _verifyRootStringCoerceFail("123", Long.class);
     }
 
+    @Test
     public void testStringCoercionFailFloat() throws Exception
     {
         _verifyRootStringCoerceFail("123.5", Float.TYPE);
@@ -173,6 +184,7 @@ public class CoerceJDKScalarsTest extends BaseMapTest
         _verifyRootStringCoerceFail("123.0", BigDecimal.class);
     }
 
+    @Test
     public void testMiscCoercionFail() throws Exception
     {
         // And then we have coercions from more esoteric types too

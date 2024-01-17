@@ -14,7 +14,7 @@ import com.fasterxml.jackson.core.base.GeneratorBase;
  * passed to {@link JsonGenerator} and {@link JsonParser} instances if
  * mapper, reader or writer is configured with one.
  */
-public class TestFormatSchema extends BaseMapTest
+public class FormatSchemaTest extends BaseMapTest
 {
     /*
     /**********************************************************************

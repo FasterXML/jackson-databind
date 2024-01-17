@@ -1,12 +1,18 @@
 package com.fasterxml.jackson.databind.convert;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.*;
 import com.fasterxml.jackson.databind.util.StdConverter;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+
 // for [databind#795]
-public class ConvertingAbstractSerializer795Test extends BaseMapTest
+public class ConvertingAbstractSerializer795Test
 {
     public static abstract class AbstractCustomType {
         final String value;
@@ -71,14 +77,16 @@ public class ConvertingAbstractSerializer795Test extends BaseMapTest
     /**********************************************************
      */
 
-    private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
+    private static final ObjectMapper JSON_MAPPER = newJsonMapper();
 
+    @Test
     public void testAbstractTypeDeserialization() throws Exception {
         String test="{\"customField\": \"customString\"}";
         AbstractCustomTypeUser cu = JSON_MAPPER.readValue(test, AbstractCustomTypeUser.class);
         assertNotNull(cu);
     }
 
+    @Test
     public void testNonAbstractDeserialization() throws Exception {
         String test="{\"customField\": \"customString\"}";
         NonAbstractCustomTypeUser cu = JSON_MAPPER.readValue(test, NonAbstractCustomTypeUser.class);

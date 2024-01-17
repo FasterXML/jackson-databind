@@ -61,7 +61,25 @@ public enum JsonNodeFeature implements DatatypeFeature
      *
      * @since 2.15
      */
-    STRIP_TRAILING_BIGDECIMAL_ZEROES(true)
+    STRIP_TRAILING_BIGDECIMAL_ZEROES(true),
+
+    /**
+     * Determines the behavior when coercing `NaN` to {@link java.math.BigDecimal} with
+     * {@link com.fasterxml.jackson.databind.DeserializationFeature#USE_BIG_DECIMAL_FOR_FLOATS} enabled.
+     *
+     * 1. If set to {@code true}, will throw an {@link com.fasterxml.jackson.databind.exc.InvalidFormatException} for
+     * attempting to coerce {@code NaN} into {@link java.math.BigDecimal}.
+     * 2. If set to {@code false}, will simply let coercing {@code NaN} into {@link java.math.BigDecimal} happen,
+     * regardless of how such coercion will behave --as of 2.16, will simply stay as {@code NaN} of original
+     * floating-point type node.
+     *
+     * <p>
+     * Default value is {@code false} for backwards-compatibility, but will most likely be changed to
+     * {@code true} in 3.0.
+     *
+     * @since 2.16
+     */
+    FAIL_ON_NAN_TO_BIG_DECIMAL_COERCION(false)
     ;
 
     private final static int FEATURE_INDEX = DatatypeFeatures.FEATURE_INDEX_JSON_NODE;

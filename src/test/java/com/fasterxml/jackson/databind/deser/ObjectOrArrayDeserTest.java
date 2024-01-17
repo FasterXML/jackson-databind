@@ -2,11 +2,16 @@ package com.fasterxml.jackson.databind.deser;
 
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class TestObjectOrArrayDeserialization extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+
+public class ObjectOrArrayDeserTest
 {
     public static class SomeObject {
         public String someField;
@@ -31,23 +36,26 @@ public class TestObjectOrArrayDeserialization extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testObjectCase() throws Exception {
         ArrayOrObject arrayOrObject = MAPPER.readValue("{}", ArrayOrObject.class);
-        assertNull("expected objects field to be null", arrayOrObject.objects);
-        assertNotNull("expected object field not to be null", arrayOrObject.object);
+        assertNull(arrayOrObject.objects, "expected objects field to be null");
+        assertNotNull(arrayOrObject.object, "expected object field not to be null");
     }
 
+    @Test
     public void testEmptyArrayCase() throws Exception {
         ArrayOrObject arrayOrObject = MAPPER.readValue("[]", ArrayOrObject.class);
-        assertNotNull("expected objects field not to be null", arrayOrObject.objects);
-        assertTrue("expected objects field to be an empty list", arrayOrObject.objects.isEmpty());
-        assertNull("expected object field to be null", arrayOrObject.object);
+        assertNotNull(arrayOrObject.objects, "expected objects field not to be null");
+        assertTrue(arrayOrObject.objects.isEmpty(), "expected objects field to be an empty list");
+        assertNull(arrayOrObject.object, "expected object field to be null");
     }
 
+    @Test
     public void testNotEmptyArrayCase() throws Exception {
         ArrayOrObject arrayOrObject = MAPPER.readValue("[{}, {}]", ArrayOrObject.class);
-        assertNotNull("expected objects field not to be null", arrayOrObject.objects);
-        assertEquals("expected objects field to have size 2", 2, arrayOrObject.objects.size());
-        assertNull("expected object field to be null", arrayOrObject.object);
+        assertNotNull(arrayOrObject.objects, "expected objects field not to be null");
+        assertEquals(2, arrayOrObject.objects.size(), "expected objects field to have size 2");
+        assertNull(arrayOrObject.object, "expected object field to be null");
     }
 }

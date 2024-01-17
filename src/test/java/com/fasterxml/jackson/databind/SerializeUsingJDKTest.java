@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
  * platforms, such as Android, where memory management is handled
  * much more aggressively.
  */
-public class TestJDKSerialization extends BaseMapTest
+public class SerializeUsingJDKTest extends BaseMapTest
 {
     @JsonPropertyOrder({ "x", "y" })
     static class MyPojo {

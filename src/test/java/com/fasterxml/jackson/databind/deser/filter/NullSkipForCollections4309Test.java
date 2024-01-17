@@ -1,13 +1,13 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.deser.filter;
 
 import java.util.List;
+
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.Nulls;
-import org.junit.jupiter.api.Test;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // [databind#4309] : Use @JsonSetter(nulls=...) handling of null values during deserialization with
-public class NullsSkip4309Test
+public class NullSkipForCollections4309Test
 {
     static class Data1 {
         public List<Type> types;

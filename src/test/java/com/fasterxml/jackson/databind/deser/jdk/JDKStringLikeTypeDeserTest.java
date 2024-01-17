@@ -114,7 +114,15 @@ public class JDKStringLikeTypeDeserTest extends BaseMapTest
     public void testCurrency() throws IOException
     {
         Currency usd = Currency.getInstance("USD");
-        assertEquals(usd, new ObjectMapper().readValue(q("USD"), Currency.class));
+        assertEquals(usd, MAPPER.readValue(q("USD"), Currency.class));
+
+        try {
+            MAPPER.readValue(q("poobah"), Currency.class);
+            fail("Should not pass!");
+        } catch (InvalidFormatException e) {
+            verifyException(e, "Cannot deserialize value of type `java.util.Currency` from String \"Poobah\"");
+            verifyException(e, "Unrecognized currency");
+        }
     }
 
     public void testFile() throws Exception
@@ -199,12 +207,13 @@ public class JDKStringLikeTypeDeserTest extends BaseMapTest
         assertEquals(exp.pattern(), result.pattern());
 
         // [databind#3598]: should also handle invalid pattern serialization
-        // somehwat gracefully
+        // somewhat gracefully
         try {
             MAPPER.readValue(q("[abc"), Pattern.class);
             fail("Should not pass");
         } catch (InvalidFormatException e) {
-            verifyException(e, "not a valid textual representation, problem: Unclosed character class");
+            verifyException(e, "Cannot deserialize value of type `java.util.regex.Pattern` from String \"[abc\"");
+            verifyException(e, "Invalid pattern, problem");
         }
     }
 

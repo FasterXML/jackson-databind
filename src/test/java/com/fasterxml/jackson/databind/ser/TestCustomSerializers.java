@@ -121,7 +121,7 @@ public class TestCustomSerializers extends BaseMapTest
         @Override
         public void serialize(Object value, JsonGenerator gen,
                 SerializerProvider provider) throws IOException {
-            Object parent = gen.getCurrentValue();
+            Object parent = gen.currentValue();
             String desc = (parent == null) ? "NULL" : parent.getClass().getSimpleName();
             gen.writeString(desc+"/"+value);
         }

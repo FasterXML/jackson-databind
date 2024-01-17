@@ -1,7 +1,8 @@
 package com.fasterxml.jackson.databind.convert;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
@@ -9,8 +10,12 @@ import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.type.LogicalType;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+
 // [databind#3013] / PR #3608
-public class CoerceIntToStringTest extends BaseMapTest
+public class CoerceIntToStringTest
 {
     private final ObjectMapper DEFAULT_MAPPER = newJsonMapper();
 
@@ -34,16 +39,19 @@ public class CoerceIntToStringTest extends BaseMapTest
                     cfg.setCoercion(CoercionInputShape.Integer, CoercionAction.AsEmpty))
             .build();
 
+    @Test
     public void testDefaultIntToStringCoercion() throws JsonProcessingException
     {
         assertSuccessfulIntToStringCoercionWith(DEFAULT_MAPPER);
     }
 
+    @Test
     public void testCoerceConfigToConvert() throws JsonProcessingException
     {
         assertSuccessfulIntToStringCoercionWith(MAPPER_TRY_CONVERT);
     }
 
+    @Test
     public void testCoerceConfigToNull() throws JsonProcessingException
     {
         assertNull(MAPPER_TO_NULL.readValue("1", String.class));
@@ -54,6 +62,7 @@ public class CoerceIntToStringTest extends BaseMapTest
         assertNull(arr[0]);
     }
 
+    @Test
     public void testCoerceConfigToEmpty() throws JsonProcessingException
     {
         assertEquals("", MAPPER_TO_EMPTY.readValue("3", String.class));
@@ -64,6 +73,7 @@ public class CoerceIntToStringTest extends BaseMapTest
         assertEquals("", arr[0]);
     }
 
+    @Test
     public void testCoerceConfigToFail() throws JsonProcessingException
     {
         _verifyCoerceFail(MAPPER_TO_FAIL, String.class, "3");

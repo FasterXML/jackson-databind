@@ -1044,9 +1044,12 @@ public abstract class JsonNode
      */
 
     /**
-     * Method for finding a JSON Object field with specified name in this
+     * Method for finding the first JSON Object field with specified name in this
      * node or its child nodes, and returning value it has.
      * If no matching field is found in this node or its descendants, returns null.
+     *<p>
+     * Note that traversal is done in document order (that is, order in which
+     * nodes are iterated if using {@link JsonNode#elements()})
      *
      * @param fieldName Name of field to look for
      *
@@ -1055,8 +1058,10 @@ public abstract class JsonNode
     public abstract JsonNode findValue(String fieldName);
 
     /**
-     * Method for finding JSON Object fields with specified name, and returning
-     * found ones as a List. Note that sub-tree search ends if a field is found,
+     * Method for finding JSON Object fields with specified name -- both immediate
+     * child values and descendants -- and returning
+     * found ones as a {@link List}.
+     * Note that sub-tree search ends when matching field is found,
      * so possible children of result nodes are <b>not</b> included.
      * If no matching fields are found in this node or its descendants, returns
      * an empty List.

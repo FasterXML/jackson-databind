@@ -48,6 +48,8 @@ public class BeanDeserializerModifier4216Test
         SimpleModule module = new SimpleModule();
         module.setDeserializerModifier(
             new BeanDeserializerModifier() {
+                private static final long serialVersionUID = 1L;
+
                 @Override
                 public JsonDeserializer<?> modifyArrayDeserializer(DeserializationConfig config,
                         ArrayType valueType, BeanDescription beanDesc, JsonDeserializer<?> deserializer)

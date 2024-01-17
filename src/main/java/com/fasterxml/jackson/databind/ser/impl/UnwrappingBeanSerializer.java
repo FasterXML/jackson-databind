@@ -127,7 +127,7 @@ public class UnwrappingBeanSerializer
     @Override
     public final void serialize(Object bean, JsonGenerator gen, SerializerProvider provider) throws IOException
     {
-        gen.setCurrentValue(bean); // [databind#631]
+        gen.assignCurrentValue(bean); // [databind#631]
         if (_objectIdWriter != null) {
             _serializeWithObjectId(bean, gen, provider, false);
             return;
@@ -147,7 +147,7 @@ public class UnwrappingBeanSerializer
             provider.reportBadDefinition(handledType(),
                     "Unwrapped property requires use of type information: cannot serialize without disabling `SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS`");
         }
-        gen.setCurrentValue(bean); // [databind#631]
+        gen.assignCurrentValue(bean); // [databind#631]
         if (_objectIdWriter != null) {
             _serializeWithObjectId(bean, gen, provider, typeSer);
             return;

@@ -2,13 +2,19 @@ package com.fasterxml.jackson.databind.contextual;
 
 import java.io.IOException;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 
-public class TestContextAttributeWithDeser extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+
+public class ContextAttributeWithDeserTest
 {
     final static String KEY = "foobar";
 
@@ -46,8 +52,9 @@ public class TestContextAttributeWithDeser extends BaseMapTest
     /**********************************************************
      */
 
-    final ObjectMapper MAPPER = sharedMapper();
+    final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testSimplePerCall() throws Exception
     {
         final String INPUT = a2q("[{'value':'a'},{'value':'b'}]");
@@ -63,6 +70,7 @@ public class TestContextAttributeWithDeser extends BaseMapTest
         assertEquals("b/1", pojos2[1].value);
     }
 
+    @Test
     public void testSimpleDefaults() throws Exception
     {
         final String INPUT = a2q("{'value':'x'}");
@@ -78,6 +86,7 @@ public class TestContextAttributeWithDeser extends BaseMapTest
         assertEquals("x/5", pojo2.value);
     }
 
+    @Test
     public void testHierarchic() throws Exception
     {
         final String INPUT = a2q("[{'value':'x'},{'value':'y'}]");
@@ -94,6 +103,7 @@ public class TestContextAttributeWithDeser extends BaseMapTest
         assertEquals("y/3", pojos2[1].value);
     }
 
+    @Test
     // [databind#3001]
     public void testDefaultsViaMapper() throws Exception
     {

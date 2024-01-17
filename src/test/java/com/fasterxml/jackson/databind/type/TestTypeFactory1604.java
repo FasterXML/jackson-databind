@@ -2,12 +2,19 @@ package com.fasterxml.jackson.databind.type;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.JavaType;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newTypeFactory;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
+
 // for [databind#1604], [databind#2577]
-public class TestTypeFactory1604 extends BaseMapTest
+public class TestTypeFactory1604
 {
     static class Data1604<T> { }
 
@@ -32,6 +39,7 @@ public class TestTypeFactory1604 extends BaseMapTest
     static class Left<V> extends Either<V, Void> { }
     static class Right<V> extends Either<Void, V> { }
 
+    @Test
     public void testCustomTypesRefinedSimple()
     {
         TypeFactory tf = newTypeFactory();
@@ -47,6 +55,7 @@ public class TestTypeFactory1604 extends BaseMapTest
         assertEquals(Long.class, paramType.getRawClass());
     }
 
+    @Test
     public void testCustomTypesRefinedNested()
     {
         TypeFactory tf = newTypeFactory();
@@ -62,6 +71,7 @@ public class TestTypeFactory1604 extends BaseMapTest
         assertEquals(Long.class, paramType.getRawClass());
     }
 
+    @Test
     public void testCustomTypesRefinedSneaky()
     {
         TypeFactory tf = newTypeFactory();
@@ -79,6 +89,7 @@ public class TestTypeFactory1604 extends BaseMapTest
         assertEquals(Data1604.class, subtype.getSuperClass().getRawClass());
     }
 
+    @Test
     public void testTwoParamSneakyCustom()
     {
         TypeFactory tf = newTypeFactory();
@@ -103,6 +114,7 @@ public class TestTypeFactory1604 extends BaseMapTest
     }
 
     // Also: let's not allow mismatching binding
+    @Test
     public void testErrorForMismatch()
     {
         TypeFactory tf = newTypeFactory();
@@ -120,6 +132,7 @@ public class TestTypeFactory1604 extends BaseMapTest
     }
 
     // [databind#2577]
+    @Test
     public void testResolveGenericPartialSubtypes()
     {
         TypeFactory tf = newTypeFactory();

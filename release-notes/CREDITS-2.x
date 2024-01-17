@@ -1733,3 +1733,8 @@ Pieter Dirk Soels (Badbond@github)
  * Reprted #4302: Problem deserializing some type of Enums when using
   `PropertyNamingStrategy`
   (2.16.2)
+
+Muhammad Khalikov (mukham12@github)
+ * Contributed fix for #4209: Make `BeanDeserializerModifier`/`BeanSerializerModifier`
+  implement `java.io.Serializable`
+ (2.17.0)

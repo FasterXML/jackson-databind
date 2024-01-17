@@ -1,12 +1,17 @@
 package com.fasterxml.jackson.databind.views;
 
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import com.fasterxml.jackson.databind.*;
+import org.junit.jupiter.api.Test;
 
-public class TestViewDeserialization extends BaseMapTest
+public class TestViewDeserialization
 {
     // Classes that represent views
     static class ViewA { }
@@ -61,6 +66,7 @@ public class TestViewDeserialization extends BaseMapTest
 
     private final ObjectMapper mapper = new ObjectMapper();
 
+    @Test
     public void testSimple() throws Exception
     {
         // by default, should have it all...
@@ -95,6 +101,7 @@ public class TestViewDeserialization extends BaseMapTest
         assertEquals(2, bean.b);
     }
 
+    @Test
     public void testWithoutDefaultInclusion() throws Exception
     {
         // without active view, all included still:
@@ -116,6 +123,7 @@ public class TestViewDeserialization extends BaseMapTest
         assertEquals(2, bean.b);
     }
 
+    @Test
     public void testWithCreatorAndViews() throws Exception
     {
         ViewsAndCreatorBean result;

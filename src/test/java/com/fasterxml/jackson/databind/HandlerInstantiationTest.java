@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
-public class TestHandlerInstantiation extends BaseMapTest
+public class HandlerInstantiationTest extends BaseMapTest
 {
     /*
     /**********************************************************************

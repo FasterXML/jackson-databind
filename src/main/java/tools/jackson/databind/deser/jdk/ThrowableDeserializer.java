@@ -190,6 +190,10 @@ public class ThrowableDeserializer
                 continue;
             }
             if (_anySetter != null) {
+                // [databind#4316] Since 2.16.2 : at this point throwable should be non-null
+                if (throwable == null) {
+                    throwable = _instantiate(ctxt, hasStringCreator, null);
+                }
                 _anySetter.deserializeAndSet(p, ctxt, throwable, propName);
                 continue;
             }
@@ -240,7 +244,7 @@ public class ThrowableDeserializer
     /**
      * Helper method to initialize Throwable
      *
-     * @since 2.17
+     * @since 2.16.2
      */
     private Throwable _instantiate(DeserializationContext ctxt, boolean hasStringCreator, String valueAsString)
     {

@@ -4,13 +4,24 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import com.fasterxml.jackson.databind.*;
 
+// [databind#4316] : NPE when deserializing JsonAnySetter in Throwable
 public class ExceptionWithAnySetter4316Test extends BaseMapTest
 {
     static class Problem extends Exception {
         private static final long serialVersionUID = 1L;
+        @JsonInclude(content=JsonInclude.Include.NON_NULL)
+        @JsonAnySetter
+        @JsonAnyGetter
+        Map<String, Object> additionalProperties = new HashMap<>();
+    }
 
+    @JsonIgnoreProperties({ "cause", "stackTrace", "response", "message", "localizedMessage", "suppressed" })
+    static class ProblemWithIgnorals extends Exception {
         @JsonAnySetter
         @JsonAnyGetter
         Map<String, Object> additionalProperties = new HashMap<>();
@@ -18,7 +29,6 @@ public class ExceptionWithAnySetter4316Test extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    // [databind#4316]
     public void testWithAnySetter() throws Exception
     {
         Problem problem = new Problem();
@@ -27,5 +37,35 @@ public class ExceptionWithAnySetter4316Test extends BaseMapTest
         Problem result = MAPPER.readValue(json, Problem.class);
         assertEquals(Collections.singletonMap("key", "value"),
                 result.additionalProperties);
+    }
+
+    // With ignorals
+    public void testWithAnySetterAndIgnorals() throws Exception
+    {
+        // Given
+        ProblemWithIgnorals problem = new ProblemWithIgnorals();
+        problem.additionalProperties.put("key", "value");
+        // Below key-value pairs also should be ignored from here....
+        problem.additionalProperties.put("cause", "ignored");
+        problem.additionalProperties.put("stackTrace", "ignored");
+        problem.additionalProperties.put("response", "ignored");
+        problem.additionalProperties.put("message", "ignored");
+        problem.additionalProperties.put("localizedMessage", "ignored");
+        problem.additionalProperties.put("suppressed", "ignored");
+
+        String json = MAPPER.writeValueAsString(problem);
+        ProblemWithIgnorals result = MAPPER.readValue(json, ProblemWithIgnorals.class);
+        assertEquals(Collections.singletonMap("key", "value"),
+                result.additionalProperties);
+    }
+
+    // With Include.NON_NULL
+    public void testWithAnySetterButEmptyIncludedFalse() throws Exception
+    {
+        Problem problem = new Problem();
+        problem.additionalProperties.put("exclude", null);
+        String json = MAPPER.writeValueAsString(problem);
+        Problem result = MAPPER.readValue(json, Problem.class);
+        assertEquals(Collections.emptyMap(), result.additionalProperties);
     }
 }

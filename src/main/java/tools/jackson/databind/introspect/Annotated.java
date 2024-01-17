@@ -34,7 +34,7 @@ public abstract class Annotated
     }
 
     /**
-     * @since 2.17
+     * @since 2.16.2
      */
     public boolean isStatic() {
         return Modifier.isStatic(getModifiers());

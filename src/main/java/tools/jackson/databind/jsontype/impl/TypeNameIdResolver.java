@@ -18,7 +18,7 @@ import tools.jackson.databind.jsontype.NamedType;
  * defaults to fully-qualified {@link Class} names (obtained with {@link Class#getName()}
  */
 public class TypeNameIdResolver extends TypeIdResolverBase
-    implements java.io.Serializable // @since 2.17
+    implements java.io.Serializable // @since 2.16.2
 {
     private static final long serialVersionUID = 3L;
 

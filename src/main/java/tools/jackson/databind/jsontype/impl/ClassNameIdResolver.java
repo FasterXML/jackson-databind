@@ -16,7 +16,7 @@ import tools.jackson.databind.util.ClassUtil;
  */
 public class ClassNameIdResolver
     extends TypeIdResolverBase
-    implements java.io.Serializable // @since 2.17
+    implements java.io.Serializable // @since 2.16.2
 {
     private static final long serialVersionUID = 1L;
 

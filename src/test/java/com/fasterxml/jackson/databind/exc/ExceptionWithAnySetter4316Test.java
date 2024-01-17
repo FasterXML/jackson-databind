@@ -39,13 +39,13 @@ public class ExceptionWithAnySetter4316Test extends BaseMapTest
                 result.additionalProperties);
     }
 
-    // With ignorals
-    public void testWithAnySetterAndIgnorals() throws Exception
+    // Map with ignored props keys specified in @JsonIgnoreProperties
+    public void testWithAnySetterAndIgnoralsPut() throws Exception
     {
         // Given
         ProblemWithIgnorals problem = new ProblemWithIgnorals();
         problem.additionalProperties.put("key", "value");
-        // Below key-value pairs also should be ignored from here....
+        // Below key-value pairs also ignored from here....
         problem.additionalProperties.put("cause", "ignored");
         problem.additionalProperties.put("stackTrace", "ignored");
         problem.additionalProperties.put("response", "ignored");
@@ -53,10 +53,29 @@ public class ExceptionWithAnySetter4316Test extends BaseMapTest
         problem.additionalProperties.put("localizedMessage", "ignored");
         problem.additionalProperties.put("suppressed", "ignored");
 
+        // When
         String json = MAPPER.writeValueAsString(problem);
         ProblemWithIgnorals result = MAPPER.readValue(json, ProblemWithIgnorals.class);
+
+        // Then
         assertEquals(Collections.singletonMap("key", "value"),
-                result.additionalProperties);
+            result.additionalProperties);
+    }
+
+    // With ignorals
+    public void testWithAnySetterAndIgnoralSimple() throws Exception
+    {
+        // Given
+        ProblemWithIgnorals problem = new ProblemWithIgnorals();
+        problem.additionalProperties.put("key", "value");
+
+        // When
+        String json = MAPPER.writeValueAsString(problem);
+        ProblemWithIgnorals result = MAPPER.readValue(json, ProblemWithIgnorals.class);
+
+        // Then
+        assertEquals(Collections.singletonMap("key", "value"),
+            result.additionalProperties);
     }
 
     // With Include.NON_NULL

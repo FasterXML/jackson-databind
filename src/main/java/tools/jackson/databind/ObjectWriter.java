@@ -1063,11 +1063,12 @@ public class ObjectWriter
     public String writeValueAsString(Object value) throws JacksonException
     {
         // alas, we have to pull the recycler directly here...
-        SegmentedStringWriter sw = new SegmentedStringWriter(_generatorFactory._getBufferRecycler());
-        SerializationContextExt ctxt = _serializerProvider();
-        _configAndWriteValue(ctxt,
-                _generatorFactory.createGenerator(ctxt, sw), value);
-        return sw.getAndClear();
+        try (SegmentedStringWriter sw = new SegmentedStringWriter(_generatorFactory._getBufferRecycler())) {
+            final SerializationContextExt ctxt = _serializerProvider();
+            _configAndWriteValue(ctxt,
+                    _generatorFactory.createGenerator(ctxt, sw), value);
+            return sw.getAndClear();
+        }
     }
 
     /**

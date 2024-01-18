@@ -1,6 +1,8 @@
 package com.fasterxml.jackson.databind.jdk14;
 
-import java.lang.reflect.Method;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.util.Collections;
 import java.util.List;
 
@@ -41,9 +43,9 @@ public class JDK14Util
     }
 
     static class RecordAccessor {
-        private final Method RECORD_GET_RECORD_COMPONENTS;
-        private final Method RECORD_COMPONENT_GET_NAME;
-        private final Method RECORD_COMPONENT_GET_TYPE;
+        private final MethodHandle RECORD_GET_RECORD_COMPONENTS;
+        private final MethodHandle RECORD_COMPONENT_GET_NAME;
+        private final MethodHandle RECORD_COMPONENT_GET_TYPE;
 
         private final static RecordAccessor INSTANCE;
         private final static RuntimeException PROBLEM;
@@ -62,14 +64,25 @@ public class JDK14Util
 
         private RecordAccessor() throws RuntimeException {
             try {
-                RECORD_GET_RECORD_COMPONENTS = Class.class.getMethod("getRecordComponents");
-                Class<?> c = Class.forName("java.lang.reflect.RecordComponent");
-                RECORD_COMPONENT_GET_NAME = c.getMethod("getName");
-                RECORD_COMPONENT_GET_TYPE = c.getMethod("getType");
-            } catch (Exception e) {
+                final Class<?> recordComponentClass = Class.forName("java.lang.reflect.RecordComponent");
+                final MethodHandles.Lookup lookup = MethodHandles.lookup();
+                final MethodType classReturnMethodType = MethodType.methodType(Class.class);
+                final MethodType stringReturnMethodType = MethodType.methodType(String.class);
+                final MethodHandle arrayTypeMethodHandle =
+                        lookup.findVirtual(Class.class, "arrayType", classReturnMethodType);
+                final Class<?> recordComponentArrayClass = (Class<?>)
+                        arrayTypeMethodHandle.invokeExact(recordComponentClass);
+                final MethodType recordComponentArrayMethodType = MethodType.methodType(recordComponentArrayClass);
+                RECORD_GET_RECORD_COMPONENTS = lookup.findVirtual(
+                        Class.class, "getRecordComponents", recordComponentArrayMethodType);
+                RECORD_COMPONENT_GET_NAME = lookup.findVirtual(
+                        recordComponentClass, "getName", stringReturnMethodType);
+                RECORD_COMPONENT_GET_TYPE = lookup.findVirtual(
+                        recordComponentClass, "getType", classReturnMethodType);
+            } catch (Throwable t) {
                 throw new RuntimeException(String.format(
-"Failed to access Methods needed to support `java.lang.Record`: (%s) %s",
-e.getClass().getName(), e.getMessage()), e);
+                        "Failed to access Methods needed to support `java.lang.Record`: (%s) %s",
+                        t.getClass().getName(), t.getMessage()), t);
             }
         }
 
@@ -91,10 +104,10 @@ e.getClass().getName(), e.getMessage()), e);
             for (int i = 0; i < components.length; i++) {
                 try {
                     names[i] = (String) RECORD_COMPONENT_GET_NAME.invoke(components[i]);
-                } catch (Exception e) {
+                } catch (Throwable t) {
                     throw new IllegalArgumentException(String.format(
 "Failed to access name of field #%d (of %d) of Record type %s",
-i, components.length, ClassUtil.nameOf(recordType)), e);
+i, components.length, ClassUtil.nameOf(recordType)), t);
                 }
             }
             return names;
@@ -112,18 +125,18 @@ i, components.length, ClassUtil.nameOf(recordType)), e);
                 String name;
                 try {
                     name = (String) RECORD_COMPONENT_GET_NAME.invoke(components[i]);
-                } catch (Exception e) {
+                } catch (Throwable t) {
                     throw new IllegalArgumentException(String.format(
 "Failed to access name of field #%d (of %d) of Record type %s",
-i, components.length, ClassUtil.nameOf(recordType)), e);
+i, components.length, ClassUtil.nameOf(recordType)), t);
                 }
                 Class<?> type;
                 try {
                     type = (Class<?>) RECORD_COMPONENT_GET_TYPE.invoke(components[i]);
-                } catch (Exception e) {
+                } catch (Throwable t) {
                     throw new IllegalArgumentException(String.format(
 "Failed to access type of field #%d (of %d) of Record type %s",
-i, components.length, ClassUtil.nameOf(recordType)), e);
+i, components.length, ClassUtil.nameOf(recordType)), t);
                 }
                 results[i] = new RawTypeName(type, name);
             }
@@ -134,12 +147,12 @@ i, components.length, ClassUtil.nameOf(recordType)), e);
         {
             try {
                 return (Object[]) RECORD_GET_RECORD_COMPONENTS.invoke(recordType);
-            } catch (Exception e) {
-                if (NativeImageUtil.isUnsupportedFeatureError(e)) {
+            } catch (Throwable t) {
+                if (NativeImageUtil.isUnsupportedFeatureError(t)) {
                     return null;
                 }
                 throw new IllegalArgumentException("Failed to access RecordComponents of type "
-                        +ClassUtil.nameOf(recordType));
+                        + ClassUtil.nameOf(recordType));
             }
         }
 

@@ -1,9 +1,15 @@
 package com.fasterxml.jackson.databind.deser;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
 /**
  * Simple unit tests to verify that it is possible to handle
@@ -12,7 +18,6 @@ import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
  * trees and DAGs.
  */
 public class CyclicTypesDeserTest
-    extends BaseMapTest
 {
     static class Bean
     {
@@ -62,6 +67,7 @@ public class CyclicTypesDeserTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testLinked() throws Exception
     {
         Bean first = MAPPER.readValue
@@ -77,6 +83,7 @@ public class CyclicTypesDeserTest
         assertNull(last._next);
     }
 
+    @Test
     public void testLinkedGeneric() throws Exception
     {
         StringLink link = MAPPER.readValue("{\"next\":null}", StringLink.class);
@@ -84,6 +91,7 @@ public class CyclicTypesDeserTest
         assertNull(link.next);
     }
 
+    @Test
     public void testCycleWith2Classes() throws Exception
     {
         LinkA a = MAPPER.readValue("{\"next\":{\"a\":null}}", LinkA.class);
@@ -93,6 +101,7 @@ public class CyclicTypesDeserTest
     }
 
     // [Issue#405]: Should be possible to ignore cyclic ref
+    @Test
     public void testIgnoredCycle() throws Exception
     {
         Selfie405 self1 = new Selfie405(1);

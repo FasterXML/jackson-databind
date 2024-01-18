@@ -4,15 +4,19 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 @SuppressWarnings("serial")
-public class TestCachingOfDeser extends BaseMapTest
+public class TestCachingOfDeser
 {
     // For [databind#735]
     public static class TestMapNoCustom {
@@ -57,6 +61,7 @@ public class TestCachingOfDeser extends BaseMapTest
 
 
     // Ok: first, use custom-annotated instance first, then standard
+    @Test
     public void testCustomMapCaching1() throws Exception
     {
 
@@ -71,6 +76,7 @@ public class TestCachingOfDeser extends BaseMapTest
     }
 
     // And then standard first, custom next
+    @Test
     public void testCustomMapCaching2() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -84,6 +90,7 @@ public class TestCachingOfDeser extends BaseMapTest
     }
 
     // Ok: first, use custom-annotated instance first, then standard
+    @Test
     public void testCustomListCaching1() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         TestListWithCustom listC = mapper.readValue(LIST_INPUT, TestListWithCustom.class);
@@ -96,6 +103,7 @@ public class TestCachingOfDeser extends BaseMapTest
     }
 
     // First custom-annotated, then standard
+    @Test
     public void testCustomListCaching2() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         TestListNoCustom listStd = mapper.readValue(LIST_INPUT, TestListNoCustom.class);

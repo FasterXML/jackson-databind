@@ -1135,8 +1135,7 @@ public class ObjectWriter
         throws JsonProcessingException
     {
         // alas, we have to pull the recycler directly here...
-        SegmentedStringWriter sw = new SegmentedStringWriter(_generatorFactory._getBufferRecycler());
-        try {
+        try (SegmentedStringWriter sw = new SegmentedStringWriter(_generatorFactory._getBufferRecycler())) {
             _writeValueAndClose(createGenerator(sw), value);
             return sw.getAndClear();
         } catch (JsonProcessingException e) {

@@ -2,17 +2,24 @@ package com.fasterxml.jackson.databind.deser;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.*;
+
+import static org.junit.jupiter.api.Assertions.fail;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.sharedMapper;
 
 // Tests for [databind#2539] for checking whether given (raw) type has explicit
 // deserializer associated
-public class DeserializerFactoryTest extends BaseMapTest
+public class DeserializerFactoryTest
 {
     private final ObjectMapper MAPPER = sharedMapper();
 
     static class POJO2539 { }
 
     // [databind#2539]: check existence of deserializer for type
+    @Test
     public void testJDKScalarDeserializerExistence() throws Exception
     {
         // First verify some basic types
@@ -34,6 +41,7 @@ public class DeserializerFactoryTest extends BaseMapTest
 //        _verifyIsFound(java.util.Object.class);
     }
 
+    @Test
     public void testJDKContainerDeserializerExistence() throws Exception
     {
         // Both general and specific container types should be considered supported
@@ -48,6 +56,7 @@ public class DeserializerFactoryTest extends BaseMapTest
         _verifyIsFound(HashSet.class);
     }
 
+    @Test
     public void testJDKArraysOfExistence() throws Exception
     {
         // Similarly, array types of all supported types should be allowed
@@ -57,6 +66,7 @@ public class DeserializerFactoryTest extends BaseMapTest
         _verifyIsFound(UUID[].class);
     }
 
+    @Test
     public void testNoDeserTypes() throws Exception
     {
         // Types for which we should NOT have explicit deserializer

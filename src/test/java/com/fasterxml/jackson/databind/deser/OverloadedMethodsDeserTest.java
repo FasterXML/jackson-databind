@@ -2,9 +2,16 @@ package com.fasterxml.jackson.databind.deser;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
 
 /**
  * Unit tests related to handling of overloaded methods.
@@ -12,7 +19,6 @@ import com.fasterxml.jackson.databind.*;
  * and [JACKSON-739]
  */
 public class OverloadedMethodsDeserTest
-    extends BaseMapTest
 {
     static class BaseListBean
     {
@@ -71,6 +77,7 @@ public class OverloadedMethodsDeserTest
      * It should be ok to overload with specialized
      * version; more specific method should be used.
      */
+    @Test
     public void testSpecialization() throws Exception
     {
         ArrayListBean bean = MAPPER.readValue
@@ -87,6 +94,7 @@ public class OverloadedMethodsDeserTest
      * As per [JACKSON-255], should also allow more general overriding,
      * as long as there are no in-class conflicts.
      */
+    @Test
     public void testOverride() throws Exception
     {
         WasNumberBean bean = MAPPER.readValue
@@ -96,6 +104,7 @@ public class OverloadedMethodsDeserTest
     }
 
     // for [JACKSON-739]
+    @Test
     public void testConflictResolution() throws Exception
     {
         Overloaded739 bean = MAPPER.readValue
@@ -113,6 +122,7 @@ public class OverloadedMethodsDeserTest
     /**
      * For genuine setter conflict, an exception is to be thrown.
      */
+    @Test
     public void testSetterConflict() throws Exception
     {
     	try {

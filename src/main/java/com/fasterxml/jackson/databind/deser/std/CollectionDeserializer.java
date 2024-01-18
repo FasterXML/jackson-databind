@@ -413,14 +413,14 @@ _containerType,
                     return result;
                 }
                 value = _nullProvider.getNullValue(ctxt);
-                if (value == null) {
-                    _tryToAddNull(p, ctxt, result);
-                    return result;
-                }
             } else if (typeDeser == null) {
                 value = valueDes.deserialize(p, ctxt);
             } else {
                 value = valueDes.deserializeWithType(p, ctxt, typeDeser);
+            }
+            if (value == null) {
+                _tryToAddNull(p, ctxt, result);
+                return result;
             }
         } catch (Exception e) {
             boolean wrap = ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
@@ -464,6 +464,9 @@ _containerType,
                 } else {
                     value = valueDes.deserializeWithType(p, ctxt, typeDeser);
                 }
+                if (value == null && _skipNullValues) {
+                    continue;
+                }
                 referringAccumulator.add(value);
             } catch (UnresolvedForwardReference reference) {
                 Referring ref = referringAccumulator.handleUnresolvedReference(reference);
@@ -480,14 +483,18 @@ _containerType,
     }
 
     /**
-     * {@code java.util.TreeSet} does not allow addition of {@code null} values,
-     * so isolate handling here.
+     * {@code java.util.TreeSet} (and possibly other {@link Collection} types) does not
+     * allow addition of {@code null} values, so isolate handling here.
      *
      * @since 2.17
      */
     protected void _tryToAddNull(JsonParser p, DeserializationContext ctxt, Collection<?> set)
         throws IOException
     {
+        if (_skipNullValues) {
+            return;
+        }
+
         // Ideally we'd have better idea of where nulls are accepted, but first
         // let's just produce something better than NPE:
         try {

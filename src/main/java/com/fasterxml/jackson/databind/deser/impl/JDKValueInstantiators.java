@@ -51,9 +51,29 @@ public abstract class JDKValueInstantiators
         return null;
     }
 
-    private static class ArrayListInstantiator
+    private abstract static class JDKValueInstantiator
         extends ValueInstantiator.Base
         implements java.io.Serializable
+    {
+        private static final long serialVersionUID = 2L;    
+
+        public JDKValueInstantiator(Class<?> type) {
+            super(type);
+        }
+
+        @Override
+        public final boolean canInstantiate() { return true; }
+
+        @Override
+        public final boolean canCreateUsingDefault() {  return true; }
+
+        // Make abstract to force (re)implementation
+        @Override
+        public abstract Object createUsingDefault(DeserializationContext ctxt) throws IOException;
+    }
+
+    private static class ArrayListInstantiator
+        extends JDKValueInstantiator
     {
         private static final long serialVersionUID = 2L;
 
@@ -63,20 +83,13 @@ public abstract class JDKValueInstantiators
         }
 
         @Override
-        public boolean canInstantiate() { return true; }
-
-        @Override
-        public boolean canCreateUsingDefault() {  return true; }
-
-        @Override
         public Object createUsingDefault(DeserializationContext ctxt) throws IOException {
             return new ArrayList<>();
         }
     }
 
     private static class HashMapInstantiator
-        extends ValueInstantiator.Base
-        implements java.io.Serializable
+        extends JDKValueInstantiator
     {
         private static final long serialVersionUID = 2L;
 
@@ -87,20 +100,13 @@ public abstract class JDKValueInstantiators
         }
 
         @Override
-        public boolean canInstantiate() { return true; }
-
-        @Override
-        public boolean canCreateUsingDefault() {  return true; }
-
-        @Override
         public Object createUsingDefault(DeserializationContext ctxt) throws IOException {
             return new HashMap<>();
         }
     }
 
     private static class LinkedHashMapInstantiator
-        extends ValueInstantiator.Base
-        implements java.io.Serializable
+        extends JDKValueInstantiator
     {
         private static final long serialVersionUID = 2L;
 
@@ -111,20 +117,13 @@ public abstract class JDKValueInstantiators
         }
 
         @Override
-        public boolean canInstantiate() { return true; }
-
-        @Override
-        public boolean canCreateUsingDefault() {  return true; }
-
-        @Override
         public Object createUsingDefault(DeserializationContext ctxt) throws IOException {
             return new LinkedHashMap<>();
         }
     }
 
     private static class ConstantValueInstantiator
-        extends ValueInstantiator.Base
-        implements java.io.Serializable
+        extends JDKValueInstantiator
     {
         private static final long serialVersionUID = 2L;
 
@@ -135,16 +134,9 @@ public abstract class JDKValueInstantiators
             _value = value;
         }
 
-        @Override // yes, since default ctor works
-        public boolean canInstantiate() { return true; }
-
-        @Override
-        public boolean canCreateUsingDefault() {  return true; }
-
         @Override
         public Object createUsingDefault(DeserializationContext ctxt) throws IOException {
             return _value;
         }
     }
-
 }

@@ -2,7 +2,10 @@ package com.fasterxml.jackson.databind.deser.creators;
 
 import java.io.IOException;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
@@ -12,6 +15,9 @@ import com.fasterxml.jackson.databind.deser.impl.PropertyValueBuffer;
 import com.fasterxml.jackson.databind.deser.std.StdValueInstantiator;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 /**
  * Exercises a custom value instantiator with an overridden
  * {@link ValueInstantiator#createFromObjectWith(DeserializationContext, SettableBeanProperty[], PropertyValueBuffer)}
@@ -20,7 +26,6 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
  */
 @SuppressWarnings("serial")
 public class TestCustomValueInstDefaults
-    extends BaseMapTest
 {
     static class Bucket
     {
@@ -338,7 +343,7 @@ public class TestCustomValueInstDefaults
         @Override
         public Object createFromObjectWith(DeserializationContext ctxt, SettableBeanProperty[] props, PropertyValueBuffer buffer) throws IOException {
             for (SettableBeanProperty prop : props) {
-                assertTrue("prop " + prop.getName() + " was expected to have buffer.hasParameter(prop) be true but was false", buffer.hasParameter(prop));
+                assertTrue(buffer.hasParameter(prop), "prop " + prop.getName() + " was expected to have buffer.hasParameter(prop) be true but was false");
             }
             return super.createFromObjectWith(ctxt, props, buffer);
         }
@@ -374,6 +379,7 @@ public class TestCustomValueInstDefaults
      */
 
     // When all values are in the source, no defaults should be used.
+    @Test
     public void testAllPresent() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -390,6 +396,7 @@ public class TestCustomValueInstDefaults
     }
 
     // When no values are in the source, all defaults should be used.
+    @Test
     public void testAllAbsent() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -407,6 +414,7 @@ public class TestCustomValueInstDefaults
 
     // When some values are in the source and some are not, defaults should only
     // be used for the missing values.
+    @Test
     public void testMixedPresentAndAbsent() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -450,6 +458,7 @@ public class TestCustomValueInstDefaults
     }
 
     // Ensure that 0 is not mistaken for a missing int value.
+    @Test
     public void testPresentZeroPrimitive() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -466,6 +475,7 @@ public class TestCustomValueInstDefaults
     }
 
     // Ensure that null is not mistaken for a missing String value.
+    @Test
     public void testPresentNullReference() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -484,6 +494,7 @@ public class TestCustomValueInstDefaults
     // When we have more than 32 creator parameters, the buffer will use a
     // BitSet instead of a primitive int to keep track of which parameters it
     // has seen.  Ensure that nothing breaks in that case.
+    @Test
     public void testMoreThan32CreatorParams() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -528,6 +539,7 @@ public class TestCustomValueInstDefaults
     }
 
     // [databind#1432]
+    @Test
     public void testClassWith32CreatorParams() throws Exception
     {
         StringBuilder sb = new StringBuilder()

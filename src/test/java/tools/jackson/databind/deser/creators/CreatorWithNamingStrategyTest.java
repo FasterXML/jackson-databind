@@ -1,5 +1,7 @@
 package tools.jackson.databind.deser.creators;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 import tools.jackson.databind.*;
@@ -8,7 +10,11 @@ import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.introspect.AnnotatedParameter;
 import tools.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
-public class CreatorWithNamingStrategyTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
+
+public class CreatorWithNamingStrategyTest
 {
     @SuppressWarnings("serial")
     static class MyParamIntrospector extends JacksonAnnotationIntrospector
@@ -40,6 +46,7 @@ public class CreatorWithNamingStrategyTest extends BaseMapTest
      */
 
     // [databind#2051]
+    @Test
     public void testSnakeCaseWithOneArg() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()

@@ -3,6 +3,8 @@ package tools.jackson.databind.deser.creators;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
@@ -11,8 +13,13 @@ import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.introspect.AnnotatedParameter;
 import tools.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.*;
+
 // Misc Creator tests, part 3
-public class TestCreators3 extends BaseMapTest
+public class TestCreators3
 {
     static final class Foo {
 
@@ -134,6 +141,7 @@ public class TestCreators3 extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testCreator541() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -173,6 +181,7 @@ public class TestCreators3 extends BaseMapTest
     }
 
     // [databind#421]
+    @Test
     public void testMultiCtor421() throws Exception
     {
         final ObjectMapper mapper = jsonMapperBuilder()
@@ -185,21 +194,25 @@ public class TestCreators3 extends BaseMapTest
     }
 
     // [databind#1853]
+    @Test
     public void testSerialization() throws Exception {
         assertEquals(q("testProduct"),
                 MAPPER.writeValueAsString(new Product1853(false, "testProduct")));
     }
 
+    @Test
     public void testDeserializationFromObject() throws Exception {
         final String EXAMPLE_DATA = "{\"name\":\"dummy\",\"other\":{},\"errors\":{}}";
         assertEquals("PROP:dummy", MAPPER.readValue(EXAMPLE_DATA, Product1853.class).getName());
     }
 
+    @Test
     public void testDeserializationFromString() throws Exception {
         assertEquals("DELEG:testProduct",
                 MAPPER.readValue(q("testProduct"), Product1853.class).getName());
     }
 
+    @Test
     public void testDeserializationFromWrappedString() throws Exception {
         Product1853 result = MAPPER.readerFor(Product1853.class)
                 .with(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)

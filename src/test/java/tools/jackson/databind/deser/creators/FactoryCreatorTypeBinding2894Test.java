@@ -3,11 +3,17 @@ package tools.jackson.databind.deser.creators;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
 // Test(s) to check for handling of Static Factory Creator bindings
 // which up until 2.11.2 used type variable bindings of the surrounding
@@ -21,7 +27,7 @@ import tools.jackson.databind.*;
 //
 // Work for 2.12 should find better solution than this.
 
-public class FactoryCreatorTypeBinding2894Test extends BaseMapTest
+public class FactoryCreatorTypeBinding2894Test
 {
     // [databind#2894]
     static class Wrapper<T> {
@@ -93,6 +99,7 @@ public class FactoryCreatorTypeBinding2894Test extends BaseMapTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#2894]
+    @Test
     public void testIssue2894() throws Exception
     {
         Wrapper<Value> src = new Wrapper<>(Arrays.asList(new Value(1), new Value(2)));
@@ -103,6 +110,7 @@ public class FactoryCreatorTypeBinding2894Test extends BaseMapTest
     }
 
     // [databind#2895]
+    @Test
     public void testIssue2895() throws Exception
     {
         SimpleWrapper2895<Account2895> wrapper = MAPPER

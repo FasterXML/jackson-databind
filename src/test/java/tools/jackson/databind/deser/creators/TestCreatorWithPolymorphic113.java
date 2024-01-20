@@ -1,13 +1,17 @@
 package tools.jackson.databind.deser.creators;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 /**
- * Test(s) for [Issue#113], problems with polymorphic types, JsonCreator.
+ * Test(s) for problems with polymorphic types, JsonCreator.
  */
-public class TestCreatorWithPolymorphic113 extends BaseMapTest
+public class TestCreatorWithPolymorphic113
 {
     @JsonIgnoreProperties(ignoreUnknown = true)
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "_class")
@@ -50,6 +54,7 @@ public class TestCreatorWithPolymorphic113 extends BaseMapTest
         }
     }
 
+    @Test
     public void testSubtypes() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();

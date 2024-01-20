@@ -2,15 +2,21 @@ package tools.jackson.databind.deser.creators;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 
-public class DelegatingArrayCreatorsTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.sharedMapper;
+import static tools.jackson.databind.testutil.DatabindTestUtil.verifyException;
+
+public class DelegatingArrayCreatorsTest
 {
     public static class MyTypeImpl extends MyType {
         private final List<Integer> values;
@@ -93,12 +99,14 @@ public class DelegatingArrayCreatorsTest extends BaseMapTest
     private final ObjectMapper MAPPER = sharedMapper();
 
     // [databind#1804]
+    @Test
     public void testDelegatingArray1804() throws Exception {
         MyType thing = MAPPER.readValue("[]", MyType.class);
         assertNotNull(thing);
     }
 
     // [databind#2324]
+    @Test
     public void testDeserializeBagOfStrings() throws Exception {
         WithBagOfStrings2324 result = MAPPER.readerFor(WithBagOfStrings2324.class)
                 .readValue("{\"strings\": [ \"a\", \"b\", \"c\"]}");
@@ -106,6 +114,7 @@ public class DelegatingArrayCreatorsTest extends BaseMapTest
     }
 
     // [databind#2324]
+    @Test
     public void testDeserializeBagOfPOJOs() throws Exception {
         WithBagOfValues2324 result = MAPPER.readerFor(WithBagOfValues2324.class)
                 .readValue("{\"values\": [ \"a\", \"b\", \"c\"]}");
@@ -113,6 +122,7 @@ public class DelegatingArrayCreatorsTest extends BaseMapTest
         assertEquals(new Value2324("a"),  result.getValues().iterator().next());
     }
 
+    @Test
     public void testInvalidTwoArrayDelegating() throws Exception {
         try {
             /*MultipleArrayDelegators result =*/ MAPPER.readerFor(MultipleArrayDelegators.class)

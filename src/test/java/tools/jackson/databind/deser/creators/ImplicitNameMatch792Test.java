@@ -1,5 +1,7 @@
 package tools.jackson.databind.deser.creators;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
@@ -9,7 +11,13 @@ import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.introspect.AnnotatedParameter;
 import tools.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
-public class ImplicitNameMatch792Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.a2q;
+import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
+import static tools.jackson.databind.testutil.DatabindTestUtil.sharedMapper;
+
+public class ImplicitNameMatch792Test
 {
     // Simple introspector that gives generated "ctorN" names for constructor
     // parameters
@@ -96,6 +104,7 @@ public class ImplicitNameMatch792Test extends BaseMapTest
 
     private final ObjectMapper MAPPER = sharedMapper();
 
+    @Test
     public void testBindingOfImplicitCreatorNames() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
@@ -105,18 +114,21 @@ public class ImplicitNameMatch792Test extends BaseMapTest
         assertEquals(a2q("{'first':'a','other':3}"), json);
     }
 
+    @Test
     public void testImplicitWithSetterGetter() throws Exception
     {
         String json = MAPPER.writeValueAsString(new Bean2());
         assertEquals(a2q("{'stuff':3}"), json);
     }
 
+    @Test
     public void testReadWriteWithPrivateField() throws Exception
     {
         String json = MAPPER.writeValueAsString(new ReadWriteBean(3));
         assertEquals("{\"value\":3}", json);
     }
 
+    @Test
     public void testWriteOnly() throws Exception
     {
         PasswordBean bean = MAPPER.readValue(a2q("{'value':7,'password':'foo'}"),

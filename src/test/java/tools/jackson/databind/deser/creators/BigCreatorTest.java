@@ -1,12 +1,19 @@
 package tools.jackson.databind.deser.creators;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.a2q;
+import static tools.jackson.databind.testutil.DatabindTestUtil.sharedMapper;
+
 // Test(s) for "big" creators; ones with at least 32 arguments (sic!).
 // Needed because codepaths diverge wrt handling of bitset
-public class BigCreatorTest extends BaseMapTest
+public class BigCreatorTest
 {
     static class Biggie {
         final int[] stuff;
@@ -43,8 +50,9 @@ public class BigCreatorTest extends BaseMapTest
         }
     }
 
-    private final ObjectReader BIGGIE_READER = objectReader(Biggie.class);
+    private final ObjectReader BIGGIE_READER = sharedMapper().readerFor(Biggie.class);
 
+    @Test
     public void testBigPartial() throws Exception
     {
         Biggie value = BIGGIE_READER.readValue(a2q(
@@ -64,7 +72,7 @@ public class BigCreatorTest extends BaseMapTest
             default:
                 exp = 0;
             }
-            assertEquals("Entry #"+i, exp, stuff[i]);
+            assertEquals(exp, stuff[i], "Entry #"+i);
         }
     }
 }

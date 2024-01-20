@@ -1,5 +1,7 @@
 package tools.jackson.databind.deser.creators;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -10,7 +12,13 @@ import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.introspect.AnnotatedParameter;
 import tools.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
-public class ImplicitParamsForCreatorTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.a2q;
+import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
+
+public class ImplicitParamsForCreatorTest
 {
     @SuppressWarnings("serial")
     static class MyParamIntrospector extends JacksonAnnotationIntrospector
@@ -74,6 +82,7 @@ public class ImplicitParamsForCreatorTest extends BaseMapTest
             .annotationIntrospector(new MyParamIntrospector())
             .build();
 
+    @Test
     public void testNonSingleArgCreator() throws Exception
     {
         XY value = MAPPER.readValue(a2q("{'paramName0':1,'paramName1':2}"), XY.class);
@@ -83,6 +92,7 @@ public class ImplicitParamsForCreatorTest extends BaseMapTest
     }
 
     // [databind#2932]
+    @Test
     public void testJsonCreatorWithOtherAnnotations() throws Exception
     {
         Bean2932 bean = MAPPER.readValue(a2q("{'paramName0':1,'paramName1':2}"),
@@ -93,6 +103,7 @@ public class ImplicitParamsForCreatorTest extends BaseMapTest
     }
 
     // [databind#3654]
+    @Test
     public void testDelegatingInferFromJsonValue() throws Exception
     {
         // First verify serialization via `@JsonValue`

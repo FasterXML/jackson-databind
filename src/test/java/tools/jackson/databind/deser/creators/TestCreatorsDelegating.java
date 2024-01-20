@@ -2,9 +2,12 @@ package tools.jackson.databind.deser.creators;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
@@ -12,7 +15,11 @@ import tools.jackson.core.ObjectReadContext;
 import tools.jackson.databind.*;
 import tools.jackson.databind.util.TokenBuffer;
 
-public class TestCreatorsDelegating extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.*;
+
+public class TestCreatorsDelegating
 {
     static class BooleanBean
     {
@@ -139,6 +146,7 @@ public class TestCreatorsDelegating extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testBooleanDelegate() throws Exception
     {
         // should obviously work with booleans...
@@ -150,6 +158,7 @@ public class TestCreatorsDelegating extends BaseMapTest
         assertEquals(Boolean.TRUE, bb.value);
     }
 
+    @Test
     public void testIntegerDelegate() throws Exception
     {
         IntegerBean bb = MAPPER.readValue("-13", IntegerBean.class);
@@ -160,6 +169,7 @@ public class TestCreatorsDelegating extends BaseMapTest
         assertEquals(Integer.valueOf(127), bb.value);
     }
 
+    @Test
     public void testLongDelegate() throws Exception
     {
         LongBean bb = MAPPER.readValue("11", LongBean.class);
@@ -171,6 +181,7 @@ public class TestCreatorsDelegating extends BaseMapTest
     }
 
     // should also work with delegate model (single non-annotated arg)
+    @Test
     public void testWithCtorAndDelegate() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -187,6 +198,7 @@ public class TestCreatorsDelegating extends BaseMapTest
         assertEquals("Pooka", bean.name);
     }
 
+    @Test
     public void testWithFactoryAndDelegate() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -205,6 +217,7 @@ public class TestCreatorsDelegating extends BaseMapTest
     }
 
     // [databind#592]
+    @Test
     public void testDelegateWithTokenBuffer() throws Exception
     {
         Value592 value = MAPPER.readValue("{\"a\":1,\"b\":2}", Value592.class);
@@ -226,6 +239,7 @@ public class TestCreatorsDelegating extends BaseMapTest
     }
 
     @SuppressWarnings("unchecked")
+    @Test
     public void testIssue465() throws Exception
     {
         final String JSON = "{\"A\":12}";
@@ -250,6 +264,7 @@ public class TestCreatorsDelegating extends BaseMapTest
     }
 
     // [databind#2353]: allow delegating and properties-based
+    @Test
     public void testMultipleCreators2353() throws Exception
     {
         // first, test delegating

@@ -2,13 +2,21 @@ package tools.jackson.databind.deser.creators;
 
 import java.util.UUID;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
+
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.*;
 import tools.jackson.databind.exc.ValueInstantiationException;
 
-public class NullValueViaCreatorTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.*;
+
+public class NullValueViaCreatorTest
 {
     protected static class Container {
         Contained<String> contained;
@@ -99,6 +107,7 @@ public class NullValueViaCreatorTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testUsesDeserializersNullValue() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(new TestModule())
@@ -108,6 +117,7 @@ public class NullValueViaCreatorTest extends BaseMapTest
     }
 
     // [databind#597]: ensure that a useful exception is thrown
+    @Test
     public void testCreatorReturningNull()
     {
         ObjectMapper objectMapper = new ObjectMapper();

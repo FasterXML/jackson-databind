@@ -1,16 +1,22 @@
 package tools.jackson.databind.deser.creators;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import tools.jackson.databind.BaseMapTest;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.a2q;
+import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
 /* [databind#3566]: `Enum` with `JsonFormat.Shape.OBJECT` fails to deserialize using `JsonCreator.Mode.DELEGATING` ONLY
  * when also has `JsonCreator.Mode.PROPERTIES` (while with Pojo does not).
  */
-public class JsonCreatorModeForEnum3566 extends BaseMapTest
+public class JsonCreatorModeForEnum3566
 {
+
     static class PojoA {
         final String name;
 
@@ -135,6 +141,7 @@ public class JsonCreatorModeForEnum3566 extends BaseMapTest
 
     // FAILS <---- enum with both `JsonCreator.Mode.DELEGATING` and `JsonCreator.Mode.PROPERTIES`
 
+    @Test
     public void testEnumACreatorModeDelegating() throws Exception {
         EnumA enum1 = newJsonMapper()
             .readerFor(EnumA.class)
@@ -144,6 +151,7 @@ public class JsonCreatorModeForEnum3566 extends BaseMapTest
     }
 
     // SUCCESS <---- enum with only `JsonCreator.Mode.DELEGATING`
+    @Test
     public void testEnumBCreatorModeDelegating() throws Exception {
         EnumB enum1 = newJsonMapper()
             .readerFor(EnumB.class)
@@ -153,6 +161,7 @@ public class JsonCreatorModeForEnum3566 extends BaseMapTest
     }
 
     // SUCCESS
+    @Test
     public void testEnumACreatorModeProperties() throws Exception {
         EnumA enum1 = newJsonMapper()
             .readerFor(EnumA.class)
@@ -162,6 +171,7 @@ public class JsonCreatorModeForEnum3566 extends BaseMapTest
     }
 
     // SUCCESS
+    @Test
     public void testEnumCCreatorModeProperties() throws Exception {
         EnumC enum1 = newJsonMapper()
             .readerFor(EnumC.class)
@@ -171,6 +181,7 @@ public class JsonCreatorModeForEnum3566 extends BaseMapTest
     }
 
     // SUCCESS
+    @Test
     public void testPojoCreatorModeProperties() throws Exception {
         PojoA pojo1 = newJsonMapper()
             .readValue(a2q("{'type':'properties'}"), PojoA.class);
@@ -179,6 +190,7 @@ public class JsonCreatorModeForEnum3566 extends BaseMapTest
     }
 
     // SUCCESS
+    @Test
     public void testPojoCreatorModeDelegating() throws Exception {
         PojoA pojo1 = newJsonMapper()
             .readValue(a2q("'properties'"), PojoA.class);
@@ -186,6 +198,7 @@ public class JsonCreatorModeForEnum3566 extends BaseMapTest
         assertEquals("properties", pojo1.name);
     }
 
+    @Test
     public void testDelegatingCreatorEnumWrapper() throws Exception {
         DelegatingCreatorEnumWrapper wrapper = newJsonMapper()
             .readValue(a2q("{'enumA':'AType', 'enumB': 'BType'}"), DelegatingCreatorEnumWrapper.class);
@@ -194,6 +207,7 @@ public class JsonCreatorModeForEnum3566 extends BaseMapTest
         assertEquals(EnumB.B, wrapper.enumB);
     }
 
+    @Test
     public void testPropertiesCreatorEnumWrapper() throws Exception {
         PropertiesCreatorEnumWrapper wrapper = newJsonMapper()
             .readValue(a2q("{'enumA':{'type':'AType'}, 'enumC': {'type':'CType'}}"), PropertiesCreatorEnumWrapper.class);

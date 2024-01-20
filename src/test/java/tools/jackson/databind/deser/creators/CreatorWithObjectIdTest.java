@@ -2,14 +2,17 @@ package tools.jackson.databind.deser.creators;
 
 import java.beans.ConstructorProperties;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import tools.jackson.databind.*;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 // for [databind#1367]
 public class CreatorWithObjectIdTest
-    extends BaseMapTest
 {
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 //            resolver = SimpleObjectIdResolver.class)
@@ -39,6 +42,7 @@ public class CreatorWithObjectIdTest
         }
     }
 
+    @Test
     public void testObjectIdWithCreator() throws Exception
     {
         A a = new A("123", "A");

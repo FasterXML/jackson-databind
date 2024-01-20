@@ -1,5 +1,7 @@
 package tools.jackson.databind.deser.creators;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 import tools.jackson.databind.*;
@@ -8,8 +10,12 @@ import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.introspect.AnnotatedParameter;
 import tools.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.a2q;
+import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
+
 public class NamingStrategyViaCreator556Test
-    extends BaseMapTest
 {
     static class RenamingCtorBean
     {
@@ -66,6 +72,7 @@ public class NamingStrategyViaCreator556Test
 
     private final static String CTOR_JSON = a2q("{ 'MyAge' : 42,  'MyName' : 'NotMyRealName' }");
 
+    @Test
     public void testRenameViaCtor() throws Exception
     {
         RenamingCtorBean bean = MAPPER.readValue(CTOR_JSON, RenamingCtorBean.class);
@@ -73,6 +80,7 @@ public class NamingStrategyViaCreator556Test
         assertEquals("NotMyRealName", bean.myName);
     }
 
+    @Test
     public void testRenameViaFactory() throws Exception
     {
         RenamedFactoryBean bean = MAPPER.readValue(CTOR_JSON, RenamedFactoryBean.class);

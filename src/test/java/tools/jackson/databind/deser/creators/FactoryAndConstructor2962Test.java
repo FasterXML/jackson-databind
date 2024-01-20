@@ -1,11 +1,16 @@
 package tools.jackson.databind.deser.creators;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 
-import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.ObjectMapper;
 
-public class FactoryAndConstructor2962Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+
+public class FactoryAndConstructor2962Test
 {
     // [databind#2962]
     static class ExampleDto2962
@@ -31,6 +36,7 @@ public class FactoryAndConstructor2962Test extends BaseMapTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#2962]
+    @Test
     public void testImplicitCtorExplicitFactory() throws Exception
     {
         ExampleDto2962 result = MAPPER.readValue("42", ExampleDto2962.class);

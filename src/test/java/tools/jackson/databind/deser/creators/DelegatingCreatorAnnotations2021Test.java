@@ -1,17 +1,24 @@
 package tools.jackson.databind.deser.creators;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
+
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
-import tools.jackson.databind.BaseMapTest;
+
 import tools.jackson.databind.DeserializationContext;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.deser.std.StdDeserializer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+
 // Tests for problems uncovered with [databind#2016]; related to
 // `@JsonDeserialize` modifications to type, deserializer(s)
-public class DelegatingCreatorAnnotations2021Test extends BaseMapTest
+public class DelegatingCreatorAnnotations2021Test
 {
     // [databind#2021]
     static class DelegatingWithCustomDeser2021 {
@@ -46,6 +53,7 @@ public class DelegatingCreatorAnnotations2021Test extends BaseMapTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#2021]
+    @Test
     public void testCustomDeserForDelegating() throws Exception
     {
         DelegatingWithCustomDeser2021 actual = MAPPER.readValue(" true ", DelegatingWithCustomDeser2021.class);

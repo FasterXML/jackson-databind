@@ -3,6 +3,8 @@ package tools.jackson.databind.deser.creators;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
@@ -11,7 +13,12 @@ import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.introspect.AnnotatedParameter;
 import tools.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
-public class SingleArgCreatorTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.*;
+
+public class SingleArgCreatorTest
 {
     // [databind#430]: single arg BUT named; should not delegate
     static class SingleNamedStringBean {
@@ -162,6 +169,7 @@ public class SingleArgCreatorTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testNamedSingleArg() throws Exception
     {
         SingleNamedStringBean bean = MAPPER.readValue(a2q("{'value':'foobar'}"),
@@ -169,6 +177,7 @@ public class SingleArgCreatorTest extends BaseMapTest
         assertEquals("foobar", bean._ss);
     }
 
+    @Test
     public void testSingleStringArgWithImplicitName() throws Exception
     {
         final ObjectMapper mapper = jsonMapperBuilder()
@@ -179,6 +188,7 @@ public class SingleArgCreatorTest extends BaseMapTest
     }
 
     // [databind#714]
+    @Test
     public void testSingleImplicitlyNamedNotDelegating() throws Exception
     {
         final ObjectMapper mapper = jsonMapperBuilder()
@@ -189,6 +199,7 @@ public class SingleArgCreatorTest extends BaseMapTest
     }
 
     // [databind#714]
+    @Test
     public void testSingleExplicitlyNamedButDelegating() throws Exception
     {
         SingleNamedButStillDelegating bean = MAPPER.readValue(q("xyz"),
@@ -196,6 +207,7 @@ public class SingleArgCreatorTest extends BaseMapTest
         assertEquals("xyz", bean.value);
     }
 
+    @Test
     public void testExplicitFactory660a() throws Exception
     {
         // First, explicit override for factory
@@ -204,6 +216,7 @@ public class SingleArgCreatorTest extends BaseMapTest
         assertEquals("abc", bean.value());
     }
 
+    @Test
     public void testExplicitFactory660b() throws Exception
     {
         // and then one for private constructor
@@ -213,6 +226,7 @@ public class SingleArgCreatorTest extends BaseMapTest
     }
 
     // [databind#1383]
+    @Test
     public void testSingleImplicitDelegating() throws Exception
     {
         final ObjectMapper mapper = jsonMapperBuilder()
@@ -227,6 +241,7 @@ public class SingleArgCreatorTest extends BaseMapTest
     }
 
     // [databind#3062]
+    @Test
     public void testMultipleDoubleCreators3062() throws Exception
     {
         DecVector3062 vector = new DecVector3062(Arrays.asList(1.0, 2.0, 3.0));

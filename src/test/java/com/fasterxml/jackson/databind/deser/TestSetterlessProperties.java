@@ -2,10 +2,17 @@ package com.fasterxml.jackson.databind.deser;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
 
 /**
  * Unit tests for verifying that feature requested
@@ -14,7 +21,6 @@ import com.fasterxml.jackson.databind.exc.MismatchedInputException;
  * with JAXB.
  */
 public class TestSetterlessProperties
-    extends BaseMapTest
 {
     static class CollectionBean
     {
@@ -48,6 +54,7 @@ public class TestSetterlessProperties
     /**********************************************************
      */
 
+    @Test
     public void testSimpleSetterlessCollectionOk()
         throws Exception
     {
@@ -63,6 +70,7 @@ public class TestSetterlessProperties
      * Let's also verify that disabling the feature makes
      * deserialization fail for setterless bean
      */
+    @Test
     public void testSimpleSetterlessCollectionFailure()
         throws Exception
     {
@@ -86,6 +94,7 @@ public class TestSetterlessProperties
         }
     }
 
+    @Test
     public void testSimpleSetterlessMapOk()
         throws Exception
     {
@@ -97,6 +106,7 @@ public class TestSetterlessProperties
         assertEquals(Integer.valueOf(-3), m.get("b"));
     }
 
+    @Test
     public void testSimpleSetterlessMapFailure()
         throws Exception
     {
@@ -116,6 +126,7 @@ public class TestSetterlessProperties
     /* Test precedence of "getter-as-setter" (for Lists) versus
      * field for same property.
      */
+    @Test
     public void testSetterlessPrecedence() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()

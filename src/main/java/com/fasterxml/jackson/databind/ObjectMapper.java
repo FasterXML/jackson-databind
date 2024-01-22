@@ -4035,8 +4035,7 @@ public class ObjectMapper
         throws JsonProcessingException
     {
         // alas, we have to pull the recycler directly here...
-        SegmentedStringWriter sw = new SegmentedStringWriter(_jsonFactory._getBufferRecycler());
-        try {
+        try (SegmentedStringWriter sw = new SegmentedStringWriter(_jsonFactory._getBufferRecycler())) {
             _writeValueAndClose(createGenerator(sw), value);
             return sw.getAndClear();
         } catch (JsonProcessingException e) {

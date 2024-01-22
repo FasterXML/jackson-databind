@@ -1729,7 +1729,16 @@ Jan Pachol (janpacho@github)
    default constructor
   (2.16.0)
 
+Pieter Dirk Soels (Badbond@github)
+ * Reprted #4302: Problem deserializing some type of Enums when using
+  `PropertyNamingStrategy`
+  (2.16.2)
+
 Muhammad Khalikov (mukham12@github)
  * Contributed fix for #4209: Make `BeanDeserializerModifier`/`BeanSerializerModifier`
   implement `java.io.Serializable`
+ (2.17.0)
+
+Eduard Dudar (edudar@github)
+ * Contributed #4299: Some `Collection` and `Map` fallbacks don't work in GraalVM native image
  (2.17.0)

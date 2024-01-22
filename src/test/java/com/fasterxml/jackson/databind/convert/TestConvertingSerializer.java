@@ -3,17 +3,21 @@ package com.fasterxml.jackson.databind.convert;
 import java.io.IOException;
 import java.util.*;
 
-import com.fasterxml.jackson.core.JsonGenerator;
+import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.util.StdConverter;
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
 public class TestConvertingSerializer
-    extends com.fasterxml.jackson.databind.BaseMapTest
 {
     @JsonSerialize(converter=ConvertingBeanConverter.class)
     static class ConvertingBean
@@ -174,56 +178,67 @@ public class TestConvertingSerializer
     /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = newJsonMapper();
+    
+    @Test
     public void testClassAnnotationSimple() throws Exception
     {
-        String json = objectWriter().writeValueAsString(new ConvertingBean(1, 2));
+        String json = MAPPER.writeValueAsString(new ConvertingBean(1, 2));
         assertEquals("[1,2]", json);
     }
 
+    @Test
     public void testClassAnnotationForLists() throws Exception
     {
-        String json = objectWriter().writeValueAsString(new ConvertingBeanContainer(
+        String json = MAPPER.writeValueAsString(new ConvertingBeanContainer(
                 new ConvertingBean(1, 2), new ConvertingBean(3, 4)));
         assertEquals("{\"values\":[[1,2],[3,4]]}", json);
     }
 
+    @Test
     public void testPropertyAnnotationSimple() throws Exception
     {
-        String json = objectWriter().writeValueAsString(new PointWrapper(3, 4));
+        String json = MAPPER.writeValueAsString(new PointWrapper(3, 4));
         assertEquals("{\"value\":[3,4]}", json);
     }
 
+    @Test
     public void testPropertyAnnotationForArrays() throws Exception {
-        String json = objectWriter().writeValueAsString(new PointListWrapperArray(4, 5));
+        String json = MAPPER.writeValueAsString(new PointListWrapperArray(4, 5));
         assertEquals("{\"values\":[[4,5],[5,4]]}", json);
     }
 
+    @Test
     public void testPropertyAnnotationForLists() throws Exception {
-        String json = objectWriter().writeValueAsString(new PointListWrapperList(7, 8));
+        String json = MAPPER.writeValueAsString(new PointListWrapperList(7, 8));
         assertEquals("{\"values\":[[7,8],[8,7]]}", json);
     }
 
+    @Test
     public void testPropertyAnnotationForMaps() throws Exception {
-        String json = objectWriter().writeValueAsString(new PointListWrapperMap("a", 1, 2));
+        String json = MAPPER.writeValueAsString(new PointListWrapperMap("a", 1, 2));
         assertEquals("{\"values\":{\"a\":[1,2]}}", json);
     }
 
     // [databind#357]
+    @Test
     public void testConverterForList357() throws Exception {
-        String json = objectWriter().writeValueAsString(new ListWrapper());
+        String json = MAPPER.writeValueAsString(new ListWrapper());
         assertEquals("{\"list\":[[\"Hello world!\"]]}", json);
     }
 
     // [databind#359]
+    @Test
     public void testIssue359() throws Exception {
-        String json = objectWriter().writeValueAsString(new Bean359());
+        String json = MAPPER.writeValueAsString(new Bean359());
         assertEquals("{\"stuff\":[\"Target\"]}", json);
     }
 
     // [databind#731]: Problems converting from java.lang.Object ("unknown")
+    @Test
     public void testIssue731() throws Exception
     {
-        String json = objectWriter().writeValueAsString(new ConvertingBeanWithUntypedConverter(1, 2));
+        String json = MAPPER.writeValueAsString(new ConvertingBeanWithUntypedConverter(1, 2));
         // must be  {"a":2,"b":4}
         assertEquals("{\"a\":2,\"b\":4}", json);
     }

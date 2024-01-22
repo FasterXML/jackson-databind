@@ -2,14 +2,18 @@ package com.fasterxml.jackson.databind.deser;
 
 import java.io.IOException;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 /**
  * Testing for NPE due to race condition.
  */
-public class TestConcurrency extends BaseMapTest
+public class TestConcurrency
 {
     @JsonDeserialize(using=CustomBeanDeserializer.class)
     static class Bean
@@ -60,6 +64,7 @@ public class TestConcurrency extends BaseMapTest
     /**********************************************
      */
 
+    @Test
     public void testDeserializerResolution() throws Exception
     {
         /* Let's repeat couple of times, just to be sure; thread timing is not

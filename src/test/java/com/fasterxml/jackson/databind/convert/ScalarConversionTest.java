@@ -1,12 +1,19 @@
 package com.fasterxml.jackson.databind.convert;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.*;
 
-public class ScalarConversionTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+
+public class ScalarConversionTest
 {
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#1433]
+    @Test
     public void testConvertValueNullPrimitive() throws Exception
     {
         assertEquals(Byte.valueOf((byte) 0), MAPPER.convertValue(null, Byte.TYPE));
@@ -20,6 +27,7 @@ public class ScalarConversionTest extends BaseMapTest
     }
 
     // [databind#1433]
+    @Test
     public void testConvertValueNullBoxed() throws Exception
     {
         assertNull(MAPPER.convertValue(null, Byte.class));

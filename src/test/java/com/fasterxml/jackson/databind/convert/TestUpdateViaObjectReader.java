@@ -3,6 +3,8 @@ package com.fasterxml.jackson.databind.convert;
 import java.io.IOException;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.core.*;
@@ -12,14 +14,17 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdNodeBasedDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
 /**
  * Unit tests for verifying that "updating reader" works as
  * expected.
  */
 @SuppressWarnings("serial")
-public class TestUpdateViaObjectReader extends BaseMapTest
+public class TestUpdateViaObjectReader
 {
     static class Bean {
         public String a = "a";
@@ -177,8 +182,9 @@ public class TestUpdateViaObjectReader extends BaseMapTest
     /********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testBeanUpdate() throws Exception
     {
         Bean bean = new Bean();
@@ -216,6 +222,7 @@ public class TestUpdateViaObjectReader extends BaseMapTest
         assertEquals("xyz", b3.b);
     }
 
+    @Test
     public void testListUpdate() throws Exception
     {
         List<String> strs = new ArrayList<String>();
@@ -230,6 +237,7 @@ public class TestUpdateViaObjectReader extends BaseMapTest
         assertEquals("d", strs.get(3));
     }
 
+    @Test
     public void testMapUpdate() throws Exception
     {
         Map<String,String> strs = new HashMap<String,String>();
@@ -246,6 +254,7 @@ public class TestUpdateViaObjectReader extends BaseMapTest
 
     // Test for [JACKSON-717] -- ensure 'readValues' also does update
     @SuppressWarnings("resource")
+    @Test
     public void testUpdateSequence() throws Exception
     {
         XYBean toUpdate = new XYBean();
@@ -274,6 +283,7 @@ public class TestUpdateViaObjectReader extends BaseMapTest
     }
 
     // [JACKSON-824]
+    @Test
     public void testUpdatingWithViews() throws Exception
     {
         Updateable bean = new Updateable();
@@ -289,6 +299,7 @@ public class TestUpdateViaObjectReader extends BaseMapTest
     }
 
     // [databind#744]
+    @Test
     public void testIssue744() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -330,6 +341,7 @@ public class TestUpdateViaObjectReader extends BaseMapTest
     }
 
     // [databind#1831]
+    @Test
     public void test1831UsingNode() throws Exception {
         String catJson = MAPPER.writeValueAsString(new Cat());
         JsonNode jsonNode = MAPPER.readTree(catJson);
@@ -339,6 +351,7 @@ public class TestUpdateViaObjectReader extends BaseMapTest
         assertSame(optionalCat, result);
     }
 
+    @Test
     public void test1831UsingString() throws Exception {
         String catJson = MAPPER.writeValueAsString(new Cat());
         AnimalWrapper optionalCat = new AnimalWrapper();
@@ -347,6 +360,7 @@ public class TestUpdateViaObjectReader extends BaseMapTest
     }
 
     // [databind#3814]
+    @Test
     public void testReaderForUpdating3814() throws Exception {
         // Arrange
         JsonNode root = MAPPER.readTree(a2q("{'age': 30 }"));
@@ -361,6 +375,7 @@ public class TestUpdateViaObjectReader extends BaseMapTest
     }
 
     // [databind#3814]
+    @Test
     public void testReaderForUpdating3814DoesNotOverride() throws Exception {
         // Arrange
         JsonNode root = MAPPER.readTree(a2q("{'age': 30 }"));

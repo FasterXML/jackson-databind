@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import tools.jackson.core.StreamWriteFeature;
 import tools.jackson.core.json.JsonFactory;
+import tools.jackson.core.json.JsonWriteFeature;
 import tools.jackson.databind.*;
 
 /**
@@ -60,7 +61,9 @@ public class JDKTypeSerializationTest
     {
         // this may get translated to different representation on Windows, maybe Mac:
         File f = new File(new File("/tmp"), "foo.text");
-        String str = MAPPER.writeValueAsString(f);
+        String str = MAPPER.writer()
+                .without(JsonWriteFeature.ESCAPE_FORWARD_SLASHES)
+                .writeValueAsString(f);
         // escape backslashes (for portability with windows)
         String escapedAbsPath = f.getAbsolutePath().replaceAll("\\\\", "\\\\\\\\");
         assertEquals(q(escapedAbsPath), str);

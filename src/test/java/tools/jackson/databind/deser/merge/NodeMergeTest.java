@@ -156,12 +156,12 @@ public class NodeMergeTest extends BaseMapTest
     public void testUpdateArrayWithString() throws Exception
     {
         JsonNode src = MAPPER.readTree(a2q("{'test':[]}"));
-        JsonNode update = MAPPER.readTree(a2q("{'test':'n/a'}"));
+        JsonNode update = MAPPER.readTree(a2q("{'test':'NA'}"));
 
         ObjectNode result = MAPPER.readerForUpdating(src)
             .readValue(update);
 
-        assertEquals(a2q("{'test':'n/a'}"), result.toString());
+        assertEquals(a2q("{'test':'NA'}"), result.toString());
     }
 
     // [databind#3122]: "readTree()" fails where "readValue()" doesn't:

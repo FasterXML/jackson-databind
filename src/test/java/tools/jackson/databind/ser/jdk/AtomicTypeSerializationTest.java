@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.*;
 
 import com.fasterxml.jackson.annotation.*;
 
+import tools.jackson.core.json.JsonWriteFeature;
 import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.annotation.JsonSerialize;
@@ -115,6 +116,7 @@ public class AtomicTypeSerializationTest
         df.setTimeZone(TimeZone.getTimeZone("UTC"));
 
         ObjectMapper mapper = jsonMapperBuilder()
+                .disable(JsonWriteFeature.ESCAPE_FORWARD_SLASHES)
                 .defaultDateFormat(df)
                 .build();
         ContextualOptionals input = new ContextualOptionals();

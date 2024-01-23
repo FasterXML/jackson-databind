@@ -409,7 +409,7 @@ public class TestDefaultForObject
     }
 
     // [databind#2349]
-    public void testWithFinalClass() throws Exception
+    public void testWithFinalClass_NonFinal() throws Exception
     {
         // First: type info NOT included
         ObjectMapper mapper = JsonMapper.builder()
@@ -418,8 +418,13 @@ public class TestDefaultForObject
                 .build();
         assertEquals(a2q("{'name':'abc'}"),
                 mapper.writeValueAsString(new FinalStringBean("abc")));
+    }
 
-        mapper = JsonMapper.builder()
+    // [databind#2349]
+    @SuppressWarnings("deprecation")
+    public void testWithFinalClass_Everything() throws Exception
+    {
+        ObjectMapper mapper = JsonMapper.builder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,
                         ObjectMapper.DefaultTyping.EVERYTHING)
                 .build();

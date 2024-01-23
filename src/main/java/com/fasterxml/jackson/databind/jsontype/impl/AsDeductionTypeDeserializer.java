@@ -2,11 +2,14 @@ package com.fasterxml.jackson.databind.jsontype.impl;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.introspect.AnnotatedField;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -79,6 +82,12 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
                     bitIndex = nextField;
                     fieldBitIndex.put(name, nextField++);
                 }
+                // [databind#4327] 2.17 @JsonAlias should be respected by polymorphic deduction
+                List<String> aliases = _findAliases(config, property);
+                for (String alias : aliases) {
+                    if (ignoreCase) alias = alias.toLowerCase();
+                    fieldBitIndex.put(alias, bitIndex);
+                }
                 fingerprint.set(bitIndex);
             }
 
@@ -92,6 +101,37 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
             }
         }
         return fingerprints;
+    }
+
+    private List<String> _findAliases(DeserializationConfig config, BeanPropertyDefinition property)
+    {
+        AnnotationIntrospector ai = config.getAnnotationIntrospector();
+        List<PropertyName> aliases = new ArrayList<>();
+        AnnotatedField field = property.getField();
+        AnnotatedMethod setter = property.getSetter();
+        AnnotatedMethod getter = property.getGetter();
+
+        if (setter != null) {
+            List<PropertyName> names = ai.findPropertyAliases(setter);
+            if (names != null) {
+                aliases.addAll(names);
+            }
+        }
+        if (getter != null) {
+            List<PropertyName> names = ai.findPropertyAliases(getter);
+            if (names != null) {
+                aliases.addAll(names);
+            }
+        }
+        if (field != null) {
+            List<PropertyName> names = ai.findPropertyAliases(field);
+            if (names != null) {
+                aliases.addAll(names);
+            }
+        }
+        return aliases.stream()
+            .map(PropertyName::getSimpleName)
+            .collect(Collectors.toList());
     }
 
     @Override

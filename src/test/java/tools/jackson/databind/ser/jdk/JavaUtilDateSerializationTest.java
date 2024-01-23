@@ -7,6 +7,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import tools.jackson.core.json.JsonWriteFeature;
 import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectWriter;
@@ -278,6 +279,7 @@ public class JavaUtilDateSerializationTest
                 .defaultDateFormat(new SimpleDateFormat("yyyy-MM-dd/HH:mm z"))
                 .defaultTimeZone(TimeZone.getTimeZone("PST"))
                 .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .disable(JsonWriteFeature.ESCAPE_FORWARD_SLASHES)
                 .build();
 
         // pacific time is GMT-8; so midnight becomes 16:00 previous day:
@@ -288,6 +290,7 @@ public class JavaUtilDateSerializationTest
                 .defaultDateFormat(new SimpleDateFormat("yyyy-MM-dd/HH:mm z"))
                 .defaultTimeZone(TimeZone.getTimeZone("PST"))
                 .defaultLocale(Locale.FRANCE)
+                .disable(JsonWriteFeature.ESCAPE_FORWARD_SLASHES)
                 .build();
         serialize( mapper, judate(1969, 12, 31, 16, 00, 00, 00, "PST"), "1969-12-31/16:00 PST");
 

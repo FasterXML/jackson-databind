@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import tools.jackson.core.json.JsonWriteFeature;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonSerialize;
 
@@ -189,6 +190,9 @@ public class FormatFeatureUnwrapSingleTest extends BaseMapTest
         assertEquals("{\"v\":\"x\"}", MAPPER.writeValueAsString(new UnwrapCollection("x")));
         assertEquals("{\"v\":[\"x\",null]}", MAPPER.writeValueAsString(new UnwrapCollection("x", null)));
 
-        assertEquals("{\"v\":\"http://foo\"}", MAPPER.writeValueAsString(new UnwrapStringLike()));
+        assertEquals("{\"v\":\"http://foo\"}",
+                MAPPER.writer()
+                    .without(JsonWriteFeature.ESCAPE_FORWARD_SLASHES)
+                    .writeValueAsString(new UnwrapStringLike()));
     }
 }

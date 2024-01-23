@@ -7,7 +7,7 @@ public class BeanNamingTest extends BaseMapTest
 {
     static class URLBean {
         public String getURL() {
-            return "http://foo";
+            return "http:";
         }
     }
 
@@ -22,7 +22,7 @@ public class BeanNamingTest extends BaseMapTest
     public void testMultipleLeadingCapitalLetters() throws Exception
     {
         ObjectMapper mapper = objectMapper();
-        assertEquals(a2q("{'URL':'http://foo'}"),
+        assertEquals(a2q("{'URL':'http:'}"),
                 mapper.writeValueAsString(new URLBean()));
         assertEquals(a2q("{'a':3}"),
                 mapper.writeValueAsString(new ABean()));

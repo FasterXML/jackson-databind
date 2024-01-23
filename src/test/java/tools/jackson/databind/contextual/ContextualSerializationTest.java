@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JacksonAnnotation;
 
 import tools.jackson.core.*;
+import tools.jackson.core.json.JsonWriteFeature;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.module.SimpleModule;
@@ -331,6 +332,7 @@ public class ContextualSerializationTest
     public void testRootContextualization2429() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
+                .disable(JsonWriteFeature.ESCAPE_FORWARD_SLASHES)
                 .addModule(new SimpleModule("test", Version.unknownVersion())
                         .addSerializer(String.class, new AccumulatingContextual()))
                 .build();

@@ -1836,11 +1836,14 @@ public class ObjectMapper
     @SuppressWarnings("resource")
     public String writeValueAsString(Object value) throws JacksonException
     {
+        final BufferRecycler br = _streamFactory._getBufferRecycler();
         // alas, we have to pull the recycler directly here...
-        try (SegmentedStringWriter sw = new SegmentedStringWriter(_streamFactory._getBufferRecycler())) {
+        try (SegmentedStringWriter sw = new SegmentedStringWriter(br)) {
             SerializationContextExt prov = _serializerProvider();
             _configAndWriteValue(prov, _streamFactory.createGenerator(prov, sw), value);
             return sw.getAndClear();
+        } finally {
+            br.releaseToPool();
         }
     }
 
@@ -1854,14 +1857,14 @@ public class ObjectMapper
     @SuppressWarnings("resource")
     public byte[] writeValueAsBytes(Object value) throws JacksonException
     {
-        // Although 'close()' is NOP, use auto-close to avoid lgtm complaints
-        try (ByteArrayBuilder bb = new ByteArrayBuilder(_streamFactory._getBufferRecycler())) {
+        final BufferRecycler br = _streamFactory._getBufferRecycler();
+        try (ByteArrayBuilder bb = new ByteArrayBuilder(br)) {
             final SerializationContextExt ctxt = _serializerProvider();
             _configAndWriteValue(ctxt,
                     _streamFactory.createGenerator(ctxt, bb, JsonEncoding.UTF8), value);
-            byte[] result = bb.toByteArray();
-            bb.release();
-            return result;
+            return bb.getClearAndRelease();
+        } finally {
+            br.releaseToPool();
         }
     }
 

@@ -39,9 +39,8 @@ public class JsonAliasWithDeduction4327Test
     @ParameterizedTest
     @ValueSource(strings = {"Y", "yy", "ff", "X"})
     public void testAliasWithPolymorphicDeduction(String field) throws Exception {
-        Deduction value = mapper.readValue(a2q(
-            "{'%s': 2 }".formatted(field)
-        ), Deduction.class);
+        String json = a2q(String.format("{'%s': 2 }", field));
+        Deduction value = mapper.readValue(json, Deduction.class);
         assertNotNull(value);
         assertEquals(2, ((DeductionBean2) value).y);
     }

@@ -5,7 +5,7 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.core.JsonGenerator;
-
+import tools.jackson.core.json.JsonWriteFeature;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.ser.std.SimpleBeanPropertyFilter;
@@ -244,7 +244,9 @@ public class AnyGetterTest extends BaseMapTest
     public void testIssue705() throws Exception
     {
         Issue705Bean input = new Issue705Bean("key", "value");
-        String json = MAPPER.writeValueAsString(input);
+        String json = MAPPER.writer()
+                .without(JsonWriteFeature.ESCAPE_FORWARD_SLASHES)
+                .writeValueAsString(input);
         assertEquals("{\"stuff\":\"[key/value]\"}", json);
     }
 

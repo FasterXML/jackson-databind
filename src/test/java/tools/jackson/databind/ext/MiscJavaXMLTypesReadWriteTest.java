@@ -3,6 +3,7 @@ package tools.jackson.databind.ext;
 import javax.xml.datatype.*;
 import javax.xml.namespace.QName;
 
+import tools.jackson.core.json.JsonWriteFeature;
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
@@ -30,7 +31,10 @@ public class MiscJavaXMLTypesReadWriteTest
     public void testQNameSer() throws Exception
     {
         QName qn = new QName("http://abc", "tag", "prefix");
-        assertEquals(q(qn.toString()), MAPPER.writeValueAsString(qn));
+        assertEquals(q(qn.toString()),
+                MAPPER.writer()
+                    .without(JsonWriteFeature.ESCAPE_FORWARD_SLASHES)
+                    .writeValueAsString(qn));
     }
 
     public void testDurationSer() throws Exception

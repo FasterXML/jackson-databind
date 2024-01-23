@@ -118,7 +118,7 @@ public class TestScalaLikeImplicitProperties extends BaseMapTest
     static class GetterSetterProperty
     {
         // Different name to represent an arbitrary implementation, not necessarily local to this class.
-        private String _prop_impl = "get/set";
+        private String _prop_impl = "get-set";
         public String prop() { return _prop_impl; }
         public void prop_⁀(String p) { _prop_impl = p; }
 
@@ -172,7 +172,7 @@ public class TestScalaLikeImplicitProperties extends BaseMapTest
     {
         ObjectMapper m = manglingMapper();
 
-        assertEquals("{\"prop\":\"get/set\"}", m.writeValueAsString(new GetterSetterProperty()));
+        assertEquals("{\"prop\":\"get-set\"}", m.writeValueAsString(new GetterSetterProperty()));
         GetterSetterProperty result = m.readValue("{\"prop\":\"read\"}", GetterSetterProperty.class);
         assertEquals("read", result.prop());
     }

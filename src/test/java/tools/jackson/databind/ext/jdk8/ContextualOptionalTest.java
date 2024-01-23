@@ -8,6 +8,7 @@ import java.util.TimeZone;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import tools.jackson.core.json.JsonWriteFeature;
 import tools.jackson.databind.*;
 
 public class ContextualOptionalTest extends BaseMapTest
@@ -36,6 +37,7 @@ public class ContextualOptionalTest extends BaseMapTest
         SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd");
         df.setTimeZone(TimeZone.getTimeZone("UTC"));
         ObjectMapper mapper = jsonMapperBuilder()
+                .disable(JsonWriteFeature.ESCAPE_FORWARD_SLASHES)
                 .defaultDateFormat(df)
                 .build();
         ContextualOptionals input = new ContextualOptionals();

@@ -7,6 +7,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.*;
 
+import tools.jackson.core.json.JsonWriteFeature;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonNaming;
 import tools.jackson.databind.cfg.MapperConfig;
@@ -332,7 +333,9 @@ public class TestNamingStrategyStd extends BaseMapTest
     public void testLowerCaseAcronymsTranslations() throws Exception
     {
         // First serialize
-        String json = _lcWithUnderscoreMapper.writeValueAsString(new Acronyms("world wide web", "http://jackson.codehaus.org", "/path1/,/path2/"));
+        String json = _lcWithUnderscoreMapper.writer()
+                .without(JsonWriteFeature.ESCAPE_FORWARD_SLASHES)
+                .writeValueAsString(new Acronyms("world wide web", "http://jackson.codehaus.org", "/path1/,/path2/"));
         assertEquals("{\"www\":\"world wide web\",\"some_url\":\"http://jackson.codehaus.org\",\"some_uris\":\"/path1/,/path2/\"}", json);
 
         // then deserialize

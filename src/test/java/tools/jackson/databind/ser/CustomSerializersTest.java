@@ -13,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import tools.jackson.core.*;
 import tools.jackson.core.io.CharacterEscapes;
-
+import tools.jackson.core.json.JsonWriteFeature;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.module.SimpleModule;
@@ -272,7 +272,9 @@ public class CustomSerializersTest extends BaseMapTest
     public void testWithCurrentValue() throws Exception
     {
         assertEquals(a2q("{'prop':'Issue631Bean/42'}"),
-                MAPPER.writeValueAsString(new Issue631Bean(42)));
+                MAPPER.writer()
+                    .without(JsonWriteFeature.ESCAPE_FORWARD_SLASHES)
+                    .writeValueAsString(new Issue631Bean(42)));
     }
 
     public void testWithCustomElements() throws Exception

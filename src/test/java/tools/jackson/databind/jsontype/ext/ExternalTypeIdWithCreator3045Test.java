@@ -18,6 +18,8 @@ public class ExternalTypeIdWithCreator3045Test
     extends BaseMapTest
 {
     public static class ChildBaseByParentTypeResolver extends TypeIdResolverBase {
+        private static final long serialVersionUID = 1L;
+
         public ChildBaseByParentTypeResolver() {
 //           System.out.println("Create ChildBaseByParentTypeResolver");
         }

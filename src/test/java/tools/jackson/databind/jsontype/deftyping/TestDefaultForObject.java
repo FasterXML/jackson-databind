@@ -405,7 +405,7 @@ public class TestDefaultForObject
     }
 
     // [databind#2349]
-    public void testWithFinalClass() throws Exception
+    public void testWithFinalClass_NonFinal() throws Exception
     {
         // First: type info NOT included
         ObjectMapper mapper = jsonMapperBuilder()

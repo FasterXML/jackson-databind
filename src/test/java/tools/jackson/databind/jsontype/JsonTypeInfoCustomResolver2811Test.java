@@ -43,6 +43,8 @@ public class JsonTypeInfoCustomResolver2811Test extends BaseMapTest
     }
 
     static class VehicleTypeResolver extends TypeIdResolverBase {
+        private static final long serialVersionUID = 1L;
+
         JavaType superType;
 
         @Override

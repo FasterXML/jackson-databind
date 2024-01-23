@@ -35,6 +35,8 @@ public class ExternalTypeId2588Test extends BaseMapTest
     }
 
     static class AnimalTypeIdResolver extends TypeIdResolverBase {
+        private static final long serialVersionUID = 1L;
+
         @Override
         public String idFromValue(DatabindContext context, Object value) {
             return idFromValueAndType(context, value, value.getClass());

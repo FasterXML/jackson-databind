@@ -265,7 +265,7 @@ public enum DeserializationFeature implements ConfigFeature
      *<p>
      * NOTE: most of the time exceptions that may or may not be wrapped are of
      * type {@link RuntimeException}: as mentioned earlier,
-     * {@link com.f.jackson.core.JacksonException}s) will
+     * {@link tools.jackson.core.JacksonException}s) will
      * always be passed as-is.
      *<p>
      * Disabling this feature will mean that you will need to adjust your try/catch

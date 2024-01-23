@@ -33,6 +33,8 @@ public class TestCustomTypeIdResolver extends BaseMapTest
     }
 
     static class CustomResolver extends TestCustomResolverBase {
+        private static final long serialVersionUID = 1L;
+
         // yes, static: just for test purposes, not real use
         static List<JavaType> initTypes;
 
@@ -58,6 +60,8 @@ public class TestCustomTypeIdResolver extends BaseMapTest
     }
 
     static class ExtResolver extends TestCustomResolverBase {
+        private static final long serialVersionUID = 1L;
+
         public ExtResolver() {
             super(ExtBean.class, ExtBeanImpl.class);
         }
@@ -65,6 +69,8 @@ public class TestCustomTypeIdResolver extends BaseMapTest
 
     static class TestCustomResolverBase extends TypeIdResolverBase
     {
+        private static final long serialVersionUID = 1L;
+
         protected final Class<?> superType;
         protected final Class<?> subType;
 

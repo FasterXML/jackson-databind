@@ -93,6 +93,7 @@ public class LazyIgnoralForNumbers3730Test extends BaseMapTest
             .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .build();
 
+    @SuppressWarnings("deprecation")
     public void testIgnoreBigInteger() throws Exception
     {
         try (MockedStatic<NumberInput> mocked = mockStatic(NumberInput.class)) {
@@ -124,6 +125,7 @@ public class LazyIgnoralForNumbers3730Test extends BaseMapTest
         }
     }
 
+    @SuppressWarnings("deprecation")
     public void testIgnoreFPValuesDefault() throws Exception
     {
         try (MockedStatic<NumberInput> mocked = mockStatic(NumberInput.class)) {
@@ -162,6 +164,7 @@ public class LazyIgnoralForNumbers3730Test extends BaseMapTest
         }
     }
 
+    @SuppressWarnings("deprecation")
     public void testIgnoreFPValuesBigDecimal() throws Exception
     {
         try (MockedStatic<NumberInput> mock = mockStatic(NumberInput.class)) {

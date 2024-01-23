@@ -149,6 +149,8 @@ public class ExternalTypeCustomResolver1288Test extends BaseMapTest
         }
 
         public static class PaymentDetailsTypeIdResolver extends TypeIdResolverBase {
+            private static final long serialVersionUID = 1L;
+
             @SuppressWarnings("unchecked")
             @Override
             public String idFromValue(DatabindContext ctxt, Object value) {
@@ -382,6 +384,8 @@ public class ExternalTypeCustomResolver1288Test extends BaseMapTest
         }
 
         public static class PaymentDetailsTypeIdResolver extends TypeIdResolverBase {
+            private static final long serialVersionUID = 1L;
+
             @SuppressWarnings ("unchecked")
             @Override
             public String idFromValue(DatabindContext ctxt, Object value) {

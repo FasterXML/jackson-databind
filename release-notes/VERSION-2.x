@@ -37,6 +37,9 @@ Project: jackson-databind
   deserialization with `READ_UNKNOWN_ENUM_VALUES_AS_NULL` and `FAIL_ON_INVALID_SUBTYPE` wrong
  (reported by @ivan-zaitsev)
  (fix contributed by Joo-Hyuk K)
+#4327: `@JsonAlias` not respected by polymorphic deduction
+ (reported by @k-wall)
+ (fix contributed by Joo-Hyuk K)
 #4337: `AtomicReference` serializer does not support `@JsonSerialize(contentConverter=...)`
 
 2.16.2 (not yet released)

@@ -80,7 +80,7 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
                     fieldBitIndex.put(name, nextField++);
                 }
                 // [databind#4327] 2.17 @JsonAlias should be respected by polymorphic deduction
-                List<PropertyName> aliases = property.getAliases();
+                List<PropertyName> aliases = property.findAliases();
                 for (PropertyName alias : aliases) {
                     String simpleName = alias.getSimpleName();
                     if (ignoreCase) simpleName = simpleName.toLowerCase();

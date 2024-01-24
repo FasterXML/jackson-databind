@@ -14,7 +14,7 @@ import tools.jackson.databind.util.FullyNamed;
  * serialization and deserialization purposes.
  * These instances are created before actual {@link BeanProperty}
  * instances are created, i.e. they are used earlier in the process
- * flow, and are typically use to construct actual
+ * flow, and are typically used to construct actual
  * {@link BeanProperty} instances.
  */
 public abstract class BeanPropertyDefinition

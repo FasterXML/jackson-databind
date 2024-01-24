@@ -578,24 +578,21 @@ public class BeanDeserializerBuilder
     protected PropertyName[][] _collectAliases(Collection<SettableBeanProperty> props)
     {
         PropertyName[][] result = null;
-        AnnotationIntrospector intr = _config.getAnnotationIntrospector();
-        if (intr != null) {
-            int i = -1;
-            for (SettableBeanProperty prop : props) {
-                ++i;
-                AnnotatedMember member = prop.getMember();
-                if (member == null) {
-                    continue;
-                }
-                List<PropertyName> aliases = intr.findPropertyAliases(_config, member);
-                if ((aliases == null) || aliases.isEmpty()) {
-                    continue;
-                }
-                if (result == null) {
-                    result = new PropertyName[props.size()][];
-                }
-                result[i] = aliases.toArray(new PropertyName[0]);
+        int i = -1;
+        for (SettableBeanProperty prop : props) {
+            ++i;
+            AnnotatedMember member = prop.getMember();
+            if (member == null) {
+                continue;
             }
+            List<PropertyName> aliases = prop.findAliases(_config);
+            if ((aliases == null) || aliases.isEmpty()) {
+                continue;
+            }
+            if (result == null) {
+                result = new PropertyName[props.size()][];
+            }
+            result[i] = aliases.toArray(new PropertyName[0]);
         }
         return result;
     }

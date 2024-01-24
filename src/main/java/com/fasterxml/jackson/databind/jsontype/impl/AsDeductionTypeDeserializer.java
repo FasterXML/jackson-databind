@@ -80,10 +80,11 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
                     fieldBitIndex.put(name, nextField++);
                 }
                 // [databind#4327] 2.17 @JsonAlias should be respected by polymorphic deduction
-                List<String> aliases = _findAliases(config, property);
-                for (String alias : aliases) {
-                    if (ignoreCase) alias = alias.toLowerCase();
-                    fieldBitIndex.put(alias, bitIndex);
+                List<PropertyName> aliases = property.getAliases();
+                for (PropertyName alias : aliases) {
+                    String simpleName = alias.getSimpleName();
+                    if (ignoreCase) simpleName = simpleName.toLowerCase();
+                    fieldBitIndex.put(simpleName, bitIndex);
                 }
                 fingerprint.set(bitIndex);
             }
@@ -98,22 +99,6 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
             }
         }
         return fingerprints;
-    }
-
-    private List<String> _findAliases(DeserializationConfig config, BeanPropertyDefinition property)
-    {
-        AnnotationIntrospector ai = config.getAnnotationIntrospector();
-        // Should be enough to use "primary member" (setter or field)
-        List<PropertyName> aliases = ai.findPropertyAliases(property.getPrimaryMember());
-        if (aliases == null || aliases.isEmpty()) {
-            return Collections.emptyList();
-        }
-        // Convert to simple names
-        List<String> result = new ArrayList<>(aliases.size());
-        for (PropertyName pn : aliases) {
-            result.add(pn.getSimpleName());
-        }
-        return result;
     }
 
     @Override

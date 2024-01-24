@@ -576,18 +576,15 @@ public class BeanDeserializerBuilder
     protected Map<String,List<PropertyName>> _collectAliases(Collection<SettableBeanProperty> props)
     {
         Map<String,List<PropertyName>> mapping = null;
-        AnnotationIntrospector intr = _config.getAnnotationIntrospector();
-        if (intr != null) {
-            for (SettableBeanProperty prop : props) {
-                List<PropertyName> aliases = intr.findPropertyAliases(prop.getMember());
-                if ((aliases == null) || aliases.isEmpty()) {
-                    continue;
-                }
-                if (mapping == null) {
-                    mapping = new HashMap<>();
-                }
-                mapping.put(prop.getName(), aliases);
+        for (SettableBeanProperty prop : props) {
+            List<PropertyName> aliases = prop.findAliases(_config);
+            if ((aliases == null) || aliases.isEmpty()) {
+                continue;
             }
+            if (mapping == null) {
+                mapping = new HashMap<>();
+            }
+            mapping.put(prop.getName(), aliases);
         }
         if (mapping == null) {
             return Collections.emptyMap();

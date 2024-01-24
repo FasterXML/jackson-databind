@@ -838,7 +838,7 @@ public class POJOPropertyBuilder
     public List<PropertyName> findAliases() {
         AnnotatedMember ann = getPrimaryMember();
         if (ann != null) {
-            List<PropertyName> propertyNames = _annotationIntrospector.findPropertyAliases(ann);
+            List<PropertyName> propertyNames = _annotationIntrospector.findPropertyAliases(_config, ann);
             if (propertyNames != null) {
                 return propertyNames;
             }

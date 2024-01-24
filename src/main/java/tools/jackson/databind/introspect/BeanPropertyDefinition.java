@@ -1,6 +1,5 @@
 package tools.jackson.databind.introspect;
 
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -284,10 +283,6 @@ public abstract class BeanPropertyDefinition
      * Method for finding all aliases of the property, if any.
      *
      * @return {@code List} of aliases, if any; never null (empty list if no aliases found)
-     *
-     * @since 2.17
      */
-    public List<PropertyName> findAliases() {
-        return Collections.emptyList();
-    }
+    public abstract List<PropertyName> findAliases();
 }

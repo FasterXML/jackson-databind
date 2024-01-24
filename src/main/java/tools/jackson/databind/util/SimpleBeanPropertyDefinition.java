@@ -199,11 +199,13 @@ public class SimpleBeanPropertyDefinition
 
     @Override // since 2.17
     public List<PropertyName> findAliases() {
-        AnnotatedMember ann = getPrimaryMember();
-        if (ann != null) {
-            List<PropertyName> propertyNames = _annotationIntrospector.findPropertyAliases(ann);
-            if (propertyNames != null) {
-                return propertyNames;
+        if (_member != null) {
+            final AnnotationIntrospector intr = _config.getAnnotationIntrospector();
+            if (intr != null) {
+                List<PropertyName> propertyNames = intr.findPropertyAliases(_config, _member);
+                if (propertyNames != null) {
+                    return propertyNames;
+                }
             }
         }
         return Collections.emptyList();

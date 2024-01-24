@@ -111,9 +111,12 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
         if (aliases == null || aliases.isEmpty()) {
             return Collections.emptyList();
         }
-        return aliases.stream()
-            .map(PropertyName::getSimpleName)
-            .collect(Collectors.toList());
+        // Convert to simple names
+        List<String> result = new ArrayList<>(aliases.size());
+        for (PropertyName pn : aliases) {
+            result.add(pn.getSimpleName());
+        }
+        return result;
     }
 
     @Override

@@ -3,6 +3,8 @@ package com.fasterxml.jackson.databind.introspect;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import javax.swing.text.html.Option;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
@@ -841,6 +843,19 @@ public class POJOPropertyBuilder
         JsonInclude.Value v = (_annotationIntrospector == null) ?
                 null : _annotationIntrospector.findPropertyInclusion(a);
         return (v == null) ? JsonInclude.Value.empty() : v;
+    }
+
+    // since 2.17
+    @Override
+    public List<PropertyName> getAliases() {
+        AnnotatedMember ann = getPrimaryMember();
+        if (ann != null) {
+            List<PropertyName> propertyNames = _annotationIntrospector.findPropertyAliases(ann);
+            if (propertyNames != null) {
+                return propertyNames;
+            }
+        }
+        return Collections.emptyList();
     }
 
     public JsonProperty.Access findAccess() {

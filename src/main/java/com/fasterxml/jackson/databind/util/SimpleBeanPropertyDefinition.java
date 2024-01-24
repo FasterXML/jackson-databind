@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.util;
 
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -216,6 +217,19 @@ public class SimpleBeanPropertyDefinition
     @Override
     public JsonInclude.Value findInclusion() {
         return _inclusion;
+    }
+
+    // since 2.17
+    @Override
+    public List<PropertyName> getAliases() {
+        AnnotatedMember ann = getPrimaryMember();
+        if (ann != null) {
+            List<PropertyName> propertyNames = _annotationIntrospector.findPropertyAliases(ann);
+            if (propertyNames != null) {
+                return propertyNames;
+            }
+        }
+        return Collections.emptyList();
     }
 
     /*

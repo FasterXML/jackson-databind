@@ -106,33 +106,6 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
     private List<String> _findAliases(DeserializationConfig config, BeanPropertyDefinition property)
     {
         AnnotationIntrospector ai = config.getAnnotationIntrospector();
-
-        /*
-        List<PropertyName> aliases = new ArrayList<>();
-        AnnotatedField field = property.getField();
-        AnnotatedMethod setter = property.getSetter();
-        AnnotatedMethod getter = property.getGetter();
-
-        if (setter != null) {
-            List<PropertyName> names = ai.findPropertyAliases(setter);
-            if (names != null) {
-                aliases.addAll(names);
-            }
-        }
-        if (getter != null) {
-            List<PropertyName> names = ai.findPropertyAliases(getter);
-            if (names != null) {
-                aliases.addAll(names);
-            }
-        }
-        if (field != null) {
-            List<PropertyName> names = ai.findPropertyAliases(field);
-            if (names != null) {
-                aliases.addAll(names);
-            }
-        }
-        */
-
         // Should be enough to use "primary member" (setter or field)
         List<PropertyName> aliases = ai.findPropertyAliases(property.getPrimaryMember());
         if (aliases == null || aliases.isEmpty()) {

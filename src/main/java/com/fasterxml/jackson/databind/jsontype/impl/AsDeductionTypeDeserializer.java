@@ -73,11 +73,25 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
             BitSet fingerprint = new BitSet(nextField + properties.size());
             for (BeanPropertyDefinition property : properties) {
                 String name = property.getName();
-                if (ignoreCase) name = name.toLowerCase();
+                if (ignoreCase) {
+                    name = name.toLowerCase();
+                }
                 Integer bitIndex = fieldBitIndex.get(name);
                 if (bitIndex == null) {
-                    bitIndex = nextField;
-                    fieldBitIndex.put(name, nextField++);
+                    bitIndex = nextField++;
+                    fieldBitIndex.put(name, bitIndex);
+                }
+                // [databind#4327] 2.17 @JsonAlias should be respected by polymorphic deduction
+                for (PropertyName alias : property.findAliases()) {
+                    String simpleName = alias.getSimpleName();
+                    if (ignoreCase) {
+                        simpleName = simpleName.toLowerCase();
+                    }
+                    // but do not override entries (in case alias overlaps a regular name;
+                    // is this even legal?)
+                    if (!fieldBitIndex.containsKey(simpleName)) {
+                        fieldBitIndex.put(simpleName, bitIndex);
+                    }
                 }
                 fingerprint.set(bitIndex);
             }

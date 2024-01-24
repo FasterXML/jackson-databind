@@ -1,6 +1,8 @@
 package tools.jackson.databind.introspect;
 
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -277,4 +279,15 @@ public abstract class BeanPropertyDefinition
      * @since 2.5
      */
     public abstract JsonInclude.Value findInclusion();
+
+    /**
+     * Method for finding all aliases of the property, if any.
+     *
+     * @return {@code List} of aliases, if any; never null (empty list if no aliases found)
+     *
+     * @since 2.17
+     */
+    public List<PropertyName> findAliases() {
+        return Collections.emptyList();
+    }
 }

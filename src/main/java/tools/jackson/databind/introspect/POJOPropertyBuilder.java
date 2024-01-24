@@ -833,6 +833,19 @@ public class POJOPropertyBuilder
         return (v == null) ? JsonInclude.Value.empty() : v;
     }
 
+    // since 2.17
+    @Override
+    public List<PropertyName> findAliases() {
+        AnnotatedMember ann = getPrimaryMember();
+        if (ann != null) {
+            List<PropertyName> propertyNames = _annotationIntrospector.findPropertyAliases(ann);
+            if (propertyNames != null) {
+                return propertyNames;
+            }
+        }
+        return Collections.emptyList();
+    }
+
     public JsonProperty.Access findAccess() {
         // 25-Sep-2017, tatu: IMPORTANT! Called BEFORE merge occurs so MUST traverse
         //    accessors separately

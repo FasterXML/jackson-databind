@@ -110,6 +110,15 @@ public class ConvertingSerializerTest
         }
     }
 
+    static class PointOptionalBean {
+        @JsonSerialize(contentConverter=PointConverter.class)
+        public Optional<Point> opt;
+
+        public PointOptionalBean(int x, int y) {
+            opt = Optional.of(new Point(x, y));
+        }
+    }
+
     // [databind#357]
     static class Value { }
 
@@ -233,6 +242,12 @@ public class ConvertingSerializerTest
     public void testPropertyAnnotationForReferences() throws Exception {
         String json = MAPPER.writeValueAsString(new PointReferenceBean(3, 4));
         assertEquals("{\"ref\":[3,4]}", json);
+    }
+
+    @Test
+    public void testPropertyAnnotationForOptionals() throws Exception {
+        String json = MAPPER.writeValueAsString(new PointOptionalBean(6, 7));
+        assertEquals("{\"opt\":[6,7]}", json);
     }
 
     // [databind#357]

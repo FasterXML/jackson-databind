@@ -93,6 +93,12 @@ public class ConvertingDeserializerTest
         public AtomicReference<Point> ref;
     }
 
+    // @since Jackson 3.0
+    static class PointWrapperOptional {
+        @JsonDeserialize(contentConverter=PointConverter.class)
+        public Optional<Point> opt;
+    }
+    
     static class LowerCaser extends StdConverter<String, String>
     {
         @Override
@@ -231,6 +237,19 @@ public class ConvertingDeserializerTest
         assertNotNull(p);
         assertEquals(1, p.x);
         assertEquals(2, p.y);
+    }
+
+    @Test
+    public void testPropertyAnnotationForOptionals() throws Exception
+    {
+        PointWrapperOptional w = MAPPER.readerFor(PointWrapperOptional.class)
+                .readValue("{\"opt\": [2,3]}");
+        assertNotNull(w);
+        assertNotNull(w.opt);
+        Point p = w.opt.get();
+        assertNotNull(p);
+        assertEquals(2, p.x);
+        assertEquals(3, p.y);
     }
 
     // [databind#795]

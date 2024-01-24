@@ -12,7 +12,7 @@ import tools.jackson.databind.util.StdConverter;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestStringConversions
+public class StringConversionsTest
 {
     static class LCConverter extends StdConverter<String,String>
     {

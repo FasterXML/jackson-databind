@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
-public class TestConvertingSerializer
+public class ConvertingSerializerTest
 {
     @JsonSerialize(converter=ConvertingBeanConverter.class)
     static class ConvertingBean

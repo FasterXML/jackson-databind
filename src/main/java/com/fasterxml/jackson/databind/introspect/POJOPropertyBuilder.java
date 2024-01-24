@@ -845,7 +845,7 @@ public class POJOPropertyBuilder
 
     // since 2.17
     @Override
-    public List<PropertyName> getAliases() {
+    public List<PropertyName> findAliases() {
         AnnotatedMember ann = getPrimaryMember();
         if (ann != null) {
             List<PropertyName> propertyNames = _annotationIntrospector.findPropertyAliases(ann);

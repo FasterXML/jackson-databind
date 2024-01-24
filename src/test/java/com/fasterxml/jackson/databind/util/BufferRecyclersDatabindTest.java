@@ -100,7 +100,7 @@ public class BufferRecyclersDatabindTest
 
     public void testGeneratorWithLockFreePool() throws Exception {
         _testGenerator(JsonRecyclerPools.newLockFreePool());
-//        _testGenerator(JsonRecyclerPools.sharedLockFreePool());
+        _testGenerator(JsonRecyclerPools.sharedLockFreePool());
     }
 
     public void testGeneratorWithBoundedPool() throws Exception {
@@ -128,7 +128,9 @@ public class BufferRecyclersDatabindTest
                 StandardCharsets.UTF_8));
     }
 
-    public static class HybridTestPool implements RecyclerPool<BufferRecycler> {
+    public static class HybridTestPool implements RecyclerPool<BufferRecycler>
+    {
+        private static final long serialVersionUID = 1L;
 
         private static final Predicate<Thread> isVirtual = VirtualPredicate.findIsVirtualPredicate();
 
@@ -151,19 +153,19 @@ public class BufferRecyclersDatabindTest
             }
         }
 
-        private static class VirtualPredicate {
-            private static final MethodHandle virtualMh = findVirtualMH();
+        static class VirtualPredicate {
+            static final MethodHandle virtualMh = findVirtualMH();
 
-            private static MethodHandle findVirtualMH() {
+            static MethodHandle findVirtualMH() {
                 try {
                     return MethodHandles.publicLookup().findVirtual(Thread.class, "isVirtual",
-                                                                    MethodType.methodType(boolean.class));
+                            MethodType.methodType(boolean.class));
                 } catch (Exception e) {
                     return null;
                 }
             }
 
-            private static Predicate<Thread> findIsVirtualPredicate() {
+            static Predicate<Thread> findIsVirtualPredicate() {
                 if (virtualMh != null) {
                     return new Predicate<Thread>() {
                         @Override

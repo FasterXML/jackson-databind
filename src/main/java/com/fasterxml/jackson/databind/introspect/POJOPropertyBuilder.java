@@ -3,8 +3,6 @@ package com.fasterxml.jackson.databind.introspect;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import javax.swing.text.html.Option;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;

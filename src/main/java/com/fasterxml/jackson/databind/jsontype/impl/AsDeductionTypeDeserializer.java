@@ -106,6 +106,8 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
     private List<String> _findAliases(DeserializationConfig config, BeanPropertyDefinition property)
     {
         AnnotationIntrospector ai = config.getAnnotationIntrospector();
+
+        /*
         List<PropertyName> aliases = new ArrayList<>();
         AnnotatedField field = property.getField();
         AnnotatedMethod setter = property.getSetter();
@@ -128,6 +130,13 @@ public class AsDeductionTypeDeserializer extends AsPropertyTypeDeserializer
             if (names != null) {
                 aliases.addAll(names);
             }
+        }
+        */
+
+        // Should be enough to use "primary member" (setter or field)
+        List<PropertyName> aliases = ai.findPropertyAliases(property.getPrimaryMember());
+        if (aliases == null || aliases.isEmpty()) {
+            return Collections.emptyList();
         }
         return aliases.stream()
             .map(PropertyName::getSimpleName)

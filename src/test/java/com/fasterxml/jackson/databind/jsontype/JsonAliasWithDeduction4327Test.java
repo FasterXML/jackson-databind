@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 
-// [databind#4327] JsonAlias should respsect with Polymorphic Deduction
+// [databind#4327] JsonAlias should be respected by Polymorphic Deduction
 public class JsonAliasWithDeduction4327Test
 {
     @JsonTypeInfo(use = JsonTypeInfo.Id.DEDUCTION)
@@ -29,15 +29,20 @@ public class JsonAliasWithDeduction4327Test
     }
 
     static class DeductionBean2 implements Deduction {
-        @JsonAlias(value = {"Y", "yy", "ff", "X"})
+        // add "y" as redundant choice to make sure it won't break anything
+        @JsonAlias(value = {"y", "Y", "yy", "ff", "X"})
         public int y;
-    }
 
+        // IMPORTANT! Can have field and setter, but alias values are not merged;
+        // highest priority one is used instead of lower if both defined (Setter
+        // having higher priority than Field)
+        public void setY(int y) { this.y = y; }
+    }
 
     private final ObjectMapper mapper = jsonMapperBuilder().build();
 
     @ParameterizedTest
-    @ValueSource(strings = {"Y", "yy", "ff", "X"})
+    @ValueSource(strings = {"y", "Y", "yy", "ff", "X"})
     public void testAliasWithPolymorphicDeduction(String field) throws Exception {
         String json = a2q(String.format("{'%s': 2 }", field));
         Deduction value = mapper.readValue(json, Deduction.class);

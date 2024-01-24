@@ -170,7 +170,7 @@ public abstract class ReferenceTypeSerializer<T>
                 ser = ctxt.handlePrimaryContextualization(ser, property);
             }
         }
-        // 23-Jan-2024, tatu: May have a content converter:
+        // 23-Jan-2024, tatu: [databind#4337]: May have a content converter
         ser = findContextualConvertingSerializer(ctxt, property, ser);
 
         // First, resolve wrt property, resolved serializers

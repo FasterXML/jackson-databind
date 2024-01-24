@@ -2,6 +2,8 @@ package com.fasterxml.jackson.databind.deser.creators;
 
 import java.lang.annotation.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 import com.fasterxml.jackson.databind.*;
@@ -11,8 +13,14 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
+
 // Tests for [databind#1498] (Jackson 2.12)
-public class ConstructorDetector1498Test extends BaseMapTest
+public class ConstructorDetector1498Test
 {
     // Helper annotation to work around lack of implicit name access with Jackson 2.x
     @Target(ElementType.PARAMETER)
@@ -99,6 +107,7 @@ public class ConstructorDetector1498Test extends BaseMapTest
     /**********************************************************************
      */
 
+    @Test
     public void test1ArgDefaultsToPropertiesNonAnnotated() throws Exception
     {
         SingleArgNotAnnotated value = MAPPER_PROPS.readValue(a2q("{'value' : 137 }"),
@@ -106,6 +115,7 @@ public class ConstructorDetector1498Test extends BaseMapTest
         assertEquals(137, value.v);
     }
 
+    @Test
     public void test1ArgDefaultsToPropertiesNoMode() throws Exception
     {
         SingleArgNoMode value = MAPPER_PROPS.readValue(a2q("{'value' : 137 }"),
@@ -114,6 +124,7 @@ public class ConstructorDetector1498Test extends BaseMapTest
     }
 
     // And specific test for original [databind#1498]
+    @Test
     public void test1ArgDefaultsToPropertiesIssue1498() throws Exception
     {
         SingleArg1498 value = MAPPER_PROPS.readValue(a2q("{'bar' : 404 }"),
@@ -122,6 +133,7 @@ public class ConstructorDetector1498Test extends BaseMapTest
     }
 
     // This was working already but verify
+    @Test
     public void testMultiArgAsProperties() throws Exception
     {
         TwoArgsNotAnnotated value = MAPPER_PROPS.readValue(a2q("{'a' : 3, 'b':4 }"),
@@ -132,6 +144,7 @@ public class ConstructorDetector1498Test extends BaseMapTest
 
     // 18-Sep-2020, tatu: For now there is a problematic case of multiple eligible
     //   choices; not cleanly solvable for 2.12
+    @Test
     public void test1ArgDefaultsToPropsMultipleCtors() throws Exception
     {
         try {
@@ -149,6 +162,7 @@ public class ConstructorDetector1498Test extends BaseMapTest
     /**********************************************************************
      */
 
+    @Test
     public void test1ArgDefaultsToDelegatingNoAnnotation() throws Exception
     {
         // No annotation, should be fine?
@@ -156,6 +170,7 @@ public class ConstructorDetector1498Test extends BaseMapTest
         assertEquals(1972, value.v);
     }
 
+    @Test
     public void test1ArgDefaultsToDelegatingNoMode() throws Exception
     {
         // One with `@JsonCreator` no mode annotation (ok since indicated)
@@ -169,6 +184,7 @@ public class ConstructorDetector1498Test extends BaseMapTest
     /**********************************************************************
      */
 
+    @Test
     public void test1ArgDefaultsToHeuristics() throws Exception
     {
         final ObjectMapper mapper = mapperFor(ConstructorDetector.DEFAULT);
@@ -204,6 +220,7 @@ public class ConstructorDetector1498Test extends BaseMapTest
     }
     */
 
+    @Test
     public void test1ArgFailsNoMode() throws Exception
     {
         // Second: also fail also if no "mode" indicated
@@ -216,6 +233,7 @@ public class ConstructorDetector1498Test extends BaseMapTest
         }
     }
 
+    @Test
     public void test1ArgRequiresAnnotation() throws Exception
     {
         // First: if there is a 0-arg ctor, fine, must use that
@@ -232,6 +250,7 @@ public class ConstructorDetector1498Test extends BaseMapTest
         }
     }
 
+    @Test
     public void testMultiArgRequiresAnnotation() throws Exception
     {
         try {

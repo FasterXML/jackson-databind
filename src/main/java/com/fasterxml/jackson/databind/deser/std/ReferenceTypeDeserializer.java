@@ -66,11 +66,14 @@ public abstract class ReferenceTypeDeserializer<T>
             throws JsonMappingException
     {
         JsonDeserializer<?> deser = _valueDeserializer;
+        // 23-Jan-2024, tatu: [databind#4337]: May have a content converter
+        deser = findConvertingContentDeserializer(ctxt, property, deser);
         if (deser == null) {
             deser = ctxt.findContextualValueDeserializer(_fullType.getReferencedType(), property);
         } else { // otherwise directly assigned, probably not contextual yet:
             deser = ctxt.handleSecondaryContextualization(deser, property, _fullType.getReferencedType());
         }
+
         TypeDeserializer typeDeser = _valueTypeDeserializer;
         if (typeDeser != null) {
             typeDeser = typeDeser.forProperty(property);

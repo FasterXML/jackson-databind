@@ -843,6 +843,19 @@ public class POJOPropertyBuilder
         return (v == null) ? JsonInclude.Value.empty() : v;
     }
 
+    // since 2.17
+    @Override
+    public List<PropertyName> findAliases() {
+        AnnotatedMember ann = getPrimaryMember();
+        if (ann != null) {
+            List<PropertyName> propertyNames = _annotationIntrospector.findPropertyAliases(ann);
+            if (propertyNames != null) {
+                return propertyNames;
+            }
+        }
+        return Collections.emptyList();
+    }
+
     public JsonProperty.Access findAccess() {
         return fromMemberAnnotationsExcept(new WithMember<JsonProperty.Access>() {
             @Override

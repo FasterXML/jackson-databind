@@ -5,17 +5,23 @@ import java.math.BigInteger;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.q;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
 
 /**
  * Unit tests for verifying that it is possible to annotate
  * various kinds of things with {@link JsonCreator} annotation.
  */
 public class TestCreators
-    extends BaseMapTest
 {
     /*
     /**********************************************************
@@ -320,6 +326,7 @@ public class TestCreators
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
+    @Test
     public void testSimpleConstructor() throws Exception
     {
         ConstructorBean bean = MAPPER.readValue("{ \"x\" : 42 }", ConstructorBean.class);
@@ -327,6 +334,7 @@ public class TestCreators
     }
 
     // [JACKSON-850]
+    @Test
     public void testNoArgsFactory() throws Exception
     {
         NoArgFactoryBean value = MAPPER.readValue("{\"y\":13}", NoArgFactoryBean.class);
@@ -334,6 +342,7 @@ public class TestCreators
         assertEquals(123, value.x);
     }
 
+    @Test
     public void testSimpleDoubleConstructor() throws Exception
     {
         Double exp = Double.valueOf("0.25");
@@ -341,6 +350,7 @@ public class TestCreators
         assertEquals(exp, bean.d);
     }
 
+    @Test
     public void testSimpleBooleanConstructor() throws Exception
     {
         BooleanConstructorBean bean = MAPPER.readValue(" true ", BooleanConstructorBean.class);
@@ -350,6 +360,7 @@ public class TestCreators
         assertTrue(bean2.b);
     }
 
+    @Test
     public void testSimpleBigIntegerConstructor() throws Exception
     {
         // 10-Dec-2020, tatu: Small (magnitude) values will NOT trigger path
@@ -360,6 +371,7 @@ public class TestCreators
         assertEquals(INPUT, result._value);
     }
 
+    @Test
     public void testSimpleBigDecimalConstructor() throws Exception
     {
         // 10-Dec-2020, tatu: not sure we can ever trigger this with JSON;
@@ -376,12 +388,14 @@ public class TestCreators
         }
     }
 
+    @Test
     public void testSimpleFactory() throws Exception
     {
         FactoryBean bean = MAPPER.readValue("{ \"f\" : 0.25 }", FactoryBean.class);
         assertEquals(0.25, bean.d);
     }
 
+    @Test
     public void testLongFactory() throws Exception
     {
         long VALUE = 123456789000L;
@@ -389,6 +403,7 @@ public class TestCreators
         assertEquals(VALUE, bean.value);
     }
 
+    @Test
     public void testStringFactory() throws Exception
     {
         String str = "abc";
@@ -396,6 +411,7 @@ public class TestCreators
         assertEquals(str, bean.value);
     }
 
+    @Test
     public void testStringFactoryAlt() throws Exception
     {
         String str = "xyz";
@@ -403,6 +419,7 @@ public class TestCreators
         assertEquals(str, bean.value);
     }
 
+    @Test
     public void testConstructorCreator() throws Exception
     {
         CreatorBean bean = MAPPER.readValue
@@ -411,6 +428,7 @@ public class TestCreators
         assertEquals("ctor:xyz", bean.a);
     }
 
+    @Test
     public void testConstructorAndProps() throws Exception
     {
         ConstructorAndPropsBean bean = MAPPER.readValue
@@ -420,6 +438,7 @@ public class TestCreators
         assertEquals(true, bean.c);
     }
 
+    @Test
     public void testFactoryAndProps() throws Exception
     {
         FactoryAndPropsBean bean = MAPPER.readValue
@@ -438,6 +457,7 @@ public class TestCreators
      * Test to verify that multiple creators may co-exist, iff
      * they use different JSON type as input
      */
+    @Test
     public void testMultipleCreators() throws Exception
     {
         MultiBean bean = MAPPER.readValue("123", MultiBean.class);
@@ -454,6 +474,7 @@ public class TestCreators
     /**********************************************************
      */
 
+    @Test
     public void testDeferredConstructorAndProps() throws Exception
     {
         DeferredConstructorAndPropsBean bean = MAPPER.readValue
@@ -467,6 +488,7 @@ public class TestCreators
         assertEquals(1, bean.createA[0]);
     }
 
+    @Test
     public void testDeferredFactoryAndProps() throws Exception
     {
         DeferredFactoryAndPropsBean bean = MAPPER.readValue
@@ -481,6 +503,7 @@ public class TestCreators
     /**********************************************************
      */
 
+    @Test
     public void testFactoryCreatorWithMixin() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
@@ -491,6 +514,7 @@ public class TestCreators
         assertEquals("factory:xyz", bean.a);
     }
 
+    @Test
     public void testFactoryCreatorWithRenamingMixin() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
@@ -507,6 +531,7 @@ public class TestCreators
     /**********************************************************
      */
 
+    @Test
     public void testMapWithConstructor() throws Exception
     {
         MapWithCtor result = MAPPER.readValue
@@ -521,6 +546,7 @@ public class TestCreators
         assertEquals(123, result._number);
     }
 
+    @Test
     public void testMapWithFactory() throws Exception
     {
         MapWithFactory result = MAPPER.readValue
@@ -537,6 +563,7 @@ public class TestCreators
     /**********************************************************
      */
 
+    @Test
     public void testBrokenConstructor() throws Exception
     {
         try {

@@ -216,6 +216,9 @@ public abstract class ReferenceTypeSerializer<T>
                 ser = provider.handlePrimaryContextualization(ser, property);
             }
         }
+        // 23-Jan-2024, tatu: [databind#4337]: May have a content converter
+        ser = findContextualConvertingSerializer(provider, property, ser);
+
         // First, resolve wrt property, resolved serializers
         ReferenceTypeSerializer<?> refSer;
         if ((_property == property)

@@ -1,10 +1,14 @@
 package com.fasterxml.jackson.databind.deser.creators;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 
-public class DelegatingExternalProperty1003Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+public class DelegatingExternalProperty1003Test
 {
     static class HeroBattle {
 
@@ -42,6 +46,7 @@ public class DelegatingExternalProperty1003Test extends BaseMapTest
         }
     }
 
+    @Test
     public void testExtrnalPropertyDelegatingCreator() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();

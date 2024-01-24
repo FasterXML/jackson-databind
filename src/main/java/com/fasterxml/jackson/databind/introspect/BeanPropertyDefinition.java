@@ -1,6 +1,8 @@
 package com.fasterxml.jackson.databind.introspect;
 
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -14,7 +16,7 @@ import com.fasterxml.jackson.databind.util.Named;
  * serialization and deserialization purposes.
  * These instances are created before actual {@link BeanProperty}
  * instances are created, i.e. they are used earlier in the process
- * flow, and are typically use to construct actual
+ * flow, and are typically used to construct actual
  * {@link BeanProperty} instances.
  */
 public abstract class BeanPropertyDefinition
@@ -284,4 +286,15 @@ public abstract class BeanPropertyDefinition
      * @since 2.5
      */
     public abstract JsonInclude.Value findInclusion();
+
+    /**
+     * Method for finding all aliases of the property, if any.
+     *
+     * @return {@code List} of aliases, if any; never null (empty list if no aliases found)
+     *
+     * @since 2.17
+     */
+    public List<PropertyName> findAliases() {
+        return Collections.emptyList();
+    }
 }

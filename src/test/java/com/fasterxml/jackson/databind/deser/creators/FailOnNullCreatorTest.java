@@ -1,15 +1,22 @@
 package com.fasterxml.jackson.databind.deser.creators;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+
 /**
  * Tests to ensure that deserialization fails when a bean property has a null value
  * Relates to <a href="https://github.com/FasterXML/jackson-databind/issues/988">issue #988</a>
  */
-public class FailOnNullCreatorTest extends BaseMapTest
+public class FailOnNullCreatorTest
 {
     static class Person {
         String name;
@@ -24,8 +31,9 @@ public class FailOnNullCreatorTest extends BaseMapTest
         }
     }
 
-    private final ObjectReader POINT_READER = objectMapper().readerFor(Person.class);
+    private final ObjectReader POINT_READER = sharedMapper().readerFor(Person.class);
 
+    @Test
     public void testRequiredNonNullParam() throws Exception
     {
         Person p;

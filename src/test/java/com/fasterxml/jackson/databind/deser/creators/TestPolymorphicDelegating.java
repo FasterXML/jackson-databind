@@ -1,9 +1,14 @@
 package com.fasterxml.jackson.databind.deser.creators;
 
 import com.fasterxml.jackson.annotation.*;
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.*;
 
-public class TestPolymorphicDelegating extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+public class TestPolymorphicDelegating
 {
     // For [databind#580]
 
@@ -38,6 +43,7 @@ public class TestPolymorphicDelegating extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testAbstractDelegateWithCreator() throws Exception
     {
         Issue580Bean input = new Issue580Bean(new Issue580Impl(13));

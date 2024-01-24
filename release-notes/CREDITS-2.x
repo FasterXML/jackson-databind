@@ -1738,3 +1738,7 @@ Muhammad Khalikov (mukham12@github)
  * Contributed fix for #4209: Make `BeanDeserializerModifier`/`BeanSerializerModifier`
   implement `java.io.Serializable`
  (2.17.0)
+
+Eduard Dudar (edudar@github)
+ * Contributed #4299: Some `Collection` and `Map` fallbacks don't work in GraalVM native image
+ (2.17.0)

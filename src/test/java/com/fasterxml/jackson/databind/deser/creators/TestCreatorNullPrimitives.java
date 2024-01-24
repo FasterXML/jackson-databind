@@ -1,17 +1,23 @@
 package com.fasterxml.jackson.databind.deser.creators;
 
+import java.io.IOException;
+
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
-import java.io.IOException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
-public class TestCreatorNullPrimitives extends BaseMapTest
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+
+public class TestCreatorNullPrimitives
 {
     // [databind#2101]
     static class JsonEntity {
@@ -43,6 +49,7 @@ public class TestCreatorNullPrimitives extends BaseMapTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#2101]: ensure that the property is included in the path
+    @Test
     public void testCreatorNullPrimitive() throws IOException {
         final ObjectReader r = MAPPER.readerFor(JsonEntity.class)
             .with(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
@@ -57,6 +64,7 @@ public class TestCreatorNullPrimitives extends BaseMapTest
         }
     }
 
+    @Test
     public void testCreatorNullPrimitiveInNestedObject() throws IOException {
         final ObjectReader r = MAPPER.readerFor(NestedJsonEntity.class)
                 .with(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);

@@ -234,10 +234,6 @@ public abstract class BaseMapTest
         return sharedMapper().reader();
     }
 
-    protected ObjectReader objectReader(Class<?> cls) {
-        return sharedMapper().readerFor(cls);
-    }
-
     // `public` since 2.16, was only `protected` before then.
     // @since 2.10
     public static ObjectMapper newJsonMapper() {

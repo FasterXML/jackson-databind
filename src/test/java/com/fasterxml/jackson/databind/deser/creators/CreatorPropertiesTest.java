@@ -1,17 +1,19 @@
 package com.fasterxml.jackson.databind.deser.creators;
 
 import java.beans.ConstructorProperties;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
-
 import com.fasterxml.jackson.core.type.TypeReference;
-
 import com.fasterxml.jackson.databind.*;
 
-public class CreatorPropertiesTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+
+public class CreatorPropertiesTest
 {
     static class Issue905Bean {
         // 08-Nov-2015, tatu: Note that in real code we would most likely use same
@@ -89,6 +91,7 @@ public class CreatorPropertiesTest extends BaseMapTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#905]
+    @Test
     public void testCreatorPropertiesAnnotation() throws Exception
     {
         Issue905Bean b = MAPPER.readValue(a2q("{'y':3,'x':2}"),
@@ -98,6 +101,7 @@ public class CreatorPropertiesTest extends BaseMapTest
     }
 
     // [databind#1122]
+    @Test
     public void testPossibleNamingConflict() throws Exception
     {
         String json = "{\"bar\":3}";
@@ -107,6 +111,7 @@ public class CreatorPropertiesTest extends BaseMapTest
     }
 
     // [databind#1371]: MapperFeature.INFER_CREATOR_FROM_CONSTRUCTOR_PROPERTIES
+    @Test
     public void testConstructorPropertiesInference() throws Exception
     {
         final String JSON = a2q("{'x':3,'y':5}");
@@ -128,6 +133,7 @@ public class CreatorPropertiesTest extends BaseMapTest
     }
 
     // [databind#3252]: ensure full skipping of ignored properties
+    @Test
     public void testSkipNonScalar3252() throws Exception
     {
         List<Value3252> testData = MAPPER.readValue(a2q(

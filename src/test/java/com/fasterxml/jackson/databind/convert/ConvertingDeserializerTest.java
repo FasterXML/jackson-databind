@@ -2,11 +2,11 @@ package com.fasterxml.jackson.databind.convert;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.util.StdConverter;
 
@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
-public class TestConvertingDeserializer
+public class ConvertingDeserializerTest
 {
     @JsonDeserialize(converter=ConvertingBeanConverter.class)
     static class ConvertingBean
@@ -72,19 +72,24 @@ public class TestConvertingDeserializer
         }
     }
 
-    static class PointListWrapperArray {
+    static class PointWrapperArray {
         @JsonDeserialize(contentConverter=PointConverter.class)
         public Point[] values;
     }
 
-    static class PointListWrapperList {
+    static class PointWrapperList {
         @JsonDeserialize(contentConverter=PointConverter.class)
         public List<Point> values;
     }
 
-    static class PointListWrapperMap {
+    static class PointWrapperMap {
         @JsonDeserialize(contentConverter=PointConverter.class)
         public Map<String,Point> values;
+    }
+
+    static class PointWrapperReference {
+        @JsonDeserialize(contentConverter=PointConverter.class)
+        public AtomicReference<Point> ref;
     }
 
     static class LowerCaser extends StdConverter<String, String>
@@ -93,7 +98,6 @@ public class TestConvertingDeserializer
         public String convert(String value) {
             return value.toLowerCase();
         }
-
     }
 
     static class LowerCaseText {
@@ -123,9 +127,9 @@ public class TestConvertingDeserializer
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
@@ -133,7 +137,7 @@ public class TestConvertingDeserializer
     @Test
     public void testClassAnnotationSimple() throws Exception
     {
-        ConvertingBean bean = objectReader(ConvertingBean.class).readValue("[1,2]");
+        ConvertingBean bean = MAPPER.readerFor(ConvertingBean.class).readValue("[1,2]");
         assertNotNull(bean);
         assertEquals(1, bean.x);
         assertEquals(2, bean.y);
@@ -142,7 +146,7 @@ public class TestConvertingDeserializer
     @Test
     public void testClassAnnotationForLists() throws Exception
     {
-        ConvertingBeanContainer container = objectReader(ConvertingBeanContainer.class)
+        ConvertingBeanContainer container = MAPPER.readerFor(ConvertingBeanContainer.class)
                 .readValue("{\"values\":[[1,2],[3,4]]}");
         assertNotNull(container);
         assertNotNull(container.values);
@@ -153,7 +157,7 @@ public class TestConvertingDeserializer
     @Test
     public void testPropertyAnnotationSimple() throws Exception
     {
-        PointWrapper wrapper = objectReader(PointWrapper.class).readValue("{\"value\":[3,4]}");
+        PointWrapper wrapper = MAPPER.readerFor(PointWrapper.class).readValue("{\"value\":[3,4]}");
         assertNotNull(wrapper);
         assertNotNull(wrapper.value);
         assertEquals(3, wrapper.value.x);
@@ -163,7 +167,7 @@ public class TestConvertingDeserializer
     @Test
     public void testPropertyAnnotationLowerCasing() throws Exception
     {
-        LowerCaseText text = objectReader(LowerCaseText.class).readValue("{\"text\":\"Yay!\"}");
+        LowerCaseText text = MAPPER.readerFor(LowerCaseText.class).readValue("{\"text\":\"Yay!\"}");
         assertNotNull(text);
         assertNotNull(text.text);
         assertEquals("yay!", text.text);
@@ -172,7 +176,7 @@ public class TestConvertingDeserializer
     @Test
     public void testPropertyAnnotationArrayLC() throws Exception
     {
-        LowerCaseTextArray texts = objectReader(LowerCaseTextArray.class).readValue("{\"texts\":[\"ABC\"]}");
+        LowerCaseTextArray texts = MAPPER.readerFor(LowerCaseTextArray.class).readValue("{\"texts\":[\"ABC\"]}");
         assertNotNull(texts);
         assertNotNull(texts.texts);
         assertEquals(1, texts.texts.length);
@@ -182,7 +186,7 @@ public class TestConvertingDeserializer
     @Test
     public void testPropertyAnnotationForArrays() throws Exception
     {
-        PointListWrapperArray array = objectReader(PointListWrapperArray.class)
+        PointWrapperArray array = MAPPER.readerFor(PointWrapperArray.class)
                 .readValue("{\"values\":[[4,5],[5,4]]}");
         assertNotNull(array);
         assertNotNull(array.values);
@@ -193,7 +197,7 @@ public class TestConvertingDeserializer
     @Test
     public void testPropertyAnnotationForLists() throws Exception
     {
-        PointListWrapperList array = objectReader(PointListWrapperList.class)
+        PointWrapperList array = MAPPER.readerFor(PointWrapperList.class)
                 .readValue("{\"values\":[[7,8],[8,7]]}");
         assertNotNull(array);
         assertNotNull(array.values);
@@ -204,7 +208,7 @@ public class TestConvertingDeserializer
     @Test
     public void testPropertyAnnotationForMaps() throws Exception
     {
-        PointListWrapperMap map = objectReader(PointListWrapperMap.class)
+        PointWrapperMap map = MAPPER.readerFor(PointWrapperMap.class)
                 .readValue("{\"values\":{\"a\":[1,2]}}");
         assertNotNull(map);
         assertNotNull(map.values);
@@ -215,19 +219,28 @@ public class TestConvertingDeserializer
         assertEquals(2, p.y);
     }
 
+    @Test
+    public void testPropertyAnnotationForReferences() throws Exception
+    {
+        PointWrapperReference w = MAPPER.readerFor(PointWrapperReference.class)
+                .readValue("{\"ref\": [1,2]}");
+        assertNotNull(w);
+        assertNotNull(w.ref);
+        Point p = w.ref.get();
+        assertNotNull(p);
+        assertEquals(1, p.x);
+        assertEquals(2, p.y);
+    }
+
     // [databind#795]
     @Test
     public void testConvertToAbstract() throws Exception
     {
-        Issue795Bean bean = objectReader(Issue795Bean.class)
+        Issue795Bean bean = MAPPER.readerFor(Issue795Bean.class)
                 .readValue("{\"value\":\"1.25\"}");
         assertNotNull(bean.value);
         assertTrue(bean.value instanceof BigDecimal,
             "Type not BigDecimal but "+bean.value.getClass());
         assertEquals(new BigDecimal("1.25"), bean.value);
-    }
-
-    private ObjectReader objectReader(Class<?> type) {
-        return MAPPER.readerFor(type);
     }
 }

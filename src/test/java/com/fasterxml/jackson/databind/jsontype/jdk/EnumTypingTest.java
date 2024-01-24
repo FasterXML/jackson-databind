@@ -177,6 +177,7 @@ public class EnumTypingTest extends BaseMapTest
     }
 
     // [databind#3796]
+    @SuppressWarnings("deprecation")
     public void testEnumAsPolymorphicViaCreator() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();

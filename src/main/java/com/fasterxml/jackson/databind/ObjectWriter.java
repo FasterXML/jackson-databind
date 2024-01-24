@@ -1135,14 +1135,16 @@ public class ObjectWriter
         throws JsonProcessingException
     {
         // alas, we have to pull the recycler directly here...
-        SegmentedStringWriter sw = new SegmentedStringWriter(_generatorFactory._getBufferRecycler());
-        try {
+        final BufferRecycler br = _generatorFactory._getBufferRecycler();
+        try (SegmentedStringWriter sw = new SegmentedStringWriter(br)) {
             _writeValueAndClose(createGenerator(sw), value);
             return sw.getAndClear();
         } catch (JsonProcessingException e) {
             throw e;
         } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:
             throw JsonMappingException.fromUnexpectedIOE(e);
+        } finally {
+            br.releaseToPool(); // since 2.17
         }
     }
 
@@ -1158,16 +1160,16 @@ public class ObjectWriter
     public byte[] writeValueAsBytes(Object value)
         throws JsonProcessingException
     {
-        // Although 'close()' is NOP, use auto-close to avoid lgtm complaints
-        try (ByteArrayBuilder bb = new ByteArrayBuilder(_generatorFactory._getBufferRecycler())) {
+        final BufferRecycler br = _generatorFactory._getBufferRecycler();
+        try (ByteArrayBuilder bb = new ByteArrayBuilder(br)) {
             _writeValueAndClose(createGenerator(bb, JsonEncoding.UTF8), value);
-            final byte[] result = bb.toByteArray();
-            bb.release();
-            return result;
+            return bb.getClearAndRelease();
         } catch (JsonProcessingException e) { // to support [JACKSON-758]
             throw e;
         } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:
             throw JsonMappingException.fromUnexpectedIOE(e);
+        } finally {
+            br.releaseToPool(); // since 2.17
         }
     }
 

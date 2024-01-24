@@ -1,6 +1,7 @@
 package tools.jackson.databind.convert;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.Test;
 
@@ -97,6 +98,15 @@ public class ConvertingSerializerTest
         public PointListWrapperMap(String key, int x, int y) {
             values = new HashMap<String,Point>();
             values.put(key, new Point(x, y));
+        }
+    }
+
+    static class PointReferenceBean {
+        @JsonSerialize(contentConverter=PointConverter.class)
+        public AtomicReference<Point> ref;
+
+        public PointReferenceBean(int x, int y) {
+            ref = new AtomicReference<>(new Point(x, y));
         }
     }
 
@@ -217,6 +227,12 @@ public class ConvertingSerializerTest
     public void testPropertyAnnotationForMaps() throws Exception {
         String json = MAPPER.writeValueAsString(new PointListWrapperMap("a", 1, 2));
         assertEquals("{\"values\":{\"a\":[1,2]}}", json);
+    }
+
+    @Test
+    public void testPropertyAnnotationForReferences() throws Exception {
+        String json = MAPPER.writeValueAsString(new PointReferenceBean(3, 4));
+        assertEquals("{\"ref\":[3,4]}", json);
     }
 
     // [databind#357]

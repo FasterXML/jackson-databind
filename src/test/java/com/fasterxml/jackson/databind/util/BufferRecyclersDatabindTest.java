@@ -128,7 +128,7 @@ public class BufferRecyclersDatabindTest
                 StandardCharsets.UTF_8));
     }
 
-    public static class HybridTestPool implements RecyclerPool<BufferRecycler>
+    static class HybridTestPool implements RecyclerPool<BufferRecycler>
     {
         private static final long serialVersionUID = 1L;
 

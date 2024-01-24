@@ -72,17 +72,17 @@ public class ConvertingDeserializerTest
         }
     }
 
-    static class PointListWrapperArray {
+    static class PointWrapperArray {
         @JsonDeserialize(contentConverter=PointConverter.class)
         public Point[] values;
     }
 
-    static class PointListWrapperList {
+    static class PointWrapperList {
         @JsonDeserialize(contentConverter=PointConverter.class)
         public List<Point> values;
     }
 
-    static class PointListWrapperMap {
+    static class PointWrapperMap {
         @JsonDeserialize(contentConverter=PointConverter.class)
         public Map<String,Point> values;
     }
@@ -93,7 +93,6 @@ public class ConvertingDeserializerTest
         public String convert(String value) {
             return value.toLowerCase();
         }
-
     }
 
     static class LowerCaseText {
@@ -123,9 +122,9 @@ public class ConvertingDeserializerTest
     }
 
     /*
-    /**********************************************************
+    /**********************************************************************
     /* Test methods
-    /**********************************************************
+    /**********************************************************************
      */
 
     private final ObjectMapper MAPPER = newJsonMapper();
@@ -182,7 +181,7 @@ public class ConvertingDeserializerTest
     @Test
     public void testPropertyAnnotationForArrays() throws Exception
     {
-        PointListWrapperArray array = objectReader(PointListWrapperArray.class)
+        PointWrapperArray array = objectReader(PointWrapperArray.class)
                 .readValue("{\"values\":[[4,5],[5,4]]}");
         assertNotNull(array);
         assertNotNull(array.values);
@@ -193,7 +192,7 @@ public class ConvertingDeserializerTest
     @Test
     public void testPropertyAnnotationForLists() throws Exception
     {
-        PointListWrapperList array = objectReader(PointListWrapperList.class)
+        PointWrapperList array = objectReader(PointWrapperList.class)
                 .readValue("{\"values\":[[7,8],[8,7]]}");
         assertNotNull(array);
         assertNotNull(array.values);
@@ -204,7 +203,7 @@ public class ConvertingDeserializerTest
     @Test
     public void testPropertyAnnotationForMaps() throws Exception
     {
-        PointListWrapperMap map = objectReader(PointListWrapperMap.class)
+        PointWrapperMap map = objectReader(PointWrapperMap.class)
                 .readValue("{\"values\":{\"a\":[1,2]}}");
         assertNotNull(map);
         assertNotNull(map.values);

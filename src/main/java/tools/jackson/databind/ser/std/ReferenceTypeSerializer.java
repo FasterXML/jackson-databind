@@ -171,7 +171,7 @@ public abstract class ReferenceTypeSerializer<T>
             }
         }
         // 23-Jan-2024, tatu: May have a content converter:
-        ser = findContextualConvertingSerializer(provider, property, ser);
+        ser = findContextualConvertingSerializer(ctxt, property, ser);
 
         // First, resolve wrt property, resolved serializers
         ReferenceTypeSerializer<?> refSer;

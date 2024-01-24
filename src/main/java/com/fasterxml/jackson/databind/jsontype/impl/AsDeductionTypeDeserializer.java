@@ -2,14 +2,11 @@ package com.fasterxml.jackson.databind.jsontype.impl;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.introspect.AnnotatedField;
-import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;

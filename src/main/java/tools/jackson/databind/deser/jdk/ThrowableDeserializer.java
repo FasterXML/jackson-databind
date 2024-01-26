@@ -179,9 +179,10 @@ public class ThrowableDeserializer
                 if (p.hasToken(JsonToken.VALUE_NULL)) {
                     suppressed = null;
                 } else {
-                    // Resolve Throwable[] to JavaType pro-actively
-                    suppressed = ctxt.readValue(p,
+                    // Inlined `DeserializationContext.readValue()` to minimize call depth
+                    JsonDeserializer<Object> deser = ctxt.findRootValueDeserializer(
                             ctxt.constructType(Throwable[].class));
+                    suppressed = (Throwable[]) deser.deserialize(p, ctxt);
                 }
                 continue;
             }

@@ -1,11 +1,18 @@
 package com.fasterxml.jackson.databind.deser.builder;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-public class BuilderWithCreatorTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
+
+public class BuilderWithCreatorTest
 {
     @JsonDeserialize(builder=PropertyCreatorBuilder.class)
     static class PropertyCreatorValue
@@ -140,6 +147,7 @@ public class BuilderWithCreatorTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
+    @Test
     public void testWithPropertiesCreator() throws Exception
     {
         final String json = a2q("{'a':1,'c':3,'b':2}");
@@ -149,6 +157,7 @@ public class BuilderWithCreatorTest extends BaseMapTest
         assertEquals(3, value.c);
     }
 
+    @Test
     public void testWithDelegatingStringCreator() throws Exception
     {
         final int EXP = 139;
@@ -157,6 +166,7 @@ public class BuilderWithCreatorTest extends BaseMapTest
         assertEquals(EXP, value.value);
     }
 
+    @Test
     public void testWithDelegatingIntCreator() throws Exception
     {
         final double EXP = -3.75;
@@ -165,6 +175,7 @@ public class BuilderWithCreatorTest extends BaseMapTest
         assertEquals(EXP, value.value);
     }
 
+    @Test
     public void testWithDelegatingBooleanCreator() throws Exception
     {
         final boolean EXP = true;

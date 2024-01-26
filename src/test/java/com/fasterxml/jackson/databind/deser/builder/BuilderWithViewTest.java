@@ -1,12 +1,17 @@
 package com.fasterxml.jackson.databind.deser.builder;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-public class BuilderWithViewTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
+
+public class BuilderWithViewTest
 {
     static class ViewX { }
     static class ViewY { }
@@ -80,6 +85,7 @@ public class BuilderWithViewTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
+    @Test
     public void testSimpleViews() throws Exception
     {
         final String json = a2q("{'x':5,'y':10}");
@@ -96,6 +102,7 @@ public class BuilderWithViewTest extends BaseMapTest
         assertEquals(11, resultY._y);
     }
 
+    @Test
     public void testCreatorViews() throws Exception
     {
         final String json = a2q("{'x':5,'y':10,'bogus':false}");

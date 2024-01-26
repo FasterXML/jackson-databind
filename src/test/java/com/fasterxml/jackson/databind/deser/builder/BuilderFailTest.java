@@ -1,11 +1,18 @@
 package com.fasterxml.jackson.databind.deser.builder;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 
-public class BuilderFailTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.fail;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
+
+public class BuilderFailTest
 {
     @JsonDeserialize(builder=SimpleBuilderXY.class)
     static class ValueClassXY
@@ -63,6 +70,7 @@ public class BuilderFailTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
+    @Test
     public void testBuilderMethodReturnInvalidType() throws Exception
     {
         final String json = "{\"x\":1}";
@@ -76,6 +84,7 @@ public class BuilderFailTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testExtraFields() throws Exception
     {
         final String json = a2q("{'x':1,'y':2,'z':3}");

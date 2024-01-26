@@ -1,12 +1,16 @@
 package com.fasterxml.jackson.databind.deser.dos;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 // [databind#3397], wrt JsonNode
-public class DeepJsonNodeDeser3397Test extends BaseMapTest
+public class DeepJsonNodeDeser3397Test
 {
     // 28-Mar-2021, tatu: Used to fail at 5000 for tree/object,
     // 8000 for tree/array, before work on iterative JsonNode deserializer
@@ -20,6 +24,7 @@ public class DeepJsonNodeDeser3397Test extends BaseMapTest
             .build();
     private final ObjectMapper MAPPER = JsonMapper.builder(jsonFactory).build();
 
+    @Test
     public void testTreeWithArray() throws Exception
     {
         final String doc = _nestedDoc(TOO_DEEP_NESTING, "[ ", "] ");
@@ -27,6 +32,7 @@ public class DeepJsonNodeDeser3397Test extends BaseMapTest
         assertTrue(n.isArray());
     }
 
+    @Test
     public void testTreeWithObject() throws Exception
     {
         final String doc = "{"+_nestedDoc(TOO_DEEP_NESTING, "\"x\":{", "} ") + "}";

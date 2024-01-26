@@ -1,11 +1,17 @@
 package com.fasterxml.jackson.databind.deser.enums;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class EnumDeserialization3638Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+
+public class EnumDeserialization3638Test
 {
     /*
     /**********************************************************
@@ -39,6 +45,7 @@ public class EnumDeserialization3638Test extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testCaseSensitive() throws Exception {
         String json = a2q("{'enumValue':'1'}");
 
@@ -48,6 +55,7 @@ public class EnumDeserialization3638Test extends BaseMapTest
     }
 
 
+    @Test
     public void testCaseInsensitive() throws Exception {
         String json = a2q("{'enumValue':'1'}");
 

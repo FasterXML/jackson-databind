@@ -131,17 +131,6 @@ public abstract class BaseMapTest
         }
     }
 
-    /**
-     * Enumeration type with sub-classes per value.
-     */
-    protected enum EnumWithSubClass {
-        A { @Override public void foobar() { } }
-        ,B { @Override public void foobar() { } }
-        ;
-
-        public abstract void foobar();
-    }
-
     public enum ABC { A, B, C; }
 
     // since 2.8

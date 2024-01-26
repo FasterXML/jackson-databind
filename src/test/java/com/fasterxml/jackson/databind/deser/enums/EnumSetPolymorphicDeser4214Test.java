@@ -4,13 +4,18 @@ import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Set;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
+
 // For [databind#4214]
-public class EnumSetPolymorphicDeser4214Test extends BaseMapTest
+public class EnumSetPolymorphicDeser4214Test
 {
     static enum MyEnum {
         ITEM_A, ITEM_B;
@@ -29,6 +34,7 @@ public class EnumSetPolymorphicDeser4214Test extends BaseMapTest
         }
     }
 
+    @Test
     public void testPolymorphicDeserialization4214() throws Exception
     {
         // Need to use Default Typing to trigger issue

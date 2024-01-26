@@ -1,11 +1,16 @@
 package com.fasterxml.jackson.databind.deser.enums;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+
 public class EnumDeserialization3369Test
-    extends BaseMapTest
 {
     @JsonIgnoreProperties(ignoreUnknown = true)
     static class Data3369 {
@@ -47,6 +52,7 @@ public class EnumDeserialization3369Test
      */
 
     // [databind#3369]
+    @Test
     public void testReadEnums3369() throws Exception
     {
         final ObjectReader R = newJsonMapper().readerFor(Data3369.class);

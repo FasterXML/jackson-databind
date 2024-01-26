@@ -1,18 +1,26 @@
 package com.fasterxml.jackson.databind.deser.builder;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
+
 // [databind#921]: support infering type parameters from Builder
 public class BuilderWithTypeParametersTest
-    extends BaseMapTest
 {
     public static class MyPOJO {
       public String x;
@@ -92,6 +100,7 @@ public class BuilderWithTypeParametersTest
     }
     */
 
+    @Test
     public void testWithBuilderInferringBindings() throws Exception {
         final ObjectMapper mapper = jsonMapperBuilder()
                 .enable(MapperFeature.INFER_BUILDER_TYPE_BINDINGS)
@@ -105,6 +114,7 @@ public class BuilderWithTypeParametersTest
         assertEquals(MyPOJO.class, ob.getClass());
     }
 
+    @Test
     public void testWithBuilderWithoutInferringBindings() throws Exception {
         final ObjectMapper mapper = jsonMapperBuilder()
                 .disable(MapperFeature.INFER_BUILDER_TYPE_BINDINGS)
@@ -120,6 +130,7 @@ public class BuilderWithTypeParametersTest
 
     // 05-Sep-2020, tatu: see above for reason why this can not work
 /*
+    @Test
     public void testWithCreator() throws Exception {
       final ObjectMapper mapper = new ObjectMapper();
       final String json = a2q("{ 'data': [ { 'x': 'x', 'y': 'y' } ] }");

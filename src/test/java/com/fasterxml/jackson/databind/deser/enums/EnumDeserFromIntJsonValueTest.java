@@ -1,10 +1,16 @@
 package com.fasterxml.jackson.databind.deser.enums;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import com.fasterxml.jackson.databind.*;
 
-public class EnumDeserFromIntJsonValueTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+
+public class EnumDeserFromIntJsonValueTest
 {
     // [databind#1850]
 
@@ -42,6 +48,7 @@ public class EnumDeserFromIntJsonValueTest extends BaseMapTest
 
     // [databind#1850] pass tests
 
+    @Test
     public void testEnumFromInt1850Method() throws Exception
     {
         String json = MAPPER.writeValueAsString(Bean1850IntMethod.A);
@@ -49,6 +56,7 @@ public class EnumDeserFromIntJsonValueTest extends BaseMapTest
         assertEquals(Bean1850IntMethod.A, e1);
     }
 
+    @Test
     public void testEnumFromInt1850Field() throws Exception
     {
         String json = MAPPER.writeValueAsString(Bean1850IntField.A);
@@ -56,6 +64,7 @@ public class EnumDeserFromIntJsonValueTest extends BaseMapTest
         assertEquals(Bean1850IntField.A, e2);
     }
 
+    @Test
     public void testEnumFromLong1850Method() throws Exception
     {
         String json = MAPPER.writeValueAsString(Bean1850LongMethod.A);
@@ -63,6 +72,7 @@ public class EnumDeserFromIntJsonValueTest extends BaseMapTest
         assertEquals(Bean1850LongMethod.A, e1);
     }
 
+    @Test
     public void testEnumFromLong1850Field() throws Exception
     {
         String json = MAPPER.writeValueAsString(Bean1850LongField.A);

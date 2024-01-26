@@ -180,7 +180,7 @@ public class ThrowableDeserializer
                     suppressed = null;
                 } else {
                     // Inlined `DeserializationContext.readValue()` to minimize call depth
-                    JsonDeserializer<Object> deser = ctxt.findRootValueDeserializer(
+                    ValueDeserializer<Object> deser = ctxt.findRootValueDeserializer(
                             ctxt.constructType(Throwable[].class));
                     suppressed = (Throwable[]) deser.deserialize(p, ctxt);
                 }

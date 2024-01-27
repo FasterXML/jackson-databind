@@ -1,5 +1,7 @@
 package tools.jackson.databind.deser.builder;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.BaseMapTest;
@@ -7,7 +9,12 @@ import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.annotation.JsonDeserialize;
 
-public class BuilderWithViewTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.a2q;
+import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
+
+public class BuilderWithViewTest
 {
     static class ViewX { }
     static class ViewY { }
@@ -83,6 +90,7 @@ public class BuilderWithViewTest extends BaseMapTest
         .disable(DeserializationFeature.FAIL_ON_UNEXPECTED_VIEW_PROPERTIES)
         .build();
 
+    @Test
     public void testSimpleViews() throws Exception
     {
         final String json = a2q("{'x':5,'y':10}");
@@ -99,6 +107,7 @@ public class BuilderWithViewTest extends BaseMapTest
         assertEquals(11, resultY._y);
     }
 
+    @Test
     public void testCreatorViews() throws Exception
     {
         final String json = a2q("{'x':5,'y':10,'bogus':false}");

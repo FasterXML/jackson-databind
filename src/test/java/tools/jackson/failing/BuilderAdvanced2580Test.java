@@ -1,5 +1,7 @@
 package tools.jackson.failing;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
@@ -7,8 +9,13 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+
 // Test case for a regression in 3.0, worked in 2.11
-public class BuilderAdvanced2580Test extends BaseMapTest
+public class BuilderAdvanced2580Test
 {
     @JsonDeserialize(builder=ExternalBuilder.class)
     static class ExternalBean
@@ -56,6 +63,7 @@ public class BuilderAdvanced2580Test extends BaseMapTest
      */
 
     // [databind#2580]: regression somewhere
+    @Test
     public void testWithExternalTypeId() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();

@@ -1,11 +1,18 @@
 package tools.jackson.databind.deser.builder;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.UnrecognizedPropertyException;
 
-public class BuilderFailTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.fail;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.a2q;
+import static tools.jackson.databind.testutil.DatabindTestUtil.verifyException;
+
+public class BuilderFailTest
 {
     @JsonDeserialize(builder=SimpleBuilderXY.class)
     static class ValueClassXY
@@ -63,6 +70,7 @@ public class BuilderFailTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
+    @Test
     public void testBuilderMethodReturnInvalidType() throws Exception
     {
         final String json = "{\"x\":1}";
@@ -76,6 +84,7 @@ public class BuilderFailTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testExtraFields() throws Exception
     {
         final String json = a2q("{'x':1,'y':2,'z':3}");

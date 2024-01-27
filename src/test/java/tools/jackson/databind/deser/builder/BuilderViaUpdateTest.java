@@ -1,16 +1,22 @@
 package tools.jackson.databind.deser.builder;
 
-import tools.jackson.databind.BaseMapTest;
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.exc.InvalidDefinitionException;
+
+import static org.junit.jupiter.api.Assertions.fail;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.a2q;
+import static tools.jackson.databind.testutil.DatabindTestUtil.verifyException;
 
 /**
  * Tests to ensure that use of "updateValue()" will fail with builder-based deserializers.
  *
  * @since 2.9
  */
-public class BuilderViaUpdateTest extends BaseMapTest
+public class BuilderViaUpdateTest
 {
     @JsonDeserialize(builder=SimpleBuilderXY.class)
     static class ValueClassXY
@@ -51,6 +57,7 @@ public class BuilderViaUpdateTest extends BaseMapTest
     private final static ObjectMapper MAPPER = new ObjectMapper();
 
     // Tests where result value is passed as thing to update
+    @Test
     public void testBuilderUpdateWithValue() throws Exception
     {
         try {
@@ -73,6 +80,7 @@ public class BuilderViaUpdateTest extends BaseMapTest
 
     // and then test to ensure error handling works as expected if attempts
     // is made to pass builder (API requires value, not builder)
+    @Test
     public void testBuilderWithWrongType() throws Exception
     {
         try {

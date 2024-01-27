@@ -14,6 +14,8 @@ import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.ser.std.StdSerializer;
 import tools.jackson.databind.ser.std.ToStringSerializer;
 
+import tools.jackson.databind.testutil.DatabindTestUtil.EnumWithSubClass;
+
 /**
  * Unit tests for verifying serialization of simple basic non-structured
  * types; primitives (and/or their wrappers), Strings.

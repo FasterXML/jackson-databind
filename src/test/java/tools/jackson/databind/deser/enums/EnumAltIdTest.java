@@ -3,20 +3,25 @@ package tools.jackson.databind.deser.enums;
 import java.io.IOException;
 import java.util.EnumSet;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import tools.jackson.core.type.TypeReference;
 
-import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.exc.InvalidFormatException;
 
-public class EnumAltIdTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.*;
+
+public class EnumAltIdTest
 {
     // [databind#1313]
 
@@ -105,6 +110,7 @@ public class EnumAltIdTest extends BaseMapTest
 
     // Tests for [databind#1313], case-insensitive
 
+    @Test
     public void testFailWhenCaseSensitiveAndNameIsNotUpperCase() throws IOException {
         try {
             READER_DEFAULT.forType(TestEnum.class).readValue("\"Jackson\"");
@@ -115,6 +121,7 @@ public class EnumAltIdTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testFailWhenCaseSensitiveAndToStringIsUpperCase() throws IOException {
         ObjectReader r = READER_DEFAULT.forType(LowerCaseEnum.class)
                 .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
@@ -127,11 +134,13 @@ public class EnumAltIdTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testEnumDesIgnoringCaseWithLowerCaseContent() throws IOException {
         assertEquals(TestEnum.JACKSON,
                 READER_IGNORE_CASE.forType(TestEnum.class).readValue(q("jackson")));
     }
 
+    @Test
     public void testEnumDesIgnoringCaseWithUpperCaseToString() throws IOException {
         ObjectReader r = MAPPER_IGNORE_CASE.readerFor(LowerCaseEnum.class)
                 .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
@@ -144,6 +153,7 @@ public class EnumAltIdTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testIgnoreCaseInEnumList() throws Exception {
         TestEnum[] enums = READER_IGNORE_CASE.forType(TestEnum[].class)
             .readValue("[\"jacksON\", \"ruLes\"]");
@@ -153,6 +163,7 @@ public class EnumAltIdTest extends BaseMapTest
         assertEquals(TestEnum.RULES, enums[1]);
     }
 
+    @Test
     public void testIgnoreCaseInEnumSet() throws IOException {
         ObjectReader r = READER_IGNORE_CASE.forType(new TypeReference<EnumSet<TestEnum>>() { });
         EnumSet<TestEnum> set = r.readValue("[\"jackson\"]");
@@ -166,6 +177,7 @@ public class EnumAltIdTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testIgnoreCaseViaFormat() throws Exception
     {
         final String JSON = a2q("{'value':'ok'}");
@@ -193,6 +205,7 @@ public class EnumAltIdTest extends BaseMapTest
      */
 
     // for [databind#2352]
+    @Test
     public void testEnumWithAlias() throws Exception {
         ObjectReader reader = MAPPER.readerFor(MyEnum2352_1.class);
         MyEnum2352_1 nonAliased = reader.readValue(q("A"));
@@ -206,6 +219,7 @@ public class EnumAltIdTest extends BaseMapTest
     }
 
     // for [databind#2352]
+    @Test
     public void testEnumWithAliasAndToStringSupported() throws Exception {
         ObjectReader reader = MAPPER.readerFor(MyEnum2352_2.class)
                 .with(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
@@ -220,6 +234,7 @@ public class EnumAltIdTest extends BaseMapTest
     }
 
     // for [databind#2352]
+    @Test
     public void testEnumWithAliasAndDefaultForUnknownValueEnabled() throws Exception {
         ObjectReader reader = MAPPER.readerFor(MyEnum2352_3.class)
                 .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE);
@@ -235,6 +250,7 @@ public class EnumAltIdTest extends BaseMapTest
         assertEquals(MyEnum2352_3.C, multipleAliases2);
     }
 
+    @Test
     public void testEnumWithDefaultForUnknownValueEnabled() throws Exception {
         final String JSON = a2q("{'value':'ok'}");
 
@@ -252,6 +268,7 @@ public class EnumAltIdTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testEnumWithNullForUnknownValueEnabled() throws Exception {
         final String JSON = a2q("{'value':'ok'}");
 
@@ -269,6 +286,7 @@ public class EnumAltIdTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testEnumWithDefaultForUnknownValueEnumSet() throws Exception {
         final String JSON = a2q("{'value':['ok']}");
 
@@ -278,6 +296,7 @@ public class EnumAltIdTest extends BaseMapTest
         assertTrue(pojo.value.contains(MyEnum2352_3.B));
     }
 
+    @Test
     public void testEnumWithNullForUnknownValueEnumSet() throws Exception {
         final String JSON = a2q("{'value':['ok','B']}");
 

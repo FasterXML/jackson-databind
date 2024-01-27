@@ -1,5 +1,9 @@
 package tools.jackson.databind.deser.enums;
 
+import java.util.Map;
+
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
@@ -8,11 +12,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.EnumNaming;
 
-import java.util.Map;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import static tools.jackson.databind.MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS;
+import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
-public class EnumNamingDeserializationTest extends BaseMapTest
+public class EnumNamingDeserializationTest
 {
     private final ObjectMapper MAPPER = newJsonMapper();
     private final ObjectMapper CI_MAPPER = jsonMapperBuilder()
@@ -94,6 +100,7 @@ public class EnumNamingDeserializationTest extends BaseMapTest
     /**********************************************************
     */
 
+    @Test
     public void testEnumNamingWithLowerCamelCaseStrategy() throws Exception {
         EnumFlavorA result = MAPPER.readValue(q("saltedCaramel"), EnumFlavorA.class);
         assertEquals(EnumFlavorA.SALTED_CARAMEL, result);
@@ -102,6 +109,7 @@ public class EnumNamingDeserializationTest extends BaseMapTest
         assertEquals(q("saltedCaramel"), resultString);
     }
 
+    @Test
     public void testEnumNamingTranslateUnknownValueToDefault() throws Exception {
         EnumFlavorA result = MAPPER.readerFor(EnumFlavorA.class)
             .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
@@ -110,6 +118,7 @@ public class EnumNamingDeserializationTest extends BaseMapTest
         assertEquals(EnumFlavorA.VANILLA, result);
     }
 
+    @Test
     public void testEnumNamingToDefaultNumber() throws Exception {
         EnumFlavorA result = MAPPER.readerFor(EnumFlavorA.class)
             .without(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)
@@ -118,6 +127,7 @@ public class EnumNamingDeserializationTest extends BaseMapTest
         assertEquals(EnumFlavorA.SALTED_CARAMEL, result);
     }
 
+    @Test
     public void testEnumNamingToDefaultEmptyString() throws Exception {
         EnumFlavorA result = MAPPER.readerFor(EnumFlavorA.class)
             .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
@@ -126,6 +136,7 @@ public class EnumNamingDeserializationTest extends BaseMapTest
         assertEquals(EnumFlavorA.VANILLA, result);
     }
 
+    @Test
     public void testOriginalEnamValueShouldNotBeFoundWithEnumNamingStrategy() throws Exception {
         EnumFlavorB result = MAPPER.readerFor(EnumFlavorB.class)
             .with(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
@@ -134,6 +145,7 @@ public class EnumNamingDeserializationTest extends BaseMapTest
         assertNull(result);
     }
 
+    @Test
     public void testEnumNamingWithAliasOrProperty() throws Exception {
         EnumFlavorF pb = MAPPER.readValue(q("peanutButter"), EnumFlavorF.class);
         assertEquals(EnumFlavorF.PEANUT_BUTTER, pb);
@@ -153,6 +165,7 @@ public class EnumNamingDeserializationTest extends BaseMapTest
         assertNull(badCaramel);
     }
 
+    @Test
     public void testEnumNamingStrategySymmetryReadThenWrite() throws Exception {
         EnumSauceC result = MAPPER.readValue(q("ketchUp"), EnumSauceC.class);
         assertEquals(EnumSauceC.KETCH_UP, result);
@@ -161,6 +174,7 @@ public class EnumNamingDeserializationTest extends BaseMapTest
         assertEquals(q("ketchUp"), resultString);
     }
 
+    @Test
     public void testEnumNamingStrategySymmetryWriteThenRead() throws Exception {
         String resultString = MAPPER.writeValueAsString(EnumSauceC.MAYO_NEZZ);
 
@@ -170,6 +184,7 @@ public class EnumNamingDeserializationTest extends BaseMapTest
     }
 
 
+    @Test
     public void testReadWrapperValueWithEnumNamingStrategy() throws Exception {
         String json = "{\"sauce\": \"ketchUp\"}";
 
@@ -178,6 +193,7 @@ public class EnumNamingDeserializationTest extends BaseMapTest
         assertEquals(EnumSauceC.KETCH_UP, wrapper.sauce);
     }
 
+    @Test
     public void testReadWrapperValueWithCaseInsensitiveEnumNamingStrategy() throws Exception {
         ObjectReader reader = CI_MAPPER
             .readerFor(EnumSauceWrapperBean.class);
@@ -192,6 +208,7 @@ public class EnumNamingDeserializationTest extends BaseMapTest
         assertEquals(EnumSauceC.KETCH_UP, mixedCase.sauce);
     }
 
+    @Test
     public void testWriteThenReadWrapperValueWithEnumNamingStrategy() throws Exception {
         EnumSauceWrapperBean sauceWrapper = new EnumSauceWrapperBean(EnumSauceC.MAYO_NEZZ);
         String json = MAPPER.writeValueAsString(sauceWrapper);
@@ -201,16 +218,19 @@ public class EnumNamingDeserializationTest extends BaseMapTest
         assertEquals(EnumSauceC.MAYO_NEZZ, wrapper.sauce);
     }
 
+    @Test
     public void testEnumNamingStrategyInterfaceIsNotApplied() throws Exception {
         EnumSauceD sauce = MAPPER.readValue(q("SRIRACHA_MAYO"), EnumSauceD.class);
         assertEquals(EnumSauceD.SRIRACHA_MAYO, sauce);
     }
 
+    @Test
     public void testEnumNamingStrategyConflictWithUnderScores() throws Exception {
         EnumFlavorE flavor = MAPPER.readValue(q("peanutButter"), EnumFlavorE.class);
         assertEquals(EnumFlavorE.PEANUT__BUTTER, flavor);
     }
 
+    @Test
     public void testCaseSensensitiveEnumMapKey() throws Exception {
         String jsonStr = a2q("{'map':{'ketchUp':'val'}}");
 
@@ -220,6 +240,7 @@ public class EnumNamingDeserializationTest extends BaseMapTest
         assertEquals("val", result.map.get(EnumSauceC.KETCH_UP));
     }
 
+    @Test
     public void testAllowCaseInsensensitiveEnumMapKey() throws Exception {
         ObjectReader reader = CI_MAPPER
             .readerFor(ClassWithEnumMapSauceKey.class);
@@ -230,6 +251,7 @@ public class EnumNamingDeserializationTest extends BaseMapTest
         assertEquals("val", result.map.get(EnumSauceC.KETCH_UP));
     }
 
+    @Test
     public void testAllowCaseSensensitiveEnumMapValue() throws Exception {
         ObjectReader reader = CI_MAPPER
             .readerFor(ClassWithEnumMapSauceValue.class);
@@ -242,6 +264,7 @@ public class EnumNamingDeserializationTest extends BaseMapTest
         assertEquals(EnumSauceC.MAYO_NEZZ, result.map.get("upperSauce"));
     }
 
+    @Test
     public void testAllowCaseInsensensitiveEnumMapValue() throws Exception {
         ObjectReader reader = CI_MAPPER
             .readerFor(ClassWithEnumMapSauceValue.class);
@@ -254,6 +277,7 @@ public class EnumNamingDeserializationTest extends BaseMapTest
         assertEquals(EnumSauceC.MAYO_NEZZ, result.map.get("upperSauce"));
     }
 
+    @Test
     public void testEnumMixInDeserializationTest() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
                 .addMixIn(BaseEnum.class, MixInEnum.class)

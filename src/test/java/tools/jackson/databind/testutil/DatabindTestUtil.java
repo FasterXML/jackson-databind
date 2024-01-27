@@ -182,6 +182,17 @@ public class DatabindTestUtil
         assertEquals(String.valueOf(expValue), p.getText());
     }
 
+    /**
+     * Enumeration type with sub-classes per value.
+     */
+    public enum EnumWithSubClass {
+        A { @Override public void foobar() { } }
+        ,B { @Override public void foobar() { } }
+        ;
+
+        public abstract void foobar();
+    }
+
     /*
     /**********************************************************************
     /* Shared helper classes

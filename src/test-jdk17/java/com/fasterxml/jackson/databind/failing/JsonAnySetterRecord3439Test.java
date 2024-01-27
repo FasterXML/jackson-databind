@@ -7,14 +7,14 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import static com.fasterxml.jackson.databind.BaseMapTest.newJsonMapper;
 
 // [databind#3439]: Java Record @JsonAnySetter value is null after deserialization
-public class JsonAnySetterRecord3439Test
-{
+public class JsonAnySetterRecord3439Test {
     record TestRecord(
         @JsonProperty String field,
         @JsonAnySetter Map<String, Object> anySetter
@@ -22,8 +22,7 @@ public class JsonAnySetterRecord3439Test
     }
 
     @Test
-    void testJsonAnySetterOnRecord() throws JsonProcessingException
-    {
+    void testJsonAnySetterOnRecord() throws JsonProcessingException {
         // Given
         var json = """
             {
@@ -33,9 +32,17 @@ public class JsonAnySetterRecord3439Test
             }
             """;
         var objectMapper = newJsonMapper();
+        TestRecord deserialized = null;
 
         // When
-        var deserialized = objectMapper.readValue(json, TestRecord.class);
+        try {
+            // Behavior changed.
+            // Jackson 2.13.2.2 returns null.
+            // But Jackson 2.15 and later throws UnrecognizedPropertyException.
+            deserialized = objectMapper.readValue(json, TestRecord.class);
+        } catch (UnrecognizedPropertyException e) {
+            throw e;
+        }
 
         // Then
         assertEquals("value", deserialized.field());

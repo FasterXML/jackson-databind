@@ -256,6 +256,15 @@ public class AnySetterTest
         public int x, y;
     }
 
+    // [databind#4316]
+    static class Problem4316 extends Exception {
+        private static final long serialVersionUID = 1L;
+
+        @JsonAnySetter
+        @JsonAnyGetter
+        Map<String, Object> additionalProperties = new HashMap<>();
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -467,6 +476,17 @@ public class AnySetterTest
             assertEquals(Integer.class, value.getClass(), "A value in MyGeneric<Integer> is not an Integer.");
         }
         assertEquals(integerGeneric.getDynamicallyMappedProperties(), integerGenericMap);
+    }
+
+    // [databind#4316]
+    public void testWithAnySetter() throws Exception
+    {
+        Problem4316 problem = new Problem4316();
+        problem.additionalProperties.put("key", "value");
+        String json = MAPPER.writeValueAsString(problem);
+        Problem4316 result = MAPPER.readValue(json, Problem4316.class);
+        assertEquals(Collections.singletonMap("key", "value"),
+                result.additionalProperties);
     }
 
     /*

@@ -3,10 +3,13 @@ package tools.jackson.failing;
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // for [databind#1401]: should allow "Any Setter" to back up otherwise
 // problematic Creator properties?
-public class CreatorAnySetter1401Test extends BaseMapTest
+public class AnySetterAsCreatorFallback1401Test extends DatabindTestUtil
 {
     // for [databind#1401]
     static class NoSetter1401 {
@@ -27,7 +30,7 @@ public class CreatorAnySetter1401Test extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#1401]
     public void testCreatorNoSetter() throws Exception

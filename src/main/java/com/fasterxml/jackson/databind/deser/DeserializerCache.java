@@ -312,8 +312,11 @@ public final class DeserializerCache
          */
         if (deser instanceof ResolvableDeserializer) {
             _incompleteDeserializers.put(type, deser);
-            ((ResolvableDeserializer)deser).resolve(ctxt);
-            _incompleteDeserializers.remove(type);
+            try {
+                ((ResolvableDeserializer)deser).resolve(ctxt);
+            } finally {
+                _incompleteDeserializers.remove(type);
+            }
         }
         if (addToCache) {
             _cachedDeserializers.put(type, deser);

@@ -1,14 +1,11 @@
 package com.fasterxml.jackson.databind.jsontype.impl;
 
 import java.util.Collection;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import com.fasterxml.jackson.databind.DeserializationConfig;
-import com.fasterxml.jackson.databind.AnnotationIntrospector;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.SerializationConfig;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
@@ -70,7 +67,7 @@ public class StdTypeResolverBuilder
             JsonTypeInfo.As idAs, String propName) {
         _idType = idType;
         _includeAs = idAs;
-        _typeProperty = propName;
+        _typeProperty = _propName(propName, idType);
     }
 
     /**
@@ -101,9 +98,9 @@ public class StdTypeResolverBuilder
     }
 
     /**
-     * @since 2.16 (backported from Jackson 3.0)
+     * @since 2.16 (backported from Jackson 3.0). Non-static since 2.17
      */
-    protected static String _propName(String propName, JsonTypeInfo.Id idType) {
+    protected String _propName(String propName, JsonTypeInfo.Id idType) {
         if (propName == null) {
             propName = idType.getDefaultPropertyName();
         }
@@ -126,7 +123,7 @@ public class StdTypeResolverBuilder
         _idType = idType;
         _customIdResolver = idRes;
         // Let's also initialize property name as per idType default
-        _typeProperty = idType.getDefaultPropertyName();
+        _typeProperty = _propName(null, idType);
         return this;
     }
 
@@ -289,10 +286,7 @@ public class StdTypeResolverBuilder
     @Override
     public StdTypeResolverBuilder typeProperty(String typeIdPropName) {
         // ok to have null/empty; will restore to use defaults
-        if (typeIdPropName == null || typeIdPropName.isEmpty()) {
-            typeIdPropName = _idType.getDefaultPropertyName();
-        }
-        _typeProperty = typeIdPropName;
+        _typeProperty = _propName(typeIdPropName, _idType);
         return this;
     }
 
@@ -321,7 +315,7 @@ public class StdTypeResolverBuilder
 
     @Override
     public StdTypeResolverBuilder withSettings(JsonTypeInfo.Value settings) {
-        _idType = settings.getIdType();
+        _idType = Objects.requireNonNull(settings.getIdType());
         if (_idType == null) {
             throw new IllegalArgumentException("idType cannot be null");
         }

@@ -89,7 +89,7 @@ public class StdTypeResolverBuilder
     }
 
     /**
-     * @since 2.16 (backported from Jackson 3.0)
+     * @since 2.16
      */
     public StdTypeResolverBuilder(JsonTypeInfo.Value settings) {
         if (settings != null) {
@@ -97,46 +97,10 @@ public class StdTypeResolverBuilder
         }
     }
 
-    /**
-     * @since 2.16 (backported from Jackson 3.0). Non-static since 2.17
-     */
-    protected String _propName(String propName, JsonTypeInfo.Id idType) {
-        if (propName == null) {
-            propName = idType.getDefaultPropertyName();
-        }
-        return propName;
-    }
-
     public static StdTypeResolverBuilder noTypeInfoBuilder() {
         JsonTypeInfo.Value typeInfo = JsonTypeInfo.Value.construct(JsonTypeInfo.Id.NONE, null,
                 null, null, false, null);
         return new StdTypeResolverBuilder().withSettings(typeInfo);
-    }
-
-    @Override
-    public StdTypeResolverBuilder init(JsonTypeInfo.Id idType, TypeIdResolver idRes)
-    {
-        // sanity checks
-        if (idType == null) {
-            throw new IllegalArgumentException("idType cannot be null");
-        }
-        _idType = idType;
-        _customIdResolver = idRes;
-        // Let's also initialize property name as per idType default
-        _typeProperty = _propName(null, idType);
-        return this;
-    }
-
-    @Override
-    public StdTypeResolverBuilder init(JsonTypeInfo.Value settings,
-            TypeIdResolver idRes)
-    {
-        _customIdResolver = idRes;
-
-        if (settings != null) {
-            withSettings(settings);
-        }
-        return this;
     }
 
     @Override
@@ -271,6 +235,32 @@ public class StdTypeResolverBuilder
      */
 
     @Override
+    public StdTypeResolverBuilder init(JsonTypeInfo.Id idType, TypeIdResolver idRes)
+    {
+        // sanity checks
+        if (idType == null) {
+            throw new IllegalArgumentException("idType cannot be null");
+        }
+        _idType = idType;
+        _customIdResolver = idRes;
+        // Let's also initialize property name as per idType default
+        _typeProperty = _propName(null, idType);
+        return this;
+    }
+
+    @Override
+    public StdTypeResolverBuilder init(JsonTypeInfo.Value settings,
+            TypeIdResolver idRes)
+    {
+        _customIdResolver = idRes;
+
+        if (settings != null) {
+            withSettings(settings);
+        }
+        return this;
+    }
+
+    @Override
     public StdTypeResolverBuilder inclusion(JsonTypeInfo.As includeAs) {
         if (includeAs == null) {
             throw new IllegalArgumentException("includeAs cannot be null");
@@ -316,15 +306,22 @@ public class StdTypeResolverBuilder
     @Override
     public StdTypeResolverBuilder withSettings(JsonTypeInfo.Value settings) {
         _idType = Objects.requireNonNull(settings.getIdType());
-        if (_idType == null) {
-            throw new IllegalArgumentException("idType cannot be null");
-        }
         _includeAs = settings.getInclusionType();
         _typeProperty = _propName(settings.getPropertyName(), _idType);
         _defaultImpl = settings.getDefaultImpl();
         _typeIdVisible = settings.getIdVisible();
         _requireTypeIdForSubtypes = settings.getRequireTypeIdForSubtypes();
         return this;
+    }
+
+    /**
+     * @since 2.16; non-static since 2.17
+     */
+    protected String _propName(String propName, JsonTypeInfo.Id idType) {
+        if (propName == null || propName.isEmpty()) {
+            propName = idType.getDefaultPropertyName();
+        }
+        return propName;
     }
 
     /*

@@ -1,6 +1,7 @@
 package tools.jackson.databind.jsontype.impl;
 
 import java.util.Collection;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -73,13 +74,6 @@ public class StdTypeResolverBuilder
         _typeProperty = _propName(propName, _idType);
     }
 
-    protected static String _propName(String propName, JsonTypeInfo.Id idType) {
-        if (propName == null) {
-            propName = idType.getDefaultPropertyName();
-        }
-        return propName;
-    }
-
     protected StdTypeResolverBuilder(StdTypeResolverBuilder base,
             Class<?> defaultImpl)
     {
@@ -95,18 +89,6 @@ public class StdTypeResolverBuilder
 
     public static StdTypeResolverBuilder noTypeInfoBuilder() {
         return new StdTypeResolverBuilder(JsonTypeInfo.Id.NONE, null, null);
-    }
-
-    @Override
-    public StdTypeResolverBuilder init(JsonTypeInfo.Value settings,
-            TypeIdResolver idRes)
-    {
-        _customIdResolver = idRes;
-
-        if (settings != null) {
-            withSettings(settings);
-        }
-        return this;
     }
 
     @Override
@@ -233,6 +215,18 @@ public class StdTypeResolverBuilder
      */
 
     @Override
+    public StdTypeResolverBuilder init(JsonTypeInfo.Value settings,
+            TypeIdResolver idRes)
+    {
+        _customIdResolver = idRes;
+
+        if (settings != null) {
+            withSettings(settings);
+        }
+        return this;
+    }
+
+    @Override
     public StdTypeResolverBuilder withDefaultImpl(Class<?> defaultImpl) {
         if (_defaultImpl == defaultImpl) {
             return this;
@@ -245,16 +239,20 @@ public class StdTypeResolverBuilder
 
     @Override
     public StdTypeResolverBuilder withSettings(JsonTypeInfo.Value settings) {
-        _idType = settings.getIdType();
-        if (_idType == null) {
-            throw new IllegalArgumentException("idType cannot be null");
-        }
+        _idType = Objects.requireNonNull(settings.getIdType());
         _includeAs = settings.getInclusionType();
         _typeProperty = _propName(settings.getPropertyName(), _idType);
         _defaultImpl = settings.getDefaultImpl();
         _typeIdVisible = settings.getIdVisible();
         _requireTypeIdForSubtypes = settings.getRequireTypeIdForSubtypes();
         return this;
+    }
+
+    protected String _propName(String propName, JsonTypeInfo.Id idType) {
+        if (propName == null || propName.isEmpty()) {
+            propName = idType.getDefaultPropertyName();
+        }
+        return propName;
     }
 
     /*

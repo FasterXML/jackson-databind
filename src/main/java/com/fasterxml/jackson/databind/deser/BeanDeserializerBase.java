@@ -551,6 +551,14 @@ public abstract class BeanDeserializerBase
                 }
                 SettableBeanProperty newProp = prop.withValueDeserializer(deser);
                 _replaceProperty(_beanProperties, creatorProps, prop, newProp);
+            } else if (creatorProps != null) {
+                for (int i = 0, len = creatorProps.length; i < len; ++i) {
+                    SettableBeanProperty creatorProp = creatorProps[i];
+                    if (!creatorProp.hasValueDeserializer() && creatorProp.getFullName().equals(prop.getFullName())) {
+                        creatorProps[i] = creatorProp.withValueDeserializer(prop.getValueDeserializer());
+                        break;
+                    }
+                }
             }
         }
 

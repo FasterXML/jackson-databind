@@ -667,7 +667,7 @@ public final class TypeFactory
     {
         JavaType match = type.findSuperType(expType);
         if (match != null) {
-            JavaType t = match.getBindings().getBoundType(0);
+            JavaType t = match.getBindings().getBoundTypeOrNull(0);
             if (t != null) {
                 return t;
             }

@@ -3,13 +3,21 @@ package com.fasterxml.jackson.databind.deser.jdk;
 import java.util.Date;
 import java.util.TimeZone;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.*;
 
-public class DateDeserializationTZ1153Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.q;
+
+public class DateDeserializationTZ1153Test
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#1153]
+    @Test
     public void testWithTimezones1153() throws Exception
     {
         for (String tzStr : new String[] {
@@ -28,7 +36,7 @@ public class DateDeserializationTZ1153Test extends BaseMapTest
         long correctTime = 1451667600000l;
         Date dateAccordingToJackson = r.readValue(q(time));
 
-        assertEquals("ISO8601 decoding mismatch " + tz,
-                correctTime, dateAccordingToJackson.getTime());
+        assertEquals(correctTime, dateAccordingToJackson.getTime(),
+            "ISO8601 decoding mismatch " + tz);
     }
 }

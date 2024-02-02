@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -115,7 +116,7 @@ public class DeserializerUpdateProperties4358Test extends BaseMapTest {
 
         assertEquals("A", recreatedBean.getA());
         assertEquals("B", recreatedBean.getB());
-        assertEquals(List.of("A", "B"), actualOrder);
+        assertEquals(Arrays.asList("A", "B"), actualOrder);
     }
 
     // Succeeds
@@ -124,7 +125,7 @@ public class DeserializerUpdateProperties4358Test extends BaseMapTest {
 
         assertEquals("A", recreatedBean.getA());
         assertEquals("B", recreatedBean.getB());
-        assertEquals(List.of("A", "B"), actualOrder);
+        assertEquals(Arrays.asList("A", "B"), actualOrder);
     }
 
     // Fails - shall the order in the content really define the deserialization order? Probably not the most critical thing,
@@ -134,7 +135,7 @@ public class DeserializerUpdateProperties4358Test extends BaseMapTest {
 
         assertEquals("A", recreatedBean.getA());
         assertEquals("B", recreatedBean.getB());
-        assertEquals(List.of("A", "B"), actualOrder);
+        assertEquals(Arrays.asList("A", "B"), actualOrder);
     }
 
     // Fails - shall the order in the content really define the deserialization order? Probably not the most critical thing,
@@ -144,7 +145,7 @@ public class DeserializerUpdateProperties4358Test extends BaseMapTest {
 
         assertEquals("A", recreatedBean.getA());
         assertEquals("B", recreatedBean.getB());
-        assertEquals(List.of("A", "B"), actualOrder);
+        assertEquals(Arrays.asList("A", "B"), actualOrder);
     }
 
     // Shall succeed - note that the setters are called in the same order as the deserializers.
@@ -153,7 +154,7 @@ public class DeserializerUpdateProperties4358Test extends BaseMapTest {
 
         assertEquals("A", recreatedBean.getA());
         assertEquals("B", recreatedBean.getB());
-        assertEquals(List.of("B", "A"), actualOrder);
+        assertEquals(Arrays.asList("B", "A"), actualOrder);
     }
 
     // Shall succeed
@@ -162,6 +163,6 @@ public class DeserializerUpdateProperties4358Test extends BaseMapTest {
 
         assertEquals("A", recreatedBean.getA());
         assertEquals("B", recreatedBean.getB());
-        assertEquals(List.of("B", "A"), actualOrder);
+        assertEquals(Arrays.asList("B", "A"), actualOrder);
     }
 }

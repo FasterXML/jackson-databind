@@ -1,11 +1,17 @@
 package tools.jackson.databind.deser.jdk;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.UnrecognizedPropertyException;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.*;
+
 // [databind#2675]: Void-valued "properties"
-public class VoidProperties2675Test extends BaseMapTest
+public class VoidProperties2675Test
 {
     static class VoidBean {
         protected Void value;
@@ -27,6 +33,7 @@ public class VoidProperties2675Test extends BaseMapTest
             .disable(MapperFeature.ALLOW_VOID_VALUED_PROPERTIES)
             .build();
 
+    @Test
     public void testVoidBeanSerialization() throws Exception
     {
         // with 3.x enabled by default, but may disable
@@ -39,6 +46,7 @@ public class VoidProperties2675Test extends BaseMapTest
         }
     }
 
+    @Test
     public void testVoidBeanDeserialization() throws Exception {
         final String DOC = "{\"value\":null}";
         VoidBean result = VOID_MAPPER.readValue(DOC, VoidBean.class);

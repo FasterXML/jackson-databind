@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.core.*;
@@ -14,9 +16,12 @@ import tools.jackson.databind.deser.std.StdDeserializer;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.module.SimpleModule;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.*;
+
 @SuppressWarnings("serial")
 public class CollectionDeserTest
-    extends BaseMapTest
 {
     enum Key {
         KEY1, KEY2, WHATEVER;
@@ -108,6 +113,7 @@ public class CollectionDeserTest
 
     private final static ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testUntypedList() throws Exception
     {
         // to get "untyped" default List, pass Object.class
@@ -128,6 +134,7 @@ public class CollectionDeserTest
         assertEquals(Integer.valueOf(23), result.get(3));
     }
 
+    @Test
     public void testExactStringCollection() throws Exception
     {
         // to get typing, must use type reference
@@ -142,6 +149,7 @@ public class CollectionDeserTest
         assertEquals("b", result.get(1));
     }
 
+    @Test
     public void testHashSet() throws Exception
     {
         String JSON = "[ \"KEY1\", \"KEY2\" ]";
@@ -157,6 +165,7 @@ public class CollectionDeserTest
     }
 
     /// Test to verify that @JsonDeserialize.using works as expected
+    @Test
     public void testCustomDeserializer() throws IOException
     {
         CustomList result = MAPPER.readValue(q("abc"), CustomList.class);
@@ -167,6 +176,7 @@ public class CollectionDeserTest
     // Testing "implicit JSON array" for single-element arrays,
     // mostly produced by Jettison, Badgerfish conversions (from XML)
     @SuppressWarnings("unchecked")
+    @Test
     public void testImplicitArrays() throws Exception
     {
         // can't share mapper, custom configs (could create ObjectWriter tho)
@@ -201,6 +211,7 @@ public class CollectionDeserTest
     }
 
     // [JACKSON-620]: allow "" to mean 'null' for Maps
+    @Test
     public void testFromEmptyString() throws Exception
     {
         ObjectReader r = MAPPER.reader(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
@@ -209,6 +220,7 @@ public class CollectionDeserTest
     }
 
     // [databind#161]
+    @Test
     public void testArrayBlockingQueue() throws Exception
     {
         // ok to skip polymorphic type to get Object
@@ -221,6 +233,7 @@ public class CollectionDeserTest
     }
 
     // [databind#199]
+    @Test
     public void testIterableWithStrings() throws Exception
     {
         String JSON = "{ \"values\":[\"a\",\"b\"]}";
@@ -234,6 +247,7 @@ public class CollectionDeserTest
         assertFalse(it.hasNext());
     }
 
+    @Test
     public void testIterableWithBeans() throws Exception
     {
         String JSON = "{ \"nums\":[{\"x\":1},{\"x\":2}]}";
@@ -251,6 +265,7 @@ public class CollectionDeserTest
     }
 
     // for [databind#506]
+    @Test
     public void testArrayIndexForExceptions() throws Exception
     {
         final String OBJECTS_JSON = "[ \"KEY2\", false ]";
@@ -289,6 +304,7 @@ public class CollectionDeserTest
     }
 
     // for [databind#828]
+    @Test
     public void testWrapExceptions() throws Exception
     {
         final ObjectReader wrappingReader = MAPPER
@@ -317,6 +333,7 @@ public class CollectionDeserTest
     }
 
     // [databind#2251]
+    @Test
     public void testAbstractListAndSet() throws Exception
     {
         final String JSON = "{\"values\":[\"foo\", \"bar\"]}";
@@ -331,6 +348,7 @@ public class CollectionDeserTest
     }
 
     // for [databind#3068]
+    @Test
     public void testWrapExceptions3068() throws Exception
     {
         final SimpleModule module = new SimpleModule("SimpleModule", Version.unknownVersion())

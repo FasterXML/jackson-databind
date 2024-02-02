@@ -8,14 +8,17 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import tools.jackson.core.json.JsonWriteFeature;
-import tools.jackson.databind.BaseMapTest;
+
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectWriter;
 import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.util.StdDateFormat;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.*;
+
 public class JavaUtilDateSerializationTest
-    extends BaseMapTest
 {
     static class TimeZoneBean {
         private TimeZone tz;

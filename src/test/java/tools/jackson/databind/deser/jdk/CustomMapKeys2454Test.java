@@ -3,13 +3,20 @@ package tools.jackson.databind.deser.jdk;
 import java.util.Collections;
 import java.util.Map;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
 
-public class CustomMapKeys2454Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.a2q;
+import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+
+public class CustomMapKeys2454Test
 {
     @JsonDeserialize(keyUsing = Key2454Deserializer.class)
     @JsonSerialize(keyUsing = Key2454Serializer.class)
@@ -38,12 +45,14 @@ public class CustomMapKeys2454Test extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testCustomSerializer() throws Exception
     {
         assertEquals(a2q("{'id=a':'b'}"),
                 MAPPER.writeValueAsString(Collections.singletonMap(new Key2454("a", true), "b")));
     }
 
+    @Test
     public void testCustomDeserializer() throws Exception
     {
         Map<Key2454, String> result = MAPPER.readValue(a2q("{'a':'b'}"),

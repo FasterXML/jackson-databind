@@ -1,10 +1,15 @@
 package tools.jackson.databind.deser.jdk;
 
-import tools.jackson.databind.BaseMapTest;
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.databind.ObjectMapper;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+
 // for [databind#3305]
-public class CharSequenceDeser3305Test extends BaseMapTest
+public class CharSequenceDeser3305Test
 {
     static final class AppId implements CharSequence {
         private final long value;
@@ -46,6 +51,7 @@ public class CharSequenceDeser3305Test extends BaseMapTest
 
     private final static ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testCharSequenceSerialization() throws Exception {
         AppId appId = AppId.valueOf(APP_ID);
 

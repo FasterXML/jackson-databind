@@ -8,19 +8,24 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.exc.MismatchedInputException;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.a2q;
+import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
 
 /**
  * Additional `java.util.Date` deserialization tests for cases where `ObjectMapper`
  * is configured to use timezone different from UTC.
  */
 public class DateDeserializationTZTest
-    extends BaseMapTest
 {
     private static final String LOCAL_TZ = "GMT+2";
 
@@ -78,6 +83,7 @@ public class DateDeserializationTZTest
     /**
      * Test the various timezone/offset representations
      */
+    @Test
     public void testDateUtilISO8601_Timezone() throws Exception
     {
         // Complete offset, with ':' between hours and minutes
@@ -113,6 +119,7 @@ public class DateDeserializationTZTest
     /**
      * Test the millis
      */
+    @Test
     public void testDateUtilISO8601_DateTimeMillis() throws Exception
     {
         // WITH timezone (from 4 to 0 digits)
@@ -172,6 +179,7 @@ public class DateDeserializationTZTest
      *
      * NOTE: millis are not tested here since they are covered by another test case
      */
+    @Test
     public void testDateUtilISO8601_DateTime() throws Exception
     {
         // Full representation with a timezone
@@ -270,6 +278,7 @@ public class DateDeserializationTZTest
      *
      * NOTE: time part is not tested here since they it is covered by another test case
      */
+    @Test
     public void testDateUtilISO8601_Date() throws Exception
     {
         // Date is constructed with the timezone of the ObjectMapper. Time part is set to zero.
@@ -305,6 +314,7 @@ public class DateDeserializationTZTest
     /**
      * DateTime as numeric representation
      */
+    @Test
     public void testDateUtil_Numeric() throws Exception
     {
         {
@@ -339,6 +349,7 @@ public class DateDeserializationTZTest
     /**
      * Note: may be these cases are already covered by {@link #testDateUtil_Annotation_PatternAndLocale()}
      */
+    @Test
     public void testDateUtil_Annotation() throws Exception
     {
         // Build the input JSON and expected value
@@ -373,6 +384,7 @@ public class DateDeserializationTZTest
      * Test a POJO annotated with @JsonFormat to force an pattern.
      * Alternate with different combination of Locale and TimeZone.
      */
+    @Test
     public void testDateUtil_Annotation_PatternAndLocale() throws Exception
     {
         // Change the default locale set on the ObjectMapper to something else than the default.
@@ -398,6 +410,7 @@ public class DateDeserializationTZTest
      * Test a POJO annotated with @JsonFormat to force a default TimeZone
      * other than the one set on the ObjectMapper when the JSON doesn't contain any.
      */
+    @Test
     public void testDateUtil_Annotation_TimeZone() throws Exception
     {
         // WITHOUT timezone
@@ -425,6 +438,7 @@ public class DateDeserializationTZTest
      * ObjectMapper configured with a custom date format that does NOT handle the TIMEZONE.
      * Dates must be constructed with the time zone set on the ObjectMapper.
      */
+    @Test
     public void testDateUtil_customDateFormat_withoutTZ() throws Exception
     {
         // FIXME
@@ -479,6 +493,7 @@ public class DateDeserializationTZTest
      * Dates must be constructed from the timezone of the input, regardless of the one
      * of the ObjectMapper.
      */
+    @Test
     public void testDateUtil_customDateFormat_withTZ() throws Exception
     {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'X'HH:mm:ssZ");

@@ -3,9 +3,15 @@ package tools.jackson.databind.deser.jdk;
 import java.util.Collection;
 import java.util.concurrent.ArrayBlockingQueue;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.databind.*;
 
-public class EmptyArrayBlockingQueueDeserTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+
+public class EmptyArrayBlockingQueueDeserTest
 {
     static class RemoteEntity{
         private Collection<Double> values = new ArrayBlockingQueue<>(20);
@@ -25,6 +31,7 @@ public class EmptyArrayBlockingQueueDeserTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testEmptyBlockingQueue() throws Exception
     {
         String json = MAPPER.writeValueAsString(new RemoteEntity());

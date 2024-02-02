@@ -822,8 +822,4 @@ public class DateDeserializationTest
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         return df.format(value);
     }
-
-    private TimeZone getUTCTimeZone() {
-        return TimeZone.getTimeZone("GMT");
-    }
 }

@@ -416,4 +416,14 @@ public class DatabindTestUtil
 
         return str;
     }
+
+    /*
+    /**********************************************************************
+    /* Helper methods, other
+    /**********************************************************************
+     */
+
+    public static TimeZone getUTCTimeZone() {
+        return TimeZone.getTimeZone("GMT");
+    }
 }

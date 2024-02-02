@@ -7,8 +7,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
@@ -26,7 +25,7 @@ public class Base64DecodingTest
     public void testInvalidBase64() throws Exception
     {
         byte[] b = MAPPER.readValue(q(BASE64_HELLO), byte[].class);
-        assertEquals(HELLO_BYTES, b);
+        assertArrayEquals(HELLO_BYTES, b);
 
         _testInvalidBase64(MAPPER, BASE64_HELLO+"!");
         _testInvalidBase64(MAPPER, BASE64_HELLO+"!!");

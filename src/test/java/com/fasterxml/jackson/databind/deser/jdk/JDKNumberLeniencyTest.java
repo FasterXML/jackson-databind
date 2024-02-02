@@ -1,10 +1,28 @@
 package com.fasterxml.jackson.databind.deser.jdk;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
-public class JDKNumberLeniencyTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+
+public class JDKNumberLeniencyTest
 {
+    /**
+     * Simple wrapper around boolean types, usually to test value
+     * conversions or wrapping
+     */
+    protected static class BooleanWrapper {
+        public Boolean b;
+
+        public BooleanWrapper() { }
+        public BooleanWrapper(Boolean value) { b = value; }
+    }
+
     final ObjectMapper VANILLA_MAPPER = sharedMapper();
 
     final ObjectMapper STRICT_MAPPER = jsonMapperBuilder()
@@ -12,6 +30,7 @@ public class JDKNumberLeniencyTest extends BaseMapTest
 //            .defaultLeniency(false)
             .build();
 
+    @Test
     public void testBooleanLeniencyInts() throws Exception
     {
         // First: read from integers fine by default

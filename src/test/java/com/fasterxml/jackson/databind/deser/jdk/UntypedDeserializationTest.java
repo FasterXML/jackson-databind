@@ -5,6 +5,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
@@ -18,13 +20,16 @@ import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+
 /**
  * Unit tests for verifying "raw" (or "untyped") data binding from JSON to JDK objects;
  * one that only uses core JDK types; wrappers, Maps and Lists.
  */
 @SuppressWarnings("serial")
 public class UntypedDeserializationTest
-    extends BaseMapTest
 {
     static class UCStringDeserializer
         extends StdScalarDeserializer<String>
@@ -133,6 +138,7 @@ public class UntypedDeserializationTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @SuppressWarnings("unchecked")
+    @Test
     public void testSampleDoc() throws Exception
     {
         final String JSON = SAMPLE_DOC_JSON_SPEC;
@@ -142,29 +148,29 @@ public class UntypedDeserializationTest
          */
         Object root = MAPPER.readValue(JSON, Object.class);
 
-        assertType(root, Map.class);
+        assertInstanceOf(Map.class, root);
         Map<?,?> rootMap = (Map<?,?>) root;
         assertEquals(1, rootMap.size());
         Map.Entry<?,?> rootEntry =  rootMap.entrySet().iterator().next();
         assertEquals("Image", rootEntry.getKey());
         Object image = rootEntry.getValue();
-        assertType(image, Map.class);
+        assertInstanceOf(Map.class, image);
         Map<?,?> imageMap = (Map<?,?>) image;
         assertEquals(5, imageMap.size());
 
         Object value = imageMap.get("Width");
-        assertType(value, Integer.class);
+        assertInstanceOf(Integer.class, value);
         assertEquals(Integer.valueOf(SAMPLE_SPEC_VALUE_WIDTH), value);
 
         value = imageMap.get("Height");
-        assertType(value, Integer.class);
+        assertInstanceOf(Integer.class, value);
         assertEquals(Integer.valueOf(SAMPLE_SPEC_VALUE_HEIGHT), value);
 
         assertEquals(SAMPLE_SPEC_VALUE_TITLE, imageMap.get("Title"));
 
         // Another Object, "thumbnail"
         value = imageMap.get("Thumbnail");
-        assertType(value, Map.class);
+        assertInstanceOf(Map.class, value);
         Map<?,?> tnMap = (Map<?,?>) value;
         assertEquals(3, tnMap.size());
 
@@ -175,7 +181,7 @@ public class UntypedDeserializationTest
 
         // And then number list, "IDs"
         value = imageMap.get("IDs");
-        assertType(value, List.class);
+        assertInstanceOf(List.class, value);
         List<Object> ids = (List<Object>) value;
         assertEquals(4, ids.size());
         assertEquals(Integer.valueOf(SAMPLE_SPEC_VALUE_TN_ID1), ids.get(0));
@@ -187,6 +193,7 @@ public class UntypedDeserializationTest
     }
 
     @SuppressWarnings({"unlikely-arg-type", "CollectionIncompatibleType"})
+    @Test
     public void testUntypedMap() throws Exception
     {
         // to get "untyped" default map-to-map, pass Object.class
@@ -209,6 +216,7 @@ public class UntypedDeserializationTest
         assertNull(result.get(3));
     }
 
+    @Test
     public void testSimpleVanillaScalars() throws IOException
     {
         assertEquals("foo", MAPPER.readValue(q("foo"), Object.class));
@@ -219,12 +227,14 @@ public class UntypedDeserializationTest
         assertEquals(Double.valueOf(0.5), MAPPER.readValue("0.5 ", Object.class));
     }
 
+    @Test
     public void testSimpleVanillaStructured() throws IOException
     {
         List<?> list = (List<?>) MAPPER.readValue("[ 1, 2, 3]", Object.class);
         assertEquals(Integer.valueOf(1), list.get(0));
     }
 
+    @Test
     public void testNestedUntypes() throws IOException
     {
         // 05-Apr-2014, tatu: Odd failures if using shared mapper; so work around:
@@ -241,6 +251,7 @@ public class UntypedDeserializationTest
         assertEquals(Integer.valueOf(2), l.get(1));
     }
 
+    @Test
     public void testUntypedWithCustomScalarDesers() throws IOException
     {
         SimpleModule m = new SimpleModule("test-module");
@@ -263,6 +274,7 @@ public class UntypedDeserializationTest
     }
 
     // Test that exercises non-vanilla variant, with just one simple custom deserializer
+    @Test
     public void testNonVanilla() throws IOException
     {
         SimpleModule m = new SimpleModule("test-module");
@@ -285,6 +297,7 @@ public class UntypedDeserializationTest
         assertTrue(l.get(1) instanceof List<?>);
     }
 
+    @Test
     public void testUntypedWithListDeser() throws IOException
     {
         SimpleModule m = new SimpleModule("test-module");
@@ -302,6 +315,7 @@ public class UntypedDeserializationTest
         assertEquals("Xtrue", l.get(2));
     }
 
+    @Test
     public void testUntypedWithMapDeser() throws IOException
     {
         SimpleModule m = new SimpleModule("test-module");
@@ -317,6 +331,7 @@ public class UntypedDeserializationTest
         assertEquals("Ytrue", map.get("a"));
     }
 
+    @Test
     public void testNestedUntyped989() throws IOException
     {
         DelegatingUntyped pojo;
@@ -333,6 +348,7 @@ public class UntypedDeserializationTest
         assertTrue(pojo.value instanceof Map);
     }
 
+    @Test
     public void testUntypedWithJsonArrays() throws Exception
     {
         // by default we get:
@@ -346,6 +362,7 @@ public class UntypedDeserializationTest
         assertEquals(Object[].class, ob.getClass());
     }
 
+    @Test
     public void testUntypedIntAsLong() throws Exception
     {
         final String JSON = a2q("{'value':3}");
@@ -361,6 +378,7 @@ public class UntypedDeserializationTest
 
     // [databind#2115]: Consider `java.io.Serializable` as sort of alias of `java.lang.Object`
     // since all natural target types do implement `Serializable` so assignment works
+    @Test
     public void testSerializable() throws Exception
     {
         final String JSON1 = a2q("{ 'value' : 123 }");
@@ -386,6 +404,7 @@ public class UntypedDeserializationTest
     /**********************************************************
      */
 
+    @Test
     public void testValueUpdateVanillaUntyped() throws Exception
     {
         Map<String, Object> map = new LinkedHashMap<>();
@@ -407,6 +426,7 @@ public class UntypedDeserializationTest
         assertEquals(Boolean.TRUE, list.get(2));
     }
 
+    @Test
     public void testValueUpdateCustomUntyped() throws Exception
     {
         SimpleModule m = new SimpleModule("test-module")
@@ -442,6 +462,7 @@ public class UntypedDeserializationTest
      */
 
     // Allow 'upgrade' of big integers into Long, BigInteger
+    @Test
     public void testObjectSerializeWithLong() throws IOException
     {
         final ObjectMapper mapper = newJsonMapper();
@@ -461,6 +482,7 @@ public class UntypedDeserializationTest
         assertEquals(Long.valueOf(VALUE), n);
     }
 
+    @Test
     public void testPolymorphicUntypedVanilla() throws IOException
     {
         ObjectReader rDefault = MAPPER.readerFor(WrappedPolymorphicUntyped.class);
@@ -497,6 +519,7 @@ public class UntypedDeserializationTest
         }
     }
 
+    @Test
     public void testPolymorphicUntypedCustom() throws IOException
     {
         // register module just to override one deserializer, to prevent use of Vanilla deser

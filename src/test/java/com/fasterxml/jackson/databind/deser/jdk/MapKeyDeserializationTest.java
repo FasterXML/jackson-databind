@@ -15,8 +15,13 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
 import org.junit.Assert;
+import org.junit.jupiter.api.Test;
 
-public class MapKeyDeserializationTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+
+public class MapKeyDeserializationTest
 {
     static class FullName {
         String _firstname, _lastname;
@@ -108,8 +113,9 @@ public class MapKeyDeserializationTest extends BaseMapTest
     /**********************************************************************
      */
 
-    final private ObjectMapper MAPPER = objectMapper();
+    final private ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testBooleanMapKeyDeserialization() throws Exception
     {
         TypeReference<MapWrapper<Boolean, String>> type = new TypeReference<MapWrapper<Boolean, String>>() { };
@@ -123,6 +129,7 @@ public class MapKeyDeserializationTest extends BaseMapTest
         Assert.assertEquals(Boolean.FALSE, result.map.entrySet().iterator().next().getKey());
     }
 
+    @Test
     public void testByteMapKeyDeserialization() throws Exception
     {
         TypeReference<MapWrapper<Byte, String>> type = new TypeReference<MapWrapper<Byte, String>>() { };
@@ -131,6 +138,7 @@ public class MapKeyDeserializationTest extends BaseMapTest
         Assert.assertEquals(Byte.valueOf((byte) 13), result.map.entrySet().iterator().next().getKey());
     }
 
+    @Test
     public void testShortMapKeyDeserialization() throws Exception
     {
         TypeReference<MapWrapper<Short, String>> type = new TypeReference<MapWrapper<Short, String>>() { };
@@ -139,6 +147,7 @@ public class MapKeyDeserializationTest extends BaseMapTest
         Assert.assertEquals(Short.valueOf((short) 13), result.map.entrySet().iterator().next().getKey());
     }
 
+    @Test
     public void testIntegerMapKeyDeserialization() throws Exception
     {
         TypeReference<MapWrapper<Integer, String>> type = new TypeReference<MapWrapper<Integer, String>>() { };
@@ -147,6 +156,7 @@ public class MapKeyDeserializationTest extends BaseMapTest
         Assert.assertEquals(Integer.valueOf(-3), result.map.entrySet().iterator().next().getKey());
     }
 
+    @Test
     public void testLongMapKeyDeserialization() throws Exception
     {
         TypeReference<MapWrapper<Long, String>> type = new TypeReference<MapWrapper<Long, String>>() { };
@@ -155,6 +165,7 @@ public class MapKeyDeserializationTest extends BaseMapTest
         Assert.assertEquals(Long.valueOf(42), result.map.entrySet().iterator().next().getKey());
     }
 
+    @Test
     public void testFloatMapKeyDeserialization() throws Exception
     {
         TypeReference<MapWrapper<Float, String>> type = new TypeReference<MapWrapper<Float, String>>() { };
@@ -163,6 +174,7 @@ public class MapKeyDeserializationTest extends BaseMapTest
         Assert.assertEquals(Float.valueOf(3.5f), result.map.entrySet().iterator().next().getKey());
     }
 
+    @Test
     public void testDoubleMapKeyDeserialization() throws Exception
     {
         TypeReference<MapWrapper<Double, String>> type = new TypeReference<MapWrapper<Double, String>>() { };
@@ -177,6 +189,7 @@ public class MapKeyDeserializationTest extends BaseMapTest
     /**********************************************************************
      */
 
+    @Test
     public void testDeserializeKeyViaFactory() throws Exception
     {
         Map<FullName, Double> map =
@@ -189,6 +202,7 @@ public class MapKeyDeserializationTest extends BaseMapTest
         assertEquals(entry.getValue().doubleValue(), 42, 0);
     }
 
+    @Test
     public void testByteArrayMapKeyDeserialization() throws Exception
     {
         byte[] binary = new byte[] { 1, 2, 4, 8, 16, 33, 79 };
@@ -205,6 +219,7 @@ public class MapKeyDeserializationTest extends BaseMapTest
     }
 
     // [databind#2725]
+    @Test
     public void testEnumWithCreatorMapKeyDeserialization() throws Exception
     {
         final Map<TestEnum2725, String> input = Collections.singletonMap(TestEnum2725.FOO, "Hello");
@@ -217,6 +232,7 @@ public class MapKeyDeserializationTest extends BaseMapTest
     }
 
     // [databind#2158]
+    @Test
     public void testDeserializeInvalidKey() throws Exception
     {
         try {
@@ -228,6 +244,7 @@ public class MapKeyDeserializationTest extends BaseMapTest
     }
 
     // [databind#2158]
+    @Test
     public void testNormalizeKey() throws Exception
     {
         assertEquals(Collections.singletonMap(DummyDto2158.fromValue("foo"), 0),

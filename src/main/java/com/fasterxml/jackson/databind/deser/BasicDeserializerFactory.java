@@ -880,7 +880,8 @@ nonAnnotatedParamIndex, ctor);
                 }
                 name = candidate.findImplicitParamName(i);
                 // [databind#562] Any setter can be used...
-                if (ctxt.getAnnotationIntrospector().hasAnySetter(param)) {
+                Boolean hasAnySetter = ctxt.getAnnotationIntrospector().hasAnySetter(param);
+                if (hasAnySetter != null && hasAnySetter) {
                     // no-op
                 } else {
                     _validateNamedPropertyParameter(ctxt, beanDesc, candidate, i,

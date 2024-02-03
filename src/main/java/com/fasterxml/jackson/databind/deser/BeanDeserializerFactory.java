@@ -544,11 +544,11 @@ ClassUtil.name(propName)));
 
         // Also, do we have a fallback "any" setter?
         AnnotatedMember anySetter = beanDesc.findAnySetterAccessor();
+        AnnotatedMember creatorPropWithAnySetter = _findCreatorPropWithAnySetter(ctxt, creatorProps);
         if (anySetter != null) {
             builder.setAnySetter(constructAnySetter(ctxt, beanDesc, anySetter));
-        }
-        else if (ctxt.getAnnotationIntrospector().hasAnySetter(creatorProps[1].getMember())) {
-            builder.setAnySetter(constructAnySetter(ctxt, beanDesc, creatorProps[1].getMember()));
+        } else if (creatorPropWithAnySetter != null) {
+            builder.setAnySetter(constructAnySetter(ctxt, beanDesc, creatorPropWithAnySetter));
         } else {
             // 23-Jan-2018, tatu: although [databind#1805] would suggest we should block
             //   properties regardless, for now only consider unless there's any setter...
@@ -662,6 +662,23 @@ ClassUtil.name(propName)));
                 builder.addProperty(prop);
             }
         }
+    }
+
+    private AnnotatedMember _findCreatorPropWithAnySetter(DeserializationContext ctxt, SettableBeanProperty[] creatorProps) {
+        if (creatorProps != null) {
+            AnnotationIntrospector ai = ctxt.getAnnotationIntrospector();
+            for (SettableBeanProperty prop : creatorProps) {
+                AnnotatedMember m = prop.getMember();
+                if (m != null) {
+                    Boolean hasAnySetter = ai.hasAnySetter(m);
+                    if (hasAnySetter != null && hasAnySetter) {
+                        return prop.getMember();
+                    }
+                }
+
+            }
+        }
+        return null;
     }
 
     private boolean _isSetterlessType(Class<?> rawType) {

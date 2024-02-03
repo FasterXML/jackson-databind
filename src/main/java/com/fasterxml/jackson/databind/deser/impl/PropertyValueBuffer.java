@@ -179,20 +179,34 @@ public class PropertyValueBuffer
                 }
             }
         }
+
+        // [databind#562]: Respect @JsonAnySetter in @JsonCreator
         // check if we have anySetter Param
-        // if we do, parse from buffer and set
-        Map<String, Object> param = new HashMap<>();
-        for (PropertyValue next = buffered(); next != null; next = next.next) {
-            try {
-                next.assign(param);
-            } catch (IOException e) {
-                // TODO : Wrap properly
-                throw new JsonMappingException("TODO: Wrap");
+        AnnotationIntrospector ai = _context.getAnnotationIntrospector();
+        for (int i = 0; i < props.length; i++) {
+            SettableBeanProperty prop = props[i];
+            AnnotatedMember member = prop.getMember();
+            if (member == null) {
+                continue;
             }
+            Boolean hasAnySetter = ai.hasAnySetter(member);
+            if (hasAnySetter == null || !hasAnySetter) {
+                continue;
+            }
+            // So we have prop with anySetter. Should be Map-like, so let's assign such?
+            // Assign all remaining values to the map
+            Map<String, Object> param = new HashMap<>();
+            for (PropertyValue next = buffered(); next != null; next = next.next) {
+                try {
+                    next.assign(param);
+                } catch (IOException e) {
+                    _context.reportInputMismatch(prop, e.getMessage());
+                }
+            }
+            // assign it then return
+            _creatorParameters[i] = param;
+            break;
         }
-        // find the "FIRST" creator Prop with JsonAnySetter
-        // Then assign value to it
-        _creatorParameters[1] = param;
         return _creatorParameters;
     }
 

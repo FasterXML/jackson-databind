@@ -207,8 +207,6 @@ public final class PropertyBasedCreator
     {
         Object bean = _valueInstantiator.createFromObjectWith(ctxt,
                 _allProperties, buffer);
-
-
         // returning null isn't quite legal, but let's let caller deal with that
         if (bean != null) {
             // Object Id to handle?

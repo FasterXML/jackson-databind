@@ -1,25 +1,20 @@
 package com.fasterxml.jackson.databind.module;
 
+import java.io.IOException;
+import java.util.Iterator;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.DeserializationConfig;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerBuilder;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import java.io.IOException;
-import java.util.Iterator;
 
-public class DeserializerUpdateBuilderTest extends BaseMapTest {
-
+public class DeserializerUpdateBuilderTest extends BaseMapTest
+{
     static class MutableBean {
 
         private String a;
@@ -47,6 +42,7 @@ public class DeserializerUpdateBuilderTest extends BaseMapTest {
         }
     }
 
+    @SuppressWarnings("serial")
     static SimpleModule getSimpleModuleWithDeserializerModifier() {
         return new SimpleModule().setDeserializerModifier(new BeanDeserializerModifier() {
             @Override
@@ -68,7 +64,7 @@ public class DeserializerUpdateBuilderTest extends BaseMapTest {
 
         @Override
         public String deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JacksonException {
-            String ignore = p.getValueAsString();
+            p.skipChildren();
             return CUSTOM_DESERIALIZER_VALUE;
         }
     }

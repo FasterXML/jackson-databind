@@ -526,8 +526,14 @@ public abstract class BasicDeserializerFactory
                     _reportUnwrappedCreatorProperty(ctxt, beanDesc, param);
                 }
                 name = candidate.findImplicitParamName(i);
-                _validateNamedPropertyParameter(ctxt, beanDesc, candidate, i,
+                if (ctxt.getAnnotationIntrospector().hasAnySetter(param)) {
+                    // [databind#562] Any setter can be used...
+                    System.out.println();
+                    name = PropertyName.construct("leftovers");
+                } else {
+                    _validateNamedPropertyParameter(ctxt, beanDesc, candidate, i,
                         name, injectId);
+                }
             }
             properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectId);
         }

@@ -2,12 +2,15 @@ package com.fasterxml.jackson.databind.deser.impl;
 
 import java.io.IOException;
 import java.util.BitSet;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.SettableAnyProperty;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
+import com.fasterxml.jackson.databind.deser.UnresolvedForwardReference;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 
 /**
@@ -176,6 +179,20 @@ public class PropertyValueBuffer
                 }
             }
         }
+        // check if we have anySetter Param
+        // if we do, parse from buffer and set
+        Map<String, Object> param = new HashMap<>();
+        for (PropertyValue next = buffered(); next != null; next = next.next) {
+            try {
+                next.assign(param);
+            } catch (IOException e) {
+                // TODO : Wrap properly
+                throw new JsonMappingException("TODO: Wrap");
+            }
+        }
+        // find the "FIRST" creator Prop with JsonAnySetter
+        // Then assign value to it
+        _creatorParameters[1] = param;
         return _creatorParameters;
     }
 

@@ -546,6 +546,9 @@ ClassUtil.name(propName)));
         AnnotatedMember anySetter = beanDesc.findAnySetterAccessor();
         if (anySetter != null) {
             builder.setAnySetter(constructAnySetter(ctxt, beanDesc, anySetter));
+        }
+        else if (ctxt.getAnnotationIntrospector().hasAnySetter(creatorProps[1].getMember())) {
+            builder.setAnySetter(constructAnySetter(ctxt, beanDesc, creatorProps[1].getMember()));
         } else {
             // 23-Jan-2018, tatu: although [databind#1805] would suggest we should block
             //   properties regardless, for now only consider unless there's any setter...
@@ -819,6 +822,35 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
                     valueType, null, mutator,
                     PropertyMetadata.STD_OPTIONAL);
 
+        } else if (mutator instanceof AnnotatedParameter){
+            AnnotatedParameter af = (AnnotatedParameter) mutator;
+            // get the type from the content type of the map object
+            JavaType fieldType = af.getType();
+            // 31-Jul-2022, tatu: Not just Maps any more but also JsonNode, so:
+            if (fieldType.isMapLikeType()) {
+                fieldType = resolveMemberAndTypeAnnotations(ctxt, mutator, fieldType);
+                keyType = fieldType.getKeyType();
+                valueType = fieldType.getContentType();
+                prop = new BeanProperty.Std(PropertyName.construct("stuff"),
+                    fieldType, null, mutator, PropertyMetadata.STD_OPTIONAL);
+            } else if (fieldType.hasRawClass(JsonNode.class)
+                || fieldType.hasRawClass(ObjectNode.class)) {
+                fieldType = resolveMemberAndTypeAnnotations(ctxt, mutator, fieldType);
+                // Deserialize is individual values of ObjectNode, not full ObjectNode, so:
+                valueType = ctxt.constructType(JsonNode.class);
+                prop = new BeanProperty.Std(PropertyName.construct(mutator.getName()),
+                    fieldType, null, mutator, PropertyMetadata.STD_OPTIONAL);
+
+                // Unlike with more complicated types, here we do not allow any annotation
+                // overrides etc but instead short-cut handling:
+                return SettableAnyProperty.constructForJsonNodeField(ctxt,
+                    prop, mutator, valueType,
+                    ctxt.findRootValueDeserializer(valueType));
+            } else {
+                return ctxt.reportBadDefinition(beanDesc.getType(), String.format(
+                    "Unsupported type for any-setter: %s -- only support `Map`s, `JsonNode` and `ObjectNode` ",
+                    ClassUtil.getTypeDescription(fieldType)));
+            }
         } else if (isField) {
             AnnotatedField af = (AnnotatedField) mutator;
             // get the type from the content type of the map object

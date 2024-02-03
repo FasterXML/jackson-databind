@@ -497,7 +497,7 @@ public class BeanDeserializer
             // "any property"?
             if (_anySetter != null) {
                 try {
-                    buffer.bufferAnyProperty(_anySetter, propName, _anySetter.deserialize(p, ctxt));
+                    buffer.bufferMapProperty(propName, _anySetter.deserialize(p, ctxt));
                 } catch (Exception e) {
                     wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
                 }
@@ -523,10 +523,15 @@ public class BeanDeserializer
         // We hit END_OBJECT, so:
         Object bean;
         try {
-            bean = creator.build(ctxt, buffer);
+            if (_anySetter != null) {
+                bean = creator.buildSimple(ctxt, buffer);
+            } else {
+                bean = creator.build(ctxt, buffer);
+            }
         } catch (Exception e) {
             return wrapInstantiationProblem(e, ctxt);
         }
+
         // 13-Apr-2020, tatu: [databind#2678] need to handle injection here
         if (_injectables != null) {
             injectValues(ctxt, bean);

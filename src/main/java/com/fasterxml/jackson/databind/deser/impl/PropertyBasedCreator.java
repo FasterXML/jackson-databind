@@ -197,10 +197,18 @@ public final class PropertyBasedCreator
         return new PropertyValueBuffer(p, ctxt, _propertyCount, oir);
     }
 
+    public Object buildSimple(DeserializationContext ctxt, PropertyValueBuffer buffer) throws IOException
+    {
+        return  _valueInstantiator.createFromObjectWith(ctxt,
+            _allProperties, buffer);
+    }
+
     public Object build(DeserializationContext ctxt, PropertyValueBuffer buffer) throws IOException
     {
         Object bean = _valueInstantiator.createFromObjectWith(ctxt,
                 _allProperties, buffer);
+
+
         // returning null isn't quite legal, but let's let caller deal with that
         if (bean != null) {
             // Object Id to handle?

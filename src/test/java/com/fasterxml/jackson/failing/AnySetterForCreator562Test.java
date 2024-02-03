@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.failing;
 
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
@@ -37,12 +37,15 @@ class AnySetterForCreator562Test extends DatabindTestUtil
     @Test
     void anySetterViaCreator562() throws Exception
     {
+        Map<String, Object> expected = new HashMap<>();
+        expected.put("b", Integer.valueOf(42));
+        expected.put("c", Integer.valueOf(111));
+
         POJO562 pojo = MAPPER.readValue(a2q(
-                "{'a':'value', 'b':42}"
+                "{'a':'value', 'b':42, 'c': 111}"
                 ),
                 POJO562.class);
         assertEquals("value", pojo.a);
-        assertEquals(Collections.singletonMap("b", Integer.valueOf(42)),
-                pojo.stuff);
+        assertEquals(expected, pojo.stuff);
     }
 }

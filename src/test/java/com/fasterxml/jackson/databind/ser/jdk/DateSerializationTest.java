@@ -20,6 +20,8 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.getUTCTimeZone;
+
 public class DateSerializationTest
     extends BaseMapTest
 {

@@ -32,17 +32,6 @@ public abstract class BaseMapTest
         }
     }
 
-    /**
-     * Simple wrapper around boolean types, usually to test value
-     * conversions or wrapping
-     */
-    protected static class BooleanWrapper {
-        public Boolean b;
-
-        public BooleanWrapper() { }
-        public BooleanWrapper(Boolean value) { b = value; }
-    }
-
     protected static class IntWrapper {
         public int i;
 
@@ -81,18 +70,6 @@ public abstract class BaseMapTest
         public StringWrapper() { }
         public StringWrapper(String value) {
             str = value;
-        }
-    }
-
-    protected static class ObjectWrapper {
-        final Object object;
-        protected ObjectWrapper(final Object object) {
-            this.object = object;
-        }
-        public Object getObject() { return object; }
-        @JsonCreator
-        static ObjectWrapper jsonValue(final Object object) {
-            return new ObjectWrapper(object);
         }
     }
 
@@ -173,18 +150,6 @@ public abstract class BaseMapTest
         public void serialize(String value, JsonGenerator gen,
                 SerializerProvider provider) throws IOException {
             gen.writeString(value.toUpperCase());
-        }
-    }
-
-    @SuppressWarnings("serial")
-    public static class LowerCasingDeserializer extends StdScalarDeserializer<String>
-    {
-        public LowerCasingDeserializer() { super(String.class); }
-
-        @Override
-        public String deserialize(JsonParser p, DeserializationContext ctxt)
-                throws IOException {
-            return p.getText().toLowerCase();
         }
     }
 
@@ -335,10 +300,6 @@ public abstract class BaseMapTest
     /* Helper methods, other
     /**********************************************************
      */
-
-    protected TimeZone getUTCTimeZone() {
-        return TimeZone.getTimeZone("GMT");
-    }
 
     protected byte[] utf8Bytes(String str) {
         try {

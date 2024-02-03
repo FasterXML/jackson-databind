@@ -5,6 +5,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.OptBoolean;
@@ -13,8 +15,11 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+
 public class DateDeserializationTest
-    extends BaseMapTest
 {
     static class DateAsStringBean
     {
@@ -93,6 +98,7 @@ public class DateDeserializationTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testDateUtil() throws Exception
     {
         long now = 123456789L;
@@ -105,10 +111,11 @@ public class DateDeserializationTest
         String dateStr = dateToString(value);
         java.util.Date result = MAPPER.readValue("\""+dateStr+"\"", java.util.Date.class);
 
-        assertEquals("Date: expect "+value+" ("+value.getTime()+"), got "+result+" ("+result.getTime()+")",
-                value.getTime(), result.getTime());
+        assertEquals(value.getTime(), result.getTime(),
+            "Date: expect "+value+" ("+value.getTime()+"), got "+result+" ("+result.getTime()+")");
     }
 
+    @Test
     public void testDateUtilWithStringTimestamp() throws Exception
     {
         long now = 1321992375446L;
@@ -126,6 +133,7 @@ public class DateDeserializationTest
         assertEquals(before, value.getTime());
     }
 
+    @Test
     public void testDateUtilRFC1123() throws Exception
     {
         DateFormat fmt = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
@@ -135,6 +143,7 @@ public class DateDeserializationTest
         assertEquals(inputDate, MAPPER.readValue("\""+inputStr+"\"", java.util.Date.class));
     }
 
+    @Test
     public void testDateUtilRFC1123OnNonUSLocales() throws Exception
     {
         Locale old = Locale.getDefault();
@@ -150,6 +159,7 @@ public class DateDeserializationTest
     /**
      * ISO8601 is supported as well
      */
+    @Test
     public void testDateUtilISO8601() throws Exception
     {
         /* let's use simple baseline value, arbitrary date in GMT,
@@ -196,6 +206,7 @@ public class DateDeserializationTest
     }
 
     // [Databind#570]
+    @Test
     public void testISO8601PartialMilliseconds() throws Exception
     {
         String inputStr;
@@ -258,6 +269,7 @@ public class DateDeserializationTest
     }
 
     // Also: minutes-part of offset need not be all zeroes: [databind#1788]
+    @Test
     public void testISO8601FractionalTimezoneOffset() throws Exception
     {
         String inputStr = "1997-07-16T19:20:30.45+01:30";
@@ -274,6 +286,7 @@ public class DateDeserializationTest
     }
 
     // [databind#1745]
+    @Test
     public void testISO8601FractSecondsLong() throws Exception
     {
         String inputStr;
@@ -298,6 +311,7 @@ public class DateDeserializationTest
         }
     }
 
+    @Test
     public void testISO8601MissingSeconds() throws Exception
     {
         String inputStr;
@@ -339,6 +353,7 @@ public class DateDeserializationTest
         assertEquals(0, c.get(Calendar.MILLISECOND));
     }
 
+    @Test
     public void testDateUtilISO8601NoTimezone() throws Exception
     {
         // Timezone itself is optional as well...
@@ -356,6 +371,7 @@ public class DateDeserializationTest
     }
 
     // [databind#1657]: no timezone should use configured default
+    @Test
     public void testDateUtilISO8601NoTimezoneNonDefault() throws Exception
     {
         // In first case, no timezone -> SHOULD use configured timezone
@@ -379,6 +395,7 @@ public class DateDeserializationTest
 
     // [databind#1722]: combination of `@ConstructorProperties` and `@JsonIgnore`
     //  should work fine.
+    @Test
     public void testFormatAndCtors1722() throws Exception
     {
         Date1722 input = new Date1722(new Date(0L), "bogus");
@@ -388,6 +405,7 @@ public class DateDeserializationTest
     }
 
     // [databind#338]
+    @Test
     public void testDateUtilISO8601NoMilliseconds() throws Exception
     {
         final String INPUT_STR = "2013-10-31T17:27:00";
@@ -421,6 +439,7 @@ public class DateDeserializationTest
         */
     }
 
+    @Test
     public void testDateUtilISO8601JustDate() throws Exception
     {
         // Plain date (no time)
@@ -433,6 +452,7 @@ public class DateDeserializationTest
         assertEquals(28, c.get(Calendar.DAY_OF_MONTH));
     }
 
+    @Test
     public void testCalendar() throws Exception
     {
         // not ideal, to use (ever-changing) current date, but...
@@ -455,6 +475,7 @@ public class DateDeserializationTest
         }
     }
 
+    @Test
     public void testCustom() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();
@@ -472,12 +493,14 @@ public class DateDeserializationTest
      * Test for [JACKSON-203]: make empty Strings deserialize as nulls by default,
      * without need to turn on feature (which may be added in future)
      */
+    @Test
     public void testDatesWithEmptyStrings() throws Exception
     {
         assertNull(MAPPER.readValue(q(""), java.util.Date.class));
         assertNull(MAPPER.readValue(q(""), java.util.Calendar.class));
     }
 
+    @Test
     public void test8601DateTimeNoMilliSecs() throws Exception
     {
         // ok, Zebra, no milliseconds
@@ -500,12 +523,14 @@ public class DateDeserializationTest
         }
     }
 
+    @Test
     public void testTimeZone() throws Exception
     {
         TimeZone result = MAPPER.readValue(q("PST"), TimeZone.class);
         assertEquals("PST", result.getID());
     }
 
+    @Test
     public void testCustomDateWithAnnotation() throws Exception
     {
         final String INPUT = "{\"date\":\"/2005/05/25/\"}";
@@ -552,6 +577,7 @@ public class DateDeserializationTest
         assertEquals(25, c.get(Calendar.DAY_OF_MONTH));
     }
 
+    @Test
     public void testCustomCalendarWithAnnotation() throws Exception
     {
         CalendarAsStringBean cbean = MAPPER.readValue("{\"cal\":\";2007/07/13;\"}",
@@ -564,6 +590,7 @@ public class DateDeserializationTest
         assertEquals(13, c.get(Calendar.DAY_OF_MONTH));
     }
 
+    @Test
     public void testCustomCalendarWithTimeZone() throws Exception
     {
         // And then with different TimeZone: CET is +01:00 from GMT -- read as CET
@@ -579,6 +606,7 @@ public class DateDeserializationTest
     }
 
     // [databind#1651]
+    @Test
     public void testDateEndingWithZNonDefTZ1651() throws Exception
     {
         String json = q("1970-01-01T00:00:00.000Z");
@@ -605,6 +633,7 @@ public class DateDeserializationTest
      */
 
     // for [databind#204]
+    @Test
     public void testContextTimezone() throws Exception
     {
         String inputStr = "1997-07-16T19:20:30.45+0100";
@@ -652,6 +681,7 @@ public class DateDeserializationTest
     /**********************************************************
      */
 
+    @Test
     public void testCalendarArrayUnwrap() throws Exception
     {
         ObjectReader reader = new ObjectMapper()
@@ -687,6 +717,7 @@ public class DateDeserializationTest
     /**********************************************************
      */
 
+    @Test
     public void testLenientJDKDateTypes() throws Exception
     {
         final String JSON = a2q("{'value':'2015-11-32'}");
@@ -707,6 +738,7 @@ public class DateDeserializationTest
         }
     }
 
+    @Test
     public void testLenientJDKDateTypesViaTypeOverride() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -722,6 +754,7 @@ public class DateDeserializationTest
         }
     }
 
+    @Test
     public void testLenientJDKDateTypesViaGlobal() throws Exception
     {
         final String JSON = q("2015-11-32");
@@ -760,6 +793,7 @@ public class DateDeserializationTest
     /**********************************************************
      */
 
+    @Test
     public void testInvalidFormat() throws Exception
     {
         try {

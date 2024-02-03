@@ -6,9 +6,13 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.databind.*;
 
-public class AnyPropSorting518Test extends BaseMapTest
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class AnyGetterSorting518Test extends DatabindTestUtil
 {
     @JsonPropertyOrder(alphabetic = true)
     static class Bean

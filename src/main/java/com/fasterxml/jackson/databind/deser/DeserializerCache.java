@@ -312,8 +312,11 @@ public final class DeserializerCache
          */
         if (deser instanceof ResolvableDeserializer) {
             _incompleteDeserializers.put(type, deser);
-            ((ResolvableDeserializer)deser).resolve(ctxt);
-            _incompleteDeserializers.remove(type);
+            try {
+                ((ResolvableDeserializer)deser).resolve(ctxt);
+            } finally {
+                _incompleteDeserializers.remove(type);
+            }
         }
         if (addToCache) {
             _cachedDeserializers.put(type, deser);
@@ -367,17 +370,18 @@ public final class DeserializerCache
 
         // Or perhaps a Converter?
         Converter<Object,Object> conv = beanDesc.findDeserializationConverter();
-        if (conv == null) { // nope, just construct in normal way
-            return (JsonDeserializer<Object>) _createDeserializer2(ctxt, factory, type, beanDesc);
+        if (conv != null) {
+            // otherwise need to do bit of introspection
+            JavaType delegateType = conv.getInputType(ctxt.getTypeFactory());
+            // One more twist, as per [databind#288]; probably need to get new BeanDesc
+            if (!delegateType.hasRawClass(type.getRawClass())) {
+                beanDesc = config.introspect(delegateType);
+            }
+            return new StdDelegatingDeserializer<Object>(conv, delegateType,
+                    _createDeserializer2(ctxt, factory, delegateType, beanDesc));
         }
-        // otherwise need to do bit of introspection
-        JavaType delegateType = conv.getInputType(ctxt.getTypeFactory());
-        // One more twist, as per [databind#288]; probably need to get new BeanDesc
-        if (!delegateType.hasRawClass(type.getRawClass())) {
-            beanDesc = config.introspect(delegateType);
-        }
-        return new StdDelegatingDeserializer<Object>(conv, delegateType,
-                _createDeserializer2(ctxt, factory, delegateType, beanDesc));
+        // Nope, regular deserializer
+        return (JsonDeserializer<Object>) _createDeserializer2(ctxt, factory, type, beanDesc);
     }
 
     protected JsonDeserializer<?> _createDeserializer2(DeserializationContext ctxt,

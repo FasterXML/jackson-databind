@@ -28,16 +28,16 @@ public class DatabindTestUtil
     /**********************************************************************
      */
 
-    protected static final int SAMPLE_SPEC_VALUE_WIDTH = 800;
-    protected static final int SAMPLE_SPEC_VALUE_HEIGHT = 600;
-    protected static final String SAMPLE_SPEC_VALUE_TITLE = "View from 15th Floor";
-    protected static final String SAMPLE_SPEC_VALUE_TN_URL = "http://www.example.com/image/481989943";
-    protected static final int SAMPLE_SPEC_VALUE_TN_HEIGHT = 125;
-    protected static final String SAMPLE_SPEC_VALUE_TN_WIDTH = "100";
-    protected static final int SAMPLE_SPEC_VALUE_TN_ID1 = 116;
-    protected static final int SAMPLE_SPEC_VALUE_TN_ID2 = 943;
-    protected static final int SAMPLE_SPEC_VALUE_TN_ID3 = 234;
-    protected static final int SAMPLE_SPEC_VALUE_TN_ID4 = 38793;
+    public static final int SAMPLE_SPEC_VALUE_WIDTH = 800;
+    public static final int SAMPLE_SPEC_VALUE_HEIGHT = 600;
+    public static final String SAMPLE_SPEC_VALUE_TITLE = "View from 15th Floor";
+    public static final String SAMPLE_SPEC_VALUE_TN_URL = "http://www.example.com/image/481989943";
+    public static final int SAMPLE_SPEC_VALUE_TN_HEIGHT = 125;
+    public static final String SAMPLE_SPEC_VALUE_TN_WIDTH = "100";
+    public static final int SAMPLE_SPEC_VALUE_TN_ID1 = 116;
+    public static final int SAMPLE_SPEC_VALUE_TN_ID2 = 943;
+    public static final int SAMPLE_SPEC_VALUE_TN_ID3 = 234;
+    public static final int SAMPLE_SPEC_VALUE_TN_ID4 = 38793;
 
     public static final String SAMPLE_DOC_JSON_SPEC =
         "{\n"
@@ -272,6 +272,20 @@ public class DatabindTestUtil
         }
     }
 
+    public static class MapWrapper<K,V>
+    {
+        public Map<K,V> map;
+
+        public MapWrapper() { }
+        public MapWrapper(Map<K,V> m) {
+            map = m;
+        }
+        public MapWrapper(K key, V value) {
+            map = new LinkedHashMap<>();
+            map.put(key, value);
+        }
+    }
+
     /*
     /**********************************************************************
     /* Factory methods
@@ -401,5 +415,15 @@ public class DatabindTestUtil
         assertEquals(str, str2, "String access via getText(), getTextXxx() must be the same");
 
         return str;
+    }
+
+    /*
+    /**********************************************************************
+    /* Helper methods, other
+    /**********************************************************************
+     */
+
+    public static TimeZone getUTCTimeZone() {
+        return TimeZone.getTimeZone("GMT");
     }
 }

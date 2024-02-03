@@ -9,8 +9,12 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+// 02-Feb-2024, tatu: No idea why, but JUnit 4 assertions pass,
+//   JUnit 5 won't. So need to use former until figuring out solution
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+//import static org.junit.jupiter.api.Assertions.assertEquals;
+//import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 import static tools.jackson.databind.testutil.DatabindTestUtil.q;

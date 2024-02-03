@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.CoercionAction;
 import com.fasterxml.jackson.databind.deser.impl.*;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId.Referring;
-import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.IgnorePropertiesUtil;
 import com.fasterxml.jackson.databind.util.NameTransformer;
@@ -521,13 +520,10 @@ public class BeanDeserializer
             unknown.copyCurrentStructure(p);
         }
 
-
-        Collection<SettableBeanProperty> creatorProps = creator.properties();
-        AnnotatedMember anySetter = _findCreatorPropWithAnySetter(ctxt, creatorProps.toArray(new SettableBeanProperty[creatorProps.size()]));
         // We hit END_OBJECT, so:
         Object bean;
         try {
-            if (anySetter != null) {
+            if (_anySetter != null) {
                 bean = creator.buildSimple(ctxt, buffer);
             } else {
                 bean = creator.build(ctxt, buffer);
@@ -557,23 +553,6 @@ public class BeanDeserializer
         return bean;
     }
 
-
-    private AnnotatedMember _findCreatorPropWithAnySetter(DeserializationContext ctxt, SettableBeanProperty[] creatorProps) {
-        if (creatorProps != null) {
-            AnnotationIntrospector ai = ctxt.getAnnotationIntrospector();
-            for (SettableBeanProperty prop : creatorProps) {
-                AnnotatedMember m = prop.getMember();
-                if (m != null) {
-                    Boolean hasAnySetter = ai.hasAnySetter(m);
-                    if (hasAnySetter != null && hasAnySetter) {
-                        return prop.getMember();
-                    }
-                }
-
-            }
-        }
-        return null;
-    }
     /**
      * @since 2.8
      */

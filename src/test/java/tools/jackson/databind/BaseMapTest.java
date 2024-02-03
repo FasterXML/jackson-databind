@@ -3,11 +3,8 @@ package tools.jackson.databind;
 import java.io.*;
 import java.util.*;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-
 import tools.jackson.core.*;
 
-import tools.jackson.databind.deser.std.StdScalarDeserializer;
 import tools.jackson.databind.ser.std.StdScalarSerializer;
 import tools.jackson.databind.type.TypeFactory;
 
@@ -27,17 +24,6 @@ public abstract class BaseMapTest
         public String getSchemaType() {
             return "TestFormat";
         }
-    }
-
-    /**
-     * Simple wrapper around boolean types, usually to test value
-     * conversions or wrapping
-     */
-    protected static class BooleanWrapper {
-        public Boolean b;
-
-        public BooleanWrapper() { }
-        public BooleanWrapper(Boolean value) { b = value; }
     }
 
     protected static class IntWrapper {
@@ -78,20 +64,6 @@ public abstract class BaseMapTest
         public StringWrapper() { }
         public StringWrapper(String value) {
             str = value;
-        }
-    }
-
-    protected static class ObjectWrapper {
-        final Object object;
-
-        public ObjectWrapper(final Object object) {
-            this.object = object;
-        }
-        public Object getObject() { return object; }
-
-        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-        static ObjectWrapper jsonValue(final Object object) {
-            return new ObjectWrapper(object);
         }
     }
 
@@ -171,16 +143,6 @@ public abstract class BaseMapTest
         public void serialize(String value, JsonGenerator gen,
                 SerializerProvider provider) {
             gen.writeString(value.toUpperCase());
-        }
-    }
-
-    public static class LowerCasingDeserializer extends StdScalarDeserializer<String>
-    {
-        public LowerCasingDeserializer() { super(String.class); }
-
-        @Override
-        public String deserialize(JsonParser p, DeserializationContext ctxt) {
-            return p.getText().toLowerCase();
         }
     }
 
@@ -269,10 +231,6 @@ public abstract class BaseMapTest
     /* Helper methods, other
     /**********************************************************
      */
-
-    protected TimeZone getUTCTimeZone() {
-        return TimeZone.getTimeZone("GMT");
-    }
 
     protected byte[] utf8Bytes(String str) {
         try {

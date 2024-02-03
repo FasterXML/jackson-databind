@@ -2,11 +2,15 @@ package tools.jackson.databind.deser.jdk;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class MapRelatedTypesDeserTest
-    extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class MapRelatedTypesDeserTest extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 
@@ -16,6 +20,7 @@ public class MapRelatedTypesDeserTest
     /**********************************************************
      */
 
+    @Test
     public void testMapEntrySimpleTypes() throws Exception
     {
         List<Map.Entry<String,Long>> stuff = MAPPER.readValue(a2q("[{'a':15},{'b':42}]"),
@@ -27,6 +32,7 @@ public class MapRelatedTypesDeserTest
         assertEquals(Long.valueOf(42), stuff.get(1).getValue());
     }
 
+    @Test
     public void testMapEntryWithStringBean() throws Exception
     {
         List<Map.Entry<Integer,StringWrapper>> stuff = MAPPER.readValue(a2q("[{'28':'Foo'},{'13':'Bar'}]"),
@@ -40,6 +46,7 @@ public class MapRelatedTypesDeserTest
         assertEquals("Bar", sw.str);
     }
 
+    @Test
     public void testMapEntryFail() throws Exception
     {
         try {
@@ -58,6 +65,7 @@ public class MapRelatedTypesDeserTest
      */
 
     // [databind#810]
+    @Test
     public void testReadProperties() throws Exception
     {
         Properties props = MAPPER.readValue(a2q("{'a':'foo', 'b':123, 'c':true}"),
@@ -69,6 +77,7 @@ public class MapRelatedTypesDeserTest
     }
 
     // JDK singletonMap
+    @Test
     public void testSingletonMapRoundtrip() throws Exception
     {
         final TypeReference<Map<String,IntWrapper>> type = new TypeReference<Map<String,IntWrapper>>() { };

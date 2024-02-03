@@ -5,6 +5,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import tools.jackson.core.*;
@@ -15,9 +17,12 @@ import tools.jackson.databind.deser.std.StdDeserializer;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.MismatchedInputException;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.*;
+
 @SuppressWarnings("serial")
 public class MapDeserializationTest
-    extends BaseMapTest
 {
     static enum Key {
         KEY1, KEY2, WHATEVER;
@@ -80,6 +85,19 @@ public class MapDeserializationTest
 
     static class ClassStringMap extends HashMap<Class<?>,String> { }
 
+    protected static class ObjectWrapper {
+        final Object object;
+        protected ObjectWrapper(final Object object) {
+            this.object = object;
+        }
+        public Object getObject() { return object; }
+
+        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
+        static ObjectWrapper jsonValue(final Object object) {
+            return new ObjectWrapper(object);
+        }
+    }
+
     static class ObjectWrapperMap extends HashMap<String, ObjectWrapper> { }
 
     static class AbstractMapWrapper {
@@ -94,6 +112,7 @@ public class MapDeserializationTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testBigUntypedMap() throws Exception
     {
         Map<String,Object> map = new LinkedHashMap<String,Object>();
@@ -118,6 +137,7 @@ public class MapDeserializationTest
      * Let's also try another way to express "gimme a Map" deserialization;
      * this time by specifying a Map class, to reduce need to cast
      */
+    @Test
     public void testUntypedMap2() throws Exception
     {
         // to get "untyped" default map-to-map, pass Object.class
@@ -136,6 +156,7 @@ public class MapDeserializationTest
     /**
      * Unit test for [JACKSON-185]
      */
+    @Test
     public void testUntypedMap3() throws Exception
     {
         String JSON = "{\"a\":[{\"a\":\"b\"},\"value\"]}";
@@ -163,6 +184,7 @@ public class MapDeserializationTest
             +"\"boolean\":true, \"list\":[\"list0\"],"
             +"\"null\":null }";
 
+    @Test
     public void testSpecialMap() throws IOException
     {
         final ObjectWrapperMap map = MAPPER.readValue(UNTYPED_MAP_JSON, ObjectWrapperMap.class);
@@ -170,6 +192,7 @@ public class MapDeserializationTest
         _doTestUntyped(map);
     }
 
+    @Test
     public void testGenericMap() throws IOException
     {
         final Map<String, ObjectWrapper> map = MAPPER.readValue
@@ -191,6 +214,7 @@ public class MapDeserializationTest
         assertEquals(5, map.size());
     }
 
+    @Test
     public void testFromEmptyString() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
@@ -206,6 +230,7 @@ public class MapDeserializationTest
     /**********************************************************
      */
 
+    @Test
     public void testExactStringIntMap() throws Exception
     {
         // to get typing, must use type reference
@@ -228,6 +253,7 @@ public class MapDeserializationTest
      * Let's also check that it is possible to do type conversions
      * to allow use of non-String Map keys.
      */
+    @Test
     public void testIntBooleanMap() throws Exception
     {
         // to get typing, must use type reference
@@ -244,6 +270,7 @@ public class MapDeserializationTest
         assertNull(result.get(0));
     }
 
+    @Test
     public void testExactStringStringMap() throws Exception
     {
         // to get typing, must use type reference
@@ -266,6 +293,7 @@ public class MapDeserializationTest
      * be replaced by something like <code>HashMap.class</code>,
      * if given.
      */
+    @Test
     public void testGenericStringIntMap() throws Exception
     {
         // to get typing, must use type reference; but with abstract type
@@ -283,6 +311,7 @@ public class MapDeserializationTest
         assertNull(result.get(""));
     }
 
+    @Test
     public void testAbstractMapDefault() throws Exception
     {
         final AbstractMapWrapper result = MAPPER.readValue("{\"values\":{\"foo\":42}}",
@@ -297,6 +326,7 @@ public class MapDeserializationTest
     /**********************************************************
      */
 
+    @Test
     public void testEnumMap() throws Exception
     {
         String JSON = "{ \"KEY1\" : \"\", \"WHATEVER\" : null }";
@@ -319,6 +349,7 @@ public class MapDeserializationTest
         assertNull(result.get(Key.KEY2));
     }
 
+    @Test
     public void testMapWithEnums() throws Exception
     {
         String JSON = "{ \"KEY2\" : \"WHATEVER\" }";
@@ -335,6 +366,7 @@ public class MapDeserializationTest
         assertNull(result.get(Key.KEY1));
     }
 
+    @Test
     public void testEnumPolymorphicSerializationTest() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -361,6 +393,7 @@ public class MapDeserializationTest
     /**********************************************************
      */
 
+    @Test
     public void testDateMap() throws Exception
     {
     	 Date date1=new Date(123456000L);
@@ -387,6 +420,7 @@ public class MapDeserializationTest
     /**********************************************************
      */
 
+    @Test
     public void testCalendarMap() throws Exception
     {
         // 18-Jun-2015, tatu: Should be safest to use default timezone that mapper would use
@@ -410,6 +444,7 @@ public class MapDeserializationTest
         assertNull(result.get(c));
     }
 
+    @Test
     public void testUUIDKeyMap() throws Exception
     {
          UUID key = UUID.nameUUIDFromBytes("foobar".getBytes("UTF-8"));
@@ -423,6 +458,21 @@ public class MapDeserializationTest
          assertEquals(key, ob);
     }
 
+    @Test
+    public void testLocaleKeyMap() throws Exception {
+        Locale key = Locale.CHINA;
+        String JSON = "{ \"" + key + "\":4}";
+        Map<Locale, Object> result = MAPPER.readValue(JSON, new TypeReference<Map<Locale, Object>>() {
+        });
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        Object ob = result.keySet().iterator().next();
+        assertNotNull(ob);
+        assertEquals(Locale.class, ob.getClass());
+        assertEquals(key, ob);
+    }
+
+    @Test
     public void testCurrencyKeyMap() throws Exception {
         Currency key = Currency.getInstance("USD");
         String JSON = "{ \"" + key + "\":4}";
@@ -437,6 +487,7 @@ public class MapDeserializationTest
     }
 
     // Test confirming that @JsonCreator may be used with Map Key types
+    @Test
     public void testKeyWithCreator() throws Exception
     {
         // first, key should deserialize normally:
@@ -449,6 +500,7 @@ public class MapDeserializationTest
         assertEquals("foo", key.value);
     }
 
+    @Test
     public void testClassKeyMap() throws Exception {
         ClassStringMap map = MAPPER.readValue(a2q("{'java.lang.String':'foo'}"),
                 ClassStringMap.class);
@@ -457,6 +509,7 @@ public class MapDeserializationTest
         assertEquals("foo", map.get(String.class));
     }
 
+    @Test
     public void testcharSequenceKeyMap() throws Exception {
         String JSON = a2q("{'a':'b'}");
         Map<CharSequence,String> result = MAPPER.readValue(JSON, new TypeReference<Map<CharSequence,String>>() { });
@@ -475,6 +528,7 @@ public class MapDeserializationTest
      * Simple test to ensure that @JsonDeserialize.using is
      * recognized
      */
+    @Test
     public void testMapWithDeserializer() throws Exception
     {
         CustomMap result = MAPPER.readValue(q("xyz"), CustomMap.class);
@@ -488,6 +542,7 @@ public class MapDeserializationTest
     /**********************************************************
      */
 
+    @Test
     public void testMapError() throws Exception
     {
         try {
@@ -499,6 +554,7 @@ public class MapDeserializationTest
         }
     }
 
+    @Test
     public void testNoCtorMap() throws Exception
     {
         try {

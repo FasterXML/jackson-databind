@@ -8,6 +8,8 @@ import java.util.Currency;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.core.Base64Variants;
@@ -20,7 +22,11 @@ import tools.jackson.databind.exc.InvalidFormatException;
 import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.util.TokenBuffer;
 
-public class JDKStringLikeTypeDeserTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.*;
+
+public class JDKStringLikeTypeDeserTest
 {
     static class ParamClassBean
     {
@@ -61,9 +67,10 @@ public class JDKStringLikeTypeDeserTest extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#239]
+    @Test
     public void testByteBuffer() throws Exception
     {
         byte[] INPUT = new byte[] { 1, 3, 9, -1, 6 };
@@ -77,12 +84,14 @@ public class JDKStringLikeTypeDeserTest extends BaseMapTest
         assertEquals(0, result.remaining());
     }
 
+    @Test
     public void testCharset() throws Exception
     {
         Charset UTF8 = Charset.forName("UTF-8");
         assertSame(UTF8, MAPPER.readValue(q("UTF-8"), Charset.class));
     }
 
+    @Test
     public void testClass() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -100,6 +109,7 @@ public class JDKStringLikeTypeDeserTest extends BaseMapTest
         assertSame(Void.TYPE, mapper.readValue(q("void"), Class.class));
     }
 
+    @Test
     public void testClassWithParams() throws IOException
     {
         String json = MAPPER.writeValueAsString(new ParamClassBean("Foobar"));
@@ -109,6 +119,7 @@ public class JDKStringLikeTypeDeserTest extends BaseMapTest
         assertSame(String.class, result.clazz);
     }
 
+    @Test
     public void testCurrency() throws IOException
     {
         Currency usd = Currency.getInstance("USD");
@@ -123,6 +134,7 @@ public class JDKStringLikeTypeDeserTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testFile() throws Exception
     {
         // Not portable etc... has to do:
@@ -135,6 +147,7 @@ public class JDKStringLikeTypeDeserTest extends BaseMapTest
         assertEquals(abs, result.getAbsolutePath());
     }
 
+    @Test
     public void testCharSequence() throws IOException
     {
         CharSequence cs = MAPPER.readValue("\"abc\"", CharSequence.class);
@@ -142,6 +155,7 @@ public class JDKStringLikeTypeDeserTest extends BaseMapTest
         assertEquals("abc", cs.toString());
     }
 
+    @Test
     public void testInetAddress() throws IOException
     {
         InetAddress address = MAPPER.readValue(q("127.0.0.1"), InetAddress.class);
@@ -153,6 +167,7 @@ public class JDKStringLikeTypeDeserTest extends BaseMapTest
         assertEquals(HOST, address.getHostName());
     }
 
+    @Test
     public void testInetSocketAddress() throws IOException
     {
         InetSocketAddress address = MAPPER.readValue(q("127.0.0.1"), InetSocketAddress.class);
@@ -178,6 +193,7 @@ public class JDKStringLikeTypeDeserTest extends BaseMapTest
         assertEquals(80, address.getPort());
     }
 
+    @Test
     public void testPattern() throws IOException
     {
         Pattern exp = Pattern.compile("abc:\\s?(\\d+)");
@@ -205,6 +221,7 @@ public class JDKStringLikeTypeDeserTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testStackTraceElement() throws Exception
     {
         StackTraceElement elem = null;
@@ -225,6 +242,7 @@ public class JDKStringLikeTypeDeserTest extends BaseMapTest
     }
 
     // [databind#429]
+    @Test
     public void testStackTraceElementWithCustom() throws Exception
     {
         // first, via bean that contains StackTraceElement
@@ -256,18 +274,21 @@ public class JDKStringLikeTypeDeserTest extends BaseMapTest
         assertEquals(StackTraceBean.NUM, traces[1].getLineNumber());
     }
 
+    @Test
     public void testStringBuilder() throws Exception
     {
         StringBuilder sb = MAPPER.readValue(q("abc"), StringBuilder.class);
         assertEquals("abc", sb.toString());
     }
 
+    @Test
     public void testStringBuffer() throws Exception
     {
         StringBuffer sb = MAPPER.readValue(q("abc"), StringBuffer.class);
         assertEquals("abc", sb.toString());
     }
 
+    @Test
     public void testURI() throws Exception
     {
         final ObjectReader reader = MAPPER.readerFor(URI.class);
@@ -283,6 +304,7 @@ public class JDKStringLikeTypeDeserTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testURL() throws Exception
     {
         URL exp = new URL("http://foo.com");
@@ -312,6 +334,7 @@ public class JDKStringLikeTypeDeserTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testUUID() throws Exception
     {
         final String NULL_UUID = "00000000-0000-0000-0000-000000000000";
@@ -348,6 +371,7 @@ public class JDKStringLikeTypeDeserTest extends BaseMapTest
                 r.readValue(q(base64)));
     }
 
+    @Test
     public void testUUIDInvalid() throws Exception
     {
         // and finally, exception handling too [databind#1000], for invalid cases
@@ -366,6 +390,7 @@ public class JDKStringLikeTypeDeserTest extends BaseMapTest
         // should also test from-bytes version, but that's trickier... leave for now.
     }
 
+    @Test
     public void testUUIDAux() throws Exception
     {
         final UUID value = UUID.fromString("76e6d183-5f68-4afa-b94a-922c1fdb83f8");

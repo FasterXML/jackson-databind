@@ -2,6 +2,8 @@ package tools.jackson.databind.deser.jdk;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import tools.jackson.core.type.TypeReference;
@@ -9,10 +11,14 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.*;
+
 /**
  * Tests for special collection/map types via `java.util.Collections`
  */
-public class JDKCollectionsDeserTest extends BaseMapTest
+public class JDKCollectionsDeserTest
 {
     static class XBean {
         public int x;
@@ -30,6 +36,7 @@ public class JDKCollectionsDeserTest extends BaseMapTest
     private final static ObjectMapper MAPPER = newJsonMapper();
 
     // And then a round-trip test for singleton collections
+    @Test
     public void testSingletonCollections() throws Exception
     {
         final TypeReference<List<XBean>> xbeanListType = new TypeReference<List<XBean>>() { };
@@ -48,6 +55,7 @@ public class JDKCollectionsDeserTest extends BaseMapTest
     }
 
     // [databind#1868]: Verify class name serialized as is
+    @Test
     public void testUnmodifiableSet() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -65,6 +73,7 @@ public class JDKCollectionsDeserTest extends BaseMapTest
     }
 
     // [databind#4262]: Handle problem of `null`s for `TreeSet`
+    @Test
     public void testNullsWithTreeSet() throws Exception
     {
         try {

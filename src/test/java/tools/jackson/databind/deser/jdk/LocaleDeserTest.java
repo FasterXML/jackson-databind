@@ -9,12 +9,8 @@ import org.junit.jupiter.api.Test;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
-// 02-Feb-2024, tatu: No idea why, but JUnit 4 assertions pass,
-//   JUnit 5 won't. So need to use former until figuring out solution
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-//import static org.junit.jupiter.api.Assertions.assertEquals;
-//import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 import static tools.jackson.databind.testutil.DatabindTestUtil.q;
@@ -275,25 +271,25 @@ public class LocaleDeserTest
     }
 
     private void assertBaseValues(Locale expected, Locale actual) {
-        assertEquals("Language mismatch", expected.getLanguage(), actual.getLanguage());
-        assertEquals("Country mismatch", expected.getCountry(), actual.getCountry());
-        assertEquals("Variant mismatch", expected.getVariant(), actual.getVariant());
+        assertEquals(expected.getLanguage(), actual.getLanguage(), "Language mismatch");
+        assertEquals(expected.getCountry(), actual.getCountry(), "Country mismatch");
+        assertEquals(expected.getVariant(), actual.getVariant(), "Variant mismatch");
     }
 
     private void assertLocaleWithScript(Locale expected, Locale actual) {
         assertBaseValues(expected, actual);
-        assertEquals("Script mismatch", expected.getScript(), actual.getScript());
+        assertEquals(expected.getScript(), actual.getScript(), "Script mismatch");
     }
 
     private void assertLocaleWithExtension(Locale expected, Locale actual) {
         assertBaseValues(expected, actual);
-        assertEquals("Extension mismatch", expected.getExtension('x'), actual.getExtension('x'));
+        assertEquals(expected.getExtension('x'), actual.getExtension('x'), "Extension mismatch");
     }
 
     private void assertLocale(Locale expected, Locale actual) {
         assertBaseValues(expected, actual);
-        assertEquals("Extension mismatch", expected.getExtension('x'), actual.getExtension('x'));
-        assertEquals("Script mismatch", expected.getScript(), actual.getScript());
+        assertEquals(expected.getExtension('x'), actual.getExtension('x'), "Extension mismatch");
+        assertEquals(expected.getScript(), actual.getScript(), "Script mismatch");
     }
 
     // https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=47034

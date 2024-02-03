@@ -93,16 +93,8 @@ public class AnnotationIntrospectorPair
     @Override
     public PropertyName findRootName(MapperConfig<?> config, AnnotatedClass ac)
     {
-        PropertyName name1 = _primary.findRootName(config, ac);
-        if (name1 == null) {
-            return _secondary.findRootName(config, ac);
-        }
-        if (name1.hasSimpleName()) {
-            return name1;
-        }
-        // name1 is empty; how about secondary?
-        PropertyName name2 = _secondary.findRootName(config, ac);
-        return (name2 == null) ? name1 : name2;
+        return PropertyName.merge(_primary.findRootName(config, ac),
+                _secondary.findRootName(config, ac));
     }
 
     @Override
@@ -431,17 +423,8 @@ public class AnnotationIntrospectorPair
 
     @Override
     public PropertyName findWrapperName(MapperConfig<?> config, Annotated ann) {
-        PropertyName name = _primary.findWrapperName(config, ann);
-        if (name == null) {
-            name = _secondary.findWrapperName(config, ann);
-        } else if (name == PropertyName.USE_DEFAULT) {
-            // does the other introspector have a better idea?
-            PropertyName name2 = _secondary.findWrapperName(config, ann);
-            if (name2 != null) {
-                name = name2;
-            }
-        }
-        return name;
+        return PropertyName.merge(_primary.findWrapperName(config, ann),
+                _secondary.findWrapperName(config, ann));
     }
 
     @Override
@@ -501,11 +484,8 @@ public class AnnotationIntrospectorPair
     @Override // since 2.11
     public PropertyName findRenameByField(MapperConfig<?> config,
             AnnotatedField f, PropertyName implName) {
-        PropertyName n = _secondary.findRenameByField(config, f, implName);
-        if (n == null) {
-            n = _primary.findRenameByField(config, f, implName);
-        }
-        return n;
+        return PropertyName.merge(_secondary.findRenameByField(config, f, implName),
+                    _primary.findRenameByField(config, f, implName));
     }
 
     // // // Serialization: type refinements
@@ -544,17 +524,8 @@ public class AnnotationIntrospectorPair
 
     @Override
     public PropertyName findNameForSerialization(MapperConfig<?> config, Annotated a) {
-        PropertyName n = _primary.findNameForSerialization(config, a);
-        // note: "use default" should not block explicit answer, so:
-        if (n == null) {
-            n = _secondary.findNameForSerialization(config, a);
-        } else if (n == PropertyName.USE_DEFAULT) {
-            PropertyName n2 = _secondary.findNameForSerialization(config, a);
-            if (n2 != null) {
-                n = n2;
-            }
-        }
-        return n;
+        return PropertyName.merge(_primary.findNameForSerialization(config, a),
+                _secondary.findNameForSerialization(config, a));
     }
 
     @Override
@@ -688,17 +659,9 @@ public class AnnotationIntrospectorPair
     @Override
     public PropertyName findNameForDeserialization(MapperConfig<?> config, Annotated a)
     {
-        // note: "use default" should not block explicit answer, so:
-        PropertyName n = _primary.findNameForDeserialization(config, a);
-        if (n == null) {
-            n = _secondary.findNameForDeserialization(config, a);
-        } else if (n == PropertyName.USE_DEFAULT) {
-            PropertyName n2 = _secondary.findNameForDeserialization(config, a);
-            if (n2 != null) {
-                n = n2;
-            }
-        }
-        return n;
+        return PropertyName.merge(
+                _primary.findNameForDeserialization(config, a),
+                _secondary.findNameForDeserialization(config, a));
     }
 
     @Override

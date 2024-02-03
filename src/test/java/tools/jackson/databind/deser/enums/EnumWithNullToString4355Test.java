@@ -33,6 +33,8 @@ public class EnumWithNullToString4355Test extends DatabindTestUtil
     @Test
     public void testWithNullToString() throws Exception
     {
-        assertEquals(q("ALPHA"), MAPPER.writeValueAsString(Enum4355.ALPHA));        
+        assertEquals(q("ALPHA"), MAPPER.writeValueAsString(Enum4355.ALPHA));
+        assertEquals(q("BETA"), MAPPER.writeValueAsString(Enum4355.BETA));
+        assertEquals(q("UNDEFINED"), MAPPER.writeValueAsString(Enum4355.UNDEFINED));
     }
 }

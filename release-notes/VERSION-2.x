@@ -41,6 +41,8 @@ Project: jackson-databind
  (reported by @k-wall)
  (fix contributed by Joo-Hyuk K)
 #4337: `AtomicReference` serializer does not support `@JsonSerialize(contentConverter=...)`
+#4364: `@JsonProperty` and equivalents should merge with `AnnotationIntrospectorPair`
+- JUnit5 upgraded to 5.10.1
 
 2.16.2 (not yet released)
 

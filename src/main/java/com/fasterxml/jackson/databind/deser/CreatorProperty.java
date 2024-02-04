@@ -76,7 +76,32 @@ public class CreatorProperty
     protected boolean _ignorable;
 
     /**
+     * Marker flag to indicate that current property is used to handle "any setter" via `@JsonAnySetter`.
+     *
+     * @since 2.18
+     */
+    protected final Boolean _hasAnySetter;
+
+    /**
+     * @since 2.18
+     */
+    protected CreatorProperty(PropertyName name, JavaType type, PropertyName wrapperName,
+            TypeDeserializer typeDeser,
+            Annotations contextAnnotations, AnnotatedParameter param,
+            int index, JacksonInject.Value injectable,
+            PropertyMetadata metadata, Boolean hasAnySetter)
+    {
+        super(name, type, wrapperName, typeDeser, contextAnnotations, metadata);
+        _annotated = param;
+        _creatorIndex = index;
+        _injectableValue = injectable;
+        _fallbackSetter = null;
+        _hasAnySetter = hasAnySetter;
+    }
+
+    /**
      * @since 2.11
+     * @deprecated Since 2.18. use factory later version instead.
      */
     protected CreatorProperty(PropertyName name, JavaType type, PropertyName wrapperName,
             TypeDeserializer typeDeser,
@@ -84,11 +109,7 @@ public class CreatorProperty
             int index, JacksonInject.Value injectable,
             PropertyMetadata metadata)
     {
-        super(name, type, wrapperName, typeDeser, contextAnnotations, metadata);
-        _annotated = param;
-        _creatorIndex = index;
-        _injectableValue = injectable;
-        _fallbackSetter = null;
+        this(name, type, wrapperName, typeDeser, contextAnnotations, param, index, injectable, metadata, null);
     }
 
     /**
@@ -129,10 +150,25 @@ public class CreatorProperty
             TypeDeserializer typeDeser,
             Annotations contextAnnotations, AnnotatedParameter param,
             int index, JacksonInject.Value injectable,
+            PropertyMetadata metadata,
+            Boolean hasAnySetter)
+    {
+        return new CreatorProperty(name, type, wrapperName, typeDeser, contextAnnotations,
+                param, index, injectable, metadata, hasAnySetter);
+    }
+
+    /**
+     * @since 2.11
+     * @deprecated Since 2.18. use later version instead.
+     */
+    public static CreatorProperty construct(PropertyName name, JavaType type, PropertyName wrapperName,
+            TypeDeserializer typeDeser,
+            Annotations contextAnnotations, AnnotatedParameter param,
+            int index, JacksonInject.Value injectable,
             PropertyMetadata metadata)
     {
         return new CreatorProperty(name, type, wrapperName, typeDeser, contextAnnotations,
-                param, index, injectable, metadata);
+                param, index, injectable, metadata, null);
     }
 
     /**
@@ -145,6 +181,7 @@ public class CreatorProperty
         _fallbackSetter = src._fallbackSetter;
         _creatorIndex = src._creatorIndex;
         _ignorable = src._ignorable;
+        _hasAnySetter = src._hasAnySetter; // [databind#562] Since 2.18
     }
 
     protected CreatorProperty(CreatorProperty src, JsonDeserializer<?> deser,
@@ -155,6 +192,7 @@ public class CreatorProperty
         _fallbackSetter = src._fallbackSetter;
         _creatorIndex = src._creatorIndex;
         _ignorable = src._ignorable;
+        _hasAnySetter = src._hasAnySetter; // [databind#562] Since 2.18
     }
 
     @Override
@@ -319,6 +357,13 @@ public class CreatorProperty
     }
 
     //  public boolean isInjectionOnly() { return false; }
+
+    /**
+     * @since 2.18
+     */
+    public boolean hasAnySetter() {
+        return Boolean.TRUE.equals(_hasAnySetter);
+    }
 
     /*
     /**********************************************************

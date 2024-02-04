@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.CreatorProperty;
 import com.fasterxml.jackson.databind.deser.SettableAnyProperty;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
-import com.fasterxml.jackson.databind.deser.UnresolvedForwardReference;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 
 /**
@@ -186,7 +185,7 @@ public class PropertyValueBuffer
             if (!(props[i] instanceof CreatorProperty cp)) {
                 continue;
             }
-            if (!cp.hasAnySetter()) {
+            if (!cp.isAnySetterProp()) {
                 continue;
             }
             // So we have prop with anySetter. Should be Map-like, so let's assign such?

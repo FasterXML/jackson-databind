@@ -182,25 +182,25 @@ public class PropertyValueBuffer
 
         // [databind#562] Since 2.18 : Respect @JsonAnySetter in @JsonCreator
         for (int i = 0; i < _creatorParameters.length; i++) {
-            if (!(props[i] instanceof CreatorProperty cp)) {
+            if (!(props[i] instanceof CreatorProperty)) {
                 continue;
             }
-            if (!cp.isAnySetterProp()) {
-                continue;
-            }
-            // So we have prop with anySetter. Should be Map-like, so let's assign such?
-            // Assign all remaining values to the map
-            Map<String, Object> param = new HashMap<>();
-            for (PropertyValue next = buffered(); next != null; next = next.next) {
-                try {
-                    next.assign(param);
-                } catch (IOException e) {
-                    _context.reportInputMismatch(cp, e.getMessage());
+            CreatorProperty cp = (CreatorProperty) props[i];
+            if (cp.isAnySetterProp() && !cp.getType().isMapLikeType()) {
+                // So we have prop with anySetter. Should be Map-like, so let's assign such?
+                // Assign all remaining values to the map
+                Map<String, Object> param = new HashMap<>();
+                for (PropertyValue next = buffered(); next != null; next = next.next) {
+                    try {
+                        next.assign(param);
+                    } catch (IOException e) {
+                        _context.reportInputMismatch(cp, e.getMessage());
+                    }
                 }
+                // assign it then return
+                _creatorParameters[i] = param;
+                break;
             }
-            // assign it then return
-            _creatorParameters[i] = param;
-            break;
         }
 
         return _creatorParameters;

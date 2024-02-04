@@ -518,6 +518,8 @@ public abstract class BasicDeserializerFactory
             JacksonInject.Value injectId = candidate.injection(i);
             AnnotatedParameter param = candidate.parameter(i);
             PropertyName name = candidate.paramName(i);
+            Boolean hasAnySetter = null;
+
             if (name == null) {
                 // 21-Sep-2017, tatu: Looks like we want to block accidental use of Unwrapped,
                 //   as that will not work with Creators well at all
@@ -526,16 +528,17 @@ public abstract class BasicDeserializerFactory
                     _reportUnwrappedCreatorProperty(ctxt, beanDesc, param);
                 }
                 name = candidate.findImplicitParamName(i);
-                // [databind#562] Any setter can be used...
-                Boolean hasAnySetter = ctxt.getAnnotationIntrospector().hasAnySetter(param);
-                if (hasAnySetter != null && hasAnySetter) {
+                // [databind#562] Allow @JsonAnySetter in creators. Introspection is done here only because of
+                // _validateNamedPropertyParameter() check. Otherwise, in constructCreatorProperty seems appropriate....
+                hasAnySetter = ctxt.getAnnotationIntrospector().hasAnySetter(param);
+                if (Boolean.TRUE.equals(hasAnySetter)) {
                     // no-op
                 } else {
                     _validateNamedPropertyParameter(ctxt, beanDesc, candidate, i,
                         name, injectId);
                 }
             }
-            properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectId);
+            properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectId, hasAnySetter);
         }
         creators.addPropertyCreator(candidate.creator(), true, properties);
     }
@@ -630,7 +633,8 @@ paramIndex, candidate);
     protected SettableBeanProperty constructCreatorProperty(DeserializationContext ctxt,
             BeanDescription beanDesc, PropertyName name, int index,
             AnnotatedParameter param,
-            JacksonInject.Value injectable)
+            JacksonInject.Value injectable,
+            Boolean hasAnySetter)
         throws JsonMappingException
     {
         final DeserializationConfig config = ctxt.getConfig();
@@ -668,7 +672,7 @@ paramIndex, candidate);
         // so it is not called directly here
         SettableBeanProperty prop = CreatorProperty.construct(name, type, property.getWrapperName(),
                 typeDeser, beanDesc.getClassAnnotations(), param, index, injectable,
-                metadata);
+                metadata, hasAnySetter);
         JsonDeserializer<?> deser = findDeserializerFromAnnotation(ctxt, param);
         if (deser == null) {
             deser = type.getValueHandler();
@@ -679,6 +683,41 @@ paramIndex, candidate);
             prop = prop.withValueDeserializer(deser);
         }
         return prop;
+    }
+
+    /**
+     * @deprecated Since 2.18, use {@link #constructCreatorProperty(DeserializationContext, BeanDescription,
+     * PropertyName, int, AnnotatedParameter, JacksonInject.Value, Boolean)} instead.
+     */
+    protected SettableBeanProperty constructCreatorProperty(DeserializationContext ctxt,
+            BeanDescription beanDesc, PropertyName name, int index,
+            AnnotatedParameter param,
+            JacksonInject.Value injectable)
+        throws JsonMappingException
+    {
+        return constructCreatorProperty(ctxt, beanDesc, name, index, param, injectable, null);
+    }
+
+    private PropertyName _findParamName(AnnotatedParameter param, AnnotationIntrospector intr)
+    {
+        if (intr != null) {
+            PropertyName name = intr.findNameForDeserialization(param);
+            if (name != null) {
+                // 16-Nov-2020, tatu: One quirk, wrt [databind#2932]; may get "use implicit"
+                //    marker; should not return that
+                if (!name.isEmpty()) {
+                    return name;
+                }
+            }
+            // 14-Apr-2014, tatu: Need to also consider possible implicit name
+            //  (for JDK8, or via paranamer)
+
+            String str = intr.findImplicitPropertyName(param);
+            if (str != null && !str.isEmpty()) {
+                return PropertyName.construct(str);
+            }
+        }
+        return null;
     }
 
     /**

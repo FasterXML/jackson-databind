@@ -8,6 +8,7 @@ import java.util.Map;
 import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.CreatorProperty;
 import com.fasterxml.jackson.databind.deser.SettableAnyProperty;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.UnresolvedForwardReference;
@@ -180,17 +181,12 @@ public class PropertyValueBuffer
             }
         }
 
-        // [databind#562]: Respect @JsonAnySetter in @JsonCreator
-        // check if we have anySetter Param
-        AnnotationIntrospector ai = _context.getAnnotationIntrospector();
-        for (int i = 0; i < props.length; i++) {
-            SettableBeanProperty prop = props[i];
-            AnnotatedMember member = prop.getMember();
-            if (member == null) {
+        // [databind#562] Since 2.18 : Respect @JsonAnySetter in @JsonCreator
+        for (int i = 0; i < _creatorParameters.length; i++) {
+            if (!(props[i] instanceof CreatorProperty cp)) {
                 continue;
             }
-            Boolean hasAnySetter = ai.hasAnySetter(member);
-            if (hasAnySetter == null || !hasAnySetter) {
+            if (!cp.hasAnySetter()) {
                 continue;
             }
             // So we have prop with anySetter. Should be Map-like, so let's assign such?
@@ -200,13 +196,14 @@ public class PropertyValueBuffer
                 try {
                     next.assign(param);
                 } catch (IOException e) {
-                    _context.reportInputMismatch(prop, e.getMessage());
+                    _context.reportInputMismatch(cp, e.getMessage());
                 }
             }
             // assign it then return
             _creatorParameters[i] = param;
             break;
         }
+
         return _creatorParameters;
     }
 

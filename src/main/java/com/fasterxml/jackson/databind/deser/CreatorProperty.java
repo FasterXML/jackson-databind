@@ -80,7 +80,7 @@ public class CreatorProperty
      *
      * @since 2.18
      */
-    protected final Boolean _hasAnySetter;
+    protected final Boolean _isAnySetterProp;
 
     /**
      * @since 2.18
@@ -89,14 +89,14 @@ public class CreatorProperty
             TypeDeserializer typeDeser,
             Annotations contextAnnotations, AnnotatedParameter param,
             int index, JacksonInject.Value injectable,
-            PropertyMetadata metadata, Boolean hasAnySetter)
+            PropertyMetadata metadata, Boolean isAnySetterProp)
     {
         super(name, type, wrapperName, typeDeser, contextAnnotations, metadata);
         _annotated = param;
         _creatorIndex = index;
         _injectableValue = injectable;
         _fallbackSetter = null;
-        _hasAnySetter = hasAnySetter;
+        _isAnySetterProp = isAnySetterProp;
     }
 
     /**
@@ -151,10 +151,10 @@ public class CreatorProperty
             Annotations contextAnnotations, AnnotatedParameter param,
             int index, JacksonInject.Value injectable,
             PropertyMetadata metadata,
-            Boolean hasAnySetter)
+            Boolean isAnySetterProp)
     {
         return new CreatorProperty(name, type, wrapperName, typeDeser, contextAnnotations,
-                param, index, injectable, metadata, hasAnySetter);
+                param, index, injectable, metadata, isAnySetterProp);
     }
 
     /**
@@ -181,7 +181,7 @@ public class CreatorProperty
         _fallbackSetter = src._fallbackSetter;
         _creatorIndex = src._creatorIndex;
         _ignorable = src._ignorable;
-        _hasAnySetter = src._hasAnySetter; // [databind#562] Since 2.18
+        _isAnySetterProp = src._isAnySetterProp; // [databind#562] Since 2.18
     }
 
     protected CreatorProperty(CreatorProperty src, JsonDeserializer<?> deser,
@@ -192,7 +192,7 @@ public class CreatorProperty
         _fallbackSetter = src._fallbackSetter;
         _creatorIndex = src._creatorIndex;
         _ignorable = src._ignorable;
-        _hasAnySetter = src._hasAnySetter; // [databind#562] Since 2.18
+        _isAnySetterProp = src._isAnySetterProp; // [databind#562] Since 2.18
     }
 
     @Override
@@ -361,8 +361,8 @@ public class CreatorProperty
     /**
      * @since 2.18
      */
-    public boolean hasAnySetter() {
-        return Boolean.TRUE.equals(_hasAnySetter);
+    public boolean isAnySetterProp() {
+        return Boolean.TRUE.equals(_isAnySetterProp);
     }
 
     /*

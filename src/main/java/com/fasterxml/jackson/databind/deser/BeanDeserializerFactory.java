@@ -849,7 +849,7 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
                 fieldType = resolveMemberAndTypeAnnotations(ctxt, mutator, fieldType);
                 keyType = fieldType.getKeyType();
                 valueType = fieldType.getContentType();
-                prop = new BeanProperty.Std(PropertyName.construct("stuff"),
+                prop = new BeanProperty.Std(PropertyName.NO_NAME,
                     fieldType, null, mutator, PropertyMetadata.STD_OPTIONAL);
                 isMapParam = true;
             } else {

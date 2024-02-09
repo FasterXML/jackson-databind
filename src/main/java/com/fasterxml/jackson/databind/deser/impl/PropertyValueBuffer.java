@@ -186,7 +186,7 @@ public class PropertyValueBuffer
                 continue;
             }
             CreatorProperty cp = (CreatorProperty) props[i];
-            if (cp.isAnySetterProp() && !cp.getType().isMapLikeType()) {
+            if (cp.isAnySetterProp() && cp.getType().isMapLikeType()) {
                 // So we have prop with anySetter. Should be Map-like, so let's assign such?
                 // Assign all remaining values to the map
                 Map<String, Object> param = new HashMap<>();

@@ -6,6 +6,7 @@ import java.util.*;
 import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.SettableAnyProperty;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 
@@ -197,10 +198,10 @@ public final class PropertyBasedCreator
         return new PropertyValueBuffer(p, ctxt, _propertyCount, oir);
     }
 
-    public Object buildSimple(DeserializationContext ctxt, PropertyValueBuffer buffer) throws IOException
+    public Object buildWithAnySetter(DeserializationContext ctxt, PropertyValueBuffer buffer, SettableAnyProperty anySetter) throws IOException
     {
         return  _valueInstantiator.createFromObjectWith(ctxt,
-            _allProperties, buffer);
+            _allProperties, buffer, anySetter);
     }
 
     public Object build(DeserializationContext ctxt, PropertyValueBuffer buffer) throws IOException

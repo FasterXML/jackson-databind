@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.deser.impl;
 
 import java.io.IOException;
 import java.util.BitSet;
-import java.util.HashMap;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonParser;
@@ -179,30 +178,33 @@ public class PropertyValueBuffer
                 }
             }
         }
+        return _creatorParameters;
+    }
 
+    public Object[] getParametersWithAnySetter(SettableBeanProperty[] props, SettableAnyProperty anySetter)
+        throws JsonMappingException
+    {
+        getParameters(props);
         // [databind#562] Since 2.18 : Respect @JsonAnySetter in @JsonCreator
         for (int i = 0; i < _creatorParameters.length; i++) {
-            if (!(props[i] instanceof CreatorProperty)) {
+            if (!(props[i] instanceof CreatorProperty) || !((CreatorProperty) props[i]).isAnySetterProp()) {
                 continue;
             }
             CreatorProperty cp = (CreatorProperty) props[i];
-            if (cp.isAnySetterProp() && cp.getType().isMapLikeType()) {
-                // So we have prop with anySetter. Should be Map-like, so let's assign such?
-                // Assign all remaining values to the map
-                Map<String, Object> param = new HashMap<>();
+            Object param = null;
+            try {
+                // cp.initMap(_context);
+                Map<Object, Object> map = cp.createAndBuildMap(_context, anySetter);
                 for (PropertyValue next = buffered(); next != null; next = next.next) {
-                    try {
-                        next.assign(param);
-                    } catch (IOException e) {
-                        _context.reportInputMismatch(cp, e.getMessage());
-                    }
+                    next.assign(map);
                 }
-                // assign it then return
-                _creatorParameters[i] = param;
-                break;
+                param = map;
+            } catch (IOException e) {
+                _context.reportInputMismatch(cp, e.getMessage());
             }
+            _creatorParameters[i] = param;
+            break;
         }
-
         return _creatorParameters;
     }
 

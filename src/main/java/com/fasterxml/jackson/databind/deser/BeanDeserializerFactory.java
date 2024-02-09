@@ -828,6 +828,7 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
         JavaType keyType;
         JavaType valueType;
         final boolean isField = mutator instanceof AnnotatedField;
+        boolean isMapParam = false;
 
         if (mutator instanceof AnnotatedMethod) {
             // we know it's a 2-arg method, second arg is the value
@@ -850,6 +851,7 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
                 valueType = fieldType.getContentType();
                 prop = new BeanProperty.Std(PropertyName.construct("stuff"),
                     fieldType, null, mutator, PropertyMetadata.STD_OPTIONAL);
+                isMapParam = true;
             } else {
                 return ctxt.reportBadDefinition(beanDesc.getType(), String.format(
                     "Unsupported type for any-setter: %s -- only support `Map`s, `JsonNode` and `ObjectNode` ",
@@ -914,6 +916,10 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
         TypeDeserializer typeDeser = valueType.getTypeHandler();
         if (isField) {
             return SettableAnyProperty.constructForMapField(ctxt,
+                    prop, mutator, valueType, keyDeser, deser, typeDeser);
+        }
+        if (isMapParam) {
+            return SettableAnyProperty.constructForMapParameter(ctxt,
                     prop, mutator, valueType, keyDeser, deser, typeDeser);
         }
         return SettableAnyProperty.constructForMethod(ctxt,

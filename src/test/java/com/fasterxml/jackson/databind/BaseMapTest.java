@@ -25,13 +25,6 @@ public abstract class BaseMapTest
     /**********************************************************
      */
 
-    public static class BogusSchema implements FormatSchema {
-        @Override
-        public String getSchemaType() {
-            return "TestFormat";
-        }
-    }
-
     protected static class IntWrapper {
         public int i;
 

@@ -1,13 +1,18 @@
 package com.fasterxml.jackson.databind.deser.merge;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonMerge;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.Nulls;
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class MergeWithNullTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+
+public class MergeWithNullTest
 {
     static class ConfigDefault {
         @JsonMerge
@@ -71,6 +76,7 @@ public class MergeWithNullTest extends BaseMapTest
             .disable(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE)
             .build();
 
+    @Test
     public void testBeanMergingWithNullDefault() throws Exception
     {
         // By default `null` should simply overwrite value
@@ -102,6 +108,7 @@ public class MergeWithNullTest extends BaseMapTest
         assertEquals(34, config.loc.b);
     }
 
+    @Test
     public void testBeanMergingWithNullSkip() throws Exception
     {
         ConfigSkipNull config = MAPPER.readerForUpdating(new ConfigSkipNull(5, 7))
@@ -112,6 +119,7 @@ public class MergeWithNullTest extends BaseMapTest
         assertEquals(7, config.loc.b);
     }
 
+    @Test
     public void testBeanMergingWithNullSet() throws Exception
     {
         ConfigAllowNullOverwrite config = MAPPER.readerForUpdating(new ConfigAllowNullOverwrite(5, 7))
@@ -120,6 +128,7 @@ public class MergeWithNullTest extends BaseMapTest
         assertNull(config.loc);
     }
 
+    @Test
     public void testSetterlessMergingWithNull() throws Exception
     {
         NoSetterConfig input = new NoSetterConfig();

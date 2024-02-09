@@ -23,8 +23,8 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
 
         @JsonCreator
         public POJO562(@JsonProperty("a") String a,
-            @JsonAnySetter Map<String, Object>
-        leftovers) {
+            @JsonAnySetter Map<String, Object> leftovers
+        ) {
             this.a = a;
             stuff = leftovers;
         }

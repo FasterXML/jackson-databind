@@ -193,8 +193,7 @@ public class PropertyValueBuffer
             CreatorProperty cp = (CreatorProperty) props[i];
             Object param = null;
             try {
-                // cp.initMap(_context);
-                Map<Object, Object> map = cp.createAndBuildMap(_context, anySetter);
+                Map<Object, Object> map = cp.initMap(_context, anySetter);
                 for (PropertyValue next = buffered(); next != null; next = next.next) {
                     next.assign(map);
                 }

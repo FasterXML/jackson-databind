@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.deser;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.core.JsonParser;
@@ -96,7 +97,7 @@ public class CreatorProperty
         _creatorIndex = index;
         _injectableValue = injectable;
         _fallbackSetter = null;
-        _isAnySetterProp = isAnySetterProp;
+        _isAnySetterProp = isAnySetterProp; // [databind#562] Since 2.18
     }
 
     /**
@@ -398,5 +399,10 @@ public class CreatorProperty
         } else {
             throw InvalidDefinitionException.from(p, msg, getType());
         }
+    }
+
+    public Map<Object, Object> createAndBuildMap(DeserializationContext context, SettableAnyProperty anySetter) throws IOException {
+        SettableAnyProperty.MapParameterAnyProperty mapParap = (SettableAnyProperty.MapParameterAnyProperty) anySetter;
+        return mapParap.initMap(context);
     }
 }

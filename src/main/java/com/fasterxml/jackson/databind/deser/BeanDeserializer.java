@@ -524,7 +524,7 @@ public class BeanDeserializer
         Object bean;
         try {
             if (_anySetter != null) {
-                bean = creator.buildSimple(ctxt, buffer);
+                bean = creator.buildWithAnySetter(ctxt, buffer, _anySetter);
             } else {
                 bean = creator.build(ctxt, buffer);
             }

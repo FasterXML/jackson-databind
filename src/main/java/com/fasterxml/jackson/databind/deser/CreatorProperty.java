@@ -144,8 +144,9 @@ public class CreatorProperty
      *    method parameter; used for accessing annotations of the property
      * @param injectable Information about injectable value, if any
      * @param index Index of this property within creator invocation
-     *
-     * @since 2.11
+     * @param isAnySetter Marker flag to indicate that current property is used to handle "any setter" via `@JsonAnySetter`.
+     *                    
+     * @since 2.18
      */
     public static CreatorProperty construct(PropertyName name, JavaType type, PropertyName wrapperName,
             TypeDeserializer typeDeser,
@@ -401,7 +402,15 @@ public class CreatorProperty
         }
     }
 
-    public Map<Object, Object> createAndBuildMap(DeserializationContext context, SettableAnyProperty anySetter) throws IOException {
+    /**
+     * @since 2.18
+     */
+    public Map<Object, Object> initMap(DeserializationContext context, SettableAnyProperty anySetter)
+        throws IOException
+    {
+        if (!isAnySetterProp()) {
+            throw new IllegalStateException("Cannot create Map for non-AnySetter creator property");
+        }
         SettableAnyProperty.MapParameterAnyProperty mapParap = (SettableAnyProperty.MapParameterAnyProperty) anySetter;
         return mapParap.initMap(context);
     }

@@ -11,7 +11,6 @@ import tools.jackson.core.json.JsonFactory;
 import tools.jackson.databind.json.JsonMapper;
 
 public abstract class BaseTest
-// 19-Sep-2017, tatu: Remove eventually from 3.x, but needs addition of metric ton of `@Test`s
     extends junit.framework.TestCase
 {
     /*

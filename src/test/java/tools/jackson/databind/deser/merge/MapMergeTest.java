@@ -2,12 +2,18 @@ package tools.jackson.databind.deser.merge;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonMerge;
 import com.fasterxml.jackson.annotation.Nulls;
 
 import tools.jackson.databind.*;
 
-public class MapMergeTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.*;
+
+public class MapMergeTest
 {
     static class MergedMap
     {
@@ -55,6 +61,7 @@ public class MapMergeTest extends BaseMapTest
             .changeDefaultNullHandling(n -> n.withContentNulls(Nulls.SKIP))
             .build();
 
+    @Test
     public void testShallowMapMerging() throws Exception
     {
         final String JSON = a2q("{'values':{'c':'y','d':null}}");
@@ -71,6 +78,7 @@ public class MapMergeTest extends BaseMapTest
         assertEquals("x", v.values.get("a"));
     }
 
+    @Test
     public void testShallowNonStringMerging() throws Exception
     {
         final String JSON = a2q("{'values':{'72':'b','666':null}}");
@@ -87,6 +95,7 @@ public class MapMergeTest extends BaseMapTest
     }
 
     @SuppressWarnings("unchecked")
+    @Test
     public void testDeeperMapMerging() throws Exception
     {
         // first, create base Map
@@ -118,6 +127,7 @@ public class MapMergeTest extends BaseMapTest
     }
 
     @SuppressWarnings("unchecked")
+    @Test
     public void testMapMergingWithArray() throws Exception
     {
         // first, create base Map
@@ -151,6 +161,7 @@ public class MapMergeTest extends BaseMapTest
     /********************************************************
      */
 
+    @Test
     public void testDefaultDeepMapMerge() throws Exception
     {
         // First: deep merge should be enabled by default
@@ -164,6 +175,7 @@ public class MapMergeTest extends BaseMapTest
         assertEquals(Arrays.asList("a", "b"), resultList);
     }
 
+    @Test
     public void testDisabledMergeViaGlobal() throws Exception
     {
         // disable merging, globally; does not affect main level
@@ -182,6 +194,7 @@ public class MapMergeTest extends BaseMapTest
         assertEquals(Arrays.asList("b"), resultList);
     }
 
+    @Test
     public void testDisabledMergeByType() throws Exception
     {
         // disable merging for "untyped", that is, `Object.class`

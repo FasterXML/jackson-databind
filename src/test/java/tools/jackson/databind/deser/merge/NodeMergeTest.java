@@ -1,12 +1,18 @@
 package tools.jackson.databind.deser.merge;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonMerge;
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.*;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 
-public class NodeMergeTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.*;
+
+public class NodeMergeTest
 {
     final static ObjectMapper MAPPER = jsonMapperBuilder()
             // 26-Oct-2016, tatu: Make sure we'll report merge problems by default
@@ -39,6 +45,7 @@ public class NodeMergeTest extends BaseMapTest
     /********************************************************
      */
 
+    @Test
     public void testObjectNodeUpdateValue() throws Exception
     {
         ObjectNode base = MAPPER.createObjectNode();
@@ -53,6 +60,7 @@ public class NodeMergeTest extends BaseMapTest
         assertTrue(base.path("fourth").asBoolean());
     }
 
+    @Test
     public void testObjectNodeMerge() throws Exception
     {
         ObjectNodeWrapper w = MAPPER.readValue(a2q("{'props':{'stuff':'xyz'}}"),
@@ -62,6 +70,7 @@ public class NodeMergeTest extends BaseMapTest
         assertEquals("xyz", w.props.path("stuff").asText());
     }
 
+    @Test
     public void testObjectDeepUpdate() throws Exception
     {
         ObjectNode base = MAPPER.createObjectNode();
@@ -88,6 +97,7 @@ public class NodeMergeTest extends BaseMapTest
         assertEquals(3, n.get(1).asInt());
     }
 
+    @Test
     public void testArrayNodeUpdateValue() throws Exception
     {
         ArrayNode base = MAPPER.createArrayNode();
@@ -102,6 +112,7 @@ public class NodeMergeTest extends BaseMapTest
         assertTrue(base.path(3).isNull());
     }
 
+    @Test
     public void testArrayNodeMerge() throws Exception
     {
         ArrayNodeWrapper w = MAPPER.readValue(a2q("{'list':[456,true,{},  [], 'foo']}"),
@@ -120,6 +131,7 @@ public class NodeMergeTest extends BaseMapTest
     }
 
     // [databind#3056]
+    @Test
     public void testUpdateObjectNodeWithNull() throws Exception
     {
         JsonNode src = MAPPER.readTree(a2q("{'test':{}}"));
@@ -131,6 +143,7 @@ public class NodeMergeTest extends BaseMapTest
         assertEquals(a2q("{'test':null}"), result.toString());
     }
 
+    @Test
     public void testUpdateObjectNodeWithNumber() throws Exception
     {
         JsonNode src = MAPPER.readTree(a2q("{'test':{}}"));
@@ -142,6 +155,7 @@ public class NodeMergeTest extends BaseMapTest
         assertEquals(a2q("{'test':123}"), result.toString());
     }
 
+    @Test
     public void testUpdateArrayWithNull() throws Exception
     {
         JsonNode src = MAPPER.readTree(a2q("{'test':[]}"));
@@ -153,6 +167,7 @@ public class NodeMergeTest extends BaseMapTest
         assertEquals(a2q("{'test':null}"), result.toString());
     }
 
+    @Test
     public void testUpdateArrayWithString() throws Exception
     {
         JsonNode src = MAPPER.readTree(a2q("{'test':[]}"));
@@ -165,6 +180,7 @@ public class NodeMergeTest extends BaseMapTest
     }
 
     // [databind#3122]: "readTree()" fails where "readValue()" doesn't:
+    @Test
     public void testObjectDeepMerge3122() throws Exception
     {
         final String jsonToMerge = a2q("{'root':{'b':'bbb','foo':'goodbye'}}");

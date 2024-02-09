@@ -6,7 +6,7 @@ package tools.jackson.databind;
  *
  * @since 3.0
  */
-public class ObjectMapperTestAccess
+public abstract class ObjectMapperTestAccess
 {
     public static BeanDescription beanDescriptionForDeser(ObjectMapper mapper, Class<?> type) {
         return mapper._deserializationContext().introspectBeanDescription(mapper.constructType(type));

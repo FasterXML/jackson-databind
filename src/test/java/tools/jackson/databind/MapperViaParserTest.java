@@ -1,7 +1,8 @@
 package tools.jackson.databind;
 
-import java.io.IOException;
 import java.io.StringReader;
+
+import org.junit.jupiter.api.Test;
 
 import tools.jackson.core.*;
 import tools.jackson.core.io.CharacterEscapes;
@@ -9,7 +10,14 @@ import tools.jackson.core.io.SerializedString;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.json.JsonWriteFeature;
 
-public class MapperViaParserTest extends BaseMapTest
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+
+public class MapperViaParserTest
+    extends DatabindTestUtil
 {
     final static int TWO_BYTE_ESCAPED = 0x111;
     final static int THREE_BYTE_ESCAPED = 0x1111;
@@ -76,7 +84,8 @@ public class MapperViaParserTest extends BaseMapTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @SuppressWarnings("resource")
-    public void testPojoReadingOk() throws IOException
+    @Test
+    public void testPojoReadingOk() throws Exception
     {
         final String JSON = "{ \"x\" : 9 }";
         JsonParser jp = MAPPER.createParser(new StringReader(JSON));
@@ -85,6 +94,7 @@ public class MapperViaParserTest extends BaseMapTest
         assertNotNull(p);
     }
 
+    @Test
     public void testEscapingUsingMapper() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper(JsonFactory.builder()

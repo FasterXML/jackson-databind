@@ -2,6 +2,8 @@ package tools.jackson.failing;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -9,8 +11,12 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 import tools.jackson.databind.*;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+
 // [databind#4316] : NPE when deserializing JsonAnySetter in Throwable
-public class ExceptionWithAnySetter4316Test extends BaseMapTest
+public class ExceptionWithAnySetter4316Test
 {
     static class Problem extends Exception {
         private static final long serialVersionUID = 1L;
@@ -31,6 +37,7 @@ public class ExceptionWithAnySetter4316Test extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testWithAnySetter() throws Exception
     {
         Problem problem = new Problem();
@@ -42,6 +49,7 @@ public class ExceptionWithAnySetter4316Test extends BaseMapTest
     }
 
     // Map with ignored props keys specified in @JsonIgnoreProperties
+    @Test
     public void testWithAnySetterAndIgnoralsPut() throws Exception
     {
         // Given
@@ -65,6 +73,7 @@ public class ExceptionWithAnySetter4316Test extends BaseMapTest
     }
 
     // With ignorals
+    @Test
     public void testWithAnySetterAndIgnoralSimple() throws Exception
     {
         // Given
@@ -81,6 +90,7 @@ public class ExceptionWithAnySetter4316Test extends BaseMapTest
     }
 
     // With Include.NON_NULL
+    @Test
     public void testWithAnySetterButEmptyIncludedFalse() throws Exception
     {
         Problem problem = new Problem();

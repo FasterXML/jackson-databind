@@ -2,14 +2,21 @@ package tools.jackson.databind.deser.merge;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonMerge;
 
 import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.ObjectMapper;
 
-public class CollectionMergeTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.a2q;
+import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
+import static tools.jackson.databind.testutil.DatabindTestUtil.ABC;
+
+public class CollectionMergeTest
 {
     static class CollectionWrapper {
         @JsonMerge
@@ -56,6 +63,7 @@ public class CollectionMergeTest extends BaseMapTest
             .disable(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE)
             .build();
 
+    @Test
     public void testCollectionMerging() throws Exception
     {
         CollectionWrapper w = MAPPER.readValue(a2q("{'bag':['b']}"), CollectionWrapper.class);
@@ -64,6 +72,7 @@ public class CollectionMergeTest extends BaseMapTest
         assertTrue(w.bag.contains("b"));
     }
 
+    @Test
     public void testListMerging() throws Exception
     {
         MergedList w = MAPPER.readValue(a2q("{'values':['x']}"), MergedList.class);
@@ -73,6 +82,7 @@ public class CollectionMergeTest extends BaseMapTest
     }
 
     // Test that uses generic type
+    @Test
     public void testGenericListMerging() throws Exception
     {
         Collection<String> l = new ArrayList<>();
@@ -90,6 +100,7 @@ public class CollectionMergeTest extends BaseMapTest
         assertEquals("bar", it.next());
     }
 
+    @Test
     public void testEnumSetMerging() throws Exception
     {
         MergedEnumSet result = MAPPER.readValue(a2q("{'abc':['A']}"), MergedEnumSet.class);

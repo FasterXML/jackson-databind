@@ -2,6 +2,8 @@ package tools.jackson.databind;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
@@ -18,7 +20,11 @@ import tools.jackson.databind.jsontype.TypeResolverBuilder;
 import tools.jackson.databind.jsontype.impl.TypeIdResolverBase;
 import tools.jackson.databind.type.TypeFactory;
 
-public class HandlerInstantiationTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.q;
+
+public class HandlerInstantiationTest
 {
     /*
     /**********************************************************************
@@ -106,6 +112,8 @@ public class HandlerInstantiationTest extends BaseMapTest
     // copied from "TestCustomTypeIdResolver"
     static class TestCustomIdResolver extends TypeIdResolverBase
     {
+        private static final long serialVersionUID = 1L;
+
         static List<JavaType> initTypes;
 
         final String _id;
@@ -224,6 +232,7 @@ public class HandlerInstantiationTest extends BaseMapTest
     /**********************************************************************
      */
 
+    @Test
     public void testDeserializer() throws Exception
     {
         JsonMapper mapper = JsonMapper.builder()
@@ -233,6 +242,7 @@ public class HandlerInstantiationTest extends BaseMapTest
         assertEquals("abc:123", result.value);
     }
 
+    @Test
     public void testKeyDeserializer() throws Exception
     {
         JsonMapper mapper = JsonMapper.builder()
@@ -243,6 +253,7 @@ public class HandlerInstantiationTest extends BaseMapTest
         assertEquals("{\"KEY\":\"b\"}", mapper.writeValueAsString(map));
     }
 
+    @Test
     public void testSerializer() throws Exception
     {
         JsonMapper mapper = JsonMapper.builder()
@@ -251,6 +262,7 @@ public class HandlerInstantiationTest extends BaseMapTest
         assertEquals(q("xyz:456"), mapper.writeValueAsString(new MyBean("456")));
     }
 
+    @Test
     public void testTypeIdResolver() throws Exception
     {
         JsonMapper mapper = JsonMapper.builder()

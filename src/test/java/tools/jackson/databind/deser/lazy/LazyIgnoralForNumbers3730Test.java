@@ -2,6 +2,7 @@ package tools.jackson.databind.deser.lazy;
 
 import java.math.BigDecimal;
 
+import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
@@ -15,13 +16,14 @@ import tools.jackson.core.io.NumberInput;
 import tools.jackson.databind.*;
 import tools.jackson.databind.json.JsonMapper;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mockStatic;
 
 /**
  * Tests to verify that skipping of unknown/unmapped works such that
  * "expensive" numbers (all floating-point, {@code BigInteger}) is avoided.
  */
-public class LazyIgnoralForNumbers3730Test extends BaseMapTest
+public class LazyIgnoralForNumbers3730Test
 {
     static class ExtractFieldsNoDefaultConstructor3730 {
         private final String s;
@@ -94,6 +96,7 @@ public class LazyIgnoralForNumbers3730Test extends BaseMapTest
             .build();
 
     @SuppressWarnings("deprecation")
+    @Test
     public void testIgnoreBigInteger() throws Exception
     {
         try (MockedStatic<NumberInput> mocked = mockStatic(NumberInput.class)) {
@@ -126,6 +129,7 @@ public class LazyIgnoralForNumbers3730Test extends BaseMapTest
     }
 
     @SuppressWarnings("deprecation")
+    @Test
     public void testIgnoreFPValuesDefault() throws Exception
     {
         try (MockedStatic<NumberInput> mocked = mockStatic(NumberInput.class)) {
@@ -165,6 +169,7 @@ public class LazyIgnoralForNumbers3730Test extends BaseMapTest
     }
 
     @SuppressWarnings("deprecation")
+    @Test
     public void testIgnoreFPValuesBigDecimal() throws Exception
     {
         try (MockedStatic<NumberInput> mock = mockStatic(NumberInput.class)) {

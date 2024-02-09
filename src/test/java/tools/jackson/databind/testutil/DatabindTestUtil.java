@@ -1,8 +1,10 @@
 package tools.jackson.databind.testutil;
 
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+import tools.jackson.core.FormatSchema;
 import tools.jackson.core.JsonLocation;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
@@ -280,6 +282,13 @@ public class DatabindTestUtil
         }
     }
 
+    public static class BogusSchema implements FormatSchema {
+        @Override
+        public String getSchemaType() {
+            return "TestFormat";
+        }
+    }
+
     /*
     /**********************************************************************
     /* Factory methods
@@ -306,7 +315,7 @@ public class DatabindTestUtil
     /**********************************************************************
      */
 
-    public static ObjectMapper newJsonMapper() {
+    public static JsonMapper newJsonMapper() {
         return new JsonMapper();
     }
 
@@ -413,6 +422,37 @@ public class DatabindTestUtil
         assertEquals(str, str2, "String access via getText(), getTextXxx() must be the same");
 
         return str;
+    }
+
+    /*
+    /**********************************************************
+    /* JDK ser/deser
+    /**********************************************************
+     */
+
+    public static byte[] jdkSerialize(Object o)
+    {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream(2000);
+        try (ObjectOutputStream obOut = new ObjectOutputStream(bytes)) {
+            obOut.writeObject(o);
+            obOut.close();
+            return bytes.toByteArray();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T jdkDeserialize(byte[] raw)
+    {
+        try (ObjectInputStream objIn = new ObjectInputStream(new ByteArrayInputStream(raw))) {
+            return (T) objIn.readObject();
+        } catch (ClassNotFoundException e) {
+            fail("Missing class: "+e.getMessage());
+            return null;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     /*

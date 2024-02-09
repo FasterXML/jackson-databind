@@ -10,6 +10,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.ZipOutputStream;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.json.JsonWriteFeature;
 import tools.jackson.core.util.MinimalPrettyPrinter;
@@ -20,9 +22,12 @@ import tools.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.node.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.type.SimpleType;
 
-public class ObjectMapperTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class ObjectMapperTest extends DatabindTestUtil
 {
     static class Bean {
         int value = 3;
@@ -82,6 +87,7 @@ public class ObjectMapperTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testProps()
     {
         // should have default factory
@@ -95,6 +101,7 @@ public class ObjectMapperTest extends BaseMapTest
     }
 
     // Test to ensure that we can check property ordering defaults...
+    @Test
     public void testConfigForPropertySorting() throws Exception
     {
         ObjectMapper m = newJsonMapper();
@@ -128,6 +135,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertFalse(dc.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
     }
 
+    @Test
     public void testDeserializationContextCache() throws Exception
     {
         ObjectMapper m = newJsonMapper();
@@ -158,6 +166,7 @@ public class ObjectMapperTest extends BaseMapTest
     }
 
     // For [databind#689]
+    @Test
     public void testCustomDefaultPrettyPrinter() throws Exception
     {
         final int[] input = new int[] { 1, 2 };
@@ -190,6 +199,7 @@ public class ObjectMapperTest extends BaseMapTest
                 .writeValueAsString(input));
     }
 
+    @Test
     public void testDataOutputViaMapper() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
@@ -210,6 +220,7 @@ public class ObjectMapperTest extends BaseMapTest
     }
 
     @SuppressWarnings("unchecked")
+    @Test
     public void testDataInputViaMapper() throws Exception
     {
         byte[] src = "{\"a\":1}".getBytes("UTF-8");
@@ -230,6 +241,7 @@ public class ObjectMapperTest extends BaseMapTest
     }
 
     @SuppressWarnings("serial")
+    @Test
     public void testRegisterDependentModules() {
 
         final SimpleModule secondModule = new SimpleModule() {
@@ -269,6 +281,7 @@ public class ObjectMapperTest extends BaseMapTest
     }
 
     // since 2.12
+    @Test
     public void testHasExplicitTimeZone() throws Exception
     {
         final TimeZone DEFAULT_TZ = TimeZone.getTimeZone("UTC");
@@ -315,6 +328,7 @@ public class ObjectMapperTest extends BaseMapTest
 
     // Tons of test for [databind#2013] (and other similar)
 
+    @Test
     public void test_createParser_InputStream() throws Exception
     {
         InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
@@ -323,6 +337,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals(jsonParser.nextTextValue(), "value");
     }
 
+    @Test
     public void test_createParser_File() throws Exception
     {
         Path path = Files.createTempFile("", "");
@@ -332,6 +347,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals(jsonParser.nextTextValue(), "value");
     }
 
+    @Test
     public void test_createParser_Path() throws Exception
     {
         Path path = Files.createTempFile("", "");
@@ -341,6 +357,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals(jsonParser.nextTextValue(), "value");
     }
 
+    @Test
     public void test_createParser_Url() throws Exception
     {
         Path path = Files.createTempFile("", "");
@@ -350,6 +367,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals(jsonParser.nextTextValue(), "value");
     }
 
+    @Test
     public void test_createParser_Reader() throws Exception
     {
         Reader reader = new StringReader("\"value\"");
@@ -358,6 +376,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals(jsonParser.nextTextValue(), "value");
     }
 
+    @Test
     public void test_createParser_ByteArray() throws Exception
     {
         byte[] bytes = "\"value\"".getBytes(StandardCharsets.UTF_8);
@@ -366,6 +385,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals(jsonParser.nextTextValue(), "value");
     }
 
+    @Test
     public void test_createParser_String() throws Exception
     {
         String string = "\"value\"";
@@ -374,6 +394,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals(jsonParser.nextTextValue(), "value");
     }
 
+    @Test
     public void test_createParser_CharArray() throws Exception
     {
         char[] chars = "\"value\"".toCharArray();
@@ -382,6 +403,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals(jsonParser.nextTextValue(), "value");
     }
 
+    @Test
     public void test_createParser_DataInput() throws Exception
     {
         InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
@@ -391,6 +413,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals(jsonParser.nextTextValue(), "value");
     }
 
+    @Test
     public void test_createParser_failsIfArgumentIsNull() throws Exception
     {
         ObjectMapper objectMapper = MAPPER;
@@ -407,6 +430,7 @@ public class ObjectMapperTest extends BaseMapTest
         test_method_failsIfArgumentIsNull(() -> objectMapper.createParser((char[]) null, -1, -1));
     }
 
+    @Test
     public void test_createGenerator_OutputStream() throws Exception
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -421,6 +445,7 @@ public class ObjectMapperTest extends BaseMapTest
         outputStream.write(1);
     }
 
+    @Test
     public void test_createGenerator_File() throws Exception
     {
         Path path = Files.createTempFile("", "");
@@ -432,6 +457,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "\"value\"");
     }
 
+    @Test
     public void test_createGenerator_Path() throws Exception
     {
         Path path = Files.createTempFile("", "");
@@ -443,6 +469,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "\"value\"");
     }
 
+    @Test
     public void test_createGenerator_Writer() throws Exception
     {
         Writer writer = new StringWriter();
@@ -457,6 +484,7 @@ public class ObjectMapperTest extends BaseMapTest
         writer.append('1');
     }
 
+    @Test
     public void test_createGenerator_DataOutput() throws Exception
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -472,6 +500,7 @@ public class ObjectMapperTest extends BaseMapTest
         dataOutput.write(1);
     }
 
+    @Test
     public void test_createGenerator_failsIfArgumentIsNull() throws Exception
     {
         ObjectMapper objectMapper = MAPPER;
@@ -483,6 +512,7 @@ public class ObjectMapperTest extends BaseMapTest
         test_method_failsIfArgumentIsNull(() -> objectMapper.createGenerator((Writer) null));
     }
 
+    @Test
     public void test_readTree_InputStream() throws Exception
     {
         InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
@@ -491,6 +521,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals(jsonNode.textValue(), "value");
     }
 
+    @Test
     public void test_readTree_File() throws Exception
     {
         Path path = Files.createTempFile("", "");
@@ -500,6 +531,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals(jsonNode.textValue(), "value");
     }
 
+    @Test
     public void test_readTree_Path() throws Exception
     {
         Path path = Files.createTempFile("", "");
@@ -509,6 +541,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals(jsonNode.textValue(), "value");
     }
 
+    @Test
     public void test_readTree_Url() throws Exception
     {
         Path path = Files.createTempFile("", "");
@@ -518,6 +551,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals(jsonNode.textValue(), "value");
     }
 
+    @Test
     public void test_readTree_Reader() throws Exception
     {
         Reader reader = new StringReader("\"value\"");
@@ -526,6 +560,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals(jsonNode.textValue(), "value");
     }
 
+    @Test
     public void test_readTree_ByteArray() throws Exception
     {
         // with offset and length
@@ -540,6 +575,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals(jsonNode2.textValue(), "value");
     }
 
+    @Test
     public void test_readTree_String() throws Exception
     {
         String string = "\"value\"";
@@ -548,6 +584,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals(jsonNode.textValue(), "value");
     }
 
+    @Test
     public void test_readTree_failsIfArgumentIsNull() throws Exception
     {
         ObjectMapper objectMapper = MAPPER;
@@ -561,6 +598,7 @@ public class ObjectMapperTest extends BaseMapTest
         test_method_failsIfArgumentIsNull(() -> objectMapper.readTree((byte[]) null, -1, -1));
     }
 
+    @Test
     public void test_readValue_InputStream() throws Exception
     {
         InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
@@ -576,6 +614,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals(result3, "value");
     }
 
+    @Test
     public void test_readValue_File() throws Exception
     {
         Path path = Files.createTempFile("", "");
@@ -588,6 +627,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals(result3, "value");
     }
 
+    @Test
     public void test_readValue_Path() throws Exception
     {
         Path path = Files.createTempFile("", "");
@@ -600,6 +640,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals(result3, "value");
     }
 
+    @Test
     public void test_readValue_Url() throws Exception
     {
         Path path = Files.createTempFile("", "");
@@ -612,6 +653,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals(result3, "value");
     }
 
+    @Test
     public void test_readValue_Reader() throws Exception
     {
         Reader reader1 = new StringReader("\"value\"");
@@ -627,6 +669,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals(result3, "value");
     }
 
+    @Test
     public void test_readValue_ByteArray() throws Exception
     {
         byte[] bytes = "\"value\"".getBytes(StandardCharsets.UTF_8);
@@ -644,6 +687,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals(result6, "value");
     }
 
+    @Test
     public void test_readValue_String() throws Exception
     {
         String string = "\"value\"";
@@ -655,6 +699,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals(result3, "value");
     }
 
+    @Test
     public void test_readValue_DataInput() throws Exception
     {
         InputStream inputStream = new ByteArrayInputStream("\"value\"".getBytes(StandardCharsets.UTF_8));
@@ -673,6 +718,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals(result3, "value");
     }
 
+    @Test
     public void test_readValue_JsonParser() throws Exception
     {
         String string = "\"value\"";
@@ -691,6 +737,7 @@ public class ObjectMapperTest extends BaseMapTest
     }
 
     @SuppressWarnings("rawtypes")
+    @Test
     public void test_readValue_failsIfArgumentIsNull() throws Exception
     {
         final ObjectMapper objectMapper = MAPPER;
@@ -726,6 +773,7 @@ public class ObjectMapperTest extends BaseMapTest
         test_method_failsIfArgumentIsNull(() -> objectMapper.readValue((byte[]) null, -1, -1, new TypeReference<Map>() {}));
     }
 
+    @Test
     public void test_writeValue_OutputStream() throws Exception
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -737,6 +785,7 @@ public class ObjectMapperTest extends BaseMapTest
         outputStream.write(1);
     }
 
+    @Test
     public void test_writeValue_File() throws Exception
     {
         Path path = Files.createTempFile("", "");
@@ -745,6 +794,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "\"value\"");
     }
 
+    @Test
     public void test_writeValue_Path() throws Exception
     {
         Path path = Files.createTempFile("", "");
@@ -753,6 +803,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertEquals(new String(Files.readAllBytes(path), StandardCharsets.UTF_8), "\"value\"");
     }
 
+    @Test
     public void test_writeValue_Writer() throws Exception
     {
         Writer writer = new StringWriter();
@@ -764,6 +815,7 @@ public class ObjectMapperTest extends BaseMapTest
         writer.append('1');
     }
 
+    @Test
     public void test_writeValue_DataOutput() throws Exception
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -776,6 +828,7 @@ public class ObjectMapperTest extends BaseMapTest
         dataOutput.write(1);
     }
 
+    @Test
     public void test_writeValue_JsonGenerator() throws Exception
     {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -788,6 +841,7 @@ public class ObjectMapperTest extends BaseMapTest
         outputStream.write(1);
     }
 
+    @Test
     public void test_writeValue_failsIfArgumentIsNull() throws Exception
     {
         ObjectMapper objectMapper = MAPPER;
@@ -803,6 +857,7 @@ public class ObjectMapperTest extends BaseMapTest
      * Verifies that {@link ObjectMapper} can read from and write to {@link Path}s
      * whose {@link Path#getFileSystem()} is not the {@linkplain FileSystems#getDefault() default file system}.
      */
+    @Test
     public void test_readValue_writeValue_Path_nonDefaultFileSystem() throws IOException {
         Path zipFile = Files.createTempFile("", ".zip");
         // write an empty zip archive to the temp file
@@ -825,6 +880,7 @@ public class ObjectMapperTest extends BaseMapTest
         }
     }
 
+    @Test
     private static void test_method_failsIfArgumentIsNull(Runnable runnable) throws Exception
     {
         try {

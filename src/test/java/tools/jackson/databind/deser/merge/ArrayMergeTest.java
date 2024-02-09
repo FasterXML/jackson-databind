@@ -1,6 +1,8 @@
 package tools.jackson.databind.deser.merge;
 
-import org.junit.Assert;
+import java.util.Date;
+
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonMerge;
 import com.fasterxml.jackson.annotation.OptBoolean;
@@ -8,9 +10,12 @@ import com.fasterxml.jackson.annotation.OptBoolean;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
 
-import java.util.Date;
 
-public class ArrayMergeTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.*;
+
+public class ArrayMergeTest
 {
     static class MergedX<T>
     {
@@ -39,6 +44,7 @@ public class ArrayMergeTest extends BaseMapTest
             .disable(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE)
             .build();
 
+    @Test
     public void testObjectArrayMerging() throws Exception
     {
         MergedX<Object[]> input = new MergedX<Object[]>(new Object[] {
@@ -66,6 +72,7 @@ public class ArrayMergeTest extends BaseMapTest
     }
 
     // [databind#4121]
+    @Test
     public void testComponentTypeArrayMerging() throws Exception
     {
         Merged4121 input = new Merged4121();
@@ -90,6 +97,7 @@ public class ArrayMergeTest extends BaseMapTest
         assertEquals(3000L, result.value[2].getTime());
     }
 
+    @Test
     public void testStringArrayMerging() throws Exception
     {
         MergedX<String[]> input = new MergedX<String[]>(new String[] { "foo" });
@@ -103,6 +111,7 @@ public class ArrayMergeTest extends BaseMapTest
         assertEquals("bar", result.value[1]);
     }
 
+    @Test
     public void testBooleanArrayMerging() throws Exception
     {
         MergedX<boolean[]> input = new MergedX<boolean[]>(new boolean[] { true, false });
@@ -112,9 +121,10 @@ public class ArrayMergeTest extends BaseMapTest
                 .readValue(a2q("{'value':[true]}"));
         assertSame(input, result);
         assertEquals(3, result.value.length);
-        Assert.assertArrayEquals(new boolean[] { true, false, true }, result.value);
+        assertArrayEquals(new boolean[] { true, false, true }, result.value);
     }
 
+    @Test
     public void testByteArrayMerging() throws Exception
     {
         MergedX<byte[]> input = new MergedX<byte[]>(new byte[] { 1, 2 });
@@ -124,9 +134,10 @@ public class ArrayMergeTest extends BaseMapTest
                 .readValue(a2q("{'value':[4, 6.0, null]}"));
         assertSame(input, result);
         assertEquals(5, result.value.length);
-        Assert.assertArrayEquals(new byte[] { 1, 2, 4, 6, 0 }, result.value);
+        assertArrayEquals(new byte[] { 1, 2, 4, 6, 0 }, result.value);
     }
 
+    @Test
     public void testShortArrayMerging() throws Exception
     {
         MergedX<short[]> input = new MergedX<short[]>(new short[] { 1, 2 });
@@ -136,9 +147,10 @@ public class ArrayMergeTest extends BaseMapTest
                 .readValue(a2q("{'value':[4, 6]}"));
         assertSame(input, result);
         assertEquals(4, result.value.length);
-        Assert.assertArrayEquals(new short[] { 1, 2, 4, 6 }, result.value);
+        assertArrayEquals(new short[] { 1, 2, 4, 6 }, result.value);
     }
 
+    @Test
     public void testCharArrayMerging() throws Exception
     {
         MergedX<char[]> input = new MergedX<char[]>(new char[] { 'a', 'b' });
@@ -147,7 +159,7 @@ public class ArrayMergeTest extends BaseMapTest
                 .withValueToUpdate(input)
                 .readValue(a2q("{'value':['c']}"));
         assertSame(input, result);
-        Assert.assertArrayEquals(new char[] { 'a', 'b', 'c' }, result.value);
+        assertArrayEquals(new char[] { 'a', 'b', 'c' }, result.value);
 
         // also some variation
         input = new MergedX<char[]>(new char[] { });
@@ -156,9 +168,10 @@ public class ArrayMergeTest extends BaseMapTest
                 .withValueToUpdate(input)
                 .readValue(a2q("{'value':['c']}"));
         assertSame(input, result);
-        Assert.assertArrayEquals(new char[] { 'c' }, result.value);
+        assertArrayEquals(new char[] { 'c' }, result.value);
     }
 
+    @Test
     public void testIntArrayMerging() throws Exception
     {
         MergedX<int[]> input = new MergedX<int[]>(new int[] { 1, 2 });
@@ -168,7 +181,7 @@ public class ArrayMergeTest extends BaseMapTest
                 .readValue(a2q("{'value':[4, 6]}"));
         assertSame(input, result);
         assertEquals(4, result.value.length);
-        Assert.assertArrayEquals(new int[] { 1, 2, 4, 6 }, result.value);
+        assertArrayEquals(new int[] { 1, 2, 4, 6 }, result.value);
 
         // also some variation
         input = new MergedX<int[]>(new int[] { 3, 4, 6 });
@@ -177,9 +190,10 @@ public class ArrayMergeTest extends BaseMapTest
                 .withValueToUpdate(input)
                 .readValue(a2q("{'value':[ ]}"));
         assertSame(input, result);
-        Assert.assertArrayEquals(new int[] { 3, 4, 6 }, result.value);
+        assertArrayEquals(new int[] { 3, 4, 6 }, result.value);
     }
 
+    @Test
     public void testLongArrayMerging() throws Exception
     {
         MergedX<long[]> input = new MergedX<long[]>(new long[] { 1, 2 });
@@ -189,6 +203,6 @@ public class ArrayMergeTest extends BaseMapTest
                 .readValue(a2q("{'value':[4, 6]}"));
         assertSame(input, result);
         assertEquals(4, result.value.length);
-        Assert.assertArrayEquals(new long[] { 1, 2, 4, 6 }, result.value);
+        assertArrayEquals(new long[] { 1, 2, 4, 6 }, result.value);
     }
 }

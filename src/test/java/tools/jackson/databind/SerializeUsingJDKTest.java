@@ -2,6 +2,8 @@ package tools.jackson.databind;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.core.Version;
@@ -10,13 +12,20 @@ import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.type.TypeFactory;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.*;
+
 /**
  * Tests to verify that most core Jackson components can be serialized
  * using default JDK serialization: this feature is useful for some
  * platforms, such as Android, where memory management is handled
  * much more aggressively.
  */
-public class SerializeUsingJDKTest extends BaseMapTest
+public class SerializeUsingJDKTest
 {
     @JsonPropertyOrder({ "x", "y" })
     static class MyPojo {
@@ -68,6 +77,7 @@ public class SerializeUsingJDKTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testConfigs() throws Exception
     {
         byte[] base = jdkSerialize(MAPPER.deserializationConfig().getBaseSettings());
@@ -89,6 +99,7 @@ public class SerializeUsingJDKTest extends BaseMapTest
     }
 
     // for [databind#899]
+    @Test
     public void testEnumHandlers() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
@@ -126,6 +137,7 @@ public class SerializeUsingJDKTest extends BaseMapTest
         assertEquals(p.y, p2.y);
     }
 
+    @Test
     public void testObjectWriter() throws Exception
     {
         // 20-Apr-2018, tatu: ObjectReader no longer JDK serializable so
@@ -142,6 +154,7 @@ public class SerializeUsingJDKTest extends BaseMapTest
         assertEquals("{\"a\":\"b\"}", json);
     }
 
+    @Test
     public void testObjectReader() throws Exception
     {
         // 20-Apr-2018, tatu: ObjectReader no longer JDK serializable so
@@ -159,6 +172,7 @@ public class SerializeUsingJDKTest extends BaseMapTest
         assertEquals(Integer.valueOf(2), any.properties().get("y"));
     }
 
+    @Test
     public void testMapperWithModule() throws Exception
     {
         SimpleModule module = new SimpleModule("JDKSerTestModule", Version.unknownVersion());
@@ -204,6 +218,7 @@ public class SerializeUsingJDKTest extends BaseMapTest
         assertFalse(mapper4.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY));
     }
 
+    @Test
     public void testTypeFactory() throws Exception
     {
         TypeFactory orig = TypeFactory.defaultInstance();

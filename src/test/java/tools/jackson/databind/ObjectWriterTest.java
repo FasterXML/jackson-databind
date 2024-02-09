@@ -14,12 +14,15 @@ import tools.jackson.core.json.JsonWriteFeature;
 
 import tools.jackson.databind.node.ObjectNode;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.*;
+
 /**
  * Unit tests for checking features added to {@link ObjectWriter}, such
  * as adding of explicit pretty printer.
  */
 public class ObjectWriterTest
-    extends BaseMapTest
 {
     static class CloseableValue implements Closeable
     {

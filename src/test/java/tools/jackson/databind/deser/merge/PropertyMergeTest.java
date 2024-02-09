@@ -2,6 +2,8 @@ package tools.jackson.databind.deser.merge;
 
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 
@@ -10,6 +12,10 @@ import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.testutil.FiveMinuteUser;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.*;
+
 /**
  * Tests to make sure that the new "merging" property of
  * <code>JsonSetter</code> annotation works as expected.
@@ -17,7 +23,7 @@ import tools.jackson.databind.testutil.FiveMinuteUser;
  * @since 2.9
  */
 @SuppressWarnings("serial")
-public class PropertyMergeTest extends BaseMapTest
+public class PropertyMergeTest
 {
     static class Config {
         @JsonMerge
@@ -110,6 +116,7 @@ public class PropertyMergeTest extends BaseMapTest
             .disable(MapperFeature.IGNORE_MERGE_FOR_UNMERGEABLE)
             .build();
 
+    @Test
     public void testBeanMergingViaProp() throws Exception
     {
         Config config = MAPPER.readValue(a2q("{'loc':{'b':3}}"), Config.class);
@@ -122,6 +129,7 @@ public class PropertyMergeTest extends BaseMapTest
         assertEquals(2, config.loc.b);
     }
 
+    @Test
     public void testBeanMergingViaType() throws Exception
     {
         // by default, no merging
@@ -139,6 +147,7 @@ public class PropertyMergeTest extends BaseMapTest
         assertEquals(2, config.loc.b); // original, merged
     }
 
+    @Test
     public void testBeanMergingViaGlobal() throws Exception
     {
         // but with type-overrides
@@ -160,6 +169,7 @@ public class PropertyMergeTest extends BaseMapTest
     }
 
     // should even work with no setter
+    @Test
     public void testBeanMergingWithoutSetter() throws Exception
     {
         NoSetterConfig config = MAPPER.readValue(a2q("{'value':{'b':99}}"),
@@ -175,6 +185,7 @@ public class PropertyMergeTest extends BaseMapTest
      */
 
     // [databind#2280]
+    @Test
     public void testBeanMergeUsingConstructors() throws Exception {
         ConstructorArgsPojo input = new ConstructorArgsPojo(new ConstructorArgsPojo.MergeablePojo("foo", "bar"));
 
@@ -194,6 +205,7 @@ public class PropertyMergeTest extends BaseMapTest
     /********************************************************
      */
 
+    @Test
     public void testBeanAsArrayMerging() throws Exception
     {
         ABAsArray input = new ABAsArray();
@@ -236,6 +248,7 @@ public class PropertyMergeTest extends BaseMapTest
     /********************************************************
      */
 
+    @Test
     public void testReferenceMerging() throws Exception
     {
         MergedReference result = MAPPER.readValue(a2q("{'value':'override'}"),
@@ -249,6 +262,7 @@ public class PropertyMergeTest extends BaseMapTest
     /********************************************************
      */
 
+    @Test
     public void testInvalidPropertyMerge() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()

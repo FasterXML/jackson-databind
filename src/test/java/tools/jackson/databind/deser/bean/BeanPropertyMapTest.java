@@ -2,14 +2,18 @@ package tools.jackson.databind.deser.bean;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.deser.SettableBeanProperty;
 import tools.jackson.databind.deser.impl.ObjectIdReader;
 import tools.jackson.databind.deser.impl.ObjectIdValueProperty;
 import tools.jackson.databind.type.TypeFactory;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 // for [databind#884]
-public class BeanPropertyMapTest extends BaseMapTest
+public class BeanPropertyMapTest
 {
     protected final static JavaType BOGUS_TYPE = TypeFactory.unknownType();
 
@@ -24,6 +28,7 @@ public class BeanPropertyMapTest extends BaseMapTest
 
     // Highly specialized test in which we get couple of hash collisions for
     // small (16) hash map
+    @Test
     public void testArrayOutOfBounds884() throws Exception
     {
         List<SettableBeanProperty> props = new ArrayList<SettableBeanProperty>();

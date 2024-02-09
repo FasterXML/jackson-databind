@@ -1,15 +1,22 @@
 package tools.jackson.databind;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.exc.MismatchedInputException;
 import tools.jackson.databind.json.JsonMapper;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import static tools.jackson.databind.testutil.DatabindTestUtil.a2q;
+import static tools.jackson.databind.testutil.DatabindTestUtil.verifyException;
+
 /**
  * Unit tests dealing with handling of "root element wrapping",
  * including configuration of root name to use.
  */
-public class RootNameTest extends BaseMapTest
+public class RootNameTest
 {
     @JsonRootName("rudy")
     static class Bean {
@@ -27,6 +34,7 @@ public class RootNameTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testRootViaMapper() throws Exception
     {
         ObjectMapper mapper = rootMapper();
@@ -43,6 +51,7 @@ public class RootNameTest extends BaseMapTest
         assertEquals(2, bean2.a);
     }
 
+    @Test
     public void testRootViaMapperFails() throws Exception
     {
         final ObjectMapper mapper = rootMapper();
@@ -80,6 +89,7 @@ public class RootNameTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testRootViaReaderFails() throws Exception
     {
         final ObjectReader reader = rootMapper().readerFor(Bean.class);
@@ -117,6 +127,7 @@ public class RootNameTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testRootViaWriterAndReader() throws Exception
     {
         ObjectMapper mapper = rootMapper();
@@ -126,6 +137,7 @@ public class RootNameTest extends BaseMapTest
         assertNotNull(bean);
     }
 
+    @Test
     public void testReconfiguringOfWrapping() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -154,6 +166,7 @@ public class RootNameTest extends BaseMapTest
         assertNotNull(result);
     }
 
+    @Test
     public void testRootUsingExplicitConfig() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();

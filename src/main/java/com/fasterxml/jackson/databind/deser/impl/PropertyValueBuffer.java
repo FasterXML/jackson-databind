@@ -5,7 +5,6 @@ import java.util.BitSet;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonParser;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.CreatorProperty;
 import com.fasterxml.jackson.databind.deser.SettableAnyProperty;
@@ -19,8 +18,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
  * and hence need buffering before instance (that will have properties
  * to assign values to) is constructed.
  */
-public class PropertyValueBuffer
-{
+public class PropertyValueBuffer {
     /*
     /**********************************************************
     /* Configuration
@@ -77,6 +75,20 @@ public class PropertyValueBuffer
      */
     protected Object _idValue;
 
+    /**
+     * [databind#562]: Allow use of `@JsonAnySetter` in `@JsonCreator`
+     *
+     * @since 2.19
+     */
+    protected SettableAnyProperty _anySetter;
+
+    /**
+     * [databind#562]: Allow use of `@JsonAnySetter` in `@JsonCreator`
+     *
+     * @since 2.19
+     */
+    private Map<Object, Object> _anySetterMap;
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -84,8 +96,7 @@ public class PropertyValueBuffer
      */
 
     public PropertyValueBuffer(JsonParser p, DeserializationContext ctxt, int paramCount,
-            ObjectIdReader oir)
-    {
+                               ObjectIdReader oir, SettableAnyProperty anySetter) {
         _parser = p;
         _context = ctxt;
         _paramsNeeded = paramCount;
@@ -96,6 +107,12 @@ public class PropertyValueBuffer
         } else {
             _paramsSeenBig = new BitSet();
         }
+        _anySetter = anySetter;
+    }
+
+    public PropertyValueBuffer(JsonParser p, DeserializationContext ctxt, int paramCount,
+                               ObjectIdReader oir) {
+        this(p, ctxt, paramCount, oir, null);
     }
 
     /**
@@ -104,8 +121,7 @@ public class PropertyValueBuffer
      *
      * @since 2.8
      */
-    public final boolean hasParameter(SettableBeanProperty prop)
-    {
+    public final boolean hasParameter(SettableBeanProperty prop) {
         if (_paramsSeenBig == null) {
             return ((_paramsSeen >> prop.getCreatorIndex()) & 1) == 1;
         }
@@ -123,8 +139,7 @@ public class PropertyValueBuffer
      * @since 2.8
      */
     public Object getParameter(SettableBeanProperty prop)
-        throws JsonMappingException
-    {
+        throws JsonMappingException {
         Object value;
         if (hasParameter(prop)) {
             value = _creatorParameters[prop.getCreatorIndex()];
@@ -147,8 +162,7 @@ public class PropertyValueBuffer
      * then whole JSON Object has been processed,
      */
     public Object[] getParameters(SettableBeanProperty[] props)
-        throws JsonMappingException
-    {
+        throws JsonMappingException {
         final Object[] creatorParams = _creatorParameters;
         // quick check to see if anything else is needed
         if (_paramsNeeded > 0) {
@@ -174,60 +188,39 @@ public class PropertyValueBuffer
                 if (creatorParams[ix] == null) {
                     SettableBeanProperty prop = props[ix];
                     _context.reportInputMismatch(prop,
-                            "Null value for creator property '%s' (index %d); `DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES` enabled",
-                            prop.getName(), props[ix].getCreatorIndex());
+                        "Null value for creator property '%s' (index %d); `DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES` enabled",
+                        prop.getName(), props[ix].getCreatorIndex());
                 }
             }
         }
-        return creatorParams;
-    }
-
-    public Object[] getParametersWithAnySetter(SettableBeanProperty[] props, SettableAnyProperty anySetter)
-        throws JsonMappingException
-    {
-        final Object[] creatorParams = getParameters(props);
         // [databind#562] Since 2.18 : Respect @JsonAnySetter in @JsonCreator
-        for (int i = 0; i < creatorParams.length; i++) {
-            if (!(props[i] instanceof CreatorProperty)) {
-                continue;
-            }
-            CreatorProperty cp = (CreatorProperty) props[i];
-            if (!cp.isAnySetterProp()) {
-                continue;
-            }
-            Object param = null;
-            try {
-                Map<Object, Object> map = cp.initMap(_context, anySetter);
-                for (PropertyValue next = buffered(); next != null; next = next.next) {
-                    next.assign(map);
+        if (_anySetter != null) {
+            for (int i = 0; i < creatorParams.length; i++) {
+                if (props[i].getMember() == _anySetter.getProperty().getMember()) {
+                    creatorParams[i] = _anySetterMap;
+                   break;
                 }
-                param = map;
-            } catch (IOException e) {
-                _context.reportInputMismatch(cp, e.getMessage());
             }
-            creatorParams[i] = param;
-            break;
         }
         return creatorParams;
     }
 
-    protected Object _findMissing(SettableBeanProperty prop) throws JsonMappingException
-    {
+    protected Object _findMissing(SettableBeanProperty prop) throws JsonMappingException {
         // First: do we have injectable value?
         Object injectableValueId = prop.getInjectableValueId();
         if (injectableValueId != null) {
             return _context.findInjectableValue(prop.getInjectableValueId(),
-                    prop, null);
+                prop, null);
         }
         // Second: required?
         if (prop.isRequired()) {
             _context.reportInputMismatch(prop, "Missing required creator property '%s' (index %d)",
-                    prop.getName(), prop.getCreatorIndex());
+                prop.getName(), prop.getCreatorIndex());
         }
         if (_context.isEnabled(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES)) {
             _context.reportInputMismatch(prop,
-                    "Missing creator property '%s' (index %d); `DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES` enabled",
-                    prop.getName(), prop.getCreatorIndex());
+                "Missing creator property '%s' (index %d); `DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES` enabled",
+                prop.getName(), prop.getCreatorIndex());
         }
         try {
             // Third: NullValueProvider? (22-Sep-2019, [databind#2458])
@@ -262,8 +255,7 @@ public class PropertyValueBuffer
      *
      * @since 2.1
      */
-    public boolean readIdProperty(String propName) throws IOException
-    {
+    public boolean readIdProperty(String propName) throws IOException {
         if ((_objectIdReader != null) && propName.equals(_objectIdReader.propertyName.getSimpleName())) {
             _idValue = _objectIdReader.readObjectReference(_parser, _context);
             return true;
@@ -274,8 +266,7 @@ public class PropertyValueBuffer
     /**
      * Helper method called to handle Object Id value collected earlier, if any
      */
-    public Object handleIdValue(final DeserializationContext ctxt, Object bean) throws IOException
-    {
+    public Object handleIdValue(final DeserializationContext ctxt, Object bean) throws IOException {
         if (_objectIdReader != null) {
             if (_idValue != null) {
                 ReadableObjectId roid = ctxt.findObjectId(_idValue, _objectIdReader.generator, _objectIdReader.resolver);
@@ -293,20 +284,22 @@ public class PropertyValueBuffer
         return bean;
     }
 
-    protected PropertyValue buffered() { return _buffered; }
+    protected PropertyValue buffered() {
+        return _buffered;
+    }
 
-    public boolean isComplete() { return _paramsNeeded <= 0; }
+    public boolean isComplete() {
+        return _paramsNeeded <= 0;
+    }
 
     /**
      * Method called to buffer value for given property, as well as check whether
      * we now have values for all (creator) properties that we expect to get values for.
      *
      * @return True if we have received all creator parameters
-     *
      * @since 2.6
      */
-    public boolean assignParameter(SettableBeanProperty prop, Object value)
-    {
+    public boolean assignParameter(SettableBeanProperty prop, Object value) {
         final int ix = prop.getCreatorIndex();
         _creatorParameters[ix] = value;
         if (_paramsSeenBig == null) {
@@ -340,5 +333,22 @@ public class PropertyValueBuffer
 
     public void bufferMapProperty(Object key, Object value) {
         _buffered = new PropertyValue.Map(_buffered, value, key);
+    }
+
+    /**
+     * @since 2.19
+     */
+    public void bufferWithAnySetter(DeserializationContext ctxt, JsonParser p, PropertyBasedCreator creator, String propName)
+        throws IOException {
+        // Only called once, to initialize map
+        if (_anySetterMap == null) {
+            CreatorProperty cp = creator.findAnySetterProp();
+            try {
+                _anySetterMap = cp.initMap(_context, _anySetter);
+            } catch (IOException e) {
+                _context.reportInputMismatch(cp, e.getMessage());
+            }
+        }
+        _anySetterMap.put(propName, _anySetter.deserialize(p, ctxt));
     }
 }

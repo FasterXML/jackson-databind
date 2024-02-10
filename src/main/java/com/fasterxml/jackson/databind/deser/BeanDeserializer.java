@@ -415,7 +415,9 @@ public class BeanDeserializer
         throws IOException
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
-        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
+        PropertyValueBuffer buffer = (_anySetter != null)
+            ? creator.startBuildingWithAnySetter(p, ctxt, _objectIdReader, _anySetter)
+            : creator.startBuilding(p, ctxt, _objectIdReader);
         TokenBuffer unknown = null;
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
 
@@ -495,9 +497,10 @@ public class BeanDeserializer
                 continue;
             }
             // "any property"?
+
             if (_anySetter != null) {
                 try {
-                    buffer.bufferMapProperty(propName, _anySetter.deserialize(p, ctxt));
+                    buffer.bufferWithAnySetter(ctxt, p, creator, propName);
                 } catch (Exception e) {
                     wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
                 }
@@ -523,11 +526,7 @@ public class BeanDeserializer
         // We hit END_OBJECT, so:
         Object bean;
         try {
-            if (_anySetter != null) {
-                bean = creator.buildWithAnySetter(ctxt, buffer, _anySetter);
-            } else {
-                bean = creator.build(ctxt, buffer);
-            }
+            bean = creator.build(ctxt, buffer);
         } catch (Exception e) {
             return wrapInstantiationProblem(e, ctxt);
         }

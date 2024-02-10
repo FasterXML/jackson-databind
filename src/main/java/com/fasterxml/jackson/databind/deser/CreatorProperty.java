@@ -81,7 +81,7 @@ public class CreatorProperty
      *
      * @since 2.18
      */
-    protected final Boolean _isAnySetterProp;
+    protected final boolean _isAnySetterProp;
 
     /**
      * @since 2.18
@@ -97,13 +97,14 @@ public class CreatorProperty
         _creatorIndex = index;
         _injectableValue = injectable;
         _fallbackSetter = null;
-        _isAnySetterProp = isAnySetterProp; // [databind#562] Since 2.18
+        _isAnySetterProp = Boolean.TRUE.equals(isAnySetterProp); // [databind#562] Since 2.18
     }
 
     /**
      * @since 2.11
      * @deprecated Since 2.18. use factory later version instead.
      */
+    @Deprecated
     protected CreatorProperty(PropertyName name, JavaType type, PropertyName wrapperName,
             TypeDeserializer typeDeser,
             Annotations contextAnnotations, AnnotatedParameter param,
@@ -163,6 +164,7 @@ public class CreatorProperty
      * @since 2.11
      * @deprecated Since 2.18. use later version instead.
      */
+    @Deprecated
     public static CreatorProperty construct(PropertyName name, JavaType type, PropertyName wrapperName,
             TypeDeserializer typeDeser,
             Annotations contextAnnotations, AnnotatedParameter param,
@@ -364,7 +366,7 @@ public class CreatorProperty
      * @since 2.18
      */
     public boolean isAnySetterProp() {
-        return Boolean.TRUE.equals(_isAnySetterProp);
+        return _isAnySetterProp;
     }
 
     /*
@@ -411,7 +413,6 @@ public class CreatorProperty
         if (!isAnySetterProp()) {
             throw new IllegalStateException("Cannot create Map for non-AnySetter creator property");
         }
-        SettableAnyProperty.MapParameterAnyProperty mapParap = (SettableAnyProperty.MapParameterAnyProperty) anySetter;
-        return mapParap.initMap(context);
+        return ((SettableAnyProperty.MapParameterAnyProperty) anySetter).initMap(context);
     }
 }

@@ -487,15 +487,16 @@ public abstract class SettableAnyProperty
                 _valueInstantiator);
         }
 
-        @SuppressWarnings("unchecked")
         @Override
         protected void _set(Object instance, Object propName, Object value) throws Exception {
             throw new UnsupportedOperationException("Cannot set any properties for constructor parameter of type `Map`");
         }
 
+        @SuppressWarnings("unchecked")
         protected Map<Object, Object> initMap(DeserializationContext ctxt)
             throws IOException
         {
+            // This really should have been caught earlier
             if (_valueInstantiator == null) {
                 throw JsonMappingException.from(ctxt, String.format(
                     "Cannot create an instance of %s for use as \"any-setter\" '%s'",

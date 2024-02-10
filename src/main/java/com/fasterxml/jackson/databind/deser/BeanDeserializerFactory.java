@@ -670,12 +670,10 @@ ClassUtil.name(propName)));
             for (SettableBeanProperty prop : creatorProps) {
                 AnnotatedMember m = prop.getMember();
                 if (m != null) {
-                    Boolean hasAnySetter = ai.hasAnySetter(m);
-                    if (hasAnySetter != null && hasAnySetter) {
+                    if (Boolean.TRUE.equals(ai.hasAnySetter(m))) {
                         return prop.getMember();
                     }
                 }
-
             }
         }
         return null;

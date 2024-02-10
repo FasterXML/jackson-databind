@@ -149,28 +149,29 @@ public class PropertyValueBuffer
     public Object[] getParameters(SettableBeanProperty[] props)
         throws JsonMappingException
     {
+        final Object[] creatorParams = _creatorParameters;
         // quick check to see if anything else is needed
         if (_paramsNeeded > 0) {
             if (_paramsSeenBig == null) {
                 int mask = _paramsSeen;
                 // not optimal, could use `Integer.trailingZeroes()`, but for now should not
                 // really matter for common cases
-                for (int ix = 0, len = _creatorParameters.length; ix < len; ++ix, mask >>= 1) {
+                for (int ix = 0, len = creatorParams.length; ix < len; ++ix, mask >>= 1) {
                     if ((mask & 1) == 0) {
-                        _creatorParameters[ix] = _findMissing(props[ix]);
+                        creatorParams[ix] = _findMissing(props[ix]);
                     }
                 }
             } else {
-                final int len = _creatorParameters.length;
+                final int len = creatorParams.length;
                 for (int ix = 0; (ix = _paramsSeenBig.nextClearBit(ix)) < len; ++ix) {
-                    _creatorParameters[ix] = _findMissing(props[ix]);
+                    creatorParams[ix] = _findMissing(props[ix]);
                 }
             }
         }
 
         if (_context.isEnabled(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES)) {
             for (int ix = 0; ix < props.length; ++ix) {
-                if (_creatorParameters[ix] == null) {
+                if (creatorParams[ix] == null) {
                     SettableBeanProperty prop = props[ix];
                     _context.reportInputMismatch(prop,
                             "Null value for creator property '%s' (index %d); `DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES` enabled",
@@ -178,19 +179,22 @@ public class PropertyValueBuffer
                 }
             }
         }
-        return _creatorParameters;
+        return creatorParams;
     }
 
     public Object[] getParametersWithAnySetter(SettableBeanProperty[] props, SettableAnyProperty anySetter)
         throws JsonMappingException
     {
-        getParameters(props);
+        final Object[] creatorParams = getParameters(props);
         // [databind#562] Since 2.18 : Respect @JsonAnySetter in @JsonCreator
-        for (int i = 0; i < _creatorParameters.length; i++) {
-            if (!(props[i] instanceof CreatorProperty) || !((CreatorProperty) props[i]).isAnySetterProp()) {
+        for (int i = 0; i < creatorParams.length; i++) {
+            if (!(props[i] instanceof CreatorProperty)) {
                 continue;
             }
             CreatorProperty cp = (CreatorProperty) props[i];
+            if (!cp.isAnySetterProp()) {
+                continue;
+            }
             Object param = null;
             try {
                 Map<Object, Object> map = cp.initMap(_context, anySetter);
@@ -201,10 +205,10 @@ public class PropertyValueBuffer
             } catch (IOException e) {
                 _context.reportInputMismatch(cp, e.getMessage());
             }
-            _creatorParameters[i] = param;
+            creatorParams[i] = param;
             break;
         }
-        return _creatorParameters;
+        return creatorParams;
     }
 
     protected Object _findMissing(SettableBeanProperty prop) throws JsonMappingException

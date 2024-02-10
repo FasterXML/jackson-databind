@@ -90,7 +90,7 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
             failOnNullMapper.readValue(a2q("{'a':'value'}"), POJO562.class);
             fail("Should not pass");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Null value for creator property");
+            verifyException(e, "Null value for creator property ''");
         }
 
         ObjectMapper failOnMissingMapper = jsonMapperBuilder()
@@ -99,7 +99,7 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
             failOnMissingMapper.readValue(a2q("{'a':'value'}"), POJO562.class);
             fail("Should not pass");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Missing creator property");
+            verifyException(e, "Missing creator property ''");
         }
 
         ObjectMapper failOnBothMapper = jsonMapperBuilder()
@@ -110,7 +110,7 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
             failOnBothMapper.readValue(a2q("{'a':'value'}"), POJO562.class);
             fail("Should not pass");
         } catch (MismatchedInputException e) {
-            verifyException(e, "Missing creator property");
+            verifyException(e, "Missing creator property ''");
         }
     }
 

@@ -33,7 +33,7 @@ class AnySetterForCreator562Test extends DatabindTestUtil
         }
     }
 
-    // [databind#562]: failing cacse
+    // [databind#562]: failing case
     static class MultipleAny562
     {
         @JsonCreator
@@ -41,6 +41,22 @@ class AnySetterForCreator562Test extends DatabindTestUtil
             @JsonAnySetter Map<String, Object> leftovers,
             @JsonAnySetter Map<String, Object> leftovers2) {
             throw new Error("Should never get here!");
+        }
+    }
+
+    // [databind#562]
+    static class PojoWithDisabled
+    {
+        String a;
+
+        Map<String,Object> stuff;
+
+        @JsonCreator
+        public PojoWithDisabled(@JsonProperty("a") String a,
+            @JsonAnySetter(enabled = false) Map<String, Object> leftovers
+        ) {
+            this.a = a;
+            stuff = leftovers;
         }
     }
 
@@ -72,6 +88,20 @@ class AnySetterForCreator562Test extends DatabindTestUtil
         } catch (InvalidDefinitionException e) {
             verifyException(e, "Invalid type definition");
             verifyException(e, "More than one 'any-setter'");
+        }
+    }
+
+    // [databind#562]
+    @Test
+    public void testAnySetterViaCreator562Disabled() throws Exception
+    {
+        try {
+            MAPPER.readValue(a2q("{'a':'value', 'b':42, 'c': 111}"),
+                PojoWithDisabled.class);
+            fail();
+        } catch (InvalidDefinitionException e) {
+            verifyException(e, "Invalid type definition for type");
+            verifyException(e, "has no property name (and is not Injectable): can not use as property-based Creator");
         }
     }
 }

@@ -862,12 +862,12 @@ nonAnnotatedParamIndex, ctor);
     {
         final int paramCount = candidate.paramCount();
         SettableBeanProperty[] properties = new SettableBeanProperty[paramCount];
+        int anySetterIndex = -1;
 
         for (int i = 0; i < paramCount; ++i) {
             JacksonInject.Value injectId = candidate.injection(i);
             AnnotatedParameter param = candidate.parameter(i);
             PropertyName name = candidate.paramName(i);
-            Boolean hasAnySetter = null;
 
             if (name == null) {
                 // 21-Sep-2017, tatu: Looks like we want to block accidental use of Unwrapped,
@@ -883,15 +883,21 @@ nonAnnotatedParamIndex, ctor);
                 name = candidate.findImplicitParamName(i);
                 // [databind#562] Allow @JsonAnySetter in creators. Introspection is done here only because of
                 // _validateNamedPropertyParameter() check. Otherwise, in constructCreatorProperty seems appropriate....
-                hasAnySetter = ctxt.getAnnotationIntrospector().hasAnySetter(param);
-                if (Boolean.TRUE.equals(hasAnySetter)) {
+                if (Boolean.TRUE.equals(ctxt.getAnnotationIntrospector().hasAnySetter(param))) {
+                    if (anySetterIndex >= 0) {
+                        ctxt.reportBadTypeDefinition(beanDesc,
+                                "More than one 'any-setter' specified (parameters #%d vs #%d)",
+                                anySetterIndex, i);
+                    }
+                    anySetterIndex = i;
                     // no-op
                 } else {
                     _validateNamedPropertyParameter(ctxt, beanDesc, candidate, i,
                         name, injectId);
                 }
             }
-            properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectId, hasAnySetter);
+            properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectId,
+                    anySetterIndex >= 0);
         }
         creators.addPropertyCreator(candidate.creator(), true, properties);
     }
@@ -1192,12 +1198,14 @@ paramIndex, candidate);
      * Method that will construct a property object that represents
      * a logical property passed via Creator (constructor or static
      * factory method)
+     *
+     * @since 2.18
      */
     protected SettableBeanProperty constructCreatorProperty(DeserializationContext ctxt,
             BeanDescription beanDesc, PropertyName name, int index,
             AnnotatedParameter param,
             JacksonInject.Value injectable,
-            Boolean hasAnySetter)
+            boolean hasAnySetter)
         throws JsonMappingException
     {
         final DeserializationConfig config = ctxt.getConfig();
@@ -1250,15 +1258,16 @@ paramIndex, candidate);
 
     /**
      * @deprecated Since 2.18, use {@link #constructCreatorProperty(DeserializationContext, BeanDescription,
-     * PropertyName, int, AnnotatedParameter, JacksonInject.Value, Boolean)} instead.
+     * PropertyName, int, AnnotatedParameter, JacksonInject.Value, boolean)} instead.
      */
+    @Deprecated
     protected SettableBeanProperty constructCreatorProperty(DeserializationContext ctxt,
             BeanDescription beanDesc, PropertyName name, int index,
             AnnotatedParameter param,
             JacksonInject.Value injectable)
         throws JsonMappingException
     {
-        return constructCreatorProperty(ctxt, beanDesc, name, index, param, injectable, null);
+        return constructCreatorProperty(ctxt, beanDesc, name, index, param, injectable, false);
     }
 
     private PropertyName _findParamName(AnnotatedParameter param, AnnotationIntrospector intr)

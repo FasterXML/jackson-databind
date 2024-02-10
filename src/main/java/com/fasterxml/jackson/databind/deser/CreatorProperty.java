@@ -90,14 +90,14 @@ public class CreatorProperty
             TypeDeserializer typeDeser,
             Annotations contextAnnotations, AnnotatedParameter param,
             int index, JacksonInject.Value injectable,
-            PropertyMetadata metadata, Boolean isAnySetterProp)
+            PropertyMetadata metadata, boolean isAnySetterProp)
     {
         super(name, type, wrapperName, typeDeser, contextAnnotations, metadata);
         _annotated = param;
         _creatorIndex = index;
         _injectableValue = injectable;
         _fallbackSetter = null;
-        _isAnySetterProp = Boolean.TRUE.equals(isAnySetterProp); // [databind#562] Since 2.18
+        _isAnySetterProp = isAnySetterProp; // [databind#562] Since 2.18
     }
 
     /**
@@ -111,7 +111,8 @@ public class CreatorProperty
             int index, JacksonInject.Value injectable,
             PropertyMetadata metadata)
     {
-        this(name, type, wrapperName, typeDeser, contextAnnotations, param, index, injectable, metadata, null);
+        this(name, type, wrapperName, typeDeser, contextAnnotations, param, index, injectable,
+                metadata, false);
     }
 
     /**
@@ -154,7 +155,7 @@ public class CreatorProperty
             Annotations contextAnnotations, AnnotatedParameter param,
             int index, JacksonInject.Value injectable,
             PropertyMetadata metadata,
-            Boolean isAnySetter)
+            boolean isAnySetter)
     {
         return new CreatorProperty(name, type, wrapperName, typeDeser, contextAnnotations,
                 param, index, injectable, metadata, isAnySetter);
@@ -172,7 +173,7 @@ public class CreatorProperty
             PropertyMetadata metadata)
     {
         return new CreatorProperty(name, type, wrapperName, typeDeser, contextAnnotations,
-                param, index, injectable, metadata, null);
+                param, index, injectable, metadata, false);
     }
 
     /**

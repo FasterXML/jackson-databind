@@ -226,13 +226,13 @@ public final class PropertyBasedCreator
         return bean;
     }
 
-    public CreatorProperty findAnySetterProp() {
+    public CreatorProperty findAnySetterProperty() {
         for (SettableBeanProperty prop : _allProperties) {
             if (!(prop instanceof CreatorProperty)) {
                 continue;
             }
             CreatorProperty cp = (CreatorProperty) prop;
-            if (!cp.isAnySetterProp()) {
+            if (!cp.isAnySetter()) {
                 continue;
             }
             return cp;

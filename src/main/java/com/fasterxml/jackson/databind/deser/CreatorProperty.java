@@ -81,7 +81,7 @@ public class CreatorProperty
      *
      * @since 2.19
      */
-    protected final boolean _isAnySetterProp;
+    protected final boolean _isAnySetter;
 
     /**
      * @since 2.19
@@ -90,19 +90,19 @@ public class CreatorProperty
             TypeDeserializer typeDeser,
             Annotations contextAnnotations, AnnotatedParameter param,
             int index, JacksonInject.Value injectable,
-            PropertyMetadata metadata, boolean isAnySetterProp)
+            PropertyMetadata metadata, boolean isAnySetter)
     {
         super(name, type, wrapperName, typeDeser, contextAnnotations, metadata);
         _annotated = param;
         _creatorIndex = index;
         _injectableValue = injectable;
         _fallbackSetter = null;
-        _isAnySetterProp = isAnySetterProp; // [databind#562] Since 2.18
+        _isAnySetter = isAnySetter; // [databind#562] since 2.19
     }
 
     /**
      * @since 2.11
-     * @deprecated Since 2.18. use factory later version instead.
+     * @deprecated since 2.19. use factory later version instead.
      */
     @Deprecated
     protected CreatorProperty(PropertyName name, JavaType type, PropertyName wrapperName,
@@ -163,7 +163,7 @@ public class CreatorProperty
 
     /**
      * @since 2.11
-     * @deprecated Since 2.18. use later version instead.
+     * @deprecated since 2.19. use later version instead.
      */
     @Deprecated
     public static CreatorProperty construct(PropertyName name, JavaType type, PropertyName wrapperName,
@@ -186,7 +186,7 @@ public class CreatorProperty
         _fallbackSetter = src._fallbackSetter;
         _creatorIndex = src._creatorIndex;
         _ignorable = src._ignorable;
-        _isAnySetterProp = src._isAnySetterProp; // [databind#562] Since 2.18
+        _isAnySetter = src._isAnySetter; // [databind#562] since 2.19
     }
 
     protected CreatorProperty(CreatorProperty src, JsonDeserializer<?> deser,
@@ -197,7 +197,7 @@ public class CreatorProperty
         _fallbackSetter = src._fallbackSetter;
         _creatorIndex = src._creatorIndex;
         _ignorable = src._ignorable;
-        _isAnySetterProp = src._isAnySetterProp; // [databind#562] Since 2.18
+        _isAnySetter = src._isAnySetter; // [databind#562] since 2.19
     }
 
     @Override
@@ -366,8 +366,8 @@ public class CreatorProperty
     /**
      * @since 2.19
      */
-    public boolean isAnySetterProp() {
-        return _isAnySetterProp;
+    public boolean isAnySetter() {
+        return _isAnySetter;
     }
 
     /*
@@ -411,9 +411,6 @@ public class CreatorProperty
     public Map<Object, Object> initMap(DeserializationContext context, SettableAnyProperty anySetter)
         throws IOException
     {
-        if (!isAnySetterProp()) {
-            throw new IllegalStateException("Cannot create Map for non-AnySetter creator property");
-        }
         return ((SettableAnyProperty.MapParameterAnyProperty) anySetter).initMap(context);
     }
 }

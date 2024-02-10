@@ -1,10 +1,17 @@
 package com.fasterxml.jackson.failing;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
+
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.DeserializationConfig;
@@ -15,11 +22,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class DeserializerUpdateProperties4358Test extends BaseMapTest {
 
@@ -71,6 +73,8 @@ public class DeserializerUpdateProperties4358Test extends BaseMapTest {
 
     static SimpleModule getSimpleModuleWithDeserializerModifier() {
         return new SimpleModule().setDeserializerModifier(new BeanDeserializerModifier() {
+            private static final long serialVersionUID = 1L;
+
             @Override
             public List<BeanPropertyDefinition> updateProperties(DeserializationConfig config, BeanDescription beanDesc,
                     List<BeanPropertyDefinition> propDefs) {
@@ -111,7 +115,7 @@ public class DeserializerUpdateProperties4358Test extends BaseMapTest {
     }
 
     // Succeeds
-    public void testMutableBeanStandard() throws JsonProcessingException {
+    public void testMutableBeanStandard() throws Exception {
         MutableBean recreatedBean = stdObjectMapper.readValue("{\"a\": \"A\", \"b\": \"B\"}", MutableBean.class);
 
         assertEquals("A", recreatedBean.getA());
@@ -120,7 +124,7 @@ public class DeserializerUpdateProperties4358Test extends BaseMapTest {
     }
 
     // Succeeds
-    public void testImmutableBeanStandard() throws JsonProcessingException {
+    public void testImmutableBeanStandard() throws Exception {
         ImmutableBean recreatedBean = stdObjectMapper.readValue("{\"a\": \"A\", \"b\": \"B\"}", ImmutableBean.class);
 
         assertEquals("A", recreatedBean.getA());
@@ -130,7 +134,7 @@ public class DeserializerUpdateProperties4358Test extends BaseMapTest {
 
     // Fails - shall the order in the content really define the deserialization order? Probably not the most critical thing,
     // but may create subtitle issues with interdependencies.
-    public void testMutableBeanReversedInputStandard() throws JsonProcessingException {
+    public void testMutableBeanReversedInputStandard() throws Exception {
         MutableBean recreatedBean = stdObjectMapper.readValue("{\"b\": \"B\", \"a\": \"A\"}", MutableBean.class);
 
         assertEquals("A", recreatedBean.getA());
@@ -140,7 +144,7 @@ public class DeserializerUpdateProperties4358Test extends BaseMapTest {
 
     // Fails - shall the order in the content really define the deserialization order? Probably not the most critical thing,
     // but may create subtitle issues with interdependencies.
-    public void testImmutableBeanReversedInputStandard() throws JsonProcessingException {
+    public void testImmutableBeanReversedInputStandard() throws Exception {
         ImmutableBean recreatedBean = stdObjectMapper.readValue("{\"b\": \"B\", \"a\": \"A\"}", ImmutableBean.class);
 
         assertEquals("A", recreatedBean.getA());
@@ -149,7 +153,7 @@ public class DeserializerUpdateProperties4358Test extends BaseMapTest {
     }
 
     // Shall succeed - note that the setters are called in the same order as the deserializers.
-    public void testMutableBeanUpdateOrderBuilder() throws JsonProcessingException {
+    public void testMutableBeanUpdateOrderBuilder() throws Exception {
         MutableBean recreatedBean = modifiedObjectMapper.readValue("{\"a\": \"A\", \"b\": \"B\"}", MutableBean.class);
 
         assertEquals("A", recreatedBean.getA());
@@ -158,7 +162,7 @@ public class DeserializerUpdateProperties4358Test extends BaseMapTest {
     }
 
     // Shall succeed
-    public void testImmutableBeanUpdateOrderBuilder() throws JsonProcessingException {
+    public void testImmutableBeanUpdateOrderBuilder() throws Exception {
         ImmutableBean recreatedBean = modifiedObjectMapper.readValue("{\"a\": \"A\", \"b\": \"B\"}", ImmutableBean.class);
 
         assertEquals("A", recreatedBean.getA());

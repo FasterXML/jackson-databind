@@ -79,12 +79,12 @@ public class CreatorProperty
     /**
      * Marker flag to indicate that current property is used to handle "any setter" via `@JsonAnySetter`.
      *
-     * @since 2.18
+     * @since 2.19
      */
     protected final boolean _isAnySetterProp;
 
     /**
-     * @since 2.18
+     * @since 2.19
      */
     protected CreatorProperty(PropertyName name, JavaType type, PropertyName wrapperName,
             TypeDeserializer typeDeser,
@@ -148,7 +148,7 @@ public class CreatorProperty
      * @param index Index of this property within creator invocation
      * @param isAnySetter Marker flag to indicate that current property is used to handle "any setter" via `@JsonAnySetter`.
      *                    
-     * @since 2.18
+     * @since 2.19
      */
     public static CreatorProperty construct(PropertyName name, JavaType type, PropertyName wrapperName,
             TypeDeserializer typeDeser,
@@ -364,7 +364,7 @@ public class CreatorProperty
     //  public boolean isInjectionOnly() { return false; }
 
     /**
-     * @since 2.18
+     * @since 2.19
      */
     public boolean isAnySetterProp() {
         return _isAnySetterProp;
@@ -406,7 +406,7 @@ public class CreatorProperty
     }
 
     /**
-     * @since 2.18
+     * @since 2.19
      */
     public Map<Object, Object> initMap(DeserializationContext context, SettableAnyProperty anySetter)
         throws IOException

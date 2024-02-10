@@ -6,6 +6,7 @@ import java.util.*;
 import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.CreatorProperty;
 import com.fasterxml.jackson.databind.deser.SettableAnyProperty;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
@@ -191,17 +192,21 @@ public final class PropertyBasedCreator
     /**
      * Method called when starting to build a bean instance.
      *
+     * @since 2.19 (added SettableAnyProperty parameter)
+     */
+    public PropertyValueBuffer startBuildingWithAnySetter(JsonParser p, DeserializationContext ctxt,
+            ObjectIdReader oir, SettableAnyProperty anySetter) {
+        return new PropertyValueBuffer(p, ctxt, _propertyCount, oir, anySetter);
+    }
+
+    /**
+     * Method called when starting to build a bean instance.
+     *
      * @since 2.1 (added ObjectIdReader parameter -- existed in previous versions without)
      */
     public PropertyValueBuffer startBuilding(JsonParser p, DeserializationContext ctxt,
             ObjectIdReader oir) {
         return new PropertyValueBuffer(p, ctxt, _propertyCount, oir);
-    }
-
-    public Object buildWithAnySetter(DeserializationContext ctxt, PropertyValueBuffer buffer, SettableAnyProperty anySetter) throws IOException
-    {
-        return  _valueInstantiator.createFromObjectWith(ctxt,
-            _allProperties, buffer, anySetter);
     }
 
     public Object build(DeserializationContext ctxt, PropertyValueBuffer buffer) throws IOException
@@ -219,6 +224,20 @@ public final class PropertyBasedCreator
             }
         }
         return bean;
+    }
+
+    public CreatorProperty findAnySetterProp() {
+        for (SettableBeanProperty prop : _allProperties) {
+            if (!(prop instanceof CreatorProperty)) {
+                continue;
+            }
+            CreatorProperty cp = (CreatorProperty) prop;
+            if (!cp.isAnySetterProp()) {
+                continue;
+            }
+            return cp;
+        }
+        return null;
     }
 
     /*

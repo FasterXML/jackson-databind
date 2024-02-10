@@ -301,13 +301,6 @@ public abstract class ValueInstantiator
         return createFromObjectWith(ctxt, buffer.getParameters(props));
     }
 
-    public Object createFromObjectWith(DeserializationContext ctxt,
-            SettableBeanProperty[] props, PropertyValueBuffer buffer, SettableAnyProperty anySetter)
-        throws IOException
-    {
-        return createFromObjectWith(ctxt, buffer.getParametersWithAnySetter(props, anySetter));
-    }
-
     /**
      * Method to called to create value instance from JSON Object using
      * an intermediate "delegate" value to pass to createor method

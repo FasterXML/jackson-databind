@@ -119,7 +119,7 @@ public abstract class SettableAnyProperty
     }
 
     /**
-     * @since 2.18
+     * @since 2.19
      */
     public static SettableAnyProperty constructForMapParameter(DeserializationContext ctxt,
             BeanProperty property,
@@ -462,7 +462,7 @@ public abstract class SettableAnyProperty
     }
 
     /**
-     * @since 2.18
+     * @since 2.19
      */
     protected static class MapParameterAnyProperty extends SettableAnyProperty
         implements java.io.Serializable

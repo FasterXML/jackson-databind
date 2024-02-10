@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -80,20 +81,37 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
 
     // [databind#562]
     @Test
-    public void testNoAnySetterContentTest562() throws Exception
+    public void testWithFailureConfigs562() throws Exception
     {
-        ObjectMapper mapper = jsonMapperBuilder()
+        ObjectMapper failOnNullMapper = jsonMapperBuilder()
+            .enable(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES).build();
+
+        try {
+            failOnNullMapper.readValue(a2q("{'a':'value'}"), POJO562.class);
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Null value for creator property");
+        }
+
+        ObjectMapper failOnMissingMapper = jsonMapperBuilder()
+            .enable(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES).build();
+        try {
+            failOnMissingMapper.readValue(a2q("{'a':'value'}"), POJO562.class);
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Missing creator property");
+        }
+
+        ObjectMapper failOnBothMapper = jsonMapperBuilder()
             .enable(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES)
+            .enable(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES)
             .build();
-
-        Map<String, Object> expected = new HashMap<>();
-        expected.put("b", Integer.valueOf(42));
-        expected.put("c", Integer.valueOf(111));
-
-        POJO562 pojo = mapper.readValue(a2q("{'a':'value'}"), POJO562.class);
-
-        assertEquals("value", pojo.a);
-        assertEquals(expected, pojo.stuff);
+        try {
+            failOnBothMapper.readValue(a2q("{'a':'value'}"), POJO562.class);
+            fail("Should not pass");
+        } catch (MismatchedInputException e) {
+            verifyException(e, "Missing creator property");
+        }
     }
 
     // [databind#562]

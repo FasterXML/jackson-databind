@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
@@ -477,7 +478,7 @@ public abstract class SettableAnyProperty
                                        ValueInstantiator inst) {
             super(property, field, valueType,
                 keyDeser, valueDeser, typeDeser);
-            _valueInstantiator = inst;
+            _valueInstantiator = Objects.requireNonNull(inst, "ValueInstantiator for MapParameterAnyProperty cannot be `null`");
         }
 
         @Override
@@ -496,12 +497,6 @@ public abstract class SettableAnyProperty
         protected Map<Object, Object> initMap(DeserializationContext ctxt)
             throws IOException
         {
-            // This really should have been caught earlier
-            if (_valueInstantiator == null) {
-                throw JsonMappingException.from(ctxt, String.format(
-                    "Cannot create an instance of %s for use as \"any-setter\" '%s'",
-                    ClassUtil.nameOf(_type.getRawClass()), _property.getName()));
-            }
             return  (Map<Object, Object>) _valueInstantiator.createUsingDefault(ctxt);
         }
     }

@@ -80,6 +80,24 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
 
     // [databind#562]
     @Test
+    public void testNoAnySetterContentTest562() throws Exception
+    {
+        ObjectMapper mapper = jsonMapperBuilder()
+            .enable(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES)
+            .build();
+
+        Map<String, Object> expected = new HashMap<>();
+        expected.put("b", Integer.valueOf(42));
+        expected.put("c", Integer.valueOf(111));
+
+        POJO562 pojo = mapper.readValue(a2q("{'a':'value'}"), POJO562.class);
+
+        assertEquals("value", pojo.a);
+        assertEquals(expected, pojo.stuff);
+    }
+
+    // [databind#562]
+    @Test
     public void testAnySetterViaCreator562FailForDup() throws Exception
     {
         try {

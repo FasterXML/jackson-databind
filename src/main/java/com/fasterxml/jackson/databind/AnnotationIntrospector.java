@@ -319,10 +319,6 @@ public abstract class AnnotationIntrospector
     /**
      * Method for finding information about properties to ignore either by
      * name, or by more general specification ("ignore all unknown").
-     * This method combines multiple aspects of ignorals and deprecates
-     * earlier methods such as
-     * {@link #findPropertiesToIgnore(Annotated, boolean)} and
-     * {@link #findIgnoreUnknownProperties(AnnotatedClass)}.
      *
      * @param config Configuration settings in effect (for serialization or deserialization)
      * @param ann Annotated entity (Class, Accessor) to introspect

@@ -1,11 +1,19 @@
 package com.fasterxml.jackson.databind.deser.merge;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.fasterxml.jackson.databind.*;
 
-public class UpdateValueTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
+
+public class UpdateValueTest
 {
     static class Bean
     {
@@ -39,6 +47,7 @@ public class UpdateValueTest extends BaseMapTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#318] (and Scala module issue #83]
+    @Test
     public void testValueUpdateWithCreator() throws Exception
     {
         Bean bean = new Bean("abc", "def");
@@ -47,6 +56,7 @@ public class UpdateValueTest extends BaseMapTest
         assertEquals("jkl", bean.getB());
     }
 
+    @Test
     public void testValueUpdateOther() throws Exception
     {
         Bean bean = new Bean("abc", "def");

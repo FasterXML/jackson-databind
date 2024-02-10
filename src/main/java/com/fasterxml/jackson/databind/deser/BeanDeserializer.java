@@ -500,7 +500,7 @@ public class BeanDeserializer
 
             if (_anySetter != null) {
                 try {
-                    buffer.bufferWithAnySetter(ctxt, p, creator, propName);
+                    buffer.bufferAnySetter(ctxt, p, creator, propName);
                 } catch (Exception e) {
                     wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
                 }
@@ -530,7 +530,6 @@ public class BeanDeserializer
         } catch (Exception e) {
             return wrapInstantiationProblem(e, ctxt);
         }
-
         // 13-Apr-2020, tatu: [databind#2678] need to handle injection here
         if (_injectables != null) {
             injectValues(ctxt, bean);

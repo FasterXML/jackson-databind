@@ -881,8 +881,7 @@ nonAnnotatedParamIndex, ctor);
                     */
                 }
                 name = candidate.findImplicitParamName(i);
-                // [databind#562] Allow @JsonAnySetter in creators. Introspection is done here only because of
-                // _validateNamedPropertyParameter() check. Otherwise, in constructCreatorProperty seems appropriate....
+                // [databind#562] Allow @JsonAnySetter in creators
                 if (Boolean.TRUE.equals(ctxt.getAnnotationIntrospector().hasAnySetter(param))) {
                     if (anySetterIndex >= 0) {
                         ctxt.reportBadTypeDefinition(beanDesc,
@@ -1257,7 +1256,7 @@ paramIndex, candidate);
     }
 
     /**
-     * @deprecated Since 2.18, use {@link #constructCreatorProperty(DeserializationContext, BeanDescription,
+     * @deprecated since 2.19, use {@link #constructCreatorProperty(DeserializationContext, BeanDescription,
      * PropertyName, int, AnnotatedParameter, JacksonInject.Value, boolean)} instead.
      */
     @Deprecated

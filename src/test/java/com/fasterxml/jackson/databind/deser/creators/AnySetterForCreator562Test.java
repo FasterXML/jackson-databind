@@ -3,15 +3,17 @@ package com.fasterxml.jackson.databind.deser.creators;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.jupiter.api.Test;
-
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
+import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 class AnySetterForCreator562Test extends DatabindTestUtil
 {
@@ -31,6 +33,17 @@ class AnySetterForCreator562Test extends DatabindTestUtil
         }
     }
 
+    // [databind#562]: failing cacse
+    static class MultipleAny562
+    {
+        @JsonCreator
+        public MultipleAny562(@JsonProperty("a") String a,
+            @JsonAnySetter Map<String, Object> leftovers,
+            @JsonAnySetter Map<String, Object> leftovers2) {
+            throw new Error("Should never get here!");
+        }
+    }
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#562]
@@ -47,5 +60,18 @@ class AnySetterForCreator562Test extends DatabindTestUtil
                 POJO562.class);
         assertEquals("value", pojo.a);
         assertEquals(expected, pojo.stuff);
+    }
+
+    // [databind#562]
+    @Test
+    public void testAnySetterViaCreator562FailForDup() throws Exception
+    {
+        try {
+            MAPPER.readValue("{}", MultipleAny562.class);
+            fail("Should not pass");
+        } catch (InvalidDefinitionException e) {
+            verifyException(e, "Invalid type definition");
+            verifyException(e, "More than one 'any-setter'");
+        }
     }
 }

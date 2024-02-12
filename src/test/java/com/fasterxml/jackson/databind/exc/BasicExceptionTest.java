@@ -148,7 +148,8 @@ public class BasicExceptionTest
             JsonLocation loc = e.getLocation();
 //          String expectedLocation = "line: 4, column: 4";
             assertEquals(4, loc.getLineNr());
-            assertEquals(3, loc.getColumnNr());
+            // 12-Feb-2024, tatu: varies depending on whether [core#1173] is fixed or not...
+            assertEquals(4, loc.getColumnNr());
         }
     }
 }

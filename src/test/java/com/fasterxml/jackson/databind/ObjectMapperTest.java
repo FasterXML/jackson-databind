@@ -3,6 +3,8 @@ package com.fasterxml.jackson.databind;
 import java.io.*;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
@@ -17,7 +19,11 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.*;
 
-public class ObjectMapperTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+
+public class ObjectMapperTest
 {
     static class Bean {
         int value = 3;
@@ -59,11 +65,13 @@ public class ObjectMapperTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testFactoryFeatures()
     {
         assertTrue(MAPPER.isEnabled(JsonFactory.Feature.CANONICALIZE_FIELD_NAMES));
     }
 
+    @Test
     public void testGeneratorFeatures()
     {
         // and also for mapper
@@ -80,6 +88,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertFalse(mapper.isEnabled(JsonWriteFeature.WRITE_NAN_AS_STRINGS));
     }
 
+    @Test
     public void testParserFeatures()
     {
         // and also for mapper
@@ -102,6 +111,7 @@ public class ObjectMapperTest extends BaseMapTest
      */
 
     // [databind#28]: ObjectMapper.copy()
+    @Test
     public void testCopy() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
@@ -155,6 +165,7 @@ public class ObjectMapperTest extends BaseMapTest
     }
 
     // [databind#1580]
+    @Test
     public void testCopyOfConfigOverrides() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
@@ -185,6 +196,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertSame(customVis, config2.getDefaultVisibilityChecker());
     }
 
+    @Test
     public void testCopyWith() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         //configuring some settings to non-defaults
@@ -228,6 +240,7 @@ public class ObjectMapperTest extends BaseMapTest
         return doc.replaceAll("[\r\n]+", "\n");
     }
 
+    @Test
     public void testFailedCopy() throws Exception
     {
         NoCopyMapper src = new NoCopyMapper();
@@ -239,6 +252,7 @@ public class ObjectMapperTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testAnnotationIntrospectorCopying()
     {
         ObjectMapper m = new ObjectMapper();
@@ -259,6 +273,7 @@ public class ObjectMapperTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testProps()
     {
         ObjectMapper m = new ObjectMapper();
@@ -271,6 +286,7 @@ public class ObjectMapperTest extends BaseMapTest
     }
 
     // Test to ensure that we can check property ordering defaults...
+    @Test
     public void testConfigForPropertySorting() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
@@ -297,6 +313,7 @@ public class ObjectMapperTest extends BaseMapTest
     }
 
     // Test to ensure that we can check forced property ordering defaults...
+    @Test
     public void testConfigForForcedPropertySorting() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
@@ -319,6 +336,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertFalse(dc.isEnabled(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST));
     }
 
+    @Test
     public void testJsonFactoryLinkage()
     {
         // first, implicit factory, giving implicit linkage
@@ -331,6 +349,7 @@ public class ObjectMapperTest extends BaseMapTest
         assertSame(m, f.getCodec());
     }
 
+    @Test
     public void testProviderConfig() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
@@ -355,6 +374,7 @@ public class ObjectMapperTest extends BaseMapTest
     }
 
     // For [databind#689]
+    @Test
     public void testCustomDefaultPrettyPrinter() throws Exception
     {
         final ObjectMapper m = new ObjectMapper();
@@ -381,6 +401,7 @@ public class ObjectMapperTest extends BaseMapTest
     }
 
     // For [databind#703], [databind#978]
+    @Test
     public void testNonSerializabilityOfObject()
     {
         ObjectMapper m = new ObjectMapper();
@@ -399,6 +420,7 @@ public class ObjectMapperTest extends BaseMapTest
     }
 
     // for [databind#756]
+    @Test
     public void testEmptyBeanSerializability()
     {
         // with default settings, error
@@ -410,6 +432,7 @@ public class ObjectMapperTest extends BaseMapTest
     }
 
     // for [databind#2749]: just to check there's no NPE; method really not useful
+    @Test
     public void testCanDeserialize()
     {
         assertTrue(MAPPER.canDeserialize(MAPPER.constructType(EmptyBean.class)));
@@ -417,6 +440,7 @@ public class ObjectMapperTest extends BaseMapTest
     }
 
     // for [databind#898]
+    @Test
     public void testSerializerProviderAccess() throws Exception
     {
         // ensure we have "fresh" instance, just in case
@@ -428,6 +452,7 @@ public class ObjectMapperTest extends BaseMapTest
     }
 
     // for [databind#1074]
+    @Test
     public void testCopyOfParserFeatures() throws Exception
     {
         // ensure we have "fresh" instance to start with
@@ -446,6 +471,7 @@ public class ObjectMapperTest extends BaseMapTest
     }
 
     // since 2.8
+    @Test
     public void testDataOutputViaMapper() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
@@ -467,6 +493,7 @@ public class ObjectMapperTest extends BaseMapTest
 
     // since 2.8
     @SuppressWarnings("unchecked")
+    @Test
     public void testDataInputViaMapper() throws Exception
     {
         byte[] src = "{\"a\":1}".getBytes("UTF-8");
@@ -487,6 +514,7 @@ public class ObjectMapperTest extends BaseMapTest
     }
 
     @SuppressWarnings("serial")
+    @Test
     public void testRegisterDependentModules() {
         ObjectMapper objectMapper = newJsonMapper();
 
@@ -525,6 +553,7 @@ public class ObjectMapperTest extends BaseMapTest
     }
 
     // since 2.12
+    @Test
     public void testHasExplicitTimeZone() throws Exception
     {
         final TimeZone DEFAULT_TZ = TimeZone.getTimeZone("UTC");

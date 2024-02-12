@@ -714,7 +714,7 @@ public class TypeFactory // note: was final in 2.9, removed from 2.10
     {
         JavaType match = type.findSuperType(expType);
         if (match != null) {
-            JavaType t = match.getBindings().getBoundType(0);
+            JavaType t = match.getBindings().getBoundTypeOrNull(0);
             if (t != null) {
                 return t;
             }

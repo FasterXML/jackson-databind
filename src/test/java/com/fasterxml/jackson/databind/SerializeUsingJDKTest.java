@@ -2,9 +2,17 @@ package com.fasterxml.jackson.databind;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.type.TypeFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
+
 
 /**
  * Tests to verify that most core Jackson components can be serialized
@@ -12,7 +20,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
  * platforms, such as Android, where memory management is handled
  * much more aggressively.
  */
-public class SerializeUsingJDKTest extends BaseMapTest
+public class SerializeUsingJDKTest
 {
     @JsonPropertyOrder({ "x", "y" })
     static class MyPojo {
@@ -99,6 +107,7 @@ public class SerializeUsingJDKTest extends BaseMapTest
      */
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testConfigs() throws Exception
     {
         byte[] base = jdkSerialize(MAPPER.getDeserializationConfig().getBaseSettings());
@@ -120,6 +129,7 @@ public class SerializeUsingJDKTest extends BaseMapTest
     }
 
     // for [databind#899]
+    @Test
     public void testEnumHandlers() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();
@@ -153,6 +163,7 @@ public class SerializeUsingJDKTest extends BaseMapTest
         assertNotNull(result2);
     }
 
+    @Test
     public void testObjectWriter() throws Exception
     {
         ObjectWriter origWriter = MAPPER.writer();
@@ -167,6 +178,7 @@ public class SerializeUsingJDKTest extends BaseMapTest
         assertEquals(EXP_JSON, writer2.writeValueAsString(p));
     }
 
+    @Test
     public void testObjectReader() throws Exception
     {
         ObjectReader origReader = MAPPER.readerFor(MyPojo.class);
@@ -187,6 +199,7 @@ public class SerializeUsingJDKTest extends BaseMapTest
         assertEquals(Integer.valueOf(2), any2.properties().get("y"));
     }
 
+    @Test
     public void testObjectMapper() throws Exception
     {
         final String EXP_JSON = "{\"x\":2,\"y\":3}";
@@ -207,6 +220,7 @@ public class SerializeUsingJDKTest extends BaseMapTest
         assertNotNull(mapper2.getFactory().getCodec());
     }
 
+    @Test
     public void testTypeFactory() throws Exception
     {
         TypeFactory orig = TypeFactory.defaultInstance();
@@ -221,6 +235,7 @@ public class SerializeUsingJDKTest extends BaseMapTest
     }
 
     // [databind#4303]
+    @Test
     public void testObjectReaderSerializationWithPolymorphism()
         throws Exception
     {

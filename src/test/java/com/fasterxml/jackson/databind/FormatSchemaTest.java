@@ -4,17 +4,22 @@ import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.IOContext;
 import com.fasterxml.jackson.core.base.ParserBase;
 import com.fasterxml.jackson.core.base.GeneratorBase;
+
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Basic tests to ensure that {@link FormatSchema} instances are properly
  * passed to {@link JsonGenerator} and {@link JsonParser} instances if
  * mapper, reader or writer is configured with one.
  */
-public class FormatSchemaTest extends BaseMapTest
+public class FormatSchemaTest
 {
     /*
     /**********************************************************************
@@ -237,6 +242,7 @@ public class FormatSchemaTest extends BaseMapTest
     /**********************************************************************
      */
 
+    @Test
     public void testFormatForParsers() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper(new FactoryWithSchema());
@@ -251,6 +257,7 @@ public class FormatSchemaTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testFormatForGenerators() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper(new FactoryWithSchema());

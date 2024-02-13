@@ -126,7 +126,13 @@ public class DecimalNode
         if (o == this) return true;
         if (o == null) return false;
         if (o instanceof DecimalNode) {
-            return ((DecimalNode) o)._value.compareTo(_value) == 0;
+            DecimalNode otherNode = (DecimalNode) o;
+            if (otherNode._value == null) {
+                return _value == null;
+            } else if (_value == null) {
+                return false;
+            }
+            return otherNode._value.compareTo(_value) == 0;
         }
         return false;
     }

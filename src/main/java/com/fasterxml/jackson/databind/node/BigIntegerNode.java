@@ -113,7 +113,8 @@ public class BigIntegerNode
         if (!(o instanceof BigIntegerNode)) {
             return false;
         }
-        return ((BigIntegerNode) o)._value.equals(_value);
+        BigIntegerNode otherNode = (BigIntegerNode) o;
+        return java.util.Objects.equals(otherNode._value, _value);
     }
 
     @Override

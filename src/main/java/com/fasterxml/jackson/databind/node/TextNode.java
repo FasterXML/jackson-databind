@@ -173,7 +173,7 @@ e.getMessage()),
     @Override
     public int hashCode() {
         // we need a hardcoded value for null _value to ensure that hash codes are stable
-        return _value == null ? 0 : _value.hashCode();
+        return _value == null ? -1 : _value.hashCode();
     }
 
     @Deprecated // since 2.10

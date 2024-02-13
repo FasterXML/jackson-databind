@@ -164,7 +164,8 @@ e.getMessage()),
         if (o == this) return true;
         if (o == null) return false;
         if (o instanceof TextNode) {
-            return ((TextNode) o)._value.equals(_value);
+            TextNode otherNode = (TextNode) o;
+            return java.util.Objects.equals(otherNode._value, _value);
         }
         return false;
     }

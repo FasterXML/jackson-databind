@@ -171,7 +171,10 @@ e.getMessage()),
     }
 
     @Override
-    public int hashCode() { return _value.hashCode(); }
+    public int hashCode() {
+        // we need a hardcoded value for null _value to ensure that hash codes are stable
+        return _value == null ? 0 : _value.hashCode();
+    }
 
     @Deprecated // since 2.10
     protected static void appendQuoted(StringBuilder sb, String content)

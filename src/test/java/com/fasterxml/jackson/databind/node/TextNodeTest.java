@@ -47,4 +47,10 @@ public class TextNodeTest extends NodeTestBase
         assertNotEquals(new TextNode("abc"), new TextNode("def"));
         assertNotEquals(new TextNode("abc"), new TextNode(null));
     }
+
+    public void testHashCode()
+    {
+        assertEquals(0, new TextNode(null).hashCode());
+        assertEquals("abc".hashCode(), new TextNode("abc").hashCode());
+    }
 }

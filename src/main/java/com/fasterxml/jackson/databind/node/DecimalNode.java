@@ -138,5 +138,11 @@ public class DecimalNode
     }
 
     @Override
-    public int hashCode() { return Double.valueOf(doubleValue()).hashCode(); }
+    public int hashCode() {
+        if (_value == null) {
+            // we need a stable hash code for _value == null
+            return -1;
+        }
+        return Double.valueOf(doubleValue()).hashCode();
+    }
 }

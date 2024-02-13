@@ -119,6 +119,7 @@ public class BigIntegerNode
 
     @Override
     public int hashCode() {
-        return _value.hashCode();
+        // we need a stable hash code for _value == null
+        return _value == null ? -1 : _value.hashCode();
     }
 }

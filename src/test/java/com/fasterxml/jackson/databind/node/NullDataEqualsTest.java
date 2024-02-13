@@ -14,6 +14,7 @@ public class NullDataEqualsTest {
         assertEquals(new BinaryNode(null), new BinaryNode(null));
         assertNotEquals(new BinaryNode(new byte[8]), new BinaryNode(null));
         assertNotEquals(new BinaryNode(null), new BinaryNode(new byte[8]));
+        assertEquals(-1, new BinaryNode(null).hashCode());
     }
 
     @Test

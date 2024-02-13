@@ -43,6 +43,8 @@ public class TextNodeTest extends NodeTestBase
     {
         assertEquals(new TextNode(null), new TextNode(null));
         assertEquals(new TextNode("abc"), new TextNode("abc"));
+        assertNotEquals(new TextNode(null), new TextNode("def"));
         assertNotEquals(new TextNode("abc"), new TextNode("def"));
+        assertNotEquals(new TextNode("abc"), new TextNode(null));
     }
 }

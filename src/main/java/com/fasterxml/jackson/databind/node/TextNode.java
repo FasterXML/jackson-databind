@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.node;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.CharTypes;
@@ -165,15 +166,14 @@ e.getMessage()),
         if (o == null) return false;
         if (o instanceof TextNode) {
             TextNode otherNode = (TextNode) o;
-            return java.util.Objects.equals(otherNode._value, _value);
+            return Objects.equals(otherNode._value, _value);
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        // we need a hardcoded value for null _value to ensure that hash codes are stable
-        return _value == null ? -1 : _value.hashCode();
+        return Objects.hashCode(_value);
     }
 
     @Deprecated // since 2.10

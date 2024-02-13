@@ -50,7 +50,7 @@ public class TextNodeTest extends NodeTestBase
 
     public void testHashCode()
     {
-        assertEquals(-1, new TextNode(null).hashCode());
+        assertEquals(0, new TextNode(null).hashCode());
         assertEquals("abc".hashCode(), new TextNode("abc").hashCode());
     }
 }

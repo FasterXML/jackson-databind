@@ -22,7 +22,7 @@ public class NullDataEqualsTest {
         assertEquals(new BigIntegerNode(null), new BigIntegerNode(null));
         assertNotEquals(new BigIntegerNode(BigInteger.ZERO), new BigIntegerNode(null));
         assertNotEquals(new BigIntegerNode(null), new BigIntegerNode(BigInteger.ZERO));
-        assertEquals(-1, new BigIntegerNode(null).hashCode());
+        assertEquals(0, new BigIntegerNode(null).hashCode());
     }
 
     @Test
@@ -30,6 +30,6 @@ public class NullDataEqualsTest {
         assertEquals(new DecimalNode(null), new DecimalNode(null));
         assertNotEquals(new DecimalNode(BigDecimal.ZERO), new DecimalNode(null));
         assertNotEquals( new DecimalNode(null), new DecimalNode(BigDecimal.ZERO));
-        assertEquals(-1, new DecimalNode(null).hashCode());
+        assertEquals(0, new DecimalNode(null).hashCode());
     }
 }

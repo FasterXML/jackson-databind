@@ -141,7 +141,7 @@ public class DecimalNode
     public int hashCode() {
         if (_value == null) {
             // we need a stable hash code for _value == null
-            return -1;
+            return 0;
         }
         return Double.valueOf(doubleValue()).hashCode();
     }

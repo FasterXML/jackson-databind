@@ -22,6 +22,7 @@ public class ExceptionWithAnySetter4316Test extends BaseMapTest
 
     @JsonIgnoreProperties({ "cause", "stackTrace", "response", "message", "localizedMessage", "suppressed" })
     static class ProblemWithIgnorals extends Exception {
+        private static final long serialVersionUID = 1L;
         @JsonAnySetter
         @JsonAnyGetter
         Map<String, Object> additionalProperties = new HashMap<>();

@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.node;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Objects;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -113,11 +114,12 @@ public class BigIntegerNode
         if (!(o instanceof BigIntegerNode)) {
             return false;
         }
-        return ((BigIntegerNode) o)._value.equals(_value);
+        BigIntegerNode otherNode = (BigIntegerNode) o;
+        return Objects.equals(otherNode._value, _value);
     }
 
     @Override
     public int hashCode() {
-        return _value.hashCode();
+        return Objects.hashCode(_value);
     }
 }

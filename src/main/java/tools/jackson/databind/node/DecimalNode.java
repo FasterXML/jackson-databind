@@ -105,7 +105,7 @@ public class DecimalNode
 
     @Override
     public final void serialize(JsonGenerator g, SerializerProvider provider)
-            throws JacksonException
+        throws JacksonException
     {
         g.writeNumber(_value);
     }
@@ -116,11 +116,14 @@ public class DecimalNode
         if (o == this) return true;
         if (o == null) return false;
         if (o instanceof DecimalNode) {
-            return ((DecimalNode) o)._value.compareTo(_value) == 0;
+            DecimalNode otherNode = (DecimalNode) o;
+            return otherNode._value.equals(_value);
         }
         return false;
     }
 
     @Override
-    public int hashCode() { return Double.valueOf(doubleValue()).hashCode(); }
+    public int hashCode() {
+        return _value.hashCode();
+    }
 }

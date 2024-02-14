@@ -1,5 +1,7 @@
 package tools.jackson.databind.node;
 
+import java.util.Objects;
+
 import tools.jackson.core.*;
 import tools.jackson.databind.JacksonSerializable;
 import tools.jackson.databind.SerializerProvider;
@@ -157,5 +159,7 @@ public class POJONode
     }
 
     @Override
-    public int hashCode() { return _value.hashCode(); }
+    public int hashCode() {
+        return Objects.hashCode(_value);
+    }
 }

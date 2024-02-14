@@ -99,14 +99,15 @@ public class BinaryNode
     {
         if (o == this) return true;
         if (o == null) return false;
-        if (!(o instanceof BinaryNode)) {
-            return false;
+        if (o instanceof BinaryNode) {
+            byte[] otherData = ((BinaryNode) o)._data;
+            return Arrays.equals(_data, otherData);
         }
-        return Arrays.equals(((BinaryNode) o)._data, _data);
+        return false;
     }
 
     @Override
     public int hashCode() {
-        return (_data == null) ? -1 : _data.length;
+        return _data.length;
     }
 }

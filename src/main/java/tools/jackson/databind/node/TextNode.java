@@ -1,5 +1,7 @@
 package tools.jackson.databind.node;
 
+import java.util.Objects;
+
 import tools.jackson.core.*;
 import tools.jackson.core.io.NumberInput;
 import tools.jackson.core.util.ByteArrayBuilder;
@@ -18,7 +20,9 @@ public class TextNode
 
     protected final String _value;
 
-    public TextNode(String v) { _value = v; }
+    public TextNode(String v) {
+        _value = v;
+    }
 
     /**
      * Factory method that should be used to construct instances.
@@ -132,7 +136,7 @@ e.getMessage()),
 
     @Override
     public double asDouble(double defaultValue) {
-        return NumberInput.parseAsDouble(_value, defaultValue);
+        return NumberInput.parseAsDouble(_value, defaultValue, false);
     }
 
     /*
@@ -145,11 +149,7 @@ e.getMessage()),
     public final void serialize(JsonGenerator g, SerializerProvider provider)
         throws JacksonException
     {
-        if (_value == null) {
-            g.writeNull();
-        } else {
-            g.writeString(_value);
-        }
+        g.writeString(_value);
     }
 
     /*
@@ -164,7 +164,7 @@ e.getMessage()),
         if (o == this) return true;
         if (o == null) return false;
         if (o instanceof TextNode) {
-            return ((TextNode) o)._value.equals(_value);
+            return Objects.equals(((TextNode) o)._value, _value);
         }
         return false;
     }

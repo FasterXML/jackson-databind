@@ -6,6 +6,8 @@ Project: jackson-databind
 
 2.17.0 (not yet released)
 
+-
+
 2.16.2 (not yet released)
 
 #4302: Problem deserializing some type of Enums when using `PropertyNamingStrategy`
@@ -139,7 +141,7 @@ Project: jackson-databind
   deserialising empty Object
  (reported by @nocny-x)
 
-2.15.4 (not yet released)
+2.15.4 (15-Feb-2024)
 
 #1172: `@JsonView` doesn't work with `@JsonCreator`
  (reported by Dmitry B)

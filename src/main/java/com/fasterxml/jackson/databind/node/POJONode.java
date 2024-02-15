@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.node;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.JsonSerializable;
@@ -156,5 +157,7 @@ public class POJONode
     }
 
     @Override
-    public int hashCode() { return _value.hashCode(); }
+    public int hashCode() {
+        return Objects.hashCode(_value);
+    }
 }

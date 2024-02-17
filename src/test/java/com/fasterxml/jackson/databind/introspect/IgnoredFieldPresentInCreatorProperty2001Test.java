@@ -2,11 +2,14 @@ package com.fasterxml.jackson.databind.introspect;
 
 import java.beans.ConstructorProperties;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class IgnoredFieldPresentInCreatorProperty2001Test extends BaseMapTest
+public class IgnoredFieldPresentInCreatorProperty2001Test extends DatabindTestUtil
 {
    static public class Foo {
         @JsonIgnore
@@ -20,6 +23,7 @@ public class IgnoredFieldPresentInCreatorProperty2001Test extends BaseMapTest
       }
     }
 
+    @Test
     public void testIgnoredFieldPresentInPropertyCreator() throws Exception {
         Foo deserialized = newJsonMapper().readValue("{\"query\": \"bar\"}", Foo.class);
         assertEquals("bar", deserialized.query);

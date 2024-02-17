@@ -1,22 +1,21 @@
 package com.fasterxml.jackson.databind.introspect;
 
+import java.lang.reflect.*;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.type.TypeBindings;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
+import org.junit.jupiter.api.Test;
 
-public class MethodGenericTypeResolverTest extends BaseMapTest {
+import static org.junit.jupiter.api.Assertions.*;
+
+public class MethodGenericTypeResolverTest extends DatabindTestUtil {
 
     private static final TypeResolutionContext EMPTY_CONTEXT =
             new TypeResolutionContext.Empty(TypeFactory.defaultInstance());
@@ -65,18 +64,21 @@ public class MethodGenericTypeResolverTest extends BaseMapTest {
         }
     }
 
+    @Test
     public void testWithoutGenerics() {
         TypeBindings bindings = MethodGenericTypeResolver.bindMethodTypeParameters(
                 method("noGenerics"), type(String.class), EMPTY_CONTEXT);
         assertNull(bindings);
     }
 
+    @Test
     public void testWithoutGenericsInResult() {
         TypeBindings bindings = MethodGenericTypeResolver.bindMethodTypeParameters(
                 method("simple"), type(AtomicReference.class), EMPTY_CONTEXT);
         assertNull(bindings);
     }
 
+    @Test
     public void testResultDoesNotUseTypeVariables() {
         TypeBindings bindings = MethodGenericTypeResolver.bindMethodTypeParameters(
                 method("disconnected"), type(new TypeReference<Map<String, String>>() {
@@ -84,6 +86,7 @@ public class MethodGenericTypeResolverTest extends BaseMapTest {
         assertNull(bindings);
     }
 
+    @Test
     public void testWithoutGenericsInMethod() {
         TypeBindings bindings = MethodGenericTypeResolver.bindMethodTypeParameters(
                 method("noGenerics"), type(new TypeReference<Map<String, String>>() {
@@ -91,6 +94,7 @@ public class MethodGenericTypeResolverTest extends BaseMapTest {
         assertNull(bindings);
     }
 
+    @Test
     public void testWithRepeatedGenericInReturn() {
         TypeBindings bindings = MethodGenericTypeResolver.bindMethodTypeParameters(
                 method("mapWithSameKeysAndValues"), type(new TypeReference<Map<String, String>>() {
@@ -98,6 +102,7 @@ public class MethodGenericTypeResolverTest extends BaseMapTest {
         assertEquals(asMap("T", type(String.class)), asMap(bindings));
     }
 
+    @Test
     public void testWithRepeatedGenericInReturnWithIncreasingSpecificity() {
         Method method = method("mapWithSameKeysAndValues");
         TypeBindings bindingsAb = MethodGenericTypeResolver.bindMethodTypeParameters(
@@ -110,6 +115,7 @@ public class MethodGenericTypeResolverTest extends BaseMapTest {
         assertEquals(asMap(bindingsBa), asMap("T", type(StubB.class)));
     }
 
+    @Test
     public void testMultipleTypeVariables() {
         TypeBindings bindings = MethodGenericTypeResolver.bindMethodTypeParameters(
                 method("multipleTypeVariables"), type(new TypeReference<Map<Integer, Long>>() {
@@ -119,6 +125,7 @@ public class MethodGenericTypeResolverTest extends BaseMapTest {
                 asMap(bindings));
     }
 
+    @Test
     public void testMultipleTypeVariablesWithUpperBounds() {
         TypeBindings bindings = MethodGenericTypeResolver.bindMethodTypeParameters(
                 method("multipleTypeVariablesWithUpperBound"), type(new TypeReference<Map<Integer, Long>>() {
@@ -128,6 +135,7 @@ public class MethodGenericTypeResolverTest extends BaseMapTest {
                 asMap(bindings));
     }
 
+    @Test
     public void testResultTypeDoesNotExactlyMatch() {
         TypeBindings bindings = MethodGenericTypeResolver.bindMethodTypeParameters(
                 method("multipleTypeVariables"), type(new TypeReference<HashMap<Integer, Long>>() {
@@ -147,7 +155,7 @@ public class MethodGenericTypeResolverTest extends BaseMapTest {
                 result = method;
             }
         }
-        assertNotNull("Failed to find method", result);
+        assertNotNull(result, "Failed to find method");
         return result;
     }
 

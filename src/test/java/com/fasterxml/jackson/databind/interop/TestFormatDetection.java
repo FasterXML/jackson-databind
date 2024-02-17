@@ -1,9 +1,14 @@
 package com.fasterxml.jackson.databind.interop;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class TestFormatDetection extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class TestFormatDetection extends DatabindTestUtil
 {
     private final ObjectReader READER = objectReader();
 
@@ -23,6 +28,7 @@ public class TestFormatDetection extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testSimpleWithJSON() throws Exception
     {
         ObjectReader detecting = READER.forType(POJO.class);
@@ -32,6 +38,7 @@ public class TestFormatDetection extends BaseMapTest
         assertEquals(1, pojo.x);
     }
 
+    @Test
     public void testSequenceWithJSON() throws Exception
     {
         ObjectReader detecting = READER.forType(POJO.class);
@@ -71,6 +78,7 @@ public class TestFormatDetection extends BaseMapTest
         nodes.close();
     }
 
+    @Test
     public void testInvalid() throws Exception
     {
         ObjectReader detecting = READER.forType(POJO.class);

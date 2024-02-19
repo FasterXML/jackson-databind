@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class DatabindContextTest
 {
-    private final ObjectMapper MAPPER = JsonMapper.builder().build();
+    private final ObjectMapper MAPPER = new JsonMapper();
 
     @Test
     public void testDeserializationContext() throws Exception

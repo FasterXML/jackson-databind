@@ -19,7 +19,7 @@ import static tools.jackson.databind.testutil.DatabindTestUtil.verifyException;
  * annotations that define actual type (Class) to use for
  * deserialization.
  */
-public class TestValueAnnotations
+public class ValueAnnotationsDeserTest
 {
     /*
     /**********************************************************

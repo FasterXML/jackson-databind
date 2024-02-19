@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
-public class TestFloats
+public class FloatDeserTest
 {
 
     /*
@@ -62,7 +62,7 @@ public class TestFloats
     // for [jackson-core#757]
     @Test
     public void testBigArrayOfFloatPrimitives() throws Exception {
-        try (InputStream stream = TestFloats.class.getResourceAsStream("/data/float-array-755.txt")) {
+        try (InputStream stream = FloatDeserTest.class.getResourceAsStream("/data/float-array-755.txt")) {
             float[] floats = MAPPER.readValue(stream, float[].class);
             assertEquals(1004, floats.length);
             assertEquals(7.038531e-26f, floats[0]);

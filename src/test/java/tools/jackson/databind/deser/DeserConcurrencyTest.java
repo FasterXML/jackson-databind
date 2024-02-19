@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * Testing for a NPE due to race condition
  */
-public class TestConcurrency
+public class DeserConcurrencyTest
 {
     @JsonDeserialize(using=TestBeanDeserializer.class)
     static class Bean

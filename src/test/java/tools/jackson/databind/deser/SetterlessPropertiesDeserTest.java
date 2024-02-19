@@ -19,7 +19,7 @@ import static tools.jackson.databind.testutil.DatabindTestUtil.verifyException;
  * expected, similar to how Collections and Maps work
  * with JAXB.
  */
-public class TestSetterlessProperties
+public class SetterlessPropertiesDeserTest
 {
     static class CollectionBean
     {

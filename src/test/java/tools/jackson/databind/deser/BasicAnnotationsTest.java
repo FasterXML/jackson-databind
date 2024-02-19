@@ -22,7 +22,7 @@ import static tools.jackson.databind.testutil.DatabindTestUtil.IntWrapper;
  * bean deserialization; ones that indicate (non-constructor)
  * method types, explicit deserializer annotations.
  */
-public class TestBasicAnnotations
+public class BasicAnnotationsTest
 {
     /// Class for testing {@link JsonProperty} annotations
     final static class SizeClassSetter

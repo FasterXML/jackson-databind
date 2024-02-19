@@ -17,7 +17,7 @@ import static tools.jackson.databind.testutil.DatabindTestUtil.*;
  * Unit tests for verifying that field-backed properties can also be
  * deserialized as well as setter-accessible properties.
  */
-public class TestFieldDeserialization
+public class FieldDeserTest
 {
     static class SimpleFieldBean
     {

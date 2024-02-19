@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
-public class NullHandlingTest
+public class NullHandlingDeserTest
 {
     static class FunnyNullDeserializer extends ValueDeserializer<String>
     {

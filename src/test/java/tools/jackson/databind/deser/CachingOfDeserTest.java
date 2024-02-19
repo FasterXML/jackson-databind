@@ -14,7 +14,7 @@ import tools.jackson.databind.deser.std.StdDeserializer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class TestCachingOfDeser
+public class CachingOfDeserTest
 {
     // For [databind#735]
     public static class TestMapNoCustom {

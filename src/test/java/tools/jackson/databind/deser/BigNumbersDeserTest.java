@@ -19,7 +19,7 @@ import static tools.jackson.databind.testutil.DatabindTestUtil.DoubleWrapper;
 import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 import static tools.jackson.databind.testutil.DatabindTestUtil.verifyException;
 
-public class TestBigNumbers
+public class BigNumbersDeserTest
 {
     static class BigDecimalWrapper {
         BigDecimal number;

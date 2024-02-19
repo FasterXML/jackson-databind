@@ -1,4 +1,4 @@
-package tools.jackson.databind.deser.bean;
+package tools.jackson.databind.deser;
 
 import org.junit.jupiter.api.Test;
 

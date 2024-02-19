@@ -41,7 +41,19 @@ public class UUIDDeserializer extends FromStringDeserializer<UUID>
              *   length it must have...
              */
             if (id.length() == 24) {
-                byte[] stuff = Base64Variants.getDefaultVariant().decode(id);
+                byte[] stuff = Base64Variants.getDefaultVariant().decode(id
+                    //cater for url safe chars
+                    .replace("-", "+")
+                    .replace("_", "/"));
+                return _fromBytes(stuff, ctxt);
+            }
+
+            // support for Base64Url encoding (without padding)
+            if (id.length() == 22) {
+                byte[] stuff = Base64Variants.MODIFIED_FOR_URL.decode(id
+                    //cater for non url safe chars
+                    .replace("+", "-")
+                    .replace("/", "_"));
                 return _fromBytes(stuff, ctxt);
             }
             return _badFormat(id, ctxt);

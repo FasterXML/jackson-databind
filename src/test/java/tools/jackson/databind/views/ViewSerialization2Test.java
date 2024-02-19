@@ -12,14 +12,8 @@ import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
 
-public class TestViewsSerialization2
+public class ViewSerialization2Test
 {
-    /*
-    /************************************************************************
-    /* Helper classes
-    /************************************************************************
-     */
-
     static class Views
     {
         public interface View { }

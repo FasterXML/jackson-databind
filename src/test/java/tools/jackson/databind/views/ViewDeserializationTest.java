@@ -13,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 import tools.jackson.databind.*;
 
-public class TestViewDeserialization
+public class ViewDeserializationTest
 {
     // Classes that represent views
     static class ViewA { }

@@ -19,7 +19,7 @@ import tools.jackson.databind.*;
  * Unit tests for verifying JSON view functionality: ability to declaratively
  * suppress subset of properties from being serialized.
  */
-public class TestViewSerialization
+public class ViewSerializationTest
 {
     // Classes that represent views
     static class ViewA { }

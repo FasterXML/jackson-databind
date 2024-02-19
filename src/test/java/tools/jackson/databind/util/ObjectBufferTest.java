@@ -4,7 +4,7 @@ import java.util.*;
 
 import tools.jackson.databind.BaseMapTest;
 
-public class TestObjectBuffer
+public class ObjectBufferTest
     extends BaseMapTest
 {
     /**

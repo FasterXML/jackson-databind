@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 import tools.jackson.databind.BaseMapTest;
 
-public class TestStdDateFormat extends BaseMapTest
+public class StdDateFormatTest extends BaseMapTest
 {
     // [databind#803]
     public void testLenientDefaults() throws Exception

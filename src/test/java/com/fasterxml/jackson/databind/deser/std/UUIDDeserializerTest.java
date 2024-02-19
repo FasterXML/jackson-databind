@@ -9,44 +9,40 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 class UUIDDeserializerTest {
+  private static final UUID TEST_UUID = UUID.fromString("a7161c6c-be14-4ae3-a3c4-f27c2b2c6ef4");
+
   @Test
   void testCanDeserializeUUIDFromString() throws IOException {
-    final UUID uuid = UUID.randomUUID();
     final UUIDDeserializer deserializer = new UUIDDeserializer();
-
-    assertEquals(uuid, deserializer._deserialize(uuid.toString(), null));
+    assertEquals(TEST_UUID, deserializer._deserialize(TEST_UUID.toString(), null));
   }
 
   @Test
   void testCanDeserializeUUIDFromBase64() throws IOException {
-    final UUID uuid = UUID.randomUUID();
     final UUIDDeserializer deserializer = new UUIDDeserializer();
 
-    assertEquals(uuid, deserializer._deserialize(Base64.getEncoder().encodeToString(getBytesFromUUID(uuid)), null));
+    assertEquals(TEST_UUID, deserializer._deserialize(Base64.getEncoder().encodeToString(getBytesFromUUID(TEST_UUID)), null));
   }
 
   @Test
   void testCanDeserializeUUIDFromBase64WithoutPadding() throws IOException {
-    final UUID uuid = UUID.randomUUID();
     final UUIDDeserializer deserializer = new UUIDDeserializer();
 
-    assertEquals(uuid, deserializer._deserialize(Base64.getEncoder().withoutPadding().encodeToString(getBytesFromUUID(uuid)), null));
+    assertEquals(TEST_UUID, deserializer._deserialize(Base64.getEncoder().withoutPadding().encodeToString(getBytesFromUUID(TEST_UUID)), null));
   }
 
   @Test
   void testCanDeserializeUUIDFromBase64Url() throws IOException {
-    final UUID uuid = UUID.randomUUID();
     final UUIDDeserializer deserializer = new UUIDDeserializer();
 
-    assertEquals(uuid, deserializer._deserialize(Base64.getUrlEncoder().encodeToString(getBytesFromUUID(uuid)), null));
+    assertEquals(TEST_UUID, deserializer._deserialize(Base64.getUrlEncoder().encodeToString(getBytesFromUUID(TEST_UUID)), null));
   }
 
   @Test
   void testCanDeserializeUUIDFromBase64UrlWithoutPadding() throws IOException {
-    final UUID uuid = UUID.randomUUID();
     final UUIDDeserializer deserializer = new UUIDDeserializer();
 
-    assertEquals(uuid, deserializer._deserialize(Base64.getUrlEncoder().withoutPadding().encodeToString(getBytesFromUUID(uuid)), null));
+    assertEquals(TEST_UUID, deserializer._deserialize(Base64.getUrlEncoder().withoutPadding().encodeToString(getBytesFromUUID(TEST_UUID)), null));
   }
 
   private static byte[] getBytesFromUUID(UUID uuid) {

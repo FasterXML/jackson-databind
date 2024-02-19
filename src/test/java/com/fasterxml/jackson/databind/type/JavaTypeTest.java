@@ -115,8 +115,8 @@ public class JavaTypeTest
         assertNull(baseType.getKeyType());
         assertNull(baseType.getValueHandler());
 
-        assertEquals("Lcom/fasterxml/jackson/databind/type/TestJavaType$BaseType;", baseType.getGenericSignature());
-        assertEquals("Lcom/fasterxml/jackson/databind/type/TestJavaType$BaseType;", baseType.getErasedSignature());
+        assertEquals("Lcom/fasterxml/jackson/databind/type/JavaTypeTest$BaseType;", baseType.getGenericSignature());
+        assertEquals("Lcom/fasterxml/jackson/databind/type/JavaTypeTest$BaseType;", baseType.getErasedSignature());
     }
 
     @SuppressWarnings("deprecation")
@@ -197,8 +197,8 @@ public class JavaTypeTest
         assertNull(enumT.containedType(3));
         assertTrue(enumT.containedTypeOrUnknown(3).isJavaLangObject());
 
-        assertEquals("Lcom/fasterxml/jackson/databind/type/TestJavaType$MyEnum;", enumT.getGenericSignature());
-        assertEquals("Lcom/fasterxml/jackson/databind/type/TestJavaType$MyEnum;", enumT.getErasedSignature());
+        assertEquals("Lcom/fasterxml/jackson/databind/type/JavaTypeTest$MyEnum;", enumT.getGenericSignature());
+        assertEquals("Lcom/fasterxml/jackson/databind/type/JavaTypeTest$MyEnum;", enumT.getErasedSignature());
 
         assertTrue(tf.constructType(MyEnum2.class).isEnumType());
         assertTrue(tf.constructType(MyEnum.A.getClass()).isEnumType());

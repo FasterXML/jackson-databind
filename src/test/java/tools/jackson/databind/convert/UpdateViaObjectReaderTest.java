@@ -26,7 +26,7 @@ import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
  * Unit tests for verifying that "updating reader" works as
  * expected.
  */
-public class TestUpdateViaObjectReader
+public class UpdateViaObjectReaderTest
 {
     static class Bean {
         public String a = "a";

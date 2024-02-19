@@ -14,7 +14,7 @@ import static tools.jackson.databind.testutil.DatabindTestUtil.*;
  * Unit tests for verifying handling of update value on polymorphic
  * objects.
  */
-public class TestPolymorphicUpdateValue
+public class PolymorphicUpdateValueTest
 {
     @JsonTypeInfo(include=JsonTypeInfo.As.WRAPPER_ARRAY //PROPERTY
             ,use=JsonTypeInfo.Id.NAME, property="type")

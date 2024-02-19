@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
-public class TestMapConversions
+public class MapConversionsTest
 {
     final ObjectMapper MAPPER = newJsonMapper();
 

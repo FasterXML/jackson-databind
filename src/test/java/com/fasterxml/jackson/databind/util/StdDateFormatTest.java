@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
 
-public class TestStdDateFormat
+public class StdDateFormatTest
     extends BaseMapTest
 {
     @SuppressWarnings("deprecation")

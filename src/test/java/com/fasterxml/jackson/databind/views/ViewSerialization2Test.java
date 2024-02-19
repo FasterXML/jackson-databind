@@ -10,14 +10,8 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 import org.junit.jupiter.api.Test;
 
-public class TestViewsSerialization2
+public class ViewSerialization2Test
 {
-    /*
-    /************************************************************************
-    /* Helper classes
-    /************************************************************************
-     */
-
     static class Views
     {
         public interface View { }

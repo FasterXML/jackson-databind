@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.*;
 import org.junit.jupiter.api.Test;
 
-public class TestViewDeserialization
+public class ViewDeserializationTest
 {
     // Classes that represent views
     static class ViewA { }

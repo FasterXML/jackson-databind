@@ -17,11 +17,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * Test to verify that the order of properties is preserved when using @JsonPropertyOrder
  * with @JsonUnwrapped and @JsonAnyGetter
- *
  */
-public class JsonPropertyOrderTest extends DatabindTestUtil
+public class JsonPropertyOrder4388Test extends DatabindTestUtil
 {
-
     // Base class with properties
     static class BaseWithProperties {
         public String entityName;
@@ -60,6 +58,7 @@ public class JsonPropertyOrderTest extends DatabindTestUtil
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    // For [databind#4388]
     @Test
     public void testSerializationOrderVersion1() throws Exception {
         PojoPropertyVersion1 input = new PojoPropertyVersion1();

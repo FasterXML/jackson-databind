@@ -1,14 +1,17 @@
 package com.fasterxml.jackson.databind.views;
 
-import static org.junit.Assert.assertEquals;
 import java.util.*;
+
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.*;
-import org.junit.jupiter.api.Test;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class ViewsWithSchemaTest
+import static org.junit.Assert.assertEquals;
+
+public class ViewsWithSchemaTest extends DatabindTestUtil
 {
     interface ViewBC { }
     interface ViewAB { }

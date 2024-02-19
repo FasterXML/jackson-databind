@@ -6,6 +6,8 @@ import java.math.BigInteger;
 import java.util.Map;
 import java.util.UUID;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.core.JsonParser.NumberTypeFP;
@@ -17,11 +19,14 @@ import com.fasterxml.jackson.core.util.JsonParserSequence;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.Assert.*;
 
 @SuppressWarnings("resource")
-public class TokenBufferTest extends BaseMapTest
+public class TokenBufferTest extends DatabindTestUtil
 {
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     static class Base1730 { }
 
@@ -53,6 +58,7 @@ public class TokenBufferTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testBasicConfig() throws IOException
     {
         TokenBuffer buf;
@@ -78,6 +84,7 @@ public class TokenBufferTest extends BaseMapTest
     }
 
     // for [databind#3528]
+    @Test
     public void testParserFeatureDefaults() throws IOException
     {
         TokenBuffer buf = new TokenBuffer(MAPPER, false);
@@ -91,6 +98,7 @@ public class TokenBufferTest extends BaseMapTest
     /**
      * Test writing of individual simple values
      */
+    @Test
     public void testSimpleWrites() throws IOException
     {
         TokenBuffer buf = new TokenBuffer(null, false); // no ObjectCodec
@@ -126,6 +134,7 @@ public class TokenBufferTest extends BaseMapTest
     }
 
     // For 2.9, explicit "isNaN" check
+    @Test
     public void testSimpleNumberWrites() throws IOException
     {
         TokenBuffer buf = new TokenBuffer(null, false);
@@ -174,6 +183,7 @@ public class TokenBufferTest extends BaseMapTest
     }
 
     // [databind#1729]
+    @Test
     public void testNumberOverflowInt() throws IOException
     {
         try (TokenBuffer buf = new TokenBuffer(null, false)) {
@@ -207,6 +217,7 @@ public class TokenBufferTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testNumberOverflowLong() throws IOException
     {
         try (TokenBuffer buf = new TokenBuffer(null, false)) {
@@ -225,6 +236,7 @@ public class TokenBufferTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testBigIntAsString() throws IOException
     {
         try (TokenBuffer buf = new TokenBuffer(null, false)) {
@@ -238,6 +250,7 @@ public class TokenBufferTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testBigDecimalAsString() throws IOException
     {
         final String num = "-10000000000.0000000001";
@@ -251,6 +264,7 @@ public class TokenBufferTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testParentContext() throws IOException
     {
         TokenBuffer buf = new TokenBuffer(null, false); // no ObjectCodec
@@ -266,6 +280,7 @@ public class TokenBufferTest extends BaseMapTest
         buf.close();
     }
 
+    @Test
     public void testSimpleArray() throws IOException
     {
         TokenBuffer buf = new TokenBuffer(null, false); // no ObjectCodec
@@ -327,6 +342,7 @@ public class TokenBufferTest extends BaseMapTest
         buf.close();
     }
 
+    @Test
     public void testSimpleObject() throws IOException
     {
         TokenBuffer buf = new TokenBuffer(null, false);
@@ -366,7 +382,7 @@ public class TokenBufferTest extends BaseMapTest
         assertEquals("bah", p.currentName());
 
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, p.nextToken());
-        assertEquals(1.25, p.getDoubleValue());
+        assertEquals(1.25, p.getDoubleValue(), 0.0);
         // should still have access to (overridden) name
         assertEquals("bah", p.currentName());
         assertToken(JsonToken.END_OBJECT, p.nextToken());
@@ -381,29 +397,30 @@ public class TokenBufferTest extends BaseMapTest
      * Verify handling of that "standard" test document (from JSON
      * specification)
      */
+    @Test
     public void testWithJSONSampleDoc() throws Exception
     {
         // First, copy events from known good source (StringReader)
-        JsonParser p = createParserUsingReader(SAMPLE_DOC_JSON_SPEC);
         TokenBuffer tb = new TokenBuffer(null, false);
-        while (p.nextToken() != null) {
-            tb.copyCurrentEvent(p);
+        try (JsonParser p = MAPPER.createParser(SAMPLE_DOC_JSON_SPEC)) {
+            while (p.nextToken() != null) {
+                tb.copyCurrentEvent(p);
+            }
+    
+            // And then request verification; first structure only:
+            verifyJsonSpecSampleDoc(tb.asParser(), false);
+    
+            // then content check too:
+            verifyJsonSpecSampleDoc(tb.asParser(), true);
+            tb.close();
         }
-
-        // And then request verification; first structure only:
-        verifyJsonSpecSampleDoc(tb.asParser(), false);
-
-        // then content check too:
-        verifyJsonSpecSampleDoc(tb.asParser(), true);
-        tb.close();
-        p.close();
-
 
         // 19-Oct-2016, tatu: Just for fun, trigger `toString()` for code coverage
         String desc = tb.toString();
         assertNotNull(desc);
     }
 
+    @Test
     public void testAppend() throws IOException
     {
         TokenBuffer buf1 = new TokenBuffer(null, false);
@@ -436,6 +453,7 @@ public class TokenBufferTest extends BaseMapTest
 
     // Since 2.3 had big changes to UUID handling, let's verify we can
     // deal with
+    @Test
     public void testWithUUID() throws IOException
     {
         for (String value : new String[] {
@@ -471,6 +489,7 @@ public class TokenBufferTest extends BaseMapTest
      */
 
     // for [databind#984]: ensure output context handling identical
+    @Test
     public void testOutputContext() throws IOException
     {
         TokenBuffer buf = new TokenBuffer(null, false); // no ObjectCodec
@@ -562,6 +581,7 @@ public class TokenBufferTest extends BaseMapTest
     }
 
     // [databind#1253]
+    @Test
     public void testParentSiblingContext() throws IOException
     {
         TokenBuffer buf = new TokenBuffer(null, false); // no ObjectCodec
@@ -584,6 +604,7 @@ public class TokenBufferTest extends BaseMapTest
         buf.close();
     }
 
+    @Test
     public void testBasicSerialize() throws IOException
     {
         TokenBuffer buf;
@@ -623,13 +644,14 @@ public class TokenBufferTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testWithJsonParserSequenceSimple() throws IOException
     {
         // Let's join a TokenBuffer with JsonParser first
         TokenBuffer buf = new TokenBuffer(null, false);
         buf.writeStartArray();
         buf.writeString("test");
-        JsonParser p = createParserUsingReader("[ true, null ]");
+        JsonParser p = MAPPER.createParser("[ true, null ]");
 
         JsonParserSequence seq = JsonParserSequence.createFlattened(false, buf.asParser(), p);
         assertEquals(2, seq.containedParsersCount());
@@ -672,6 +694,7 @@ public class TokenBufferTest extends BaseMapTest
      * Test to verify that TokenBuffer and JsonParserSequence work together
      * as expected.
      */
+    @Test
     public void testWithMultipleJsonParserSequences() throws IOException
     {
         TokenBuffer buf1 = new TokenBuffer(null, false);
@@ -705,6 +728,7 @@ public class TokenBufferTest extends BaseMapTest
     }
 
     // [databind#743]
+    @Test
     public void testRawValues() throws Exception
     {
         final String RAW = "{\"a\":1}";
@@ -723,6 +747,7 @@ public class TokenBufferTest extends BaseMapTest
     }
 
     // [databind#1730]
+    @Test
     public void testEmbeddedObjectCoerceCheck() throws Exception
     {
         TokenBuffer buf = new TokenBuffer(null, false);
@@ -739,6 +764,7 @@ public class TokenBufferTest extends BaseMapTest
         buf.close();
     }
 
+    @Test
     public void testIsEmpty() throws Exception
     {
         // Let's check that segment boundary won't ruin it
@@ -761,6 +787,7 @@ public class TokenBufferTest extends BaseMapTest
      */
 
     // [databind#3816]
+    @Test
     public void testWriteStringFromStream() throws Exception
     {
         Map<String, String> map = MAPPER.convertValue(new Foo3816(),

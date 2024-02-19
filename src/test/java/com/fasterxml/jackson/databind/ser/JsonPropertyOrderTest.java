@@ -9,18 +9,18 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import static com.fasterxml.jackson.databind.BaseMapTest.newJsonMapper;
-import static com.fasterxml.jackson.databind.BaseTest.a2q;
 
 /**
  * Test to verify that the order of properties is preserved when using @JsonPropertyOrder
  * with @JsonUnwrapped and @JsonAnyGetter
  *
  */
-public class JsonPropertyOrderTest {
+public class JsonPropertyOrderTest extends DatabindTestUtil
+{
 
     // Base class with properties
     static class BaseWithProperties {

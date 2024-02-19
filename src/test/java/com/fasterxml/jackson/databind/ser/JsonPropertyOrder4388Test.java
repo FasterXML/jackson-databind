@@ -37,7 +37,7 @@ public class JsonPropertyOrder4388Test extends DatabindTestUtil
     }
 
     // @JsonAnyGetter, with different property order
-    @JsonPropertyOrder({"entityId", "totalTests", "childEntities", "entityName", "products"})
+    @JsonPropertyOrder({"entityId", "totalTests", "childEntities", "products", "entityName"})
     static class PojoPropertyVersion2 extends BaseWithProperties {
     }
 
@@ -88,8 +88,8 @@ public class JsonPropertyOrder4388Test extends DatabindTestUtil
                 "'totalTests':2," +
                 "'child1':3," +
                 "'child2':3," +
-                "'entityName':'Bob'," +
-                "'product1':4}"),
+                "'product1':4," +
+                "'entityName':'Bob'}"),
             json);
     }
 

@@ -3,19 +3,19 @@ package tools.jackson.databind.util;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.type.TypeFactory;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class BeanUtilTest extends BaseMapTest
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
+public class BeanUtilTest extends DatabindTestUtil
 {
-    /*
-    /**********************************************************************
-    /* Test methods
-    /**********************************************************************
-     */
-
+    @Test
     public void testGetDefaultValue()
     {
         TypeFactory tf = TypeFactory.defaultInstance();

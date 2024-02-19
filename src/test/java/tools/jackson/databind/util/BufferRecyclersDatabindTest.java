@@ -6,6 +6,8 @@ import java.lang.invoke.MethodType;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Predicate;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import tools.jackson.core.json.JsonFactory;
@@ -15,10 +17,12 @@ import tools.jackson.core.util.RecyclerPool;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.Assert.assertEquals;
 
 // For [databind#4321]: basic test
-public class BufferRecyclersDatabindTest
-    extends BaseMapTest
+public class BufferRecyclersDatabindTest extends DatabindTestUtil
 {
     @JsonPropertyOrder({ "a", "b" })
     static class Pojo4321 {
@@ -34,29 +38,35 @@ public class BufferRecyclersDatabindTest
 
     // // Parsers with RecyclerPools:
 
+    @Test
     public void testParserWithThreadLocalPool() throws Exception {
         _testParser(JsonRecyclerPools.threadLocalPool());
     }
 
+    @Test
     public void testParserWithNopLocalPool() throws Exception {
         _testParser(JsonRecyclerPools.nonRecyclingPool());
     }
 
+    @Test
     public void testParserWithDequeuPool() throws Exception {
         _testParser(JsonRecyclerPools.newConcurrentDequePool());
         _testParser(JsonRecyclerPools.sharedConcurrentDequePool());
     }
 
+    @Test
     public void testParserWithLockFreePool() throws Exception {
         _testParser(JsonRecyclerPools.newLockFreePool());
         _testParser(JsonRecyclerPools.sharedLockFreePool());
     }
 
+    @Test
     public void testParserWithBoundedPool() throws Exception {
         _testParser(JsonRecyclerPools.newBoundedPool(5));
         _testParser(JsonRecyclerPools.sharedBoundedPool());
     }
 
+    @Test
     public void testParserWithHybridPool() throws Exception {
         _testParser(new HybridTestPool());
     }
@@ -84,29 +94,35 @@ public class BufferRecyclersDatabindTest
 
     // // Generators with RecyclerPools:
 
+    @Test
     public void testGeneratorWithThreadLocalPool() throws Exception {
         _testGenerator(JsonRecyclerPools.threadLocalPool());
     }
 
+    @Test
     public void testGeneratorWithNopLocalPool() throws Exception {
         _testGenerator(JsonRecyclerPools.nonRecyclingPool());
     }
 
+    @Test
     public void testGeneratorWithDequeuPool() throws Exception {
         _testGenerator(JsonRecyclerPools.newConcurrentDequePool());
         _testGenerator(JsonRecyclerPools.sharedConcurrentDequePool());
     }
 
+    @Test
     public void testGeneratorWithLockFreePool() throws Exception {
         _testGenerator(JsonRecyclerPools.newLockFreePool());
         _testGenerator(JsonRecyclerPools.sharedLockFreePool());
     }
 
+    @Test
     public void testGeneratorWithBoundedPool() throws Exception {
         _testGenerator(JsonRecyclerPools.newBoundedPool(5));
         _testGenerator(JsonRecyclerPools.sharedBoundedPool());
     }
 
+    @Test
     public void testGeneratorWithHybridPool() throws Exception {
         _testGenerator(new HybridTestPool());
     }

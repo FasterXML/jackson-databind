@@ -2,15 +2,20 @@ package tools.jackson.databind.util;
 
 import java.util.List;
 
-import tools.jackson.databind.BaseMapTest;
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.SerializationConfig;
 import tools.jackson.databind.SerializationFeature;
 import tools.jackson.databind.cfg.EnumFeature;
 import tools.jackson.databind.introspect.AnnotatedClass;
 import tools.jackson.databind.introspect.AnnotatedClassResolver;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class EnumValuesTest extends BaseMapTest
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
+public class EnumValuesTest extends DatabindTestUtil
 {
     enum ABC {
         A("A"),
@@ -27,6 +32,7 @@ public class EnumValuesTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
+    @Test
     public void testConstructFromName() {
         SerializationConfig cfg = MAPPER.serializationConfig()
                 .without(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
@@ -39,6 +45,7 @@ public class EnumValuesTest extends BaseMapTest
         assertEquals(3, values.internalMap().size());
     }
 
+    @Test
     public void testConstructWithToString() {
         SerializationConfig cfg = MAPPER.serializationConfig()
                 .with(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
@@ -51,6 +58,7 @@ public class EnumValuesTest extends BaseMapTest
         assertEquals(3, values.internalMap().size());
     }
 
+    @Test
     public void testEnumResolverNew()
     {
         AnnotatedClass annotatedClass = resolve(MAPPER, ABC.class);
@@ -68,6 +76,7 @@ public class EnumValuesTest extends BaseMapTest
     }
 
     // [databind#3053]
+    @Test
     public void testConstructFromNameLowerCased() {
         SerializationConfig cfg = MAPPER.serializationConfig()
             .with(EnumFeature.WRITE_ENUMS_TO_LOWERCASE);

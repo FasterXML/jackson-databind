@@ -1,10 +1,15 @@
 package tools.jackson.databind.util;
 
-import tools.jackson.databind.BaseMapTest;
-import tools.jackson.databind.JacksonSerializable;
+import org.junit.jupiter.api.Test;
 
-public class RawValueTest extends BaseMapTest
+import tools.jackson.databind.JacksonSerializable;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.Assert.*;
+
+public class RawValueTest extends DatabindTestUtil
 {
+    @Test
     public void testEquality()
     {
         RawValue raw1 = new RawValue("foo");

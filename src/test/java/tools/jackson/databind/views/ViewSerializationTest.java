@@ -1,11 +1,5 @@
 package tools.jackson.databind.views;
 
-import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
-import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
-import static tools.jackson.databind.testutil.DatabindTestUtil.writeAndMap;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
 import java.io.*;
 import java.util.*;
 
@@ -14,12 +8,16 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * Unit tests for verifying JSON view functionality: ability to declaratively
  * suppress subset of properties from being serialized.
  */
-public class ViewSerializationTest
+public class ViewSerializationTest extends DatabindTestUtil
 {
     // Classes that represent views
     static class ViewA { }

@@ -3,24 +3,22 @@ package tools.jackson.databind.util;
 import java.io.*;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.ObjectWriteContext;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.core.type.TypeReference;
 
-import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.type.TypeFactory;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class ClassUtilTest extends BaseMapTest
+import static org.junit.Assert.*;
+
+public class ClassUtilTest extends DatabindTestUtil
 {
-    /*
-    /**********************************************************
-    /* Test classes, enums
-    /**********************************************************
-     */
-
     /* Test classes and interfaces needed for testing class util
      * methods
      */
@@ -79,6 +77,7 @@ public class ClassUtilTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testIsConcrete() throws Exception
     {
         assertTrue(ClassUtil.isConcrete(getClass()));
@@ -89,6 +88,7 @@ public class ClassUtilTest extends BaseMapTest
         assertTrue(ClassUtil.isConcrete(ConcreteAndAbstract.class.getDeclaredMethod("c")));
     }
 
+    @Test
     public void testCanBeABeanType()
     {
         assertEquals("annotation", ClassUtil.canBeABeanType(java.lang.annotation.Retention.class));
@@ -101,6 +101,7 @@ public class ClassUtilTest extends BaseMapTest
         assertNull(ClassUtil.isLocalType(Integer.class, false));
     }
 
+    @Test
     public void testExceptionHelpers()
     {
         RuntimeException e = new RuntimeException("test");
@@ -131,6 +132,7 @@ public class ClassUtilTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testFailedCreateInstance()
     {
         try {
@@ -154,6 +156,7 @@ public class ClassUtilTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testPrimitiveDefaultValue()
     {
         assertEquals(Integer.valueOf(0), ClassUtil.defaultValue(Integer.TYPE));
@@ -174,6 +177,7 @@ public class ClassUtilTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testPrimitiveWrapperType()
     {
         assertEquals(Byte.class, ClassUtil.wrapperType(Byte.TYPE));
@@ -195,6 +199,7 @@ public class ClassUtilTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testWrapperToPrimitiveType()
     {
         assertEquals(Integer.TYPE, ClassUtil.primitiveType(Integer.class));
@@ -209,6 +214,7 @@ public class ClassUtilTest extends BaseMapTest
         assertNull(ClassUtil.primitiveType(String.class));
     }
 
+    @Test
     public void testFindEnumTypeNonJdk()
     {
         assertEquals(TestEnum.class, ClassUtil.findEnumType(TestEnum.A));
@@ -216,6 +222,7 @@ public class ClassUtilTest extends BaseMapTest
     }
 
     // Some trouble with JDK 16+
+    @Test
     public void testFindEnumSetTypeJDK()
     {
         // different codepaths for empty and non-empty EnumSets...
@@ -224,11 +231,13 @@ public class ClassUtilTest extends BaseMapTest
     }
 
     // Some trouble with JDK 16+
+    @Test
     public void testFindEnumMapTypeJDK()
     {
         assertEquals(TestEnum.class, ClassUtil.findEnumType(new EnumMap<TestEnum,Integer>(TestEnum.class)));
     }
 
+    @Test
     public void testDescs()
     {
         final String stringExp = "`java.lang.String`";
@@ -242,12 +251,14 @@ public class ClassUtilTest extends BaseMapTest
                 ClassUtil.getTypeDescription(mapType));
     }
 
+    @Test
     public void testGetDeclaringClass()
     {
         assertEquals(null, ClassUtil.getDeclaringClass(String.class));
         assertEquals(getClass(), ClassUtil.getDeclaringClass(BaseClass.class));
     }
 
+    @Test
     public void testIsXxxType()
     {
         assertTrue(ClassUtil.isCollectionMapOrArray(String[].class));
@@ -260,6 +271,7 @@ public class ClassUtilTest extends BaseMapTest
         assertFalse(ClassUtil.isBogusClass(String.class));
     }
 
+    @Test
     public void testEnforceSubtype()
     {
         try {
@@ -269,6 +281,7 @@ public class ClassUtilTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testCloseEtc() throws Exception
     {
         final Exception testExc1 = new IllegalArgumentException("test");
@@ -298,6 +311,7 @@ public class ClassUtilTest extends BaseMapTest
     }
 
     @SuppressWarnings("serial")
+    @Test
     public void testExceptionMessage() {
         DatabindException jacksonException = new DatabindException("A message") {
             @Override
@@ -318,6 +332,7 @@ public class ClassUtilTest extends BaseMapTest
         throw new IllegalArgumentException("A custom message");
     }
 
+    @Test
     public void testJDKChecks() {
         int version = ClassUtil.getJDKMajorVersion();
         assertTrue(version > 0);

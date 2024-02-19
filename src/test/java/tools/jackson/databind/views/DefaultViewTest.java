@@ -1,9 +1,5 @@
 package tools.jackson.databind.views;
 
-import static org.junit.Assert.assertEquals;
-import static tools.jackson.databind.testutil.DatabindTestUtil.a2q;
-import static tools.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
-
 import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
@@ -11,9 +7,12 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.Assert.assertEquals;
 
 // for [databind#507], supporting default views
-public class DefaultViewTest
+public class DefaultViewTest extends DatabindTestUtil
 {
     // Classes that represent views
     static class ViewA { }

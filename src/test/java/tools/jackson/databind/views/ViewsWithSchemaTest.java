@@ -1,17 +1,18 @@
 package tools.jackson.databind.views;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.*;
-
-import com.fasterxml.jackson.annotation.*;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.*;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.jsonFormatVisitors.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class ViewsWithSchemaTest
+import static org.junit.Assert.assertEquals;
+
+public class ViewsWithSchemaTest extends DatabindTestUtil
 {
     interface ViewBC { }
     interface ViewAB { }

@@ -1,15 +1,15 @@
 package tools.jackson.databind.views;
 
-import static org.junit.Assert.assertEquals;
-import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
-
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class ViewsWithCreatorTest
+import static org.junit.Assert.assertEquals;
+
+public class ViewsWithCreatorTest extends DatabindTestUtil
 {
     static class View { }
     static class View1 extends View { }

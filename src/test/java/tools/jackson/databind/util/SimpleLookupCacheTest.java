@@ -1,9 +1,15 @@
 package tools.jackson.databind.util;
 
-import tools.jackson.databind.BaseTest;
+import org.junit.jupiter.api.Test;
 
-public class SimpleLookupCacheTest extends BaseTest
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
+public class SimpleLookupCacheTest extends DatabindTestUtil
 {
+    @Test
     public void testPutGet() {
         SimpleLookupCache<String, Integer> m = new SimpleLookupCache<>(5, 5);
 
@@ -18,6 +24,7 @@ public class SimpleLookupCacheTest extends BaseTest
         assertEquals(Integer.valueOf(200), m.get("k2"));
     }
 
+    @Test
     public void testEviction() {
         SimpleLookupCache<String, Integer> m = new SimpleLookupCache<>(5, 5);
 
@@ -43,6 +50,7 @@ public class SimpleLookupCacheTest extends BaseTest
         assertEquals(Integer.valueOf(105), m.get("k6"));
     }
 
+    @Test
     public void testJDKSerialization() throws Exception
     {
         final int maxEntries = 32;

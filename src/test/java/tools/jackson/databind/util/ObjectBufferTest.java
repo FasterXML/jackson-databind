@@ -2,19 +2,24 @@ package tools.jackson.databind.util;
 
 import java.util.*;
 
-import tools.jackson.databind.BaseMapTest;
+import org.junit.jupiter.api.Test;
 
-public class ObjectBufferTest
-    extends BaseMapTest
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.Assert.assertEquals;
+
+public class ObjectBufferTest extends DatabindTestUtil
 {
     /**
      * First a test that treats results as plain old Object[]
      */
+    @Test
     public void testUntyped()
     {
         _testObjectBuffer(null);
     }
 
+    @Test
     public void testTyped()
     {
         _testObjectBuffer(Integer.class);

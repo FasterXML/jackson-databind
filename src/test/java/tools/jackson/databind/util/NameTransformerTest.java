@@ -1,9 +1,14 @@
 package tools.jackson.databind.util;
 
-import tools.jackson.databind.BaseMapTest;
+import org.junit.jupiter.api.Test;
 
-public class NameTransformerTest extends BaseMapTest
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.Assert.assertEquals;
+
+public class NameTransformerTest extends DatabindTestUtil
 {
+    @Test
     public void testSimpleTransformer() throws Exception
     {
         NameTransformer xfer;

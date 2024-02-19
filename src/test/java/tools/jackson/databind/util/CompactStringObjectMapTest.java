@@ -2,10 +2,16 @@ package tools.jackson.databind.util;
 
 import java.util.*;
 
-import tools.jackson.databind.BaseMapTest;
+import org.junit.jupiter.api.Test;
 
-public class CompactStringObjectMapTest extends BaseMapTest
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
+public class CompactStringObjectMapTest extends DatabindTestUtil
 {
+    @Test
     public void testBig()
     {
         Map<String,String> all = new LinkedHashMap<>();

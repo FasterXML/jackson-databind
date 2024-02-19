@@ -4,16 +4,21 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
-import tools.jackson.databind.BaseMapTest;
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.FiveMinuteUser;
 
-public class ByteBufferUtilsTest extends BaseMapTest
+import static org.junit.Assert.assertEquals;
+
+public class ByteBufferUtilsTest extends DatabindTestUtil
 {
     private final FiveMinuteUser TEST_USER = new FiveMinuteUser("Bob", "Burger",
             true, FiveMinuteUser.Gender.MALE,
             new byte[] { 1, 2, 3, 4, 5 });
 
+    @Test
     public void testByteBufferInput() throws Exception {
         byte[] input = new byte[] { 1, 2, 3 };
         try (ByteBufferBackedInputStream wrapped = new ByteBufferBackedInputStream(ByteBuffer.wrap(input))) {
@@ -26,6 +31,7 @@ public class ByteBufferUtilsTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testByteBufferOutput() throws Exception {
         ByteBuffer b = ByteBuffer.wrap(new byte[10]);
         try (ByteBufferBackedOutputStream wrappedOut = new ByteBufferBackedOutputStream(b)) {
@@ -36,6 +42,7 @@ public class ByteBufferUtilsTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testReadFromByteBuffer() throws Exception
     {
         final ObjectMapper mapper = sharedMapper();
@@ -48,6 +55,7 @@ public class ByteBufferUtilsTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testWriteToByteBuffer() throws Exception
     {
         final ObjectMapper mapper = sharedMapper();

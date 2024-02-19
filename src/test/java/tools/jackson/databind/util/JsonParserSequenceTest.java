@@ -1,18 +1,21 @@
 package tools.jackson.databind.util;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 import tools.jackson.core.ObjectReadContext;
 import tools.jackson.core.util.JsonParserSequence;
 
-import tools.jackson.databind.BaseMapTest;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class JsonParserSequenceTest extends BaseMapTest
+public class JsonParserSequenceTest extends DatabindTestUtil
 {
     /**
      * Verifies fix for [core#372]
      */
     @SuppressWarnings("resource")
+    @Test
     public void testJsonParserSequenceOverridesSkipChildren() throws Exception
     {
         // Create parser from TokenBuffer containing an incomplete JSON object

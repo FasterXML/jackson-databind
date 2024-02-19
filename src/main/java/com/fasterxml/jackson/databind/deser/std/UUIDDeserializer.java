@@ -41,19 +41,13 @@ public class UUIDDeserializer extends FromStringDeserializer<UUID>
              *   length it must have...
              */
             if (id.length() == 24) {
-                byte[] stuff = Base64Variants.getDefaultVariant().decode(id
-                    //cater for url safe chars
-                    .replace("-", "+")
-                    .replace("_", "/"));
+                byte[] stuff = Base64Variants.getDefaultVariant().decode(convertFromUrlSafe(id));
                 return _fromBytes(stuff, ctxt);
             }
 
             // support for Base64Url encoding (without padding)
             if (id.length() == 22) {
-                byte[] stuff = Base64Variants.MODIFIED_FOR_URL.decode(id
-                    //cater for non url safe chars
-                    .replace("+", "-")
-                    .replace("/", "_"));
+                byte[] stuff = Base64Variants.MODIFIED_FOR_URL.decode(convertToUrlSafe(id));
                 return _fromBytes(stuff, ctxt);
             }
             return _badFormat(id, ctxt);
@@ -140,6 +134,18 @@ public class UUIDDeserializer extends FromStringDeserializer<UUID>
                     bytes, handledType());
         }
         return new UUID(_long(bytes, 0), _long(bytes, 8));
+    }
+
+    private String convertToUrlSafe(String base64) {
+        return base64
+            .replace('+', '-')
+            .replace('/', '_');
+    }
+
+    private String convertFromUrlSafe(String base64) {
+        return base64
+            .replace('-', '+')
+            .replace('_', '/');
     }
 
     private static long _long(byte[] b, int offset) {

@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
-public class TestArrayConversions
+public class ArrayConversionsTest
 {
     final static String OVERFLOW_MSG_BYTE = "out of range of Java byte";
     final static String OVERFLOW_MSG_SHORT = "out of range of Java short";

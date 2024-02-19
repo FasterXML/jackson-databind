@@ -24,7 +24,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMa
  * expected.
  */
 @SuppressWarnings("serial")
-public class TestUpdateViaObjectReader
+public class UpdateViaObjectReaderTest
 {
     static class Bean {
         public String a = "a";

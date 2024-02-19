@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.util.StdConverter;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestMapConversions
+public class MapConversionsTest
 {
     final ObjectMapper MAPPER = new ObjectMapper();
 

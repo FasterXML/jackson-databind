@@ -22,7 +22,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
  * Tests for various conversions, especially ones using
  * {@link ObjectMapper#convertValue(Object, Class)}.
  */
-public class TestBeanConversions
+public class BeanConversionsTest
 {
     static class PointZ {
         public int x, y;

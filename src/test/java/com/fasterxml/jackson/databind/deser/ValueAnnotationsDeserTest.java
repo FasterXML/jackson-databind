@@ -21,7 +21,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyExc
  * annotations that define actual type (Class) to use for
  * deserialization.
  */
-public class TestValueAnnotations
+public class ValueAnnotationsDeserTest
 {
     /*
     /**********************************************************

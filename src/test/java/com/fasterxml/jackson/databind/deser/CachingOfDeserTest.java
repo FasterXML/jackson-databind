@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SuppressWarnings("serial")
-public class TestCachingOfDeser
+public class CachingOfDeserTest
 {
     // For [databind#735]
     public static class TestMapNoCustom {

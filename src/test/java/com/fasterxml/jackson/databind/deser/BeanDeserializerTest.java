@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
 
 @SuppressWarnings("serial")
-public class TestBeanDeserializer
+public class BeanDeserializerTest
 {
     static abstract class Abstract {
         public int x;

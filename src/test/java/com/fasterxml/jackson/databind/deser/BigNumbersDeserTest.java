@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
 
-public class TestBigNumbers
+public class BigNumbersDeserTest
 {
     static class BigDecimalWrapper {
         BigDecimal number;

@@ -20,7 +20,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyExc
  * expected, similar to how Collections and Maps work
  * with JAXB.
  */
-public class TestSetterlessProperties
+public class SetterlessPropertiesDeserTest
 {
     static class CollectionBean
     {

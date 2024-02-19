@@ -23,7 +23,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.IntWrappe
  * method types, explicit deserializer annotations.
  */
 @SuppressWarnings("serial")
-public class TestBasicAnnotations
+public class BasicAnnotationsTest
 {
     /// Class for testing {@link JsonProperty} annotations
     final static class SizeClassSetter

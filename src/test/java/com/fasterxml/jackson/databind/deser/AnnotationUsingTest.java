@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * {@link JsonDeserialize} annotation.
  */
 @SuppressWarnings("serial")
-public class TestAnnotationUsing
+public class AnnotationUsingTest
 {
     /*
     /**********************************************************************

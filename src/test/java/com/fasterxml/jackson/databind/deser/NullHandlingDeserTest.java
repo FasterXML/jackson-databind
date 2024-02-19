@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
 
-public class NullHandlingTest
+public class NullHandlingDeserTest
 {
     static class FunnyNullDeserializer extends JsonDeserializer<String>
     {

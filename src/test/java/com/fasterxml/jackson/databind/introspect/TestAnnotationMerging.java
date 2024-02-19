@@ -1,15 +1,19 @@
 package com.fasterxml.jackson.databind.introspect;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests to verify that annotations are shared and merged between members
  * of a property (getter and setter and so on)
  */
-public class TestAnnotationMerging extends BaseMapTest
+public class TestAnnotationMerging extends DatabindTestUtil
 {
     static class Wrapper
     {
@@ -60,12 +64,14 @@ public class TestAnnotationMerging extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testSharedNames() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         assertEquals("{\"x\":6}", mapper.writeValueAsString(new SharedName(6)));
     }
 
+    @Test
     public void testSharedNamesFromGetterToSetter() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -75,6 +81,7 @@ public class TestAnnotationMerging extends BaseMapTest
         assertNotNull(result);
     }
 
+    @Test
     public void testSharedTypeInfo() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -83,6 +90,7 @@ public class TestAnnotationMerging extends BaseMapTest
         assertEquals(Long.class, result.value.getClass());
     }
 
+    @Test
     public void testSharedTypeInfoWithCtor() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();

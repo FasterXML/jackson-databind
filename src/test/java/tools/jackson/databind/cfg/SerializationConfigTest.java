@@ -10,7 +10,7 @@ import tools.jackson.databind.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class SerConfigTest
+public class SerializationConfigTest
 {
     private final ObjectMapper MAPPER = new ObjectMapper();
 

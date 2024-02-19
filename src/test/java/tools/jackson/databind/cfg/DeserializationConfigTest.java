@@ -8,13 +8,13 @@ import tools.jackson.core.StreamReadFeature;
 import tools.jackson.core.json.JsonReadFeature;
 
 import tools.jackson.databind.*;
-import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class DeserializationConfigTest
+public class DeserializationConfigTest extends DatabindTestUtil
 {
-    private final ObjectMapper MAPPER = JsonMapper.builder().build();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
     public void testFeatureDefaults()

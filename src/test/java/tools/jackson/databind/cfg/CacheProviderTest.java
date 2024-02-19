@@ -3,21 +3,19 @@ package tools.jackson.databind.cfg;
 import java.util.HashMap;
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.util.LookupCache;
 import tools.jackson.databind.util.SimpleLookupCache;
 import tools.jackson.databind.util.TypeKey;
 
-import org.junit.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * <a href="https://github.com/FasterXML/jackson-databind/issues/2502">
  * [databind#2502] Test for adding a way to configure Caches Jackson uses</a>
- *
- * @since 2.16
  */
 public class CacheProviderTest
 {

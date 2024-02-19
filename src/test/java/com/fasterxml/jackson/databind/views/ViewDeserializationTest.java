@@ -1,17 +1,18 @@
 package com.fasterxml.jackson.databind.views;
 
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.jsonMapperBuilder;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import com.fasterxml.jackson.databind.*;
-import org.junit.jupiter.api.Test;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class ViewDeserializationTest
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
+public class ViewDeserializationTest extends DatabindTestUtil
 {
     // Classes that represent views
     static class ViewA { }

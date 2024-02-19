@@ -5,10 +5,13 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
+import org.junit.jupiter.api.Test;
 
-public class StdDateFormatTest
-    extends BaseMapTest
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.Assert.*;
+
+public class StdDateFormatTest extends DatabindTestUtil
 {
     @SuppressWarnings("deprecation")
     public void testFactories() {
@@ -19,6 +22,7 @@ public class StdDateFormatTest
     }
 
     // [databind#803]
+    @Test
     public void testLenientDefaults() throws Exception
     {
         StdDateFormat f = StdDateFormat.instance;
@@ -42,6 +46,7 @@ public class StdDateFormatTest
         assertFalse(f3.isLenient());
     }
 
+    @Test
     public void testISO8601RegexpDateOnly() throws Exception
     {
         Pattern p = StdDateFormat.PATTERN_PLAIN;
@@ -50,6 +55,7 @@ public class StdDateFormatTest
         // no matching groups...
     }
 
+    @Test
     public void testISO8601RegexpFull() throws Exception
     {
         /*
@@ -107,6 +113,7 @@ public class StdDateFormatTest
         assertNull(m.group(2));
     }
 
+    @Test
     public void testLenientParsing() throws Exception
     {
         StdDateFormat f = StdDateFormat.instance.clone();
@@ -130,6 +137,7 @@ public class StdDateFormatTest
         assertNotNull(dt);
     }
 
+    @Test
     public void testInvalid() {
         StdDateFormat std = new StdDateFormat();
         try {

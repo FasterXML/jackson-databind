@@ -1,10 +1,14 @@
 package com.fasterxml.jackson.databind.introspect;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.EnumNamingStrategies;
-
 import java.util.Arrays;
 import java.util.List;
+
+import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.databind.EnumNamingStrategies;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Test case to verify functioning of standard
@@ -13,7 +17,7 @@ import java.util.List;
  *
  * @since 2.15
  */
-public class EnumNamingStrategiesTest extends BaseMapTest {
+public class EnumNamingStrategiesTest extends DatabindTestUtil {
 
     /**
      * Test casess for {@link com.fasterxml.jackson.databind.EnumNamingStrategies.CamelCaseStrategy}.
@@ -117,6 +121,7 @@ public class EnumNamingStrategiesTest extends BaseMapTest {
      *
      * @since 2.15
      */
+    @Test
     public void testCamelCaseStrategyStandAlone() {
         for (String[] pair : CAMEL_CASE_NAME_TRANSLATIONS) {
             final String input = pair[0];

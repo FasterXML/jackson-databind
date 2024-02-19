@@ -309,6 +309,14 @@ public class DatabindTestUtil
         return SHARED_MAPPER;
     }
 
+    protected static ObjectWriter objectWriter() {
+        return sharedMapper().writer();
+    }
+
+    protected static ObjectReader objectReader() {
+        return sharedMapper().reader();
+    }
+
     public static TypeFactory newTypeFactory() {
         // this is a work-around; no null modifier added
         return TypeFactory.defaultInstance().withModifier(null);

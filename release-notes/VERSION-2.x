@@ -177,7 +177,7 @@ Project: jackson-databind
   deserialising empty Object
  (reported by @nocny-x)
 
-2.15.4 (not yet released)
+2.15.4 (15-Feb-2024)
 
 #1172: `@JsonView` doesn't work with `@JsonCreator`
  (reported by Dmitry B)
@@ -188,6 +188,10 @@ Project: jackson-databind
 #4303: `ObjectReader` is not serializable if it's configured for polymorphism
  (reported by @asardaes)
  (fix contributed by Joo-Hyuk K)
+#4378: `TextNode.equals()` throws `NullPointerException` when `TextNode`
+  constructed with `null`
+ (reported by @Javed6234)
+ (fix contributed by @pjfanning)
 
 2.15.3 (12-Oct-2023)
 

@@ -2,7 +2,12 @@ package com.fasterxml.jackson.databind.interop;
 
 import java.io.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Simple test to ensure that we can make POJOs use Jackson
@@ -10,7 +15,7 @@ import com.fasterxml.jackson.databind.*;
  *
  * @since 2.1
  */
-public class TestExternalizable extends BaseMapTest
+public class TestExternalizable extends DatabindTestUtil
 {
     /* Not pretty, but needed to make ObjectMapper accessible from
      * static context (alternatively could use ThreadLocal).
@@ -180,6 +185,7 @@ public class TestExternalizable extends BaseMapTest
     }
 
     @SuppressWarnings("unused")
+    @Test
     public void testSerializeAsExternalizable() throws Exception
     {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();

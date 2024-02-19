@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit test for verifying that {@link AnnotatedClass}
  * works as expected.
  */
-public class TestAnnotatedClass
+public class AnnotatedClassTest
 {
     /*
     /**********************************************************

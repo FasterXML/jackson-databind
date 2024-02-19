@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static tools.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
 
 // https://github.com/FasterXML/jackson-databind/issues/1647
-public class TestTypeFactoryWithRecursiveTypes
+public class TypeFactoryWithRecursiveTypesTest
 {
     static interface IFace<T> { }
 

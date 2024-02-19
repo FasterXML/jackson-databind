@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 @SuppressWarnings("serial")
-public class TestTypeResolution
+public class TypeResolutionTest
 {
     public static class LongValuedMap<K> extends HashMap<K, Long> { }
 

@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Simple tests to verify that {@link JavaType} types work to
  * some degree
  */
-public class TestJavaType
+public class JavaTypeTest
 {
     static class BaseType { }
 
@@ -115,8 +115,8 @@ public class TestJavaType
         assertNull(baseType.getKeyType());
         assertNull(baseType.getValueHandler());
 
-        assertEquals("Ltools/jackson/databind/type/TestJavaType$BaseType;", baseType.getGenericSignature());
-        assertEquals("Ltools/jackson/databind/type/TestJavaType$BaseType;", baseType.getErasedSignature());
+        assertEquals("Ltools/jackson/databind/type/JavaTypeTest$BaseType;", baseType.getGenericSignature());
+        assertEquals("Ltools/jackson/databind/type/JavaTypeTest$BaseType;", baseType.getErasedSignature());
     }
 
     @Test
@@ -183,8 +183,8 @@ public class TestJavaType
         assertNull(enumT.containedType(3));
         assertTrue(enumT.containedTypeOrUnknown(3).isJavaLangObject());
 
-        assertEquals("Ltools/jackson/databind/type/TestJavaType$MyEnum;", enumT.getGenericSignature());
-        assertEquals("Ltools/jackson/databind/type/TestJavaType$MyEnum;", enumT.getErasedSignature());
+        assertEquals("Ltools/jackson/databind/type/JavaTypeTest$MyEnum;", enumT.getGenericSignature());
+        assertEquals("Ltools/jackson/databind/type/JavaTypeTest$MyEnum;", enumT.getErasedSignature());
 
         assertTrue(tf.constructType(MyEnum2.class).isEnumType());
         assertTrue(tf.constructType(MyEnum.A.getClass()).isEnumType());

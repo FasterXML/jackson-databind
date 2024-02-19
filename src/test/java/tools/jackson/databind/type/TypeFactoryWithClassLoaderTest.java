@@ -1,5 +1,7 @@
 package tools.jackson.databind.type;
 
+import java.util.Objects;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,9 +13,9 @@ import tools.jackson.databind.ObjectMapper;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import java.util.Objects;
+// 18-Feb-2024, tatu: Not sure what happened here; this does not look right...
 
-public class TestTypeFactoryWithClassLoader
+public class TypeFactoryWithClassLoaderTest
 {
     public static class AClass
     {
@@ -77,15 +79,15 @@ public class TestTypeFactoryWithClassLoader
   }
 
   @Test
-public void testUsesCorrectClassLoaderWhenThreadClassLoaderIsNotNull() throws ClassNotFoundException {
+  public void testUsesCorrectClassLoaderWhenThreadClassLoaderIsNotNull() throws ClassNotFoundException {
 	TypeFactory spySut = spy(mapper.getTypeFactory().withModifier(typeModifier).withClassLoader(classLoader));
 	Class<?> clazz = spySut.findClass(aClassName);
 	verify(spySut).getClassLoader();
 	verify(spySut).classForName(any(String.class), any(Boolean.class), eq(classLoader));
 	assertNotNull(clazz);
 	assertEquals(classLoader, spySut.getClassLoader());
-//	Assert.assertEquals(typeModifier,spySut._modifiers[0]);
-}
+	//	Assert.assertEquals(typeModifier,spySut._modifiers[0]);
+  }
 
 @Test
 public void testCallingOnlyWithModifierGivesExpectedResults(){

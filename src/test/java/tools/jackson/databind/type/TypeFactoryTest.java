@@ -21,7 +21,7 @@ import static tools.jackson.databind.testutil.DatabindTestUtil.verifyException;
  * Simple tests to verify that the {@link TypeFactory} constructs
  * type information as expected.
  */
-public class TestTypeFactory
+public class TypeFactoryTest
 {
     /*
     /**********************************************************
@@ -254,7 +254,7 @@ public class TestTypeFactory
         // And then EnumMap (actual use case for us)
         t = tf.constructMapType(EnumMap.class, EnumForCanonical.class, String.class);
         can = t.toCanonical();
-        assertEquals("java.util.EnumMap<tools.jackson.databind.type.TestTypeFactory$EnumForCanonical,java.lang.String>",
+        assertEquals("java.util.EnumMap<tools.jackson.databind.type.TypeFactoryTest$EnumForCanonical,java.lang.String>",
                 can);
         assertEquals(t, tf.constructFromCanonical(can));
 

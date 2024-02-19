@@ -15,7 +15,7 @@ import static tools.jackson.databind.testutil.DatabindTestUtil.newTypeFactory;
 import static tools.jackson.databind.testutil.DatabindTestUtil.verifyException;
 
 // for [databind#1604], [databind#2577]
-public class TestTypeFactory1604
+public class TypeFactory1604Test
 {
     static class Data1604<T> { }
 

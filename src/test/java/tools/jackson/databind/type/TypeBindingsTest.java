@@ -15,7 +15,7 @@ import static tools.jackson.databind.testutil.DatabindTestUtil.verifyException;
  * Simple tests to verify for generic type binding functionality
  * implemented by {@link TypeBindings} class.
  */
-public class TestTypeBindings
+public class TypeBindingsTest
 {
     static class AbstractType<A,B> { }
 

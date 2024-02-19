@@ -9,16 +9,16 @@ import com.fasterxml.jackson.annotation.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.exc.UnrecognizedPropertyException;
+import tools.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
-
-import static tools.jackson.databind.testutil.DatabindTestUtil.*;
 
 /**
  * Unit tests for verifying that {@link JsonAnySetter} annotation
  * works as expected.
  */
-public class AnySetterTest
+public class AnySetterTest extends DatabindTestUtil
 {
     static class MapImitator
     {
@@ -256,6 +256,14 @@ public class AnySetterTest
         public int x, y;
     }
 
+    // [databind#3394]
+    static class AnySetter3394Bean {
+        public int id;
+
+        @JsonAnySetter
+        public JsonNode extraData = new ObjectNode(null);
+    }
+
     // [databind#4316]
     static class Problem4316 extends Exception {
         private static final long serialVersionUID = 1L;
@@ -476,6 +484,17 @@ public class AnySetterTest
             assertEquals(Integer.class, value.getClass(), "A value in MyGeneric<Integer> is not an Integer.");
         }
         assertEquals(integerGeneric.getDynamicallyMappedProperties(), integerGenericMap);
+    }
+
+    // [databind#3394]
+    @Test
+    public void testAnySetterWithJsonNode() throws Exception
+    {
+        final String DOC = a2q("{'test':3,'nullable':null,'id':42,'value':true}");
+        AnySetter3394Bean bean = MAPPER.readValue(DOC, AnySetter3394Bean.class);
+        assertEquals(a2q("{'test':3,'nullable':null,'value':true}"),
+                ""+bean.extraData);
+        assertEquals(42, bean.id);
     }
 
     // [databind#4316]

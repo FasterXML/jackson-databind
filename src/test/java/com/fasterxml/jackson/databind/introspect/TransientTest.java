@@ -1,11 +1,14 @@
 package com.fasterxml.jackson.databind.introspect;
 
 import java.beans.Transient;
+import java.io.Serializable;
 
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
@@ -56,6 +59,40 @@ public class TransientTest extends DatabindTestUtil
         public transient int a;
 
         public int getA() { return a; }
+    }
+
+    // for [databind#3948]
+    @JsonPropertyOrder(alphabetic = true)
+    static class Obj3948 implements Serializable {
+
+        private static final long serialVersionUID = -1L;
+
+        private String a = "hello";
+
+        @JsonIgnore
+        private transient String b = "world";
+
+        @JsonProperty("cat")
+        private String c = "jackson";
+
+        @JsonProperty("dog")
+        private transient String d = "databind";
+
+        public String getA() {
+            return a;
+        }
+
+        public String getB() {
+            return b;
+        }
+
+        public String getC() {
+            return c;
+        }
+
+        public String getD() {
+            return d;
+        }
     }
 
     /*
@@ -111,5 +148,25 @@ public class TransientTest extends DatabindTestUtil
         } catch (UnrecognizedPropertyException e) {
             verifyException(e, "Unrecognized", "\"a\"");
         }
+    }
+
+    @Test
+    public void testJsonIgnoreSerialization() throws Exception {
+        Obj3948 obj1 = new Obj3948();
+
+        String json = MAPPER.writeValueAsString(obj1);
+
+        assertEquals(a2q("{'a':'hello','cat':'jackson','dog':'databind'}"), json);
+    }
+
+    @Test
+    public void testJsonIgnoreSerializationTransient() throws Exception {
+        final ObjectMapper mapperTransient = jsonMapperBuilder()
+                .configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true)
+                .build();
+
+        Obj3948 obj1 = new Obj3948();
+        String json = mapperTransient.writeValueAsString(obj1);
+        assertEquals(a2q("{'a':'hello','cat':'jackson','dog':'databind'}"), json);
     }
 }

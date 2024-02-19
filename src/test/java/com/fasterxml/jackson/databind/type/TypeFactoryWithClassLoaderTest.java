@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class TestTypeFactoryWithClassLoader {
+public class TypeFactoryWithClassLoaderTest {
   @Mock
   private TypeModifier typeModifier;
   private static ClassLoader classLoader;

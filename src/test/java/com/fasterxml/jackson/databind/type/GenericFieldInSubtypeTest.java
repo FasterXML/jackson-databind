@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class TestGenericFieldInSubtype
+public class GenericFieldInSubtypeTest
 {
     // [JACKSON-677]
     @Test

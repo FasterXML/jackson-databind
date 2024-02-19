@@ -15,7 +15,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyExc
  * Simple tests to verify for generic type binding functionality
  * implemented by {@link TypeBindings} class.
  */
-public class TestTypeBindings
+public class TypeBindingsTest
 {
     static class AbstractType<A,B> { }
 

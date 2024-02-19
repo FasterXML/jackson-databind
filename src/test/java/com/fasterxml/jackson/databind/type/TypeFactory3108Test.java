@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 // [databind#3108]: canonical type description for non-generic subtypes
 @SuppressWarnings("serial")
-public class TestTypeFactory3108
+public class TypeFactory3108Test
 {
     static class StringList3108 extends ArrayList<String> {}
 

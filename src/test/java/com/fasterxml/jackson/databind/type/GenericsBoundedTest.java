@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SuppressWarnings("serial")
-public class TestGenericsBounded
+public class GenericsBoundedTest
 {
     static class Range<E extends Comparable<E>> implements Serializable
     {

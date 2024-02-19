@@ -20,7 +20,7 @@ import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyExc
  * Simple tests to verify that the {@link TypeFactory} constructs
  * type information as expected.
  */
-public class TestTypeFactory
+public class TypeFactoryTest
 {
     /*
     /**********************************************************

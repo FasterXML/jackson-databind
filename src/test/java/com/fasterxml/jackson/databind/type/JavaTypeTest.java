@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Simple tests to verify that {@link JavaType} types work to
  * some degree
  */
-public class TestJavaType
+public class JavaTypeTest
 {
     static class BaseType { }
 

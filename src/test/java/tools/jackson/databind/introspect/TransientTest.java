@@ -2,17 +2,23 @@ package tools.jackson.databind.introspect;
 
 import java.beans.Transient;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.UnrecognizedPropertyException;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Tests for both `transient` keyword and JDK 7
  * {@link java.beans.Transient} annotation.
  */
-public class TransientTest extends BaseMapTest
+public class TransientTest extends DatabindTestUtil
 {
     // for [databind#296]
     @JsonPropertyOrder({ "x" })
@@ -59,9 +65,10 @@ public class TransientTest extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     // for [databind#296]
+    @Test
     public void testTransientFieldHandling() throws Exception
     {
         // default handling: remove transient field but do not propagate
@@ -79,6 +86,7 @@ public class TransientTest extends BaseMapTest
     }
 
     // for [databind#857]
+    @Test
     public void testBeanTransient() throws Exception
     {
         assertEquals(a2q("{'y':4}"),
@@ -86,6 +94,7 @@ public class TransientTest extends BaseMapTest
     }
 
     // for [databind#1184]
+    @Test
     public void testOverridingTransient() throws Exception
     {
         assertEquals(a2q("{'tValue':38}"),
@@ -93,6 +102,7 @@ public class TransientTest extends BaseMapTest
     }
 
     // for [databind#3682]: SHOULD prune `transient` Field, not pull in
+    @Test
     public void testTransientToPrune() throws Exception
     {
         try {

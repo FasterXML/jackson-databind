@@ -1,11 +1,16 @@
 package tools.jackson.databind.introspect;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 // [databind#1592]: allow "coercion" between primitive/wrapper (mostly just ignoring)
-public class TypeCoercion1592Test extends BaseMapTest
+public class TypeCoercion1592Test extends DatabindTestUtil
 {
     static class Bean1592
     {
@@ -22,8 +27,9 @@ public class TypeCoercion1592Test extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testTypeCoercion1592() throws Exception
     {
         // first, serialize

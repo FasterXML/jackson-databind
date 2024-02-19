@@ -5,17 +5,23 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.JsonParser;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.InvalidDefinitionException;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.util.TokenBuffer;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 // [databind#2683]: add fallback handling for Java 8 date/time types, to
 // prevent accidental serialization as POJOs, as well as give more information
 // on deserialization attempts
 //
 // @since 2.12
-public class DateJava8FallbacksTest extends BaseMapTest
+public class DateJava8FallbacksTest extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 
@@ -23,6 +29,7 @@ public class DateJava8FallbacksTest extends BaseMapTest
             ZoneOffset.of("Z"));
 
     // Test to prevent serialization as POJO, without Java 8 date/time module:
+    @Test
     public void testPreventSerialization() throws Exception
     {
         try {
@@ -35,6 +42,7 @@ public class DateJava8FallbacksTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testBetterDeserializationError() throws Exception
     {
         try {
@@ -47,6 +55,7 @@ public class DateJava8FallbacksTest extends BaseMapTest
     }
 
     // But, [databind#3091], allow deser from JsonToken.VALUE_EMBEDDED_OBJECT
+    @Test
     public void testAllowAsEmbedded() throws Exception
     {
         OffsetDateTime time = OffsetDateTime.ofInstant(Instant.now(),

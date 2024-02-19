@@ -1,27 +1,27 @@
 package tools.jackson.databind.introspect;
 
-import tools.jackson.databind.BaseMapTest;
-import tools.jackson.databind.EnumNamingStrategies;
-
 import java.util.Arrays;
 import java.util.List;
+
+import org.junit.jupiter.api.Test;
+
+import tools.jackson.databind.EnumNamingStrategies;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Test case to verify functioning of standard
  * {@link tools.jackson.databind.EnumNamingStrategy}
  * implementations Jackson includes out of the box.
- *
- * @since 2.15
  */
-public class EnumNamingStrategiesTest extends BaseMapTest {
-
+public class EnumNamingStrategiesTest extends DatabindTestUtil
+{
     /**
      * Test casess for {@link com.fasterxml.jackson.databind.EnumNamingStrategies.CamelCaseStrategy}.
      *
      * <p>
      * Each <code>Object[]</code> element is composed of <code>{input, expectedOutput}</code>.
-     *
-     * @since 2.15
      */
     final static List<String[]> CAMEL_CASE_NAME_TRANSLATIONS = Arrays.asList(new String[][]{
             // Empty values
@@ -115,6 +115,7 @@ public class EnumNamingStrategiesTest extends BaseMapTest {
      * {@link tools.jackson.databind.EnumNamingStrategies.CamelCaseStrategy#convertEnumToExternalName(String)}
      * without the context of an ObjectMapper.
      */
+    @Test
     public void testCamelCaseStrategyStandAlone() {
         for (String[] pair : CAMEL_CASE_NAME_TRANSLATIONS) {
             final String input = pair[0];

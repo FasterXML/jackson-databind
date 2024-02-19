@@ -1,14 +1,18 @@
 package tools.jackson.databind.introspect;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
-import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Unit tests verifying handling of potential and actual
  * conflicts, regarding property handling.
  */
-public class TestPropertyRename extends BaseMapTest
+public class TestPropertyRename extends DatabindTestUtil
 {
     static class Bean323WithIgnore {
         @JsonIgnore
@@ -60,12 +64,14 @@ public class TestPropertyRename extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testCreatorPropRenameWithIgnore() throws Exception
     {
         Bean323WithIgnore input = new Bean323WithIgnore(7);
         assertEquals("{\"b\":7}", objectWriter().writeValueAsString(input));
     }
 
+    @Test
     public void testCreatorPropRenameWithCleave() throws Exception
     {
         assertEquals("{\"a\":7,\"b\":7}",

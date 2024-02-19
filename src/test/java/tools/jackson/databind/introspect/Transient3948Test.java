@@ -2,17 +2,21 @@ package tools.jackson.databind.introspect;
 
 import java.io.Serializable;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // With [databind#3948] we should not drop `@JsonIgnore` regardless
 // of "transient" keyword.
-public class Transient3948Test extends BaseMapTest
+public class Transient3948Test extends DatabindTestUtil
 {
     @JsonPropertyOrder(alphabetic = true)
     static class Obj implements Serializable {
@@ -53,6 +57,7 @@ public class Transient3948Test extends BaseMapTest
             .configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true)
             .build();
 
+    @Test
     public void testJsonIgnoreSerialization() throws Exception {
         Obj obj1 = new Obj();
 
@@ -61,6 +66,7 @@ public class Transient3948Test extends BaseMapTest
         assertEquals(a2q("{'a':'hello','cat':'jackson','dog':'databind'}"), json);
     }
 
+    @Test
     public void testJsonIgnoreSerializationTransient() throws Exception {
         Obj obj1 = new Obj();
 

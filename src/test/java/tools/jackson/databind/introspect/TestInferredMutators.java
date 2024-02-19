@@ -1,11 +1,15 @@
 package tools.jackson.databind.introspect;
 
-import tools.jackson.databind.BaseMapTest;
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.exc.UnrecognizedPropertyException;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class TestInferredMutators extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class TestInferredMutators extends DatabindTestUtil
 {
     public static class Point {
         protected int x;
@@ -27,6 +31,7 @@ public class TestInferredMutators extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testFinalFieldIgnoral() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -40,7 +45,7 @@ public class TestInferredMutators extends BaseMapTest
         }
     }
 
-    // for #195
+    @Test
     public void testDeserializationInference() throws Exception
     {
         final String JSON = "{\"x\":2}";

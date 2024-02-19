@@ -1,10 +1,15 @@
 package tools.jackson.databind.introspect;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonClassDescription;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class BeanDescriptionTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class BeanDescriptionTest extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 
@@ -15,6 +20,7 @@ public class BeanDescriptionTest extends BaseMapTest
         public int x;
     }
 
+    @Test
     public void testClassDesc() throws Exception
     {
         BeanDescription beanDesc = ObjectMapperTestAccess.beanDescriptionForDeser(MAPPER, DocumentedBean.class);

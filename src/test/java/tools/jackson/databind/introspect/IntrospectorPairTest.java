@@ -3,12 +3,9 @@ package tools.jackson.databind.introspect;
 import java.lang.annotation.Annotation;
 import java.util.*;
 
-import com.fasterxml.jackson.annotation.JacksonInject;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.OptBoolean;
+import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.core.Version;
 
@@ -20,10 +17,13 @@ import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.jsontype.NamedType;
 import tools.jackson.databind.ser.jdk.StringSerializer;
 import tools.jackson.databind.ser.std.ToStringSerializer;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 // started with [databind#1025] in mind
 @SuppressWarnings("serial")
-public class IntrospectorPairTest extends BaseMapTest
+public class IntrospectorPairTest extends DatabindTestUtil
 {
     static class Introspector1 extends AnnotationIntrospector {
         @Override
@@ -232,6 +232,7 @@ public class IntrospectorPairTest extends BaseMapTest
 
     private final AnnotationIntrospector NO_ANNOTATIONS = AnnotationIntrospector.nopInstance();
 
+    @Test
     public void testVersion() throws Exception
     {
         Version v = new Version(1, 2, 3, null,
@@ -245,6 +246,7 @@ public class IntrospectorPairTest extends BaseMapTest
                 new AnnotationIntrospectorPair(noVersion, withVersion).version());
     }
 
+    @Test
     public void testAccess() throws Exception
     {
         IntrospectorWithMap intr1 = new IntrospectorWithMap();
@@ -257,6 +259,7 @@ public class IntrospectorPairTest extends BaseMapTest
         assertSame(NO_ANNOTATIONS, it.next());
     }
 
+    @Test
     public void testAnnotationBundle() throws Exception
     {
         IntrospectorWithMap isBundle = new IntrospectorWithMap()
@@ -275,6 +278,7 @@ public class IntrospectorPairTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testFindRootName() throws Exception
     {
         PropertyName name = new PropertyName("test");
@@ -285,6 +289,7 @@ public class IntrospectorPairTest extends BaseMapTest
         assertEquals(name, new AnnotationIntrospectorPair(intr, NO_ANNOTATIONS).findRootName(null, null));
     }
 
+    @Test
     public void testPropertyIgnorals() throws Exception
     {
         JsonIgnoreProperties.Value incl = JsonIgnoreProperties.Value.forIgnoredProperties("foo");
@@ -299,6 +304,7 @@ public class IntrospectorPairTest extends BaseMapTest
         assertEquals(incl, new AnnotationIntrospectorPair(intr, intrEmpty).findPropertyIgnoralByName(null, null));
     }
 
+    @Test
     public void testIsIgnorableType() throws Exception
     {
         IntrospectorWithMap intr1 = new IntrospectorWithMap()
@@ -310,6 +316,7 @@ public class IntrospectorPairTest extends BaseMapTest
         assertEquals(Boolean.FALSE, new AnnotationIntrospectorPair(intr2, intr1).isIgnorableType(null, null));
     }
 
+    @Test
     public void testFindFilterId() throws Exception
     {
         IntrospectorWithMap intr1 = new IntrospectorWithMap()
@@ -321,6 +328,7 @@ public class IntrospectorPairTest extends BaseMapTest
         assertEquals("b", new AnnotationIntrospectorPair(intr2, intr1).findFilterId(null, null));
     }
 
+    @Test
     public void testFindNamingStrategy() throws Exception
     {
         // shouldn't be bogus Classes for real use, but works here
@@ -335,6 +343,7 @@ public class IntrospectorPairTest extends BaseMapTest
                 new AnnotationIntrospectorPair(intr2, intr1).findNamingStrategy(null, null));
     }
 
+    @Test
     public void testFindClassDescription() throws Exception
     {
         IntrospectorWithMap intr1 = new IntrospectorWithMap()
@@ -356,6 +365,7 @@ public class IntrospectorPairTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testFindSerializer() throws Exception
     {
         final ValueSerializer<?> serString = new StringSerializer();
@@ -382,6 +392,7 @@ public class IntrospectorPairTest extends BaseMapTest
         assertNull(new AnnotationIntrospectorPair(nop2, nop).findSerializer(null, null));
     }
 
+    @Test
     public void testHasAsValue() throws Exception
     {
         IntrospectorWithMap intr1 = new IntrospectorWithMap()
@@ -405,6 +416,7 @@ public class IntrospectorPairTest extends BaseMapTest
                 .hasAsValue(null, null));
     }
 
+    @Test
     public void testHasAsKey() throws Exception
     {
         IntrospectorWithMap intr1 = new IntrospectorWithMap()
@@ -428,6 +440,7 @@ public class IntrospectorPairTest extends BaseMapTest
                 .hasAsKey(null, null));
     }
 
+    @Test
     public void testHasAnyGetter() throws Exception
     {
         IntrospectorWithMap intr1 = new IntrospectorWithMap()
@@ -457,6 +470,7 @@ public class IntrospectorPairTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testFindDeserializer() throws Exception
     {
         final ValueDeserializer<?> deserString = StringDeserializer.instance;
@@ -488,6 +502,7 @@ public class IntrospectorPairTest extends BaseMapTest
     /******************************************************
      */
 
+    @Test
     public void testFindAutoDetectVisibility() throws Exception
     {
         VisibilityChecker vc = VisibilityChecker.defaultInstance();
@@ -508,6 +523,7 @@ public class IntrospectorPairTest extends BaseMapTest
     /******************************************************
      */
 
+    @Test
     public void testFindTypeResolver() throws Exception
     {
         /*
@@ -516,15 +532,19 @@ public class IntrospectorPairTest extends BaseMapTest
         return (TypeResolverBuilder<?>) values.get("findTypeResolver");
         */
     }
+    @Test
     public void testFindPropertyTypeResolver() {
     }
 
+    @Test
     public void testFindPropertyContentTypeResolver() {
     }
 
+    @Test
     public void testFindSubtypes() {
     }
 
+    @Test
     public void testFindTypeName() {
         IntrospectorWithMap intr1 = new IntrospectorWithMap()
                 .add("findTypeName", "type1");
@@ -544,6 +564,7 @@ public class IntrospectorPairTest extends BaseMapTest
      */
 
     // for [databind#1672]
+    @Test
     public void testHasAnySetter() {
         IntrospectorWithMap intr1 = new IntrospectorWithMap()
                 .add("hasAnySetter", Boolean.TRUE);
@@ -573,6 +594,7 @@ public class IntrospectorPairTest extends BaseMapTest
         = new AnnotationIntrospectorPair(new Introspector2(), new Introspector1());
 
     // for [databind#1025]
+    @Test
     public void testInclusionMerging() throws Exception
     {
         // argument is ignored by test introspectors, may be null
@@ -657,6 +679,7 @@ public class IntrospectorPairTest extends BaseMapTest
         private UnreadableBean injectBean;
     }
 
+    @Test
     public void testMergingIntrospectorsForInjection() throws Exception {
         AnnotationIntrospector testIntrospector = new TestIntrospector();
         ObjectMapper mapper = JsonMapper.builder()

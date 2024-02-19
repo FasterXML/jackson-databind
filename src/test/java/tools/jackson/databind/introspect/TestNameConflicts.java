@@ -1,10 +1,15 @@
 package tools.jackson.databind.introspect;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class TestNameConflicts extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class TestNameConflicts extends DatabindTestUtil
 {
     @JsonAutoDetect
     (fieldVisibility= JsonAutoDetect.Visibility.NONE,getterVisibility=JsonAutoDetect.Visibility.NONE, setterVisibility= JsonAutoDetect.Visibility.NONE, isGetterVisibility= JsonAutoDetect.Visibility.NONE)
@@ -85,9 +90,10 @@ public class TestNameConflicts extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     // [Issue#193]
+    @Test
     public void testIssue193() throws Exception
     {
         String json = objectWriter().writeValueAsString(new Bean193(1, 2));
@@ -95,12 +101,14 @@ public class TestNameConflicts extends BaseMapTest
     }
 
     // [Issue#327]
+    @Test
     public void testNonConflict() throws Exception
     {
         String json = MAPPER.writeValueAsString(new BogusConflictBean());
         assertEquals(a2q("{'prop1':2,'prop2':1}"), json);
     }
 
+    @Test
     public void testHypotheticalGetters() throws Exception
     {
         String json = objectWriter().writeValueAsString(new MultipleTheoreticalGetters());
@@ -108,9 +116,10 @@ public class TestNameConflicts extends BaseMapTest
     }
 
     // for [jackson-core#158]
+    @Test
     public void testOverrideName() throws Exception
     {
-        final ObjectMapper mapper = objectMapper();
+        final ObjectMapper mapper = newJsonMapper();
         String json = mapper.writeValueAsString(new CoreBean158());
         assertEquals(a2q("{'bar':'x'}"), json);
 

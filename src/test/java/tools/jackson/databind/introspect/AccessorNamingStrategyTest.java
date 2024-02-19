@@ -1,14 +1,19 @@
 package tools.jackson.databind.introspect;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // for [databind#2800]
 @SuppressWarnings("serial")
-public class AccessorNamingStrategyTest extends BaseMapTest
+public class AccessorNamingStrategyTest extends DatabindTestUtil
 {
     @JsonPropertyOrder({ "X", "x", "Z", "z" }) // since our naming strategy casings vary
     static class GetterBean2800_XZ {
@@ -112,18 +117,21 @@ public class AccessorNamingStrategyTest extends BaseMapTest
             .accessorNaming(new AccNaming2800Provider())
             .build();
 
+    @Test
     public void testGetterNaming() throws Exception
     {
         assertEquals(a2q("{'X':3,'Z':true}"),
                 MAPPER.writeValueAsString(new GetterBean2800_XZ()));
     }
 
+    @Test
     public void testSetterNaming() throws Exception
     {
         SetterBean2800_Y result = MAPPER.readValue(a2q("{'Y':42}"), SetterBean2800_Y.class);
         assertEquals(42, result.yyy);
     }
 
+    @Test
     public void testFieldNaming() throws Exception
     {
         // first serialization
@@ -145,6 +153,7 @@ public class AccessorNamingStrategyTest extends BaseMapTest
      */
 
     // Test to verify that the base naming impl works as advertised
+    @Test
     public void testBaseAccessorNaming() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder()
@@ -160,6 +169,7 @@ public class AccessorNamingStrategyTest extends BaseMapTest
     /********************************************************
      */
 
+    @Test
     public void testBaseAccessorCustomGetter() throws Exception
     {
         // First: without customizations, see "y"
@@ -180,6 +190,7 @@ public class AccessorNamingStrategyTest extends BaseMapTest
                 mapper.writeValueAsString(new GetterBean2800_XZ()));
     }
 
+    @Test
     public void testBaseAccessorCustomSetter() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder()
@@ -202,6 +213,7 @@ public class AccessorNamingStrategyTest extends BaseMapTest
         public int getValue() { return 31337; }
      */
 
+    @Test
     public void testFirstLetterConfigs() throws Exception
     {
         final FirstLetterVariesBean input = new FirstLetterVariesBean();

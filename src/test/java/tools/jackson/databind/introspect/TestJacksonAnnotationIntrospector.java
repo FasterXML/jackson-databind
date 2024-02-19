@@ -5,6 +5,8 @@ import java.util.*;
 
 import javax.xml.namespace.QName;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.core.JsonGenerator;
@@ -14,9 +16,11 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.*;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class TestJacksonAnnotationIntrospector
-    extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class TestJacksonAnnotationIntrospector extends DatabindTestUtil
 {
     public static enum EnumExample {
         VALUE1;
@@ -139,6 +143,7 @@ public class TestJacksonAnnotationIntrospector
     /**
      * tests getting serializer/deserializer instances.
      */
+    @Test
     public void testSerializeDeserializeWithJaxbAnnotations() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -166,6 +171,7 @@ public class TestJacksonAnnotationIntrospector
         assertEquals(ex.enumProperty, readEx.enumProperty);
     }
 
+    @Test
     public void testEnumHandling() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()

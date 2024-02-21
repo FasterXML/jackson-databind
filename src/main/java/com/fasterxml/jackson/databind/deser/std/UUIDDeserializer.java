@@ -37,17 +37,20 @@ public class UUIDDeserializer extends FromStringDeserializer<UUID>
         // Adapted from java-uuid-generator (https://github.com/cowtowncoder/java-uuid-generator)
         // which is 5x faster than UUID.fromString(value), as oper "ManualReadPerfWithUUID"
         if (id.length() != 36) {
-            /* 14-Sep-2013, tatu: One trick we do allow, Base64-encoding, since we know
-             *   length it must have...
-             */
+            // 14-Sep-2013, tatu: One trick we do allow, Base64-encoding, since we know
+            //   length it must have...
             if (id.length() == 24) {
-                byte[] stuff = Base64Variants.getDefaultVariant().decode(convertFromUrlSafe(id));
+                // 20-Feb-2024, tatu: As per [databind#4394] need to massage a bit first:
+                id = convertFromUrlSafe(id);
+                byte[] stuff = Base64Variants.getDefaultVariant().decode(id);
                 return _fromBytes(stuff, ctxt);
             }
 
             // support for Base64Url encoding (without padding)
             if (id.length() == 22) {
-                byte[] stuff = Base64Variants.MODIFIED_FOR_URL.decode(convertToUrlSafe(id));
+                // 20-Feb-2024, tatu: As per [databind#4394] need to massage a bit first:
+                id = convertToUrlSafe(id);
+                byte[] stuff = Base64Variants.MODIFIED_FOR_URL.decode(id);
                 return _fromBytes(stuff, ctxt);
             }
             return _badFormat(id, ctxt);

@@ -1742,3 +1742,8 @@ Muhammad Khalikov (mukham12@github)
 Eduard Dudar (edudar@github)
  * Contributed #4299: Some `Collection` and `Map` fallbacks don't work in GraalVM native image
  (2.17.0)
+
+Jesper Blomquist (jebl01@github)
+ * Contributed #4393: Deserialize `java.util.UUID` encoded as Base64 and base64Url with or
+   without padding
+ (2.17.0)

@@ -299,8 +299,7 @@ public class AnyGetterTest extends DatabindTestUtil
         input.add("empty", "");
         input.add("null", null);
         String json = mapper.writeValueAsString(input);
-        // Unfortunately path for bean with filter is different. It still skips nulls.
-        assertEquals("{\"non-empty\":\"property\",\"empty\":\"\"}", json);
+        assertEquals("{\"non-empty\":\"property\"}", json);
     }
 
     // [databind#2592]

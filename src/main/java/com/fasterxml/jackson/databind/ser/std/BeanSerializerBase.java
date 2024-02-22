@@ -402,6 +402,14 @@ public abstract class BeanSerializerBase
         }
 
         // also, any-getter may need to be resolved
+        for (int i = 0; i < _props.length; i++) {
+            BeanPropertyWriter prop = _props[i];
+            if (prop instanceof AnyGetterWriter) {
+                ((AnyGetterWriter) prop).resolve(provider);
+            }
+        }
+
+        // also, any-getter may need to be resolved
         if (_anyGetterWriter != null) {
             // 23-Feb-2015, tatu: Misleading, as this actually triggers call to contextualization...
             _anyGetterWriter.resolve(provider);

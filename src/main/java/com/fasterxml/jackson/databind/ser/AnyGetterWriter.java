@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.ser.std.MapSerializer;
  * for serializing {@link com.fasterxml.jackson.annotation.JsonAnyGetter} annotated
  * (Map) properties
  */
-public class AnyGetterWriter
+public class AnyGetterWriter extends BeanPropertyWriter
 {
     protected final BeanProperty _property;
 
@@ -24,6 +24,19 @@ public class AnyGetterWriter
     protected JsonSerializer<Object> _serializer;
 
     protected MapSerializer _mapSerializer;
+
+    @SuppressWarnings("unchecked")
+    public AnyGetterWriter(BeanPropertyWriter parent, BeanProperty property,
+            AnnotatedMember accessor, JsonSerializer<?> serializer)
+    {
+        super(parent);
+        _accessor = accessor;
+        _property = property;
+        _serializer = (JsonSerializer<Object>) serializer;
+        if (serializer instanceof MapSerializer) {
+            _mapSerializer = (MapSerializer) serializer;
+        }
+    }
 
     @SuppressWarnings("unchecked")
     public AnyGetterWriter(BeanProperty property,
@@ -63,6 +76,11 @@ public class AnyGetterWriter
             return;
         }
         _serializer.serialize(value, gen, provider);
+    }
+
+    @Override
+    public void serializeAsField(Object bean, JsonGenerator gen, SerializerProvider prov) throws Exception {
+        getAndSerialize(bean, gen, prov);
     }
 
     /**

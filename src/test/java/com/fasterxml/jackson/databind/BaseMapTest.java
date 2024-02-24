@@ -252,22 +252,6 @@ public abstract class BaseMapTest
         return serializeAsString(sharedMapper(), value);
     }
 
-    protected String asJSONObjectValueString(Object... args)
-        throws IOException
-    {
-        return asJSONObjectValueString(sharedMapper(), args);
-    }
-
-    protected String asJSONObjectValueString(ObjectMapper m, Object... args)
-        throws IOException
-    {
-        LinkedHashMap<Object,Object> map = new LinkedHashMap<Object,Object>();
-        for (int i = 0, len = args.length; i < len; i += 2) {
-            map.put(args[i], args[i+1]);
-        }
-        return m.writeValueAsString(map);
-    }
-
     /*
     /**********************************************************
     /* Helper methods, deserialization

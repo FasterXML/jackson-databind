@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.ser;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
@@ -76,6 +77,21 @@ public class JsonPropertyOrder4388Test extends DatabindTestUtil
         public int b = 2;
         @JsonAnyGetter
         public Map<String, Object> map = new HashMap<>();
+    }
+
+    static class AlphabeticOrderOnAnyGetterBean {
+        @JsonPropertyOrder(alphabetic = true)
+        @JsonAnyGetter
+        public Map<String, Object> map = new LinkedHashMap<>();
+    }
+
+    @JsonPropertyOrder(alphabetic = true)
+    static class AlphabeticOrderOnClassBean {
+        public int c = 3;
+        public int a = 1;
+        public int b = 2;
+        @JsonAnyGetter
+        public Map<String, Object> map = new LinkedHashMap<>();
     }
 
     private final ObjectMapper MAPPER = newJsonMapper();
@@ -176,5 +192,36 @@ public class JsonPropertyOrder4388Test extends DatabindTestUtil
         IgnoreOnFieldPojo bean3 = new IgnoreOnFieldPojo();
         bean3.map.put("b", 3);
         assertEquals(a2q("{'a':1,'b':3}"), MAPPER.writeValueAsString(bean3));
+    }
+
+    // Sorting works on @JsonAnyGetter, when adding @JsonPropertyOrder directly on the AnyGetter method
+    @Test
+    public void testSortingOnAnyGetter() throws Exception {
+        AlphabeticOrderOnAnyGetterBean bean = new AlphabeticOrderOnAnyGetterBean();
+        bean.map.put("zd", 4);
+        bean.map.put("zc", 3);
+        bean.map.put("za", 1);
+        bean.map.put("zb", 2);
+        assertEquals(a2q("{" +
+            "'za':1," +
+            "'zb':2," +
+            "'zc':3," +
+            "'zd':4}"), MAPPER.writeValueAsString(bean));
+    }
+
+    // Sorting does not work on @JsonAnyGetter, when adding @JsonPropertyOrder on the class
+    @Test
+    public void testSortingOnClassNotPropagateToAnyGetter() throws Exception {
+        AlphabeticOrderOnClassBean bean = new AlphabeticOrderOnClassBean();
+        bean.map.put("zc", 3);
+        bean.map.put("za", 1);
+        bean.map.put("zb", 2);
+        assertEquals(a2q("{" +
+            "'a':1," +
+            "'b':2," +
+            "'c':3," +
+            "'zc':3," +
+            "'za':1," +
+            "'zb':2}"), MAPPER.writeValueAsString(bean));
     }
 }

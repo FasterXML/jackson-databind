@@ -5,9 +5,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
@@ -54,6 +52,30 @@ public class JsonPropertyOrder4388Test extends DatabindTestUtil
     static class Location {
         public int child1;
         public int child2;
+    }
+
+    @JsonIgnoreProperties("b")
+    static class IgnorePropertiesOnFieldPojo {
+        public int a = 1;
+        public int b = 2;
+        @JsonAnyGetter
+        public Map<String, Object> map = new HashMap<>();
+    }
+
+    static class IgnorePropertiesOnAnyGetterPojo {
+        public int a = 1;
+        public int b = 2;
+        @JsonIgnoreProperties("b")
+        @JsonAnyGetter
+        public Map<String, Object> map = new HashMap<>();
+    }
+
+    static class IgnoreOnFieldPojo {
+        public int a = 1;
+        @JsonIgnore
+        public int b = 2;
+        @JsonAnyGetter
+        public Map<String, Object> map = new HashMap<>();
     }
 
     private final ObjectMapper MAPPER = newJsonMapper();
@@ -136,5 +158,23 @@ public class JsonPropertyOrder4388Test extends DatabindTestUtil
         base.childEntities.child2 = 3;
         base.products = new HashMap<>();
         base.products.put("product1", 4);
+    }
+
+    @Test
+    public void testIgnoreProperties() throws Exception {
+        // Respsect @JsonIgnoreProperties 'b' from Pojo, but not from map
+        IgnorePropertiesOnFieldPojo bean = new IgnorePropertiesOnFieldPojo();
+        bean.map.put("b", 3);
+        assertEquals(a2q("{'a':1,'b':3}"), MAPPER.writeValueAsString(bean));
+
+        // Respect @JsonIgnoreProperties 'b' from Pojo, but not from map
+        IgnorePropertiesOnAnyGetterPojo bean2 = new IgnorePropertiesOnAnyGetterPojo();
+        bean2.map.put("b", 3);
+        assertEquals(a2q("{'a':1,'b':2}"), MAPPER.writeValueAsString(bean2));
+
+        // Respect @JsonIgnore from Pojo, but not from map
+        IgnoreOnFieldPojo bean3 = new IgnoreOnFieldPojo();
+        bean3.map.put("b", 3);
+        assertEquals(a2q("{'a':1,'b':3}"), MAPPER.writeValueAsString(bean3));
     }
 }

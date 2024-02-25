@@ -1,8 +1,13 @@
 package com.fasterxml.jackson.databind.introspect;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests Scala-style JVM naming patterns for properties.
@@ -21,7 +26,7 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
  * Since I can't reproduce them in Java, I've substituted legal but uncommonly
  * used characters as placeholders.
  */
-public class TestScalaLikeImplicitProperties extends BaseMapTest
+public class TestScalaLikeImplicitProperties extends DatabindTestUtil
 {
     static class NameMangler extends JacksonAnnotationIntrospector
     {
@@ -132,6 +137,7 @@ public class TestScalaLikeImplicitProperties extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testValProperty() throws Exception
     {
         ObjectMapper m = manglingMapper();
@@ -139,6 +145,7 @@ public class TestScalaLikeImplicitProperties extends BaseMapTest
         assertEquals("{\"prop\":\"val\"}", m.writeValueAsString(new ValProperty("val")));
     }
 
+    @Test
     public void testValWithBeanProperty() throws Exception
     {
         ObjectMapper m = manglingMapper();
@@ -147,6 +154,7 @@ public class TestScalaLikeImplicitProperties extends BaseMapTest
     }
 
 
+    @Test
     public void testVarProperty() throws Exception
     {
         ObjectMapper m = manglingMapper();
@@ -156,7 +164,7 @@ public class TestScalaLikeImplicitProperties extends BaseMapTest
         assertEquals("read", result.prop());
     }
 
-
+    @Test
     public void testVarWithBeanProperty() throws Exception
     {
         ObjectMapper m = manglingMapper();
@@ -166,7 +174,7 @@ public class TestScalaLikeImplicitProperties extends BaseMapTest
         assertEquals("read", result.prop());
     }
 
-
+    @Test
     public void testGetterSetterProperty() throws Exception
     {
         ObjectMapper m = manglingMapper();

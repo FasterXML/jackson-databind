@@ -5,16 +5,18 @@ import java.util.Collections;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+
 import com.fasterxml.jackson.core.json.JsonReadFeature;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
-import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class DeserializationConfigTest
+public class DeserializationConfigTest extends DatabindTestUtil
 {
-    private final ObjectMapper MAPPER = JsonMapper.builder().build();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
     public void testFeatureDefaults()

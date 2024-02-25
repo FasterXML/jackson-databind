@@ -3,6 +3,8 @@ package com.fasterxml.jackson.databind.introspect;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JacksonAnnotationsInside;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
@@ -11,9 +13,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyName;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 // Tests mostly for ability to create "annotation bundles"
-public class TestAnnotationBundles extends com.fasterxml.jackson.databind.BaseMapTest
+public class TestAnnotationBundles extends DatabindTestUtil
 {
     @Retention(RetentionPolicy.RUNTIME)
     @JacksonAnnotationsInside
@@ -116,36 +121,43 @@ public class TestAnnotationBundles extends com.fasterxml.jackson.databind.BaseMa
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
+    @Test
     public void testKeepAnnotationBundle() throws Exception
     {
         MAPPER.setAnnotationIntrospector(new BundleAnnotationIntrospector());
         assertEquals("{\"important\":42}", MAPPER.writeValueAsString(new InformingHolder()));
     }
 
+    @Test
     public void testRecursiveBundlesField() throws Exception {
         assertEquals("{\"unimportant\":42}", MAPPER.writeValueAsString(new RecursiveHolder()));
     }
 
+    @Test
     public void testRecursiveBundlesMethod() throws Exception {
         assertEquals("{\"value\":28}", MAPPER.writeValueAsString(new RecursiveHolder2()));
     }
 
+    @Test
     public void testRecursiveBundlesConstructor() throws Exception {
         RecursiveHolder3 result = MAPPER.readValue("17", RecursiveHolder3.class);
         assertNotNull(result);
         assertEquals(17, result.x);
     }
 
+    @Test
     public void testBundledIgnore() throws Exception
     {
         assertEquals("{\"foobar\":13}", MAPPER.writeValueAsString(new Bean()));
     }
 
+    @Test
     public void testVisibilityBundle() throws Exception
     {
         assertEquals("{\"b\":5}", MAPPER.writeValueAsString(new NoAutoDetect()));
     }
 
+    @Test
     public void testIssue92() throws Exception
     {
         assertEquals("{\"_id\":\"abc\"}", MAPPER.writeValueAsString(new Bean92()));

@@ -5,22 +5,28 @@ import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 // [databind#4082]: add fallback handling for Java 8 Optional types, to
 // prevent accidental serialization as POJOs, as well as give more information
 // on deserialization attempts
 //
 // @since 2.16
-public class OptionalJava8Fallbacks4082Test extends BaseMapTest
+public class OptionalJava8Fallbacks4082Test extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // Test to prevent serialization as POJO, without Java 8 date/time module:
+    @Test
     public void testPreventSerialization() throws Exception {
         _testPreventSerialization(Optional.empty());
         _testPreventSerialization(OptionalInt.of(13));
@@ -40,6 +46,7 @@ public class OptionalJava8Fallbacks4082Test extends BaseMapTest
         }
     }
 
+    @Test
     public void testBetterDeserializationError() throws Exception
     {
         _testBetterDeserializationError(Optional.class);
@@ -60,6 +67,7 @@ public class OptionalJava8Fallbacks4082Test extends BaseMapTest
     }
 
     // But, [databind#3091], allow deser from JsonToken.VALUE_EMBEDDED_OBJECT
+    @Test
     public void testAllowAsEmbedded() throws Exception
     {
         Optional<Object> optValue = Optional.empty();

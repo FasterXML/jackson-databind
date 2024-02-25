@@ -42,6 +42,9 @@ Project: jackson-databind
  (fix contributed by Joo-Hyuk K)
 #4337: `AtomicReference` serializer does not support `@JsonSerialize(contentConverter=...)`
 #4364: `@JsonProperty` and equivalents should merge with `AnnotationIntrospectorPair`
+#4394: Better Base64 support for `java.util.UUIDs`
+  without padding
+ (fix contributed by Jesper B)
 - JUnit5 upgraded to 5.10.1
 
 2.16.2 (not yet released)
@@ -177,7 +180,7 @@ Project: jackson-databind
   deserialising empty Object
  (reported by @nocny-x)
 
-2.15.4 (not yet released)
+2.15.4 (15-Feb-2024)
 
 #1172: `@JsonView` doesn't work with `@JsonCreator`
  (reported by Dmitry B)

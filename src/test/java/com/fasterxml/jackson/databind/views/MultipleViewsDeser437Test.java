@@ -1,21 +1,21 @@
 package com.fasterxml.jackson.databind.views;
 
-import com.fasterxml.jackson.annotation.JsonView;
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.annotation.JsonView;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.*;
-
-public class MultipleViewsDeser437Test {
-
+public class MultipleViewsDeser437Test extends DatabindTestUtil
+{
     static class View1 {
     }
 

@@ -5,13 +5,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
-public class TestDefaultForArrays extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class TestDefaultForArrays extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -44,6 +49,7 @@ public class TestDefaultForArrays extends BaseMapTest
      * Simple unit test for verifying that we get String array
      * back, even though declared type is Object array
      */
+    @Test
     public void testArrayTypingSimple() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder().
@@ -58,6 +64,7 @@ public class TestDefaultForArrays extends BaseMapTest
     }
 
     // And let's try it with deeper array as well
+    @Test
     public void testArrayTypingNested() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
@@ -71,6 +78,7 @@ public class TestDefaultForArrays extends BaseMapTest
         assertEquals(String[][].class, result.values.getClass());
     }
 
+    @Test
     public void testNodeInArray() throws Exception
     {
         JsonNode node = new ObjectMapper().readTree("{\"a\":3}");
@@ -87,6 +95,7 @@ public class TestDefaultForArrays extends BaseMapTest
     }
 
     @SuppressWarnings("deprecation")
+    @Test
     public void testNodeInEmptyArray() throws Exception {
         Map<String, List<String>> outerMap = new HashMap<String, List<String>>();
         outerMap.put("inner", new ArrayList<String>());
@@ -116,6 +125,7 @@ public class TestDefaultForArrays extends BaseMapTest
         assertEquals(0, ((ObjectNode) elem).size());
     }
 
+    @Test
     public void testArraysOfArrays() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -132,6 +142,7 @@ public class TestDefaultForArrays extends BaseMapTest
         _testArraysAs(mapper, json, Object.class);
     }
 
+    @Test
     public void testArrayTypingForPrimitiveArrays() throws Exception
     {
         ObjectMapper m = new ObjectMapper();

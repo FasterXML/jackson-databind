@@ -2,18 +2,24 @@ package tools.jackson.databind.jsontype.deftyping;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import tools.jackson.core.*;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 import tools.jackson.databind.util.TokenBuffer;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestDefaultForObject
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     static abstract class AbstractBean { }
 
@@ -100,11 +106,14 @@ public class TestDefaultForObject
     /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = newJsonMapper();
+
     /**
      * Unit test that verifies that a bean is stored with type information,
      * when declared type is <code>Object.class</code> (since it is within
      * Object[]), and default type information is enabled.
      */
+    @Test
     public void testBeanAsObject() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -125,6 +134,7 @@ public class TestDefaultForObject
     }
 
     // with 2.5, another test to check that "as-property" is valid option
+    @Test
     public void testBeanAsObjectUsingAsProperty() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -142,6 +152,7 @@ public class TestDefaultForObject
     }
 
     // [databind#2840]: ensure "as-property" uses PTV passed
+    @Test
     public void testAsPropertyWithPTV() throws Exception {
         ObjectMapper m = JsonMapper.builder()
                 .activateDefaultTypingAsProperty(new BlockAllPTV(),
@@ -162,6 +173,7 @@ public class TestDefaultForObject
      * Unit test that verifies that an abstract bean is stored with type information
      * if default type information is enabled for non-concrete types.
      */
+    @Test
     public void testAbstractBean() throws Exception
     {
         // First, let's verify that we'd fail without enabling default type info
@@ -190,6 +202,7 @@ public class TestDefaultForObject
      * Unit test to verify that type information is included for
      * all non-final types, if default typing suitably configured
      */
+    @Test
     public void testNonFinalBean() throws Exception
     {
         // first: use "object or abstract" typing: should produce no type info:
@@ -208,6 +221,7 @@ public class TestDefaultForObject
             m.writeValueAsString(bean));
     }
 
+    @Test
     public void testNullValue() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
@@ -222,16 +236,15 @@ public class TestDefaultForObject
         assertNull(result.bean);
     }
 
+    @Test
     public void testEnumAsObject() throws Exception
     {
-        final ObjectMapper vanillaMapper = objectMapper();
-
         // wrapping to be declared as object
         Object[] input = new Object[] { Choice.YES };
         Object[] input2 = new Object[] { ComplexChoice.MAYBE};
         // first, without type info:
-        assertEquals("[\"YES\"]", vanillaMapper.writeValueAsString(input));
-        assertEquals("[\"MAYBE\"]", vanillaMapper.writeValueAsString(input2));
+        assertEquals("[\"YES\"]", MAPPER.writeValueAsString(input));
+        assertEquals("[\"MAYBE\"]", MAPPER.writeValueAsString(input2));
 
         // and then with it
         ObjectMapper m = jsonMapperBuilder()
@@ -254,6 +267,7 @@ public class TestDefaultForObject
     }
 
     @SuppressWarnings("unchecked")
+    @Test
     public void testEnumSet() throws Exception
     {
         EnumSet<Choice> set = EnumSet.of(Choice.NO);
@@ -273,6 +287,7 @@ public class TestDefaultForObject
     }
 
     @SuppressWarnings("unchecked")
+    @Test
     public void testEnumMap() throws Exception
     {
         EnumMap<Choice,String> map = new EnumMap<Choice,String>(Choice.class);
@@ -292,6 +307,7 @@ public class TestDefaultForObject
         assertNull(map2.get(Choice.YES));
     }
 
+    @Test
     public void testJackson311() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -305,6 +321,7 @@ public class TestDefaultForObject
     }
 
     // Also, let's ensure TokenBuffer gets properly handled
+    @Test
     public void testTokenBuffer() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -361,6 +378,7 @@ public class TestDefaultForObject
         buf.close();
     }
 
+    @Test
     public void testIssue352() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -381,6 +399,7 @@ public class TestDefaultForObject
     }
 
     // Test to ensure we can also use "As.PROPERTY" inclusion and custom property name
+    @Test
     public void testFeature432() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -391,6 +410,7 @@ public class TestDefaultForObject
         assertEquals("{\"bean\":{\"*CLASS*\":\"tools.jackson.databind.jsontype.deftyping.TestDefaultForObject$StringBean\",\"name\":\"punny\"}}", json);
     }
 
+    @Test
     public void testNoGoWithExternalProperty() throws Exception
     {
         try {
@@ -405,6 +425,7 @@ public class TestDefaultForObject
     }
 
     // [databind#2349]
+    @Test
     public void testWithFinalClass_NonFinal() throws Exception
     {
         // First: type info NOT included

@@ -2,12 +2,17 @@ package tools.jackson.databind.jsontype;
 
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class AbstractTypeMapping1186Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class AbstractTypeMapping1186Test extends DatabindTestUtil
 {
     public interface IContainer<T> {
         @JsonProperty("ts")
@@ -33,6 +38,7 @@ public class AbstractTypeMapping1186Test extends BaseMapTest
         public String msg;
     }
 
+    @Test
     public void testDeserializeMyContainer() throws Exception {
         SimpleModule module = new SimpleModule().addAbstractTypeMapping(IContainer.class, MyContainer.class);
         ObjectMapper mapper = jsonMapperBuilder()

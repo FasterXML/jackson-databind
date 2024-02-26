@@ -3,17 +3,23 @@ package tools.jackson.databind.jsontype;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Unit tests for checking how combination of interfaces, implementation
  * classes are handled, with respect to type names.
  */
-public class TestAbstractTypeNames  extends BaseMapTest
+public class TestAbstractTypeNames  extends DatabindTestUtil
 {
     @JsonTypeName("Employee")
     public interface Employee extends User {
@@ -81,6 +87,7 @@ public class TestAbstractTypeNames  extends BaseMapTest
     /**********************************************************************
      */
 
+    @Test
     public void testEmptyCollection() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()

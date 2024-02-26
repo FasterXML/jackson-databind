@@ -2,18 +2,23 @@ package tools.jackson.databind.jsontype.deftyping;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests to verify that Java/JSON scalar values (non-structured values)
  * are handled properly with respect to additional type information.
  */
 public class TestDefaultForScalars
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     static class Jackson417Bean {
         public String foo = "bar";
@@ -53,6 +58,7 @@ public class TestDefaultForScalars
      * that JSON scalar values natively map to: String, Integer and Boolean (and
      * nulls never have type information)
      */
+    @Test
     public void testNumericScalars() throws Exception
     {
         // no typing for Integer, Double, yes for others
@@ -62,6 +68,7 @@ public class TestDefaultForScalars
         assertEquals("[[\"java.lang.Float\",0.5]]", DEFAULT_TYPING_MAPPER.writeValueAsString(new Object[] { Float.valueOf(0.5f) }));
     }
 
+    @Test
     public void testDateScalars() throws Exception
     {
         long ts = 12345678L;
@@ -80,6 +87,7 @@ public class TestDefaultForScalars
         assertEquals(ts, ((Calendar) result[0]).getTimeInMillis());
     }
 
+    @Test
     public void testMiscScalars() throws Exception
     {
         // no typing for Strings, booleans
@@ -91,6 +99,7 @@ public class TestDefaultForScalars
      * Test for verifying that contents of "untyped" homogenous arrays are properly
      * handled,
      */
+    @Test
     public void testScalarArrays() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -109,6 +118,7 @@ public class TestDefaultForScalars
     }
 
     // Loosely scalar
+    @Test
     public void test417() throws Exception
     {
         Jackson417Bean input = new Jackson417Bean();
@@ -119,6 +129,7 @@ public class TestDefaultForScalars
     }
 
     // [databind#1395]: prevent attempts at including type info for primitives
+    @Test
     public void testDefaultTypingWithLong() throws Exception
     {
         Data data = new Data();
@@ -146,6 +157,7 @@ public class TestDefaultForScalars
     }
 
     // [databind#2236]: do need type info for NaN
+    @Test
     public void testDefaultTypingWithNaN() throws Exception
     {
         final ObjectWrapperForPoly INPUT = new ObjectWrapperForPoly(Double.POSITIVE_INFINITY);

@@ -1,21 +1,25 @@
 package tools.jackson.databind.jsontype;
 
-import com.fasterxml.jackson.annotation.*;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.InvalidTypeIdException;
 import tools.jackson.databind.jsontype.impl.SimpleNameIdResolver;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test for <a href="https://github.com/FasterXML/jackson-databind/issues/4061">
  * [databind#4061] Add JsonTypeInfo.Id.SIMPLE_NAME
  */
-public class JsonTypeInfoSimpleClassName4061Test extends BaseMapTest
+public class JsonTypeInfoSimpleClassName4061Test extends DatabindTestUtil
 {
-
     @JsonTypeInfo(
             use = JsonTypeInfo.Id.SIMPLE_NAME)
     @JsonSubTypes({
@@ -125,6 +129,7 @@ public class JsonTypeInfoSimpleClassName4061Test extends BaseMapTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // inner class that has contains dollar sign
+    @Test
     public void testInnerClass() throws Exception
     {
         String jsonStr = a2q("{'@type':'InnerSub4061A'}");
@@ -134,10 +139,11 @@ public class JsonTypeInfoSimpleClassName4061Test extends BaseMapTest
         
         // deser <- breaks!
         InnerSuper4061 bean = MAPPER.readValue(jsonStr, InnerSuper4061.class);
-        assertType(bean, InnerSuper4061.class);
+        assertInstanceOf(InnerSuper4061.class, bean);
     }
 
     // inner class that has contains dollar sign
+    @Test
     public void testMinimalInnerClass() throws Exception
     {
         String jsonStr = a2q("{'@c':'.JsonTypeInfoSimpleClassName4061Test$MinimalInnerSub4061A'}");
@@ -147,11 +153,12 @@ public class JsonTypeInfoSimpleClassName4061Test extends BaseMapTest
         
         // deser <- breaks!
         MinimalInnerSuper4061 bean = MAPPER.readValue(jsonStr, MinimalInnerSuper4061.class);
-        assertType(bean, MinimalInnerSuper4061.class);
+        assertInstanceOf(MinimalInnerSuper4061.class, bean);
         assertNotNull(bean);
     }
 
     // Basic : non-inner class, without dollar sign
+    @Test
     public void testBasicClass() throws Exception
     {
         String jsonStr = a2q("{'@type':'BasicSub4061A'}");
@@ -161,11 +168,13 @@ public class JsonTypeInfoSimpleClassName4061Test extends BaseMapTest
         
         // deser
         BasicSuper4061 bean = MAPPER.readValue(jsonStr, BasicSuper4061.class);
-        assertType(bean, BasicSuper4061.class);
-        assertType(bean, BasicSub4061A.class);
+        assertInstanceOf(BasicSuper4061.class, bean);
+        assertInstanceOf(BasicSub4061A.class, bean);
+
     }
     
     // Mixed SimpleClassName : parent as inner, subtype as basic
+    @Test
     public void testMixedClass() throws Exception
     {
         String jsonStr = a2q("{'@type':'MixedSub4061A'}");
@@ -175,11 +184,12 @@ public class JsonTypeInfoSimpleClassName4061Test extends BaseMapTest
         
         // deser
         MixedSuper4061 bean = MAPPER.readValue(jsonStr, MixedSuper4061.class);
-        assertType(bean, MixedSuper4061.class);
-        assertType(bean, MixedSub4061A.class);
+        assertInstanceOf(MixedSuper4061.class, bean);
+        assertInstanceOf(MixedSub4061A.class, bean);
     }
     
     // Mixed MinimalClass : parent as inner, subtype as basic
+    @Test
     public void testMixedMinimalClass() throws Exception
     {
         String jsonStr = a2q("{'@c':'.MixedMinimalSub4061A'}");
@@ -189,10 +199,11 @@ public class JsonTypeInfoSimpleClassName4061Test extends BaseMapTest
         
         // deser
         MixedMinimalSuper4061 bean = MAPPER.readValue(jsonStr, MixedMinimalSuper4061.class);
-        assertType(bean, MixedMinimalSuper4061.class);
-        assertType(bean, MixedMinimalSub4061A.class);
+        assertInstanceOf(MixedMinimalSuper4061.class, bean);
+        assertInstanceOf(MixedMinimalSub4061A.class, bean);
     }
 
+    @Test
     public void testPolymorphicNewObject() throws Exception
     {
         String jsonStr = "{\"child\": { \"@type\": \"MergeChildA\", \"name\": \"I'm child A\" }}";
@@ -204,6 +215,7 @@ public class JsonTypeInfoSimpleClassName4061Test extends BaseMapTest
     }
 
     // case insenstive type name
+    @Test
     public void testPolymorphicNewObjectCaseInsensitive() throws Exception
     {
         String jsonStr = "{\"child\": { \"@type\": \"mergechilda\", \"name\": \"I'm child A\" }}";
@@ -217,6 +229,7 @@ public class JsonTypeInfoSimpleClassName4061Test extends BaseMapTest
         assertEquals("I'm child A", ((MergeChildA) root.child).name);
     }
 
+    @Test
     public void testPolymorphicNewObjectUnknownTypeId() throws Exception
     {
         try {
@@ -226,6 +239,7 @@ public class JsonTypeInfoSimpleClassName4061Test extends BaseMapTest
         }
     }
 
+    @Test
     public void testAliasWithPolymorphic() throws Exception
     {
         String jsonStr = a2q("{'value': ['ab', {'nm' : 'Bob', 'A' : 17} ] }");
@@ -237,7 +251,8 @@ public class JsonTypeInfoSimpleClassName4061Test extends BaseMapTest
         assertEquals("Bob", bean.name);
         assertEquals(17, bean._a);
     }
-    
+
+    @Test
     public void testGetMechanism()
     {
         final DeserializationConfig config = MAPPER.deserializationConfig();
@@ -251,13 +266,14 @@ public class JsonTypeInfoSimpleClassName4061Test extends BaseMapTest
         assertEquals(JsonTypeInfo.Id.SIMPLE_NAME, idResolver.getMechanism());
     }
 
+    @Test
     public void testDuplicateNameLastOneWins() throws Exception
     {
         String jsonStr = a2q("{'@type':'DuplicateSubClass'}");
         
         // deser
         DuplicateSuperClass bean = MAPPER.readValue(jsonStr, DuplicateSuperClass.class);
-        assertType(bean, tools.jackson.databind.jsontype.DuplicateSubClass.class);
+        assertInstanceOf(tools.jackson.databind.jsontype.DuplicateSubClass.class, bean);
     }
 }
 

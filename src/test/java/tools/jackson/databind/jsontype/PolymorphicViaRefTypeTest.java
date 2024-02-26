@@ -2,15 +2,20 @@ package tools.jackson.databind.jsontype;
 
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
-public class PolymorphicViaRefTypeTest extends BaseMapTest
-{
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+public class PolymorphicViaRefTypeTest extends DatabindTestUtil
+{
     @JsonSubTypes({
         @JsonSubTypes.Type(name = "impl5", value = ImplForAtomic.class)
     })
@@ -44,8 +49,9 @@ public class PolymorphicViaRefTypeTest extends BaseMapTest
     /**********************************************************************
      */
 
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testPolymorphicAtomicRefProperty() throws Exception
     {
         TypeInfoAtomic data = new TypeInfoAtomic();
@@ -59,6 +65,7 @@ public class PolymorphicViaRefTypeTest extends BaseMapTest
         assertEquals(42, ((ImplForAtomic) value).x);
     }
 
+    @Test
     public void testAtomicRefViaDefaultTyping() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()

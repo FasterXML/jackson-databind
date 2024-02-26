@@ -2,6 +2,8 @@ package tools.jackson.databind.jsontype;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
@@ -11,9 +13,13 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonTypeIdResolver;
 import tools.jackson.databind.jsontype.impl.TypeIdResolverBase;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.type.TypeFactory;
 
-public class TestCustomTypeIdResolver extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+public class TestCustomTypeIdResolver extends DatabindTestUtil
 {
     @JsonTypeInfo(use=Id.CUSTOM, include=As.WRAPPER_OBJECT)
     @JsonTypeIdResolver(CustomResolver.class)
@@ -181,8 +187,9 @@ public class TestCustomTypeIdResolver extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testCustomTypeIdResolver() throws Exception
     {
         List<JavaType> types = new ArrayList<JavaType>();
@@ -202,6 +209,7 @@ public class TestCustomTypeIdResolver extends BaseMapTest
         assertEquals(CustomBean.class, types.get(0).getRawClass());
     }
 
+    @Test
     public void testCustomWithExternal() throws Exception
     {
         ExtBeanWrapper w = new ExtBeanWrapper();
@@ -216,6 +224,7 @@ public class TestCustomTypeIdResolver extends BaseMapTest
     }
 
     // for [databind#1270]
+    @Test
     public void testPolymorphicTypeViaCustom() throws Exception {
         Base1270<Poly1> req = new Base1270<Poly1>();
         Poly1 o = new Poly1();

@@ -2,6 +2,8 @@ package tools.jackson.databind.jsontype;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 
@@ -9,8 +11,11 @@ import tools.jackson.databind.*;
 import tools.jackson.databind.exc.InvalidTypeIdException;
 import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class TestSubtypes extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class TestSubtypes extends DatabindTestUtil
 {
     @JsonTypeInfo(use=JsonTypeInfo.Id.NAME)
     static abstract class SuperType {
@@ -181,6 +186,7 @@ public class TestSubtypes extends BaseMapTest
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
+    @Test
     public void testPropertyWithSubtypes() throws Exception
     {
         // must register subtypes
@@ -193,6 +199,7 @@ public class TestSubtypes extends BaseMapTest
     }
 
     // also works via modules
+    @Test
     public void testSubtypesViaModule() throws Exception
     {
         SimpleModule module = new SimpleModule();
@@ -219,6 +226,7 @@ public class TestSubtypes extends BaseMapTest
         assertSame(SubC.class, result.value.getClass());
     }
 
+    @Test
     public void testSerialization() throws Exception
     {
         // serialization can detect type name ok without anything extra:
@@ -235,6 +243,7 @@ public class TestSubtypes extends BaseMapTest
         assertEquals("{\"@type\":\"TestSubtypes$SubD\",\"d\":0}", mapper.writeValueAsString(new SubD()));
     }
 
+    @Test
     public void testDeserializationNonNamed() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -246,6 +255,7 @@ public class TestSubtypes extends BaseMapTest
         assertEquals(1, ((SubC) bean).c);
     }
 
+    @Test
     public void testDeserializatioNamed() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -263,6 +273,7 @@ public class TestSubtypes extends BaseMapTest
         assertEquals(-4, ((SubD) bean).d);
     }
 
+    @Test
     public void testEmptyBean() throws Exception
     {
         // First, with annotations
@@ -287,6 +298,7 @@ public class TestSubtypes extends BaseMapTest
         assertEquals("[\"tools.jackson.databind.jsontype.TestSubtypes$EmptyNonFinal\",{}]", json);
     }
 
+    @Test
     public void testErrorMessage() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         try {
@@ -298,6 +310,7 @@ public class TestSubtypes extends BaseMapTest
         }
     }
 
+    @Test
     public void testViaAtomic() throws Exception {
         AtomicWrapper input = new AtomicWrapper(3);
         String json = MAPPER.writeValueAsString(input);
@@ -310,6 +323,7 @@ public class TestSubtypes extends BaseMapTest
 
     // Test to verify that base/impl restriction is applied to polymorphic handling
     // even if class name is used as the id
+    @Test
     public void testSubclassLimits() throws Exception
     {
         try {
@@ -326,6 +340,7 @@ public class TestSubtypes extends BaseMapTest
 
     // [databind#1125]: properties from base class too
 
+    @Test
     public void testIssue1125NonDefault() throws Exception
     {
         String json = MAPPER.writeValueAsString(new Issue1125Wrapper(new Impl1125(1, 2, 3)));
@@ -339,6 +354,7 @@ public class TestSubtypes extends BaseMapTest
         assertEquals(3, impl.c);
     }
 
+    @Test
     public void testIssue1125WithDefault() throws Exception
     {
         Issue1125Wrapper result = MAPPER.readValue(a2q("{'value':{'a':3,'def':9,'b':5}}"),

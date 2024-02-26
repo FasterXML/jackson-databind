@@ -1,16 +1,19 @@
 package tools.jackson.databind.jsontype.deftyping;
 
 import org.junit.Assert;
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
 
-import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.DefaultTyping;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestDefaultWithCreators
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     static abstract class Job
     {
@@ -65,6 +68,7 @@ public class TestDefaultWithCreators
     /**********************************************************
      */
 
+    @Test
     public void testWithCreators() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -84,6 +88,7 @@ public class TestDefaultWithCreators
     }
 
     // [databind#1385]
+    @Test
     public void testWithCreatorAndJsonValue() throws Exception
     {
         final byte[] BYTES = new byte[] { 1, 2, 3, 4, 5 };

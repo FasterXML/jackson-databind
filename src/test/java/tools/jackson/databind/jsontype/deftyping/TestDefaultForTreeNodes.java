@@ -1,11 +1,16 @@
 package tools.jackson.databind.jsontype.deftyping;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
-public class TestDefaultForTreeNodes extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class TestDefaultForTreeNodes extends DatabindTestUtil
 {
     public static class Foo {
         public String bar;
@@ -25,6 +30,7 @@ public class TestDefaultForTreeNodes extends BaseMapTest
                     DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
             .build();
 
+    @Test
     public void testValueAsStringWithDefaultTyping() throws Exception
     {
         Foo foo = new Foo("baz");
@@ -34,6 +40,7 @@ public class TestDefaultForTreeNodes extends BaseMapTest
         assertEquals(jsonNode.get("bar").textValue(), foo.bar);
     }
 
+    @Test
     public void testValueToTreeWithDefaultTyping() throws Exception
     {
         Foo foo = new Foo("baz");

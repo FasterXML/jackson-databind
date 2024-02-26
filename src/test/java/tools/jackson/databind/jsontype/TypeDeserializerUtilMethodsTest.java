@@ -1,12 +1,18 @@
 package tools.jackson.databind.jsontype;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
 import tools.jackson.core.json.JsonFactory;
 
-import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class TypeDeserializerUtilMethodsTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+public class TypeDeserializerUtilMethodsTest extends DatabindTestUtil
 {
+    @Test
     public void testUtilMethods() throws Exception
     {
         final JsonFactory f = new JsonFactory();

@@ -2,6 +2,8 @@ package tools.jackson.databind.jsontype;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
@@ -10,10 +12,12 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class ExistingPropertyTest extends BaseMapTest
+public class ExistingPropertyTest extends DatabindTestUtil
 {
     /**
      * Polymorphic base class - existing property as simple property on subclasses
@@ -291,6 +295,7 @@ public class ExistingPropertyTest extends BaseMapTest
     /**
      * Fruits - serialization tests for simple property on sub-classes
      */
+    @Test
     public void testExistingPropertySerializationFruits() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, pinguo);
@@ -321,6 +326,7 @@ public class ExistingPropertyTest extends BaseMapTest
     /**
      * Fruits - deserialization tests for simple property on sub-classes
      */
+    @Test
     public void testSimpleClassAsExistingPropertyDeserializationFruits() throws Exception
     {
         Fruit pinguoDeserialized = MAPPER.readValue(pinguoJson, Fruit.class);
@@ -356,6 +362,7 @@ public class ExistingPropertyTest extends BaseMapTest
     /**
      * Animals - serialization tests for abstract method in base class
      */
+    @Test
     public void testExistingPropertySerializationAnimals() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, beelzebub);
@@ -386,6 +393,7 @@ public class ExistingPropertyTest extends BaseMapTest
     /**
      * Animals - deserialization tests for abstract method in base class
      */
+    @Test
     public void testSimpleClassAsExistingPropertyDeserializationAnimals() throws Exception
     {
         Animal beelzebubDeserialized = MAPPER.readValue(beelzebubJson, Animal.class);
@@ -418,6 +426,7 @@ public class ExistingPropertyTest extends BaseMapTest
     /**
      * Cars - serialization tests for no abstract method or type variable in base class
      */
+    @Test
     public void testExistingPropertySerializationCars() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, camry);
@@ -448,6 +457,7 @@ public class ExistingPropertyTest extends BaseMapTest
     /**
      * Cars - deserialization tests for no abstract method or type variable in base class
      */
+    @Test
     public void testSimpleClassAsExistingPropertyDeserializationCars() throws Exception
     {
         Car camryDeserialized = MAPPER.readValue(camryJson, Camry.class);
@@ -479,6 +489,7 @@ public class ExistingPropertyTest extends BaseMapTest
     }
 
     // for [databind#1635]: simple usage
+    @Test
     public void testExistingEnumTypeId() throws Exception
     {
         Bean1635 result = MAPPER.readValue(a2q("{'value':3, 'type':'A'}"),
@@ -491,6 +502,7 @@ public class ExistingPropertyTest extends BaseMapTest
 
     // for [databind#1635]: verify that `defaultImpl` does not block assignment of
     // type id
+    @Test
     public void testExistingEnumTypeIdViaDefault() throws Exception
     {
         Bean1635 result = MAPPER.readValue(a2q("{'type':'C'}"),
@@ -500,22 +512,26 @@ public class ExistingPropertyTest extends BaseMapTest
     }
 
     // [databind#3271]: verify that `null` token does not become "null" String
+    @Test
     public void testDeserializationWithValidType() throws Exception {
         Shape3271 deserShape = MAPPER.readValue("{\"type\":\"square\"}", Shape3271.class);
         assertEquals("square", deserShape.getType());
     }
 
+    @Test
     public void testDeserializationWithInvalidType() throws Exception {
         Shape3271 deserShape = MAPPER.readValue("{\"type\":\"invalid\"}", Shape3271.class);
         assertEquals("invalid", deserShape.getType());
     }
 
+    @Test
     public void testDeserializationNull() throws Exception {
         Shape3271 deserShape = MAPPER.readValue("{\"type\":null}", Shape3271.class);
         assertNull(deserShape.getType()); // error: "expected null, but was:<null>"
     }
 
     // [databind#3251]: Double vs BigDecimal
+    @Test
     public void test3251WithNewProperty() throws Exception
     {
         GenericWrapperWithNew3251<?> wrapper = new GenericWrapperWithNew3251<>(123.5);
@@ -528,6 +544,7 @@ public class ExistingPropertyTest extends BaseMapTest
         assertThat(json).contains("\"value\":123.5");
     }
 
+    @Test
     public void test3251WithExistingProperty() throws Exception
     {
         GenericWrapperWithExisting3251<?> wrapper = new GenericWrapperWithExisting3251<>(123.5);

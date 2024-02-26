@@ -1,19 +1,24 @@
 package tools.jackson.databind.jsontype;
 
-import java.io.IOException;
 import java.util.*;
+
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+
 import tools.jackson.core.JsonParser;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.type.TypeFactory;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestTypedDeserialization
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -152,6 +157,7 @@ public class TestTypedDeserialization
      * First things first, let's ensure we can serialize using
      * class name, written as main-level property name
      */
+    @Test
     public void testSimpleClassAsProperty() throws Exception
     {
         Animal a = MAPPER.readValue(asJSONObjectValueString(MAPPER,
@@ -165,6 +171,7 @@ public class TestTypedDeserialization
     }
 
     // Test inclusion using wrapper style
+    @Test
     public void testTypeAsWrapper() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
@@ -181,6 +188,7 @@ public class TestTypedDeserialization
     }
 
     // Test inclusion using 2-element array
+    @Test
     public void testTypeAsArray() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
@@ -197,6 +205,7 @@ public class TestTypedDeserialization
     }
 
     // Use basic Animal as contents of a regular List
+    @Test
     public void testListAsArray() throws Exception
     {
         // This time using PROPERTY style (default) again
@@ -230,6 +239,7 @@ public class TestTypedDeserialization
         assertNull(animals.get(3));
     }
 
+    @Test
     public void testCagedAnimal() throws Exception
     {
         String jsonCat = asJSONObjectValueString(MAPPER,
@@ -249,6 +259,7 @@ public class TestTypedDeserialization
      * Test that verifies that there are few limitations on polymorphic
      * base class.
      */
+    @Test
     public void testAbstractEmptyBaseClass() throws Exception
     {
         DummyBase result = MAPPER.readValue(
@@ -259,6 +270,7 @@ public class TestTypedDeserialization
     }
 
     // [JACKSON-506], wrt Date
+    @Test
     public void testIssue506WithDate() throws Exception
     {
         Issue506DateBean input = new Issue506DateBean();
@@ -271,6 +283,7 @@ public class TestTypedDeserialization
     }
 
     // [JACKSON-506], wrt Number
+    @Test
     public void testIssue506WithNumber() throws Exception
     {
         Issue506NumberBean input = new Issue506NumberBean();
@@ -282,7 +295,7 @@ public class TestTypedDeserialization
         assertEquals(input.number, output.number);
     }
 
-    private String asJSONObjectValueString(ObjectMapper mapper, Object... args) throws IOException
+    private String asJSONObjectValueString(ObjectMapper mapper, Object... args)
     {
         LinkedHashMap<Object,Object> map = new LinkedHashMap<Object,Object>();
         for (int i = 0, len = args.length; i < len; i += 2) {
@@ -292,6 +305,7 @@ public class TestTypedDeserialization
     }
 
     // [databind#1751]: allow ints as ids too
+    @Test
     public void testIntAsTypeId1751Array() throws Exception
     {
         Issue1751ArrBase value;
@@ -307,6 +321,7 @@ public class TestTypedDeserialization
     }
 
     // [databind#1751]: allow ints as ids too
+    @Test
     public void testIntAsTypeId1751Prop() throws Exception
     {
         Issue1751PropBase value;
@@ -322,6 +337,7 @@ public class TestTypedDeserialization
     }
 
     // [databind#2467]: Allow missing "content" for as-array deserialization
+    @Test
     public void testTypeAsArrayWithNullableType() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
@@ -333,6 +349,7 @@ public class TestTypedDeserialization
     }
 
     // [databind#2467]
+    @Test
     public void testTypeAsArrayWithCustomDeserializer() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()

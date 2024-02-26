@@ -2,20 +2,22 @@ package tools.jackson.databind.jsontype.deftyping;
 
 import java.util.concurrent.TimeUnit;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import tools.jackson.core.type.TypeReference;
 
-import tools.jackson.databind.BaseMapTest;
-import tools.jackson.databind.DefaultTyping;
-import tools.jackson.databind.JavaType;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.*;
 import tools.jackson.databind.jsontype.DefaultBaseTypeLimitingValidator;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class TestDefaultForEnums
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     public enum TestEnum {
         A, B;
@@ -62,6 +64,7 @@ public class TestDefaultForEnums
             .activateDefaultTyping(NoCheckSubTypeValidator.instance)
             .build();
 
+    @Test
     public void testSimpleEnumBean() throws Exception
     {
         TimeUnitBean bean = new TimeUnitBean();
@@ -80,6 +83,7 @@ public class TestDefaultForEnums
         assertEquals(TimeUnit.SECONDS, result.timeUnit);
     }
 
+    @Test
     public void testSimpleEnumsInObjectArray() throws Exception
     {
         // Typing is needed for enums
@@ -92,6 +96,7 @@ public class TestDefaultForEnums
         assertSame(TestEnum.A, value[0]);
     }
 
+    @Test
     public void testSimpleEnumsAsField() throws Exception
     {
         String json = DEFTYPING_MAPPER.writeValueAsString(new EnumHolder(TestEnum.B));
@@ -103,9 +108,8 @@ public class TestDefaultForEnums
     /**
      * [databind#3569]: Unable to deserialize enum object with default-typed
      * {@link com.fasterxml.jackson.annotation.JsonTypeInfo.As#WRAPPER_ARRAY} and {@link JsonCreator} together,
-     *
-     * @since 2.16
      */
+    @Test
     public void testEnumAsWrapperArrayWithCreator() throws Exception
     {
         ObjectMapper objectMapper = jsonMapperBuilder()

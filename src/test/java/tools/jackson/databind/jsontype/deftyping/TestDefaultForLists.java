@@ -2,13 +2,18 @@ package tools.jackson.databind.jsontype.deftyping;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class TestDefaultForLists
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -67,15 +72,17 @@ public class TestDefaultForLists
     /**********************************************************
      */
 
+    private final ObjectMapper POLY_MAPPER = jsonMapperBuilder()
+            .activateDefaultTyping(NoCheckSubTypeValidator.instance)
+            .build();
+
+    @Test
     public void testListOfLongs() throws Exception
     {
-        ObjectMapper m = jsonMapperBuilder()
-                .activateDefaultTyping(NoCheckSubTypeValidator.instance)
-                .build();
         ListOfLongs input = new ListOfLongs(1L, 2L, 3L);
-        String json = m.writeValueAsString(input);
+        String json = POLY_MAPPER.writeValueAsString(input);
         assertEquals("{\"longs\":[\"java.util.ArrayList\",[1,2,3]]}", json);
-        ListOfLongs output = m.readValue(json, ListOfLongs.class);
+        ListOfLongs output = POLY_MAPPER.readValue(json, ListOfLongs.class);
 
         assertNotNull(output.longs);
         assertEquals(3, output.longs.size());
@@ -90,15 +97,13 @@ public class TestDefaultForLists
      * will never have type info added; other numbers will if
      * necessary)
      */
+    @Test
     public void testListOfNumbers() throws Exception
     {
-        ObjectMapper m = jsonMapperBuilder()
-                .activateDefaultTyping(NoCheckSubTypeValidator.instance)
-                .build();
         ListOfNumbers input = new ListOfNumbers(Long.valueOf(1L), Integer.valueOf(2), Double.valueOf(3.0));
-        String json = m.writeValueAsString(input);
+        String json = POLY_MAPPER.writeValueAsString(input);
         assertEquals("{\"nums\":[\"java.util.ArrayList\",[[\"java.lang.Long\",1],2,3.0]]}", json);
-        ListOfNumbers output = m.readValue(json, ListOfNumbers.class);
+        ListOfNumbers output = POLY_MAPPER.readValue(json, ListOfNumbers.class);
 
         assertNotNull(output.nums);
         assertEquals(3, output.nums.size());
@@ -107,25 +112,24 @@ public class TestDefaultForLists
         assertEquals(Double.valueOf(3.0), output.nums.get(2));
     }
 
+    @Test
     public void testDateTypes() throws Exception
     {
-        ObjectMapper m = jsonMapperBuilder()
-                .activateDefaultTyping(NoCheckSubTypeValidator.instance)
-                .build();
         ObjectListBean input = new ObjectListBean();
         List<Object> inputList = new ArrayList<Object>();
         inputList.add(TimeZone.getTimeZone("EST"));
         inputList.add(Locale.CHINESE);
         input.values = inputList;
-        String json = m.writeValueAsString(input);
+        String json = POLY_MAPPER.writeValueAsString(input);
 
-        ObjectListBean output = m.readValue(json, ObjectListBean.class);
+        ObjectListBean output = POLY_MAPPER.readValue(json, ObjectListBean.class);
         List<Object> outputList = output.values;
         assertEquals(2, outputList.size());
         assertTrue(outputList.get(0) instanceof TimeZone);
         assertTrue(outputList.get(1) instanceof Locale);
     }
 
+    @Test
     public void testJackson628() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -138,6 +142,7 @@ public class TestDefaultForLists
         assertTrue(output.isEmpty());
     }
 
+    @Test
     public void testJackson667() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()

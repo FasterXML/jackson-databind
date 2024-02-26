@@ -2,6 +2,8 @@ package tools.jackson.databind.jsontype;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
@@ -11,8 +13,11 @@ import tools.jackson.core.*;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class TestWithGenerics extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class TestWithGenerics extends DatabindTestUtil
 {
     @JsonTypeInfo(use = Id.NAME, include = As.PROPERTY, property = "object-type")
     @JsonSubTypes( { @Type(value = Dog.class, name = "doggy") })
@@ -111,8 +116,9 @@ public class TestWithGenerics extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testWrapperWithGetter() throws Exception
     {
         Dog dog = new Dog("Fluffy", 3);
@@ -122,6 +128,7 @@ public class TestWithGenerics extends BaseMapTest
         }
     }
 
+    @Test
     public void testWrapperWithField() throws Exception
     {
         Dog dog = new Dog("Fluffy", 3);
@@ -131,6 +138,7 @@ public class TestWithGenerics extends BaseMapTest
         }
     }
 
+    @Test
     public void testWrapperWithExplicitType() throws Exception
     {
         Dog dog = new Dog("Fluffy", 3);
@@ -142,6 +150,7 @@ public class TestWithGenerics extends BaseMapTest
         }
     }
 
+    @Test
     public void testJackson387() throws Exception
     {
         ObjectMapper om = jsonMapperBuilder()
@@ -180,6 +189,7 @@ public class TestWithGenerics extends BaseMapTest
     }
 
     // [databind#543]
+    @Test
     public void testValueWithMoreGenericParameters() throws Exception
     {
         WrappedContainerWithField wrappedContainerWithField = new WrappedContainerWithField();

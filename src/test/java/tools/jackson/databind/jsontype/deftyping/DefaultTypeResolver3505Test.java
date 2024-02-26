@@ -1,25 +1,26 @@
 package tools.jackson.databind.jsontype.deftyping;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
-import tools.jackson.databind.BaseMapTest;
-import tools.jackson.databind.DefaultTyping;
-import tools.jackson.databind.DeserializationContext;
-import tools.jackson.databind.JavaType;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
-import tools.jackson.databind.jsontype.NamedType;
-import tools.jackson.databind.jsontype.TypeDeserializer;
-import tools.jackson.databind.jsontype.impl.DefaultTypeResolverBuilder;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+import tools.jackson.databind.*;
+import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import tools.jackson.databind.jsontype.NamedType;
+import tools.jackson.databind.jsontype.TypeDeserializer;
+import tools.jackson.databind.jsontype.impl.DefaultTypeResolverBuilder;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 // Tests for [databind#3505] causing a NPE when setting a DefaultTypeResolverBuilder
 // and registering subtypes through ObjectMapper (no annotations)
 public class DefaultTypeResolver3505Test
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     interface Parent {
         class ChildOne implements Parent {
@@ -63,6 +64,7 @@ public class DefaultTypeResolver3505Test
         }
     }
 
+    @Test
     public void testDeductionWithDefaultTypeResolverBuilder() {
         final ObjectMapper mapper = jsonMapperBuilder()
                 .registerSubtypes(Parent.ChildOne.class, Parent.ChildTwo.class)

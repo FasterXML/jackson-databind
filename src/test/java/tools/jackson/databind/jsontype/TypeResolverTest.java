@@ -2,15 +2,20 @@ package tools.jackson.databind.jsontype;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.module.SimpleAbstractTypeResolver;
 import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SuppressWarnings("rawtypes")
-public class TypeResolverTest extends BaseMapTest
+public class TypeResolverTest extends DatabindTestUtil
 {
     static class A {
         private Map map;
@@ -36,7 +41,8 @@ public class TypeResolverTest extends BaseMapTest
     @SuppressWarnings("serial")
     static class MyMap<K,V> extends HashMap<K,V> { }
 
-    public static void testSubtypeResolution() throws Exception
+    @Test
+    public void testSubtypeResolution() throws Exception
     {
         SimpleAbstractTypeResolver resolver = new SimpleAbstractTypeResolver();
         resolver.addMapping(Map.class, MyMap.class);

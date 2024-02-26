@@ -2,15 +2,20 @@ package tools.jackson.databind.jsontype;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 import static com.fasterxml.jackson.annotation.JsonTypeInfo.*;
 
 public class TestTypedSerialization
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -85,6 +90,7 @@ public class TestTypedSerialization
      * First things first, let's ensure we can serialize using
      * class name, written as main-level property name
      */
+    @Test
     public void testSimpleClassAsProperty() throws Exception
     {
         Map<String,Object> result = writeAndMap(MAPPER, new Cat("Beelzebub", "tabby"));
@@ -99,6 +105,7 @@ public class TestTypedSerialization
     /**
      * Test inclusion using wrapper style
      */
+    @Test
     public void testTypeAsWrapper() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
@@ -118,6 +125,7 @@ public class TestTypedSerialization
     /**
      * Test inclusion using 2-element array
      */
+    @Test
     public void testTypeAsArray() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
@@ -148,6 +156,7 @@ public class TestTypedSerialization
      *    array types...
      */
     @SuppressWarnings("unchecked")
+    @Test
     public void testInArray() throws Exception
     {
         // ensure we'll use mapper with default configs
@@ -182,6 +191,7 @@ public class TestTypedSerialization
     /**
      * Simple unit test to verify that serializing "empty" beans is ok
      */
+    @Test
     public void testEmptyBean() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
@@ -190,16 +200,17 @@ public class TestTypedSerialization
         assertEquals("{\"@type\":\"empty\"}", m.writeValueAsString(new Empty()));
     }
 
+    @Test
     public void testTypedMaps() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = newJsonMapper();
 
         Map<Long, Collection<Super>> map = new HashMap<Long, Collection<Super>>();
         List<Super> list = new ArrayList<Super>();
         list.add(new A());
         map.put(1L, list);
         String json = mapper.writerFor(new TypeReference<Map<Long, Collection<Super>>>() {}).writeValueAsString(map);
-        assertTrue("JSON does not contain '@class': "+json, json.contains("@class"));
+        assertTrue(json.contains("@class"), "JSON does not contain '@class': "+json);
     }
 }
 

@@ -2,6 +2,8 @@ package tools.jackson.databind.jsontype.deftyping;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
@@ -10,11 +12,14 @@ import tools.jackson.databind.jsontype.NamedType;
 import tools.jackson.databind.jsontype.TypeResolverBuilder;
 import tools.jackson.databind.jsontype.impl.DefaultTypeResolverBuilder;
 import tools.jackson.databind.jsontype.impl.TypeNameIdResolver;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 import tools.jackson.databind.type.TypeFactory;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class TestDefaultForMaps
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     static class MapKey {
         public String key;
@@ -71,6 +76,7 @@ public class TestDefaultForMaps
     /**********************************************************
      */
 
+    @Test
     public void testJackson428() throws Exception
     {
         TypeResolverBuilder<?> serializerTyper = new DefaultTypeResolverBuilder(NoCheckSubTypeValidator.instance,
@@ -125,6 +131,7 @@ public class TestDefaultForMaps
                 TypeFactory.defaultInstance().constructType(Object.class), subtypes, forSerialization, !forSerialization);
     }
 
+    @Test
     public void testList() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -143,6 +150,7 @@ public class TestDefaultForMaps
         assertNotNull(o);
     }
 
+    @Test
     public void testMap() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()

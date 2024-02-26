@@ -5,15 +5,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // For [databind#2978], [databind#4138]
-public class TestDoubleJsonCreator extends BaseMapTest
+public class TestDoubleJsonCreator extends DatabindTestUtil
 {
     static final class UnionExample {
         private final Base value;
@@ -240,6 +244,7 @@ public class TestDoubleJsonCreator extends BaseMapTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#2978]
+    @Test
     public void testDeserializationTypeFieldLast() throws Exception {
         UnionExample expected = UnionExample.double_(AliasDouble.of(2.0D));
         UnionExample actual = MAPPER.readValue(
@@ -249,6 +254,7 @@ public class TestDoubleJsonCreator extends BaseMapTest
     }
 
     // [databind#2978]
+    @Test
     public void testDeserializationTypeFieldFirst() throws Exception {
         UnionExample expected = UnionExample.double_(AliasDouble.of(2.0D));
         UnionExample actual = MAPPER.readValue(
@@ -258,6 +264,7 @@ public class TestDoubleJsonCreator extends BaseMapTest
     }
 
     // [databind#4138]
+    @Test
     public void testDeserializeFPAsObject() throws Exception
     {
         final String JSON = "{\"allowedValues\": [ 1.5, 2.5 ], \"type\": \"type1\"}";

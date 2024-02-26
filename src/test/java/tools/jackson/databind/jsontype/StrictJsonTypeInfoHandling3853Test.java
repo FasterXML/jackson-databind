@@ -1,15 +1,20 @@
 package tools.jackson.databind.jsontype;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
-import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.MapperFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.exc.InvalidTypeIdException;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class StrictJsonTypeInfoHandling3853Test extends BaseMapTest {
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.fail;
+
+public class StrictJsonTypeInfoHandling3853Test extends DatabindTestUtil {
 
     @JsonTypeInfo(use = Id.NAME)
     interface Command {
@@ -19,6 +24,7 @@ public class StrictJsonTypeInfoHandling3853Test extends BaseMapTest {
     static class DoSomethingCommand implements Command {
     }
 
+    @Test
     public void testDefaultHasStrictTypeHandling() throws Exception {
         ObjectMapper om = jsonMapperBuilder()
                 .registerSubtypes(DoSomethingCommand.class)
@@ -34,6 +40,7 @@ public class StrictJsonTypeInfoHandling3853Test extends BaseMapTest {
         verifyInvalidTypeIdWithConcreteTarget(om);
     }
 
+    @Test
     public void testExplicitNonStrictTypeHandling() throws Exception {
         ObjectMapper om = jsonMapperBuilder()
                 .disable(MapperFeature.REQUIRE_TYPE_ID_FOR_SUBTYPES)
@@ -50,6 +57,7 @@ public class StrictJsonTypeInfoHandling3853Test extends BaseMapTest {
         verifyDeserializationWithConcreteTarget(om);
     }
 
+    @Test
     public void testStrictTypeHandling() throws Exception {
         ObjectMapper om = jsonMapperBuilder()
                 .enable(MapperFeature.REQUIRE_TYPE_ID_FOR_SUBTYPES)
@@ -86,13 +94,13 @@ public class StrictJsonTypeInfoHandling3853Test extends BaseMapTest {
 
     private void verifyDeserializationWithConcreteTarget(ObjectMapper om) throws Exception {
         DoSomethingCommand cmd = om.readValue("{}", DoSomethingCommand.class);
-        assertType(cmd, DoSomethingCommand.class);
+        assertInstanceOf(DoSomethingCommand.class, cmd);
     }
 
     private void verifyDeserializationWithFullTypeInfo(ObjectMapper om) throws Exception {
         Command cmd = om.readValue("{\"@type\":\"do-something\"}", Command.class);
-        assertType(cmd, DoSomethingCommand.class);
+        assertInstanceOf(DoSomethingCommand.class, cmd);
         cmd = om.readValue("{\"@type\":\"do-something\"}", DoSomethingCommand.class);
-        assertType(cmd, DoSomethingCommand.class);
+        assertInstanceOf(DoSomethingCommand.class, cmd);
     }
 }

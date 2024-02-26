@@ -1,15 +1,17 @@
 package tools.jackson.databind.jsontype.deftyping;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import tools.jackson.databind.BaseMapTest;
-import tools.jackson.databind.DefaultTyping;
-import tools.jackson.databind.MapperFeature;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.*;
 import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class DeserDefaultTypedConcrete2968Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class DeserDefaultTypedConcrete2968Test extends DatabindTestUtil
 {
     static abstract class SimpleBall {
         public int size = 3;
@@ -25,6 +27,7 @@ public class DeserDefaultTypedConcrete2968Test extends BaseMapTest
     }
 
     // [databind#2968] / [databind#3824]
+    @Test
     public void testDeserializationConcreteClassWithDefaultTyping() throws Exception {
         final PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
             .allowIfBaseType(SimpleBall.class)

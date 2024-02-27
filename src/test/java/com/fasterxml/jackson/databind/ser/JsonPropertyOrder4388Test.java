@@ -12,13 +12,11 @@ import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-
 /**
  * Test to verify that the order of properties is preserved when using @JsonPropertyOrder
  * with @JsonUnwrapped and @JsonAnyGetter
  */
-public class JsonPropertyOrder4388Test extends DatabindTestUtil
-{
+public class JsonPropertyOrder4388Test extends DatabindTestUtil {
     // Base class with properties
     static class BaseWithProperties {
         public String entityName;
@@ -94,6 +92,28 @@ public class JsonPropertyOrder4388Test extends DatabindTestUtil
         public Map<String, Object> map = new LinkedHashMap<>();
     }
 
+    static class LinkUnlinkConflictPojo {
+        private Map<String, Object> properties = new HashMap<>();
+
+        @JsonAnyGetter
+        public Map<String, Object> getProperties() {
+            properties.put("key", "value");
+            return properties;
+        }
+
+        @JsonIgnore
+        public String getProperties(String key) {
+            // This method is unrelated to the any-getter and should not affect serialization
+            return "unrelated";
+        }
+
+        @JsonIgnore
+        public String getKey() {
+            // This method is unrelated to the any-getter and should not affect serialization
+            return "unrelated";
+        }
+    }
+
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // For [databind#4388]
@@ -165,17 +185,6 @@ public class JsonPropertyOrder4388Test extends DatabindTestUtil
             json);
     }
 
-    private void _configureValues(BaseWithProperties base) {
-        base.entityId = 1;
-        base.entityName = "Bob";
-        base.totalTests = 2;
-        base.childEntities = new Location();
-        base.childEntities.child1 = 3;
-        base.childEntities.child2 = 3;
-        base.products = new HashMap<>();
-        base.products.put("product1", 4);
-    }
-
     @Test
     public void testIgnoreProperties() throws Exception {
         // Respsect @JsonIgnoreProperties 'b' from Pojo, but not from map
@@ -223,5 +232,24 @@ public class JsonPropertyOrder4388Test extends DatabindTestUtil
             "'zc':3," +
             "'za':1," +
             "'zb':2}"), MAPPER.writeValueAsString(bean));
+    }
+
+    @Test
+    public void testLinkUnlinkWithJsonIgnore() throws Exception {
+        LinkUnlinkConflictPojo pojo = new LinkUnlinkConflictPojo();
+        String json = MAPPER.writeValueAsString(pojo);
+
+        assertEquals(a2q("{'key':'value'}"), json);
+    }
+
+    private void _configureValues(BaseWithProperties base) {
+        base.entityId = 1;
+        base.entityName = "Bob";
+        base.totalTests = 2;
+        base.childEntities = new Location();
+        base.childEntities.child1 = 3;
+        base.childEntities.child2 = 3;
+        base.products = new HashMap<>();
+        base.products.put("product1", 4);
     }
 }

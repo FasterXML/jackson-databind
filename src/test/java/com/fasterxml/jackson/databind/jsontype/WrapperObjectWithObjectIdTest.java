@@ -2,13 +2,19 @@ package com.fasterxml.jackson.databind.jsontype;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 // Test for [databind#1051], issue with combination of Type and Object ids,
 // if (but only if) `JsonTypeInfo.As.WRAPPER_OBJECT` used.
-public class WrapperObjectWithObjectIdTest extends BaseMapTest
+public class WrapperObjectWithObjectIdTest extends DatabindTestUtil
 {
     @JsonRootName(value = "company")
     static class Company {
@@ -66,6 +72,7 @@ public class WrapperObjectWithObjectIdTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testSimple() throws Exception
     {
         Company comp = new Company();

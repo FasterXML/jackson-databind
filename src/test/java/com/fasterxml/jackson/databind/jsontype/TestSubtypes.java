@@ -1,19 +1,24 @@
 package com.fasterxml.jackson.databind.jsontype;
 
-import com.fasterxml.jackson.core.Version;
-
 import java.util.*;
+
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+
+import com.fasterxml.jackson.core.Version;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
-public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class TestSubtypes extends DatabindTestUtil
 {
     @JsonTypeInfo(use=JsonTypeInfo.Id.NAME)
     static abstract class SuperType {
@@ -196,6 +201,7 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
+    @Test
     public void testPropertyWithSubtypes() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -207,6 +213,7 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
     }
 
     // also works via modules
+    @Test
     public void testSubtypesViaModule() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -231,6 +238,7 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         assertSame(SubC.class, result.value.getClass());
     }
 
+    @Test
     public void testSerialization() throws Exception
     {
         // serialization can detect type name ok without anything extra:
@@ -246,6 +254,7 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         assertEquals("{\"@type\":\"TestSubtypes$SubD\",\"d\":0}", mapper.writeValueAsString(new SubD()));
     }
 
+    @Test
     public void testSerializationWithDuplicateRegisteredSubtypes() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerSubtypes(new NamedType(Sub.class, "sub1"));
@@ -256,6 +265,7 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         assertEquals("{\"#type\":\"sub1\",\"a\":15}", mapper.writeValueAsString(sub));
     }
 
+    @Test
     public void testDeserializationNonNamed() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -267,6 +277,7 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         assertEquals(1, ((SubC) bean).c);
     }
 
+    @Test
     public void testDeserializatioNamed() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -283,6 +294,7 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         assertEquals(-4, ((SubD) bean).d);
     }
 
+    @Test
     public void testDeserializationWithDuplicateRegisteredSubtypes()
         throws Exception {
         ObjectMapper mapper = new ObjectMapper();
@@ -306,6 +318,7 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
     }
 
     // Trying to reproduce [JACKSON-366]
+    @Test
     public void testEmptyBean() throws Exception
     {
         // First, with annotations
@@ -328,6 +341,7 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         assertEquals("[\"com.fasterxml.jackson.databind.jsontype.TestSubtypes$EmptyNonFinal\",{}]", json);
     }
 
+    @Test
     public void testDefaultImpl() throws Exception
     {
         // first, test with no type information
@@ -350,6 +364,7 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
     }
 
     // [JACKSON-505]: ok to also default to mapping there might be for base type
+    @Test
     public void testDefaultImplViaModule() throws Exception
     {
         final String JSON = "{\"a\":123}";
@@ -377,6 +392,7 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         assertEquals(0, ((DefaultImpl505) bean).a);
     }
 
+    @Test
     public void testErrorMessage() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         try {
@@ -388,6 +404,7 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         }
     }
 
+    @Test
     public void testViaAtomic() throws Exception {
         AtomicWrapper input = new AtomicWrapper(3);
         String json = MAPPER.writeValueAsString(input);
@@ -400,6 +417,7 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
 
     // Test to verify that base/impl restriction is applied to polymorphic handling
     // even if class name is used as the id
+    @Test
     public void testSubclassLimits() throws Exception
     {
         try {
@@ -416,6 +434,7 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
 
     // [databind#1125]: properties from base class too
 
+    @Test
     public void testIssue1125NonDefault() throws Exception
     {
         String json = MAPPER.writeValueAsString(new Issue1125Wrapper(new Impl1125(1, 2, 3)));
@@ -429,6 +448,7 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         assertEquals(3, impl.c);
     }
 
+    @Test
     public void testIssue1125WithDefault() throws Exception
     {
         Issue1125Wrapper result = MAPPER.readValue(a2q("{'value':{'a':3,'def':9,'b':5}}"),

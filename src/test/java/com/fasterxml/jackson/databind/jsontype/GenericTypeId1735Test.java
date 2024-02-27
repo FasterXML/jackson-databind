@@ -1,12 +1,17 @@
 package com.fasterxml.jackson.databind.jsontype;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 // for [databind#1735]:
-public class GenericTypeId1735Test extends BaseMapTest
+public class GenericTypeId1735Test extends DatabindTestUtil
 {
     static class Wrapper1735 {
         @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "type")
@@ -33,11 +38,12 @@ public class GenericTypeId1735Test extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     private final static String NEF_CLASS = Nefarious1735.class.getName();
 
     // Existing checks should kick in fine
+    @Test
     public void testSimpleTypeCheck1735() throws Exception
     {
         try {
@@ -52,6 +58,7 @@ public class GenericTypeId1735Test extends BaseMapTest
     }
 
     // but this was not being verified early enough
+    @Test
     public void testNestedTypeCheck1735() throws Exception
     {
         try {

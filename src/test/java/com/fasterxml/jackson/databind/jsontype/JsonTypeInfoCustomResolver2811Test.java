@@ -2,13 +2,18 @@ package com.fasterxml.jackson.databind.jsontype;
 
 import java.io.IOException;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class JsonTypeInfoCustomResolver2811Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class JsonTypeInfoCustomResolver2811Test extends DatabindTestUtil
 {
     interface Vehicle { }
 
@@ -86,6 +91,7 @@ public class JsonTypeInfoCustomResolver2811Test extends BaseMapTest
             .build();
 
     // [databind#2811]
+    @Test
     public void testTypeInfoWithCustomResolver2811NoTypeId() throws Exception
     {
         String json = "{ \"name\": \"kamil\", \"vehicle\": {\"wheels\": 4, \"color\": \"red\"}}";
@@ -98,6 +104,7 @@ public class JsonTypeInfoCustomResolver2811Test extends BaseMapTest
 
     // Passing case for comparison
     /*
+    @Test
     public void testTypeInfoWithCustomResolver2811WithTypeId() throws Exception
     {
         String json = "{\n" +

@@ -1,12 +1,18 @@
 package com.fasterxml.jackson.databind.jsontype;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class PolymorphicDeserErrorHandlingTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
+
+public class PolymorphicDeserErrorHandlingTest extends DatabindTestUtil
 {
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY,
             property = "clazz")
@@ -42,6 +48,7 @@ public class PolymorphicDeserErrorHandlingTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testUnknownClassAsSubtype() throws Exception
     {
         ObjectReader reader = MAPPER.readerFor(BaseUnknownWrapper.class)
@@ -52,6 +59,7 @@ public class PolymorphicDeserErrorHandlingTest extends BaseMapTest
     }
 
     // [databind#2668]
+    @Test
     public void testSubType2668() throws Exception
     {
         String json = "{\"type\": \"child2\", \"baz\":\"1\"}"; // JSON for Child2

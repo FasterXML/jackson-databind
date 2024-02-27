@@ -3,6 +3,8 @@ package com.fasterxml.jackson.databind.jsontype;
 import java.io.IOException;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
@@ -11,9 +13,12 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.BeanSerializerFactory;
 import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
-public class TestWithGenerics extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class TestWithGenerics extends DatabindTestUtil
 {
     @JsonTypeInfo(use = Id.NAME, include = As.PROPERTY, property = "object-type")
     @JsonSubTypes( { @Type(value = Dog.class, name = "doggy") })
@@ -133,8 +138,9 @@ public class TestWithGenerics extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testWrapperWithGetter() throws Exception
     {
         Dog dog = new Dog("Fluffy", 3);
@@ -144,6 +150,7 @@ public class TestWithGenerics extends BaseMapTest
         }
     }
 
+    @Test
     public void testWrapperWithField() throws Exception
     {
         Dog dog = new Dog("Fluffy", 3);
@@ -153,6 +160,7 @@ public class TestWithGenerics extends BaseMapTest
         }
     }
 
+    @Test
     public void testWrapperWithExplicitType() throws Exception
     {
         Dog dog = new Dog("Fluffy", 3);
@@ -164,6 +172,7 @@ public class TestWithGenerics extends BaseMapTest
         }
     }
 
+    @Test
     public void testJackson387() throws Exception
     {
         ObjectMapper om = new ObjectMapper();
@@ -200,6 +209,7 @@ public class TestWithGenerics extends BaseMapTest
         assertEquals(4, mc2.params.size());
     }
 
+    @Test
     public void testJackson430() throws Exception
     {
         ObjectMapper om = new ObjectMapper();
@@ -218,6 +228,7 @@ public class TestWithGenerics extends BaseMapTest
     }
 
     // [Issue#543]
+    @Test
     public void testValueWithMoreGenericParameters() throws Exception
     {
         WrappedContainerWithField wrappedContainerWithField = new WrappedContainerWithField();

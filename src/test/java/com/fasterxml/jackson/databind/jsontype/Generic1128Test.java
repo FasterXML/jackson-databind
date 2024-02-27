@@ -1,11 +1,15 @@
 package com.fasterxml.jackson.databind.jsontype;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class Generic1128Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class Generic1128Test extends DatabindTestUtil
 {
     @SuppressWarnings("rawtypes")
     static abstract class HObj<M extends HObj> {
@@ -46,6 +50,7 @@ public class Generic1128Test extends BaseMapTest
 
     static class DevMContainer extends ContainerBase<DevM>{ }
 
+    @Test
     public void testIssue1128() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();

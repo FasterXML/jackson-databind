@@ -8,13 +8,17 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.jsontype.DefaultBaseTypeLimitingValidator;
 import java.util.concurrent.TimeUnit;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class TestDefaultForEnums
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     public enum TestEnum {
         A, B;
@@ -57,6 +61,7 @@ public class TestDefaultForEnums
     /**********************************************************
      */
 
+    @Test
     public void testSimpleEnumBean() throws Exception
     {
         TimeUnitBean bean = new TimeUnitBean();
@@ -78,6 +83,7 @@ public class TestDefaultForEnums
         assertEquals(TimeUnit.SECONDS, result.timeUnit);
     }
 
+    @Test
     public void testSimpleEnumsInObjectArray() throws Exception
     {
         ObjectMapper m = JsonMapper.builder()
@@ -93,6 +99,7 @@ public class TestDefaultForEnums
         assertSame(TestEnum.A, value[0]);
     }
 
+    @Test
     public void testSimpleEnumsAsField() throws Exception
     {
         ObjectMapper m = JsonMapper.builder()
@@ -110,6 +117,7 @@ public class TestDefaultForEnums
      *
      * @since 2.16
      */
+    @Test
     public void testEnumAsWrapperArrayWithCreator() throws JsonProcessingException
     {
         ObjectMapper objectMapper = jsonMapperBuilder()

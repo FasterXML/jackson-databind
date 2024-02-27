@@ -2,14 +2,19 @@ package com.fasterxml.jackson.databind.jsontype.deftyping;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class TestDefaultForLists
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     /**
      * Wrapper bean needed before there is a way to force
@@ -66,6 +71,7 @@ public class TestDefaultForLists
             .activateDefaultTyping(NoCheckSubTypeValidator.instance)
             .build();
 
+    @Test
     public void testListOfLongs() throws Exception
     {
         ListOfLongs input = new ListOfLongs(1L, 2L, 3L);
@@ -86,6 +92,7 @@ public class TestDefaultForLists
      * will never have type info added; other numbers will if
      * necessary)
      */
+    @Test
     public void testListOfNumbers() throws Exception
     {
         ListOfNumbers input = new ListOfNumbers(Long.valueOf(1L), Integer.valueOf(2), Double.valueOf(3.0));
@@ -100,6 +107,7 @@ public class TestDefaultForLists
         assertEquals(Double.valueOf(3.0), output.nums.get(2));
     }
 
+    @Test
     public void testDateTypes() throws Exception
     {
         ObjectListBean input = new ObjectListBean();
@@ -116,6 +124,7 @@ public class TestDefaultForLists
         assertTrue(outputList.get(1) instanceof Locale);
     }
 
+    @Test
     public void testJackson628() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -126,6 +135,7 @@ public class TestDefaultForLists
         assertTrue(output.isEmpty());
     }
 
+    @Test
     public void testJackson667() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();

@@ -3,15 +3,20 @@ package com.fasterxml.jackson.databind.jsontype;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class TestGenericListSerialization
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     // [JACKSON-356]
     public static class JSONResponse<T> {
@@ -46,6 +51,7 @@ public class TestGenericListSerialization
     /**********************************************************
      */
 
+    @Test
     public void testSubTypesFor356() throws Exception
     {
         JSONResponse<List<Parent>> input = new JSONResponse<List<Parent>>();

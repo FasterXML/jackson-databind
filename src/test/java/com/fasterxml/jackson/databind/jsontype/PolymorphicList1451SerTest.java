@@ -2,11 +2,16 @@ package com.fasterxml.jackson.databind.jsontype;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class PolymorphicList1451SerTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class PolymorphicList1451SerTest extends DatabindTestUtil
 {
     @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
     public static class A {
@@ -18,6 +23,7 @@ public class PolymorphicList1451SerTest extends BaseMapTest
 
     private final String CLASS_NAME = getClass().getSimpleName();
 
+    @Test
     public void testCollectionWithTypeInfo() throws Exception {
         ObjectMapper mapper = new ObjectMapper()
                 .disable(SerializationFeature.EAGER_SERIALIZER_FETCH)

@@ -1,17 +1,21 @@
 package com.fasterxml.jackson.databind.jsontype;
 
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import java.util.List;
+import static org.junit.jupiter.api.Assertions.*;
 
 // Tests for [databind#2761] (and [annotations#171]
-public class TestMultipleTypeNames extends BaseMapTest
+public class TestMultipleTypeNames extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 
@@ -101,6 +105,7 @@ public class TestMultipleTypeNames extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testOnlyNames() throws Exception
     {
         String json;
@@ -129,6 +134,7 @@ public class TestMultipleTypeNames extends BaseMapTest
         }
     }
 
+    @Test
     public void testNameAndNames() throws Exception
     {
         String json;
@@ -157,6 +163,7 @@ public class TestMultipleTypeNames extends BaseMapTest
         }
     }
 
+    @Test
     public void testNotUniqueNameAndNames() throws Exception
     {
         String json = "{\"base\": [{\"type\":\"a\", \"data\": {\"x\": 5}}, {\"type\":\"b\", \"data\": {\"y\": 3.1}}, {\"type\":\"c\", \"data\": {\"y\": 33.8}}]}";

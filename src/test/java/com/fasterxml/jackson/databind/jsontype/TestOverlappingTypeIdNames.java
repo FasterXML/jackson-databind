@@ -1,9 +1,15 @@
 package com.fasterxml.jackson.databind.jsontype;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class TestOverlappingTypeIdNames extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+public class TestOverlappingTypeIdNames extends DatabindTestUtil
 {
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
     @JsonSubTypes({
@@ -28,8 +34,9 @@ public class TestOverlappingTypeIdNames extends BaseMapTest
     static class Impl312B1 extends Base312B { }
     static class Impl312B2 extends Base312B { }
 
-    final ObjectMapper MAPPER = objectMapper();
+    final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testOverlappingNameDeser() throws Exception
     {
         Base312 value;
@@ -47,6 +54,7 @@ public class TestOverlappingTypeIdNames extends BaseMapTest
         assertEquals(3, ((Impl312) value).x);
     }
 
+    @Test
     public void testOverlappingNameSer() throws Exception
     {
         assertEquals(a2q("{'type':'a','value':1}"),

@@ -1,17 +1,21 @@
 package com.fasterxml.jackson.databind.jsontype;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.annotation.OptBoolean;
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 // [databind#3877]: allow configuration of per-type strict type handling
-public class OverrideStrictTypeInfoHandling3877Test extends BaseMapTest {
+public class OverrideStrictTypeInfoHandling3877Test extends DatabindTestUtil {
 
     /*
     /**********************************************************
@@ -50,6 +54,7 @@ public class OverrideStrictTypeInfoHandling3877Test extends BaseMapTest {
     private final ObjectMapper DISABLED_MAPPER = JsonMapper.builder().disable(MapperFeature.REQUIRE_TYPE_ID_FOR_SUBTYPES).build();
     private final ObjectMapper DEFAULT_MAPPER = JsonMapper.builder().build();
 
+    @Test
     public void testMissingTypeId() throws Exception {
         // super types fail on missing-id no matter what
         verifyFailureMissingTypeId("{}", FalseCommand.class, ENABLED_MAPPER);
@@ -76,6 +81,7 @@ public class OverrideStrictTypeInfoHandling3877Test extends BaseMapTest {
         verifySuccessWithNonNullAndType("{}", DoDefaultCommand.class, DISABLED_MAPPER);
     }
 
+    @Test
     public void testSuccessWhenTypeIdIsProvided() throws Exception {
         verifySuccessWithNonNullAndType(a2q("{'@type': 'do-false'}"), FalseCommand.class, ENABLED_MAPPER);
         verifySuccessWithNonNullAndType(a2q("{'@type': 'do-false'}"), FalseCommand.class, DEFAULT_MAPPER);
@@ -102,7 +108,7 @@ public class OverrideStrictTypeInfoHandling3877Test extends BaseMapTest {
     private <T> void verifySuccessWithNonNullAndType(String json, Class<T> clazz, ObjectMapper om) throws Exception {
         T bean = om.readValue(json, clazz);
         assertNotNull(bean);
-        assertType(bean, clazz);
+        assertInstanceOf(clazz, bean);
     }
 
     private void verifyFailureMissingTypeId(String json, Class<?> clazz, ObjectMapper om) throws Exception {

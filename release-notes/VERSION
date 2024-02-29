@@ -58,3 +58,4 @@ Versions: 3.x (for earlier see VERSION-2.x)
 $4160: Deprecate `DefaultTyping.EVERYTHING` in `2.x` and remove in `3.0`
 - Remove `MappingJsonFactory`
 - Add context parameter for `TypeSerializer` contextualization (`forProperty()`)
+- Default for `JsonNodeFeature.STRIP_TRAILING_BIGDECIMAL_ZEROES` changed to `false` for 3.0

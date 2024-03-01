@@ -3,12 +3,18 @@ package com.fasterxml.jackson.databind.ext;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
-public class TestJava7Types extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class TestJava7Types extends DatabindTestUtil
 {
+    @Test
     public void testPathRoundtrip() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -26,6 +32,7 @@ public class TestJava7Types extends BaseMapTest
     }
 
     // [databind#1688]:
+    @Test
     public void testPolymorphicPath() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()

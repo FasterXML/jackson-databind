@@ -4,13 +4,18 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class ExternalTypeIdWithEnum1328Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class ExternalTypeIdWithEnum1328Test extends DatabindTestUtil
 {
     public interface Animal { }
 
@@ -79,6 +84,7 @@ public class ExternalTypeIdWithEnum1328Test extends BaseMapTest
         }
     }
 
+    @Test
     public void testExample() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
 

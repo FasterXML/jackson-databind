@@ -5,13 +5,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 // for [databind#2900]
-public class Java9ListsTest extends BaseMapTest
+public class Java9ListsTest extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = JsonMapper.builder()
             .activateDefaultTypingAsProperty(
@@ -20,6 +25,7 @@ public class Java9ListsTest extends BaseMapTest
                  "@class"
             ).build();
 
+    @Test
     public void testUnmodifiableList() throws Exception
     {
          final List<String> list = Collections.unmodifiableList(Collections.singletonList("a"));
@@ -28,6 +34,7 @@ public class Java9ListsTest extends BaseMapTest
          assertEquals(1, output.size());
     }
 
+    @Test
     public void testJava9ListOf() throws Exception
     {
          List<String> list = List.of("a");
@@ -59,6 +66,7 @@ System.err.println(" final? "+type.isFinal());
          assertEquals(0, output.size());
     }
 
+    @Test
     public void testJava9MapOf() throws Exception
     {
         Map<String,String> map = Map.of("key", "value");
@@ -84,6 +92,7 @@ System.err.println(" final? "+type.isFinal());
     }
 
     // [databind#3344]
+    @Test
     public void testJava9SetOf() throws Exception
     {
         Set<?> set = Set.of("a", "b", "c");
@@ -93,6 +102,7 @@ System.err.println(" final? "+type.isFinal());
         assertEquals(set, output);
     }
 
+    @Test
     public void testJava9ListWrapped() throws Exception
     {
          final List<String> list = Collections.unmodifiableList(List.of("a"));

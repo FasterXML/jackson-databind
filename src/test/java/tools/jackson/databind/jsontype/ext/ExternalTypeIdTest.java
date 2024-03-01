@@ -3,6 +3,8 @@ package tools.jackson.databind.jsontype.ext;
 import java.math.BigDecimal;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
@@ -14,10 +16,13 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 // Tests for External type id, one that exists at same level as typed Object,
 // that is, property is not within typed object but a member of its parent.
-public class ExternalTypeIdTest extends BaseMapTest
+public class ExternalTypeIdTest extends DatabindTestUtil
 {
     static class ExternalBean
     {
@@ -294,6 +299,7 @@ public class ExternalTypeIdTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
+    @Test
     public void testSimpleSerialization() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -310,6 +316,7 @@ public class ExternalTypeIdTest extends BaseMapTest
     }
 
     // If trying to use with Class, should just become "PROPERTY" instead:
+    @Test
     public void testImproperExternalIdSerialization() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -318,6 +325,7 @@ public class ExternalTypeIdTest extends BaseMapTest
     }
 
     // for [databind#942]
+    @Test
     public void testExternalTypeIdWithNull() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -338,6 +346,7 @@ public class ExternalTypeIdTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testSimpleDeserialization() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -359,6 +368,7 @@ public class ExternalTypeIdTest extends BaseMapTest
 
     // Test for verifying that it's ok to have multiple (say, 3)
     // externally typed things, mixed with other stuff...
+    @Test
     public void testMultipleTypeIdsDeserialization() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -377,6 +387,7 @@ public class ExternalTypeIdTest extends BaseMapTest
     }
 
     // Also, it should be ok to use @JsonCreator as well...
+    @Test
     public void testExternalTypeWithCreator() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -391,6 +402,7 @@ public class ExternalTypeIdTest extends BaseMapTest
     }
 
     // If trying to use with Class, should just become "PROPERTY" instead:
+    @Test
     public void testImproperExternalIdDeserialization() throws Exception
     {
         FunkyExternalBean result = MAPPER.readValue("{\"extType\":\"funk\",\"i\":3}",
@@ -404,6 +416,7 @@ public class ExternalTypeIdTest extends BaseMapTest
         assertEquals(4, result.i);
     }
 
+    @Test
     public void testIssue798() throws Exception
     {
         Base base = new Derived1("derived1 prop val", "base prop val");
@@ -424,6 +437,7 @@ public class ExternalTypeIdTest extends BaseMapTest
     }
 
     // There seems to be some problems if type is also visible...
+    @Test
     public void testIssue831() throws Exception
     {
         final String JSON = "{ \"petType\": \"dog\",\n"
@@ -437,6 +451,7 @@ public class ExternalTypeIdTest extends BaseMapTest
 
     // For [databind#118]
     // Note: String works fine, since no type id will used; other scalar types have issues
+    @Test
     public void testWithScalar118() throws Exception
     {
         ExternalTypeWithNonPOJO input = new ExternalTypeWithNonPOJO(new java.util.Date(123L));
@@ -450,6 +465,7 @@ public class ExternalTypeIdTest extends BaseMapTest
     }
 
     // For [databind#118] using "natural" type(s)
+    @Test
     public void testWithNaturalScalar118() throws Exception
     {
         ExternalTypeWithNonPOJO input = new ExternalTypeWithNonPOJO(Integer.valueOf(13));
@@ -478,6 +494,7 @@ public class ExternalTypeIdTest extends BaseMapTest
     }
 
     // For [databind#119]... and bit of [#167] as well
+    @Test
     public void testWithAsValue() throws Exception
     {
         ExternalTypeWithNonPOJO input = new ExternalTypeWithNonPOJO(new AsValueThingy(12345L));
@@ -494,6 +511,7 @@ public class ExternalTypeIdTest extends BaseMapTest
     }
 
     // for [databind#222]
+    @Test
     public void testExternalTypeWithProp222() throws Exception
     {
         JsonMapper mapper = JsonMapper.builder().enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY).build();
@@ -503,6 +521,7 @@ public class ExternalTypeIdTest extends BaseMapTest
     }
 
     // [databind#928]
+    @Test
     public void testInverseExternalId928() throws Exception
     {
         final String CLASS = Payload928.class.getName();
@@ -524,6 +543,7 @@ public class ExternalTypeIdTest extends BaseMapTest
     }
 
     // for [databind#965]
+    @Test
     public void testBigDecimal965() throws Exception
     {
         Wrapper965 w = new Wrapper965();
@@ -543,11 +563,12 @@ public class ExternalTypeIdTest extends BaseMapTest
                 .readValue(json);
 
         assertEquals(w.typeEnum, w2.typeEnum);
-        assertTrue(String.format("Expected %s = %s; got back %s = %s",
-            w.value.getClass().getSimpleName(), w.value.toString(), w2.value.getClass().getSimpleName(), w2.value.toString()),
-            w.value.equals(w2.value));
+        assertTrue(w.value.equals(w2.value),
+            String.format("Expected %s = %s; got back %s = %s",
+                w.value.getClass().getSimpleName(), w.value.toString(), w2.value.getClass().getSimpleName(), w2.value.toString()));
     }
 
+    @Test
     public void testBigDecimal965StringBased() throws Exception
     {
         Wrapper965 w = new Wrapper965();
@@ -562,9 +583,9 @@ public class ExternalTypeIdTest extends BaseMapTest
                 .readValue(json);
 
         assertEquals(w.typeEnum, w2.typeEnum);
-        assertTrue(String.format("Expected %s = %s; got back %s = %s",
-                        w.value.getClass().getSimpleName(), w.value.toString(), w2.value.getClass().getSimpleName(), w2.value.toString()),
-                w.value.equals(w2.value));
+        assertTrue(w.value.equals(w2.value),
+            String.format("Expected %s = %s; got back %s = %s",
+                        w.value.getClass().getSimpleName(), w.value.toString(), w2.value.getClass().getSimpleName(), w2.value.toString()));
     }
 
     static class Box3008 {
@@ -595,6 +616,7 @@ public class ExternalTypeIdTest extends BaseMapTest
     }
 
     // for [databind#3008]
+    @Test
     public void testIssue3008() throws Exception
     {
         ObjectReader r = MAPPER.readerFor(Box3008.class);

@@ -1,16 +1,21 @@
 package tools.jackson.databind.jsontype.vld;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.InvalidTypeIdException;
 import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests related to [databind#2534], support for configuring
  * {@link BasicPolymorphicTypeValidator} to allow all Array-valued
  * polymorphic values.
  */
-public class BasicPTVWithArraysTest extends BaseMapTest
+public class BasicPTVWithArraysTest extends DatabindTestUtil
 {
     static abstract class Base2534 {
         public int x = 3;
@@ -46,6 +51,7 @@ public class BasicPTVWithArraysTest extends BaseMapTest
      */
 
     // [databind#2534]: handle Java array-types appropriately wrt validation
+    @Test
     public void testAllowBySubClassInArray() throws Exception {
         PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfSubType(Good2534.class)

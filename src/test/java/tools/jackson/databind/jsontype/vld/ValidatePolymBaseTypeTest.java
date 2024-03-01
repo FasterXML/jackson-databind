@@ -1,10 +1,16 @@
 package tools.jackson.databind.jsontype.vld;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.InvalidDefinitionException;
 import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Tests to verify working of customizable {@PolymorphicTypeValidator},
@@ -12,7 +18,7 @@ import tools.jackson.databind.jsontype.PolymorphicTypeValidator;
  *
  * @since 2.10
  */
-public class ValidatePolymBaseTypeTest extends BaseMapTest
+public class ValidatePolymBaseTypeTest extends DatabindTestUtil
 {
     // // // Value types
 
@@ -99,12 +105,14 @@ public class ValidatePolymBaseTypeTest extends BaseMapTest
     /**********************************************************************
      */
 
+    @Test
     public void testAnnotedGood() throws Exception {
         final String json = MAPPER_ANNOTATED.writeValueAsString(new AnnotatedGoodWrapper());
         // should work ok
         assertNotNull(MAPPER_DEF_TYPING.readValue(json, AnnotatedGoodWrapper.class));
     }
 
+    @Test
     public void testAnnotedBad() throws Exception {
         final String json = MAPPER_ANNOTATED.writeValueAsString(new AnnotatedBadWrapper());
         // should fail
@@ -124,12 +132,14 @@ public class ValidatePolymBaseTypeTest extends BaseMapTest
     /**********************************************************************
      */
 
+    @Test
     public void testDefaultGood() throws Exception {
         final String json = MAPPER_DEF_TYPING.writeValueAsString(new DefTypeGoodWrapper());
         // should work ok
         assertNotNull(MAPPER_DEF_TYPING.readValue(json, DefTypeGoodWrapper.class));
     }
 
+    @Test
     public void testDefaultBad() throws Exception {
         final String json = MAPPER_DEF_TYPING.writeValueAsString(new DefTypeBadWrapper());
         // should fail

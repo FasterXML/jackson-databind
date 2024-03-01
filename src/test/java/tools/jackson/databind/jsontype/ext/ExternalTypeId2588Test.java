@@ -1,13 +1,18 @@
 package tools.jackson.databind.jsontype.ext;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonTypeIdResolver;
 import tools.jackson.databind.jsontype.impl.TypeIdResolverBase;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 // [databind#2588] / [databind#2610]
-public class ExternalTypeId2588Test extends BaseMapTest
+public class ExternalTypeId2588Test extends DatabindTestUtil
 {
     // [databind#2588]
     interface Animal { }
@@ -70,6 +75,7 @@ public class ExternalTypeId2588Test extends BaseMapTest
     }
 
     // [databind#2588]
+    @Test
     public void testExternalTypeId2588() throws Exception
     {
         final ObjectMapper mapper = newJsonMapper();

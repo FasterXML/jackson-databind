@@ -1,12 +1,17 @@
 package tools.jackson.databind.jsontype.ext;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class MultipleExternalIds291Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class MultipleExternalIds291Test extends DatabindTestUtil
 {
     // For [Issue#291]
     interface F1 {}
@@ -53,9 +58,10 @@ public class MultipleExternalIds291Test extends BaseMapTest
     /**********************************************************
      */
 
-    final ObjectMapper MAPPER = objectMapper();
+    final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#291]
+    @Test
     public void testMultipleValuesSingleExtId() throws Exception
     {
         // first with ext-id before values
@@ -84,7 +90,7 @@ public class MultipleExternalIds291Test extends BaseMapTest
 );
     }
 
-    public void _testMultipleValuesSingleExtId(String json) throws Exception
+    private void _testMultipleValuesSingleExtId(String json) throws Exception
     {
         json = a2q(json);
 

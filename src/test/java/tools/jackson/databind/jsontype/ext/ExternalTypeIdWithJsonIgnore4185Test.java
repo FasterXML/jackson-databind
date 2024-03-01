@@ -16,9 +16,8 @@ import static tools.jackson.databind.BaseTest.a2q;
  * Unit test to verify that the following issue is fixed:
  * [databind#4185]: @JsonIgnoreProperties with JsonTypeInfo.As.EXTERNAL_PROPERTY does not work
  */
-class ExternalTypeIdWithJsonIgnore4185Test
+public class ExternalTypeIdWithJsonIgnore4185Test
 {
-
     static class Parent {
         @JsonIgnoreProperties("parent")
         public Child child;

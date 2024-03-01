@@ -2,6 +2,8 @@ package tools.jackson.failing;
 
 import java.util.UUID;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
@@ -12,6 +14,10 @@ import tools.jackson.databind.annotation.JsonPOJOBuilder;
 import tools.jackson.databind.annotation.JsonTypeIdResolver;
 import tools.jackson.databind.jsontype.impl.TypeIdResolverBase;
 
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 // 31-Jan-2020, tatu: Seems to have regression in 3.0, but this is so
 //    fucking complicated case that my head hurts. Regression only
 //    found because due to some renaming or another test case was not
@@ -20,7 +26,7 @@ import tools.jackson.databind.jsontype.impl.TypeIdResolverBase;
 //    tortured and complicated system to do... scary things. Not even 100%
 //    sure it was a good idea to allow all this machinery in the first place.
 @SuppressWarnings("hiding")
-public class ExternalTypeCustomResolver1288Test extends BaseMapTest
+public class ExternalTypeCustomResolver1288Test extends DatabindTestUtil
 {
     // [databind#1288]
     public static class ClassesWithoutBuilder {
@@ -422,6 +428,7 @@ public class ExternalTypeCustomResolver1288Test extends BaseMapTest
             .build();
 
     // [databind#1288]
+    @Test
     public void testExternalWithCustomResolver() throws Exception
     {
         // given
@@ -436,6 +443,7 @@ public class ExternalTypeCustomResolver1288Test extends BaseMapTest
     }
 
     // [databind#1288]
+    @Test
     public void testExternalWithCustomResolverAndBuilder() throws Exception
     {
         final String asJson2 = a2q(

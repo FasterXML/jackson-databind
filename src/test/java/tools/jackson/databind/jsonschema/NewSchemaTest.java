@@ -5,19 +5,25 @@ import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonValue;
+
 import tools.jackson.core.JsonParser.NumberType;
 import tools.jackson.databind.*;
 import tools.jackson.databind.jsonFormatVisitors.*;
 import tools.jackson.databind.ser.BeanPropertyWriter;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Basic tests to exercise low-level support added for JSON Schema module and
  * other modules that use type introspection.
  */
-public class NewSchemaTest extends BaseMapTest
+public class NewSchemaTest extends DatabindTestUtil
 {
     enum TestEnum {
         A, B, C;
@@ -204,6 +210,7 @@ public class NewSchemaTest extends BaseMapTest
      * verify what is being reported. Smoke test that should trigger problems
      * if basic POJO type/serializer traversal had issues.
      */
+    @Test
     public void testBasicTraversal() throws Exception
     {
         MAPPER.acceptJsonFormatVisitor(POJO.class, new BogusJsonFormatVisitorWrapper());
@@ -217,6 +224,7 @@ public class NewSchemaTest extends BaseMapTest
         MAPPER.acceptJsonFormatVisitor(POJOWithJsonValue.class, new BogusJsonFormatVisitorWrapper());
     }
 
+    @Test
     public void testSimpleEnum() throws Exception
     {
         final Set<String> values = new TreeSet<String>();
@@ -246,6 +254,7 @@ public class NewSchemaTest extends BaseMapTest
         assertEquals(exp, values);
     }
 
+    @Test
     public void testEnumWithJsonValue() throws Exception
     {
         final Set<String> values = new TreeSet<String>();
@@ -275,6 +284,7 @@ public class NewSchemaTest extends BaseMapTest
     }
 
     //  Ensure JsonValueFormat serializes/deserializes as expected
+    @Test
     public void testJsonValueFormatHandling() throws Exception
     {
         // first: serialize using 'toString()', not name
@@ -286,6 +296,7 @@ public class NewSchemaTest extends BaseMapTest
     }
 
     // [databind#1045], regression wrt BigDecimal
+    @Test
     public void testSimpleNumbers() throws Exception
     {
         final StringBuilder sb = new StringBuilder();

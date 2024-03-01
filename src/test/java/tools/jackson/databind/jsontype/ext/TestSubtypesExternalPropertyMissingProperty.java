@@ -1,5 +1,7 @@
 package tools.jackson.databind.jsontype.ext;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
@@ -7,11 +9,12 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.MismatchedInputException;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 // for [databind#1341]
-public class TestSubtypesExternalPropertyMissingProperty extends BaseMapTest
+public class TestSubtypesExternalPropertyMissingProperty extends DatabindTestUtil
 {
     /**
      * Base class - external property for Fruit subclasses.

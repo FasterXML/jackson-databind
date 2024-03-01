@@ -3,13 +3,16 @@ package tools.jackson.databind.ext;
 import java.io.StringReader;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.junit.jupiter.api.Test;
 import org.xml.sax.InputSource;
-
-import tools.jackson.databind.ObjectMapper;
-
 import org.w3c.dom.*;
 
-public class DOMTypeReadWriteTest extends tools.jackson.databind.BaseMapTest
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+public class DOMTypeReadWriteTest extends DatabindTestUtil
 {
     final static String SIMPLE_XML =
         "<root attr='3'><leaf>Rock &amp; Roll!</leaf><?proc instr?></root>";
@@ -20,6 +23,7 @@ public class DOMTypeReadWriteTest extends tools.jackson.databind.BaseMapTest
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
+    @Test
     public void testSerializeSimpleNonNS() throws Exception
     {
         // Let's just parse first, easiest
@@ -36,6 +40,7 @@ public class DOMTypeReadWriteTest extends tools.jackson.databind.BaseMapTest
         assertEquals(SIMPLE_XML, normalizeOutput(output));
     }
 
+    @Test
     public void testSerializeSimpleDefaultNS() throws Exception
     {
         // Let's just parse first, easiest
@@ -52,6 +57,7 @@ public class DOMTypeReadWriteTest extends tools.jackson.databind.BaseMapTest
         assertEquals(SIMPLE_XML_DEFAULT_NS, normalizeOutput(output));
     }
 
+    @Test
     public void testDeserializeNonNS() throws Exception
     {
         for (int i = 0; i < 2; ++i) {
@@ -83,6 +89,7 @@ public class DOMTypeReadWriteTest extends tools.jackson.databind.BaseMapTest
         }
     }
 
+    @Test
     public void testDeserializeNS() throws Exception
     {
         Document doc = MAPPER.readValue(q(SIMPLE_XML_NS), Document.class);

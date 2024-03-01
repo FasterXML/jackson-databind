@@ -1,13 +1,17 @@
 package tools.jackson.databind.format;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // [databind#1480]
-public class BooleanFormatTest extends BaseMapTest
+public class BooleanFormatTest extends DatabindTestUtil
 {
     @JsonPropertyOrder({ "b1", "b2", "b3" })
     static class BeanWithBoolean
@@ -61,6 +65,7 @@ public class BooleanFormatTest extends BaseMapTest
 
     private final static ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testShapeViaDefaults() throws Exception
     {
         assertEquals(a2q("{'b':true}"),
@@ -81,6 +86,7 @@ public class BooleanFormatTest extends BaseMapTest
     }
 
     // [databind#3080]
+    @Test
     public void testPrimitiveShapeViaDefaults() throws Exception
     {
         assertEquals(a2q("{'b':true}"),
@@ -100,6 +106,7 @@ public class BooleanFormatTest extends BaseMapTest
                 m.writeValueAsString(new PrimitiveBooleanWrapper(true)));
     }
 
+    @Test
     public void testShapeOnProperty() throws Exception
     {
         assertEquals(a2q("{'b1':1,'b2':0,'b3':true}"),

@@ -3,15 +3,21 @@ package tools.jackson.databind.ext;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
-public class TestJava7Types extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class TestJava7Types extends DatabindTestUtil
 {
     private boolean isWindows() {
         return System.getProperty("os.name").contains("Windows");
     }
 
+    @Test
     public void testPathRoundTrip() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         Path input = Paths.get(isWindows() ? "c:/tmp" : "/tmp", "foo.txt");
@@ -25,7 +31,8 @@ public class TestJava7Types extends BaseMapTest
         assertEquals(input.toAbsolutePath(), p.toAbsolutePath());
     }
 
-    // [databind#1688]:
+    // [databind#1688]
+    @Test
     public void testPolymorphicPath() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()

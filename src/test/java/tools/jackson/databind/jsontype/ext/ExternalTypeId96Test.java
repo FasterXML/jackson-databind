@@ -1,16 +1,21 @@
 package tools.jackson.databind.jsontype.ext;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
-import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 // Tests for External type id, one that exists at same level as typed Object,
 // that is, property is not within typed object but a member of its parent.
-public class ExternalTypeId96Test extends BaseMapTest
+public class ExternalTypeId96Test extends DatabindTestUtil
 {
     // for [databind#96]
     static class ExternalBeanWithDefault
@@ -48,6 +53,7 @@ public class ExternalTypeId96Test extends BaseMapTest
     /* 18-Jan-2013, tatu: Unfortunately this collides with [databind#118], and I don't
      *   know what the best resolution is. For now at least
      */
+    @Test
     public void testWithDefaultAndMissing() throws Exception
     {
         ExternalBeanWithDefault input = new ExternalBeanWithDefault(13);

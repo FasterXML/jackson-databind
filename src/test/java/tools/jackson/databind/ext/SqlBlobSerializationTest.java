@@ -4,12 +4,17 @@ import java.sql.Blob;
 
 import javax.sql.rowset.serial.SerialBlob;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.Base64Variants;
-import tools.jackson.databind.BaseMapTest;
+
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // Tests for `java.sql.Date`, `java.sql.Time` and `java.sql.Timestamp`
-public class SqlBlobSerializationTest extends BaseMapTest
+public class SqlBlobSerializationTest extends DatabindTestUtil
 {
     static class BlobObject {
         Blob sqlBlob1;
@@ -29,6 +34,7 @@ public class SqlBlobSerializationTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testSqlBlobSerializer() throws Exception
     {
         ObjectMapper m = newJsonMapper();

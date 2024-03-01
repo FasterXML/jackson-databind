@@ -3,13 +3,18 @@ package tools.jackson.databind.jsontype.jdk;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.type.TypeFactory;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TypedArrayDeserTest
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -43,6 +48,7 @@ public class TypedArrayDeserTest
     /**********************************************************
      */
 
+    @Test
     public void testIntList() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
@@ -62,6 +68,7 @@ public class TypedArrayDeserTest
      * as property. That would not work (since there's no JSON Object to
      * add property in), so it will basically be same as using WRAPPER_ARRAY
      */
+    @Test
     public void testBooleanListAsProp() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
@@ -75,6 +82,7 @@ public class TypedArrayDeserTest
         assertEquals(Boolean.FALSE, result.get(1));
     }
 
+    @Test
     public void testLongListAsWrapper() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
@@ -98,6 +106,7 @@ public class TypedArrayDeserTest
     /**********************************************************
      */
 
+    @Test
     public void testLongArray() throws Exception
     {
         // use class name, WRAPPER_OBJECT

@@ -13,7 +13,6 @@ import tools.jackson.databind.annotation.JsonTypeIdResolver;
 import tools.jackson.databind.jsontype.impl.TypeIdResolverBase;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
-
 public class ExternalTypeIdWithCreator3045Test
     extends BaseMapTest
 {

@@ -4,12 +4,17 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // Tests for `java.sql.Date`, `java.sql.Time` and `java.sql.Timestamp`
-public class SqlDateSerializationTest extends BaseMapTest
+public class SqlDateSerializationTest extends DatabindTestUtil
 {
     static class SqlDateAsDefaultBean {
         public java.sql.Date date;
@@ -36,7 +41,8 @@ public class SqlDateSerializationTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    public void testSqlDate()
+    @Test
+    public void testSqlDate() throws Exception
     {
         // use date 1999-04-01 (note: months are 0-based, use constant)
         final java.sql.Date date99 = javaSqlDate(1999, Calendar.APRIL, 1);
@@ -66,7 +72,8 @@ public class SqlDateSerializationTest extends BaseMapTest
                 w.writeValueAsString(new SqlDateAsDefaultBean(0L)));
     }
 
-    public void testSqlTime()
+    @Test
+    public void testSqlTime() throws Exception
     {
         java.sql.Time time = new java.sql.Time(0L);
         // not 100% sure what we should expect wrt timezone, but what serializes
@@ -74,7 +81,8 @@ public class SqlDateSerializationTest extends BaseMapTest
         assertEquals(q(time.toString()), MAPPER.writeValueAsString(time));
     }
 
-    public void testSqlTimestamp()
+    @Test
+    public void testSqlTimestamp() throws Exception
     {
         java.sql.Timestamp input = new java.sql.Timestamp(0L);
         // just should produce same output as standard `java.util.Date`:
@@ -83,7 +91,8 @@ public class SqlDateSerializationTest extends BaseMapTest
                 MAPPER.writeValueAsString(input));
     }
 
-    public void testPatternWithSqlDate()
+    @Test
+    public void testPatternWithSqlDate() throws Exception
     {
         // `java.sql.Date` applies system default zone (and not UTC)
         ObjectMapper mapper = jsonMapperBuilder()
@@ -97,7 +106,8 @@ public class SqlDateSerializationTest extends BaseMapTest
     }
 
     // [databind#2064]
-    public void testSqlDateConfigOverride()
+    @Test
+    public void testSqlDateConfigOverride() throws Exception
     {
         // `java.sql.Date` applies system default zone (and not UTC)
         final ObjectMapper mapper = jsonMapperBuilder()

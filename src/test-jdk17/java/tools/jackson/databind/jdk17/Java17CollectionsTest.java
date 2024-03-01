@@ -4,14 +4,16 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import tools.jackson.databind.BaseMapTest;
-import tools.jackson.databind.DefaultTyping;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.ObjectWriter;
+import org.junit.jupiter.api.Test;
+
+import tools.jackson.databind.*;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class Java17CollectionsTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class Java17CollectionsTest extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = JsonMapper.builder()
             .activateDefaultTypingAsProperty(
@@ -21,6 +23,7 @@ public class Java17CollectionsTest extends BaseMapTest
             ).build();
 
     // [databind#3404]
+    @Test
     public void testJava9StreamOf() throws Exception
     {
         ObjectWriter w = MAPPER.writerFor(List.class);

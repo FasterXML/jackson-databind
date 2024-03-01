@@ -4,16 +4,22 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.*;
 
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonValueFormat;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class SchemaWithUUIDTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class SchemaWithUUIDTest extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testUUIDSchema() throws Exception
     {
         final AtomicReference<JsonValueFormat> format = new AtomicReference<>();

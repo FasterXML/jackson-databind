@@ -2,9 +2,14 @@ package com.fasterxml.jackson.databind.jsontype.jdk;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for verifying that types that serialize as JSON Arrays
@@ -12,7 +17,7 @@ import com.fasterxml.jackson.databind.*;
  * gracefully handling Lists themselves too)
  */
 public class TypedArraySerTest
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -72,6 +77,7 @@ public class TypedArraySerTest
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
+    @Test
     public void testListWithPolymorphic() throws Exception
     {
         BeanListWrapper beans = new BeanListWrapper();
@@ -81,6 +87,7 @@ public class TypedArraySerTest
         assertEquals("{\"beans\":[{\"@type\":\"bean\",\"x\":0}]}", w.writeValueAsString(beans));
     }
 
+    @Test
     public void testIntList() throws Exception
     {
         TypedList<Integer> input = new TypedList<Integer>();
@@ -95,6 +102,7 @@ public class TypedArraySerTest
     // as property. That would not work (since there's no JSON Object to
     // add property in), so it should revert to method used with
     // ARRAY_WRAPPER method.
+    @Test
     public void testStringListAsProp() throws Exception
     {
         TypedListAsProp<String> input = new TypedListAsProp<String>();
@@ -104,6 +112,7 @@ public class TypedArraySerTest
                 MAPPER.writeValueAsString(input));
     }
 
+    @Test
     public void testStringListAsObjectWrapper() throws Exception
     {
         TypedListAsWrapper<Boolean> input = new TypedListAsWrapper<Boolean>();
@@ -124,6 +133,7 @@ public class TypedArraySerTest
     /**********************************************************
      */
 
+    @Test
     public void testIntArray() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
@@ -139,6 +149,7 @@ public class TypedArraySerTest
     /**********************************************************
      */
 
+    @Test
     public void testGenericArray() throws Exception
     {
         final A[] input = new A[] { new B() };

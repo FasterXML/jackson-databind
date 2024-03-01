@@ -4,11 +4,16 @@ import java.io.*;
 import java.math.BigDecimal;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SuppressWarnings("serial")
-public class JsonValueExtTypeIdTest extends BaseMapTest
+public class JsonValueExtTypeIdTest extends DatabindTestUtil
 {
     // The following is required for the testDecimalMetadata test case. That case fails.
     @JsonTypeName(value = "decimalValue")
@@ -66,17 +71,19 @@ public class JsonValueExtTypeIdTest extends BaseMapTest
 
     final ObjectMapper MAPPER = new ObjectMapper();
 
+    @Test
     public void testDoubleMetadata() throws IOException {
         DoubleMetadata doub = new DoubleMetadata();
         String expected = "{\"metadata\":[{\"key\":\"num\",\"value\":1234.25,\"@type\":\"doubleValue\"}]}";
         String json = MAPPER.writeValueAsString(doub);
-        assertEquals("Serialized json not equivalent", expected, json);
+        assertEquals(expected, json, "Serialized json not equivalent");
     }
 
+    @Test
     public void testDecimalMetadata() throws IOException{
         DecimalMetadata dec = new DecimalMetadata();
         String expected = "{\"metadata\":[{\"key\":\"num\",\"value\":111.1,\"@type\":\"decimalValue\"}]}";
         String json = MAPPER.writeValueAsString(dec);
-        assertEquals("Serialized json not equivalent", expected, json);
+        assertEquals(expected, json, "Serialized json not equivalent");
     }
 }

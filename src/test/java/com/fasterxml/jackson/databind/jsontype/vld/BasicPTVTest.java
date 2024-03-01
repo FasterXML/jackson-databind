@@ -2,18 +2,23 @@ package com.fasterxml.jackson.databind.jsontype.vld;
 
 import java.util.regex.Pattern;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests for the main user-configurable {@code PolymorphicTypeValidator},
  * {@link BasicPolymorphicTypeValidator}.
  */
-public class BasicPTVTest extends BaseMapTest
+public class BasicPTVTest extends DatabindTestUtil
 {
     // // // Value types
 
@@ -79,6 +84,7 @@ public class BasicPTVTest extends BaseMapTest
      */
 
     // First: test simple Base-type-as-class allowing
+    @Test
     public void testAllowByBaseClass() throws Exception {
         final PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfBaseType(BaseValue.class)
@@ -114,6 +120,7 @@ public class BasicPTVTest extends BaseMapTest
     }
 
     // Then subtype-prefix
+    @Test
     public void testAllowByBaseClassPrefix() throws Exception {
         final PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfBaseType("com.fasterxml.")
@@ -139,6 +146,7 @@ public class BasicPTVTest extends BaseMapTest
     }
 
     // Then subtype-pattern
+    @Test
     public void testAllowByBaseClassPattern() throws Exception {
         final PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfBaseType(Pattern.compile("\\w+\\.fasterxml\\..+"))
@@ -164,6 +172,7 @@ public class BasicPTVTest extends BaseMapTest
     }
 
     // And finally, block by specific direct-match base type
+    @Test
     public void testDenyByBaseClass() throws Exception {
         final PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 // indicate that all subtypes `BaseValue` would be fine
@@ -191,6 +200,7 @@ public class BasicPTVTest extends BaseMapTest
     /**********************************************************************
      */
 
+    @Test
     public void testAllowBySubClass() throws Exception {
         final PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfSubType(ValueB.class)
@@ -215,6 +225,7 @@ public class BasicPTVTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testAllowBySubClassPrefix() throws Exception {
         final PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfSubType(ValueB.class.getName())
@@ -239,6 +250,7 @@ public class BasicPTVTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testAllowBySubClassPattern() throws Exception {
         final PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfSubType(Pattern.compile(Pattern.quote(ValueB.class.getName())))

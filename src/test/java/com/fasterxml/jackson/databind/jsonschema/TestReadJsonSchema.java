@@ -2,13 +2,18 @@ package com.fasterxml.jackson.databind.jsonschema;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Trivial test to ensure <code>JsonSchema</code> can be also deserialized
  */
 public class TestReadJsonSchema
-    extends com.fasterxml.jackson.databind.BaseMapTest
+    extends DatabindTestUtil
 {
     enum SchemaEnum { YES, NO; }
 
@@ -47,6 +52,7 @@ public class TestReadJsonSchema
      * deserialized back to equal schema instance
      */
     @SuppressWarnings("deprecation")
+    @Test
     public void testDeserializeSimple() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -56,6 +62,6 @@ public class TestReadJsonSchema
         String schemaStr = mapper.writeValueAsString(schema);
         assertNotNull(schemaStr);
         JsonSchema result = mapper.readValue(schemaStr, JsonSchema.class);
-        assertEquals("Trying to read from '"+schemaStr+"'", schema, result);
+        assertEquals(schema, result, "Trying to read from '"+schemaStr+"'");
     }
 }

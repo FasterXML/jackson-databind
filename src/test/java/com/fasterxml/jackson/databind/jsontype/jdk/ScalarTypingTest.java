@@ -5,11 +5,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
 
-public class ScalarTypingTest extends BaseMapTest
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+public class ScalarTypingTest extends DatabindTestUtil
 {
     private static class DynamicWrapper {
         @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY)
@@ -55,6 +60,7 @@ public class ScalarTypingTest extends BaseMapTest
      * Ensure that per-property dynamic types work, both for "native" types
      * and others
      */
+    @Test
     public void testScalarsWithTyping() throws Exception
     {
         String json;
@@ -88,6 +94,7 @@ public class ScalarTypingTest extends BaseMapTest
         assertEquals(TestEnum.B, result.value);
     }
 
+    @Test
     public void testScalarsViaAbstractType() throws Exception
     {
         ObjectMapper m = MAPPER;
@@ -122,6 +129,7 @@ public class ScalarTypingTest extends BaseMapTest
     }
 
     // Test inspired by [databind#1104]
+    @Test
     public void testHeterogenousStringScalars() throws Exception
     {
         final UUID NULL_UUID = UUID.fromString("00000000-0000-0000-0000-000000000000");

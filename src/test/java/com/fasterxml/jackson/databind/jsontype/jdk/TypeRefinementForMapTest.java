@@ -4,14 +4,20 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
-public class TypeRefinementForMapTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+public class TypeRefinementForMapTest extends DatabindTestUtil
 {
     interface HasUniqueId<K> {
         K getId();
@@ -98,6 +104,7 @@ public class TypeRefinementForMapTest extends BaseMapTest
     /*******************************************************
      */
 
+    @Test
     public void testMapRefinement() throws Exception
     {
         String ID1 = "3a6383d4-8123-4c43-8b8d-7cedf3e59404";
@@ -117,6 +124,7 @@ public class TypeRefinementForMapTest extends BaseMapTest
     }
 
     // for [databind#1384]
+    @Test
     public void testMapKeyRefinement1384() throws Exception
     {
         final String TEST_INSTANCE_SERIALIZED =

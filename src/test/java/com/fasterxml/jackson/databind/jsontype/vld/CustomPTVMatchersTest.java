@@ -2,15 +2,19 @@ package com.fasterxml.jackson.databind.jsontype.vld;
 
 import java.util.TimeZone;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class CustomPTVMatchersTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class CustomPTVMatchersTest extends DatabindTestUtil
 {
     static abstract class CustomBase {
         public int x = 3;
@@ -45,6 +49,7 @@ public class CustomPTVMatchersTest extends BaseMapTest
     /**********************************************************************
      */
 
+    @Test
     public void testCustomBaseMatchers() throws Exception
     {
         PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
@@ -77,6 +82,7 @@ public class CustomPTVMatchersTest extends BaseMapTest
         assertEquals(CustomBad.class, result.getClass());
     }
 
+    @Test
     public void testCustomSubtypeMatchers() throws Exception
     {
         PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()

@@ -2,18 +2,21 @@ package com.fasterxml.jackson.databind.jsontype.ext;
 
 import java.util.HashMap;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ExternalTypeIdWithCreator3045Test
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     public static class ChildBaseByParentTypeResolver extends TypeIdResolverBase {
         public ChildBaseByParentTypeResolver() {
@@ -93,6 +96,7 @@ public class ExternalTypeIdWithCreator3045Test
 
    private static ObjectMapper MAPPER = newJsonMapper();
 
+   @Test
    public void testExternalIdWithAnySetter3045() throws Exception
    {
        // First cases where the last Creator argument comes last:

@@ -5,6 +5,8 @@ import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Map;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,13 +14,16 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Ryan Heaton
  */
 @SuppressWarnings("deprecation")
 public class TestGenerateJsonSchema
-    extends com.fasterxml.jackson.databind.BaseMapTest
+    extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -127,6 +132,7 @@ public class TestGenerateJsonSchema
     /**
      * tests generating json-schema stuff.
      */
+    @Test
     public void testOldSchemaGeneration() throws Exception
     {
         JsonSchema jsonSchema = MAPPER.generateJsonSchema(SimpleBean.class);
@@ -196,6 +202,7 @@ public class TestGenerateJsonSchema
     final static FilterProvider secretFilterProvider = new SimpleFilterProvider()
         .addFilter("filteredBean", SimpleBeanPropertyFilter.filterOutAllExcept(new String[]{"obvious"}));
 
+    @Test
     public void testGeneratingJsonSchemaWithFilters() throws Exception {
     	ObjectMapper mapper = new ObjectMapper();
     	mapper.setFilters(secretFilterProvider);
@@ -209,6 +216,7 @@ public class TestGenerateJsonSchema
      * Additional unit test for verifying that schema object itself
      * can be properly serialized
      */
+    @Test
     public void testSchemaSerialization() throws Exception
     {
         JsonSchema jsonSchema = MAPPER.generateJsonSchema(SimpleBean.class);
@@ -221,6 +229,7 @@ public class TestGenerateJsonSchema
         assertNotNull(result.get("properties"));
     }
 
+    @Test
     public void testThatObjectsHaveNoItems() throws Exception
     {
         JsonSchema jsonSchema = MAPPER.generateJsonSchema(TrivialBean.class);
@@ -231,6 +240,7 @@ public class TestGenerateJsonSchema
                 json);
     }
 
+    @Test
     public void testSchemaId() throws Exception
     {
         JsonSchema jsonSchema = MAPPER.generateJsonSchema(BeanWithId.class);
@@ -240,6 +250,7 @@ public class TestGenerateJsonSchema
     }
 
     // [databind#271]
+    @Test
     public void testUnwrapping()  throws Exception
     {
         JsonSchema jsonSchema = MAPPER.generateJsonSchema(UnwrappingRoot.class);
@@ -256,6 +267,7 @@ public class TestGenerateJsonSchema
     }
 
     //
+    @Test
     public void testNumberTypes()  throws Exception
     {
         JsonSchema jsonSchema = MAPPER.generateJsonSchema(Numbers.class);

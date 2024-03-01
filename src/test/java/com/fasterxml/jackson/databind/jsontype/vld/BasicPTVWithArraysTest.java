@@ -1,17 +1,22 @@
 package com.fasterxml.jackson.databind.jsontype.vld;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests related to [databind#2534], support for configuring
  * {@link BasicPolymorphicTypeValidator} to allow all Array-valued
  * polymorphic values.
  */
-public class BasicPTVWithArraysTest extends BaseMapTest
+public class BasicPTVWithArraysTest extends DatabindTestUtil
 {
     static abstract class Base2534 {
         public int x = 3;
@@ -47,6 +52,7 @@ public class BasicPTVWithArraysTest extends BaseMapTest
      */
 
     // [databind#2534]: handle Java array-types appropriately wrt validation
+    @Test
     public void testAllowBySubClassInArray() throws Exception {
         PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
                 .allowIfSubType(Good2534.class)

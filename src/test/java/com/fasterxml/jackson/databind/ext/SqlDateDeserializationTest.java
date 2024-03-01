@@ -3,10 +3,16 @@ package com.fasterxml.jackson.databind.ext;
 import java.util.Calendar;
 import java.util.TimeZone;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class SqlDateDeserializationTest
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -17,6 +23,7 @@ public class SqlDateDeserializationTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     @SuppressWarnings("deprecation")
+    @Test
     public void testDateSql() throws Exception
     {
         java.sql.Date value = new java.sql.Date(0L);
@@ -54,6 +61,7 @@ public class SqlDateDeserializationTest
 //        assertEquals(expStr, result.toString());
     }
 
+    @Test
     public void testDatesWithEmptyStrings() throws Exception
     {
         assertNull(MAPPER.readValue(q(""), java.sql.Date.class));

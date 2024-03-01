@@ -2,6 +2,8 @@ package com.fasterxml.jackson.databind.jsontype.vld;
 
 import java.io.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.databind.*;
@@ -9,13 +11,17 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.jsontype.DefaultBaseTypeLimitingValidator;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Unit tests for verifying that "unsafe" base type(s) for polymorphic deserialization
  * are correctly handled wrt {@link MapperFeature#BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES}.
  */
 public class AnnotatedPolymorphicValidationTest
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     static class WrappedPolymorphicUntyped {
         @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS)
@@ -62,6 +68,7 @@ public class AnnotatedPolymorphicValidationTest
             .enable(MapperFeature.BLOCK_UNSAFE_POLYMORPHIC_BASE_TYPES)
             .build();
 
+    @Test
     public void testPolymorphicWithUnsafeBaseType() throws IOException
     {
         final String JSON = a2q("{'value':10}");

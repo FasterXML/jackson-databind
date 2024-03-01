@@ -5,12 +5,17 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // Tests for `java.sql.Date`, `java.sql.Time` and `java.sql.Timestamp`
-public class SqlDateSerializationTest extends BaseMapTest
+public class SqlDateSerializationTest extends DatabindTestUtil
 {
     static class SqlDateAsDefaultBean {
         public java.sql.Date date;
@@ -38,6 +43,7 @@ public class SqlDateSerializationTest extends BaseMapTest
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     @SuppressWarnings("deprecation")
+    @Test
     public void testSqlDate() throws IOException
     {
         // use date 1999-04-01 (note: months are 0-based, use constant)
@@ -66,6 +72,7 @@ public class SqlDateSerializationTest extends BaseMapTest
                 w.writeValueAsString(new SqlDateAsDefaultBean(0L)));
     }
 
+    @Test
     public void testSqlTime() throws IOException
     {
         java.sql.Time time = new java.sql.Time(0L);
@@ -74,6 +81,7 @@ public class SqlDateSerializationTest extends BaseMapTest
         assertEquals(q(time.toString()), MAPPER.writeValueAsString(time));
     }
 
+    @Test
     public void testSqlTimestamp() throws IOException
     {
         java.sql.Timestamp input = new java.sql.Timestamp(0L);
@@ -83,6 +91,7 @@ public class SqlDateSerializationTest extends BaseMapTest
                 MAPPER.writeValueAsString(input));
     }
 
+    @Test
     public void testPatternWithSqlDate() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -96,6 +105,7 @@ public class SqlDateSerializationTest extends BaseMapTest
     }
 
     // [databind#2064]
+    @Test
     public void testSqlDateConfigOverride() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();

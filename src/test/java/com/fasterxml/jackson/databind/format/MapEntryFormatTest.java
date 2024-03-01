@@ -3,12 +3,17 @@ package com.fasterxml.jackson.databind.format;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class MapEntryFormatTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class MapEntryFormatTest extends DatabindTestUtil
 {
     static class BeanWithMapEntry {
         // would work with any other shape than OBJECT, or without annotation:
@@ -107,6 +112,7 @@ public class MapEntryFormatTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testInclusion() throws Exception
     {
         assertEquals(a2q("{'entry':{'a':'b'}}"),
@@ -126,6 +132,7 @@ public class MapEntryFormatTest extends BaseMapTest
                 MAPPER.writeValueAsString(new EntryWithNullWrapper("a", null)));
     }
 
+    @Test
     public void testInclusionWithReference() throws Exception
     {
         assertEquals(a2q("{'entry':{'a':'b'}}"),
@@ -144,6 +151,7 @@ public class MapEntryFormatTest extends BaseMapTest
     /**********************************************************************
      */
 
+    @Test
     public void testAsNaturalRoundtrip() throws Exception
     {
         BeanWithMapEntry input = new BeanWithMapEntry("foo" ,"bar");
@@ -155,6 +163,7 @@ public class MapEntryFormatTest extends BaseMapTest
     }
 
     // should work via class annotation
+    @Test
     public void testAsObjectRoundtrip() throws Exception
     {
         MapEntryAsObject input = new MapEntryAsObject("foo" ,"bar");
@@ -170,6 +179,7 @@ public class MapEntryFormatTest extends BaseMapTest
     }
 
     // [databind#1895]
+    @Test
     public void testDefaultShapeOverride() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()

@@ -66,7 +66,7 @@ public class POJONode
     @Override
     public boolean asBoolean(boolean defaultValue)
     {
-        if (_value != null && _value instanceof Boolean) {
+        if (_value instanceof Boolean) {
             return ((Boolean) _value).booleanValue();
         }
         return defaultValue;
@@ -147,9 +147,6 @@ public class POJONode
         return false;
     }
 
-    /**
-     * @since 2.3
-     */
     protected boolean _pojoEquals(POJONode other)
     {
         if (_value == null) {

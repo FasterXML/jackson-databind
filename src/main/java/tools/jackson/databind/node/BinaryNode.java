@@ -1,6 +1,7 @@
 package tools.jackson.databind.node;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.SerializerProvider;
@@ -20,7 +21,8 @@ public class BinaryNode
 
     public BinaryNode(byte[] data)
     {
-        _data = data;
+        // 01-Mar-2024, tatu: [databind#4381] No null-valued JsonNodes
+        _data = Objects.requireNonNull(data);
     }
 
     public BinaryNode(byte[] data, int offset, int length)

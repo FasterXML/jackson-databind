@@ -28,7 +28,10 @@ public class BigIntegerNode
     /**********************************************************
      */
 
-    public BigIntegerNode(BigInteger v) { _value = v; }
+    public BigIntegerNode(BigInteger v) {
+        // 01-Mar-2024, tatu: [databind#4381] No null-valued JsonNodes
+        _value = Objects.requireNonNull(v);
+    }
 
     public static BigIntegerNode valueOf(BigInteger v) { return new BigIntegerNode(v); }
 

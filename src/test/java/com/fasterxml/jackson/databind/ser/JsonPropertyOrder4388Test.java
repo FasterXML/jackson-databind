@@ -114,7 +114,40 @@ public class JsonPropertyOrder4388Test extends DatabindTestUtil {
         }
     }
 
+    @JsonPropertyOrder({ "firstProperty", "secondProperties", "thirdProperty", "forthProperty" })
+    static class PrivateAnyGetterPojo {
+        public int firstProperty = 1;
+        public int forthProperty = 4;
+        public int thirdProperty = 3;
+
+        @JsonAnyGetter
+        private Map<String, Object> secondProperties = new HashMap<>();
+
+        public PrivateAnyGetterPojo add(String key, Object value) {
+            secondProperties.put(key, value);
+            return this;
+        }
+
+        public Map<String, Object> props() {
+            return secondProperties;
+        }
+    }
+
     private final ObjectMapper MAPPER = newJsonMapper();
+
+    @Test
+    public void testPrivateAnyGetter() throws Exception {
+        PrivateAnyGetterPojo pojo = new PrivateAnyGetterPojo();
+        pojo.add("secondProperty", 2);
+        String json = MAPPER.writeValueAsString(pojo);
+
+        assertEquals(a2q("{" +
+                "'firstProperty':1," +
+                "'secondProperty':2," +
+                "'thirdProperty':3," +
+                "'forthProperty':4}"),
+            json);
+    }
 
     // For [databind#4388]
     @Test

@@ -103,7 +103,6 @@ public class ExternalTypeCustomResolver1288Test extends DatabindTestUtil
             public void setName(String name) {
                 this.name = name;
             }
-
         }
 
         public enum FormOfPayment {

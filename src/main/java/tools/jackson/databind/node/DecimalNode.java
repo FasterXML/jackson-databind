@@ -2,6 +2,7 @@ package tools.jackson.databind.node;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Objects;
 
 import tools.jackson.core.*;
 import tools.jackson.databind.*;
@@ -30,7 +31,10 @@ public class DecimalNode
     /**********************************************************************
      */
 
-    public DecimalNode(BigDecimal v) { _value = v; }
+    public DecimalNode(BigDecimal v) {
+        // 01-Mar-2024, tatu: [databind#4381] No null-valued JsonNodes
+        _value = Objects.requireNonNull(v);
+    }
 
     public static DecimalNode valueOf(BigDecimal d) { return new DecimalNode(d); }
 

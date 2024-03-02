@@ -21,7 +21,8 @@ public class TextNode
     protected final String _value;
 
     public TextNode(String v) {
-        _value = v;
+        // 01-Mar-2024, tatu: [databind#4381] No null-valued TextNodes
+        _value = Objects.requireNonNull(v);
     }
 
     /**

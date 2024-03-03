@@ -25,11 +25,7 @@ import com.fasterxml.jackson.databind.ser.std.MapSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdDelegatingSerializer;
 import com.fasterxml.jackson.databind.ser.std.ToEmptyObjectSerializer;
 import com.fasterxml.jackson.databind.type.ReferenceType;
-import com.fasterxml.jackson.databind.util.BeanUtil;
-import com.fasterxml.jackson.databind.util.ClassUtil;
-import com.fasterxml.jackson.databind.util.Converter;
-import com.fasterxml.jackson.databind.util.IgnorePropertiesUtil;
-import com.fasterxml.jackson.databind.util.NativeImageUtil;
+import com.fasterxml.jackson.databind.util.*;
 
 /**
  * Factory class that can provide serializers for any regular Java beans
@@ -440,19 +436,6 @@ public class BeanSerializerFactory
 
         AnnotatedMember anyGetter = beanDesc.findAnyGetter();
         if (anyGetter != null) {
-            BeanPropertyWriter anyGetterProp = null;
-            int anyGetterIndex = -1;
-            // find anyProp
-            // TODO: Better way to handdle this...
-            //  This does not seem the most efficient way to do this....
-            for (int i = 0; i < props.size(); i++) {
-                BeanPropertyWriter prop = props.get(i);
-                if (Objects.equals(prop.getMember().getMember(), anyGetter.getMember())) {
-                    anyGetterProp = prop;
-                    anyGetterIndex = i;
-                    break;
-                }
-            }
             JavaType anyType = anyGetter.getType();
             // copied from BasicSerializerFactory.buildMapSerializer():
             JavaType valueType = anyType.getContentType();
@@ -471,12 +454,26 @@ public class BeanSerializerFactory
             BeanProperty.Std anyProp = new BeanProperty.Std(name, valueType, null,
                     anyGetter, PropertyMetadata.STD_OPTIONAL);
 
-            // TODO: find way to merge these two cases together
-            if (anyGetterIndex != -1 && anyGetterProp != null) {
+            BeanPropertyWriter anyGetterProp = null;
+            int anyGetterIndex = -1;
+            for (int i = 0; i < props.size(); i++) {
+                BeanPropertyWriter prop = props.get(i);
+                if (Objects.equals(prop.getName(), anyGetter.getName())
+                    || Objects.equals(prop.getMember().getMember(), anyGetter.getMember())) {
+                    anyGetterProp = prop;
+                    anyGetterIndex = i;
+                    break;
+                }
+            }
+            if (anyGetterIndex != -1) {
+                // Prop is already in place, just need to replace it
                 AnyGetterWriter anyGetterWriter = new AnyGetterWriter(anyGetterProp, anyProp, anyGetter, anySer);
                 props.set(anyGetterIndex, anyGetterWriter);
             } else {
-                builder.setAnyGetter(new AnyGetterWriter(anyProp, anyGetter, anySer));
+                // Otherwise add it at the end, but won't be sorted...
+                BeanPropertyDefinition anyGetterPropDef = SimpleBeanPropertyDefinition.construct(config, anyGetter, name);
+                BeanPropertyWriter anyPropWriter = _constructWriter(prov, anyGetterPropDef, new PropertyBuilder(config, beanDesc), staticTyping, anyGetter);
+                props.add(new AnyGetterWriter(anyPropWriter, anyProp, anyGetter, anySer));
             }
         }
         // Next: need to gather view information, if any:

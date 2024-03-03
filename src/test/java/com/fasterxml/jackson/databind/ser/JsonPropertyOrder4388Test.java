@@ -55,15 +55,13 @@ public class JsonPropertyOrder4388Test extends DatabindTestUtil {
 
     @JsonIgnoreProperties("b")
     static class IgnorePropertiesOnFieldPojo {
-        public int a = 1;
-        public int b = 2;
+        public int a = 1, b = 2;
         @JsonAnyGetter
         public Map<String, Object> map = new HashMap<>();
     }
 
     static class IgnorePropertiesOnAnyGetterPojo {
-        public int a = 1;
-        public int b = 2;
+        public int a = 1, b = 2;
         @JsonIgnoreProperties("b")
         @JsonAnyGetter
         public Map<String, Object> map = new HashMap<>();
@@ -85,9 +83,7 @@ public class JsonPropertyOrder4388Test extends DatabindTestUtil {
 
     @JsonPropertyOrder(alphabetic = true)
     static class AlphabeticOrderOnClassBean {
-        public int c = 3;
-        public int a = 1;
-        public int b = 2;
+        public int c = 3, a = 1, b = 2;
         @JsonAnyGetter
         public Map<String, Object> map = new LinkedHashMap<>();
     }
@@ -116,9 +112,7 @@ public class JsonPropertyOrder4388Test extends DatabindTestUtil {
 
     @JsonPropertyOrder({ "firstProperty", "secondProperties", "thirdProperty", "forthProperty" })
     static class PrivateAnyGetterPojo {
-        public int firstProperty = 1;
-        public int forthProperty = 4;
-        public int thirdProperty = 3;
+        public int firstProperty = 1, forthProperty = 4, thirdProperty = 3;
 
         @JsonAnyGetter
         private Map<String, Object> secondProperties = new HashMap<>();
@@ -128,7 +122,7 @@ public class JsonPropertyOrder4388Test extends DatabindTestUtil {
             return this;
         }
 
-        public Map<String, Object> props() {
+        public Map<String, Object> secondProperties() {
             return secondProperties;
         }
     }
@@ -143,9 +137,10 @@ public class JsonPropertyOrder4388Test extends DatabindTestUtil {
 
         assertEquals(a2q("{" +
                 "'firstProperty':1," +
-                "'secondProperty':2," +
                 "'thirdProperty':3," +
-                "'forthProperty':4}"),
+                "'forthProperty':4," +
+                "'secondProperty':2" + // private accesor, wont' work here
+                "}"),
             json);
     }
 

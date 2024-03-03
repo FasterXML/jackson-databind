@@ -458,8 +458,11 @@ public class BeanSerializerFactory
             int anyGetterIndex = -1;
             for (int i = 0; i < props.size(); i++) {
                 BeanPropertyWriter prop = props.get(i);
+                // Either any-getter as field...
                 if (Objects.equals(prop.getName(), anyGetter.getName())
-                    || Objects.equals(prop.getMember().getMember(), anyGetter.getMember())) {
+                    // or as method
+                    || Objects.equals(prop.getMember().getMember(), anyGetter.getMember()))
+                {
                     anyGetterProp = prop;
                     anyGetterIndex = i;
                     break;

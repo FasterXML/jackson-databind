@@ -25,6 +25,9 @@ public class AnyGetterWriter extends BeanPropertyWriter
 
     protected MapSerializer _mapSerializer;
 
+    /**
+     * @since 2.19
+     */
     @SuppressWarnings("unchecked")
     public AnyGetterWriter(BeanPropertyWriter parent, BeanProperty property,
             AnnotatedMember accessor, JsonSerializer<?> serializer)
@@ -38,16 +41,14 @@ public class AnyGetterWriter extends BeanPropertyWriter
         }
     }
 
+    /**
+     * @deprecated Since 2.19, use one that takes {@link BeanPropertyWriter} instead.
+     */
     @SuppressWarnings("unchecked")
     public AnyGetterWriter(BeanProperty property,
             AnnotatedMember accessor, JsonSerializer<?> serializer)
     {
-        _accessor = accessor;
-        _property = property;
-        _serializer = (JsonSerializer<Object>) serializer;
-        if (serializer instanceof MapSerializer) {
-            _mapSerializer = (MapSerializer) serializer;
-        }
+        this(null, property, accessor, serializer);
     }
 
     /**

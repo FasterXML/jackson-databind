@@ -147,7 +147,6 @@ public class BeanSerializer
          * - have per-property filters
          */
         if ((_objectIdWriter == null)
-                && (_anyGetterWriter == null)
                 && (_propertyFilterId == null)
                 ) {
             return new BeanAsArraySerializer(this);

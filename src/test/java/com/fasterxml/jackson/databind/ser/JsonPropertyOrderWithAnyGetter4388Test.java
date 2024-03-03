@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * Test to verify that the order of properties is preserved when using @JsonPropertyOrder
  * with @JsonUnwrapped and @JsonAnyGetter
  */
-public class JsonPropertyOrder4388Test extends DatabindTestUtil {
+public class JsonPropertyOrderWithAnyGetter4388Test extends DatabindTestUtil {
     // Base class with properties
     static class BaseWithProperties {
         public String entityName;
@@ -127,22 +127,14 @@ public class JsonPropertyOrder4388Test extends DatabindTestUtil {
         }
     }
 
-    private final ObjectMapper MAPPER = newJsonMapper();
-
-    @Test
-    public void testPrivateAnyGetter() throws Exception {
-        PrivateAnyGetterPojo pojo = new PrivateAnyGetterPojo();
-        pojo.add("secondProperty", 2);
-        String json = MAPPER.writeValueAsString(pojo);
-
-        assertEquals(a2q("{" +
-                "'firstProperty':1," +
-                "'thirdProperty':3," +
-                "'forthProperty':4," +
-                "'secondProperty':2" + // private accesor, wont' work here
-                "}"),
-            json);
+    @JsonPropertyOrder({ "firstProperty", "secondProperties", "thirdProperty", "forthProperty" })
+    static class PrivateAnyGetterPojoSorted extends PrivateAnyGetterPojo {
+        public Map<String, Object> getSecondProperties() {
+            return super.secondProperties;
+        }
     }
+
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     // For [databind#4388]
     @Test
@@ -268,6 +260,35 @@ public class JsonPropertyOrder4388Test extends DatabindTestUtil {
         String json = MAPPER.writeValueAsString(pojo);
 
         assertEquals(a2q("{'key':'value'}"), json);
+    }
+
+
+    @Test
+    public void testPrivateAnyGetter() throws Exception {
+        PrivateAnyGetterPojo pojo = new PrivateAnyGetterPojo();
+        pojo.add("secondProperty", 2);
+        String json = MAPPER.writeValueAsString(pojo);
+
+        assertEquals(a2q("{" +
+                "'firstProperty':1," +
+                "'thirdProperty':3," +
+                "'forthProperty':4," +
+                "'secondProperty':2}"), // private accesor, wont' work here
+            json);
+    }
+
+    @Test
+    public void testPrivateAnyGetterSorted() throws Exception {
+        PrivateAnyGetterPojoSorted pojo = new PrivateAnyGetterPojoSorted();
+        pojo.add("secondProperty", 2);
+        String json = MAPPER.writeValueAsString(pojo);
+
+        assertEquals(a2q("{" +
+                "'firstProperty':1," +
+                "'secondProperty':2," + // private accesor, wont' work here
+                "'thirdProperty':3," +
+                "'forthProperty':4}"),
+            json);
     }
 
     private void _configureValues(BaseWithProperties base) {

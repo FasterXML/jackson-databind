@@ -19,7 +19,6 @@ public class EnumDefaultRead4403Test
     enum Brand4403 {
         @JsonProperty("005")
         SEAT,
-
         @JsonProperty("006")
         HYUNDAI,
         @JsonEnumDefaultValue
@@ -43,6 +42,8 @@ public class EnumDefaultRead4403Test
         assertEquals(Brand4403.SEAT, r.readValue(q("005")));
         assertEquals(Brand4403.HYUNDAI, r.readValue(q("006")));
         assertEquals(Brand4403.OTHER, r.readValue(q("x")));
+
+        // Problem here: "001" taken as "Stringified" index 1
         assertEquals(Brand4403.OTHER, r.readValue(q("001")));
     }
 

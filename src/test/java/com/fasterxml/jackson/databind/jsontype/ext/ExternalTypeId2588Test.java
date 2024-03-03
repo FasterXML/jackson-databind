@@ -9,17 +9,24 @@ import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-// [databind#2588] / [databind#2610]
+// [databind#2588] / [databind#2610] / [databind#4354]
 public class ExternalTypeId2588Test extends DatabindTestUtil
 {
     // [databind#2588]
     interface Animal { }
 
-    static class Cat implements Animal { }
+    static class Cat implements Animal {
+        public int lives = 9;
+    }
 
     public static class Dog implements Animal { }
+
+    static class Wolf implements Animal {
+        public boolean alive;
+    }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     static class Pet {
@@ -51,6 +58,8 @@ public class ExternalTypeId2588Test extends DatabindTestUtil
                 return "cat";
             } else if (suggestedType.isAssignableFrom(Dog.class)) {
                 return "dog";
+            } else if (suggestedType.isAssignableFrom(Wolf.class)) {
+                return "wolf";
             }
             return null;
         }
@@ -71,16 +80,17 @@ public class ExternalTypeId2588Test extends DatabindTestUtil
         }
     }
 
+    private final ObjectMapper MAPPER = newJsonMapper();
+
     // [databind#2588]
     @Test
-    public void testExternalTypeId2588() throws Exception
+    public void testExternalTypeId2588Read() throws Exception
     {
-        final ObjectMapper mapper = newJsonMapper();
         Pet pet;
 
         // works?
 
-        pet = mapper.readValue(a2q(
+        pet = MAPPER.readValue(a2q(
 "{\n" +
 "  'type': 'cat',\n" +
 "  'animal': { },\n" +
@@ -92,7 +102,7 @@ public class ExternalTypeId2588Test extends DatabindTestUtil
         assertNotNull(pet);
 
         // fails:
-        pet = mapper.readValue(a2q(
+        pet = MAPPER.readValue(a2q(
 "{\n" +
 "  'animal\": { },\n" +
 "  'ignoredObject': {\n" +
@@ -102,5 +112,12 @@ public class ExternalTypeId2588Test extends DatabindTestUtil
 "}"
                 ), Pet.class);
         assertNotNull(pet);
+    }
+
+    @Test
+    public void testExternalTypeId2588Write() throws Exception
+    {
+        String json = MAPPER.writeValueAsString(new Pet("cat", new Wolf()));
+        assertEquals(a2q("{'animal':{'alive':false},'type':'wolf'}"), json);
     }
 }

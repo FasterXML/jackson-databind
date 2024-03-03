@@ -90,7 +90,8 @@ public class EnumDefaultReadTest
     /* Test methods
     /**********************************************************
      */
-    private final ObjectMapper MAPPER = new ObjectMapper();
+
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     @Test
     public void testWithoutCustomFeatures() throws Exception

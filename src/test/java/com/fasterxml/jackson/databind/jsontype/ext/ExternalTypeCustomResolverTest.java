@@ -83,8 +83,6 @@ public class ExternalTypeCustomResolverTest extends DatabindTestUtil
             public void setDescription(String description) {
                 this.description = description;
             }
-
-
         }
 
         public static class EncryptedCreditCardDetails implements PaymentDetails {
@@ -100,7 +98,6 @@ public class ExternalTypeCustomResolverTest extends DatabindTestUtil
             public void setName (String name) {
                 this.name = name;
             }
-
         }
 
         public enum FormOfPayment {

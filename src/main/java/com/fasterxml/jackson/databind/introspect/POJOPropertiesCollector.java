@@ -1169,6 +1169,11 @@ public class POJOPropertiesCollector
         }
     }
 
+    /**
+     * Helper method called to check if given property should be renamed using {@link PropertyNamingStrategies}
+     *
+     * @since 2.16
+     */
     private boolean _shouldRename(POJOPropertyBuilder prop) {
         // [databind#4409]: Need to skip renaming for Enums, unless OBJECT format
         if (getType().isEnumType() && Objects.equals(prop.getPrimaryType(), getType())) {

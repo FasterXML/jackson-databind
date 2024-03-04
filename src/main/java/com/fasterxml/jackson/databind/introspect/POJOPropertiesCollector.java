@@ -1128,9 +1128,7 @@ public class POJOPropertiesCollector
         for (POJOPropertyBuilder prop : props) {
             PropertyName fullName = prop.getFullName();
             String rename = null;
-            // As per [databind#428] need to skip renaming if property has
-            // explicitly defined name, unless feature  is enabled
-            if (!prop.isExplicitlyNamed() || _config.isEnabled(MapperFeature.ALLOW_EXPLICIT_PROPERTY_RENAMING)) {
+            if (_shouldRename(prop)) {
                 if (_forSerialization) {
                     if (prop.hasGetter()) {
                         rename = naming.nameForGetterMethod(_config, prop.getGetter(), fullName.getSimpleName());
@@ -1169,6 +1167,22 @@ public class POJOPropertiesCollector
             // replace the creatorProperty too, if there is one
             _replaceCreatorProperty(prop, _creatorProperties);
         }
+    }
+
+    private boolean _shouldRename(POJOPropertyBuilder prop) {
+        // [databind#4409]: Need to skip renaming for Enums, unless OBJECT format
+        if (getType().isEnumType() && Objects.equals(prop.getPrimaryType(), getType())) {
+            if (prop.isObjectFormatShape()) {
+                return true;
+            }
+            return false;
+        }
+        // As per [databind#428] need to skip renaming if property has
+        // explicitly defined name, unless feature  is enabled
+        if (!prop.isExplicitlyNamed() || _config.isEnabled(MapperFeature.ALLOW_EXPLICIT_PROPERTY_RENAMING)) {
+            return true;
+        }
+        return false;
     }
 
     protected void _renameWithWrappers(Map<String, POJOPropertyBuilder> props)

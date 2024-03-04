@@ -3,10 +3,7 @@ package com.fasterxml.jackson.databind.introspect;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.Nulls;
+import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.ConfigOverride;
@@ -1414,6 +1411,15 @@ public class POJOPropertyBuilder
         // same as above, must get fully resolved type to handled generic typing
         // of fields etc.
         return m.getType().getRawClass();
+    }
+
+    protected boolean isObjectFormatShape() {
+        JsonFormat.Value format = _annotationIntrospector.findFormat(getAccessor());
+        if (format != null) {
+            JsonFormat.Shape shape = format.getShape();
+            return shape == JsonFormat.Shape.OBJECT;
+        }
+        return false;
     }
 
     /*

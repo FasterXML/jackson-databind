@@ -238,6 +238,9 @@ public class TestNamingStrategyStd extends DatabindTestUtil
                 {"uId", "u_id" },
                 // [databind#2267]
                 {"xCoordinate", "x_coordinate" },
+                // [databind#4409]
+                {"RGBA", "rgba"},
+                {"RGBa", "rgba"},
     });
 
     final static List<Object[]> UPPER_SNAKE_CASE_NAME_TRANSLATIONS = Arrays.asList(new Object[][] {

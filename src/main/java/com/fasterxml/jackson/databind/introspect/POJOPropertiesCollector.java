@@ -1124,7 +1124,7 @@ public class POJOPropertiesCollector
     protected void _renameUsing(Map<String, POJOPropertyBuilder> propMap,
             PropertyNamingStrategy naming)
     {
-        // [databind#4409]: Need to skip renaming for Enums, unless OBJECT format
+        // [databind#4409]: Need to skip renaming for Enums, unless Enums are handled as OBJECT format
         if (_type.isEnumType() && (_findFormatShape() != JsonFormat.Shape.OBJECT)) {
             return;
         }

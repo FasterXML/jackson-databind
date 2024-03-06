@@ -6,6 +6,7 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
@@ -1123,12 +1124,18 @@ public class POJOPropertiesCollector
     protected void _renameUsing(Map<String, POJOPropertyBuilder> propMap,
             PropertyNamingStrategy naming)
     {
+        // [databind#4409]: Need to skip renaming for Enums, unless OBJECT format
+        if (_type.isEnumType() && (_findFormatShape() != JsonFormat.Shape.OBJECT)) {
+            return;
+        }
         POJOPropertyBuilder[] props = propMap.values().toArray(new POJOPropertyBuilder[propMap.size()]);
         propMap.clear();
         for (POJOPropertyBuilder prop : props) {
             PropertyName fullName = prop.getFullName();
             String rename = null;
-            if (_shouldRename(prop)) {
+            // As per [databind#428] need to skip renaming if property has
+            // explicitly defined name, unless feature  is enabled
+            if (!prop.isExplicitlyNamed() || _config.isEnabled(MapperFeature.ALLOW_EXPLICIT_PROPERTY_RENAMING)) {
                 if (_forSerialization) {
                     if (prop.hasGetter()) {
                         rename = naming.nameForGetterMethod(_config, prop.getGetter(), fullName.getSimpleName());
@@ -1174,20 +1181,20 @@ public class POJOPropertiesCollector
      *
      * @since 2.16
      */
-    private boolean _shouldRename(POJOPropertyBuilder prop) {
-        // [databind#4409]: Need to skip renaming for Enums, unless OBJECT format
-        if (getType().isEnumType() && Objects.equals(prop.getPrimaryType(), getType())) {
-            if (prop.isObjectFormatShape()) {
-                return true;
+    private JsonFormat.Shape _findFormatShape()
+    {
+        JsonFormat.Shape shape = null;
+        JsonFormat.Value format = _annotationIntrospector.findFormat(_classDef);
+        if (format != null) {
+            shape = format.getShape();
+        }
+        JsonFormat.Value defFormat = _config.getDefaultPropertyFormat(_classDef.getRawType());
+        if (defFormat != null) {
+            if (shape == null) {
+                shape = defFormat.getShape();
             }
-            return false;
         }
-        // As per [databind#428] need to skip renaming if property has
-        // explicitly defined name, unless feature  is enabled
-        if (!prop.isExplicitlyNamed() || _config.isEnabled(MapperFeature.ALLOW_EXPLICIT_PROPERTY_RENAMING)) {
-            return true;
-        }
-        return false;
+        return shape;
     }
 
     protected void _renameWithWrappers(Map<String, POJOPropertyBuilder> props)

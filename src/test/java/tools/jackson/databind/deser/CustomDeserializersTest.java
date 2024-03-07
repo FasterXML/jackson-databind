@@ -350,7 +350,7 @@ public class CustomDeserializersTest
         public NamedPoint deserialize(JsonParser p, DeserializationContext ctxt)
         {
             JsonNode tree = ctxt.readTree(p);
-            String name = tree.path("name").asText(null);
+            String name = tree.path("name").asText();
             Point point = ctxt.readTreeAsValue(tree.get("point"), Point.class);
             return new NamedPoint(name, point);
         }

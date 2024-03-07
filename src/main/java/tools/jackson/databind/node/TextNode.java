@@ -104,11 +104,6 @@ e.getMessage()),
         return _value;
     }
 
-    @Override
-    public String asText(String defaultValue) {
-        return (_value == null) ? defaultValue : _value;
-    }
-
     // note: neither fast nor elegant, but these work for now:
 
     @Override

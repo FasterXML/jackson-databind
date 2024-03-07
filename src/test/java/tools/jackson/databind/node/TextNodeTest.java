@@ -30,8 +30,8 @@ public class TextNodeTest extends NodeTestBase
         n = TextNode.valueOf("foobar");
         assertNodeNumbersForNonNumeric(n);
 
-        assertEquals("foobar", n.asText("barf"));
-        assertEquals("", empty.asText("xyz"));
+        assertEquals("foobar", n.asText());
+        assertEquals("", empty.asText());
 
         assertTrue(TextNode.valueOf("true").asBoolean(true));
         assertTrue(TextNode.valueOf("true").asBoolean(false));

@@ -611,17 +611,6 @@ public abstract class JsonNode
     public abstract String asText();
 
     /**
-     * Method similar to {@link #asText()}, except that it will return
-     * <code>defaultValue</code> in cases where null value would be returned;
-     * either for missing nodes (trying to access missing property, or element
-     * at invalid item for array) or explicit nulls.
-     */
-    public String asText(String defaultValue) {
-        String str = asText();
-        return (str == null) ? defaultValue : str;
-    }
-
-    /**
      * Method that will try to convert value of this node to a Java <b>int</b>.
      * Numbers are coerced using default Java rules; booleans convert to 0 (false)
      * and 1 (true), and Strings are parsed using default Java language integer

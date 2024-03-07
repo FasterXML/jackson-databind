@@ -33,7 +33,6 @@ public class NullNode
 
     @Override public JsonToken asToken() { return JsonToken.VALUE_NULL; }
 
-    @Override public String asText(String defaultValue) { return defaultValue; }
     @Override public String asText() { return "null"; }
 
     @SuppressWarnings("unchecked")

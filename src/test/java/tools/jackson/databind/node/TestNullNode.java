@@ -63,7 +63,7 @@ public class TestNullNode extends NodeTestBase
         assertNodeNumbersForNonNumeric(n);
 
         // 2.4
-        assertEquals("foo", n.asText("foo"));
+        assertEquals("null", n.asText());
     }
 
     public void testNullHandling() throws Exception

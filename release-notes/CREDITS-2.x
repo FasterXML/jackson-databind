@@ -1752,3 +1752,7 @@ Jesper Blomquist (jebl01@github)
  * Contributed #4393: Deserialize `java.util.UUID` encoded as Base64 and base64Url with or
    without padding
   (2.17.0)
+
+András Péteri (apeteri@github)
+ * Suggested #4416: Deprecate `JsonNode.asText(String)`
+  (2.17.0)

@@ -1730,6 +1730,11 @@ Jan Pachol (janpacho@github)
   (2.16.0)
 
 Pieter Dirk Soels (Badbond@github)
- * Reprted #4302: Problem deserializing some type of Enums when using
+ * Reported #4302: Problem deserializing some type of Enums when using
   `PropertyNamingStrategy`
+  (2.16.2)
+
+Stephane Bailliez (sbailliez@github)
+ * Reported #4409: Deserialization of enums with name defined with different cases
+   leads to `InvalidDefinitionException`: Multiple fields representing property
   (2.16.2)

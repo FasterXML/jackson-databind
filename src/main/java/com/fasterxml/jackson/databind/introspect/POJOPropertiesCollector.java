@@ -1177,9 +1177,11 @@ public class POJOPropertiesCollector
     }
 
     /**
-     * Helper method called to check if given property should be renamed using {@link PropertyNamingStrategies}
+     * Helper method called to check if given property should be renamed using {@link PropertyNamingStrategies}.
+     *<p>
+     * NOTE: copied+simplified version of {@code BasicBeanDescription.findExpectedFormat()}.
      *
-     * @since 2.16
+     * @since 2.16.2
      */
     private JsonFormat.Shape _findFormatShape()
     {

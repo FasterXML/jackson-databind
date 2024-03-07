@@ -1413,15 +1413,6 @@ public class POJOPropertyBuilder
         return m.getType().getRawClass();
     }
 
-    protected boolean isObjectFormatShape() {
-        JsonFormat.Value format = _annotationIntrospector.findFormat(getAccessor());
-        if (format != null) {
-            JsonFormat.Shape shape = format.getShape();
-            return shape == JsonFormat.Shape.OBJECT;
-        }
-        return false;
-    }
-
     /*
     /**********************************************************
     /* Helper classes

@@ -1730,20 +1730,25 @@ Jan Pachol (janpacho@github)
   (2.16.0)
 
 Pieter Dirk Soels (Badbond@github)
- * Reprted #4302: Problem deserializing some type of Enums when using
+ * Reported #4302: Problem deserializing some type of Enums when using
   `PropertyNamingStrategy`
+  (2.16.2)
+
+Stephane Bailliez (sbailliez@github)
+ * Reported #4409: Deserialization of enums with name defined with different cases
+   leads to `InvalidDefinitionException`: Multiple fields representing property
   (2.16.2)
 
 Muhammad Khalikov (mukham12@github)
  * Contributed fix for #4209: Make `BeanDeserializerModifier`/`BeanSerializerModifier`
-  implement `java.io.Serializable`
- (2.17.0)
+   implement `java.io.Serializable`
+  (2.17.0)
 
 Eduard Dudar (edudar@github)
  * Contributed #4299: Some `Collection` and `Map` fallbacks don't work in GraalVM native image
- (2.17.0)
+  (2.17.0)
 
 Jesper Blomquist (jebl01@github)
  * Contributed #4393: Deserialize `java.util.UUID` encoded as Base64 and base64Url with or
    without padding
- (2.17.0)
+  (2.17.0)

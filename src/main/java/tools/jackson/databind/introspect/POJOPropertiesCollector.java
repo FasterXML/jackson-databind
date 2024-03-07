@@ -5,6 +5,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.HandlerInstantiator;
@@ -1039,6 +1040,14 @@ public class POJOPropertiesCollector
     protected void _renameUsing(Map<String, POJOPropertyBuilder> propMap,
             PropertyNamingStrategy naming)
     {
+        // [databind#4409]: Need to skip renaming for Enums, unless Enums are handled
+        //  as OBJECT format
+        // 06-Mar-2024, tatu: Should move format override introspection to this
+        //   class, from [Basic]BeanDescription
+        if (_type.isEnumType() && (_findFormatShape() != JsonFormat.Shape.OBJECT)) {
+            return;
+        }
+
         POJOPropertyBuilder[] props = propMap.values().toArray(new POJOPropertyBuilder[0]);
         propMap.clear();
         for (POJOPropertyBuilder prop : props) {
@@ -1085,6 +1094,24 @@ public class POJOPropertiesCollector
             // replace the creatorProperty too, if there is one
             _replaceCreatorProperty(prop, _creatorProperties);
         }
+    }
+
+    /**
+     * Helper method called to check if given property should be renamed using {@link PropertyNamingStrategies}.
+     *<p>
+     * NOTE: copied+simplified version of {@code BasicBeanDescription.findExpectedFormat()}.
+     *
+     * @since 2.16.2
+     */
+    private JsonFormat.Shape _findFormatShape()
+    {
+        // Per-class config overrides have higher precedence so:
+        JsonFormat.Value defFormat = _config.getDefaultPropertyFormat(_classDef.getRawType());
+        if ((defFormat != null) && defFormat.hasShape()) {
+            return defFormat.getShape();
+        }
+        JsonFormat.Value format = _annotationIntrospector.findFormat(_config, _classDef);
+        return (format == null) ? null : format.getShape();
     }
 
     protected void _renameWithWrappers(Map<String, POJOPropertyBuilder> props)

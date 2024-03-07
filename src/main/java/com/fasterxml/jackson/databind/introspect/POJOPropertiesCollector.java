@@ -145,6 +145,13 @@ public class POJOPropertiesCollector
      */
     protected LinkedHashMap<Object, AnnotatedMember> _injectables;
 
+    /**
+     * Lazily accessed information about POJO format overrides
+     *
+     * @since 2.17
+     */
+    protected JsonFormat.Value _formatOverrides;
+
     // // // Deprecated entries to remove from 3.0
 
     /**
@@ -420,6 +427,31 @@ public class POJOPropertiesCollector
     @Deprecated // since 2.11 (not used by anything at this point)
     public Class<?> findPOJOBuilderClass() {
         return _annotationIntrospector.findPOJOBuilder(_classDef);
+    }
+
+    /**
+     * @since 2.17
+     */
+    public JsonFormat.Value getFormatOverrides() {
+        if (_formatOverrides == null) {
+            JsonFormat.Value format = null;
+
+            // Let's check both per-type defaults and annotations;
+            // per-type defaults having higher precedence, so start with annotations
+            if (_annotationIntrospector != null) {
+                format = _annotationIntrospector.findFormat(_classDef);
+            }
+            JsonFormat.Value v = _config.getDefaultPropertyFormat(_type.getRawClass());
+            if (v != null) {
+                if (format == null) {
+                    format = v;
+                } else {
+                    format = format.withOverrides(v);
+                }
+            }
+            _formatOverrides = (format == null) ? JsonFormat.Value.empty() : format;
+        }
+        return _formatOverrides;
     }
 
     /*
@@ -1125,8 +1157,10 @@ public class POJOPropertiesCollector
             PropertyNamingStrategy naming)
     {
         // [databind#4409]: Need to skip renaming for Enums, unless Enums are handled as OBJECT format
-        if (_type.isEnumType() && (_findFormatShape() != JsonFormat.Shape.OBJECT)) {
-            return;
+        if (_type.isEnumType()) {
+            if (getFormatOverrides().getShape() != JsonFormat.Shape.OBJECT) {
+                return;
+            }
         }
         POJOPropertyBuilder[] props = propMap.values().toArray(new POJOPropertyBuilder[propMap.size()]);
         propMap.clear();
@@ -1174,29 +1208,6 @@ public class POJOPropertiesCollector
             // replace the creatorProperty too, if there is one
             _replaceCreatorProperty(prop, _creatorProperties);
         }
-    }
-
-    /**
-     * Helper method called to check if given property should be renamed using {@link PropertyNamingStrategies}.
-     *<p>
-     * NOTE: copied+simplified version of {@code BasicBeanDescription.findExpectedFormat()}.
-     *
-     * @since 2.16.2
-     */
-    private JsonFormat.Shape _findFormatShape()
-    {
-        JsonFormat.Shape shape = null;
-        JsonFormat.Value format = _annotationIntrospector.findFormat(_classDef);
-        if (format != null) {
-            shape = format.getShape();
-        }
-        JsonFormat.Value defFormat = _config.getDefaultPropertyFormat(_classDef.getRawType());
-        if (defFormat != null) {
-            if (shape == null) {
-                shape = defFormat.getShape();
-            }
-        }
-        return shape;
     }
 
     protected void _renameWithWrappers(Map<String, POJOPropertyBuilder> props)

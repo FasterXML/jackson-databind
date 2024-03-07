@@ -408,22 +408,10 @@ anyField.getName()));
     @Override // since 2.17
     public JsonFormat.Value findExpectedFormat()
     {
-        JsonFormat.Value format = null;
-
-        // 15-Apr-2016, tatu: Let's check both per-type defaults and annotations; per-type
-        //   defaults having higher precedence, so start with that
-        if (_annotationIntrospector != null) {
-            format = _annotationIntrospector.findFormat(_classInfo);
+        if (_propCollector == null) {
+            return JsonFormat.Value.empty();
         }
-        JsonFormat.Value v = _config.getDefaultPropertyFormat(_classInfo.getRawType());
-        if (v != null) {
-            if (format == null) {
-                format = v;
-            } else {
-                format = format.withOverrides(v);
-            }
-        }
-        return format;
+        return _propCollector.getFormatOverrides();
     }
 
     @Override // since 2.9

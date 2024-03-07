@@ -102,6 +102,7 @@ e.getMessage()),
     }
 
     @Override
+    @Deprecated // since 2.17
     public String asText(String defaultValue) {
         return (_value == null) ? defaultValue : _value;
     }

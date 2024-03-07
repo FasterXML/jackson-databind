@@ -22,6 +22,10 @@ Project: jackson-databind
 #4355: Jackson 2.16 fails attempting to obtain `ObjectWriter` for an `Enum` of which
   some value returns null from `toString()`
  (reported by @YutaHiguchi-bsn)
+#4409: Deserialization of enums with name defined with different cases leads to
+  `InvalidDefinitionException`: Multiple fields representing property
+ (reported by Stephane B)
+ (fix contributed by Joo-Hyuk K)
 
 2.16.1 (24-Dec-2023)
 

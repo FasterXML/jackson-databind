@@ -6,7 +6,7 @@ import java.util.Iterator;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 
-public class TestMissingNode extends NodeTestBase
+public class MissingNodeTest extends NodeTestBase
 {
     public void testMissing()
     {

@@ -7,7 +7,7 @@ import java.math.BigInteger;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class TestNullNode extends NodeTestBase
+public class NullNodeTest extends NodeTestBase
 {
     final static class CovarianceBean {
         ObjectNode _object;

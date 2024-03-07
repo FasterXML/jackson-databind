@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class TestFindMethods
+public class JsonNodeFindMethodsTest
     extends BaseMapTest
 {
     private final String JSON_SAMPLE = "{ \"a\" : { \"value\" : 3 },"

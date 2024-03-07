@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
 
-public class TestTreeWithType extends BaseMapTest
+public class TreeWithTypeTest extends BaseMapTest
 {
     public static class Foo {
         public String bar;

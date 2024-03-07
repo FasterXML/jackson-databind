@@ -13,7 +13,7 @@ import tools.jackson.core.exc.InputCoercionException;
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.InvalidFormatException;
 
-public class TestTreeTraversingParser
+public class TreeTraversingParserTest
     extends BaseMapTest
 {
     static class Person {

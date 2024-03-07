@@ -7,7 +7,7 @@ import java.math.BigInteger;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
-public class TestNullNode extends NodeTestBase
+public class NullNodeTest extends NodeTestBase
 {
     final static class CovarianceBean {
         ObjectNode _object;

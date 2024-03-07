@@ -25,7 +25,7 @@ import tools.jackson.databind.util.TokenBuffer;
  * Unit tests for verifying functionality of {@link JsonNode} methods that
  * convert values to other types
  */
-public class TestConversions extends BaseMapTest
+public class JsonNodeConversionsTest extends BaseMapTest
 {
     static class Root {
         public Leaf leaf;

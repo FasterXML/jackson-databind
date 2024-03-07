@@ -3,7 +3,7 @@ package tools.jackson.databind.node;
 import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.ObjectMapper;
 
-public class TestDeepCopy extends BaseMapTest
+public class JsonNodeDeepCopyTest extends BaseMapTest
 {
     private final ObjectMapper mapper = new ObjectMapper();
 

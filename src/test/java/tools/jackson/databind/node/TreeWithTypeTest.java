@@ -8,7 +8,7 @@ import tools.jackson.databind.jsontype.TypeDeserializer;
 import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
-public class TestTreeWithType extends BaseMapTest
+public class TreeWithTypeTest extends BaseMapTest
 {
     public static class Foo {
         public String bar;

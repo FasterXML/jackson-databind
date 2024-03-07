@@ -6,7 +6,7 @@ import java.util.*;
 import tools.jackson.core.*;
 
 import tools.jackson.databind.*;
-import tools.jackson.databind.node.TestTreeDeserialization.Bean;
+import tools.jackson.databind.node.TreeDeserializationTest.Bean;
 
 /**
  * This unit test suite tries to verify that ObjectMapper

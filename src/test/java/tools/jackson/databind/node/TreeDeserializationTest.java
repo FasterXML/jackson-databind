@@ -8,7 +8,7 @@ import tools.jackson.databind.ObjectMapper;
  * This unit test suite tries to verify that JsonNode-based trees
  * can be deserialized as expected.
  */
-public class TestTreeDeserialization
+public class TreeDeserializationTest
     extends BaseMapTest
 {
     final static class Bean {

@@ -13,7 +13,7 @@ import tools.jackson.databind.util.RawValue;
  * Basic tests for {@link JsonNode} base class and some features
  * of implementation classes
  */
-public class TestJsonNode extends NodeTestBase
+public class JsonNodeBasicTest extends NodeTestBase
 {
     private final ObjectMapper MAPPER = objectMapper();
 

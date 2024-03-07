@@ -6,7 +6,7 @@ import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
-public class TestFindMethods
+public class JsonNodeFindMethodsTest
     extends BaseMapTest
 {
     private final String JSON_SAMPLE = "{ \"a\" : { \"value\" : 3 },"

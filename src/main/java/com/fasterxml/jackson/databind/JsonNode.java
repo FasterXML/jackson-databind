@@ -635,9 +635,16 @@ public abstract class JsonNode
      * <code>defaultValue</code> in cases where null value would be returned;
      * either for missing nodes (trying to access missing property, or element
      * at invalid item for array) or explicit nulls.
+     *<p>
+     * NOTE: deprecated since 2.17 because {@link #asText()} very rarely returns
+     * {@code null} for any node types -- in fact, neither {@link MissingNode}
+     * nor {@code NullNode} return {@code null} from {@link #asText()}.
      *
      * @since 2.4
+     *
+     * @deprecated Since 2.17, to be removed from 3.0
      */
+    @Deprecated // @since 2.17
     public String asText(String defaultValue) {
         String str = asText();
         return (str == null) ? defaultValue : str;

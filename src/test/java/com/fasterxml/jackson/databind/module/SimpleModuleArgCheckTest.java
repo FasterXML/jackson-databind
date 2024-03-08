@@ -4,11 +4,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class SimpleModuleArgCheckTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class SimpleModuleArgCheckTest extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -16,6 +21,7 @@ public class SimpleModuleArgCheckTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testInvalidForDeserializers() throws Exception
     {
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion(),
@@ -42,6 +48,7 @@ public class SimpleModuleArgCheckTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testInvalidForSerializers() throws Exception
     {
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion(),
@@ -75,6 +82,7 @@ public class SimpleModuleArgCheckTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testInvalidAbstractTypeMapping() throws Exception
     {
         // just for funsies let's use more esoteric constructor
@@ -97,6 +105,7 @@ public class SimpleModuleArgCheckTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testInvalidSubtypeMappings() throws Exception
     {
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion(),
@@ -116,6 +125,7 @@ public class SimpleModuleArgCheckTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testInvalidValueInstantiator() throws Exception
     {
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
@@ -134,6 +144,7 @@ public class SimpleModuleArgCheckTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testInvalidMixIn() throws Exception
     {
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());

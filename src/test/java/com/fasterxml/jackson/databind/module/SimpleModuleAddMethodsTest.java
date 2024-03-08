@@ -6,11 +6,16 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Behavioral test to prove that by design decision, (de)serializers from class-level annotations will always
@@ -18,7 +23,7 @@ import java.util.Map;
  * 
  */
 @SuppressWarnings("serial")
-public class SimpleModuleAddMethodsTest extends BaseMapTest
+public class SimpleModuleAddMethodsTest extends DatabindTestUtil
 {
     @JsonDeserialize(using = ClassDogDeserializer.class)
     @JsonSerialize(using = ClassDogSerializer.class)
@@ -171,17 +176,20 @@ public class SimpleModuleAddMethodsTest extends BaseMapTest
         return mapper;
     }
 
+    @Test
     public void testPojoDeserialization() throws Exception {
         Dog dog = MAPPER.readValue(a2q("{'name': 'my-dog'}"), Dog.class);
         assertEquals("class-dog", dog.name);
     }
 
+    @Test
     public void testPojoSerialization() throws Exception {
         assertEquals(
             a2q("'class-dog'"),
             MAPPER.writeValueAsString(new Dog("my-dog")));
     }
 
+    @Test
     public void testRemoveAnnotationUsingMixIn() throws Exception {
         try {
             MAPPER.readValue(
@@ -192,6 +200,7 @@ public class SimpleModuleAddMethodsTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testRemoveAnnotationUsingMixInAndOverrideByModule() throws Exception {
         BuildSuccessBean bean = MAPPER.readValue(
             a2q("{'x':1, 'y':2}"), BuildSuccessBean.class);
@@ -199,6 +208,7 @@ public class SimpleModuleAddMethodsTest extends BaseMapTest
         assertEquals(8, bean._y);
     }
 
+    @Test
     public void testDogMapDeserialization() throws Exception {
         DogMap map = MAPPER.readValue(a2q("{'simple-dog': 'simple-dog'}"), DogMap.class);
 
@@ -209,6 +219,7 @@ public class SimpleModuleAddMethodsTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testDogMapSerialization() throws Exception {
         DogMap map = new DogMap();
         map.put(new Dog("my-dog"), new Dog("my-dog"));
@@ -218,6 +229,7 @@ public class SimpleModuleAddMethodsTest extends BaseMapTest
             MAPPER.writeValueAsString(map));
     }
 
+    @Test
     public void testDogListDeserialization() throws Exception {
         DogList list = MAPPER.readValue(a2q("['simple-dog']"), DogList.class);
 
@@ -227,6 +239,7 @@ public class SimpleModuleAddMethodsTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testDogListSerialization() throws Exception {
         DogList list = new DogList();
         list.add(new Dog("my-dog"));

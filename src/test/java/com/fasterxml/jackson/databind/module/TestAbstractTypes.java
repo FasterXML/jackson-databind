@@ -2,15 +2,19 @@ package com.fasterxml.jackson.databind.module;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.fasterxml.jackson.core.Version;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class TestAbstractTypes extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class TestAbstractTypes extends DatabindTestUtil
 {
     static class MyString implements CharSequence
     {
@@ -85,6 +89,7 @@ public class TestAbstractTypes extends BaseMapTest
     /**********************************************************************
      */
 
+    @Test
     public void testCollectionDefaulting() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -97,6 +102,7 @@ public class TestAbstractTypes extends BaseMapTest
         assertEquals(LinkedList.class, result.getClass());
     }
 
+    @Test
     public void testMapDefaultingBasic() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -109,6 +115,7 @@ public class TestAbstractTypes extends BaseMapTest
     }
 
     // [databind#700]
+    @Test
     public void testDefaultingRecursive() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -137,6 +144,7 @@ public class TestAbstractTypes extends BaseMapTest
         assertEquals(1, ((List<?>) v).size());
     }
 
+    @Test
     public void testInterfaceDefaulting() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -158,6 +166,7 @@ public class TestAbstractTypes extends BaseMapTest
     }
 
     // [databind#2019]: mappings from multiple modules
+    @Test
     public void testAbstractMappingsFromTwoModules() throws Exception
     {
         ObjectMapper mapper = newJsonMapper();

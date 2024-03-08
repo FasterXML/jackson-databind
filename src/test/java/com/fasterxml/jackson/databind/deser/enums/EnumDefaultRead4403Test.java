@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.deser.enums;
 
 import org.junit.jupiter.api.Test;
 

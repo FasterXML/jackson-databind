@@ -1,4 +1,4 @@
-package tools.jackson.failing;
+package tools.jackson.databind.deser.enums;
 
 import org.junit.jupiter.api.Test;
 

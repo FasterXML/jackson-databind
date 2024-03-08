@@ -309,7 +309,6 @@ public class EnumDeserializer
             default: // Fail already handled earlier
             }
             return null;
-//            if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
         } else {
             // [databind#1313]: Case insensitive enum deserialization
             if (Boolean.TRUE.equals(_caseInsensitive)) {
@@ -323,18 +322,25 @@ public class EnumDeserializer
                 // [databind#149]: Allow use of 'String' indexes as well -- unless prohibited (as per above)
                 char c = name.charAt(0);
                 if (c >= '0' && c <= '9') {
-                    try {
-                        int index = Integer.parseInt(name);
-                        if (!ctxt.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS)) {
-                            return ctxt.handleWeirdStringValue(_enumClass(), name,
+                    // [databind#4403]: cannot prevent "Stringified" numbers as Enum
+                    // index yet (might need combination of "Does format have Numbers"
+                    // (XML does not f.ex) and new `EnumFeature`. But can disallow "001" etc.
+                    if (c == '0' && name.length() > 1) {
+                        ;
+                    } else {
+                        try {
+                            int index = Integer.parseInt(name);
+                            if (!ctxt.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS)) {
+                                return ctxt.handleWeirdStringValue(_enumClass(), name,
 "value looks like quoted Enum index, but `DeserializationFeature.ALLOW_COERCION_OF_SCALARS` prevents use"
-                                    );
+                                        );
+                            }
+                            if (index >= 0 && index < _enumsByIndex.length) {
+                                return _enumsByIndex[index];
+                            }
+                        } catch (NumberFormatException e) {
+                            // fine, ignore, was not an integer
                         }
-                        if (index >= 0 && index < _enumsByIndex.length) {
-                            return _enumsByIndex[index];
-                        }
-                    } catch (NumberFormatException e) {
-                        // fine, ignore, was not an integer
                     }
                 }
             }

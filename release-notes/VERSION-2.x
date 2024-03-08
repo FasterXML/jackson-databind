@@ -45,6 +45,8 @@ Project: jackson-databind
 #4394: Better Base64 support for `java.util.UUIDs`
   without padding
  (fix contributed by Jesper B)
+#4403: Deserialization of unknown value for enums does not yield default enum value
+ (reported by @dominik-henning)
 #4416: Deprecate `JsonNode.asText(String)`
  (suggested by András P)
 - JUnit5 upgraded to 5.10.1

@@ -8,7 +8,7 @@ Project: jackson-databind
 
 -
 
-2.16.2 (not yet released)
+2.16.2 (09-Mar-2024)
 
 #4302: Problem deserializing some type of Enums when using `PropertyNamingStrategy`
  (reported by Pieter D-S)

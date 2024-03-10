@@ -760,7 +760,10 @@ public class POJOPropertiesCollector
             // ...or is a Records canonical constructor
             boolean isCanonicalConstructor = recordComponentName != null;
 
-            if ((creatorMode == null || creatorMode == JsonCreator.Mode.DISABLED) && !isCanonicalConstructor) {
+            if ((creatorMode == null
+                    || creatorMode == JsonCreator.Mode.DISABLED
+                    || creatorMode == JsonCreator.Mode.DELEGATING)
+                    && !isCanonicalConstructor) {
                 return;
             }
             pn = PropertyName.construct(impl);

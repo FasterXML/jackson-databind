@@ -4,10 +4,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-import com.fasterxml.jackson.core.FormatSchema;
-import com.fasterxml.jackson.core.JsonLocation;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -472,5 +469,18 @@ public class DatabindTestUtil
 
     public static TimeZone getUTCTimeZone() {
         return TimeZone.getTimeZone("GMT");
+    }
+
+
+    protected JsonParser createParserUsingReader(String input)
+        throws IOException
+    {
+        return createParserUsingReader(new JsonFactory(), input);
+    }
+
+    protected JsonParser createParserUsingReader(JsonFactory f, String input)
+        throws IOException
+    {
+        return f.createParser(new StringReader(input));
     }
 }

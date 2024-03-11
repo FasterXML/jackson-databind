@@ -3,6 +3,8 @@ package com.fasterxml.jackson.databind.module;
 import java.io.IOException;
 import java.lang.reflect.Type;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
@@ -11,10 +13,13 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.Serializers;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.type.*;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 @SuppressWarnings("serial")
-public class TestTypeModifiers extends BaseMapTest
+public class TestTypeModifiers extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -217,6 +222,7 @@ public class TestTypeModifiers extends BaseMapTest
     /**
      * Basic test for ensuring that we can get "xxx-like" types recognized.
      */
+    @Test
     public void testMapLikeTypeConstruction() throws Exception
     {
         JavaType type = MAPPER_WITH_MODIFIER.constructType(MyMapLikeType.class);
@@ -230,6 +236,7 @@ public class TestTypeModifiers extends BaseMapTest
         assertSame(Integer.class, param.getRawClass());
     }
 
+    @Test
     public void testMapLikeTypeViaParametric() throws Exception
     {
         // [databind#2796]: should refine with another call too
@@ -247,6 +254,7 @@ public class TestTypeModifiers extends BaseMapTest
 
     // [databind#2395] Can trigger problem this way too
     // NOTE: oddly enough, seems to ONLY fail
+    @Test
     public void testTypeResolutionForRecursive() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -259,6 +267,7 @@ public class TestTypeModifiers extends BaseMapTest
         assertNotNull(mapper.readTree("{}"));
     }
 
+    @Test
     public void testCollectionLikeTypeConstruction() throws Exception
     {
         JavaType type = MAPPER_WITH_MODIFIER.constructType(MyCollectionLikeType.class);
@@ -268,6 +277,7 @@ public class TestTypeModifiers extends BaseMapTest
         assertSame(Integer.class, param.getRawClass());
     }
 
+    @Test
     public void testCollectionLikeSerialization() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -276,6 +286,7 @@ public class TestTypeModifiers extends BaseMapTest
         assertEquals("[19]", mapper.writeValueAsString(new MyCollectionLikeType(19)));
     }
 
+    @Test
     public void testMapLikeSerialization() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -286,6 +297,7 @@ public class TestTypeModifiers extends BaseMapTest
     }
 
 
+    @Test
     public void testCollectionLikeDeserialization() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -297,6 +309,7 @@ public class TestTypeModifiers extends BaseMapTest
         assertEquals(Integer.valueOf(13), result.getValue());
     }
 
+    @Test
     public void testMapLikeDeserialization() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();

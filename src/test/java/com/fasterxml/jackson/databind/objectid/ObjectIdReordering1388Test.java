@@ -2,11 +2,16 @@ package com.fasterxml.jackson.databind.objectid;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class ObjectIdReordering1388Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class ObjectIdReordering1388Test extends DatabindTestUtil
 {
     @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
     public static class NamedThing {
@@ -42,6 +47,7 @@ public class ObjectIdReordering1388Test extends BaseMapTest
     }
 
 
+    @Test
     public void testDeserializationFinalClassJSOG() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();

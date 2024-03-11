@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -15,9 +17,12 @@ import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("serial")
-public class TestCustomEnumKeyDeserializer extends BaseMapTest
+public class TestCustomEnumKeyDeserializer extends DatabindTestUtil
 {
     @JsonSerialize(using = TestEnumSerializer.class, keyUsing = TestEnumKeySerializer.class)
     @JsonDeserialize(using = TestEnumDeserializer.class, keyUsing = TestEnumKeyDeserializer.class)
@@ -167,6 +172,7 @@ public class TestCustomEnumKeyDeserializer extends BaseMapTest
      */
 
     // Test passing with the fix
+    @Test
     public void testWithEnumKeys() throws Exception {
         ObjectMapper plainObjectMapper = new ObjectMapper();
         JsonNode tree = plainObjectMapper.readTree(a2q("{'red' : [ 'a', 'b']}"));
@@ -181,6 +187,7 @@ public class TestCustomEnumKeyDeserializer extends BaseMapTest
 
     // and another still failing
     // NOTE: temporarily named as non-test to ignore it; JsonIgnore doesn't work for some reason
+    @Test
 //    public void testWithTree749() throws Exception
     public void withTree749() throws Exception
     {
@@ -202,6 +209,7 @@ public class TestCustomEnumKeyDeserializer extends BaseMapTest
     }
 
     // [databind#1441]
+    @Test
     public void testCustomEnumKeySerializerWithPolymorphic() throws IOException
     {
         SimpleModule simpleModule = new SimpleModule();
@@ -218,12 +226,13 @@ public class TestCustomEnumKeyDeserializer extends BaseMapTest
 
         SuperType superType = mapper.readValue("{\"someMap\": {\"FOO\": \"bar\"}}",
                 SuperType.class);
-        assertEquals("Deserialized someMap.FOO should equal bar", "bar",
-                superType.someMap.get(SuperTypeEnum.FOO));
+        assertEquals("bar", superType.someMap.get(SuperTypeEnum.FOO),
+            "Deserialized someMap.FOO should equal bar");
     }
 
     // [databind#1445]
     @SuppressWarnings({ "unchecked", "rawtypes" })
+    @Test
     public void testCustomEnumValueAndKeyViaModifier() throws IOException
     {
         SimpleModule module = new SimpleModule();

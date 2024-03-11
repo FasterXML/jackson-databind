@@ -7,7 +7,7 @@ import java.math.BigInteger;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class TestNullNode extends NodeTestBase
+public class NullNodeTest extends NodeTestBase
 {
     final static class CovarianceBean {
         ObjectNode _object;
@@ -61,9 +61,6 @@ public class TestNullNode extends NodeTestBase
         assertFalse(n.has(3));
 
         assertNodeNumbersForNonNumeric(n);
-
-        // 2.4
-        assertEquals("foo", n.asText("foo"));
     }
 
     public void testNullHandling() throws Exception

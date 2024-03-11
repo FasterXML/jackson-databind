@@ -8,14 +8,19 @@ import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import java.io.IOException;
+
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit test(s) for [databind#622], supporting non-scalar-Object-ids,
  * to support things like JSOG.
  */
-public class JSOGDeserialize622Test extends BaseMapTest
+public class JSOGDeserialize622Test extends DatabindTestUtil
 {
     /** the key of the property that holds the ref */
     public static final String REF_KEY = "@ref";
@@ -196,6 +201,7 @@ public class JSOGDeserialize622Test extends BaseMapTest
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     // Basic for [databind#622]
+    @Test
     public void testStructJSOGRef() throws Exception
     {
         IdentifiableExampleJSOG result = MAPPER.readValue(EXP_EXAMPLE_JSOG,
@@ -205,6 +211,7 @@ public class JSOGDeserialize622Test extends BaseMapTest
     }
 
     // polymorphic alternative for [databind#622]
+    @Test
     public void testPolymorphicRoundTrip() throws Exception
     {
         JSOGWrapper w = new JSOGWrapper(15);
@@ -225,6 +232,7 @@ public class JSOGDeserialize622Test extends BaseMapTest
     }
 
     // polymorphic alternative for [databind#669]
+    @Test
     public void testAlterativePolymorphicRoundTrip669() throws Exception
     {
         Outer outer = new Outer();

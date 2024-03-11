@@ -6,6 +6,7 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JacksonInject;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
@@ -143,6 +144,13 @@ public class POJOPropertiesCollector
      * value injection.
      */
     protected LinkedHashMap<Object, AnnotatedMember> _injectables;
+
+    /**
+     * Lazily accessed information about POJO format overrides
+     *
+     * @since 2.17
+     */
+    protected JsonFormat.Value _formatOverrides;
 
     // // // Deprecated entries to remove from 3.0
 
@@ -419,6 +427,31 @@ public class POJOPropertiesCollector
     @Deprecated // since 2.11 (not used by anything at this point)
     public Class<?> findPOJOBuilderClass() {
         return _annotationIntrospector.findPOJOBuilder(_classDef);
+    }
+
+    /**
+     * @since 2.17
+     */
+    public JsonFormat.Value getFormatOverrides() {
+        if (_formatOverrides == null) {
+            JsonFormat.Value format = null;
+
+            // Let's check both per-type defaults and annotations;
+            // per-type defaults having higher precedence, so start with annotations
+            if (_annotationIntrospector != null) {
+                format = _annotationIntrospector.findFormat(_classDef);
+            }
+            JsonFormat.Value v = _config.getDefaultPropertyFormat(_type.getRawClass());
+            if (v != null) {
+                if (format == null) {
+                    format = v;
+                } else {
+                    format = format.withOverrides(v);
+                }
+            }
+            _formatOverrides = (format == null) ? JsonFormat.Value.empty() : format;
+        }
+        return _formatOverrides;
     }
 
     /*
@@ -1123,6 +1156,12 @@ public class POJOPropertiesCollector
     protected void _renameUsing(Map<String, POJOPropertyBuilder> propMap,
             PropertyNamingStrategy naming)
     {
+        // [databind#4409]: Need to skip renaming for Enums, unless Enums are handled as OBJECT format
+        if (_type.isEnumType()) {
+            if (getFormatOverrides().getShape() != JsonFormat.Shape.OBJECT) {
+                return;
+            }
+        }
         POJOPropertyBuilder[] props = propMap.values().toArray(new POJOPropertyBuilder[propMap.size()]);
         propMap.clear();
         for (POJOPropertyBuilder prop : props) {

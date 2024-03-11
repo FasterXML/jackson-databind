@@ -1,9 +1,14 @@
 package com.fasterxml.jackson.databind.objectid;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class AlwaysAsReferenceFirstTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class AlwaysAsReferenceFirstTest extends DatabindTestUtil
 {
     // [databind#1255]
     @JsonPropertyOrder({ "bar1", "bar2" })
@@ -63,6 +68,7 @@ public class AlwaysAsReferenceFirstTest extends BaseMapTest
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     // [databind#1255]
+    @Test
     public void testIssue1255() throws Exception
     {
         Foo mo = new Foo();
@@ -76,6 +82,7 @@ public class AlwaysAsReferenceFirstTest extends BaseMapTest
     }
 
     // [databind#1607]
+    @Test
     public void testIssue1607() throws Exception
     {
         String json = MAPPER.writeValueAsString(new ReallyAlwaysContainer());

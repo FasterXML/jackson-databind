@@ -3,14 +3,19 @@ package com.fasterxml.jackson.databind.objectid;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class ObjectId2759Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class ObjectId2759Test extends DatabindTestUtil
 {
     static class Hive {
         public String name;
@@ -54,6 +59,7 @@ public class ObjectId2759Test extends BaseMapTest
         }
     }
 
+    @Test
     public void testObjectId2759() throws Exception
     {
         Hive hive = new Hive(100500L, "main hive");

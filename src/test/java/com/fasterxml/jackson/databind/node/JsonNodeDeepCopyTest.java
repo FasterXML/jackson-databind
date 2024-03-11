@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 /**
  * Simple tests to verify that [JACKSON-707] is implemented correctly.
  */
-public class TestDeepCopy extends BaseMapTest
+public class JsonNodeDeepCopyTest extends BaseMapTest
 {
     private final ObjectMapper mapper = new ObjectMapper();
 

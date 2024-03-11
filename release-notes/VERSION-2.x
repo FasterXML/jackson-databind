@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.17.0 (not yet released)
+2.17.0-rc1 (26-Feb-2024)
 
 #437: Support throwing `MismatchedInputException` when deserializing
   properties that are not part of the view
@@ -42,9 +42,16 @@ Project: jackson-databind
  (fix contributed by Joo-Hyuk K)
 #4337: `AtomicReference` serializer does not support `@JsonSerialize(contentConverter=...)`
 #4364: `@JsonProperty` and equivalents should merge with `AnnotationIntrospectorPair`
+#4394: Better Base64 support for `java.util.UUIDs`
+  without padding
+ (fix contributed by Jesper B)
+#4403: Deserialization of unknown value for enums does not yield default enum value
+ (reported by @dominik-henning)
+#4416: Deprecate `JsonNode.asText(String)`
+ (suggested by András P)
 - JUnit5 upgraded to 5.10.1
 
-2.16.2 (not yet released)
+2.16.2 (09-Mar-2024)
 
 #4302: Problem deserializing some type of Enums when using `PropertyNamingStrategy`
  (reported by Pieter D-S)
@@ -58,6 +65,10 @@ Project: jackson-databind
 #4355: Jackson 2.16 fails attempting to obtain `ObjectWriter` for an `Enum` of which
   some value returns null from `toString()`
  (reported by @YutaHiguchi-bsn)
+#4409: Deserialization of enums with name defined with different cases leads to
+  `InvalidDefinitionException`: Multiple fields representing property
+ (reported by Stephane B)
+ (fix contributed by Joo-Hyuk K)
 
 2.16.1 (24-Dec-2023)
 

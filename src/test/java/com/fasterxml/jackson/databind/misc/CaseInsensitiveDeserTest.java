@@ -2,14 +2,19 @@ package com.fasterxml.jackson.databind.misc;
 
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class CaseInsensitiveDeserTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class CaseInsensitiveDeserTest extends DatabindTestUtil
 {
     // [databind#1036]
     static class BaseResponse {
@@ -122,6 +127,7 @@ public class CaseInsensitiveDeserTest extends BaseMapTest
             .build();
 
     // [databind#566]
+    @Test
     public void testCaseInsensitiveDeserialization() throws Exception
     {
         final String JSON = "{\"Value1\" : {\"nAme\" : \"fruit\", \"vALUe\" : \"apple\"}, \"valUE2\" : {\"NAME\" : \"color\", \"value\" : \"red\"}}";
@@ -146,6 +152,7 @@ public class CaseInsensitiveDeserTest extends BaseMapTest
     }
 
     // [databind#1036]
+    @Test
     public void testCaseInsensitive1036() throws Exception
     {
         final String json = "{\"ErrorCode\":2,\"DebugMessage\":\"Signature not valid!\"}";
@@ -157,6 +164,7 @@ public class CaseInsensitiveDeserTest extends BaseMapTest
     }
 
     // [databind#1232]: allow per-property case-insensitivity
+    @Test
     public void testCaseInsensitiveWithFormat() throws Exception {
         CaseInsensitiveRoleWrapper w = MAPPER.readValue
                 (a2q("{'role':{'id':'12','name':'Foo'}}"),
@@ -167,6 +175,7 @@ public class CaseInsensitiveDeserTest extends BaseMapTest
     }
 
     // [databind#1438]
+    @Test
     public void testCreatorWithInsensitive() throws Exception
     {
         final String json = a2q("{'VALUE':3}");
@@ -175,6 +184,7 @@ public class CaseInsensitiveDeserTest extends BaseMapTest
     }
 
     // And allow config overrides too
+    @Test
     public void testCaseInsensitiveViaConfigOverride() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -189,6 +199,7 @@ public class CaseInsensitiveDeserTest extends BaseMapTest
         assertEquals("Foo", role.Name);
     }
 
+    @Test
     public void testIssue1854() throws Exception
     {
         final String DOC = a2q("{'ID': 1, 'Items': [ { 'ChildID': 10 } ]}");
@@ -201,6 +212,7 @@ public class CaseInsensitiveDeserTest extends BaseMapTest
 
 
     // [databind#1886]: allow case-insensitivity by default on a class
+    @Test
     public void testCaseInsensitiveViaClassAnnotation() throws Exception
     {
         final String CONTAINED = a2q("{'role': {'id':'3','name':'Bob'}}");

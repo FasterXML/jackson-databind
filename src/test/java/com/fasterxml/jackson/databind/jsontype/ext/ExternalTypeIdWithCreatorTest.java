@@ -1,10 +1,15 @@
 package com.fasterxml.jackson.databind.jsontype.ext;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class ExternalTypeIdWithCreatorTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class ExternalTypeIdWithCreatorTest extends DatabindTestUtil
 {
     // [databind#999]
 
@@ -86,6 +91,7 @@ public class ExternalTypeIdWithCreatorTest extends BaseMapTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#999]
+    @Test
     public void testExternalTypeId() throws Exception
     {
         TypeReference<Message<FooPayload999>> type = new TypeReference<Message<FooPayload999>>() { };
@@ -103,6 +109,7 @@ public class ExternalTypeIdWithCreatorTest extends BaseMapTest
     }
 
     // [databind#1198]
+    @Test
     public void testFails() throws Exception {
         String json = "{ \"name\": \"foo\", \"attack\":\"right\" } }";
 
@@ -114,6 +121,7 @@ public class ExternalTypeIdWithCreatorTest extends BaseMapTest
     }
 
     // [databind#1198]
+    @Test
     public void testWorks() throws Exception {
         String json = "{ \"name\": \"foo\", \"preferredAttack\": \"KICK\", \"attack\":\"right\" } }";
 

@@ -2,11 +2,15 @@ package com.fasterxml.jackson.databind.mixins;
 
 import java.util.Objects;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 // 23-Aug-2021, tatu: UGGGGH. This is a recurring problem; users assuming
 //   that a generic type parameter T (or whatever) of a Class will be related
@@ -20,7 +24,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 //   NOTE! Problem is actually not the mixin handling but type resolution;
 //   see f.ex [databind#2821], [databind#2895]
 public class MixinForFactoryMethod3220Test
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     // [databind#3220]
     static class Timestamped<T> {
@@ -136,6 +140,7 @@ public class MixinForFactoryMethod3220Test
     }
 
     // [databind#3220]
+    @Test
     public void testMixin3220() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder()

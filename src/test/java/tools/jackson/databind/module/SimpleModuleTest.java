@@ -2,6 +2,8 @@ package tools.jackson.databind.module;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import tools.jackson.core.*;
@@ -13,9 +15,12 @@ import tools.jackson.databind.exc.UnrecognizedPropertyException;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.ser.std.StdScalarSerializer;
 import tools.jackson.databind.ser.std.StdSerializer;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("serial")
-public class SimpleModuleTest extends BaseMapTest
+public class SimpleModuleTest extends DatabindTestUtil
 {
     /**
      * Trivial bean that requires custom serializer and deserializer
@@ -203,7 +208,8 @@ public class SimpleModuleTest extends BaseMapTest
      * Basic test to ensure we do not have functioning default
      * serializers for custom types used in tests.
      */
-    public void testWithoutModule() throws Exception
+    @Test
+    public void testWithoutModule()
     {
         ObjectMapper mapper = new ObjectMapper();
         // first: serialization failure:
@@ -235,6 +241,7 @@ public class SimpleModuleTest extends BaseMapTest
     /**********************************************************************
      */
 
+    @Test
     public void testSimpleBeanSerializer() throws Exception
     {
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
@@ -245,6 +252,7 @@ public class SimpleModuleTest extends BaseMapTest
         assertEquals(q("abcde|5"), mapper.writeValueAsString(new CustomBean("abcde", 5)));
     }
 
+    @Test
     public void testSimpleEnumSerializer() throws Exception
     {
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
@@ -256,6 +264,7 @@ public class SimpleModuleTest extends BaseMapTest
         assertEquals(q("b"), mapper.writeValueAsString(SimpleEnum.B));
     }
 
+    @Test
     public void testSimpleInterfaceSerializer() throws Exception
     {
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
@@ -275,6 +284,7 @@ public class SimpleModuleTest extends BaseMapTest
     /**********************************************************************
      */
 
+    @Test
     public void testSimpleBeanDeserializer() throws Exception
     {
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
@@ -287,6 +297,7 @@ public class SimpleModuleTest extends BaseMapTest
         assertEquals(3, bean.num);
     }
 
+    @Test
     public void testSimpleEnumDeserializer() throws Exception
     {
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
@@ -298,6 +309,7 @@ public class SimpleModuleTest extends BaseMapTest
         assertSame(SimpleEnum.A, result);
     }
 
+    @Test
     public void testMultipleModules() throws Exception
     {
         MySimpleModule mod1 = new MySimpleModule("test1", Version.unknownVersion());
@@ -328,6 +340,7 @@ public class SimpleModuleTest extends BaseMapTest
         assertSame(SimpleEnum.A, result);
     }
 
+    @Test
     public void testGetRegisteredModules()
     {
         MySimpleModule mod1 = new MySimpleModule("test1", Version.unknownVersion());
@@ -372,6 +385,7 @@ public class SimpleModuleTest extends BaseMapTest
     }
 
     // More [databind#3110] testing
+    @Test
     public void testMultipleSimpleModules()
     {
         final SimpleModule mod1 = new SimpleModule();
@@ -411,6 +425,7 @@ public class SimpleModuleTest extends BaseMapTest
     /**********************************************************************
      */
 
+    @Test
     public void testMixIns() throws Exception
     {
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
@@ -418,13 +433,14 @@ public class SimpleModuleTest extends BaseMapTest
         ObjectMapper mapper = jsonMapperBuilder()
                 .addModule(module)
                 .build();
-        Map<String,Object> props = this.writeAndMap(mapper, new MixableBean());
+        Map<String,Object> props = writeAndMap(mapper, new MixableBean());
         assertEquals(3, props.size());
         assertEquals(Integer.valueOf(3), props.get("c"));
         assertEquals(Integer.valueOf(1), props.get("a"));
         assertEquals(Integer.valueOf(2), props.get("b"));
     }
 
+    @Test
     public void testAccessToMapper() throws Exception
     {
         final JacksonModule module = new JacksonModule()
@@ -450,12 +466,14 @@ public class SimpleModuleTest extends BaseMapTest
         assertNotNull(mapper);
     }
 
+    @Test
     public void testAutoDiscovery() throws Exception
     {
         List<?> mods = MapperBuilder.findModules();
         assertEquals(0, mods.size());
     }
 
+    @Test
     public void testAddSerializerTwiceThenOnlyLatestIsKept() throws Exception {
         SimpleModule module = new SimpleModule()
             .addSerializer(Test3787Bean.class, new Serializer3787A())
@@ -466,6 +484,7 @@ public class SimpleModuleTest extends BaseMapTest
         assertEquals("b-result", objectMapper.writeValueAsString(new Test3787Bean()));
     }
 
+    @Test
     public void testAddModuleWithSerializerTwiceThenOnlyLatestIsKept() throws Exception {
         SimpleModule firstModule = new SimpleModule()
             .addSerializer(Test3787Bean.class, new Serializer3787A());
@@ -482,6 +501,7 @@ public class SimpleModuleTest extends BaseMapTest
         assertEquals("b-result", result);
     }
 
+    @Test
     public void testAddModuleWithSerializerTwiceThenOnlyLatestIsKept_reverseOrder() throws Exception {
         SimpleModule firstModule = new SimpleModule()
             .addSerializer(Test3787Bean.class, new Serializer3787A());
@@ -495,6 +515,7 @@ public class SimpleModuleTest extends BaseMapTest
         assertEquals("a-result", objectMapper.writeValueAsString(new Test3787Bean()));
     }
 
+    @Test
     public void testAddDeserializerTwiceThenOnlyLatestIsKept() throws Exception {
         SimpleModule module = new SimpleModule();
         module.addDeserializer(Test3787Bean.class, new Deserializer3787A())
@@ -509,6 +530,7 @@ public class SimpleModuleTest extends BaseMapTest
         assertEquals("I am B", result.value);
     }
 
+    @Test
     public void testAddModuleWithDeserializerTwiceThenOnlyLatestIsKept() throws Exception {
         SimpleModule firstModule = new SimpleModule()
             .addDeserializer(Test3787Bean.class, new Deserializer3787A());
@@ -525,6 +547,7 @@ public class SimpleModuleTest extends BaseMapTest
         assertEquals("I am B", result.value);
     }
 
+    @Test
     public void testAddModuleWithDeserializerTwiceThenOnlyLatestIsKept_reverseOrder() throws Exception {
         SimpleModule firstModule = new SimpleModule()
             .addDeserializer(Test3787Bean.class, new Deserializer3787A());

@@ -2,14 +2,19 @@ package tools.jackson.databind.mixins;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 // [databind#2795]: Regression in 2.11.0, no mix-ins for JDK collections
-public class MixinForCreators2795Test extends BaseMapTest
+public class MixinForCreators2795Test extends DatabindTestUtil
 {
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
     static class UnmodifiableCollectionMixin {
@@ -17,6 +22,7 @@ public class MixinForCreators2795Test extends BaseMapTest
         public UnmodifiableCollectionMixin(final Collection<?> collection) { }
     }
 
+    @Test
     public void testMixinWithUnmmodifiableCollection() throws Exception
     {
         ObjectMapper mapper = JsonMapper.builder()

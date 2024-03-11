@@ -1,20 +1,25 @@
 package tools.jackson.databind.module;
 
+import java.lang.reflect.Type;
+
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.type.TypeBindings;
 import tools.jackson.databind.type.TypeFactory;
 import tools.jackson.databind.type.TypeModifier;
 
-import java.lang.reflect.Type;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 // 12-Oct-2019, tatu: This is related to `TypeNameIdResolver#idFromClass` which for 2.x
 //    forced application of `TypeModifier` by resolving raw class to `JavaType`, then
 //    taking raw class. That seems wrong.
 //    But leaving in place just in case it turns out there was a valid use case.
 
-public class TestTypeModifierNameResolution extends BaseMapTest
+public class TestTypeModifierNameResolution extends DatabindTestUtil
 {
     interface MyType {
         String getData();
@@ -49,6 +54,7 @@ public class TestTypeModifierNameResolution extends BaseMapTest
     public interface Mixin { }
 
     // Expect that the TypeModifier kicks in when the type id is written.
+    @Test
     public void testTypeModiferNameResolution() throws Exception
     {
         final ObjectMapper mapper = jsonMapperBuilder()

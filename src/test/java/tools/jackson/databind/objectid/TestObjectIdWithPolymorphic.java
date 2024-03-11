@@ -2,14 +2,19 @@ package tools.jackson.databind.objectid;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
-public class TestObjectIdWithPolymorphic extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class TestObjectIdWithPolymorphic extends DatabindTestUtil
 {
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
     @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="id")
@@ -107,6 +112,7 @@ public class TestObjectIdWithPolymorphic extends BaseMapTest
 
     private final ObjectMapper mapper = new ObjectMapper();
 
+    @Test
     public void testPolymorphicRoundtrip() throws Exception
     {
         // create simple 2 node loop:
@@ -129,6 +135,7 @@ public class TestObjectIdWithPolymorphic extends BaseMapTest
         assertSame(result, result2.next);
     }
 
+    @Test
     public void testIssue811() throws Exception
     {
         ObjectMapper om = jsonMapperBuilder()

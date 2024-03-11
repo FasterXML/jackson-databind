@@ -1,5 +1,7 @@
 package tools.jackson.databind.objectid;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -7,8 +9,11 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.InvalidDefinitionException;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class PolymorphicWithObjectId1551Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class PolymorphicWithObjectId1551Test extends DatabindTestUtil
 {
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY,
             property = "@class")
@@ -32,6 +37,7 @@ public class PolymorphicWithObjectId1551Test extends BaseMapTest
         public Vehicle ownedVehicle;
     }
 
+    @Test
     public void testWithAbstractUsingProp() throws Exception
     {
         Car c = new Car();
@@ -53,6 +59,7 @@ public class PolymorphicWithObjectId1551Test extends BaseMapTest
         assertSame(deserialized[0].ownedVehicle, deserialized[1].ownedVehicle);
     }
 
+    @Test
     public void testFailingAbstractUsingProp() throws Exception
     {
         Car c = new Car();

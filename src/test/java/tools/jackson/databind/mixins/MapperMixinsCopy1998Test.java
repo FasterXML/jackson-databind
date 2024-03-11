@@ -1,11 +1,16 @@
 package tools.jackson.databind.mixins;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.MapperBuilder;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class MapperMixinsCopy1998Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class MapperMixinsCopy1998Test extends DatabindTestUtil
 {
     final static String FULLMODEL="{\"format\":\"1.0\",\"child\":{\"type\":\"CHILD_B\",\"name\":\"testB\"},\"notVisible\":\"should not be present\"}";
     final static String EXPECTED="{\"format\":\"1.0\",\"child\":{\"name\":\"testB\"}}";
@@ -88,6 +93,7 @@ public class MapperMixinsCopy1998Test extends BaseMapTest
     }
 
     // [databind#1998]: leakage of state via ObjectMapper.copy() (2.x) and similar (3.x)
+    @Test
     public void testSharedBuilder() throws Exception
     {
         final MapperBuilder<?,?> B = defaultMapper();

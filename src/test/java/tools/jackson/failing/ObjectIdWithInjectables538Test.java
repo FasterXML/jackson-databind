@@ -1,10 +1,15 @@
 package tools.jackson.failing;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class ObjectIdWithInjectables538Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class ObjectIdWithInjectables538Test extends DatabindTestUtil
 {
     @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
     public static class A {
@@ -34,6 +39,7 @@ public class ObjectIdWithInjectables538Test extends BaseMapTest
     // 26-Sep-2017, tatu: With Jackson 3.x and inclusion of parameter-names for creators
     //   we face a new failure since explicit name of injectables is sort of ignored.
     //   Needs to be fixed as part of rewrite of the whole property introspection.
+    @Test
     public void testWithInjectables538() throws Exception
     {
         A a = new A("a");

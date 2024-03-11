@@ -2,14 +2,17 @@ package tools.jackson.databind.misc;
 
 import java.io.IOException;
 
-import tools.jackson.core.JsonParser;
-import tools.jackson.core.JsonPointer;
-import tools.jackson.core.JsonToken;
-import tools.jackson.core.ObjectReadContext;
+import org.junit.jupiter.api.Test;
+
+import tools.jackson.core.*;
+
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.util.TokenBuffer;
 
-public class ParsingContext2525Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class ParsingContext2525Test extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = sharedMapper();
 
@@ -26,6 +29,7 @@ public class ParsingContext2525Test extends BaseMapTest
     /**********************************************************************
      */
 
+    @Test
     public void testAllWithRegularParser() throws Exception
     {
         try (JsonParser p = MAPPER.createParser(MINIMAL_ARRAY_DOC)) {
@@ -45,6 +49,7 @@ public class ParsingContext2525Test extends BaseMapTest
     /**********************************************************************
      */
 
+    @Test
     public void testSimpleArrayWithBuffer() throws Exception
     {
         try (TokenBuffer buf = _readAsTokenBuffer(MINIMAL_ARRAY_DOC)) {
@@ -52,6 +57,7 @@ public class ParsingContext2525Test extends BaseMapTest
         }
     }
 
+    @Test
     public void testSimpleObjectWithBuffer() throws Exception
     {
         try (TokenBuffer buf = _readAsTokenBuffer(MINIMAL_OBJECT_DOC)) {
@@ -59,6 +65,7 @@ public class ParsingContext2525Test extends BaseMapTest
         }
     }
 
+    @Test
     public void testFullDocWithBuffer() throws Exception
     {
         try (TokenBuffer buf = _readAsTokenBuffer(FULL_DOC)) {
@@ -83,6 +90,7 @@ public class ParsingContext2525Test extends BaseMapTest
     /**********************************************************************
      */
 
+    @Test
     public void testSimpleArrayWithTree() throws Exception
     {
         JsonNode root = MAPPER.readTree(MINIMAL_ARRAY_DOC);
@@ -91,6 +99,7 @@ public class ParsingContext2525Test extends BaseMapTest
         }
     }
 
+    @Test
     public void testSimpleObjectWithTree() throws Exception
     {
         JsonNode root = MAPPER.readTree(MINIMAL_OBJECT_DOC);
@@ -99,6 +108,7 @@ public class ParsingContext2525Test extends BaseMapTest
         }
     }
 
+    @Test
     public void testFullDocWithTree() throws Exception
     {
         JsonNode root = MAPPER.readTree(FULL_DOC);

@@ -2,14 +2,21 @@ package tools.jackson.databind.misc;
 
 import java.io.*;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
+
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit test mostly written to cover issue with unintended blocking
  * after data binding.
  */
-public class TestBlocking extends BaseMapTest
+public class TestBlocking
+    extends DatabindTestUtil
 {
     /**
      * This is an indirect test that should trigger problems if (and only if)
@@ -17,6 +24,7 @@ public class TestBlocking extends BaseMapTest
      * Basically, although content is invalid, this should be encountered
      * quite yet.
      */
+    @Test
     public void testEagerAdvance() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();

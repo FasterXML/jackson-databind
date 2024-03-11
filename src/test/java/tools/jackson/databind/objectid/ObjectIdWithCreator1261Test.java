@@ -2,12 +2,17 @@ package tools.jackson.databind.objectid;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ObjectIdWithCreator1261Test
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     static class Answer
     {
@@ -64,6 +69,7 @@ public class ObjectIdWithCreator1261Test
         }
     }
 
+    @Test
     public void testObjectIds1261() throws Exception
     {
          ObjectMapper mapper = jsonMapperBuilder()

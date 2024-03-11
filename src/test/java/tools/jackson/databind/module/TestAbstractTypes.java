@@ -2,14 +2,19 @@ package tools.jackson.databind.module;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.core.Version;
-import tools.jackson.databind.BaseMapTest;
-import tools.jackson.databind.ObjectMapper;
 
-public class TestAbstractTypes extends BaseMapTest
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+public class TestAbstractTypes extends DatabindTestUtil
 {
     static class MyString implements CharSequence
     {
@@ -84,6 +89,7 @@ public class TestAbstractTypes extends BaseMapTest
     /**********************************************************************
      */
 
+    @Test
     public void testCollectionDefaulting() throws Exception
     {
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
@@ -97,6 +103,7 @@ public class TestAbstractTypes extends BaseMapTest
         assertEquals(LinkedList.class, result.getClass());
     }
 
+    @Test
     public void testMapDefaultingBasic() throws Exception
     {
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
@@ -110,6 +117,7 @@ public class TestAbstractTypes extends BaseMapTest
     }
 
     // [databind#700]
+    @Test
     public void testDefaultingRecursive() throws Exception
     {
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
@@ -139,6 +147,7 @@ public class TestAbstractTypes extends BaseMapTest
         assertEquals(1, ((List<?>) v).size());
     }
 
+    @Test
     public void testInterfaceDefaulting() throws Exception
     {
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
@@ -162,6 +171,7 @@ public class TestAbstractTypes extends BaseMapTest
     }
 
     // [databind#2019]: mappings from multiple modules
+    @Test
     public void testAbstractMappingsFromTwoModules() throws Exception
     {
         SimpleModule module1 = new SimpleModule("module1");

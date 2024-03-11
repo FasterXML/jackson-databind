@@ -2,11 +2,16 @@ package tools.jackson.databind.misc;
 
 import java.util.Locale;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class CaseInsensitiveDeser953Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class CaseInsensitiveDeser953Test extends DatabindTestUtil
 {
     static class Id953 {
         @JsonProperty("someId")
@@ -27,10 +32,12 @@ public class CaseInsensitiveDeser953Test extends BaseMapTest
             .defaultLocale(LOCALE_TR)
             .build();
 
+    @Test
     public void testTurkishILetterDeserializationWithEn() throws Exception {
         _testTurkishILetterDeserialization(INSENSITIVE_MAPPER_EN, LOCALE_EN);
     }
 
+    @Test
     public void testTurkishILetterDeserializationWithTr() throws Exception {
         _testTurkishILetterDeserialization(INSENSITIVE_MAPPER_TR, LOCALE_TR);
     }

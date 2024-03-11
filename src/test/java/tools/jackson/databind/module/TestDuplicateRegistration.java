@@ -2,10 +2,16 @@ package tools.jackson.databind.module;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import tools.jackson.core.Version;
-import tools.jackson.databind.*;
+import org.junit.jupiter.api.Test;
 
-public class TestDuplicateRegistration extends BaseMapTest
+import tools.jackson.core.Version;
+
+import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class TestDuplicateRegistration extends DatabindTestUtil
 {
     static class MyModule extends JacksonModule {
         private final AtomicInteger counter;
@@ -38,6 +44,7 @@ public class TestDuplicateRegistration extends BaseMapTest
         }
     }
 
+    @Test
     public void testDuplicateRegistration() throws Exception
     {
         // by default, duplicate registration should be prevented

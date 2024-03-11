@@ -3,14 +3,19 @@ package tools.jackson.databind.mixins;
 import java.io.*;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestMixinSerForClass
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     @JsonInclude(JsonInclude.Include.ALWAYS)
     static class BaseClass
@@ -82,6 +87,7 @@ public class TestMixinSerForClass
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testClassMixInsTopLevel() throws IOException
     {
         Map<String,Object> result;
@@ -109,6 +115,7 @@ public class TestMixinSerForClass
         assertEquals("abc", result.get("a"));
     }
 
+    @Test
     public void testClassMixInsMidLevel() throws IOException
     {
         Map<String,Object> result;
@@ -131,6 +138,7 @@ public class TestMixinSerForClass
     }
 
     // [databind#3035]: ability to remove mix-ins:
+    @Test
     public void testClassMixInRemoval() throws Exception
     {
         // First, no mix-in

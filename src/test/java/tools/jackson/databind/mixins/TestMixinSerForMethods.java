@@ -3,14 +3,19 @@ package tools.jackson.databind.mixins;
 import java.io.*;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.introspect.MixInHandler;
 import tools.jackson.databind.introspect.MixInResolver;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestMixinSerForMethods
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -98,6 +103,7 @@ public class TestMixinSerForMethods
      * that is, any annotations added properly override all annotations
      * that masked methods (fields etc) have.
      */
+    @Test
     public void testLeafMixin() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -124,6 +130,7 @@ public class TestMixinSerForMethods
      * (overriding annotations of a base class, but being overridden
      * further by a sub-class) works as expected
      */
+    @Test
     public void testIntermediateMixin() throws IOException
     {
         Map<String,Object> result;
@@ -141,6 +148,7 @@ public class TestMixinSerForMethods
      * Another intermediate mix-in, to verify that annotations
      * properly "trickle up"
      */
+    @Test
     public void testIntermediateMixin2() throws IOException
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -151,6 +159,7 @@ public class TestMixinSerForMethods
         assertEquals(Integer.valueOf(42), result.get("x"));
     }
 
+    @Test
     public void testSimpleMixInResolverHasMixins() {
         MixInHandler simple = new MixInHandler(null);
         assertFalse(simple.hasMixIns());
@@ -159,6 +168,7 @@ public class TestMixinSerForMethods
     }
 
     // [databind#688]
+    @Test
     public void testCustomResolver() throws IOException
     {
         final MixInResolver res = new MixInResolver() {

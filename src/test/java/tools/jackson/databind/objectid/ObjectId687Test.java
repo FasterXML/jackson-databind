@@ -3,11 +3,16 @@ package tools.jackson.databind.objectid;
 import java.io.IOException;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class ObjectId687Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class ObjectId687Test extends DatabindTestUtil
 {
     // for [databind#687]
     @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="label")
@@ -67,6 +72,7 @@ public class ObjectId687Test extends BaseMapTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // for [databind#687]
+    @Test
     public void testSerializeDeserializeWithCreator() throws IOException {
         ReferredWithCreator base = new ReferredWithCreator("label1");
         ReferringToObjWithCreator r = new ReferringToObjWithCreator();
@@ -86,6 +92,7 @@ public class ObjectId687Test extends BaseMapTest
         assertEquals(json, MAPPER.writeValueAsString(result));
     }
 
+    @Test
     public void testSerializeDeserializeNoCreator() throws IOException {
         ReferredWithNoCreator base = new ReferredWithNoCreator();
         ReferringToObjWithNoCreator r = new ReferringToObjWithNoCreator();

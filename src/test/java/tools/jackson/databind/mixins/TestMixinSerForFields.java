@@ -3,12 +3,17 @@ package tools.jackson.databind.mixins;
 import java.io.*;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestMixinSerForFields
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -56,6 +61,7 @@ public class TestMixinSerForFields
     /**********************************************************
      */
 
+    @Test
     public void testFieldMixInsTopLevel() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -77,6 +83,7 @@ public class TestMixinSerForFields
         assertEquals("2", result.get("banana"));
     }
 
+    @Test
     public void testMultipleFieldMixIns() throws IOException
     {
         // ordering here shouldn't matter really...

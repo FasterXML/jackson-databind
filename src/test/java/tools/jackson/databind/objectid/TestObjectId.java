@@ -3,12 +3,17 @@ package tools.jackson.databind.objectid;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class TestObjectId extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class TestObjectId extends DatabindTestUtil
 {
     @JsonPropertyOrder({"a", "b"})
     static class Wrapper {
@@ -125,6 +130,7 @@ public class TestObjectId extends BaseMapTest
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
+    @Test
     public void testColumnMetadata() throws Exception
     {
         ColumnMetadata col = new ColumnMetadata("Billy", "employee", "comment");
@@ -146,6 +152,7 @@ public class TestObjectId extends BaseMapTest
     }
 
     // For [databind#188]
+    @Test
     public void testMixedRefsIssue188() throws Exception
     {
         Company comp = new Company();
@@ -165,6 +172,7 @@ public class TestObjectId extends BaseMapTest
                 json);
     }
 
+    @Test
     public void testObjectAndTypeId() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();
@@ -193,6 +201,7 @@ public class TestObjectId extends BaseMapTest
         public final List<JsonSchema> schemas = new ArrayList<JsonSchema>();
     }
 
+    @Test
     public void testWithFieldsInBaseClass1083() throws Exception {
           final String json = a2q("{'schemas': [{\n"
               + "  'name': 'FoodMart'\n"

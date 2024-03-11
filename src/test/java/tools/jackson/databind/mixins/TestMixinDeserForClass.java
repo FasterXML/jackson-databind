@@ -2,13 +2,18 @@ package tools.jackson.databind.mixins;
 
 import java.io.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestMixinDeserForClass
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     static class BaseClass
     {
@@ -50,6 +55,7 @@ public class TestMixinDeserForClass
     /**********************************************************
      */
 
+    @Test
     public void testClassMixInsTopLevel() throws IOException
     {
         ObjectMapper m = new ObjectMapper();
@@ -68,6 +74,7 @@ public class TestMixinDeserForClass
 
     // and then a test for mid-level mixin; should have no effect
     // when deserializing leaf (but will if deserializing base class)
+    @Test
     public void testClassMixInsMidLevel() throws IOException
     {
         ObjectMapper m = jsonMapperBuilder()
@@ -88,6 +95,7 @@ public class TestMixinDeserForClass
     /* Also: when mix-in attached to Object.class, will work, if
      * visible (similar to mid-level, basically)
      */
+    @Test
     public void testClassMixInsForObjectClass() throws IOException
     {
         ObjectMapper m = jsonMapperBuilder()
@@ -107,6 +115,7 @@ public class TestMixinDeserForClass
     }
 
     // [databind#1990]: can apply mix-in to `Object#hashCode()` to force serialization
+    @Test
     public void testHashCodeViaObject() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()

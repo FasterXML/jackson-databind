@@ -1,19 +1,25 @@
 package tools.jackson.databind.objectid;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 import tools.jackson.core.JsonParser;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit test(s) for [databind#622], supporting non-scalar-Object-ids,
  * to support things like JSOG.
  */
-public class JSOGDeserialize622Test extends BaseMapTest
+public class JSOGDeserialize622Test extends DatabindTestUtil
 {
     /** the key of the property that holds the ref */
     public static final String REF_KEY = "@ref";
@@ -188,6 +194,7 @@ public class JSOGDeserialize622Test extends BaseMapTest
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     // Basic for [databind#622]
+    @Test
     public void testStructJSOGRef() throws Exception
     {
         final String EXP_EXAMPLE_JSOG =  a2q(
@@ -200,6 +207,7 @@ public class JSOGDeserialize622Test extends BaseMapTest
     }
 
     // polymorphic alternative for [databind#622]
+    @Test
     public void testPolymorphicRoundTrip() throws Exception
     {
         final ObjectMapper mapper = jsonMapperBuilder()
@@ -224,6 +232,7 @@ public class JSOGDeserialize622Test extends BaseMapTest
     }
 
     // polymorphic alternative for [databind#669]
+    @Test
     public void testAlterativePolymorphicRoundTrip669() throws Exception
     {
         Outer outer = new Outer();

@@ -1,19 +1,25 @@
 package com.fasterxml.jackson.databind.deser.creators;
 
+import java.util.Objects;
+
+import org.junit.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.introspect.*;
-import org.junit.Test;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 import static com.fasterxml.jackson.annotation.JsonCreator.Mode.DELEGATING;
 import static com.fasterxml.jackson.annotation.JsonCreator.Mode.PROPERTIES;
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.a2q;
-import static java.util.Objects.requireNonNull;
-import static org.assertj.core.api.Assertions.assertThat;
 
-public class DelegatingCreatorImplicitNames2543Test {
+public class DelegatingCreatorImplicitNames2543Test
+    extends DatabindTestUtil
+{
     static class Data {
 
         final String part1;
@@ -37,14 +43,17 @@ public class DelegatingCreatorImplicitNames2543Test {
         }
     }
 
-    private static class DelegatingCreatorNamedArgumentIntrospector
+    static class DelegatingCreatorNamedArgumentIntrospector
             extends JacksonAnnotationIntrospector {
+        private static final long serialVersionUID = 1L;
+
+        @Override
         public String findImplicitPropertyName(AnnotatedMember member) {
             if (member instanceof AnnotatedParameter) {
                 AnnotatedWithParams owner = ((AnnotatedParameter) member).getOwner();
                 if (owner instanceof AnnotatedMethod) {
                     AnnotatedMethod method = (AnnotatedMethod) owner;
-                    if (requireNonNull(method.getAnnotation(JsonCreator.class)).mode() == DELEGATING)
+                    if (Objects.requireNonNull(method.getAnnotation(JsonCreator.class)).mode() == DELEGATING)
                         return "fullData";
                 }
             }
@@ -52,11 +61,12 @@ public class DelegatingCreatorImplicitNames2543Test {
         }
     }
 
-    private static final ObjectMapper MAPPER = new ObjectMapper()
-            .setAnnotationIntrospector(new DelegatingCreatorNamedArgumentIntrospector());
+    private static final ObjectMapper MAPPER = JsonMapper.builder()
+            .annotationIntrospector(new DelegatingCreatorNamedArgumentIntrospector())
+            .build();
 
     @Test
-    public void testDeserialization() throws JsonProcessingException {
+    public void testDeserialization() throws Exception {
         Data data = MAPPER.readValue(a2q("{'part1':'a','part2':'b'}"), Data.class);
 
         assertThat(data.part1).isEqualTo("a");
@@ -64,7 +74,7 @@ public class DelegatingCreatorImplicitNames2543Test {
     }
 
     @Test
-    public void testDelegatingDeserialization() throws JsonProcessingException {
+    public void testDelegatingDeserialization() throws Exception {
         Data data = MAPPER.readValue(a2q("'a b'"), Data.class);
 
         assertThat(data.part1).isEqualTo("a");

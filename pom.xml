@@ -13,7 +13,7 @@
   </parent>
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-databind</artifactId>
-  <version>2.17.0</version>
+  <version>2.17.1-SNAPSHOT</version>
   <name>jackson-databind</name>
   <packaging>jar</packaging>
   <description>General data-binding functionality for Jackson: works on core streaming API</description>
@@ -31,7 +31,7 @@
     <connection>scm:git:git@github.com:FasterXML/jackson-databind.git</connection>
     <developerConnection>scm:git:git@github.com:FasterXML/jackson-databind.git</developerConnection>
     <url>https://github.com/FasterXML/jackson-databind</url>
-    <tag>jackson-databind-2.17.0</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <properties>
@@ -68,7 +68,7 @@
     <version.powermock>2.0.9</version.powermock>
 
     <!-- for Reproducible Builds -->
-    <project.build.outputTimestamp>2024-03-12T21:52:22Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2024-03-12T21:52:43Z</project.build.outputTimestamp>
   </properties>
 
   <dependencies>

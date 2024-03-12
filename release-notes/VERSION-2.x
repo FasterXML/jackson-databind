@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
-2.17.0-rc1 (26-Feb-2024)
+2.17.0 (12-Mar-2024)
 
 #437: Support throwing `MismatchedInputException` when deserializing
   properties that are not part of the view

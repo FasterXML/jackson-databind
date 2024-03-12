@@ -458,7 +458,7 @@ public class SimpleModuleTest extends DatabindTestUtil
         module.setMixInAnnotation(MixableBean.class, MixInForOrder.class);
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(module);
-        Map<String,Object> props = this.writeAndMap(mapper, new MixableBean());
+        Map<String,Object> props = writeAndMap(mapper, new MixableBean());
         assertEquals(3, props.size());
         assertEquals(Integer.valueOf(3), props.get("c"));
         assertEquals(Integer.valueOf(1), props.get("a"));

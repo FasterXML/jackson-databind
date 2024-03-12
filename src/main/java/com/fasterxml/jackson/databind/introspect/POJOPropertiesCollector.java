@@ -762,7 +762,7 @@ public class POJOPropertiesCollector
 
             if ((creatorMode == null
                     || creatorMode == JsonCreator.Mode.DISABLED
-                    // 12-Mar-2024: [databind#2543] need to skip for delegating
+                    // 12-Mar-2024: [databind#2543] need to skip delegating as well
                     || creatorMode == JsonCreator.Mode.DELEGATING)
                     && !isCanonicalConstructor) {
                 return;

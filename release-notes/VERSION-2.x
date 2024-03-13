@@ -4,6 +4,10 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.18.0 (not yet released)
+
+-
+
 2.17.1 (not yet released)
 
 #4428: `ByteBuddy` scope went beyond `test` in version 2.17.0

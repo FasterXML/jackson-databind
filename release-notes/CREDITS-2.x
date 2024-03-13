@@ -1761,3 +1761,7 @@ Kyrylo Merzlikin (kirmerzlikin@github)
  * Contributed fix for #2543: Introspection includes delegating ctor's
    only parameter as a property in `BeanDescription`
   (2.17.0)
+
+Miguel Mendes Ruiz (migmruiz@github)
+ * Reported #4428: `ByteBuddy` scope went beyond `test` in version 2.17.0
+  (2.17.1)

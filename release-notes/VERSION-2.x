@@ -4,6 +4,12 @@ Project: jackson-databind
 === Releases === 
 ------------------------------------------------------------------------
 
+2.17.1 (not yet released)
+
+#4428: `ByteBuddy` scope went beyond `test` in version 2.17.0
+ (reported by Miguel M-R)
+ (fix contributed by Joo-Hyuk K)
+
 2.17.0 (12-Mar-2024)
 
 #437: Support throwing `MismatchedInputException` when deserializing

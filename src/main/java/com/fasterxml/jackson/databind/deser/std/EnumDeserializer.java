@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.CompactStringObjectMap;
 import com.fasterxml.jackson.databind.util.EnumResolver;
 import java.util.Optional;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Deserializer class that can deserialize instances of
@@ -53,6 +54,8 @@ public class EnumDeserializer
      * @since 2.7.3
      */
     protected volatile CompactStringObjectMap _lookupByToString;
+
+    private final ReentrantLock _lookupLock = new ReentrantLock();
 
     protected final Boolean _caseInsensitive;
 
@@ -472,13 +475,16 @@ public class EnumDeserializer
     protected CompactStringObjectMap _getToStringLookup(DeserializationContext ctxt) {
         CompactStringObjectMap lookup = _lookupByToString;
         if (lookup == null) {
-            synchronized (this) {
+            try {
+                _lookupLock.lock();
                 lookup = _lookupByToString;
                 if (lookup == null) {
                     lookup = EnumResolver.constructUsingToString(ctxt.getConfig(), _enumClass())
                         .constructLookup();
                     _lookupByToString = lookup;
                 }
+            } finally {
+                _lookupLock.unlock();
             }
         }
         return lookup;

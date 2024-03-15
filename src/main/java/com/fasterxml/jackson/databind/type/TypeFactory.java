@@ -1758,6 +1758,10 @@ ClassUtil.nameOf(rawClass), pc, (pc == 1) ? "" : "s", bindings));
         //
         //    No good way to reproduce but since this should not be on critical path, let's add
         //    syncing as it seems potentially necessary.
+        //
+        // 15-Mar-2024, oddbjornkvalsund: Not replacing this usage of 'synchronized' with an explicit lock as elsewhere.
+        //    Assuming java.lang.reflect.TypeVariable.getBounds() does not do IO or other calls causing the thread to
+        //    park and potentially pin to the platform thread.
         synchronized (var) {
             bounds = var.getBounds();
         }

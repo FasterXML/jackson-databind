@@ -26,4 +26,20 @@ public class NumbersDeserTest
         assertEquals(new BigDecimal(num), w.number);
     }
 
+    @Test
+    public void testNumberStartingWithMinusDot() throws Exception
+    {
+        String num = "-.555555555555555555555555555555";
+        BigDecimalWrapper w = MAPPER.readValue("{\"number\":\"" + num + "\"}", BigDecimalWrapper.class);
+        assertEquals(new BigDecimal(num), w.number);
+    }
+
+    @Test
+    public void testNumberStartingWithPlusDot() throws Exception
+    {
+        String num = "+.555555555555555555555555555555";
+        BigDecimalWrapper w = MAPPER.readValue("{\"number\":\"" + num + "\"}", BigDecimalWrapper.class);
+        assertEquals(new BigDecimal(num), w.number);
+    }
+
 }

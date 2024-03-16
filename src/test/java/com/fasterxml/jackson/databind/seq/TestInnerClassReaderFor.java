@@ -1,11 +1,16 @@
 package com.fasterxml.jackson.databind.seq;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
 import java.io.IOException;
 
-public class TestInnerClassReaderFor extends BaseMapTest {
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class TestInnerClassReaderFor extends DatabindTestUtil {
 
     class X {
         private String value;
@@ -29,14 +34,17 @@ public class TestInnerClassReaderFor extends BaseMapTest {
         }
     }
 
+    private final ObjectMapper MAPPER = newJsonMapper();
+
+    @Test
     public void testReaderFor() throws IOException {
 
         X x = new X("dummy");
-        objectMapper().readerForUpdating(x).readValue("{\"value\": \"updatedX\"}");
+        MAPPER.readerForUpdating(x).readValue("{\"value\": \"updatedX\"}");
         assertEquals(x.getValue(), "updatedX");
 
         Y y = new Y("dummy");
-        objectMapper().readerForUpdating(y).readValue("{\"value\": \"updatedY\"}");
+        MAPPER.readerForUpdating(y).readValue("{\"value\": \"updatedY\"}");
         assertEquals(y.getValue(), "updatedY");
 
     }

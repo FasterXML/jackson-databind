@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -14,8 +16,11 @@ import com.fasterxml.jackson.core.io.SerializedString;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class SequenceWriterTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class SequenceWriterTest extends DatabindTestUtil
 {
     static class Bean {
         public int a;
@@ -89,10 +94,11 @@ public class SequenceWriterTest extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
     private final ObjectWriter WRITER = MAPPER.writer()
             .withRootValueSeparator("\n");
 
+    @Test
     public void testSimpleNonArray() throws Exception
     {
         StringWriter strw = new StringWriter();
@@ -121,6 +127,7 @@ public class SequenceWriterTest extends BaseMapTest
                 strw.toString());
     }
 
+    @Test
     public void testSimpleNonArrayNoSeparator() throws Exception
     {
         final String EXP = a2q("{'a':1}{'a':2}");
@@ -228,6 +235,7 @@ public class SequenceWriterTest extends BaseMapTest
         assertEquals(a2q("{'closed':false,'x':0}"), out.toString());
     }
 
+    @Test
     public void testWithExplicitType() throws Exception
     {
         ObjectWriter w = MAPPER.writer()

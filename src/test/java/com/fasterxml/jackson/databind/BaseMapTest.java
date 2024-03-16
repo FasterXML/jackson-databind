@@ -127,24 +127,6 @@ public abstract class BaseMapTest
 
     /*
     /**********************************************************
-    /* Shared serializers
-    /**********************************************************
-     */
-
-    @SuppressWarnings("serial")
-    public static class UpperCasingSerializer extends StdScalarSerializer<String>
-    {
-        public UpperCasingSerializer() { super(String.class); }
-
-        @Override
-        public void serialize(String value, JsonGenerator gen,
-                SerializerProvider provider) throws IOException {
-            gen.writeString(value.toUpperCase());
-        }
-    }
-
-    /*
-    /**********************************************************
     /* Construction
     /**********************************************************
      */

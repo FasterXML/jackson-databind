@@ -3,13 +3,18 @@ package com.fasterxml.jackson.databind.ser.jdk;
 import java.io.IOException;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class IterableSerializationTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class IterableSerializationTest extends DatabindTestUtil
 {
     final static class IterableWrapper
         implements Iterable<Integer>
@@ -116,6 +121,7 @@ public class IterableSerializationTest extends BaseMapTest
             .enable(MapperFeature.USE_STATIC_TYPING)
             .build();
 
+    @Test
     public void testIterator() throws IOException
     {
         ArrayList<Integer> l = new ArrayList<Integer>();
@@ -129,12 +135,14 @@ public class IterableSerializationTest extends BaseMapTest
         assertEquals("[]", MAPPER.writeValueAsString(l.iterator()));
     }
 
+    @Test
     public void testIterable() throws IOException
     {
         assertEquals("[1,2,3]",
                 MAPPER.writeValueAsString(new IterableWrapper(new int[] { 1, 2, 3 })));
     }
 
+    @Test
     public void testWithIterable() throws IOException
     {
         assertEquals("{\"values\":[\"value\"]}",
@@ -143,6 +151,7 @@ public class IterableSerializationTest extends BaseMapTest
                 STATIC_MAPPER.writeValueAsString(new IntIterable()));
     }
 
+    @Test
     public void testWithIterator() throws IOException
     {
         assertEquals("{\"values\":[\"itValue\"]}",
@@ -157,12 +166,14 @@ public class IterableSerializationTest extends BaseMapTest
     }
 
     // [databind#358]
+    @Test
     public void testIterable358() throws Exception {
         String json = MAPPER.writeValueAsString(new B());
         assertEquals("{\"list\":[[\"Hello world.\"]]}", json);
     }
 
     // [databind#2390]
+    @Test
     public void testIterableWithAnnotation() throws Exception
     {
         assertEquals("[1,2,3]",

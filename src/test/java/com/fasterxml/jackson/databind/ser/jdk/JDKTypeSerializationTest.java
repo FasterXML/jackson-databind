@@ -9,16 +9,21 @@ import java.nio.charset.Charset;
 import java.util.*;
 import java.util.regex.Pattern;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for JDK types not covered by other tests (i.e. things
  * that are not Enums, Collections, Maps, or standard Date/Time types)
  */
 public class JDKTypeSerializationTest
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = sharedMapper();
 
@@ -33,6 +38,7 @@ public class JDKTypeSerializationTest
         public Void value;
     }
 
+    @Test
     public void testBigDecimal() throws Exception
     {
         Map<String, Object> map = new HashMap<String, Object>();
@@ -42,9 +48,10 @@ public class JDKTypeSerializationTest
         assertEquals("{\"pi\":3.14159265}", str);
     }
 
+    @Test
     public void testBigDecimalAsPlainString() throws Exception
     {
-        final ObjectMapper mapper = new ObjectMapper();
+        final ObjectMapper mapper = newJsonMapper();
 
         mapper.enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN);
         Map<String, Object> map = new HashMap<String, Object>();
@@ -54,6 +61,7 @@ public class JDKTypeSerializationTest
         assertEquals("{\"pi\":3.00000000}", str);
     }
 
+    @Test
     public void testFile() throws IOException
     {
         // this may get translated to different representation on Windows, maybe Mac:
@@ -64,6 +72,7 @@ public class JDKTypeSerializationTest
         assertEquals(q(escapedAbsPath), str);
     }
 
+    @Test
     public void testRegexps() throws IOException
     {
         final String PATTERN_STR = "\\s+([a-b]+)\\w?";
@@ -74,12 +83,14 @@ public class JDKTypeSerializationTest
         assertEquals(p.pattern(), result.get("p"));
     }
 
+    @Test
     public void testCurrency() throws IOException
     {
         Currency usd = Currency.getInstance("USD");
         assertEquals(q("USD"), MAPPER.writeValueAsString(usd));
     }
 
+    @Test
     public void testLocale() throws IOException
     {
         assertEquals(q("en"), MAPPER.writeValueAsString(new Locale("en")));
@@ -92,13 +103,14 @@ public class JDKTypeSerializationTest
         assertEquals(q(""), MAPPER.writeValueAsString(Locale.ROOT));
     }
 
+    @Test
     public void testInetAddress() throws IOException
     {
         assertEquals(q("127.0.0.1"), MAPPER.writeValueAsString(InetAddress.getByName("127.0.0.1")));
         InetAddress input = InetAddress.getByName("google.com");
         assertEquals(q("google.com"), MAPPER.writeValueAsString(input));
 
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = newJsonMapper();
         mapper.configOverride(InetAddress.class)
             .setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.NUMBER));
         String json = mapper.writeValueAsString(input);
@@ -108,6 +120,7 @@ public class JDKTypeSerializationTest
                 mapper.writeValueAsString(new InetAddressBean(input)));
     }
 
+    @Test
     public void testInetSocketAddress() throws IOException
     {
         assertEquals(q("127.0.0.1:8080"),
@@ -119,6 +132,7 @@ public class JDKTypeSerializationTest
     }
 
     // [JACKSON-597]
+    @Test
     public void testClass() throws IOException
     {
         assertEquals(q("java.lang.String"), MAPPER.writeValueAsString(String.class));
@@ -127,12 +141,14 @@ public class JDKTypeSerializationTest
         assertEquals(q("void"), MAPPER.writeValueAsString(Void.TYPE));
     }
 
+    @Test
     public void testCharset() throws IOException
     {
         assertEquals(q("UTF-8"), MAPPER.writeValueAsString(Charset.forName("UTF-8")));
     }
 
     // [databind#239]: Support serialization of ByteBuffer
+    @Test
     public void testByteBuffer() throws IOException
     {
         final byte[] INPUT_BYTES = new byte[] { 1, 2, 3, 4, 5 };
@@ -148,6 +164,7 @@ public class JDKTypeSerializationTest
     }
 
     // [databind#1662]: Sliced ByteBuffers
+    @Test
     public void testSlicedByteBuffer() throws IOException
     {
         final byte[] INPUT_BYTES = new byte[] { 1, 2, 3, 4, 5 };
@@ -166,6 +183,7 @@ public class JDKTypeSerializationTest
     }
 
     // [databind#2602]: Need to consider position()
+    @Test
     public void testDuplicatedByteBufferWithCustomPosition() throws IOException
     {
         final byte[] INPUT_BYTES = new byte[] { 1, 2, 3, 4, 5 };
@@ -184,6 +202,7 @@ public class JDKTypeSerializationTest
     }
 
     // [databind#4164]: No rewinding for direct buffer
+    @Test
     public void testDuplicatedByteBufferWithCustomPositionDirect() throws IOException
     {
         final byte[] INPUT_BYTES = new byte[] { 1, 2, 3, 4, 5 };
@@ -197,6 +216,7 @@ public class JDKTypeSerializationTest
     }
 
     // [databind#2197]
+    @Test
     public void testVoidSerialization() throws Exception
     {
         assertEquals(a2q("{'value':null}"),
@@ -204,6 +224,7 @@ public class JDKTypeSerializationTest
     }
 
     // [databind#2657]
+    @Test
     public void testNonStandardProperties() throws Exception
     {
         Properties properties = new Properties();
@@ -215,6 +236,7 @@ public class JDKTypeSerializationTest
     }
 
     // [databind#3130]: fails on JDK 11+
+    @Test
     public void testThreadSerialization() throws Exception
     {
         final Thread input = Thread.currentThread();

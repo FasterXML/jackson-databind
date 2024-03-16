@@ -9,14 +9,19 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class FormatFeatureUnwrapSingleTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class FormatFeatureUnwrapSingleTest extends DatabindTestUtil
 {
     static class StringArrayNotAnnoted {
         public String[] values;
@@ -124,8 +129,9 @@ public class FormatFeatureUnwrapSingleTest extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testWithArrayTypes() throws Exception
     {
         // default: strings unwrapped, ints wrapped
@@ -152,6 +158,7 @@ public class FormatFeatureUnwrapSingleTest extends BaseMapTest
                 mapper.writeValueAsString(new StringArrayNotAnnoted("a")));
     }
 
+    @Test
     public void testWithCollectionTypes() throws Exception
     {
         // default: strings unwrapped, ints wrapped
@@ -169,6 +176,7 @@ public class FormatFeatureUnwrapSingleTest extends BaseMapTest
                 .writeValueAsString(new WrapWriteWithCollections()));
     }
 
+    @Test
     public void testUnwrapWithPrimitiveArraysEtc() throws Exception {
         assertEquals("{\"v\":7}", MAPPER.writeValueAsString(new UnwrapShortArray()));
         assertEquals("{\"v\":3}", MAPPER.writeValueAsString(new UnwrapIntArray()));

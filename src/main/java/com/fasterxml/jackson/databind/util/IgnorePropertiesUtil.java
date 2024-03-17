@@ -41,7 +41,10 @@ public class IgnorePropertiesUtil
      */
     public static Checker buildCheckerIfNeeded(Set<String> toIgnore, Set<String> toInclude) {
         // First: no-op case
-        if ((toInclude == null) && ((toIgnore == null) || toIgnore.isEmpty())) {
+        final boolean nothingToInclude = (toInclude == null);
+        final boolean nothingToIgnore =
+                ((toIgnore == null) || toIgnore.isEmpty());
+        if (nothingToInclude && nothingToIgnore) {
             return null;
         }
         return Checker.construct(toIgnore, toInclude);

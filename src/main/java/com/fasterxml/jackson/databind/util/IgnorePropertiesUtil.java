@@ -71,10 +71,10 @@ public class IgnorePropertiesUtil
         }
         final Set<String> result = new HashSet<>();
 
-        // Make the intersection with the previously included properties
-        for (String prop : newNamesToInclude) {
-            if (existingNamesToInclude.contains(prop)) {
-                result.add(prop);
+        // Make the intersection with the existing set of names
+        for (String newName : newNamesToInclude) {
+            if (existingNamesToInclude.contains(newName)) {
+                result.add(newName);
             }
         }
         return result;

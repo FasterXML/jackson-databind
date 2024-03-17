@@ -55,25 +55,25 @@ public class IgnorePropertiesUtil
      * default logic is to do intersection (name must be in both to be included
      * in result)
      *
-     * @param prevToInclude Existing set of names to include, if defined; null means "not defined"
-     * @param newToInclude New set of names to included, if defined; null means "not defined"
+     * @param existingNamesToInclude Existing set of names to include, if defined; null means "not defined"
+     * @param newNamesToInclude New set of names to included, if defined; null means "not defined"
      *
      * @return Resulting set of names, using intersection if neither {@code null}; or the
      *    non-null one (if only one is {@code null}); or {@code null} if both arguments {@code null}.
      */
-    public static Set<String> combineNamesToInclude(Set<String> prevToInclude,
-            Set<String> newToInclude) {
-        if (prevToInclude == null) {
-            return newToInclude;
+    public static Set<String> combineNamesToInclude(Set<String> existingNamesToInclude,
+            Set<String> newNamesToInclude) {
+        if (existingNamesToInclude == null) {
+            return newNamesToInclude;
         }
-        if (newToInclude == null) {
-            return prevToInclude;
+        if (newNamesToInclude == null) {
+            return existingNamesToInclude;
         }
         final Set<String> result = new HashSet<>();
 
         // Make the intersection with the previously included properties
-        for (String prop : newToInclude) {
-            if (prevToInclude.contains(prop)) {
+        for (String prop : newNamesToInclude) {
+            if (existingNamesToInclude.contains(prop)) {
                 result.add(prop);
             }
         }

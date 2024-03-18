@@ -15,8 +15,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 public class UnrecognizedPropertyException
     extends PropertyBindingException
 {
-    private static final long serialVersionUID = 1L;
-
     public UnrecognizedPropertyException(JsonParser p, String msg, JsonLocation loc,
             Class<?> referringClass, String propName,
             Collection<Object> propertyIds)

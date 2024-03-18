@@ -39,10 +39,4 @@ public abstract class DatabindException
      * current path
      */
     public abstract void prependPath(Object referrer, String fieldName);
-
-    /**
-     * Method called to prepend a reference information in front of
-     * current path
-     */
-    public abstract void prependPath(Object referrer, int index);
 }

@@ -459,7 +459,6 @@ public class JsonMappingException
      * Method called to prepend a reference information in front of
      * current path
      */
-    @Override
     public void prependPath(Object referrer, int index) {
         prependPath(new Reference(referrer, index));
     }

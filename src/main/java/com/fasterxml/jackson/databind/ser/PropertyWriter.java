@@ -21,7 +21,7 @@ public abstract class PropertyWriter
     extends ConcreteBeanPropertyBase // since 2.7
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = 1L;
+    protected static final long serialVersionUID = 1L;
 
     protected PropertyWriter(PropertyMetadata md) {
         super(md);

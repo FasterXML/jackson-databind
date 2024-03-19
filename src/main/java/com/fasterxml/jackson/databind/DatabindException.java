@@ -44,6 +44,5 @@ public abstract class DatabindException
      * Method called to prepend a reference information in front of
      * current path
      */
-    @Deprecated
     public abstract void prependPath(Object referrer, int index);
 }

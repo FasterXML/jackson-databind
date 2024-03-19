@@ -16,6 +16,8 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 public class IgnoredPropertyException
     extends PropertyBindingException
 {
+    private static final long serialVersionUID = 1L;
+
     /**
      * @since 2.7
      */

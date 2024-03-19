@@ -39,6 +39,7 @@ public class BeanPropertyWriter extends PropertyWriter // which extends
                                                        // `ConcreteBeanPropertyBase`
         implements java.io.Serializable // since 2.6
 {
+    // As of 2.7
     private static final long serialVersionUID = 1L;
 
     /**

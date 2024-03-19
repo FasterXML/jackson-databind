@@ -18,8 +18,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 public abstract class PropertyBindingException
     extends MismatchedInputException // since 2.9
 {
-    private static final long serialVersionUID = 1L;
-
     /**
      * Class that does not contain mapping for the unrecognized property.
      */

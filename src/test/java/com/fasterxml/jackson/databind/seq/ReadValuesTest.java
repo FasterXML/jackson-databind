@@ -3,17 +3,21 @@ package com.fasterxml.jackson.databind.seq;
 import java.io.*;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("resource")
-public class ReadValuesTest extends BaseMapTest
+public class ReadValuesTest extends DatabindTestUtil
 {
     static class Bean {
         public int a;
@@ -44,6 +48,7 @@ public class ReadValuesTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testRootBeans() throws Exception
     {
         for (Source src : Source.values()) {
@@ -111,6 +116,7 @@ public class ReadValuesTest extends BaseMapTest
         it.close();
     }
 
+    @Test
     public void testRootBeansInArray() throws Exception
     {
         final String JSON = "[{\"a\":6}, {\"a\":-7}]";
@@ -140,6 +146,7 @@ public class ReadValuesTest extends BaseMapTest
         assertEquals(4, set.iterator().next().a);
     }
 
+    @Test
     public void testRootMaps() throws Exception
     {
         final String JSON = "{\"a\":3}{\"a\":27}  ";
@@ -164,6 +171,7 @@ public class ReadValuesTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testRootBeansWithParser() throws Exception
     {
         final String JSON = "{\"a\":3}{\"a\":27}  ";
@@ -180,6 +188,7 @@ public class ReadValuesTest extends BaseMapTest
         assertFalse(it.hasNext());
     }
 
+    @Test
     public void testRootArraysWithParser() throws Exception
     {
         final String JSON = "[1][3]";
@@ -201,6 +210,7 @@ public class ReadValuesTest extends BaseMapTest
         assertFalse(it.hasNext());
     }
 
+    @Test
     public void testHasNextWithEndArray() throws Exception {
         final String JSON = "[1,3]";
         JsonParser jp = MAPPER.createParser(JSON);
@@ -221,6 +231,7 @@ public class ReadValuesTest extends BaseMapTest
         assertFalse(it.hasNext());
     }
 
+    @Test
     public void testHasNextWithEndArrayManagedParser() throws Exception {
         final String JSON = "[1,3]";
 
@@ -241,6 +252,7 @@ public class ReadValuesTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testNonRootBeans() throws Exception
     {
         final String JSON = "{\"leaf\":[{\"a\":3},{\"a\":27}]}";
@@ -265,6 +277,7 @@ public class ReadValuesTest extends BaseMapTest
         jp.close();
     }
 
+    @Test
     public void testNonRootMapsWithParser() throws Exception
     {
         final String JSON = "[{\"a\":3},{\"a\":27}]";
@@ -290,6 +303,7 @@ public class ReadValuesTest extends BaseMapTest
         jp.close();
     }
 
+    @Test
     public void testNonRootMapsWithObjectReader() throws Exception
     {
         String JSON = "[{ \"hi\": \"ho\", \"neighbor\": \"Joe\" },\n"
@@ -309,26 +323,31 @@ public class ReadValuesTest extends BaseMapTest
         assertFalse(iterator.hasNext());
     }
 
+    @Test
     public void testObjectReaderWithJsonParserFastDoubleParser() throws Exception
     {
         testObjectReaderWithFastDoubleParser(true);
     }
 
+    @Test
     public void testObjectReaderWithJsonReadFeatureFastDoubleParser() throws Exception
     {
         testObjectReaderWithFastDoubleParser(false);
     }
 
+    @Test
     public void testObjectReaderWithJsonParserFastFloatParser() throws Exception
     {
         testObjectReaderWithFastFloatParser(true);
     }
 
+    @Test
     public void testObjectReaderWithJsonReadFeatureFastFloatParser() throws Exception
     {
         testObjectReaderWithFastFloatParser(false);
     }
 
+    @Test
     public void testNonRootArraysUsingParser() throws Exception
     {
         final String JSON = "[[1],[3]]";
@@ -354,6 +373,7 @@ public class ReadValuesTest extends BaseMapTest
         p.close();
     }
 
+    @Test
     public void testEmptyIterator() throws Exception
     {
         MappingIterator<Object> empty = MappingIterator.emptyIterator();

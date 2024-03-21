@@ -5,14 +5,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class SingleValueAsArrayTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class SingleValueAsArrayTest extends DatabindTestUtil
 {
     private static final String JSON = "[{\"message\":\"messageHere\"}]";
 
@@ -64,17 +69,19 @@ public class SingleValueAsArrayTest extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
     {
         MAPPER.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
     }
 
+    @Test
     public void testSuccessfulDeserializationOfObjectWithChainedArrayCreators() throws IOException
     {
         Bean1421A result = MAPPER.readValue(JSON, Bean1421A.class);
         assertNotNull(result);
     }
 
+    @Test
     public void testWithSingleString() throws Exception {
         Bean1421B<List<String>> a = MAPPER.readValue(q("test2"),
                 new TypeReference<Bean1421B<List<String>>>() {});
@@ -83,6 +90,7 @@ public class SingleValueAsArrayTest extends BaseMapTest
         assertEquals(expected, a.value);
     }
 
+    @Test
     public void testPrimitives() throws Exception {
         int[] i = MAPPER.readValue("16", int[].class);
         assertEquals(1, i.length);

@@ -3,6 +3,8 @@ package com.fasterxml.jackson.databind.struct;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 
@@ -10,8 +12,11 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class TestPOJOAsArray extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class TestPOJOAsArray extends DatabindTestUtil
 {
     static class PojoAsArrayWrapper
     {
@@ -132,11 +137,12 @@ public class TestPOJOAsArray extends BaseMapTest
     /*****************************************************
      */
 
-    private final static ObjectMapper MAPPER = new ObjectMapper();
+    private final static ObjectMapper MAPPER = newJsonMapper();
 
     /**
      * Test that verifies that property annotation works
      */
+    @Test
     public void testReadSimplePropertyValue() throws Exception
     {
         String json = "{\"value\":[true,\"Foobar\",42,13]}";
@@ -151,6 +157,7 @@ public class TestPOJOAsArray extends BaseMapTest
     /**
      * Test that verifies that Class annotation works
      */
+    @Test
     public void testReadSimpleRootValue() throws Exception
     {
         String json = "[false,\"Bubba\",1,2]";
@@ -164,6 +171,7 @@ public class TestPOJOAsArray extends BaseMapTest
     /**
      * Test that verifies that property annotation works
      */
+    @Test
     public void testWriteSimplePropertyValue() throws Exception
     {
         String json = MAPPER.writeValueAsString(new PojoAsArrayWrapper("Foobar", 42, 13, true));
@@ -174,6 +182,7 @@ public class TestPOJOAsArray extends BaseMapTest
     /**
      * Test that verifies that Class annotation works
      */
+    @Test
     public void testWriteSimpleRootValue() throws Exception
     {
         String json = MAPPER.writeValueAsString(new FlatPojo("Bubba", 1, 2, false));
@@ -182,6 +191,7 @@ public class TestPOJOAsArray extends BaseMapTest
     }
 
     // [Issue#223]
+    @Test
     public void testNullColumn() throws Exception
     {
         assertEquals("[null,\"bar\"]", MAPPER.writeValueAsString(new TwoStringsBean()));
@@ -193,16 +203,18 @@ public class TestPOJOAsArray extends BaseMapTest
     /*****************************************************
      */
 
+    @Test
     public void testSerializeAsArrayWithSingleProperty() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = newJsonMapper();
         mapper.enable(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
         String json = mapper.writeValueAsString(new SingleBean());
         assertEquals("\"foo\"", json);
     }
 
+    @Test
     public void testBeanAsArrayUnwrapped() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = newJsonMapper();
         mapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
         SingleBean result = mapper.readValue("[\"foobar\"]", SingleBean.class);
         assertNotNull(result);
@@ -215,19 +227,21 @@ public class TestPOJOAsArray extends BaseMapTest
     /*****************************************************
      */
 
+    @Test
     public void testAnnotationOverride() throws Exception
     {
         // by default, POJOs become JSON Objects;
         assertEquals("{\"value\":{\"x\":1,\"y\":2}}", MAPPER.writeValueAsString(new A()));
 
         // but override should change it:
-        ObjectMapper mapper2 = new ObjectMapper();
+        ObjectMapper mapper2 = newJsonMapper();
         mapper2.setAnnotationIntrospector(new ForceArraysIntrospector());
         assertEquals("[[1,2]]", mapper2.writeValueAsString(new A()));
 
         // and allow reading back, too
     }
 
+    @Test
     public void testWithMaps() throws Exception
     {
         AsArrayWithMap input = new AsArrayWithMap(1, 2);
@@ -239,6 +253,7 @@ public class TestPOJOAsArray extends BaseMapTest
         assertEquals(Integer.valueOf(2), output.attrs.get(1));
     }
 
+    @Test
     public void testSimpleWithIndex() throws Exception
     {
         // as POJO:
@@ -249,6 +264,7 @@ public class TestPOJOAsArray extends BaseMapTest
         assertEquals(1, value._b);
     }
 
+    @Test
     public void testWithConfigOverrides() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -270,6 +286,7 @@ public class TestPOJOAsArray extends BaseMapTest
     /*****************************************************
      */
 
+    @Test
     public void testUnknownExtraProp() throws Exception
     {
         String json = "{\"value\":[true,\"Foobar\",42,13, false]}";

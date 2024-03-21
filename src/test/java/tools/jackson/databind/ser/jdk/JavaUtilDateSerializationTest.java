@@ -5,20 +5,20 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import tools.jackson.core.json.JsonWriteFeature;
 
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.ObjectWriter;
-import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.util.StdDateFormat;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import static tools.jackson.databind.testutil.DatabindTestUtil.*;
-
 public class JavaUtilDateSerializationTest
+    extends DatabindTestUtil
 {
     static class TimeZoneBean {
         private TimeZone tz;
@@ -98,8 +98,9 @@ public class JavaUtilDateSerializationTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testDateNumeric() throws IOException
     {
         // default is to output time stamps...
@@ -109,6 +110,7 @@ public class JavaUtilDateSerializationTest
         assertEquals("199", json);
     }
 
+    @Test
     public void testDateISO8601() throws IOException
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -127,6 +129,7 @@ public class JavaUtilDateSerializationTest
     }
 
     // [databind#2167]: beyond year 9999 needs special handling
+    @Test
     public void testDateISO8601_10k() throws IOException
     {
         ObjectWriter w = MAPPER.writer()
@@ -137,6 +140,7 @@ public class JavaUtilDateSerializationTest
     }
 
     // [databind#2167]: dates before Common Era (CE), that is, BCE, need special care:
+    @Test
     public void testDateISO8601_BCE() throws IOException
     {
         ObjectWriter w = MAPPER.writer()
@@ -154,14 +158,17 @@ public class JavaUtilDateSerializationTest
     /**
      * Use a default TZ other than UTC. Dates must be serialized using that TZ.
      */
+    @Test
     public void testDateISO8601_customTZ() throws IOException
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .defaultTimeZone(TimeZone.getTimeZone("GMT+2"))
                 .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
                 .build();
-        serialize( mapper, judate(1970, 1, 1,  00, 00, 00, 0, "GMT+2"), "1970-01-01T00:00:00.000+02:00");
-        serialize( mapper, judate(1970, 1, 1,  00, 00, 00, 0, "UTC"),   "1970-01-01T02:00:00.000+02:00");
+        serialize( mapper, judate(1970, 1, 1,  00, 00, 00, 0, "GMT+2"),
+                "1970-01-01T00:00:00.000+02:00");
+        serialize( mapper, judate(1970, 1, 1,  00, 00, 00, 0, "UTC"),
+                "1970-01-01T02:00:00.000+02:00");
     }
 
     /**
@@ -169,6 +176,7 @@ public class JavaUtilDateSerializationTest
      *
      * See [databind#1744], [databind#2643]
      */
+    @Test
     public void testDateISO8601_colonInTZ() throws IOException
     {
         // with [databind#2643], default now is to include
@@ -186,6 +194,7 @@ public class JavaUtilDateSerializationTest
         serialize( mapper, judate(1970, 1, 1,  00, 00, 00, 0, "UTC"),   "1970-01-01T00:00:00.000Z");
     }
 
+    @Test
     public void testDateOther() throws IOException
     {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'X'HH:mm:ss");
@@ -198,6 +207,7 @@ public class JavaUtilDateSerializationTest
         serialize(mapper, judate(1970, 1, 1,  00, 00, 00, 0, "UTC"), "1969-12-31X16:00:00");
     }
 
+    @Test
     public void testTimeZone() throws IOException
     {
         TimeZone input = TimeZone.getTimeZone("PST");
@@ -205,12 +215,14 @@ public class JavaUtilDateSerializationTest
         assertEquals(q("PST"), json);
     }
 
+    @Test
     public void testTimeZoneInBean() throws IOException
     {
         String json = MAPPER.writeValueAsString(new TimeZoneBean("PST"));
         assertEquals("{\"tz\":\"PST\"}", json);
     }
 
+    @Test
     public void testDateUsingObjectWriter() throws IOException
     {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'X'HH:mm:ss");
@@ -228,9 +240,10 @@ public class JavaUtilDateSerializationTest
         assertEquals("0", w.writeValueAsString(new Date(0L)));
     }
 
+    @Test
     public void testDatesAsMapKeys() throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = newJsonMapper();
         Map<Date,Integer> map = new HashMap<Date,Integer>();
         assertFalse(mapper.isEnabled(SerializationFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS));
         map.put(new Date(0L), Integer.valueOf(1));
@@ -244,6 +257,7 @@ public class JavaUtilDateSerializationTest
         assertEquals("{\"0\":1}", mapper.writeValueAsString(map));
     }
 
+    @Test
     public void testDateWithJsonFormat() throws Exception
     {
         String json;
@@ -276,6 +290,7 @@ public class JavaUtilDateSerializationTest
      * Test to ensure that setting a TimeZone _after_ dateformat should enforce
      * that timezone on format, regardless of TimeZone format had.
      */
+    @Test
     public void testWithTimeZoneOverride() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -310,6 +325,7 @@ public class JavaUtilDateSerializationTest
      * Test to ensure that the default shape is correctly inferred as string or numeric,
      * when this shape is not explicitly set with a <code>@JsonFormat</code> annotation
      */
+    @Test
     public void testDateDefaultShape() throws Exception
     {
         // No @JsonFormat => default to user config
@@ -364,6 +380,7 @@ public class JavaUtilDateSerializationTest
     }
 
     // [databind#1648]: contextual default format should be used
+    @Test
     public void testFormatWithoutPattern() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()

@@ -3,12 +3,17 @@ package tools.jackson.databind.ser.jdk;
 import java.io.IOException;
 import java.util.UUID;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class UUIDSerializationTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class UUIDSerializationTest extends DatabindTestUtil
 {
     static class UUIDWrapperVanilla {
         public UUID uuid;
@@ -27,6 +32,7 @@ public class UUIDSerializationTest extends BaseMapTest
     private final ObjectMapper MAPPER = sharedMapper();
 
     // Verify that efficient UUID codec won't mess things up:
+    @Test
     public void testBasicUUIDs() throws IOException
     {
         // first, couple of generated UUIDs:
@@ -60,6 +66,7 @@ public class UUIDSerializationTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testShapeOverrides() throws Exception
     {
         final String nullUUIDStr = "00000000-0000-0000-0000-000000000000";

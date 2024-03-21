@@ -1,11 +1,16 @@
 package tools.jackson.databind.ser.enums;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class EnumSerializationMixinTest extends BaseMapTest 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class EnumSerializationMixinTest extends DatabindTestUtil
 {
 
     static enum EnumBaseA {
@@ -50,6 +55,7 @@ public class EnumSerializationMixinTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testSerialization() throws Exception {
         ObjectMapper mixinMapper = jsonMapperBuilder()
                 .addMixIn(EnumBaseA.class, EnumMixinA.class).build();

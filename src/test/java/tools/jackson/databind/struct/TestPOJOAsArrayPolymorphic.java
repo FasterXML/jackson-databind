@@ -1,13 +1,17 @@
 package tools.jackson.databind.struct;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class TestPOJOAsArrayPolymorphic extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+public class TestPOJOAsArrayPolymorphic extends DatabindTestUtil
 {
     // [databind#2077]
     @JsonTypeInfo(
@@ -26,6 +30,7 @@ public class TestPOJOAsArrayPolymorphic extends BaseMapTest
     private final ObjectMapper MAPPER = sharedMapper();
 
     // [databind#2077]
+    @Test
     public void testPolymorphicAsArray() throws Exception
     {
         // 20-Sep-2019, taut: this fails to add shape information, due to class annotations

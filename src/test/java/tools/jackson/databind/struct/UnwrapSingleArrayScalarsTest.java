@@ -7,20 +7,22 @@ import java.math.BigInteger;
 import java.net.URI;
 import java.util.UUID;
 
-import tools.jackson.databind.BaseMapTest;
-import tools.jackson.databind.DeserializationFeature;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.ObjectReader;
-import tools.jackson.databind.exc.MismatchedInputException;
+import org.junit.jupiter.api.Test;
 
-public class UnwrapSingleArrayScalarsTest extends BaseMapTest
+import tools.jackson.databind.*;
+import tools.jackson.databind.exc.MismatchedInputException;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+public class UnwrapSingleArrayScalarsTest extends DatabindTestUtil
 {
     static class BooleanBean {
         boolean _v;
         void setV(boolean v) { _v = v; }
     }
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
     private final ObjectReader NO_UNWRAPPING_READER = MAPPER.reader();
     private final ObjectReader UNWRAPPING_READER = MAPPER.reader()
@@ -32,6 +34,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testBooleanPrimitiveArrayUnwrap() throws Exception
     {
         // [databind#381]
@@ -64,6 +67,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
      */
 
     // [databind#381]
+    @Test
     public void testSingleElementScalarArrays() throws Exception {
         final int intTest = 932832;
         final double doubleTest = 32.3234;
@@ -122,6 +126,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
         assertEquals(Boolean.TRUE, booleanWrapperTrueValue);
     }
 
+    @Test
     public void testSingleElementArrayDisabled() throws Exception {
         final ObjectMapper mapper = jsonMapperBuilder()
                 .disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)
@@ -217,6 +222,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testMultiValueArrayException() throws IOException {
         _verifyMultiValueArrayFail("[42,42]", Integer.class);
         _verifyMultiValueArrayFail("[42,42]", Integer.TYPE);
@@ -242,6 +248,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testSingleString() throws Exception
     {
         String value = "FOO!";
@@ -249,6 +256,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
         assertEquals(value, result);
     }
 
+    @Test
     public void testSingleStringWrapped() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -277,6 +285,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
         assertEquals(value, result);
     }
 
+    @Test
     public void testBigDecimal() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -307,6 +316,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testBigInteger() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -338,6 +348,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testClassAsArray() throws Exception
     {
         Class<?> result = MAPPER
@@ -363,6 +374,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
         assertEquals(String.class, result);
     }
 
+    @Test
     public void testURIAsArray() throws Exception
     {
         final ObjectReader reader = MAPPER.readerFor(URI.class);
@@ -378,6 +390,7 @@ public class UnwrapSingleArrayScalarsTest extends BaseMapTest
         _verifyMultiValueArrayFail("[\""+value.toString()+"\",\""+value.toString()+"\"]", URI.class);
     }
 
+    @Test
     public void testUUIDAsArray() throws Exception
     {
         final ObjectReader reader = MAPPER.readerFor(UUID.class);

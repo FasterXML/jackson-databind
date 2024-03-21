@@ -3,9 +3,6 @@ package tools.jackson.databind;
 import java.io.*;
 import java.util.*;
 
-import tools.jackson.core.*;
-
-import tools.jackson.databind.ser.std.StdScalarSerializer;
 import tools.jackson.databind.type.TypeFactory;
 
 public abstract class BaseMapTest
@@ -119,23 +116,6 @@ public abstract class BaseMapTest
         @Override
         public String toString() {
             return String.format("[x=%d, y=%d]", x, y);
-        }
-    }
-
-    /*
-    /**********************************************************************
-    /* Shared serializers
-    /**********************************************************************
-     */
-
-    public static class UpperCasingSerializer extends StdScalarSerializer<String>
-    {
-        public UpperCasingSerializer() { super(String.class); }
-
-        @Override
-        public void serialize(String value, JsonGenerator gen,
-                SerializerProvider provider) {
-            gen.writeString(value.toUpperCase());
         }
     }
 

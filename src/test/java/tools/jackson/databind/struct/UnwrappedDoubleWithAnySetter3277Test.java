@@ -10,15 +10,15 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import static tools.jackson.databind.BaseMapTest.newJsonMapper;
 
 /**
  * Test to verify that [databind#3277] is fixed.
  */
 public class UnwrappedDoubleWithAnySetter3277Test
+    extends DatabindTestUtil
 {
     static class Holder {
         Object value1;

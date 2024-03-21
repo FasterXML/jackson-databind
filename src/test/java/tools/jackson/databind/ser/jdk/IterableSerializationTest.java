@@ -2,13 +2,18 @@ package tools.jackson.databind.ser.jdk;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonFilter;
 
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class IterableSerializationTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class IterableSerializationTest extends DatabindTestUtil
 {
     final static class IterableWrapper
         implements Iterable<Integer>
@@ -116,6 +121,7 @@ public class IterableSerializationTest extends BaseMapTest
         .enable(MapperFeature.USE_STATIC_TYPING)
         .build();
 
+    @Test
     public void testIterator()
     {
         ArrayList<Integer> l = new ArrayList<Integer>();
@@ -129,12 +135,14 @@ public class IterableSerializationTest extends BaseMapTest
         assertEquals("[]", MAPPER.writeValueAsString(l.iterator()));
     }
 
+    @Test
     public void testIterable()
     {
         assertEquals("[1,2,3]",
                 MAPPER.writeValueAsString(new IterableWrapper(new int[] { 1, 2, 3 })));
     }
 
+    @Test
     public void testWithIterable()
     {
         assertEquals("{\"values\":[\"value\"]}",
@@ -155,6 +163,7 @@ public class IterableSerializationTest extends BaseMapTest
                 freshMapper.writeValueAsString(new IntIterable()));
     }
 
+    @Test
     public void testWithIterator()
     {
         assertEquals("{\"values\":[\"itValue\"]}",
@@ -169,13 +178,15 @@ public class IterableSerializationTest extends BaseMapTest
     }
 
     // [databind#358]
-    public void testIterable358() {
+    @Test
+    public void testIterable358() throws Exception {
         String json = MAPPER.writeValueAsString(new B());
         assertEquals("{\"list\":[[\"Hello world.\"]]}", json);
     }
 
     // [databind#2390]
-    public void testIterableWithAnnotation()
+    @Test
+    public void testIterableWithAnnotation() throws Exception
     {
         assertEquals("[1,2,3]",
                 STATIC_MAPPER.writeValueAsString(new IntIterable2390()));

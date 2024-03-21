@@ -1,11 +1,16 @@
 package tools.jackson.databind.struct;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-// Tests for [databind#81]
-public class TestUnwrappedWithTypeInfo extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+// Tests for [#81]
+public class TestUnwrappedWithTypeInfo extends DatabindTestUtil
 {
 	@JsonTypeInfo(use=JsonTypeInfo.Id.NAME, property="@type")
 	@JsonTypeName("OuterType")
@@ -41,7 +46,8 @@ public class TestUnwrappedWithTypeInfo extends BaseMapTest
     /**********************************************************************
      */
 
-	// [Issue#81]
+	// [databind#81]
+	@Test
 	public void testDefaultUnwrappedWithTypeInfo() throws Exception
 	{
 	    Outer outer = new Outer();
@@ -51,7 +57,7 @@ public class TestUnwrappedWithTypeInfo extends BaseMapTest
 	    inner.setP2("202");
 	    outer.setInner(inner);
 
-	    ObjectMapper mapper = new ObjectMapper();
+	    ObjectMapper mapper = newJsonMapper();
 
 	    try {
 	        mapper.writeValueAsString(outer);
@@ -61,6 +67,7 @@ public class TestUnwrappedWithTypeInfo extends BaseMapTest
 	    }
 	}
 
+	@Test
 	public void testUnwrappedWithTypeInfoAndFeatureDisabled() throws Exception
 	{
 		Outer outer = new Outer();

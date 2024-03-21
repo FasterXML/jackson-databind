@@ -2,11 +2,16 @@ package tools.jackson.databind.struct;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class PojoAsArray646Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class PojoAsArray646Test extends DatabindTestUtil
 {
     @JsonFormat(shape = JsonFormat.Shape.ARRAY)
     @JsonPropertyOrder(alphabetic = true)
@@ -80,8 +85,9 @@ public class PojoAsArray646Test extends BaseMapTest
     /**********************************************************************
      */
 
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testWithCustomTypeId() throws Exception {
 
         List<TheItem.NestedItem> nestedList = new ArrayList<TheItem.NestedItem>();

@@ -1,11 +1,15 @@
 package tools.jackson.databind.struct;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
-import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class TestPOJOAsArrayAdvanced extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class TestPOJOAsArrayAdvanced extends DatabindTestUtil
 {
     @JsonFormat(shape=JsonFormat.Shape.ARRAY)
     @JsonPropertyOrder(alphabetic=true)
@@ -84,8 +88,9 @@ public class TestPOJOAsArrayAdvanced extends BaseMapTest
     /*****************************************************
      */
 
-    private final static ObjectMapper MAPPER = new ObjectMapper();
+    private final static ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testWithView() throws Exception
     {
         // Ok, first, ensure that serializer will "black out" filtered properties
@@ -105,6 +110,7 @@ public class TestPOJOAsArrayAdvanced extends BaseMapTest
         assertEquals(0, result.a);
     }
 
+    @Test
     public void testWithViewAndCreator() throws Exception
     {
         AsArrayWithViewAndCreator result = MAPPER.readerFor(AsArrayWithViewAndCreator.class)
@@ -116,6 +122,7 @@ public class TestPOJOAsArrayAdvanced extends BaseMapTest
         assertEquals(0, result.a);
     }
 
+    @Test
     public void testWithCreatorsOrdered() throws Exception
     {
         CreatorAsArray input = new CreatorAsArray(3, 4);
@@ -135,6 +142,7 @@ public class TestPOJOAsArrayAdvanced extends BaseMapTest
     }
 
     // Same as above, but ordering of properties different...
+    @Test
     public void testWithCreatorsShuffled() throws Exception
     {
         CreatorAsArrayShuffled input = new CreatorAsArrayShuffled(3, 4);

@@ -2,6 +2,8 @@ package tools.jackson.databind.ser.jdk;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.core.*;
@@ -13,15 +15,16 @@ import tools.jackson.databind.jsontype.TypeSerializer;
 import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.ser.std.StdSerializer;
 import tools.jackson.databind.ser.std.ToStringSerializer;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-import tools.jackson.databind.testutil.DatabindTestUtil.EnumWithSubClass;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for verifying serialization of simple basic non-structured
  * types; primitives (and/or their wrappers), Strings.
  */
 public class EnumSerializationTest
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     /**
      * Test enumeration for verifying Enum serialization functionality.
@@ -160,11 +163,13 @@ public class EnumSerializationTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testSimple() throws Exception
     {
         assertEquals("\"B\"", MAPPER.writeValueAsString(TestEnum.B));
     }
 
+    @Test
     public void testEnumSet() throws Exception
     {
         final EnumSet<TestEnum> value = EnumSet.of(TestEnum.B);
@@ -176,20 +181,24 @@ public class EnumSerializationTest
      * prefer calling toString() instead. So let's verify that
      * this can be done using annotation for enum class.
      */
+    @Test
     public void testEnumUsingToString() throws Exception
     {
         assertEquals("\"c2\"", MAPPER.writeValueAsString(AnnotatedTestEnum.C2));
     }
 
+    @Test
     public void testSubclassedEnums() throws Exception
     {
         assertEquals("\"B\"", MAPPER.writeValueAsString(EnumWithSubClass.B));
     }
 
+    @Test
     public void testEnumsWithJsonValue() throws Exception {
         assertEquals("\"value:bar\"", MAPPER.writeValueAsString(EnumWithJsonValue.B));
     }
 
+    @Test
     public void testEnumsWithJsonValueUsingMixin() throws Exception
     {
         // can't share, as new mix-ins are added
@@ -200,6 +209,7 @@ public class EnumSerializationTest
     }
 
     // [databind#601]
+    @Test
     public void testEnumsWithJsonValueInMap() throws Exception
     {
         EnumMap<EnumWithJsonValue,String> input = new EnumMap<EnumWithJsonValue,String>(EnumWithJsonValue.class);
@@ -212,11 +222,13 @@ public class EnumSerializationTest
      * Test for ensuring that @JsonSerializable is used with Enum types as well
      * as with any other types.
      */
+    @Test
     public void testSerializableEnum() throws Exception
     {
         assertEquals("\"foo\"", MAPPER.writeValueAsString(SerializableEnum.A));
     }
 
+    @Test
     public void testToStringEnum() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
@@ -230,6 +242,7 @@ public class EnumSerializationTest
                     .writeValueAsString(LowerCaseEnum.B));
     }
 
+    @Test
     public void testToStringEnumWithEnumMap() throws Exception
     {
         ObjectMapper m = jsonMapperBuilder()
@@ -240,10 +253,11 @@ public class EnumSerializationTest
         assertEquals("{\"c\":\"value\"}", m.writeValueAsString(enums));
     }
 
+    @Test
     public void testAsIndex() throws Exception
     {
         // By default, serialize using name
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = newJsonMapper();
         assertFalse(m.isEnabled(SerializationFeature.WRITE_ENUMS_USING_INDEX));
         assertEquals(q("B"), m.writeValueAsString(TestEnum.B));
 
@@ -254,6 +268,7 @@ public class EnumSerializationTest
         assertEquals("1", m.writeValueAsString(TestEnum.B));
     }
 
+    @Test
     public void testAnnotationsOnEnumCtor() throws Exception
     {
         assertEquals(q("V1"), MAPPER.writeValueAsString(OK.V1));
@@ -262,6 +277,7 @@ public class EnumSerializationTest
     }
 
     // [databind#227]
+    @Test
     public void testGenericEnumSerializer() throws Exception
     {
         // By default, serialize using name
@@ -275,6 +291,7 @@ public class EnumSerializationTest
 
     // [databind#749]
 
+    @Test
     public void testEnumMapSerDefault() throws Exception {
         final ObjectMapper mapper = newJsonMapper();
         EnumMap<LC749Enum, String> m = new EnumMap<LC749Enum, String>(LC749Enum.class);
@@ -282,16 +299,18 @@ public class EnumSerializationTest
         assertEquals("{\"A\":\"value\"}", mapper.writeValueAsString(m));
     }
 
+    @Test
     public void testEnumMapSerDisableToString() throws Exception {
-        final ObjectMapper mapper = new ObjectMapper();
+        final ObjectMapper mapper = newJsonMapper();
         ObjectWriter w = mapper.writer().without(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
         EnumMap<LC749Enum, String> m = new EnumMap<LC749Enum, String>(LC749Enum.class);
         m.put(LC749Enum.A, "value");
         assertEquals("{\"A\":\"value\"}", w.writeValueAsString(m));
     }
 
+    @Test
     public void testEnumMapSerEnableToString() throws Exception {
-        final ObjectMapper mapper = new ObjectMapper();
+        final ObjectMapper mapper = newJsonMapper();
         ObjectWriter w = mapper.writer().with(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
         EnumMap<LC749Enum, String> m = new EnumMap<LC749Enum, String>(LC749Enum.class);
         m.put(LC749Enum.A, "value");
@@ -299,10 +318,12 @@ public class EnumSerializationTest
     }
 
     // [databind#1322]
+    @Test
     public void testEnumsWithJsonProperty() throws Exception {
         assertEquals(q("aleph"), MAPPER.writeValueAsString(EnumWithJsonProperty.A));
     }
 
+    @Test
     public void testEnumsWithJsonPropertyEnableToString() throws Exception {
         String result = MAPPER.writerFor(EnumWithJsonProperty.class)
                 .with(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
@@ -311,6 +332,7 @@ public class EnumSerializationTest
     }
 
     // [databind#1535]
+    @Test
     public void testEnumKeysWithJsonProperty() throws Exception {
         Map<EnumWithJsonProperty,Integer> input = new HashMap<EnumWithJsonProperty,Integer>();
         input.put(EnumWithJsonProperty.A, 13);
@@ -318,6 +340,7 @@ public class EnumSerializationTest
     }
 
     // [databind#1322]
+    @Test
     public void testEnumsWithJsonPropertyInSet() throws Exception
     {
         assertEquals("[\"aleph\"]",
@@ -325,6 +348,7 @@ public class EnumSerializationTest
     }
 
     // [databind#1322]
+    @Test
     public void testEnumsWithJsonPropertyAsKey() throws Exception
     {
         EnumMap<EnumWithJsonProperty,String> input = new EnumMap<EnumWithJsonProperty,String>(EnumWithJsonProperty.class);
@@ -333,6 +357,7 @@ public class EnumSerializationTest
     }
 
     // [databind#2871]
+    @Test
     public void testEnumWithJsonKey() throws Exception
     {
         // First with EnumMap
@@ -347,6 +372,7 @@ public class EnumSerializationTest
     }
 
     // [databind#3053]
+    @Test
     public void testEnumFeature_WRITE_ENUMS_TO_LOWERCASE_isDisabledByDefault() {
         ObjectReader READER = MAPPER.reader();
         assertFalse(READER.isEnabled(EnumFeature.WRITE_ENUMS_TO_LOWERCASE));
@@ -354,6 +380,7 @@ public class EnumSerializationTest
             .isEnabled(EnumFeature.WRITE_ENUMS_TO_LOWERCASE));
     }
 
+    @Test
     public void testEnumFeature_WRITE_ENUMS_TO_LOWERCASE() throws Exception {
         ObjectMapper m = jsonMapperBuilder()
             .configure(EnumFeature.WRITE_ENUMS_TO_LOWERCASE, true)

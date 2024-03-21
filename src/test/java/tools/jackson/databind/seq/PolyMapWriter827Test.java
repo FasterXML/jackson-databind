@@ -10,10 +10,11 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.*;
 import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.ser.std.StdSerializer;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
 
 // for [databind#827]
-public class PolyMapWriter827Test extends BaseMapTest
+public class PolyMapWriter827Test extends DatabindTestUtil
 {
     static class CustomKey {
         String a;

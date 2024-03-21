@@ -413,7 +413,7 @@ public class DatabindTestUtil
      * available methods, and ensures results are consistent, before
      * returning them
      */
-    private static String getAndVerifyText(JsonParser jp)
+    protected static String getAndVerifyText(JsonParser jp)
     {
         // Ok, let's verify other accessors
         int actLen = jp.getTextLength();
@@ -472,14 +472,14 @@ public class DatabindTestUtil
 
 
     protected JsonParser createParserUsingReader(String input)
-        throws IOException
+        throws JacksonException
     {
         return createParserUsingReader(new JsonFactory(), input);
     }
 
     protected JsonParser createParserUsingReader(JsonFactory f, String input)
-        throws IOException
+        throws JacksonException
     {
-        return f.createParser(new StringReader(input));
+        return f.createParser(ObjectReadContext.empty(), new StringReader(input));
     }
 }

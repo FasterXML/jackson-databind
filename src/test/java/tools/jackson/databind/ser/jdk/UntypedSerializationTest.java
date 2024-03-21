@@ -2,9 +2,14 @@ package tools.jackson.databind.ser.jdk;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.core.*;
-import tools.jackson.databind.BaseMapTest;
+
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * This unit test suite tries verify simplest aspects of
@@ -12,10 +17,11 @@ import tools.jackson.databind.ObjectMapper;
  * core JDK objects to JSON.
  */
 public class UntypedSerializationTest
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testFromArray() throws Exception
     {
         ArrayList<Object> doc = new ArrayList<Object>();
@@ -62,6 +68,7 @@ public class UntypedSerializationTest
         }
     }
 
+    @Test
     public void testFromMap() throws Exception
     {
         LinkedHashMap<String,Object> doc = new LinkedHashMap<String,Object>();

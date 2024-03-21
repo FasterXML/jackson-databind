@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -12,14 +14,18 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import tools.jackson.core.Base64Variants;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.core.type.TypeReference;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.jsontype.TypeResolverBuilder;
 import tools.jackson.databind.jsontype.impl.DefaultTypeResolverBuilder;
 import tools.jackson.databind.module.SimpleModule;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class MapKeySerializationTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class MapKeySerializationTest extends DatabindTestUtil
 {
     static class KarlSerializer extends ValueSerializer<String>
     {
@@ -126,23 +132,26 @@ public class MapKeySerializationTest extends BaseMapTest
     /**********************************************************
      */
 
-    final private ObjectMapper MAPPER = objectMapper();
+    final private ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testNotKarl() throws Exception {
         final String serialized = MAPPER.writeValueAsString(new NotKarlBean());
         assertEquals("{\"map\":{\"Not Karl\":1}}", serialized);
     }
 
+    @Test
     public void testKarl() throws Exception {
         final String serialized = MAPPER.writeValueAsString(new KarlBean());
         assertEquals("{\"map\":{\"Karl\":1}}", serialized);
     }
 
     // [databind#75]: caching of KeySerializers
+    @Test
     public void testBoth() throws Exception
     {
         // Let's NOT use shared one, to ensure caching starts from clean slate
-        final ObjectMapper mapper = new ObjectMapper();
+        final ObjectMapper mapper = newJsonMapper();
         final String value1 = mapper.writeValueAsString(new NotKarlBean());
         assertEquals("{\"map\":{\"Not Karl\":1}}", value1);
         final String value2 = mapper.writeValueAsString(new KarlBean());
@@ -150,6 +159,7 @@ public class MapKeySerializationTest extends BaseMapTest
     }
 
     // Test custom key serializer for enum
+    @Test
     public void testCustomForEnum() throws Exception
     {
         // cannot use shared mapper as we are registering a module
@@ -163,6 +173,7 @@ public class MapKeySerializationTest extends BaseMapTest
         assertEquals("{\"stuff\":{\"xxxB\":\"bar\"}}", json);
     }
 
+    @Test
     public void testCustomNullSerializers() throws Exception
     {
         final SimpleModule mod = new SimpleModule()
@@ -179,6 +190,7 @@ public class MapKeySerializationTest extends BaseMapTest
         assertEquals("[1,\"NULL\",true]", json);
     }
 
+    @Test
     public void testCustomEnumInnerMapKey() throws Exception {
         Map<Outer, Object> outerMap = new HashMap<Outer, Object>();
         Map<ABC, Map<String, String>> map = new EnumMap<ABC, Map<String, String>>(ABC.class);
@@ -203,7 +215,8 @@ public class MapKeySerializationTest extends BaseMapTest
 
     // 02-Nov-2020, tatu: No more "default key serializer" in 3.0, hence no test
     /*
-    public void testDefaultKeySerializer() throws IOException
+    @Test
+    public void testDefaultKeySerializer() throws Exception
     {
         final SimpleModule mod = new SimpleModule()
                 .setDefaultNullKeySerializer(new NullKeySerializer("NULL-KEY"))
@@ -220,6 +233,7 @@ public class MapKeySerializationTest extends BaseMapTest
     */
 
     // [databind#682]
+    @Test
     public void testClassKey() throws Exception
     {
         Map<Class<?>,Integer> map = new LinkedHashMap<Class<?>,Integer>();
@@ -229,6 +243,7 @@ public class MapKeySerializationTest extends BaseMapTest
     }
 
     // [databind#838]
+    @Test
     public void testUnWrappedMapWithKeySerializer() throws Exception{
         SimpleModule mod = new SimpleModule("test");
         mod.addKeySerializer(ABC.class, new ABCKeySerializer());
@@ -247,6 +262,7 @@ public class MapKeySerializationTest extends BaseMapTest
     }
 
     // [databind#838]
+    @Test
     public void testUnWrappedMapWithDefaultType() throws Exception{
         SimpleModule mod = new SimpleModule("test");
         mod.addKeySerializer(ABC.class, new ABCKeySerializer());
@@ -268,6 +284,7 @@ public class MapKeySerializationTest extends BaseMapTest
     }
 
     // [databind#1552]
+    @Test
     public void testMapsWithBinaryKeys() throws Exception
     {
         byte[] binary = new byte[] { 1, 2, 3, 4, 5 };
@@ -287,6 +304,7 @@ public class MapKeySerializationTest extends BaseMapTest
     }
 
     // [databind#1679]
+    @Test
     public void testMapKeyRecursion1679() throws Exception
     {
         Map<Object, Object> objectMap = new HashMap<Object, Object>();

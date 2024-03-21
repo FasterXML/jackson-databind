@@ -3,11 +3,16 @@ package tools.jackson.databind.ser.jdk;
 import java.math.BigDecimal;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class BigDecimalAsString2519Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class BigDecimalAsString2519Test extends DatabindTestUtil
 {
     static class Bean2519Typed {
         public List<BigDecimal> values = new ArrayList<>();
@@ -17,6 +22,7 @@ public class BigDecimalAsString2519Test extends BaseMapTest
         public Collection<BigDecimal> values = new HashSet<>();
     }
 
+    @Test
     public void testBigDecimalAsString2519Typed() throws Exception
     {
         Bean2519Typed foo = new Bean2519Typed();
@@ -29,6 +35,7 @@ public class BigDecimalAsString2519Test extends BaseMapTest
         assertEquals(a2q("{'values':['2.34']}"), json);
     }
 
+    @Test
     public void testBigDecimalAsString2519Untyped() throws Exception
     {
         Bean2519Untyped foo = new Bean2519Untyped();

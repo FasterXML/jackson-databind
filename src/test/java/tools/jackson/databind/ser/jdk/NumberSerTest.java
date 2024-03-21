@@ -3,19 +3,23 @@ package tools.jackson.databind.ser.jdk;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Unit tests for verifying serialization of simple basic non-structured
  * types; primitives (and/or their wrappers), Strings.
  */
-public class NumberSerTest extends BaseMapTest
+public class NumberSerTest extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = sharedMapper();
 
@@ -82,6 +86,7 @@ public class NumberSerTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testDouble() throws Exception
     {
         double[] values = new double[] {
@@ -96,6 +101,7 @@ public class NumberSerTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testBigInteger() throws Exception
     {
         BigInteger[] values = new BigInteger[] {
@@ -111,6 +117,7 @@ public class NumberSerTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testNumbersAsString() throws Exception
     {
         assertEquals(a2q("{'value':'3'}"), MAPPER.writeValueAsString(new IntAsString()));
@@ -120,6 +127,7 @@ public class NumberSerTest extends BaseMapTest
         assertEquals(a2q("{'value':'123456'}"), MAPPER.writeValueAsString(new BigIntegerAsString()));
     }
 
+    @Test
     public void testNumbersAsStringNonEmpty() throws Exception
     {
         assertEquals(a2q("{'value':'3'}"), NON_EMPTY_MAPPER.writeValueAsString(new IntAsString()));
@@ -129,6 +137,7 @@ public class NumberSerTest extends BaseMapTest
         assertEquals(a2q("{'value':'123456'}"), NON_EMPTY_MAPPER.writeValueAsString(new BigIntegerAsString()));
     }
 
+    @Test
     public void testConfigOverridesForNumbers() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -150,6 +159,7 @@ public class NumberSerTest extends BaseMapTest
                 mapper.writeValueAsString(new BigDecimalWrapper(BigDecimal.valueOf(-0.5))));
     }
 
+    @Test
     public void testNumberType() throws Exception
     {
         assertEquals(a2q("{'value':1}"), MAPPER.writeValueAsString(new NumberWrapper(Byte.valueOf((byte) 1))));

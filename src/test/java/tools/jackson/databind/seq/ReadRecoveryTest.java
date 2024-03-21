@@ -1,13 +1,18 @@
 package tools.jackson.databind.seq;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.exc.UnrecognizedPropertyException;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests to verify aspects of error recover for reading using
  * iterator.
  */
-public class ReadRecoveryTest extends BaseMapTest
+public class ReadRecoveryTest extends DatabindTestUtil
 {
     static class Bean {
         public int a, b;
@@ -21,8 +26,9 @@ public class ReadRecoveryTest extends BaseMapTest
     /**********************************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testRootBeans() throws Exception
     {
         final String JSON = a2q("{'a':3} {'x':5}");
@@ -47,6 +53,7 @@ public class ReadRecoveryTest extends BaseMapTest
     // for [databind#734]
     // Simple test for verifying that basic recover works for a case of
     // unknown structured value
+    @Test
     public void testSimpleRootRecovery() throws Exception
     {
         final String JSON = a2q("{'a':3}{'a':27,'foo':[1,2],'b':{'x':3}}  {'a':1,'b':2} ");
@@ -76,6 +83,7 @@ public class ReadRecoveryTest extends BaseMapTest
     }
 
     // Similar to "raw" root-level Object sequence, but in array
+    @Test
     public void testSimpleArrayRecovery() throws Exception
     {
         final String JSON = a2q("[{'a':3},{'a':27,'foo':[1,2],'b':{'x':3}}  ,{'a':1,'b':2}  ]");

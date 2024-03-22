@@ -657,9 +657,7 @@ public class NumberDeserializers
                 p.streamReadConstraints().validateFPLength(text.length());
                 try {
                     return NumberInput.parseFloat(text, p.isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
-                } catch (IllegalArgumentException iae) {
-                    if (true) throw new Error();
-                }
+                } catch (IllegalArgumentException iae) { }
             }
             return (Float) ctxt.handleWeirdStringValue(_valueClass, text,
                     "not a valid `Float` value");

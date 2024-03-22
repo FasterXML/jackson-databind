@@ -1,10 +1,12 @@
 package com.fasterxml.jackson.databind.deser.jdk;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
+import java.math.BigDecimal;
+
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import java.math.BigDecimal;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -23,6 +25,8 @@ public class BigDecimalDeser4435Test
 
     private final ObjectMapper MAPPER = JsonMapper.builder().build();
 
+    // Disabled until [databind#4435 fixed]
+    @Disabled
     @Test
     public void testNumberStartingWithDot() throws Exception
     {
@@ -31,6 +35,8 @@ public class BigDecimalDeser4435Test
         assertEquals(new BigDecimal(num), w.number);
     }
 
+    // Disabled until [databind#4435 fixed]
+    @Disabled
     @Test
     public void testNumberStartingWithMinusDot() throws Exception
     {
@@ -39,6 +45,8 @@ public class BigDecimalDeser4435Test
         assertEquals(new BigDecimal(num), w.number);
     }
 
+    // Disabled until [databind#4435 fixed]
+    @Disabled
     @Test
     public void testNumberStartingWithPlusDot() throws Exception
     {

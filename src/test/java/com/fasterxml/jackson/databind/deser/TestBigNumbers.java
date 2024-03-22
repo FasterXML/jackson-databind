@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.deser;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.JsonFactory;
@@ -13,17 +14,11 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 public class TestBigNumbers extends BaseMapTest
 {
     static class BigIntegerWrapper {
-        BigInteger number;
+        public BigInteger number;
+    }
 
-        public BigIntegerWrapper() {}
-
-        public BigIntegerWrapper(BigInteger number) {
-            this.number = number;
-        }
-
-        public void setNumber(BigInteger number) {
-            this.number = number;
-        }
+    static class BigDecimalWrapper {
+        public BigDecimal number;
     }
 
     /*

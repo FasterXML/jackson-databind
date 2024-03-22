@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.deser;
+package com.fasterxml.jackson.databind.deser.jdk;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -8,8 +8,13 @@ import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class NumbersDeserTest
+// @since 2.16.3
+public class BigDecimalDeser4435Test
 {
+    static class BigDecimalWrapper {
+        public BigDecimal number;
+    }
+
     /*
     /**********************************************************
     /* Tests
@@ -41,5 +46,4 @@ public class NumbersDeserTest
         BigDecimalWrapper w = MAPPER.readValue("{\"number\":\"" + num + "\"}", BigDecimalWrapper.class);
         assertEquals(new BigDecimal(num), w.number);
     }
-
 }

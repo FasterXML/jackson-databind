@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.deser;
+package com.fasterxml.jackson.databind.deser.jdk;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -11,15 +11,14 @@ import com.fasterxml.jackson.core.exc.StreamConstraintsException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.databind.testutil.DatabindTestUtil.DoubleWrapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.newJsonMapper;
-import static com.fasterxml.jackson.databind.testutil.DatabindTestUtil.verifyException;
-
 public class BigNumbersDeserTest
+    extends DatabindTestUtil
 {
     static class BigIntegerWrapper {
         public BigInteger number;
@@ -31,7 +30,7 @@ public class BigNumbersDeserTest
 
     /*
     /**********************************************************
-    /* Tests
+    /* Test methods
     /**********************************************************
      */
 
@@ -101,6 +100,33 @@ public class BigNumbersDeserTest
                 newJsonMapperWithUnlimitedNumberSizeSupport()
                         .readValue(generateJson("number"), BigIntegerWrapper.class);
         assertNotNull(bdw);
+    }
+
+    // [databind#4435]
+    @Test
+    public void testNumberStartingWithDot() throws Exception
+    {
+        String num = ".555555555555555555555555555555";
+        BigDecimalWrapper w = MAPPER.readValue("{\"number\":\"" + num + "\"}", BigDecimalWrapper.class);
+        assertEquals(new BigDecimal(num), w.number);
+    }
+
+    // [databind#4435]
+    @Test
+    public void testNumberStartingWithMinusDot() throws Exception
+    {
+        String num = "-.555555555555555555555555555555";
+        BigDecimalWrapper w = MAPPER.readValue("{\"number\":\"" + num + "\"}", BigDecimalWrapper.class);
+        assertEquals(new BigDecimal(num), w.number);
+    }
+
+    // [databind#4435]
+    @Test
+    public void testNumberStartingWithPlusDot() throws Exception
+    {
+        String num = "+.555555555555555555555555555555";
+        BigDecimalWrapper w = MAPPER.readValue("{\"number\":\"" + num + "\"}", BigDecimalWrapper.class);
+        assertEquals(new BigDecimal(num), w.number);
     }
 
     private String generateJson(final String fieldName) {

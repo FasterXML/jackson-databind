@@ -628,8 +628,15 @@ public class NumberDeserializers
             if (_checkTextualNull(ctxt, text)) {
                 return (Float) getNullValue(ctxt);
             }
-            // No separate "_parseFloat()" so just call this (nulls handled above)
-            return _parseFloatPrimitive(p, ctxt, text);
+            // 09-Dec-2023, tatu: To avoid parser having to validate input, pre-validate:
+            if (NumberInput.looksLikeValidNumber(text)) {
+                p.streamReadConstraints().validateFPLength(text.length());
+                try {
+                    return NumberInput.parseFloat(text, p.isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
+                } catch (IllegalArgumentException iae) { }
+            }
+            return (Float) ctxt.handleWeirdStringValue(_valueClass, text,
+                    "not a valid `Float` value");
         }
     }
 

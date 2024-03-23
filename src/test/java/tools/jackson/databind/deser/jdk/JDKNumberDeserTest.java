@@ -14,12 +14,12 @@ import tools.jackson.core.*;
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.exc.MismatchedInputException;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import static tools.jackson.databind.testutil.DatabindTestUtil.*;
-
 public class JDKNumberDeserTest
+    extends DatabindTestUtil
 {
     /*
     /**********************************************************************
@@ -101,7 +101,7 @@ public class JDKNumberDeserTest
     /**********************************************************************
      */
 
-    final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = new ObjectMapper();
 
     @Test
     public void testNaN() throws Exception

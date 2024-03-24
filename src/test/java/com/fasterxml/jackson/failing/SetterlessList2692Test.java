@@ -4,11 +4,12 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SetterlessList2692Test extends DatabindTestUtil {
+class SetterlessList2692Test extends DatabindTestUtil {
     static class DataBean {
 
         final String val;
@@ -33,7 +34,8 @@ public class SetterlessList2692Test extends DatabindTestUtil {
         }
     }
 
-    public void testIssue2692() throws Exception {
+    @Test
+    void issue2692() throws Exception {
         ObjectMapper om = newJsonMapper();
         String json;
         DataBean out;

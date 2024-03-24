@@ -4,10 +4,11 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class KevinFail1410Test extends DatabindTestUtil {
+class KevinFail1410Test extends DatabindTestUtil {
     enum EnvironmentEventSource {BACKEND;}
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "source")
@@ -76,7 +77,8 @@ public class KevinFail1410Test extends DatabindTestUtil {
         }
     }
 
-    public void testDupProps() throws Exception {
+    @Test
+    void dupProps() throws Exception {
         ObjectMapper mapper = newJsonMapper();
         EnvironmentEvent event = new BackendEvent("foo", "hello", "bar", null);
         String ser = mapper

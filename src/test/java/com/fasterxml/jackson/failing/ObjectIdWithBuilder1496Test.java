@@ -6,12 +6,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class ObjectIdWithBuilder1496Test extends DatabindTestUtil {
+class ObjectIdWithBuilder1496Test extends DatabindTestUtil {
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
     @JsonDeserialize(builder = POJOBuilder.class)
     static class POJO {
@@ -77,7 +78,8 @@ public class ObjectIdWithBuilder1496Test extends DatabindTestUtil {
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    public void testBuilderId1496() throws Exception {
+    @Test
+    void builderId1496() throws Exception {
         POJO input = new POJOBuilder().id(123L).var(456).build();
         String json = MAPPER.writeValueAsString(input);
         POJO result = MAPPER.readValue(json, POJO.class);

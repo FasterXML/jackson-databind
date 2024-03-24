@@ -3,6 +3,7 @@ package com.fasterxml.jackson.failing;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -10,7 +11,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class MapInclusion1649Test extends DatabindTestUtil {
+class MapInclusion1649Test extends DatabindTestUtil {
     @JsonInclude(value = JsonInclude.Include.NON_EMPTY, content = JsonInclude.Include.NON_EMPTY)
     static class Bean1649 {
         public Map<String, String> map;
@@ -24,7 +25,8 @@ public class MapInclusion1649Test extends DatabindTestUtil {
     final private ObjectMapper MAPPER = objectMapper();
 
     // [databind#1649]
-    public void testNonEmptyViaClass() throws IOException {
+    @Test
+    void nonEmptyViaClass() throws IOException {
         // non-empty/null, include
         assertEquals(a2q("{'map':{'a':'b'}}"),
                 MAPPER.writeValueAsString(new Bean1649("a", "b")));

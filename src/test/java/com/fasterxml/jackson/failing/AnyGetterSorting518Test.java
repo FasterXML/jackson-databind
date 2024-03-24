@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -11,7 +12,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class AnyGetterSorting518Test extends DatabindTestUtil
+class AnyGetterSorting518Test extends DatabindTestUtil
 {
     @JsonPropertyOrder(alphabetic = true)
     static class Bean
@@ -40,7 +41,8 @@ public class AnyGetterSorting518Test extends DatabindTestUtil
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
-    public void testAnyBeanWithSort() throws Exception
+    @Test
+    void anyBeanWithSort() throws Exception
     {
         Map<String,Object> extra = new LinkedHashMap<>();
         extra.put("y", 4);

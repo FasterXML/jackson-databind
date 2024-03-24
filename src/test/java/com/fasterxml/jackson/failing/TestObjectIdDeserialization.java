@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.objectid.TestObjectId.Employee;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.failing.TestObjectIdDeserialization.EnumMapCompany.FooEnum;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -20,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
  * code (2.4), are included here. Other cases moved to successfully
  * passing tests.
  */
-public class TestObjectIdDeserialization extends DatabindTestUtil {
+class TestObjectIdDeserialization extends DatabindTestUtil {
     static class ArrayCompany {
         public Employee[] employees;
     }
@@ -50,7 +51,8 @@ public class TestObjectIdDeserialization extends DatabindTestUtil {
 
     private final ObjectMapper mapper = new ObjectMapper();
 
-    public void testForwardReferenceInArray() throws Exception {
+    @Test
+    void forwardReferenceInArray() throws Exception {
         String json = "{\"employees\":["
                 + "{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"
                 + "2,"
@@ -64,7 +66,8 @@ public class TestObjectIdDeserialization extends DatabindTestUtil {
     }
 
     // Do a specific test for ArrayBlockingQueue since it has its own deser.
-    public void testForwardReferenceInQueue() throws Exception {
+    @Test
+    void forwardReferenceInQueue() throws Exception {
         String json = "{\"employees\":["
                 + "{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"
                 + "2,"
@@ -77,7 +80,8 @@ public class TestObjectIdDeserialization extends DatabindTestUtil {
         assertEmployees(firstEmployee, secondEmployee);
     }
 
-    public void testForwardReferenceInEnumMap()
+    @Test
+    void forwardReferenceInEnumMap()
             throws Exception {
         String json = "{\"employees\":{"
                 + "\"A\":{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"
@@ -91,7 +95,8 @@ public class TestObjectIdDeserialization extends DatabindTestUtil {
         assertEmployees(firstEmployee, secondEmployee);
     }
 
-    public void testForwardReferenceWithDefensiveCopy()
+    @Test
+    void forwardReferenceWithDefensiveCopy()
             throws Exception {
         String json = "{\"employees\":[" + "{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"
                 + "{\"id\":2,\"name\":\"Second\",\"manager\":1,\"reports\":[]}" + "]}";

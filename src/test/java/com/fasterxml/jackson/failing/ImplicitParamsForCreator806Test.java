@@ -6,11 +6,12 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class ImplicitParamsForCreator806Test extends DatabindTestUtil {
+class ImplicitParamsForCreator806Test extends DatabindTestUtil {
     @SuppressWarnings("serial")
     static class MyParamIntrospector extends JacksonAnnotationIntrospector {
         @Override
@@ -40,7 +41,8 @@ public class ImplicitParamsForCreator806Test extends DatabindTestUtil {
 
     // for [databind#806]: problem is that renaming occurs too late for implicitly detected
     // Creators
-    public void testImplicitNameWithNamingStrategy() throws Exception {
+    @Test
+    void implicitNameWithNamingStrategy() throws Exception {
         XY value = MAPPER.readValue(a2q("{'param_name0':1,'param_name1':2}"), XY.class);
         assertNotNull(value);
         assertEquals(1, value.x);

@@ -11,7 +11,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class RecursiveIgnoreProperties1755Test extends DatabindTestUtil
+class RecursiveIgnoreProperties1755Test extends DatabindTestUtil
 {
     // for [databind#1755]
     static class JackBase1755 {
@@ -43,7 +43,7 @@ public class RecursiveIgnoreProperties1755Test extends DatabindTestUtil
 
     // for [databind#1755]
     @Test
-    public void testRecursiveIgnore1755() throws Exception
+    void recursiveIgnore1755() throws Exception
     {
         final String JSON = a2q("{\n"
                 +"'id': '1',\n"
@@ -75,7 +75,7 @@ public class RecursiveIgnoreProperties1755Test extends DatabindTestUtil
 
     // for [databind#4417]
     @Test
-    public void testRecursiveIgnore4417() throws Exception
+    void recursiveIgnore4417() throws Exception
     {
         Item4417 result = MAPPER.readValue(a2q("{'items': [{'items': []}]}"),
                 Item4417.class);

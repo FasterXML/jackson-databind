@@ -4,10 +4,11 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.InjectableValues;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class ObjectIdWithInjectable639Test extends DatabindTestUtil {
+class ObjectIdWithInjectable639Test extends DatabindTestUtil {
     // for [databind#639]
     @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
     public static final class Parent2 {
@@ -31,7 +32,8 @@ public class ObjectIdWithInjectable639Test extends DatabindTestUtil {
     }
 
     // for [databind#639]
-    public void testObjectIdWithInjectable() throws Exception {
+    @Test
+    void objectIdWithInjectable() throws Exception {
         ObjectMapper mapper = new ObjectMapper()
                 .setInjectableValues(new InjectableValues.Std().
                         addValue("context", "Stuff"));

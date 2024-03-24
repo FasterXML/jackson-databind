@@ -6,11 +6,11 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class ExternalTypeIdWithUnwrapped2039Test extends DatabindTestUtil {
+class ExternalTypeIdWithUnwrapped2039Test extends DatabindTestUtil {
     static class MainType2039 {
         public String text;
 
@@ -42,7 +42,8 @@ public class ExternalTypeIdWithUnwrapped2039Test extends DatabindTestUtil {
         public boolean bool;
     }
 
-    public void testExternalWithUnwrapped2039() throws Exception {
+    @Test
+    void externalWithUnwrapped2039() throws Exception {
         final ObjectMapper mapper = newJsonMapper();
 
         final String json = a2q("{\n"
@@ -60,6 +61,6 @@ public class ExternalTypeIdWithUnwrapped2039Test extends DatabindTestUtil {
 
         assertNotNull(main.sub);
         assertEquals(SubA2039.class, main.sub.getClass()); // <- fails here
-        assertEquals(true, ((SubA2039) main.sub).bool);
+        assertTrue(((SubA2039) main.sub).bool);
     }
 }

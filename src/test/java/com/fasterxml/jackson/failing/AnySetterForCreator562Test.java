@@ -12,7 +12,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class AnySetterForCreator562Test extends DatabindTestUtil
+class AnySetterForCreator562Test extends DatabindTestUtil
 {
     // [databind#562]
     static class POJO562
@@ -34,13 +34,13 @@ public class AnySetterForCreator562Test extends DatabindTestUtil
 
     // [databind#562]
     @Test
-    public void testAnySetterViaCreator562() throws Exception
+    void anySetterViaCreator562() throws Exception
     {
         POJO562 pojo = MAPPER.readValue(a2q(
                 "{'a':'value', 'b':42}"
                 ),
                 POJO562.class);
-        assertEquals(pojo.a, "value");
+        assertEquals("value", pojo.a);
         assertEquals(Collections.singletonMap("b", Integer.valueOf(42)),
                 pojo.stuff);
     }

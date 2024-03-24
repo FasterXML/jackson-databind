@@ -7,13 +7,14 @@ import com.fasterxml.jackson.databind.InjectableValues;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import org.junit.jupiter.api.Test;
 
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // [databind#2678]: constructor-passed data overridden via field/setter injection
-public class JacksonInject2678Test extends DatabindTestUtil {
+class JacksonInject2678Test extends DatabindTestUtil {
     // [databind#2678]
     protected static class Some {
         private String field1;
@@ -39,7 +40,8 @@ public class JacksonInject2678Test extends DatabindTestUtil {
     }
 
     // [databind#2678]
-    public void testReadValueInjectables() throws Exception {
+    @Test
+    void readValueInjectables() throws Exception {
         final InjectableValues injectableValues =
                 new InjectableValues.Std().addValue("defaultValueForField2", "somedefaultValue");
         final ObjectMapper mapper = JsonMapper.builder()

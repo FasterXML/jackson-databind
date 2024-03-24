@@ -6,17 +6,19 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // [databund#3194]: Discrepancy between Type Id inclusion on serialization vs
 // expectation during deserialization causes mismatch and fails deserialization.
-public class PolymorphicArrays3194Test extends DatabindTestUtil {
+class PolymorphicArrays3194Test extends DatabindTestUtil {
     static final class SomeBean {
         public Object[][] value;
     }
 
-    public void testTwoDimensionalArrayMapping() throws Exception {
+    @Test
+    void twoDimensionalArrayMapping() throws Exception {
         PolymorphicTypeValidator typeValidator = BasicPolymorphicTypeValidator.builder()
                 .allowIfSubTypeIsArray()
                 .allowIfSubType(Object.class)

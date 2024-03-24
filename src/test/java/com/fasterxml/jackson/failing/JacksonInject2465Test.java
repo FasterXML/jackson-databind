@@ -4,12 +4,13 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.InjectableValues;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 // [databind#2465]
-public class JacksonInject2465Test extends DatabindTestUtil {
+class JacksonInject2465Test extends DatabindTestUtil {
     // [databind#2465]
     public static final class TestCase2465 {
         // 17-Apr-2020, tatu: Forcing this to be ignored will work around the
@@ -43,7 +44,8 @@ public class JacksonInject2465Test extends DatabindTestUtil {
     }
 
     // [databind#2465]
-    public void testInjectWithCreator() throws Exception {
+    @Test
+    void injectWithCreator() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
                 .defaultSetterInfo(JsonSetter.Value.construct(Nulls.AS_EMPTY, Nulls.AS_EMPTY))
                 .build();

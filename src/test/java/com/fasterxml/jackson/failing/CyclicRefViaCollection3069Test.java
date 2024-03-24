@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
@@ -15,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * at the same level to be sometimes serialized as
  * IDs when they could have not yet been visited.
  */
-public class CyclicRefViaCollection3069Test extends DatabindTestUtil {
+class CyclicRefViaCollection3069Test extends DatabindTestUtil {
     // [databind#3069]
     @JsonIdentityInfo(
             generator = ObjectIdGenerators.PropertyGenerator.class
@@ -60,20 +61,24 @@ public class CyclicRefViaCollection3069Test extends DatabindTestUtil {
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     // [databind#3069]
-    public void testSerializationCollection() throws Exception {
+    @Test
+    void serializationCollection() throws Exception {
         testSerializationCollection(MAPPER, new TreeSet<>(abc()));
         //testSerializationEnumSet(MAPPER, EnumSet.of(addEnum(BeanEnum.class, a), addEnum(BeanEnum.class, b)));
     }
 
-    public void testSerializationList() throws Exception {
+    @Test
+    void serializationList() throws Exception {
         testSerializationIndexedList(MAPPER, abc());
     }
 
-    public void testSerializationIterable() throws Exception {
+    @Test
+    void serializationIterable() throws Exception {
         testSerializationIterable(MAPPER, new PriorityQueue<>(abc()));
     }
 
-    public void testSerializationIterator() throws Exception {
+    @Test
+    void serializationIterator() throws Exception {
         testSerializationIterator(MAPPER, abc().iterator());
     }
 
@@ -89,26 +94,26 @@ public class CyclicRefViaCollection3069Test extends DatabindTestUtil {
         return Arrays.asList(a, b, c);
     }
 
-    public void testSerializationCollection(final ObjectMapper mapper, final Collection<Bean> collection)
+    private void testSerializationCollection(final ObjectMapper mapper, final Collection<Bean> collection)
             throws Exception {
         assertEquals(getExpectedResult(), mapper.writeValueAsString(collection));
     }
 
-    public void testSerializationEnumSet(final ObjectMapper mapper, final EnumSet<?> enumSet)
+    private void testSerializationEnumSet(final ObjectMapper mapper, final EnumSet<?> enumSet)
             throws Exception {
         assertEquals(getExpectedResult(), mapper.writeValueAsString(enumSet));
     }
 
-    public void testSerializationIndexedList(final ObjectMapper mapper, final List<Bean> list) throws Exception {
+    private void testSerializationIndexedList(final ObjectMapper mapper, final List<Bean> list) throws Exception {
         assertEquals(getExpectedResult(), mapper.writeValueAsString(list));
     }
 
-    public void testSerializationIterable(final ObjectMapper mapper, final Iterable<Bean> iterable)
+    private void testSerializationIterable(final ObjectMapper mapper, final Iterable<Bean> iterable)
             throws Exception {
         assertEquals(getExpectedResult(), mapper.writeValueAsString(iterable));
     }
 
-    public void testSerializationIterator(final ObjectMapper mapper, final Iterator<Bean> iterator)
+    private void testSerializationIterator(final ObjectMapper mapper, final Iterator<Bean> iterator)
             throws Exception {
         assertEquals(getExpectedResult(), mapper.writeValueAsString(iterator));
     }

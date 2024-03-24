@@ -4,13 +4,14 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import org.junit.jupiter.api.Test;
 
 import java.beans.ConstructorProperties;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
-public class BackReference1516Test extends DatabindTestUtil {
+class BackReference1516Test extends DatabindTestUtil {
     static class ParentWithCreator {
         String id, name;
 
@@ -71,7 +72,8 @@ public class BackReference1516Test extends DatabindTestUtil {
                     "  'child': { 'id': 'def', 'name':'Bert' }\n" +
                     "}");
 
-    public void testWithParentCreator() throws Exception {
+    @Test
+    void withParentCreator() throws Exception {
         ParentWithCreator result = MAPPER.readValue(PARENT_CHILD_JSON,
                 ParentWithCreator.class);
         assertNotNull(result);
@@ -79,7 +81,8 @@ public class BackReference1516Test extends DatabindTestUtil {
         assertSame(result, result.child.parent);
     }
 
-    public void testWithParentNoCreator() throws Exception {
+    @Test
+    void withParentNoCreator() throws Exception {
         ParentWithoutCreator result = MAPPER.readValue(PARENT_CHILD_JSON,
                 ParentWithoutCreator.class);
         assertNotNull(result);

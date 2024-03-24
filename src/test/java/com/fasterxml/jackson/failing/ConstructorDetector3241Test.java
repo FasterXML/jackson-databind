@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -18,7 +19,7 @@ import java.lang.annotation.Target;
 import static org.junit.jupiter.api.Assertions.fail;
 
 // Tests for [databind#1498] (Jackson 2.12)
-public class ConstructorDetector3241Test extends DatabindTestUtil {
+class ConstructorDetector3241Test extends DatabindTestUtil {
     // Helper annotation to work around lack of implicit name access with Jackson 2.x
     @Target(ElementType.PARAMETER)
     @Retention(RetentionPolicy.RUNTIME)
@@ -55,7 +56,8 @@ public class ConstructorDetector3241Test extends DatabindTestUtil {
     }
 
     // [databind#3241]
-    public void testNullHandlingCreator3241() throws Exception {
+    @Test
+    void nullHandlingCreator3241() throws Exception {
         ObjectMapper mapper = mapperBuilder()
                 .constructorDetector(ConstructorDetector.USE_PROPERTIES_BASED) // new!
                 .defaultSetterInfo(JsonSetter.Value.construct(Nulls.FAIL, Nulls.FAIL))

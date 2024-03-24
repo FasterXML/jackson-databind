@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -12,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 // [databind#3964] MismatchedInputException, Bean not yet resolved
-public class JsonIdentityInfoAndBackReferences3964Test extends DatabindTestUtil {
+class JsonIdentityInfoAndBackReferences3964Test extends DatabindTestUtil {
     /**
      * Fails : Original test
      */
@@ -204,7 +205,8 @@ public class JsonIdentityInfoAndBackReferences3964Test extends DatabindTestUtil 
     /**
      * Fails : Original test
      */
-    public void testOriginal() throws Exception {
+    @Test
+    void original() throws Exception {
         String json = "{" +
                 "              \"id\": 1,\n" +
                 "              \"fruits\": [\n" +
@@ -235,7 +237,8 @@ public class JsonIdentityInfoAndBackReferences3964Test extends DatabindTestUtil 
     /**
      * Fails : Lean version that fails and Without getters and setters
      */
-    public void testLeanWithoutGetterAndSetters() throws Exception {
+    @Test
+    void leanWithoutGetterAndSetters() throws Exception {
         String json = a2q("{" +
                 "              'id': 1," +
                 "              'cats': [" +
@@ -267,7 +270,8 @@ public class JsonIdentityInfoAndBackReferences3964Test extends DatabindTestUtil 
      * Passes : Testing lean without getters and setters
      * and also without {@link JsonCreator}.
      */
-    public void testLeanWithoutGetterAndSettersAndCreator() throws Exception {
+    @Test
+    void leanWithoutGetterAndSettersAndCreator() throws Exception {
         String json = a2q("{" +
                 "              'id': 1," +
                 "              'squids': [" +

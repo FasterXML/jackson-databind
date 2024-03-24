@@ -4,11 +4,12 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 // [databind#4119]: READ_ONLY for Creator param (Record or POJO)
-public class CreatorWithReadOnlyParam4119Test extends DatabindTestUtil {
+class CreatorWithReadOnlyParam4119Test extends DatabindTestUtil {
     static class Bean4119 {
         String foo, bar;
 
@@ -23,7 +24,8 @@ public class CreatorWithReadOnlyParam4119Test extends DatabindTestUtil {
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#4119]: READ_ONLY for Creator param (Record or POJO)
-    public void testCreatorWithReadOnly() throws Exception {
+    @Test
+    void creatorWithReadOnly() throws Exception {
         Bean4119 bean = MAPPER.readerFor(Bean4119.class)
                 .readValue(a2q("{'foo':'a', 'bar':'b'}"));
         assertNotNull(bean);

@@ -3,6 +3,7 @@ package com.fasterxml.jackson.failing;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 // see [https://github.com/FasterXML/jackson-core/issues/384]: most likely
 // can not be fixed, but could we improve error message to indicate issue
 // with non-static type of `Car` and `Truck`, which prevent instantiation?
-public class InnerClassNonStaticCore384Test extends DatabindTestUtil {
+class InnerClassNonStaticCore384Test extends DatabindTestUtil {
     static class Fleet {
         private List<Vehicle> vehicles;
 
@@ -163,7 +164,8 @@ public class InnerClassNonStaticCore384Test extends DatabindTestUtil {
         }
     }
 
-    public void testHierarchy() throws IOException {
+    @Test
+    void hierarchy() throws IOException {
         ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance)
                 .build();

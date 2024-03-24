@@ -4,11 +4,12 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // for [databind#2438]
-public class CreatorFallback2438Test extends DatabindTestUtil {
+class CreatorFallback2438Test extends DatabindTestUtil {
     static class Creator2438 {
         int value;
 
@@ -30,7 +31,8 @@ public class CreatorFallback2438Test extends DatabindTestUtil {
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    public void testCreator2438() throws Exception {
+    @Test
+    void creator2438() throws Exception {
         // note: by default, duplicate-detection not enabled, so should not
         // throw exception. But should also NOT apply second value because
         // field/setter should NOT be used in case there is already creator property

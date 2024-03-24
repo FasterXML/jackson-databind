@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.StreamWriteFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import org.junit.jupiter.api.Test;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -17,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 // Test case for https://github.com/FasterXML/jackson-databind/issues/1298
-public class TestObjectIdWithUnwrapping1298 extends DatabindTestUtil {
+class TestObjectIdWithUnwrapping1298 extends DatabindTestUtil {
     static Long nextId = 1L;
 
     public static final class ListOfParents {
@@ -52,7 +53,8 @@ public class TestObjectIdWithUnwrapping1298 extends DatabindTestUtil {
         }
     }
 
-    public void testObjectIdWithRepeatedChild() throws Exception {
+    @Test
+    void objectIdWithRepeatedChild() throws Exception {
         ObjectMapper mapper = JsonMapper.builder()
                 // to keep output faithful to original, prevent auto-closing...
                 .disable(StreamWriteFeature.AUTO_CLOSE_CONTENT)

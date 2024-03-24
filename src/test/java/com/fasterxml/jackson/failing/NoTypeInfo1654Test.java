@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -14,7 +15,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class NoTypeInfo1654Test extends DatabindTestUtil {
+class NoTypeInfo1654Test extends DatabindTestUtil {
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
     static class Value1654 {
@@ -63,7 +64,8 @@ public class NoTypeInfo1654Test extends DatabindTestUtil {
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#1654]
-    public void testNoTypeElementOverride() throws Exception {
+    @Test
+    void noTypeElementOverride() throws Exception {
         // egular typed case
         String json = MAPPER.writeValueAsString(new Value1654TypedContainer(
                 new Value1654(1),
@@ -76,7 +78,8 @@ public class NoTypeInfo1654Test extends DatabindTestUtil {
     }
 
     // [databind#1654]
-    public void testNoTypeInfoOverrideSer() throws Exception {
+    @Test
+    void noTypeInfoOverrideSer() throws Exception {
         Value1654UntypedContainer cont = new Value1654UntypedContainer(
                 new Value1654(3),
                 new Value1654(7)
@@ -86,7 +89,8 @@ public class NoTypeInfo1654Test extends DatabindTestUtil {
     }
 
     // [databind#1654]
-    public void testNoTypeInfoOverrideDeser() throws Exception {
+    @Test
+    void noTypeInfoOverrideDeser() throws Exception {
         // and then actual failing case
         final String noTypeJson = a2q(
                 "{'values':[{'x':3},{'x': 7}] }"

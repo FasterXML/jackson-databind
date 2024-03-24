@@ -4,11 +4,12 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.InjectableValues;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import org.junit.jupiter.api.Test;
 
 // This is probably impossible to handle, in general case, since
 // there is a cycle for Parent2/Child2... unless special handling
 // could be made to ensure that
-public class TestObjectIdWithInjectables639 extends DatabindTestUtil {
+class TestObjectIdWithInjectables639 extends DatabindTestUtil {
     public static final class Context {
     }
 
@@ -61,7 +62,8 @@ public class TestObjectIdWithInjectables639 extends DatabindTestUtil {
         }
     }
 
-    public void testObjectIdWithInjectables() throws Exception {
+    @Test
+    void objectIdWithInjectables() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         Context context = new Context();
         InjectableValues iv = new InjectableValues.Std().

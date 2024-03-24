@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.testutil.NoCheckSubTypeValidator;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,7 +14,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestSetterlessProperties501 extends DatabindTestUtil {
+class TestSetterlessProperties501 extends DatabindTestUtil {
     static class Poly {
         public int id;
 
@@ -53,7 +54,8 @@ public class TestSetterlessProperties501 extends DatabindTestUtil {
     }
 
     // For [databind#501]
-    public void testSetterlessWithPolymorphic() throws Exception {
+    @Test
+    void setterlessWithPolymorphic() throws Exception {
         Issue501Bean input = new Issue501Bean("a", new Poly(13));
         ObjectMapper m = new ObjectMapper();
         assertTrue(m.isEnabled(MapperFeature.USE_GETTERS_AS_SETTERS));

@@ -8,10 +8,11 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class CreatorNullPrimitives2977Test extends DatabindTestUtil {
+class CreatorNullPrimitives2977Test extends DatabindTestUtil {
     @SuppressWarnings("serial")
     static class ABCParamIntrospector extends JacksonAnnotationIntrospector {
         @Override
@@ -45,7 +46,8 @@ public class CreatorNullPrimitives2977Test extends DatabindTestUtil {
     }
 
     // [databind#2977]
-    public void testDefaultingWithNull2977() throws Exception {
+    @Test
+    void defaultingWithNull2977() throws Exception {
         ObjectMapper mapper = jsonMapperBuilder()
                 .enable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
                 .annotationIntrospector(new ABCParamIntrospector())

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import org.junit.jupiter.api.Test;
 
 import java.beans.ConstructorProperties;
 
@@ -17,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 //  building completes, i.e. on wrong class.
 
-public class BuilderWithBackRef2686Test extends DatabindTestUtil {
+class BuilderWithBackRef2686Test extends DatabindTestUtil {
     // [databind#2686]
     public static class Container {
         Content forward;
@@ -89,7 +90,8 @@ public class BuilderWithBackRef2686Test extends DatabindTestUtil {
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
-    public void testBuildWithBackRefs2686() throws Exception {
+    @Test
+    void buildWithBackRefs2686() throws Exception {
         Container container = new Container();
         container.containerValue = "containerValue";
         Content content = new Content(container, "contentValue");

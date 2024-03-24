@@ -9,12 +9,13 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ParsingContextExtTypeId2747Test extends DatabindTestUtil {
+class ParsingContextExtTypeId2747Test extends DatabindTestUtil {
     static class Wrapper {
         @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type",
                 include = JsonTypeInfo.As.EXTERNAL_PROPERTY)
@@ -54,7 +55,8 @@ public class ParsingContextExtTypeId2747Test extends DatabindTestUtil {
     }
 
     // [databind#2747]
-    public void testLocationAccessWithExtTypeId() throws Exception {
+    @Test
+    void locationAccessWithExtTypeId() throws Exception {
         ObjectReader objectReader = newJsonMapper().readerFor(Wrapper.class);
 
         Wrapper wrapper = objectReader.readValue("{" +

@@ -5,13 +5,14 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
 // [databind#3681]: JsonSubTypes declared on multiple interfaces of a class
 // results in order-dependent resolution and outcome
-public class JsonTypeIdConflict3681Test extends DatabindTestUtil {
+class JsonTypeIdConflict3681Test extends DatabindTestUtil {
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
     @JsonSubTypes({
@@ -55,7 +56,8 @@ public class JsonTypeIdConflict3681Test extends DatabindTestUtil {
      *  private interface C extends A, B {}
      * </pre>
      */
-    public void testFailureWithTypeIdConflict() throws Exception {
+    @Test
+    void failureWithTypeIdConflict() throws Exception {
         WrapperC c = MAPPER.readValue(a2q("{'c': {'type': 'c_impl'}}"), WrapperC.class);
         assertNotNull(c);
     }

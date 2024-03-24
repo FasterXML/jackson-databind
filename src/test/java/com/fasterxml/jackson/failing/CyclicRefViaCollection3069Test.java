@@ -2,16 +2,12 @@ package com.fasterxml.jackson.failing;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.PriorityQueue;
-import java.util.TreeSet;
+import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Unit test to prove that serialization does not
@@ -19,19 +15,14 @@ import java.util.TreeSet;
  * at the same level to be sometimes serialized as
  * IDs when they could have not yet been visited.
  */
-// 02-Jul-2021, tatu: not sure if this is valid, but adding for further
-//   inspection
-public class CyclicRefViaCollection3069Test
-    extends BaseMapTest
-{
+public class CyclicRefViaCollection3069Test extends DatabindTestUtil {
     // [databind#3069]
     @JsonIdentityInfo(
             generator = ObjectIdGenerators.PropertyGenerator.class
             , property = "id"
             , scope = Bean.class
     )
-    static class Bean implements Comparable<Bean>
-    {
+    static class Bean implements Comparable<Bean> {
         final int _id;
         final String _name;
         Collection<Bean> _next;
@@ -66,33 +57,23 @@ public class CyclicRefViaCollection3069Test
         }
     }
 
-    /*
-    /**********************************************************
-    /* Test methods
-    /**********************************************************
-     */
-
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     // [databind#3069]
-    public void testSerializationCollection() throws Exception
-    {
+    public void testSerializationCollection() throws Exception {
         testSerializationCollection(MAPPER, new TreeSet<>(abc()));
         //testSerializationEnumSet(MAPPER, EnumSet.of(addEnum(BeanEnum.class, a), addEnum(BeanEnum.class, b)));
     }
 
-    public void testSerializationList() throws Exception
-    {
+    public void testSerializationList() throws Exception {
         testSerializationIndexedList(MAPPER, abc());
     }
 
-    public void testSerializationIterable() throws Exception
-    {
+    public void testSerializationIterable() throws Exception {
         testSerializationIterable(MAPPER, new PriorityQueue<>(abc()));
     }
 
-    public void testSerializationIterator() throws Exception
-    {
+    public void testSerializationIterator() throws Exception {
         testSerializationIterator(MAPPER, abc().iterator());
     }
 

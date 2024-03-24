@@ -1,16 +1,20 @@
 package com.fasterxml.jackson.failing;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.*;
-
-import com.fasterxml.jackson.databind.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 // Not sure if [databind#2572] is actually a bug, but behavior in 2.9 was
 // different from 2.10 in that no exception thrown and databind quietly just
 // left `null` for Beans as `null` even if "EMPTY" was indicated by configuration.
-public class JsonSetter2572Test extends BaseMapTest
-{
+public class JsonSetter2572Test extends DatabindTestUtil {
     static class Outer {
         @JsonProperty("inner")
         final Inner inner;

@@ -1,19 +1,23 @@
 package com.fasterxml.jackson.failing;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonMerge;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.OptBoolean;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.*;
-
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
+import static org.junit.jupiter.api.Assertions.fail;
 
 // For [databind#1921]: Creator method not used when merging even if there is
 // no feasible alternative. Unclear whether this can even theoretically be
 // improved since combination of Creator + Setter(s)/field is legit; but use
 // of Creator always means that operation is not true merge.
 // But added test just in case future brings us a good idea of way forward.
-public class MergeWithCreator1921Test extends BaseMapTest
-{
+public class MergeWithCreator1921Test extends DatabindTestUtil {
     static class Account {
         @JsonMerge(value = OptBoolean.TRUE)
         private final Validity validity;
@@ -62,8 +66,7 @@ public class MergeWithCreator1921Test extends BaseMapTest
         }
     }
 
-    public void testMergeWithCreator() throws Exception
-    {
+    public void testMergeWithCreator() throws Exception {
         final String JSON = "{ \"validity\": { \"validFrom\": \"2018-02-01\", \"validTo\": \"2018-01-31\" } }";
 
         final ObjectMapper mapper = newJsonMapper();
@@ -79,7 +82,7 @@ public class MergeWithCreator1921Test extends BaseMapTest
         try {
             Account acc = new Account(new Validity("abc", "def"));
             mapper.readerForUpdating(acc)
-                .readValue(JSON);
+                    .readValue(JSON);
             fail("Should not pass");
         } catch (ValueInstantiationException e) {
             verifyException(e, "Cannot construct");

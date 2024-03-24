@@ -1,29 +1,27 @@
 package com.fasterxml.jackson.failing;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JacksonException;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
+import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.core.JsonParser;
-
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.DeserializationConfig;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
-import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-
-public class DeserializerUpdateProperties4358Test extends BaseMapTest {
+public class DeserializerUpdateProperties4358Test extends DatabindTestUtil {
 
     static class MutableBean {
 
@@ -77,7 +75,7 @@ public class DeserializerUpdateProperties4358Test extends BaseMapTest {
 
             @Override
             public List<BeanPropertyDefinition> updateProperties(DeserializationConfig config, BeanDescription beanDesc,
-                    List<BeanPropertyDefinition> propDefs) {
+                                                                 List<BeanPropertyDefinition> propDefs) {
                 List<BeanPropertyDefinition> newPropDefs = new ArrayList<>(propDefs.size());
                 for (BeanPropertyDefinition propDef : propDefs) {
                     if (propDef.getName().equals("b")) {
@@ -92,7 +90,7 @@ public class DeserializerUpdateProperties4358Test extends BaseMapTest {
     }
 
     static final List<String> actualOrder = new CopyOnWriteArrayList<>();
-    
+
     static class OrderingDeserializer extends JsonDeserializer<String> {
 
         @Override
@@ -107,10 +105,8 @@ public class DeserializerUpdateProperties4358Test extends BaseMapTest {
 
     final ObjectMapper modifiedObjectMapper = jsonMapperBuilder().addModules(getSimpleModuleWithDeserializerModifier()).build();
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-
+    @BeforeAll
+    void setUp() {
         actualOrder.clear();
     }
 

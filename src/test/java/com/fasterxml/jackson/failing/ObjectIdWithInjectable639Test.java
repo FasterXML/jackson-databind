@@ -1,10 +1,13 @@
 package com.fasterxml.jackson.failing;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.InjectableValues;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class ObjectIdWithInjectable639Test extends BaseMapTest
-{
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+public class ObjectIdWithInjectable639Test extends DatabindTestUtil {
     // for [databind#639]
     @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
     public static final class Parent2 {
@@ -28,8 +31,7 @@ public class ObjectIdWithInjectable639Test extends BaseMapTest
     }
 
     // for [databind#639]
-    public void testObjectIdWithInjectable() throws Exception
-    {
+    public void testObjectIdWithInjectable() throws Exception {
         ObjectMapper mapper = new ObjectMapper()
                 .setInjectableValues(new InjectableValues.Std().
                         addValue("context", "Stuff"));

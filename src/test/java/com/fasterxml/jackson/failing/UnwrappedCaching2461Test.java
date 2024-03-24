@@ -1,10 +1,12 @@
 package com.fasterxml.jackson.failing;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class UnwrappedCaching2461Test extends BaseMapTest
-{
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class UnwrappedCaching2461Test extends DatabindTestUtil {
     // [databind#2461]
     static class Base {
         public String id;

@@ -3,16 +3,21 @@ package com.fasterxml.jackson.databind.ser;
 import java.io.*;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for checking handling of some of {@link MapperFeature}s
  * and {@link SerializationFeature}s for serialization.
  */
 public class SerializationFeaturesTest
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     static class CloseableBean implements Closeable
     {
@@ -41,6 +46,7 @@ public class SerializationFeaturesTest
 
     // Test for [JACKSON-282]
     @SuppressWarnings("resource")
+    @Test
     public void testCloseCloseable() throws IOException
     {
         ObjectMapper m = new ObjectMapper();
@@ -62,6 +68,7 @@ public class SerializationFeaturesTest
     }
 
     // Test for [JACKSON-289]
+    @Test
     public void testCharArrays() throws IOException
     {
         char[] chars = new char[] { 'a','b','c' };
@@ -75,6 +82,7 @@ public class SerializationFeaturesTest
     }
 
     // Test for [JACKSON-401]
+    @Test
     public void testFlushingAutomatic() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -95,6 +103,7 @@ public class SerializationFeaturesTest
         g.close();
     }
 
+    @Test
     public void testFlushingNotAutomatic() throws IOException
     {
         // but should not occur if configured otherwise
@@ -122,6 +131,7 @@ public class SerializationFeaturesTest
         g.close();
     }
 
+    @Test
     public void testSingleElementCollections() throws IOException
     {
         final ObjectWriter writer = objectWriter().with(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);

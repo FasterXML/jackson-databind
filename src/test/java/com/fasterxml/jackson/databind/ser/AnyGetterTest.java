@@ -3,6 +3,8 @@ package com.fasterxml.jackson.databind.ser;
 import java.io.IOException;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
@@ -10,8 +12,11 @@ import com.fasterxml.jackson.databind.ser.impl.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class AnyGetterTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class AnyGetterTest extends DatabindTestUtil
 {
     static class Bean
     {
@@ -181,6 +186,7 @@ public class AnyGetterTest extends BaseMapTest
     }
 
     // [databind#1458]: Allow `@JsonAnyGetter` on fields too
+    @Test
     public void testDynaFieldBean() throws Exception
     {
         DynaFieldBean b = new DynaFieldBean();
@@ -201,6 +207,7 @@ public class AnyGetterTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testSimpleAnyBean() throws Exception
     {
         String json = MAPPER.writeValueAsString(new Bean());
@@ -210,6 +217,7 @@ public class AnyGetterTest extends BaseMapTest
         assertEquals(Boolean.TRUE, map.get("a"));
     }
 
+    @Test
     public void testAnyOnly() throws Exception
     {
         ObjectMapper m;
@@ -227,6 +235,7 @@ public class AnyGetterTest extends BaseMapTest
         assertEquals("{\"a\":3}", json);
     }
 
+    @Test
     public void testAnyDisabling() throws Exception
     {
         String json = MAPPER.writeValueAsString(new NotEvenAnyBean());
@@ -234,6 +243,7 @@ public class AnyGetterTest extends BaseMapTest
     }
 
     // Trying to repro [databind#577]
+    @Test
     public void testAnyWithNull() throws Exception
     {
         MapAsAny input = new MapAsAny();
@@ -242,6 +252,7 @@ public class AnyGetterTest extends BaseMapTest
                 MAPPER.writeValueAsString(input));
     }
 
+    @Test
     public void testIssue705() throws Exception
     {
         Issue705Bean input = new Issue705Bean("key", "value");
@@ -250,6 +261,7 @@ public class AnyGetterTest extends BaseMapTest
     }
 
     // [databind#1124]
+    @Test
     public void testAnyGetterWithValueSerializer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -260,6 +272,7 @@ public class AnyGetterTest extends BaseMapTest
     }
 
     // [databind#2592]
+    @Test
     public void testAnyGetterWithMapperDefaultIncludeNonEmpty() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper()
@@ -273,6 +286,7 @@ public class AnyGetterTest extends BaseMapTest
     }
 
     // [databind#2592]
+    @Test
     public void testAnyGetterWithMapperDefaultIncludeNonEmptyAndFilterOnBean() throws Exception
     {
         FilterProvider filters = new SimpleFilterProvider()
@@ -290,6 +304,7 @@ public class AnyGetterTest extends BaseMapTest
     }
 
     // [databind#2592]
+    @Test
     public void testAnyGetterWithPropertyIncludeNonEmpty() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -302,6 +317,7 @@ public class AnyGetterTest extends BaseMapTest
     }
 
     // [databind#2592]
+    @Test
     public void testAnyGetterConfigIncludeNonEmpty() throws Exception
     {
         final ObjectMapper mapper = jsonMapperBuilder()

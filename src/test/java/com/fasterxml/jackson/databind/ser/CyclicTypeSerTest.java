@@ -2,11 +2,16 @@ package com.fasterxml.jackson.databind.ser;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Simple unit tests to verify that it is possible to handle
@@ -15,7 +20,7 @@ import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
  * trees and DAGs.
  */
 public class CyclicTypeSerTest
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     static class Bean
     {
@@ -55,6 +60,7 @@ public class CyclicTypeSerTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testLinkedButNotCyclic() throws Exception
     {
         Bean last = new Bean(null, "last");
@@ -72,6 +78,7 @@ public class CyclicTypeSerTest
         assertNull(map2.get("next"));
     }
 
+    @Test
     public void testSimpleDirectSelfReference() throws Exception
     {
         Bean selfRef = new Bean(null, "self-refs");
@@ -86,6 +93,7 @@ public class CyclicTypeSerTest
     }
 
     // [databind#2501]: Should be possible to replace null cyclic ref
+    @Test
     public void testReplacedCycle() throws Exception
     {
         Selfie2501 self1 = new Selfie2501(1);

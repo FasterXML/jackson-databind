@@ -3,11 +3,16 @@ package com.fasterxml.jackson.databind.ser.filter;
 import java.io.IOException;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class MapInclusionTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class MapInclusionTest extends DatabindTestUtil
 {
     static class NoEmptiesMapContainer {
         @JsonInclude(value=JsonInclude.Include.NON_EMPTY,
@@ -59,9 +64,10 @@ public class MapInclusionTest extends BaseMapTest
     /**********************************************************
      */
 
-    final private ObjectMapper MAPPER = objectMapper();
+    final private ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#588]
+    @Test
     public void testNonEmptyValueMapViaProp() throws IOException
     {
         String json = MAPPER.writeValueAsString(new NoEmptiesMapContainer()
@@ -70,6 +76,7 @@ public class MapInclusionTest extends BaseMapTest
         assertEquals(a2q("{}"), json);
     }
 
+    @Test
     public void testNoNullsMap() throws IOException
     {
         NoNullsMapContainer input = new NoNullsMapContainer()
@@ -79,6 +86,7 @@ public class MapInclusionTest extends BaseMapTest
         assertEquals(a2q("{'stuff':{'b':''}}"), json);
     }
 
+    @Test
     public void testNonEmptyNoNullsMap() throws IOException
     {
         NoNullsNotEmptyMapContainer input = new NoNullsNotEmptyMapContainer()
@@ -94,6 +102,7 @@ public class MapInclusionTest extends BaseMapTest
     }
 
     // [databind#2909]
+    @Test
     public void testMapViaJsonValue() throws Exception
     {
         assertEquals(a2q("{}"), MAPPER.writeValueAsString(new TopLevel2099()));

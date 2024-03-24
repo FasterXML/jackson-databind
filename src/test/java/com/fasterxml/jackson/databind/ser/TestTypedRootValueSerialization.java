@@ -2,11 +2,15 @@ package com.fasterxml.jackson.databind.ser;
 
 import java.util.*;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
 
-public class TestTypedRootValueSerialization extends BaseMapTest
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+public class TestTypedRootValueSerialization extends DatabindTestUtil
 {
     // [JACKSON-822]
     static interface Issue822Interface {
@@ -23,6 +27,7 @@ public class TestTypedRootValueSerialization extends BaseMapTest
     }
 
     // First ensure that basic interface-override works:
+    @Test
     public void testTypedSerialization() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -32,6 +37,7 @@ public class TestTypedRootValueSerialization extends BaseMapTest
     }
 
     // [JACKSON-822]: ensure that type can be coerced
+    @Test
     public void testTypedArrays() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -42,6 +48,7 @@ public class TestTypedRootValueSerialization extends BaseMapTest
     }
 
     // [JACKSON-822]: ensure that type can be coerced
+    @Test
     public void testTypedLists() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -55,6 +62,7 @@ public class TestTypedRootValueSerialization extends BaseMapTest
         assertEquals("[{\"a\":3}]", listJson);
     }
 
+    @Test
     public void testTypedMaps() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();

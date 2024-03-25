@@ -1,39 +1,52 @@
 package tools.jackson.failing;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import com.fasterxml.jackson.annotation.*;
+import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.NoCheckSubTypeValidator;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class TestSetterlessProperties501
-    extends BaseMapTest
-{
+import static org.junit.jupiter.api.Assertions.*;
+
+class TestSetterlessProperties501 extends DatabindTestUtil {
     static class Poly {
         public int id;
 
-        public Poly(int id) { this.id = id; }
-        protected Poly() { this(0); }
+        public Poly(int id) {
+            this.id = id;
+        }
+
+        protected Poly() {
+            this(0);
+        }
     }
 
     static class Issue501Bean {
-        protected Map<String,Poly> m = new HashMap<String,Poly>();
+        protected Map<String, Poly> m = new HashMap<String, Poly>();
         protected List<Poly> l = new ArrayList<Poly>();
 
-        protected Issue501Bean() { }
+        protected Issue501Bean() {
+        }
+
         public Issue501Bean(String key, Poly value) {
             m.put(key, value);
             l.add(value);
         }
 
         @JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
-        public List<Poly> getList(){
+        public List<Poly> getList() {
             return l;
         }
 
         @JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
-        public Map<String,Poly> getMap() {
+        public Map<String, Poly> getMap() {
             return m;
         }
 
@@ -41,15 +54,9 @@ public class TestSetterlessProperties501
 //        public void setList(List<Poly> l) { this.l = l; }
     }
 
-    /*
-    /**********************************************************
-    /* Unit tests
-    /**********************************************************
-     */
-
     // For [databind#501]
-    public void testSetterlessWithPolymorphic() throws Exception
-    {
+    @Test
+    void setterlessWithPolymorphic() throws Exception {
         Issue501Bean input = new Issue501Bean("a", new Poly(13));
         ObjectMapper mapper = jsonMapperBuilder()
                 .activateDefaultTyping(NoCheckSubTypeValidator.instance,

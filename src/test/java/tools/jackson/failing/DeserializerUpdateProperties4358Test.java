@@ -5,8 +5,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.JsonParser;
 
@@ -15,8 +19,11 @@ import tools.jackson.databind.annotation.JsonDeserialize;
 import tools.jackson.databind.deser.ValueDeserializerModifier;
 import tools.jackson.databind.introspect.BeanPropertyDefinition;
 import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class DeserializerUpdateProperties4358Test extends BaseMapTest {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class DeserializerUpdateProperties4358Test extends DatabindTestUtil {
 
     static class MutableBean {
 
@@ -70,7 +77,7 @@ public class DeserializerUpdateProperties4358Test extends BaseMapTest {
 
             @Override
             public List<BeanPropertyDefinition> updateProperties(DeserializationConfig config, BeanDescription beanDesc,
-                    List<BeanPropertyDefinition> propDefs) {
+                                                                 List<BeanPropertyDefinition> propDefs) {
                 List<BeanPropertyDefinition> newPropDefs = new ArrayList<>(propDefs.size());
                 for (BeanPropertyDefinition propDef : propDefs) {
                     if (propDef.getName().equals("b")) {
@@ -87,7 +94,6 @@ public class DeserializerUpdateProperties4358Test extends BaseMapTest {
     static final List<String> actualOrder = new CopyOnWriteArrayList<>();
     
     static class OrderingDeserializer extends ValueDeserializer<String> {
-
         @Override
         public String deserialize(JsonParser p, DeserializationContext ctxt) throws JacksonException {
             String value = p.getValueAsString();
@@ -100,66 +106,70 @@ public class DeserializerUpdateProperties4358Test extends BaseMapTest {
 
     final ObjectMapper modifiedObjectMapper = jsonMapperBuilder().addModules(getSimpleModuleWithDeserializerModifier()).build();
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-
+    @BeforeAll
+    void setUp() {
         actualOrder.clear();
     }
 
     // Succeeds
-    public void testMutableBeanStandard() throws Exception {
+    @Test
+    void mutableBeanStandard() throws Exception {
         MutableBean recreatedBean = stdObjectMapper.readValue("{\"a\": \"A\", \"b\": \"B\"}", MutableBean.class);
 
         assertEquals("A", recreatedBean.getA());
         assertEquals("B", recreatedBean.getB());
-        assertEquals(Arrays.asList("A", "B"), actualOrder);
+        assertEquals(actualOrder, Arrays.asList("A", "B"));
     }
 
     // Succeeds
-    public void testImmutableBeanStandard() throws Exception {
+    @Test
+    void immutableBeanStandard() throws Exception {
         ImmutableBean recreatedBean = stdObjectMapper.readValue("{\"a\": \"A\", \"b\": \"B\"}", ImmutableBean.class);
 
         assertEquals("A", recreatedBean.getA());
         assertEquals("B", recreatedBean.getB());
-        assertEquals(Arrays.asList("A", "B"), actualOrder);
+        assertEquals(actualOrder, Arrays.asList("A", "B"));
     }
 
     // Fails - shall the order in the content really define the deserialization order? Probably not the most critical thing,
     // but may create subtitle issues with interdependencies.
-    public void testMutableBeanReversedInputStandard() throws Exception {
+    @Test
+    void mutableBeanReversedInputStandard() throws Exception {
         MutableBean recreatedBean = stdObjectMapper.readValue("{\"b\": \"B\", \"a\": \"A\"}", MutableBean.class);
 
         assertEquals("A", recreatedBean.getA());
         assertEquals("B", recreatedBean.getB());
-        assertEquals(Arrays.asList("A", "B"), actualOrder);
+        assertEquals(actualOrder, Arrays.asList("A", "B"));
     }
 
     // Fails - shall the order in the content really define the deserialization order? Probably not the most critical thing,
     // but may create subtitle issues with interdependencies.
-    public void testImmutableBeanReversedInputStandard() throws Exception {
+    @Test
+    void immutableBeanReversedInputStandard() throws Exception {
         ImmutableBean recreatedBean = stdObjectMapper.readValue("{\"b\": \"B\", \"a\": \"A\"}", ImmutableBean.class);
 
         assertEquals("A", recreatedBean.getA());
         assertEquals("B", recreatedBean.getB());
-        assertEquals(Arrays.asList("A", "B"), actualOrder);
+        assertEquals(actualOrder, Arrays.asList("A", "B"));
     }
 
     // Shall succeed - note that the setters are called in the same order as the deserializers.
-    public void testMutableBeanUpdateOrderBuilder() throws Exception {
+    @Test
+    void mutableBeanUpdateOrderBuilder() throws Exception {
         MutableBean recreatedBean = modifiedObjectMapper.readValue("{\"a\": \"A\", \"b\": \"B\"}", MutableBean.class);
 
         assertEquals("A", recreatedBean.getA());
         assertEquals("B", recreatedBean.getB());
-        assertEquals(Arrays.asList("B", "A"), actualOrder);
+        assertEquals(actualOrder, Arrays.asList("B", "A"));
     }
 
     // Shall succeed
-    public void testImmutableBeanUpdateOrderBuilder() throws Exception {
+    @Test
+    void immutableBeanUpdateOrderBuilder() throws Exception {
         ImmutableBean recreatedBean = modifiedObjectMapper.readValue("{\"a\": \"A\", \"b\": \"B\"}", ImmutableBean.class);
 
         assertEquals("A", recreatedBean.getA());
         assertEquals("B", recreatedBean.getB());
-        assertEquals(Arrays.asList("B", "A"), actualOrder);
+        assertEquals(actualOrder, Arrays.asList("B", "A"));
     }
 }

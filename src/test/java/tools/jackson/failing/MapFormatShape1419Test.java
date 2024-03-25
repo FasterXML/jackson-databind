@@ -7,9 +7,12 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SuppressWarnings("serial")
-public class MapFormatShape1419Test extends BaseMapTest
+public class MapFormatShape1419Test extends DatabindTestUtil
 {
     @JsonPropertyOrder({ "extra" })
     static class Map476Base extends LinkedHashMap<String,Integer> {

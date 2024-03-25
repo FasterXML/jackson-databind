@@ -5,20 +5,24 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 
-import tools.jackson.databind.BaseMapTest;
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.objectid.TestObjectId.Employee;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 import tools.jackson.failing.TestObjectIdDeserialization.EnumMapCompany.FooEnum;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 /**
  * Unit test to verify handling of Object Id deserialization.
- *<p>
+ * <p>
  * NOTE: only tests that still fail, even with initial forward-ref-handling
  * code (2.4), are included here. Other cases moved to successfully
  * passing tests.
  */
-public class TestObjectIdDeserialization extends BaseMapTest
-{
+class TestObjectIdDeserialization extends DatabindTestUtil {
     static class ArrayCompany {
         public Employee[] employees;
     }
@@ -28,7 +32,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
     }
 
     static class EnumMapCompany {
-        public EnumMap<FooEnum,Employee> employees;
+        public EnumMap<FooEnum, Employee> employees;
 
         static enum FooEnum {
             A, B
@@ -40,8 +44,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
 
         static class DefensiveEmployee extends Employee {
 
-            public void setReports(List<DefensiveEmployee> reports)
-            {
+            public void setReports(List<DefensiveEmployee> reports) {
                 this.reports = new ArrayList<Employee>(reports);
             }
         }
@@ -49,19 +52,13 @@ public class TestObjectIdDeserialization extends BaseMapTest
 
     private final ObjectMapper mapper = new ObjectMapper();
 
-    /*
-    /*****************************************************
-    /* Unit tests, external id deserialization
-    /*****************************************************
-     */
-
-    public void testForwardReferenceInArray() throws Exception
-    {
+    @Test
+    void forwardReferenceInArray() throws Exception {
         String json = "{\"employees\":["
-                      + "{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"
-                      + "2,"
-                      +"{\"id\":2,\"name\":\"Second\",\"manager\":1,\"reports\":[]}"
-                      + "]}";
+                + "{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"
+                + "2,"
+                + "{\"id\":2,\"name\":\"Second\",\"manager\":1,\"reports\":[]}"
+                + "]}";
         ArrayCompany company = mapper.readValue(json, ArrayCompany.class);
         assertEquals(3, company.employees.length);
         Employee firstEmployee = company.employees[0];
@@ -70,13 +67,13 @@ public class TestObjectIdDeserialization extends BaseMapTest
     }
 
     // Do a specific test for ArrayBlockingQueue since it has its own deser.
-    public void testForwardReferenceInQueue() throws Exception
-    {
+    @Test
+    void forwardReferenceInQueue() throws Exception {
         String json = "{\"employees\":["
-                      + "{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"
-                      + "2,"
-                      +"{\"id\":2,\"name\":\"Second\",\"manager\":1,\"reports\":[]}"
-                      + "]}";
+                + "{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"
+                + "2,"
+                + "{\"id\":2,\"name\":\"Second\",\"manager\":1,\"reports\":[]}"
+                + "]}";
         ArrayBlockingQueueCompany company = mapper.readValue(json, ArrayBlockingQueueCompany.class);
         assertEquals(3, company.employees.size());
         Employee firstEmployee = company.employees.take();
@@ -84,14 +81,14 @@ public class TestObjectIdDeserialization extends BaseMapTest
         assertEmployees(firstEmployee, secondEmployee);
     }
 
-    public void testForwardReferenceInEnumMap()
-        throws Exception
-   {
+    @Test
+    void forwardReferenceInEnumMap()
+            throws Exception {
         String json = "{\"employees\":{"
-                      + "\"A\":{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"
-                      + "\"B\": 2,"
-                      + "\"C\":{\"id\":2,\"name\":\"Second\",\"manager\":1,\"reports\":[]}"
-                      + "}}";
+                + "\"A\":{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"
+                + "\"B\": 2,"
+                + "\"C\":{\"id\":2,\"name\":\"Second\",\"manager\":1,\"reports\":[]}"
+                + "}}";
         EnumMapCompany company = mapper.readValue(json, EnumMapCompany.class);
         assertEquals(3, company.employees.size());
         Employee firstEmployee = company.employees.get(FooEnum.A);
@@ -99,9 +96,9 @@ public class TestObjectIdDeserialization extends BaseMapTest
         assertEmployees(firstEmployee, secondEmployee);
     }
 
-    public void testForwardReferenceWithDefensiveCopy()
-        throws Exception
-    {
+    @Test
+    void forwardReferenceWithDefensiveCopy()
+            throws Exception {
         String json = "{\"employees\":[" + "{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"
                 + "{\"id\":2,\"name\":\"Second\",\"manager\":1,\"reports\":[]}" + "]}";
         DefensiveCompany company = mapper.readValue(json, DefensiveCompany.class);
@@ -111,8 +108,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
         assertEmployees(firstEmployee, secondEmployee);
     }
 
-    private void assertEmployees(Employee firstEmployee, Employee secondEmployee)
-    {
+    private void assertEmployees(Employee firstEmployee, Employee secondEmployee) {
         assertEquals(1, firstEmployee.id);
         assertEquals(2, secondEmployee.id);
         assertEquals(1, firstEmployee.reports.size());

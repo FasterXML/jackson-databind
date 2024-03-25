@@ -1,11 +1,16 @@
 package tools.jackson.databind.deser.builder;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class BuilderAdvancedTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class BuilderAdvancedTest extends DatabindTestUtil
 {
     @JsonDeserialize(builder=InjectableBuilderXY.class)
     static class InjectableXY
@@ -48,6 +53,7 @@ public class BuilderAdvancedTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testWithInjectable() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()

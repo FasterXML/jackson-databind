@@ -1,11 +1,15 @@
 package tools.jackson.failing;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class ObjectIdWithInjectable639Test extends BaseMapTest
-{
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+class ObjectIdWithInjectable639Test extends DatabindTestUtil {
     // for [databind#639]
     @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
     public static final class Parent2 {
@@ -29,7 +33,8 @@ public class ObjectIdWithInjectable639Test extends BaseMapTest
     }
 
     // for [databind#639]
-    public void testObjectIdWithInjectable() throws Exception
+    @Test
+    void objectIdWithInjectable() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .injectableValues(new InjectableValues.Std().

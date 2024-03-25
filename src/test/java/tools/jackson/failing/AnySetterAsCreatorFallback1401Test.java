@@ -1,6 +1,10 @@
 package tools.jackson.failing;
 
-import com.fasterxml.jackson.annotation.*;
+import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import tools.jackson.databind.*;
 import tools.jackson.databind.testutil.DatabindTestUtil;
@@ -9,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // for [databind#1401]: should allow "Any Setter" to back up otherwise
 // problematic Creator properties?
-public class AnySetterAsCreatorFallback1401Test extends DatabindTestUtil
+class AnySetterAsCreatorFallback1401Test extends DatabindTestUtil
 {
     // for [databind#1401]
     static class NoSetter1401 {
@@ -33,7 +37,8 @@ public class AnySetterAsCreatorFallback1401Test extends DatabindTestUtil
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#1401]
-    public void testCreatorNoSetter() throws Exception
+    @Test
+    void creatorNoSetter() throws Exception
     {
         NoSetter1401 b = MAPPER.readValue(a2q("{'a':1,'b':2}"),
                 NoSetter1401.class);

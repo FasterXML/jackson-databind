@@ -1,6 +1,5 @@
 package tools.jackson.failing;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JacksonInject;
@@ -10,7 +9,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import tools.jackson.databind.*;
 import tools.jackson.databind.json.JsonMapper;
 
-public class JacksonInject4218Test
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class JacksonInject4218Test
 {
     static class Dto {
         @JacksonInject("id")
@@ -55,6 +56,6 @@ public class JacksonInject4218Test
         Dto dto = reader.readValue("{}");
         String actual = dto.id;
 
-        Assertions.assertEquals("id1", actual);
+        assertEquals("id1", actual);
     }
 }

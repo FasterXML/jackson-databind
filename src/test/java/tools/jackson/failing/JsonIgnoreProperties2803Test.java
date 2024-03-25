@@ -1,13 +1,16 @@
 package tools.jackson.failing;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class JsonIgnoreProperties2803Test extends BaseMapTest
-{
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+class JsonIgnoreProperties2803Test extends DatabindTestUtil {
     // [databind#2803]
     static class Building2803 {
         @JsonIgnoreProperties({"something"})
@@ -26,8 +29,8 @@ public class JsonIgnoreProperties2803Test extends BaseMapTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // [databind#2803]
-    public void testIgnoreProps2803() throws Exception
-    {
+    @Test
+    void ignoreProps2803() throws Exception {
         final String DOC = "{\"lobby\":{\"id\":\"L1\"}}";
 
         // Important! Must do both calls, in this order

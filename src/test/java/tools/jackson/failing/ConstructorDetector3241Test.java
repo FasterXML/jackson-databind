@@ -1,6 +1,11 @@
 package tools.jackson.failing;
 
-import java.lang.annotation.*;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.Nulls;
 
@@ -10,10 +15,12 @@ import tools.jackson.databind.exc.InvalidNullException;
 import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 // Tests for [databind#1498] (Jackson 2.12)
-public class ConstructorDetector3241Test extends BaseMapTest
-{
+class ConstructorDetector3241Test extends DatabindTestUtil {
     // Helper annotation to work around lack of implicit name access with Jackson 2.x
     @Target(ElementType.PARAMETER)
     @Retention(RetentionPolicy.RUNTIME)
@@ -23,8 +30,7 @@ public class ConstructorDetector3241Test extends BaseMapTest
 
     // And annotation introspector to make use of it
     @SuppressWarnings("serial")
-    static class CtorNameIntrospector extends JacksonAnnotationIntrospector
-    {
+    static class CtorNameIntrospector extends JacksonAnnotationIntrospector {
         @Override
         public String findImplicitPropertyName(MapperConfig<?> config,
                 AnnotatedMember member) {
@@ -46,13 +52,13 @@ public class ConstructorDetector3241Test extends BaseMapTest
         }
 
         public Boolean field() {
-          return field;
+            return field;
         }
     }
 
     // [databind#3241]
-    public void testNullHandlingCreator3241() throws Exception
-    {
+    @Test
+    void nullHandlingCreator3241() throws Exception {
         ObjectMapper mapper = mapperBuilder()
                 .constructorDetector(ConstructorDetector.USE_PROPERTIES_BASED) // new!
                 .changeDefaultNullHandling(n -> n.withValueNulls(Nulls.FAIL))
@@ -65,12 +71,6 @@ public class ConstructorDetector3241Test extends BaseMapTest
             verifyException(e, "Invalid `null` value encountered");
         }
     }
-
-    /*
-    /**********************************************************************
-    /* Helper methods
-    /**********************************************************************
-     */
 
     private JsonMapper.Builder mapperBuilder() {
         return JsonMapper.builder()

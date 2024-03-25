@@ -4,15 +4,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 import tools.jackson.core.type.TypeReference;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // Tests for [databind#4118]
-public class RecursiveWildcard4118Test extends BaseMapTest
-{
+class RecursiveWildcard4118Test extends DatabindTestUtil {
     static class Tree<T extends Tree<?>> {
 
         final List<T> children;
@@ -30,7 +34,8 @@ public class RecursiveWildcard4118Test extends BaseMapTest
 
         public List<T> attributes;
 
-        public TestAttribute4118() { }
+        public TestAttribute4118() {
+        }
 
         public TestAttribute4118(List<T> attributes) {
             this.attributes = attributes;
@@ -41,7 +46,8 @@ public class RecursiveWildcard4118Test extends BaseMapTest
 
         public List<TestAttribute4118<?>> attributes = new ArrayList<>();
 
-        public TestObject4118() { }
+        public TestObject4118() {
+        }
 
         public TestObject4118(List<TestAttribute4118<?>> attributes) {
             this.attributes = attributes;
@@ -51,8 +57,8 @@ public class RecursiveWildcard4118Test extends BaseMapTest
     private final ObjectMapper MAPPER = newJsonMapper();
 
     // for [databind#4118]
-    public void testRecursiveWildcard4118() throws Exception
-    {
+    @Test
+    void recursiveWildcard4118() throws Exception {
         Tree<?> tree = MAPPER.readValue("[[[]]]", new TypeReference<Tree<?>>() {
         });
 
@@ -62,8 +68,8 @@ public class RecursiveWildcard4118Test extends BaseMapTest
     }
 
     // for [databind#4118]
-    public void testDeserWildcard4118() throws Exception
-    {
+    @Test
+    void deserWildcard4118() throws Exception {
         // Given
         TestAttribute4118<?> a = new TestAttribute4118<>(null);
         TestAttribute4118<?> b = new TestAttribute4118<>(_listOf(a));

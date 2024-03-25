@@ -5,8 +5,11 @@ import java.beans.ConstructorProperties;
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class Creator2008Test extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class Creator2008Test extends DatabindTestUtil
 {
     public static class Person {
         @JsonIgnore

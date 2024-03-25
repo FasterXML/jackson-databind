@@ -1,21 +1,25 @@
 package tools.jackson.failing;
 
+import org.junit.jupiter.api.Test;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.cfg.MapperConfig;
 import tools.jackson.databind.introspect.AnnotatedMember;
 import tools.jackson.databind.introspect.AnnotatedParameter;
 import tools.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class ImplicitParamsForCreator806Test extends BaseMapTest
-{
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+class ImplicitParamsForCreator806Test extends DatabindTestUtil {
     @SuppressWarnings("serial")
-    static class MyParamIntrospector extends JacksonAnnotationIntrospector
-    {
+    static class MyParamIntrospector extends JacksonAnnotationIntrospector {
         @Override
         public String findImplicitPropertyName(MapperConfig<?> config, AnnotatedMember param) {
             if (param instanceof AnnotatedParameter) {
                 AnnotatedParameter ap = (AnnotatedParameter) param;
-                return "paramName"+ap.getIndex();
+                return "paramName" + ap.getIndex();
             }
             return super.findImplicitPropertyName(config, param);
         }
@@ -40,7 +44,7 @@ public class ImplicitParamsForCreator806Test extends BaseMapTest
 
     // for [databind#806]: problem is that renaming occurs too late for implicitly detected
     // Creators
-    public void testImplicitNameWithNamingStrategy() throws Exception
+    public void implicitNameWithNamingStrategy() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
                 .propertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE)

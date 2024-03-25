@@ -1,6 +1,7 @@
 package tools.jackson.databind.ser.filter;
 
 import tools.jackson.core.*;
+
 import tools.jackson.databind.*;
 import tools.jackson.databind.annotation.JsonSerialize;
 import tools.jackson.databind.cfg.GeneratorSettings;
@@ -11,9 +12,12 @@ import tools.jackson.databind.ser.SerializationContextExt;
 import tools.jackson.databind.ser.SerializerCache;
 import tools.jackson.databind.ser.SerializerFactory;
 import tools.jackson.databind.ser.std.StdSerializer;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CustomNullSerializationTest
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     static class NullAsFoobarSerializer extends StdSerializer<Object>
     {

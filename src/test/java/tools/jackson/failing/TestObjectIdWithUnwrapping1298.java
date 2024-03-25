@@ -4,21 +4,29 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
+
 import tools.jackson.core.StreamWriteFeature;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 // Test case for https://github.com/FasterXML/jackson-databind/issues/1298
-public class TestObjectIdWithUnwrapping1298 extends BaseMapTest
-{
+class TestObjectIdWithUnwrapping1298 extends DatabindTestUtil {
     static Long nextId = 1L;
 
-    public static final class ListOfParents{
+    public static final class ListOfParents {
         public List<Parent> parents = new ArrayList<>();
 
-        public void addParent( Parent parent) { parents.add(parent);}
+        public void addParent(Parent parent) {
+            parents.add(parent);
+        }
     }
 
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id", scope = Parent.class)
@@ -27,12 +35,14 @@ public class TestObjectIdWithUnwrapping1298 extends BaseMapTest
 
         @JsonUnwrapped
         public Child child;
-        public Parent() { this.id = nextId++;}
+
+        public Parent() {
+            this.id = nextId++;
+        }
     }
 
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id", scope = Child.class)
-    public static final class Child
-    {
+    public static final class Child {
         public Long id;
 
         public final String name;
@@ -43,7 +53,8 @@ public class TestObjectIdWithUnwrapping1298 extends BaseMapTest
         }
     }
 
-    public void testObjectIdWithRepeatedChild() throws Exception
+    @Test
+    void objectIdWithRepeatedChild() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper(JsonFactory.builder()
                 .disable(StreamWriteFeature.AUTO_CLOSE_CONTENT).build());
@@ -75,9 +86,9 @@ public class TestObjectIdWithUnwrapping1298 extends BaseMapTest
         try {
             mapper
 //                .writerWithDefaultPrettyPrinter()
-                .writeValue(sw, parents);
+                    .writeValue(sw, parents);
         } catch (Exception e) {
-            fail("Failed with "+e.getClass().getName()+", output so far: " + sw);
+            fail("Failed with " + e.getClass().getName() + ", output so far: " + sw);
         }
     }
 }

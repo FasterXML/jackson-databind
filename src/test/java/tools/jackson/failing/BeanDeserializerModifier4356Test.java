@@ -19,8 +19,8 @@ import tools.jackson.databind.testutil.DatabindTestUtil;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // [databind#4356]
-public class BeanDeserializerModifier4356Test
-    extends DatabindTestUtil
+class BeanDeserializerModifier4356Test
+        extends DatabindTestUtil
 {
     static class MutableBean4356 {
         String a;
@@ -76,15 +76,16 @@ public class BeanDeserializerModifier4356Test
     private final ObjectMapper MAPPER = jsonMapperBuilder().addModule(getSimpleModuleWithDeserializerModifier()).build();
 
     @Test // passes
-    public void testMutableBeanUpdateBuilder() throws Exception {
+    void mutableBeanUpdateBuilder() throws Exception {
         MutableBean4356 recreatedBean = MAPPER.readValue("{\"a\": \"Some value\"}",
                 MutableBean4356.class);
 
         assertEquals(CUSTOM_DESERIALIZER_VALUE, recreatedBean.getA());
     }
 
-    @Test // Fails without fix
-    public void testImmutableBeanUpdateBuilder() throws Exception {
+    // Fails without fix
+    @Test
+    void immutableBeanUpdateBuilder() throws Exception {
         ImmutableBean4356 recreatedBean = MAPPER.readValue("{\"a\": \"Some value\"}",
                 ImmutableBean4356.class);
 

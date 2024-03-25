@@ -1,14 +1,16 @@
 package tools.jackson.databind.deser.dos;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import tools.jackson.core.*;
 import tools.jackson.core.exc.StreamConstraintsException;
 import tools.jackson.core.json.JsonFactory;
 import tools.jackson.databind.*;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class DeepJsonTreeTraversingTest extends BaseMapTest
+public class DeepJsonTreeTraversingTest extends DatabindTestUtil
 {
     private final static int DEFAULT_MAX_DEPTH = StreamReadConstraints.DEFAULT_MAX_DEPTH;
     private final static int TOO_DEEP_NESTING = DEFAULT_MAX_DEPTH + 1;
@@ -24,6 +26,7 @@ public class DeepJsonTreeTraversingTest extends BaseMapTest
         final String doc = _nestedDoc(TOO_DEEP_NESTING, "[ ", "] ");
         try {
             defaultMapper.readTree(doc);
+            fail("expected StreamConstraintsException");
         } catch (StreamConstraintsException e) {
             assertThat(e.getMessage())
                 .startsWith("Document nesting depth ("+(DEFAULT_MAX_DEPTH+1)
@@ -36,6 +39,7 @@ public class DeepJsonTreeTraversingTest extends BaseMapTest
         final String doc = "{"+_nestedDoc(TOO_DEEP_NESTING, "\"x\":{", "} ") + "}";
         try {
             defaultMapper.readTree(doc);
+            fail("expected StreamConstraintsException");
         } catch (StreamConstraintsException e) {
             assertThat(e.getMessage())
                 .startsWith("Document nesting depth ("+(DEFAULT_MAX_DEPTH+1)

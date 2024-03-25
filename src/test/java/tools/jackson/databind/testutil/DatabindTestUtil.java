@@ -322,6 +322,10 @@ public class DatabindTestUtil
         return SHARED_MAPPER;
     }
 
+    protected ObjectMapper objectMapper() {
+        return sharedMapper();
+    }
+
     protected static ObjectWriter objectWriter() {
         return sharedMapper().writer();
     }
@@ -410,16 +414,26 @@ public class DatabindTestUtil
         assertTrue(location.getLineNr() > 0, "Should have positive line number");
     }
 
-    public static void verifyException(Exception e, Class<?> expType, String expMsg)
-            throws Exception
-        {
-            if (e.getClass() != expType) {
-                fail("Expected exception of type "+expType.getName()+", got "+e.getClass().getName());
-            }
-            if (expMsg != null) {
-                verifyException(e, expMsg);
-            }
+    protected void assertType(Object ob, Class<?> expType)
+    {
+        if (ob == null) {
+            fail("Expected an object of type "+expType.getName()+", got null");
         }
+        Class<?> cls = ob.getClass();
+        if (!expType.isAssignableFrom(cls)) {
+            fail("Expected type "+expType.getName()+", got "+cls.getName());
+        }
+    }
+
+    public static void verifyException(Exception e, Class<?> expType, String expMsg)
+    {
+        if (e.getClass() != expType) {
+            fail("Expected exception of type "+expType.getName()+", got "+e.getClass().getName());
+        }
+        if (expMsg != null) {
+            verifyException(e, expMsg);
+        }
+    }
 
     /**
      * @param e Exception to check

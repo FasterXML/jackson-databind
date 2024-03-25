@@ -1,65 +1,69 @@
 package tools.jackson.failing;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import tools.jackson.databind.*;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
 // This is probably impossible to handle, in general case, since
 // there is a cycle for Parent2/Child2... unless special handling
 // could be made to ensure that
-public class TestObjectIdWithInjectables639 extends BaseMapTest
-{
-        public static final class Context { }
+class TestObjectIdWithInjectables639 extends DatabindTestUtil {
+    public static final class Context {
+    }
 
-        @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
-        public static final class Parent1 {
-            public Child1 child;
+    @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
+    public static final class Parent1 {
+        public Child1 child;
 
-            public Parent1() { }
+        public Parent1() {
+        }
+    }
+
+    @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
+    public static final class Child1 {
+
+        @JsonProperty
+        private final Parent1 parent;
+
+        @JsonCreator
+        public Child1(@JsonProperty("parent") Parent1 parent) {
+            this.parent = parent;
+        }
+    }
+
+    @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
+    public static final class Parent2 {
+
+        protected final Context context;
+
+        public Child2 child;
+
+        @JsonCreator
+        public Parent2(@JacksonInject Context context) {
+            this.context = context;
+        }
+    }
+
+    @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
+    public static final class Child2 {
+
+        protected final Context context;
+
+        @JsonProperty
+        protected Parent2 parent;
+
+        @JsonCreator
+        public Child2(@JacksonInject Context context,
+                      @JsonProperty("parent") Parent2 parent) {
+            this.context = context;
+            this.parent = parent;
         }
 
-        @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
-        public static final class Child1 {
-
-            @JsonProperty
-            private final Parent1 parent;
-
-            @JsonCreator
-            public Child1(@JsonProperty("parent") Parent1 parent) {
-                this.parent = parent;
-            }
-        }
-
-        @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
-        public static final class Parent2 {
-
-            protected final Context context;
-
-            public Child2 child;
-
-            @JsonCreator
-            public Parent2(@JacksonInject Context context) {
-                this.context = context;
-            }
-        }
-
-        @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
-        public static final class Child2 {
-
-            protected final Context context;
-
-            @JsonProperty
-            protected Parent2 parent;
-
-            @JsonCreator
-            public Child2(@JacksonInject Context context,
-                    @JsonProperty("parent") Parent2 parent) {
-                this.context = context;
-                this.parent = parent;
-            }
-        }
-
-        public void testObjectIdWithInjectables() throws Exception
+        @Test
+        void objectIdWithInjectables() throws Exception
         {
             Context context = new Context();
             InjectableValues iv = new InjectableValues.Std().
@@ -84,4 +88,5 @@ public class TestObjectIdWithInjectables639 extends BaseMapTest
 //System.out.println("This fails: " + json);
             parent2 = mapper.readValue(json, Parent2.class);
         }
+    }
 }

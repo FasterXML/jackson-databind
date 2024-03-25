@@ -8,11 +8,13 @@ import tools.jackson.core.JsonParser;
 import tools.jackson.core.StreamReadConstraints;
 import tools.jackson.core.exc.StreamConstraintsException;
 
-import tools.jackson.databind.BaseMapTest;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.testutil.DatabindTestUtil;
 
-public class DeepJsonParsingTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.fail;
+
+public class DeepJsonParsingTest extends DatabindTestUtil
 {
     private final static int DEFAULT_MAX_DEPTH = StreamReadConstraints.DEFAULT_MAX_DEPTH;
     private final static int TOO_DEEP_NESTING = DEFAULT_MAX_DEPTH + 1;

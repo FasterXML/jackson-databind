@@ -3,12 +3,17 @@ package com.fasterxml.jackson.databind.ser.filter;
 import java.io.IOException;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for checking that alternative settings for
@@ -16,7 +21,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
  * as expected.
  */
 public class JsonIncludeTest
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     static class SimpleBean
     {
@@ -202,6 +207,7 @@ public class JsonIncludeTest
 
     final private ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testGlobal() throws IOException
     {
         Map<String,Object> result = writeAndMap(MAPPER, new SimpleBean());
@@ -211,6 +217,7 @@ public class JsonIncludeTest
         assertTrue(result.containsKey("b"));
     }
 
+    @Test
     public void testNonNullByClass() throws IOException
     {
         Map<String,Object> result = writeAndMap(MAPPER, new NoNullsBean());
@@ -221,6 +228,7 @@ public class JsonIncludeTest
         assertNull(result.get("b"));
     }
 
+    @Test
     public void testNonDefaultByClass() throws IOException
     {
         NonDefaultBean bean = new NonDefaultBean();
@@ -235,6 +243,7 @@ public class JsonIncludeTest
     }
 
     // [databind#998]
+    @Test
     public void testNonDefaultByClassNoCtor() throws IOException
     {
         NonDefaultBeanXYZ bean = new NonDefaultBeanXYZ(1, 2, 0);
@@ -242,6 +251,7 @@ public class JsonIncludeTest
         assertEquals(a2q("{'x':1,'y':2}"), json);
     }
 
+    @Test
     public void testMixedMethod() throws IOException
     {
         MixedBean bean = new MixedBean();
@@ -260,17 +270,20 @@ public class JsonIncludeTest
         assertFalse(result.containsKey("a"));
     }
 
+    @Test
     public void testDefaultForEmptyList() throws IOException
     {
         assertEquals("{}", MAPPER.writeValueAsString(new ListBean()));
     }
 
     // NON_DEFAULT shoud work for arrays too
+    @Test
     public void testNonEmptyDefaultArray() throws IOException
     {
         assertEquals("{}", MAPPER.writeValueAsString(new ArrayBean()));
     }
 
+    @Test
     public void testDefaultForIntegers() throws IOException
     {
         assertEquals("{}", MAPPER.writeValueAsString(new DefaultIntBean(0, Integer.valueOf(0))));
@@ -278,6 +291,7 @@ public class JsonIncludeTest
         assertEquals("{\"i1\":3}", MAPPER.writeValueAsString(new DefaultIntBean(3, Integer.valueOf(0))));
     }
 
+    @Test
     public void testEmptyInclusionScalars() throws IOException
     {
         ObjectMapper defMapper = MAPPER;
@@ -307,6 +321,7 @@ public class JsonIncludeTest
     }
 
     // [databind#1351], [databind#1417]
+    @Test
     public void testIssue1351() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -319,6 +334,7 @@ public class JsonIncludeTest
     }
 
     // [databind#1550]
+    @Test
     public void testInclusionOfDate() throws Exception
     {
         final Date input = new Date(0L);
@@ -331,6 +347,7 @@ public class JsonIncludeTest
     }
 
     // [databind#1550]
+    @Test
     public void testInclusionOfCalendar() throws Exception
     {
         final Calendar input = new GregorianCalendar();

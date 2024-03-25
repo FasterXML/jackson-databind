@@ -3,10 +3,15 @@ package com.fasterxml.jackson.databind.ser;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestSerializerProvider
-    extends com.fasterxml.jackson.databind.BaseMapTest
+    extends DatabindTestUtil
 {
     static class MyBean {
         public int getX() { return 3; }
@@ -15,6 +20,7 @@ public class TestSerializerProvider
     static class NoPropsBean {
     }
 
+    @Test
     public void testFindExplicit() throws IOException
     {
         ObjectMapper mapper = newJsonMapper();

@@ -3,18 +3,24 @@ package com.fasterxml.jackson.databind.ser;
 import java.io.*;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.ContentReference;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for those Jackson types we want to ensure can be serialized.
  */
 public class JacksonTypesSerTest
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
+    @Test
     public void testLocation() throws IOException
     {
         File f = new File("/tmp/test.json");
@@ -34,6 +40,7 @@ public class JacksonTypesSerTest
      * Verify that {@link TokenBuffer} can be properly serialized
      * automatically, using the "standard" JSON sample document
      */
+    @Test
     public void testTokenBuffer() throws Exception
     {
         // First, copy events from known good source (StringReader)

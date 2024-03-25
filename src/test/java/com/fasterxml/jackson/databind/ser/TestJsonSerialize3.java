@@ -3,12 +3,17 @@ package com.fasterxml.jackson.databind.ser;
 import java.io.IOException;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class TestJsonSerialize3 extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class TestJsonSerialize3 extends DatabindTestUtil
 {
     // [JACKSON-829]
     static class FooToBarSerializer extends JsonSerializer<String> {
@@ -33,6 +38,7 @@ public class TestJsonSerialize3 extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testCustomContentSerializer() throws Exception
     {
         ObjectMapper m = new ObjectMapper();

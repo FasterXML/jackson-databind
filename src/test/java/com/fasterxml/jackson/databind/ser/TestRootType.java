@@ -4,6 +4,8 @@ import java.io.StringWriter;
 import java.util.*;
 
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
@@ -12,14 +14,17 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for verifying functioning of [JACKSON-195], ability to
  * force specific root type for serialization (super type of value)
  */
 public class TestRootType
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -79,9 +84,10 @@ public class TestRootType
     }
 
     @SuppressWarnings("unchecked")
+    @Test
     public void testSuperClass() throws Exception
     {
-        ObjectMapper mapper = objectMapper();
+        ObjectMapper mapper = newJsonMapper();
         SubType bean = new SubType();
 
         // first, test with dynamically detected type
@@ -101,9 +107,10 @@ public class TestRootType
         assertEquals(Integer.valueOf(3), result.get("b"));
     }
 
+    @Test
     public void testSuperInterface() throws Exception
     {
-        ObjectMapper mapper = objectMapper();
+        ObjectMapper mapper = newJsonMapper();
         SubType bean = new SubType();
 
         // let's constrain by interface:
@@ -115,6 +122,7 @@ public class TestRootType
         assertEquals(Integer.valueOf(3), result.get("b"));
     }
 
+    @Test
     public void testInArray() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()
@@ -131,9 +139,10 @@ public class TestRootType
      * Unit test to ensure that proper exception is thrown if declared
      * root type is not compatible with given value instance.
      */
+    @Test
     public void testIncompatibleRootType() throws Exception
     {
-        ObjectMapper mapper = objectMapper();
+        ObjectMapper mapper = newJsonMapper();
         SubType bean = new SubType();
 
         // and then let's try using incompatible type
@@ -154,9 +163,10 @@ public class TestRootType
         }
     }
 
+    @Test
     public void testJackson398() throws Exception
     {
-        ObjectMapper mapper = objectMapper();
+        ObjectMapper mapper = newJsonMapper();
         JavaType collectionType = TypeFactory.defaultInstance().constructCollectionType(ArrayList.class, BaseClass398.class);
         List<TestClass398> typedList = new ArrayList<TestClass398>();
         typedList.add(new TestClass398());
@@ -175,6 +185,7 @@ public class TestRootType
     }
 
     // [JACKSON-163]
+    @Test
     public void testRootWrapping() throws Exception
     {
         String json = WRAP_ROOT_MAPPER.writeValueAsString(new StringWrapper("abc"));
@@ -187,13 +198,15 @@ public class TestRootType
      * Objects); this to support frameworks that may pass unprocessed
      * {@link java.lang.reflect.Type} from field or method.
      */
+    @Test
     public void testIssue456WrapperPart() throws Exception
     {
-        ObjectMapper mapper = objectMapper();
+        ObjectMapper mapper = newJsonMapper();
         assertEquals("123", mapper.writerFor(Integer.TYPE).writeValueAsString(Integer.valueOf(123)));
         assertEquals("456", mapper.writerFor(Long.TYPE).writeValueAsString(Long.valueOf(456L)));
     }
 
+    @Test
     public void testRootNameAnnotation() throws Exception
     {
         String json = WRAP_ROOT_MAPPER.writeValueAsString(new WithRootName());
@@ -201,6 +214,7 @@ public class TestRootType
     }
 
     // [databind#412]
+    @Test
     public void testRootNameWithExplicitType() throws Exception
     {
         TestCommandChild cmd = new TestCommandChild();

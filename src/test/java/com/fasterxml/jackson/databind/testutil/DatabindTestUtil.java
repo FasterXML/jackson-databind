@@ -284,6 +284,27 @@ public class DatabindTestUtil
         }
     }
 
+    protected static class ListWrapper<T>
+    {
+        public List<T> list;
+
+        public ListWrapper(@SuppressWarnings("unchecked") T... values) {
+            list = new ArrayList<T>();
+            for (T value : values) {
+                list.add(value);
+            }
+        }
+    }
+
+    protected static class ArrayWrapper<T>
+    {
+        public T[] array;
+
+        public ArrayWrapper(T[] v) {
+            array = v;
+        }
+    }
+
     public static class BogusSchema implements FormatSchema {
         @Override
         public String getSchemaType() {
@@ -349,6 +370,18 @@ public class DatabindTestUtil
     {
         String str = m.writeValueAsString(value);
         return (Map<String,Object>) m.readValue(str, LinkedHashMap.class);
+    }
+
+    protected String serializeAsString(ObjectMapper m, Object value)
+        throws IOException
+    {
+        return m.writeValueAsString(value);
+    }
+
+    protected String serializeAsString(Object value)
+        throws IOException
+    {
+        return serializeAsString(sharedMapper(), value);
     }
 
     /*

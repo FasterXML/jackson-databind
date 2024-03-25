@@ -1,32 +1,37 @@
 package com.fasterxml.jackson.databind.ser;
 
-import com.fasterxml.jackson.core.Base64Variants;
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import com.fasterxml.jackson.core.Base64Variants;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for verifying serialization of simple basic non-structured
  * types; primitives (and/or their wrappers), Strings.
  */
 public class TestSimpleTypes
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     private final ObjectMapper MAPPER = new ObjectMapper();
 
+    @Test
     public void testBoolean() throws Exception
     {
         assertEquals("true", serializeAsString(MAPPER, Boolean.TRUE));
         assertEquals("false", serializeAsString(MAPPER, Boolean.FALSE));
     }
 
+    @Test
     public void testBooleanArray() throws Exception
     {
         assertEquals("[true,false]", serializeAsString(MAPPER, new boolean[] { true, false} ));
         assertEquals("[true,false]", serializeAsString(MAPPER, new Boolean[] { Boolean.TRUE, Boolean.FALSE} ));
     }
 
+    @Test
     public void testByteArray() throws Exception
     {
         byte[] data = { 1, 17, -3, 127, -128 };
@@ -42,6 +47,7 @@ public class TestSimpleTypes
     }
 
     // as per [Issue#42], allow Base64 variant use as well
+    @Test
     public void testBase64Variants() throws Exception
     {
         final byte[] INPUT = "abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890X".getBytes("UTF-8");
@@ -61,12 +67,14 @@ public class TestSimpleTypes
                 MAPPER.writer(Base64Variants.PEM).writeValueAsString(INPUT));
     }
 
+    @Test
     public void testShortArray() throws Exception
     {
         assertEquals("[0,1]", serializeAsString(MAPPER, new short[] { 0, 1 }));
         assertEquals("[2,3]", serializeAsString(MAPPER, new Short[] { 2, 3 }));
     }
 
+    @Test
     public void testIntArray() throws Exception
     {
         assertEquals("[0,-3]", serializeAsString(MAPPER, new int[] { 0, -3 }));
@@ -78,6 +86,7 @@ public class TestSimpleTypes
      * conversions though, to retain accuracy and round-trippability.
      * But still...
      */
+    @Test
     public void testFloat() throws Exception
     {
         double[] values = new double[] {
@@ -93,6 +102,7 @@ public class TestSimpleTypes
         }
     }
 
+    @Test
     public void testClass() throws Exception
     {
         String result = MAPPER.writeValueAsString(java.util.List.class);

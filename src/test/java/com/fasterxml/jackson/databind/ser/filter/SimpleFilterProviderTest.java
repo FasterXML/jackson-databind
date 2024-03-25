@@ -3,17 +3,22 @@ package com.fasterxml.jackson.databind.ser.filter;
 import java.util.Map;
 import java.util.LinkedHashMap;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonFilter;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests {@link SimpleFilterProvider} on registration of filters.
  */
-public class SimpleFilterProviderTest extends BaseMapTest
+public class SimpleFilterProviderTest extends DatabindTestUtil
 {
     /*
     /**********************************************************
@@ -53,6 +58,7 @@ public class SimpleFilterProviderTest extends BaseMapTest
     /**********************************************************
      */
 
+    @Test
     public void testAddFilterLastOneRemains() throws Exception {
         FilterProvider prov = new SimpleFilterProvider()
                 .addFilter("filterB", SimpleBeanPropertyFilter.serializeAll())
@@ -64,6 +70,7 @@ public class SimpleFilterProviderTest extends BaseMapTest
         assertEquals(a2q("{}"), jsonString);
     }
 
+    @Test
     public void testAddFilterLastOneRemainsFlip() throws Exception {
         FilterProvider prov = new SimpleFilterProvider()
                 .addFilter("filterB", SimpleBeanPropertyFilter.filterOutAllExcept("a"))
@@ -80,6 +87,7 @@ public class SimpleFilterProviderTest extends BaseMapTest
         assertEquals(expectedMap, actualMap);
     }
 
+    @Test
     public void testAddFilterWithEmptyStringId() throws Exception {
         FilterProvider prov = new SimpleFilterProvider()
                 .addFilter("", SimpleBeanPropertyFilter.filterOutAllExcept("d"));
@@ -95,6 +103,7 @@ public class SimpleFilterProviderTest extends BaseMapTest
         assertEquals(expectedMap, actualMap);
     }
 
+    @Test
     public void testAddingNullFilter2ThrowsException() throws Exception {
         FilterProvider prov = new SimpleFilterProvider()
                 .addFilter("filterB", null);
@@ -109,6 +118,7 @@ public class SimpleFilterProviderTest extends BaseMapTest
         }
     }
 
+    @Test
     public void testAddingNullFilterIdThrowsException() throws Exception {
         FilterProvider prov = new SimpleFilterProvider()
                 .addFilter(null, SimpleBeanPropertyFilter.serializeAll());

@@ -3,12 +3,16 @@ package com.fasterxml.jackson.databind.ser.filter;
 import java.util.Arrays;
 import java.util.EnumSet;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class JsonIncludeCollectionTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class JsonIncludeCollectionTest extends DatabindTestUtil
 {
     static class NonEmptyEnumSet {
         @JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -31,6 +35,7 @@ public class JsonIncludeCollectionTest extends BaseMapTest
 
     final private ObjectMapper MAPPER = new ObjectMapper();
 
+    @Test
     public void testEnumSet() throws Exception
     {
         assertEquals("{}", MAPPER.writeValueAsString(new NonEmptyEnumSet()));

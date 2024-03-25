@@ -2,16 +2,21 @@ package com.fasterxml.jackson.databind.ser.filter;
 
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * This unit test suite tests use of {@link JsonIgnore} annotations
  * with  bean serialization; as well as {@link JsonIgnoreType}.
  */
 public class TestSimpleSerializationIgnore
-    extends BaseMapTest
+    extends DatabindTestUtil
 {
     // Class for testing enabled {@link JsonIgnore} annotation
     final static class SizeClassEnabledIgnore
@@ -71,6 +76,7 @@ public class TestSimpleSerializationIgnore
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
+    @Test
     public void testSimpleIgnore() throws Exception
     {
         // Should see "x", not "y"
@@ -80,6 +86,7 @@ public class TestSimpleSerializationIgnore
         assertNull(result.get("y"));
     }
 
+    @Test
     public void testDisabledIgnore() throws Exception
     {
         // Should see "x" and "y"
@@ -93,6 +100,7 @@ public class TestSimpleSerializationIgnore
      * Test case to verify that ignore tag can also be disabled
      * via inheritance
      */
+    @Test
     public void testIgnoreOver() throws Exception
     {
         // should only see "y"
@@ -107,6 +115,7 @@ public class TestSimpleSerializationIgnore
         assertEquals(Integer.valueOf(2), result.get("y"));
     }
 
+    @Test
     public void testIgnoreType() throws Exception
     {
         assertEquals("{\"value\":13}", MAPPER.writeValueAsString(new NonIgnoredType()));

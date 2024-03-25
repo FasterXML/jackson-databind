@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.ser;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -7,8 +9,11 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class RequireSetterForGetterSerTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class RequireSetterForGetterSerTest extends DatabindTestUtil
 {
     // For [JACKSON-666] ("SerializationFeature of the Beast!")
     @JsonPropertyOrder(alphabetic=true)
@@ -66,7 +71,8 @@ public class RequireSetterForGetterSerTest extends BaseMapTest
     /* Test methods
     /**********************************************************************
      */
-    
+
+    @Test
     public void testGettersWithoutSetters() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
@@ -83,6 +89,7 @@ public class RequireSetterForGetterSerTest extends BaseMapTest
         assertEquals("{\"a\":3,\"c\":5,\"d\":6}", m.writeValueAsString(bean));
     }
 
+    @Test
     public void testGettersWithoutSettersOverride() throws Exception
     {
         GettersWithoutSetters2 bean = new GettersWithoutSetters2();
@@ -93,6 +100,7 @@ public class RequireSetterForGetterSerTest extends BaseMapTest
     }
 
     // for [databind#736]
+    @Test
     public void testNeedForSetters() throws Exception
     {
         ObjectMapper mapper = jsonMapperBuilder()

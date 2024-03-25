@@ -3,6 +3,8 @@ package com.fasterxml.jackson.databind.ser;
 import java.io.IOException;
 import java.util.*;
 
+import org.junit.jupiter.api.Test;
+
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -10,8 +12,11 @@ import com.fasterxml.jackson.core.JsonGenerator;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
 
-public class EnumAsMapKeyTest extends BaseMapTest
+import static org.junit.jupiter.api.Assertions.*;
+
+public class EnumAsMapKeyTest extends DatabindTestUtil
 {
     static class MapBean {
         public Map<ABCEnum,Integer> map = new HashMap<>();
@@ -95,6 +100,7 @@ public class EnumAsMapKeyTest extends BaseMapTest
 
     private final ObjectMapper MAPPER = newJsonMapper();
 
+    @Test
     public void testMapWithEnumKeys() throws Exception
     {
         MapBean bean = new MapBean();
@@ -121,18 +127,21 @@ public class EnumAsMapKeyTest extends BaseMapTest
         assertEquals(a2q("{'map':{'B':3}}"), json);
     }
 
+    @Test
     public void testCustomEnumMapKeySerializer() throws Exception {
         String json = MAPPER.writeValueAsString(new MyBean661("abc"));
         assertEquals(a2q("{'X-FOO':'abc'}"), json);
     }
 
     // [databind#594]
+    @Test
     public void testJsonValueForEnumMapKey() throws Exception {
         assertEquals(a2q("{'stuff':{'longValue':'foo'}}"),
                 MAPPER.writeValueAsString(new MyStuff594("foo")));
     }
 
     // [databind#2129]
+    @Test
     public void testEnumAsIndexForRootMap() throws Exception
     {
         final Map<Type, Integer> input = Collections.singletonMap(Type.FIRST, 3);
@@ -155,6 +164,7 @@ public class EnumAsMapKeyTest extends BaseMapTest
     }
 
     // [databind#2129]
+    @Test
     public void testEnumAsIndexForValueMap() throws Exception
     {
         final TypeContainer input = new TypeContainer(Type.SECOND, 72);

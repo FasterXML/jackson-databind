@@ -1,16 +1,19 @@
 package com.fasterxml.jackson.failing;
 
 import com.fasterxml.jackson.annotation.*;
-
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import org.junit.jupiter.api.Test;
+
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
 // [databind#3964] MismatchedInputException, Bean not yet resolved
-public class JsonIdentityInfoAndBackReferences3964Test extends BaseMapTest 
-{
+class JsonIdentityInfoAndBackReferences3964Test extends DatabindTestUtil {
     /**
      * Fails : Original test
      */
@@ -107,7 +110,7 @@ public class JsonIdentityInfoAndBackReferences3964Test extends BaseMapTest
             this.fruit = fruit;
         }
     }
-    
+
     /**
      * Fails : Lean version that fails and Without getters and setters
      */
@@ -196,20 +199,15 @@ public class JsonIdentityInfoAndBackReferences3964Test extends BaseMapTest
         public Squid squid;
     }
 
-    /*
-    /**********************************************************************
-    /* Test methods
-    /**********************************************************************
-    */
-
     final ObjectMapper MAPPER = jsonMapperBuilder()
             .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
 
     /**
      * Fails : Original test
      */
-    public void testOriginal() throws Exception {
-        String json =  "{" +
+    @Test
+    void original() throws Exception {
+        String json = "{" +
                 "              \"id\": 1,\n" +
                 "              \"fruits\": [\n" +
                 "                {\n" +
@@ -224,7 +222,7 @@ public class JsonIdentityInfoAndBackReferences3964Test extends BaseMapTest
                 "                }\n" +
                 "              ]\n" +
                 "            }";
-        
+
         try {
             Tree tree = MAPPER.readValue(json, Tree.class);
             // should reach here and pass... but throws Exception and fails
@@ -239,7 +237,8 @@ public class JsonIdentityInfoAndBackReferences3964Test extends BaseMapTest
     /**
      * Fails : Lean version that fails and Without getters and setters
      */
-    public void testLeanWithoutGetterAndSetters() throws Exception {
+    @Test
+    void leanWithoutGetterAndSetters() throws Exception {
         String json = a2q("{" +
                 "              'id': 1," +
                 "              'cats': [" +
@@ -255,7 +254,7 @@ public class JsonIdentityInfoAndBackReferences3964Test extends BaseMapTest
                 "                }" +
                 "              ]" +
                 "            }");
-        
+
         try {
             Animal animal = MAPPER.readValue(json, Animal.class);
             // should reach here and pass... but throws Exception and fails
@@ -271,7 +270,8 @@ public class JsonIdentityInfoAndBackReferences3964Test extends BaseMapTest
      * Passes : Testing lean without getters and setters
      * and also without {@link JsonCreator}.
      */
-    public void testLeanWithoutGetterAndSettersAndCreator() throws Exception {
+    @Test
+    void leanWithoutGetterAndSettersAndCreator() throws Exception {
         String json = a2q("{" +
                 "              'id': 1," +
                 "              'squids': [" +

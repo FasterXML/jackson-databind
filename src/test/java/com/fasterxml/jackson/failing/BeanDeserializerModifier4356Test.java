@@ -1,27 +1,25 @@
 package com.fasterxml.jackson.failing;
 
-import java.io.IOException;
-import java.util.Iterator;
-
-import org.junit.jupiter.api.Test;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import com.fasterxml.jackson.core.*;
-
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerBuilder;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.testutil.DatabindTestUtil;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.util.Iterator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // [databind#4356]
-public class BeanDeserializerModifier4356Test
-    extends DatabindTestUtil
+class BeanDeserializerModifier4356Test
+        extends DatabindTestUtil
 {
     static class MutableBean4356 {
         String a;
@@ -76,16 +74,18 @@ public class BeanDeserializerModifier4356Test
 
     private final ObjectMapper MAPPER = jsonMapperBuilder().addModule(getSimpleModuleWithDeserializerModifier()).build();
 
-    @Test // passes
-    public void testMutableBeanUpdateBuilder() throws JsonProcessingException {
+    // passes
+    @Test
+    void mutableBeanUpdateBuilder() throws JsonProcessingException {
         MutableBean4356 recreatedBean = MAPPER.readValue("{\"a\": \"Some value\"}",
                 MutableBean4356.class);
 
         assertEquals(CUSTOM_DESERIALIZER_VALUE, recreatedBean.getA());
     }
 
-    @Test // Fails without fix
-    public void testImmutableBeanUpdateBuilder() throws JsonProcessingException {
+    // Fails without fix
+    @Test
+    void immutableBeanUpdateBuilder() throws JsonProcessingException {
         ImmutableBean4356 recreatedBean = MAPPER.readValue("{\"a\": \"Some value\"}",
                 ImmutableBean4356.class);
 

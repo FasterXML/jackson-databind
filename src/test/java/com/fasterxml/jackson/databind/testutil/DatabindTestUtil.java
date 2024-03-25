@@ -327,6 +327,10 @@ public class DatabindTestUtil
         return SHARED_MAPPER;
     }
 
+    protected ObjectMapper objectMapper() {
+        return sharedMapper();
+    }
+
     protected static ObjectWriter objectWriter() {
         return sharedMapper().writer();
     }
@@ -414,6 +418,17 @@ public class DatabindTestUtil
     public static void assertToken(JsonToken expToken, JsonParser jp)
     {
         assertToken(expToken, jp.currentToken());
+    }
+
+    protected void assertType(Object ob, Class<?> expType)
+    {
+        if (ob == null) {
+            fail("Expected an object of type "+expType.getName()+", got null");
+        }
+        Class<?> cls = ob.getClass();
+        if (!expType.isAssignableFrom(cls)) {
+            fail("Expected type "+expType.getName()+", got "+cls.getName());
+        }
     }
 
     /**
